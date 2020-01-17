@@ -14,7 +14,7 @@ class IterativeSolver<Domain, Result, Node> extends Solver<Domain, Result, Node>
                     Domain in = cfg.getPredsOf(node)
                             .stream()
                             .map(outFlow::get)
-                            .reduce(problem.newInitialValue(), problem::meet);
+                            .reduce(problem.newInitialValue(cfg), problem::meet);
                     Domain out = problem.transfer(in, node);
                     Domain oldOut = outFlow.put(node, out);
                     if (!out.equals(oldOut)) {

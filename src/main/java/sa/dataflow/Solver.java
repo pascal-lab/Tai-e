@@ -6,6 +6,12 @@ import soot.toolkits.graph.DirectedGraph;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * @param <Domain> Type for lattice values
+ * @param <Result> Type for analysis results
+ * @param <Node> Type for nodes of control-flow graph
+ */
 abstract class Solver<Domain, Result, Node> {
 
     protected DataFlowAnalysis<Domain, Result, Node> problem;
@@ -28,7 +34,11 @@ abstract class Solver<Domain, Result, Node> {
     protected void initialize(DirectedGraph<Node> cfg) {
         outFlow = new HashMap<>();
         for (Node node : cfg) {
-            outFlow.put(node, problem.newInitialValue());
+            if (cfg.getHeads().contains(node)) {
+                outFlow.put(node, problem.getEntryInitialValue(node));
+            } else {
+                outFlow.put(node, problem.newInitialValue(cfg));
+            }
         }
     }
 

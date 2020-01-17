@@ -4,8 +4,8 @@ import soot.toolkits.graph.DirectedGraph;
 
 /**
  *
- * @param <Domain> Type for lattice value
- * @param <Result> Type for analysis result
+ * @param <Domain> Type for lattice values
+ * @param <Result> Type for analysis results
  * @param <Node> Type for nodes of control-flow graph
  */
 interface DataFlowAnalysis<Domain, Result, Node> {
@@ -18,12 +18,12 @@ interface DataFlowAnalysis<Domain, Result, Node> {
     /**
      * Returns initial value for entry node.
      */
-    Domain getEntryInitialValue(DirectedGraph<Node> cfg);
+    Domain getEntryInitialValue(Node entry);
 
     /**
      * Returns initial value for other nodes.
      */
-    Domain newInitialValue();
+    Domain newInitialValue(DirectedGraph<Node> cfg);
 
     /**
      * Meet operation for lattice values.
