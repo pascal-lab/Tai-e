@@ -26,7 +26,7 @@ interface DataFlowAnalysis<Domain, Result, Node> {
     Domain newInitialValue(DirectedGraph<Node> cfg);
 
     /**
-     * Meet operation for lattice values.
+     * Meet operation for two lattice values.
      */
     Domain meet(Domain v1, Domain v2);
 

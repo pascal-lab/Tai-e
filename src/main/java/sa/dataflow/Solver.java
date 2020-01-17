@@ -21,6 +21,10 @@ abstract class Solver<Domain, Result, Node> {
      */
     protected Map<Node, Domain> outFlow;
 
+    protected Solver(DataFlowAnalysis<Domain, Result, Node> problem) {
+        this.problem = problem;
+    }
+
     Result solve(DirectedGraph<Node> cfg) {
         if (!problem.isForward()) {
             // reverse control-flow graph for backward analysis

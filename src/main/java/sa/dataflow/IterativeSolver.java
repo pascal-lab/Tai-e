@@ -4,6 +4,10 @@ import soot.toolkits.graph.DirectedGraph;
 
 class IterativeSolver<Domain, Result, Node> extends Solver<Domain, Result, Node> {
 
+    IterativeSolver(DataFlowAnalysis<Domain, Result, Node> problem) {
+        super(problem);
+    }
+
     @Override
     protected void solveFixedPoint(DirectedGraph<Node> cfg) {
         boolean changed;
