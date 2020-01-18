@@ -1,6 +1,5 @@
 package sa.dataflow.lattice;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

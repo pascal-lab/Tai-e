@@ -1,5 +1,6 @@
-package sa.dataflow;
+package sa.dataflow.analysis;
 
+import sa.dataflow.solver.Solver;
 import soot.toolkits.graph.DirectedGraph;
 
 /**
@@ -8,7 +9,7 @@ import soot.toolkits.graph.DirectedGraph;
  * @param <Result> Type for analysis results
  * @param <Node> Type for nodes of control-flow graph
  */
-interface DataFlowAnalysis<Domain, Result, Node> {
+public interface DataFlowAnalysis<Domain, Result, Node> {
 
     /**
      * Returns whether the analysis is forward.

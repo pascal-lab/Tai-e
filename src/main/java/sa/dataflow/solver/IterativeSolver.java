@@ -1,5 +1,6 @@
-package sa.dataflow;
+package sa.dataflow.solver;
 
+import sa.dataflow.analysis.DataFlowAnalysis;
 import soot.toolkits.graph.DirectedGraph;
 
 class IterativeSolver<Domain, Result, Node> extends Solver<Domain, Result, Node> {

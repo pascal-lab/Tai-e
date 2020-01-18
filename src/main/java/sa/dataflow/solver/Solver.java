@@ -1,5 +1,6 @@
-package sa.dataflow;
+package sa.dataflow.solver;
 
+import sa.dataflow.analysis.DataFlowAnalysis;
 import sa.util.ReversedDirectedGraph;
 import soot.toolkits.graph.DirectedGraph;
 
@@ -12,7 +13,7 @@ import java.util.Map;
  * @param <Result> Type for analysis results
  * @param <Node> Type for nodes of control-flow graph
  */
-abstract class Solver<Domain, Result, Node> {
+public abstract class Solver<Domain, Result, Node> {
 
     protected DataFlowAnalysis<Domain, Result, Node> problem;
 
