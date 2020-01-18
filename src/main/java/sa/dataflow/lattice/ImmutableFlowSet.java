@@ -2,6 +2,7 @@ package sa.dataflow.lattice;
 
 import sa.util.Canonicalizer;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -31,10 +32,8 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
 
     @Override
     public FlowSet<E> add(E element) {
-        if (isTop()) {
+        if (isUniversal()) {
             return this;
-        } else if (isBottom()) {
-            return factory.newFlowSet(Collections.singleton(element));
         } else if (this.elements.contains(element)) {
             return this;
         } else {
@@ -46,11 +45,9 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
 
     @Override
     public FlowSet<E> remove(E element) {
-        if (isTop()) {
+        if (isUniversal()) {
             throw new UnsupportedOperationException(
-                    "Removing an element from TOP is not supported");
-        } else if (isBottom()) {
-            return this;
+                    "Removing an element from a universal set is not supported");
         } else if (this.elements.contains(element)){
             Set<E> elements = newSet(this.elements);
             elements.remove(element);
@@ -62,10 +59,8 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
 
     @Override
     public FlowSet<E> union(FlowSet<E> other) {
-        if (isTop()) {
-            return this;
-        } else if (isBottom()) {
-            return other;
+        if (isUniversal() || other.isUniversal()) {
+            return factory.getUniversalSet();
         } else {
             Set<E> elements = newSet(this.elements);
             elements.addAll(other.elements);
@@ -75,9 +70,9 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
 
     @Override
     public FlowSet<E> intersect(FlowSet<E> other) {
-        if (isTop()) {
+        if (isUniversal()) {
             return other;
-        } else if (isBottom()) {
+        } else if (other.isUniversal()) {
             return this;
         } else {
             Set<E> elements = newSet(this.elements);
@@ -110,40 +105,28 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
         return new HashSet<>(elements);
     }
 
-    static class Factory<E> implements FlowSetFactory<E> {
+    static class Factory<E> extends FlowSetFactory<E> {
 
         private Canonicalizer<FlowSet<E>> canonicalizer;
 
-        private final FlowSet<E> TOP;
-
-        private final FlowSet<E> BOTTOM;
+        private final FlowSet<E> UNIVERSAL;
 
         private boolean isCanonicalizing = false;
 
         public Factory() {
             canonicalizer = new Canonicalizer<>();
-            TOP = canonicalize(new ImmutableFlowSet<>(Kind.TOP, null));
-            BOTTOM = canonicalize(new ImmutableFlowSet<>(Kind.BOTTOM, null));
+            UNIVERSAL = canonicalize(new ImmutableFlowSet<>(Kind.UNIVERSAL, null));
         }
 
         @Override
-        public FlowSet<E> getTop() {
-            return TOP;
-        }
-
-        @Override
-        public FlowSet<E> getBottom() {
-            return BOTTOM;
+        public FlowSet<E> getUniversalSet() {
+            return UNIVERSAL;
         }
 
         @Override
         public FlowSet<E> newFlowSet(Set<E> elements) {
-            if (elements.isEmpty()) {
-                return BOTTOM;
-            } else {
-                return canonicalize(new ImmutableFlowSet<>(Kind.NORMAL,
-                        Collections.unmodifiableSet(elements)));
-            }
+            return canonicalize(new ImmutableFlowSet<>(Kind.NORMAL,
+                    Collections.unmodifiableSet(elements)));
         }
 
         private FlowSet<E> canonicalize(ImmutableFlowSet<E> fs) {

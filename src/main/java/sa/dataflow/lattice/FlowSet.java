@@ -15,27 +15,6 @@ public abstract class FlowSet<E> {
     protected Set<E> elements;
 
     /**
-     * Returns if this FlowSet is the TOP value.
-     */
-    public boolean isTop() {
-        return kind == Kind.TOP;
-    }
-
-    /**
-     * Returns if this FlowSet is the BOTTOM value.
-     */
-    public boolean isBottom() {
-        return kind == Kind.BOTTOM;
-    }
-
-    /**
-     * Returns if this FlowSet is neither TOP nor BOTTOM.
-     */
-    public boolean isNormal() {
-        return kind != Kind.TOP && kind != Kind.BOTTOM;
-    }
-
-    /**
      * Adds an element to this FlowSet, returns the resulting FlowSet.
      */
     public abstract FlowSet<E> add(E element);
@@ -62,12 +41,24 @@ public abstract class FlowSet<E> {
         return elements;
     }
 
+    /**
+     * Returns if this FlowSet represents an empty set.
+     */
+    public boolean isEmpty() {
+        return !isUniversal() && elements.isEmpty();
+    }
+
+    /**
+     * Returns if this FlowSet represents a universal set.
+     */
+    public boolean isUniversal() {
+        return kind == Kind.UNIVERSAL;
+    }
+
     @Override
     public String toString() {
-        if (isTop()) {
-            return "FlowSet:TOP";
-        } else if (isBottom()) {
-            return "FlowSet:BOTTOM";
+        if (isUniversal()) {
+            return "FlowSet:Universal";
         } else {
             return "FlowSet:" + elements.toString();
         }

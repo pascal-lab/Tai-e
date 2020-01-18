@@ -1,5 +1,6 @@
 package sa.dataflow.lattice;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -19,10 +20,7 @@ class HashFlowSet<E> extends FlowSet<E> {
 
     @Override
     public FlowSet<E> add(E element) {
-        if (isBottom()) {
-            kind = Kind.NORMAL;
-        }
-        if (isNormal()) {
+        if (!isUniversal()) {
             elements.add(element);
         }
         return this;
@@ -30,52 +28,34 @@ class HashFlowSet<E> extends FlowSet<E> {
 
     @Override
     public FlowSet<E> remove(E element) {
-        if (isTop()) {
+        if (isUniversal()) {
             throw new UnsupportedOperationException(
-                    "Removing an element from TOP is not supported");
+                    "Removing an element from a universal set is not supported");
         }
-        if (isNormal()) {
-            elements.remove(element);
-            if (elements.isEmpty()) {
-                kind = Kind.BOTTOM;
-            }
-        }
+        elements.remove(element);
         return this;
     }
 
     @Override
     public FlowSet<E> union(FlowSet<E> other) {
-        if (!isTop()) {
-
-
+        if (isUniversal() || other.isUniversal()) {
+            kind = Kind.UNIVERSAL;
+            elements = null;
+        } else {
             elements.addAll(other.elements);
-            if (!elements.isEmpty()) {
-                kind = Kind.NORMAL;
-            }
         }
         return this;
     }
 
     @Override
     public FlowSet<E> intersect(FlowSet<E> other) {
-        if (isTop()) {
-            elements = new HashSet<>(other.elements);
-        } else {
-            elements.retainAll(other.elements);
-        }
-        if (elements.isEmpty()) {
-            kind = Kind.BOTTOM;
-        }
-
-        if (isTop()) {
-            kind = Kind.NORMAL;
-
-        }
-        if (isNormal()) {
-            elements.retainAll(other.elements);
-        }
-        if (elements.isEmpty()) {
-            kind = Kind.BOTTOM;
+        if (!other.isUniversal()) {
+            if (!isUniversal()) {
+                elements.retainAll(other.elements);
+            } else {
+                kind = Kind.NORMAL;
+                elements = new HashSet<>(other.elements);
+            }
         }
         return this;
     }
@@ -97,23 +77,15 @@ class HashFlowSet<E> extends FlowSet<E> {
                 && Objects.equals(elements, other.elements);
     }
 
-    static class Factory<E> implements FlowSetFactory<E> {
+    static class Factory<E> extends FlowSetFactory<E> {
 
         @Override
-        public FlowSet<E> getTop() {
-            return new HashFlowSet<>(Kind.TOP, null);
-        }
-
-        @Override
-        public FlowSet<E> getBottom() {
-            return new HashFlowSet<>(Kind.BOTTOM, new HashSet<>());
+        public FlowSet<E> getUniversalSet() {
+            return new HashFlowSet<>(Kind.UNIVERSAL, null);
         }
 
         @Override
         public FlowSet<E> newFlowSet(Set<E> elements) {
-            if (elements.isEmpty()) {
-                return getBottom();
-            }
             return new HashFlowSet<>(Kind.NORMAL, new HashSet<>(elements));
         }
     }

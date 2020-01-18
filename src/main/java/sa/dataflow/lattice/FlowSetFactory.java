@@ -1,12 +1,16 @@
 package sa.dataflow.lattice;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
-interface FlowSetFactory<E> {
+abstract class FlowSetFactory<E> {
 
-    FlowSet<E> getTop();
+    abstract FlowSet<E> getUniversalSet();
 
-    FlowSet<E> getBottom();
+    FlowSet<E> newFlowSet(E... elements) {
+        return newFlowSet(new HashSet<>(Arrays.asList(elements)));
+    }
 
-    FlowSet<E> newFlowSet(Set<E> elements);
+    abstract FlowSet<E> newFlowSet(Set<E> elements);
 }
