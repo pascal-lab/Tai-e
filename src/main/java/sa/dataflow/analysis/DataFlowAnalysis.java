@@ -24,7 +24,7 @@ public interface DataFlowAnalysis<Domain, Result, Node> {
     /**
      * Returns initial value for other nodes.
      */
-    Domain newInitialValue(DirectedGraph<Node> cfg);
+    Domain newInitialValue();
 
     /**
      * Meet operation for two lattice values.

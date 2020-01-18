@@ -10,7 +10,7 @@ import java.util.Set;
  *
  * @param <E> Type for elements in this set.
  */
-class HashFlowSet<E> extends FlowSet<E> {
+class HashFlowSet<E> extends AbstractFlowSet<E> {
 
     private HashFlowSet(Kind kind, Set<E> elements) {
         this.kind = kind;
@@ -41,7 +41,7 @@ class HashFlowSet<E> extends FlowSet<E> {
             kind = Kind.UNIVERSAL;
             elements = null;
         } else {
-            elements.addAll(other.elements);
+            elements.addAll(other.getElements());
         }
         return this;
     }
@@ -50,10 +50,10 @@ class HashFlowSet<E> extends FlowSet<E> {
     public FlowSet<E> intersect(FlowSet<E> other) {
         if (!other.isUniversal()) {
             if (!isUniversal()) {
-                elements.retainAll(other.elements);
+                elements.retainAll(other.getElements());
             } else {
                 kind = Kind.NORMAL;
-                elements = new HashSet<>(other.elements);
+                elements = new HashSet<>(other.getElements());
             }
         }
         return this;

@@ -42,7 +42,7 @@ public abstract class Solver<Domain, Result, Node> {
             if (cfg.getHeads().contains(node)) {
                 outFlow.put(node, problem.getEntryInitialValue(node));
             } else {
-                outFlow.put(node, problem.newInitialValue(cfg));
+                outFlow.put(node, problem.newInitialValue());
             }
         }
     }

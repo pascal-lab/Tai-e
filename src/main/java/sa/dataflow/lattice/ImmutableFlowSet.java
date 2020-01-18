@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @param <E> Type for elements in this set.
  */
-class ImmutableFlowSet<E> extends FlowSet<E> {
+class ImmutableFlowSet<E> extends AbstractFlowSet<E> {
 
     private Factory<E> factory;
 
@@ -62,7 +62,7 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
             return factory.getUniversalSet();
         } else {
             Set<E> elements = newSet(this.elements);
-            elements.addAll(other.elements);
+            elements.addAll(other.getElements());
             return factory.newFlowSet(elements);
         }
     }
@@ -75,7 +75,7 @@ class ImmutableFlowSet<E> extends FlowSet<E> {
             return this;
         } else {
             Set<E> elements = newSet(this.elements);
-            elements.retainAll(other.elements);
+            elements.retainAll(other.getElements());
             return factory.newFlowSet(elements);
         }
     }
