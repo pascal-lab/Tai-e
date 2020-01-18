@@ -1,7 +1,6 @@
-package sa.dataflow;
+package sa.dataflow.lattice;
 
 import sa.util.Canonicalizer;
-import sa.util.DeepImmutable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,13 +9,12 @@ import java.util.Set;
 
 /**
  * Represents information for data-flow analysis. A FlowSet is an element of a lattice.
- * The instances of FlowSet are immutable and canonicalized.
+ * The instances of FlowSet are canonicalized. Every operation that changes
+ * a FlowSet will result another FlowSet.
  *
  * @param <E> Type for elements in this set.
  */
-class FlowSet<E> implements DeepImmutable {
-
-    private static Canonicalizer<FlowSet<?>> canonicalizer = new Canonicalizer<>();
+class FlowSet<E> {
 
     private enum Kind {
         TOP, // the top element
@@ -24,64 +22,46 @@ class FlowSet<E> implements DeepImmutable {
         NORMAL, // other lattice elements
     }
 
-    private static final FlowSet<?> TOP = canonicalize(new FlowSet<>(Kind.TOP, null));
-
-    private static final FlowSet<?> BOTTOM = canonicalize(new FlowSet<>(Kind.BOTTOM, null));
-
-    private static boolean isCanonicalizing = false;
-
     private Kind kind;
 
     private Set<E> elements;
+
+    private Factory<E> factory;
 
     private int hashCode;
 
     private FlowSet(Kind kind, Set<E> elements) {
         this.kind = kind;
         this.elements = elements;
-        this.hashCode = 0;
-    }
-
-    static FlowSet<?> getTop() {
-        return TOP;
-    }
-
-    static FlowSet<?> getBottom() {
-        return BOTTOM;
-    }
-
-    static <E> FlowSet<E> newFlowSet(Set<E> elements) {
-        return canonicalize(new FlowSet<E>(Kind.NORMAL, elements));
     }
 
     /**
      * Returns if this FlowSet is the TOP value.
      */
     boolean isTop() {
-        return this == TOP;
+        return this == factory.getTop();
     }
 
     /**
      * Returns if this FlowSet if the BOTTOM value.
      */
     boolean isBottom() {
-        return this == BOTTOM;
+        return this == factory.getBottom();
     }
 
     FlowSet<E> add(E element) {
         FlowSet<E> fs;
         if (isTop()) {
-            fs = this;
+            return this;
         } else if (isBottom()) {
-            fs = new FlowSet<>(Kind.NORMAL, Collections.singleton(element));
+            return factory.newFlowSet(Collections.singleton(element));
         } else if (this.elements.contains(element)) {
-            fs = this;
+            return this;
         } else {
             Set<E> elements = newSet(this.elements);
             elements.add(element);
-            fs = new FlowSet<>(Kind.NORMAL, elements);
+            return factory.newFlowSet(elements);
         }
-        return canonicalize(fs);
     }
 
     FlowSet<E> remove(E element) {
@@ -93,7 +73,7 @@ class FlowSet<E> implements DeepImmutable {
         } else if (this.elements.contains(element)){
             Set<E> elements = newSet(this.elements);
             elements.remove(element);
-            return canonicalize(new FlowSet<>(Kind.NORMAL, elements));
+            return factory.newFlowSet(elements);
         } else {
             return this;
         }
@@ -107,7 +87,7 @@ class FlowSet<E> implements DeepImmutable {
         } else {
             Set<E> elements = newSet(this.elements);
             elements.addAll(other.elements);
-            return canonicalize(new FlowSet<>(Kind.NORMAL, elements));
+            return factory.newFlowSet(elements);
         }
     }
 
@@ -119,7 +99,7 @@ class FlowSet<E> implements DeepImmutable {
         } else {
             Set<E> elements = newSet(this.elements);
             elements.retainAll(other.elements);
-            return canonicalize(new FlowSet<>(Kind.NORMAL, elements));
+            return factory.newFlowSet(elements);
         }
     }
 
@@ -130,7 +110,7 @@ class FlowSet<E> implements DeepImmutable {
 
     @Override
     public boolean equals(Object obj) {
-        if (!isCanonicalizing) {
+        if (!factory.isCanonicalizing) {
             return this == obj;
         } else if (this == obj) {
             return true;
@@ -139,7 +119,8 @@ class FlowSet<E> implements DeepImmutable {
         }
         FlowSet<?> other = (FlowSet<?>) obj;
         return Objects.equals(kind, other.kind)
-                && Objects.equals(elements, other.elements);
+                && Objects.equals(elements, other.elements)
+                && Objects.equals(factory, other.factory);
     }
 
     @Override
@@ -153,18 +134,49 @@ class FlowSet<E> implements DeepImmutable {
         }
     }
 
-    private static <E> Set<E> newSet(Set<E> elements) {
+    private Set<E> newSet(Set<E> elements) {
         return new HashSet<>(elements);
     }
 
-    private static <E> FlowSet<E> canonicalize(FlowSet<E> flowSet) {
-        isCanonicalizing = true;
-        FlowSet<E> r = new FlowSet<>(Kind.NORMAL,
-                Collections.unmodifiableSet(flowSet.elements));
-        r.hashCode = Objects.hash(r.kind, r.elements);
-        @SuppressWarnings("unchecked")
-        FlowSet<E> cr = (FlowSet<E>) canonicalizer.canonicalize(r);
-        isCanonicalizing = false;
-        return cr;
+    static class Factory<E> implements FlowSetFactory<E> {
+
+        private Canonicalizer<FlowSet<E>> canonicalizer;
+
+        private final FlowSet<E> TOP;
+
+        private final FlowSet<E> BOTTOM;
+
+        private boolean isCanonicalizing = false;
+
+        public Factory() {
+            canonicalizer = new Canonicalizer<>();
+            TOP = canonicalize(new FlowSet<>(Kind.TOP, null));
+            BOTTOM = canonicalize(new FlowSet<>(Kind.BOTTOM, null));
+        }
+
+        @Override
+        public FlowSet<E> getTop() {
+            return TOP;
+        }
+
+        @Override
+        public FlowSet<E> getBottom() {
+            return BOTTOM;
+        }
+
+        @Override
+        public FlowSet<E> newFlowSet(Set<E> elements) {
+            return canonicalize(new FlowSet<>(Kind.NORMAL,
+                    Collections.unmodifiableSet(elements)));
+        }
+
+        private FlowSet<E> canonicalize(FlowSet<E> fs) {
+            isCanonicalizing = true;
+            fs.factory = this;
+            fs.hashCode = Objects.hash(fs.kind, fs.elements);
+            FlowSet<E> cr = canonicalizer.canonicalize(fs);
+            isCanonicalizing = false;
+            return cr;
+        }
     }
 }

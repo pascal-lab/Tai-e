@@ -7,7 +7,7 @@ import java.util.WeakHashMap;
  * A canonicalizer based on object equality.
  * The canonicalied objects must be immutable.
  */
-public class Canonicalizer<T extends DeepImmutable> {
+public class Canonicalizer<T> {
 
     private Map<T, T> map = new WeakHashMap<>();
 
