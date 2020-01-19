@@ -13,8 +13,8 @@ public class Value {
 
     private enum Kind {
         NAC, // not a constant
-        INT, // an integer
-        BOOLEAN, // a boolean
+        INT, // an integer constant
+        BOOLEAN, // a boolean constant
         UNDEF, // undefined value
     }
 
