@@ -8,7 +8,6 @@ import org.junit.runners.Suite;
         HashFlowSetTest.class,
         ImmutableFlowSetTest.class,
         CPValueTest.class,
-        CPValueMeeterTest.class
 })
-public class LatticeTest {
+public class LatticeTestSuite {
 }

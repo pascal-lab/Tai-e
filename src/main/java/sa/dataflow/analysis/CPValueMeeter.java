@@ -1,6 +1,7 @@
-package sa.dataflow.lattice;
+package sa.dataflow.analysis;
 
 import sa.dataflow.analysis.Meeter;
+import sa.dataflow.lattice.CPValue;
 
 public class CPValueMeeter implements Meeter<CPValue> {
 

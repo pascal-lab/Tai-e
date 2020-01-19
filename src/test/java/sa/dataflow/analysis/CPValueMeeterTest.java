@@ -1,8 +1,8 @@
-package sa.dataflow.lattice;
+package sa.dataflow.analysis;
 
 import org.junit.Assert;
 import org.junit.Test;
-import sa.dataflow.analysis.Meeter;
+import sa.dataflow.lattice.CPValue;
 
 public class CPValueMeeterTest {
 
@@ -15,7 +15,7 @@ public class CPValueMeeterTest {
     private Meeter<CPValue> meeter = new CPValueMeeter();
 
     @Test
-    public void test() {
+    public void testMeet() {
         Assert.assertEquals(meeter.meet(undef, undef), undef);
         Assert.assertEquals(meeter.meet(undef, i0), i0);
         Assert.assertEquals(meeter.meet(undef, bTrue), bTrue);

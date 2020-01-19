@@ -1,5 +1,7 @@
 package sa.dataflow.lattice;
 
+import sa.dataflow.analysis.CPValueMeeter;
+
 import java.util.LinkedHashMap;
 
 /**
