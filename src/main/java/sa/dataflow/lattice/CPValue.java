@@ -57,6 +57,10 @@ public class CPValue {
         return kind == Kind.BOOLEAN;
     }
 
+    public boolean isConstant() {
+        return isInt() || isBool();
+    }
+
     public boolean isUndef() {
         return kind == Kind.UNDEF;
     }
@@ -99,13 +103,13 @@ public class CPValue {
     public String toString() {
         switch (kind) {
             case NAC:
-                return "CPValue[NAC]";
+                return "NAC";
             case INT:
-                return "CPValue[integer]:" + intValue;
+                return Integer.toString(intValue);
             case BOOLEAN:
-                return "CPValue[boolean]:" + boolValue;
+                return Boolean.toString(boolValue);
             case UNDEF:
-                return "CPValue[UNDEF]";
+                return "UNDEF";
             default:
                 throw new IllegalStateException("Unexpected value: " + kind);
         }
