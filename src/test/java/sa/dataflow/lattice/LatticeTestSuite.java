@@ -7,7 +7,6 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         HashFlowSetTest.class,
         ImmutableFlowSetTest.class,
-        CPValueTest.class,
 })
 public class LatticeTestSuite {
 }

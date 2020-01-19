@@ -1,11 +1,12 @@
-package sa.dataflow.analysis;
+package sa.dataflow.cp;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        CPValueMeeterTest.class
+        ValueMeeterTest.class,
+        ValueTest.class,
 })
-public class AnalysisTestSuite {
+public class CPTestSuite {
 }

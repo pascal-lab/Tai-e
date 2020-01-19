@@ -1,6 +1,6 @@
-package sa.dataflow.lattice;
+package sa.dataflow.cp;
 
-import sa.dataflow.analysis.CPValueMeeter;
+import sa.dataflow.lattice.AbstractFlowMap;
 
 import java.util.LinkedHashMap;
 
@@ -8,16 +8,16 @@ import java.util.LinkedHashMap;
  * Data-flow information for constant propagation, which maps each variable to
  * a corresponding CPValue.
  */
-public class CPFlowMap<K> extends AbstractFlowMap<K, CPValue> {
+public class FlowMap<K> extends AbstractFlowMap<K, Value> {
 
-    public CPFlowMap() {
-        meeter = new CPValueMeeter();
+    public FlowMap() {
+        meeter = new ValueMeeter();
         map = new LinkedHashMap<>();
     }
 
     @Override
-    public CPValue get(K key) {
-        return map.getOrDefault(key, CPValue.getUndef());
+    public Value get(K key) {
+        return map.getOrDefault(key, Value.getUndef());
     }
 
     @Override

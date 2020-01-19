@@ -5,7 +5,7 @@ import sa.dataflow.analysis.Meeter;
 import java.util.Map;
 import java.util.Set;
 
-abstract class AbstractFlowMap<K, V> implements FlowMap<K, V> {
+public abstract class AbstractFlowMap<K, V> implements FlowMap<K, V> {
 
     protected Meeter<V> meeter;
 

@@ -1,18 +1,18 @@
-package sa.dataflow.analysis;
+package sa.dataflow.cp;
 
 import org.junit.Assert;
 import org.junit.Test;
-import sa.dataflow.lattice.CPValue;
+import sa.dataflow.analysis.Meeter;
 
-public class CPValueMeeterTest {
+public class ValueMeeterTest {
 
-    private CPValue i1 = CPValue.makeInt(1);
-    private CPValue i0 = CPValue.makeInt(0);
-    private CPValue bTrue = CPValue.makeBool(true);
-    private CPValue bFalse = CPValue.makeBool(false);
-    private CPValue NAC = CPValue.getNAC();
-    private CPValue undef = CPValue.getUndef();
-    private Meeter<CPValue> meeter = new CPValueMeeter();
+    private Value i1 = Value.makeInt(1);
+    private Value i0 = Value.makeInt(0);
+    private Value bTrue = Value.makeBool(true);
+    private Value bFalse = Value.makeBool(false);
+    private Value NAC = Value.getNAC();
+    private Value undef = Value.getUndef();
+    private Meeter<Value> meeter = new ValueMeeter();
 
     @Test
     public void testMeet() {

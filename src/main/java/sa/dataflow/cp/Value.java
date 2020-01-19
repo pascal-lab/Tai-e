@@ -1,4 +1,4 @@
-package sa.dataflow.lattice;
+package sa.dataflow.cp;
 
 import sa.util.AnalysisException;
 import sa.util.Canonicalizer;
@@ -9,7 +9,7 @@ import java.util.Objects;
  * Possible values for constant propagation.
  * If the value is a constant, it can be an integer or a boolean.
  */
-public class CPValue {
+public class Value {
 
     private enum Kind {
         NAC, // not a constant
@@ -18,13 +18,13 @@ public class CPValue {
         UNDEF, // undefined value
     }
 
-    private static final Canonicalizer<CPValue> canonicalizer = new Canonicalizer<>();
+    private static final Canonicalizer<Value> canonicalizer = new Canonicalizer<>();
 
     private static boolean isCanonicalizing = false;
 
-    private static final CPValue NAC = canonicalize(new CPValue(Kind.NAC));
+    private static final Value NAC = canonicalize(new Value(Kind.NAC));
 
-    private static final CPValue UNDEF = canonicalize(new CPValue(Kind.UNDEF));
+    private static final Value UNDEF = canonicalize(new Value(Kind.UNDEF));
 
     private Kind kind;
 
@@ -34,11 +34,11 @@ public class CPValue {
 
     private int hashCode;
 
-    private CPValue(Kind kind) {
+    private Value(Kind kind) {
         this(kind, 0, false);
     }
 
-    private CPValue(Kind kind, int intValue, boolean boolValue) {
+    private Value(Kind kind, int intValue, boolean boolValue) {
         this.kind = kind;
         this.intValue = intValue;
         this.boolValue = boolValue;
@@ -90,10 +90,10 @@ public class CPValue {
             return this == obj;
         } else if (this == obj) {
             return true;
-        } else if (!(obj instanceof CPValue)) {
+        } else if (!(obj instanceof Value)) {
             return false;
         }
-        CPValue other = (CPValue) obj;
+        Value other = (Value) obj;
         return kind == other.kind
                 && intValue == other.intValue
                 && boolValue == other.boolValue;
@@ -115,25 +115,25 @@ public class CPValue {
         }
     }
 
-    public static CPValue getNAC() {
+    public static Value getNAC() {
         return NAC;
     }
 
-    public static CPValue makeInt(int v) {
-        return canonicalize(new CPValue(Kind.INT, v, false));
+    public static Value makeInt(int v) {
+        return canonicalize(new Value(Kind.INT, v, false));
     }
 
-    public static CPValue makeBool(boolean v) {
-        return canonicalize(new CPValue(Kind.BOOLEAN, 0, v));
+    public static Value makeBool(boolean v) {
+        return canonicalize(new Value(Kind.BOOLEAN, 0, v));
     }
 
-    public static CPValue getUndef() {
+    public static Value getUndef() {
         return UNDEF;
     }
 
-    private static CPValue canonicalize(CPValue v) {
+    private static Value canonicalize(Value v) {
         isCanonicalizing = true;
-        CPValue cv = canonicalizer.canonicalize(v);
+        Value cv = canonicalizer.canonicalize(v);
         isCanonicalizing = false;
         return cv;
     }
