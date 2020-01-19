@@ -2,6 +2,10 @@ package sa.dataflow.lattice;
 
 import java.util.Set;
 
+/**
+ * This class represents the data-flow information in product lattice
+ * (specifically, in product of two lattices) which can be seen as a map.
+ */
 public interface FlowMap<K, V> {
 
     /**
@@ -16,8 +20,8 @@ public interface FlowMap<K, V> {
     V put(K key, V value);
 
     /**
-     * Meets old value and given value, and associates the new value
-     * with given key.
+     * Meets old value and given value with the same key, and associates
+     * the new value with the key.
      * @return old value
      */
     V meetAndPut(K key, V value);
