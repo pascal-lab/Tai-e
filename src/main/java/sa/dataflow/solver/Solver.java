@@ -34,7 +34,7 @@ public abstract class Solver<Domain, Node> {
         solveFixedPoint(cfg);
     }
 
-    public Map<Node, Domain> getAnalysisResults() {
+    public Map<Node, Domain> getAnalysisResult() {
         return outFlow;
     }
 

@@ -3,11 +3,14 @@ package sa.dataflow.solver;
 import sa.dataflow.analysis.DataFlowAnalysis;
 import soot.toolkits.graph.DirectedGraph;
 
+import java.util.LinkedHashMap;
+
 class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
 
     IterativeSolver(DataFlowAnalysis<Domain, Node> problem,
                     DirectedGraph<Node> cfg) {
         super(problem, cfg);
+        outFlow = new LinkedHashMap<>();
     }
 
     @Override
