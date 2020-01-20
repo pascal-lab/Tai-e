@@ -20,13 +20,6 @@ public interface FlowMap<K, V> {
     boolean put(K key, V value);
 
     /**
-     * Meets old value and given value with the same key, and associates
-     * the new value with the key.
-     * @return whether this operation changes the map.
-     */
-    boolean meetAndPut(K key, V value);
-
-    /**
      * Returns if given key is present.
      */
     boolean containsKey(K key);

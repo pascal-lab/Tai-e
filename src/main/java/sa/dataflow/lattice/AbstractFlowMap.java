@@ -1,24 +1,15 @@
 package sa.dataflow.lattice;
 
-import sa.dataflow.analysis.Meeter;
-
 import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractFlowMap<K, V> implements FlowMap<K, V> {
-
-    protected Meeter<V> meeter;
 
     protected Map<K, V> map;
 
     @Override
     public V get(K key) {
         return map.get(key);
-    }
-
-    @Override
-    public boolean meetAndPut(K key, V value) {
-        return put(key, meeter.meet(get(key), value));
     }
 
     @Override

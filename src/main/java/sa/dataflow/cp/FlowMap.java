@@ -13,7 +13,6 @@ import java.util.Objects;
 public class FlowMap extends AbstractFlowMap<Local, Value> {
 
     public FlowMap() {
-        meeter = new ValueMeeter();
         map = new LinkedHashMap<>();
     }
 
