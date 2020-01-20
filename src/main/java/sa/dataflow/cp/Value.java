@@ -18,13 +18,9 @@ public class Value {
         UNDEF, // undefined value
     }
 
-    private static final Canonicalizer<Value> canonicalizer = new Canonicalizer<>();
+    private static final Value NAC = new Value(Kind.NAC);
 
-    private static boolean isCanonicalizing = false;
-
-    private static final Value NAC = canonicalize(new Value(Kind.NAC));
-
-    private static final Value UNDEF = canonicalize(new Value(Kind.UNDEF));
+    private static final Value UNDEF = new Value(Kind.UNDEF);
 
     private Kind kind;
 
@@ -86,9 +82,7 @@ public class Value {
 
     @Override
     public boolean equals(Object obj) {
-        if (!isCanonicalizing) {
-            return this == obj;
-        } else if (this == obj) {
+        if (this == obj) {
             return true;
         } else if (!(obj instanceof Value)) {
             return false;
@@ -120,22 +114,15 @@ public class Value {
     }
 
     public static Value makeInt(int v) {
-        return canonicalize(new Value(Kind.INT, v, false));
+        return new Value(Kind.INT, v, false);
     }
 
     public static Value makeBool(boolean v) {
-        return canonicalize(new Value(Kind.BOOLEAN, 0, v));
+        return new Value(Kind.BOOLEAN, 0, v);
     }
 
     public static Value getUndef() {
         return UNDEF;
-    }
-
-    private static Value canonicalize(Value v) {
-        isCanonicalizing = true;
-        Value cv = canonicalizer.canonicalize(v);
-        isCanonicalizing = false;
-        return cv;
     }
 
 }
