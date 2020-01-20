@@ -9,6 +9,7 @@ import soot.Unit;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
 
+import java.util.Comparator;
 import java.util.Map;
 
 public class ConstantPropagation extends BodyTransformer {
@@ -25,6 +26,12 @@ public class ConstantPropagation extends BodyTransformer {
 
     private void outputResult(Body body, Map<Unit, FlowMap> result) {
         System.out.println("------ " + body.getMethod() + " -----");
-        result.forEach((k, v) -> System.out.println(k + "\n" + v));
+        result.keySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Unit::getJavaSourceStartLineNumber))
+                .forEach(u ->
+                    System.out.println("L" + u.getJavaSourceStartLineNumber()
+                            + ": " + result.get(u))
+                );
     }
 }

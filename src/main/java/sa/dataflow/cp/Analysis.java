@@ -89,7 +89,9 @@ public class Analysis implements DataFlowAnalysis<FlowMap, Unit> {
             } else if (rhs instanceof BinopExpr) {
                 return toValue(in, type, (BinopExpr) rhs);
             } else {
-                throw new UnsupportedOperationException(rhs + " is not a supported");
+                // Non-supported expressions
+//                throw new UnsupportedOperationException(rhs + " is not a supported");
+                return Value.getNAC();
             }
         } else {
             throw new IllegalArgumentException(node + " is not a definition statement");

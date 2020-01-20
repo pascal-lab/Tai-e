@@ -28,6 +28,6 @@ public class FlowMap extends AbstractFlowMap<Local, Value> {
 
     @Override
     public String toString() {
-        return "CPFlowMap:" + map;
+        return "FlowMap:" + map;
     }
 }
