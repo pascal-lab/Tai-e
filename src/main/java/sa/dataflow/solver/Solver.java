@@ -10,30 +10,32 @@ import java.util.Map;
 /**
  *
  * @param <Domain> Type for lattice values
- * @param <Result> Type for analysis results
  * @param <Node> Type for nodes of control-flow graph
  */
-public abstract class Solver<Domain, Result, Node> {
+public abstract class Solver<Domain, Node> {
 
-    protected DataFlowAnalysis<Domain, Result, Node> problem;
+    protected DataFlowAnalysis<Domain, Node> problem;
+
+    protected DirectedGraph<Node> cfg;
 
     /**
      * Out-flow value of each node.
      */
     protected Map<Node, Domain> outFlow;
 
-    protected Solver(DataFlowAnalysis<Domain, Result, Node> problem) {
+    protected Solver(DataFlowAnalysis<Domain, Node> problem,
+                     DirectedGraph<Node> cfg) {
         this.problem = problem;
+        this.cfg = problem.isForward() ? cfg : new ReversedDirectedGraph<>(cfg);
     }
 
-    Result solve(DirectedGraph<Node> cfg) {
-        if (!problem.isForward()) {
-            // reverse control-flow graph for backward analysis
-            cfg = new ReversedDirectedGraph<>(cfg);
-        }
+    public void solve() {
         initialize(cfg);
         solveFixedPoint(cfg);
-        return problem.getAnalysisResult(this, cfg);
+    }
+
+    public Map<Node, Domain> getAnalysisResults() {
+        return outFlow;
     }
 
     protected void initialize(DirectedGraph<Node> cfg) {

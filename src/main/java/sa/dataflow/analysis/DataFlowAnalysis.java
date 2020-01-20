@@ -1,15 +1,11 @@
 package sa.dataflow.analysis;
 
-import sa.dataflow.solver.Solver;
-import soot.toolkits.graph.DirectedGraph;
-
 /**
  *
- * @param <Domain> Type for lattice values
- * @param <Result> Type for analysis results
+ * @param <Domain> Type for lattice values\
  * @param <Node> Type for nodes of control-flow graph
  */
-public interface DataFlowAnalysis<Domain, Result, Node> {
+public interface DataFlowAnalysis<Domain, Node> {
 
     /**
      * Returns whether the analysis is forward.
@@ -33,11 +29,9 @@ public interface DataFlowAnalysis<Domain, Result, Node> {
 
     /**
      * Transfer function for the analysis.
+     * The function transfer data-flow from in to out, and return whether
+     * the out flow has been changed by the transfer.
      */
-    Domain transfer(Domain in, Node node);
+    boolean transfer(Domain in, Node node, Domain out);
 
-    /**
-     * Collect analysis result after reaching fixed point.
-     */
-    Result getAnalysisResult(Solver<Domain, Result, Node> solver, DirectedGraph<Node> cfg);
 }

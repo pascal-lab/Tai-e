@@ -3,10 +3,11 @@ package sa.dataflow.solver;
 import sa.dataflow.analysis.DataFlowAnalysis;
 import soot.toolkits.graph.DirectedGraph;
 
-class IterativeSolver<Domain, Result, Node> extends Solver<Domain, Result, Node> {
+class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
 
-    IterativeSolver(DataFlowAnalysis<Domain, Result, Node> problem) {
-        super(problem);
+    IterativeSolver(DataFlowAnalysis<Domain, Node> problem,
+                    DirectedGraph<Node> cfg) {
+        super(problem, cfg);
     }
 
     @Override
@@ -20,11 +21,8 @@ class IterativeSolver<Domain, Result, Node> extends Solver<Domain, Result, Node>
                             .stream()
                             .map(outFlow::get)
                             .reduce(problem.newInitialValue(), problem::meet);
-                    Domain out = problem.transfer(in, node);
-                    Domain oldOut = outFlow.put(node, out);
-                    if (!out.equals(oldOut)) {
-                        changed = true;
-                    }
+                    Domain out = outFlow.get(node);
+                    changed |= problem.transfer(in, node, out);
                 }
             }
         } while (changed);

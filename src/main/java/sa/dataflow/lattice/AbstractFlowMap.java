@@ -17,13 +17,8 @@ public abstract class AbstractFlowMap<K, V> implements FlowMap<K, V> {
     }
 
     @Override
-    public V put(K key, V value) {
-        return map.put(key, value);
-    }
-
-    @Override
-    public V meetAndPut(K key, V value) {
-        return map.put(key, meeter.meet(get(key), value));
+    public boolean meetAndPut(K key, V value) {
+        return put(key, meeter.meet(get(key), value));
     }
 
     @Override

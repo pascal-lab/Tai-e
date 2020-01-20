@@ -15,16 +15,16 @@ public interface FlowMap<K, V> {
 
     /**
      * Associates given value to given key.
-     * @return old value
+     * @return whether this operation changes the map.
      */
-    V put(K key, V value);
+    boolean put(K key, V value);
 
     /**
      * Meets old value and given value with the same key, and associates
      * the new value with the key.
-     * @return old value
+     * @return whether this operation changes the map.
      */
-    V meetAndPut(K key, V value);
+    boolean meetAndPut(K key, V value);
 
     /**
      * Returns if given key is present.
