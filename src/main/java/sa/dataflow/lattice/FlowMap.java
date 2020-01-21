@@ -1,31 +1,16 @@
 package sa.dataflow.lattice;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * This class represents the data-flow information in product lattice
  * (specifically, in product of two lattices) which can be seen as a map.
  */
-public interface FlowMap<K, V> {
+public interface FlowMap<K, V> extends Map<K, V> {
 
     /**
-     * Returns the value of given key.
+     * Updates the key-value mapping in this FlowMap.
+     * Returns if the update changes this FlowMap.
      */
-    V get(K key);
-
-    /**
-     * Associates given value to given key.
-     * @return whether this operation changes the map.
-     */
-    boolean put(K key, V value);
-
-    /**
-     * Returns if given key is present.
-     */
-    boolean containsKey(K key);
-
-    /**
-     * Returns set of all keys.
-     */
-    Set<K> keySet();
+    boolean update(K key, V value);
 }

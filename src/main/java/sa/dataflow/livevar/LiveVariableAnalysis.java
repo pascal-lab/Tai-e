@@ -55,15 +55,13 @@ public class LiveVariableAnalysis extends BodyTransformer
                 .stream()
                 .map(ValueBox::getValue)
                 .filter(v -> v instanceof Local)
-                .map(v -> (Local) v)
                 .forEach(out::remove);
         // Generate uses in unit
         unit.getUseBoxes()
                 .stream()
                 .map(ValueBox::getValue)
                 .filter(v -> v instanceof Local)
-                .map(v -> (Local) v)
-                .forEach(out::add);
+                .forEach(v -> out.add((Local) v));
         return !out.equals(oldOut);
     }
 

@@ -79,11 +79,11 @@ public class ConstantPropagation extends BodyTransformer
         boolean changed = false;
         for (Local inLocal : in.keySet()) {
             if (!inLocal.equals(lhs)) {
-                changed |= out.put(inLocal, in.get(inLocal));
+                changed |= out.update(inLocal, in.get(inLocal));
             }
         }
         if (lhs != null) {
-            changed |= out.put(lhs, computeValue(in, lhs, node));
+            changed |= out.update(lhs, computeValue(in, lhs, node));
         }
         return changed;
     }
