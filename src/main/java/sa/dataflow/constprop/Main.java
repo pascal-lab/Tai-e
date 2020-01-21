@@ -1,4 +1,4 @@
-package sa.dataflow.cp;
+package sa.dataflow.constprop;
 
 import soot.PackManager;
 import soot.Transform;
@@ -14,7 +14,7 @@ public class Main {
         // Configure transformer
         PackManager.v()
                 .getPack("jtp")
-                .add(new Transform("jtp.cp", ConstantPropagation.v()));
+                .add(new Transform("jtp.constprop", ConstantPropagation.v()));
 
         // Run main analysis
         soot.Main.main(args);

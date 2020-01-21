@@ -1,7 +1,6 @@
-package sa.dataflow.cp;
+package sa.dataflow.constprop;
 
 import sa.util.AnalysisException;
-import sa.util.Canonicalizer;
 
 import java.util.Objects;
 

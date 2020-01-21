@@ -1,7 +1,7 @@
-package sa.dataflow.cp;
+package sa.dataflow.constprop;
 
 import sa.dataflow.analysis.DataFlowAnalysis;
-import sa.dataflow.analysis.Meeter;
+import sa.dataflow.lattice.DataFlowTag;
 import sa.dataflow.solver.Solver;
 import sa.dataflow.solver.SolverFactory;
 import soot.Body;
@@ -34,7 +34,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class ConstantPropagation extends BodyTransformer implements DataFlowAnalysis<FlowMap, Unit> {
+public class ConstantPropagation extends BodyTransformer
+        implements DataFlowAnalysis<FlowMap, Unit> {
 
     private static final ConstantPropagation INSTANCE = new ConstantPropagation();
 
@@ -42,23 +43,18 @@ public class ConstantPropagation extends BodyTransformer implements DataFlowAnal
         return INSTANCE;
     }
 
-    private Meeter<Value> meeter = new ValueMeeter();
-
     private ConstantPropagation() {
     }
 
-    // ---------- Data-flow analysis ----------
+    // ---------- Data-flow analysis for constant propagation ----------
     @Override
     public boolean isForward() {
         return true;
     }
 
     @Override
-    public FlowMap getEntryInitialValue(Unit entry) {
-        FlowMap in = newInitialValue();
-        FlowMap out = newInitialValue();
-        transfer(in, entry, out);
-        return out;
+    public FlowMap getEntryInitialValue() {
+        return newInitialValue();
     }
 
     @Override
@@ -71,9 +67,7 @@ public class ConstantPropagation extends BodyTransformer implements DataFlowAnal
         FlowMap result = newInitialValue();
         Stream.concat(m1.keySet().stream(), m2.keySet().stream())
                 .distinct()
-                .forEach(k -> {
-                    result.put(k, meeter.meet(m1.get(k), m2.get(k)));
-                });
+                .forEach(k -> result.put(k, meetValue(m1.get(k), m2.get(k))));
         return result;
     }
 
@@ -116,6 +110,13 @@ public class ConstantPropagation extends BodyTransformer implements DataFlowAnal
         }
     }
 
+    /**
+     * Evaluates a soot.Value (Local or Constant) to a Value
+     * @param in FlowMap at specific program point
+     * @param type type of the value
+     * @param v the soot.Value to be evaluated
+     * @return the resulting Value
+     */
     public Value toValue(FlowMap in, Type type, soot.Value v) {
         if (v instanceof Local) {
             return in.get((Local) v);
@@ -133,6 +134,13 @@ public class ConstantPropagation extends BodyTransformer implements DataFlowAnal
         throw new UnsupportedOperationException(v + " is not a variable or boolean/integer constant");
     }
 
+    /**
+     * Evaluates a binary expression to a Value
+     * @param in FlowMap at specific program point
+     * @param type type of the Value
+     * @param expr the expression to be evaluated
+     * @return the resulting Value
+     */
     public Value toValue(FlowMap in, Type type, BinopExpr expr) {
         Value op1 = toValue(in, type, expr.getOp1());
         Value op2 = toValue(in, type, expr.getOp2());
@@ -169,23 +177,38 @@ public class ConstantPropagation extends BodyTransformer implements DataFlowAnal
         }
     }
 
+    /**
+     * Meets two Values.
+     */
+    Value meetValue(Value v1, Value v2) {
+        if (v1.isUndef() && v2.isConstant()) {
+            return v2;
+        } else if (v1.isConstant() && v2.isUndef()) {
+            return v1;
+        } else if (v1.isNAC() || v2.isNAC()) {
+            return Value.getNAC();
+        } else if (v1.equals(v2)) {
+            return v1;
+        } else {
+            return Value.getNAC();
+        }
+    }
+
     // ---------- Body transformer ----------
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
         DirectedGraph<Unit> cfg = new BriefUnitGraph(b);
         Solver<FlowMap, Unit> solver = SolverFactory.v().newSolver(this, cfg);
         solver.solve();
-        outputResult(b, solver.getAnalysisResult());
+        b.addTag(new DataFlowTag<>("ConstantTag", solver.getAfterFlow()));
+        outputResult(b, solver.getAfterFlow());
     }
 
     private synchronized void outputResult(Body body, Map<Unit, FlowMap> result) {
         System.out.println("------ " + body.getMethod() + " -----");
-        result.keySet()
-                .stream()
-                .sorted(Comparator.comparingInt(Unit::getJavaSourceStartLineNumber))
-                .forEach(u ->
-                    System.out.println("L" + u.getJavaSourceStartLineNumber()
-                            + ": " + result.get(u))
-                );
+        body.getUnits().forEach(u ->
+                System.out.println("L" + u.getJavaSourceStartLineNumber()
+                        + "{" + u + "}"
+                        + ": " + result.get(u)));
     }
 }

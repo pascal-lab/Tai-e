@@ -1,4 +1,4 @@
-package sa.dataflow.cp;
+package sa.dataflow.constprop;
 
 import sa.dataflow.lattice.AbstractFlowMap;
 import soot.Local;
