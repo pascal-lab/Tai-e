@@ -1,20 +1,19 @@
 package sa.dataflow.constprop;
 
-import sa.dataflow.lattice.AbstractFlowMap;
 import soot.Local;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Data-flow information for constant propagation, which maps each variable to
  * a corresponding CPValue.
  */
-public class FlowMap extends AbstractFlowMap<Local, Value> {
+public class FlowMap implements sa.dataflow.lattice.FlowMap<Local, Value> {
 
-    public FlowMap() {
-        map = new LinkedHashMap<>();
-    }
+    private Map<Local, Value> map = new LinkedHashMap<>();
 
     @Override
     public Value get(Local key) {
@@ -24,6 +23,16 @@ public class FlowMap extends AbstractFlowMap<Local, Value> {
     @Override
     public boolean put(Local key, Value value) {
         return Objects.equals(map.put(key, value), value);
+    }
+
+    @Override
+    public boolean containsKey(Local key) {
+        return map.containsKey(key);
+    }
+
+    @Override
+    public Set<Local> keySet() {
+        return map.keySet();
     }
 
     @Override

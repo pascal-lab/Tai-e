@@ -30,7 +30,6 @@ import soot.jimple.SubExpr;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 

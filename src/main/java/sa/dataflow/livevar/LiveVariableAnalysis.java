@@ -14,7 +14,6 @@ import soot.ValueBox;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
 
-import java.util.Comparator;
 import java.util.Map;
 
 public class LiveVariableAnalysis extends BodyTransformer
