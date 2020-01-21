@@ -19,6 +19,11 @@ public abstract class Solver<Domain, Node> {
     protected DirectedGraph<Node> cfg;
 
     /**
+     * In-flow value of each node.
+     */
+    protected Map<Node, Domain> inFlow;
+
+    /**
      * Out-flow value of each node.
      */
     protected Map<Node, Domain> outFlow;
@@ -34,18 +39,26 @@ public abstract class Solver<Domain, Node> {
         solveFixedPoint(cfg);
     }
 
-    public Map<Node, Domain> getAnalysisResult() {
-        return outFlow;
+    /**
+     * Returns the data-flow value before each node.
+     */
+    public Map<Node, Domain> getBeforeFlow() {
+        return problem.isForward() ? inFlow : outFlow;
+    }
+
+    /**
+     * Returns the data-flow value after each node.
+     */
+    public Map<Node, Domain> getAfterFlow() {
+        return problem.isForward() ? outFlow : inFlow;
     }
 
     protected void initialize(DirectedGraph<Node> cfg) {
-        outFlow = new HashMap<>();
         for (Node node : cfg) {
             if (cfg.getHeads().contains(node)) {
-                outFlow.put(node, problem.getEntryInitialValue(node));
-            } else {
-                outFlow.put(node, problem.newInitialValue());
+                inFlow.put(node, problem.getEntryInitialValue());
             }
+            outFlow.put(node, problem.newInitialValue());
         }
     }
 

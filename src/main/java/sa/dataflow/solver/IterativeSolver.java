@@ -10,6 +10,7 @@ class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
     IterativeSolver(DataFlowAnalysis<Domain, Node> problem,
                     DirectedGraph<Node> cfg) {
         super(problem, cfg);
+        inFlow = new LinkedHashMap<>();
         outFlow = new LinkedHashMap<>();
     }
 
@@ -19,14 +20,20 @@ class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
         do {
             changed = false;
             for (Node node : cfg) {
-                if (!cfg.getHeads().contains(node)) {
-                    Domain in = cfg.getPredsOf(node)
+                Domain in;
+                if (cfg.getHeads().contains(node)) {
+                    // In-flow values of head nodes are pre-computed
+                    in = inFlow.get(node);
+                } else {
+                    // Compute and store in-flow values for non-head nodes
+                    in = cfg.getPredsOf(node)
                             .stream()
                             .map(outFlow::get)
                             .reduce(problem.newInitialValue(), problem::meet);
-                    Domain out = outFlow.get(node);
-                    changed |= problem.transfer(in, node, out);
+                    inFlow.put(node, in);
                 }
+                Domain out = outFlow.get(node);
+                changed |= problem.transfer(in, node, out);
             }
         } while (changed);
     }
