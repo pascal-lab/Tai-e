@@ -1,8 +1,11 @@
 package sa.dataflow.lattice;
 
+import java.util.Arrays;
+
 public class HashFlowSetTest extends FlowSetTest {
 
-    public HashFlowSetTest() {
-        factory = new HashFlowSet.Factory<>();
+    @Override
+    protected FlowSet<String> newFlowSet(String... strings) {
+        return new HashFlowSet<>(Arrays.asList(strings));
     }
 }

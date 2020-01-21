@@ -8,17 +8,7 @@ import java.util.Set;
  *
  * @param <E> Type for elements in this set.
  */
-public interface FlowSet<E> {
-
-    /**
-     * Adds an element to this FlowSet, returns the resulting FlowSet.
-     */
-    FlowSet<E> add(E element);
-
-    /**
-     * Removes an element from this FlowSet, returns the resulting FlowSet.
-     */
-    FlowSet<E> remove(E element);
+public interface FlowSet<E> extends Set<E> {
 
     /**
      * Unions other FlowSet into this FlowSet, returns the resulting FlowSet.
@@ -36,23 +26,8 @@ public interface FlowSet<E> {
     FlowSet<E> duplicate();
 
     /**
-     * Set this FlowSet to the same as the given one, returns this FlowSet.
+     * Set this FlowSet to the same as the given one.
      */
     FlowSet<E> setTo(FlowSet<E> other);
 
-    /**
-     * Returns the elements in this FlowSet.
-     */
-    Set<E> getElements();
-
-    /**
-     * Returns the size of this FlowSet.
-     * Cannot called on universal set.
-     */
-    int size();
-
-    /**
-     * Returns if this FlowSet represents an empty set.
-     */
-    boolean isEmpty();
 }

@@ -3,7 +3,7 @@ package sa.dataflow.livevar;
 import sa.dataflow.analysis.DataFlowAnalysis;
 import sa.dataflow.lattice.DataFlowTag;
 import sa.dataflow.lattice.FlowSet;
-import sa.dataflow.lattice.FlowSetFactory;
+import sa.dataflow.lattice.HashFlowSet;
 import sa.dataflow.solver.Solver;
 import sa.dataflow.solver.SolverFactory;
 import soot.Body;
@@ -25,12 +25,6 @@ public class LiveVariableAnalysis extends BodyTransformer
         return INSTANCE;
     }
 
-    private FlowSetFactory<Local> flowSetFactory;
-
-    private LiveVariableAnalysis() {
-        flowSetFactory = FlowSetFactory.getFactory();
-    }
-
     // ---------- Data-flow analysis for live variable analysis  ----------
     @Override
     public boolean isForward() {
@@ -44,7 +38,7 @@ public class LiveVariableAnalysis extends BodyTransformer
 
     @Override
     public FlowSet<Local> newInitialValue() {
-        return flowSetFactory.newFlowSet();
+        return new HashFlowSet<>();
     }
 
     @Override
