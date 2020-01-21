@@ -14,7 +14,7 @@ public class Main {
         // Configure transformer
         PackManager.v()
                 .getPack("jtp")
-                .add(new Transform("jtp.cp", new ConstantPropagation()));
+                .add(new Transform("jtp.cp", ConstantPropagation.v()));
 
         // Run main analysis
         soot.Main.main(args);

@@ -22,6 +22,10 @@ public class Value {
 
     private static final Value UNDEF = new Value(Kind.UNDEF);
 
+    private static final Value TRUE = new Value(Kind.BOOLEAN, 0, true);
+
+    private static final Value FALSE = new Value(Kind.BOOLEAN, 0, false);
+
     private Kind kind;
 
     private int intValue;
@@ -118,7 +122,7 @@ public class Value {
     }
 
     public static Value makeBool(boolean v) {
-        return new Value(Kind.BOOLEAN, 0, v);
+        return v ? TRUE : FALSE;
     }
 
     public static Value getUndef() {
