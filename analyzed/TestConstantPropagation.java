@@ -50,6 +50,16 @@ public class TestConstantPropagation {
         int y = x;
     }
 
+    void branchCond() {
+        int x = 10;
+        int y = 20;
+        int z;
+        if (x < y) {
+            z = 10;
+        }
+        int a = z;
+    }
+
     void param(int i, boolean b) {
         int x = i;
         int y = i + 10;
