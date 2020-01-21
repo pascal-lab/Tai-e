@@ -19,10 +19,6 @@ abstract class FlowSetTest {
 
         FlowSet<String> fs2 = fs1.add("y");
         Assert.assertEquals(fs2.getElements().size(), 2);
-
-        FlowSet<String> top = factory.getUniversalSet();
-        FlowSet<String> fs3 = top.add("y");
-        Assert.assertTrue(fs3.isUniversal());
     }
 
     @Test
@@ -63,27 +59,6 @@ abstract class FlowSetTest {
     }
 
     @Test
-    public void testUnionUniversalSet() {
-        // Union normal and universal sets
-        FlowSet<String> fs1 = factory.newFlowSet("x", "y");
-        FlowSet<String> fs2 = factory.getUniversalSet();
-        FlowSet<String> fs3 = fs1.union(fs2);
-        Assert.assertTrue(fs3.isUniversal());
-
-        // Union normal and universal sets
-        fs1 = factory.getUniversalSet();
-        fs2 = factory.newFlowSet("x", "y");
-        fs3 = fs1.union(fs2);
-        Assert.assertTrue(fs3.isUniversal());
-
-        // Union two universal sets
-        fs1 = factory.getUniversalSet();
-        fs2 = factory.getUniversalSet();
-        fs3 = fs1.union(fs2);
-        Assert.assertTrue(fs3.isUniversal());
-    }
-
-    @Test
     public void testIntersectNormal() {
         // Intersect overlapped sets
         FlowSet<String> fs1 = factory.newFlowSet("x", "y");
@@ -104,40 +79,5 @@ abstract class FlowSetTest {
         fs3 = fs1.intersect(fs2);
         Assert.assertEquals(fs3.size(), 0);
         Assert.assertTrue(fs3.isEmpty());
-    }
-
-    @Test
-    public void testIntersectUniversalSet() {
-        // Intersect normal and universal sets
-        FlowSet<String> fs1 = factory.newFlowSet("x", "y");
-        FlowSet<String> fs2 = factory.getUniversalSet();
-        FlowSet<String> fs3 = fs1.intersect(fs2);
-        Assert.assertEquals(fs3.size(), 2);
-        Assert.assertFalse(fs3.isUniversal());
-
-        // Intersect normal and universal sets
-        fs1 = factory.getUniversalSet();
-        fs2 = factory.newFlowSet("x", "y");
-        fs3 = fs1.intersect(fs2);
-        Assert.assertEquals(fs3.size(), 2);
-        Assert.assertFalse(fs3.isUniversal());
-
-        // Intersect two universal sets
-        fs1 = factory.getUniversalSet();
-        fs2 = factory.getUniversalSet();
-        fs3 = fs1.intersect(fs2);
-        Assert.assertTrue(fs3.isUniversal());
-    }
-
-    @Test
-    public void testUniversalSet() {
-        FlowSet<String> u = factory.getUniversalSet();
-        Assert.assertFalse(u.isEmpty());
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUniversalSetSize() {
-        FlowSet<String> u = factory.getUniversalSet();
-        u.size();
     }
 }

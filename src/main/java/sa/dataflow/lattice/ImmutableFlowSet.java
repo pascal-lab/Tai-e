@@ -24,16 +24,13 @@ class ImmutableFlowSet<E> extends AbstractFlowSet<E> {
 
     private int hashCode;
 
-    private ImmutableFlowSet(Kind kind, Set<E> elements) {
-        this.kind = kind;
+    private ImmutableFlowSet(Set<E> elements) {
         this.elements = elements;
     }
 
     @Override
     public FlowSet<E> add(E element) {
-        if (isUniversal()) {
-            return this;
-        } else if (this.elements.contains(element)) {
+        if (this.elements.contains(element)) {
             return this;
         } else {
             Set<E> elements = newSet(this.elements);
@@ -44,10 +41,7 @@ class ImmutableFlowSet<E> extends AbstractFlowSet<E> {
 
     @Override
     public FlowSet<E> remove(E element) {
-        if (isUniversal()) {
-            throw new UnsupportedOperationException(
-                    "Removing an element from a universal set is not supported");
-        } else if (this.elements.contains(element)){
+        if (this.elements.contains(element)){
             Set<E> elements = newSet(this.elements);
             elements.remove(element);
             return factory.newFlowSet(elements);
@@ -58,26 +52,26 @@ class ImmutableFlowSet<E> extends AbstractFlowSet<E> {
 
     @Override
     public FlowSet<E> union(FlowSet<E> other) {
-        if (isUniversal() || other.isUniversal()) {
-            return factory.getUniversalSet();
-        } else {
-            Set<E> elements = newSet(this.elements);
-            elements.addAll(other.getElements());
-            return factory.newFlowSet(elements);
-        }
+        Set<E> elements = newSet(this.elements);
+        elements.addAll(other.getElements());
+        return factory.newFlowSet(elements);
     }
 
     @Override
     public FlowSet<E> intersect(FlowSet<E> other) {
-        if (isUniversal()) {
-            return other;
-        } else if (other.isUniversal()) {
-            return this;
-        } else {
-            Set<E> elements = newSet(this.elements);
-            elements.retainAll(other.getElements());
-            return factory.newFlowSet(elements);
-        }
+        Set<E> elements = newSet(this.elements);
+        elements.retainAll(other.getElements());
+        return factory.newFlowSet(elements);
+    }
+
+    @Override
+    public FlowSet<E> duplicate() {
+        return this;
+    }
+
+    @Override
+    public FlowSet<E> setTo(FlowSet<E> other) {
+        throw new UnsupportedOperationException("ImmutableFlowSet cannot be set");
     }
 
     @Override
@@ -95,8 +89,7 @@ class ImmutableFlowSet<E> extends AbstractFlowSet<E> {
             return false;
         }
         ImmutableFlowSet<?> other = (ImmutableFlowSet<?>) obj;
-        return Objects.equals(kind, other.kind)
-                && Objects.equals(elements, other.elements)
+        return Objects.equals(elements, other.elements)
                 && Objects.equals(factory, other.factory);
     }
 
@@ -108,30 +101,22 @@ class ImmutableFlowSet<E> extends AbstractFlowSet<E> {
 
         private Canonicalizer<FlowSet<E>> canonicalizer;
 
-        private final FlowSet<E> UNIVERSAL;
-
         private boolean isCanonicalizing = false;
 
         public Factory() {
             canonicalizer = new Canonicalizer<>();
-            UNIVERSAL = canonicalize(new ImmutableFlowSet<>(Kind.UNIVERSAL, null));
-        }
-
-        @Override
-        public FlowSet<E> getUniversalSet() {
-            return UNIVERSAL;
         }
 
         @Override
         public FlowSet<E> newFlowSet(Set<E> elements) {
-            return canonicalize(new ImmutableFlowSet<>(Kind.NORMAL,
+            return canonicalize(new ImmutableFlowSet<>(
                     Collections.unmodifiableSet(elements)));
         }
 
         private FlowSet<E> canonicalize(ImmutableFlowSet<E> fs) {
             isCanonicalizing = true;
             fs.factory = this;
-            fs.hashCode = Objects.hash(fs.kind, fs.elements, fs.factory);
+            fs.hashCode = Objects.hash(fs.elements, fs.factory);
             FlowSet<E> cr = canonicalizer.canonicalize(fs);
             isCanonicalizing = false;
             return cr;

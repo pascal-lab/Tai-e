@@ -31,6 +31,16 @@ public interface FlowSet<E> {
     FlowSet<E> intersect(FlowSet<E> other);
 
     /**
+     * Returns a duplication of this FlowSet.
+     */
+    FlowSet<E> duplicate();
+
+    /**
+     * Set this FlowSet to the same as the given one, returns this FlowSet.
+     */
+    FlowSet<E> setTo(FlowSet<E> other);
+
+    /**
      * Returns the elements in this FlowSet.
      */
     Set<E> getElements();
@@ -45,9 +55,4 @@ public interface FlowSet<E> {
      * Returns if this FlowSet represents an empty set.
      */
     boolean isEmpty();
-
-    /**
-     * Returns if this FlowSet represents a universal set.
-     */
-    boolean isUniversal();
 }

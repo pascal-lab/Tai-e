@@ -4,13 +4,18 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-abstract class FlowSetFactory<E> {
+public abstract class FlowSetFactory<E> {
 
-    abstract FlowSet<E> getUniversalSet();
+    /**
+     * Returns HashFlowSet by default.
+     */
+    public static <E> FlowSetFactory<E> getFactory() {
+        return new HashFlowSet.Factory<>();
+    }
 
-    FlowSet<E> newFlowSet(E... elements) {
+    public FlowSet<E> newFlowSet(E... elements) {
         return newFlowSet(new HashSet<>(Arrays.asList(elements)));
     }
 
-    abstract FlowSet<E> newFlowSet(Set<E> elements);
+    public abstract FlowSet<E> newFlowSet(Set<E> elements);
 }

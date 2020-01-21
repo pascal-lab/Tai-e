@@ -12,56 +12,49 @@ import java.util.Set;
  */
 class HashFlowSet<E> extends AbstractFlowSet<E> {
 
-    private HashFlowSet(Kind kind, Set<E> elements) {
-        this.kind = kind;
+    private HashFlowSet(Set<E> elements) {
         this.elements = elements;
     }
 
     @Override
     public FlowSet<E> add(E element) {
-        if (!isUniversal()) {
-            elements.add(element);
-        }
+        elements.add(element);
         return this;
     }
 
     @Override
     public FlowSet<E> remove(E element) {
-        if (isUniversal()) {
-            throw new UnsupportedOperationException(
-                    "Removing an element from a universal set is not supported");
-        }
         elements.remove(element);
         return this;
     }
 
     @Override
     public FlowSet<E> union(FlowSet<E> other) {
-        if (isUniversal() || other.isUniversal()) {
-            kind = Kind.UNIVERSAL;
-            elements = null;
-        } else {
-            elements.addAll(other.getElements());
-        }
+        elements.addAll(other.getElements());
         return this;
     }
 
     @Override
     public FlowSet<E> intersect(FlowSet<E> other) {
-        if (!other.isUniversal()) {
-            if (!isUniversal()) {
-                elements.retainAll(other.getElements());
-            } else {
-                kind = Kind.NORMAL;
-                elements = new HashSet<>(other.getElements());
-            }
-        }
+        elements.retainAll(other.getElements());
+        return this;
+    }
+
+    @Override
+    public FlowSet<E> duplicate() {
+        return new HashFlowSet<>(new HashSet<>(elements));
+    }
+
+    @Override
+    public FlowSet<E> setTo(FlowSet<E> other) {
+        elements.clear();
+        elements.addAll(other.getElements());
         return this;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kind, elements);
+        return Objects.hash(elements);
     }
 
     @Override
@@ -72,20 +65,14 @@ class HashFlowSet<E> extends AbstractFlowSet<E> {
             return false;
         }
         HashFlowSet<?> other = (HashFlowSet<?>) obj;
-        return Objects.equals(kind, other.kind)
-                && Objects.equals(elements, other.elements);
+        return Objects.equals(elements, other.elements);
     }
 
     static class Factory<E> extends FlowSetFactory<E> {
 
         @Override
-        public FlowSet<E> getUniversalSet() {
-            return new HashFlowSet<>(Kind.UNIVERSAL, null);
-        }
-
-        @Override
         public FlowSet<E> newFlowSet(Set<E> elements) {
-            return new HashFlowSet<>(Kind.NORMAL, new HashSet<>(elements));
+            return new HashFlowSet<>(new HashSet<>(elements));
         }
     }
 }
