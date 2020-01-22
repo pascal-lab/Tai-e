@@ -1,4 +1,4 @@
-package sa.dataflow.livevar;
+package sa.dataflow.analysis.livevar;
 
 import sa.dataflow.analysis.DataFlowAnalysis;
 import sa.dataflow.lattice.DataFlowTag;

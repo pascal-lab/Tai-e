@@ -1,4 +1,4 @@
 /**
  * Implementation of live variable analysis.
  */
-package sa.dataflow.livevar;
+package sa.dataflow.analysis.livevar;

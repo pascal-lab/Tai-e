@@ -1,4 +1,4 @@
 /**
  * Implementation of constant propagation.
  */
-package sa.dataflow.constprop;
+package sa.dataflow.analysis.constprop;

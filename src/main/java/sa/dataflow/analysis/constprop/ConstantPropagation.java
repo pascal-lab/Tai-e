@@ -1,4 +1,4 @@
-package sa.dataflow.constprop;
+package sa.dataflow.analysis.constprop;
 
 import sa.dataflow.analysis.DataFlowAnalysis;
 import sa.dataflow.lattice.DataFlowTag;

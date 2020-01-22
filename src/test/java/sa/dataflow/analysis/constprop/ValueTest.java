@@ -1,4 +1,4 @@
-package sa.dataflow.constprop;
+package sa.dataflow.analysis.constprop;
 
 import org.junit.Assert;
 import org.junit.Test;

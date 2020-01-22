@@ -1,4 +1,4 @@
-package sa.dataflow.livevar;
+package sa.dataflow.analysis.livevar;
 
 import soot.PackManager;
 import soot.Transform;
