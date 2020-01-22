@@ -25,9 +25,10 @@ import soot.toolkits.scalar.Pair;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
 /**
  * The analysis that detects dead code. This transformer must be executed after
@@ -112,16 +113,16 @@ public class DeadCodeElimination extends BodyTransformer {
         // Initialize graph traversal
         Unit entry = getEntry(cfg);
         Set<Unit> reachable = new HashSet<>();
-        Stack<Unit> stack = new Stack<>();
-        stack.push(entry);
+        Queue<Unit> queue = new LinkedList<>();
+        queue.add(entry);
         // Traverse the CFG to find reachable code
-        while (!stack.isEmpty()) {
-            Unit unit = stack.pop();
+        while (!queue.isEmpty()) {
+            Unit unit = queue.remove();
             reachable.add(unit);
-            for (Unit succ: cfg.getSuccsOf(unit)) {
+            for (Unit succ : cfg.getSuccsOf(unit)) {
                 if (!reachable.contains(succ)
                         && !filteredEdges.containsEdge(unit, succ)) {
-                    stack.push(succ);
+                    queue.add(succ);
                 }
             }
         }
