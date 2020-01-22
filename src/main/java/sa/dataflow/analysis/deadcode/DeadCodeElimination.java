@@ -1,18 +1,22 @@
 package sa.dataflow.analysis.deadcode;
 
+import sa.dataflow.analysis.constprop.ConstantPropagation;
+import sa.dataflow.analysis.constprop.FlowMap;
 import sa.dataflow.analysis.constprop.Value;
 import sa.dataflow.lattice.DataFlowTag;
-import sa.dataflow.lattice.FlowMap;
 import sa.dataflow.lattice.FlowSet;
 import soot.Body;
 import soot.BodyTransformer;
+import soot.BooleanType;
 import soot.Local;
 import soot.Unit;
 import soot.jimple.AnyNewExpr;
 import soot.jimple.AssignStmt;
+import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
 import soot.jimple.ConcreteRef;
 import soot.jimple.DivExpr;
+import soot.jimple.IfStmt;
 import soot.jimple.InvokeExpr;
 import soot.jimple.RemExpr;
 import soot.toolkits.graph.BriefUnitGraph;
@@ -57,10 +61,10 @@ public class DeadCodeElimination extends BodyTransformer {
         Set<Unit> result = new HashSet<>();
 
         // 1. unreachable branches
-        EdgeSet unreachBranches = findUnreachableBranches(b, cfg);
+        EdgeSet unreachableBranches = findUnreachableBranches(b, cfg);
 
-        // 2. control-flow unreachable code
-        result.addAll(findControlFlowUnreachableCode(cfg, unreachBranches));
+        // 2. unreachable code
+        result.addAll(findUnreachableCode(cfg, unreachableBranches));
 
         // 3. dead assignment
         result.addAll(findDeadAssignments(b));
@@ -70,21 +74,41 @@ public class DeadCodeElimination extends BodyTransformer {
 
     private EdgeSet findUnreachableBranches(Body body, DirectedGraph<Unit> cfg) {
         @SuppressWarnings("unchecked")
-        DataFlowTag<Unit, FlowMap<Local, Value>> constantTag =
-                (DataFlowTag<Unit, FlowMap<Local, Value>>) body.getTag("ConstantTag");
-        Map<Unit, FlowMap<Local, Value>> constantMap = constantTag.getDataFlowMap();
-        EdgeSet unreachBranches = new EdgeSet();
-        // TODO - finish me
-        return unreachBranches;
+        DataFlowTag<Unit, FlowMap> constantTag =
+                (DataFlowTag<Unit, FlowMap>) body.getTag("ConstantTag");
+        Map<Unit, FlowMap> constantMap = constantTag.getDataFlowMap();
+        EdgeSet unreachableBranches = new EdgeSet();
+        for (Unit unit : cfg) {
+            if (unit instanceof IfStmt) {
+                IfStmt ifStmt = (IfStmt) unit;
+                // Obtain the first statement of true and false branch
+                Unit trueBranch = ifStmt.getTarget();
+                Unit falseBranch = null;
+                for (Unit succ : cfg.getSuccsOf(ifStmt)) {
+                    if (!succ.equals(ifStmt.getTarget())) {
+                        falseBranch = succ;
+                    }
+                }
+                // Evaluate condition value
+                // Note that in Jimple IR, the condition *must be* binary expression
+                Value cond = ConstantPropagation.v()
+                        .toValue(constantMap.get(ifStmt),
+                                BooleanType.v(),
+                                (BinopExpr) ifStmt.getCondition());
+                if (cond.isBool()) { // Condition is constant
+                    if (cond.getBool()) { // Always true, false branch is unreachable
+                        unreachableBranches.addEdge(ifStmt, falseBranch);
+                    } else { // Always false, true branch is unreachable
+                        unreachableBranches.addEdge(ifStmt, trueBranch);
+                    }
+                }
+            }
+        }
+        return unreachableBranches;
     }
 
-    /**
-     *
-     * @param cfg
-     * @return
-     */
-    private Set<Unit> findControlFlowUnreachableCode(
-            DirectedGraph<Unit> cfg, EdgeSet filteredEdges) {
+    private Set<Unit> findUnreachableCode(DirectedGraph<Unit> cfg,
+                                          EdgeSet filteredEdges) {
         // Initialize graph traversal
         Unit entry = getEntry(cfg);
         Set<Unit> reachable = new HashSet<>();
@@ -101,7 +125,7 @@ public class DeadCodeElimination extends BodyTransformer {
                 }
             }
         }
-        // Construct unreachable code
+        // Collect unreachable code
         Set<Unit> result = new HashSet<>();
         for (Unit unit : cfg) {
             if (!reachable.contains(unit)) {
@@ -125,7 +149,7 @@ public class DeadCodeElimination extends BodyTransformer {
             if (unit instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) unit;
                 if (!liveVarMap.get(unit).contains(assign.getLeftOp())
-                        && !hasSideEffect(assign)) {
+                        && !mayHaveSideEffect(assign)) {
                     deadAssigns.add(assign);
                 }
             }
@@ -133,14 +157,14 @@ public class DeadCodeElimination extends BodyTransformer {
         return deadAssigns;
     }
 
-    private boolean hasSideEffect(AssignStmt assign) {
-        // TODO - check DeadAssignmentEliminator.java
+    private boolean mayHaveSideEffect(AssignStmt assign) {
         soot.Value rhs = assign.getRightOp();
-        return rhs instanceof InvokeExpr
-                || rhs instanceof AnyNewExpr
-                || rhs instanceof CastExpr
-                || rhs instanceof ConcreteRef
-                || rhs instanceof DivExpr || rhs instanceof RemExpr;
+        return rhs instanceof InvokeExpr // invocation may have any side-effects
+                || rhs instanceof AnyNewExpr // new expression modifies the heap
+                || rhs instanceof CastExpr // cast may trigger ClassCastException
+                || rhs instanceof ConcreteRef // static field ref may trigger class initialization
+                                              // instance field/array ref may trigger null pointer exception
+                || rhs instanceof DivExpr || rhs instanceof RemExpr; // may trigger DivideByZeroException
     }
 
     /**
@@ -157,16 +181,15 @@ public class DeadCodeElimination extends BodyTransformer {
                 .orElse(null);
     }
 
+    /**
+     * Represents a set of control-flow edges.
+     */
     private class EdgeSet {
 
         private Set<Pair<Unit, Unit>> edgeSet = new HashSet<>();
 
         private void addEdge(Unit from, Unit to) {
             edgeSet.add(new Pair<>(from, to));
-        }
-
-        private void removeEdge(Unit from, Unit to) {
-            edgeSet.remove(new Pair<>(from, to));
         }
 
         private boolean containsEdge(Unit from, Unit to) {
