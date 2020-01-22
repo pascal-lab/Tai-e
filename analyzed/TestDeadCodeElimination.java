@@ -1,5 +1,22 @@
 public class TestDeadCodeElimination {
 
+    void controlFlowUnreachable1() {
+        int x = 1;
+        int y = 2;
+        return;
+        int z = 3;
+    }
+
+    static void controlFlowUnreachable2() {
+        int x = 1;
+        int y = 2;
+        use(x);
+        use(y);
+        return;
+        int z = 3;
+        use(z);
+    }
+
     void deadAssign1() {
         int x = 1;
         int y = x + 2; // dead assignment
@@ -26,7 +43,7 @@ public class TestDeadCodeElimination {
         int b = ten();
     }
 
-    void use(int x) {}
+    static void use(int x) {}
 
     int ten() {
         return 10;

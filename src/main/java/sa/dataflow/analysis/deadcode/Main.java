@@ -6,6 +6,9 @@ import soot.Pack;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
+import soot.util.PhaseDumper;
+
+import java.util.Arrays;
 
 public class Main {
 
@@ -13,6 +16,8 @@ public class Main {
         // Set options
         Options.v().set_src_prec(Options.src_prec_java);
         Options.v().set_output_format(Options.output_format_jimple);
+        Options.v().set_dump_cfg(Arrays.asList("jtp.deadcode"));
+        PhaseDumper.v().dumpBefore("jtp.deadcode");
 
         // Configure transformer
         Pack jtp = PackManager.v().getPack("jtp");
