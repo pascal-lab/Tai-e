@@ -1,6 +1,8 @@
 package sa.dataflow.analysis.deadcode;
 
+import sa.dataflow.analysis.constprop.Value;
 import sa.dataflow.lattice.DataFlowTag;
+import sa.dataflow.lattice.FlowMap;
 import sa.dataflow.lattice.FlowSet;
 import soot.Body;
 import soot.BodyTransformer;
@@ -8,6 +10,11 @@ import soot.Local;
 import soot.Unit;
 import soot.jimple.AnyNewExpr;
 import soot.jimple.AssignStmt;
+import soot.jimple.CastExpr;
+import soot.jimple.ConcreteRef;
+import soot.jimple.DivExpr;
+import soot.jimple.InvokeExpr;
+import soot.jimple.RemExpr;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
 
@@ -56,6 +63,15 @@ public class DeadCodeElimination extends BodyTransformer {
         return result;
     }
 
+    private Set<Unit> detectUnconditionalUnreachableCode(Body body, DirectedGraph<Unit> cfg) {
+        @SuppressWarnings("unchecked")
+        DataFlowTag<Unit, FlowMap<Local, Value>> constantTag =
+                (DataFlowTag<Unit, FlowMap<Local, Value>>) body.getTag("ConstantTag");
+        Map<Unit, FlowMap<Local, Value>> constantMap = constantTag.getDataFlowMap();
+        Set<Unit> unreachable = new HashSet<>();
+        throw new UnsupportedOperationException();
+    }
+
     /**
      *
      * @param cfg
@@ -70,11 +86,11 @@ public class DeadCodeElimination extends BodyTransformer {
      * expr has no side-effect, then the assignment is dead and can be eliminated.
      */
     private Set<Unit> detectDeadAssignments(Body body) {
-        Set<Unit> deadAssigns = new HashSet<>();
         @SuppressWarnings("unchecked")
         DataFlowTag<Unit, FlowSet<Local>> liveVarTag =
                 (DataFlowTag<Unit, FlowSet<Local>>) body.getTag("LiveVarTag");
         Map<Unit, FlowSet<Local>> liveVarMap = liveVarTag.getDataFlowMap();
+        Set<Unit> deadAssigns = new HashSet<>();
         for (Unit unit : body.getUnits()) {
             if (unit instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) unit;
@@ -88,8 +104,13 @@ public class DeadCodeElimination extends BodyTransformer {
     }
 
     private boolean hasSideEffect(AssignStmt assign) {
-        return assign.containsInvokeExpr()
-                || assign.getRightOp() instanceof AnyNewExpr;
+        // TODO - check DeadAssignmentEliminator.java
+        soot.Value rhs = assign.getRightOp();
+        return rhs instanceof InvokeExpr
+                || rhs instanceof AnyNewExpr
+                || rhs instanceof CastExpr
+                || rhs instanceof ConcreteRef
+                || rhs instanceof DivExpr || rhs instanceof RemExpr;
     }
 
 }
