@@ -1,0 +1,90 @@
+package sa.callgraph.cha;
+
+import sa.callgraph.CallGraph;
+import sa.callgraph.Edge;
+import sa.callgraph.JimpleCallGraph;
+import sa.util.AnalysisException;
+import soot.FastHierarchy;
+import soot.Scene;
+import soot.SceneTransformer;
+import soot.SootMethod;
+import soot.Unit;
+import soot.jimple.InterfaceInvokeExpr;
+import soot.jimple.InvokeExpr;
+import soot.jimple.SpecialInvokeExpr;
+import soot.jimple.StaticInvokeExpr;
+import soot.jimple.Stmt;
+import soot.jimple.VirtualInvokeExpr;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+
+public class CHACallGraphBuilder extends SceneTransformer {
+
+    private FastHierarchy hierarchy;
+
+    @Override
+    protected void internalTransform(String phaseName, Map<String, String> options) {
+        hierarchy = Scene.v().getOrMakeFastHierarchy();
+        CallGraph<Unit, SootMethod> callGraph = build();
+        callGraph.forEach(System.out::println);
+    }
+
+    public CallGraph<Unit, SootMethod> build() {
+        JimpleCallGraph callGraph = new JimpleCallGraph();
+        callGraph.setEntryMethods(
+                Collections.singleton(Scene.v().getMainMethod()));
+        buildEdges(callGraph);
+        return callGraph;
+    }
+
+    private void buildEdges(JimpleCallGraph callGraph) {
+        Queue<SootMethod> queue = new LinkedList<>(callGraph.getEntryMethods());
+        while (!queue.isEmpty()) {
+            SootMethod method = queue.remove();
+            for (Unit callSite : callGraph.getCallSitesIn(method)) {
+                Set<SootMethod> callees = resolveCalleesOf(callSite);
+                callees.forEach(callee -> {
+                    if (!callGraph.contains(callee)) {
+                        queue.add(callee);
+                    }
+                    callGraph.addEdge(callSite, callee, getCallKind(callSite));
+                });
+            }
+        }
+    }
+
+    private Set<SootMethod> resolveCalleesOf(Unit callSite) {
+        InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
+        SootMethod method = invoke.getMethod();
+        Edge.Kind kind = getCallKind(callSite);
+        switch (kind) {
+            case VIRTUAL:
+                return hierarchy.resolveAbstractDispatch(method.getDeclaringClass(), method);
+            case SPECIAL:
+                return Collections.singleton(hierarchy.resolveSpecialDispatch(
+                        (SpecialInvokeExpr) invoke, method));
+            case STATIC:
+                return Collections.singleton(method);
+            default:
+                throw new AnalysisException("Unknown invocation expression: " + invoke);
+        }
+    }
+
+    private Edge.Kind getCallKind(Unit callSite) {
+        InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
+        if (invoke instanceof VirtualInvokeExpr ||
+                invoke instanceof InterfaceInvokeExpr) {
+            return Edge.Kind.VIRTUAL;
+        } else if (invoke instanceof SpecialInvokeExpr) {
+            return Edge.Kind.SPECIAL;
+        } else if (invoke instanceof StaticInvokeExpr) {
+            return Edge.Kind.STATIC;
+        } else {
+            return Edge.Kind.OTHER;
+        }
+    }
+}

@@ -1,16 +1,53 @@
 package sa.callgraph;
 
 import java.util.Collection;
+import java.util.Iterator;
 
-public interface CallGraph<CallSite, Method> {
+public interface CallGraph<CallSite, Method>
+        extends Iterable<Edge<CallSite, Method>> {
 
-    Collection<Method> calleesOf(CallSite callSite);
+    /**
+     * Returns the set of methods that are called by the given call site.
+     */
+    Collection<Method> getCallees(CallSite callSite);
 
-    Collection<Edge<CallSite, Method>> edgesOf(CallSite callSite);
+    /**
+     * Returns the set of call sites that can call the given method.
+     */
+    Collection<CallSite> getCallers(Method callee);
 
-    Collection<CallSite> callersOf(Method method);
+    /**
+     * Returns the method that contains the given call site.
+     */
+    Method getContainingMethod(CallSite callSite);
 
-    Method methodOf(CallSite callSite);
+    /**
+     * Returns the set of call sites within the given method.
+     */
+    Collection<CallSite> getCallSitesIn(Method method);
 
-    Collection<Edge<CallSite, Method>> edges();
+    /**
+     * Returns the call edges out of the given call site.
+     */
+    Collection<Edge<CallSite, Method>> getEdgesOf(CallSite callSite);
+
+    /**
+     * Returns all call edges in this call graph.
+     */
+    Iterator<Edge<CallSite, Method>> getAllEdges();
+
+    /**
+     * Returns the entry methods of this call graph.
+     */
+    Collection<Method> getEntryMethods();
+
+    /**
+     * Returns all reachable methods in this call graph.
+     */
+    Collection<Method> getReachableMethods();
+
+    /**
+     * Returns if this call graph contains the given method.
+     */
+    boolean contains(Method method);
 }
