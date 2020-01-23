@@ -1,7 +1,7 @@
 package sa.callgraph.cha;
 
 import sa.callgraph.CallGraph;
-import sa.callgraph.Edge;
+import sa.callgraph.CallKind;
 import sa.callgraph.JimpleCallGraph;
 import sa.util.AnalysisException;
 import soot.FastHierarchy;
@@ -60,7 +60,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
     private Set<SootMethod> resolveCalleesOf(Unit callSite) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
         SootMethod method = invoke.getMethod();
-        Edge.Kind kind = getCallKind(callSite);
+        CallKind kind = getCallKind(callSite);
         switch (kind) {
             case VIRTUAL:
                 return hierarchy.resolveAbstractDispatch(method.getDeclaringClass(), method);
@@ -74,17 +74,17 @@ public class CHACallGraphBuilder extends SceneTransformer {
         }
     }
 
-    private Edge.Kind getCallKind(Unit callSite) {
+    private CallKind getCallKind(Unit callSite) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
         if (invoke instanceof VirtualInvokeExpr ||
                 invoke instanceof InterfaceInvokeExpr) {
-            return Edge.Kind.VIRTUAL;
+            return CallKind.VIRTUAL;
         } else if (invoke instanceof SpecialInvokeExpr) {
-            return Edge.Kind.SPECIAL;
+            return CallKind.SPECIAL;
         } else if (invoke instanceof StaticInvokeExpr) {
-            return Edge.Kind.STATIC;
+            return CallKind.STATIC;
         } else {
-            return Edge.Kind.OTHER;
+            return CallKind.OTHER;
         }
     }
 }

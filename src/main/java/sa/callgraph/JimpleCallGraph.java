@@ -25,7 +25,7 @@ public class JimpleCallGraph extends AbstractCallGraph<Unit, SootMethod> {
         entryMethods.forEach(this::addNewMethod);
     }
 
-    public boolean addEdge(Unit callSite, SootMethod callee, Edge.Kind kind) {
+    public boolean addEdge(Unit callSite, SootMethod callee, CallKind kind) {
         addNewMethod(callee);
         Edge<Unit, SootMethod> edge = new Edge<>(kind, callSite, callee);
         return CollectionUtils.addToMapSet(callSiteToEdges, callSite, edge) ||

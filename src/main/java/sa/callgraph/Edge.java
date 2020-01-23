@@ -4,14 +4,7 @@ import java.util.Objects;
 
 public class Edge<CallSite, Method> {
 
-    public enum Kind {
-        VIRTUAL,
-        SPECIAL,
-        STATIC,
-        OTHER,
-    }
-
-    private final Kind kind;
+    private final CallKind kind;
 
     private final CallSite callSite;
 
@@ -19,14 +12,14 @@ public class Edge<CallSite, Method> {
 
     private final int hashCode;
 
-    public Edge(Kind kind, CallSite callSite, Method callee) {
+    public Edge(CallKind kind, CallSite callSite, Method callee) {
         this.kind = kind;
         this.callSite = callSite;
         this.callee = callee;
         hashCode = Objects.hash(kind, callSite, callee);
     }
 
-    public Kind getKind() {
+    public CallKind getKind() {
         return kind;
     }
 
