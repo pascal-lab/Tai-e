@@ -71,7 +71,7 @@ public class ConstantPropagation extends BodyTransformer
     }
 
     @Override
-    public boolean transfer(FlowMap in, Unit node, FlowMap out) {
+    public boolean transfer(Unit node, FlowMap in, FlowMap out) {
         Local lhs = null;
         if (node instanceof DefinitionStmt) {
             lhs = (Local) ((DefinitionStmt) node).getLeftOp();

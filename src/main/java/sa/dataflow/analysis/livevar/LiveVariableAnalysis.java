@@ -47,7 +47,7 @@ public class LiveVariableAnalysis extends BodyTransformer
     }
 
     @Override
-    public boolean transfer(FlowSet<Local> in, Unit unit, FlowSet<Local> out) {
+    public boolean transfer(Unit unit, FlowSet<Local> in, FlowSet<Local> out) {
         FlowSet<Local> oldOut = out.duplicate();
         out.setTo(in);
         // Kill definitions in unit

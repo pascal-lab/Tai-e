@@ -33,7 +33,7 @@ class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
                     inFlow.put(node, in);
                 }
                 Domain out = outFlow.get(node);
-                changed |= problem.transfer(in, node, out);
+                changed |= problem.transfer(node, in, out);
             }
         } while (changed);
     }

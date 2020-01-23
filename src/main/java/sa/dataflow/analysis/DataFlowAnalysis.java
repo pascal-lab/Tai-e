@@ -2,7 +2,7 @@ package sa.dataflow.analysis;
 
 /**
  *
- * @param <Domain> Type for lattice values\
+ * @param <Domain> Type for lattice values
  * @param <Node> Type for nodes of control-flow graph
  */
 public interface DataFlowAnalysis<Domain, Node> {
@@ -32,6 +32,6 @@ public interface DataFlowAnalysis<Domain, Node> {
      * The function transfer data-flow from in to out, and return whether
      * the out flow has been changed by the transfer.
      */
-    boolean transfer(Domain in, Node node, Domain out);
+    boolean transfer(Node node, Domain in, Domain out);
 
 }
