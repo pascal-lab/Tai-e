@@ -9,6 +9,10 @@ import java.util.Collection;
  */
 public interface ICFG<Method, Node> extends DirectedGraph<Node> {
 
+    Collection<Edge<Node>> getInEdgesOf(Node node);
+
+    Collection<Edge<Node>> getOutEdgesOf(Node node);
+
     Collection<Method> getEntryMethods();
 
     Collection<Method> getCalleesOf(Node callSite);
@@ -20,6 +24,8 @@ public interface ICFG<Method, Node> extends DirectedGraph<Node> {
     Collection<Node> getExitsOf(Method method);
 
     Collection<Node> getReturnSitesOf(Node callSite);
+
+    Method getContainingMethodOf(Node node);
 
     boolean isCallSite(Node node);
 

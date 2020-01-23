@@ -11,11 +11,11 @@ import sa.dataflow.analysis.DataFlowAnalysis;
 public interface IPDataFlowAnalysis<Domain, Method, Node>
         extends DataFlowAnalysis<Domain, Node> {
 
-    boolean transferFunctionEntry(Node callSite, Domain callSiteIn,
-                         Method callee, Node entry, Domain entryIn);
+    boolean transferCallNode(Node callSite, Domain in, Domain out);
 
-    boolean transferFunctionExit(Method callee, Node exit, Domain returnOut,
-                           Node CallSite, Domain callSiteOut);
+    boolean transferCallEdge(Node callSite, Domain callSiteIn,
+                                  Method callee, Node entry, Domain entryFlow);
 
-    boolean transferCallToReturn(Node callSite, Domain in, Domain out);
+    boolean transferReturnEdge(Method callee, Node exit, Domain exitInFlow,
+                                 Domain exitFlow, Node callSite, Node returnSite);
 }
