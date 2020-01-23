@@ -1,4 +1,4 @@
-package sa.dataflow.interproc;
+package sa.icfg;
 
 import soot.toolkits.graph.DirectedGraph;
 

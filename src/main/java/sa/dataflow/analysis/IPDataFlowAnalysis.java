@@ -1,4 +1,4 @@
-package sa.dataflow.interproc.analysis;
+package sa.dataflow.analysis;
 
 import sa.dataflow.analysis.DataFlowAnalysis;
 
