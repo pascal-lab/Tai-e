@@ -49,7 +49,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     @Override
     public Collection<Unit> getEntriesOf(SootMethod method) {
         // TODO - consider multi-head due to unreachable code?
-        DirectedGraph<Unit> cfg = methodToCFG.get(method);
+        DirectedGraph<Unit> cfg = getCFGOf(method);
         return cfg != null
                 ? cfg.getHeads()
                 : Collections.emptySet();
@@ -58,7 +58,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     @Override
     public Collection<Unit> getExitsOf(SootMethod method) {
         // TODO - do exceptional exits matter?
-        DirectedGraph<Unit> cfg = methodToCFG.get(method);
+        DirectedGraph<Unit> cfg = getCFGOf(method);
         return cfg != null
                 ? cfg.getTails()
                 : Collections.emptySet();
@@ -66,7 +66,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
     @Override
     public Collection<Unit> getReturnSitesOf(Unit callSite) {
-        return methodToCFG.get(unitToMethod.get(callSite))
+        return getCFGOf(unitToMethod.get(callSite))
                 .getSuccsOf(callSite);
     }
 
@@ -127,9 +127,8 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
     private void build(CallGraph<Unit, SootMethod> callGraph) {
         for (SootMethod method : callGraph.getReachableMethods()) {
-            DirectedGraph<Unit> cfg = getCFG(method);
+            DirectedGraph<Unit> cfg = getCFGOf(method);
             // TODO - handle special cases
-            methodToCFG.put(method, cfg);
             for (Unit unit : cfg) {
                 unitToMethod.put(unit, method);
                 // Add local edges
@@ -160,7 +159,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
         }
     }
 
-    private DirectedGraph<Unit> getCFG(SootMethod method) {
+    private DirectedGraph<Unit> getCFGOf(SootMethod method) {
         DirectedGraph<Unit> cfg = methodToCFG.get(method);
         if (cfg == null) {
             // TODO - handle special cases such as native methods

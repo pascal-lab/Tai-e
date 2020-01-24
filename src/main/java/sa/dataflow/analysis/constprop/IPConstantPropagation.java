@@ -16,7 +16,7 @@ import soot.SceneTransformer;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.AssignStmt;
-import soot.jimple.DefinitionStmt;
+import soot.jimple.IdentityStmt;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
@@ -41,13 +41,18 @@ public class IPConstantPropagation extends SceneTransformer
     }
 
     @Override
-    public FlowMap getEntryInitialValue() {
-        return cp.getEntryInitialValue();
+    public FlowMap getEntryInitialFlow(Unit entry) {
+        FlowMap entryFlow = newInitialFlow();
+        icfg.getContainingMethodOf(entry)
+                .getActiveBody()
+                .getParameterLocals()
+                .forEach(param -> entryFlow.update(param, Value.getNAC()));
+        return entryFlow;
     }
 
     @Override
-    public FlowMap newInitialValue() {
-        return cp.newInitialValue();
+    public FlowMap newInitialFlow() {
+        return cp.newInitialFlow();
     }
 
     @Override
@@ -57,7 +62,14 @@ public class IPConstantPropagation extends SceneTransformer
 
     @Override
     public boolean transfer(Unit unit, FlowMap in, FlowMap out) {
-        return cp.transfer(unit, in, out);
+        if (unit instanceof IdentityStmt) {
+            // Parameter locals have been handled by call edge transfer,
+            // so IdentityStmt can be skipped.
+            // TODO - check other kinds of IdentityStmt, e.g., exception catch
+            return out.copyFrom(in);
+        } else {
+            return cp.transfer(unit, in, out);
+        }
     }
 
     @Override
@@ -92,17 +104,18 @@ public class IPConstantPropagation extends SceneTransformer
             Unit entry = edge.getTarget();
             SootMethod callee = icfg.getContainingMethodOf(entry);
             List<soot.Value> args = invoke.getArgs();
-            List<soot.Value> params = callee.getActiveBody().getParameterRefs();
+            List<Local> params = callee.getActiveBody().getParameterLocals();
             for (int i = 0; i < args.size(); ++i) {
                 soot.Value arg = args.get(i);
-                soot.Value param = params.get(i);
+                Local param = params.get(i);
                 Value argValue = cp.toValue(callSiteInFlow, param.getType(), arg);
-                if (param instanceof Local) {
-                    edgeFlow.update((Local) param, argValue);
-                }
+                edgeFlow.update(param, argValue);
             }
             // TODO - handle this variable properly
-            edgeFlow.update(callee.getActiveBody().getThisLocal(), Value.getNAC());
+            if (!callee.isStatic()) {
+                edgeFlow.update(callee.getActiveBody().getThisLocal(),
+                        Value.getNAC());
+            }
         }
 
         @Override
