@@ -4,7 +4,6 @@ import sa.dataflow.analysis.DataFlowAnalysis;
 import sa.util.ReversedDirectedGraph;
 import soot.toolkits.graph.DirectedGraph;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,7 +13,7 @@ import java.util.Map;
  */
 public abstract class Solver<Domain, Node> {
 
-    protected DataFlowAnalysis<Domain, Node> problem;
+    protected DataFlowAnalysis<Domain, Node> analysis;
 
     protected DirectedGraph<Node> cfg;
 
@@ -28,10 +27,10 @@ public abstract class Solver<Domain, Node> {
      */
     protected Map<Node, Domain> outFlow;
 
-    protected Solver(DataFlowAnalysis<Domain, Node> problem,
+    protected Solver(DataFlowAnalysis<Domain, Node> analysis,
                      DirectedGraph<Node> cfg) {
-        this.problem = problem;
-        this.cfg = problem.isForward() ? cfg : new ReversedDirectedGraph<>(cfg);
+        this.analysis = analysis;
+        this.cfg = analysis.isForward() ? cfg : new ReversedDirectedGraph<>(cfg);
     }
 
     public void solve() {
@@ -43,22 +42,22 @@ public abstract class Solver<Domain, Node> {
      * Returns the data-flow value before each node.
      */
     public Map<Node, Domain> getBeforeFlow() {
-        return problem.isForward() ? inFlow : outFlow;
+        return analysis.isForward() ? inFlow : outFlow;
     }
 
     /**
      * Returns the data-flow value after each node.
      */
     public Map<Node, Domain> getAfterFlow() {
-        return problem.isForward() ? outFlow : inFlow;
+        return analysis.isForward() ? outFlow : inFlow;
     }
 
     protected void initialize(DirectedGraph<Node> cfg) {
         for (Node node : cfg) {
             if (cfg.getHeads().contains(node)) {
-                inFlow.put(node, problem.getEntryInitialValue());
+                inFlow.put(node, analysis.getEntryInitialValue());
             }
-            outFlow.put(node, problem.newInitialValue());
+            outFlow.put(node, analysis.newInitialValue());
         }
     }
 

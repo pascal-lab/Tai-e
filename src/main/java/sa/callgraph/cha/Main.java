@@ -1,6 +1,5 @@
 package sa.callgraph.cha;
 
-import soot.Pack;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
