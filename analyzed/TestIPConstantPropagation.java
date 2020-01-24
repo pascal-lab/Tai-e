@@ -7,6 +7,7 @@ public class TestIPConstantPropagation {
         int y = a.constant();
         a.foo(20);
         branch();
+        multipleReturn();
     }
 
     static void branch() {
@@ -23,6 +24,12 @@ public class TestIPConstantPropagation {
             y = five();
         }
         int z = y;
+    }
+
+    static void multipleReturn() {
+        int x = five();
+        int y = five();
+        int z = x * y;
     }
 
     static int five() {

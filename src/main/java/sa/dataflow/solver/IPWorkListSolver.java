@@ -1,6 +1,7 @@
 package sa.dataflow.solver;
 
 import sa.dataflow.analysis.IPDataFlowAnalysis;
+import sa.icfg.Edge;
 import sa.icfg.ICFG;
 
 import java.util.LinkedHashMap;
@@ -22,30 +23,37 @@ public class IPWorkListSolver<Domain, Method, Node>
 
     @Override
     protected void solveFixedPoint(ICFG<Method, Node> icfg) {
+        // TODO - A little too much special cases, to be refactored
         workList = new LinkedList<>(icfg.getHeads());
         while (!workList.isEmpty()) {
             Node node = workList.remove();
             Domain in;
-            if (icfg.getInEdgesOf(node).isEmpty()) {
+            if (icfg.getInEdgesOf(node).isEmpty()) { // heads of entry methods
                 in = inFlow.get(node);
-            } else {
+            } else { // other nodes
                 in = icfg.getInEdgesOf(node)
                         .stream()
                         .map(edgeFlow::get)
                         .reduce(analysis.newInitialFlow(), analysis::meet);
+                inFlow.put(node, in);
             }
+            boolean changed = false;
             Domain out = outFlow.get(node);
-            boolean changed;
+            if (out == null) { // node has not been visited before
+                out = analysis.newInitialFlow();
+                outFlow.put(node, out);
+                changed = true;
+            }
             if (icfg.isCallSite(node)) {
-                changed = analysis.transferCallNode(node, in, out);
+                changed |= analysis.transferCallNode(node, in, out);
             } else {
-                changed = analysis.transfer(node, in, out);
+                changed |= analysis.transfer(node, in, out);
             }
             if (changed) {
-                icfg.getOutEdgesOf(node).forEach(edge -> {
+                for (Edge<Node> edge : icfg.getOutEdgesOf(node)) {
                     analysis.transferEdge(edge, in, out, edgeFlow.get(edge));
                     workList.add(edge.getTarget());
-                });
+                }
             }
         }
     }

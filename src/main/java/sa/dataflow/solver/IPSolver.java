@@ -57,7 +57,6 @@ public abstract class IPSolver<Domain, Method, Node> {
             if (icfg.getHeads().contains(node)) {
                 inFlow.put(node, analysis.getEntryInitialFlow(node));
             }
-            outFlow.put(node, analysis.newInitialFlow());
             icfg.getOutEdgesOf(node)
                     .forEach(edge ->
                             edgeFlow.put(edge, analysis.newInitialFlow()));

@@ -47,6 +47,7 @@ public class IPConstantPropagation extends SceneTransformer
                 .getActiveBody()
                 .getParameterLocals()
                 .forEach(param -> entryFlow.update(param, Value.getNAC()));
+        // TODO - handle entry instance methods
         return entryFlow;
     }
 
