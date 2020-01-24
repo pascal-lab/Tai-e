@@ -1,8 +1,10 @@
 package sa.icfg;
 
+import sa.dataflow.analysis.EdgeTransfer;
+
 import java.util.Objects;
 
-public class Edge<Node> {
+public abstract class Edge<Node> {
 
     public enum Kind {
         LOCAL, // intra-procedural edge
@@ -10,19 +12,19 @@ public class Edge<Node> {
         RETURN, // return edge
     }
 
-    private final Kind kind;
+    protected final Kind kind;
 
-    private final Node source;
+    protected final Node source;
 
-    private final Node target;
+    protected final Node target;
 
-    private final int hashCode;
+    protected final int hashCode;
 
     public Edge(Kind kind, Node source, Node target) {
         this.kind = kind;
         this.source = source;
         this.target = target;
-        this.hashCode = Objects.hash(kind, source, target);
+        this.hashCode = computeHashCode();
     }
 
     public Kind getKind() {
@@ -35,6 +37,14 @@ public class Edge<Node> {
 
     public Node getTarget() {
         return target;
+    }
+
+    public abstract <Domain> void accept(EdgeTransfer<Node, Domain> transfer,
+                                Domain sourceInFlow, Domain sourceOutFlow,
+                                Domain edgeFlow);
+
+    protected int computeHashCode() {
+        return Objects.hash(kind, source, target);
     }
 
     @Override

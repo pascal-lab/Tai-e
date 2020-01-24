@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class IPSolver<Domain, Method, Node> {
 
-    protected IPDataFlowAnalysis<Domain, Method, Node> problem;
+    protected IPDataFlowAnalysis<Domain, Method, Node> analysis;
 
     protected ICFG<Method, Node> icfg;
 
@@ -27,9 +27,9 @@ public abstract class IPSolver<Domain, Method, Node> {
      */
     protected Map<Edge<Node>, Domain> edgeFlow;
 
-    protected IPSolver(IPDataFlowAnalysis<Domain, Method, Node> problem,
+    protected IPSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
                      ICFG<Method, Node> icfg) {
-        this.problem = problem;
+        this.analysis = analysis;
         this.icfg = icfg;
     }
 
@@ -42,25 +42,25 @@ public abstract class IPSolver<Domain, Method, Node> {
      * Returns the data-flow value before each node.
      */
     public Map<Node, Domain> getBeforeFlow() {
-        return problem.isForward() ? inFlow : outFlow;
+        return analysis.isForward() ? inFlow : outFlow;
     }
 
     /**
      * Returns the data-flow value after each node.
      */
     public Map<Node, Domain> getAfterFlow() {
-        return problem.isForward() ? outFlow : inFlow;
+        return analysis.isForward() ? outFlow : inFlow;
     }
 
     protected void initialize(ICFG<Method, Node> icfg) {
         for (Node node : icfg) {
             if (icfg.getHeads().contains(node)) {
-                inFlow.put(node, problem.getEntryInitialValue());
+                inFlow.put(node, analysis.getEntryInitialValue());
             }
-            outFlow.put(node, problem.newInitialValue());
-            icfg.getInEdgesOf(node)
+            outFlow.put(node, analysis.newInitialValue());
+            icfg.getOutEdgesOf(node)
                     .forEach(edge ->
-                            edgeFlow.put(edge, problem.newInitialValue()));
+                            edgeFlow.put(edge, analysis.newInitialValue()));
         }
     }
 

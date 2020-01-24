@@ -1,6 +1,6 @@
 package sa.dataflow.analysis;
 
-import sa.dataflow.analysis.DataFlowAnalysis;
+import sa.icfg.Edge;
 
 /**
  * Inter-procedural data-flow analysis problem.
@@ -13,9 +13,11 @@ public interface IPDataFlowAnalysis<Domain, Method, Node>
 
     boolean transferCallNode(Node callSite, Domain in, Domain out);
 
-    boolean transferCallEdge(Node callSite, Domain callSiteIn,
-                                  Method callee, Node entry, Domain entryFlow);
+    default void transferEdge(Edge<Node> edge,
+                              Domain sourceInFlow, Domain sourceOutFlow,
+                              Domain edgeFlow) {
+        edge.accept(getEdgeTransfer(), sourceInFlow, sourceOutFlow, edgeFlow);
+    }
 
-    boolean transferReturnEdge(Method callee, Node exit, Domain exitInFlow,
-                                 Domain exitFlow, Node callSite, Node returnSite);
+    EdgeTransfer<Node, Domain> getEdgeTransfer();
 }
