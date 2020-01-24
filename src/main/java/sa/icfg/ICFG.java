@@ -28,10 +28,4 @@ public interface ICFG<Method, Node> extends DirectedGraph<Node> {
     Method getContainingMethodOf(Node node);
 
     boolean isCallSite(Node node);
-
-    boolean isReturnSite(Node node);
-
-    boolean isFunctionEntry(Node node);
-
-    boolean isFunctionExit(Node node);
 }

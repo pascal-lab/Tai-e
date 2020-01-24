@@ -8,8 +8,8 @@ public class ReturnEdge<Node> extends Edge<Node> {
 
     private final Node callSite;
 
-    public ReturnEdge(Kind kind, Node source, Node target, Node callSite) {
-        super(kind, source, target);
+    public ReturnEdge(Node source, Node target, Node callSite) {
+        super(Kind.RETURN, source, target);
         this.callSite = callSite;
     }
 

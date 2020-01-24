@@ -4,8 +4,8 @@ import sa.dataflow.analysis.EdgeTransfer;
 
 public class CallEdge<Node> extends Edge<Node> {
 
-    public CallEdge(Kind kind, Node source, Node target) {
-        super(kind, source, target);
+    public CallEdge(Node source, Node target) {
+        super(Kind.CALL, source, target);
     }
 
     @Override

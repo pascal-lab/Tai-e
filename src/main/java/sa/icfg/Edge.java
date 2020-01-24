@@ -18,13 +18,12 @@ public abstract class Edge<Node> {
 
     protected final Node target;
 
-    protected final int hashCode;
+    private int hashCode = 0;
 
     public Edge(Kind kind, Node source, Node target) {
         this.kind = kind;
         this.source = source;
         this.target = target;
-        this.hashCode = computeHashCode();
     }
 
     public Kind getKind() {
@@ -59,6 +58,9 @@ public abstract class Edge<Node> {
 
     @Override
     public int hashCode() {
+        if (hashCode == 0) {
+            hashCode = computeHashCode();
+        }
         return hashCode;
     }
 

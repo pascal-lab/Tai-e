@@ -4,8 +4,8 @@ import sa.dataflow.analysis.EdgeTransfer;
 
 public class LocalEdge<Node> extends Edge<Node> {
 
-    public LocalEdge(Kind kind, Node source, Node target) {
-        super(kind, source, target);
+    public LocalEdge(Node source, Node target) {
+        super(Kind.LOCAL, source, target);
     }
 
     @Override
