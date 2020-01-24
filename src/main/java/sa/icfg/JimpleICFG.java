@@ -9,8 +9,12 @@ import soot.toolkits.graph.DirectedGraph;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static sa.util.CollectionUtils.addToMapSet;
 
@@ -20,6 +24,17 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     private Map<Unit, Set<Edge<Unit>>> outEdges;
     private Map<Unit, SootMethod> unitToMethod;
     private Map<SootMethod, DirectedGraph<Unit>> methodToCFG;
+
+    public JimpleICFG(CallGraph<Unit, SootMethod> callGraph) {
+        super(callGraph);
+        inEdges = new HashMap<>();
+        outEdges = new HashMap<>();
+        unitToMethod = new HashMap<>();
+        methodToCFG = new HashMap<>();
+        build(callGraph);
+    }
+
+    // Implementation of ICFG methods
 
     @Override
     public Collection<Edge<Unit>> getInEdgesOf(Unit unit) {
@@ -39,6 +54,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
     @Override
     public Collection<Unit> getExitsOf(SootMethod method) {
+        // TODO - do exceptional exits matter?
         return methodToCFG.get(method).getTails();
     }
 
@@ -56,6 +72,51 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     @Override
     public boolean isCallSite(Unit unit) {
         return ((Stmt) unit).containsInvokeExpr();
+    }
+
+    // Implementation of DirectGraph methods
+    @Override
+    public List<Unit> getHeads() {
+        return getEntryMethods()
+                .stream()
+                .map(this::getEntriesOf)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Unit> getTails() {
+        return getEntryMethods()
+                .stream()
+                .map(this::getExitsOf)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Unit> getPredsOf(Unit s) {
+        return inEdges.get(s)
+                .stream()
+                .map(Edge::getSource)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Unit> getSuccsOf(Unit s) {
+        return outEdges.get(s)
+                .stream()
+                .map(Edge::getTarget)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int size() {
+        return unitToMethod.size();
+    }
+
+    @Override
+    public Iterator<Unit> iterator() {
+        return unitToMethod.keySet().iterator();
     }
 
     private void build(CallGraph<Unit, SootMethod> callGraph) {
