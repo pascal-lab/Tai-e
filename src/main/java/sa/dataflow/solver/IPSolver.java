@@ -55,12 +55,12 @@ public abstract class IPSolver<Domain, Method, Node> {
     protected void initialize(ICFG<Method, Node> icfg) {
         for (Node node : icfg) {
             if (icfg.getHeads().contains(node)) {
-                inFlow.put(node, analysis.getEntryInitialValue());
+                inFlow.put(node, analysis.getEntryInitialFlow(node));
             }
-            outFlow.put(node, analysis.newInitialValue());
+            outFlow.put(node, analysis.newInitialFlow());
             icfg.getOutEdgesOf(node)
                     .forEach(edge ->
-                            edgeFlow.put(edge, analysis.newInitialValue()));
+                            edgeFlow.put(edge, analysis.newInitialFlow()));
         }
     }
 

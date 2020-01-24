@@ -13,14 +13,14 @@ public interface DataFlowAnalysis<Domain, Node> {
     boolean isForward();
 
     /**
-     * Returns initial in-flow value for entry node.
+     * Returns initial in-flow for entry node.
      */
-    Domain getEntryInitialValue();
+    Domain getEntryInitialFlow(Node entry);
 
     /**
      * Returns initial out-flow value for other nodes.
      */
-    Domain newInitialValue();
+    Domain newInitialFlow();
 
     /**
      * Meet operation for two lattice values.

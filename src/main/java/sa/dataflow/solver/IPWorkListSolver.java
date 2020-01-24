@@ -32,7 +32,7 @@ public class IPWorkListSolver<Domain, Method, Node>
                 in = icfg.getInEdgesOf(node)
                         .stream()
                         .map(edgeFlow::get)
-                        .reduce(analysis.newInitialValue(), analysis::meet);
+                        .reduce(analysis.newInitialFlow(), analysis::meet);
             }
             Domain out = outFlow.get(node);
             boolean changed;

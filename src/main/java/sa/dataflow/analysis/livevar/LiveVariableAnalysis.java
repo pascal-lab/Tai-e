@@ -32,12 +32,12 @@ public class LiveVariableAnalysis extends BodyTransformer
     }
 
     @Override
-    public FlowSet<Local> getEntryInitialValue() {
-        return newInitialValue();
+    public FlowSet<Local> getEntryInitialFlow(Unit entry) {
+        return newInitialFlow();
     }
 
     @Override
-    public FlowSet<Local> newInitialValue() {
+    public FlowSet<Local> newInitialFlow() {
         return new HashFlowSet<>();
     }
 

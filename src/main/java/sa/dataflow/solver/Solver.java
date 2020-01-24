@@ -55,9 +55,9 @@ public abstract class Solver<Domain, Node> {
     protected void initialize(DirectedGraph<Node> cfg) {
         for (Node node : cfg) {
             if (cfg.getHeads().contains(node)) {
-                inFlow.put(node, analysis.getEntryInitialValue());
+                inFlow.put(node, analysis.getEntryInitialFlow(node));
             }
-            outFlow.put(node, analysis.newInitialValue());
+            outFlow.put(node, analysis.newInitialFlow());
         }
     }
 

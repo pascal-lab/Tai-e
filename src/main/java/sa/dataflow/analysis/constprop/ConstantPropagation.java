@@ -52,18 +52,18 @@ public class ConstantPropagation extends BodyTransformer
     }
 
     @Override
-    public FlowMap getEntryInitialValue() {
-        return newInitialValue();
+    public FlowMap getEntryInitialFlow(Unit entry) {
+        return newInitialFlow();
     }
 
     @Override
-    public FlowMap newInitialValue() {
+    public FlowMap newInitialFlow() {
         return new FlowMap();
     }
 
     @Override
     public FlowMap meet(FlowMap m1, FlowMap m2) {
-        FlowMap result = newInitialValue();
+        FlowMap result = newInitialFlow();
         Stream.concat(m1.keySet().stream(), m2.keySet().stream())
                 .distinct()
                 .forEach(k -> result.put(k, meetValue(m1.get(k), m2.get(k))));

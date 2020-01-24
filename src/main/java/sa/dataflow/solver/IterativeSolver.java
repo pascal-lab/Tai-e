@@ -29,7 +29,7 @@ class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
                     in = cfg.getPredsOf(node)
                             .stream()
                             .map(outFlow::get)
-                            .reduce(analysis.newInitialValue(), analysis::meet);
+                            .reduce(analysis.newInitialFlow(), analysis::meet);
                     inFlow.put(node, in);
                 }
                 Domain out = outFlow.get(node);
