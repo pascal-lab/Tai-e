@@ -24,12 +24,19 @@ import java.util.Set;
 
 public class CHACallGraphBuilder extends SceneTransformer {
 
+    private static CallGraph<Unit, SootMethod> recentCallGraph;
+
+    public static CallGraph<Unit, SootMethod> getRecentCallGraph() {
+        return recentCallGraph;
+    }
+
     private FastHierarchy hierarchy;
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         hierarchy = Scene.v().getOrMakeFastHierarchy();
         CallGraph<Unit, SootMethod> callGraph = build();
+        recentCallGraph = callGraph;
         callGraph.forEach(System.out::println);
     }
 

@@ -13,4 +13,16 @@ public interface FlowMap<K, V> extends Map<K, V> {
      * Returns if the update changes this FlowMap.
      */
     boolean update(K key, V value);
+
+    /**
+     * Copies the content from given map to this FlowMap.
+     * Returns if the copy changes this FlowMap
+     */
+    default boolean copyFrom(FlowMap<K, V> map) {
+        boolean changed = false;
+        for (Entry<K, V> entry : map.entrySet()) {
+            changed |= update(entry.getKey(), entry.getValue());
+        }
+        return changed;
+    }
 }

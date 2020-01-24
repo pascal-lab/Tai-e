@@ -21,6 +21,6 @@ public class FlowMap extends LinkedHashMap<Local, Value>
 
     @Override
     public boolean update(Local key, Value value) {
-        return Objects.equals(put(key, value), value);
+        return !Objects.equals(put(key, value), value);
     }
 }

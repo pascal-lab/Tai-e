@@ -3,6 +3,7 @@ package sa.dataflow.solver;
 import sa.dataflow.analysis.IPDataFlowAnalysis;
 import sa.icfg.ICFG;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -14,6 +15,9 @@ public class IPWorkListSolver<Domain, Method, Node>
     public IPWorkListSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
                             ICFG<Method, Node> icfg) {
         super(analysis, icfg);
+        inFlow = new LinkedHashMap<>();
+        outFlow = new LinkedHashMap<>();
+        edgeFlow = new LinkedHashMap<>();
     }
 
     @Override
