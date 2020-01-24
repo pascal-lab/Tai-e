@@ -7,9 +7,9 @@ import java.util.LinkedHashMap;
 
 class IterativeSolver<Domain, Node> extends Solver<Domain, Node> {
 
-    IterativeSolver(DataFlowAnalysis<Domain, Node> problem,
+    IterativeSolver(DataFlowAnalysis<Domain, Node> analysis,
                     DirectedGraph<Node> cfg) {
-        super(problem, cfg);
+        super(analysis, cfg);
         inFlow = new LinkedHashMap<>();
         outFlow = new LinkedHashMap<>();
     }

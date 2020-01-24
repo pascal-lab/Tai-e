@@ -203,7 +203,7 @@ public class ConstantPropagation extends BodyTransformer
         outputResult(b, solver.getAfterFlow());
     }
 
-    private synchronized void outputResult(Body body, Map<Unit, FlowMap> result) {
+    synchronized void outputResult(Body body, Map<Unit, FlowMap> result) {
         System.out.println("------ " + body.getMethod() + " -----");
         body.getUnits().forEach(u ->
                 System.out.println("L" + u.getJavaSourceStartLineNumber()

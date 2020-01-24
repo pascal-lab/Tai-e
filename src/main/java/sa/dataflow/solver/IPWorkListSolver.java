@@ -11,9 +11,9 @@ public class IPWorkListSolver<Domain, Method, Node>
 
     private Queue<Node> workList;
 
-    public IPWorkListSolver(IPDataFlowAnalysis<Domain, Method, Node> problem,
+    public IPWorkListSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
                             ICFG<Method, Node> icfg) {
-        super(problem, icfg);
+        super(analysis, icfg);
     }
 
     @Override
