@@ -8,6 +8,7 @@ public class TestIPConstantPropagation {
         a.foo(20);
         branch();
         multipleReturn();
+        loop1();
     }
 
     static void branch() {
@@ -43,6 +44,16 @@ public class TestIPConstantPropagation {
 
     static boolean getBool(boolean b) {
         return b;
+    }
+
+    static void loop1() {
+        boolean b = anyBool();
+        int x, y, z;
+        while (b) {
+            x = y;
+            y = z;
+            z = 1;
+        }
     }
 }
 

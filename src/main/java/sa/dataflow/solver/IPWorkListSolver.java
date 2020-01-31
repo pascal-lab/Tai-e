@@ -11,8 +11,6 @@ import java.util.Queue;
 public class IPWorkListSolver<Domain, Method, Node>
         extends IPSolver<Domain, Method, Node> {
 
-    private Queue<Node> workList;
-
     public IPWorkListSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
                             ICFG<Method, Node> icfg) {
         super(analysis, icfg);
@@ -24,7 +22,7 @@ public class IPWorkListSolver<Domain, Method, Node>
     @Override
     protected void solveFixedPoint(ICFG<Method, Node> icfg) {
         // TODO - A little too much special cases, to be refactored
-        workList = new LinkedList<>(icfg.getHeads());
+        Queue<Node> workList = new LinkedList<>(icfg.getHeads());
         while (!workList.isEmpty()) {
             Node node = workList.remove();
             Domain in;
