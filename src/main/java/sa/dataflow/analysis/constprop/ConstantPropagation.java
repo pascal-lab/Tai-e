@@ -118,7 +118,7 @@ public class ConstantPropagation extends BodyTransformer
      */
     public Value toValue(FlowMap in, Type type, soot.Value v) {
         if (v instanceof Local) {
-            return in.get((Local) v);
+            return in.get(v);
         } else if (v instanceof Constant) {
             if (v instanceof IntConstant) {
                 int value = ((IntConstant) v).value;

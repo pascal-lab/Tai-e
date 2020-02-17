@@ -1,6 +1,6 @@
 package sa.pta.analysis.data;
 
-import sa.pta.pts.PointsToSet;
+import sa.pta.set.PointsToSet;
 
 abstract class AbstractPointer implements Pointer {
 
