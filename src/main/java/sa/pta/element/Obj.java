@@ -5,6 +5,7 @@ public interface Obj  {
     enum Kind {
         NORMAL,
         STRING_CONSTANT,
+        // array, class constants, ...
     }
 
     Type getType();

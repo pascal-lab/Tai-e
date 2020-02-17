@@ -1,4 +1,5 @@
 package sa.pta.analysis.context;
 
-public enum DefaultContext {
+public enum DefaultContext implements Context {
+    INSTANCE,
 }

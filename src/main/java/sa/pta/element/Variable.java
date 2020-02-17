@@ -1,5 +1,7 @@
 package sa.pta.element;
 
+import java.util.Set;
+
 public interface Variable {
 
     Type getType();
@@ -7,4 +9,22 @@ public interface Variable {
     Method getContainingMethod();
 
     String getName();
+
+    /**
+     *
+     * @return set of call sites where this variable is the receiver.
+     */
+    Set<CallSite> getCallSites();
+
+    /**
+     *
+     * @return set of instance loads where this variable is the base.
+     */
+    Set<InstanceLoad> getLoads();
+
+    /**
+     *
+     * @return set of instance stores where this variable is the base.
+     */
+    Set<InstanceStore> getStores();
 }
