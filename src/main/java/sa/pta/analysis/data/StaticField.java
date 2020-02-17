@@ -4,7 +4,11 @@ import sa.pta.element.Field;
 
 public class StaticField extends AbstractPointer {
 
-    private Field field;
+    private final Field field;
+
+    StaticField(Field field) {
+        this.field = field;
+    }
 
     public Field getField() {
         return field;

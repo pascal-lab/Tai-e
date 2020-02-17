@@ -5,9 +5,14 @@ import sa.pta.element.Variable;
 
 public class CSVariable extends AbstractPointer implements CSElement {
 
-    private Context context;
+    private final Context context;
 
-    private Variable var;
+    private final Variable var;
+
+    CSVariable(Context context, Variable var) {
+        this.context = context;
+        this.var = var;
+    }
 
     @Override
     public Context getContext() {

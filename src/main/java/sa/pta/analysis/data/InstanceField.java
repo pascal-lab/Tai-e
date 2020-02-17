@@ -4,9 +4,14 @@ import sa.pta.element.Field;
 
 public class InstanceField extends AbstractPointer {
 
-    private CSObj base;
+    private final CSObj base;
 
-    private Field field;
+    private final Field field;
+
+    InstanceField(CSObj base, Field field) {
+        this.base = base;
+        this.field = field;
+    }
 
     public CSObj getBase() {
         return base;
