@@ -1,9 +1,12 @@
-package sa.pta.element;
+package sa.pta.statement;
+
+import sa.pta.element.Field;
+import sa.pta.element.Variable;
 
 /**
  * Represents an instance load: to = base.field.
  */
-public class InstanceLoad {
+public class InstanceLoad implements Statement {
 
     private final Variable to;
 

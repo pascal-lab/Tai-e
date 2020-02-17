@@ -1,9 +1,12 @@
-package sa.pta.element;
+package sa.pta.statement;
+
+import sa.pta.element.Field;
+import sa.pta.element.Variable;
 
 /**
  * Represents an instance store: base.field = from.
  */
-public class InstanceStore {
+public class InstanceStore implements Statement {
 
     private final Variable base;
 

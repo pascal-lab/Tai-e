@@ -1,5 +1,8 @@
 package sa.pta.element;
 
+import sa.pta.statement.InstanceLoad;
+import sa.pta.statement.InstanceStore;
+
 import java.util.Set;
 
 public interface Variable {
