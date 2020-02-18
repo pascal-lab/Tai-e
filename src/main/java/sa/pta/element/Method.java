@@ -9,6 +9,8 @@ public interface Method {
 
     boolean isStatic();
 
+    boolean isNative();
+
     Type getClassType();
 
     String getName();

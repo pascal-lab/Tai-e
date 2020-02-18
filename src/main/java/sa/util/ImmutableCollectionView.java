@@ -27,7 +27,8 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
 
     @Override
     public boolean contains(Object o) {
-        return collection.contains(o);
+        throw new UnsupportedOperationException(
+                "contains() currently is not supported");
     }
 
     @Override
