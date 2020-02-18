@@ -1,5 +1,7 @@
 package sa.pta.element;
 
+import sa.pta.statement.Statement;
+
 import java.util.List;
 import java.util.Set;
 
@@ -20,4 +22,6 @@ public interface Method {
     List<Variable> getParameters();
 
     Set<Variable> getReturnVariables();
+
+    Set<Statement> getStatements();
 }
