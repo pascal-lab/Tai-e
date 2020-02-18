@@ -1,9 +1,12 @@
 package sa.callgraph;
 
+import sa.util.CollectionUtils;
 import sa.util.CollectionView;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +20,33 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected Map<Method, Set<CallSite>> callSitesIn;
     protected Set<Method> entryMethods;
     protected Set<Method> reachableMethods;
+
+    protected AbstractCallGraph() {
+        callSiteToEdges = new HashMap<>();
+        calleeToEdges = new HashMap<>();
+        containingMethod = new HashMap<>();
+        callSitesIn = new HashMap<>();
+        entryMethods = new HashSet<>();
+        reachableMethods = new HashSet<>();
+    }
+
+    public void setEntryMethods(Collection<Method> entryMethods) {
+        this.entryMethods.addAll(entryMethods);
+        entryMethods.forEach(this::addNewMethod);
+    }
+
+    public boolean addEdge(CallSite callSite, Method callee, CallKind kind) {
+        addNewMethod(callee);
+        Edge<CallSite, Method> edge = new Edge<>(kind, callSite, callee);
+        return CollectionUtils.addToMapSet(callSiteToEdges, callSite, edge) ||
+                CollectionUtils.addToMapSet(calleeToEdges, callee, edge);
+    }
+
+    /**
+     * Adds a new method to this call graph.
+     * Returns true if the method was not in this call graph.
+     */
+    protected abstract boolean addNewMethod(Method method);
 
     @Override
     public Collection<Method> getCallees(CallSite callSite) {
