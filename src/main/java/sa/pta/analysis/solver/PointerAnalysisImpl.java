@@ -2,13 +2,12 @@ package sa.pta.analysis.solver;
 
 import sa.pta.analysis.ProgramManager;
 import sa.pta.analysis.context.ContextSelector;
-import sa.pta.analysis.context.DefaultContext;
 import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.ElementManager;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.set.PointsToSetFactory;
 
-public class PointerAnalysisImpl implements PointerAnalysis {
+public abstract class PointerAnalysisImpl implements PointerAnalysis {
 
     private HeapModel heapModel;
 
@@ -41,6 +40,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     public void solve() {
+        initialize();
+
+    }
+
+    private void initialize() {
         programManager.getEntryMethods()
                 .stream()
                 .map(m -> elementManager
@@ -48,7 +52,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 .forEach(this::processNewMethod);
     }
 
-    private void processNewMethod(CSMethod method) {
-        
+    private void processNewMethod(CSMethod csmethod) {
+
     }
 }

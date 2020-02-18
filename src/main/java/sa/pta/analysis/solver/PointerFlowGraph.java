@@ -3,7 +3,6 @@ package sa.pta.analysis.solver;
 import sa.pta.analysis.data.Pointer;
 import sa.pta.element.Type;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +47,7 @@ public class PointerFlowGraph {
     }
 
     public Iterator<PointerFlowEdge> getEdges() {
-        edges.values()
+        return edges.values()
                 .stream()
                 .flatMap(Set::stream)
                 .iterator();
