@@ -1,8 +1,8 @@
 package sa.pta.set;
 
-import sa.pta.element.Obj;
+import sa.pta.analysis.data.CSObj;
 
 public interface PointsToSet {
 
-    boolean addObject(Obj obj);
+    boolean addObject(CSObj obj);
 }

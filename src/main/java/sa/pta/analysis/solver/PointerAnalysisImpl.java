@@ -6,11 +6,14 @@ import sa.pta.analysis.context.Context;
 import sa.pta.analysis.context.ContextSelector;
 import sa.pta.analysis.data.CSCallSite;
 import sa.pta.analysis.data.CSMethod;
+import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.ElementManager;
+import sa.pta.analysis.data.Pointer;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.element.CallSite;
 import sa.pta.element.Method;
+import sa.pta.element.Obj;
 import sa.pta.element.Variable;
 import sa.pta.set.PointsToSetFactory;
 import sa.pta.statement.Allocation;
@@ -20,6 +23,8 @@ import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
 import sa.pta.statement.Statement;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.stream.Stream;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
@@ -37,6 +42,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private ContextSelector contextSelector;
 
     private PointsToSetFactory setFactory;
+
+    private Queue<Pointer> workList;
 
     @Override
     public HeapModel getHeapModel() {
@@ -71,6 +78,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void initialize() {
         callGraph = new OnFlyCallGraph(elementManager);
         pointerFlowGraph = new PointerFlowGraph(setFactory);
+        workList = new LinkedList<>();
         programManager.getEntryMethods()
                 .stream()
                 .map(m -> elementManager
@@ -82,7 +90,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private void processNewMethod(CSMethod csmethod) {
+        // build pointer flow graph for the method
+        addNewMethodToPFG(csmethod);
+        // process static calls in this method
 
+        // process allocation statements of this method
+        processAllocation(csmethod);
     }
 
     /**
@@ -143,5 +156,24 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void addVarToPFG(Context context, Variable var) {
         pointerFlowGraph.addNewPointer(
                 elementManager.getCSVariable(context, var));
+    }
+
+    private void processAllocation(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt.getKind() == Statement.Kind.ALLOCATION) {
+                Allocation alloc = (Allocation) stmt;
+                // obtain context-sensitive heap object
+                Object allocSite = alloc.getAllocationSite();
+                Obj obj = heapModel.getObj(allocSite);
+                Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+                CSObj csObj = elementManager.getCSObj(heapContext, obj);
+                // obtain lhs variable
+                CSVariable lhs = elementManager.getCSVariable(context, alloc.getVar());
+                lhs.getPointsToSet().addObject(csObj);
+                workList.add(lhs);
+            }
+        }
     }
 }
