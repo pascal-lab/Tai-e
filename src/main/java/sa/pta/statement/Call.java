@@ -24,4 +24,9 @@ public class Call implements Statement {
     public Variable getReceivingVar() {
         return receivingVar;
     }
+
+    @Override
+    public Kind getKind() {
+        return Kind.CALL;
+    }
 }

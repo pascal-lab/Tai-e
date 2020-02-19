@@ -2,6 +2,7 @@ package sa.pta.analysis.solver;
 
 import sa.pta.analysis.data.Pointer;
 import sa.pta.element.Type;
+import sa.pta.set.PointsToSetFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class PointerFlowGraph {
+class PointerFlowGraph {
+
+    private PointsToSetFactory setFactory;
 
     private Set<Pointer> pointers = new HashSet<>();
 
@@ -18,9 +21,19 @@ public class PointerFlowGraph {
 
     private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
+    PointerFlowGraph(PointsToSetFactory setFactory) {
+        this.setFactory = setFactory;
+    }
+    
+    public void addNewPointer(Pointer pointer) {
+        if (pointers.add(pointer)) {
+            pointer.setPointsToSet(setFactory.makePointsToSet());
+        }
+    }
+    
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        pointers.add(from);
-        pointers.add(to);
+        addNewPointer(from);
+        addNewPointer(to);
         if (successors.computeIfAbsent(from, k -> new HashSet<>()).add(to)) {
             edges.computeIfAbsent(from, k -> new HashSet<>())
                     .add(new PointerFlowEdge(kind, from, to));
@@ -31,8 +44,8 @@ public class PointerFlowGraph {
     }
 
     public boolean addCastEdge(Pointer from, Pointer to, Type type) {
-        pointers.add(from);
-        pointers.add(to);
+        addNewPointer(from);
+        addNewPointer(to);
         successors.computeIfAbsent(from, k-> new HashSet<>()).add(to);
         return edges.computeIfAbsent(from, k -> new HashSet<>())
                 .add(new PointerFlowEdge(PointerFlowEdge.Kind.CAST, from, to, type));

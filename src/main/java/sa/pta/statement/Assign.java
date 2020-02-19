@@ -23,4 +23,9 @@ public class Assign implements Statement {
     public Variable getTo() {
         return to;
     }
+
+    @Override
+    public Kind getKind() {
+        return Kind.ASSIGN;
+    }
 }

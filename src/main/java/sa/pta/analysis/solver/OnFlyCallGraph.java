@@ -11,11 +11,11 @@ import sa.pta.statement.Call;
 import sa.pta.statement.Statement;
 import sa.util.CollectionUtils;
 
-public class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
+class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     private ElementManager elementManager;
 
-    public void setElementManager(ElementManager elementManager) {
+    OnFlyCallGraph(ElementManager elementManager) {
         this.elementManager = elementManager;
     }
 

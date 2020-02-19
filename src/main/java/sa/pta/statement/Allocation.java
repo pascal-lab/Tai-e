@@ -5,13 +5,13 @@ import sa.pta.element.Variable;
 /**
  * Represents a new statement: var = new T;
  */
-public class New implements Statement {
+public class Allocation implements Statement {
 
     private final Variable var;
 
     private final Object allocationSite;
 
-    public New(Variable var, Object allocationSite) {
+    public Allocation(Variable var, Object allocationSite) {
         this.var = var;
         this.allocationSite = allocationSite;
     }
@@ -22,5 +22,10 @@ public class New implements Statement {
 
     public Object getAllocationSite() {
         return allocationSite;
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.ALLOCATION;
     }
 }

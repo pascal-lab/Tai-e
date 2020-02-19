@@ -4,5 +4,7 @@ import sa.pta.set.PointsToSet;
 
 public interface Pointer {
 
+    void setPointsToSet(PointsToSet pointsToSet);
+
     PointsToSet getPointsToSet();
 }

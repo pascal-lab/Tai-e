@@ -31,4 +31,9 @@ public class InstanceStore implements Statement {
     public Variable getFrom() {
         return from;
     }
+
+    @Override
+    public Kind getKind() {
+        return Kind.INSTANCE_STORE;
+    }
 }

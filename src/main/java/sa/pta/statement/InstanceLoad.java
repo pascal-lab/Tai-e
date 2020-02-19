@@ -31,4 +31,9 @@ public class InstanceLoad implements Statement {
     public Field getField() {
         return field;
     }
+
+    @Override
+    public Kind getKind() {
+        return Kind.INSTANCE_LOAD;
+    }
 }
