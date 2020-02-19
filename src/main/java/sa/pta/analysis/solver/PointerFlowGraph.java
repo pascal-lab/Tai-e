@@ -2,7 +2,6 @@ package sa.pta.analysis.solver;
 
 import sa.pta.analysis.data.Pointer;
 import sa.pta.element.Type;
-import sa.pta.set.PointsToSetFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,24 +12,16 @@ import java.util.Set;
 
 class PointerFlowGraph {
 
-    private PointsToSetFactory setFactory;
-
     private Set<Pointer> pointers = new HashSet<>();
 
     private Map<Pointer, Set<PointerFlowEdge>> edges = new HashMap<>();
 
     private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
-    PointerFlowGraph(PointsToSetFactory setFactory) {
-        this.setFactory = setFactory;
-    }
-    
     public void addNewPointer(Pointer pointer) {
-        if (pointers.add(pointer)) {
-            pointer.setPointsToSet(setFactory.makePointsToSet());
-        }
+        pointers.add(pointer);
     }
-    
+
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         addNewPointer(from);
         addNewPointer(to);

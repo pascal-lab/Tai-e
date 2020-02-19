@@ -16,5 +16,7 @@ public interface CallSite {
 
     List<Variable> getArguments();
 
+    Variable getLHS();
+
     Method getContainingMethod();
 }

@@ -9,7 +9,6 @@ import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.ElementManager;
-import sa.pta.analysis.data.Pointer;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.element.CallSite;
 import sa.pta.element.Method;
@@ -23,8 +22,6 @@ import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
 import sa.pta.statement.Statement;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.stream.Stream;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
@@ -43,7 +40,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private PointsToSetFactory setFactory;
 
-    private Queue<Pointer> workList;
+    private WorkList workList;
 
     @Override
     public HeapModel getHeapModel() {
@@ -77,25 +74,22 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private void initialize() {
         callGraph = new OnFlyCallGraph(elementManager);
-        pointerFlowGraph = new PointerFlowGraph(setFactory);
-        workList = new LinkedList<>();
-        programManager.getEntryMethods()
-                .stream()
-                .map(m -> elementManager
-                        .getCSMethod(contextSelector.getDefaultContext(), m))
-                .forEach(m -> {
-                    callGraph.addEntryMethod(m);
-                    processNewMethod(m);
-                });
+        pointerFlowGraph = new PointerFlowGraph();
+        workList = new WorkList();
+        for (Method entry : programManager.getEntryMethods()) {
+            CSMethod csMethod = elementManager.getCSMethod(
+                    contextSelector.getDefaultContext(), entry);
+            callGraph.addEntryMethod(csMethod);
+            processNewMethod(csMethod);
+        }
     }
 
-    private void processNewMethod(CSMethod csmethod) {
-        // build pointer flow graph for the method
-        addNewMethodToPFG(csmethod);
-        // process static calls in this method
-
-        // process allocation statements of this method
-        processAllocation(csmethod);
+    private void processNewMethod(CSMethod csMethod) {
+        // mark csMethod as reachable
+        callGraph.addNewMethod(csMethod);
+        addNewMethodToPFG(csMethod);
+        processStaticCalls(csMethod);
+        processAllocations(csMethod);
     }
 
     /**
@@ -158,7 +152,32 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 elementManager.getCSVariable(context, var));
     }
 
-    private void processAllocation(CSMethod csMethod) {
+    /**
+     * Process static calls in given context-sensitive method.
+     */
+    private void processStaticCalls(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt.getKind() == Statement.Kind.CALL) {
+                CallSite callSite = (CallSite) stmt;
+                if (callSite.isStatic()) {
+
+                    Method callee = callSite.getMethod();
+                    Context calleeCtx = contextSelector
+                            .selectContext(callSite, callee);
+                    CSMethod csCallee = elementManager
+                            .getCSMethod(calleeCtx, callee);
+
+                }
+            }
+        }
+    }
+
+    /**
+     * Process allocation statements in given context-sensitive method.
+     */
+    private void processAllocations(CSMethod csMethod) {
         Context context = csMethod.getContext();
         Method method = csMethod.getMethod();
         for (Statement stmt : method.getStatements()) {
@@ -171,8 +190,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 CSObj csObj = elementManager.getCSObj(heapContext, obj);
                 // obtain lhs variable
                 CSVariable lhs = elementManager.getCSVariable(context, alloc.getVar());
-                lhs.getPointsToSet().addObject(csObj);
-                workList.add(lhs);
+                workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
             }
         }
     }

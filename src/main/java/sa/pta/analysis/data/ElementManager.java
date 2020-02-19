@@ -6,8 +6,11 @@ import sa.pta.element.Field;
 import sa.pta.element.Method;
 import sa.pta.element.Obj;
 import sa.pta.element.Variable;
+import sa.pta.set.PointsToSetFactory;
 
 public interface ElementManager {
+
+    void setPointsToSetFactory(PointsToSetFactory setFactory);
 
     CSVariable getCSVariable(Context context, Variable var);
 
@@ -15,7 +18,7 @@ public interface ElementManager {
 
     StaticField getStaticField(Field field);
 
-    CSObj getCSObj(Context context, Obj obj);
+    CSObj getCSObj(Context heapContext, Obj obj);
 
     CSCallSite getCSCallSite(Context context, CallSite callSite);
 

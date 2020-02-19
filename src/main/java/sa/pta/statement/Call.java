@@ -10,19 +10,19 @@ public class Call implements Statement {
 
     private final CallSite callSite;
 
-    private final Variable receivingVar;
+    private final Variable lhs;
 
-    public Call(CallSite callSite, Variable receivingVar) {
+    public Call(CallSite callSite, Variable lhs) {
         this.callSite = callSite;
-        this.receivingVar = receivingVar;
+        this.lhs = lhs;
     }
 
     public CallSite getCallSite() {
         return callSite;
     }
 
-    public Variable getReceivingVar() {
-        return receivingVar;
+    public Variable getLHS() {
+        return lhs;
     }
 
     @Override

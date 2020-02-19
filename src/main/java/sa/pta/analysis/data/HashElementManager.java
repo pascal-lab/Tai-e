@@ -6,6 +6,7 @@ import sa.pta.element.Field;
 import sa.pta.element.Method;
 import sa.pta.element.Obj;
 import sa.pta.element.Variable;
+import sa.pta.set.PointsToSetFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,8 @@ import java.util.function.BiFunction;
  * Hash map based element manager.
  */
 public class HashElementManager implements ElementManager {
+
+    private PointsToSetFactory setFactory;
 
     private Map<Context, Map<Variable, CSVariable>> vars = new HashMap<>();
 
@@ -29,24 +32,33 @@ public class HashElementManager implements ElementManager {
     private Map<Context, Map<Method, CSMethod>> methods = new HashMap<>();
 
     @Override
+    public void setPointsToSetFactory(PointsToSetFactory setFactory) {
+        this.setFactory = setFactory;
+    }
+
+    @Override
     public CSVariable getCSVariable(Context context, Variable var) {
-        return getOrCreateCSElement(vars, context, var, CSVariable::new);
+        return initialPointsToSet(
+                getOrCreateCSElement(vars, context, var, CSVariable::new));
     }
 
     @Override
     public InstanceField getInstanceField(CSObj base, Field field) {
-        return getOrCreateCSElement(instanceFields, base, field,
-                InstanceField::new);
+        return initialPointsToSet(
+                getOrCreateCSElement(instanceFields,
+                        base, field, InstanceField::new));
     }
 
     @Override
     public StaticField getStaticField(Field field) {
-        return staticFields.computeIfAbsent(field, StaticField::new);
+        return initialPointsToSet(
+                staticFields.computeIfAbsent(field, StaticField::new));
+
     }
 
     @Override
-    public CSObj getCSObj(Context context, Obj obj) {
-        return getOrCreateCSElement(objs, context, obj, CSObj::new);
+    public CSObj getCSObj(Context heapContext, Obj obj) {
+        return getOrCreateCSElement(objs, heapContext, obj, CSObj::new);
     }
 
     @Override
@@ -57,6 +69,11 @@ public class HashElementManager implements ElementManager {
     @Override
     public CSMethod getCSMethod(Context context, Method method) {
         return getOrCreateCSElement(methods, context, method, CSMethod::new);
+    }
+
+    private <P extends Pointer> P initialPointsToSet(P pointer) {
+        pointer.setPointsToSet(setFactory.makePointsToSet());
+        return pointer;
     }
 
     private static <R, T, U> R getOrCreateCSElement(
