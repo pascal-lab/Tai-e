@@ -1,6 +1,7 @@
 package sa.pta.analysis.solver;
 
 import sa.callgraph.AbstractCallGraph;
+import sa.callgraph.Edge;
 import sa.pta.analysis.context.Context;
 import sa.pta.analysis.data.CSCallSite;
 import sa.pta.analysis.data.CSMethod;
@@ -17,6 +18,11 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     OnFlyCallGraph(ElementManager elementManager) {
         this.elementManager = elementManager;
+    }
+
+    boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
+        return CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge) ||
+                CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
     }
 
     @Override

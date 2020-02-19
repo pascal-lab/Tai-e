@@ -1,6 +1,8 @@
 package sa.pta.analysis.solver;
 
 import sa.callgraph.CallGraph;
+import sa.callgraph.CallKind;
+import sa.callgraph.Edge;
 import sa.pta.analysis.ProgramManager;
 import sa.pta.analysis.context.Context;
 import sa.pta.analysis.context.ContextSelector;
@@ -69,7 +71,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     public void solve() {
         initialize();
-
+        propagate();
     }
 
     private void initialize() {
@@ -82,6 +84,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             callGraph.addEntryMethod(csMethod);
             processNewMethod(csMethod);
         }
+    }
+
+    private void propagate() {
+
     }
 
     private void processNewMethod(CSMethod csMethod) {
@@ -162,13 +168,18 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             if (stmt.getKind() == Statement.Kind.CALL) {
                 CallSite callSite = (CallSite) stmt;
                 if (callSite.isStatic()) {
-
                     Method callee = callSite.getMethod();
+                    CSCallSite csCallSite = elementManager
+                            .getCSCallSite(context, callSite);
                     Context calleeCtx = contextSelector
-                            .selectContext(callSite, callee);
+                            .selectContext(csCallSite, callee);
                     CSMethod csCallee = elementManager
                             .getCSMethod(calleeCtx, callee);
-
+                    Edge<CSCallSite, CSMethod> edge =
+                            new Edge<>(CallKind.STATIC, csCallSite, csCallee);
+                    if (callGraph.addEdge(edge)) {
+                        workList.addEdge(edge);
+                    }
                 }
             }
         }
