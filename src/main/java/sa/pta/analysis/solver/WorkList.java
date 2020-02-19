@@ -17,6 +17,10 @@ class WorkList {
 
     private Set<Edge<CSCallSite, CSMethod>> edges = new TreeSet<>();
 
+    boolean hasPointerEntries() {
+        return !pointerEntries.isEmpty();
+    }
+
     void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
         addPointerEntry(new Entry(pointer, pointsToSet));
     }

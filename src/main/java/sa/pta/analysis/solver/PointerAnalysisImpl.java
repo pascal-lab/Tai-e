@@ -11,11 +11,13 @@ import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.ElementManager;
+import sa.pta.analysis.data.Pointer;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.element.CallSite;
 import sa.pta.element.Method;
 import sa.pta.element.Obj;
 import sa.pta.element.Variable;
+import sa.pta.set.PointsToSet;
 import sa.pta.set.PointsToSetFactory;
 import sa.pta.statement.Allocation;
 import sa.pta.statement.Assign;
@@ -87,7 +89,34 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private void propagate() {
+        while (workList.hasPointerEntries()) {
+            WorkList.Entry entry = workList.pollPointerEntry();
+            Pointer p = entry.pointer;
+            PointsToSet pts = entry.pointsToSet;
+            PointsToSet diff = propagateSet(p, pts);
+            if (!diff.isEmpty()) {
+                for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(p)) {
+                    Pointer to = edge.getTo();
+                    workList.addPointerEntry(to, diff);
+                }
+            }
+            if (p instanceof CSVariable) {
+                // handle store
+                // handle load
+                // handle call
+            }
+            // process new call edges
+        }
+    }
 
+    private PointsToSet propagateSet(Pointer pointer, PointsToSet pointsToSet) {
+        PointsToSet diff = setFactory.makePointsToSet();
+        for (CSObj obj : pointsToSet) {
+            if (pointer.getPointsToSet().addObject(obj)) {
+                diff.addObject(obj);
+            }
+        }
+        return diff;
     }
 
     private void processNewMethod(CSMethod csMethod) {
