@@ -30,9 +30,9 @@ public abstract class AbstractCallGraph<CallSite, Method>
         reachableMethods = new HashSet<>();
     }
 
-    public void setEntryMethods(Collection<Method> entryMethods) {
-        this.entryMethods.addAll(entryMethods);
-        entryMethods.forEach(this::addNewMethod);
+    public void addEntryMethod(Method entryMethod) {
+        entryMethods.add(entryMethod);
+        addNewMethod(entryMethod);
     }
 
     public boolean addEdge(CallSite callSite, Method callee, CallKind kind) {

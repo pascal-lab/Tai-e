@@ -42,8 +42,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
 
     public CallGraph<Unit, SootMethod> build() {
         JimpleCallGraph callGraph = new JimpleCallGraph();
-        callGraph.setEntryMethods(
-                Collections.singleton(Scene.v().getMainMethod()));
+        callGraph.addEntryMethod(Scene.v().getMainMethod());
         buildEdges(callGraph);
         return callGraph;
     }
