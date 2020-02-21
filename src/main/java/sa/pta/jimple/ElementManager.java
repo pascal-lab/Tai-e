@@ -7,6 +7,12 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Unit;
+import soot.jimple.AssignStmt;
+import soot.jimple.IdentityStmt;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ThrowStmt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,14 +20,15 @@ import java.util.stream.Collectors;
 
 class ElementManager {
 
-    Map<Type, JimpleType> types = new HashMap<>();
+    private Map<Type, JimpleType> types = new HashMap<>();
 
-    Map<SootMethod, JimpleMethod> methods = new HashMap<>();
+    private Map<SootMethod, JimpleMethod> methods = new HashMap<>();
 
-    Map<SootMethod, Map<Local, JimpleVariable>> vars = new HashMap<>();
+    private Map<SootMethod, Map<Local, JimpleVariable>> vars = new HashMap<>();
 
-    Map<SootField, JimpleField> fields = new HashMap<>();
+    private Map<SootField, JimpleField> fields = new HashMap<>();
 
+    private BodyBuilder bodyBuilder = new BodyBuilder();
 
     JimpleMethod getMethod(SootMethod method) {
         return methods.computeIfAbsent(method, this::createMethod);
@@ -43,14 +50,8 @@ class ElementManager {
                         .collect(Collectors.toList())
         );
         // add statements
-        processMethodBody(method, body, jMethod);
+        bodyBuilder.build(jMethod, body);
         return jMethod;
-    }
-
-    private void processMethodBody(
-            SootMethod method, Body body, JimpleMethod jMethod) {
-        for (Unit unit : body.getUnits()) {
-        }
     }
 
     private JimpleType getType(SootClass sootClass) {
@@ -67,5 +68,52 @@ class ElementManager {
                     JimpleType type = getType(var.getType());
                     return new JimpleVariable(var, type, getMethod(method));
                 });
+    }
+
+    private JimpleCallSite createCallSite(InvokeExpr invoke, SootMethod method) {
+        return null;
+    }
+
+    private class BodyBuilder {
+
+        private RelevantUnitSwitch sw = new RelevantUnitSwitch();
+
+        private void build(JimpleMethod jMethod, Body body) {
+            for (Unit unit : body.getUnits()) {
+                unit.apply(sw);
+                if (sw.isRelevant()) {
+                    if (unit instanceof AssignStmt) {
+                        build(jMethod, (AssignStmt) unit);
+                    } else if (unit instanceof IdentityStmt) {
+                        build(jMethod, (IdentityStmt) unit);
+                    } else if (unit instanceof InvokeStmt) {
+                        build(jMethod, ((InvokeStmt) unit));
+                    } else if (unit instanceof ReturnStmt) {
+                        build(jMethod, (ReturnStmt) unit);
+                    } else if (unit instanceof ThrowStmt) {
+                        build(jMethod, (ThrowStmt) unit);
+                    } else {
+                        throw new RuntimeException("Cannot handle statement: " + unit);
+                    }
+                }
+            }
+        }
+
+        private void build(JimpleMethod jMethod, AssignStmt stmt) {
+
+        }
+
+        private void build(JimpleMethod jMethod, IdentityStmt stmt) {
+        }
+
+        private void build(JimpleMethod jMethod, InvokeStmt stmt) {
+        }
+
+        private void build(JimpleMethod jMethod, ReturnStmt stmt) {
+
+        }
+
+        private void build(JimpleMethod jMethod, ThrowStmt stmt) {
+        }
     }
 }
