@@ -5,7 +5,7 @@ import sa.callgraph.Edge;
 import sa.pta.analysis.context.Context;
 import sa.pta.analysis.data.CSCallSite;
 import sa.pta.analysis.data.CSMethod;
-import sa.pta.analysis.data.ElementManager;
+import sa.pta.analysis.data.DataManager;
 import sa.pta.element.CallSite;
 import sa.pta.element.Method;
 import sa.pta.statement.Call;
@@ -14,10 +14,10 @@ import sa.util.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
-    private ElementManager elementManager;
+    private DataManager dataManager;
 
-    OnFlyCallGraph(ElementManager elementManager) {
-        this.elementManager = elementManager;
+    OnFlyCallGraph(DataManager dataManager) {
+        this.dataManager = dataManager;
     }
 
     boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -37,7 +37,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
             for (Statement s : method.getStatements()) {
                 if (s instanceof Call) {
                     CallSite callSite = ((Call) s).getCallSite();
-                    CSCallSite csCallSite = elementManager
+                    CSCallSite csCallSite = dataManager
                             .getCSCallSite(context, callSite);
                     containingMethod.put(csCallSite, csMethod);
                     CollectionUtils.addToMapSet(callSitesIn, csMethod, csCallSite);

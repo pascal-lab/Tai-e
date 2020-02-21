@@ -8,7 +8,10 @@ import sa.pta.element.Obj;
 import sa.pta.element.Variable;
 import sa.pta.set.PointsToSetFactory;
 
-public interface ElementManager {
+/**
+ * Manages the data structures in context-sensitive pointer analysis.
+ */
+public interface DataManager {
 
     void setPointsToSetFactory(PointsToSetFactory setFactory);
 

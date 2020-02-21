@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
 /**
  * Hash map based element manager.
  */
-public class HashElementManager implements ElementManager {
+public class HashDataManager implements DataManager {
 
     private PointsToSetFactory setFactory;
 

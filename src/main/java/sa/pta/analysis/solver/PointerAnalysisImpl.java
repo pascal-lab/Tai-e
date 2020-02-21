@@ -10,7 +10,7 @@ import sa.pta.analysis.data.CSCallSite;
 import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
-import sa.pta.analysis.data.ElementManager;
+import sa.pta.analysis.data.DataManager;
 import sa.pta.analysis.data.InstanceField;
 import sa.pta.analysis.data.Pointer;
 import sa.pta.analysis.heap.HeapModel;
@@ -36,7 +36,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private ProgramManager programManager;
 
-    private ElementManager elementManager;
+    private DataManager dataManager;
 
     private OnFlyCallGraph callGraph;
 
@@ -81,11 +81,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private void initialize() {
-        callGraph = new OnFlyCallGraph(elementManager);
+        callGraph = new OnFlyCallGraph(dataManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         for (Method entry : programManager.getEntryMethods()) {
-            CSMethod csMethod = elementManager.getCSMethod(
+            CSMethod csMethod = dataManager.getCSMethod(
                     contextSelector.getDefaultContext(), entry);
             callGraph.addEntryMethod(csMethod);
             processNewMethod(csMethod);
@@ -127,11 +127,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
         for (InstanceStore store : var.getStores()) {
-            CSVariable from = elementManager
-                    .getCSVariable(context, store.getFrom());
+            CSVariable from = dataManager.getCSVariable(context, store.getFrom());
             for (CSObj baseObj : pts) {
-                InstanceField instField = elementManager
-                        .getInstanceField(baseObj, store.getField());
+                InstanceField instField = dataManager.getInstanceField(
+                        baseObj, store.getField());
                 if (pointerFlowGraph.addEdge(from, instField,
                         PointerFlowEdge.Kind.INSTANCE_STORE)) {
                     workList.addPointerEntry(instField, from.getPointsToSet());
@@ -144,11 +143,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
         for (InstanceLoad load : var.getLoads()) {
-            CSVariable to = elementManager
-                    .getCSVariable(context, load.getTo());
+            CSVariable to = dataManager.getCSVariable(context, load.getTo());
             for (CSObj baseObj : pts) {
-                InstanceField instField = elementManager
-                        .getInstanceField(baseObj, load.getField());
+                InstanceField instField = dataManager.getInstanceField(
+                        baseObj, load.getField());
                 if (pointerFlowGraph.addEdge(instField, to,
                         PointerFlowEdge.Kind.INSTANCE_LOAD)) {
                     workList.addPointerEntry(to, instField.getPointsToSet());
@@ -170,23 +168,22 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     callee = programManager.resolveVirtualCall(type, callSite.getMethod());
                     callKind = CallKind.VIRTUAL;
                 } else if (callSite.isSpecial()){
-                    callee = programManager.resolveSpecialCall(callSite, callSite.getContainerMethod());
+                    callee = programManager.resolveSpecialCall(
+                            callSite, callSite.getContainerMethod());
                     callKind = CallKind.SPECIAL;
                 } else {
                     throw new AnalysisException("Unknown CallSite: " + callSite);
                 }
                 // select context
-                CSCallSite csCallSite = elementManager
-                        .getCSCallSite(context, callSite);
-                Context calleeContext = contextSelector
-                        .selectContext(csCallSite, recvObj, callee);
+                CSCallSite csCallSite = dataManager.getCSCallSite(context, callSite);
+                Context calleeContext = contextSelector.selectContext(
+                        csCallSite, recvObj, callee);
                 // build call edges
-                CSMethod csCallee = elementManager
-                        .getCSMethod(calleeContext, callee);
+                CSMethod csCallee = dataManager.getCSMethod(calleeContext, callee);
                 workList.addEdge(new Edge<>(callKind, csCallSite, csCallee));
                 // pass receiver objects
-                CSVariable thisVar = elementManager
-                        .getCSVariable(calleeContext, callee.getThis());
+                CSVariable thisVar = dataManager.getCSVariable(
+                        calleeContext, callee.getThis());
                 workList.addPointerEntry(thisVar,
                         setFactory.makePointsToSet(recvObj));
             }
@@ -224,8 +221,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     break;
                 case ASSIGN: {
                     Assign assign = (Assign) stmt;
-                    CSVariable from = elementManager.getCSVariable(context, assign.getFrom());
-                    CSVariable to = elementManager.getCSVariable(context, assign.getTo());
+                    CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
+                    CSVariable to = dataManager.getCSVariable(context, assign.getTo());
                     pointerFlowGraph.addEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
                     break;
                 }
@@ -261,8 +258,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private void addVarToPFG(Context context, Variable var) {
-        pointerFlowGraph.addNewPointer(
-                elementManager.getCSVariable(context, var));
+        pointerFlowGraph.addNewPointer(dataManager.getCSVariable(context, var));
     }
 
     /**
@@ -276,12 +272,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 CallSite callSite = (CallSite) stmt;
                 if (callSite.isStatic()) {
                     Method callee = callSite.getMethod();
-                    CSCallSite csCallSite = elementManager
-                            .getCSCallSite(context, callSite);
-                    Context calleeCtx = contextSelector
-                            .selectContext(csCallSite, callee);
-                    CSMethod csCallee = elementManager
-                            .getCSMethod(calleeCtx, callee);
+                    CSCallSite csCallSite = dataManager.getCSCallSite(context, callSite);
+                    Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+                    CSMethod csCallee = dataManager.getCSMethod(calleeCtx, callee);
                     Edge<CSCallSite, CSMethod> edge =
                             new Edge<>(CallKind.STATIC, csCallSite, csCallee);
                     workList.addEdge(edge);
@@ -303,9 +296,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Object allocSite = alloc.getAllocationSite();
                 Obj obj = heapModel.getObj(allocSite);
                 Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-                CSObj csObj = elementManager.getCSObj(heapContext, obj);
+                CSObj csObj = dataManager.getCSObj(heapContext, obj);
                 // obtain lhs variable
-                CSVariable lhs = elementManager.getCSVariable(context, alloc.getVar());
+                CSVariable lhs = dataManager.getCSVariable(context, alloc.getVar());
                 workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
             }
         }
@@ -329,21 +322,17 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 List<Variable> args = callSite.getArguments();
                 List<Variable> params = callee.getParameters();
                 for (int i = 0; i < args.size(); ++i) {
-                    CSVariable arg = elementManager
-                            .getCSVariable(callerCtx, args.get(i));
-                    CSVariable param = elementManager
-                            .getCSVariable(calleeCtx, params.get(i));
+                    CSVariable arg = dataManager.getCSVariable(callerCtx, args.get(i));
+                    CSVariable param = dataManager.getCSVariable(calleeCtx, params.get(i));
                     pointerFlowGraph.addEdge(arg, param,
                             PointerFlowEdge.Kind.PARAMETER_PASSING);
                     workList.addPointerEntry(param, arg.getPointsToSet());
                 }
                 // pass results to LHS variable
                 if (callSite.getLHS() != null) {
-                    CSVariable lhs = elementManager
-                            .getCSVariable(callerCtx, callSite.getLHS());
+                    CSVariable lhs = dataManager.getCSVariable(callerCtx, callSite.getLHS());
                     for (Variable ret : callee.getReturnVariables()) {
-                        CSVariable csRet = elementManager
-                                .getCSVariable(calleeCtx, ret);
+                        CSVariable csRet = dataManager.getCSVariable(calleeCtx, ret);
                         pointerFlowGraph.addEdge(csRet, lhs,
                                 PointerFlowEdge.Kind.RETURN);
                         workList.addPointerEntry(lhs, csRet.getPointsToSet());
