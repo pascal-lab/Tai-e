@@ -1,5 +1,6 @@
 package sa.pta.statement;
 
+import sa.pta.element.Type;
 import sa.pta.element.Variable;
 
 /**
@@ -11,9 +12,12 @@ public class Allocation implements Statement {
 
     private final Object allocationSite;
 
-    public Allocation(Variable var, Object allocationSite) {
+    private final Type type;
+
+    public Allocation(Variable var, Object allocationSite, Type type) {
         this.var = var;
         this.allocationSite = allocationSite;
+        this.type = type;
     }
 
     public Variable getVar() {
@@ -22,6 +26,10 @@ public class Allocation implements Statement {
 
     public Object getAllocationSite() {
         return allocationSite;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     @Override
