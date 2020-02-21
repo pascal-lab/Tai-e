@@ -52,7 +52,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
         while (!queue.isEmpty()) {
             SootMethod method = queue.remove();
             for (Unit callSite : callGraph.getCallSitesIn(method)) {
-                Set<SootMethod> callees = resolveCalleesOf(callSite);
+                Set<SootMethod> callees = resolveCalleesOf(callSite, callGraph);
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
                         queue.add(callee);
@@ -63,7 +63,8 @@ public class CHACallGraphBuilder extends SceneTransformer {
         }
     }
 
-    private Set<SootMethod> resolveCalleesOf(Unit callSite) {
+    private Set<SootMethod> resolveCalleesOf(
+            Unit callSite, CallGraph<Unit, SootMethod> callGraph) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
         SootMethod method = invoke.getMethod();
         CallKind kind = getCallKind(callSite);
@@ -72,7 +73,8 @@ public class CHACallGraphBuilder extends SceneTransformer {
                 return hierarchy.resolveAbstractDispatch(method.getDeclaringClass(), method);
             case SPECIAL:
                 return Collections.singleton(hierarchy.resolveSpecialDispatch(
-                        (SpecialInvokeExpr) invoke, method));
+                        (SpecialInvokeExpr) invoke,
+                        callGraph.getContainingMethod(callSite)));
             case STATIC:
                 return Collections.singleton(method);
             default:
