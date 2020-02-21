@@ -167,10 +167,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Method callee;
                 CallKind callKind;
                 if (callSite.isVirtual()) {
-                    callee = programManager.resolveVirtualCall(type, callSite);
+                    callee = programManager.resolveVirtualCall(type, callSite.getMethod());
                     callKind = CallKind.VIRTUAL;
                 } else if (callSite.isSpecial()){
-                    callee = programManager.resolveSpecialCall(type, callSite);
+                    callee = programManager.resolveSpecialCall(callSite, callSite.getContainerMethod());
                     callKind = CallKind.SPECIAL;
                 } else {
                     throw new AnalysisException("Unknown CallSite: " + callSite);

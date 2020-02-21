@@ -13,7 +13,7 @@ public interface ProgramManager {
     // -------------- type system ----------------
     boolean canAssign(Type from, Type to);
 
-    Method resolveVirtualCall(Type recvType, CallSite callSite);
+    Method resolveVirtualCall(Type recvType, Method method);
 
-    Method resolveSpecialCall(Type recvType, CallSite callSite);
+    Method resolveSpecialCall(CallSite callSite, Method container);
 }
