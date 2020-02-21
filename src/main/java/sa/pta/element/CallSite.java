@@ -18,5 +18,5 @@ public interface CallSite {
 
     Variable getLHS();
 
-    Method getContainingMethod();
+    Method getContainerMethod();
 }

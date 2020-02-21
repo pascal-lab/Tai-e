@@ -3,7 +3,7 @@ package sa.pta.jimple;
 import sa.pta.element.Type;
 import soot.SootClass;
 
-public class JimpleType implements Type {
+class JimpleType implements Type {
 
     private soot.Type type;
     private SootClass sootClass;

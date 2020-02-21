@@ -9,7 +9,7 @@ public interface Variable {
 
     Type getType();
 
-    Method getContainingMethod();
+    Method getContainerMethod();
 
     String getName();
 

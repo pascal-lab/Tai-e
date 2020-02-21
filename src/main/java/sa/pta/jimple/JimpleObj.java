@@ -1,19 +1,17 @@
 package sa.pta.jimple;
 
-import sa.pta.element.Method;
 import sa.pta.element.Obj;
-import sa.pta.element.Type;
 
-public class JimpleObj implements Obj {
+class JimpleObj implements Obj {
 
     private Object allocation;
 
-    private Type type;
+    private JimpleType type;
 
-    private Method allocationMethod;
+    private JimpleMethod allocationMethod;
 
     @Override
-    public Type getType() {
+    public JimpleType getType() {
         return type;
     }
 
@@ -23,7 +21,7 @@ public class JimpleObj implements Obj {
     }
 
     @Override
-    public Method getAllocationMethod() {
+    public JimpleMethod getContainerMethod() {
         return allocationMethod;
     }
 

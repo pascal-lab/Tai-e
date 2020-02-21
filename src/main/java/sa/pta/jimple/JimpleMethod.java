@@ -1,7 +1,6 @@
 package sa.pta.jimple;
 
 import sa.pta.element.Method;
-import sa.pta.element.Type;
 import sa.pta.element.Variable;
 import sa.pta.statement.Statement;
 import soot.SootMethod;
@@ -9,11 +8,13 @@ import soot.SootMethod;
 import java.util.List;
 import java.util.Set;
 
-public class JimpleMethod implements Method {
+class JimpleMethod implements Method {
 
     private SootMethod method;
 
-    private Variable thisVar;
+    private JimpleType classType;
+
+    private JimpleVariable thisVar;
 
     private List<Variable> parameters;
 
@@ -37,8 +38,8 @@ public class JimpleMethod implements Method {
     }
 
     @Override
-    public Type getClassType() {
-        return null;
+    public JimpleType getClassType() {
+        return classType;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class JimpleMethod implements Method {
     }
 
     @Override
-    public Variable getThis() {
+    public JimpleVariable getThis() {
         return thisVar;
     }
 

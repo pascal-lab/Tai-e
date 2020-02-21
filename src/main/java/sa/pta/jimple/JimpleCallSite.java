@@ -2,28 +2,26 @@ package sa.pta.jimple;
 
 import sa.callgraph.CallKind;
 import sa.pta.element.CallSite;
-import sa.pta.element.Method;
 import sa.pta.element.Variable;
-import soot.SootMethod;
 import soot.jimple.InvokeExpr;
 
 import java.util.List;
 
-public class JimpleCallSite implements CallSite {
+class JimpleCallSite implements CallSite {
 
     private InvokeExpr invoke;
 
     private CallKind kind;
 
-    private Method method;
+    private JimpleMethod method;
 
-    private Variable receiver;
+    private JimpleVariable receiver;
 
     private List<Variable> arguments;
 
-    private Variable lhs;
+    private JimpleVariable lhs;
 
-    private Method containingMethod;
+    private JimpleMethod containingMethod;
 
     @Override
     public boolean isVirtual() {
@@ -41,12 +39,12 @@ public class JimpleCallSite implements CallSite {
     }
 
     @Override
-    public Method getMethod() {
+    public JimpleMethod getMethod() {
         return method;
     }
 
     @Override
-    public Variable getReceiver() {
+    public JimpleVariable getReceiver() {
         return receiver;
     }
 
@@ -56,12 +54,12 @@ public class JimpleCallSite implements CallSite {
     }
 
     @Override
-    public Variable getLHS() {
+    public JimpleVariable getLHS() {
         return lhs;
     }
 
     @Override
-    public Method getContainingMethod() {
+    public JimpleMethod getContainerMethod() {
         return containingMethod;
     }
 
@@ -76,5 +74,9 @@ public class JimpleCallSite implements CallSite {
     @Override
     public int hashCode() {
         return invoke.hashCode();
+    }
+
+    InvokeExpr getSootInvokeExpr() {
+        return invoke;
     }
 }

@@ -1,16 +1,15 @@
 package sa.pta.jimple;
 
 import sa.pta.element.Field;
-import sa.pta.element.Type;
 import soot.SootField;
 
-public class JimpleField implements Field {
+class JimpleField implements Field {
 
     private SootField field;
 
-    private Type classType;
+    private JimpleType classType;
 
-    private Type fieldType;
+    private JimpleType fieldType;
 
     @Override
     public boolean isInstance() {
@@ -23,7 +22,7 @@ public class JimpleField implements Field {
     }
 
     @Override
-    public Type getClassType() {
+    public JimpleType getClassType() {
         return classType;
     }
 
@@ -33,7 +32,7 @@ public class JimpleField implements Field {
     }
 
     @Override
-    public Type getFieldType() {
+    public JimpleType getFieldType() {
         return fieldType;
     }
 

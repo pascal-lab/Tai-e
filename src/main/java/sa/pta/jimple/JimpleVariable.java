@@ -1,8 +1,6 @@
 package sa.pta.jimple;
 
 import sa.pta.element.CallSite;
-import sa.pta.element.Method;
-import sa.pta.element.Type;
 import sa.pta.element.Variable;
 import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
@@ -10,13 +8,13 @@ import soot.Local;
 
 import java.util.Set;
 
-public class JimpleVariable implements Variable {
+class JimpleVariable implements Variable {
 
     private Local var;
 
-    private Type type;
+    private JimpleType type;
 
-    private Method containingMethod;
+    private JimpleMethod containingMethod;
 
     /**
      * Set of call sites where this variable is the base variable
@@ -34,12 +32,12 @@ public class JimpleVariable implements Variable {
     private Set<InstanceLoad> loads;
 
     @Override
-    public Type getType() {
+    public JimpleType getType() {
         return type;
     }
 
     @Override
-    public Method getContainingMethod() {
+    public JimpleMethod getContainerMethod() {
         return containingMethod;
     }
 
