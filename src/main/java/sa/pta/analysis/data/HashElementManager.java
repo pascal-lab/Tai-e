@@ -38,22 +38,20 @@ public class HashElementManager implements ElementManager {
 
     @Override
     public CSVariable getCSVariable(Context context, Variable var) {
-        return initialPointsToSet(
-                getOrCreateCSElement(vars, context, var, CSVariable::new));
+        return getOrCreateCSElement(vars, context, var,
+                (c, v) -> initialPointsToSet(new CSVariable(c, v)));
     }
 
     @Override
     public InstanceField getInstanceField(CSObj base, Field field) {
-        return initialPointsToSet(
-                getOrCreateCSElement(instanceFields,
-                        base, field, InstanceField::new));
+        return getOrCreateCSElement(instanceFields, base, field,
+                (b, f) -> initialPointsToSet(new InstanceField(b, f)));
     }
 
     @Override
     public StaticField getStaticField(Field field) {
-        return initialPointsToSet(
-                staticFields.computeIfAbsent(field, StaticField::new));
-
+        return staticFields.computeIfAbsent(field,
+                (f) -> initialPointsToSet(new StaticField(f)));
     }
 
     @Override
