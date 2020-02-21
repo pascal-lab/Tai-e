@@ -1,5 +1,6 @@
 package sa.pta.analysis;
 
+import sa.pta.element.CallSite;
 import sa.pta.element.Method;
 import sa.pta.element.Type;
 
@@ -10,5 +11,9 @@ public interface ProgramManager {
     Collection<Method> getEntryMethods();
 
     // -------------- type system ----------------
-    boolean isAssignable(Type from, Type to);
+    boolean canAssign(Type from, Type to);
+
+    Method resolveVirtualCall(Type recvType, CallSite callSite);
+
+    Method resolveSpecialCall(Type recvType, CallSite callSite);
 }

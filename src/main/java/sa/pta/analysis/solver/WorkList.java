@@ -45,6 +45,10 @@ class WorkList {
         }
     }
 
+    boolean hasEdges() {
+        return !edges.isEmpty();
+    }
+
     void addEdge(Edge<CSCallSite, CSMethod> edge) {
         edges.add(edge);
     }

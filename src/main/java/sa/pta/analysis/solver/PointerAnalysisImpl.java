@@ -11,11 +11,13 @@ import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.ElementManager;
+import sa.pta.analysis.data.InstanceField;
 import sa.pta.analysis.data.Pointer;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.element.CallSite;
 import sa.pta.element.Method;
 import sa.pta.element.Obj;
+import sa.pta.element.Type;
 import sa.pta.element.Variable;
 import sa.pta.set.PointsToSet;
 import sa.pta.set.PointsToSetFactory;
@@ -25,7 +27,9 @@ import sa.pta.statement.Call;
 import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
 import sa.pta.statement.Statement;
+import sa.util.AnalysisException;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
@@ -93,38 +97,109 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             WorkList.Entry entry = workList.pollPointerEntry();
             Pointer p = entry.pointer;
             PointsToSet pts = entry.pointsToSet;
-            PointsToSet diff = propagateSet(p, pts);
-            if (!diff.isEmpty()) {
-                for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(p)) {
-                    Pointer to = edge.getTo();
-                    workList.addPointerEntry(to, diff);
-                }
-            }
+            propagateSet(p, pts);
             if (p instanceof CSVariable) {
-                // handle store
-                // handle load
-                // handle call
+                CSVariable v = (CSVariable) p;
+                processInstanceStore(v, pts);
+                processInstanceLoad(v, pts);
+                processCall(v, pts);
             }
-            // process new call edges
+            processCallEdges();
         }
     }
 
-    private PointsToSet propagateSet(Pointer pointer, PointsToSet pointsToSet) {
+    private void propagateSet(Pointer pointer, PointsToSet pointsToSet) {
         PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
                 diff.addObject(obj);
             }
         }
-        return diff;
+        if (!diff.isEmpty()) {
+            for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(pointer)) {
+                Pointer to = edge.getTo();
+                workList.addPointerEntry(to, diff);
+            }
+        }
+    }
+
+    private void processInstanceStore(CSVariable baseVar, PointsToSet pts) {
+        Context context = baseVar.getContext();
+        Variable var = baseVar.getVariable();
+        for (InstanceStore store : var.getStores()) {
+            CSVariable from = elementManager
+                    .getCSVariable(context, store.getFrom());
+            for (CSObj baseObj : pts) {
+                InstanceField instField = elementManager
+                        .getInstanceField(baseObj, store.getField());
+                if (pointerFlowGraph.addEdge(from, instField,
+                        PointerFlowEdge.Kind.INSTANCE_STORE)) {
+                    workList.addPointerEntry(instField, from.getPointsToSet());
+                }
+            }
+        }
+    }
+
+    private void processInstanceLoad(CSVariable baseVar, PointsToSet pts) {
+        Context context = baseVar.getContext();
+        Variable var = baseVar.getVariable();
+        for (InstanceLoad load : var.getLoads()) {
+            CSVariable to = elementManager
+                    .getCSVariable(context, load.getTo());
+            for (CSObj baseObj : pts) {
+                InstanceField instField = elementManager
+                        .getInstanceField(baseObj, load.getField());
+                if (pointerFlowGraph.addEdge(instField, to,
+                        PointerFlowEdge.Kind.INSTANCE_LOAD)) {
+                    workList.addPointerEntry(to, instField.getPointsToSet());
+                }
+            }
+        }
+    }
+
+    private void processCall(CSVariable recv, PointsToSet pts) {
+        Context context = recv.getContext();
+        Variable var = recv.getVariable();
+        for (CallSite callSite : var.getCallSites()) {
+            for (CSObj recvObj : pts) {
+                // resolve callee
+                Type type = recvObj.getObject().getType();
+                Method callee;
+                CallKind callKind;
+                if (callSite.isVirtual()) {
+                    callee = programManager.resolveVirtualCall(type, callSite);
+                    callKind = CallKind.VIRTUAL;
+                } else if (callSite.isSpecial()){
+                    callee = programManager.resolveSpecialCall(type, callSite);
+                    callKind = CallKind.SPECIAL;
+                } else {
+                    throw new AnalysisException("Unknown CallSite: " + callSite);
+                }
+                // select context
+                CSCallSite csCallSite = elementManager
+                        .getCSCallSite(context, callSite);
+                Context calleeContext = contextSelector
+                        .selectContext(csCallSite, recvObj, callee);
+                // build call edges
+                CSMethod csCallee = elementManager
+                        .getCSMethod(calleeContext, callee);
+                workList.addEdge(new Edge<>(callKind, csCallSite, csCallee));
+                // pass receiver objects
+                CSVariable thisVar = elementManager
+                        .getCSVariable(calleeContext, callee.getThis());
+                workList.addPointerEntry(thisVar,
+                        setFactory.makePointsToSet(recvObj));
+            }
+        }
     }
 
     private void processNewMethod(CSMethod csMethod) {
         // mark csMethod as reachable
-        callGraph.addNewMethod(csMethod);
-        addNewMethodToPFG(csMethod);
-        processStaticCalls(csMethod);
-        processAllocations(csMethod);
+        if (callGraph.addNewMethod(csMethod)) {
+            addNewMethodToPFG(csMethod);
+            processStaticCalls(csMethod);
+            processAllocations(csMethod);
+        }
     }
 
     /**
@@ -174,6 +249,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     }
                     callSite.getArguments()
                             .forEach(arg -> addVarToPFG(context, arg));
+                    if (callSite.getLHS() != null) {
+                        addVarToPFG(context, callSite.getLHS());
+                    }
                     break;
                 }
                 default:
@@ -206,9 +284,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                             .getCSMethod(calleeCtx, callee);
                     Edge<CSCallSite, CSMethod> edge =
                             new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                    if (callGraph.addEdge(edge)) {
-                        workList.addEdge(edge);
-                    }
+                    workList.addEdge(edge);
                 }
             }
         }
@@ -231,6 +307,48 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 // obtain lhs variable
                 CSVariable lhs = elementManager.getCSVariable(context, alloc.getVar());
                 workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
+            }
+        }
+    }
+
+    /**
+     * Process the call edges in work list.
+     */
+    private void processCallEdges() {
+        while (workList.hasEdges()) {
+            Edge<CSCallSite, CSMethod> edge = workList.pollEdge();
+            if (!callGraph.containsEdge(edge)) {
+                callGraph.addEdge(edge);
+                CSMethod csCallee = edge.getCallee();
+                processNewMethod(csCallee);
+                Context callerCtx = edge.getCallSite().getContext();
+                CallSite callSite = edge.getCallSite().getCallSite();
+                Context calleeCtx = csCallee.getContext();
+                Method callee = csCallee.getMethod();
+                // pass arguments to parameters
+                List<Variable> args = callSite.getArguments();
+                List<Variable> params = callee.getParameters();
+                for (int i = 0; i < args.size(); ++i) {
+                    CSVariable arg = elementManager
+                            .getCSVariable(callerCtx, args.get(i));
+                    CSVariable param = elementManager
+                            .getCSVariable(calleeCtx, params.get(i));
+                    pointerFlowGraph.addEdge(arg, param,
+                            PointerFlowEdge.Kind.PARAMETER_PASSING);
+                    workList.addPointerEntry(param, arg.getPointsToSet());
+                }
+                // pass results to LHS variable
+                if (callSite.getLHS() != null) {
+                    CSVariable lhs = elementManager
+                            .getCSVariable(callerCtx, callSite.getLHS());
+                    for (Variable ret : callee.getReturnVariables()) {
+                        CSVariable csRet = elementManager
+                                .getCSVariable(calleeCtx, ret);
+                        pointerFlowGraph.addEdge(csRet, lhs,
+                                PointerFlowEdge.Kind.RETURN);
+                        workList.addPointerEntry(lhs, csRet.getPointsToSet());
+                    }
+                }
             }
         }
     }

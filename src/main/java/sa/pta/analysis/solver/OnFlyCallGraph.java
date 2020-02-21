@@ -25,6 +25,10 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
                 CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
     }
 
+    boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
+        return getEdgesOf(edge.getCallSite()).contains(edge);
+    }
+
     @Override
     protected boolean addNewMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {

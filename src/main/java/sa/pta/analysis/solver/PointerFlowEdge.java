@@ -72,6 +72,4 @@ class PointerFlowEdge {
     public int hashCode() {
         return Objects.hash(kind, from, to, type);
     }
-
-
 }
