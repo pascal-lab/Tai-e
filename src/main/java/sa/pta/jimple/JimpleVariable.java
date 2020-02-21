@@ -1,0 +1,78 @@
+package sa.pta.jimple;
+
+import sa.pta.element.CallSite;
+import sa.pta.element.Method;
+import sa.pta.element.Type;
+import sa.pta.element.Variable;
+import sa.pta.statement.InstanceLoad;
+import sa.pta.statement.InstanceStore;
+import soot.Local;
+
+import java.util.Set;
+
+public class JimpleVariable implements Variable {
+
+    private Local var;
+
+    private Type type;
+
+    private Method containingMethod;
+
+    /**
+     * Set of call sites where this variable is the base variable
+     */
+    private Set<CallSite> callSites;
+
+    /**
+     * Set of instance stores where this variable is the base variable
+     */
+    private Set<InstanceStore> stores;
+
+    /**
+     * Set of instance loads where this variable is the base variable
+     */
+    private Set<InstanceLoad> loads;
+
+    @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public Method getContainingMethod() {
+        return containingMethod;
+    }
+
+    @Override
+    public String getName() {
+        return var.getName();
+    }
+
+    @Override
+    public Set<CallSite> getCallSites() {
+        return callSites;
+    }
+
+    @Override
+    public Set<InstanceLoad> getLoads() {
+        return loads;
+    }
+
+    @Override
+    public Set<InstanceStore> getStores() {
+        return stores;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JimpleVariable that = (JimpleVariable) o;
+        return var.equals(that.var);
+    }
+
+    @Override
+    public int hashCode() {
+        return var.hashCode();
+    }
+}
