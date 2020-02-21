@@ -1,16 +1,33 @@
 package sa.pta.jimple;
 
 import sa.pta.element.Type;
+import soot.RefType;
 import soot.SootClass;
 
 class JimpleType implements Type {
 
-    private soot.Type type;
+    private soot.Type sootType;
     private SootClass sootClass;
+
+    JimpleType(soot.Type sootType) {
+        this.sootType = sootType;
+        if (sootType instanceof RefType) {
+            // TODO - handle array type
+            this.sootClass = ((RefType) sootType).getSootClass();
+        }
+    }
+
+    SootClass getSootClass() {
+        return sootClass;
+    }
+
+    soot.Type getSootType() {
+        return sootType;
+    }
 
     @Override
     public String getName() {
-        return type.toString();
+        return sootType.toString();
     }
 
     @Override
@@ -18,15 +35,11 @@ class JimpleType implements Type {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JimpleType that = (JimpleType) o;
-        return type.equals(that.type);
+        return sootType.equals(that.sootType);
     }
 
     @Override
     public int hashCode() {
-        return type.hashCode();
-    }
-
-    SootClass getSootClass() {
-        return sootClass;
+        return sootType.hashCode();
     }
 }

@@ -5,6 +5,7 @@ import sa.pta.element.Variable;
 import sa.pta.statement.Statement;
 import soot.SootMethod;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +22,34 @@ class JimpleMethod implements Method {
     private Set<Variable> returnVars;
 
     private Set<Statement> statements;
+
+    JimpleMethod(SootMethod method, JimpleType classType) {
+        this.method = method;
+        this.classType = classType;
+    }
+
+    void setThisVar(JimpleVariable thisVar) {
+        this.thisVar = thisVar;
+    }
+
+    void setParameters(List<Variable> parameters) {
+        this.parameters = parameters;
+    }
+
+    void setReturnVars(Set<Variable> returnVars) {
+        this.returnVars = returnVars;
+    }
+
+    void addStatement(Statement statement) {
+        if (statements == null) {
+            statements = new HashSet<>();
+        }
+        statements.add(statement);
+    }
+
+    SootMethod getSootMethod() {
+        return method;
+    }
 
     @Override
     public boolean isInstance() {
@@ -59,12 +88,12 @@ class JimpleMethod implements Method {
 
     @Override
     public Set<Variable> getReturnVariables() {
-        return null;
+        return returnVars;
     }
 
     @Override
     public Set<Statement> getStatements() {
-        return null;
+        return statements;
     }
 
     @Override
@@ -78,9 +107,5 @@ class JimpleMethod implements Method {
     @Override
     public int hashCode() {
         return method.hashCode();
-    }
-
-    SootMethod getSootMethod() {
-        return method;
     }
 }

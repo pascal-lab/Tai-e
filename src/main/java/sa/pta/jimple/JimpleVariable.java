@@ -14,7 +14,7 @@ class JimpleVariable implements Variable {
 
     private JimpleType type;
 
-    private JimpleMethod containingMethod;
+    private JimpleMethod containerMethod;
 
     /**
      * Set of call sites where this variable is the base variable
@@ -31,6 +31,12 @@ class JimpleVariable implements Variable {
      */
     private Set<InstanceLoad> loads;
 
+    public JimpleVariable(Local var, JimpleType type, JimpleMethod containerMethod) {
+        this.var = var;
+        this.type = type;
+        this.containerMethod = containerMethod;
+    }
+
     @Override
     public JimpleType getType() {
         return type;
@@ -38,7 +44,7 @@ class JimpleVariable implements Variable {
 
     @Override
     public JimpleMethod getContainerMethod() {
-        return containingMethod;
+        return containerMethod;
     }
 
     @Override
