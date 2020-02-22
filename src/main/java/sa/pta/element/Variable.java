@@ -1,5 +1,6 @@
 package sa.pta.element;
 
+import sa.pta.statement.Call;
 import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
 
@@ -15,9 +16,9 @@ public interface Variable {
 
     /**
      *
-     * @return set of call sites where this variable is the receiver.
+     * @return set of call statements where this variable is the receiver.
      */
-    Set<CallSite> getCallSites();
+    Set<Call> getCalls();
 
     /**
      *

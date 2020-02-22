@@ -1,5 +1,7 @@
 package sa.pta.element;
 
+import sa.pta.statement.Call;
+
 import java.util.List;
 
 public interface CallSite {
@@ -10,13 +12,17 @@ public interface CallSite {
 
     boolean isStatic();
 
+    /**
+     *
+     * @return the call statements containing this call site.
+     */
+    Call getCall();
+
     Method getMethod();
 
     Variable getReceiver();
 
     List<Variable> getArguments();
-
-    Variable getLHS();
 
     Method getContainerMethod();
 }

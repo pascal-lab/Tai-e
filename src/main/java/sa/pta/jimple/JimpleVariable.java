@@ -53,7 +53,7 @@ class JimpleVariable implements Variable {
     }
 
     @Override
-    public Set<CallSite> getCallSites() {
+    public Set<CallSite> getCalls() {
         return callSites;
     }
 

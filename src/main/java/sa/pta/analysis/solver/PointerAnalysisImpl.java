@@ -158,7 +158,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processCall(CSVariable recv, PointsToSet pts) {
         Context context = recv.getContext();
         Variable var = recv.getVariable();
-        for (CallSite callSite : var.getCallSites()) {
+        for (Call call : var.getCalls()) {
+            CallSite callSite = call.getCallSite();
             for (CSObj recvObj : pts) {
                 // resolve callee
                 Type type = recvObj.getObject().getType();
@@ -246,8 +247,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     }
                     callSite.getArguments()
                             .forEach(arg -> addVarToPFG(context, arg));
-                    if (callSite.getLHS() != null) {
-                        addVarToPFG(context, callSite.getLHS());
+                    if (call.getLHS() != null) {
+                        addVarToPFG(context, call.getLHS());
                     }
                     break;
                 }
@@ -329,8 +330,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     workList.addPointerEntry(param, arg.getPointsToSet());
                 }
                 // pass results to LHS variable
-                if (callSite.getLHS() != null) {
-                    CSVariable lhs = dataManager.getCSVariable(callerCtx, callSite.getLHS());
+                if (callSite.getCall().getLHS() != null) {
+                    CSVariable lhs = dataManager.getCSVariable(
+                            callerCtx, callSite.getCall().getLHS());
                     for (Variable ret : callee.getReturnVariables()) {
                         CSVariable csRet = dataManager.getCSVariable(calleeCtx, ret);
                         pointerFlowGraph.addEdge(csRet, lhs,
