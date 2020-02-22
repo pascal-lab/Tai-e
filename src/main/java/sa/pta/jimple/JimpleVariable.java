@@ -2,10 +2,13 @@ package sa.pta.jimple;
 
 import sa.pta.element.CallSite;
 import sa.pta.element.Variable;
+import sa.pta.statement.Call;
 import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
 import soot.Local;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 class JimpleVariable implements Variable {
@@ -19,22 +22,43 @@ class JimpleVariable implements Variable {
     /**
      * Set of call sites where this variable is the base variable
      */
-    private Set<CallSite> callSites;
+    private Set<Call> calls = Collections.emptySet();
 
     /**
      * Set of instance stores where this variable is the base variable
      */
-    private Set<InstanceStore> stores;
+    private Set<InstanceStore> stores = Collections.emptySet();
 
     /**
      * Set of instance loads where this variable is the base variable
      */
-    private Set<InstanceLoad> loads;
+    private Set<InstanceLoad> loads = Collections.emptySet();
 
     public JimpleVariable(Local var, JimpleType type, JimpleMethod containerMethod) {
         this.var = var;
         this.type = type;
         this.containerMethod = containerMethod;
+    }
+
+    void addCall(Call call) {
+        if (calls.isEmpty()) {
+            calls = new HashSet<>(4);
+        }
+        calls.add(call);
+    }
+
+    void addStore(InstanceStore store) {
+        if (stores.isEmpty()) {
+            stores = new HashSet<>(4);
+        }
+        stores.add(store);
+    }
+
+    void addLoad(InstanceLoad load) {
+        if (loads.isEmpty()) {
+            loads = new HashSet<>(4);
+        }
+        loads.add(load);
     }
 
     @Override
@@ -53,8 +77,8 @@ class JimpleVariable implements Variable {
     }
 
     @Override
-    public Set<CallSite> getCalls() {
-        return callSites;
+    public Set<Call> getCalls() {
+        return calls;
     }
 
     @Override

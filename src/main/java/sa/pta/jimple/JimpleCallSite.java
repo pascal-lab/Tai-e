@@ -35,6 +35,9 @@ class JimpleCallSite implements CallSite {
 
     void setCall(Call call) {
         this.call = call;
+        if (!isStatic()) {
+            receiver.addCall(call);
+        }
     }
 
     void setMethod(JimpleMethod method) {

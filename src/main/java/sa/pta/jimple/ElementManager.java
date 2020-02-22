@@ -1,6 +1,12 @@
 package sa.pta.jimple;
 
 import sa.callgraph.JimpleCallUtils;
+import sa.pta.element.Variable;
+import sa.pta.statement.Allocation;
+import sa.pta.statement.Assign;
+import sa.pta.statement.Call;
+import sa.pta.statement.InstanceLoad;
+import sa.pta.statement.InstanceStore;
 import sa.util.AnalysisException;
 import soot.Body;
 import soot.Local;
@@ -12,8 +18,11 @@ import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.jimple.IdentityStmt;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.NewExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ThrowStmt;
 
@@ -65,6 +74,13 @@ class ElementManager {
         return types.computeIfAbsent(type, JimpleType::new);
     }
 
+    private JimpleField getField(SootField sootField) {
+        return fields.computeIfAbsent(sootField, (f) ->
+                new JimpleField(sootField,
+                        getType(sootField.getDeclaringClass()),
+                        getType(sootField.getType())));
+    }
+
     private JimpleVariable getVariable(Local var, JimpleMethod container) {
         return vars.computeIfAbsent(container, (m) -> new HashMap<>())
                 .computeIfAbsent(var, (v) -> {
@@ -93,30 +109,38 @@ class ElementManager {
         JimpleCallSite callSite = new JimpleCallSite(
                 invoke, JimpleCallUtils.getCallKind(invoke));
         callSite.setMethod(getMethod(invoke.getMethod()));
-
+        if (invoke instanceof InstanceInvokeExpr) {
+            callSite.setReceiver(getVariable(
+                    ((InstanceInvokeExpr) invoke).getBase(), container));
+        }
+        callSite.setArguments(
+                invoke.getArgs()
+                        .stream()
+                        .map(v -> getVariable(v, container))
+                        .collect(Collectors.toList())
+        );
         callSite.setContainerMethod(container);
-
-        return null;
+        return callSite;
     }
 
     private class BodyBuilder {
 
         private RelevantUnitSwitch sw = new RelevantUnitSwitch();
 
-        private void build(JimpleMethod jMethod, Body body) {
+        private void build(JimpleMethod method, Body body) {
             for (Unit unit : body.getUnits()) {
                 unit.apply(sw);
                 if (sw.isRelevant()) {
                     if (unit instanceof AssignStmt) {
-                        build(jMethod, (AssignStmt) unit);
+                        build(method, (AssignStmt) unit);
                     } else if (unit instanceof IdentityStmt) {
-                        build(jMethod, (IdentityStmt) unit);
+                        build(method, (IdentityStmt) unit);
                     } else if (unit instanceof InvokeStmt) {
-                        build(jMethod, ((InvokeStmt) unit));
+                        build(method, ((InvokeStmt) unit));
                     } else if (unit instanceof ReturnStmt) {
-                        build(jMethod, (ReturnStmt) unit);
+                        build(method, (ReturnStmt) unit);
                     } else if (unit instanceof ThrowStmt) {
-                        build(jMethod, (ThrowStmt) unit);
+                        build(method, (ThrowStmt) unit);
                     } else {
                         throw new RuntimeException("Cannot handle statement: " + unit);
                     }
@@ -124,30 +148,74 @@ class ElementManager {
             }
         }
 
-        private void build(JimpleMethod jMethod, AssignStmt stmt) {
-            // x = new T();
-            // x = y;
-            // x.f = y;
-            // x = y.f;
-            // r = x.m();
+        private void build(JimpleMethod method, AssignStmt stmt) {
+            Value left = stmt.getLeftOp();
+            Value right = stmt.getRightOp();
+            if (left instanceof Local) {
+                Variable lhs = getVariable(left, method);
+                if (right instanceof NewExpr) {
+                    // x = new T();
+                    method.addStatement(new Allocation(lhs, right, getType(right.getType())));
+                } else if (right instanceof Local) {
+                    // x = y;
+                    method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
+                } else if (right instanceof InstanceFieldRef) {
+                    // x = y.f;
+                    InstanceFieldRef ref = (InstanceFieldRef) right;
+                    JimpleVariable base = getVariable(ref.getBase(), method);
+                    InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
+                    base.addLoad(load);
+                    method.addStatement(load);
+                } else if (right instanceof InvokeExpr) {
+                    // x = o.m();
+                    JimpleCallSite callSite =
+                            createCallSite((InvokeExpr) right, method);
+                    Call call = new Call(callSite, lhs);
+                    callSite.setCall(call);
+                    method.addStatement(call);
+                } else {
+                    // TODO: x = new T[];
+                    // TODO: x = y[i];
+                    // TODO: x = T.f;
+                    // TODO: x = "x";
+                    // TODO: x = T.class;
+                    // TODO: x = other cases
+                }
+            } else if (left instanceof InstanceFieldRef) {
+                // x.f = y;
+                InstanceFieldRef ref = (InstanceFieldRef) left;
+                JimpleVariable base = getVariable(ref.getBase(), method);
+                InstanceStore store = new InstanceStore(base,
+                        getField(ref.getField()),
+                        getVariable(right, method));
+                base.addStore(store);
+                method.addStatement(store);
+            } else {
+                // TODO: T.f = x;
+                // TODO: x[i] = y;
+            }
         }
 
-        private void build(JimpleMethod jMethod, IdentityStmt stmt) {
+        private void build(JimpleMethod method, IdentityStmt stmt) {
             // identity statement is for parameter passing and catch statements
             // parameters have been handled when creating JimpleMethod
             // currently ignore catch statements
         }
 
-        private void build(JimpleMethod jMethod, InvokeStmt stmt) {
+        private void build(JimpleMethod method, InvokeStmt stmt) {
             // x.m();
+            JimpleCallSite callSite =
+                    createCallSite(stmt.getInvokeExpr(), method);
+            Call call = new Call(callSite, null);
+            callSite.setCall(call);
+            method.addStatement(call);
         }
 
-        private void build(JimpleMethod jMethod, ReturnStmt stmt) {
-            jMethod.addReturnVar(getVariable(stmt.getOp(), jMethod));
-            Value v = stmt.getOp();
+        private void build(JimpleMethod method, ReturnStmt stmt) {
+            method.addReturnVar(getVariable(stmt.getOp(), method));
         }
 
-        private void build(JimpleMethod jMethod, ThrowStmt stmt) {
+        private void build(JimpleMethod method, ThrowStmt stmt) {
             // currently ignore throw statements
         }
     }
