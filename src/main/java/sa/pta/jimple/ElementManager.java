@@ -8,6 +8,7 @@ import sa.pta.statement.Call;
 import sa.pta.statement.InstanceLoad;
 import sa.pta.statement.InstanceStore;
 import sa.util.AnalysisException;
+import sa.util.MutableInteger;
 import soot.Body;
 import soot.Local;
 import soot.SootClass;
@@ -23,8 +24,10 @@ import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
+import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ThrowStmt;
+import soot.jimple.internal.JimpleLocal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +45,8 @@ class ElementManager {
 
     private BodyBuilder bodyBuilder = new BodyBuilder();
 
+    private TempVariableManager tempVar = new TempVariableManager();
+
     JimpleMethod getMethod(SootMethod method) {
         return methods.computeIfAbsent(method, this::createMethod);
     }
@@ -49,20 +54,21 @@ class ElementManager {
     private JimpleMethod createMethod(SootMethod method) {
         JimpleType jType = getType(method.getDeclaringClass());
         JimpleMethod jMethod = new JimpleMethod(method, jType);
-        // TODO - skip special (e.g., native or phantom) methods
-        Body body = method.retrieveActiveBody();
-        // add this variable and parameters
-        if (!method.isStatic()) {
-            jMethod.setThisVar(getVariable(body.getThisLocal(), jMethod));
+        if (!(method.isAbstract() || method.isNative())) {
+            Body body = method.retrieveActiveBody();
+            // add this variable and parameters
+            if (!method.isStatic()) {
+                jMethod.setThisVar(getVariable(body.getThisLocal(), jMethod));
+            }
+            jMethod.setParameters(
+                    body.getParameterLocals()
+                            .stream()
+                            .map(param -> getVariable(param, jMethod))
+                            .collect(Collectors.toList())
+            );
+            // add statements
+            bodyBuilder.build(jMethod, body);
         }
-        jMethod.setParameters(
-                body.getParameterLocals()
-                        .stream()
-                        .map(param -> getVariable(param, jMethod))
-                        .collect(Collectors.toList())
-        );
-        // add statements
-        bodyBuilder.build(jMethod, body);
         return jMethod;
     }
 
@@ -97,6 +103,9 @@ class ElementManager {
     private JimpleVariable getVariable(Value value, JimpleMethod container) {
         if (value instanceof Local) {
             return getVariable((Local) value, container);
+        } else if (value instanceof NullConstant) {
+            return tempVar.getTempVariable("null$",
+                    getType(value.getType()), container);
         } else {
             // TODO: handle string constants
             // TODO: handle class constants
@@ -217,6 +226,24 @@ class ElementManager {
 
         private void build(JimpleMethod method, ThrowStmt stmt) {
             // currently ignore throw statements
+        }
+    }
+
+    private class TempVariableManager {
+
+        private Map<JimpleMethod, MutableInteger> varNumbers = new HashMap<>();
+
+        private JimpleVariable getTempVariable(
+                String baseName, JimpleType type, JimpleMethod container) {
+            String varName = baseName + getNewNumber(container);
+            Local local = new JimpleLocal(varName, type.getSootType());
+            return new JimpleVariable(local, type, container);
+        }
+
+        private int getNewNumber(JimpleMethod container) {
+            return varNumbers.computeIfAbsent(container,
+                    m -> new MutableInteger(0))
+                    .increase();
         }
     }
 }
