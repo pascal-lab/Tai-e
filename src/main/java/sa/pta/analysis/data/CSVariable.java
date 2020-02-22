@@ -22,4 +22,9 @@ public class CSVariable extends AbstractPointer implements CSElement {
     public Variable getVariable() {
         return var;
     }
+
+    @Override
+    public String toString() {
+        return context + ":" + var;
+    }
 }

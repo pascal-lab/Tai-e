@@ -29,4 +29,11 @@ public class Call implements Statement {
     public Kind getKind() {
         return Kind.CALL;
     }
+
+    @Override
+    public String toString() {
+        return lhs != null
+                ? lhs + " = " + callSite.toString()
+                : callSite.toString();
+    }
 }

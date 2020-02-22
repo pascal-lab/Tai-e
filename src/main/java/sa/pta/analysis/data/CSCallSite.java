@@ -16,4 +16,8 @@ public class CSCallSite extends AbstractCSElement {
         return callSite;
     }
 
+    @Override
+    public String toString() {
+        return context + ":" + callSite;
+    }
 }

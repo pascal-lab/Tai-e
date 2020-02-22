@@ -72,7 +72,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
             case SPECIAL:
                 return Collections.singleton(hierarchy.resolveSpecialDispatch(
                         (SpecialInvokeExpr) invoke,
-                        callGraph.getContainingMethod(callSite)));
+                        callGraph.getContainerMethodOf(callSite)));
             case STATIC:
                 return Collections.singleton(method);
             default:

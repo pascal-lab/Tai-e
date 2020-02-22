@@ -112,4 +112,9 @@ class JimpleMethod implements Method {
     public int hashCode() {
         return method.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return method.toString();
+    }
 }

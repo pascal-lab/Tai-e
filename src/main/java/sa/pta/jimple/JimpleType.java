@@ -42,4 +42,9 @@ class JimpleType implements Type {
     public int hashCode() {
         return sootType.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return sootType.toString();
+    }
 }

@@ -18,7 +18,7 @@ public class JimpleCallGraph extends AbstractCallGraph<Unit, SootMethod> {
                 for (Unit unit : method.retrieveActiveBody().getUnits()) {
                     Stmt stmt = (Stmt) unit;
                     if (stmt.containsInvokeExpr()) {
-                        containingMethod.put(stmt, method);
+                        callSiteToContainer.put(stmt, method);
                         CollectionUtils.addToMapSet(callSitesIn, method, stmt);
                     }
                 }

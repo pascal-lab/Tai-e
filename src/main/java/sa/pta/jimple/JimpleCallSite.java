@@ -108,4 +108,9 @@ class JimpleCallSite implements CallSite {
     public int hashCode() {
         return invoke.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return invoke.toString();
+    }
 }

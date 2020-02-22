@@ -16,7 +16,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     protected Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges;
     protected Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges;
-    protected Map<CallSite, Method> containingMethod;
+    protected Map<CallSite, Method> callSiteToContainer;
     protected Map<Method, Set<CallSite>> callSitesIn;
     protected Set<Method> entryMethods;
     protected Set<Method> reachableMethods;
@@ -24,7 +24,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected AbstractCallGraph() {
         callSiteToEdges = new HashMap<>();
         calleeToEdges = new HashMap<>();
-        containingMethod = new HashMap<>();
+        callSiteToContainer = new HashMap<>();
         callSitesIn = new HashMap<>();
         entryMethods = new HashSet<>();
         reachableMethods = new HashSet<>();
@@ -69,8 +69,8 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Method getContainingMethod(CallSite callSite) {
-        return containingMethod.get(callSite);
+    public Method getContainerMethodOf(CallSite callSite) {
+        return callSiteToContainer.get(callSite);
     }
 
     @Override

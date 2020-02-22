@@ -48,4 +48,9 @@ class ObjImpl implements Obj {
     public int hashCode() {
         return allocation.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return allocation.toString();
+    }
 }

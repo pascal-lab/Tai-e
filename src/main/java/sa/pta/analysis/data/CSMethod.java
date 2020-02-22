@@ -15,4 +15,9 @@ public class CSMethod extends AbstractCSElement {
     public Method getMethod() {
         return method;
     }
+
+    @Override
+    public String toString() {
+        return context + ":" + method;
+    }
 }

@@ -103,4 +103,9 @@ class JimpleVariable implements Variable {
     public int hashCode() {
         return var.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return containerMethod + "/" + var.getName();
+    }
 }

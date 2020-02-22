@@ -20,4 +20,9 @@ public class InstanceField extends AbstractPointer {
     public Field getField() {
         return field;
     }
+
+    @Override
+    public String toString() {
+        return base + "." + field;
+    }
 }

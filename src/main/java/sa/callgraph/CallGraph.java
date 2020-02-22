@@ -19,7 +19,7 @@ public interface CallGraph<CallSite, Method>
     /**
      * Returns the method that contains the given call site.
      */
-    Method getContainingMethod(CallSite callSite);
+    Method getContainerMethodOf(CallSite callSite);
 
     /**
      * Returns the set of call sites within the given method.

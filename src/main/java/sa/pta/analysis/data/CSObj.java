@@ -15,4 +15,9 @@ public class CSObj extends AbstractCSElement {
     public Obj getObject() {
         return obj;
     }
+
+    @Override
+    public String toString() {
+        return context + ":" + obj;
+    }
 }

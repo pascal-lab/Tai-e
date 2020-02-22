@@ -54,4 +54,9 @@ class JimpleField implements Field {
     public int hashCode() {
         return field.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return field.toString();
+    }
 }

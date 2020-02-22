@@ -13,4 +13,9 @@ public class StaticField extends AbstractPointer {
     public Field getField() {
         return field;
     }
+
+    @Override
+    public String toString() {
+        return field.toString();
+    }
 }

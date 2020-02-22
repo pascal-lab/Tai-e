@@ -36,4 +36,9 @@ public class Allocation implements Statement {
     public Kind getKind() {
         return Kind.ALLOCATION;
     }
+
+    @Override
+    public String toString() {
+        return var + " = " + allocationSite;
+    }
 }

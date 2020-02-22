@@ -39,7 +39,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
                     CallSite callSite = ((Call) s).getCallSite();
                     CSCallSite csCallSite = dataManager
                             .getCSCallSite(context, callSite);
-                    containingMethod.put(csCallSite, csMethod);
+                    callSiteToContainer.put(csCallSite, csMethod);
                     CollectionUtils.addToMapSet(callSitesIn, csMethod, csCallSite);
                 }
             }

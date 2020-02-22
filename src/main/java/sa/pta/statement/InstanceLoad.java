@@ -36,4 +36,9 @@ public class InstanceLoad implements Statement {
     public Kind getKind() {
         return Kind.INSTANCE_LOAD;
     }
+
+    @Override
+    public String toString() {
+        return to + " = " + base + "." + field;
+    }
 }
