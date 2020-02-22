@@ -93,7 +93,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         for (Method entry : programManager.getEntryMethods()) {
             CSMethod csMethod = dataManager.getCSMethod(
                     contextSelector.getDefaultContext(), entry);
-            callGraph.addEntryMethod(csMethod);
             processNewMethod(csMethod);
         }
     }
@@ -276,8 +275,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = csMethod.getContext();
         Method method = csMethod.getMethod();
         for (Statement stmt : method.getStatements()) {
-            if (stmt.getKind() == Statement.Kind.CALL) {
-                CallSite callSite = (CallSite) stmt;
+            if (stmt instanceof Call) {
+                CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.isStatic()) {
                     Method callee = callSite.getMethod();
                     CSCallSite csCallSite = dataManager.getCSCallSite(context, callSite);

@@ -6,16 +6,16 @@ import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.Pointer;
 import sa.pta.set.PointsToSet;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 
 class WorkList {
 
     private Queue<Entry> pointerEntries = new LinkedList<>();
 
-    private Set<Edge<CSCallSite, CSMethod>> edges = new TreeSet<>();
+    private Set<Edge<CSCallSite, CSMethod>> edges = new LinkedHashSet<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();

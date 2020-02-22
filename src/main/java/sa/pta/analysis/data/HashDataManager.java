@@ -31,6 +31,10 @@ public class HashDataManager implements DataManager {
 
     private Map<Context, Map<Method, CSMethod>> methods = new HashMap<>();
 
+    public HashDataManager(PointsToSetFactory setFactory) {
+        setPointsToSetFactory(setFactory);
+    }
+
     @Override
     public void setPointsToSetFactory(PointsToSetFactory setFactory) {
         this.setFactory = setFactory;
