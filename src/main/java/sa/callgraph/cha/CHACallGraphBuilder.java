@@ -3,18 +3,16 @@ package sa.callgraph.cha;
 import sa.callgraph.CallGraph;
 import sa.callgraph.CallKind;
 import sa.callgraph.JimpleCallGraph;
+import sa.callgraph.JimpleCallUtils;
 import sa.util.AnalysisException;
 import soot.FastHierarchy;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootMethod;
 import soot.Unit;
-import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.SpecialInvokeExpr;
-import soot.jimple.StaticInvokeExpr;
 import soot.jimple.Stmt;
-import soot.jimple.VirtualInvokeExpr;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -84,15 +82,6 @@ public class CHACallGraphBuilder extends SceneTransformer {
 
     private CallKind getCallKind(Unit callSite) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
-        if (invoke instanceof VirtualInvokeExpr ||
-                invoke instanceof InterfaceInvokeExpr) {
-            return CallKind.VIRTUAL;
-        } else if (invoke instanceof SpecialInvokeExpr) {
-            return CallKind.SPECIAL;
-        } else if (invoke instanceof StaticInvokeExpr) {
-            return CallKind.STATIC;
-        } else {
-            return CallKind.OTHER;
-        }
+        return JimpleCallUtils.getCallKind(invoke);
     }
 }
