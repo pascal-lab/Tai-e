@@ -7,21 +7,21 @@ import sa.pta.element.Variable;
  */
 public class Assign implements Statement {
 
-    private final Variable from;
-
     private final Variable to;
 
-    public Assign(Variable from, Variable to) {
-        this.from = from;
-        this.to = to;
-    }
+    private final Variable from;
 
-    public Variable getFrom() {
-        return from;
+    public Assign(Variable to, Variable from) {
+        this.to = to;
+        this.from = from;
     }
 
     public Variable getTo() {
         return to;
+    }
+
+    public Variable getFrom() {
+        return from;
     }
 
     @Override

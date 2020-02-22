@@ -32,4 +32,9 @@ abstract class DelegatePointsToSet implements PointsToSet {
     public Iterator<CSObj> iterator() {
         return set.iterator();
     }
+
+    @Override
+    public String toString() {
+        return set.toString();
+    }
 }

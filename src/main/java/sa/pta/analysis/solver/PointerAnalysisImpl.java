@@ -94,6 +94,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSMethod csMethod = dataManager.getCSMethod(
                     contextSelector.getDefaultContext(), entry);
             processNewMethod(csMethod);
+            // must be called after processNewMethod()
+            callGraph.addEntryMethod(csMethod);
         }
     }
 
@@ -114,6 +116,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private void propagateSet(Pointer pointer, PointsToSet pointsToSet) {
+        System.out.println("Propagate " + pointsToSet + " to " + pointer);
         PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {

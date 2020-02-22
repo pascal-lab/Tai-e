@@ -68,4 +68,9 @@ class PointerFlowEdge {
     public int hashCode() {
         return Objects.hash(kind, from, to, type);
     }
+
+    @Override
+    public String toString() {
+        return "[" + kind + "]" + from + " -> " + to;
+    }
 }
