@@ -39,19 +39,19 @@ public class HashDataManager implements DataManager {
     @Override
     public CSVariable getCSVariable(Context context, Variable var) {
         return getOrCreateCSElement(vars, context, var,
-                (c, v) -> initialPointsToSet(new CSVariable(c, v)));
+                (c, v) -> initializePointsToSet(new CSVariable(c, v)));
     }
 
     @Override
     public InstanceField getInstanceField(CSObj base, Field field) {
         return getOrCreateCSElement(instanceFields, base, field,
-                (b, f) -> initialPointsToSet(new InstanceField(b, f)));
+                (b, f) -> initializePointsToSet(new InstanceField(b, f)));
     }
 
     @Override
     public StaticField getStaticField(Field field) {
         return staticFields.computeIfAbsent(field,
-                (f) -> initialPointsToSet(new StaticField(f)));
+                (f) -> initializePointsToSet(new StaticField(f)));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class HashDataManager implements DataManager {
         return getOrCreateCSElement(methods, context, method, CSMethod::new);
     }
 
-    private <P extends Pointer> P initialPointsToSet(P pointer) {
+    private <P extends Pointer> P initializePointsToSet(P pointer) {
         pointer.setPointsToSet(setFactory.makePointsToSet());
         return pointer;
     }

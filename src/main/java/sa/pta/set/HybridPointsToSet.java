@@ -1,28 +1,12 @@
 package sa.pta.set;
 
-import sa.pta.analysis.data.CSObj;
 import sa.util.HybridArrayHashSet;
 
-import java.util.Iterator;
-import java.util.Set;
-
-public class HybridPointsToSet implements PointsToSet {
-
-    private Set<CSObj> set = new HybridArrayHashSet<>();
+public class HybridPointsToSet extends DelegatePointsToSet {
 
     @Override
-    public boolean addObject(CSObj obj) {
-        return set.add(obj);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return set.isEmpty();
-    }
-
-    @Override
-    public Iterator<CSObj> iterator() {
-        return set.iterator();
+    protected void initializePointsToSet() {
+        set = new HybridArrayHashSet<>();
     }
 
     public static class Factory implements PointsToSetFactory {
