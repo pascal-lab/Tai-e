@@ -51,33 +51,39 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private WorkList workList;
 
     @Override
-    public HeapModel getHeapModel() {
-        return heapModel;
+    public void setProgramManager(ProgramManager programManager) {
+        this.programManager = programManager;
     }
 
     @Override
-    public ContextSelector getContextSelector() {
-        return contextSelector;
+    public void setDataManager(DataManager dataManager) {
+        this.dataManager = dataManager;
     }
 
     @Override
-    public PointsToSetFactory getPointsToSetFactory() {
-        return setFactory;
+    public void setContextSelector(ContextSelector contextSelector) {
+        this.contextSelector = contextSelector;
     }
 
     @Override
-    public ProgramManager getProgramManager() {
-        return null;
+    public void setHeapModel(HeapModel heapModel) {
+        this.heapModel = heapModel;
+    }
+
+    @Override
+    public void setPointsToSetFactory(PointsToSetFactory setFactory) {
+        this.setFactory = setFactory;
+    }
+
+    @Override
+    public void solve() {
+        initialize();
+        propagate();
     }
 
     @Override
     public CallGraph<CSCallSite, CSMethod> getCallGraph() {
         return callGraph;
-    }
-
-    public void solve() {
-        initialize();
-        propagate();
     }
 
     private void initialize() {
@@ -117,6 +123,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
         if (!diff.isEmpty()) {
             for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(pointer)) {
+                // TODO: check cast here
                 Pointer to = edge.getTo();
                 workList.addPointerEntry(to, diff);
             }

@@ -5,20 +5,23 @@ import sa.pta.analysis.ProgramManager;
 import sa.pta.analysis.context.ContextSelector;
 import sa.pta.analysis.data.CSCallSite;
 import sa.pta.analysis.data.CSMethod;
+import sa.pta.analysis.data.DataManager;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.set.PointsToSetFactory;
 
 public interface PointerAnalysis {
 
-    // set* or get*?
+    void setProgramManager(ProgramManager programManager);
 
-    ProgramManager getProgramManager();
+    void setDataManager(DataManager dataManager);
 
-    ContextSelector getContextSelector();
+    void setContextSelector(ContextSelector contextSelector);
 
-    HeapModel getHeapModel();
+    void setHeapModel(HeapModel heapModel);
 
-    PointsToSetFactory getPointsToSetFactory();
+    void setPointsToSetFactory(PointsToSetFactory setFactory);
+
+    void solve();
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 }
