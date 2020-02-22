@@ -24,4 +24,6 @@ public interface PointerAnalysis {
     void solve();
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
+
+    PointerFlowGraph getPointerFlowGraph();
 }

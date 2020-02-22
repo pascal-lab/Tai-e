@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-class PointerFlowGraph {
+public class PointerFlowGraph {
 
     private Set<Pointer> pointers = new HashSet<>();
 

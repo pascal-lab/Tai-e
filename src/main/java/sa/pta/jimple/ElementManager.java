@@ -164,7 +164,8 @@ class ElementManager {
                 Variable lhs = getVariable(left, method);
                 if (right instanceof NewExpr) {
                     // x = new T();
-                    method.addStatement(new Allocation(lhs, right, getType(right.getType())));
+                    //method.addStatement(new Allocation(lhs, right, getType(right.getType())));
+                    method.addStatement(new Allocation(lhs, stmt, getType(right.getType())));
                 } else if (right instanceof Local) {
                     // x = y;
                     method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
