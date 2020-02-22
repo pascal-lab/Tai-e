@@ -9,5 +9,9 @@ public interface PointsToSetFactory {
     /**
      * Make a singleton points-to set.
      */
-    PointsToSet makePointsToSet(CSObj obj);
+    default PointsToSet makePointsToSet(CSObj obj) {
+        PointsToSet set = makePointsToSet();
+        set.addObject(obj);
+        return set;
+    }
 }
