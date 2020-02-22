@@ -23,23 +23,19 @@ class PointerFlowGraph {
     }
 
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+        return addEdge(from, to, kind, null);
+    }
+
+    public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind, Type type) {
         addNewPointer(from);
         addNewPointer(to);
         if (successors.computeIfAbsent(from, k -> new HashSet<>()).add(to)) {
             edges.computeIfAbsent(from, k -> new HashSet<>())
-                    .add(new PointerFlowEdge(kind, from, to));
+                    .add(new PointerFlowEdge(kind, from, to, type));
             return true;
         } else {
             return false;
         }
-    }
-
-    public boolean addCastEdge(Pointer from, Pointer to, Type type) {
-        addNewPointer(from);
-        addNewPointer(to);
-        successors.computeIfAbsent(from, k-> new HashSet<>()).add(to);
-        return edges.computeIfAbsent(from, k -> new HashSet<>())
-                .add(new PointerFlowEdge(PointerFlowEdge.Kind.CAST, from, to, type));
     }
 
     public Set<PointerFlowEdge> getOutEdgesOf(Pointer pointer) {

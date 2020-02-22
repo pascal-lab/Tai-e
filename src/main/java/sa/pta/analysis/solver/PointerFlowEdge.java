@@ -37,10 +37,6 @@ class PointerFlowEdge {
         this.type = type;
     }
 
-    public PointerFlowEdge(Kind kind, Pointer from, Pointer to) {
-        this(kind, from, to, null);
-    }
-
     public Kind getKind() {
         return kind;
     }
