@@ -58,4 +58,8 @@ class WorkList {
         edges.remove(edge);
         return edge;
     }
+
+    boolean isEmpty() {
+        return pointerEntries.isEmpty() && edges.isEmpty();
+    }
 }

@@ -86,6 +86,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return callGraph;
     }
 
+    @Override
+    public PointerFlowGraph getPointerFlowGraph() {
+        return pointerFlowGraph;
+    }
+
     private void initialize() {
         callGraph = new OnFlyCallGraph(dataManager);
         pointerFlowGraph = new PointerFlowGraph();
@@ -100,18 +105,23 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private void propagate() {
-        while (workList.hasPointerEntries()) {
-            WorkList.Entry entry = workList.pollPointerEntry();
-            Pointer p = entry.pointer;
-            PointsToSet pts = entry.pointsToSet;
-            propagateSet(p, pts);
-            if (p instanceof CSVariable) {
-                CSVariable v = (CSVariable) p;
-                processInstanceStore(v, pts);
-                processInstanceLoad(v, pts);
-                processCall(v, pts);
+        while (!workList.isEmpty()) {
+            while (workList.hasPointerEntries()) {
+                WorkList.Entry entry = workList.pollPointerEntry();
+                Pointer p = entry.pointer;
+                PointsToSet pts = entry.pointsToSet;
+                propagateSet(p, pts);
+                if (p instanceof CSVariable) {
+                    CSVariable v = (CSVariable) p;
+                    processInstanceStore(v, pts);
+                    processInstanceLoad(v, pts);
+                    processCall(v, pts);
+                }
             }
-            processCallEdges();
+            while (workList.hasEdges()) {
+                Edge<CSCallSite, CSMethod> edge = workList.pollEdge();
+                processCallEdge(edge);
+            }
         }
     }
 
@@ -317,37 +327,34 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Process the call edges in work list.
      */
-    private void processCallEdges() {
-        while (workList.hasEdges()) {
-            Edge<CSCallSite, CSMethod> edge = workList.pollEdge();
-            if (!callGraph.containsEdge(edge)) {
-                callGraph.addEdge(edge);
-                CSMethod csCallee = edge.getCallee();
-                processNewMethod(csCallee);
-                Context callerCtx = edge.getCallSite().getContext();
-                CallSite callSite = edge.getCallSite().getCallSite();
-                Context calleeCtx = csCallee.getContext();
-                Method callee = csCallee.getMethod();
-                // pass arguments to parameters
-                List<Variable> args = callSite.getArguments();
-                List<Variable> params = callee.getParameters();
-                for (int i = 0; i < args.size(); ++i) {
-                    CSVariable arg = dataManager.getCSVariable(callerCtx, args.get(i));
-                    CSVariable param = dataManager.getCSVariable(calleeCtx, params.get(i));
-                    pointerFlowGraph.addEdge(arg, param,
-                            PointerFlowEdge.Kind.PARAMETER_PASSING);
-                    workList.addPointerEntry(param, arg.getPointsToSet());
-                }
-                // pass results to LHS variable
-                if (callSite.getCall().getLHS() != null) {
-                    CSVariable lhs = dataManager.getCSVariable(
-                            callerCtx, callSite.getCall().getLHS());
-                    for (Variable ret : callee.getReturnVariables()) {
-                        CSVariable csRet = dataManager.getCSVariable(calleeCtx, ret);
-                        pointerFlowGraph.addEdge(csRet, lhs,
-                                PointerFlowEdge.Kind.RETURN);
-                        workList.addPointerEntry(lhs, csRet.getPointsToSet());
-                    }
+    private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        if (!callGraph.containsEdge(edge)) {
+            callGraph.addEdge(edge);
+            CSMethod csCallee = edge.getCallee();
+            processNewMethod(csCallee);
+            Context callerCtx = edge.getCallSite().getContext();
+            CallSite callSite = edge.getCallSite().getCallSite();
+            Context calleeCtx = csCallee.getContext();
+            Method callee = csCallee.getMethod();
+            // pass arguments to parameters
+            List<Variable> args = callSite.getArguments();
+            List<Variable> params = callee.getParameters();
+            for (int i = 0; i < args.size(); ++i) {
+                CSVariable arg = dataManager.getCSVariable(callerCtx, args.get(i));
+                CSVariable param = dataManager.getCSVariable(calleeCtx, params.get(i));
+                pointerFlowGraph.addEdge(arg, param,
+                        PointerFlowEdge.Kind.PARAMETER_PASSING);
+                workList.addPointerEntry(param, arg.getPointsToSet());
+            }
+            // pass results to LHS variable
+            if (callSite.getCall().getLHS() != null) {
+                CSVariable lhs = dataManager.getCSVariable(
+                        callerCtx, callSite.getCall().getLHS());
+                for (Variable ret : callee.getReturnVariables()) {
+                    CSVariable csRet = dataManager.getCSVariable(calleeCtx, ret);
+                    pointerFlowGraph.addEdge(csRet, lhs,
+                            PointerFlowEdge.Kind.RETURN);
+                    workList.addPointerEntry(lhs, csRet.getPointsToSet());
                 }
             }
         }
