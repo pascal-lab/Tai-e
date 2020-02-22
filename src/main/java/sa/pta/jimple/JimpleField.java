@@ -11,6 +11,12 @@ class JimpleField implements Field {
 
     private JimpleType fieldType;
 
+    public JimpleField(SootField field, JimpleType classType, JimpleType fieldType) {
+        this.field = field;
+        this.classType = classType;
+        this.fieldType = fieldType;
+    }
+
     @Override
     public boolean isInstance() {
         return !field.isStatic();

@@ -5,6 +5,7 @@ import sa.pta.element.Variable;
 import sa.pta.statement.Statement;
 import soot.SootMethod;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,11 +18,11 @@ class JimpleMethod implements Method {
 
     private JimpleVariable thisVar;
 
-    private List<Variable> parameters;
+    private List<Variable> parameters = Collections.emptyList();
 
-    private Set<Variable> returnVars;
+    private Set<Variable> returnVars = Collections.emptySet();
 
-    private Set<Statement> statements;
+    private Set<Statement> statements = Collections.emptySet();
 
     JimpleMethod(SootMethod method, JimpleType classType) {
         this.method = method;
@@ -36,13 +37,16 @@ class JimpleMethod implements Method {
         this.parameters = parameters;
     }
 
-    void setReturnVars(Set<Variable> returnVars) {
-        this.returnVars = returnVars;
+    void addReturnVar(JimpleVariable returnVar) {
+        if (returnVars.isEmpty()) {
+            returnVars = new HashSet<>(4);
+        }
+        returnVars.add(returnVar);
     }
 
     void addStatement(Statement statement) {
-        if (statements == null) {
-            statements = new HashSet<>();
+        if (statements.isEmpty()) {
+            statements = new HashSet<>(8);
         }
         statements.add(statement);
     }

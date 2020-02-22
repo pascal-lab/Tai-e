@@ -22,8 +22,36 @@ class JimpleCallSite implements CallSite {
 
     private List<Variable> arguments;
 
-    private JimpleMethod containingMethod;
+    private JimpleMethod containerMethod;
 
+    public JimpleCallSite(InvokeExpr invoke, CallKind kind) {
+        this.invoke = invoke;
+        this.kind = kind;
+    }
+
+    InvokeExpr getSootInvokeExpr() {
+        return invoke;
+    }
+
+    void setCall(Call call) {
+        this.call = call;
+    }
+
+    void setMethod(JimpleMethod method) {
+        this.method = method;
+    }
+
+    void setReceiver(JimpleVariable receiver) {
+        this.receiver = receiver;
+    }
+
+    void setArguments(List<Variable> arguments) {
+        this.arguments = arguments;
+    }
+
+    void setContainerMethod(JimpleMethod containerMethod) {
+        this.containerMethod = containerMethod;
+    }
 
     @Override
     public boolean isVirtual() {
@@ -62,7 +90,7 @@ class JimpleCallSite implements CallSite {
 
     @Override
     public JimpleMethod getContainerMethod() {
-        return containingMethod;
+        return containerMethod;
     }
 
     @Override
@@ -76,9 +104,5 @@ class JimpleCallSite implements CallSite {
     @Override
     public int hashCode() {
         return invoke.hashCode();
-    }
-
-    InvokeExpr getSootInvokeExpr() {
-        return invoke;
     }
 }
