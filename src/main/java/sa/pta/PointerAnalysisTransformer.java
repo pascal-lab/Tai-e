@@ -1,6 +1,8 @@
 package sa.pta;
 
 import sa.pta.analysis.context.ContextInsensitiveSelector;
+import sa.pta.analysis.context.OneCallSelector;
+import sa.pta.analysis.context.OneObjectSelector;
 import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.HashDataManager;
@@ -12,7 +14,6 @@ import sa.pta.analysis.solver.PointerAnalysisImpl;
 import sa.pta.element.Obj;
 import sa.pta.jimple.JimpleProgramManager;
 import sa.pta.set.HybridPointsToSet;
-import sa.pta.set.PointsToSet;
 import sa.pta.set.PointsToSetFactory;
 import soot.SceneTransformer;
 import soot.jimple.AssignStmt;
@@ -26,11 +27,13 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
-        PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setProgramManager(new JimpleProgramManager());
-        pta.setDataManager(new HashDataManager(setFactory));
-        pta.setContextSelector(new ContextInsensitiveSelector());
+//        pta.setContextSelector(new ContextInsensitiveSelector());
+//        pta.setContextSelector(new OneObjectSelector());
+        pta.setContextSelector(new OneCallSelector());
         pta.setHeapModel(new AllocationSiteBasedModel());
+        PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
+        pta.setDataManager(new HashDataManager(setFactory));
         pta.setPointsToSetFactory(setFactory);
         pta.solve();
         System.out.println("Reachable methods:");
