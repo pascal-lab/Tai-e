@@ -2,6 +2,7 @@ public class TestPTA {
 
     public static void main(String[] args) {
         test();
+        testNative();
         test1obj();
         test1call();
     }
@@ -20,6 +21,11 @@ public class TestPTA {
         b2.foo();
     }
 
+    static void testNative() {
+        A a = new A();
+        a.hashCode();
+    }
+    
     static void test1obj() {
         A a1 = new A();
         A a2 = new A();

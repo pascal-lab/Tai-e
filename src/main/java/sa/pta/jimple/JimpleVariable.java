@@ -1,6 +1,5 @@
 package sa.pta.jimple;
 
-import sa.pta.element.CallSite;
 import sa.pta.element.Variable;
 import sa.pta.statement.Call;
 import sa.pta.statement.InstanceLoad;
@@ -8,7 +7,7 @@ import sa.pta.statement.InstanceStore;
 import soot.Local;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 class JimpleVariable implements Variable {
@@ -42,21 +41,21 @@ class JimpleVariable implements Variable {
 
     void addCall(Call call) {
         if (calls.isEmpty()) {
-            calls = new HashSet<>(4);
+            calls = new LinkedHashSet<>(4);
         }
         calls.add(call);
     }
 
     void addStore(InstanceStore store) {
         if (stores.isEmpty()) {
-            stores = new HashSet<>(4);
+            stores = new LinkedHashSet<>(4);
         }
         stores.add(store);
     }
 
     void addLoad(InstanceLoad load) {
         if (loads.isEmpty()) {
-            loads = new HashSet<>(4);
+            loads = new LinkedHashSet<>(4);
         }
         loads.add(load);
     }

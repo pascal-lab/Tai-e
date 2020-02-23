@@ -18,17 +18,13 @@ public class PointerFlowGraph {
 
     private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
-    public void addNewPointer(Pointer pointer) {
-        pointers.add(pointer);
-    }
-
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         return addEdge(from, to, kind, null);
     }
 
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind, Type type) {
-        addNewPointer(from);
-        addNewPointer(to);
+        pointers.add(from);
+        pointers.add(to);
         if (successors.computeIfAbsent(from, k -> new HashSet<>()).add(to)) {
             edges.computeIfAbsent(from, k -> new HashSet<>())
                     .add(new PointerFlowEdge(kind, from, to, type));
