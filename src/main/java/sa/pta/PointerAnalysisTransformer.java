@@ -37,9 +37,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         pta.setPointsToSetFactory(setFactory);
         pta.solve();
         System.out.println("Reachable methods:");
-        pta.getCallGraph().forEach(System.out::println);
+        pta.getCallGraph().getReachableMethods().forEach(System.out::println);
         System.out.println("Call graph edges:");
-        pta.getCallGraph().getAllEdges().forEachRemaining(System.out::println);
+        pta.getCallGraph().forEach(System.out::println);
         printPointsToSet(pta.getPointerFlowGraph().getPointers());
     }
 
