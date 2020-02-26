@@ -15,7 +15,7 @@ class WorkList {
 
     private Queue<Entry> pointerEntries = new LinkedList<>();
 
-    private Set<Edge<CSCallSite, CSMethod>> edges = new LinkedHashSet<>();
+    private Set<Edge<CSCallSite, CSMethod>> callEdges = new LinkedHashSet<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();
@@ -45,21 +45,21 @@ class WorkList {
         }
     }
 
-    boolean hasEdges() {
-        return !edges.isEmpty();
+    boolean hasCallEdges() {
+        return !callEdges.isEmpty();
     }
 
-    void addEdge(Edge<CSCallSite, CSMethod> edge) {
-        edges.add(edge);
+    void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        callEdges.add(edge);
     }
 
-    Edge<CSCallSite, CSMethod> pollEdge() {
-        Edge<CSCallSite, CSMethod> edge = edges.iterator().next();
-        edges.remove(edge);
+    Edge<CSCallSite, CSMethod> pollCallEdge() {
+        Edge<CSCallSite, CSMethod> edge = callEdges.iterator().next();
+        callEdges.remove(edge);
         return edge;
     }
 
     boolean isEmpty() {
-        return pointerEntries.isEmpty() && edges.isEmpty();
+        return pointerEntries.isEmpty() && callEdges.isEmpty();
     }
 }

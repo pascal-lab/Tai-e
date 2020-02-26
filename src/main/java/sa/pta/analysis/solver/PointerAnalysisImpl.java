@@ -78,7 +78,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     @Override
     public void solve() {
         initialize();
-        propagate();
+        analyze();
     }
 
     @Override
@@ -109,13 +109,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
-    private void propagate() {
+    private void analyze() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
                 WorkList.Entry entry = workList.pollPointerEntry();
                 Pointer p = entry.pointer;
                 PointsToSet pts = entry.pointsToSet;
-                propagateSet(p, pts);
+                propagate(p, pts);
                 if (p instanceof CSVariable) {
                     CSVariable v = (CSVariable) p;
                     processInstanceStore(v, pts);
@@ -123,14 +123,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     processCall(v, pts);
                 }
             }
-            while (workList.hasEdges()) {
-                Edge<CSCallSite, CSMethod> edge = workList.pollEdge();
-                processCallEdge(edge);
+            while (workList.hasCallEdges()) {
+                processCallEdge(workList.pollCallEdge());
             }
         }
     }
 
-    private void propagateSet(Pointer pointer, PointsToSet pointsToSet) {
+    private void propagate(Pointer pointer, PointsToSet pointsToSet) {
         System.out.println("Propagate " + pointsToSet + " to " + pointer);
         PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
@@ -147,6 +146,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+        if (pointerFlowGraph.addEdge(from, to, kind)) {
+            workList.addPointerEntry(to, from.getPointsToSet());
+        }
+    }
+
     private void processInstanceStore(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
@@ -155,10 +160,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             for (CSObj baseObj : pts) {
                 InstanceField instField = dataManager.getInstanceField(
                         baseObj, store.getField());
-                if (pointerFlowGraph.addEdge(from, instField,
-                        PointerFlowEdge.Kind.INSTANCE_STORE)) {
-                    workList.addPointerEntry(instField, from.getPointsToSet());
-                }
+                addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
             }
         }
     }
@@ -171,10 +173,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             for (CSObj baseObj : pts) {
                 InstanceField instField = dataManager.getInstanceField(
                         baseObj, load.getField());
-                if (pointerFlowGraph.addEdge(instField, to,
-                        PointerFlowEdge.Kind.INSTANCE_LOAD)) {
-                    workList.addPointerEntry(to, instField.getPointsToSet());
-                }
+                addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
             }
         }
     }
@@ -205,7 +204,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                         csCallSite, recvObj, callee);
                 // build call edge
                 CSMethod csCallee = dataManager.getCSMethod(calleeContext, callee);
-                workList.addEdge(new Edge<>(callKind, csCallSite, csCallee));
+                workList.addCallEdge(new Edge<>(callKind, csCallSite, csCallee));
                 // pass receiver object to *this* variable
                 CSVariable thisVar = dataManager.getCSVariable(
                         calleeContext, callee.getThis());
@@ -276,7 +275,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     CSMethod csCallee = dataManager.getCSMethod(calleeCtx, callee);
                     Edge<CSCallSite, CSMethod> edge =
                             new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                    workList.addEdge(edge);
+                    workList.addCallEdge(edge);
                 }
             }
         }
@@ -300,9 +299,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             for (int i = 0; i < args.size(); ++i) {
                 CSVariable arg = dataManager.getCSVariable(callerCtx, args.get(i));
                 CSVariable param = dataManager.getCSVariable(calleeCtx, params.get(i));
-                pointerFlowGraph.addEdge(arg, param,
-                        PointerFlowEdge.Kind.PARAMETER_PASSING);
-                workList.addPointerEntry(param, arg.getPointsToSet());
+                addPFGEdge(arg, param, PointerFlowEdge.Kind.PARAMETER_PASSING);
             }
             // pass results to LHS variable
             if (callSite.getCall().getLHS() != null) {
@@ -310,9 +307,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                         callerCtx, callSite.getCall().getLHS());
                 for (Variable ret : callee.getReturnVariables()) {
                     CSVariable csRet = dataManager.getCSVariable(calleeCtx, ret);
-                    pointerFlowGraph.addEdge(csRet, lhs,
-                            PointerFlowEdge.Kind.RETURN);
-                    workList.addPointerEntry(lhs, csRet.getPointsToSet());
+                    addPFGEdge(csRet, lhs, PointerFlowEdge.Kind.RETURN);
                 }
             }
         }
