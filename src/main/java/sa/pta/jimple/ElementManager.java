@@ -82,11 +82,13 @@ class ElementManager {
     }
 
     private JimpleVariable getVariable(Local var, JimpleMethod container) {
-        return vars.computeIfAbsent(container, (m) -> new HashMap<>())
-                .computeIfAbsent(var, (v) -> {
-                    JimpleType type = getType(var.getType());
-                    return new JimpleVariable(var, type, container);
-                });
+        return var.getType() instanceof RefLikeType
+                ? vars.computeIfAbsent(container, (m) -> new HashMap<>())
+                    .computeIfAbsent(var, (v) -> {
+                        JimpleType type = getType(var.getType());
+                        return new JimpleVariable(var, type, container);
+                    })
+                : null; // returns null for variables with non-reference type
     }
 
     /**
@@ -191,7 +193,6 @@ class ElementManager {
                 Variable lhs = getVariable(left, method);
                 if (right instanceof NewExpr) {
                     // x = new T();
-                    //method.addStatement(new Allocation(lhs, right, getType(right.getType())));
                     method.addStatement(new Allocation(lhs, stmt, getType(right.getType())));
                 } else if (right instanceof Local) {
                     // x = y;
@@ -249,7 +250,9 @@ class ElementManager {
         }
 
         private void build(JimpleMethod method, ReturnStmt stmt) {
-            method.addReturnVar(getVariable(stmt.getOp(), method));
+            if (stmt.getOp().getType() instanceof RefLikeType) {
+                method.addReturnVar(getVariable(stmt.getOp(), method));
+            }
         }
 
         private void build(JimpleMethod method, ThrowStmt stmt) {

@@ -6,6 +6,9 @@ public class TestCHA {
 
         A a = new C();
         a.bar();
+
+        Number n = new One();
+        n.get();
     }
 }
 
@@ -30,4 +33,30 @@ class C extends A implements I {
     void instanceMethod() {}
 
     static void staticMethod() {}
+}
+
+
+interface Number {
+    int get();
+}
+
+class Zero implements Number {
+    @Override
+    public int get() {
+        return 0;
+    }
+}
+
+class One implements Number {
+    @Override
+    public int get() {
+        return 1;
+    }
+}
+
+class Two implements Number {
+    @Override
+    public int get() {
+        return 2;
+    }
 }
