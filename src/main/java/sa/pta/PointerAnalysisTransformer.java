@@ -1,8 +1,7 @@
 package sa.pta;
 
 import sa.pta.analysis.context.ContextInsensitiveSelector;
-import sa.pta.analysis.context.OneCallSelector;
-import sa.pta.analysis.context.OneObjectSelector;
+import sa.pta.analysis.data.CSMethod;
 import sa.pta.analysis.data.CSObj;
 import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.HashDataManager;
@@ -20,7 +19,7 @@ import soot.jimple.AssignStmt;
 
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Stream;
 
 public class PointerAnalysisTransformer extends SceneTransformer {
 
@@ -28,32 +27,34 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
         pta.setProgramManager(new JimpleProgramManager());
-//        pta.setContextSelector(new ContextInsensitiveSelector());
+        pta.setContextSelector(new ContextInsensitiveSelector());
 //        pta.setContextSelector(new OneObjectSelector());
-        pta.setContextSelector(new OneCallSelector());
+//        pta.setContextSelector(new OneCallSelector());
         pta.setHeapModel(new AllocationSiteBasedModel());
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setDataManager(new HashDataManager(setFactory));
         pta.setPointsToSetFactory(setFactory);
         pta.solve();
         System.out.println("Reachable methods:");
-        pta.getCallGraph().getReachableMethods().forEach(System.out::println);
+        pta.getCallGraph().getReachableMethods()
+                .stream()
+                .sorted(Comparator.comparing(CSMethod::toString))
+                .forEach(System.out::println);
         System.out.println("Call graph edges:");
-        pta.getCallGraph().forEach(System.out::println);
-        printPointsToSet(pta.getPointerFlowGraph().getPointers());
+        pta.getCallGraph().getAllEdges().forEach(System.out::println);
+        printVariables(pta.getVariables());
+        printInstanceFields(pta.getInstanceFields());
     }
 
-    private void printPointsToSet(Set<Pointer> pointers) {
+    private void printVariables(Stream<CSVariable> vars) {
         System.out.println("Points-to sets of all variables:");
-        pointers.stream()
-                .filter(p -> p instanceof CSVariable)
-                .map(p -> (CSVariable) p)
-                .sorted(Comparator.comparing(p -> p.getVariable().toString()))
+        vars.sorted(Comparator.comparing(p -> p.getVariable().toString()))
                 .forEach(this::printPointsToSet);
-        pointers.stream()
-                .filter(p -> p instanceof InstanceField)
-                .map(p -> (InstanceField) p)
-                .sorted(Comparator.comparing(f -> f.getBase().toString()))
+    }
+
+    private void printInstanceFields(Stream<InstanceField> fields) {
+        System.out.println("Points-to sets of all instance fields:");
+        fields.sorted(Comparator.comparing(f -> f.getBase().toString()))
                 .forEach(this::printPointsToSet);
     }
 

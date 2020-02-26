@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
@@ -84,11 +85,10 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Iterator<Edge<CallSite, Method>> getAllEdges() {
+    public Stream<Edge<CallSite, Method>> getAllEdges() {
         return callSiteToEdges.values()
                 .stream()
-                .flatMap(Set::stream)
-                .iterator();
+                .flatMap(Set::stream);
     }
 
     @Override
@@ -108,6 +108,6 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public Iterator<Edge<CallSite, Method>> iterator() {
-        return getAllEdges();
+        return getAllEdges().iterator();
     }
 }

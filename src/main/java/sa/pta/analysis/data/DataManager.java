@@ -8,6 +8,8 @@ import sa.pta.element.Obj;
 import sa.pta.element.Variable;
 import sa.pta.set.PointsToSetFactory;
 
+import java.util.stream.Stream;
+
 /**
  * Manages the data structures in context-sensitive pointer analysis.
  */
@@ -26,4 +28,8 @@ public interface DataManager {
     CSCallSite getCSCallSite(Context context, CallSite callSite);
 
     CSMethod getCSMethod(Context context, Method method);
+
+    Stream<CSVariable> getCSVariables();
+
+    Stream<InstanceField> getInstanceFields();
 }

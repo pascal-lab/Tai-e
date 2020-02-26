@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Provides convenient utility operations for collections.
@@ -27,5 +28,16 @@ public class CollectionUtils {
 
     public static <K, V> Map<K, V> newMap() {
         return new HashMap<>();
+    }
+
+    /**
+     *
+     * @return a stream of all values of a map of map.
+     */
+    public static <K1, K2, V> Stream<V> getAllValues(Map<K1, Map<K2, V>> map) {
+        return map.values()
+                .stream()
+                .flatMap(m -> m.entrySet().stream())
+                .map(Map.Entry::getValue);
     }
 }

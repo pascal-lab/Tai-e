@@ -5,9 +5,13 @@ import sa.pta.analysis.ProgramManager;
 import sa.pta.analysis.context.ContextSelector;
 import sa.pta.analysis.data.CSCallSite;
 import sa.pta.analysis.data.CSMethod;
+import sa.pta.analysis.data.CSVariable;
 import sa.pta.analysis.data.DataManager;
+import sa.pta.analysis.data.InstanceField;
 import sa.pta.analysis.heap.HeapModel;
 import sa.pta.set.PointsToSetFactory;
+
+import java.util.stream.Stream;
 
 public interface PointerAnalysis {
 
@@ -25,5 +29,15 @@ public interface PointerAnalysis {
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
-    PointerFlowGraph getPointerFlowGraph();
+    /**
+     *
+     * @return all variables in the (reachable) program.
+     */
+    Stream<CSVariable> getVariables();
+
+    /**
+     *
+     * @return all instance fields in the (reachable) program.
+     */
+    Stream<InstanceField> getInstanceFields();
 }

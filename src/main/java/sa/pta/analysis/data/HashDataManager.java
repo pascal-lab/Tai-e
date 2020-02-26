@@ -7,10 +7,12 @@ import sa.pta.element.Method;
 import sa.pta.element.Obj;
 import sa.pta.element.Variable;
 import sa.pta.set.PointsToSetFactory;
+import sa.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 /**
  * Hash map based element manager.
@@ -71,6 +73,16 @@ public class HashDataManager implements DataManager {
     @Override
     public CSMethod getCSMethod(Context context, Method method) {
         return getOrCreateCSElement(methods, context, method, CSMethod::new);
+    }
+
+    @Override
+    public Stream<CSVariable> getCSVariables() {
+        return CollectionUtils.getAllValues(vars);
+    }
+
+    @Override
+    public Stream<InstanceField> getInstanceFields() {
+        return CollectionUtils.getAllValues(instanceFields);
     }
 
     private <P extends Pointer> P initializePointsToSet(P pointer) {

@@ -2,6 +2,7 @@ package sa.callgraph;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 public interface CallGraph<CallSite, Method>
         extends Iterable<Edge<CallSite, Method>> {
@@ -34,7 +35,7 @@ public interface CallGraph<CallSite, Method>
     /**
      * Returns all call edges in this call graph.
      */
-    Iterator<Edge<CallSite, Method>> getAllEdges();
+    Stream<Edge<CallSite, Method>> getAllEdges();
 
     /**
      * Returns the entry methods of this call graph.

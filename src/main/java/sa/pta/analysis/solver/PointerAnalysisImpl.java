@@ -30,6 +30,7 @@ import sa.pta.statement.Statement;
 import sa.util.AnalysisException;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
 
@@ -86,8 +87,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public PointerFlowGraph getPointerFlowGraph() {
-        return pointerFlowGraph;
+    public Stream<CSVariable> getVariables() {
+        return dataManager.getCSVariables();
+    }
+
+    @Override
+    public Stream<InstanceField> getInstanceFields() {
+        return dataManager.getInstanceFields();
     }
 
     private void initialize() {
