@@ -23,11 +23,12 @@ public class PointerFlowGraph {
     }
 
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind, Type type) {
-        pointers.add(from);
-        pointers.add(to);
-        if (successors.computeIfAbsent(from, k -> new HashSet<>()).add(to)) {
+        if (!successors.computeIfAbsent(from, k -> new HashSet<>()).contains(to)) {
+            successors.get(from).add(to);
             edges.computeIfAbsent(from, k -> new HashSet<>())
                     .add(new PointerFlowEdge(kind, from, to, type));
+            pointers.add(from);
+            pointers.add(to);
             return true;
         } else {
             return false;
