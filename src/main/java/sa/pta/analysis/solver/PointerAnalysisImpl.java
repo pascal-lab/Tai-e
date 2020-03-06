@@ -115,12 +115,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 WorkList.Entry entry = workList.pollPointerEntry();
                 Pointer p = entry.pointer;
                 PointsToSet pts = entry.pointsToSet;
-                propagate(p, pts);
+                PointsToSet diff = propagate(p, pts);
                 if (p instanceof CSVariable) {
                     CSVariable v = (CSVariable) p;
-                    processInstanceStore(v, pts);
-                    processInstanceLoad(v, pts);
-                    processCall(v, pts);
+                    processInstanceStore(v, diff);
+                    processInstanceLoad(v, diff);
+                    processCall(v, diff);
                 }
             }
             while (workList.hasCallEdges()) {
@@ -129,7 +129,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
-    private void propagate(Pointer pointer, PointsToSet pointsToSet) {
+    private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         System.out.println("Propagate " + pointsToSet + " to " + pointer);
         PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
@@ -144,6 +144,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 workList.addPointerEntry(to, diff);
             }
         }
+        return diff;
     }
 
     private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
