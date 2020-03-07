@@ -257,7 +257,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Assign assign = (Assign) stmt;
                 CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
                 CSVariable to = dataManager.getCSVariable(context, assign.getTo());
-                pointerFlowGraph.addEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
         }
     }
