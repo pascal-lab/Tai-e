@@ -149,7 +149,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         if (pointerFlowGraph.addEdge(from, to, kind)) {
-            workList.addPointerEntry(to, from.getPointsToSet());
+            if (!from.getPointsToSet().isEmpty()) {
+                workList.addPointerEntry(to, from.getPointsToSet());
+            }
         }
     }
 
