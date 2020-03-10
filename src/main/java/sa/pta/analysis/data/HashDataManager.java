@@ -25,6 +25,8 @@ public class HashDataManager implements DataManager {
 
     private Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
 
+    private Map<CSObj, ArrayField> arrayFields = new HashMap<>();
+
     private Map<Field, StaticField> staticFields = new HashMap<>();
 
     private Map<Context, Map<Obj, CSObj>> objs = new HashMap<>();
@@ -52,6 +54,12 @@ public class HashDataManager implements DataManager {
     public InstanceField getInstanceField(CSObj base, Field field) {
         return getOrCreateCSElement(instanceFields, base, field,
                 (b, f) -> initializePointsToSet(new InstanceField(b, f)));
+    }
+
+    @Override
+    public ArrayField getArrayField(CSObj array) {
+        return arrayFields.computeIfAbsent(array,
+                (a) -> initializePointsToSet(new ArrayField(a)));
     }
 
     @Override

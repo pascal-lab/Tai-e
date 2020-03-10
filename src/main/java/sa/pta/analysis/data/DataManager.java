@@ -21,6 +21,8 @@ public interface DataManager {
 
     InstanceField getInstanceField(CSObj base, Field field);
 
+    ArrayField getArrayField(CSObj array);
+    
     StaticField getStaticField(Field field);
 
     CSObj getCSObj(Context heapContext, Obj obj);
