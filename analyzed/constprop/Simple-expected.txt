@@ -18,7 +18,7 @@
 23:c=true
 
 <Simple: void multipleAssigns()>
-27:x=1
-28:x=2
-29:x=3
-30:x=4
+27:x=1,y=10
+28:x=2,y=10
+29:x=3,y=10
+30:x=4,y=10

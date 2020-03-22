@@ -1,0 +1,9 @@
+<BranchUndef: void undefined1(boolean)>
+6:x=UNDEF
+8:x=10
+10:x=10,y=10
+
+<BranchUndef: void undefined2(boolean)>
+15:x=UNDEF
+16:x=20
+17:a=20

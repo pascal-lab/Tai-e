@@ -1,0 +1,9 @@
+<Interprocedural: void param(int,boolean)>
+4:x=NAC
+5:y=NAC
+6:p=NAC
+7:q=NAC
+
+<Interprocedural: void invoke()>
+11:x=NAC
+12:y=NAC

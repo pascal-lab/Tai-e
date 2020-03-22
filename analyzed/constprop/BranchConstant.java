@@ -1,4 +1,5 @@
-class Branch {
+class BranchConstant {
+
     void constant1(boolean b) {
         int x = 2;
         int y = 2;
@@ -11,12 +12,10 @@ class Branch {
         int n = z;
     }
 
-    void NAC1(boolean b) {
+    void constant2(boolean b) {
         int x;
         if (b) {
             x = 10;
-        } else {
-            x = 20;
         }
         int y = x;
     }

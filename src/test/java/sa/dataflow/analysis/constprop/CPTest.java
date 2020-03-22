@@ -9,27 +9,43 @@ public class CPTest {
 
     @Test
     public void testSimple() {
-        Set<String> mismatches = ResultChecker.check(
-                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", "Simple" },
-                "analyzed/constprop/Simple-expected.txt"
-        );
-        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+        test("Simple");
     }
 
     @Test
     public void testBinaryOp() {
-        Set<String> mismatches = ResultChecker.check(
-                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", "BinaryOp" },
-                "analyzed/constprop/BinaryOp-expected.txt"
-        );
-        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+        test("BinaryOp");
     }
 
     @Test
-    public void testBranch() {
+    public void testBranchConstant() {
+        test("BranchConstant");
+    }
+
+    @Test
+    public void testBranchNAC() {
+        test("BranchNAC");
+    }
+
+    @Test
+    public void testBranchUndef() {
+        test("BranchUndef");
+    }
+
+    @Test
+    public void testInterprocedural() {
+        test("Interprocedural");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testBoolean() {
+        test("Boolean");
+    }
+
+    private void test(String className) {
         Set<String> mismatches = ResultChecker.check(
-                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", "Branch" },
-                "analyzed/constprop/Branch-expected.txt"
+                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", className },
+                "analyzed/constprop/" + className + "-expected.txt"
         );
         Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
     }

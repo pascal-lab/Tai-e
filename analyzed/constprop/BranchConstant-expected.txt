@@ -1,0 +1,8 @@
+<BranchConstant: void constant1(boolean)>
+5:x=2,y=2
+8:z=4
+10:z=4
+12:z=4,n=4
+
+<BranchConstant: void constant2(boolean)>
+20:x=10,y=10

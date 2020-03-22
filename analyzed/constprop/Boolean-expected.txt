@@ -1,0 +1,6 @@
+<Boolean: void boolOp()>
+4:bTrue=true
+5:bFalse=false
+6:b1=true
+7:b2=false
+10:b3=false
