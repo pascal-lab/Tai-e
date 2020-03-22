@@ -4,6 +4,7 @@ import soot.Body;
 import soot.G;
 import soot.Unit;
 import soot.UnitPatchingChain;
+import soot.jimple.NopStmt;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -76,7 +77,7 @@ class ResultChecker {
         UnitPatchingChain units = body.getUnits();
         units.forEach(u -> {
             int lineNumber = u.getJavaSourceStartLineNumber();
-            if (isLastUnitOfItsLine(units, u)) {
+            if (!(u instanceof NopStmt) && isLastUnitOfItsLine(units, u)) {
                 // only compare the data flow at the last unit of the same line
                 doCompare(method, lineNumber, result.get(u));
             }
@@ -85,11 +86,12 @@ class ResultChecker {
 
     /**
      * Returns if the given unit is the last unit of its source code line.
+     * TODO - make this more robust
      */
     private boolean isLastUnitOfItsLine(UnitPatchingChain units, Unit unit) {
         Unit succ = units.getSuccOf(unit);
-        return succ == null ||
-                succ.getJavaSourceStartLineNumber() != unit.getJavaSourceStartLineNumber();
+        return succ == null
+                || succ.getJavaSourceStartLineNumber() != unit.getJavaSourceStartLineNumber();
     }
 
     /**
