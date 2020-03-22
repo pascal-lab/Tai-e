@@ -1,0 +1,9 @@
+<Simple: void constant()>
+7:x=1
+8:y=2
+9:x=1,y=2,z=3
+10:t=true
+12:x=100
+
+<Simple: void undefined()>
+18:x=UNDEF,y=UNDEF,z=1
