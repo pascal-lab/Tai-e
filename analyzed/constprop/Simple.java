@@ -1,10 +1,6 @@
 class Simple {
-    public static void main(String[] args) {
-        constant();
-        undefined();
-    }
-
-    private static void constant() {
+    
+    void constant() {
         int x = 1;
         int y = 2;
         int z = 3;
@@ -13,8 +9,17 @@ class Simple {
         x = 100;
     }
 
-    private static void undefined() {
+    void undefined() {
         int x, y, z;
         z = 1;
+    }
+
+    void propagation() {
+        int x = 10;
+        int y = x;
+        int z = y;
+        boolean a = true;
+        boolean b = a;
+        boolean c = b; 
     }
 }

@@ -1,0 +1,12 @@
+<BinaryOp: void constant()>
+4:i0=0,i1=1,i2=2
+5:x=3
+6:y=3
+7:z=3
+
+<BinaryOp: void NAC(int)>
+11:x=NAC
+12:y=NAC
+
+<BinaryOp: void undefined()>
+17:x=UNDEF,y=UNDEF

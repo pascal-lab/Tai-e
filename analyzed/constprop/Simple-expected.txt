@@ -1,9 +1,18 @@
 <Simple: void constant()>
-7:x=1
-8:y=2
-9:x=1,y=2,z=3
-10:t=true
-12:x=100
+4:x=1
+5:y=2
+6:x=1,y=2,z=3
+7:t=true
+8:x=1,f=false
+9:x=100
 
 <Simple: void undefined()>
-18:x=UNDEF,y=UNDEF,z=1
+14:x=UNDEF,y=UNDEF,z=1
+
+<Simple: void propagation()>
+18:x=10
+19:y=10
+20:z=10
+21:a=true
+22:b=true
+23:c=true

@@ -1,17 +1,27 @@
 package sa.dataflow.analysis.constprop;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.file.Paths;
+import java.util.Set;
 
 public class CPTest {
 
     @Test
-    public void testRead() {
-        ResultChecker checker = new ResultChecker();
-        ResultChecker.ExpectedResult result = checker.readExpectedResult(
-                Paths.get("analyzed/constprop/Simple-expected.txt")
+    public void testSimple() {
+        Set<String> mismatches = ResultChecker.check(
+                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", "Simple" },
+                "analyzed/constprop/Simple-expected.txt"
         );
-        System.out.println(result.getMap());
+        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+    }
+
+    @Test
+    public void testBinaryOp() {
+        Set<String> mismatches = ResultChecker.check(
+                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", "BinaryOp" },
+                "analyzed/constprop/BinaryOp-expected.txt"
+        );
+        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
     }
 }
