@@ -24,4 +24,13 @@ public class CPTest {
         );
         Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
     }
+
+    @Test
+    public void testBranch() {
+        Set<String> mismatches = ResultChecker.check(
+                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", "Branch" },
+                "analyzed/constprop/Branch-expected.txt"
+        );
+        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+    }
 }

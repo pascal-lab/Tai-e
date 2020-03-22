@@ -16,3 +16,9 @@
 21:a=true
 22:b=true
 23:c=true
+
+<Simple: void multipleAssigns()>
+27:x=1
+28:x=2
+29:x=3
+30:x=4

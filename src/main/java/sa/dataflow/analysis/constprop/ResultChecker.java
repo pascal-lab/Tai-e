@@ -67,10 +67,6 @@ class ResultChecker {
         return mismatches;
     }
 
-    Map<String, Map<Integer, Map<String, String>>> getResultMap() {
-        return resultMap;
-    }
-
     /**
      * Compares the analysis result with expected result, and stores
      * any found mismatches.

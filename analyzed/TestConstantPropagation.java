@@ -1,22 +1,6 @@
 public class TestConstantPropagation {
     
     // ----- test constant -----
-    void propagation() {
-        int x = 10;
-        int y = x;
-        int z = y;
-        boolean a = true;
-        boolean b = a;
-        boolean c = b; 
-    }
-
-    void intOp() {
-        int i10 = 10;
-        int x = i10 + 111;
-        int y = x * 5;
-        int z = y - 12;
-    }
-
     void boolOp() {
         boolean bTrue = true;
         boolean bFalse = false;
@@ -25,18 +9,6 @@ public class TestConstantPropagation {
         int x = 10;
         int y = 20;
         boolean b3 = x > y;
-    }
-
-    void branchConstant(boolean b) {
-        int x = 2;
-        int y = 2;
-        int z;
-        if (b) {
-            z = x + y;
-        } else {
-            z = x * y;
-        }
-        int n = z;
     }
 
     // ----- test NAC -----
