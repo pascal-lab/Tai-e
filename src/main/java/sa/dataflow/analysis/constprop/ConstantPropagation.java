@@ -200,7 +200,11 @@ public class ConstantPropagation extends BodyTransformer
         Solver<FlowMap, Unit> solver = SolverFactory.v().newSolver(this, cfg);
         solver.solve();
         b.addTag(new DataFlowTag<>("ConstantTag", solver.getAfterFlow()));
-        outputResult(b, solver.getAfterFlow());
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(b, solver.getAfterFlow());
+        } else {
+            outputResult(b, solver.getAfterFlow());
+        }
     }
 
     synchronized void outputResult(Body body, Map<Unit, FlowMap> result) {
