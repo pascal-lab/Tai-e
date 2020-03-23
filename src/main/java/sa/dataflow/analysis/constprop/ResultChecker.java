@@ -2,6 +2,7 @@ package sa.dataflow.analysis.constprop;
 
 import soot.Body;
 import soot.G;
+import soot.Local;
 import soot.Unit;
 import soot.UnitPatchingChain;
 import soot.jimple.NopStmt;
@@ -11,9 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -99,17 +100,29 @@ class ResultChecker {
      * and specific line. If the values do not match, then adds relevant
      * mismatch information to mismatches.
      */
-    private void doCompare(String method, int lineNumber,
-                           FlowMap analysisResult) {
-        analysisResult.forEach((local, value) -> {
-            String var = local.getName();
-            String expected = getValue(method, lineNumber, var);
-            if (expected != null) {
-                if (!value.toString().equals(expected)) {
-                    mismatches.add(String.format(
-                            "\n%s:L%d, '%s', expected: %s, given: %s",
-                            method, lineNumber, var, expected, value.toString()));
+    private void doCompare(String method, int lineNumber, FlowMap analysisResult) {
+        Map<String, String> expectedResult = getValuesAt(method, lineNumber);
+        // This comparison should be linear, but now it is quadratic.
+        // But the computation amount is very small, so it should be find.
+        expectedResult.forEach((var, expected) -> {
+            boolean found = false;
+            for (Map.Entry<Local, Value> entry : analysisResult.entrySet()) {
+                if (entry.getKey().getName().equals(var)) {
+                    found = true;
+                    Value value = entry.getValue();
+                    if (!value.toString().equals(expected)) {
+                        mismatches.add(String.format(
+                                "\n%s:L%d, '%s', expected: %s, given: %s",
+                                method, lineNumber, var, expected, value.toString()));
+                    }
                 }
+            }
+            if (!found && !expected.equals("UNDEF")) {
+                // An expected non-undefined value of var is absent (undefined)
+                // in analysis result, which is also a mismatch.
+                mismatches.add(String.format(
+                        "\n%s:L%d, '%s', expected: %s, given: UNDEF",
+                        method, lineNumber, var, expected));
             }
         });
     }
@@ -118,7 +131,7 @@ class ResultChecker {
      * Reads expected result from given file path.
      */
     private void readExpectedResult(Path filePath) {
-        resultMap = new HashMap<>();
+        resultMap = new TreeMap<>();
         String currentMethod = null;  // method signature
         try {
             for (String line : Files.readAllLines(filePath)) {
@@ -162,8 +175,8 @@ class ResultChecker {
     }
 
     private void addValue(String method, int lineNumber, String var, String value) {
-        String old = resultMap.computeIfAbsent(method, (k) -> new HashMap<>())
-                .computeIfAbsent(lineNumber, (k) -> new HashMap<>())
+        String old = resultMap.computeIfAbsent(method, (k) -> new TreeMap<>())
+                .computeIfAbsent(lineNumber, (k) -> new TreeMap<>())
                 .put(var, value);
         if (old != null) {
             throw new RuntimeException("Value of " + method
@@ -173,13 +186,10 @@ class ResultChecker {
     }
 
     /**
-     * Gets expected value of specific method, line, and variable name.
-     * If var does not exist in result map, e.g., var is temporary variable,
-     * then returns null.
+     * Obtains the var-value map at specific location.
      */
-    private String getValue(String method, int lineNumber, String var) {
+    private Map<String, String> getValuesAt(String method, int lineNumber) {
         return resultMap.getOrDefault(method, Collections.emptyMap())
-                .getOrDefault(lineNumber, Collections.emptyMap())
-                .get(var);
+                .getOrDefault(lineNumber, Collections.emptyMap());
     }
 }
