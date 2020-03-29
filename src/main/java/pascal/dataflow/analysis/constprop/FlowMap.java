@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 
 /**
- * Data-flow information for constant propagation, which maps each variable to
- * a corresponding CPValue.
+ * Data-flow value for constant propagation, which maps each variable to
+ * a corresponding value (i.e., a product lattice of Local x Value).
  */
 public class FlowMap extends LinkedHashMap<Local, Value>
         implements pascal.dataflow.lattice.FlowMap<Local, Value> {

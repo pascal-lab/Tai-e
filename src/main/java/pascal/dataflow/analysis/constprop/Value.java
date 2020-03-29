@@ -44,26 +44,45 @@ public class Value {
         this.hashCode = Objects.hash(kind, intValue, boolValue);
     }
 
+    /**
+     * Returns if this value is NAC.
+     */
     public boolean isNAC() {
         return kind == Kind.NAC;
     }
 
+    /**
+     * Returns if this value represents an integer.
+     */
     public boolean isInt() {
         return kind == Kind.INT;
     }
 
+    /**
+     * Returns if this value represents a boolean.
+     */
     public boolean isBool() {
         return kind == Kind.BOOLEAN;
     }
 
+    /**
+     * Returns if this value represents a constant.
+     */
     public boolean isConstant() {
         return isInt() || isBool();
     }
 
+    /**
+     * Returns if this value is UNDEF.
+     */
     public boolean isUndef() {
         return kind == Kind.UNDEF;
     }
 
+    /**
+     * If this value represents an integer, then returns the integer,
+     * otherwise throws an exception.
+     */
     public int getInt() {
         if (!isInt()) {
             throw new AnalysisException(this + " is not an integer");
@@ -71,6 +90,10 @@ public class Value {
         return intValue;
     }
 
+    /**
+     * If this value represents an boolean, then returns the boolean,
+     * otherwise throws an exception.
+     */
     public boolean getBool() {
         if (!isBool()) {
             throw new AnalysisException(this + " is not a boolean");
@@ -112,18 +135,30 @@ public class Value {
         }
     }
 
+    /**
+     * Returns the NAC.
+     */
     public static Value getNAC() {
         return NAC;
     }
 
+    /**
+     * Makes a integer value.
+     */
     public static Value makeInt(int v) {
         return new Value(Kind.INT, v, false);
     }
 
+    /**
+     * Makes a boolean value.
+     */
     public static Value makeBool(boolean v) {
         return v ? TRUE : FALSE;
     }
 
+    /**
+     * Returns the UNDEF.
+     */
     public static Value getUndef() {
         return UNDEF;
     }

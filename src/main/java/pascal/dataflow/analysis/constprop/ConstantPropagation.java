@@ -83,12 +83,19 @@ public class ConstantPropagation extends BodyTransformer
             }
         }
         if (lhs != null) {
-            changed |= out.update(lhs, computeValue(in, lhs, node));
+            changed |= out.update(lhs, computeValue(node, in, lhs));
         }
         return changed;
     }
 
-    public Value computeValue(FlowMap in, Local lhs, Unit node) {
+    /**
+     * Computes value for a LHS variable at statement: lhs = ...
+     * @param node the given statement
+     * @param in in flow of the statement
+     * @param lhs the LHS variable
+     * @return the value of the LHS variable
+     */
+    public Value computeValue(Unit node, FlowMap in, Local lhs) {
         if (node instanceof IdentityStmt) {
             // the value from one of {parameters, this, caughtexception}
             return Value.getNAC();
@@ -100,7 +107,7 @@ public class ConstantPropagation extends BodyTransformer
             } else if (rhs instanceof BinopExpr) {
                 return toValue(in, type, (BinopExpr) rhs);
             } else {
-                // Non-supported expressions
+                // Returns NAC for other non-supported expressions
 //                throw new UnsupportedOperationException(rhs + " is not a supported");
                 return Value.getNAC();
             }
