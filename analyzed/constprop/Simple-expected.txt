@@ -16,7 +16,7 @@
 22:x=1,y=10
 23:x=2,y=10
 24:x=3,y=10
-35:x=4,y=10
+25:x=4,y=10
 
 <Simple: void longExpressions()>
 29:x=1,y=2,z=3

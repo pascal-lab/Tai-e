@@ -85,9 +85,26 @@ public class ConstantPropagation extends BodyTransformer
     }
 
     /**
+     * Meets two Values.
+     */
+    Value meetValue(Value v1, Value v2) {
+        if (v1.isUndef() && v2.isConstant()) {
+            return v2;
+        } else if (v1.isConstant() && v2.isUndef()) {
+            return v1;
+        } else if (v1.isNAC() || v2.isNAC()) {
+            return Value.getNAC();
+        } else if (v1.equals(v2)) {
+            return v1;
+        } else {
+            return Value.getNAC();
+        }
+    }
+
+    /**
      * Computes value of a RHS expression for statement: lhs = rhs
      * @param node the given statement
-     * @param in in flow of the statement
+     * @param in in-flow of the statement
      * @return the value of the LHS variable
      */
     public Value computeRHSValue(Unit node, FlowMap in) {
@@ -113,7 +130,7 @@ public class ConstantPropagation extends BodyTransformer
 
     /**
      * Evaluates a soot.Value (Local or IntConstant) to a Value
-     * @param in FlowMap at specific program point
+     * @param in in-flow at specific program point
      * @param v the soot.Value to be evaluated
      * @return the resulting Value
      */
@@ -129,7 +146,7 @@ public class ConstantPropagation extends BodyTransformer
 
     /**
      * Evaluates a binary expression to a Value
-     * @param in FlowMap at specific program point
+     * @param in in-flow at specific program point
      * @param expr the expression to be evaluated
      * @return the resulting Value
      */
@@ -171,23 +188,6 @@ public class ConstantPropagation extends BodyTransformer
             return Value.getNAC();
         } else {
             return Value.getUndef();
-        }
-    }
-
-    /**
-     * Meets two Values.
-     */
-    Value meetValue(Value v1, Value v2) {
-        if (v1.isUndef() && v2.isConstant()) {
-            return v2;
-        } else if (v1.isConstant() && v2.isUndef()) {
-            return v1;
-        } else if (v1.isNAC() || v2.isNAC()) {
-            return Value.getNAC();
-        } else if (v1.equals(v2)) {
-            return v1;
-        } else {
-            return Value.getNAC();
         }
     }
 
