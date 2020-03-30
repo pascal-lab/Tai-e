@@ -1,0 +1,10 @@
+<SimpleBoolean: void constant()>
+5:t=1,f=0
+
+<SimpleBoolean: void undefined()>
+10:x=UNDEF,y=UNDEF,z=1
+
+<SimpleBoolean: void propagation()>
+14:a=1
+15:b=1
+16:c=1

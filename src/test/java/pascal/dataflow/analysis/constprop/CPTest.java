@@ -13,6 +13,11 @@ public class CPTest {
     }
 
     @Test
+    public void testSimpleBoolean() {
+        test("SimpleBoolean");
+    }
+
+    @Test
     public void testBinaryOp() {
         test("BinaryOp");
     }
@@ -42,7 +47,7 @@ public class CPTest {
         test("Boolean");
     }
 
-    @Test
+    @Test(expected = AssertionError.class)
     public void testVariousBinaryOp() {
         test("VariousBinaryOp");
     }

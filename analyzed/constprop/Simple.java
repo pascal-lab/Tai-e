@@ -4,8 +4,6 @@ class Simple {
         int x = 1;
         int y = 2;
         int z = 3;
-        boolean t = true;
-        boolean f = false;
         x = 100;
     }
 
@@ -18,9 +16,6 @@ class Simple {
         int x = 10;
         int y = x;
         int z = y;
-        boolean a = true;
-        boolean b = a;
-        boolean c = b; 
     }
 
     void multipleAssigns() {
@@ -28,5 +23,11 @@ class Simple {
         x = 2;
         x = 3;
         x = 4;
+    }
+
+    void longExpressions() {
+        int x = 1, y = 2, z = 3;
+        int a = x + y * z;
+        int b = (x - y) * z;
     }
 }

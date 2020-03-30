@@ -2,23 +2,23 @@
 4:x=1
 5:y=2
 6:x=1,y=2,z=3
-7:t=true
-8:x=1,f=false
-9:x=100
+7:x=100
 
 <Simple: void undefined()>
-14:x=UNDEF,y=UNDEF,z=1
+12:x=UNDEF,y=UNDEF,z=1
 
 <Simple: void propagation()>
-18:x=10
-19:y=10
-20:z=10
-21:a=true
-22:b=true
-23:c=true
+16:x=10
+17:y=10
+18:z=10
 
 <Simple: void multipleAssigns()>
-27:x=1,y=10
-28:x=2,y=10
-29:x=3,y=10
-30:x=4,y=10
+22:x=1,y=10
+23:x=2,y=10
+24:x=3,y=10
+35:x=4,y=10
+
+<Simple: void longExpressions()>
+29:x=1,y=2,z=3
+30:a=7
+31:b=-3
