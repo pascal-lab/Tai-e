@@ -3,6 +3,7 @@ package bamboo.dataflow.analysis.constprop;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Set;
 
 public class CPTest {
@@ -53,9 +54,17 @@ public class CPTest {
     }
 
     private void test(String className) {
+        String cp;
+        if (new File("analyzed/constprop/").exists()) {
+            cp = "analyzed/constprop/";
+        } else {
+            cp = "analyzed/";
+        }
         Set<String> mismatches = ResultChecker.check(
-                new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", className },
-                "analyzed/constprop/" + className + "-expected.txt"
+                new String[]{ "-cp",
+                        cp + File.pathSeparator + "analyzed/basic-classes.jar",
+                        className },
+                cp + className + "-expected.txt"
         );
         Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
     }
