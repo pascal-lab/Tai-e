@@ -42,6 +42,11 @@ public class CPTest {
         test("Boolean");
     }
 
+    @Test
+    public void testVariousBinaryOp() {
+        test("VariousBinaryOp");
+    }
+
     private void test(String className) {
         Set<String> mismatches = ResultChecker.check(
                 new String[]{ "-cp", "analyzed/constprop;analyzed/basic-classes.jar", className },

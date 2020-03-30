@@ -1,0 +1,14 @@
+<VariousBinaryOp: void intArith()>
+8:a=1,b=-1,c=0,d=0
+
+<VariousBinaryOp: void intEqNeq()>
+14:b1=false,b2=true
+
+<VariousBinaryOp: void booleanEqNeq()>
+20:b1=false,b2=true
+
+<VariousBinaryOp: void intGeGt()>
+26:b1=false,b2=false
+
+<VariousBinaryOp: void intLeLt()>
+32:b1=true,b2=true
