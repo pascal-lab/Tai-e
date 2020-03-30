@@ -12,8 +12,7 @@ public class Value {
 
     private enum Kind {
         NAC, // not a constant
-        INT, // an integer constant
-        BOOLEAN, // a boolean constant
+        CONSTANT, // an integer constant
         UNDEF, // undefined value
     }
 
@@ -21,27 +20,17 @@ public class Value {
 
     private static final Value UNDEF = new Value(Kind.UNDEF);
 
-    private static final Value TRUE = new Value(Kind.BOOLEAN, 0, true);
-
-    private static final Value FALSE = new Value(Kind.BOOLEAN, 0, false);
-
     private Kind kind;
 
-    private int intValue;
-
-    private boolean boolValue;
-
-    private int hashCode;
+    private int value;
 
     private Value(Kind kind) {
-        this(kind, 0, false);
+        this(kind, 0);
     }
 
-    private Value(Kind kind, int intValue, boolean boolValue) {
+    private Value(Kind kind, int value) {
         this.kind = kind;
-        this.intValue = intValue;
-        this.boolValue = boolValue;
-        this.hashCode = Objects.hash(kind, intValue, boolValue);
+        this.value = value;
     }
 
     /**
@@ -52,24 +41,10 @@ public class Value {
     }
 
     /**
-     * Returns if this value represents an integer.
-     */
-    public boolean isInt() {
-        return kind == Kind.INT;
-    }
-
-    /**
-     * Returns if this value represents a boolean.
-     */
-    public boolean isBool() {
-        return kind == Kind.BOOLEAN;
-    }
-
-    /**
      * Returns if this value represents a constant.
      */
     public boolean isConstant() {
-        return isInt() || isBool();
+        return kind == Kind.CONSTANT;
     }
 
     /**
@@ -80,30 +55,19 @@ public class Value {
     }
 
     /**
-     * If this value represents an integer, then returns the integer,
+     * If this value represents an integer constant, then returns the integer,
      * otherwise throws an exception.
      */
-    public int getInt() {
-        if (!isInt()) {
-            throw new AnalysisException(this + " is not an integer");
+    public int getConstant() {
+        if (!isConstant()) {
+            throw new AnalysisException(this + " is not a constant");
         }
-        return intValue;
-    }
-
-    /**
-     * If this value represents an boolean, then returns the boolean,
-     * otherwise throws an exception.
-     */
-    public boolean getBool() {
-        if (!isBool()) {
-            throw new AnalysisException(this + " is not a boolean");
-        }
-        return boolValue;
+        return value;
     }
 
     @Override
     public int hashCode() {
-        return hashCode;
+        return value;
     }
 
     @Override
@@ -115,8 +79,7 @@ public class Value {
         }
         Value other = (Value) obj;
         return kind == other.kind
-                && intValue == other.intValue
-                && boolValue == other.boolValue;
+                && value == other.value;
     }
 
     @Override
@@ -124,10 +87,8 @@ public class Value {
         switch (kind) {
             case NAC:
                 return "NAC";
-            case INT:
-                return Integer.toString(intValue);
-            case BOOLEAN:
-                return Boolean.toString(boolValue);
+            case CONSTANT:
+                return Integer.toString(value);
             case UNDEF:
                 return "UNDEF";
             default:
@@ -143,17 +104,10 @@ public class Value {
     }
 
     /**
-     * Makes a integer value.
+     * Makes a constant value.
      */
-    public static Value makeInt(int v) {
-        return new Value(Kind.INT, v, false);
-    }
-
-    /**
-     * Makes a boolean value.
-     */
-    public static Value makeBool(boolean v) {
-        return v ? TRUE : FALSE;
+    public static Value makeConstant(int v) {
+        return new Value(Kind.CONSTANT, v);
     }
 
     /**
@@ -162,5 +116,4 @@ public class Value {
     public static Value getUndef() {
         return UNDEF;
     }
-
 }

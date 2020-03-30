@@ -7,7 +7,6 @@ import pascal.dataflow.lattice.DataFlowTag;
 import pascal.dataflow.lattice.FlowSet;
 import soot.Body;
 import soot.BodyTransformer;
-import soot.BooleanType;
 import soot.Local;
 import soot.Unit;
 import soot.jimple.AnyNewExpr;
@@ -94,10 +93,9 @@ public class DeadCodeElimination extends BodyTransformer {
                 // Note that in Jimple IR, the condition *must be* binary expression
                 Value cond = ConstantPropagation.v()
                         .toValue(constantMap.get(ifStmt),
-                                BooleanType.v(),
                                 (BinopExpr) ifStmt.getCondition());
-                if (cond.isBool()) { // Condition is constant
-                    if (cond.getBool()) { // Always true, false branch is unreachable
+                if (cond.isConstant()) { // Condition is constant
+                    if (cond.getConstant() == 1) { // Always true, false branch is unreachable
                         unreachableBranches.addEdge(ifStmt, falseBranch);
                     } else { // Always false, true branch is unreachable
                         unreachableBranches.addEdge(ifStmt, trueBranch);

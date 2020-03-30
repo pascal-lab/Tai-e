@@ -6,15 +6,11 @@ import pascal.dataflow.solver.Solver;
 import pascal.dataflow.solver.SolverFactory;
 import soot.Body;
 import soot.BodyTransformer;
-import soot.BooleanType;
-import soot.IntType;
 import soot.Local;
-import soot.Type;
 import soot.Unit;
 import soot.jimple.AddExpr;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
-import soot.jimple.Constant;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.DivExpr;
 import soot.jimple.EqExpr;
@@ -83,29 +79,28 @@ public class ConstantPropagation extends BodyTransformer
             }
         }
         if (lhs != null) {
-            changed |= out.update(lhs, computeValue(node, in, lhs));
+            changed |= out.update(lhs, computeRHSValue(node, in));
         }
         return changed;
     }
 
     /**
-     * Computes value for a LHS variable at statement: lhs = ...
+     * Computes value of a RHS expression for statement: lhs = rhs
      * @param node the given statement
      * @param in in flow of the statement
-     * @param lhs the LHS variable
      * @return the value of the LHS variable
      */
-    public Value computeValue(Unit node, FlowMap in, Local lhs) {
+    public Value computeRHSValue(Unit node, FlowMap in) {
         if (node instanceof IdentityStmt) {
             // the value from one of {parameters, this, caughtexception}
             return Value.getNAC();
         } else if (node instanceof AssignStmt) {
-            Type type = lhs.getType();
+            // Obtains rhs expression
             soot.Value rhs = ((AssignStmt) node).getRightOp();
-            if (rhs instanceof Local || rhs instanceof Constant) {
-                return toValue(in, type, rhs);
+            if (rhs instanceof Local || rhs instanceof IntConstant) {
+                return toValue(in, rhs);
             } else if (rhs instanceof BinopExpr) {
-                return toValue(in, type, (BinopExpr) rhs);
+                return toValue(in, (BinopExpr) rhs);
             } else {
                 // Returns NAC for other non-supported expressions
 //                throw new UnsupportedOperationException(rhs + " is not a supported");
@@ -117,65 +112,61 @@ public class ConstantPropagation extends BodyTransformer
     }
 
     /**
-     * Evaluates a soot.Value (Local or Constant) to a Value
+     * Evaluates a soot.Value (Local or IntConstant) to a Value
      * @param in FlowMap at specific program point
-     * @param type type of the value
      * @param v the soot.Value to be evaluated
      * @return the resulting Value
      */
-    public Value toValue(FlowMap in, Type type, soot.Value v) {
+    public Value toValue(FlowMap in, soot.Value v) {
         if (v instanceof Local) {
             return in.get(v);
-        } else if (v instanceof Constant) {
-            if (v instanceof IntConstant) {
-                int value = ((IntConstant) v).value;
-                if (type.equals(IntType.v())) {
-                    return Value.makeInt(value);
-                } else if (type.equals(BooleanType.v())) {
-                    boolean b = value != 0;
-                    return Value.makeBool(b);
-                }
-            }
+        } else if (v instanceof IntConstant) {
+            int value = ((IntConstant) v).value;
+            return Value.makeConstant(value);
         }
-        throw new UnsupportedOperationException(v + " is not a variable or boolean/integer constant");
+        throw new UnsupportedOperationException(v + " is not a variable or constant");
     }
 
     /**
      * Evaluates a binary expression to a Value
      * @param in FlowMap at specific program point
-     * @param type type of the Value
      * @param expr the expression to be evaluated
      * @return the resulting Value
      */
-    public Value toValue(FlowMap in, Type type, BinopExpr expr) {
-        Value op1 = toValue(in, type, expr.getOp1());
-        Value op2 = toValue(in, type, expr.getOp2());
-        if (op1.isInt() && op2.isInt()) {
-            int i1 = op1.getInt();
-            int i2 = op2.getInt();
+    public Value toValue(FlowMap in, BinopExpr expr) {
+        Value op1 = toValue(in, expr.getOp1());
+        Value op2 = toValue(in, expr.getOp2());
+        if (op1.isConstant() && op2.isConstant()) {
+            int i1 = op1.getConstant();
+            int i2 = op2.getConstant();
+            int res;
             if (expr instanceof AddExpr) {
-                return Value.makeInt(i1 + i2);
+                res = i1 + i2;
             } else if (expr instanceof SubExpr) {
-                return Value.makeInt(i1 - i2);
+                res = i1 - i2;
             } else if (expr instanceof MulExpr) {
-                return Value.makeInt(i1 * i2);
+                res = i1 * i2;
             } else if (expr instanceof DivExpr) {
-                return Value.makeInt(i1 / i2);
-            } else if (expr instanceof EqExpr) {
-                return Value.makeBool(i1 == i2);
+                res = i1 / i2;
+            }
+            // for boolean expression
+            else if (expr instanceof EqExpr) {
+                res = i1 == i2 ? 1 : 0;
             } else if (expr instanceof NeExpr) {
-                return Value.makeBool(i1 != i2);
+                res = i1 != i2 ? 1 : 0;
             } else if (expr instanceof GeExpr) {
-                return Value.makeBool(i1 >= i2);
+                res = i1 >= i2 ? 1 : 0;
             } else if (expr instanceof GtExpr) {
-                return Value.makeBool(i1 > i2);
+                res = i1 > i2 ? 1 : 0;
             } else if (expr instanceof LeExpr) {
-                return Value.makeBool(i1 <= i2);
+                res = i1 <= i2 ? 1 : 0;
             } else if (expr instanceof LtExpr) {
-                return Value.makeBool(i1 < i2);
-            } else {
+                res = i1 < i2 ? 1 : 0;
+            }
+            else {
                 throw new UnsupportedOperationException(expr + " is not supported");
             }
+            return Value.makeConstant(res);
         } else if (op1.isNAC() || op2.isNAC()) {
             return Value.getNAC();
         } else {
