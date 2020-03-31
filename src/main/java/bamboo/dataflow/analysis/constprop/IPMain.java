@@ -12,6 +12,7 @@ public class IPMain {
         // Set options
         Options.v().set_src_prec(Options.src_prec_java);
         Options.v().set_output_format(Options.output_format_jimple);
+        Options.v().set_prepend_classpath(true);
         Options.v().set_whole_program(true);
 
         // Configure transformer

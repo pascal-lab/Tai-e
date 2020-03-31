@@ -61,9 +61,7 @@ public class CPTest {
             cp = "analyzed/";
         }
         Set<String> mismatches = ResultChecker.check(
-                new String[]{ "-cp",
-                        cp + File.pathSeparator + "analyzed/basic-classes.jar",
-                        className },
+                new String[]{ "-cp", cp, className },
                 cp + className + "-expected.txt"
         );
         Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
