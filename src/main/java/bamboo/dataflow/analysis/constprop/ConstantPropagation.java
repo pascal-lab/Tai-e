@@ -9,14 +9,12 @@ import soot.BodyTransformer;
 import soot.Local;
 import soot.Unit;
 import soot.jimple.AddExpr;
-import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.DivExpr;
 import soot.jimple.EqExpr;
 import soot.jimple.GeExpr;
 import soot.jimple.GtExpr;
-import soot.jimple.IdentityStmt;
 import soot.jimple.IntConstant;
 import soot.jimple.LeExpr;
 import soot.jimple.LtExpr;
@@ -66,24 +64,6 @@ public class ConstantPropagation extends BodyTransformer
         return result;
     }
 
-    @Override
-    public boolean transfer(Unit node, FlowMap in, FlowMap out) {
-        Local lhs = null;
-        if (node instanceof DefinitionStmt) {
-            lhs = (Local) ((DefinitionStmt) node).getLeftOp();
-        }
-        boolean changed = false;
-        for (Local inLocal : in.keySet()) {
-            if (!inLocal.equals(lhs)) {
-                changed |= out.update(inLocal, in.get(inLocal));
-            }
-        }
-        if (lhs != null) {
-            changed |= out.update(lhs, computeRHSValue(node, in));
-        }
-        return changed;
-    }
-
     /**
      * Meets two Values.
      */
@@ -101,93 +81,81 @@ public class ConstantPropagation extends BodyTransformer
         }
     }
 
+    @Override
+    public boolean transfer(Unit node, FlowMap in, FlowMap out) {
+        Local lhs = null;
+        soot.Value rhs = null;
+        if (node instanceof DefinitionStmt) {
+            lhs = (Local) ((DefinitionStmt) node).getLeftOp();
+            rhs = ((DefinitionStmt) node).getRightOp();
+        }
+        boolean changed = false;
+        for (Local inLocal : in.keySet()) {
+            if (!inLocal.equals(lhs)) {
+                changed |= out.update(inLocal, in.get(inLocal));
+            }
+        }
+        if (lhs != null) {
+            changed |= out.update(lhs, computeValue(rhs, in));
+        }
+        return changed;
+    }
+
     /**
-     * Computes value of a RHS expression for statement: lhs = rhs
-     * @param node the given statement
+     * Computes value of a RHS expression
+     * @param rhs the RHS expression
      * @param in in-flow of the statement
-     * @return the value of the LHS variable
+     * @return the value of the RHS expression
      */
-    public Value computeRHSValue(Unit node, FlowMap in) {
-        if (node instanceof IdentityStmt) {
-            // the value from one of {parameters, this, caughtexception}
-            return Value.getNAC();
-        } else if (node instanceof AssignStmt) {
-            // Obtains rhs expression
-            soot.Value rhs = ((AssignStmt) node).getRightOp();
-            if (rhs instanceof Local || rhs instanceof IntConstant) {
-                return toValue(in, rhs);
-            } else if (rhs instanceof BinopExpr) {
-                return toValue(in, (BinopExpr) rhs);
-            } else {
-                // Returns NAC for other non-supported expressions
-//                throw new UnsupportedOperationException(rhs + " is not a supported");
-                return Value.getNAC();
-            }
-        } else {
-            throw new IllegalArgumentException(node + " is not a definition statement");
-        }
-    }
-
-    /**
-     * Evaluates a soot.Value (Local or IntConstant) to a Value
-     * @param in in-flow at specific program point
-     * @param v the soot.Value to be evaluated
-     * @return the resulting Value
-     */
-    public Value toValue(FlowMap in, soot.Value v) {
-        if (v instanceof Local) {
-            return in.get(v);
-        } else if (v instanceof IntConstant) {
-            int value = ((IntConstant) v).value;
+    public Value computeValue(soot.Value rhs, FlowMap in) {
+        if (rhs instanceof Local) {
+            return in.get(rhs);
+        } else if (rhs instanceof IntConstant) {
+            int value = ((IntConstant) rhs).value;
             return Value.makeConstant(value);
-        }
-        throw new UnsupportedOperationException(v + " is not a variable or constant");
-    }
-
-    /**
-     * Evaluates a binary expression to a Value
-     * @param in in-flow at specific program point
-     * @param expr the expression to be evaluated
-     * @return the resulting Value
-     */
-    public Value toValue(FlowMap in, BinopExpr expr) {
-        Value op1 = toValue(in, expr.getOp1());
-        Value op2 = toValue(in, expr.getOp2());
-        if (op1.isConstant() && op2.isConstant()) {
-            int i1 = op1.getConstant();
-            int i2 = op2.getConstant();
-            int res;
-            if (expr instanceof AddExpr) {
-                res = i1 + i2;
-            } else if (expr instanceof SubExpr) {
-                res = i1 - i2;
-            } else if (expr instanceof MulExpr) {
-                res = i1 * i2;
-            } else if (expr instanceof DivExpr) {
-                res = i1 / i2;
+        } else if (rhs instanceof BinopExpr) {
+            BinopExpr expr = (BinopExpr) rhs;
+            Value op1 = computeValue(expr.getOp1(), in);
+            Value op2 = computeValue(expr.getOp2(), in);
+            if (op1.isConstant() && op2.isConstant()) {
+                int i1 = op1.getConstant();
+                int i2 = op2.getConstant();
+                int res;
+                if (expr instanceof AddExpr) {
+                    res = i1 + i2;
+                } else if (expr instanceof SubExpr) {
+                    res = i1 - i2;
+                } else if (expr instanceof MulExpr) {
+                    res = i1 * i2;
+                } else if (expr instanceof DivExpr) {
+                    res = i1 / i2;
+                }
+                // for boolean expression
+                else if (expr instanceof EqExpr) {
+                    res = i1 == i2 ? 1 : 0;
+                } else if (expr instanceof NeExpr) {
+                    res = i1 != i2 ? 1 : 0;
+                } else if (expr instanceof GeExpr) {
+                    res = i1 >= i2 ? 1 : 0;
+                } else if (expr instanceof GtExpr) {
+                    res = i1 > i2 ? 1 : 0;
+                } else if (expr instanceof LeExpr) {
+                    res = i1 <= i2 ? 1 : 0;
+                } else if (expr instanceof LtExpr) {
+                    res = i1 < i2 ? 1 : 0;
+                }
+                else {
+                    throw new UnsupportedOperationException(expr + " is not supported");
+                }
+                return Value.makeConstant(res);
+            } else if (op1.isNAC() || op2.isNAC()) {
+                return Value.getNAC();
+            } else {
+                return Value.getUndef();
             }
-            // for boolean expression
-            else if (expr instanceof EqExpr) {
-                res = i1 == i2 ? 1 : 0;
-            } else if (expr instanceof NeExpr) {
-                res = i1 != i2 ? 1 : 0;
-            } else if (expr instanceof GeExpr) {
-                res = i1 >= i2 ? 1 : 0;
-            } else if (expr instanceof GtExpr) {
-                res = i1 > i2 ? 1 : 0;
-            } else if (expr instanceof LeExpr) {
-                res = i1 <= i2 ? 1 : 0;
-            } else if (expr instanceof LtExpr) {
-                res = i1 < i2 ? 1 : 0;
-            }
-            else {
-                throw new UnsupportedOperationException(expr + " is not supported");
-            }
-            return Value.makeConstant(res);
-        } else if (op1.isNAC() || op2.isNAC()) {
-            return Value.getNAC();
         } else {
-            return Value.getUndef();
+            // Returns NAC for other non-supported expressions
+            return Value.getNAC();
         }
     }
 

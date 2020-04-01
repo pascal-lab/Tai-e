@@ -109,7 +109,7 @@ public class IPConstantPropagation extends SceneTransformer
             for (int i = 0; i < args.size(); ++i) {
                 soot.Value arg = args.get(i);
                 Local param = params.get(i);
-                Value argValue = cp.toValue(callSiteInFlow, arg);
+                Value argValue = cp.computeValue(arg, callSiteInFlow);
                 edgeFlow.update(param, argValue);
             }
             // TODO - handle this variable properly

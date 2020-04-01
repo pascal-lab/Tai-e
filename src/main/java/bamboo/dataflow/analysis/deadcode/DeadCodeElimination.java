@@ -92,8 +92,8 @@ public class DeadCodeElimination extends BodyTransformer {
                 // Evaluate condition value
                 // Note that in Jimple IR, the condition *must be* binary expression
                 Value cond = ConstantPropagation.v()
-                        .toValue(constantMap.get(ifStmt),
-                                (BinopExpr) ifStmt.getCondition());
+                        .computeValue(ifStmt.getCondition(),
+                                constantMap.get(ifStmt));
                 if (cond.isConstant()) { // Condition is constant
                     if (cond.getConstant() == 1) { // Always true, false branch is unreachable
                         unreachableBranches.addEdge(ifStmt, falseBranch);
