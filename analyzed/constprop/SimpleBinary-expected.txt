@@ -1,0 +1,10 @@
+<SimpleBinary: void constant()>
+4:x=1,y=2
+5:a=3
+6:a=-1
+7:a=2
+
+<SimpleBinary: void longExpressions()>
+11:x=1,y=2,z=3
+12:a=7
+13:b=-3
