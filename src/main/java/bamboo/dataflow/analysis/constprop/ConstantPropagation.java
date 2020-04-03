@@ -96,20 +96,18 @@ public class ConstantPropagation extends BodyTransformer
 
     @Override
     public boolean transfer(Unit node, FlowMap in, FlowMap out) {
-        Local lhs = null;
-        soot.Value rhs = null;
-        if (node instanceof DefinitionStmt) {
-            lhs = (Local) ((DefinitionStmt) node).getLeftOp();
-            rhs = ((DefinitionStmt) node).getRightOp();
-        }
         boolean changed = false;
-        for (Local inLocal : in.keySet()) {
-            if (!inLocal.equals(lhs)) {
-                changed |= out.update(inLocal, in.get(inLocal));
+        if (node instanceof DefinitionStmt) {
+            Local lhs = (Local) ((DefinitionStmt) node).getLeftOp();
+            soot.Value rhs = ((DefinitionStmt) node).getRightOp();
+            for (Local inLocal : in.keySet()) {
+                if (!inLocal.equals(lhs)) {
+                    changed |= out.update(inLocal, in.get(inLocal));
+                }
             }
-        }
-        if (lhs != null) {
             changed |= out.update(lhs, computeValue(rhs, in));
+        } else {
+            changed = out.copyFrom(in);
         }
         return changed;
     }
