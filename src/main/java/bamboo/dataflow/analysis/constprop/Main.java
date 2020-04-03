@@ -23,6 +23,7 @@ public class Main {
         // Set options
         Options.v().set_src_prec(Options.src_prec_java);
         Options.v().set_output_format(Options.output_format_jimple);
+        Options.v().set_keep_line_number(true);
         Options.v().set_prepend_classpath(true);
 
         // Configure transformer
