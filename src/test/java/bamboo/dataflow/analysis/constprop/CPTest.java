@@ -28,4 +28,9 @@ public class CPTest {
     public void testSimpleBinary() {
         test("SimpleBinary");
     }
+
+    @Test
+    public void testSimpleBranch() {
+        test("SimpleBranch");
+    }
 }

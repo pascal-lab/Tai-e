@@ -2,15 +2,8 @@
 4:x=1
 5:y=2
 6:x=1,y=2,z=3
-7:x=100
 
 <SimpleConstant: void propagation()>
-11:x=10
-12:y=10
-13:z=10
-
-<SimpleConstant: void multipleAssigns()>
-17:x=1,y=10
-18:x=2,y=10
-19:x=3,y=10
-20:x=4,y=10
+10:x=10
+11:y=10
+12:z=10

@@ -30,6 +30,11 @@ public class CPTestFull {
     }
 
     @Test
+    public void testSimpleBranch() {
+        test("SimpleBranch");
+    }
+
+    @Test
     public void testSimpleBoolean() {
         test("SimpleBoolean");
     }

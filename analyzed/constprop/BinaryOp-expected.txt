@@ -16,3 +16,8 @@
 
 <BinaryOp: void undefined()>
 24:x=UNDEF,y=UNDEF
+
+<BinaryOp: void longExpressions()>
+28:x=1,y=2,z=3
+29:a=7
+30:b=-3
