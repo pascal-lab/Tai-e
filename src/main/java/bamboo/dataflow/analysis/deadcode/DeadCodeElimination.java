@@ -70,18 +70,18 @@ public class DeadCodeElimination extends BodyTransformer {
 
     private Set<Unit> findDeadCode(Body b) {
         DirectedGraph<Unit> cfg = new BriefUnitGraph(b);
-        Set<Unit> result = new HashSet<>();
+        Set<Unit> deadCode = new HashSet<>();
 
         // 1. unreachable branches
         EdgeSet unreachableBranches = findUnreachableBranches(b, cfg);
 
         // 2. unreachable code
-        result.addAll(findUnreachableCode(cfg, unreachableBranches));
+        deadCode.addAll(findUnreachableCode(cfg, unreachableBranches));
 
         // 3. dead assignment
-        result.addAll(findDeadAssignments(b));
+        deadCode.addAll(findDeadAssignments(b));
 
-        return result;
+        return deadCode;
     }
 
     private EdgeSet findUnreachableBranches(Body body, DirectedGraph<Unit> cfg) {
@@ -132,13 +132,13 @@ public class DeadCodeElimination extends BodyTransformer {
             }
         }
         // Collect unreachable code
-        Set<Unit> result = new HashSet<>();
+        Set<Unit> unreachable = new HashSet<>();
         for (Unit unit : cfg) {
             if (!reachable.contains(unit)) {
-                result.add(unit);
+                unreachable.add(unit);
             }
         }
-        return result;
+        return unreachable;
     }
 
     /**
