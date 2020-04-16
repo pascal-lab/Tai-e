@@ -94,7 +94,7 @@ public class ConstantPropagation extends BodyTransformer
         }
     }
 
-    @Override
+                                                                                                                                @Override
     public boolean transfer(Unit node, FlowMap in, FlowMap out) {
         boolean changed = false;
         if (node instanceof DefinitionStmt) {
@@ -185,7 +185,7 @@ public class ConstantPropagation extends BodyTransformer
     }
 
     synchronized void outputResult(Body body, Map<Unit, FlowMap> result) {
-        System.out.println("------ " + body.getMethod() + " -----");
+        System.out.println("------ " + body.getMethod() + " [constant propagation] -----");
         body.getUnits().forEach(u ->
                 System.out.println("L" + u.getJavaSourceStartLineNumber()
                         + "{" + u + "}"

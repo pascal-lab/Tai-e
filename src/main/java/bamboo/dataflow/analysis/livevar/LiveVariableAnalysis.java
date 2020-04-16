@@ -89,7 +89,7 @@ public class LiveVariableAnalysis extends BodyTransformer
     }
 
     private synchronized void outputResult(Body body, Map<Unit, FlowSet<Local>> result) {
-        System.out.println("------ " + body.getMethod() + " -----");
+        System.out.println("------ " + body.getMethod() + " [live variables] -----");
         body.getUnits().forEach(u ->
                 System.out.println("L" + u.getJavaSourceStartLineNumber()
                         + "{" + u + "}"

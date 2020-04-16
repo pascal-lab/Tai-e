@@ -24,7 +24,6 @@ import soot.Local;
 import soot.Unit;
 import soot.jimple.AnyNewExpr;
 import soot.jimple.AssignStmt;
-import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
 import soot.jimple.ConcreteRef;
 import soot.jimple.DivExpr;
@@ -96,12 +95,7 @@ public class DeadCodeElimination extends BodyTransformer {
                 IfStmt ifStmt = (IfStmt) unit;
                 // Obtain the first statement of true and false branch
                 Unit trueBranch = ifStmt.getTarget();
-                Unit falseBranch = null;
-                for (Unit succ : cfg.getSuccsOf(ifStmt)) {
-                    if (!succ.equals(ifStmt.getTarget())) {
-                        falseBranch = succ;
-                    }
-                }
+                Unit falseBranch = body.getUnits().getSuccOf(ifStmt);
                 // Evaluate condition value
                 // Note that in Jimple IR, the condition *must be* binary expression
                 Value cond = ConstantPropagation.v()
