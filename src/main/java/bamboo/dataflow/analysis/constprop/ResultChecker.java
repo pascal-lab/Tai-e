@@ -63,6 +63,7 @@ public class ResultChecker {
     public static Set<String> check(String[] args, String path) {
         ResultChecker checker = new ResultChecker(Paths.get(path));
         setChecker(checker);
+        ConstantPropagation.setOutput(false);
 
         G.reset(); // reset the whole Soot environment
         Main.main(args);

@@ -49,8 +49,13 @@ public class ConstantPropagation extends BodyTransformer
         return INSTANCE;
     }
 
-    private ConstantPropagation() {
+    private static boolean isOutput = true;
+
+    public static void setOutput(boolean isOutput) {
+        ConstantPropagation.isOutput = isOutput;
     }
+
+    private ConstantPropagation() {}
 
     // ---------- Data-flow analysis for constant propagation ----------
     @Override
@@ -179,7 +184,8 @@ public class ConstantPropagation extends BodyTransformer
         b.addTag(new DataFlowTag<>("ConstantTag", solver.getAfterFlow()));
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(b, solver.getAfterFlow());
-        } else {
+        }
+        if (isOutput) {
             outputResult(b, solver.getAfterFlow());
         }
     }

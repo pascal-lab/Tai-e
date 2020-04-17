@@ -53,21 +53,15 @@ public class DeadCodeElimination extends BodyTransformer {
         return INSTANCE;
     }
 
-    @Override
-    protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
-        outputResult(b, findDeadCode(b));
+    private static boolean isOutput = true;
+
+    public static void setOutput(boolean isOutput) {
+        DeadCodeElimination.isOutput = isOutput;
     }
 
-    private synchronized void outputResult(Body body, Set<Unit> deadCode) {
-        System.out.println("------ " + body.getMethod() + " [dead code] -----");
-        body.getUnits()
-                .stream()
-                .filter(deadCode::contains)
-                .forEach(u ->
-                        System.out.println("L" + u.getJavaSourceStartLineNumber()
-                                + "{" + u + "}"));
-    }
+    private DeadCodeElimination() {}
 
+    // ---------- analysis for dead code elimination ----------
     private Set<Unit> findDeadCode(Body b) {
         DirectedGraph<Unit> cfg = new BriefUnitGraph(b);
         Set<Unit> deadCode = new HashSet<>();
@@ -190,9 +184,9 @@ public class DeadCodeElimination extends BodyTransformer {
     /**
      * Represents a set of control-flow edges.
      */
-    private class EdgeSet {
+    private static class EdgeSet {
 
-        private Set<Pair<Unit, Unit>> edgeSet = new HashSet<>();
+        private final Set<Pair<Unit, Unit>> edgeSet = new HashSet<>();
 
         private void addEdge(Unit from, Unit to) {
             edgeSet.add(new Pair<>(from, to));
@@ -202,4 +196,28 @@ public class DeadCodeElimination extends BodyTransformer {
             return edgeSet.contains(new Pair<>(from, to));
         }
     }
+
+    // ---------- Body transformer ----------
+    @Override
+    protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
+        Set<Unit> deadCode = findDeadCode(b);
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(b, deadCode);
+        }
+        if (isOutput){
+            outputResult(b, deadCode);
+        }
+    }
+
+    private synchronized void outputResult(Body body, Set<Unit> deadCode) {
+        System.out.println("------ " + body.getMethod() + " [dead code] -----");
+        body.getUnits()
+                .stream()
+                .filter(deadCode::contains)
+                .forEach(u ->
+                        System.out.println("L" + u.getJavaSourceStartLineNumber()
+                                + "{" + u + "}"));
+        System.out.println();
+    }
+
 }

@@ -38,6 +38,14 @@ public class LiveVariableAnalysis extends BodyTransformer
         return INSTANCE;
     }
 
+    private static boolean isOutput = true;
+
+    public static void setOutput(boolean isOutput) {
+        LiveVariableAnalysis.isOutput = isOutput;
+    }
+
+    private LiveVariableAnalysis() {}
+
     // ---------- Data-flow analysis for live variable analysis  ----------
     @Override
     public boolean isForward() {
@@ -85,7 +93,9 @@ public class LiveVariableAnalysis extends BodyTransformer
         Solver<FlowSet<Local>, Unit> solver = SolverFactory.v().newSolver(this, cfg);
         solver.solve();
         b.addTag(new DataFlowTag<>("LiveVarTag", solver.getAfterFlow()));
-        outputResult(b, solver.getAfterFlow());
+        if (isOutput) {
+            outputResult(b, solver.getAfterFlow());
+        }
     }
 
     private synchronized void outputResult(Body body, Map<Unit, FlowSet<Local>> result) {
