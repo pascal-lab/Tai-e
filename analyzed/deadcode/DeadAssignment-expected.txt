@@ -1,0 +1,3 @@
+<DeadAssignment: void foo()>
+5
+8

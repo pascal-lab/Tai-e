@@ -1,0 +1,2 @@
+<SimpleUnreachable: int foo()>
+6

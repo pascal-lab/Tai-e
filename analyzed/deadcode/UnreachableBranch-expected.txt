@@ -1,0 +1,2 @@
+<UnreachableBranch: int foo()>
+10

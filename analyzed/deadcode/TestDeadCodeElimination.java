@@ -1,18 +1,6 @@
 public class TestDeadCodeElimination {
 
-    void unreachableBranches1() {
-        int x = 10;
-        int y = 1;
-        int z;
-        if (x > y) {
-            z = 100;
-        } else {
-            z = 200; // unreachable
-        }
-        use(z);
-    }
-
-    void unreachableBranches2() {
+    void unreachableBranches() {
         int x = 10;
         int y = 1;
         int z;

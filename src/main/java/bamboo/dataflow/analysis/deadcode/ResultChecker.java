@@ -15,10 +15,11 @@ package bamboo.dataflow.analysis.deadcode;
 
 import bamboo.dataflow.analysis.constprop.ConstantPropagation;
 import bamboo.dataflow.analysis.livevar.LiveVariableAnalysis;
-import bamboo.util.CollectionUtils;
 import soot.Body;
 import soot.G;
 import soot.Unit;
+import soot.jimple.GotoStmt;
+import soot.jimple.NopStmt;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -92,15 +93,19 @@ public class ResultChecker {
         String method = body.getMethod().getSignature();
         Set<Integer> expectedDeadCode = expectedResult.get(method);
         if (expectedDeadCode != null) {
-            body.getUnits().forEach(u -> {
-                int lineNumber = u.getJavaSourceStartLineNumber();
-                if (analysisResult.contains(u) && !expectedDeadCode.contains(lineNumber)) {
-                    mismatches.add(String.format("\n%s:L%d, '%s' should not be dead code",
-                            method, lineNumber, u));
-                }
-                if (!analysisResult.contains(u) && expectedDeadCode.contains(lineNumber)) {
-                    mismatches.add(String.format("\n%s:L%d, '%s' should be dead code",
-                            method, lineNumber, u));
+            body.getUnits()
+                    .stream()
+                    .filter(u -> !(u instanceof GotoStmt || u instanceof NopStmt))
+                    .forEach(u -> {
+                        int lineNumber = u.getJavaSourceStartLineNumber();
+                        if (analysisResult.contains(u)
+                                && !expectedDeadCode.contains(lineNumber)) {
+                            mismatches.add(String.format("\n%s:L%d, '%s' should not be dead code",
+                                  method, lineNumber, u));
+                        } if (!analysisResult.contains(u)
+                                && expectedDeadCode.contains(lineNumber)) {
+                            mismatches.add(String.format("\n%s:L%d, '%s' should be dead code",
+                                    method, lineNumber, u));
                 }
             });
         }
