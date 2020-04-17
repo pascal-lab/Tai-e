@@ -34,7 +34,7 @@ import java.util.TreeSet;
  * Boosts constant propagation and checks whether the analysis result
  * is correct by comparing it with prepared expected result.
  */
-class ResultChecker {
+public class ResultChecker {
 
     // ---------- static members ----------
     /**
@@ -60,7 +60,7 @@ class ResultChecker {
      * @param path the path string of the expected result file
      * @return the mismatched information in form of set of strings
      */
-    static Set<String> check(String[] args, String path) {
+    public static Set<String> check(String[] args, String path) {
         ResultChecker checker = new ResultChecker(Paths.get(path));
         setChecker(checker);
 
@@ -70,7 +70,7 @@ class ResultChecker {
     }
 
     // ---------- instance members ----------
-    private Map<String, Map<Integer, Map<String, String>>> resultMap;
+    private Map<String, Map<Integer, Map<String, String>>> expectedResult;
 
     private Set<String> mismatches = new TreeSet<>();
 
@@ -86,14 +86,14 @@ class ResultChecker {
      * Compares the analysis result with expected result, and stores
      * any found mismatches.
      */
-    public void compare(Body body, Map<Unit, FlowMap> result) {
+    public void compare(Body body, Map<Unit, FlowMap> analysisResult) {
         String method = body.getMethod().getSignature();
         UnitPatchingChain units = body.getUnits();
         units.forEach(u -> {
             int lineNumber = u.getJavaSourceStartLineNumber();
             if (!(u instanceof NopStmt) && isLastUnitOfItsLine(units, u)) {
                 // only compare the data flow at the last unit of the same line
-                doCompare(method, lineNumber, result.get(u));
+                doCompare(method, lineNumber, analysisResult.get(u));
             }
         });
     }
@@ -144,7 +144,7 @@ class ResultChecker {
      * Reads expected result from given file path.
      */
     private void readExpectedResult(Path filePath) {
-        resultMap = new TreeMap<>();
+        expectedResult = new TreeMap<>();
         String currentMethod = null;  // method signature
         try {
             for (String line : Files.readAllLines(filePath)) {
@@ -188,7 +188,7 @@ class ResultChecker {
     }
 
     private void addValue(String method, int lineNumber, String var, String value) {
-        String old = resultMap.computeIfAbsent(method, (k) -> new TreeMap<>())
+        String old = expectedResult.computeIfAbsent(method, (k) -> new TreeMap<>())
                 .computeIfAbsent(lineNumber, (k) -> new TreeMap<>())
                 .put(var, value);
         if (old != null) {
@@ -202,7 +202,7 @@ class ResultChecker {
      * Obtains the var-value map at specific location.
      */
     private Map<String, String> getValuesAt(String method, int lineNumber) {
-        return resultMap.getOrDefault(method, Collections.emptyMap())
+        return expectedResult.getOrDefault(method, Collections.emptyMap())
                 .getOrDefault(lineNumber, Collections.emptyMap());
     }
 }

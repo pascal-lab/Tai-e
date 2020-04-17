@@ -15,62 +15,62 @@ package bamboo.dataflow.analysis.constprop;
 
 import org.junit.Test;
 
-import static bamboo.dataflow.analysis.constprop.TestUtils.test;
+import static bamboo.dataflow.analysis.TestUtils.testCP;
 
 public class CPTestFull {
 
     @Test
     public void testSimpleConstant() {
-        test("SimpleConstant");
+        testCP("SimpleConstant");
     }
 
     @Test
     public void testSimpleBinary() {
-        test("SimpleBinary");
+        testCP("SimpleBinary");
     }
 
     @Test
     public void testSimpleBranch() {
-        test("SimpleBranch");
+        testCP("SimpleBranch");
     }
 
     @Test
     public void testSimpleBoolean() {
-        test("SimpleBoolean");
+        testCP("SimpleBoolean");
     }
 
     @Test
     public void testBinaryOp() {
-        test("BinaryOp");
+        testCP("BinaryOp");
     }
 
     @Test
     public void testBranchConstant() {
-        test("BranchConstant");
+        testCP("BranchConstant");
     }
 
     @Test
     public void testBranchNAC() {
-        test("BranchNAC");
+        testCP("BranchNAC");
     }
 
     @Test
     public void testBranchUndef() {
-        test("BranchUndef");
+        testCP("BranchUndef");
     }
 
     @Test
     public void testInterprocedural() {
-        test("Interprocedural");
+        testCP("Interprocedural");
     }
 
     @Test(expected = AssertionError.class)
     public void testBoolean() {
-        test("Boolean");
+        testCP("Boolean");
     }
 
     @Test(expected = AssertionError.class)
     public void testVariousBinaryOp() {
-        test("VariousBinaryOp");
+        testCP("VariousBinaryOp");
     }
 }

@@ -11,18 +11,27 @@
  * commercial use is disallowed.
  */
 
-package bamboo.dataflow.analysis.constprop;
+package bamboo.dataflow.analysis;
 
+import bamboo.dataflow.analysis.constprop.ResultChecker;
 import org.junit.Assert;
 
 import java.io.File;
 import java.util.Set;
 
 public class TestUtils {
-    public static void test(String className) {
+    public static void testCP(String className) {
+        test(className, "constprop/");
+    }
+
+    public static void testDCE(String className) {
+        test(className, "deadcode/");
+    }
+
+    private static void test(String className, String folder) {
         String cp;
-        if (new File("analyzed/constprop/").exists()) {
-            cp = "analyzed/constprop/";
+        if (new File("analyzed/" + folder).exists()) {
+            cp = "analyzed/" + folder;
         } else {
             cp = "analyzed/";
         }

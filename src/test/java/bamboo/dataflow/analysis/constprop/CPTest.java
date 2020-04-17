@@ -15,22 +15,22 @@ package bamboo.dataflow.analysis.constprop;
 
 import org.junit.Test;
 
-import static bamboo.dataflow.analysis.constprop.TestUtils.test;
+import static bamboo.dataflow.analysis.TestUtils.testCP;
 
 public class CPTest {
 
     @Test
     public void testSimpleConstant() {
-        test("SimpleConstant");
+        testCP("SimpleConstant");
     }
 
     @Test
     public void testSimpleBinary() {
-        test("SimpleBinary");
+        testCP("SimpleBinary");
     }
 
     @Test
     public void testSimpleBranch() {
-        test("SimpleBranch");
+        testCP("SimpleBranch");
     }
 }
