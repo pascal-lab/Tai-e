@@ -13,32 +13,42 @@
 
 package bamboo.dataflow.analysis;
 
-import bamboo.dataflow.analysis.constprop.ResultChecker;
 import org.junit.Assert;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 public class TestUtils {
     public static void testCP(String className) {
-        test(className, "constprop/");
+        test(className, "constprop");
     }
 
     public static void testDCE(String className) {
-        test(className, "deadcode/");
+        test(className, "deadcode");
     }
 
-    private static void test(String className, String folder) {
+    private static void test(String className, String analysis) {
         String cp;
-        if (new File("analyzed/" + folder).exists()) {
-            cp = "analyzed/" + folder;
+        if (new File("analyzed/" + analysis).exists()) {
+            cp = "analyzed/" + analysis + "/";
         } else {
             cp = "analyzed/";
         }
-        Set<String> mismatches = ResultChecker.check(
-                new String[]{ "-cp", cp, className },
-                cp + className + "-expected.txt"
-        );
-        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+        try {
+            Class<?> c = Class.forName("bamboo.dataflow.analysis." + analysis + ".ResultChecker");
+            Method check = c.getMethod("check", String[].class, String.class);
+            @SuppressWarnings("unchecked")
+            Set<String> mismatches = (Set<String>) check.invoke(null,
+                    new String[]{ "-cp", cp, className },
+                    cp + className + "-expected.txt");
+            Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+        } catch (ClassNotFoundException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
