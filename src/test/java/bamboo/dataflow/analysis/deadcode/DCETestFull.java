@@ -38,7 +38,7 @@ public class DCETestFull {
     public void testAfterReturn2() {
         testDCE("AfterReturn2");
     }
-    
+
     @Test
     public void testUnreachableBranch2() {
         testDCE("UnreachableBranch2");
@@ -52,6 +52,11 @@ public class DCETestFull {
     @Test
     public void testMixedDeadCode() {
         testDCE("MixedDeadCode");
+    }
+
+    @Test
+    public void testLoops() {
+        testDCE("Loops");
     }
 
     @Test

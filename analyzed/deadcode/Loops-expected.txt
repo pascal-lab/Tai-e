@@ -1,0 +1,5 @@
+<Loops: void deadLoop()>
+L7{goto label3}
+L7{label3: nop}
+L10{virtualinvoke this.<Loops: void dead()>()}
+L10{return}
