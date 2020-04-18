@@ -1,0 +1,11 @@
+<DeadAssignment2: void deadAssign1()>
+L4{o = temp$0}
+L5{b = temp$1}
+
+<DeadAssignment2: void deadAssign2()>
+L10{y = temp$0 + 2}
+L13{a = x}
+
+<DeadAssignment2: void deadAssign3(int,int)>
+L20{y = temp$1}
+L24{y = temp$3}

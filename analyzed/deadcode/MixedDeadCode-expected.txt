@@ -1,0 +1,5 @@
+<MixedDeadCode: void foo()>
+L4{x = 1}
+L5{y = 2}
+L7{return}
+L7{z = 3}

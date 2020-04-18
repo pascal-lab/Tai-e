@@ -30,7 +30,32 @@ public class DCETestFull {
     }
 
     @Test
+    public void testSimpleUnreachable2() {
+        testDCE("SimpleUnreachable2");
+    }
+
+    @Test
     public void testDeadAssignment() {
         testDCE("DeadAssignment");
+    }
+
+    @Test
+    public void testUnreachableBranch2() {
+        testDCE("UnreachableBranch2");
+    }
+
+    @Test
+    public void testDeadAssignment2() {
+        testDCE("DeadAssignment2");
+    }
+
+    @Test
+    public void testMixedDeadCode() {
+        testDCE("MixedDeadCode");
+    }
+
+    @Test
+    public void testNotDead() {
+        testDCE("NotDead");
     }
 }

@@ -1,0 +1,3 @@
+<NotDead: void foo(int,int)>
+
+<NotDead: int bar()>
