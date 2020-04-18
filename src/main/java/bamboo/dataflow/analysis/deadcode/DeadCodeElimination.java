@@ -18,8 +18,10 @@ import bamboo.dataflow.analysis.constprop.FlowMap;
 import bamboo.dataflow.analysis.constprop.Value;
 import bamboo.dataflow.lattice.DataFlowTag;
 import bamboo.dataflow.lattice.FlowSet;
+import bamboo.util.JimpleUtils;
 import soot.Body;
 import soot.BodyTransformer;
+import soot.BriefUnitPrinter;
 import soot.Local;
 import soot.Unit;
 import soot.jimple.AnyNewExpr;
@@ -211,12 +213,11 @@ public class DeadCodeElimination extends BodyTransformer {
 
     private synchronized void outputResult(Body body, Set<Unit> deadCode) {
         System.out.println("------ " + body.getMethod() + " [dead code] -----");
+        BriefUnitPrinter up = new BriefUnitPrinter(body);
         body.getUnits()
                 .stream()
                 .filter(deadCode::contains)
-                .forEach(u ->
-                        System.out.println("L" + u.getJavaSourceStartLineNumber()
-                                + "{" + u + "}"));
+                .forEach(u -> System.out.println(JimpleUtils.unitToString(up, u)));
         System.out.println();
     }
 

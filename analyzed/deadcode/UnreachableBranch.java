@@ -7,7 +7,7 @@ class UnreachableBranch {
         if (x > y) {
             z = 100;
         } else {
-            z = 200; // unreachable
+            z = 200; // unreachable branch
         }
         return z;
     }

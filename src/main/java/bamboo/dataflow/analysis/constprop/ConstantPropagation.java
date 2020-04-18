@@ -17,8 +17,10 @@ import bamboo.dataflow.analysis.DataFlowAnalysis;
 import bamboo.dataflow.lattice.DataFlowTag;
 import bamboo.dataflow.solver.Solver;
 import bamboo.dataflow.solver.SolverFactory;
+import bamboo.util.JimpleUtils;
 import soot.Body;
 import soot.BodyTransformer;
+import soot.BriefUnitPrinter;
 import soot.Local;
 import soot.Unit;
 import soot.jimple.AddExpr;
@@ -192,9 +194,9 @@ public class ConstantPropagation extends BodyTransformer
 
     synchronized void outputResult(Body body, Map<Unit, FlowMap> result) {
         System.out.println("------ " + body.getMethod() + " [constant propagation] -----");
+        BriefUnitPrinter up = new BriefUnitPrinter(body);
         body.getUnits().forEach(u ->
-                System.out.println("L" + u.getJavaSourceStartLineNumber()
-                        + "{" + u + "}"
+                System.out.println(JimpleUtils.unitToString(up, u)
                         + ": " + result.get(u)));
     }
 }
