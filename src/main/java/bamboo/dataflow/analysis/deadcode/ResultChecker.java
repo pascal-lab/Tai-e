@@ -18,8 +18,6 @@ import bamboo.dataflow.analysis.livevar.LiveVariableAnalysis;
 import soot.Body;
 import soot.G;
 import soot.Unit;
-import soot.jimple.GotoStmt;
-import soot.jimple.NopStmt;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -73,7 +71,7 @@ public class ResultChecker {
     }
 
     // ---------- instance members ----------
-    private Map<String, Set<Integer>> expectedResult;
+    private Map<String, Set<String>> expectedResult;
 
     private Set<String> mismatches = new TreeSet<>();
 
@@ -91,21 +89,17 @@ public class ResultChecker {
      */
     public void compare(Body body, Set<Unit> analysisResult) {
         String method = body.getMethod().getSignature();
-        Set<Integer> expectedDeadCode = expectedResult.get(method);
+        Set<String> expectedDeadCode = expectedResult.get(method);
         if (expectedDeadCode != null) {
-            body.getUnits()
-                    .stream()
-                    .filter(u -> !(u instanceof GotoStmt || u instanceof NopStmt))
-                    .forEach(u -> {
-                        int lineNumber = u.getJavaSourceStartLineNumber();
-                        if (analysisResult.contains(u)
-                                && !expectedDeadCode.contains(lineNumber)) {
-                            mismatches.add(String.format("\n%s:L%d, '%s' should not be dead code",
-                                  method, lineNumber, u));
-                        } if (!analysisResult.contains(u)
-                                && expectedDeadCode.contains(lineNumber)) {
-                            mismatches.add(String.format("\n%s:L%d, '%s' should be dead code",
-                                    method, lineNumber, u));
+            body.getUnits().forEach(u -> {
+                String given = String.format("L%d{%s}",
+                        u.getJavaSourceStartLineNumber(), u);
+                if (analysisResult.contains(u)
+                        && !expectedDeadCode.contains(given)) {
+                    mismatches.add("\n" + given + " should NOT be dead code");
+                } if (!analysisResult.contains(u)
+                        && expectedDeadCode.contains(given)) {
+                    mismatches.add("\n" + given + " should be dead code");
                 }
             });
         }
@@ -123,7 +117,7 @@ public class ResultChecker {
                     currentMethod = line;
                     expectedResult.put(currentMethod, new TreeSet<>());
                 } else if (!isEmpty(line)) {
-                    expectedResult.get(currentMethod).add(Integer.valueOf(line));
+                    expectedResult.get(currentMethod).add(line);
                 }
             }
         } catch (IOException e) {

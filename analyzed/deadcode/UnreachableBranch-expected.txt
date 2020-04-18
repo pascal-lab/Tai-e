@@ -1,2 +1,3 @@
 <UnreachableBranch: int foo()>
-10
+L10{temp$1 = 200}
+L10{z = temp$1}

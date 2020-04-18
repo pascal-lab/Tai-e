@@ -1,2 +1,2 @@
 <SimpleUnreachable: int foo()>
-6
+L6{staticinvoke <SimpleUnreachable: void dead()>()}
