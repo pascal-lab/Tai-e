@@ -9,3 +9,7 @@ L13{a = x}
 <DeadAssignment2: void deadAssign3(int,int)>
 L20{y = temp$1}
 L24{y = temp$3}
+
+<DeadAssignment2: int deadAssign4()>
+L30{x = temp$0}
+L31{x = temp$1}

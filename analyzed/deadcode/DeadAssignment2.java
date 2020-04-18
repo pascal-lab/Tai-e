@@ -25,6 +25,14 @@ class DeadAssignment2 {
         use(x);
     }
 
+    int deadAssign4() {
+        int x;
+        x = 0; // dead assignment
+        x = 1; // dead assignment
+        x = 2;
+        return x;
+    }
+
     static void use(int x) {}
 
     int ten() {
