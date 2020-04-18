@@ -1,2 +1,0 @@
-<SimpleUnreachable: int foo()>
-L6{staticinvoke <SimpleUnreachable: void dead()>()}

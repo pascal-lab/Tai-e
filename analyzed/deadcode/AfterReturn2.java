@@ -1,4 +1,4 @@
-public class SimpleUnreachable2 {
+public class AfterReturn2 {
 
     static void foo() {
         int x = 1;
