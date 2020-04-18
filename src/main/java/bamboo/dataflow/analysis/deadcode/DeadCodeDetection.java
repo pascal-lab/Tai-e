@@ -47,21 +47,21 @@ import java.util.Set;
  * The analysis that detects dead code. This transformer must be executed after
  * ConstantPropagation and LiveVariableAnalysis.
  */
-public class DeadCodeElimination extends BodyTransformer {
+public class DeadCodeDetection extends BodyTransformer {
 
-    private static final DeadCodeElimination INSTANCE = new DeadCodeElimination();
+    private static final DeadCodeDetection INSTANCE = new DeadCodeDetection();
 
-    public static DeadCodeElimination v() {
+    public static DeadCodeDetection v() {
         return INSTANCE;
     }
 
     private static boolean isOutput = true;
 
     public static void setOutput(boolean isOutput) {
-        DeadCodeElimination.isOutput = isOutput;
+        DeadCodeDetection.isOutput = isOutput;
     }
 
-    private DeadCodeElimination() {}
+    private DeadCodeDetection() {}
 
     // ---------- analysis for dead code elimination ----------
     private Set<Unit> findDeadCode(Body b) {

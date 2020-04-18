@@ -12,6 +12,6 @@
  */
 
 /**
- * Implementation of dead code elimination.
+ * Implementation of dead code detection.
  */
 package bamboo.dataflow.analysis.deadcode;

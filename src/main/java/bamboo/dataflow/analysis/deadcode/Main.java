@@ -38,7 +38,7 @@ public class Main {
         Pack jtp = PackManager.v().getPack("jtp");
         jtp.add(new Transform("jtp.constprop", ConstantPropagation.v()));
         jtp.add(new Transform("jtp.livevar", LiveVariableAnalysis.v()));
-        jtp.add(new Transform("jtp.deadcode", DeadCodeElimination.v()));
+        jtp.add(new Transform("jtp.deadcode", DeadCodeDetection.v()));
 
         // Run main analysis
         soot.Main.main(args);

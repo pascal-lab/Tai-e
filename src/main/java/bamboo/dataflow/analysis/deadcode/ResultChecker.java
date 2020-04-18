@@ -65,7 +65,7 @@ public class ResultChecker {
         setChecker(checker);
         ConstantPropagation.setOutput(false);
         LiveVariableAnalysis.setOutput(false);
-        DeadCodeElimination.setOutput(false);
+        DeadCodeDetection.setOutput(false);
 
         G.reset(); // reset the whole Soot environment
         Main.main(args);
