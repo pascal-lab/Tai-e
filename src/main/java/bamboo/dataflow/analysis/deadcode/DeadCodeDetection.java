@@ -84,6 +84,7 @@ public class DeadCodeDetection extends BodyTransformer {
         @SuppressWarnings("unchecked")
         DataFlowTag<Unit, FlowMap> constantTag =
                 (DataFlowTag<Unit, FlowMap>) body.getTag("ConstantTag");
+        // Obtain the constant propagation results for this method
         Map<Unit, FlowMap> constantMap = constantTag.getDataFlowMap();
         EdgeSet unreachableBranches = new EdgeSet();
         for (Unit unit : cfg) {
@@ -145,6 +146,7 @@ public class DeadCodeDetection extends BodyTransformer {
         @SuppressWarnings("unchecked")
         DataFlowTag<Unit, FlowSet<Local>> liveVarTag =
                 (DataFlowTag<Unit, FlowSet<Local>>) body.getTag("LiveVarTag");
+        // Obtain the live variable analysis results for this method.
         Map<Unit, FlowSet<Local>> liveVarMap = liveVarTag.getDataFlowMap();
         Set<Unit> deadAssigns = new HashSet<>();
         for (Unit unit : body.getUnits()) {
