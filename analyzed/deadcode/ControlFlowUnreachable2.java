@@ -1,4 +1,4 @@
-public class AfterReturn2 {
+public class ControlFlowUnreachable2 {
 
     static void foo() {
         int x = 1;

@@ -1,0 +1,4 @@
+<ControlFlowUnreachable2: void foo()>
+L9{z = 3}
+L10{staticinvoke <ControlFlowUnreachable2: void use(int)>(z)}
+L10{return}

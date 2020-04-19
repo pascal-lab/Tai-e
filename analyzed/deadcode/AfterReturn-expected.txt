@@ -1,2 +1,0 @@
-<AfterReturn: int foo()>
-L6{staticinvoke <AfterReturn: void dead()>()}

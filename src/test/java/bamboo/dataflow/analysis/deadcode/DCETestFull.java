@@ -20,8 +20,8 @@ import static bamboo.dataflow.analysis.TestUtils.testDCE;
 public class DCETestFull {
 
     @Test
-    public void testAfterReturn() {
-        testDCE("AfterReturn");
+    public void testControlFlowUnreachable() {
+        testDCE("ControlFlowUnreachable");
     }
 
     @Test
@@ -35,8 +35,8 @@ public class DCETestFull {
     }
 
     @Test
-    public void testAfterReturn2() {
-        testDCE("AfterReturn2");
+    public void testControlFlowUnreachable2() {
+        testDCE("ControlFlowUnreachable2");
     }
 
     @Test

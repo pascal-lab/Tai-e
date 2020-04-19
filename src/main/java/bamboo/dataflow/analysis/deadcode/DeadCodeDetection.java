@@ -63,7 +63,7 @@ public class DeadCodeDetection extends BodyTransformer {
 
     private DeadCodeDetection() {}
 
-    // ---------- analysis for dead code elimination ----------
+    // ---------- analysis for dead code detection ----------
     private Set<Unit> findDeadCode(Body b) {
         DirectedGraph<Unit> cfg = new BriefUnitGraph(b);
         Set<Unit> deadCode = new HashSet<>();
