@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import static bamboo.dataflow.analysis.TestUtils.testDCE;
 
-public class DCETestFull {
+public class DCDTest {
 
     @Test
     public void testControlFlowUnreachable() {
@@ -32,35 +32,5 @@ public class DCETestFull {
     @Test
     public void testDeadAssignment() {
         testDCE("DeadAssignment");
-    }
-
-    @Test
-    public void testControlFlowUnreachable2() {
-        testDCE("ControlFlowUnreachable2");
-    }
-
-    @Test
-    public void testUnreachableBranch2() {
-        testDCE("UnreachableBranch2");
-    }
-
-    @Test
-    public void testDeadAssignment2() {
-        testDCE("DeadAssignment2");
-    }
-
-    @Test
-    public void testMixedDeadCode() {
-        testDCE("MixedDeadCode");
-    }
-
-    @Test
-    public void testLoops() {
-        testDCE("Loops");
-    }
-
-    @Test
-    public void testNotDead() {
-        testDCE("NotDead");
     }
 }
