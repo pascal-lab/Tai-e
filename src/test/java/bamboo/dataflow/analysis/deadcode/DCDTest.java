@@ -1,8 +1,8 @@
 /*
  * Bamboo - A Program Analysis Framework for Java
  *
- * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * Copyright (C)  2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C)  2020 Yue Li <yueli@nju.edu.cn>
  * All rights reserved.
  *
  * This software is designed for the "Static Program Analysis" course at
@@ -15,22 +15,22 @@ package bamboo.dataflow.analysis.deadcode;
 
 import org.junit.Test;
 
-import static bamboo.dataflow.analysis.TestUtils.testDCE;
+import static bamboo.dataflow.analysis.TestUtils.testDCD;
 
 public class DCDTest {
 
     @Test
     public void testControlFlowUnreachable() {
-        testDCE("ControlFlowUnreachable");
+        testDCD("ControlFlowUnreachable");
     }
 
     @Test
     public void testUnreachableBranch() {
-        testDCE("UnreachableBranch");
+        testDCD("UnreachableBranch");
     }
 
     @Test
     public void testDeadAssignment() {
-        testDCE("DeadAssignment");
+        testDCD("DeadAssignment");
     }
 }
