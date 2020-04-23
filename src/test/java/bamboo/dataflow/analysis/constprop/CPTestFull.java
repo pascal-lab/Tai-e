@@ -40,6 +40,11 @@ public class CPTestFull {
     }
 
     @Test
+    public void testAssign() {
+        testCP("Assign");
+    }
+
+    @Test
     public void testBinaryOp() {
         testCP("BinaryOp");
     }

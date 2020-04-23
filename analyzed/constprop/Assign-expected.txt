@@ -1,0 +1,6 @@
+<Assign: void multipleAssigns()>
+4:x=1
+5:x=2
+6:x=3
+7:x=4
+8:x=4,y=4
