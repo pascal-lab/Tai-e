@@ -1,0 +1,11 @@
+<Loop: void whileConstant()>
+6:a=1,b=1,c=1,i=NAC
+8:a=1,b=1,c=1,i=NAC
+
+<Loop: void whileNAC()>
+17:a=NAC,b=NAC,c=NAC,i=NAC
+19:a=NAC,b=NAC,c=1,i=NAC
+
+<Loop: void whileUndefinedConstant()>
+28:a=1,b=1,c=1,i=NAC
+30:a=1,b=1,c=1,i=NAC

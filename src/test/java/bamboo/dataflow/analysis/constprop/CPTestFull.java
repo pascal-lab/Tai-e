@@ -60,6 +60,11 @@ public class CPTestFull {
     }
 
     @Test
+    public void testLoop() {
+        testCP("Loop");
+    }
+
+    @Test
     public void testInterprocedural() {
         testCP("Interprocedural");
     }
