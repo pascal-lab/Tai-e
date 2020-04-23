@@ -25,7 +25,7 @@ public class TestUtils {
         test(className, "constprop");
     }
 
-    public static void testDCE(String className) {
+    public static void testDCD(String className) {
         test(className, "deadcode");
     }
 

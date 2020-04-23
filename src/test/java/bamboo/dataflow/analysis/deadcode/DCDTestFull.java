@@ -15,52 +15,52 @@ package bamboo.dataflow.analysis.deadcode;
 
 import org.junit.Test;
 
-import static bamboo.dataflow.analysis.TestUtils.testDCE;
+import static bamboo.dataflow.analysis.TestUtils.testDCD;
 
 public class DCDTestFull {
 
     @Test
     public void testControlFlowUnreachable() {
-        testDCE("ControlFlowUnreachable");
+        testDCD("ControlFlowUnreachable");
     }
 
     @Test
     public void testUnreachableBranch() {
-        testDCE("UnreachableBranch");
+        testDCD("UnreachableBranch");
     }
 
     @Test
     public void testDeadAssignment() {
-        testDCE("DeadAssignment");
+        testDCD("DeadAssignment");
     }
 
     @Test
     public void testControlFlowUnreachable2() {
-        testDCE("ControlFlowUnreachable2");
+        testDCD("ControlFlowUnreachable2");
     }
 
     @Test
     public void testUnreachableBranch2() {
-        testDCE("UnreachableBranch2");
+        testDCD("UnreachableBranch2");
     }
 
     @Test
     public void testDeadAssignment2() {
-        testDCE("DeadAssignment2");
+        testDCD("DeadAssignment2");
     }
 
     @Test
     public void testMixedDeadCode() {
-        testDCE("MixedDeadCode");
+        testDCD("MixedDeadCode");
     }
 
     @Test
     public void testLoops() {
-        testDCE("Loops");
+        testDCD("Loops");
     }
 
     @Test
     public void testNotDead() {
-        testDCE("NotDead");
+        testDCD("NotDead");
     }
 }
