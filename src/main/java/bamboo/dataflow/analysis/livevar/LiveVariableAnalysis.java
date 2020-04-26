@@ -19,7 +19,7 @@ import bamboo.dataflow.lattice.FlowSet;
 import bamboo.dataflow.lattice.HashFlowSet;
 import bamboo.dataflow.solver.Solver;
 import bamboo.dataflow.solver.SolverFactory;
-import bamboo.util.JimpleUtils;
+import bamboo.util.SootUtils;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.BriefUnitPrinter;
@@ -104,7 +104,7 @@ public class LiveVariableAnalysis extends BodyTransformer
         System.out.println("------ " + body.getMethod() + " [live variables] -----");
         BriefUnitPrinter up = new BriefUnitPrinter(body);
         body.getUnits().forEach(u ->
-                System.out.println(JimpleUtils.unitToString(up, u)
+                System.out.println(SootUtils.unitToString(up, u)
                         + ": " + result.get(u)));
     }
 }

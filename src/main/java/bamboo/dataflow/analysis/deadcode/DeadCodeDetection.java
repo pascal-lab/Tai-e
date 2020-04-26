@@ -18,7 +18,7 @@ import bamboo.dataflow.analysis.constprop.FlowMap;
 import bamboo.dataflow.analysis.constprop.Value;
 import bamboo.dataflow.lattice.DataFlowTag;
 import bamboo.dataflow.lattice.FlowSet;
-import bamboo.util.JimpleUtils;
+import bamboo.util.SootUtils;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.BriefUnitPrinter;
@@ -219,7 +219,7 @@ public class DeadCodeDetection extends BodyTransformer {
         body.getUnits()
                 .stream()
                 .filter(deadCode::contains)
-                .forEach(u -> System.out.println(JimpleUtils.unitToString(up, u)));
+                .forEach(u -> System.out.println(SootUtils.unitToString(up, u)));
         System.out.println();
     }
 

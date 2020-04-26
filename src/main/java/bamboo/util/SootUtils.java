@@ -17,9 +17,17 @@ import soot.LabeledUnitPrinter;
 import soot.Unit;
 import soot.jimple.GotoStmt;
 
-public class JimpleUtils {
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-    private JimpleUtils() {}
+public class SootUtils {
+
+    private SootUtils() {}
 
     /**
      * Convert an Unit to its String representation.
@@ -39,5 +47,26 @@ public class JimpleUtils {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    /**
+     * Run Soot with given time budget.
+     */
+    public static void runSootWithTimeout(String[] args, long seconds) {
+        Duration timeout = Duration.ofSeconds(seconds);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        @SuppressWarnings("unchecked")
+        Future<Void> handler = (Future<Void>)
+                executor.submit(() -> soot.Main.main(args));
+        try {
+            handler.get(timeout.getSeconds(), TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+            System.exit(1);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
     }
 }

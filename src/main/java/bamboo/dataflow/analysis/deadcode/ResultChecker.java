@@ -15,7 +15,7 @@ package bamboo.dataflow.analysis.deadcode;
 
 import bamboo.dataflow.analysis.constprop.ConstantPropagation;
 import bamboo.dataflow.analysis.livevar.LiveVariableAnalysis;
-import bamboo.util.JimpleUtils;
+import bamboo.util.SootUtils;
 import soot.Body;
 import soot.BriefUnitPrinter;
 import soot.G;
@@ -95,7 +95,7 @@ public class ResultChecker {
         if (expectedDeadCode != null) {
             BriefUnitPrinter up = new BriefUnitPrinter(body);
             body.getUnits().forEach(u -> {
-                String given = JimpleUtils.unitToString(up, u);
+                String given = SootUtils.unitToString(up, u);
                 if (analysisResult.contains(u)
                         && !expectedDeadCode.contains(given)) {
                     mismatches.add("\n" + given + " should NOT be dead code");
