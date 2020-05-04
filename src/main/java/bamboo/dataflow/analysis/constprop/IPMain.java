@@ -31,7 +31,7 @@ public class IPMain {
 
         // Configure transformer
         Pack wjtp = PackManager.v().getPack("wjtp");
-        wjtp.add(new Transform("wjtp.cha", new CHACallGraphBuilder()));
+        wjtp.add(new Transform("wjtp.cha", CHACallGraphBuilder.v()));
         wjtp.add(new Transform("wjtp.constprop", new IPConstantPropagation()));
 
         // Run main analysis

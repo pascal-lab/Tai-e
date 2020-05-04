@@ -39,9 +39,17 @@ import java.util.Set;
 
 public class CHACallGraphBuilder extends SceneTransformer {
 
-    private static CallGraph<Unit, SootMethod> recentCallGraph;
+    private static final CHACallGraphBuilder INSTANCE = new CHACallGraphBuilder();
 
-    public static CallGraph<Unit, SootMethod> getRecentCallGraph() {
+    public static CHACallGraphBuilder v() {
+        return INSTANCE;
+    }
+
+    private CHACallGraphBuilder() {}
+
+    private CallGraph<Unit, SootMethod> recentCallGraph;
+
+    public CallGraph<Unit, SootMethod> getRecentCallGraph() {
         return recentCallGraph;
     }
 

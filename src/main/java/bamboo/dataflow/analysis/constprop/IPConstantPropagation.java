@@ -159,7 +159,7 @@ public class IPConstantPropagation extends SceneTransformer
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-        CallGraph<Unit, SootMethod> callGraph = CHACallGraphBuilder.getRecentCallGraph();
+        CallGraph<Unit, SootMethod> callGraph = CHACallGraphBuilder.v().getRecentCallGraph();
         ICFG<SootMethod, Unit> icfg = new JimpleICFG(callGraph);
         setICFG(icfg);
         IPSolver<FlowMap, SootMethod, Unit> solver = new IPWorkListSolver<>(this, icfg);
