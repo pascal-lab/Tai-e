@@ -30,7 +30,8 @@ public class Main {
         // Configure transformer
         PackManager.v().getPack("wjtp")
                 .add(new Transform("wjtp.cha", CHACallGraphBuilder.v()));
-
+        PackManager.v().getPack("jtp")
+                .add(new Transform("jtp.cgprint", CallGraphPrinter.v()));
         // Run main analysis
         soot.Main.main(args);
     }

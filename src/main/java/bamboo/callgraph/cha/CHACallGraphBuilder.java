@@ -60,7 +60,6 @@ public class CHACallGraphBuilder extends SceneTransformer {
         hierarchy = Scene.v().getOrMakeFastHierarchy();
         CallGraph<Unit, SootMethod> callGraph = build();
         recentCallGraph = callGraph;
-        callGraph.forEach(System.out::println);
     }
 
     public CallGraph<Unit, SootMethod> build() {

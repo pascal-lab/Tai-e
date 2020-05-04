@@ -64,12 +64,14 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
 
     @Override
     public Object[] toArray() {
-        return collection.toArray();
+        return collection.stream()
+                .map(mapper)
+                .toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        return collection.toArray(a);
+        throw new UnsupportedOperationException("ImmutableCollectionView does not support toArray(T[]) yet.");
     }
 
     @Override
