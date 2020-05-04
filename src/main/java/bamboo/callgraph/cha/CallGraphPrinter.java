@@ -24,7 +24,6 @@ import soot.Unit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Print call edges of each invocation Unit.
