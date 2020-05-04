@@ -21,6 +21,7 @@ import bamboo.util.AnalysisException;
 import soot.FastHierarchy;
 import soot.Scene;
 import soot.SceneTransformer;
+import soot.SootClass;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.InvokeExpr;
@@ -96,5 +97,37 @@ public class CHACallGraphBuilder extends SceneTransformer {
     private CallKind getCallKind(Unit callSite) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
         return JimpleCallUtils.getCallKind(invoke);
+    }
+
+    private SootMethod dispatch(SootClass cls, SootMethod method) {
+        SootMethod target = null;
+        String subSig = method.getSubSignature();
+        do {
+            SootMethod m = cls.getMethodUnsafe(subSig);
+            if (m != null && m.isConcrete()) {
+                target = m;
+                break;
+            }
+            cls = cls.getSuperclass();
+        } while (cls != null);
+        return target;
+    }
+
+    private Set<SootMethod> resolveCalleesOf(Unit callSite) {
+        InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
+        SootMethod method = invoke.getMethod();
+        CallKind kind = getCallKind(callSite);
+        switch (kind) {
+            case VIRTUAL: {
+                SootClass cls = method.getDeclaringClass();
+                hierarchy.getSubclassesOf(cls);
+                hierarchy.getAllImplementersOfInterface(cls);
+            }
+            case SPECIAL:
+            case STATIC:
+                return Collections.singleton(method);
+            default:
+                throw new AnalysisException("Unknown invocation expression: " + invoke);
+        }
     }
 }
