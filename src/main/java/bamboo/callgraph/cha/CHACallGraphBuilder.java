@@ -28,7 +28,10 @@ import soot.jimple.InvokeExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.Stmt;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -65,6 +68,12 @@ public class CHACallGraphBuilder extends SceneTransformer {
             SootMethod method = queue.remove();
             for (Unit callSite : callGraph.getCallSitesIn(method)) {
                 Set<SootMethod> callees = resolveCalleesOf(callSite, callGraph);
+                Set<SootMethod> myCallees = resolveCalleesOf(callSite);
+                if (!callees.equals(myCallees)) {
+                    System.out.println("callees: " + callees);
+                    System.out.println("myCallees: " + myCallees);
+                    throw new RuntimeException("callees != myCallees");
+                }
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
                         queue.add(callee);
@@ -102,14 +111,17 @@ public class CHACallGraphBuilder extends SceneTransformer {
     private SootMethod dispatch(SootClass cls, SootMethod method) {
         SootMethod target = null;
         String subSig = method.getSubSignature();
-        do {
+        while (true) {
             SootMethod m = cls.getMethodUnsafe(subSig);
             if (m != null && m.isConcrete()) {
                 target = m;
                 break;
             }
-            cls = cls.getSuperclass();
-        } while (cls != null);
+            cls = cls.getSuperclassUnsafe();
+            if (cls == null) {
+                break;
+            }
+        }
         return target;
     }
 
@@ -120,8 +132,22 @@ public class CHACallGraphBuilder extends SceneTransformer {
         switch (kind) {
             case VIRTUAL: {
                 SootClass cls = method.getDeclaringClass();
-                hierarchy.getSubclassesOf(cls);
-                hierarchy.getAllImplementersOfInterface(cls);
+                Set<SootMethod> targets = new HashSet<>();
+                Deque<SootClass> workList = new ArrayDeque<>();
+                workList.add(cls);
+                while (!workList.isEmpty()) {
+                    SootClass c = workList.poll();
+                    if (c.isInterface()) {
+                        workList.addAll(hierarchy.getAllImplementersOfInterface(c));
+                    } else {
+                        SootMethod target = dispatch(c, method);
+                        if (target != null) {
+                            targets.add(target);
+                        }
+                        workList.addAll(hierarchy.getSubclassesOf(c));
+                    }
+                }
+                return targets;
             }
             case SPECIAL:
             case STATIC:
