@@ -1,0 +1,12 @@
+<StaticCall: void main(java.lang.String[])>
+L4{staticinvoke <StaticCall: void foo()>()} -> [<StaticCall: void foo()>]
+L5{staticinvoke <A: void baz()>()} -> [<A: void baz()>]
+
+<StaticCall: void foo()>
+L9{staticinvoke <StaticCall: void bar()>()} -> [<StaticCall: void bar()>]
+
+<A: void baz()>
+L17{staticinvoke <B: void qux()>()} -> [<B: void qux()>]
+
+<B: void qux()>
+L23{staticinvoke <A: void baz()>()} -> [<A: void baz()>]

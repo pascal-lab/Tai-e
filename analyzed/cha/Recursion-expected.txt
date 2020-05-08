@@ -1,0 +1,23 @@
+<Recursion: void main(java.lang.String[])>
+L4{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
+L5{virtualinvoke a.<A: void foo()>()} -> [<A: void foo()>]
+
+<A: void <init>()>
+L9{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+
+<A: void foo()>
+L11{specialinvoke temp$0.<B: void <init>()>()} -> [<B: void <init>()>]
+L12{virtualinvoke b.<B: void bar()>()} -> [<B: void bar()>]
+
+<B: void <init>()>
+L16{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+
+<B: void bar()>
+L18{specialinvoke temp$0.<C: void <init>()>()} -> [<C: void <init>()>]
+L19{virtualinvoke c.<C: void baz()>()} -> [<C: void baz()>]
+
+<C: void <init>()>
+L23{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+
+<C: void baz()>
+L25{staticinvoke <Recursion: void main(java.lang.String[])>(null)} -> [<Recursion: void main(java.lang.String[])>]
