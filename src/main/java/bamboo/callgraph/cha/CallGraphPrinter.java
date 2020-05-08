@@ -59,14 +59,27 @@ public class CallGraphPrinter extends BodyTransformer {
                     hasCallees = true;
                     System.out.println("------ " + b.getMethod() + " [call graph] -----");
                 }
-                System.out.print(SootUtils.unitToString(up, u) + " -> ");
-                List<SootMethod> calleeList = new ArrayList<>(callees);
-                calleeList.sort(Comparator.comparing(SootMethod::toString));
-                System.out.println(calleeList);
+                System.out.println(SootUtils.unitToString(up, u)
+                        + " -> " + calleesToString(callees));
             }
         }
         if (hasCallees) {
             System.out.println();
         }
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(b, callGraph);
+        }
+    }
+
+    /**
+     * Converts a collection of callees (SootMethods) to a String in format:
+     * [M1, M2, ...], where the calless are sorted by their signatures.
+     * @param callees
+     * @return
+     */
+    public String calleesToString(Collection<SootMethod> callees) {
+        List<SootMethod> calleeList = new ArrayList<>(callees);
+        calleeList.sort(Comparator.comparing(SootMethod::toString));
+        return calleeList.toString();
     }
 }
