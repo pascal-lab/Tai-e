@@ -15,7 +15,7 @@ package bamboo.dataflow.analysis.deadcode;
 
 import org.junit.Test;
 
-import static bamboo.dataflow.analysis.TestUtils.testDCD;
+import static bamboo.TestUtils.testDCD;
 
 public class DCDTestFull {
 

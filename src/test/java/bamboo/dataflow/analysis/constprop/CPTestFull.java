@@ -15,7 +15,7 @@ package bamboo.dataflow.analysis.constprop;
 
 import org.junit.Test;
 
-import static bamboo.dataflow.analysis.TestUtils.testCP;
+import static bamboo.TestUtils.testCP;
 
 public class CPTestFull {
 
