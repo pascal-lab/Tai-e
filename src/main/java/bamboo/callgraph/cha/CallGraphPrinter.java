@@ -23,6 +23,8 @@ import soot.Unit;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,7 +60,9 @@ public class CallGraphPrinter extends BodyTransformer {
                     System.out.println("------ " + b.getMethod() + " [call graph] -----");
                 }
                 System.out.print(SootUtils.unitToString(up, u) + " -> ");
-                System.out.println(new ArrayList<>(callees));
+                List<SootMethod> calleeList = new ArrayList<>(callees);
+                calleeList.sort(Comparator.comparing(SootMethod::toString));
+                System.out.println(calleeList);
             }
         }
         if (hasCallees) {
