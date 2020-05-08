@@ -50,21 +50,23 @@ public class CallGraphPrinter extends BodyTransformer {
     protected synchronized void internalTransform(Body b, String phaseName, Map<String, String> options) {
         CallGraph<Unit, SootMethod> callGraph = CHACallGraphBuilder.v()
                 .getRecentCallGraph();
-        boolean hasCallees = false;
-        BriefUnitPrinter up = new BriefUnitPrinter(b);
-        for (Unit u : b.getUnits()) {
-            Collection<SootMethod> callees = callGraph.getCallees(u);
-            if (!callees.isEmpty()) {
-                if (!hasCallees) {
-                    hasCallees = true;
-                    System.out.println("------ " + b.getMethod() + " [call graph] -----");
+        if (isOutput) {
+            boolean hasCallees = false;
+            BriefUnitPrinter up = new BriefUnitPrinter(b);
+            for (Unit u : b.getUnits()) {
+                Collection<SootMethod> callees = callGraph.getCallees(u);
+                if (!callees.isEmpty()) {
+                    if (!hasCallees) {
+                        hasCallees = true;
+                        System.out.println("------ " + b.getMethod() + " [call graph] -----");
+                    }
+                    System.out.println(SootUtils.unitToString(up, u)
+                            + " -> " + calleesToString(callees));
                 }
-                System.out.println(SootUtils.unitToString(up, u)
-                        + " -> " + calleesToString(callees));
             }
-        }
-        if (hasCallees) {
-            System.out.println();
+            if (hasCallees) {
+                System.out.println();
+            }
         }
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(b, callGraph);

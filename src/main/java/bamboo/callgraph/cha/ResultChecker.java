@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -87,23 +89,26 @@ public class ResultChecker {
 
     public void compare(Body body, CallGraph<Unit, SootMethod> callGraph) {
         String method = body.getMethod().getSignature();
-        Map<String, String> expectedCallEdges = expectedResults.get(method);
-        if (expectedCallEdges != null) {
-            BriefUnitPrinter up = new BriefUnitPrinter(body);
-            body.getUnits().forEach(u -> {
-                String callUnit = SootUtils.unitToString(up, u);
-                String expected = expectedCallEdges.get(callUnit);
-                if (expected != null) {
-                    String given = CallGraphPrinter.v()
-                            .calleesToString(callGraph.getCallees(u));
-                    if (!expected.equals(given)) {
-                        mismatches.add(String.format(
-                                "\n%s: expected: %s, given: %s",
-                                callUnit, expected, given));
-                    }
+        Map<String, String> expectedCallEdges =
+                expectedResults.getOrDefault(method, Collections.emptyMap());
+        BriefUnitPrinter up = new BriefUnitPrinter(body);
+        body.getUnits().forEach(u -> {
+            String callUnit = SootUtils.unitToString(up, u);
+            String expected = expectedCallEdges.get(callUnit);
+            Collection<SootMethod> callees = callGraph.getCallees(u);
+            String given = CallGraphPrinter.v().calleesToString(callees);
+            if (expected != null) {
+                if (!expected.equals(given)) {
+                    mismatches.add(String.format(
+                            "\nCallees of %s, expected: %s, given: %s",
+                            callUnit, expected, given));
                 }
-            });
-        }
+            } else if (!callGraph.getCallees(u).isEmpty()) {
+                mismatches.add(String.format(
+                        "\nCallees of %s, expected: [], given: %s",
+                        callUnit, given));
+            }
+        });
     }
 
     /**
