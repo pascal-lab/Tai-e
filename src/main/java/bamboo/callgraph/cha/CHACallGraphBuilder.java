@@ -16,7 +16,6 @@ package bamboo.callgraph.cha;
 import bamboo.callgraph.CallGraph;
 import bamboo.callgraph.CallKind;
 import bamboo.callgraph.JimpleCallGraph;
-import bamboo.callgraph.JimpleCallUtils;
 import bamboo.util.AnalysisException;
 import soot.FastHierarchy;
 import soot.Scene;
@@ -36,6 +35,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import static bamboo.callgraph.JimpleCallUtils.getCallKind;
 
 public class CHACallGraphBuilder extends SceneTransformer {
 
@@ -65,21 +66,21 @@ public class CHACallGraphBuilder extends SceneTransformer {
     public CallGraph<Unit, SootMethod> build() {
         JimpleCallGraph callGraph = new JimpleCallGraph();
         callGraph.addEntryMethod(Scene.v().getMainMethod());
-        buildEdges(callGraph);
+        buildCallGraph(callGraph);
         return callGraph;
     }
 
-    private void buildEdges(JimpleCallGraph callGraph) {
+    private void buildCallGraph(JimpleCallGraph callGraph) {
         Queue<SootMethod> queue = new LinkedList<>(callGraph.getEntryMethods());
         while (!queue.isEmpty()) {
             SootMethod method = queue.remove();
             for (Unit callSite : callGraph.getCallSitesIn(method)) {
-                Set<SootMethod> callees = resolveCalleesOf(callSite, callGraph);
-                Set<SootMethod> myCallees = resolveCalleesOf(callSite);
-                if (!callees.equals(myCallees)) {
+                Set<SootMethod> sootCallees = resolveCalleesOf(callSite, callGraph);
+                Set<SootMethod> callees = resolveCalleesOf(callSite);
+                if (!sootCallees.equals(callees)) {
+                    System.out.println("sootCallees: " + sootCallees);
                     System.out.println("callees: " + callees);
-                    System.out.println("myCallees: " + myCallees);
-                    throw new RuntimeException("callees != myCallees");
+                    throw new RuntimeException("sootCallees != callees");
                 }
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
@@ -91,6 +92,9 @@ public class CHACallGraphBuilder extends SceneTransformer {
         }
     }
 
+    /**
+     * Leverages Soot to resolve callees.
+     */
     private Set<SootMethod> resolveCalleesOf(
             Unit callSite, CallGraph<Unit, SootMethod> callGraph) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
@@ -110,28 +114,9 @@ public class CHACallGraphBuilder extends SceneTransformer {
         }
     }
 
-    private CallKind getCallKind(Unit callSite) {
-        InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
-        return JimpleCallUtils.getCallKind(invoke);
-    }
-
-    private SootMethod dispatch(SootClass cls, SootMethod method) {
-        SootMethod target = null;
-        String subSig = method.getSubSignature();
-        while (true) {
-            SootMethod m = cls.getMethodUnsafe(subSig);
-            if (m != null && m.isConcrete()) {
-                target = m;
-                break;
-            }
-            cls = cls.getSuperclassUnsafe();
-            if (cls == null) {
-                break;
-            }
-        }
-        return target;
-    }
-
+    /**
+     * Resolves call targets (callees) of a call site via class hierarchy analysis.
+     */
     private Set<SootMethod> resolveCalleesOf(Unit callSite) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
         SootMethod method = invoke.getMethod();
@@ -162,5 +147,26 @@ public class CHACallGraphBuilder extends SceneTransformer {
             default:
                 throw new AnalysisException("Unknown invocation expression: " + invoke);
         }
+    }
+
+    /**
+     * Looks up the target method based on given class and method signature.
+     * Returns null if no satisfying method can be found.
+     */
+    private SootMethod dispatch(SootClass cls, SootMethod method) {
+        SootMethod target = null;
+        String subSig = method.getSubSignature();
+        while (true) {
+            SootMethod m = cls.getMethodUnsafe(subSig);
+            if (m != null && m.isConcrete()) {
+                target = m;
+                break;
+            }
+            cls = cls.getSuperclassUnsafe();
+            if (cls == null) {
+                break;
+            }
+        }
+        return target;
     }
 }
