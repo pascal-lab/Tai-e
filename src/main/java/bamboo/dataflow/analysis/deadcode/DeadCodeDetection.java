@@ -69,7 +69,7 @@ public class DeadCodeDetection extends BodyTransformer {
         Set<Unit> deadCode = new HashSet<>();
 
         // 1. unreachable branches
-        EdgeSet unreachableBranches = findUnreachableBranches(b, cfg);
+        EdgeSet unreachableBranches = findUnreachableBranches(b);
 
         // 2. unreachable code
         deadCode.addAll(findUnreachableCode(cfg, unreachableBranches));
@@ -80,15 +80,14 @@ public class DeadCodeDetection extends BodyTransformer {
         return deadCode;
     }
 
-    private EdgeSet findUnreachableBranches(Body body, DirectedGraph<Unit> cfg) {
-        // TODO - remove cfg from parameters
+    private EdgeSet findUnreachableBranches(Body body) {
         @SuppressWarnings("unchecked")
         DataFlowTag<Unit, FlowMap> constantTag =
                 (DataFlowTag<Unit, FlowMap>) body.getTag("ConstantTag");
         // Obtain the constant propagation results for this method
         Map<Unit, FlowMap> constantMap = constantTag.getDataFlowMap();
         EdgeSet unreachableBranches = new EdgeSet();
-        for (Unit unit : cfg) { // TODO - replace cfg by body.getUnits()
+        for (Unit unit : body.getUnits()) {
             if (unit instanceof IfStmt) {
                 IfStmt ifStmt = (IfStmt) unit;
                 // Obtain the first statement of true and false branch
