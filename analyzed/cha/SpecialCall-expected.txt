@@ -8,11 +8,10 @@ L12{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Objec
 
 <A: void <init>(B)>
 L14{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
-L15{virtualinvoke this.<A: void privateMethod()>()} -> [<A: void privateMethod()>]
 
 <B: void <init>()>
-L23{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]
+L19{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]
 
 <C: void <init>()>
-L27{specialinvoke this.<B: void <init>()>()} -> [<B: void <init>()>]
-L28{specialinvoke this.<B: void foo()>()} -> [<A: void foo()>]
+L23{specialinvoke this.<B: void <init>()>()} -> [<B: void <init>()>]
+L24{specialinvoke this.<B: void foo()>()} -> [<A: void foo()>]

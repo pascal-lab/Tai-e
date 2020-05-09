@@ -34,8 +34,8 @@ class A {
     }
 
     void m3() {
-        this.m4();
+        m4();
     }
 
-    private void m4() {}
+    void m4() {}
 }
