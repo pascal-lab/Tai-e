@@ -101,6 +101,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
         SootMethod method = invoke.getMethod();
         CallKind kind = getCallKind(callSite);
         switch (kind) {
+            case INTERFACE:
             case VIRTUAL:
                 return hierarchy.resolveAbstractDispatch(method.getDeclaringClass(), method);
             case SPECIAL:
@@ -122,9 +123,10 @@ public class CHACallGraphBuilder extends SceneTransformer {
         SootMethod method = invoke.getMethod();
         CallKind kind = getCallKind(callSite);
         switch (kind) {
-            case VIRTUAL: {
-                SootClass cls = method.getDeclaringClass();
+            case INTERFACE: // invokeinterface
+            case VIRTUAL: { // invokevirtual
                 Set<SootMethod> targets = new HashSet<>();
+                SootClass cls = method.getDeclaringClass();
                 Deque<SootClass> workList = new ArrayDeque<>();
                 workList.add(cls);
                 while (!workList.isEmpty()) {
@@ -141,8 +143,8 @@ public class CHACallGraphBuilder extends SceneTransformer {
                 }
                 return targets;
             }
-            case SPECIAL:
-            case STATIC:
+            case SPECIAL: // invokespecial
+            case STATIC: // invokestatic
                 return Collections.singleton(method);
             default:
                 throw new AnalysisException("Unknown invocation expression: " + invoke);

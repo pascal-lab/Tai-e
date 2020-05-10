@@ -29,8 +29,9 @@ public class JimpleCallUtils {
     }
 
     public static CallKind getCallKind(InvokeExpr invoke) {
-        if (invoke instanceof VirtualInvokeExpr ||
-                invoke instanceof InterfaceInvokeExpr) {
+        if (invoke instanceof InterfaceInvokeExpr) {
+            return CallKind.INTERFACE;
+        } else if (invoke instanceof VirtualInvokeExpr) {
             return CallKind.VIRTUAL;
         } else if (invoke instanceof SpecialInvokeExpr) {
             return CallKind.SPECIAL;

@@ -14,6 +14,7 @@
 package bamboo.callgraph;
 
 public enum CallKind {
+    INTERFACE,
     VIRTUAL,
     SPECIAL,
     STATIC,
