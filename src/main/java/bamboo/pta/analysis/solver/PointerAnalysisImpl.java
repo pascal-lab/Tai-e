@@ -204,8 +204,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Type type = recvObj.getObject().getType();
                 Method callee;
                 CallKind callKind;
-                if (callSite.isVirtual()) {
-                    callee = programManager.resolveVirtualCall(type, callSite.getMethod());
+                if (callSite.isInterface() || callSite.isVirtual()) {
+                    callee = programManager.resolveInterfaceOrVirtualCall(
+                            type, callSite.getMethod());
                     callKind = CallKind.VIRTUAL;
                 } else if (callSite.isSpecial()){
                     callee = programManager.resolveSpecialCall(

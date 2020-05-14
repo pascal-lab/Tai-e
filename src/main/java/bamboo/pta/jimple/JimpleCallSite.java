@@ -70,6 +70,11 @@ class JimpleCallSite implements CallSite {
     }
 
     @Override
+    public boolean isInterface() {
+        return kind == CallKind.INTERFACE;
+    }
+
+    @Override
     public boolean isVirtual() {
         return kind == CallKind.VIRTUAL;
     }

@@ -19,6 +19,8 @@ import java.util.List;
 
 public interface CallSite {
 
+    boolean isInterface();
+
     boolean isVirtual();
 
     boolean isSpecial();

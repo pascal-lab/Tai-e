@@ -49,7 +49,7 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method resolveVirtualCall(Type recvType, Method method) {
+    public Method resolveInterfaceOrVirtualCall(Type recvType, Method method) {
         JimpleType jType = (JimpleType) recvType;
         JimpleMethod jMethod = (JimpleMethod) method;
         SootMethod callee = hierarchy.resolveConcreteDispatch(
