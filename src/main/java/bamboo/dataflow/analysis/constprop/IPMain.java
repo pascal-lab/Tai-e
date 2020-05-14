@@ -28,6 +28,7 @@ public class IPMain {
         Options.v().set_keep_line_number(true);
         Options.v().set_prepend_classpath(true);
         Options.v().set_whole_program(true);
+        Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure transformer
         Pack wjtp = PackManager.v().getPack("wjtp");

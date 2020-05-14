@@ -26,6 +26,7 @@ public class Main {
         Options.v().set_keep_line_number(true);
         Options.v().set_prepend_classpath(true);
         Options.v().set_whole_program(true);
+        Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure transformer
         PackManager.v().getPack("wjtp")
