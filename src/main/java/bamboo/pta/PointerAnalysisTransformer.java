@@ -14,6 +14,8 @@
 package bamboo.pta;
 
 import bamboo.pta.analysis.context.ContextInsensitiveSelector;
+import bamboo.pta.analysis.context.OneCallSelector;
+import bamboo.pta.analysis.context.OneObjectSelector;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.analysis.data.CSVariable;
@@ -27,6 +29,7 @@ import bamboo.pta.element.Obj;
 import bamboo.pta.jimple.JimpleProgramManager;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
+import bamboo.util.AnalysisException;
 import soot.SceneTransformer;
 import soot.jimple.AssignStmt;
 
@@ -40,9 +43,27 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
         pta.setProgramManager(new JimpleProgramManager());
-        pta.setContextSelector(new ContextInsensitiveSelector());
-//        pta.setContextSelector(new OneObjectSelector());
-//        pta.setContextSelector(new OneCallSelector());
+        options.forEach((key, value) -> {
+            if (key.equals("cs")) {
+                // configure context sensitivity variant
+                switch (value.toLowerCase()) {
+                    case "ci":
+                        pta.setContextSelector(new ContextInsensitiveSelector());
+                        break;
+                    case "1-call":
+                    case "1-cfa":
+                        pta.setContextSelector(new OneCallSelector());
+                        break;
+                    case "1-obj":
+                    case "1-object":
+                        pta.setContextSelector(new OneObjectSelector());
+                        break;
+                    default:
+                        throw new AnalysisException(
+                                "Unknown context sensitivity variant: " + value);
+                }
+            }
+        });
         pta.setHeapModel(new AllocationSiteBasedModel());
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setDataManager(new HashDataManager(setFactory));

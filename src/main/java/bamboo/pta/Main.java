@@ -29,10 +29,13 @@ public class Main {
         Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure transformer
+        Transform transform = new Transform(
+                "wjtp.pta", new PointerAnalysisTransformer());
+        transform.setDeclaredOptions("enabled cs");
+        transform.setDefaultOptions("enabled:true cs:ci");
         PackManager.v()
                 .getPack("wjtp")
-                .add(new Transform("wjtp.pta-ci",
-                        new PointerAnalysisTransformer()));
+                .add(transform);
 
         // Run main analysis
         soot.Main.main(args);
