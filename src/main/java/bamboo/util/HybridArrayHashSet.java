@@ -39,7 +39,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     /**
      * Default threshold for the number of items necessary for the array to become a hash set.
      */
-    private static final int ARRAY_SIZE = 16;
+    private static final int ARRAY_SIZE = 8;
 
     /**
      * The singleton value. Null if not a singleton.
