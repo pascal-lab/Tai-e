@@ -145,6 +145,7 @@ class ElementManager {
                 invoke.getArgs()
                         .stream()
                         .map(v -> getVariable(v, container))
+                        .filter(v -> v != null)
                         .collect(Collectors.toList())
         );
         callSite.setContainerMethod(container);
@@ -186,6 +187,7 @@ class ElementManager {
                     body.getParameterLocals()
                             .stream()
                             .map(param -> getVariable(param, method))
+                            .filter(v -> v != null)
                             .collect(Collectors.toList())
             );
             // add statements
@@ -214,7 +216,15 @@ class ElementManager {
             Value right = stmt.getRightOp();
             if (left instanceof Local) {
                 Variable lhs = getVariable(left, method);
-                if (right instanceof NewExpr) {
+                if (stmt.containsInvokeExpr()) {
+                    // x = o.m();
+                    JimpleCallSite callSite = createCallSite(stmt, method);
+                    Call call = new Call(callSite, lhs);
+                    callSite.setCall(call);
+                    method.addStatement(call);
+                } else if (lhs == null) { // lhs is primitive type
+                    return;
+                } else if (right instanceof NewExpr) {
                     // x = new T();
                     method.addStatement(new Allocation(lhs, stmt, getType(right.getType())));
                 } else if (right instanceof Local) {
@@ -227,12 +237,6 @@ class ElementManager {
                     InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
                     base.addLoad(load);
                     method.addStatement(load);
-                } else if (right instanceof InvokeExpr) {
-                    // x = o.m();
-                    JimpleCallSite callSite = createCallSite(stmt, method);
-                    Call call = new Call(callSite, lhs);
-                    callSite.setCall(call);
-                    method.addStatement(call);
                 } else {
                     // TODO: x = new T[];
                     // TODO: x = y[i];
