@@ -18,6 +18,7 @@ import bamboo.callgraph.CallKind;
 import bamboo.callgraph.Edge;
 import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.analysis.context.Context;
+import bamboo.pta.analysis.context.ContextInsensitiveSelector;
 import bamboo.pta.analysis.context.ContextSelector;
 import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
@@ -69,13 +70,28 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
+    public ProgramManager getProgramManager() {
+        return programManager;
+    }
+
+    @Override
     public void setDataManager(DataManager dataManager) {
         this.dataManager = dataManager;
     }
 
     @Override
+    public DataManager getDataManager() {
+        return dataManager;
+    }
+
+    @Override
     public void setContextSelector(ContextSelector contextSelector) {
         this.contextSelector = contextSelector;
+    }
+
+    @Override
+    public ContextSelector getContextSelector() {
+        return contextSelector;
     }
 
     @Override
@@ -107,6 +123,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     @Override
     public Stream<InstanceField> getInstanceFields() {
         return dataManager.getInstanceFields();
+    }
+
+    @Override
+    public boolean isContextSensitive() {
+        return !(contextSelector instanceof ContextInsensitiveSelector);
     }
 
     private void initialize() {

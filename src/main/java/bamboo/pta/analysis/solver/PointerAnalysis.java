@@ -30,9 +30,15 @@ public interface PointerAnalysis {
 
     void setProgramManager(ProgramManager programManager);
 
+    ProgramManager getProgramManager();
+
     void setDataManager(DataManager dataManager);
 
+    DataManager getDataManager();
+
     void setContextSelector(ContextSelector contextSelector);
+
+    ContextSelector getContextSelector();
 
     void setHeapModel(HeapModel heapModel);
 
@@ -53,4 +59,10 @@ public interface PointerAnalysis {
      * @return all instance fields in the (reachable) program.
      */
     Stream<InstanceField> getInstanceFields();
+
+    /**
+     *
+     * @return if this pointer analysis is context-sensitive.
+     */
+    boolean isContextSensitive();
 }

@@ -67,4 +67,8 @@ public class JimpleProgramManager implements ProgramManager {
                 jContainer.getSootMethod());
         return elementManager.getMethod(callee);
     }
+
+    ElementManager getElementManager() {
+        return elementManager;
+    }
 }

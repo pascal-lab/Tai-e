@@ -45,6 +45,7 @@ import soot.jimple.ThrowStmt;
 import soot.jimple.internal.JimpleLocal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,14 @@ class ElementManager {
                         getType(sootField.getType())));
     }
 
-    private JimpleVariable getVariable(Local var, JimpleMethod container) {
+    /**
+     * Returns all local variables in a given method.
+     */
+    Collection<JimpleVariable> getLocalVariablesOf(JimpleMethod container) {
+        return vars.get(container).values();
+    }
+
+    JimpleVariable getVariable(Local var, JimpleMethod container) {
         return var.getType() instanceof RefLikeType
                 ? vars.computeIfAbsent(container, (m) -> new HashMap<>())
                     .computeIfAbsent(var, (v) -> {
