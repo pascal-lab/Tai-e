@@ -24,6 +24,8 @@ import bamboo.icfg.ICFG;
 import bamboo.icfg.JimpleICFG;
 import bamboo.icfg.LocalEdge;
 import bamboo.icfg.ReturnEdge;
+import bamboo.pta.jimple.JimplePointerAnalysis;
+import bamboo.util.AnalysisException;
 import soot.Local;
 import soot.SceneTransformer;
 import soot.SootMethod;
@@ -159,7 +161,19 @@ public class IPConstantPropagation extends SceneTransformer
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-        CallGraph<Unit, SootMethod> callGraph = CHACallGraphBuilder.v().getRecentCallGraph();
+        CallGraph<Unit, SootMethod> callGraph;
+        // configure call graph construction
+        switch (options.get("cg")) {
+            case "cha":
+                callGraph = CHACallGraphBuilder.v().getRecentCallGraph();
+                break;
+            case "pta":
+                callGraph = JimplePointerAnalysis.v().getJimpleCallGraph();
+                break;
+            default:
+                throw new AnalysisException(
+                        "Unknown call graph option: " + options.get("cg"));
+        }
         ICFG<SootMethod, Unit> icfg = new JimpleICFG(callGraph);
         setICFG(icfg);
         IPSolver<FlowMap, SootMethod, Unit> solver = new IPWorkListSolver<>(this, icfg);

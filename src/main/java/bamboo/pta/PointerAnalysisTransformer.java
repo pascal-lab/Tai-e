@@ -26,6 +26,7 @@ import bamboo.pta.analysis.heap.AllocationSiteBasedModel;
 import bamboo.pta.analysis.solver.PointerAnalysis;
 import bamboo.pta.analysis.solver.PointerAnalysisImpl;
 import bamboo.pta.element.Obj;
+import bamboo.pta.jimple.JimplePointerAnalysis;
 import bamboo.pta.jimple.JimpleProgramManager;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -43,51 +44,48 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
         pta.setProgramManager(new JimpleProgramManager());
-        options.forEach((key, value) -> {
-            if (key.equals("cs")) {
-                // configure context sensitivity variant
-                switch (value.toLowerCase()) {
-                    case "ci":
-                        pta.setContextSelector(new ContextInsensitiveSelector());
-                        break;
-                    case "1-call":
-                    case "1-cfa":
-                        pta.setContextSelector(new OneCallSelector());
-                        break;
-                    case "1-obj":
-                    case "1-object":
-                        pta.setContextSelector(new OneObjectSelector());
-                        break;
-                    default:
-                        throw new AnalysisException(
-                                "Unknown context sensitivity variant: " + value);
-                }
-            }
-        });
+        // configure context sensitivity variant
+        switch (options.get("cs")) {
+            case "ci":
+                pta.setContextSelector(new ContextInsensitiveSelector());
+                break;
+            case "1-call":
+            case "1-cfa":
+                pta.setContextSelector(new OneCallSelector());
+                break;
+            case "1-obj":
+            case "1-object":
+                pta.setContextSelector(new OneObjectSelector());
+                break;
+            default:
+                throw new AnalysisException(
+                        "Unknown context sensitivity variant: " + options.get("cs"));
+        }
         pta.setHeapModel(new AllocationSiteBasedModel());
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setDataManager(new MapBasedDataManager(setFactory));
         pta.setPointsToSetFactory(setFactory);
         pta.solve();
-        System.out.println("Reachable methods:");
+        JimplePointerAnalysis.v().setPointerAnalysis(pta);
+        System.out.println("---------- Reachable methods: ----------");
         pta.getCallGraph().getReachableMethods()
                 .stream()
                 .sorted(Comparator.comparing(CSMethod::toString))
                 .forEach(System.out::println);
-        System.out.println("Call graph edges:");
+        System.out.println("---------- Call graph edges: ----------");
         pta.getCallGraph().getAllEdges().forEach(System.out::println);
         printVariables(pta.getVariables());
         printInstanceFields(pta.getInstanceFields());
     }
 
     private void printVariables(Stream<CSVariable> vars) {
-        System.out.println("Points-to sets of all variables:");
+        System.out.println("---------- Points-to sets of all variables: ----------");
         vars.sorted(Comparator.comparing(p -> p.getVariable().toString()))
                 .forEach(this::printPointsToSet);
     }
 
     private void printInstanceFields(Stream<InstanceField> fields) {
-        System.out.println("Points-to sets of all instance fields:");
+        System.out.println("---------- Points-to sets of all instance fields: ----------");
         fields.sorted(Comparator.comparing(f -> f.getBase().toString()))
                 .forEach(this::printPointsToSet);
     }

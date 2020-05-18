@@ -14,12 +14,13 @@
 package bamboo.dataflow.analysis.constprop;
 
 import bamboo.callgraph.cha.CHACallGraphBuilder;
+import bamboo.pta.PointerAnalysisTransformer;
 import soot.Pack;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
 
-public class IPMain {
+public class PTAMain {
 
     public static void main(String[] args) {
         // Set options
@@ -32,11 +33,14 @@ public class IPMain {
 
         // Configure transformer
         Pack wjtp = PackManager.v().getPack("wjtp");
-        wjtp.add(new Transform("wjtp.cha", CHACallGraphBuilder.v()));
-        Transform cg = new Transform("wjtp.constprop", new IPConstantPropagation());
-        cg.setDeclaredOptions("enabled cg");
-        cg.setDefaultOptions("enabled:true cg:cha");
-        wjtp.add(cg);
+        Transform pta = new Transform("wjtp.pta", new PointerAnalysisTransformer());
+        pta.setDeclaredOptions("enabled cs");
+        pta.setDefaultOptions("enabled:true cs:ci");
+        wjtp.add(pta);
+        Transform cp = new Transform("wjtp.constprop", new IPConstantPropagation());
+        cp.setDeclaredOptions("enabled cg");
+        cp.setDefaultOptions("enabled:true cg:pta");
+        wjtp.add(cp);
 
         // Run main analysis
         soot.Main.main(args);
