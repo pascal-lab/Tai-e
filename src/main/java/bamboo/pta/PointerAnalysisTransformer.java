@@ -19,7 +19,7 @@ import bamboo.pta.analysis.context.OneObjectSelector;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.analysis.data.CSVariable;
-import bamboo.pta.analysis.data.HashDataManager;
+import bamboo.pta.analysis.data.MapBasedDataManager;
 import bamboo.pta.analysis.data.InstanceField;
 import bamboo.pta.analysis.data.Pointer;
 import bamboo.pta.analysis.heap.AllocationSiteBasedModel;
@@ -66,7 +66,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         });
         pta.setHeapModel(new AllocationSiteBasedModel());
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
-        pta.setDataManager(new HashDataManager(setFactory));
+        pta.setDataManager(new MapBasedDataManager(setFactory));
         pta.setPointsToSetFactory(setFactory);
         pta.solve();
         System.out.println("Reachable methods:");

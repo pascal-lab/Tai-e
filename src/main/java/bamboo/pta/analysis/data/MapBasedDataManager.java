@@ -21,6 +21,7 @@ import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.util.CollectionUtils;
+import bamboo.util.HybridArrayHashMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,13 +29,14 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 /**
- * Hash map based element manager.
+ * Managing data by maintaining the data and their context-sensitive
+ * counterparts by maps.
  */
-public class HashDataManager implements DataManager {
+public class MapBasedDataManager implements DataManager {
 
     private PointsToSetFactory setFactory;
 
-    private Map<Context, Map<Variable, CSVariable>> vars = new HashMap<>();
+    private Map<Variable, Map<Context, CSVariable>> vars = new HashMap<>();
 
     private Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
 
@@ -42,13 +44,13 @@ public class HashDataManager implements DataManager {
 
     private Map<Field, StaticField> staticFields = new HashMap<>();
 
-    private Map<Context, Map<Obj, CSObj>> objs = new HashMap<>();
+    private Map<Obj, Map<Context, CSObj>> objs = new HashMap<>();
 
-    private Map<Context, Map<CallSite, CSCallSite>> callSites = new HashMap<>();
+    private Map<CallSite, Map<Context, CSCallSite>> callSites = new HashMap<>();
 
-    private Map<Context, Map<Method, CSMethod>> methods = new HashMap<>();
+    private Map<Method, Map<Context, CSMethod>> methods = new HashMap<>();
 
-    public HashDataManager(PointsToSetFactory setFactory) {
+    public MapBasedDataManager(PointsToSetFactory setFactory) {
         setPointsToSetFactory(setFactory);
     }
 
@@ -59,8 +61,8 @@ public class HashDataManager implements DataManager {
 
     @Override
     public CSVariable getCSVariable(Context context, Variable var) {
-        return getOrCreateCSElement(vars, context, var,
-                (c, v) -> initializePointsToSet(new CSVariable(c, v)));
+        return getOrCreateCSElement(vars, var, context,
+                (v, c) -> initializePointsToSet(new CSVariable(v, c)));
     }
 
     @Override
@@ -83,17 +85,17 @@ public class HashDataManager implements DataManager {
 
     @Override
     public CSObj getCSObj(Context heapContext, Obj obj) {
-        return getOrCreateCSElement(objs, heapContext, obj, CSObj::new);
+        return getOrCreateCSElement(objs, obj, heapContext, CSObj::new);
     }
 
     @Override
     public CSCallSite getCSCallSite(Context context, CallSite callSite) {
-        return getOrCreateCSElement(callSites, context, callSite, CSCallSite::new);
+        return getOrCreateCSElement(callSites, callSite, context, CSCallSite::new);
     }
 
     @Override
     public CSMethod getCSMethod(Context context, Method method) {
-        return getOrCreateCSElement(methods, context, method, CSMethod::new);
+        return getOrCreateCSElement(methods, method, context, CSMethod::new);
     }
 
     @Override
@@ -111,9 +113,9 @@ public class HashDataManager implements DataManager {
         return pointer;
     }
 
-    private static <R, T, U> R getOrCreateCSElement(
-            Map<T, Map<U, R>> map, T key1, U key2, BiFunction<T, U, R> creator) {
-        return map.computeIfAbsent(key1, k -> new HashMap<>())
+    private static <R, Key1, Key2> R getOrCreateCSElement(
+            Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
+        return map.computeIfAbsent(key1, k -> new HybridArrayHashMap<>())
                 .computeIfAbsent(key2, (k) -> creator.apply(key1, key2));
     }
 }

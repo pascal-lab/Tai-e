@@ -20,7 +20,7 @@ public class CSCallSite extends AbstractCSElement {
 
     private final CallSite callSite;
 
-    CSCallSite(Context context, CallSite callSite) {
+    CSCallSite(CallSite callSite, Context context) {
         super(context);
         this.callSite = callSite;
     }

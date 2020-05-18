@@ -18,13 +18,13 @@ import bamboo.pta.element.Variable;
 
 public class CSVariable extends AbstractPointer implements CSElement {
 
-    private final Context context;
-
     private final Variable var;
 
-    CSVariable(Context context, Variable var) {
-        this.context = context;
+    private final Context context;
+
+    CSVariable(Variable var, Context context) {
         this.var = var;
+        this.context = context;
     }
 
     @Override

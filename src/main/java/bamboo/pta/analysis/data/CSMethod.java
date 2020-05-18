@@ -20,7 +20,7 @@ public class CSMethod extends AbstractCSElement {
 
     private Method method;
 
-    CSMethod(Context context, Method method) {
+    CSMethod(Method method, Context context) {
         super(context);
         this.method = method;
     }

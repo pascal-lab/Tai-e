@@ -20,7 +20,7 @@ public class CSObj extends AbstractCSElement {
 
     private final Obj obj;
 
-    CSObj(Context context, Obj obj) {
+    CSObj(Obj obj, Context context) {
         super(context);
         this.obj = obj;
     }
