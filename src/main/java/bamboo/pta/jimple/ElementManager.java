@@ -40,6 +40,7 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
+import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
 import soot.jimple.internal.JimpleLocal;
 
@@ -123,9 +124,10 @@ class ElementManager {
         }
     }
 
-    private JimpleCallSite createCallSite(InvokeExpr invoke, JimpleMethod container) {
+    private JimpleCallSite createCallSite(Stmt stmt, JimpleMethod container) {
+        InvokeExpr invoke = stmt.getInvokeExpr();
         JimpleCallSite callSite = new JimpleCallSite(
-                invoke, JimpleCallUtils.getCallKind(invoke));
+                stmt, JimpleCallUtils.getCallKind(invoke));
         callSite.setMethod(getMethod(invoke.getMethod()));
         if (invoke instanceof InstanceInvokeExpr) {
             callSite.setReceiver(getVariable(
@@ -219,8 +221,7 @@ class ElementManager {
                     method.addStatement(load);
                 } else if (right instanceof InvokeExpr) {
                     // x = o.m();
-                    JimpleCallSite callSite =
-                            createCallSite((InvokeExpr) right, method);
+                    JimpleCallSite callSite = createCallSite(stmt, method);
                     Call call = new Call(callSite, lhs);
                     callSite.setCall(call);
                     method.addStatement(call);
@@ -255,8 +256,7 @@ class ElementManager {
 
         private void build(JimpleMethod method, InvokeStmt stmt) {
             // x.m();
-            JimpleCallSite callSite =
-                    createCallSite(stmt.getInvokeExpr(), method);
+            JimpleCallSite callSite = createCallSite(stmt, method);
             Call call = new Call(callSite, null);
             callSite.setCall(call);
             method.addStatement(call);

@@ -18,12 +18,13 @@ import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Variable;
 import bamboo.pta.statement.Call;
 import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
 
 import java.util.List;
 
 class JimpleCallSite implements CallSite {
 
-    private InvokeExpr invoke;
+    private Stmt stmt;
 
     private CallKind kind;
 
@@ -37,13 +38,17 @@ class JimpleCallSite implements CallSite {
 
     private JimpleMethod containerMethod;
 
-    public JimpleCallSite(InvokeExpr invoke, CallKind kind) {
-        this.invoke = invoke;
+    public JimpleCallSite(Stmt stmt, CallKind kind) {
+        this.stmt = stmt;
         this.kind = kind;
     }
 
+    Stmt getSootStmt() {
+        return stmt;
+    }
+
     InvokeExpr getSootInvokeExpr() {
-        return invoke;
+        return stmt.getInvokeExpr();
     }
 
     void setCall(Call call) {
@@ -119,16 +124,16 @@ class JimpleCallSite implements CallSite {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JimpleCallSite that = (JimpleCallSite) o;
-        return invoke.equals(that.invoke);
+        return stmt.equals(that.stmt);
     }
 
     @Override
     public int hashCode() {
-        return invoke.hashCode();
+        return stmt.hashCode();
     }
 
     @Override
     public String toString() {
-        return invoke.toString();
+        return stmt.toString();
     }
 }
