@@ -1,0 +1,29 @@
+---------- Points-to sets of all variables: ----------
+<A: void <init>()>/this -> {<CallField: void main(java.lang.String[])>/new A/4}
+<A: void modifyParam()>/b1 -> {<A: void modifyParam()>/new B/20}
+<A: void modifyParam()>/b2 -> {<A: void modifyParam()>/new B/21}
+<A: void modifyParam()>/c -> {<B: void setC(B)>/new C/40}
+<A: void modifyParam()>/temp$0 -> {<A: void modifyParam()>/new B/20}
+<A: void modifyParam()>/temp$1 -> {<A: void modifyParam()>/new B/21}
+<A: void modifyParam()>/this -> {<CallField: void main(java.lang.String[])>/new A/4}
+<A: void setget()>/b -> {<A: void setget()>/new B/14}
+<A: void setget()>/c -> {<A: void setget()>/new C/15}
+<A: void setget()>/temp$0 -> {<A: void setget()>/new B/14}
+<A: void setget()>/temp$1 -> {<A: void setget()>/new C/15}
+<A: void setget()>/temp$2 -> {<A: void setget()>/new C/15}
+<A: void setget()>/this -> {<CallField: void main(java.lang.String[])>/new A/4}
+<B: C get()>/temp$0 -> {<A: void setget()>/new C/15}
+<B: C get()>/this -> {<A: void setget()>/new B/14}
+<B: void <init>()>/this -> {<A: void modifyParam()>/new B/20,<A: void modifyParam()>/new B/21,<A: void setget()>/new B/14}
+<B: void set(C)>/c -> {<A: void setget()>/new C/15}
+<B: void set(C)>/this -> {<A: void setget()>/new B/14}
+<B: void setC(B)>/b -> {<A: void modifyParam()>/new B/21}
+<B: void setC(B)>/temp$0 -> {<B: void setC(B)>/new C/40}
+<B: void setC(B)>/this -> {<A: void modifyParam()>/new B/20}
+<C: void <init>()>/this -> {<A: void setget()>/new C/15,<B: void setC(B)>/new C/40}
+<CallField: void main(java.lang.String[])>/a -> {<CallField: void main(java.lang.String[])>/new A/4}
+<CallField: void main(java.lang.String[])>/temp$0 -> {<CallField: void main(java.lang.String[])>/new A/4}
+<java.lang.Object: void <init>()>/r0 -> {<A: void modifyParam()>/new B/20,<A: void modifyParam()>/new B/21,<A: void setget()>/new B/14,<A: void setget()>/new C/15,<B: void setC(B)>/new C/40,<CallField: void main(java.lang.String[])>/new A/4}
+---------- Points-to sets of all instance fields: ----------
+<A: void modifyParam()>/new B/21.c -> {<B: void setC(B)>/new C/40}
+<A: void setget()>/new B/14.c -> {<A: void setget()>/new C/15}

@@ -1,0 +1,46 @@
+---------- Points-to sets of all variables: ----------
+<A: void <init>()>/this -> {<A: void callField()>/new A/31,<A: void cycle()>/new A/23,<A: void longAP()>/new A/15,<InstanceField: void main(java.lang.String[])>/new A/4}
+<A: void callField()>/a -> {<A: void callField()>/new A/31}
+<A: void callField()>/b -> {<A: void callField()>/new B/32}
+<A: void callField()>/c -> {<B: C foo()>/new C/43}
+<A: void callField()>/temp$0 -> {<A: void callField()>/new A/31}
+<A: void callField()>/temp$1 -> {<A: void callField()>/new B/32}
+<A: void callField()>/temp$2 -> {<A: void callField()>/new B/32}
+<A: void callField()>/temp$3 -> {<B: C foo()>/new C/43}
+<A: void callField()>/this -> {<InstanceField: void main(java.lang.String[])>/new A/4}
+<A: void cycle()>/a -> {<A: void cycle()>/new A/23}
+<A: void cycle()>/b -> {<A: void cycle()>/new B/24}
+<A: void cycle()>/temp$0 -> {<A: void cycle()>/new A/23}
+<A: void cycle()>/temp$1 -> {<A: void cycle()>/new B/24}
+<A: void cycle()>/temp$2 -> {<A: void cycle()>/new A/23}
+<A: void cycle()>/temp$3 -> {<A: void cycle()>/new B/24}
+<A: void cycle()>/this -> {<InstanceField: void main(java.lang.String[])>/new A/4}
+<A: void cycle()>/x -> {<A: void cycle()>/new A/23}
+<A: void longAP()>/a -> {<A: void longAP()>/new A/15}
+<A: void longAP()>/temp$0 -> {<A: void longAP()>/new A/15}
+<A: void longAP()>/temp$1 -> {<A: void longAP()>/new B/16}
+<A: void longAP()>/temp$2 -> {<A: void longAP()>/new B/16}
+<A: void longAP()>/temp$3 -> {<A: void longAP()>/new C/17}
+<A: void longAP()>/temp$4 -> {<A: void longAP()>/new B/16}
+<A: void longAP()>/temp$5 -> {<A: void longAP()>/new C/17}
+<A: void longAP()>/temp$6 -> {<A: void longAP()>/new D/18}
+<A: void longAP()>/temp$7 -> {<A: void longAP()>/new B/16}
+<A: void longAP()>/temp$8 -> {<A: void longAP()>/new C/17}
+<A: void longAP()>/this -> {<InstanceField: void main(java.lang.String[])>/new A/4}
+<A: void longAP()>/x -> {<A: void longAP()>/new D/18}
+<B: C foo()>/temp$0 -> {<B: C foo()>/new C/43}
+<B: C foo()>/this -> {<A: void callField()>/new B/32}
+<B: C foo()>/x -> {<B: C foo()>/new C/43}
+<B: void <init>()>/this -> {<A: void callField()>/new B/32,<A: void cycle()>/new B/24,<A: void longAP()>/new B/16}
+<C: void <init>()>/this -> {<A: void longAP()>/new C/17,<B: C foo()>/new C/43}
+<D: void <init>()>/this -> {<A: void longAP()>/new D/18}
+<InstanceField: void main(java.lang.String[])>/a -> {<InstanceField: void main(java.lang.String[])>/new A/4}
+<InstanceField: void main(java.lang.String[])>/temp$0 -> {<InstanceField: void main(java.lang.String[])>/new A/4}
+<java.lang.Object: void <init>()>/r0 -> {<A: void callField()>/new A/31,<A: void callField()>/new B/32,<A: void cycle()>/new A/23,<A: void cycle()>/new B/24,<A: void longAP()>/new A/15,<A: void longAP()>/new B/16,<A: void longAP()>/new C/17,<A: void longAP()>/new D/18,<B: C foo()>/new C/43,<InstanceField: void main(java.lang.String[])>/new A/4}
+---------- Points-to sets of all instance fields: ----------
+<A: void callField()>/new A/31.b -> {<A: void callField()>/new B/32}
+<A: void cycle()>/new A/23.b -> {<A: void cycle()>/new B/24}
+<A: void cycle()>/new B/24.a -> {<A: void cycle()>/new A/23}
+<A: void longAP()>/new A/15.b -> {<A: void longAP()>/new B/16}
+<A: void longAP()>/new B/16.c -> {<A: void longAP()>/new C/17}
+<A: void longAP()>/new C/17.d -> {<A: void longAP()>/new D/18}

@@ -1,0 +1,13 @@
+---------- Points-to sets of all variables: ----------
+<A: void <init>()>/this -> {<A: void cycle()>/new A/10,<A: void cycle()>/new A/11,<A: void cycle()>/new A/12,<Assign2: void main(java.lang.String[])>/new A/3}
+<A: void cycle()>/a1 -> {<A: void cycle()>/new A/10,<A: void cycle()>/new A/11,<A: void cycle()>/new A/12}
+<A: void cycle()>/a2 -> {<A: void cycle()>/new A/10,<A: void cycle()>/new A/11,<A: void cycle()>/new A/12}
+<A: void cycle()>/a3 -> {<A: void cycle()>/new A/10,<A: void cycle()>/new A/11,<A: void cycle()>/new A/12}
+<A: void cycle()>/temp$0 -> {<A: void cycle()>/new A/10}
+<A: void cycle()>/temp$1 -> {<A: void cycle()>/new A/11}
+<A: void cycle()>/temp$2 -> {<A: void cycle()>/new A/12}
+<A: void cycle()>/this -> {<Assign2: void main(java.lang.String[])>/new A/3}
+<Assign2: void main(java.lang.String[])>/temp$0 -> {<Assign2: void main(java.lang.String[])>/new A/3}
+<java.lang.Object: void <init>()>/r0 -> {<A: void cycle()>/new A/10,<A: void cycle()>/new A/11,<A: void cycle()>/new A/12,<Assign2: void main(java.lang.String[])>/new A/3}
+---------- Points-to sets of all instance fields: ----------
+----------------------------------------
