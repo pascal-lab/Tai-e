@@ -46,6 +46,13 @@ class PointerFlowGraph {
     private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
     /**
+     * Returns all pointers in this PFG.
+     */
+    Set<Pointer> getPointers() {
+        return pointers;
+    }
+
+    /**
      * Returns the corresponding Var node for the given variable.
      */
     Var getVar(Variable variable) {

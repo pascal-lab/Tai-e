@@ -13,25 +13,5 @@
 
 package bamboo.pta.analysis.ci;
 
-import bamboo.pta.element.Variable;
-
-/**
- * Represents variable nodes in PFG.
- */
-class Var extends Pointer {
-
-    private final Variable var;
-
-    Var(Variable var) {
-        this.var = var;
-    }
-
-    Variable getVariable() {
-        return var;
-    }
-
-    @Override
-    public String toString() {
-        return var.toString();
-    }
+public class PointerAnalysisTransformer {
 }
