@@ -15,17 +15,33 @@ package bamboo.pta.analysis.ci;
 
 import bamboo.pta.analysis.heap.AllocationSiteBasedModel;
 import bamboo.pta.element.Method;
-import bamboo.pta.element.Obj;
 import bamboo.pta.jimple.JimplePointerAnalysis;
 import bamboo.pta.jimple.JimpleProgramManager;
 import soot.SceneTransformer;
-import soot.jimple.AssignStmt;
 
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static bamboo.pta.analysis.ci.Stringify.pointerToString;
+import static bamboo.pta.analysis.ci.Stringify.pointsToSetToString;
+
 public class CIPointerAnalysisTransformer extends SceneTransformer {
+
+    private static final CIPointerAnalysisTransformer INSTANCE =
+            new CIPointerAnalysisTransformer();
+
+    public static CIPointerAnalysisTransformer v() {
+        return INSTANCE;
+    }
+
+    private static boolean isOutput = true;
+
+    public static void setOutput(boolean isOutput) {
+        CIPointerAnalysisTransformer.isOutput = isOutput;
+    }
+
+    private CIPointerAnalysisTransformer() {};
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
@@ -34,20 +50,28 @@ public class CIPointerAnalysisTransformer extends SceneTransformer {
         pta.setHeapModel(new AllocationSiteBasedModel());
         pta.solve();
         JimplePointerAnalysis.v().setCIPointerAnalysis(pta);
-        System.out.println("---------- Reachable methods: ----------");
-        pta.getCallGraph().getReachableMethods()
-                .stream()
-                .sorted(Comparator.comparing(Method::toString))
-                .forEach(System.out::println);
-        System.out.println("---------- Call graph edges: ----------");
-        pta.getCallGraph().getAllEdges().forEach(System.out::println);
-        printVariables(pta.getVariables());
-        printInstanceFields(pta.getInstanceFields());
+
+        if (isOutput) {
+            System.out.println("---------- Reachable methods: ----------");
+            pta.getCallGraph().getReachableMethods()
+                    .stream()
+                    .sorted(Comparator.comparing(Method::toString))
+                    .forEach(System.out::println);
+            System.out.println("---------- Call graph edges: ----------");
+            pta.getCallGraph().getAllEdges().forEach(System.out::println);
+            printVariables(pta.getVariables());
+            printInstanceFields(pta.getInstanceFields());
+            System.out.println("----------------------------------------");
+        }
+
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(pta);
+        }
     }
 
     private void printVariables(Stream<Var> vars) {
         System.out.println("---------- Points-to sets of all variables: ----------");
-        vars.sorted(Comparator.comparing(p -> p.getVariable().toString()))
+        vars.sorted(Comparator.comparing(p -> p.toString()))
                 .forEach(this::printPointsToSet);
     }
 
@@ -58,34 +82,8 @@ public class CIPointerAnalysisTransformer extends SceneTransformer {
     }
 
     private void printPointsToSet(Pointer pointer) {
-        String ptr;
-        if (pointer instanceof InstanceField) {
-            InstanceField f = (InstanceField) pointer;
-            ptr = objToString(f.getBase()) + "." + f.getField().getName();
-        } else {
-            ptr = pointer.toString();
-        }
-        System.out.print(ptr + " -> {");
-        pointer.getPointsToSet().stream()
-                .sorted(Comparator.comparing(Obj::toString))
-                .forEach(o -> System.out.print(objToString(o) + ","));
-        System.out.println("}");
-    }
-
-    private String objToString(Obj obj) {
-        StringBuilder sb = new StringBuilder();
-        if (obj.getContainerMethod() != null) {
-            sb.append(obj.getContainerMethod()).append('/');
-        }
-        Object allocation = obj.getAllocationSite();
-        if (allocation instanceof AssignStmt) {
-            AssignStmt alloc = (AssignStmt) allocation;
-            sb.append(alloc.getRightOp())
-                    .append('/')
-                    .append(alloc.getJavaSourceStartLineNumber());
-        } else {
-            sb.append(allocation);
-        }
-        return sb.toString();
+        System.out.println(pointerToString(pointer)
+                + " -> {" + pointsToSetToString(pointer.getPointsToSet())
+                + "}");
     }
 }

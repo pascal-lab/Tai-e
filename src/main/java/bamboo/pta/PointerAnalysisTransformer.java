@@ -76,6 +76,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         pta.getCallGraph().getAllEdges().forEach(System.out::println);
         printVariables(pta.getVariables());
         printInstanceFields(pta.getInstanceFields());
+        System.out.println("----------------------------------------");
     }
 
     private void printVariables(Stream<CSVariable> vars) {

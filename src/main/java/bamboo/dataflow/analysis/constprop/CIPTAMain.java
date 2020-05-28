@@ -35,7 +35,7 @@ public class CIPTAMain {
 
         // Configure transformer
         Pack wjtp = PackManager.v().getPack("wjtp");
-        Transform pta = new Transform("wjtp.pta", new CIPointerAnalysisTransformer());
+        Transform pta = new Transform("wjtp.pta", CIPointerAnalysisTransformer.v());
         wjtp.add(pta);
         Transform cp = new Transform("wjtp.constprop", new IPConstantPropagation());
         cp.setDeclaredOptions("enabled cg");

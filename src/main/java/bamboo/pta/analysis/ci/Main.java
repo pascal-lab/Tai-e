@@ -30,7 +30,7 @@ public class Main {
 
         // Configure transformer
         Transform transform = new Transform(
-                "wjtp.pta", new CIPointerAnalysisTransformer());
+                "wjtp.pta", CIPointerAnalysisTransformer.v());
         PackManager.v()
                 .getPack("wjtp")
                 .add(transform);
