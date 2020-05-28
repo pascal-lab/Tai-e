@@ -61,7 +61,7 @@ public class CIPointerAnalysisTransformer extends SceneTransformer {
         String ptr;
         if (pointer instanceof InstanceField) {
             InstanceField f = (InstanceField) pointer;
-            ptr = objToString(f.getBase()) + "." + f.getField();
+            ptr = objToString(f.getBase()) + "." + f.getField().getName();
         } else {
             ptr = pointer.toString();
         }

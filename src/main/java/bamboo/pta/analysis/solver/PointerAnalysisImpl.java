@@ -222,25 +222,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (CSObj recvObj : pts) {
                 // resolve callee
-                Type type = recvObj.getObject().getType();
-                Method callee;
-                CallKind callKind;
-                if (callSite.isInterface() || callSite.isVirtual()) {
-                    callee = programManager.resolveInterfaceOrVirtualCall(
-                            type, callSite.getMethod());
-                    callKind = CallKind.VIRTUAL;
-                } else if (callSite.isSpecial()){
-                    callee = programManager.resolveSpecialCall(
-                            callSite, callSite.getContainerMethod());
-                    callKind = CallKind.SPECIAL;
-                } else {
-                    throw new AnalysisException("Unknown CallSite: " + callSite);
-                }
+                Method callee = resolveCallee(recvObj.getObject(), callSite);
                 // select context
                 CSCallSite csCallSite = dataManager.getCSCallSite(context, callSite);
                 Context calleeContext = contextSelector.selectContext(
                         csCallSite, recvObj, callee);
                 // build call edge
+                CallKind callKind = getCallKind(callSite);
                 CSMethod csCallee = dataManager.getCSMethod(calleeContext, callee);
                 workList.addCallEdge(new Edge<>(callKind, csCallSite, csCallee));
                 // pass receiver object to *this* variable
@@ -255,7 +243,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processNewMethod(CSMethod csMethod) {
         if (callGraph.addNewMethod(csMethod)) {
             processAllocations(csMethod);
-            addLocalAssignEdgesToPFG(csMethod);
+            processLocalAssign(csMethod);
             processStaticCalls(csMethod);
         }
     }
@@ -284,7 +272,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Add local assign edges of new method to pointer flow graph.
      */
-    private void addLocalAssignEdgesToPFG(CSMethod csMethod) {
+    private void processLocalAssign(CSMethod csMethod) {
         Context context = csMethod.getContext();
         Method method = csMethod.getMethod();
         for (Statement stmt : method.getStatements()) {
@@ -348,6 +336,36 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     addPFGEdge(csRet, lhs, PointerFlowEdge.Kind.RETURN);
                 }
             }
+        }
+    }
+
+    /**
+     * Resolves callee by given receiver object and call site.
+     */
+    private Method resolveCallee(Obj recvObj, CallSite callSite) {
+        Type type = recvObj.getType();
+        if (callSite.isInterface() || callSite.isVirtual()) {
+            return programManager.resolveInterfaceOrVirtualCall(
+                    type, callSite.getMethod());
+        } else if (callSite.isSpecial()){
+            return programManager.resolveSpecialCall(
+                    callSite, callSite.getContainerMethod());
+        } else {
+            throw new AnalysisException("Unknown CallSite: " + callSite);
+        }
+    }
+
+    private CallKind getCallKind(CallSite callSite) {
+        if (callSite.isInterface()) {
+            return CallKind.INTERFACE;
+        } else if (callSite.isVirtual()) {
+            return CallKind.VIRTUAL;
+        } else if (callSite.isSpecial()) {
+            return CallKind.SPECIAL;
+        } else if (callSite.isStatic()) {
+            return CallKind.STATIC;
+        } else {
+            throw new AnalysisException("Unknown call site: " + callSite);
         }
     }
 }

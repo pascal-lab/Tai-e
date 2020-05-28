@@ -40,6 +40,6 @@ public class InstanceField extends Pointer {
 
     @Override
     public String toString() {
-        return base + "." + field;
+        return base + "." + field.getName();
     }
 }

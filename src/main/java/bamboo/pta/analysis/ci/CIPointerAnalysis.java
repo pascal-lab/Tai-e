@@ -86,7 +86,7 @@ public class CIPointerAnalysis {
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         for (Method entry : programManager.getEntryMethods()) {
-            processNewMethod(entry);
+            addReachable(entry);
             // must be called after processNewMethod()
             callGraph.addEntryMethod(entry);
         }
@@ -113,7 +113,7 @@ public class CIPointerAnalysis {
     }
 
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-        System.out.println("Propagate " + pointsToSet + " to " + pointer);
+        // System.out.println("Propagate " + pointsToSet + " to " + pointer);
         PointsToSet diff = new PointsToSet();
         for (Obj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
@@ -166,21 +166,9 @@ public class CIPointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (Obj recvObj : pts) {
                 // resolve callee
-                Type type = recvObj.getType();
-                Method callee;
-                CallKind callKind;
-                if (callSite.isInterface() || callSite.isVirtual()) {
-                    callee = programManager.resolveInterfaceOrVirtualCall(
-                            type, callSite.getMethod());
-                    callKind = CallKind.VIRTUAL;
-                } else if (callSite.isSpecial()){
-                    callee = programManager.resolveSpecialCall(
-                            callSite, callSite.getContainerMethod());
-                    callKind = CallKind.SPECIAL;
-                } else {
-                    throw new AnalysisException("Unknown CallSite: " + callSite);
-                }
+                Method callee = resolveCallee(recvObj, callSite);
                 // build call edge
+                CallKind callKind = getCallKind(callSite);
                 workList.addCallEdge(new Edge<>(callKind, callSite, callee));
                 // pass receiver object to *this* variable
                 Var thisVar = pointerFlowGraph.getVar(callee.getThis());
@@ -189,10 +177,10 @@ public class CIPointerAnalysis {
         }
     }
 
-    private void processNewMethod(Method method) {
+    private void addReachable(Method method) {
         if (callGraph.addNewMethod(method)) {
             processAllocations(method);
-            addLocalAssignEdgesToPFG(method);
+            processLocalAssign(method);
             processStaticCalls(method);
         }
     }
@@ -214,7 +202,7 @@ public class CIPointerAnalysis {
     /**
      * Add local assign edges of new method to pointer flow graph.
      */
-    private void addLocalAssignEdgesToPFG(Method method) {
+    private void processLocalAssign(Method method) {
         for (Statement stmt : method.getStatements()) {
             if (stmt instanceof Assign) {
                 Assign assign = (Assign) stmt;
@@ -232,7 +220,7 @@ public class CIPointerAnalysis {
         if (!callGraph.containsEdge(edge)) {
             callGraph.addEdge(edge);
             Method callee = edge.getCallee();
-            processNewMethod(callee);
+            addReachable(callee);
             CallSite callSite = edge.getCallSite();
             // pass arguments to parameters
             List<Variable> args = callSite.getArguments();
@@ -267,6 +255,36 @@ public class CIPointerAnalysis {
                     workList.addCallEdge(edge);
                 }
             }
+        }
+    }
+
+    /**
+     * Resolves callee by given receiver object and call site.
+     */
+    private Method resolveCallee(Obj recvObj, CallSite callSite) {
+        Type type = recvObj.getType();
+        if (callSite.isInterface() || callSite.isVirtual()) {
+            return programManager.resolveInterfaceOrVirtualCall(
+                    type, callSite.getMethod());
+        } else if (callSite.isSpecial()){
+            return programManager.resolveSpecialCall(
+                    callSite, callSite.getContainerMethod());
+        } else {
+            throw new AnalysisException("Unknown CallSite: " + callSite);
+        }
+    }
+
+    private CallKind getCallKind(CallSite callSite) {
+        if (callSite.isInterface()) {
+            return CallKind.INTERFACE;
+        } else if (callSite.isVirtual()) {
+            return CallKind.VIRTUAL;
+        } else if (callSite.isSpecial()) {
+            return CallKind.SPECIAL;
+        } else if (callSite.isStatic()) {
+            return CallKind.STATIC;
+        } else {
+            throw new AnalysisException("Unknown call site: " + callSite);
         }
     }
 }
