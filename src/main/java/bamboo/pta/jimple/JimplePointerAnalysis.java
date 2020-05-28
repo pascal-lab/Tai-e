@@ -15,12 +15,16 @@ package bamboo.pta.jimple;
 
 import bamboo.callgraph.CallGraph;
 import bamboo.callgraph.JimpleCallGraph;
+import bamboo.pta.analysis.ci.CIPointerAnalysis;
 import bamboo.pta.analysis.context.DefaultContext;
 import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.DataManager;
 import bamboo.pta.analysis.solver.PointerAnalysis;
+import bamboo.pta.element.CallSite;
+import bamboo.pta.element.Method;
 import bamboo.pta.set.PointsToSet;
+import bamboo.util.AnalysisException;
 import soot.Local;
 import soot.SootMethod;
 import soot.Unit;
@@ -42,6 +46,8 @@ public class JimplePointerAnalysis {
 
     private PointerAnalysis pta;
 
+    private CIPointerAnalysis cipta;
+
     private ElementManager elementManager;
 
     private DataManager dataManager;
@@ -53,6 +59,13 @@ public class JimplePointerAnalysis {
         elementManager = ((JimpleProgramManager) pta.getProgramManager())
                 .getElementManager();
         dataManager = pta.getDataManager();
+        jimpleCallGraph = null;
+    }
+
+    public void setCIPointerAnalysis(CIPointerAnalysis cipta) {
+        this.cipta = cipta;
+        elementManager = ((JimpleProgramManager) cipta.getProgramManager())
+                .getElementManager();
         jimpleCallGraph = null;
     }
 
@@ -93,18 +106,38 @@ public class JimplePointerAnalysis {
     public CallGraph<Unit, SootMethod> getJimpleCallGraph() {
         if (jimpleCallGraph == null) {
             jimpleCallGraph = new JimpleCallGraph();
-            CallGraph<CSCallSite, CSMethod> callGraph = pta.getCallGraph();
-            // Add entry methods
-            callGraph.getEntryMethods()
-                    .stream()
-                    .map(this::toSootMethod)
-                    .forEach(jimpleCallGraph::addEntryMethod);
-            // Add call graph edges
-            callGraph.forEach(edge -> {
-                Unit call = toSootUnit(edge.getCallSite());
-                SootMethod target = toSootMethod(edge.getCallee());
-                jimpleCallGraph.addEdge(call, target, edge.getKind());
-            });
+            if (pta != null) {
+                // Process context-sensitive call graph
+                CallGraph<CSCallSite, CSMethod> callGraph = pta.getCallGraph();
+                // Add entry methods
+                callGraph.getEntryMethods()
+                        .stream()
+                        .map(this::toSootMethod)
+                        .forEach(jimpleCallGraph::addEntryMethod);
+                // Add call graph edges
+                callGraph.forEach(edge -> {
+                    Unit call = toSootUnit(edge.getCallSite());
+                    SootMethod target = toSootMethod(edge.getCallee());
+                    jimpleCallGraph.addEdge(call, target, edge.getKind());
+                });
+            } else if (cipta != null) {
+                // Process context-insensitive call graph
+                CallGraph<CallSite, Method> callGraph = cipta.getCallGraph();
+                callGraph.getEntryMethods()
+                        .stream()
+                        .map(m -> ((JimpleMethod) m).getSootMethod())
+                        .forEach(jimpleCallGraph::addEntryMethod);
+                // Add call graph edges
+                callGraph.forEach(edge -> {
+                    Unit call = ((JimpleCallSite) edge.getCallSite())
+                            .getSootStmt();
+                    SootMethod target = ((JimpleMethod) edge.getCallee())
+                            .getSootMethod();
+                    jimpleCallGraph.addEdge(call, target, edge.getKind());
+                });
+            } else {
+                throw new AnalysisException("Pointer analysis has not run");
+            }
         }
         return jimpleCallGraph;
     }

@@ -22,14 +22,13 @@ class PointerFlowEdge {
 
     enum Kind {
         LOCAL_ASSIGN,
-        CAST,
-
-        THIS_PASSING,
-        PARAMETER_PASSING,
-        RETURN,
+        // CAST,
 
         INSTANCE_LOAD,
         INSTANCE_STORE,
+
+        PARAMETER_PASSING,
+        RETURN,
     }
 
     private final Kind kind;
