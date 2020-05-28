@@ -1,0 +1,17 @@
+---------- Points-to sets of all variables: ----------
+<A: C foo(B,C)>/b -> {<Call: void main(java.lang.String[])>/new B/5}
+<A: C foo(B,C)>/c -> {<Call: void main(java.lang.String[])>/new C/6}
+<A: C foo(B,C)>/this -> {<Call: void main(java.lang.String[])>/new A/4}
+<A: void <init>()>/this -> {<Call: void main(java.lang.String[])>/new A/4}
+<B: void <init>()>/this -> {<Call: void main(java.lang.String[])>/new B/5}
+<C: void <init>()>/this -> {<Call: void main(java.lang.String[])>/new C/6}
+<Call: void main(java.lang.String[])>/a -> {<Call: void main(java.lang.String[])>/new A/4}
+<Call: void main(java.lang.String[])>/b -> {<Call: void main(java.lang.String[])>/new B/5}
+<Call: void main(java.lang.String[])>/c -> {<Call: void main(java.lang.String[])>/new C/6}
+<Call: void main(java.lang.String[])>/temp$0 -> {<Call: void main(java.lang.String[])>/new A/4}
+<Call: void main(java.lang.String[])>/temp$1 -> {<Call: void main(java.lang.String[])>/new B/5}
+<Call: void main(java.lang.String[])>/temp$2 -> {<Call: void main(java.lang.String[])>/new C/6}
+<Call: void main(java.lang.String[])>/temp$3 -> {<Call: void main(java.lang.String[])>/new C/6}
+<Call: void main(java.lang.String[])>/x -> {<Call: void main(java.lang.String[])>/new C/6}
+<java.lang.Object: void <init>()>/r0 -> {<Call: void main(java.lang.String[])>/new A/4,<Call: void main(java.lang.String[])>/new B/5,<Call: void main(java.lang.String[])>/new C/6}
+---------- Points-to sets of all instance fields: ----------

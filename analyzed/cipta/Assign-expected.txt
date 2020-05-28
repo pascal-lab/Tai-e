@@ -1,0 +1,11 @@
+---------- Points-to sets of all variables: ----------
+<A: void <init>()>/this -> {<Assign: void main(java.lang.String[])>/new A/4,<Assign: void main(java.lang.String[])>/new B/7}
+<Assign: void main(java.lang.String[])>/a1 -> {<Assign: void main(java.lang.String[])>/new A/4,<Assign: void main(java.lang.String[])>/new B/7}
+<Assign: void main(java.lang.String[])>/a2 -> {<Assign: void main(java.lang.String[])>/new A/4,<Assign: void main(java.lang.String[])>/new B/7}
+<Assign: void main(java.lang.String[])>/a3 -> {<Assign: void main(java.lang.String[])>/new A/4,<Assign: void main(java.lang.String[])>/new B/7}
+<Assign: void main(java.lang.String[])>/b -> {<Assign: void main(java.lang.String[])>/new B/7}
+<Assign: void main(java.lang.String[])>/temp$0 -> {<Assign: void main(java.lang.String[])>/new A/4}
+<Assign: void main(java.lang.String[])>/temp$1 -> {<Assign: void main(java.lang.String[])>/new B/7}
+<B: void <init>()>/this -> {<Assign: void main(java.lang.String[])>/new B/7}
+<java.lang.Object: void <init>()>/r0 -> {<Assign: void main(java.lang.String[])>/new A/4,<Assign: void main(java.lang.String[])>/new B/7}
+---------- Points-to sets of all instance fields: ----------
