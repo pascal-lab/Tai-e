@@ -36,6 +36,11 @@ public class TestUtils {
                 "bamboo.callgraph.cha.ResultChecker");
     }
 
+    public static void testCIPTA(String inputClass) {
+        test(inputClass, "cipta",
+                "bamboo.pta.analysis.ci.ResultChecker");
+    }
+
     private static void test(String inputClass, String analysis, String checker) {
         String cp;
         if (new File("analyzed/" + analysis).exists()) {
