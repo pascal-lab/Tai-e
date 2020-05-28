@@ -71,13 +71,13 @@ public class CIPointerAnalysisTransformer extends SceneTransformer {
 
     private void printVariables(Stream<Var> vars) {
         System.out.println("---------- Points-to sets of all variables: ----------");
-        vars.sorted(Comparator.comparing(p -> p.toString()))
+        vars.sorted(Comparator.comparing(p -> pointerToString(p)))
                 .forEach(this::printPointsToSet);
     }
 
     private void printInstanceFields(Stream<InstanceField> fields) {
         System.out.println("---------- Points-to sets of all instance fields: ----------");
-        fields.sorted(Comparator.comparing(f -> f.getBase().toString()))
+        fields.sorted(Comparator.comparing(f -> pointerToString(f)))
                 .forEach(this::printPointsToSet);
     }
 

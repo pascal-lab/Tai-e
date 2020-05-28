@@ -51,8 +51,8 @@ class Stringify {
 
     static String pointsToSetToString(PointsToSet pts) {
         Iterable<String> objs = () -> pts.stream()
-                .sorted(Comparator.comparing(Obj::toString))
                 .map(Stringify::objToString)
+                .sorted()
                 .iterator();
         return String.join(",", objs);
     }
