@@ -54,6 +54,6 @@ class Stringify {
                 .map(Stringify::objToString)
                 .sorted()
                 .iterator();
-        return String.join(",", objs);
+        return "{" + String.join(",", objs) + "}";
     }
 }

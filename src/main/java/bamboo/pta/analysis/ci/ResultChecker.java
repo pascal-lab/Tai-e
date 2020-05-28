@@ -103,7 +103,7 @@ public class ResultChecker {
 
     private void comparePointer(Pointer p, Set<String> givenPointers) {
         String ptr = pointerToString(p);
-        String given = "{" + pointsToSetToString(p.getPointsToSet()) + "}";
+        String given = pointsToSetToString(p.getPointsToSet());
         String expected = expectedResults.get(ptr);
         if (!Objects.equals(given, expected)) {
             mismatches.add(String.format(

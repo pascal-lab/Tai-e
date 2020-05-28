@@ -113,9 +113,9 @@ public class PointerAnalysis {
     }
 
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-//         System.out.println("Propagate {"
+//         System.out.println("Propagate "
 //                 + Stringify.pointsToSetToString(pointsToSet)
-//                 + "} to " + Stringify.pointerToString(pointer));
+//                 + " to " + Stringify.pointerToString(pointer));
         PointsToSet diff = new PointsToSet();
         for (Obj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {

@@ -82,8 +82,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     }
 
     private void printPointsToSet(Pointer pointer) {
-        System.out.println(pointerToString(pointer)
-                + " -> {" + pointsToSetToString(pointer.getPointsToSet())
-                + "}");
+        System.out.println(pointerToString(pointer) + " -> "
+                + pointsToSetToString(pointer.getPointsToSet()));
     }
 }
