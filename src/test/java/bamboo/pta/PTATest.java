@@ -15,27 +15,27 @@ package bamboo.pta;
 
 import org.junit.Test;
 
-import static bamboo.TestUtils.testCIPTA;
+import static bamboo.TestUtils.testPTA;
 
-public class CIPTATest {
+public class PTATest {
 
     @Test
     public void testNew() {
-        testCIPTA("New");
+        testPTA("New");
     }
 
     @Test
     public void testAssign() {
-        testCIPTA("Assign");
+        testPTA("Assign");
     }
 
     @Test
     public void testStoreLoad() {
-        testCIPTA("StoreLoad");
+        testPTA("StoreLoad");
     }
 
     @Test
     public void testCall() {
-        testCIPTA("Call");
+        testPTA("Call");
     }
 }

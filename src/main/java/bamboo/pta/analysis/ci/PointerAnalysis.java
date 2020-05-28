@@ -34,7 +34,7 @@ import bamboo.util.AnalysisException;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class CIPointerAnalysis {
+public class PointerAnalysis {
 
     private ProgramManager programManager;
 
@@ -87,7 +87,7 @@ public class CIPointerAnalysis {
         workList = new WorkList();
         for (Method entry : programManager.getEntryMethods()) {
             addReachable(entry);
-            // must be called after processNewMethod()
+            // must be called after addReachable()
             callGraph.addEntryMethod(entry);
         }
     }
@@ -113,7 +113,9 @@ public class CIPointerAnalysis {
     }
 
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-        // System.out.println("Propagate " + pointsToSet + " to " + pointer);
+//         System.out.println("Propagate {"
+//                 + Stringify.pointsToSetToString(pointsToSet)
+//                 + "} to " + Stringify.pointerToString(pointer));
         PointsToSet diff = new PointsToSet();
         for (Obj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
@@ -167,12 +169,12 @@ public class CIPointerAnalysis {
             for (Obj recvObj : pts) {
                 // resolve callee
                 Method callee = resolveCallee(recvObj, callSite);
-                // build call edge
-                CallKind callKind = getCallKind(callSite);
-                workList.addCallEdge(new Edge<>(callKind, callSite, callee));
                 // pass receiver object to *this* variable
                 Var thisVar = pointerFlowGraph.getVar(callee.getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
+                // build call edge
+                CallKind callKind = getCallKind(callSite);
+                workList.addCallEdge(new Edge<>(callKind, callSite, callee));
             }
         }
     }

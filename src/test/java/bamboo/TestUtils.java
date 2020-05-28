@@ -36,8 +36,8 @@ public class TestUtils {
                 "bamboo.callgraph.cha.ResultChecker");
     }
 
-    public static void testCIPTA(String inputClass) {
-        test(inputClass, "cipta",
+    public static void testPTA(String inputClass) {
+        test(inputClass, "pta",
                 "bamboo.pta.analysis.ci.ResultChecker");
     }
 

@@ -15,52 +15,52 @@ package bamboo.pta;
 
 import org.junit.Test;
 
-import static bamboo.TestUtils.testCIPTA;
+import static bamboo.TestUtils.testPTA;
 
-public class CIPTATestFull {
+public class PTATestFull {
 
     @Test
     public void testNew() {
-        testCIPTA("New");
+        testPTA("New");
     }
 
     @Test
     public void testAssign() {
-        testCIPTA("Assign");
+        testPTA("Assign");
     }
 
     @Test
     public void testStoreLoad() {
-        testCIPTA("StoreLoad");
+        testPTA("StoreLoad");
     }
 
     @Test
     public void testCall() {
-        testCIPTA("Call");
+        testPTA("Call");
     }
 
     @Test
     public void testAssign2() {
-        testCIPTA("Assign2");
+        testPTA("Assign2");
     }
 
     @Test
     public void testInstanceField() {
-        testCIPTA("InstanceField");
+        testPTA("InstanceField");
     }
 
     @Test
     public void testInstanceField2() {
-        testCIPTA("InstanceField2");
+        testPTA("InstanceField2");
     }
 
     @Test
     public void testCallParamRet() {
-        testCIPTA("CallParamRet");
+        testPTA("CallParamRet");
     }
 
     @Test
     public void testCallField() {
-        testCIPTA("CallField");
+        testPTA("CallField");
     }
 }

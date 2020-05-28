@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -63,7 +62,7 @@ public class ResultChecker {
     public static Set<String> check(String[] args, String path) {
         ResultChecker checker = new ResultChecker(Paths.get(path));
         setChecker(checker);
-        CIPointerAnalysisTransformer.v().setOutput(false);
+        PointerAnalysisTransformer.v().setOutput(false);
 
         G.reset(); // reset the whole Soot environment
         Main.main(args);
@@ -86,7 +85,7 @@ public class ResultChecker {
         return mismatches;
     }
 
-    public void compare(CIPointerAnalysis pta) {
+    public void compare(PointerAnalysis pta) {
         Set<String> givenPointers = new TreeSet<>();
         pta.getVariables()
                 .sorted(Comparator.comparing(p -> p.toString()))

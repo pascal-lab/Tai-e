@@ -13,16 +13,14 @@
 
 package bamboo.dataflow.analysis.constprop;
 
-import bamboo.pta.analysis.ci.CIPointerAnalysisTransformer;
+import bamboo.callgraph.cha.CHACallGraphBuilder;
+import bamboo.pta.PointerAnalysisTransformer;
 import soot.Pack;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
 
-/**
- * Bootstrap interprocedural constant propagation with CIPointerAnalysis.
- */
-public class CIPTAMain {
+public class CSPTAMain {
 
     public static void main(String[] args) {
         // Set options
@@ -35,7 +33,9 @@ public class CIPTAMain {
 
         // Configure transformer
         Pack wjtp = PackManager.v().getPack("wjtp");
-        Transform pta = new Transform("wjtp.pta", CIPointerAnalysisTransformer.v());
+        Transform pta = new Transform("wjtp.pta", new PointerAnalysisTransformer());
+        pta.setDeclaredOptions("enabled cs");
+        pta.setDefaultOptions("enabled:true cs:ci");
         wjtp.add(pta);
         Transform cp = new Transform("wjtp.constprop", new IPConstantPropagation());
         cp.setDeclaredOptions("enabled cg");

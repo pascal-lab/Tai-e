@@ -26,26 +26,26 @@ import java.util.stream.Stream;
 import static bamboo.pta.analysis.ci.Stringify.pointerToString;
 import static bamboo.pta.analysis.ci.Stringify.pointsToSetToString;
 
-public class CIPointerAnalysisTransformer extends SceneTransformer {
+public class PointerAnalysisTransformer extends SceneTransformer {
 
-    private static final CIPointerAnalysisTransformer INSTANCE =
-            new CIPointerAnalysisTransformer();
+    private static final PointerAnalysisTransformer INSTANCE =
+            new PointerAnalysisTransformer();
 
-    public static CIPointerAnalysisTransformer v() {
+    public static PointerAnalysisTransformer v() {
         return INSTANCE;
     }
 
     private static boolean isOutput = true;
 
     public static void setOutput(boolean isOutput) {
-        CIPointerAnalysisTransformer.isOutput = isOutput;
+        PointerAnalysisTransformer.isOutput = isOutput;
     }
 
-    private CIPointerAnalysisTransformer() {};
+    private PointerAnalysisTransformer() {};
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-        CIPointerAnalysis pta = new CIPointerAnalysis();
+        PointerAnalysis pta = new PointerAnalysis();
         pta.setProgramManager(new JimpleProgramManager());
         pta.setHeapModel(new AllocationSiteBasedModel());
         pta.solve();

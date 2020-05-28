@@ -15,7 +15,6 @@ package bamboo.pta.jimple;
 
 import bamboo.callgraph.CallGraph;
 import bamboo.callgraph.JimpleCallGraph;
-import bamboo.pta.analysis.ci.CIPointerAnalysis;
 import bamboo.pta.analysis.context.DefaultContext;
 import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
@@ -46,7 +45,7 @@ public class JimplePointerAnalysis {
 
     private PointerAnalysis pta;
 
-    private CIPointerAnalysis cipta;
+    private bamboo.pta.analysis.ci.PointerAnalysis cipta;
 
     private ElementManager elementManager;
 
@@ -62,7 +61,8 @@ public class JimplePointerAnalysis {
         jimpleCallGraph = null;
     }
 
-    public void setCIPointerAnalysis(CIPointerAnalysis cipta) {
+    public void setCIPointerAnalysis(
+            bamboo.pta.analysis.ci.PointerAnalysis cipta) {
         this.cipta = cipta;
         elementManager = ((JimpleProgramManager) cipta.getProgramManager())
                 .getElementManager();
