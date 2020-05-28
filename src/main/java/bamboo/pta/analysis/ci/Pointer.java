@@ -15,13 +15,9 @@ package bamboo.pta.analysis.ci;
 
 abstract class Pointer {
 
-    protected PointsToSet pointsToSet;
+    private PointsToSet pointsToSet = new PointsToSet();
 
-    public void setPointsToSet(PointsToSet pointsToSet) {
-        this.pointsToSet = pointsToSet;
-    }
-
-    public PointsToSet getPointsToSet() {
+    PointsToSet getPointsToSet() {
         return pointsToSet;
     }
 }
