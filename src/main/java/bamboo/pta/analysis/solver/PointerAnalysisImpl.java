@@ -105,12 +105,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public void solve() {
-        initialize();
-        analyze();
-    }
-
-    @Override
     public CallGraph<CSCallSite, CSMethod> getCallGraph() {
         return callGraph;
     }
@@ -130,6 +124,18 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return !(contextSelector instanceof ContextInsensitiveSelector);
     }
 
+    /**
+     * Runs pointer analysis algorithm.
+     */
+    @Override
+    public void solve() {
+        initialize();
+        analyze();
+    }
+
+    /**
+     * Initializes pointer analysis.
+     */
     private void initialize() {
         callGraph = new OnFlyCallGraph(dataManager);
         pointerFlowGraph = new PointerFlowGraph();
@@ -143,6 +149,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    /**
+     * Processes worklist entries until the worklist is empty.
+     */
     private void analyze() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
@@ -163,6 +172,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    /**
+     * Propagates pointsToSet to pt(pointer) and its PFG successors,
+     * returns the difference set of pointsToSet and pt(pointer).
+     */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         System.out.println("Propagate " + pointsToSet + " to " + pointer);
         PointsToSet diff = setFactory.makePointsToSet();
@@ -181,6 +194,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return diff;
     }
 
+    /**
+     * Adds an edge "from -> to" to the PFG.
+     */
     private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         if (pointerFlowGraph.addEdge(from, to, kind)) {
             if (!from.getPointsToSet().isEmpty()) {
@@ -189,6 +205,60 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    /**
+     * Processes new reachable context-sensitive method.
+     */
+    private void processNewMethod(CSMethod csMethod) {
+        if (callGraph.addNewMethod(csMethod)) {
+            processAllocations(csMethod);
+            processLocalAssign(csMethod);
+            processStaticCalls(csMethod);
+        }
+    }
+
+    /**
+     * Process allocation statements in given context-sensitive method.
+     */
+    private void processAllocations(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof Allocation) {
+                Allocation alloc = (Allocation) stmt;
+                // obtain context-sensitive heap object
+                Object allocSite = alloc.getAllocationSite();
+                Obj obj = heapModel.getObj(allocSite, alloc.getType(), method);
+                Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+                CSObj csObj = dataManager.getCSObj(heapContext, obj);
+                // obtain lhs variable
+                CSVariable lhs = dataManager.getCSVariable(context, alloc.getVar());
+                workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
+            }
+        }
+    }
+
+    /**
+     * Add local assign edges of the given context-sensitive method
+     * to pointer flow graph.
+     */
+    private void processLocalAssign(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof Assign) {
+                Assign assign = (Assign) stmt;
+                CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
+                CSVariable to = dataManager.getCSVariable(context, assign.getTo());
+                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
+        }
+    }
+
+    /**
+     * Processes instance stores when points-to set of the base variable changes.
+     * @param baseVar the base variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
     private void processInstanceStore(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
@@ -202,6 +272,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    /**
+     * Processes instance loads when points-to set of the base variable changes.
+     * @param baseVar the base variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
     private void processInstanceLoad(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
@@ -215,6 +290,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    /**
+     * Processes instance calls when points-to set of the receiver variable changes.
+     * @param recv the receiver variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
     private void processCall(CSVariable recv, PointsToSet pts) {
         Context context = recv.getContext();
         Variable var = recv.getVariable();
@@ -236,51 +316,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                         calleeContext, callee.getThis());
                 workList.addPointerEntry(thisVar,
                         setFactory.makePointsToSet(recvObj));
-            }
-        }
-    }
-
-    private void processNewMethod(CSMethod csMethod) {
-        if (callGraph.addNewMethod(csMethod)) {
-            processAllocations(csMethod);
-            processLocalAssign(csMethod);
-            processStaticCalls(csMethod);
-        }
-    }
-
-    /**
-     * Process allocation statements in given context-sensitive method.
-     */
-    private void processAllocations(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt.getKind() == Statement.Kind.ALLOCATION) {
-                Allocation alloc = (Allocation) stmt;
-                // obtain context-sensitive heap object
-                Object allocSite = alloc.getAllocationSite();
-                Obj obj = heapModel.getObj(allocSite, alloc.getType(), method);
-                Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-                CSObj csObj = dataManager.getCSObj(heapContext, obj);
-                // obtain lhs variable
-                CSVariable lhs = dataManager.getCSVariable(context, alloc.getVar());
-                workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
-            }
-        }
-    }
-
-    /**
-     * Add local assign edges of new method to pointer flow graph.
-     */
-    private void processLocalAssign(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof Assign) {
-                Assign assign = (Assign) stmt;
-                CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
-                CSVariable to = dataManager.getCSVariable(context, assign.getTo());
-                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
         }
     }

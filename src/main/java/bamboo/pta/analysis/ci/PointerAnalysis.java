@@ -58,11 +58,6 @@ public class PointerAnalysis {
         this.heapModel = heapModel;
     }
 
-    public void solve() {
-        initialize();
-        analyze();
-    }
-
     public CallGraph<CallSite, Method> getCallGraph() {
         return callGraph;
     }
@@ -81,6 +76,17 @@ public class PointerAnalysis {
                 .map(p -> (InstanceField) p);
     }
 
+    /**
+     * Runs pointer analysis algorithm.
+     */
+    public void solve() {
+        initialize();
+        analyze();
+    }
+
+    /**
+     * Initializes pointer analysis.
+     */
     private void initialize() {
         callGraph = new OnFlyCallGraph();
         pointerFlowGraph = new PointerFlowGraph();
@@ -92,6 +98,9 @@ public class PointerAnalysis {
         }
     }
 
+    /**
+     * Processes worklist entries until the worklist is empty.
+     */
     private void analyze() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
@@ -112,6 +121,10 @@ public class PointerAnalysis {
         }
     }
 
+    /**
+     * Propagates pointsToSet to pt(pointer) and its PFG successors,
+     * returns the difference set of pointsToSet and pt(pointer).
+     */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
 //         System.out.println("Propagate "
 //                 + Stringify.pointsToSetToString(pointsToSet)
@@ -130,6 +143,9 @@ public class PointerAnalysis {
         return diff;
     }
 
+    /**
+     * Adds an edge "from -> to" to the PFG.
+     */
     private void addPFGEdge(Pointer from, Pointer to) {
         if (pointerFlowGraph.addEdge(from, to)) {
             if (!from.getPointsToSet().isEmpty()) {
@@ -138,6 +154,53 @@ public class PointerAnalysis {
         }
     }
 
+    /**
+     * Processes new reachable method.
+     */
+    private void addReachable(Method method) {
+        if (callGraph.addNewMethod(method)) {
+            processAllocations(method);
+            processLocalAssign(method);
+            processStaticCalls(method);
+        }
+    }
+
+    /**
+     * Processes allocations (new statements) in the given method.
+     */
+    private void processAllocations(Method method) {
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof Allocation) {
+                Allocation alloc = (Allocation) stmt;
+                // obtain abstract object
+                Object allocSite = alloc.getAllocationSite();
+                Obj obj = heapModel.getObj(allocSite, alloc.getType(), method);
+                // obtain lhs variable
+                Var lhs = pointerFlowGraph.getVar(alloc.getVar());
+                workList.addPointerEntry(lhs, new PointsToSet(obj));
+            }
+        }
+    }
+
+    /**
+     * Adds local assign edges of the given method to pointer flow graph.
+     */
+    private void processLocalAssign(Method method) {
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof Assign) {
+                Assign assign = (Assign) stmt;
+                Var from = pointerFlowGraph.getVar(assign.getFrom());
+                Var to = pointerFlowGraph.getVar(assign.getTo());
+                addPFGEdge(from, to);
+            }
+        }
+    }
+
+    /**
+     * Processes instance stores when points-to set of the base variable changes.
+     * @param baseVar the base variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
     private void processInstanceStore(Var baseVar, PointsToSet pts) {
         Variable var = baseVar.getVariable();
         for (InstanceStore store : var.getStores()) {
@@ -150,6 +213,11 @@ public class PointerAnalysis {
         }
     }
 
+    /**
+     * Processes instance loads when points-to set of the base variable changes.
+     * @param baseVar the base variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
     private void processInstanceLoad(Var baseVar, PointsToSet pts) {
         Variable var = baseVar.getVariable();
         for (InstanceLoad load : var.getLoads()) {
@@ -162,6 +230,11 @@ public class PointerAnalysis {
         }
     }
 
+    /**
+     * Processes instance calls when points-to set of the receiver variable changes.
+     * @param recv the receiver variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
     private void processCall(Var recv, PointsToSet pts) {
         Variable var = recv.getVariable();
         for (Call call : var.getCalls()) {
@@ -175,42 +248,6 @@ public class PointerAnalysis {
                 // build call edge
                 CallKind callKind = getCallKind(callSite);
                 workList.addCallEdge(new Edge<>(callKind, callSite, callee));
-            }
-        }
-    }
-
-    private void addReachable(Method method) {
-        if (callGraph.addNewMethod(method)) {
-            processAllocations(method);
-            processLocalAssign(method);
-            processStaticCalls(method);
-        }
-    }
-
-    private void processAllocations(Method method) {
-        for (Statement stmt : method.getStatements()) {
-            if (stmt.getKind() == Statement.Kind.ALLOCATION) {
-                Allocation alloc = (Allocation) stmt;
-                // obtain abstract object
-                Object allocSite = alloc.getAllocationSite();
-                Obj obj = heapModel.getObj(allocSite, alloc.getType(), method);
-                // obtain lhs variable
-                Var lhs = pointerFlowGraph.getVar(alloc.getVar());
-                workList.addPointerEntry(lhs, new PointsToSet(obj));
-            }
-        }
-    }
-
-    /**
-     * Add local assign edges of new method to pointer flow graph.
-     */
-    private void processLocalAssign(Method method) {
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof Assign) {
-                Assign assign = (Assign) stmt;
-                Var from = pointerFlowGraph.getVar(assign.getFrom());
-                Var to = pointerFlowGraph.getVar(assign.getTo());
-                addPFGEdge(from, to);
             }
         }
     }
@@ -276,6 +313,9 @@ public class PointerAnalysis {
         }
     }
 
+    /**
+     * Returns CallKind of the given call site.
+     */
     private CallKind getCallKind(CallSite callSite) {
         if (callSite.isInterface()) {
             return CallKind.INTERFACE;

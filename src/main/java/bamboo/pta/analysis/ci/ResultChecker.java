@@ -96,7 +96,7 @@ public class ResultChecker {
         expectedResults.forEach((p, pts) -> {
             if (!givenPointers.contains(p)) {
                 mismatches.add(String.format(
-                        "\n %s, expected: %s, given: null", p, pts));
+                        "\n %s, expected: %s, given: pointer has not been added to PFG", p, pts));
             }
         });
     }
