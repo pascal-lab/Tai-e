@@ -25,14 +25,17 @@ public interface ContextSelector {
     }
 
     /**
-     * Select context for static method.
+     * Selects contexts for static methods.
      */
     Context selectContext(CSCallSite callSite, Method callee);
 
     /**
-     * Select context for instance method.
+     * Selects contexts for instance methods.
      */
     Context selectContext(CSCallSite callSite, CSObj recv, Method callee);
 
+    /**
+     * Selects heap context for new-created abstract objects.
+     */
     Context selectHeapContext(CSMethod method, Object allocationSite);
 }
