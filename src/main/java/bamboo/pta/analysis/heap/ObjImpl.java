@@ -64,6 +64,6 @@ class ObjImpl implements Obj {
 
     @Override
     public String toString() {
-        return allocation.toString();
+        return containerMethod + "/" + allocation;
     }
 }
