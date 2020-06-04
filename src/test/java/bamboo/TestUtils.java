@@ -41,6 +41,11 @@ public class TestUtils {
                 "bamboo.pta.analysis.ci.ResultChecker");
     }
 
+    public static void testCSPTA(String inputClass) {
+        test(inputClass, "cspta",
+                "bamboo.pta.analysis.ResultChecker");
+    }
+
     private static void test(String inputClass, String analysis, String checker) {
         String cp;
         if (new File("analyzed/" + analysis).exists()) {
