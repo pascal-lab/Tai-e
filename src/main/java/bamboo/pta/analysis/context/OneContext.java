@@ -13,16 +13,24 @@
 
 package bamboo.pta.analysis.context;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Context with one element
  * @param <T>
  */
 class OneContext<T> implements Context {
 
-    private T element;
+    private final T element;
 
     OneContext(T element) {
         this.element = element;
+    }
+
+    @Override
+    public List<T> getElements() {
+        return Collections.singletonList(element);
     }
 
     @Override

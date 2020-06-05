@@ -13,5 +13,9 @@
 
 package bamboo.pta.analysis.context;
 
+import java.util.List;
+
 public interface Context {
+
+    List getElements();
 }
