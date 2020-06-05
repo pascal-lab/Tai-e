@@ -134,8 +134,7 @@ class JimpleCallSite implements CallSite {
 
     @Override
     public String toString() {
-        return  "L" +  stmt.getJavaSourceStartLineNumber()
-                + "@" + containerMethod.getClassType()
-                + ":" + stmt;
+        return  containerMethod.getClassType()
+                + "(L" + stmt.getJavaSourceStartLineNumber() + "):" + stmt;
     }
 }
