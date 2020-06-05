@@ -21,9 +21,8 @@ import java.util.stream.Stream;
 
 public class Stringify {
 
-    public static <T> String streamToString(
-            Stream<T> stream, Function<T, String> toString) {
-        Iterable<String> elems = () -> stream.map(toString)
+    public static <T> String streamToString(Stream<T> stream) {
+        Iterable<String> elems = () -> stream.map(T::toString)
                 .sorted()
                 .iterator();
         return "{" + String.join(",", elems) + "}";

@@ -26,8 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import static bamboo.pta.analysis.ci.Stringify.pointerToString;
-import static bamboo.pta.analysis.ci.Stringify.pointsToSetToString;
+import static bamboo.util.Stringify.streamToString;
 
 /**
  * Boosts context-insensitive pointer analysis and checks whether the
@@ -102,8 +101,8 @@ public class ResultChecker {
     }
 
     private void comparePointer(Pointer p, Set<String> givenPointers) {
-        String ptr = pointerToString(p);
-        String given = pointsToSetToString(p.getPointsToSet());
+        String ptr = p.toString();
+        String given = streamToString(p.getPointsToSet().stream());
         String expected = expectedResults.get(ptr);
         if (!Objects.equals(given, expected)) {
             mismatches.add(String.format(

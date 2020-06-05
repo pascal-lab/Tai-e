@@ -39,6 +39,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static bamboo.util.Stringify.streamToString;
+
 public class PointerAnalysisTransformer extends SceneTransformer {
 
     private static final PointerAnalysisTransformer INSTANCE =
@@ -116,34 +118,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     }
 
     private void printPointsToSet(Pointer pointer) {
-        String ptr;
-        if (pointer instanceof InstanceField) {
-            InstanceField f = (InstanceField) pointer;
-            ptr = objToString(f.getBase().getObject()) + "." + f.getField();
-        } else {
-            ptr = pointer.toString();
-        }
-        System.out.print(ptr + " -> {");
-        pointer.getPointsToSet().stream()
-                .sorted(Comparator.comparing(CSObj::toString))
-                .forEach(o -> System.out.print(objToString(o.getObject()) + ","));
-        System.out.println("}");
-    }
-
-    private String objToString(Obj obj) {
-        StringBuilder sb = new StringBuilder();
-        if (obj.getContainerMethod() != null) {
-            sb.append(obj.getContainerMethod()).append('/');
-        }
-        Object allocation = obj.getAllocationSite();
-        if (allocation instanceof AssignStmt) {
-            AssignStmt alloc = (AssignStmt) allocation;
-            sb.append(alloc.getRightOp())
-                    .append('/')
-                    .append(alloc.getJavaSourceStartLineNumber());
-        } else {
-            sb.append(allocation);
-        }
-        return sb.toString();
+        System.out.println(pointer + " -> "
+                + streamToString(pointer.getPointsToSet().stream()));
     }
 }

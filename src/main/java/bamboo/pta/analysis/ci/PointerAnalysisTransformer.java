@@ -23,8 +23,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static bamboo.pta.analysis.ci.Stringify.pointerToString;
-import static bamboo.pta.analysis.ci.Stringify.pointsToSetToString;
+import static bamboo.util.Stringify.streamToString;
 
 public class PointerAnalysisTransformer extends SceneTransformer {
 
@@ -71,18 +70,18 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private void printVariables(Stream<Var> vars) {
         System.out.println("---------- Points-to sets of all variables: ----------");
-        vars.sorted(Comparator.comparing(p -> pointerToString(p)))
+        vars.sorted(Comparator.comparing(Var::toString))
                 .forEach(this::printPointsToSet);
     }
 
     private void printInstanceFields(Stream<InstanceField> fields) {
         System.out.println("---------- Points-to sets of all instance fields: ----------");
-        fields.sorted(Comparator.comparing(f -> pointerToString(f)))
+        fields.sorted(Comparator.comparing(InstanceField::toString))
                 .forEach(this::printPointsToSet);
     }
 
     private void printPointsToSet(Pointer pointer) {
-        System.out.println(pointerToString(pointer) + " -> "
-                + pointsToSetToString(pointer.getPointsToSet()));
+        System.out.println(pointer + " -> "
+                + streamToString(pointer.getPointsToSet().stream()));
     }
 }
