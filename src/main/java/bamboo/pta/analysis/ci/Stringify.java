@@ -13,7 +13,8 @@
 
 package bamboo.pta.analysis.ci;
 
-import static bamboo.util.Stringify.objToString;
+import bamboo.pta.element.Obj;
+
 import static bamboo.util.Stringify.streamToString;
 
 /**
@@ -24,13 +25,13 @@ class Stringify {
     static String pointerToString(Pointer pointer) {
         if (pointer instanceof InstanceField) {
             InstanceField f = (InstanceField) pointer;
-            return objToString(f.getBase()) + "." + f.getField().getName();
+            return f.getBase() + "." + f.getField().getName();
         } else {
             return pointer.toString();
         }
     }
 
     static String pointsToSetToString(PointsToSet pts) {
-        return streamToString(pts.stream(), o -> objToString(o));
+        return streamToString(pts.stream(), Obj::toString);
     }
 }

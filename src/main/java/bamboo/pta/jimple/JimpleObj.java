@@ -11,24 +11,22 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.analysis.heap;
+package bamboo.pta.jimple;
 
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
+import soot.jimple.AssignStmt;
 
-/**
- * A general implementation of Obj.
- */
-class ObjImpl implements Obj {
+public class JimpleObj implements Obj {
 
     private final Object allocation;
 
-    private final Type type;
+    private final JimpleType type;
 
-    private final Method containerMethod;
+    private final JimpleMethod containerMethod;
 
-    ObjImpl(Object allocation, Type type, Method containerMethod) {
+    JimpleObj(Object allocation, JimpleType type, JimpleMethod containerMethod) {
         this.allocation = allocation;
         this.type = type;
         this.containerMethod = containerMethod;
@@ -53,7 +51,7 @@ class ObjImpl implements Obj {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ObjImpl obj = (ObjImpl) o;
+        JimpleObj obj = (JimpleObj) o;
         return allocation.equals(obj.allocation);
     }
 
@@ -64,6 +62,18 @@ class ObjImpl implements Obj {
 
     @Override
     public String toString() {
-        return containerMethod + "/" + allocation;
+        StringBuilder sb = new StringBuilder();
+        if (containerMethod != null) {
+            sb.append(containerMethod).append('/');
+        }
+        if (allocation instanceof AssignStmt) {
+            AssignStmt alloc = (AssignStmt) allocation;
+            sb.append(alloc.getRightOp())
+                    .append('/')
+                    .append(alloc.getJavaSourceStartLineNumber());
+        } else {
+            sb.append(allocation);
+        }
+        return sb.toString();
     }
 }

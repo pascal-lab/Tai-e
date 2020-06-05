@@ -152,6 +152,12 @@ class ElementManager {
         return callSite;
     }
 
+    private JimpleObj createObject(AssignStmt alloc, JimpleMethod container) {
+        return new JimpleObj(alloc,
+                getType(alloc.getRightOp().getType()),
+                container);
+    }
+
     private class MethodBuilder {
 
         private RelevantUnitSwitch sw = new RelevantUnitSwitch();
@@ -226,7 +232,7 @@ class ElementManager {
                     return;
                 } else if (right instanceof NewExpr) {
                     // x = new T();
-                    method.addStatement(new Allocation(lhs, stmt, getType(right.getType())));
+                    method.addStatement(new Allocation(lhs, createObject(stmt, method)));
                 } else if (right instanceof Local) {
                     // x = y;
                     method.addStatement(new Assign(lhs, getVariable((Local) right, method)));

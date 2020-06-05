@@ -173,8 +173,7 @@ public class PointerAnalysis {
             if (stmt instanceof Allocation) {
                 Allocation alloc = (Allocation) stmt;
                 // obtain abstract object
-                Object allocSite = alloc.getAllocationSite();
-                Obj obj = heapModel.getObj(allocSite, alloc.getType(), method);
+                Obj obj = heapModel.getObj(alloc);
                 // obtain lhs variable
                 Var lhs = pointerFlowGraph.getVar(alloc.getVar());
                 workList.addPointerEntry(lhs, new PointsToSet(obj));

@@ -21,23 +21,6 @@ import java.util.stream.Stream;
 
 public class Stringify {
 
-    public static String objToString(Obj obj) {
-        StringBuilder sb = new StringBuilder();
-        if (obj.getContainerMethod() != null) {
-            sb.append(obj.getContainerMethod()).append('/');
-        }
-        Object allocation = obj.getAllocationSite();
-        if (allocation instanceof AssignStmt) {
-            AssignStmt alloc = (AssignStmt) allocation;
-            sb.append(alloc.getRightOp())
-                    .append('/')
-                    .append(alloc.getJavaSourceStartLineNumber());
-        } else {
-            sb.append(allocation);
-        }
-        return sb.toString();
-    }
-
     public static <T> String streamToString(
             Stream<T> stream, Function<T, String> toString) {
         Iterable<String> elems = () -> stream.map(toString)

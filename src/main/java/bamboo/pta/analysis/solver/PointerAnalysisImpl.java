@@ -226,8 +226,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             if (stmt instanceof Allocation) {
                 Allocation alloc = (Allocation) stmt;
                 // obtain context-sensitive heap object
-                Object allocSite = alloc.getAllocationSite();
-                Obj obj = heapModel.getObj(allocSite, alloc.getType(), method);
+                Obj obj = heapModel.getObj(alloc);
                 Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
                 CSObj csObj = dataManager.getCSObj(heapContext, obj);
                 // obtain lhs variable

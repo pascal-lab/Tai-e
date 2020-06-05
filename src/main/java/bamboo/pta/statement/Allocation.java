@@ -13,6 +13,7 @@
 
 package bamboo.pta.statement;
 
+import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 
@@ -23,26 +24,19 @@ public class Allocation implements Statement {
 
     private final Variable var;
 
-    private final Object allocationSite;
+    private final Obj object;
 
-    private final Type type;
-
-    public Allocation(Variable var, Object allocationSite, Type type) {
+    public Allocation(Variable var, Obj object) {
         this.var = var;
-        this.allocationSite = allocationSite;
-        this.type = type;
+        this.object = object;
     }
 
     public Variable getVar() {
         return var;
     }
 
-    public Object getAllocationSite() {
-        return allocationSite;
-    }
-
-    public Type getType() {
-        return type;
+    public Obj getObject() {
+        return object;
     }
 
     @Override
@@ -52,6 +46,6 @@ public class Allocation implements Statement {
 
     @Override
     public String toString() {
-        return var + " = " + allocationSite;
+        return var + " = " + object;
     }
 }
