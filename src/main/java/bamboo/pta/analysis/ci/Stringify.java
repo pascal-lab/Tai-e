@@ -13,10 +13,8 @@
 
 package bamboo.pta.analysis.ci;
 
-import bamboo.pta.element.Obj;
-import soot.jimple.AssignStmt;
-
-import java.util.Comparator;
+import static bamboo.util.Stringify.objToString;
+import static bamboo.util.Stringify.streamToString;
 
 /**
  * Converts various pointer analysis elements to String.
@@ -32,28 +30,7 @@ class Stringify {
         }
     }
 
-    static String objToString(Obj obj) {
-        StringBuilder sb = new StringBuilder();
-        if (obj.getContainerMethod() != null) {
-            sb.append(obj.getContainerMethod()).append('/');
-        }
-        Object allocation = obj.getAllocationSite();
-        if (allocation instanceof AssignStmt) {
-            AssignStmt alloc = (AssignStmt) allocation;
-            sb.append(alloc.getRightOp())
-                    .append('/')
-                    .append(alloc.getJavaSourceStartLineNumber());
-        } else {
-            sb.append(allocation);
-        }
-        return sb.toString();
-    }
-
     static String pointsToSetToString(PointsToSet pts) {
-        Iterable<String> objs = () -> pts.stream()
-                .map(Stringify::objToString)
-                .sorted()
-                .iterator();
-        return "{" + String.join(",", objs) + "}";
+        return streamToString(pts.stream(), o -> objToString(o));
     }
 }
