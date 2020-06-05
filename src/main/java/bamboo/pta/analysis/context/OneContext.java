@@ -29,11 +29,6 @@ class OneContext<T> implements Context {
     }
 
     @Override
-    public List<T> getElements() {
-        return Collections.singletonList(element);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

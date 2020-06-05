@@ -21,11 +21,6 @@ public enum DefaultContext implements Context {
     ;
 
     @Override
-    public List getElements() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String toString() {
         return "[]";
     }

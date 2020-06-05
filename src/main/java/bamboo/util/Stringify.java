@@ -45,10 +45,4 @@ public class Stringify {
                 .iterator();
         return "{" + String.join(",", elems) + "}";
     }
-
-    public static String contextElementToString(Object element) {
-        return element instanceof Obj ?
-                objToString((Obj) element) :
-                element.toString();
-    }
 }
