@@ -33,7 +33,7 @@ public class CSPTAMain {
 
         // Configure transformer
         Pack wjtp = PackManager.v().getPack("wjtp");
-        Transform pta = new Transform("wjtp.pta", new PointerAnalysisTransformer());
+        Transform pta = new Transform("wjtp.pta", PointerAnalysisTransformer.v());
         pta.setDeclaredOptions("enabled cs");
         pta.setDefaultOptions("enabled:true cs:ci");
         wjtp.add(pta);

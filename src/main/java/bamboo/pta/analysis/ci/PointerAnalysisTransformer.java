@@ -41,7 +41,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         PointerAnalysisTransformer.isOutput = isOutput;
     }
 
-    private PointerAnalysisTransformer() {};
+    private PointerAnalysisTransformer() {}
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {

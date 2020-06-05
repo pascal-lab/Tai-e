@@ -30,7 +30,7 @@ public class Main {
 
         // Configure transformer
         Transform transform = new Transform(
-                "wjtp.pta", new PointerAnalysisTransformer());
+                "wjtp.pta", PointerAnalysisTransformer.v());
         transform.setDeclaredOptions("enabled cs");
         transform.setDefaultOptions("enabled:true cs:ci");
         PackManager.v()

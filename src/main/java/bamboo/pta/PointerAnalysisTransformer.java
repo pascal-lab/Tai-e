@@ -41,11 +41,49 @@ import java.util.stream.Stream;
 
 public class PointerAnalysisTransformer extends SceneTransformer {
 
+    private static final PointerAnalysisTransformer INSTANCE =
+            new PointerAnalysisTransformer();
+
+    public static PointerAnalysisTransformer v() {
+        return INSTANCE;
+    }
+
+    private static boolean isOutput = true;
+
+    public static void setOuput(boolean isOutput) {
+        PointerAnalysisTransformer.isOutput = isOutput;
+    }
+
+    private PointerAnalysisTransformer() {}
+
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
         pta.setProgramManager(new JimpleProgramManager());
-        // configure context sensitivity variant
+        setContextSensitivity(pta, options);
+        pta.setHeapModel(new AllocationSiteBasedModel());
+        PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
+        pta.setDataManager(new MapBasedDataManager(setFactory));
+        pta.setPointsToSetFactory(setFactory);
+        pta.solve();
+        JimplePointerAnalysis.v().setPointerAnalysis(pta);
+        if (isOutput) {
+            System.out.println("---------- Reachable methods: ----------");
+            pta.getCallGraph().getReachableMethods()
+                    .stream()
+                    .sorted(Comparator.comparing(CSMethod::toString))
+                    .forEach(System.out::println);
+            System.out.println("---------- Call graph edges: ----------");
+            pta.getCallGraph().getAllEdges().forEach(System.out::println);
+            printVariables(pta.getVariables());
+            printInstanceFields(pta.getInstanceFields());
+            System.out.println("----------------------------------------");
+        }
+
+    }
+
+    private void setContextSensitivity(
+            PointerAnalysis pta, Map<String, String> options) {
         switch (options.get("cs")) {
             case "ci":
                 pta.setContextSelector(new ContextInsensitiveSelector());
@@ -63,22 +101,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 throw new AnalysisException(
                         "Unknown context sensitivity variant: " + options.get("cs"));
         }
-        pta.setHeapModel(new AllocationSiteBasedModel());
-        PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
-        pta.setDataManager(new MapBasedDataManager(setFactory));
-        pta.setPointsToSetFactory(setFactory);
-        pta.solve();
-        JimplePointerAnalysis.v().setPointerAnalysis(pta);
-        System.out.println("---------- Reachable methods: ----------");
-        pta.getCallGraph().getReachableMethods()
-                .stream()
-                .sorted(Comparator.comparing(CSMethod::toString))
-                .forEach(System.out::println);
-        System.out.println("---------- Call graph edges: ----------");
-        pta.getCallGraph().getAllEdges().forEach(System.out::println);
-        printVariables(pta.getVariables());
-        printInstanceFields(pta.getInstanceFields());
-        System.out.println("----------------------------------------");
     }
 
     private void printVariables(Stream<CSVariable> vars) {
