@@ -1,0 +1,24 @@
+---------- Points-to sets of all variables: ----------
+[C(L12):specialinvoke temp$0.<One: void <init>()>()]:<One: void <init>()>/this -> {[]:<C: void m()>/new One/12}
+[C(L13):specialinvoke temp$1.<Two: void <init>()>()]:<Two: void <init>()>/this -> {[]:<C: void m()>/new Two/13}
+[C(L14):temp$2 = virtualinvoke this.<C: Number id(Number)>(n1)]:<C: Number id(Number)>/n -> {[]:<C: void m()>/new One/12}
+[C(L14):temp$2 = virtualinvoke this.<C: Number id(Number)>(n1)]:<C: Number id(Number)>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[C(L15):temp$3 = virtualinvoke this.<C: Number id(Number)>(n2)]:<C: Number id(Number)>/n -> {[]:<C: void m()>/new Two/13}
+[C(L15):temp$3 = virtualinvoke this.<C: Number id(Number)>(n2)]:<C: Number id(Number)>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[C(L16):temp$4 = interfaceinvoke x.<Number: int get()>()]:<One: int get()>/this -> {[]:<C: void m()>/new One/12}
+[C(L8):specialinvoke this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[One(L34):specialinvoke this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new One/12}
+[OneCall(L3):specialinvoke temp$0.<C: void <init>()>()]:<C: void <init>()>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/n1 -> {[]:<C: void m()>/new One/12}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/n2 -> {[]:<C: void m()>/new Two/13}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/temp$0 -> {[]:<C: void m()>/new One/12}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/temp$1 -> {[]:<C: void m()>/new Two/13}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/temp$2 -> {[]:<C: void m()>/new One/12}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/temp$3 -> {[]:<C: void m()>/new Two/13}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/x -> {[]:<C: void m()>/new One/12}
+[OneCall(L4):virtualinvoke c.<C: void m()>()]:<C: void m()>/y -> {[]:<C: void m()>/new Two/13}
+[Two(L40):specialinvoke this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new Two/13}
+[]:<OneCall: void main(java.lang.String[])>/c -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[]:<OneCall: void main(java.lang.String[])>/temp$0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+---------- Points-to sets of all instance fields: ----------

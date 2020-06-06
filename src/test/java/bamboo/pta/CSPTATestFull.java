@@ -13,5 +13,14 @@
 
 package bamboo.pta;
 
+import org.junit.Test;
+
+import static bamboo.TestUtils.testCSPTA;
+
 public class CSPTATestFull {
+
+    @Test
+    public void testOneCall() {
+        testCSPTA("OneCall", "-p", "wjtp.pta", "cs:1-call");
+    }
 }

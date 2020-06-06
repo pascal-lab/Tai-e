@@ -18,22 +18,19 @@ import bamboo.pta.analysis.context.OneCallSelector;
 import bamboo.pta.analysis.context.OneObjectSelector;
 import bamboo.pta.analysis.context.OneTypeSelector;
 import bamboo.pta.analysis.data.CSMethod;
-import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.analysis.data.CSVariable;
-import bamboo.pta.analysis.data.MapBasedDataManager;
 import bamboo.pta.analysis.data.InstanceField;
+import bamboo.pta.analysis.data.MapBasedDataManager;
 import bamboo.pta.analysis.data.Pointer;
 import bamboo.pta.analysis.heap.AllocationSiteBasedModel;
 import bamboo.pta.analysis.solver.PointerAnalysis;
 import bamboo.pta.analysis.solver.PointerAnalysisImpl;
-import bamboo.pta.element.Obj;
 import bamboo.pta.jimple.JimplePointerAnalysis;
 import bamboo.pta.jimple.JimpleProgramManager;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.util.AnalysisException;
 import soot.SceneTransformer;
-import soot.jimple.AssignStmt;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -50,10 +47,10 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         return INSTANCE;
     }
 
-    private static boolean isOutput = true;
+    private boolean isOutput = true;
 
-    public static void setOuput(boolean isOutput) {
-        PointerAnalysisTransformer.isOutput = isOutput;
+    public void setOutput(boolean isOutput) {
+        this.isOutput = isOutput;
     }
 
     private PointerAnalysisTransformer() {}
@@ -82,6 +79,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             System.out.println("----------------------------------------");
         }
 
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(pta);
+        }
     }
 
     private void setContextSensitivity(

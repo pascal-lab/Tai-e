@@ -18,6 +18,9 @@ import org.junit.Assert;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class TestUtils {
@@ -41,24 +44,32 @@ public class TestUtils {
                 "bamboo.pta.analysis.ci.ResultChecker");
     }
 
-    public static void testCSPTA(String inputClass) {
+    public static void testCSPTA(String inputClass, String... opts) {
         test(inputClass, "cspta",
-                "bamboo.pta.analysis.ResultChecker");
+                "bamboo.pta.ResultChecker", opts);
     }
 
     private static void test(String inputClass, String analysis, String checker) {
+        test(inputClass, analysis, checker, new String[0]);
+    }
+
+    private static void test(String inputClass, String analysis, String checker, String[] opts) {
         String cp;
         if (new File("analyzed/" + analysis).exists()) {
             cp = "analyzed/" + analysis + "/";
         } else {
             cp = "analyzed/";
         }
+        List<String> args = new ArrayList<>();
+        Collections.addAll(args, "-cp", cp);
+        Collections.addAll(args, opts);
+        args.add(inputClass);
         try {
             Class<?> c = Class.forName(checker);
             Method check = c.getMethod("check", String[].class, String.class);
             @SuppressWarnings("unchecked")
             Set<String> mismatches = (Set<String>) check.invoke(null,
-                    new String[]{ "-cp", cp, inputClass },
+                    args.toArray(new String[0]),
                     cp + inputClass + "-expected.txt");
             Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
         } catch (ClassNotFoundException
