@@ -134,7 +134,10 @@ class JimpleCallSite implements CallSite {
 
     @Override
     public String toString() {
+        String invoke = stmt.getInvokeExpr().toString();
+        String invokeRep = invoke.substring(invoke.indexOf(' ') + 1);
         return  containerMethod.getClassType()
-                + "(L" + stmt.getJavaSourceStartLineNumber() + "):" + stmt;
+                + "(L" + stmt.getJavaSourceStartLineNumber() + "):"
+                + invokeRep;
     }
 }
