@@ -13,4 +13,16 @@
 
 package bamboo.pta.analysis.context;
 
-public interface Context {}
+public interface Context {
+
+    /**
+     *
+     * @return the depth (i.e., the number of elements) of this context.
+     */
+    int depth();
+
+    /**
+     * @return the k-th element of this context. Starts from 1.
+     */
+    Object element(int k);
+}

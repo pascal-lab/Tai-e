@@ -18,6 +18,17 @@ public enum DefaultContext implements Context {
     ;
 
     @Override
+    public int depth() {
+        return 0;
+    }
+
+    @Override
+    public Object element(int k) {
+        throw new IllegalArgumentException(
+                "Context " + this + " doesn't have " + k + "-th element");
+    }
+
+    @Override
     public String toString() {
         return "[]";
     }

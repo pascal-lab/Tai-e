@@ -1,8 +1,8 @@
 /*
  * Bamboo - A Program Analysis Framework for Java
  *
- * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * Copyright (C)  2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C)  2020 Yue Li <yueli@nju.edu.cn>
  * All rights reserved.
  *
  * This software is designed for the "Static Program Analysis" course at
@@ -13,47 +13,53 @@
 
 package bamboo.pta.analysis.context;
 
+import java.util.Objects;
+
 /**
- * Context with one element
+ * Contexts with two elements
  * @param <T> type of context elements
  */
-class OneContext<T> implements Context {
+public class TwoContext<T> implements Context {
 
-    private final T element;
+    private final T e1;
 
-    OneContext(T element) {
-        this.element = element;
+    private final T e2;
+
+    TwoContext(T e1, T e2) {
+        this.e1 = e1;
+        this.e2 = e2;
     }
 
     @Override
     public int depth() {
-        return 1;
+        return 2;
     }
 
     @Override
     public T element(int k) {
-        if (k != 1) {
-            throw new IllegalArgumentException(
+        switch (k) {
+            case 1: return e1;
+            case 2: return e2;
+            default: throw new IllegalArgumentException(
                     "Context " + this + " doesn't have " + k + "-th element");
         }
-        return element;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OneContext<?> that = (OneContext<?>) o;
-        return element.equals(that.element);
+        TwoContext<?> that = (TwoContext<?>) o;
+        return e1.equals(that.e1) && e2.equals(that.e2);
     }
 
     @Override
     public int hashCode() {
-        return element.hashCode();
+        return Objects.hash(e1, e2);
     }
 
     @Override
     public String toString() {
-        return "[" + element + "]";
+        return "[" + e1 + "," + e2 + "]";
     }
 }

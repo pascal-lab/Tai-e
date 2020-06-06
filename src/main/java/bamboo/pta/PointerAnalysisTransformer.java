@@ -17,6 +17,7 @@ import bamboo.pta.analysis.context.ContextInsensitiveSelector;
 import bamboo.pta.analysis.context.OneCallSelector;
 import bamboo.pta.analysis.context.OneObjectSelector;
 import bamboo.pta.analysis.context.OneTypeSelector;
+import bamboo.pta.analysis.context.TwoCallSelector;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSVariable;
 import bamboo.pta.analysis.data.InstanceField;
@@ -98,6 +99,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 break;
             case "1-type":
                 pta.setContextSelector(new OneTypeSelector());
+                break;
+            case "2-call": case "2-cfa":
+                pta.setContextSelector(new TwoCallSelector());
                 break;
             default:
                 throw new AnalysisException(

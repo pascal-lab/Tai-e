@@ -19,23 +19,34 @@ import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.element.Method;
 
 /**
- * 1-type-sensitivity with no heap context.
+ * 2-call-site-sensitivity with 1 heap context.
  */
-public class OneTypeSelector implements ContextSelector {
+public class TwoCallSelector implements ContextSelector {
 
     @Override
     public Context selectContext(CSCallSite callSite, Method callee) {
-        return callSite.getContext();
+        return selectContext(callSite, null, callee);
     }
 
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, Method callee) {
-        return new OneContext<>(recv.getObject()
-                .getContainerMethod().getClassType());
+        Context ctx = callSite.getContext();
+        switch (ctx.depth()) {
+            case 0: return new OneContext<>(callSite.getCallSite());
+            case 1: return new TwoContext<>(
+                    ctx.element(1), callSite.getCallSite());
+            default: return new TwoContext<>(
+                    ctx.element(ctx.depth()), callSite.getCallSite());
+        }
     }
 
     @Override
     public Context selectHeapContext(CSMethod method, Object allocationSite) {
-        return getDefaultContext();
+        Context ctx = method.getContext();
+        if (ctx.depth() < 2) {
+            return ctx;
+        } else {
+            return new OneContext<>(ctx.element(ctx.depth()));
+        }
     }
 }
