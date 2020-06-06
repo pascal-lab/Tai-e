@@ -13,9 +13,6 @@
 
 package bamboo.pta.analysis.context;
 
-import java.util.Collections;
-import java.util.List;
-
 public enum DefaultContext implements Context {
     INSTANCE,
     ;

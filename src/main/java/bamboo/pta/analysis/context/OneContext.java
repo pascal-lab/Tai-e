@@ -13,9 +13,6 @@
 
 package bamboo.pta.analysis.context;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Context with one element
  * @param <T>

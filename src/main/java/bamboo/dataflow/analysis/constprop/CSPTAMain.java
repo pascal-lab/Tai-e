@@ -13,7 +13,6 @@
 
 package bamboo.dataflow.analysis.constprop;
 
-import bamboo.callgraph.cha.CHACallGraphBuilder;
 import bamboo.pta.PointerAnalysisTransformer;
 import soot.Pack;
 import soot.PackManager;

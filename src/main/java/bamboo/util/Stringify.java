@@ -13,10 +13,6 @@
 
 package bamboo.util;
 
-import bamboo.pta.element.Obj;
-import soot.jimple.AssignStmt;
-
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Stringify {
