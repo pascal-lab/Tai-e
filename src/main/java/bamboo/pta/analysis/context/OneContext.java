@@ -31,10 +31,10 @@ class OneContext<T> implements Context {
     }
 
     @Override
-    public T element(int k) {
-        if (k != 1) {
+    public T element(int i) {
+        if (i != 1) {
             throw new IllegalArgumentException(
-                    "Context " + this + " doesn't have " + k + "-th element");
+                    "Context " + this + " doesn't have " + i + "-th element");
         }
         return element;
     }

@@ -23,9 +23,9 @@ public enum DefaultContext implements Context {
     }
 
     @Override
-    public Object element(int k) {
+    public Object element(int i) {
         throw new IllegalArgumentException(
-                "Context " + this + " doesn't have " + k + "-th element");
+                "Context " + this + " doesn't have " + i + "-th element");
     }
 
     @Override

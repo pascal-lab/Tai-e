@@ -22,7 +22,7 @@ public interface Context {
     int depth();
 
     /**
-     * @return the k-th element of this context. Starts from 1.
+     * @return the i-th element of this context. Starts from 1.
      */
-    Object element(int k);
+    Object element(int i);
 }

@@ -36,12 +36,12 @@ public class TwoContext<T> implements Context {
     }
 
     @Override
-    public T element(int k) {
-        switch (k) {
+    public T element(int i) {
+        switch (i) {
             case 1: return e1;
             case 2: return e2;
             default: throw new IllegalArgumentException(
-                    "Context " + this + " doesn't have " + k + "-th element");
+                    "Context " + this + " doesn't have " + i + "-th element");
         }
     }
 
