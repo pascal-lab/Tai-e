@@ -17,10 +17,35 @@ import org.junit.Test;
 
 import static bamboo.TestUtils.testCSPTA;
 
-public class CSPTATestFull {
+public class CSPTATest {
 
     @Test
     public void testOneCall() {
         testCSPTA("OneCall", "-p", "wjtp.pta", "cs:1-call");
+    }
+
+    @Test
+    public void testOneObject() {
+        testCSPTA("OneObject", "-p", "wjtp.pta", "cs:1-obj");
+    }
+
+    @Test
+    public void testOneType() {
+        testCSPTA("OneType", "-p", "wjtp.pta", "cs:1-type");
+    }
+
+    @Test
+    public void testTwoCall() {
+        testCSPTA("TwoCall", "-p", "wjtp.pta", "cs:2-call");
+    }
+
+    @Test
+    public void testTwoObject() {
+        testCSPTA("TwoObject", "-p", "wjtp.pta", "cs:2-obj");
+    }
+
+    @Test
+    public void testTwoType() {
+        testCSPTA("TwoType", "-p", "wjtp.pta", "cs:2-type");
     }
 }

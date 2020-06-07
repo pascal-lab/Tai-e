@@ -1,0 +1,39 @@
+---------- Points-to sets of all variables: ----------
+[A]:<C: D get()>/temp$0 -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[A]:<C: D get()>/this -> {[]:<A: void m()>/new C/10}
+[A]:<C: void <init>()>/this -> {[]:<A: void m()>/new C/10,[]:<A: void m()>/new C/12}
+[A]:<C: void set(D)>/p -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[A]:<C: void set(D)>/this -> {[]:<A: void m()>/new C/10,[]:<A: void m()>/new C/12}
+[A]:<D: void <init>()>/this -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[A]:<java.lang.Object: void <init>()>/r0 -> {[]:<A: void m()>/new C/10,[]:<A: void m()>/new C/12,[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[B]:<C: D get()>/temp$0 -> {[]:<B: void m()>/new D/21}
+[B]:<C: D get()>/this -> {[]:<B: void m()>/new C/20}
+[B]:<C: void <init>()>/this -> {[]:<B: void m()>/new C/20}
+[B]:<C: void set(D)>/p -> {[]:<B: void m()>/new D/21}
+[B]:<C: void set(D)>/this -> {[]:<B: void m()>/new C/20}
+[B]:<D: void <init>()>/this -> {[]:<B: void m()>/new D/21}
+[B]:<java.lang.Object: void <init>()>/r0 -> {[]:<B: void m()>/new C/20,[]:<B: void m()>/new D/21}
+[OneType]:<A: void <init>()>/this -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
+[OneType]:<A: void m()>/c1 -> {[]:<A: void m()>/new C/10}
+[OneType]:<A: void m()>/c2 -> {[]:<A: void m()>/new C/12}
+[OneType]:<A: void m()>/temp$0 -> {[]:<A: void m()>/new C/10}
+[OneType]:<A: void m()>/temp$1 -> {[]:<A: void m()>/new D/11}
+[OneType]:<A: void m()>/temp$2 -> {[]:<A: void m()>/new C/12}
+[OneType]:<A: void m()>/temp$3 -> {[]:<A: void m()>/new D/13}
+[OneType]:<A: void m()>/temp$4 -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[OneType]:<A: void m()>/this -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
+[OneType]:<A: void m()>/x -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[OneType]:<B: void <init>()>/this -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
+[OneType]:<B: void m()>/c3 -> {[]:<B: void m()>/new C/20}
+[OneType]:<B: void m()>/temp$0 -> {[]:<B: void m()>/new C/20}
+[OneType]:<B: void m()>/temp$1 -> {[]:<B: void m()>/new D/21}
+[OneType]:<B: void m()>/temp$2 -> {[]:<B: void m()>/new D/21}
+[OneType]:<B: void m()>/this -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
+[OneType]:<B: void m()>/y -> {[]:<B: void m()>/new D/21}
+[OneType]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneType: void main(java.lang.String[])>/new A/3,[]:<OneType: void main(java.lang.String[])>/new B/4}
+[]:<OneType: void main(java.lang.String[])>/temp$0 -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
+[]:<OneType: void main(java.lang.String[])>/temp$1 -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
+---------- Points-to sets of all instance fields: ----------
+[]:<A: void m()>/new C/10.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[]:<A: void m()>/new C/12.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
+[]:<B: void m()>/new C/20.f -> {[]:<B: void m()>/new D/21}

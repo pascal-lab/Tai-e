@@ -1,0 +1,46 @@
+---------- Points-to sets of all variables: ----------
+[<TwoObject: void m()>/new List/7,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: java.lang.Object next()>/temp$0 -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/7,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: java.lang.Object next()>/temp$1 -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[<TwoObject: void m()>/new List/7,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: java.lang.Object next()>/this -> {[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/7,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: void <init>(List)>/temp$0 -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/7,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: void <init>(List)>/this -> {[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/7,<List: Iterator iterator()>/new List$ListIterator/31]:<java.lang.Object: void <init>()>/r0 -> {[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/temp$0 -> {[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/this -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/7]:<List: void <init>()>/this -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/7]:<List: void add(java.lang.Object)>/e -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[<TwoObject: void m()>/new List/7]:<List: void add(java.lang.Object)>/this -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/7]:<java.lang.Object: void <init>()>/r0 -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/9,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: java.lang.Object next()>/temp$0 -> {[]:<TwoObject: void m()>/new List/9}
+[<TwoObject: void m()>/new List/9,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: java.lang.Object next()>/temp$1 -> {[]:<TwoObject: void m()>/new java.lang.Object/10}
+[<TwoObject: void m()>/new List/9,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: java.lang.Object next()>/this -> {[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/9,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: void <init>(List)>/temp$0 -> {[]:<TwoObject: void m()>/new List/9}
+[<TwoObject: void m()>/new List/9,<List: Iterator iterator()>/new List$ListIterator/31]:<List$ListIterator: void <init>(List)>/this -> {[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/9,<List: Iterator iterator()>/new List$ListIterator/31]:<java.lang.Object: void <init>()>/r0 -> {[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/temp$0 -> {[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31}
+[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/this -> {[]:<TwoObject: void m()>/new List/9}
+[<TwoObject: void m()>/new List/9]:<List: void <init>()>/this -> {[]:<TwoObject: void m()>/new List/9}
+[<TwoObject: void m()>/new List/9]:<List: void add(java.lang.Object)>/e -> {[]:<TwoObject: void m()>/new java.lang.Object/10}
+[<TwoObject: void m()>/new List/9]:<List: void add(java.lang.Object)>/this -> {[]:<TwoObject: void m()>/new List/9}
+[<TwoObject: void m()>/new List/9]:<java.lang.Object: void <init>()>/r0 -> {[]:<TwoObject: void m()>/new List/9}
+[<TwoObject: void m()>/new java.lang.Object/10]:<java.lang.Object: void <init>()>/r0 -> {[]:<TwoObject: void m()>/new java.lang.Object/10}
+[<TwoObject: void m()>/new java.lang.Object/8]:<java.lang.Object: void <init>()>/r0 -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[]:<TwoObject: void m()>/i1 -> {[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31}
+[]:<TwoObject: void m()>/i2 -> {[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31}
+[]:<TwoObject: void m()>/l1 -> {[]:<TwoObject: void m()>/new List/7}
+[]:<TwoObject: void m()>/l2 -> {[]:<TwoObject: void m()>/new List/9}
+[]:<TwoObject: void m()>/o1 -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[]:<TwoObject: void m()>/o2 -> {[]:<TwoObject: void m()>/new java.lang.Object/10}
+[]:<TwoObject: void m()>/temp$0 -> {[]:<TwoObject: void m()>/new List/7}
+[]:<TwoObject: void m()>/temp$1 -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[]:<TwoObject: void m()>/temp$2 -> {[]:<TwoObject: void m()>/new List/9}
+[]:<TwoObject: void m()>/temp$3 -> {[]:<TwoObject: void m()>/new java.lang.Object/10}
+[]:<TwoObject: void m()>/temp$4 -> {[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31}
+[]:<TwoObject: void m()>/temp$5 -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[]:<TwoObject: void m()>/temp$6 -> {[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31}
+[]:<TwoObject: void m()>/temp$7 -> {[]:<TwoObject: void m()>/new java.lang.Object/10}
+---------- Points-to sets of all instance fields: ----------
+[<TwoObject: void m()>/new List/7]:<List: Iterator iterator()>/new List$ListIterator/31.this$0 -> {[]:<TwoObject: void m()>/new List/7}
+[<TwoObject: void m()>/new List/9]:<List: Iterator iterator()>/new List$ListIterator/31.this$0 -> {[]:<TwoObject: void m()>/new List/9}
+[]:<TwoObject: void m()>/new List/7.element -> {[]:<TwoObject: void m()>/new java.lang.Object/8}
+[]:<TwoObject: void m()>/new List/9.element -> {[]:<TwoObject: void m()>/new java.lang.Object/10}

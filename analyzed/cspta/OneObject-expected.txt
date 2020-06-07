@@ -1,0 +1,32 @@
+---------- Points-to sets of all variables: ----------
+[<OneObject: void m()>/new A/7]:<A: B get()>/temp$0 -> {[]:<OneObject: void m()>/new B/9}
+[<OneObject: void m()>/new A/7]:<A: B get()>/this -> {[]:<OneObject: void m()>/new A/7}
+[<OneObject: void m()>/new A/7]:<A: void <init>()>/this -> {[]:<OneObject: void m()>/new A/7}
+[<OneObject: void m()>/new A/7]:<A: void doSet(B)>/p -> {[]:<OneObject: void m()>/new B/9}
+[<OneObject: void m()>/new A/7]:<A: void doSet(B)>/this -> {[]:<OneObject: void m()>/new A/7}
+[<OneObject: void m()>/new A/7]:<A: void set(B)>/b -> {[]:<OneObject: void m()>/new B/9}
+[<OneObject: void m()>/new A/7]:<A: void set(B)>/this -> {[]:<OneObject: void m()>/new A/7}
+[<OneObject: void m()>/new A/7]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneObject: void m()>/new A/7}
+[<OneObject: void m()>/new A/8]:<A: void <init>()>/this -> {[]:<OneObject: void m()>/new A/8}
+[<OneObject: void m()>/new A/8]:<A: void doSet(B)>/p -> {[]:<OneObject: void m()>/new B/10}
+[<OneObject: void m()>/new A/8]:<A: void doSet(B)>/this -> {[]:<OneObject: void m()>/new A/8}
+[<OneObject: void m()>/new A/8]:<A: void set(B)>/b -> {[]:<OneObject: void m()>/new B/10}
+[<OneObject: void m()>/new A/8]:<A: void set(B)>/this -> {[]:<OneObject: void m()>/new A/8}
+[<OneObject: void m()>/new A/8]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneObject: void m()>/new A/8}
+[<OneObject: void m()>/new B/10]:<B: void <init>()>/this -> {[]:<OneObject: void m()>/new B/10}
+[<OneObject: void m()>/new B/10]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneObject: void m()>/new B/10}
+[<OneObject: void m()>/new B/9]:<B: void <init>()>/this -> {[]:<OneObject: void m()>/new B/9}
+[<OneObject: void m()>/new B/9]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneObject: void m()>/new B/9}
+[]:<OneObject: void m()>/a1 -> {[]:<OneObject: void m()>/new A/7}
+[]:<OneObject: void m()>/a2 -> {[]:<OneObject: void m()>/new A/8}
+[]:<OneObject: void m()>/b1 -> {[]:<OneObject: void m()>/new B/9}
+[]:<OneObject: void m()>/b2 -> {[]:<OneObject: void m()>/new B/10}
+[]:<OneObject: void m()>/temp$0 -> {[]:<OneObject: void m()>/new A/7}
+[]:<OneObject: void m()>/temp$1 -> {[]:<OneObject: void m()>/new A/8}
+[]:<OneObject: void m()>/temp$2 -> {[]:<OneObject: void m()>/new B/9}
+[]:<OneObject: void m()>/temp$3 -> {[]:<OneObject: void m()>/new B/10}
+[]:<OneObject: void m()>/temp$4 -> {[]:<OneObject: void m()>/new B/9}
+[]:<OneObject: void m()>/x -> {[]:<OneObject: void m()>/new B/9}
+---------- Points-to sets of all instance fields: ----------
+[]:<OneObject: void m()>/new A/7.f -> {[]:<OneObject: void m()>/new B/9}
+[]:<OneObject: void m()>/new A/8.f -> {[]:<OneObject: void m()>/new B/10}
