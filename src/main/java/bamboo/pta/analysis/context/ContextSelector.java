@@ -35,7 +35,7 @@ public interface ContextSelector {
     Context selectContext(CSCallSite callSite, CSObj recv, Method callee);
 
     /**
-     * Selects heap context for new-created abstract objects.
+     * Selects heap contexts for new-created abstract objects.
      */
     Context selectHeapContext(CSMethod method, Object allocationSite);
 }
