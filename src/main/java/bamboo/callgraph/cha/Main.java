@@ -33,6 +33,7 @@ public class Main {
                 .add(new Transform("wjtp.cha", CHACallGraphBuilder.v()));
         PackManager.v().getPack("jtp")
                 .add(new Transform("jtp.cgprint", CallGraphPrinter.v()));
+        CallGraphPrinter.setPrintEmpty(true);
         // Run main analysis
         soot.Main.main(args);
     }

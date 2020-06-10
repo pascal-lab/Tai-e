@@ -44,18 +44,32 @@ public class CallGraphPrinter extends BodyTransformer {
         CallGraphPrinter.isOutput = isOutput;
     }
 
+    /**
+     * Whether we show empty callees.
+     */
+    private static boolean isPrintEmpty = false;
+
+    public static void setPrintEmpty(boolean isPrintEmpty) {
+        CallGraphPrinter.isPrintEmpty = isPrintEmpty;
+    }
+
     private CallGraphPrinter() {};
 
     @Override
     protected synchronized void internalTransform(Body b, String phaseName, Map<String, String> options) {
         CallGraph<Unit, SootMethod> callGraph = CHACallGraphBuilder.v()
                 .getRecentCallGraph();
+        SootMethod m = b.getMethod();
         if (isOutput) {
             boolean hasCallees = false;
             BriefUnitPrinter up = new BriefUnitPrinter(b);
             for (Unit u : b.getUnits()) {
+                if (!callGraph.getCallSitesIn(m).contains(u)) {
+                    // skips non-call units
+                    continue;
+                }
                 Collection<SootMethod> callees = callGraph.getCallees(u);
-                if (!callees.isEmpty()) {
+                if (!callees.isEmpty() || isPrintEmpty) {
                     if (!hasCallees) {
                         hasCallees = true;
                         System.out.println("------ " + b.getMethod() + " [call graph] -----");
