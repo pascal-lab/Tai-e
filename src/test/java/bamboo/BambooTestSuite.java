@@ -1,8 +1,8 @@
 /*
  * Bamboo - A Program Analysis Framework for Java
  *
- * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * Copyright (C)  2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C)  2020 Yue Li <yueli@nju.edu.cn>
  * All rights reserved.
  *
  * This software is designed for the "Static Program Analysis" course at
@@ -11,19 +11,25 @@
  * commercial use is disallowed.
  */
 
-package bamboo.dataflow;
+package bamboo;
 
-import bamboo.dataflow.analysis.deadcode.DCDTestFull;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import bamboo.callgraph.cha.CHATestFull;
+import bamboo.dataflow.DataFlowTestSuite;
 import bamboo.dataflow.analysis.constprop.CPTestSuite;
 import bamboo.dataflow.lattice.LatticeTestSuite;
+import bamboo.pta.CSPTATest;
+import bamboo.pta.PTATestFull;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         CPTestSuite.class,
-        DCDTestFull.class,
         LatticeTestSuite.class,
+        DataFlowTestSuite.class,
+        CHATestFull.class,
+        PTATestFull.class,
+        CSPTATest.class,
 })
-public class DataFlowTestSuite {
+public class BambooTestSuite {
 }
