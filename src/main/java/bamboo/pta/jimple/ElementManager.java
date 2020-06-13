@@ -244,7 +244,9 @@ class ElementManager {
                     base.addLoad(load);
                     method.addStatement(load);
                 } else {
+                    // TODO: x = (T) y;
                     // TODO: x = new T[];
+                    // TODO: x = new T[]+;
                     // TODO: x = y[i];
                     // TODO: x = T.f;
                     // TODO: x = "x";
