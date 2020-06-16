@@ -13,11 +13,11 @@
 
 package bamboo.pta.analysis.data;
 
-public class ArrayField extends AbstractPointer {
+public class ArrayIndex extends AbstractPointer {
 
     private final CSObj array;
 
-    ArrayField(CSObj array) {
+    ArrayIndex(CSObj array) {
         this.array = array;
     }
 

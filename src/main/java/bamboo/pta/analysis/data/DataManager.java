@@ -34,7 +34,7 @@ public interface DataManager {
 
     InstanceField getInstanceField(CSObj base, Field field);
 
-    ArrayField getArrayField(CSObj array);
+    ArrayIndex getArrayIndex(CSObj array);
     
     StaticField getStaticField(Field field);
 

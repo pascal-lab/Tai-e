@@ -40,7 +40,7 @@ public class MapBasedDataManager implements DataManager {
 
     private Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
 
-    private Map<CSObj, ArrayField> arrayFields = new HashMap<>();
+    private Map<CSObj, ArrayIndex> arrayIndexes = new HashMap<>();
 
     private Map<Field, StaticField> staticFields = new HashMap<>();
 
@@ -72,9 +72,9 @@ public class MapBasedDataManager implements DataManager {
     }
 
     @Override
-    public ArrayField getArrayField(CSObj array) {
-        return arrayFields.computeIfAbsent(array,
-                (a) -> initializePointsToSet(new ArrayField(a)));
+    public ArrayIndex getArrayIndex(CSObj array) {
+        return arrayIndexes.computeIfAbsent(array,
+                (a) -> initializePointsToSet(new ArrayIndex(a)));
     }
 
     @Override
