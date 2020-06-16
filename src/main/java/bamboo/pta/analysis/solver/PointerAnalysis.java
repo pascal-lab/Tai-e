@@ -21,6 +21,7 @@ import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSVariable;
 import bamboo.pta.analysis.data.DataManager;
 import bamboo.pta.analysis.data.InstanceField;
+import bamboo.pta.analysis.data.StaticField;
 import bamboo.pta.analysis.heap.HeapModel;
 import bamboo.pta.set.PointsToSetFactory;
 
@@ -59,6 +60,12 @@ public interface PointerAnalysis {
      * @return all instance fields in the (reachable) program.
      */
     Stream<InstanceField> getInstanceFields();
+
+    /**
+     *
+     * @return all static fields in the (reachable) program.
+     */
+    Stream<StaticField> getStaticFields();
 
     /**
      *

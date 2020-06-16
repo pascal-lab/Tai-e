@@ -47,4 +47,6 @@ public interface DataManager {
     Stream<CSVariable> getCSVariables();
 
     Stream<InstanceField> getInstanceFields();
+
+    Stream<StaticField> getStaticFields();
 }

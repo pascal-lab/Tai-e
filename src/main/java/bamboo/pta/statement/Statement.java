@@ -20,6 +20,8 @@ public interface Statement {
         ASSIGN,
         INSTANCE_LOAD,
         INSTANCE_STORE,
+        STATIC_LOAD,
+        STATIC_STORE,
         CALL,
     }
 

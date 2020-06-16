@@ -108,6 +108,11 @@ public class MapBasedDataManager implements DataManager {
         return CollectionUtils.getAllValues(instanceFields);
     }
 
+    @Override
+    public Stream<StaticField> getStaticFields() {
+        return staticFields.values().stream();
+    }
+
     private <P extends Pointer> P initializePointsToSet(P pointer) {
         pointer.setPointsToSet(setFactory.makePointsToSet());
         return pointer;

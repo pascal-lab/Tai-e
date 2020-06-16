@@ -27,6 +27,9 @@ class PointerFlowEdge {
         INSTANCE_LOAD,
         INSTANCE_STORE,
 
+        STATIC_LOAD,
+        STATIC_STORE,
+
         PARAMETER_PASSING,
         RETURN,
     }

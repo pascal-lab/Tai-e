@@ -25,6 +25,7 @@ import bamboo.pta.analysis.data.CSVariable;
 import bamboo.pta.analysis.data.InstanceField;
 import bamboo.pta.analysis.data.MapBasedDataManager;
 import bamboo.pta.analysis.data.Pointer;
+import bamboo.pta.analysis.data.StaticField;
 import bamboo.pta.analysis.heap.AllocationSiteBasedModel;
 import bamboo.pta.analysis.solver.PointerAnalysis;
 import bamboo.pta.analysis.solver.PointerAnalysisImpl;
@@ -79,6 +80,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             pta.getCallGraph().getAllEdges().forEach(System.out::println);
             printVariables(pta.getVariables());
             printInstanceFields(pta.getInstanceFields());
+            printStaticFields(pta.getStaticFields());
             System.out.println("----------------------------------------");
         }
 
@@ -126,6 +128,12 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     private void printInstanceFields(Stream<InstanceField> fields) {
         System.out.println("---------- Points-to sets of all instance fields: ----------");
         fields.sorted(Comparator.comparing(InstanceField::toString))
+                .forEach(this::printPointsToSet);
+    }
+
+    private void printStaticFields(Stream<StaticField> fields) {
+        System.out.println("---------- Points-to sets of all static fields: ----------");
+        fields.sorted(Comparator.comparing(StaticField::toString))
                 .forEach(this::printPointsToSet);
     }
 

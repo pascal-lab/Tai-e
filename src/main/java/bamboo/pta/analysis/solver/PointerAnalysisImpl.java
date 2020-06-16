@@ -27,6 +27,7 @@ import bamboo.pta.analysis.data.CSVariable;
 import bamboo.pta.analysis.data.DataManager;
 import bamboo.pta.analysis.data.InstanceField;
 import bamboo.pta.analysis.data.Pointer;
+import bamboo.pta.analysis.data.StaticField;
 import bamboo.pta.analysis.heap.HeapModel;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
@@ -41,6 +42,8 @@ import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.Statement;
+import bamboo.pta.statement.StaticLoad;
+import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
 
 import java.util.List;
@@ -117,6 +120,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     @Override
     public Stream<InstanceField> getInstanceFields() {
         return dataManager.getInstanceFields();
+    }
+
+    @Override
+    public Stream<StaticField> getStaticFields() {
+        return dataManager.getStaticFields();
     }
 
     @Override
@@ -212,6 +220,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (callGraph.addNewMethod(csMethod)) {
             processAllocations(csMethod);
             processLocalAssign(csMethod);
+            processStaticStores(csMethod);
+            processStaticLoads(csMethod);
             processStaticCalls(csMethod);
         }
     }
@@ -249,6 +259,40 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
                 CSVariable to = dataManager.getCSVariable(context, assign.getTo());
                 addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
+        }
+    }
+
+    /**
+     * Add store edges for static fields of the given context-sensitive method
+     * to pointer flow graph.
+     */
+    private void processStaticStores(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof StaticStore) {
+                StaticStore store = (StaticStore) stmt;
+                CSVariable from = dataManager.getCSVariable(context, store.getFrom());
+                StaticField field = dataManager.getStaticField(store.getField());
+                addPFGEdge(from, field, PointerFlowEdge.Kind.STATIC_STORE);
+            }
+        }
+    }
+
+    /**
+     * Add load edges for static fields of the given context-sensitive method
+     * to pointer flow graph.
+     */
+    private void processStaticLoads(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof StaticLoad) {
+                StaticLoad load = (StaticLoad) stmt;
+                StaticField field = dataManager.getStaticField(load.getField());
+                CSVariable to = dataManager.getCSVariable(context, load.getTo());
+                addPFGEdge(field, to, PointerFlowEdge.Kind.STATIC_LOAD);
             }
         }
     }

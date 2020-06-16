@@ -20,6 +20,8 @@ import bamboo.pta.statement.Assign;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
+import bamboo.pta.statement.StaticLoad;
+import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
 import bamboo.util.MutableInteger;
 import soot.Body;
@@ -40,6 +42,7 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.NewExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
 import soot.jimple.internal.JimpleLocal;
@@ -220,6 +223,7 @@ class ElementManager {
         private void build(JimpleMethod method, AssignStmt stmt) {
             Value left = stmt.getLeftOp();
             Value right = stmt.getRightOp();
+            // TODO: filter primitive types
             if (left instanceof Local) {
                 Variable lhs = getVariable(left, method);
                 if (stmt.containsInvokeExpr()) {
@@ -243,12 +247,16 @@ class ElementManager {
                     InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
                     base.addLoad(load);
                     method.addStatement(load);
+                } else if (right instanceof StaticFieldRef) {
+                    // x = T.f;
+                    StaticFieldRef ref = (StaticFieldRef) right;
+                    StaticLoad load = new StaticLoad(lhs, getField(ref.getField()));
+                    method.addStatement(load);
                 } else {
                     // TODO: x = (T) y;
                     // TODO: x = new T[];
                     // TODO: x = new T[]+;
                     // TODO: x = y[i];
-                    // TODO: x = T.f;
                     // TODO: x = "x";
                     // TODO: x = T.class;
                     // TODO: x = other cases
@@ -262,8 +270,15 @@ class ElementManager {
                         getVariable(right, method));
                 base.addStore(store);
                 method.addStatement(store);
+            } else if (left instanceof StaticFieldRef) {
+                // T.f = x;
+                StaticFieldRef ref = (StaticFieldRef) left;
+                StaticStore store = new StaticStore(
+                        getField(ref.getField()),
+                        getVariable(right, method)
+                );
+                method.addStatement(store);
             } else {
-                // TODO: T.f = x;
                 // TODO: x[i] = y;
             }
         }
