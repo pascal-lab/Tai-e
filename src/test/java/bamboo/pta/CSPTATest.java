@@ -55,4 +55,9 @@ public class CSPTATest {
     public void testStaticField() {
         testCSPTA("StaticField");
     }
+
+    @Test
+    public void testArray() {
+        testCSPTA("Array");
+    }
 }
