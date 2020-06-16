@@ -42,6 +42,7 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
@@ -237,8 +238,11 @@ class ElementManager {
                     method.addStatement(call);
                 } else if (lhs == null) { // lhs is primitive type
                     return;
-                } else if (right instanceof NewExpr) {
+                } else if (right instanceof NewExpr
+                        || right instanceof NewArrayExpr) {
                     // x = new T();
+                    // x = new T[];
+                    // TODO: handle allocation comprehensively
                     method.addStatement(new Allocation(lhs, createObject(stmt, method)));
                 } else if (right instanceof Local) {
                     // x = y;
@@ -265,7 +269,6 @@ class ElementManager {
                     method.addStatement(load);
                 } else {
                     // TODO: x = (T) y;
-                    // TODO: x = new T[];
                     // TODO: x = new T[]+;
                     // TODO: x = "x";
                     // TODO: x = T.class;
