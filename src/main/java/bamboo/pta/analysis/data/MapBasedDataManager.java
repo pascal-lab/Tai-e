@@ -109,6 +109,11 @@ public class MapBasedDataManager implements DataManager {
     }
 
     @Override
+    public Stream<ArrayIndex> getArrayIndexes() {
+        return arrayIndexes.values().stream();
+    }
+
+    @Override
     public Stream<StaticField> getStaticFields() {
         return staticFields.values().stream();
     }

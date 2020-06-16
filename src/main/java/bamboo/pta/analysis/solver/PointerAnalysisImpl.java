@@ -126,6 +126,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
+    public Stream<ArrayIndex> getArrayIndexes() {
+        return dataManager.getArrayIndexes();
+    }
+
+    @Override
     public Stream<StaticField> getStaticFields() {
         return dataManager.getStaticFields();
     }

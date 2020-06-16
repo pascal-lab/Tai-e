@@ -48,5 +48,7 @@ public interface DataManager {
 
     Stream<InstanceField> getInstanceFields();
 
+    Stream<ArrayIndex> getArrayIndexes();
+
     Stream<StaticField> getStaticFields();
 }

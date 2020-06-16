@@ -16,6 +16,7 @@ package bamboo.pta.analysis.solver;
 import bamboo.callgraph.CallGraph;
 import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.analysis.context.ContextSelector;
+import bamboo.pta.analysis.data.ArrayIndex;
 import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSVariable;
@@ -60,6 +61,12 @@ public interface PointerAnalysis {
      * @return all instance fields in the (reachable) program.
      */
     Stream<InstanceField> getInstanceFields();
+
+    /**
+     *
+     * @return all array indexes in the (reachable) program.
+     */
+    Stream<ArrayIndex> getArrayIndexes();
 
     /**
      *

@@ -20,6 +20,7 @@ import bamboo.pta.analysis.context.OneTypeSelector;
 import bamboo.pta.analysis.context.TwoCallSelector;
 import bamboo.pta.analysis.context.TwoObjectSelector;
 import bamboo.pta.analysis.context.TwoTypeSelector;
+import bamboo.pta.analysis.data.ArrayIndex;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSVariable;
 import bamboo.pta.analysis.data.InstanceField;
@@ -80,6 +81,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             pta.getCallGraph().getAllEdges().forEach(System.out::println);
             printVariables(pta.getVariables());
             printInstanceFields(pta.getInstanceFields());
+            printArrayIndexes(pta.getArrayIndexes());
             printStaticFields(pta.getStaticFields());
             System.out.println("----------------------------------------");
         }
@@ -128,6 +130,12 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     private void printInstanceFields(Stream<InstanceField> fields) {
         System.out.println("---------- Points-to sets of all instance fields: ----------");
         fields.sorted(Comparator.comparing(InstanceField::toString))
+                .forEach(this::printPointsToSet);
+    }
+
+    private void printArrayIndexes(Stream<ArrayIndex> arrays) {
+        System.out.println("---------- Points-to sets of all array indexes: ----------");
+        arrays.sorted(Comparator.comparing(ArrayIndex::toString))
                 .forEach(this::printPointsToSet);
     }
 
