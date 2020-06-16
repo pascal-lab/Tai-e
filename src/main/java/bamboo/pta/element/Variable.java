@@ -13,6 +13,8 @@
 
 package bamboo.pta.element;
 
+import bamboo.pta.statement.ArrayLoad;
+import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
@@ -37,11 +39,23 @@ public interface Variable {
      *
      * @return set of instance loads where this variable is the base.
      */
-    Set<InstanceLoad> getLoads();
+    Set<InstanceLoad> getInstanceLoads();
 
     /**
      *
      * @return set of instance stores where this variable is the base.
      */
-    Set<InstanceStore> getStores();
+    Set<InstanceStore> getInstanceStores();
+
+    /**
+     *
+     * @return set of array loads where this variable is the base.
+     */
+    Set<ArrayLoad> getArrayLoads();
+
+    /**
+     *
+     * @return set of array stores where this variable is the base.
+     */
+    Set<ArrayStore> getArrayStores();
 }

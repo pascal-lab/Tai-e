@@ -14,6 +14,8 @@
 package bamboo.pta.jimple;
 
 import bamboo.pta.element.Variable;
+import bamboo.pta.statement.ArrayLoad;
+import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
@@ -39,12 +41,22 @@ class JimpleVariable implements Variable {
     /**
      * Set of instance stores where this variable is the base variable
      */
-    private Set<InstanceStore> stores = Collections.emptySet();
+    private Set<InstanceStore> instStores = Collections.emptySet();
 
     /**
      * Set of instance loads where this variable is the base variable
      */
-    private Set<InstanceLoad> loads = Collections.emptySet();
+    private Set<InstanceLoad> instLoads = Collections.emptySet();
+
+    /**
+     * Set of array stores where this variable is the base variable
+     */
+    private Set<ArrayStore> arrayStores = Collections.emptySet();
+
+    /**
+     * Set of array loads where this variable is the base variable
+     */
+    private Set<ArrayLoad> arrayLoads = Collections.emptySet();
 
     public JimpleVariable(Local var, JimpleType type, JimpleMethod containerMethod) {
         this.var = var;
@@ -59,18 +71,32 @@ class JimpleVariable implements Variable {
         calls.add(call);
     }
 
-    void addStore(InstanceStore store) {
-        if (stores.isEmpty()) {
-            stores = new LinkedHashSet<>(4);
+    void addInstanceStore(InstanceStore store) {
+        if (instStores.isEmpty()) {
+            instStores = new LinkedHashSet<>(4);
         }
-        stores.add(store);
+        instStores.add(store);
     }
 
-    void addLoad(InstanceLoad load) {
-        if (loads.isEmpty()) {
-            loads = new LinkedHashSet<>(4);
+    void addInstanceLoad(InstanceLoad load) {
+        if (instLoads.isEmpty()) {
+            instLoads = new LinkedHashSet<>(4);
         }
-        loads.add(load);
+        instLoads.add(load);
+    }
+
+    void addArrayStore(ArrayStore store) {
+        if (arrayStores.isEmpty()) {
+            arrayStores = new LinkedHashSet<>(4);
+        }
+        arrayStores.add(store);
+    }
+
+    void addArrayLoad(ArrayLoad load) {
+        if (arrayLoads.isEmpty()) {
+            arrayLoads = new LinkedHashSet<>(4);
+        }
+        arrayLoads.add(load);
     }
 
     @Override
@@ -94,13 +120,23 @@ class JimpleVariable implements Variable {
     }
 
     @Override
-    public Set<InstanceLoad> getLoads() {
-        return loads;
+    public Set<InstanceLoad> getInstanceLoads() {
+        return instLoads;
     }
 
     @Override
-    public Set<InstanceStore> getStores() {
-        return stores;
+    public Set<InstanceStore> getInstanceStores() {
+        return instStores;
+    }
+
+    @Override
+    public Set<ArrayLoad> getArrayLoads() {
+        return arrayLoads;
+    }
+
+    @Override
+    public Set<ArrayStore> getArrayStores() {
+        return arrayStores;
     }
 
     @Override

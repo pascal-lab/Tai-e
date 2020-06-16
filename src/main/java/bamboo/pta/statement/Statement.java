@@ -18,10 +18,16 @@ public interface Statement {
     enum Kind {
         ALLOCATION,
         ASSIGN,
+
         INSTANCE_LOAD,
         INSTANCE_STORE,
+
+        ARRAY_LOAD,
+        ARRAY_STORE,
+
         STATIC_LOAD,
         STATIC_STORE,
+
         CALL,
     }
 

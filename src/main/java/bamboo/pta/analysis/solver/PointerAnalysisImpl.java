@@ -20,6 +20,7 @@ import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.analysis.context.Context;
 import bamboo.pta.analysis.context.ContextInsensitiveSelector;
 import bamboo.pta.analysis.context.ContextSelector;
+import bamboo.pta.analysis.data.ArrayIndex;
 import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSObj;
@@ -37,6 +38,8 @@ import bamboo.pta.element.Variable;
 import bamboo.pta.set.PointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.pta.statement.Allocation;
+import bamboo.pta.statement.ArrayLoad;
+import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Assign;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
@@ -171,6 +174,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     CSVariable v = (CSVariable) p;
                     processInstanceStore(v, diff);
                     processInstanceLoad(v, diff);
+                    processArrayStore(v, diff);
+                    processArrayLoad(v, diff);
                     processCall(v, diff);
                 }
             }
@@ -305,7 +310,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processInstanceStore(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
-        for (InstanceStore store : var.getStores()) {
+        for (InstanceStore store : var.getInstanceStores()) {
             CSVariable from = dataManager.getCSVariable(context, store.getFrom());
             for (CSObj baseObj : pts) {
                 InstanceField instField = dataManager.getInstanceField(
@@ -323,12 +328,46 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processInstanceLoad(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
         Variable var = baseVar.getVariable();
-        for (InstanceLoad load : var.getLoads()) {
+        for (InstanceLoad load : var.getInstanceLoads()) {
             CSVariable to = dataManager.getCSVariable(context, load.getTo());
             for (CSObj baseObj : pts) {
                 InstanceField instField = dataManager.getInstanceField(
                         baseObj, load.getField());
                 addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+            }
+        }
+    }
+
+    /**
+     * Processes array stores when points-to set of the array variable changes.
+     * @param arrayVar the array variable
+     * @param pts set of new discovered arrays pointed by the variable.
+     */
+    private void processArrayStore(CSVariable arrayVar, PointsToSet pts) {
+        Context context = arrayVar.getContext();
+        Variable var = arrayVar.getVariable();
+        for (ArrayStore store : var.getArrayStores()) {
+            CSVariable from = dataManager.getCSVariable(context, store.getFrom());
+            for (CSObj array : pts) {
+                ArrayIndex arrayIndex = dataManager.getArrayIndex(array);
+                addPFGEdge(from, arrayIndex, PointerFlowEdge.Kind.ARRAY_STORE);
+            }
+        }
+    }
+
+    /**
+     * Processes array loads when points-to set of the array variable changes.
+     * @param arrayVar the array variable
+     * @param pts set of new discovered arrays pointed by the variable.
+     */
+    private void processArrayLoad(CSVariable arrayVar, PointsToSet pts) {
+        Context context = arrayVar.getContext();
+        Variable var = arrayVar.getVariable();
+        for (ArrayLoad load : var.getArrayLoads()) {
+            CSVariable to = dataManager.getCSVariable(context, load.getTo());
+            for (CSObj array : pts) {
+                ArrayIndex arrayIndex = dataManager.getArrayIndex(array);
+                addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
             }
         }
     }

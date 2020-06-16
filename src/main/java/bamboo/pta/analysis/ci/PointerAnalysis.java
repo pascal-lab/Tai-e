@@ -202,7 +202,7 @@ public class PointerAnalysis {
      */
     private void processInstanceStore(Var baseVar, PointsToSet pts) {
         Variable var = baseVar.getVariable();
-        for (InstanceStore store : var.getStores()) {
+        for (InstanceStore store : var.getInstanceStores()) {
             Var from = pointerFlowGraph.getVar(store.getFrom());
             for (Obj baseObj : pts) {
                 InstanceField instField = pointerFlowGraph.getInstanceField(
@@ -219,7 +219,7 @@ public class PointerAnalysis {
      */
     private void processInstanceLoad(Var baseVar, PointsToSet pts) {
         Variable var = baseVar.getVariable();
-        for (InstanceLoad load : var.getLoads()) {
+        for (InstanceLoad load : var.getInstanceLoads()) {
             Var to = pointerFlowGraph.getVar(load.getTo());
             for (Obj baseObj : pts) {
                 InstanceField instField = pointerFlowGraph.getInstanceField(

@@ -16,6 +16,8 @@ package bamboo.pta.jimple;
 import bamboo.callgraph.JimpleCallUtils;
 import bamboo.pta.element.Variable;
 import bamboo.pta.statement.Allocation;
+import bamboo.pta.statement.ArrayLoad;
+import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Assign;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
@@ -33,6 +35,7 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceFieldRef;
@@ -245,7 +248,15 @@ class ElementManager {
                     InstanceFieldRef ref = (InstanceFieldRef) right;
                     JimpleVariable base = getVariable(ref.getBase(), method);
                     InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
-                    base.addLoad(load);
+                    base.addInstanceLoad(load);
+                    method.addStatement(load);
+                } else if (right instanceof ArrayRef) {
+                    // x = y[i];
+                    // TODO: consider constant index?
+                    ArrayRef ref = (ArrayRef) right;
+                    JimpleVariable base = getVariable(ref.getBase(), method);
+                    ArrayLoad load = new ArrayLoad(lhs, base);
+                    base.addArrayLoad(load);
                     method.addStatement(load);
                 } else if (right instanceof StaticFieldRef) {
                     // x = T.f;
@@ -256,10 +267,10 @@ class ElementManager {
                     // TODO: x = (T) y;
                     // TODO: x = new T[];
                     // TODO: x = new T[]+;
-                    // TODO: x = y[i];
                     // TODO: x = "x";
                     // TODO: x = T.class;
                     // TODO: x = other cases
+                    throw new AnalysisException("Unhandled case: " + right);
                 }
             } else if (left instanceof InstanceFieldRef) {
                 // x.f = y;
@@ -268,7 +279,7 @@ class ElementManager {
                 InstanceStore store = new InstanceStore(base,
                         getField(ref.getField()),
                         getVariable(right, method));
-                base.addStore(store);
+                base.addInstanceStore(store);
                 method.addStatement(store);
             } else if (left instanceof StaticFieldRef) {
                 // T.f = x;
@@ -278,8 +289,17 @@ class ElementManager {
                         getVariable(right, method)
                 );
                 method.addStatement(store);
+            } else if (left instanceof ArrayRef) {
+                // x[i] = y;
+                // TODO: consider constant index?
+                ArrayRef ref = (ArrayRef) left;
+                JimpleVariable base = getVariable(ref.getBase(), method);
+                ArrayStore store = new ArrayStore(
+                        base, getVariable(right, method));
+                base.addArrayStore(store);
+                method.addStatement(store);
             } else {
-                // TODO: x[i] = y;
+                throw new AnalysisException("Unhandled case: " + left);
             }
         }
 
