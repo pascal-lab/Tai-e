@@ -19,6 +19,7 @@ import static bamboo.TestUtils.testCSPTA;
 
 public class CSPTATest {
 
+    // Tests for context sensitivity variants
     @Test
     public void testOneCall() {
         testCSPTA("OneCall", "-p", "wjtp.pta", "cs:1-call");
@@ -47,5 +48,11 @@ public class CSPTATest {
     @Test
     public void testTwoType() {
         testCSPTA("TwoType", "-p", "wjtp.pta", "cs:2-type");
+    }
+
+    // Tests for Java feature supporting
+    @Test
+    public void testStaticField() {
+        testCSPTA("StaticField");
     }
 }

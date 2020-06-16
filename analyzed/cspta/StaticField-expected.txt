@@ -1,0 +1,8 @@
+---------- Points-to sets of all variables: ----------
+[]:<B: void <init>()>/this -> {[]:<StaticField: void main(java.lang.String[])>/new B/4}
+[]:<StaticField: void main(java.lang.String[])>/b -> {[]:<StaticField: void main(java.lang.String[])>/new B/4}
+[]:<StaticField: void main(java.lang.String[])>/temp$0 -> {[]:<StaticField: void main(java.lang.String[])>/new B/4}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<StaticField: void main(java.lang.String[])>/new B/4}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all static fields: ----------
+<A: B b> -> {[]:<StaticField: void main(java.lang.String[])>/new B/4}
