@@ -27,6 +27,6 @@ public class ArrayIndex extends AbstractPointer {
 
     @Override
     public String toString() {
-        return array + "[*]";
+        return array.toString();
     }
 }

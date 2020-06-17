@@ -10,6 +10,6 @@
 []:<java.lang.Object: void <init>()>/r0 -> {[]:<Array: void main(java.lang.String[])>/new A/5,[]:<Array: void main(java.lang.String[])>/new A/6}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:<Array: void main(java.lang.String[])>/newarray (A)[10]/4[*] -> {[]:<Array: void main(java.lang.String[])>/new A/5,[]:<Array: void main(java.lang.String[])>/new A/6}
+[]:<Array: void main(java.lang.String[])>/newarray (A)[10]/4 -> {[]:<Array: void main(java.lang.String[])>/new A/5,[]:<Array: void main(java.lang.String[])>/new A/6}
 ---------- Points-to sets of all static fields: ----------
 ----------------------------------------

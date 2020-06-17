@@ -94,6 +94,12 @@ public class ResultChecker {
         pta.getInstanceFields()
                 .sorted(Comparator.comparing(f -> f.getBase().toString()))
                 .forEach(f -> comparePointer(f, givenPointers));
+        pta.getArrayIndexes()
+                .sorted(Comparator.comparing(p -> p.toString()))
+                .forEach(p -> comparePointer(p, givenPointers));
+        pta.getStaticFields()
+                .sorted(Comparator.comparing(p -> p.toString()))
+                .forEach(p -> comparePointer(p, givenPointers));
         expectedResults.forEach((p, pts) -> {
             if (!givenPointers.contains(p)) {
                 mismatches.add(String.format(
@@ -135,6 +141,7 @@ public class ResultChecker {
     }
 
     private boolean isPointsToSet(String line) {
-        return line.startsWith("[");
+        return (line.startsWith("[") || line.startsWith("<"))
+                && line.contains(" -> ");
     }
 }
