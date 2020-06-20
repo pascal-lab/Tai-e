@@ -19,6 +19,7 @@ import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Assign;
+import bamboo.pta.statement.AssignCast;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
@@ -37,6 +38,7 @@ import soot.Unit;
 import soot.Value;
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
+import soot.jimple.CastExpr;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
@@ -247,6 +249,13 @@ class ElementManager {
                 } else if (right instanceof Local) {
                     // x = y;
                     method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
+                } else if (right instanceof CastExpr) {
+                    // x = (T) y;
+                    CastExpr cast = (CastExpr) right;
+                    method.addStatement(new AssignCast(lhs,
+                            getType(cast.getCastType()),
+                            getVariable((Local) cast.getOp(), method)
+                    ));
                 } else if (right instanceof InstanceFieldRef) {
                     // x = y.f;
                     InstanceFieldRef ref = (InstanceFieldRef) right;
@@ -268,7 +277,6 @@ class ElementManager {
                     StaticLoad load = new StaticLoad(lhs, getField(ref.getField()));
                     method.addStatement(load);
                 } else {
-                    // TODO: x = (T) y;
                     // TODO: x = new T[]+;
                     // TODO: x = "x";
                     // TODO: x = T.class;

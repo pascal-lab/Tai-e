@@ -22,7 +22,7 @@ class PointerFlowEdge {
 
     enum Kind {
         LOCAL_ASSIGN,
-        // CAST,
+        CAST,
 
         INSTANCE_LOAD,
         INSTANCE_STORE,
@@ -44,7 +44,10 @@ class PointerFlowEdge {
     private final Pointer to;
 
     /**
-     * Type for cast assignment.
+     * Type of "to" node. This type is useful for handling some cases,
+     * e.g., type casting and reflective assignment.
+     * If this field is null, it means that this PFG edge does not have
+     * type constraint between "from" and "to" nodes.
      */
     private final Type type;
 

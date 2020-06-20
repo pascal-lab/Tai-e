@@ -1,0 +1,16 @@
+---------- Points-to sets of all variables: ----------
+[]:<A: void <init>()>/this -> {[]:<Cast: void m()>/new A/7}
+[]:<B: void <init>()>/this -> {[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
+[]:<C: void <init>()>/this -> {[]:<Cast: void m()>/new C/9}
+[]:<Cast: void m()>/a -> {[]:<Cast: void m()>/new A/7}
+[]:<Cast: void m()>/b -> {[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
+[]:<Cast: void m()>/c -> {[]:<Cast: void m()>/new C/9}
+[]:<Cast: void m()>/o -> {[]:<Cast: void m()>/new A/7,[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
+[]:<Cast: void m()>/temp$0 -> {[]:<Cast: void m()>/new A/7}
+[]:<Cast: void m()>/temp$1 -> {[]:<Cast: void m()>/new B/8}
+[]:<Cast: void m()>/temp$2 -> {[]:<Cast: void m()>/new C/9}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Cast: void m()>/new A/7,[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------
+----------------------------------------

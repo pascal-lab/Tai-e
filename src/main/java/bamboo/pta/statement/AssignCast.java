@@ -13,24 +13,33 @@
 
 package bamboo.pta.statement;
 
+import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 
-/**
- * Represents a local assignment: to = from;
- */
-public class Assign implements Statement {
+public class AssignCast implements Statement {
+
 
     private final Variable to;
 
     private final Variable from;
 
-    public Assign(Variable to, Variable from) {
+    /**
+     * Type to be casted.
+     */
+    private final Type type;
+
+    public AssignCast(Variable to, Type type, Variable from) {
         this.to = to;
+        this.type = type;
         this.from = from;
     }
 
     public Variable getTo() {
         return to;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public Variable getFrom() {
@@ -39,11 +48,11 @@ public class Assign implements Statement {
 
     @Override
     public Kind getKind() {
-        return Kind.ASSIGN;
+        return Kind.ASSIGN_CAST;
     }
 
     @Override
     public String toString() {
-        return to + " = " + from;
+        return to + " = (" + type + ") " + from;
     }
 }

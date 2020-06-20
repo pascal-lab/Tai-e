@@ -18,6 +18,7 @@ public interface Statement {
     enum Kind {
         ALLOCATION,
         ASSIGN,
+        ASSIGN_CAST,
 
         INSTANCE_LOAD,
         INSTANCE_STORE,

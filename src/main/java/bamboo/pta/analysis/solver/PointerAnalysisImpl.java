@@ -41,6 +41,7 @@ import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Assign;
+import bamboo.pta.statement.AssignCast;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
@@ -196,7 +197,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         System.out.println("Propagate " + pointsToSet + " to " + pointer);
-        PointsToSet diff = setFactory.makePointsToSet();
+        final PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
                 diff.addObject(obj);
@@ -204,23 +205,48 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
         if (!diff.isEmpty()) {
             for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(pointer)) {
-                // TODO: check cast here
                 Pointer to = edge.getTo();
-                workList.addPointerEntry(to, diff);
+                if (edge.getType() != null) {
+                    // Checks assignable objects
+                    workList.addPointerEntry(to,
+                            getAssignablePointsToSet(diff, edge.getType()));
+                } else {
+                    workList.addPointerEntry(to, diff);
+                }
             }
         }
         return diff;
     }
 
     /**
+     * Given a points-to set pts and a type t, returns the objects of pts
+     * which can be assigned to t.
+     */
+    private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
+        PointsToSet result = setFactory.makePointsToSet();
+        pts.stream()
+                .filter(o -> programManager.canAssign(
+                        o.getObject().getType(), type))
+                .forEach(result::addObject);
+        return result;
+    }
+
+    /**
      * Adds an edge "from -> to" to the PFG.
      */
-    private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        if (pointerFlowGraph.addEdge(from, to, kind)) {
+    private void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
+        if (pointerFlowGraph.addEdge(from, to, type, kind)) {
             if (!from.getPointsToSet().isEmpty()) {
                 workList.addPointerEntry(to, from.getPointsToSet());
             }
         }
+    }
+
+    /**
+     * Adds an edge "from -> to" to the PFG.
+     */
+    private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+        addPFGEdge(from, to, null, kind);
     }
 
     /**
@@ -230,6 +256,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (callGraph.addNewMethod(csMethod)) {
             processAllocations(csMethod);
             processLocalAssign(csMethod);
+            processLocalAssignCast(csMethod);
             processStaticStores(csMethod);
             processStaticLoads(csMethod);
             processStaticCalls(csMethod);
@@ -269,6 +296,19 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
                 CSVariable to = dataManager.getCSVariable(context, assign.getTo());
                 addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
+        }
+    }
+
+    private void processLocalAssignCast(CSMethod csMethod) {
+        Context context = csMethod.getContext();
+        Method method = csMethod.getMethod();
+        for (Statement stmt : method.getStatements()) {
+            if (stmt instanceof AssignCast) {
+                AssignCast cast = (AssignCast) stmt;
+                CSVariable from = dataManager.getCSVariable(context, cast.getFrom());
+                CSVariable to = dataManager.getCSVariable(context, cast.getTo());
+                addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
             }
         }
     }

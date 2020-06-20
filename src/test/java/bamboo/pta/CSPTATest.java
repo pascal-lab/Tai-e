@@ -60,4 +60,9 @@ public class CSPTATest {
     public void testArray() {
         testCSPTA("Array");
     }
+
+    @Test
+    public void testCast() {
+        testCSPTA("Cast");
+    }
 }

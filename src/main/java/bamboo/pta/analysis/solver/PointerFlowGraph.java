@@ -32,10 +32,10 @@ public class PointerFlowGraph {
     private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        return addEdge(from, to, kind, null);
+        return addEdge(from, to, null, kind);
     }
 
-    public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind, Type type) {
+    public boolean addEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
         if (!successors.computeIfAbsent(from, k -> new HashSet<>()).contains(to)) {
             successors.get(from).add(to);
             edges.computeIfAbsent(from, k -> new HashSet<>())
