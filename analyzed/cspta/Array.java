@@ -5,6 +5,7 @@ class Array {
         arr[0] = new A();
         arr[1] = new A();
         A a = arr[0];
+        arr.hashCode();
     }
 }
 

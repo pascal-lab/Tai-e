@@ -17,7 +17,10 @@ import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
+import bamboo.util.AnalysisException;
+import soot.ArrayType;
 import soot.FastHierarchy;
+import soot.RefType;
 import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.SpecialInvokeExpr;
@@ -52,8 +55,17 @@ public class JimpleProgramManager implements ProgramManager {
     public Method resolveInterfaceOrVirtualCall(Type recvType, Method method) {
         JimpleType jType = (JimpleType) recvType;
         JimpleMethod jMethod = (JimpleMethod) method;
+        soot.Type type = jType.getSootType();
+        soot.RefType concreteType;
+        if (type instanceof ArrayType) {
+            concreteType = RefType.v("java.lang.Object");
+        } else if (type instanceof RefType) {
+            concreteType = (RefType) type;
+        } else {
+            throw new AnalysisException("Unknown type: " + type);
+        }
         SootMethod callee = hierarchy.resolveConcreteDispatch(
-                jType.getSootClass(),
+                concreteType.getSootClass(),
                 jMethod.getSootMethod());
         return elementManager.getMethod(callee);
     }
