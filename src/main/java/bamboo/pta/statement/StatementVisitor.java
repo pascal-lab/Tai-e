@@ -13,26 +13,25 @@
 
 package bamboo.pta.statement;
 
-public interface Statement {
+public interface StatementVisitor {
 
-    enum Kind {
-        ALLOCATION,
-        ASSIGN,
-        ASSIGN_CAST,
+    default void visit(Allocation alloc) {}
 
-        INSTANCE_LOAD,
-        INSTANCE_STORE,
+    default void visit(ArrayLoad load) {}
 
-        ARRAY_LOAD,
-        ARRAY_STORE,
+    default void visit(ArrayStore store) {}
 
-        STATIC_LOAD,
-        STATIC_STORE,
+    default void visit(Assign assign) {}
 
-        CALL,
-    }
+    default void visit(AssignCast cast) {}
 
-    Kind getKind();
+    default void visit(Call call) {}
 
-    void accept(StatementVisitor visitor);
+    default void visit(InstanceLoad load) {}
+
+    default void visit(InstanceStore store) {}
+
+    default void visit(StaticLoad load) {}
+
+    default void visit(StaticStore store) {}
 }

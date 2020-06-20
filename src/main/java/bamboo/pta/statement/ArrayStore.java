@@ -38,6 +38,11 @@ public class ArrayStore implements Statement {
     }
 
     @Override
+    public void accept(StatementVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public Kind getKind() {
         return Kind.ARRAY_STORE;
     }

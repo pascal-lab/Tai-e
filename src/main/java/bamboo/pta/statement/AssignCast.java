@@ -47,6 +47,11 @@ public class AssignCast implements Statement {
     }
 
     @Override
+    public void accept(StatementVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public Kind getKind() {
         return Kind.ASSIGN_CAST;
     }

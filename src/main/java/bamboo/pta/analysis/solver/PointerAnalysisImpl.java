@@ -46,6 +46,7 @@ import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.Statement;
+import bamboo.pta.statement.StatementVisitor;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
@@ -254,96 +255,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private void processNewMethod(CSMethod csMethod) {
         if (callGraph.addNewMethod(csMethod)) {
-            processAllocations(csMethod);
-            processLocalAssign(csMethod);
-            processLocalAssignCast(csMethod);
-            processStaticStores(csMethod);
-            processStaticLoads(csMethod);
-            processStaticCalls(csMethod);
-        }
-    }
-
-    /**
-     * Process allocation statements in given context-sensitive method.
-     */
-    private void processAllocations(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof Allocation) {
-                Allocation alloc = (Allocation) stmt;
-                // obtain context-sensitive heap object
-                Obj obj = heapModel.getObj(alloc);
-                Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-                CSObj csObj = dataManager.getCSObj(heapContext, obj);
-                // obtain lhs variable
-                CSVariable lhs = dataManager.getCSVariable(context, alloc.getVar());
-                workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
-            }
-        }
-    }
-
-    /**
-     * Add local assign edges of the given context-sensitive method
-     * to pointer flow graph.
-     */
-    private void processLocalAssign(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof Assign) {
-                Assign assign = (Assign) stmt;
-                CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
-                CSVariable to = dataManager.getCSVariable(context, assign.getTo());
-                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
-            }
-        }
-    }
-
-    private void processLocalAssignCast(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof AssignCast) {
-                AssignCast cast = (AssignCast) stmt;
-                CSVariable from = dataManager.getCSVariable(context, cast.getFrom());
-                CSVariable to = dataManager.getCSVariable(context, cast.getTo());
-                addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
-            }
-        }
-    }
-
-    /**
-     * Add store edges for static fields of the given context-sensitive method
-     * to pointer flow graph.
-     */
-    private void processStaticStores(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof StaticStore) {
-                StaticStore store = (StaticStore) stmt;
-                CSVariable from = dataManager.getCSVariable(context, store.getFrom());
-                StaticField field = dataManager.getStaticField(store.getField());
-                addPFGEdge(from, field, PointerFlowEdge.Kind.STATIC_STORE);
-            }
-        }
-    }
-
-    /**
-     * Add load edges for static fields of the given context-sensitive method
-     * to pointer flow graph.
-     */
-    private void processStaticLoads(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof StaticLoad) {
-                StaticLoad load = (StaticLoad) stmt;
-                StaticField field = dataManager.getStaticField(load.getField());
-                CSVariable to = dataManager.getCSVariable(context, load.getTo());
-                addPFGEdge(field, to, PointerFlowEdge.Kind.STATIC_LOAD);
-            }
+            StatementProcessor processor = new StatementProcessor(csMethod);
+            csMethod.getMethod()
+                    .getStatements()
+                    .forEach(s -> s.accept(processor));
         }
     }
 
@@ -448,28 +363,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     /**
-     * Process static calls in given context-sensitive method.
-     */
-    private void processStaticCalls(CSMethod csMethod) {
-        Context context = csMethod.getContext();
-        Method method = csMethod.getMethod();
-        for (Statement stmt : method.getStatements()) {
-            if (stmt instanceof Call) {
-                CallSite callSite = ((Call) stmt).getCallSite();
-                if (callSite.isStatic()) {
-                    Method callee = callSite.getMethod();
-                    CSCallSite csCallSite = dataManager.getCSCallSite(context, callSite);
-                    Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
-                    CSMethod csCallee = dataManager.getCSMethod(calleeCtx, callee);
-                    Edge<CSCallSite, CSMethod> edge =
-                            new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                    workList.addCallEdge(edge);
-                }
-            }
-        }
-    }
-
-    /**
      * Process the call edges in work list.
      */
     private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -528,6 +421,74 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             return CallKind.STATIC;
         } else {
             throw new AnalysisException("Unknown call site: " + callSite);
+        }
+    }
+
+    /**
+     * Process the statements in context-sensitive new reachable methods.
+     */
+    private class StatementProcessor implements StatementVisitor {
+
+        private final CSMethod csMethod;
+
+        private final Context context;
+
+        StatementProcessor(CSMethod csMethod) {
+            this.csMethod = csMethod;
+            this.context = csMethod.getContext();
+        }
+
+        @Override
+        public void visit(Allocation alloc) {
+            // obtain context-sensitive heap object
+            Obj obj = heapModel.getObj(alloc);
+            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+            CSObj csObj = dataManager.getCSObj(heapContext, obj);
+            // obtain lhs variable
+            CSVariable lhs = dataManager.getCSVariable(context, alloc.getVar());
+            workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
+        }
+
+        @Override
+        public void visit(Assign assign) {
+            CSVariable from = dataManager.getCSVariable(context, assign.getFrom());
+            CSVariable to = dataManager.getCSVariable(context, assign.getTo());
+            addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+        }
+
+        @Override
+        public void visit(AssignCast cast) {
+            CSVariable from = dataManager.getCSVariable(context, cast.getFrom());
+            CSVariable to = dataManager.getCSVariable(context, cast.getTo());
+            addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+        }
+
+        @Override
+        public void visit(Call call) {
+            CallSite callSite = call.getCallSite();
+            if (callSite.isStatic()) {
+                Method callee = callSite.getMethod();
+                CSCallSite csCallSite = dataManager.getCSCallSite(context, callSite);
+                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+                CSMethod csCallee = dataManager.getCSMethod(calleeCtx, callee);
+                Edge<CSCallSite, CSMethod> edge =
+                        new Edge<>(CallKind.STATIC, csCallSite, csCallee);
+                workList.addCallEdge(edge);
+            }
+        }
+
+        @Override
+        public void visit(StaticLoad load) {
+            StaticField field = dataManager.getStaticField(load.getField());
+            CSVariable to = dataManager.getCSVariable(context, load.getTo());
+            addPFGEdge(field, to, PointerFlowEdge.Kind.STATIC_LOAD);
+        }
+
+        @Override
+        public void visit(StaticStore store) {
+            CSVariable from = dataManager.getCSVariable(context, store.getFrom());
+            StaticField field = dataManager.getStaticField(store.getField());
+            addPFGEdge(from, field, PointerFlowEdge.Kind.STATIC_STORE);
         }
     }
 }
