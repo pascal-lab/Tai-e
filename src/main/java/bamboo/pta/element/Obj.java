@@ -17,13 +17,23 @@ public interface Obj  {
 
     enum Kind {
         NORMAL,
+        ARRAY,
         STRING_CONSTANT,
-        // array, class constants, ...
+        CLASS_CONSTANT,
+        SPECIAL, // represents special objects
+        ARTIFICIAL, // represents the non-exist objects
     }
 
     Type getType();
 
-    Object getAllocationSite();
+    /**
+     * For NORMAL and ARRAY, returns the allocation site.
+     * For STRING_CONSTANT, returns the string constant.
+     * For CLASS_CONSTANT, returns the class type.
+     * For SPECIAL and ARTIFICIAL, the return value
+     *   depends on concrete implementation.
+     */
+    Object getAllocation();
 
     /**
      *

@@ -33,7 +33,7 @@ public class JimpleObj implements Obj {
     }
 
     @Override
-    public Object getAllocationSite() {
+    public Object getAllocation() {
         return allocation;
     }
 

@@ -150,6 +150,8 @@ class ElementManager {
             callSite.setReceiver(getVariable(
                     ((InstanceInvokeExpr) invoke).getBase(), container));
         }
+        // TODO: check if the arguments are always Local
+        // TODO: handle DynamicInvokeExpr
         callSite.setArguments(
                 invoke.getArgs()
                         .stream()
