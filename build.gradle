@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation files('lib/sootclasses-modified.jar')
+    compile group: 'org.soot-oss', name: 'soot', version: '4.1.0'
+    testImplementation 'junit:junit:4.12'
+}
+
+application {
+    mainClassName = 'bamboo.pta.Main'
+}
