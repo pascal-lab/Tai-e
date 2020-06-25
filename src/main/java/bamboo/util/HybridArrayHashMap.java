@@ -13,7 +13,6 @@
 
 package bamboo.util;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -254,7 +253,7 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
     }
 
     @Override
-    public void putAll(@Nonnull Map<? extends K, ? extends V> m) {
+    public void putAll(Map<? extends K, ? extends V> m) {
         int m_size = m.size();
         if (m_size == 0)
             return;
@@ -372,7 +371,6 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
             return hashmap.values();
         return new AbstractCollection<V>() {
 
-            @Nonnull
             @Override
             public Iterator<V> iterator() {
                 if (singleton_key != null) {
@@ -425,7 +423,6 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
             return hashmap.entrySet();
         return new AbstractSet<Entry<K, V>>() {
 
-            @Nonnull
             @Override
             public Iterator<Entry<K, V>> iterator() {
                 if (singleton_key != null) {
@@ -482,7 +479,6 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
             return hashmap.keySet();
         return new AbstractSet<K>() {
 
-            @Nonnull
             @Override
             public Iterator<K> iterator() {
                 if (singleton_key != null) {

@@ -13,7 +13,6 @@
 
 package bamboo.util;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -167,7 +166,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean addAll(@Nonnull Collection<? extends V> c) {
+    public boolean addAll(Collection<? extends V> c) {
         int c_size = c.size();
         if (c_size == 0)
             return false;
@@ -248,7 +247,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     }
 
     @Override
-    public boolean containsAll(@Nonnull Collection<?> c) {
+    public boolean containsAll(Collection<?> c) {
         for (Object o : c)
             if (!contains(o))
                 return false;
@@ -353,7 +352,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     }
 
     @Override
-    public boolean removeAll(@Nonnull Collection<?> c) {
+    public boolean removeAll(Collection<?> c) {
         boolean changed = false;
         for (Object o : c)
             changed |= remove(o);
@@ -361,7 +360,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     }
 
     @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
+    public boolean retainAll(Collection<?> c) {
         boolean changed = false;
         for (Iterator<V> it = iterator(); it.hasNext(); )
             if (!c.contains(it.next())) {
@@ -371,7 +370,6 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
         return changed;
     }
 
-    @Nonnull
     @Override
     public Object[] toArray() {
         if (singleton != null) {
@@ -393,9 +391,8 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    @Nonnull
     @Override
-    public <T> T[] toArray(@Nonnull T[] a) {
+    public <T> T[] toArray(T[] a) {
         if (singleton != null) {
             if (a.length < 1)
                 a = (T[]) Array.newInstance(a.getClass().getComponentType(), 1);
