@@ -90,7 +90,6 @@ class ElementManager {
             Body body = method.retrieveActiveBody();
             methodBuilder.buildConcrete(jMethod, body);
         }
-        System.out.println(jMethod.getStatements());
         return jMethod;
     }
 
@@ -174,10 +173,10 @@ class ElementManager {
     }
 
     /**
-     * TODO: finish comments
-     * @param constant
-     * @param container
-     * @return
+     * Given a constant, returns the temporary variable which points
+     * to the constant. To achieve this, the corresponding Allocation statement
+     * (from the constant value to the variable) will be added
+     * to the container method.
      */
     private JimpleVariable getVariableOfConstant(
             Value constant, JimpleMethod container) {

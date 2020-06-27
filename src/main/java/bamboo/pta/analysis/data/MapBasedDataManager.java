@@ -25,6 +25,7 @@ import bamboo.util.HybridArrayHashMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -61,7 +62,7 @@ public class MapBasedDataManager implements DataManager {
 
     @Override
     public CSVariable getCSVariable(Context context, Variable var) {
-        return getOrCreateCSElement(vars, var, context,
+        return getOrCreateCSElement(vars, Objects.requireNonNull(var), context,
                 (v, c) -> initializePointsToSet(new CSVariable(v, c)));
     }
 

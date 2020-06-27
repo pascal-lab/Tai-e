@@ -70,4 +70,9 @@ public class CSPTATest {
     public void testNull() {
         testCSPTA("Null");
     }
+
+    @Test
+    public void testPrimitive() {
+        testCSPTA("Primitive");
+    }
 }

@@ -1,0 +1,9 @@
+[]:<A: void <init>()>/this -> {[]:<Primitive: void main(java.lang.String[])>/new A/5}
+[]:<Primitive: void in(A,int,A)>/a1 -> {[]:<Primitive: void main(java.lang.String[])>/new A/5}
+[]:<Primitive: void in(A,int,A)>/a2 -> {[]:<Primitive: void main(java.lang.String[])>/new A/5}
+[]:<Primitive: void main(java.lang.String[])>/a -> {[]:<Primitive: void main(java.lang.String[])>/new A/5}
+[]:<Primitive: void main(java.lang.String[])>/temp$0 -> {[]:<Primitive: void main(java.lang.String[])>/new A/5}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Primitive: void main(java.lang.String[])>/new A/5}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------
