@@ -65,4 +65,9 @@ public class CSPTATest {
     public void testCast() {
         testCSPTA("Cast");
     }
+
+    @Test
+    public void testNull() {
+        testCSPTA("Null");
+    }
 }

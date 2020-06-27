@@ -1,0 +1,17 @@
+---------- Points-to sets of all variables: ----------
+[]:<A: void <init>()>/this -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<Null: A returnNull()>/null$1 -> {}
+[]:<Null: A returnNull()>/temp$0 -> {}
+[]:<Null: void foo(A,A)>/a1 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<Null: void foo(A,A)>/a2 -> {}
+[]:<Null: void main(java.lang.String[])>/a -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<Null: void main(java.lang.String[])>/null$1 -> {}
+[]:<Null: void main(java.lang.String[])>/null$2 -> {}
+[]:<Null: void main(java.lang.String[])>/temp$0 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<Null: void main(java.lang.String[])>/temp$1 -> {}
+[]:<Null: void main(java.lang.String[])>/x -> {}
+[]:<Null: void main(java.lang.String[])>/y -> {}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------

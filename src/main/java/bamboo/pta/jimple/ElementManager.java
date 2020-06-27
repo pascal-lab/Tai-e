@@ -181,7 +181,20 @@ class ElementManager {
      */
     private JimpleVariable getVariableOfConstant(
             Value constant, JimpleMethod container) {
-        throw new UnsupportedOperationException();
+        if (constant instanceof StringConstant) {
+            throw new UnsupportedOperationException("String constant is not supported");
+        } else if (constant instanceof ClassConstant) {
+            throw new UnsupportedOperationException("Class constant is not supported");
+        } else if (constant instanceof NullConstant) {
+            return varManager.getTempVariable("null$",
+                    getType(constant.getType()), container);
+        } else if (constant instanceof MethodHandle) {
+            throw new UnsupportedOperationException("MethodHandle is not supported");
+        } else if (constant instanceof NumericConstant) {
+            throw new AnalysisException("Unhandled numeric constant: " + constant);
+        } else {
+            throw new AnalysisException("Unhandled case: " + constant);
+        }
     }
 
     private class MethodBuilder {
@@ -276,6 +289,11 @@ class ElementManager {
                 // x = new T[];
                 // TODO: handle allocation comprehensively
                 method.addStatement(new Allocation(lhs, createObject(stmt, method)));
+            } else if (isConstant(right)) {
+                // TODO: x = "x";
+                // TODO: x = T.class;
+                Variable rhs = getVariableOfConstant(right, method);
+                method.addStatement(new Assign(lhs, rhs));
             } else if (right instanceof Local) {
                 // x = y;
                 method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
@@ -307,10 +325,6 @@ class ElementManager {
                 StaticLoad load = new StaticLoad(lhs, getField(ref.getField()));
                 method.addStatement(load);
             } else {
-                // TODO: x = new T[]+;
-                // TODO: x = "x";
-                // TODO: x = T.class;
-                // TODO: x = other cases
                 throw new AnalysisException("Unhandled case: " + right);
             }
         }
