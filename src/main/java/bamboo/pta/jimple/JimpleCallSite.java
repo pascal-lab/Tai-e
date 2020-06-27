@@ -20,6 +20,7 @@ import bamboo.pta.statement.Call;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 
+import java.util.Collections;
 import java.util.List;
 
 class JimpleCallSite implements CallSite {
@@ -34,7 +35,7 @@ class JimpleCallSite implements CallSite {
 
     private JimpleVariable receiver;
 
-    private List<Variable> arguments;
+    private List<Variable> arguments = Collections.emptyList();
 
     private JimpleMethod containerMethod;
 

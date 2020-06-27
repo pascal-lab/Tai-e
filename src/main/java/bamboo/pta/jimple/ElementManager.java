@@ -58,7 +58,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 class ElementManager {
 
@@ -113,31 +112,14 @@ class ElementManager {
     }
 
     JimpleVariable getVariable(Local var, JimpleMethod container) {
-        return var.getType() instanceof RefLikeType
-                ? vars.computeIfAbsent(container, (m) -> new HashMap<>())
+        if (var.getType() instanceof RefLikeType) {
+            return vars.computeIfAbsent(container, (m) -> new HashMap<>())
                     .computeIfAbsent(var, (v) -> {
                         JimpleType type = getType(var.getType());
                         return new JimpleVariable(var, type, container);
-                    })
-                : null; // returns null for variables with non-reference type
-    }
-
-    /**
-     * Converts Value to Variable.
-     * If the value is Local, return it directly, else assign the value to
-     * a temporary variable and return the variable.
-     */
-    private JimpleVariable getVariable(Value value, JimpleMethod container) {
-        if (value instanceof Local) {
-            return getVariable((Local) value, container);
-        } else if (value instanceof NullConstant) {
-            return varManager.getTempVariable("null$",
-                    getType(value.getType()), container);
+                    });
         } else {
-            // TODO: handle string constants
-            // TODO: handle class constants
-            // TODO: handle other cases
-            throw new AnalysisException("Cannot handle value: " + value);
+            throw new AnalysisException("Local variable of primitive type: " + var);
         }
     }
 
@@ -147,18 +129,27 @@ class ElementManager {
                 stmt, JimpleCallUtils.getCallKind(invoke));
         callSite.setMethod(getMethod(invoke.getMethod()));
         if (invoke instanceof InstanceInvokeExpr) {
-            callSite.setReceiver(getVariable(
-                    ((InstanceInvokeExpr) invoke).getBase(), container));
+            Local base = (Local) ((InstanceInvokeExpr) invoke).getBase();
+            callSite.setReceiver(getVariable(base, container));
         }
-        // TODO: check if the arguments are always Local
         // TODO: handle DynamicInvokeExpr
-        callSite.setArguments(
-                invoke.getArgs()
-                        .stream()
-                        .map(v -> getVariable(v, container))
-                        .filter(v -> v != null)
-                        .collect(Collectors.toList())
-        );
+        if (invoke.getArgCount() > 0) {
+            List<Variable> args = new ArrayList<>(invoke.getArgCount());
+            for (Value arg : invoke.getArgs()) {
+                if (arg.getType() instanceof RefLikeType) {
+                    if (arg instanceof Local) {
+                        args.add(getVariable((Local) arg, container));
+                    } else if (isConstant(arg)) {
+                        args.add(getVariableOfConstant(arg, container));
+                    } else {
+                        throw new AnalysisException("Unhandled argument: " + arg);
+                    }
+                } else { // null for arguments of primitive type
+                    args.add(null);
+                }
+            }
+            callSite.setArguments(args);
+        }
         callSite.setContainerMethod(container);
         return callSite;
     }
@@ -167,6 +158,25 @@ class ElementManager {
         return new JimpleObj(alloc,
                 getType(alloc.getRightOp().getType()),
                 container);
+    }
+
+    private boolean isConstant(Value value) {
+        return value instanceof StringConstant
+                || value instanceof ClassConstant
+                || value instanceof MethodHandle
+                || value instanceof NullConstant
+                || value instanceof NumericConstant;
+    }
+
+    /**
+     * TODO: finish comments
+     * @param constant
+     * @param container
+     * @return
+     */
+    private Variable getVariableOfConstant(
+            Value constant, JimpleMethod container) {
+        return null;
     }
 
     private class MethodBuilder {
@@ -186,7 +196,11 @@ class ElementManager {
             if (paramCount > 0) {
                 List<Variable> params = new ArrayList<>(paramCount);
                 for (int i = 0; i < paramCount; ++i) {
-                    params.add(varManager.getParameter(method, i));
+                    if (sootMethod.getParameterType(i) instanceof RefLikeType) {
+                        params.add(varManager.getParameter(method, i));
+                    } else { // null for parameters of primitive type
+                        params.add(null);
+                    }
                 }
                 method.setParameters(params);
             }
@@ -200,13 +214,19 @@ class ElementManager {
             if (!method.isStatic()) {
                 method.setThisVar(getVariable(body.getThisLocal(), method));
             }
-            method.setParameters(
-                    body.getParameterLocals()
-                            .stream()
-                            .map(param -> getVariable(param, method))
-                            .filter(v -> v != null)
-                            .collect(Collectors.toList())
-            );
+            // add parameters
+            if (body.getParameterLocals().size() > 0) {
+                List<Variable> params = new ArrayList<>(
+                        body.getParameterLocals().size());
+                for (Local param : body.getParameterLocals()) {
+                    if (param.getType() instanceof RefLikeType) {
+                        params.add(getVariable(param, method));
+                    } else {
+                        params.add(null);
+                    }
+                }
+                method.setParameters(params);
+            }
             // add statements
             for (Unit unit : body.getUnits()) {
                 unit.apply(sw);
