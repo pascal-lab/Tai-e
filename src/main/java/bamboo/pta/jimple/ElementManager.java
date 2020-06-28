@@ -78,17 +78,23 @@ class ElementManager {
     private NewVariableManager varManager = new NewVariableManager();
 
     JimpleMethod getMethod(SootMethod method) {
-        return methods.computeIfAbsent(method, this::createMethod);
+        return getOrCreateMethod(method);
     }
 
-    private JimpleMethod createMethod(SootMethod method) {
-        JimpleType jType = getType(method.getDeclaringClass());
-        JimpleMethod jMethod = new JimpleMethod(method, jType);
-        if (method.isNative()) {
-            methodBuilder.buildNative(jMethod);
-        } else if (!method.isAbstract()) {
-            Body body = method.retrieveActiveBody();
-            methodBuilder.buildConcrete(jMethod, body);
+    private JimpleMethod getOrCreateMethod(SootMethod method) {
+        JimpleMethod jMethod = methods.get(method);
+        if (jMethod == null) {
+            JimpleType jType = getType(method.getDeclaringClass());
+            jMethod = new JimpleMethod(method, jType);
+            // jMethod should be put into methods before building method body,
+            // otherwise infinite recursion may occur.
+            methods.put(method, jMethod);
+            if (method.isNative()) {
+                methodBuilder.buildNative(jMethod);
+            } else if (!method.isAbstract()) {
+                Body body = method.retrieveActiveBody();
+                methodBuilder.buildConcrete(jMethod, body);
+            }
         }
         return jMethod;
     }
