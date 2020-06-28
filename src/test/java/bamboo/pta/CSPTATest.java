@@ -75,4 +75,9 @@ public class CSPTATest {
     public void testPrimitive() {
         testCSPTA("Primitive");
     }
+
+    @Test
+    public void testStrings() {
+        testCSPTA("Strings");
+    }
 }

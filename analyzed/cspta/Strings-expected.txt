@@ -1,0 +1,28 @@
+---------- Points-to sets of all variables: ----------
+[]:<A: void <init>()>/this -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
+[]:<Strings: java.lang.String id(java.lang.String)>/s -> {[]:"aaa"}
+[]:<Strings: void main(java.lang.String[])>/a -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
+[]:<Strings: void main(java.lang.String[])>/arr -> {[]:<Strings: void main(java.lang.String[])>/newarray (java.lang.String)[10]/13}
+[]:<Strings: void main(java.lang.String[])>/s1 -> {[]:"aaa"}
+[]:<Strings: void main(java.lang.String[])>/s2 -> {[]:"bbb"}
+[]:<Strings: void main(java.lang.String[])>/s3 -> {[]:"ccc"}
+[]:<Strings: void main(java.lang.String[])>/s4 -> {[]:"ddd"}
+[]:<Strings: void main(java.lang.String[])>/stringconstant$1 -> {[]:"aaa"}
+[]:<Strings: void main(java.lang.String[])>/stringconstant$2 -> {[]:"bbb"}
+[]:<Strings: void main(java.lang.String[])>/stringconstant$3 -> {[]:"ccc"}
+[]:<Strings: void main(java.lang.String[])>/stringconstant$4 -> {[]:"ddd"}
+[]:<Strings: void main(java.lang.String[])>/temp$0 -> {[]:"aaa"}
+[]:<Strings: void main(java.lang.String[])>/temp$1 -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
+[]:<Strings: void main(java.lang.String[])>/temp$2 -> {[]:"bbb"}
+[]:<Strings: void main(java.lang.String[])>/temp$3 -> {[]:"ccc"}
+[]:<Strings: void main(java.lang.String[])>/temp$4 -> {[]:<Strings: void main(java.lang.String[])>/newarray (java.lang.String)[10]/13}
+[]:<Strings: void main(java.lang.String[])>/temp$6 -> {[]:"ddd"}
+[]:<Strings: void main(java.lang.String[])>/temp$7 -> {[]:<Strings: void main(java.lang.String[])>/newarray (java.lang.String)[10]/13}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
+---------- Points-to sets of all instance fields: ----------
+[]:<Strings: void main(java.lang.String[])>/new A/6.f -> {[]:"bbb"}
+---------- Points-to sets of all array indexes: ----------
+[]:<Strings: void main(java.lang.String[])>/newarray (java.lang.String)[10]/13 -> {[]:"ddd"}
+---------- Points-to sets of all static fields: ----------
+<A: java.lang.String sf> -> {[]:"ccc"}
+----------------------------------------

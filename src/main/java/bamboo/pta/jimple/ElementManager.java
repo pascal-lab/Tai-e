@@ -14,7 +14,9 @@
 package bamboo.pta.jimple;
 
 import bamboo.callgraph.JimpleCallUtils;
+import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
+import bamboo.pta.env.Environment;
 import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
@@ -76,6 +78,12 @@ class ElementManager {
     private MethodBuilder methodBuilder = new MethodBuilder();
 
     private NewVariableManager varManager = new NewVariableManager();
+
+    private Environment env;
+
+    ElementManager(Environment env) {
+        this.env = env;
+    }
 
     JimpleMethod getMethod(SootMethod method) {
         return getOrCreateMethod(method);
@@ -187,7 +195,13 @@ class ElementManager {
     private JimpleVariable getVariableOfConstant(
             Value constant, JimpleMethod container) {
         if (constant instanceof StringConstant) {
-            throw new UnsupportedOperationException("String constant is not supported");
+            JimpleType stringType = getType(constant.getType());
+            JimpleVariable temp = varManager.getTempVariable(
+                    "stringconstant$", stringType, container);
+            Obj stringConstant = env.getStringConstant(
+                    stringType, ((StringConstant) constant).value);
+            container.addStatement(new Allocation(temp, stringConstant));
+            return temp;
         } else if (constant instanceof ClassConstant) {
             throw new UnsupportedOperationException("Class constant is not supported");
         } else if (constant instanceof NullConstant) {

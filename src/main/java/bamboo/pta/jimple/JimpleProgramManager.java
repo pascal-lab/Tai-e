@@ -17,6 +17,7 @@ import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
+import bamboo.pta.env.Environment;
 import bamboo.util.AnalysisException;
 import soot.ArrayType;
 import soot.FastHierarchy;
@@ -35,7 +36,9 @@ public class JimpleProgramManager implements ProgramManager {
 
     private FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
 
-    private ElementManager elementManager = new ElementManager();
+    private Environment env = new Environment();
+
+    private ElementManager elementManager = new ElementManager(env);
 
     @Override
     public Collection<Method> getEntryMethods() {
