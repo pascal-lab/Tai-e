@@ -154,7 +154,8 @@ class ElementManager {
         if (invoke.getArgCount() > 0) {
             List<Variable> args = new ArrayList<>(invoke.getArgCount());
             for (Value arg : invoke.getArgs()) {
-                if (arg.getType() instanceof RefLikeType) {
+                if (arg.getType() instanceof RefLikeType
+                        && !(arg instanceof NullConstant)) {
                     if (arg instanceof Local) {
                         args.add(getVariable((Local) arg, container));
                     } else if (isConstant(arg)) {
@@ -162,7 +163,7 @@ class ElementManager {
                     } else {
                         throw new AnalysisException("Unhandled argument: " + arg);
                     }
-                } else { // null for arguments of primitive type
+                } else { // null for arguments of primitive type or null
                     args.add(null);
                 }
             }
@@ -182,8 +183,26 @@ class ElementManager {
         return value instanceof StringConstant
                 || value instanceof ClassConstant
                 || value instanceof MethodHandle
-                || value instanceof NullConstant
                 || value instanceof NumericConstant;
+    }
+
+    /**
+     * Returns the Obj which represents the given constant.
+     */
+    private Obj getConstantObj(Value constant) {
+        if (constant instanceof StringConstant) {
+            JimpleType stringType = getType(constant.getType());
+            return env.getStringConstant(
+                    stringType, ((StringConstant) constant).value);
+        } else if (constant instanceof ClassConstant) {
+            throw new UnsupportedOperationException("Class constant is not supported");
+        } else if (constant instanceof MethodHandle) {
+            throw new UnsupportedOperationException("MethodHandle is not supported");
+        } else if (constant instanceof NumericConstant) {
+            throw new AnalysisException("Unhandled numeric constant: " + constant);
+        } else {
+            throw new AnalysisException("Unhandled case: " + constant);
+        }
     }
 
     /**
@@ -194,26 +213,11 @@ class ElementManager {
      */
     private JimpleVariable getVariableOfConstant(
             Value constant, JimpleMethod container) {
-        if (constant instanceof StringConstant) {
-            JimpleType stringType = getType(constant.getType());
-            JimpleVariable temp = varManager.getTempVariable(
-                    "stringconstant$", stringType, container);
-            Obj stringConstant = env.getStringConstant(
-                    stringType, ((StringConstant) constant).value);
-            container.addStatement(new Allocation(temp, stringConstant));
-            return temp;
-        } else if (constant instanceof ClassConstant) {
-            throw new UnsupportedOperationException("Class constant is not supported");
-        } else if (constant instanceof NullConstant) {
-            return varManager.getTempVariable("null$",
-                    getType(constant.getType()), container);
-        } else if (constant instanceof MethodHandle) {
-            throw new UnsupportedOperationException("MethodHandle is not supported");
-        } else if (constant instanceof NumericConstant) {
-            throw new AnalysisException("Unhandled numeric constant: " + constant);
-        } else {
-            throw new AnalysisException("Unhandled case: " + constant);
-        }
+        Obj obj = getConstantObj(constant);
+        JimpleVariable temp = varManager.getTempVariable(
+                "constant$", getType(constant.getType()), container);
+        container.addStatement(new Allocation(temp, obj));
+        return temp;
     }
 
     private class MethodBuilder {
@@ -308,11 +312,12 @@ class ElementManager {
                 // x = new T[];
                 // TODO: handle allocation comprehensively
                 method.addStatement(new Allocation(lhs, createObject(stmt, method)));
+            } else if (right instanceof NullConstant) {
+                // x = null;
+                // ignore
             } else if (isConstant(right)) {
-                // TODO: x = "x";
                 // TODO: x = T.class;
-                Variable rhs = getVariableOfConstant(right, method);
-                method.addStatement(new Assign(lhs, rhs));
+                method.addStatement(new Allocation(lhs, getConstantObj(right)));
             } else if (right instanceof Local) {
                 // x = y;
                 method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
@@ -353,6 +358,8 @@ class ElementManager {
             Variable rhs;
             if (right instanceof Local) {
                 rhs = getVariable((Local) right, method);
+            } else if (right instanceof NullConstant) {
+                return; // ignore null
             } else if (isConstant(right)) {
                 rhs = getVariableOfConstant(right, method);
             } else {
@@ -409,6 +416,9 @@ class ElementManager {
                 JimpleVariable ret;
                 if (value instanceof Local) {
                     ret = getVariable((Local) value, method);
+                } else if (value instanceof NullConstant) {
+                    // return null;
+                    return; // ignore
                 } else if (isConstant(value)) {
                     ret = getVariableOfConstant(value, method);
                 } else {

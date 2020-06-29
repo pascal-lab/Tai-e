@@ -17,7 +17,6 @@ public interface Obj  {
 
     enum Kind {
         NORMAL,
-        ARRAY,
         STRING_CONSTANT,
         CLASS_CONSTANT,
         SPECIAL, // represents special objects
