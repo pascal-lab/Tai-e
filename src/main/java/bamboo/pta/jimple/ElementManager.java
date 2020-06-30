@@ -29,6 +29,7 @@ import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
 import bamboo.util.MutableInteger;
+import soot.ArrayType;
 import soot.Body;
 import soot.Local;
 import soot.RefLikeType;
@@ -50,6 +51,7 @@ import soot.jimple.InvokeStmt;
 import soot.jimple.MethodHandle;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.NumericConstant;
 import soot.jimple.ReturnStmt;
@@ -112,7 +114,14 @@ class ElementManager {
     }
 
     private JimpleType getType(Type type) {
-        return types.computeIfAbsent(type, JimpleType::new);
+        return types.computeIfAbsent(type, t -> {
+            if (t instanceof ArrayType) {
+                return new JimpleType(t,
+                        getType(((ArrayType) t).getElementType()));
+            } else {
+                return new JimpleType(t);
+            }
+        });
     }
 
     private JimpleField getField(SootField sootField) {
@@ -307,9 +316,11 @@ class ElementManager {
             Variable lhs = getVariable(left, method);
             Value right = stmt.getRightOp();
             if (right instanceof NewExpr
-                    || right instanceof NewArrayExpr) {
+                    || right instanceof NewArrayExpr
+                    || right instanceof NewMultiArrayExpr) {
                 // x = new T();
                 // x = new T[];
+                // x = new T[][];
                 // TODO: handle allocation comprehensively
                 method.addStatement(new Allocation(lhs, createObject(stmt, method)));
             } else if (right instanceof NullConstant) {

@@ -18,7 +18,7 @@ public interface Obj  {
     enum Kind {
         NORMAL,
         STRING_CONSTANT,
-        CLASS_CONSTANT,
+        REFLECTION_OBJECT, // reflection meta-objects
         SPECIAL, // represents special objects
         ARTIFICIAL, // represents the non-exist objects
     }

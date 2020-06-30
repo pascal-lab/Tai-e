@@ -16,4 +16,16 @@ package bamboo.pta.element;
 public interface Type {
 
     String getName();
+
+    /**
+     *
+     * @return if this type is array type.
+     */
+    boolean isArray();
+
+    /**
+     *
+     * @return the element type if this type is array type.
+     */
+    Type getElementType();
 }

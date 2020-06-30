@@ -14,20 +14,32 @@
 package bamboo.pta.jimple;
 
 import bamboo.pta.element.Type;
+import soot.ArrayType;
 import soot.RefType;
 import soot.SootClass;
 
 class JimpleType implements Type {
 
     private soot.Type sootType;
+
+    /**
+     * If this type is array type, then elementType is the type of the
+     * elements of the array.
+     */
+    private Type elementType;
+
     private SootClass sootClass;
 
     JimpleType(soot.Type sootType) {
         this.sootType = sootType;
         if (sootType instanceof RefType) {
-            // TODO - handle array type
             this.sootClass = ((RefType) sootType).getSootClass();
         }
+    }
+
+    JimpleType(soot.Type arrayType, Type elementType) {
+        this.sootType = arrayType;
+        this.elementType = elementType;
     }
 
     SootClass getSootClass() {
@@ -41,6 +53,16 @@ class JimpleType implements Type {
     @Override
     public String getName() {
         return sootType.toString();
+    }
+
+    @Override
+    public boolean isArray() {
+        return sootType instanceof ArrayType;
+    }
+
+    @Override
+    public Type getElementType() {
+        return elementType;
     }
 
     @Override
