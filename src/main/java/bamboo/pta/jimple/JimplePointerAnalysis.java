@@ -47,7 +47,7 @@ public class JimplePointerAnalysis {
 
     private bamboo.pta.analysis.ci.PointerAnalysis cipta;
 
-    private ElementManager elementManager;
+    private IRBuilder irBuilder;
 
     private DataManager dataManager;
 
@@ -55,8 +55,8 @@ public class JimplePointerAnalysis {
 
     public void setPointerAnalysis(PointerAnalysis pta) {
         this.pta = pta;
-        elementManager = ((JimpleProgramManager) pta.getProgramManager())
-                .getElementManager();
+        irBuilder = ((JimpleProgramManager) pta.getProgramManager())
+                .getIRBuilder();
         dataManager = pta.getDataManager();
         jimpleCallGraph = null;
     }
@@ -64,8 +64,8 @@ public class JimplePointerAnalysis {
     public void setCIPointerAnalysis(
             bamboo.pta.analysis.ci.PointerAnalysis cipta) {
         this.cipta = cipta;
-        elementManager = ((JimpleProgramManager) cipta.getProgramManager())
-                .getElementManager();
+        irBuilder = ((JimpleProgramManager) cipta.getProgramManager())
+                .getIRBuilder();
         jimpleCallGraph = null;
     }
 
@@ -73,8 +73,8 @@ public class JimplePointerAnalysis {
      * @return all local variables of a given method.
      */
     public Collection<JimpleVariable> localVariablesOf(SootMethod method) {
-        return elementManager.getLocalVariablesOf(
-                elementManager.getMethod(method));
+        return irBuilder.getLocalVariablesOf(
+                irBuilder.getMethod(method));
     }
 
     /**
@@ -94,8 +94,8 @@ public class JimplePointerAnalysis {
      * @return points-to set of a local in a given method.
      */
     public PointsToSet pointsToSetOf(SootMethod container, Local local) {
-        JimpleMethod m = elementManager.getMethod(container);
-        JimpleVariable var = elementManager.getVariable(local, m);
+        JimpleMethod m = irBuilder.getMethod(container);
+        JimpleVariable var = irBuilder.getVariable(local, m);
         return pointsToSetOf(var);
     }
 

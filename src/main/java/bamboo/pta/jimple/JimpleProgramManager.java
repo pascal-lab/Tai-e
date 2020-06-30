@@ -38,12 +38,12 @@ public class JimpleProgramManager implements ProgramManager {
 
     private Environment env = new Environment();
 
-    private ElementManager elementManager = new ElementManager(env);
+    private IRBuilder irBuilder = new IRBuilder(env);
 
     @Override
     public Collection<Method> getEntryMethods() {
         return Collections.singleton(
-                elementManager.getMethod(Scene.v().getMainMethod())
+                irBuilder.getMethod(Scene.v().getMainMethod())
         );
     }
 
@@ -70,7 +70,7 @@ public class JimpleProgramManager implements ProgramManager {
         SootMethod callee = hierarchy.resolveConcreteDispatch(
                 concreteType.getSootClass(),
                 jMethod.getSootMethod());
-        return elementManager.getMethod(callee);
+        return irBuilder.getMethod(callee);
     }
 
     @Override
@@ -80,10 +80,10 @@ public class JimpleProgramManager implements ProgramManager {
         SootMethod callee = hierarchy.resolveSpecialDispatch(
                 (SpecialInvokeExpr) jCallSite.getSootInvokeExpr(),
                 jContainer.getSootMethod());
-        return elementManager.getMethod(callee);
+        return irBuilder.getMethod(callee);
     }
 
-    ElementManager getElementManager() {
-        return elementManager;
+    IRBuilder getIRBuilder() {
+        return irBuilder;
     }
 }

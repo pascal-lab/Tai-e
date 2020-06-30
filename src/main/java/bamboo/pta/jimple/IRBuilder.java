@@ -68,7 +68,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class ElementManager {
+/**
+ * Jimple-based pointer analysis IR builder.
+ */
+class IRBuilder {
 
     private Map<Type, JimpleType> types = new HashMap<>();
 
@@ -78,13 +81,13 @@ class ElementManager {
 
     private Map<SootField, JimpleField> fields = new HashMap<>();
 
-    private MethodBuilder methodBuilder = new MethodBuilder();
+    private RelevantUnitSwitch sw = new RelevantUnitSwitch();
 
     private NewVariableManager varManager = new NewVariableManager();
 
     private Environment env;
 
-    ElementManager(Environment env) {
+    IRBuilder(Environment env) {
         this.env = env;
     }
 
@@ -101,10 +104,10 @@ class ElementManager {
             // otherwise infinite recursion may occur.
             methods.put(method, jMethod);
             if (method.isNative()) {
-                methodBuilder.buildNative(jMethod);
+                buildNative(jMethod);
             } else if (!method.isAbstract()) {
                 Body body = method.retrieveActiveBody();
-                methodBuilder.buildConcrete(jMethod, body);
+                buildConcrete(jMethod, body);
             }
         }
         return jMethod;
@@ -199,7 +202,7 @@ class ElementManager {
         container.addStatement(new Allocation(lhs, array));
         Type elemType = arrayType.getElementType();
         if (elemType instanceof ArrayType) {
-            Variable temp = varManager.getTempVariable("array$",
+            Variable temp = varManager.newTempVariable("array$",
                     getType(elemType), container);
             newMultiArray(alloc, temp, (ArrayType) elemType, container);
             container.addStatement(new ArrayStore(lhs, temp));
@@ -241,228 +244,224 @@ class ElementManager {
     private JimpleVariable getVariableOfConstant(
             Value constant, JimpleMethod container) {
         Obj obj = getConstantObj(constant);
-        JimpleVariable temp = varManager.getTempVariable(
+        JimpleVariable temp = varManager.newTempVariable(
                 "constant$", getType(constant.getType()), container);
         container.addStatement(new Allocation(temp, obj));
         return temp;
     }
 
-    private class MethodBuilder {
-
-        private RelevantUnitSwitch sw = new RelevantUnitSwitch();
-
-        /**
-         * Build parameters, this variable (if exists), and
-         * return variable (if exists) for the given native method.
-         */
-        private void buildNative(JimpleMethod method) {
-            SootMethod sootMethod = method.getSootMethod();
-            if (!sootMethod.isStatic()) {
-                method.setThisVar(varManager.getThisVariable(method));
-            }
-            int paramCount = sootMethod.getParameterCount();
-            if (paramCount > 0) {
-                List<Variable> params = new ArrayList<>(paramCount);
-                for (int i = 0; i < paramCount; ++i) {
-                    if (sootMethod.getParameterType(i) instanceof RefLikeType) {
-                        params.add(varManager.getParameter(method, i));
-                    } else { // null for parameters of primitive type
-                        params.add(null);
-                    }
-                }
-                method.setParameters(params);
-            }
-            if (sootMethod.getReturnType() instanceof RefLikeType) {
-                method.addReturnVar(varManager.getReturnVariable(method));
-            }
+    /**
+     * Build parameters, this variable (if exists), and
+     * return variable (if exists) for the given native method.
+     */
+    private void buildNative(JimpleMethod method) {
+        SootMethod sootMethod = method.getSootMethod();
+        if (!sootMethod.isStatic()) {
+            method.setThisVar(varManager.getThisVariable(method));
         }
-
-        private void buildConcrete(JimpleMethod method, Body body) {
-            // add this variable and parameters
-            if (!method.isStatic()) {
-                method.setThisVar(getVariable(body.getThisLocal(), method));
-            }
-            // add parameters
-            if (body.getParameterLocals().size() > 0) {
-                List<Variable> params = new ArrayList<>(
-                        body.getParameterLocals().size());
-                for (Local param : body.getParameterLocals()) {
-                    if (param.getType() instanceof RefLikeType) {
-                        params.add(getVariable(param, method));
-                    } else {
-                        params.add(null);
-                    }
-                }
-                method.setParameters(params);
-            }
-            // add statements
-            for (Unit unit : body.getUnits()) {
-                unit.apply(sw);
-                if (sw.isRelevant()) {
-                    if (unit instanceof AssignStmt) {
-                        buildAssign(method, (AssignStmt) unit);
-                    } else if (unit instanceof IdentityStmt) {
-                        buildIdentity(method, (IdentityStmt) unit);
-                    } else if (unit instanceof InvokeStmt) {
-                        buildCall(method, ((InvokeStmt) unit), null);
-                    } else if (unit instanceof ReturnStmt) {
-                        buildReturn(method, (ReturnStmt) unit);
-                    } else if (unit instanceof ThrowStmt) {
-                        buildThrow(method, (ThrowStmt) unit);
-                    } else {
-                        throw new RuntimeException("Cannot handle statement: " + unit);
-                    }
+        int paramCount = sootMethod.getParameterCount();
+        if (paramCount > 0) {
+            List<Variable> params = new ArrayList<>(paramCount);
+            for (int i = 0; i < paramCount; ++i) {
+                if (sootMethod.getParameterType(i) instanceof RefLikeType) {
+                    params.add(varManager.getParameter(method, i));
+                } else { // null for parameters of primitive type
+                    params.add(null);
                 }
             }
+            method.setParameters(params);
         }
-
-        private void buildAssign(JimpleMethod method, AssignStmt stmt) {
-            Value left = stmt.getLeftOp();
-            if (stmt.containsInvokeExpr()) {
-                buildCall(method, stmt, left);
-            } else if (left.getType() instanceof RefLikeType) {
-                // only build statements for non-primitive types
-                if (left instanceof Local) {
-                    buildLeftLocal(method, stmt, (Local) left);
-                } else {
-                    buildLeftNonLocal(method, stmt, left);
-                }
-            }
-        }
-
-        private void buildLeftLocal(JimpleMethod method, AssignStmt stmt, Local left) {
-            Variable lhs = getVariable(left, method);
-            Value right = stmt.getRightOp();
-            if (right instanceof NewExpr
-                    || right instanceof NewArrayExpr) {
-                // x = new T();
-                // x = new T[];
-                method.addStatement(new Allocation(lhs, createObject(stmt, method)));
-            } else if (right instanceof NewMultiArrayExpr) {
-                // x = new T[][]...;
-                newMultiArray(stmt, lhs, (ArrayType) right.getType(), method);
-            } else if (right instanceof NullConstant) {
-                // x = null;
-                // ignore
-            } else if (isConstant(right)) {
-                // TODO: x = T.class;
-                method.addStatement(new Allocation(lhs, getConstantObj(right)));
-            } else if (right instanceof Local) {
-                // x = y;
-                method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
-            } else if (right instanceof CastExpr) {
-                // x = (T) y;
-                CastExpr cast = (CastExpr) right;
-                method.addStatement(new AssignCast(lhs,
-                        getType(cast.getCastType()),
-                        getVariable((Local) cast.getOp(), method)
-                ));
-            } else if (right instanceof PhiExpr) {
-                // x = phi(v1, ..., vn)
-                for (Value from : ((PhiExpr) right).getValues()) {
-                    method.addStatement(new Assign(lhs,
-                            getVariable((Local) from, method)));
-                }
-            } else if (right instanceof InstanceFieldRef) {
-                // x = y.f;
-                InstanceFieldRef ref = (InstanceFieldRef) right;
-                JimpleVariable base = getVariable((Local) ref.getBase(), method);
-                InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
-                method.addStatement(load);
-            } else if (right instanceof ArrayRef) {
-                // x = y[i];
-                // TODO: consider constant index?
-                ArrayRef ref = (ArrayRef) right;
-                JimpleVariable base = getVariable((Local) ref.getBase(), method);
-                ArrayLoad load = new ArrayLoad(lhs, base);
-                method.addStatement(load);
-            } else if (right instanceof StaticFieldRef) {
-                // x = T.f;
-                StaticFieldRef ref = (StaticFieldRef) right;
-                StaticLoad load = new StaticLoad(lhs, getField(ref.getField()));
-                method.addStatement(load);
-            } else {
-                throw new AnalysisException("Unhandled case: " + right);
-            }
-        }
-
-        private void buildLeftNonLocal(JimpleMethod method, AssignStmt stmt, Value left) {
-            Value right = stmt.getRightOp();
-            Variable rhs;
-            if (right instanceof Local) {
-                rhs = getVariable((Local) right, method);
-            } else if (right instanceof NullConstant) {
-                return; // ignore null
-            } else if (isConstant(right)) {
-                rhs = getVariableOfConstant(right, method);
-            } else {
-                throw new AnalysisException("Unhandled case: " + right);
-            }
-            if (left instanceof InstanceFieldRef) {
-                    // x.f = y;
-                    InstanceFieldRef ref = (InstanceFieldRef) left;
-                    JimpleVariable base = getVariable((Local) ref.getBase(), method);
-                    InstanceStore store = new InstanceStore(base,
-                            getField(ref.getField()), rhs);
-                    method.addStatement(store);
-            } else if (left instanceof StaticFieldRef) {
-                // T.f = x;
-                StaticFieldRef ref = (StaticFieldRef) left;
-                StaticStore store = new StaticStore(
-                        getField(ref.getField()), rhs);
-                method.addStatement(store);
-            } else if (left instanceof ArrayRef) {
-                // x[i] = y;
-                // TODO: consider constant index?
-                ArrayRef ref = (ArrayRef) left;
-                JimpleVariable base = getVariable((Local) ref.getBase(), method);
-                ArrayStore store = new ArrayStore(base, rhs);
-                method.addStatement(store);
-            } else {
-                throw new AnalysisException("Unhandled case: " + left);
-            }
-        }
-
-        private void buildIdentity(JimpleMethod method, IdentityStmt stmt) {
-            // identity statement is for parameter passing and catch statements
-            // parameters have been handled when creating JimpleMethod
-            // currently ignore catch statements
-        }
-
-        private void buildCall(JimpleMethod method, Stmt stmt, Value left) {
-            // x.m()     for left == null
-            // r = x.m() for left != null
-            Variable lhs = left != null && left.getType() instanceof RefLikeType
-                    ? getVariable((Local) left, method)
-                    : null;
-            JimpleCallSite callSite = createCallSite(stmt, method);
-            Call call = new Call(callSite, lhs);
-            callSite.setCall(call);
-            method.addStatement(call);
-        }
-
-        private void buildReturn(JimpleMethod method, ReturnStmt stmt) {
-            if (stmt.getOp().getType() instanceof RefLikeType) {
-                Value value = stmt.getOp();
-                JimpleVariable ret;
-                if (value instanceof Local) {
-                    ret = getVariable((Local) value, method);
-                } else if (value instanceof NullConstant) {
-                    // return null;
-                    return; // ignore
-                } else if (isConstant(value)) {
-                    ret = getVariableOfConstant(value, method);
-                } else {
-                    throw new AnalysisException("Unhandled case: " + value);
-                }
-                method.addReturnVar(ret);
-            }
-        }
-
-        private void buildThrow(JimpleMethod method, ThrowStmt stmt) {
-            // currently ignore throw statements
+        if (sootMethod.getReturnType() instanceof RefLikeType) {
+            method.addReturnVar(varManager.getReturnVariable(method));
         }
     }
+
+    private void buildConcrete(JimpleMethod method, Body body) {
+        // add this variable and parameters
+        if (!method.isStatic()) {
+            method.setThisVar(getVariable(body.getThisLocal(), method));
+        }
+        // add parameters
+        if (body.getParameterLocals().size() > 0) {
+            List<Variable> params = new ArrayList<>(
+                    body.getParameterLocals().size());
+            for (Local param : body.getParameterLocals()) {
+                if (param.getType() instanceof RefLikeType) {
+                    params.add(getVariable(param, method));
+                } else {
+                    params.add(null);
+                }
+            }
+            method.setParameters(params);
+        }
+        // add statements
+        for (Unit unit : body.getUnits()) {
+            unit.apply(sw);
+            if (sw.isRelevant()) {
+                if (unit instanceof AssignStmt) {
+                    buildAssign(method, (AssignStmt) unit);
+                } else if (unit instanceof IdentityStmt) {
+                    buildIdentity(method, (IdentityStmt) unit);
+                } else if (unit instanceof InvokeStmt) {
+                    buildCall(method, ((InvokeStmt) unit), null);
+                } else if (unit instanceof ReturnStmt) {
+                    buildReturn(method, (ReturnStmt) unit);
+                } else if (unit instanceof ThrowStmt) {
+                    buildThrow(method, (ThrowStmt) unit);
+                } else {
+                    throw new RuntimeException("Cannot handle statement: " + unit);
+                }
+            }
+        }
+    }
+
+    private void buildAssign(JimpleMethod method, AssignStmt stmt) {
+        Value left = stmt.getLeftOp();
+        if (stmt.containsInvokeExpr()) {
+            buildCall(method, stmt, left);
+        } else if (left.getType() instanceof RefLikeType) {
+            // only build statements for non-primitive types
+            if (left instanceof Local) {
+                buildLeftLocal(method, stmt, (Local) left);
+            } else {
+                buildLeftNonLocal(method, stmt, left);
+            }
+        }
+    }
+
+    private void buildLeftLocal(JimpleMethod method, AssignStmt stmt, Local left) {
+        Variable lhs = getVariable(left, method);
+        Value right = stmt.getRightOp();
+        if (right instanceof NewExpr
+                || right instanceof NewArrayExpr) {
+            // x = new T();
+            // x = new T[];
+            method.addStatement(new Allocation(lhs, createObject(stmt, method)));
+        } else if (right instanceof NewMultiArrayExpr) {
+            // x = new T[][]...;
+            newMultiArray(stmt, lhs, (ArrayType) right.getType(), method);
+        } else if (right instanceof NullConstant) {
+            // x = null;
+            // ignore
+        } else if (isConstant(right)) {
+            // TODO: x = T.class;
+            method.addStatement(new Allocation(lhs, getConstantObj(right)));
+        } else if (right instanceof Local) {
+            // x = y;
+            method.addStatement(new Assign(lhs, getVariable((Local) right, method)));
+        } else if (right instanceof CastExpr) {
+            // x = (T) y;
+            CastExpr cast = (CastExpr) right;
+            method.addStatement(new AssignCast(lhs,
+                    getType(cast.getCastType()),
+                    getVariable((Local) cast.getOp(), method)
+            ));
+        } else if (right instanceof PhiExpr) {
+            // x = phi(v1, ..., vn)
+            for (Value from : ((PhiExpr) right).getValues()) {
+                method.addStatement(new Assign(lhs,
+                        getVariable((Local) from, method)));
+            }
+        } else if (right instanceof InstanceFieldRef) {
+            // x = y.f;
+            InstanceFieldRef ref = (InstanceFieldRef) right;
+            JimpleVariable base = getVariable((Local) ref.getBase(), method);
+            InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
+            method.addStatement(load);
+        } else if (right instanceof ArrayRef) {
+            // x = y[i];
+            // TODO: consider constant index?
+            ArrayRef ref = (ArrayRef) right;
+            JimpleVariable base = getVariable((Local) ref.getBase(), method);
+            ArrayLoad load = new ArrayLoad(lhs, base);
+            method.addStatement(load);
+        } else if (right instanceof StaticFieldRef) {
+            // x = T.f;
+            StaticFieldRef ref = (StaticFieldRef) right;
+            StaticLoad load = new StaticLoad(lhs, getField(ref.getField()));
+            method.addStatement(load);
+        } else {
+            throw new AnalysisException("Unhandled case: " + right);
+        }
+    }
+
+    private void buildLeftNonLocal(JimpleMethod method, AssignStmt stmt, Value left) {
+        Value right = stmt.getRightOp();
+        Variable rhs;
+        if (right instanceof Local) {
+            rhs = getVariable((Local) right, method);
+        } else if (right instanceof NullConstant) {
+            return; // ignore null
+        } else if (isConstant(right)) {
+            rhs = getVariableOfConstant(right, method);
+        } else {
+            throw new AnalysisException("Unhandled case: " + right);
+        }
+        if (left instanceof InstanceFieldRef) {
+                // x.f = y;
+                InstanceFieldRef ref = (InstanceFieldRef) left;
+                JimpleVariable base = getVariable((Local) ref.getBase(), method);
+                InstanceStore store = new InstanceStore(base,
+                        getField(ref.getField()), rhs);
+                method.addStatement(store);
+        } else if (left instanceof StaticFieldRef) {
+            // T.f = x;
+            StaticFieldRef ref = (StaticFieldRef) left;
+            StaticStore store = new StaticStore(
+                    getField(ref.getField()), rhs);
+            method.addStatement(store);
+        } else if (left instanceof ArrayRef) {
+            // x[i] = y;
+            // TODO: consider constant index?
+            ArrayRef ref = (ArrayRef) left;
+            JimpleVariable base = getVariable((Local) ref.getBase(), method);
+            ArrayStore store = new ArrayStore(base, rhs);
+            method.addStatement(store);
+        } else {
+            throw new AnalysisException("Unhandled case: " + left);
+        }
+    }
+
+    private void buildIdentity(JimpleMethod method, IdentityStmt stmt) {
+        // identity statement is for parameter passing and catch statements
+        // parameters have been handled when creating JimpleMethod
+        // currently ignore catch statements
+    }
+
+    private void buildCall(JimpleMethod method, Stmt stmt, Value left) {
+        // x.m()     for left == null
+        // r = x.m() for left != null
+        Variable lhs = left != null && left.getType() instanceof RefLikeType
+                ? getVariable((Local) left, method)
+                : null;
+        JimpleCallSite callSite = createCallSite(stmt, method);
+        Call call = new Call(callSite, lhs);
+        callSite.setCall(call);
+        method.addStatement(call);
+    }
+
+    private void buildReturn(JimpleMethod method, ReturnStmt stmt) {
+        if (stmt.getOp().getType() instanceof RefLikeType) {
+            Value value = stmt.getOp();
+            JimpleVariable ret;
+            if (value instanceof Local) {
+                ret = getVariable((Local) value, method);
+            } else if (value instanceof NullConstant) {
+                // return null;
+                return; // ignore
+            } else if (isConstant(value)) {
+                ret = getVariableOfConstant(value, method);
+            } else {
+                throw new AnalysisException("Unhandled case: " + value);
+            }
+            method.addReturnVar(ret);
+        }
+    }
+
+    private void buildThrow(JimpleMethod method, ThrowStmt stmt) {
+        // currently ignore throw statements
+    }
+
 
     /**
      * Manager for new created variables during method creation.
@@ -471,10 +470,10 @@ class ElementManager {
 
         private Map<JimpleMethod, MutableInteger> varNumbers = new HashMap<>();
 
-        private JimpleVariable getTempVariable(
+        private JimpleVariable newTempVariable(
                 String baseName, JimpleType type, JimpleMethod container) {
             String varName = baseName + getNewNumber(container);
-            return getNewVariable(varName, type, container);
+            return newVariable(varName, type, container);
         }
 
         private int getNewNumber(JimpleMethod container) {
@@ -484,20 +483,20 @@ class ElementManager {
         }
 
         private JimpleVariable getThisVariable(JimpleMethod container) {
-            return getNewVariable("@this", container.getClassType(), container);
+            return newVariable("@this", container.getClassType(), container);
         }
 
         private JimpleVariable getParameter(JimpleMethod container, int index) {
             JimpleType type = getType(container.getSootMethod().getParameterType(index));
-            return getNewVariable("@parameter" + index, type, container);
+            return newVariable("@parameter" + index, type, container);
         }
 
         private JimpleVariable getReturnVariable(JimpleMethod container) {
             JimpleType type = getType(container.getSootMethod().getReturnType());
-            return getNewVariable("@return", type, container);
+            return newVariable("@return", type, container);
         }
 
-        private JimpleVariable getNewVariable(
+        private JimpleVariable newVariable(
                 String varName, JimpleType type, JimpleMethod container) {
             Local local = new JimpleLocal(varName, type.getSootType());
             return new JimpleVariable(local, type, container);
