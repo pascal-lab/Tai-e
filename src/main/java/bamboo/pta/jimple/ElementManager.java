@@ -60,6 +60,7 @@ import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.ThrowStmt;
 import soot.jimple.internal.JimpleLocal;
+import soot.shimple.PhiExpr;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -356,6 +357,12 @@ class ElementManager {
                         getType(cast.getCastType()),
                         getVariable((Local) cast.getOp(), method)
                 ));
+            } else if (right instanceof PhiExpr) {
+                // x = phi(v1, ..., vn)
+                for (Value from : ((PhiExpr) right).getValues()) {
+                    method.addStatement(new Assign(lhs,
+                            getVariable((Local) from, method)));
+                }
             } else if (right instanceof InstanceFieldRef) {
                 // x = y.f;
                 InstanceFieldRef ref = (InstanceFieldRef) right;
