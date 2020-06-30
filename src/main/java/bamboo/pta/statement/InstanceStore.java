@@ -31,6 +31,7 @@ public class InstanceStore implements Statement {
         this.base = base;
         this.field = field;
         this.from = from;
+        base.addInstanceStore(this);
     }
 
     public Variable getBase() {

@@ -27,6 +27,7 @@ public class ArrayStore implements Statement {
     public ArrayStore(Variable base, Variable from) {
         this.base = base;
         this.from = from;
+        base.addArrayStore(this);
     }
 
     public Variable getBase() {

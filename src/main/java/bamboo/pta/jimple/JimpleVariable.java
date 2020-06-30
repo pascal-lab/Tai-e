@@ -64,41 +64,6 @@ class JimpleVariable implements Variable {
         this.containerMethod = containerMethod;
     }
 
-    void addCall(Call call) {
-        if (calls.isEmpty()) {
-            calls = new LinkedHashSet<>(4);
-        }
-        calls.add(call);
-    }
-
-    void addInstanceStore(InstanceStore store) {
-        if (instStores.isEmpty()) {
-            instStores = new LinkedHashSet<>(4);
-        }
-        instStores.add(store);
-    }
-
-    void addInstanceLoad(InstanceLoad load) {
-        if (instLoads.isEmpty()) {
-            instLoads = new LinkedHashSet<>(4);
-        }
-        instLoads.add(load);
-    }
-
-    void addArrayStore(ArrayStore store) {
-        if (arrayStores.isEmpty()) {
-            arrayStores = new LinkedHashSet<>(4);
-        }
-        arrayStores.add(store);
-    }
-
-    void addArrayLoad(ArrayLoad load) {
-        if (arrayLoads.isEmpty()) {
-            arrayLoads = new LinkedHashSet<>(4);
-        }
-        arrayLoads.add(load);
-    }
-
     @Override
     public JimpleType getType() {
         return type;
@@ -115,8 +80,24 @@ class JimpleVariable implements Variable {
     }
 
     @Override
+    public void addCall(Call call) {
+        if (calls.isEmpty()) {
+            calls = new LinkedHashSet<>(4);
+        }
+        calls.add(call);
+    }
+
+    @Override
     public Set<Call> getCalls() {
         return calls;
+    }
+
+    @Override
+    public void addInstanceLoad(InstanceLoad load) {
+        if (instLoads.isEmpty()) {
+            instLoads = new LinkedHashSet<>(4);
+        }
+        instLoads.add(load);
     }
 
     @Override
@@ -130,8 +111,32 @@ class JimpleVariable implements Variable {
     }
 
     @Override
+    public void addInstanceStore(InstanceStore store) {
+        if (instStores.isEmpty()) {
+            instStores = new LinkedHashSet<>(4);
+        }
+        instStores.add(store);
+    }
+
+    @Override
+    public void addArrayLoad(ArrayLoad load) {
+        if (arrayLoads.isEmpty()) {
+            arrayLoads = new LinkedHashSet<>(4);
+        }
+        arrayLoads.add(load);
+    }
+
+    @Override
     public Set<ArrayLoad> getArrayLoads() {
         return arrayLoads;
+    }
+
+    @Override
+    public void addArrayStore(ArrayStore store) {
+        if (arrayStores.isEmpty()) {
+            arrayStores = new LinkedHashSet<>(4);
+        }
+        arrayStores.add(store);
     }
 
     @Override

@@ -344,7 +344,6 @@ class ElementManager {
                 InstanceFieldRef ref = (InstanceFieldRef) right;
                 JimpleVariable base = getVariable((Local) ref.getBase(), method);
                 InstanceLoad load = new InstanceLoad(lhs, base, getField(ref.getField()));
-                base.addInstanceLoad(load);
                 method.addStatement(load);
             } else if (right instanceof ArrayRef) {
                 // x = y[i];
@@ -352,7 +351,6 @@ class ElementManager {
                 ArrayRef ref = (ArrayRef) right;
                 JimpleVariable base = getVariable((Local) ref.getBase(), method);
                 ArrayLoad load = new ArrayLoad(lhs, base);
-                base.addArrayLoad(load);
                 method.addStatement(load);
             } else if (right instanceof StaticFieldRef) {
                 // x = T.f;
@@ -382,7 +380,6 @@ class ElementManager {
                     JimpleVariable base = getVariable((Local) ref.getBase(), method);
                     InstanceStore store = new InstanceStore(base,
                             getField(ref.getField()), rhs);
-                    base.addInstanceStore(store);
                     method.addStatement(store);
             } else if (left instanceof StaticFieldRef) {
                 // T.f = x;
@@ -396,7 +393,6 @@ class ElementManager {
                 ArrayRef ref = (ArrayRef) left;
                 JimpleVariable base = getVariable((Local) ref.getBase(), method);
                 ArrayStore store = new ArrayStore(base, rhs);
-                base.addArrayStore(store);
                 method.addStatement(store);
             } else {
                 throw new AnalysisException("Unhandled case: " + left);

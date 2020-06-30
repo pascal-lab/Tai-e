@@ -31,6 +31,7 @@ public class InstanceLoad implements Statement {
         this.to = to;
         this.base = base;
         this.field = field;
+        base.addInstanceLoad(this);
     }
 
     public Variable getTo() {

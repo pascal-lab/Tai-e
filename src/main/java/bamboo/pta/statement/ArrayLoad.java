@@ -27,6 +27,7 @@ public class ArrayLoad implements Statement {
     public ArrayLoad(Variable to, Variable base) {
         this.to = to;
         this.base = base;
+        base.addArrayLoad(this);
     }
 
     public Variable getTo() {

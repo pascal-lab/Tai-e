@@ -30,10 +30,20 @@ public interface Variable {
     String getName();
 
     /**
+     * Adds a call whose receiver variable is this variable.
+     */
+    void addCall(Call call);
+
+    /**
      *
      * @return set of call statements where this variable is the receiver.
      */
     Set<Call> getCalls();
+
+    /**
+     * Adds an instance load whose base variable is this variable.
+     */
+    void addInstanceLoad(InstanceLoad load);
 
     /**
      *
@@ -42,16 +52,31 @@ public interface Variable {
     Set<InstanceLoad> getInstanceLoads();
 
     /**
+     * Adds an instance store whose base variable is this variable.
+     */
+    void addInstanceStore(InstanceStore store);
+
+    /**
      *
      * @return set of instance stores where this variable is the base.
      */
     Set<InstanceStore> getInstanceStores();
 
     /**
+     * Adds an array load whose base variable is this variable.
+     */
+    void addArrayLoad(ArrayLoad load);
+
+    /**
      *
      * @return set of array loads where this variable is the base.
      */
     Set<ArrayLoad> getArrayLoads();
+
+    /**
+     * Adds an array store whose base variable is this variable.
+     */
+    void addArrayStore(ArrayStore store);
 
     /**
      *
