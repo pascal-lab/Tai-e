@@ -1,0 +1,20 @@
+---------- Points-to sets of all variables: ----------
+[]:<A: void <init>()>/this -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
+[]:<MultiArray: void main(java.lang.String[])>/a -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
+[]:<MultiArray: void main(java.lang.String[])>/arr -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4}
+[]:<MultiArray: void main(java.lang.String[])>/array$1 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
+[]:<MultiArray: void main(java.lang.String[])>/array$2 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
+[]:<MultiArray: void main(java.lang.String[])>/temp$0 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4}
+[]:<MultiArray: void main(java.lang.String[])>/temp$11 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
+[]:<MultiArray: void main(java.lang.String[])>/temp$2 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
+[]:<MultiArray: void main(java.lang.String[])>/temp$4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
+[]:<MultiArray: void main(java.lang.String[])>/temp$6 -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
+[]:<MultiArray: void main(java.lang.String[])>/temp$7 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4}
+[]:<MultiArray: void main(java.lang.String[])>/temp$9 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+[]:<MultiArray: void main(java.lang.String[])>/new A[]/4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
+[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
+[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
+---------- Points-to sets of all static fields: ----------

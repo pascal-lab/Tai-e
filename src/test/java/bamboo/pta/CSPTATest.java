@@ -80,4 +80,9 @@ public class CSPTATest {
     public void testStrings() {
         testCSPTA("Strings");
     }
+
+    @Test
+    public void testMultiArray() {
+        testCSPTA("MultiArray");
+    }
 }

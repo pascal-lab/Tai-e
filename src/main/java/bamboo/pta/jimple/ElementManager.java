@@ -188,6 +188,23 @@ class ElementManager {
                 container);
     }
 
+    /**
+     * Processes allocation of multi-array, which needs to be
+     * allocated separately for every dimension of the array.
+     */
+    private void newMultiArray(AssignStmt alloc, Variable lhs,
+                               ArrayType arrayType, JimpleMethod container) {
+        JimpleObj array = new JimpleObj(alloc, getType(arrayType), container);
+        container.addStatement(new Allocation(lhs, array));
+        Type elemType = arrayType.getElementType();
+        if (elemType instanceof ArrayType) {
+            Variable temp = varManager.getTempVariable("array$",
+                    getType(elemType), container);
+            newMultiArray(alloc, temp, (ArrayType) elemType, container);
+            container.addStatement(new ArrayStore(lhs, temp));
+        }
+    }
+
     private boolean isConstant(Value value) {
         return value instanceof StringConstant
                 || value instanceof ClassConstant
@@ -316,13 +333,13 @@ class ElementManager {
             Variable lhs = getVariable(left, method);
             Value right = stmt.getRightOp();
             if (right instanceof NewExpr
-                    || right instanceof NewArrayExpr
-                    || right instanceof NewMultiArrayExpr) {
+                    || right instanceof NewArrayExpr) {
                 // x = new T();
                 // x = new T[];
-                // x = new T[][];
-                // TODO: handle allocation comprehensively
                 method.addStatement(new Allocation(lhs, createObject(stmt, method)));
+            } else if (right instanceof NewMultiArrayExpr) {
+                // x = new T[][]...;
+                newMultiArray(stmt, lhs, (ArrayType) right.getType(), method);
             } else if (right instanceof NullConstant) {
                 // x = null;
                 // ignore
