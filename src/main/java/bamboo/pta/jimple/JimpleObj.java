@@ -18,6 +18,8 @@ import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import soot.jimple.AssignStmt;
 
+import java.util.Objects;
+
 public class JimpleObj implements Obj {
 
     private final Object allocation;
@@ -52,12 +54,13 @@ public class JimpleObj implements Obj {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JimpleObj obj = (JimpleObj) o;
-        return allocation.equals(obj.allocation);
+        return allocation.equals(obj.allocation)
+                && type.equals(obj.type);
     }
 
     @Override
     public int hashCode() {
-        return allocation.hashCode();
+        return Objects.hash(allocation, type);
     }
 
     @Override
@@ -68,7 +71,8 @@ public class JimpleObj implements Obj {
         }
         if (allocation instanceof AssignStmt) {
             AssignStmt alloc = (AssignStmt) allocation;
-            sb.append(alloc.getRightOp())
+            sb.append("new ")
+                    .append(type)
                     .append('/')
                     .append(alloc.getJavaSourceStartLineNumber());
         } else {
