@@ -93,10 +93,6 @@ class IRBuilder {
     }
 
     JimpleMethod getMethod(SootMethod method) {
-        return getOrCreateMethod(method);
-    }
-
-    private JimpleMethod getOrCreateMethod(SootMethod method) {
         JimpleMethod jMethod = methods.get(method);
         if (jMethod == null) {
             JimpleType jType = getType(method.getDeclaringClass());
@@ -119,26 +115,40 @@ class IRBuilder {
     }
 
     private JimpleType getType(Type type) {
-        return types.computeIfAbsent(type, this::buildType);
+        JimpleType jType = types.get(type);
+        if (jType == null) {
+            jType = new JimpleType(type);
+            // jType should be put into types before building type information,
+            // otherwise infinite recursion may occur.
+            types.put(type, jType);
+            buildType(jType);
+        }
+        return jType;
     }
 
-    private JimpleType buildType(Type type) {
-        JimpleType result = new JimpleType(type);
-        if (type instanceof ArrayType) {
-            ArrayType t = (ArrayType) type;
-            result.setElementType(getType(t.getElementType()));
-            result.setBaseType(getType(t.getElementType()));
+    /**
+     * Build type information.
+     */
+    private void buildType(JimpleType type) {
+        soot.Type sootType = type.getSootType();
+        if (sootType instanceof ArrayType) {
+            ArrayType t = (ArrayType) sootType;
+            type.setElementType(getType(t.getElementType()));
+            type.setBaseType(getType(t.getElementType()));
         }
-        if (type instanceof RefType) {
-            SootClass c = ((RefType) type).getSootClass();
-            result.setSootClass(c);
+        if (sootType instanceof RefType) {
+            SootClass c = ((RefType) sootType).getSootClass();
+            type.setSootClass(c);
             if (c.hasSuperclass() && !c.isInterface()) {
-                result.setSuperClass(getType(c.getSuperclass()));
+                type.setSuperClass(getType(c.getSuperclass()));
             }
             c.getInterfaces()
-                    .forEach(i -> result.addSuperInterface(getType(i)));
+                    .forEach(i -> type.addSuperInterface(getType(i)));
+            SootMethod clinit = c.getMethodUnsafe("void <clinit>()");
+            if (clinit != null) {
+                type.setClassInitializer(getMethod(clinit));
+            }
         }
-        return result;
     }
 
     private JimpleField getField(SootField sootField) {
