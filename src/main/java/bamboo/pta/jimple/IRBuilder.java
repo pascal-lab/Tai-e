@@ -33,6 +33,7 @@ import soot.ArrayType;
 import soot.Body;
 import soot.Local;
 import soot.RefLikeType;
+import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -114,18 +115,30 @@ class IRBuilder {
     }
 
     private JimpleType getType(SootClass sootClass) {
-        return types.computeIfAbsent(sootClass.getType(), JimpleType::new);
+        return getType(sootClass.getType());
     }
 
     private JimpleType getType(Type type) {
-        return types.computeIfAbsent(type, t -> {
-            if (t instanceof ArrayType) {
-                return new JimpleType(t,
-                        getType(((ArrayType) t).getElementType()));
-            } else {
-                return new JimpleType(t);
+        return types.computeIfAbsent(type, this::buildType);
+    }
+
+    private JimpleType buildType(Type type) {
+        JimpleType result = new JimpleType(type);
+        if (type instanceof ArrayType) {
+            ArrayType t = (ArrayType) type;
+            result.setElementType(getType(t.getElementType()));
+            result.setBaseType(getType(t.getElementType()));
+        }
+        if (type instanceof RefType) {
+            SootClass c = ((RefType) type).getSootClass();
+            result.setSootClass(c);
+            if (c.hasSuperclass() && !c.isInterface()) {
+                result.setSuperClass(getType(c.getSuperclass()));
             }
-        });
+            c.getInterfaces()
+                    .forEach(i -> result.addSuperInterface(getType(i)));
+        }
+        return result;
     }
 
     private JimpleField getField(SootField sootField) {

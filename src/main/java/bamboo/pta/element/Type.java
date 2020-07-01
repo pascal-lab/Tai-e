@@ -13,17 +13,44 @@
 
 package bamboo.pta.element;
 
+import java.util.Set;
+
 public interface Type {
 
     String getName();
 
     /**
+     * @return if this type is class type.
+     */
+    boolean isClassType();
+
+    /**
      * @return if this type is array type.
      */
-    boolean isArray();
+    boolean isArrayType();
+
+    /**
+     * @return the direct super class of this type.
+     */
+    Type getSuperClass();
+
+    /**
+     * @return the direct super interfaces of this type.
+     */
+    Set<Type> getSuperInterfaces();
 
     /**
      * @return the element type if this type is array type.
      */
     Type getElementType();
+
+    /**
+     * @return the base element type if this type is array type.
+     */
+    Type getBaseType();
+
+    /**
+     * @return the class initializer of this type.
+     */
+    Method getClassInitializer();
 }
