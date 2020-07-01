@@ -20,6 +20,8 @@ class A {
     }
 }
 
-class B {}
+class B {
+}
 
-class C extends B {}
+class C extends B {
+}

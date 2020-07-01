@@ -7,15 +7,19 @@ public class VirtualCall {
 }
 
 class A {
-    void foo() {}
+    void foo() {
+    }
 }
 
-class B extends A {}
+class B extends A {
+}
 
 class C extends B {
-    void foo() {}
+    void foo() {
+    }
 }
 
 class D extends B {
-    void foo() {}
+    void foo() {
+    }
 }

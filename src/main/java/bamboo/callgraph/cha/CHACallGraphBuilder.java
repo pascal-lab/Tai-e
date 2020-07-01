@@ -41,20 +41,19 @@ import static bamboo.callgraph.JimpleCallUtils.getCallKind;
 public class CHACallGraphBuilder extends SceneTransformer {
 
     private static final CHACallGraphBuilder INSTANCE = new CHACallGraphBuilder();
+    private CallGraph<Unit, SootMethod> recentCallGraph;
+    private FastHierarchy hierarchy;
+
+    private CHACallGraphBuilder() {
+    }
 
     public static CHACallGraphBuilder v() {
         return INSTANCE;
     }
 
-    private CHACallGraphBuilder() {}
-
-    private CallGraph<Unit, SootMethod> recentCallGraph;
-
     public CallGraph<Unit, SootMethod> getRecentCallGraph() {
         return recentCallGraph;
     }
-
-    private FastHierarchy hierarchy;
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {

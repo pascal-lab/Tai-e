@@ -15,6 +15,7 @@ package bamboo.pta.analysis.context;
 
 /**
  * Context with one element
+ *
  * @param <T> type of context elements
  */
 class OneContext<T> implements Context {

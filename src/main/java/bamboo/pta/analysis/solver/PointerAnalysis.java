@@ -30,17 +30,17 @@ import java.util.stream.Stream;
 
 public interface PointerAnalysis {
 
-    void setProgramManager(ProgramManager programManager);
-
     ProgramManager getProgramManager();
 
-    void setDataManager(DataManager dataManager);
+    void setProgramManager(ProgramManager programManager);
 
     DataManager getDataManager();
 
-    void setContextSelector(ContextSelector contextSelector);
+    void setDataManager(DataManager dataManager);
 
     ContextSelector getContextSelector();
+
+    void setContextSelector(ContextSelector contextSelector);
 
     void setHeapModel(HeapModel heapModel);
 
@@ -51,31 +51,26 @@ public interface PointerAnalysis {
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
     /**
-     *
      * @return all variables in the (reachable) program.
      */
     Stream<CSVariable> getVariables();
 
     /**
-     *
      * @return all instance fields in the (reachable) program.
      */
     Stream<InstanceField> getInstanceFields();
 
     /**
-     *
      * @return all array indexes in the (reachable) program.
      */
     Stream<ArrayIndex> getArrayIndexes();
 
     /**
-     *
      * @return all static fields in the (reachable) program.
      */
     Stream<StaticField> getStaticFields();
 
     /**
-     *
      * @return if this pointer analysis is context-sensitive.
      */
     boolean isContextSensitive();

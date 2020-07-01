@@ -13,15 +13,7 @@
 
 package bamboo.pta.element;
 
-public interface Obj  {
-
-    enum Kind {
-        NORMAL,
-        STRING_CONSTANT,
-        REFLECTION_OBJECT, // reflection meta-objects
-        SPECIAL, // represents special objects
-        ARTIFICIAL, // represents the non-exist objects
-    }
+public interface Obj {
 
     Type getType();
 
@@ -30,15 +22,22 @@ public interface Obj  {
      * For STRING_CONSTANT, returns the string constant.
      * For CLASS_CONSTANT, returns the class type.
      * For SPECIAL and ARTIFICIAL, the return value
-     *   depends on concrete implementation.
+     * depends on concrete implementation.
      */
     Object getAllocation();
 
     /**
-     *
      * @return the method containing the allocation site of this object.
      * Returns null for Some special objects, e.g., string constants,
      * which do not have such method.
      */
     Method getContainerMethod();
+
+    enum Kind {
+        NORMAL,
+        STRING_CONSTANT,
+        REFLECTION_OBJECT, // reflection meta-objects
+        SPECIAL, // represents special objects
+        ARTIFICIAL, // represents the non-exist objects
+    }
 }

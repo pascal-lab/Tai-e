@@ -1,5 +1,5 @@
 class SimpleBranch {
-    
+
     static void NAC(int p) {
         int x;
         if (p > 0) {

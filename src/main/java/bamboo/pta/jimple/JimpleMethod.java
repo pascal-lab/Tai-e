@@ -46,10 +46,6 @@ class JimpleMethod implements Method {
         this.thisVar = thisVar;
     }
 
-    void setParameters(List<Variable> parameters) {
-        this.parameters = parameters;
-    }
-
     void addReturnVar(JimpleVariable returnVar) {
         if (returnVars.isEmpty()) {
             returnVars = new HashSet<>(4);
@@ -101,6 +97,10 @@ class JimpleMethod implements Method {
     @Override
     public List<Variable> getParameters() {
         return parameters;
+    }
+
+    void setParameters(List<Variable> parameters) {
+        this.parameters = parameters;
     }
 
     @Override

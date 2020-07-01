@@ -21,10 +21,11 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 class PointsToSet implements Iterable<Obj> {
-    
+
     private final Set<Obj> set = new HybridArrayHashSet<>();
 
-    PointsToSet() {}
+    PointsToSet() {
+    }
 
     PointsToSet(Obj obj) {
         addObject(obj);

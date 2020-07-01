@@ -7,11 +7,13 @@ class Null {
         A y = null;
     }
 
-    static void foo(A a1, A a2) {}
+    static void foo(A a1, A a2) {
+    }
 
     static A returnNull() {
         return null;
     }
 }
 
-class A {}
+class A {
+}

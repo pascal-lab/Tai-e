@@ -13,9 +13,9 @@
 
 package bamboo.dataflow.analysis.constprop;
 
+import bamboo.util.AnalysisException;
 import org.junit.Assert;
 import org.junit.Test;
-import bamboo.util.AnalysisException;
 
 public class ValueTest {
 

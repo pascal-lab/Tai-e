@@ -1,5 +1,5 @@
 public class TestIPConstantPropagation {
-    
+
     public static void main(String[] args) {
         A a = new A();
         int x = a.identity(100);
@@ -69,7 +69,8 @@ class A {
         return 10;
     }
 
-    void use(int x) {}
+    void use(int x) {
+    }
 
     int identity(int x) {
         return x;

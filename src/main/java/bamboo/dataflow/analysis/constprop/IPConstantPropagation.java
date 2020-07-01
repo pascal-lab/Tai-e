@@ -42,9 +42,52 @@ import java.util.Map;
 public class IPConstantPropagation extends SceneTransformer
         implements IPDataFlowAnalysis<FlowMap, SootMethod, Unit> {
 
-    private ICFG<SootMethod, Unit> icfg;
-
     private final ConstantPropagation cp;
+    private ICFG<SootMethod, Unit> icfg;
+    private final EdgeTransfer<Unit, FlowMap> edgeTransfer = new EdgeTransfer<Unit, FlowMap>() {
+
+        @Override
+        public void transferLocalEdge(LocalEdge<Unit> edge, FlowMap nodeOut, FlowMap edgeFlow) {
+            // Set edge flow to node out-flow
+            edgeFlow.copyFrom(nodeOut);
+        }
+
+        @Override
+        public void transferCallEdge(CallEdge<Unit> edge, FlowMap callSiteInFlow, FlowMap edgeFlow) {
+            // Passing arguments at call site to parameters of the callee
+            InvokeExpr invoke = ((Stmt) edge.getSource()).getInvokeExpr();
+            Unit entry = edge.getTarget();
+            SootMethod callee = icfg.getContainingMethodOf(entry);
+            List<soot.Value> args = invoke.getArgs();
+            List<Local> params = callee.getActiveBody().getParameterLocals();
+            for (int i = 0; i < args.size(); ++i) {
+                soot.Value arg = args.get(i);
+                Local param = params.get(i);
+                Value argValue = cp.computeValue(arg, callSiteInFlow);
+                edgeFlow.update(param, argValue);
+            }
+            // TODO - handle this variable properly
+            if (!callee.isStatic()) {
+                edgeFlow.update(callee.getActiveBody().getThisLocal(),
+                        Value.getNAC());
+            }
+        }
+
+        @Override
+        public void transferReturnEdge(ReturnEdge<Unit> edge, FlowMap returnOutFlow, FlowMap edgeFlow) {
+            // Passing return value to the LHS of the call statement
+            Unit callSite = edge.getCallSite();
+            Unit exit = edge.getSource();
+            // TODO - consider exceptional exit?
+            if (exit instanceof ReturnStmt &&
+                    callSite instanceof AssignStmt) {
+                Local ret = (Local) ((ReturnStmt) exit).getOp();
+                Value value = returnOutFlow.get(ret);
+                Local lhs = (Local) ((AssignStmt) callSite).getLeftOp();
+                edgeFlow.update(lhs, value);
+            }
+        }
+    };
 
     public IPConstantPropagation() {
         cp = ConstantPropagation.v();
@@ -104,51 +147,6 @@ public class IPConstantPropagation extends SceneTransformer
         }
         return changed;
     }
-
-    private final EdgeTransfer<Unit, FlowMap> edgeTransfer = new EdgeTransfer<Unit, FlowMap>() {
-
-        @Override
-        public void transferLocalEdge(LocalEdge<Unit> edge, FlowMap nodeOut, FlowMap edgeFlow) {
-            // Set edge flow to node out-flow
-            edgeFlow.copyFrom(nodeOut);
-        }
-
-        @Override
-        public void transferCallEdge(CallEdge<Unit> edge, FlowMap callSiteInFlow, FlowMap edgeFlow) {
-            // Passing arguments at call site to parameters of the callee
-            InvokeExpr invoke = ((Stmt) edge.getSource()).getInvokeExpr();
-            Unit entry = edge.getTarget();
-            SootMethod callee = icfg.getContainingMethodOf(entry);
-            List<soot.Value> args = invoke.getArgs();
-            List<Local> params = callee.getActiveBody().getParameterLocals();
-            for (int i = 0; i < args.size(); ++i) {
-                soot.Value arg = args.get(i);
-                Local param = params.get(i);
-                Value argValue = cp.computeValue(arg, callSiteInFlow);
-                edgeFlow.update(param, argValue);
-            }
-            // TODO - handle this variable properly
-            if (!callee.isStatic()) {
-                edgeFlow.update(callee.getActiveBody().getThisLocal(),
-                        Value.getNAC());
-            }
-        }
-
-        @Override
-        public void transferReturnEdge(ReturnEdge<Unit> edge, FlowMap returnOutFlow, FlowMap edgeFlow) {
-            // Passing return value to the LHS of the call statement
-            Unit callSite = edge.getCallSite();
-            Unit exit = edge.getSource();
-            // TODO - consider exceptional exit?
-            if (exit instanceof ReturnStmt &&
-                    callSite instanceof AssignStmt) {
-                Local ret = (Local) ((ReturnStmt) exit).getOp();
-                Value value = returnOutFlow.get(ret);
-                Local lhs = (Local) ((AssignStmt) callSite).getLeftOp();
-                edgeFlow.update(lhs, value);
-            }
-        }
-    };
 
     @Override
     public EdgeTransfer<Unit, FlowMap> getEdgeTransfer() {

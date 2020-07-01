@@ -41,7 +41,7 @@ public abstract class IPSolver<Domain, Method, Node> {
     protected Map<Edge<Node>, Domain> edgeFlow;
 
     protected IPSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
-                     ICFG<Method, Node> icfg) {
+                       ICFG<Method, Node> icfg) {
         this.analysis = analysis;
         this.icfg = icfg;
     }

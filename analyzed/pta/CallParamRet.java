@@ -17,13 +17,16 @@ class A {
         bar(b2, b1);
     }
 
-    void foo(B p1, B p2) {}
+    void foo(B p1, B p2) {
+    }
 
-    void bar(B p1, B p2) {}
+    void bar(B p1, B p2) {
+    }
 
     B id(B b) {
         return b;
     }
 }
 
-class B {}
+class B {
+}

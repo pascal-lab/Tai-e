@@ -7,4 +7,5 @@ class MultiArray {
     }
 }
 
-class A {}
+class A {
+}

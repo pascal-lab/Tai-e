@@ -21,6 +21,6 @@ class Strings {
 }
 
 class A {
-    String f;
     static String sf;
+    String f;
 }

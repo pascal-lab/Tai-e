@@ -16,7 +16,6 @@ package bamboo.pta.analysis.context;
 public interface Context {
 
     /**
-     *
      * @return the depth (i.e., the number of elements) of this context.
      */
     int depth();

@@ -20,29 +20,9 @@ import java.util.Objects;
 
 class PointerFlowEdge {
 
-    enum Kind {
-        LOCAL_ASSIGN,
-        CAST,
-
-        INSTANCE_LOAD,
-        INSTANCE_STORE,
-
-        ARRAY_LOAD,
-        ARRAY_STORE,
-
-        STATIC_LOAD,
-        STATIC_STORE,
-
-        PARAMETER_PASSING,
-        RETURN,
-    }
-
     private final Kind kind;
-
     private final Pointer from;
-
     private final Pointer to;
-
     /**
      * Type of "to" node. This type is useful for handling some cases,
      * e.g., type casting and reflective assignment.
@@ -93,5 +73,22 @@ class PointerFlowEdge {
     @Override
     public String toString() {
         return "[" + kind + "]" + from + " -> " + to;
+    }
+
+    enum Kind {
+        LOCAL_ASSIGN,
+        CAST,
+
+        INSTANCE_LOAD,
+        INSTANCE_STORE,
+
+        ARRAY_LOAD,
+        ARRAY_STORE,
+
+        STATIC_LOAD,
+        STATIC_STORE,
+
+        PARAMETER_PASSING,
+        RETURN,
     }
 }

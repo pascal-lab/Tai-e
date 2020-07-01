@@ -20,12 +20,12 @@ abstract class AbstractPointer implements Pointer {
     protected PointsToSet pointsToSet;
 
     @Override
-    public void setPointsToSet(PointsToSet pointsToSet) {
-        this.pointsToSet = pointsToSet;
+    public PointsToSet getPointsToSet() {
+        return pointsToSet;
     }
 
     @Override
-    public PointsToSet getPointsToSet() {
-        return pointsToSet;
+    public void setPointsToSet(PointsToSet pointsToSet) {
+        this.pointsToSet = pointsToSet;
     }
 }

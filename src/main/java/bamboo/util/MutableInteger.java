@@ -31,6 +31,7 @@ public class MutableInteger {
 
     /**
      * Increase the value by one and then return it.
+     *
      * @return the increased value.
      */
     public int increase() {

@@ -14,9 +14,8 @@
 package bamboo.dataflow.analysis;
 
 /**
- *
  * @param <Domain> Type for lattice values
- * @param <Node> Type for nodes of control-flow graph
+ * @param <Node>   Type for nodes of control-flow graph
  */
 public interface DataFlowAnalysis<Domain, Node> {
 

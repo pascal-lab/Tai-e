@@ -6,5 +6,6 @@ public class ControlFlowUnreachable {
         dead(); // unreachable
     }
 
-    static void dead() {}
+    static void dead() {
+    }
 }

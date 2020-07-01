@@ -20,7 +20,6 @@ public interface Field {
     boolean isStatic();
 
     /**
-     *
      * @return The class type where this field is declared.
      */
     Type getClassType();

@@ -398,12 +398,12 @@ class IRBuilder {
             throw new AnalysisException("Unhandled case: " + right);
         }
         if (left instanceof InstanceFieldRef) {
-                // x.f = y;
-                InstanceFieldRef ref = (InstanceFieldRef) left;
-                JimpleVariable base = getVariable((Local) ref.getBase(), method);
-                InstanceStore store = new InstanceStore(base,
-                        getField(ref.getField()), rhs);
-                method.addStatement(store);
+            // x.f = y;
+            InstanceFieldRef ref = (InstanceFieldRef) left;
+            JimpleVariable base = getVariable((Local) ref.getBase(), method);
+            InstanceStore store = new InstanceStore(base,
+                    getField(ref.getField()), rhs);
+            method.addStatement(store);
         } else if (left instanceof StaticFieldRef) {
             // T.f = x;
             StaticFieldRef ref = (StaticFieldRef) left;

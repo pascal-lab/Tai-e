@@ -32,8 +32,8 @@ public class ReturnEdge<Node> extends Edge<Node> {
 
     @Override
     public <Domain> void accept(EdgeTransfer<Node, Domain> transfer,
-                       Domain sourceInFlow, Domain sourceOutFlow,
-                       Domain edgeFlow) {
+                                Domain sourceInFlow, Domain sourceOutFlow,
+                                Domain edgeFlow) {
         transfer.transferReturnEdge(this, sourceOutFlow, edgeFlow);
     }
 

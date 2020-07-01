@@ -47,18 +47,18 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private static final PointerAnalysisTransformer INSTANCE =
             new PointerAnalysisTransformer();
+    private boolean isOutput = true;
+
+    private PointerAnalysisTransformer() {
+    }
 
     public static PointerAnalysisTransformer v() {
         return INSTANCE;
     }
 
-    private boolean isOutput = true;
-
     public void setOutput(boolean isOutput) {
         this.isOutput = isOutput;
     }
-
-    private PointerAnalysisTransformer() {}
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
@@ -97,19 +97,23 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             case "ci":
                 pta.setContextSelector(new ContextInsensitiveSelector());
                 break;
-            case "1-call": case "1-cfa":
+            case "1-call":
+            case "1-cfa":
                 pta.setContextSelector(new OneCallSelector());
                 break;
-            case "1-obj": case "1-object":
+            case "1-obj":
+            case "1-object":
                 pta.setContextSelector(new OneObjectSelector());
                 break;
             case "1-type":
                 pta.setContextSelector(new OneTypeSelector());
                 break;
-            case "2-call": case "2-cfa":
+            case "2-call":
+            case "2-cfa":
                 pta.setContextSelector(new TwoCallSelector());
                 break;
-            case "2-obj": case "2-object":
+            case "2-obj":
+            case "2-object":
                 pta.setContextSelector(new TwoObjectSelector());
                 break;
             case "2-type":

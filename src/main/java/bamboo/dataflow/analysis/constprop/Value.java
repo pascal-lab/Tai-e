@@ -21,18 +21,9 @@ import bamboo.util.AnalysisException;
  */
 public class Value {
 
-    private enum Kind {
-        NAC, // not a constant
-        CONSTANT, // an integer constant
-        UNDEF, // undefined value
-    }
-
     private static final Value NAC = new Value(Kind.NAC);
-
     private static final Value UNDEF = new Value(Kind.UNDEF);
-
     private final Kind kind;
-
     private final int value;
 
     private Value(Kind kind) {
@@ -42,6 +33,27 @@ public class Value {
     private Value(Kind kind, int value) {
         this.kind = kind;
         this.value = value;
+    }
+
+    /**
+     * Returns the NAC.
+     */
+    public static Value getNAC() {
+        return NAC;
+    }
+
+    /**
+     * Makes a constant value.
+     */
+    public static Value makeConstant(int v) {
+        return new Value(Kind.CONSTANT, v);
+    }
+
+    /**
+     * Returns the UNDEF.
+     */
+    public static Value getUndef() {
+        return UNDEF;
     }
 
     /**
@@ -107,24 +119,9 @@ public class Value {
         }
     }
 
-    /**
-     * Returns the NAC.
-     */
-    public static Value getNAC() {
-        return NAC;
-    }
-
-    /**
-     * Makes a constant value.
-     */
-    public static Value makeConstant(int v) {
-        return new Value(Kind.CONSTANT, v);
-    }
-
-    /**
-     * Returns the UNDEF.
-     */
-    public static Value getUndef() {
-        return UNDEF;
+    private enum Kind {
+        NAC, // not a constant
+        CONSTANT, // an integer constant
+        UNDEF, // undefined value
     }
 }

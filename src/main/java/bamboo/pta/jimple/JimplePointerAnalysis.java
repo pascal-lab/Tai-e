@@ -38,20 +38,15 @@ public class JimplePointerAnalysis {
 
     private static final JimplePointerAnalysis INSTANCE =
             new JimplePointerAnalysis();
+    private PointerAnalysis pta;
+    private bamboo.pta.analysis.ci.PointerAnalysis cipta;
+    private IRBuilder irBuilder;
+    private DataManager dataManager;
+    private JimpleCallGraph jimpleCallGraph;
 
     public static JimplePointerAnalysis v() {
         return INSTANCE;
     }
-
-    private PointerAnalysis pta;
-
-    private bamboo.pta.analysis.ci.PointerAnalysis cipta;
-
-    private IRBuilder irBuilder;
-
-    private DataManager dataManager;
-
-    private JimpleCallGraph jimpleCallGraph;
 
     public void setPointerAnalysis(PointerAnalysis pta) {
         this.pta = pta;

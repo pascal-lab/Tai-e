@@ -13,11 +13,11 @@
 
 package bamboo.dataflow;
 
+import bamboo.dataflow.analysis.constprop.CPTestSuite;
 import bamboo.dataflow.analysis.deadcode.DCDTestFull;
+import bamboo.dataflow.lattice.LatticeTestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import bamboo.dataflow.analysis.constprop.CPTestSuite;
-import bamboo.dataflow.lattice.LatticeTestSuite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

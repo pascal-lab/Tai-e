@@ -27,7 +27,8 @@ import java.util.concurrent.TimeoutException;
 
 public class SootUtils {
 
-    private SootUtils() {}
+    private SootUtils() {
+    }
 
     /**
      * Convert an Unit to its String representation.

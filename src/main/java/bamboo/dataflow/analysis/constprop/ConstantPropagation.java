@@ -46,18 +46,18 @@ public class ConstantPropagation extends BodyTransformer
         implements DataFlowAnalysis<FlowMap, Unit> {
 
     private static final ConstantPropagation INSTANCE = new ConstantPropagation();
+    private static boolean isOutput = true;
+
+    private ConstantPropagation() {
+    }
 
     public static ConstantPropagation v() {
         return INSTANCE;
     }
 
-    private static boolean isOutput = true;
-
     public static void setOutput(boolean isOutput) {
         ConstantPropagation.isOutput = isOutput;
     }
-
-    private ConstantPropagation() {}
 
     // ---------- Data-flow analysis for constant propagation ----------
     @Override
@@ -101,7 +101,7 @@ public class ConstantPropagation extends BodyTransformer
         }
     }
 
-                                                                                                                                @Override
+    @Override
     public boolean transfer(Unit node, FlowMap in, FlowMap out) {
         boolean changed = false;
         if (node instanceof DefinitionStmt) {
@@ -121,8 +121,9 @@ public class ConstantPropagation extends BodyTransformer
 
     /**
      * Computes value of a RHS expression
+     *
      * @param rhs the RHS expression
-     * @param in in-flow of the statement
+     * @param in  in-flow of the statement
      * @return the value of the RHS expression
      */
     public Value computeValue(soot.Value rhs, FlowMap in) {
@@ -161,8 +162,7 @@ public class ConstantPropagation extends BodyTransformer
                     res = i1 <= i2 ? 1 : 0;
                 } else if (expr instanceof LtExpr) {
                     res = i1 < i2 ? 1 : 0;
-                }
-                else {
+                } else {
                     throw new UnsupportedOperationException(expr + " is not supported");
                 }
                 return Value.makeConstant(res);

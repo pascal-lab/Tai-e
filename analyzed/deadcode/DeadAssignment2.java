@@ -1,5 +1,8 @@
 class DeadAssignment2 {
 
+    static void use(int x) {
+    }
+
     void deadAssign1() {
         Object o = new Object();
         int b = ten();
@@ -32,8 +35,6 @@ class DeadAssignment2 {
         x = 2;
         return x;
     }
-
-    static void use(int x) {}
 
     int ten() {
         return 10;

@@ -14,14 +14,16 @@ public class LongCallChain {
         baz2();
     }
 
-    static void bar2() {}
+    static void bar2() {
+    }
 
     static void baz1() {
         A a = new A();
         a.m1();
     }
 
-    static void baz2() {}
+    static void baz2() {
+    }
 }
 
 class A {
@@ -37,5 +39,6 @@ class A {
         m4();
     }
 
-    void m4() {}
+    void m4() {
+    }
 }

@@ -1,13 +1,13 @@
+interface Number {
+    int get();
+}
+
 public class Interface {
 
     public static void main(String[] args) {
         Number n = new One();
         n.get();
     }
-}
-
-interface Number {
-    int get();
 }
 
 class Zero implements Number {

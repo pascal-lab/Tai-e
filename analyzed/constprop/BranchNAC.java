@@ -1,5 +1,5 @@
 class BranchNAC {
-    
+
     void NAC1(boolean b) {
         int x;
         if (b) {

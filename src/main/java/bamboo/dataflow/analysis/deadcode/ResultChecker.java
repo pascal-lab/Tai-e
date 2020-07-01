@@ -42,6 +42,13 @@ public class ResultChecker {
      * The current result checker
      */
     private static ResultChecker checker;
+    private final Set<String> mismatches = new TreeSet<>();
+    // ---------- instance members ----------
+    private Map<String, Set<String>> expectedResult;
+
+    ResultChecker(Path filePath) {
+        readExpectedResult(filePath);
+    }
 
     private static void setChecker(ResultChecker checker) {
         ResultChecker.checker = checker;
@@ -57,6 +64,7 @@ public class ResultChecker {
 
     /**
      * The entry function of whole checking mechanism.
+     *
      * @param args the arguments for running Soot
      * @param path the path string of the expected result file
      * @return the mismatched information in form of set of strings
@@ -71,15 +79,6 @@ public class ResultChecker {
         G.reset(); // reset the whole Soot environment
         Main.main(args);
         return checker.getMismatches();
-    }
-
-    // ---------- instance members ----------
-    private Map<String, Set<String>> expectedResult;
-
-    private final Set<String> mismatches = new TreeSet<>();
-
-    ResultChecker(Path filePath) {
-        readExpectedResult(filePath);
     }
 
     Set<String> getMismatches() {
@@ -100,7 +99,8 @@ public class ResultChecker {
             if (analysisResult.contains(u)
                     && !expectedDeadCode.contains(given)) {
                 mismatches.add("\n" + given + " should NOT be dead code");
-            } if (!analysisResult.contains(u)
+            }
+            if (!analysisResult.contains(u)
                     && expectedDeadCode.contains(given)) {
                 mismatches.add("\n" + given + " should be dead code");
             }

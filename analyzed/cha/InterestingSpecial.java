@@ -2,7 +2,7 @@ public class InterestingSpecial {
 
     public static void main(String[] args) {
         B b = new B();
-        b.callInteresting();        
+        b.callInteresting();
     }
 }
 

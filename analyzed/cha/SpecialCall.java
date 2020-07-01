@@ -9,14 +9,18 @@ public class SpecialCall {
 
 class A {
 
-    A() {}
+    A() {
+    }
 
-    A(B b) {}
+    A(B b) {
+    }
 
-    void foo() {}
+    void foo() {
+    }
 }
 
-class B extends A {}
+class B extends A {
+}
 
 class C extends B {
 

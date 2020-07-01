@@ -35,7 +35,6 @@ public interface Variable {
     void addCall(Call call);
 
     /**
-     *
      * @return set of call statements where this variable is the receiver.
      */
     Set<Call> getCalls();
@@ -46,7 +45,6 @@ public interface Variable {
     void addInstanceLoad(InstanceLoad load);
 
     /**
-     *
      * @return set of instance loads where this variable is the base.
      */
     Set<InstanceLoad> getInstanceLoads();
@@ -57,7 +55,6 @@ public interface Variable {
     void addInstanceStore(InstanceStore store);
 
     /**
-     *
      * @return set of instance stores where this variable is the base.
      */
     Set<InstanceStore> getInstanceStores();
@@ -68,7 +65,6 @@ public interface Variable {
     void addArrayLoad(ArrayLoad load);
 
     /**
-     *
      * @return set of array loads where this variable is the base.
      */
     Set<ArrayLoad> getArrayLoads();
@@ -79,7 +75,6 @@ public interface Variable {
     void addArrayStore(ArrayStore store);
 
     /**
-     *
      * @return set of array stores where this variable is the base.
      */
     Set<ArrayStore> getArrayStores();

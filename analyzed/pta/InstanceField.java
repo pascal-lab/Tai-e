@@ -49,4 +49,5 @@ class C {
     D d;
 }
 
-class D {}
+class D {
+}

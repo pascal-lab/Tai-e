@@ -10,7 +10,9 @@ class Loops {
         dead(); // unreachable branch
     }
 
-    void dead() {}
+    void dead() {
+    }
 
-    void use(int n) {}
+    void use(int n) {
+    }
 }

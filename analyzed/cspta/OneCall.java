@@ -1,3 +1,7 @@
+interface Number {
+    int get();
+}
+
 class OneCall {
     public static void main(String[] args) {
         C c = new C();
@@ -19,10 +23,6 @@ class C {
     Number id(Number n) {
         return n;
     }
-}
-
-interface Number {
-    int get();
 }
 
 class Zero implements Number {

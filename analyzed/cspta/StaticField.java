@@ -11,4 +11,5 @@ class A {
     static B b;
 }
 
-class B {}
+class B {
+}

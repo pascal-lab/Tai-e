@@ -24,7 +24,8 @@ import java.util.stream.Stream;
  */
 public class CollectionUtils {
 
-    private CollectionUtils() {}
+    private CollectionUtils() {
+    }
 
     public static <K, E> boolean addToMapSet(Map<K, Set<E>> map, K key, E element) {
         return map.computeIfAbsent(key, k -> newSet()).add(element);
@@ -44,7 +45,6 @@ public class CollectionUtils {
     }
 
     /**
-     *
      * @return a stream of all values of a map of map.
      */
     public static <K1, K2, V> Stream<V> getAllValues(Map<K1, Map<K2, V>> map) {

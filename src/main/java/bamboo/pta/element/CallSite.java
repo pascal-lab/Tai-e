@@ -28,7 +28,6 @@ public interface CallSite {
     boolean isStatic();
 
     /**
-     *
      * @return the call statements containing this call site.
      */
     Call getCall();

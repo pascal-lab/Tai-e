@@ -17,6 +17,7 @@ import java.util.Objects;
 
 /**
  * Contexts with two elements
+ *
  * @param <T> type of context elements
  */
 public class TwoContext<T> implements Context {
@@ -38,10 +39,13 @@ public class TwoContext<T> implements Context {
     @Override
     public T element(int i) {
         switch (i) {
-            case 1: return e1;
-            case 2: return e2;
-            default: throw new IllegalArgumentException(
-                    "Context " + this + " doesn't have " + i + "-th element");
+            case 1:
+                return e1;
+            case 2:
+                return e2;
+            default:
+                throw new IllegalArgumentException(
+                        "Context " + this + " doesn't have " + i + "-th element");
         }
     }
 

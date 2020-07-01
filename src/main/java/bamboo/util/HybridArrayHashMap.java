@@ -585,6 +585,24 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
         return "[]";
     }
 
+    private static final class EmptyIterator<E> implements Iterator<E> {
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void remove() {
+            throw new IllegalStateException();
+        }
+    }
+
     private abstract class ArrayIterator<E> implements Iterator<E> {
 
         int next, last;
@@ -683,24 +701,6 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
                 singleton_value = null;
             } else
                 throw new IllegalStateException();
-        }
-    }
-
-    private static final class EmptyIterator<E> implements Iterator<E> {
-
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public E next() {
-            throw new NoSuchElementException();
-        }
-
-        @Override
-        public void remove() {
-            throw new IllegalStateException();
         }
     }
 }

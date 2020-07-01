@@ -13,4 +13,5 @@ class A {
     B f;
 }
 
-class B {}
+class B {
+}

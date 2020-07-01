@@ -1,5 +1,5 @@
 class SimpleBoolean {
-    
+
     void constant() {
         boolean t = true;
         boolean f = false;
@@ -13,6 +13,6 @@ class SimpleBoolean {
     void propagation() {
         boolean a = true;
         boolean b = a;
-        boolean c = b; 
+        boolean c = b;
     }
 }

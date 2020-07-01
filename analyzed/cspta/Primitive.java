@@ -9,11 +9,13 @@ class Primitive {
         int x = out();
     }
 
-    static void in(A a1, int n, A a2) {}
+    static void in(A a1, int n, A a2) {
+    }
 
     static int out() {
         return 222;
     }
 }
 
-class A {}
+class A {
+}

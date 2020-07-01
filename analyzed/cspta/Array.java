@@ -9,4 +9,5 @@ class Array {
     }
 }
 
-class A {}
+class A {
+}

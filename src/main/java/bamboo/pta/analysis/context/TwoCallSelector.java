@@ -32,11 +32,14 @@ public class TwoCallSelector implements ContextSelector {
     public Context selectContext(CSCallSite callSite, CSObj recv, Method callee) {
         Context ctx = callSite.getContext();
         switch (ctx.depth()) {
-            case 0: return new OneContext<>(callSite.getCallSite());
-            case 1: return new TwoContext<>(
-                    ctx.element(1), callSite.getCallSite());
-            default: return new TwoContext<>(
-                    ctx.element(ctx.depth()), callSite.getCallSite());
+            case 0:
+                return new OneContext<>(callSite.getCallSite());
+            case 1:
+                return new TwoContext<>(
+                        ctx.element(1), callSite.getCallSite());
+            default:
+                return new TwoContext<>(
+                        ctx.element(ctx.depth()), callSite.getCallSite());
         }
     }
 

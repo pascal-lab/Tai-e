@@ -30,4 +30,5 @@ class A {
     }
 }
 
-class B {}
+class B {
+}

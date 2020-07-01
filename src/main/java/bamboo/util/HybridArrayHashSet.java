@@ -81,7 +81,8 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
             array = (V[]) new Object[ARRAY_SIZE];
             number_of_used_array_entries = 0;
             boolean m_is_set = m instanceof Set;
-            outer: for (V v : m) {
+            outer:
+            for (V v : m) {
                 if (v == null)
                     throw new NullPointerException(NULL_KEY);
                 if (!m_is_set) { // avoid duplicates

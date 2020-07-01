@@ -10,5 +10,6 @@ public class ControlFlowUnreachable2 {
         use(z); // unreachable
     }
 
-    static void use(int x) {}
+    static void use(int x) {
+    }
 }

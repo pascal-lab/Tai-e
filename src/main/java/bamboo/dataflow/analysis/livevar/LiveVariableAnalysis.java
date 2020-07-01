@@ -35,18 +35,18 @@ public class LiveVariableAnalysis extends BodyTransformer
         implements DataFlowAnalysis<FlowSet<Local>, Unit> {
 
     private static final LiveVariableAnalysis INSTANCE = new LiveVariableAnalysis();
+    private static boolean isOutput = true;
+
+    private LiveVariableAnalysis() {
+    }
 
     public static LiveVariableAnalysis v() {
         return INSTANCE;
     }
 
-    private static boolean isOutput = true;
-
     public static void setOutput(boolean isOutput) {
         LiveVariableAnalysis.isOutput = isOutput;
     }
-
-    private LiveVariableAnalysis() {}
 
     // ---------- Data-flow analysis for live variable analysis  ----------
     @Override

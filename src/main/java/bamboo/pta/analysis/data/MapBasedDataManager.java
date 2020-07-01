@@ -35,24 +35,23 @@ import java.util.stream.Stream;
  */
 public class MapBasedDataManager implements DataManager {
 
-    private PointsToSetFactory setFactory;
-
     private final Map<Variable, Map<Context, CSVariable>> vars = new HashMap<>();
-
     private final Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
-
     private final Map<CSObj, ArrayIndex> arrayIndexes = new HashMap<>();
-
     private final Map<Field, StaticField> staticFields = new HashMap<>();
-
     private final Map<Obj, Map<Context, CSObj>> objs = new HashMap<>();
-
     private final Map<CallSite, Map<Context, CSCallSite>> callSites = new HashMap<>();
-
     private final Map<Method, Map<Context, CSMethod>> methods = new HashMap<>();
+    private PointsToSetFactory setFactory;
 
     public MapBasedDataManager(PointsToSetFactory setFactory) {
         setPointsToSetFactory(setFactory);
+    }
+
+    private static <R, Key1, Key2> R getOrCreateCSElement(
+            Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
+        return map.computeIfAbsent(key1, k -> new HybridArrayHashMap<>())
+                .computeIfAbsent(key2, (k) -> creator.apply(key1, key2));
     }
 
     @Override
@@ -122,11 +121,5 @@ public class MapBasedDataManager implements DataManager {
     private <P extends Pointer> P initializePointsToSet(P pointer) {
         pointer.setPointsToSet(setFactory.makePointsToSet());
         return pointer;
-    }
-
-    private static <R, Key1, Key2> R getOrCreateCSElement(
-            Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
-        return map.computeIfAbsent(key1, k -> new HybridArrayHashMap<>())
-                .computeIfAbsent(key2, (k) -> creator.apply(key1, key2));
     }
 }

@@ -1,5 +1,5 @@
 class BranchUndef {
-    
+
     void undefined1(boolean b) {
         int x, undef;
         if (b) {

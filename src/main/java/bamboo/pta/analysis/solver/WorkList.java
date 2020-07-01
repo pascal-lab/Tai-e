@@ -46,18 +46,6 @@ class WorkList {
         return pointerEntries.poll();
     }
 
-    class Entry {
-
-        final Pointer pointer;
-
-        final PointsToSet pointsToSet;
-
-        public Entry(Pointer pointer, PointsToSet pointsToSet) {
-            this.pointer = pointer;
-            this.pointsToSet = pointsToSet;
-        }
-    }
-
     boolean hasCallEdges() {
         return !callEdges.isEmpty();
     }
@@ -74,5 +62,17 @@ class WorkList {
 
     boolean isEmpty() {
         return pointerEntries.isEmpty() && callEdges.isEmpty();
+    }
+
+    class Entry {
+
+        final Pointer pointer;
+
+        final PointsToSet pointsToSet;
+
+        public Entry(Pointer pointer, PointsToSet pointsToSet) {
+            this.pointer = pointer;
+            this.pointsToSet = pointsToSet;
+        }
     }
 }

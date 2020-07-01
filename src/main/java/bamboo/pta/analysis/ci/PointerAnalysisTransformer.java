@@ -31,7 +31,8 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             new PointerAnalysisTransformer();
     private boolean isOutput = true;
 
-    private PointerAnalysisTransformer() {}
+    private PointerAnalysisTransformer() {
+    }
 
     public static PointerAnalysisTransformer v() {
         return INSTANCE;

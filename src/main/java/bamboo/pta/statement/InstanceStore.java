@@ -58,6 +58,6 @@ public class InstanceStore implements Statement {
 
     @Override
     public String toString() {
-        return  base + "." + field + " = " + from;
+        return base + "." + field + " = " + from;
     }
 }

@@ -35,4 +35,5 @@ class C {
     }
 }
 
-class D {}
+class D {
+}

@@ -8,5 +8,6 @@ class DeadAssignment {
         int a = x; // dead assignment
     }
 
-    static void use(int n) {}
+    static void use(int n) {
+    }
 }

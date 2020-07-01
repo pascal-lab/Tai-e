@@ -1,13 +1,13 @@
+interface Number {
+    int get();
+}
+
 public class PTACP {
 
     public static void main(String[] args) {
         Number n = new One();
         int x = n.get();
     }
-}
-
-interface Number {
-    int get();
 }
 
 class Zero implements Number {

@@ -20,9 +20,8 @@ import soot.toolkits.graph.DirectedGraph;
 import java.util.Map;
 
 /**
- *
  * @param <Domain> Type for lattice values
- * @param <Node> Type for nodes of control-flow graph
+ * @param <Node>   Type for nodes of control-flow graph
  */
 public abstract class Solver<Domain, Node> {
 

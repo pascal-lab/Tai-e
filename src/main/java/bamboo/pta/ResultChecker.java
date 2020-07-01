@@ -44,10 +44,21 @@ public class ResultChecker {
      * The current result checker
      */
     private static ResultChecker checker;
+    private final Set<String> mismatches = new TreeSet<>();
+    /**
+     * Map from pointer to its points-to set
+     */
+    private Map<String, String> expectedResults;
+
+    ResultChecker(Path filePath) {
+        readExpectedResult(filePath);
+    }
 
     private static void setChecker(ResultChecker checker) {
         ResultChecker.checker = checker;
     }
+
+    // ---------- instance members ----------
 
     public static boolean isAvailable() {
         return checker != null;
@@ -59,6 +70,7 @@ public class ResultChecker {
 
     /**
      * The entry function of whole checking mechanism.
+     *
      * @param args the arguments for running Soot
      * @param path the path string of the expected result file
      * @return the mismatched information in form of set of strings
@@ -71,18 +83,6 @@ public class ResultChecker {
         G.reset(); // reset the whole Soot environment
         Main.main(args);
         return checker.getMismatches();
-    }
-
-    // ---------- instance members ----------
-    /**
-     * Map from pointer to its points-to set
-     */
-    private Map<String, String> expectedResults;
-
-    private final Set<String> mismatches = new TreeSet<>();
-
-    ResultChecker(Path filePath) {
-        readExpectedResult(filePath);
     }
 
     public Set<String> getMismatches() {

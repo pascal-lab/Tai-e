@@ -52,29 +52,6 @@ class JimpleCallSite implements CallSite {
         return stmt.getInvokeExpr();
     }
 
-    void setCall(Call call) {
-        this.call = call;
-        if (!isStatic()) {
-            receiver.addCall(call);
-        }
-    }
-
-    void setMethod(JimpleMethod method) {
-        this.method = method;
-    }
-
-    void setReceiver(JimpleVariable receiver) {
-        this.receiver = receiver;
-    }
-
-    void setArguments(List<Variable> arguments) {
-        this.arguments = arguments;
-    }
-
-    void setContainerMethod(JimpleMethod containerMethod) {
-        this.containerMethod = containerMethod;
-    }
-
     @Override
     public boolean isInterface() {
         return kind == CallKind.INTERFACE;
@@ -100,9 +77,20 @@ class JimpleCallSite implements CallSite {
         return call;
     }
 
+    void setCall(Call call) {
+        this.call = call;
+        if (!isStatic()) {
+            receiver.addCall(call);
+        }
+    }
+
     @Override
     public JimpleMethod getMethod() {
         return method;
+    }
+
+    void setMethod(JimpleMethod method) {
+        this.method = method;
     }
 
     @Override
@@ -110,14 +98,26 @@ class JimpleCallSite implements CallSite {
         return receiver;
     }
 
+    void setReceiver(JimpleVariable receiver) {
+        this.receiver = receiver;
+    }
+
     @Override
     public List<Variable> getArguments() {
         return arguments;
     }
 
+    void setArguments(List<Variable> arguments) {
+        this.arguments = arguments;
+    }
+
     @Override
     public JimpleMethod getContainerMethod() {
         return containerMethod;
+    }
+
+    void setContainerMethod(JimpleMethod containerMethod) {
+        this.containerMethod = containerMethod;
     }
 
     @Override
@@ -137,7 +137,7 @@ class JimpleCallSite implements CallSite {
     public String toString() {
         String invoke = stmt.getInvokeExpr().toString();
         String invokeRep = invoke.substring(invoke.indexOf(' ') + 1);
-        return  containerMethod.getClassType()
+        return containerMethod.getClassType()
                 + "(L" + stmt.getJavaSourceStartLineNumber() + "):"
                 + invokeRep;
     }

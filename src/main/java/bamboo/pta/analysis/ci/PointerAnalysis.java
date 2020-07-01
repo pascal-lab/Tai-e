@@ -46,12 +46,12 @@ public class PointerAnalysis {
 
     private WorkList workList;
 
-    public void setProgramManager(ProgramManager programManager) {
-        this.programManager = programManager;
-    }
-
     public ProgramManager getProgramManager() {
         return programManager;
+    }
+
+    public void setProgramManager(ProgramManager programManager) {
+        this.programManager = programManager;
     }
 
     public void setHeapModel(HeapModel heapModel) {
@@ -197,8 +197,9 @@ public class PointerAnalysis {
 
     /**
      * Processes instance stores when points-to set of the base variable changes.
+     *
      * @param baseVar the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param pts     set of new discovered objects pointed by the variable.
      */
     private void processInstanceStore(Var baseVar, PointsToSet pts) {
         Variable var = baseVar.getVariable();
@@ -214,8 +215,9 @@ public class PointerAnalysis {
 
     /**
      * Processes instance loads when points-to set of the base variable changes.
+     *
      * @param baseVar the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param pts     set of new discovered objects pointed by the variable.
      */
     private void processInstanceLoad(Var baseVar, PointsToSet pts) {
         Variable var = baseVar.getVariable();
@@ -231,8 +233,9 @@ public class PointerAnalysis {
 
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
+     *
      * @param recv the receiver variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param pts  set of new discovered objects pointed by the variable.
      */
     private void processCall(Var recv, PointsToSet pts) {
         Variable var = recv.getVariable();
@@ -307,7 +310,7 @@ public class PointerAnalysis {
         if (callSite.isInterface() || callSite.isVirtual()) {
             return programManager.resolveInterfaceOrVirtualCall(
                     type, callSite.getMethod());
-        } else if (callSite.isSpecial()){
+        } else if (callSite.isSpecial()) {
             return programManager.resolveSpecialCall(
                     callSite, callSite.getContainerMethod());
         } else {

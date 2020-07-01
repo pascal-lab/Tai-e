@@ -16,5 +16,7 @@ class NotDead {
         int z = y;
         return z;
     }
-    void use(int n) {}
+
+    void use(int n) {
+    }
 }

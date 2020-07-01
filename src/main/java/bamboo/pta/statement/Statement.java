@@ -15,6 +15,10 @@ package bamboo.pta.statement;
 
 public interface Statement {
 
+    Kind getKind();
+
+    void accept(StatementVisitor visitor);
+
     enum Kind {
         ALLOCATION,
         ASSIGN,
@@ -31,8 +35,4 @@ public interface Statement {
 
         CALL,
     }
-
-    Kind getKind();
-
-    void accept(StatementVisitor visitor);
 }

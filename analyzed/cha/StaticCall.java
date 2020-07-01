@@ -9,7 +9,8 @@ public class StaticCall {
         bar();
     }
 
-    static void bar() {}
+    static void bar() {
+    }
 }
 
 class A {

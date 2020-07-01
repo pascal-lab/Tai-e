@@ -50,18 +50,18 @@ import java.util.Set;
 public class DeadCodeDetection extends BodyTransformer {
 
     private static final DeadCodeDetection INSTANCE = new DeadCodeDetection();
+    private static boolean isOutput = true;
+
+    private DeadCodeDetection() {
+    }
 
     public static DeadCodeDetection v() {
         return INSTANCE;
     }
 
-    private static boolean isOutput = true;
-
     public static void setOutput(boolean isOutput) {
         DeadCodeDetection.isOutput = isOutput;
     }
-
-    private DeadCodeDetection() {}
 
     // ---------- analysis for dead code detection ----------
     private Set<Unit> findDeadCode(Body b) {
@@ -167,7 +167,7 @@ public class DeadCodeDetection extends BodyTransformer {
                 || rhs instanceof AnyNewExpr // new expression modifies the heap
                 || rhs instanceof CastExpr // cast may trigger ClassCastException
                 || rhs instanceof ConcreteRef // static field ref may trigger class initialization
-                                              // instance field/array ref may trigger null pointer exception
+                // instance field/array ref may trigger null pointer exception
                 || rhs instanceof DivExpr || rhs instanceof RemExpr; // may trigger DivideByZeroException
     }
 
@@ -185,6 +185,28 @@ public class DeadCodeDetection extends BodyTransformer {
                 .orElse(null);
     }
 
+    // ---------- Body transformer ----------
+    @Override
+    protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
+        Set<Unit> deadCode = findDeadCode(b);
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(b, deadCode);
+        }
+        if (isOutput) {
+            outputResult(b, deadCode);
+        }
+    }
+
+    private synchronized void outputResult(Body body, Set<Unit> deadCode) {
+        System.out.println("------ " + body.getMethod() + " [dead code] -----");
+        BriefUnitPrinter up = new BriefUnitPrinter(body);
+        body.getUnits()
+                .stream()
+                .filter(deadCode::contains)
+                .forEach(u -> System.out.println(SootUtils.unitToString(up, u)));
+        System.out.println();
+    }
+
     /**
      * Represents a set of control-flow edges.
      */
@@ -199,28 +221,6 @@ public class DeadCodeDetection extends BodyTransformer {
         private boolean containsEdge(Unit from, Unit to) {
             return edgeSet.contains(new Pair<>(from, to));
         }
-    }
-
-    // ---------- Body transformer ----------
-    @Override
-    protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
-        Set<Unit> deadCode = findDeadCode(b);
-        if (ResultChecker.isAvailable()) {
-            ResultChecker.get().compare(b, deadCode);
-        }
-        if (isOutput){
-            outputResult(b, deadCode);
-        }
-    }
-
-    private synchronized void outputResult(Body body, Set<Unit> deadCode) {
-        System.out.println("------ " + body.getMethod() + " [dead code] -----");
-        BriefUnitPrinter up = new BriefUnitPrinter(body);
-        body.getUnits()
-                .stream()
-                .filter(deadCode::contains)
-                .forEach(u -> System.out.println(SootUtils.unitToString(up, u)));
-        System.out.println();
     }
 
 }

@@ -38,7 +38,7 @@ class PointerFlowGraph {
     /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private final Map<Obj, Map<Field, InstanceField>> instanceFields = new HashMap<>() ;
+    private final Map<Obj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
 
     /**
      * Map from a pointer (node) to its successors in PFG.

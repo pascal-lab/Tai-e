@@ -16,5 +16,6 @@ class UnreachableBranch2 {
         use(z); // unreachable
     }
 
-    void use(int x) {}
+    void use(int x) {
+    }
 }
