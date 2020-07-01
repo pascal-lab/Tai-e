@@ -37,6 +37,7 @@ import bamboo.pta.set.PointsToSetFactory;
 import bamboo.util.AnalysisException;
 import soot.SceneTransformer;
 
+import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -47,6 +48,14 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private static final PointerAnalysisTransformer INSTANCE =
             new PointerAnalysisTransformer();
+    /**
+     * The print stream used to output key analysis results, i.e., the results
+     * that are checked during testing.
+     */
+    private PrintStream out = System.out;
+    /**
+     * If output analysis results.
+     */
     private boolean isOutput = true;
 
     private PointerAnalysisTransformer() {
@@ -54,6 +63,10 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     public static PointerAnalysisTransformer v() {
         return INSTANCE;
+    }
+
+    public void setOut(PrintStream out) {
+        this.out = out;
     }
 
     public void setOutput(boolean isOutput) {
@@ -126,31 +139,31 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     }
 
     private void printVariables(Stream<CSVariable> vars) {
-        System.out.println("---------- Points-to sets of all variables: ----------");
+        out.println("---------- Points-to sets of all variables: ----------");
         vars.sorted(Comparator.comparing(CSVariable::toString))
                 .forEach(this::printPointsToSet);
     }
 
     private void printInstanceFields(Stream<InstanceField> fields) {
-        System.out.println("---------- Points-to sets of all instance fields: ----------");
+        out.println("---------- Points-to sets of all instance fields: ----------");
         fields.sorted(Comparator.comparing(InstanceField::toString))
                 .forEach(this::printPointsToSet);
     }
 
     private void printArrayIndexes(Stream<ArrayIndex> arrays) {
-        System.out.println("---------- Points-to sets of all array indexes: ----------");
+        out.println("---------- Points-to sets of all array indexes: ----------");
         arrays.sorted(Comparator.comparing(ArrayIndex::toString))
                 .forEach(this::printPointsToSet);
     }
 
     private void printStaticFields(Stream<StaticField> fields) {
-        System.out.println("---------- Points-to sets of all static fields: ----------");
+        out.println("---------- Points-to sets of all static fields: ----------");
         fields.sorted(Comparator.comparing(StaticField::toString))
                 .forEach(this::printPointsToSet);
     }
 
     private void printPointsToSet(Pointer pointer) {
-        System.out.println(pointer + " -> "
+        out.println(pointer + " -> "
                 + streamToString(pointer.getPointsToSet().stream()));
     }
 }
