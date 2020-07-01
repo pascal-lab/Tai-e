@@ -82,7 +82,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setDataManager(new MapBasedDataManager(setFactory));
         pta.setPointsToSetFactory(setFactory);
-        pta.solve();
+        pta.analyze();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);
         if (isOutput) {
             System.out.println("---------- Reachable methods: ----------");

@@ -153,9 +153,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * Runs pointer analysis algorithm.
      */
     @Override
-    public void solve() {
+    public void analyze() {
         initialize();
-        analyze();
+        solve();
     }
 
     /**
@@ -183,7 +183,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Processes worklist entries until the worklist is empty.
      */
-    private void analyze() {
+    private void solve() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
                 WorkList.Entry entry = workList.pollPointerEntry();

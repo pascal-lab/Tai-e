@@ -46,7 +46,7 @@ public interface PointerAnalysis {
 
     void setPointsToSetFactory(PointsToSetFactory setFactory);
 
-    void solve();
+    void analyze();
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
