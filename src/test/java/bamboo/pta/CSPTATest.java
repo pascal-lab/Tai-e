@@ -85,4 +85,9 @@ public class CSPTATest {
     public void testMultiArray() {
         testCSPTA("MultiArray");
     }
+
+    @Test
+    public void testClinit() {
+        testCSPTA("Clinit");
+    }
 }

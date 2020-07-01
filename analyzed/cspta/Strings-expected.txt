@@ -15,10 +15,16 @@
 []:<Strings: void main(java.lang.String[])>/temp$4 -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
 []:<Strings: void main(java.lang.String[])>/temp$6 -> {[]:"ddd"}
 []:<Strings: void main(java.lang.String[])>/temp$7 -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Strings: void main(java.lang.String[])>/new A/6,[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
+[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
 ---------- Points-to sets of all instance fields: ----------
 []:<Strings: void main(java.lang.String[])>/new A/6.f -> {[]:"bbb"}
 ---------- Points-to sets of all array indexes: ----------
 []:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13 -> {[]:"ddd"}
 ---------- Points-to sets of all static fields: ----------
 <A: java.lang.String sf> -> {[]:"ccc"}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
+<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
