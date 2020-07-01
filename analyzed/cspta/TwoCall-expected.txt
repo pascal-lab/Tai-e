@@ -1,5 +1,5 @@
 ---------- Points-to sets of all variables: ----------
-[C(L25):this.<B: void <init>()>(),B(L23):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
+[C(L26):this.<B: void <init>()>(),B(L23):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
 [TwoCall(L3):<TwoCall: void m()>(),TwoCall(L7):temp$0.<A: void <init>()>()]:<A: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
 [TwoCall(L3):<TwoCall: void m()>(),TwoCall(L8):a.<A: B id(B)>(temp$1)]:<A: B id(B)>/b -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
 [TwoCall(L3):<TwoCall: void m()>(),TwoCall(L8):a.<A: B id(B)>(temp$1)]:<A: B id(B)>/temp$0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
@@ -23,5 +23,7 @@
 [TwoCall(L8):temp$1.<B: void <init>()>(),B(L23):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
 [TwoCall(L9):a.<A: B id(B)>(temp$3),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/p -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
 [TwoCall(L9):a.<A: B id(B)>(temp$3),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L9):temp$3.<C: void <init>()>(),C(L25):this.<B: void <init>()>()]:<B: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
+[TwoCall(L9):temp$3.<C: void <init>()>(),C(L26):this.<B: void <init>()>()]:<B: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
 ---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------

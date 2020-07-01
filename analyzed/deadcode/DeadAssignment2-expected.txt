@@ -1,15 +1,15 @@
 <DeadAssignment2: void deadAssign1()>
-L4{o = temp$0}
-L5{b = temp$1}
+L7{o = temp$0}
+L8{b = temp$1}
 
 <DeadAssignment2: void deadAssign2()>
-L10{y = temp$0 + 2}
-L13{a = x}
+L13{y = temp$0 + 2}
+L16{a = x}
 
 <DeadAssignment2: void deadAssign3(int,int)>
-L20{y = temp$1}
-L24{y = temp$3}
+L23{y = temp$1}
+L27{y = temp$3}
 
 <DeadAssignment2: int deadAssign4()>
-L30{x = temp$0}
-L31{x = temp$1}
+L33{x = temp$0}
+L34{x = temp$1}

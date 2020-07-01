@@ -6,4 +6,4 @@ L5{virtualinvoke b.<B: void foo()>()} -> [<A: void foo()>, <C: void foo()>, <D: 
 L9{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
 
 <B: void <init>()>
-L13{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]
+L14{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]

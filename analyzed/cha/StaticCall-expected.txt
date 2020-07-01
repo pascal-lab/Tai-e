@@ -6,7 +6,7 @@ L5{staticinvoke <A: void baz()>()} -> [<A: void baz()>]
 L9{staticinvoke <StaticCall: void bar()>()} -> [<StaticCall: void bar()>]
 
 <A: void baz()>
-L17{staticinvoke <B: void qux()>()} -> [<B: void qux()>]
+L18{staticinvoke <B: void qux()>()} -> [<B: void qux()>]
 
 <B: void qux()>
-L23{staticinvoke <A: void baz()>()} -> [<A: void baz()>]
+L24{staticinvoke <A: void baz()>()} -> [<A: void baz()>]

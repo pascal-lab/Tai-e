@@ -10,17 +10,17 @@ L13{staticinvoke <LongCallChain: void baz1()>()} -> [<LongCallChain: void baz1()
 L14{staticinvoke <LongCallChain: void baz2()>()} -> [<LongCallChain: void baz2()>]
 
 <LongCallChain: void baz1()>
-L20{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
-L21{virtualinvoke a.<A: void m1()>()} -> [<A: void m1()>]
+L21{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
+L22{virtualinvoke a.<A: void m1()>()} -> [<A: void m1()>]
 
 <A: void <init>()>
-L27{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+L29{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
 
 <A: void m1()>
-L29{virtualinvoke this.<A: void m2()>()} -> [<A: void m2()>]
+L31{virtualinvoke this.<A: void m2()>()} -> [<A: void m2()>]
 
 <A: void m2()>
-L33{virtualinvoke this.<A: void m3()>()} -> [<A: void m3()>]
+L35{virtualinvoke this.<A: void m3()>()} -> [<A: void m3()>]
 
 <A: void m3()>
-L37{virtualinvoke this.<A: void m4()>()} -> [<A: void m4()>]
+L39{virtualinvoke this.<A: void m4()>()} -> [<A: void m4()>]

@@ -1,24 +1,26 @@
 ---------- Points-to sets of all variables: ----------
-[C(L12):temp$0.<One: void <init>()>()]:<One: void <init>()>/this -> {[]:<C: void m()>/new One/12}
-[C(L13):temp$1.<Two: void <init>()>()]:<Two: void <init>()>/this -> {[]:<C: void m()>/new Two/13}
-[C(L14):this.<C: Number id(Number)>(n1)]:<C: Number id(Number)>/n -> {[]:<C: void m()>/new One/12}
-[C(L14):this.<C: Number id(Number)>(n1)]:<C: Number id(Number)>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
-[C(L15):this.<C: Number id(Number)>(n2)]:<C: Number id(Number)>/n -> {[]:<C: void m()>/new Two/13}
-[C(L15):this.<C: Number id(Number)>(n2)]:<C: Number id(Number)>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
-[C(L16):x.<Number: int get()>()]:<One: int get()>/this -> {[]:<C: void m()>/new One/12}
-[C(L8):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
-[One(L34):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new One/12}
-[OneCall(L3):temp$0.<C: void <init>()>()]:<C: void <init>()>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/n1 -> {[]:<C: void m()>/new One/12}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/n2 -> {[]:<C: void m()>/new Two/13}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/temp$0 -> {[]:<C: void m()>/new One/12}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/temp$1 -> {[]:<C: void m()>/new Two/13}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/temp$2 -> {[]:<C: void m()>/new One/12}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/temp$3 -> {[]:<C: void m()>/new Two/13}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/x -> {[]:<C: void m()>/new One/12}
-[OneCall(L4):c.<C: void m()>()]:<C: void m()>/y -> {[]:<C: void m()>/new Two/13}
-[Two(L40):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new Two/13}
-[]:<OneCall: void main(java.lang.String[])>/c -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
-[]:<OneCall: void main(java.lang.String[])>/temp$0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/3}
+[C(L12):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
+[C(L16):temp$0.<One: void <init>()>()]:<One: void <init>()>/this -> {[]:<C: void m()>/new One/16}
+[C(L17):temp$1.<Two: void <init>()>()]:<Two: void <init>()>/this -> {[]:<C: void m()>/new Two/17}
+[C(L18):this.<C: Number id(Number)>(n1)]:<C: Number id(Number)>/n -> {[]:<C: void m()>/new One/16}
+[C(L18):this.<C: Number id(Number)>(n1)]:<C: Number id(Number)>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
+[C(L19):this.<C: Number id(Number)>(n2)]:<C: Number id(Number)>/n -> {[]:<C: void m()>/new Two/17}
+[C(L19):this.<C: Number id(Number)>(n2)]:<C: Number id(Number)>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
+[C(L20):x.<Number: int get()>()]:<One: int get()>/this -> {[]:<C: void m()>/new One/16}
+[One(L34):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new One/16}
+[OneCall(L7):temp$0.<C: void <init>()>()]:<C: void <init>()>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/n1 -> {[]:<C: void m()>/new One/16}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/n2 -> {[]:<C: void m()>/new Two/17}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/temp$0 -> {[]:<C: void m()>/new One/16}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/temp$1 -> {[]:<C: void m()>/new Two/17}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/temp$2 -> {[]:<C: void m()>/new One/16}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/temp$3 -> {[]:<C: void m()>/new Two/17}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/this -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/x -> {[]:<C: void m()>/new One/16}
+[OneCall(L8):c.<C: void m()>()]:<C: void m()>/y -> {[]:<C: void m()>/new Two/17}
+[Two(L40):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new Two/17}
+[]:<OneCall: void main(java.lang.String[])>/c -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
+[]:<OneCall: void main(java.lang.String[])>/temp$0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
 ---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------

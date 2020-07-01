@@ -7,11 +7,11 @@ L6{specialinvoke temp$2.<A: void <init>(B)>(b)} -> [<A: void <init>(B)>]
 L12{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
 
 <A: void <init>(B)>
-L14{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+L15{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
 
 <B: void <init>()>
-L19{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]
+L22{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]
 
 <C: void <init>()>
-L23{specialinvoke this.<B: void <init>()>()} -> [<B: void <init>()>]
-L24{specialinvoke this.<B: void foo()>()} -> [<A: void foo()>]
+L27{specialinvoke this.<B: void <init>()>()} -> [<B: void <init>()>]
+L28{specialinvoke this.<B: void foo()>()} -> [<A: void foo()>]

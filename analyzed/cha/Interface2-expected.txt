@@ -1,12 +1,12 @@
 <Interface2: void main(java.lang.String[])>
-L4{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
-L5{interfaceinvoke i.<I: void foo()>()} -> [<A: void foo()>, <B: void foo()>, <C: void foo()>, <D: void foo()>, <E: void foo()>]
-L6{specialinvoke temp$1.<E: void <init>()>()} -> [<E: void <init>()>]
-L7{interfaceinvoke ii.<II: void foo()>()} -> [<E: void foo()>]
-L8{interfaceinvoke ii.<II: void bar()>()} -> [<E: void bar()>]
+L14{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
+L15{interfaceinvoke i.<I: void foo()>()} -> [<A: void foo()>, <B: void foo()>, <C: void foo()>, <D: void foo()>, <E: void foo()>]
+L16{specialinvoke temp$1.<E: void <init>()>()} -> [<E: void <init>()>]
+L17{interfaceinvoke ii.<II: void foo()>()} -> [<E: void foo()>]
+L18{interfaceinvoke ii.<II: void bar()>()} -> [<E: void bar()>]
 
 <A: void <init>()>
 L22{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
 
 <E: void <init>()>
-L38{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+L42{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
