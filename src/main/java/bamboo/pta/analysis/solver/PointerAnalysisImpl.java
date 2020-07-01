@@ -50,7 +50,9 @@ import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
@@ -70,6 +72,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private PointsToSetFactory setFactory;
 
     private WorkList workList;
+
+    private Set<Type> initializedClasses;
+
+    private Set<Method> reachableMethods;
+
+    private ClassInitializer classInitializer;
 
     @Override
     public ProgramManager getProgramManager() {
@@ -157,10 +165,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         callGraph = new OnFlyCallGraph(dataManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
+        initializedClasses = new HashSet<>();
+        reachableMethods = new HashSet<>();
+        classInitializer = new ClassInitializer();
+
         for (Method entry : programManager.getEntryMethods()) {
+            // initialize class type of entry methods
+            initializeClass(entry.getClassType());
             CSMethod csMethod = dataManager.getCSMethod(
                     contextSelector.getDefaultContext(), entry);
-            processNewMethod(csMethod);
+            processNewCSMethod(csMethod);
             // must be called after processNewMethod()
             callGraph.addEntryMethod(csMethod);
         }
@@ -252,8 +266,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Processes new reachable context-sensitive method.
      */
-    private void processNewMethod(CSMethod csMethod) {
+    private void processNewCSMethod(CSMethod csMethod) {
         if (callGraph.addNewMethod(csMethod)) {
+            processNewMethod(csMethod.getMethod());
             StatementProcessor processor = new StatementProcessor(csMethod);
             csMethod.getMethod()
                     .getStatements()
@@ -373,7 +388,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (!callGraph.containsEdge(edge)) {
             callGraph.addEdge(edge);
             CSMethod csCallee = edge.getCallee();
-            processNewMethod(csCallee);
+            processNewCSMethod(csCallee);
             Context callerCtx = edge.getCallSite().getContext();
             CallSite callSite = edge.getCallSite().getCallSite();
             Context calleeCtx = csCallee.getContext();
@@ -398,6 +413,37 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     addPFGEdge(csRet, lhs, PointerFlowEdge.Kind.RETURN);
                 }
             }
+        }
+    }
+
+    /**
+     * Processes new reachable methods.
+     */
+    private void processNewMethod(Method method) {
+        if (reachableMethods.add(method)) {
+            method.getStatements()
+                    .forEach(s -> s.accept(classInitializer));
+        }
+    }
+
+    /**
+     * Analyzes the initializer of given class.
+     */
+    private void initializeClass(Type cls) {
+        // initialize super class
+        if (cls.getSuperClass() != null) {
+            initializeClass(cls.getSuperClass());
+        }
+        Method clinit = cls.getClassInitializer();
+        if (clinit != null && !initializedClasses.contains(cls)) {
+            // processNewCSMethod() may trigger initialization of more classes.
+            // So cls must be added before processNewCSMethod(), otherwise,
+            // infinite recursion may occur.
+            initializedClasses.add(cls);
+            CSMethod csMethod = dataManager.getCSMethod(
+                    contextSelector.getDefaultContext(), clinit);
+            processNewCSMethod(csMethod);
+            callGraph.addNewMethod(csMethod);
         }
     }
 
@@ -428,6 +474,37 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             return CallKind.STATIC;
         } else {
             throw new AnalysisException("Unknown call site: " + callSite);
+        }
+    }
+
+    private class ClassInitializer implements StatementVisitor {
+
+        @Override
+        public void visit(Allocation alloc) {
+            Type type = alloc.getObject().getType();
+            if (type.isClassType()) {
+                initializeClass(type);
+            } else if (type.isArrayType()) {
+                initializeClass(type.getBaseType());
+            }
+        }
+
+        @Override
+        public void visit(Call call) {
+            CallSite callSite = call.getCallSite();
+            if (callSite.isStatic()) {
+                initializeClass(callSite.getMethod().getClassType());
+            }
+        }
+
+        @Override
+        public void visit(StaticLoad load) {
+            initializeClass(load.getField().getClassType());
+        }
+
+        @Override
+        public void visit(StaticStore store) {
+            initializeClass(store.getField().getClassType());
         }
     }
 
