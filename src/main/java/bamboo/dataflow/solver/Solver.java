@@ -26,9 +26,9 @@ import java.util.Map;
  */
 public abstract class Solver<Domain, Node> {
 
-    protected DataFlowAnalysis<Domain, Node> analysis;
+    protected final DataFlowAnalysis<Domain, Node> analysis;
 
-    protected DirectedGraph<Node> cfg;
+    protected final DirectedGraph<Node> cfg;
 
     /**
      * In-flow value of each node.

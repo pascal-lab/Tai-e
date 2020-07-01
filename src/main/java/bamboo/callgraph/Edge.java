@@ -61,9 +61,7 @@ public class Edge<CallSite, Method> {
 
     @Override
     public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append("[").append(kind).append("]")
-                .append(callSite).append(" -> ").append(callee);
-        return b.toString();
+        return "[" + kind + "]" +
+                callSite + " -> " + callee;
     }
 }

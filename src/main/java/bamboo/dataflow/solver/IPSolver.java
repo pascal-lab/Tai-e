@@ -21,9 +21,9 @@ import java.util.Map;
 
 public abstract class IPSolver<Domain, Method, Node> {
 
-    protected IPDataFlowAnalysis<Domain, Method, Node> analysis;
+    protected final IPDataFlowAnalysis<Domain, Method, Node> analysis;
 
-    protected ICFG<Method, Node> icfg;
+    protected final ICFG<Method, Node> icfg;
 
     /**
      * In-flow value of each node.

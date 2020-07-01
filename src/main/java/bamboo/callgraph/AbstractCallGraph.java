@@ -28,12 +28,12 @@ import java.util.stream.Stream;
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
 
-    protected Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges;
-    protected Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges;
-    protected Map<CallSite, Method> callSiteToContainer;
-    protected Map<Method, Set<CallSite>> callSitesIn;
-    protected Set<Method> entryMethods;
-    protected Set<Method> reachableMethods;
+    protected final Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges;
+    protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges;
+    protected final Map<CallSite, Method> callSiteToContainer;
+    protected final Map<Method, Set<CallSite>> callSitesIn;
+    protected final Set<Method> entryMethods;
+    protected final Set<Method> reachableMethods;
 
     protected AbstractCallGraph() {
         callSiteToEdges = new HashMap<>();

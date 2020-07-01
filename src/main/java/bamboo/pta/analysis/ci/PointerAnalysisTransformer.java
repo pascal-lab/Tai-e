@@ -29,18 +29,17 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private static final PointerAnalysisTransformer INSTANCE =
             new PointerAnalysisTransformer();
+    private boolean isOutput = true;
+
+    private PointerAnalysisTransformer() {}
 
     public static PointerAnalysisTransformer v() {
         return INSTANCE;
     }
 
-    private static boolean isOutput = true;
-
-    public static void setOutput(boolean isOutput) {
-        PointerAnalysisTransformer.isOutput = isOutput;
+    public void setOutput(boolean isOutput) {
+        this.isOutput = isOutput;
     }
-
-    private PointerAnalysisTransformer() {}
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {

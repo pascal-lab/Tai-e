@@ -63,18 +63,14 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     public Collection<Unit> getEntriesOf(SootMethod method) {
         // TODO - consider multi-head due to unreachable code?
         DirectedGraph<Unit> cfg = getCFGOf(method);
-        return cfg != null
-                ? cfg.getHeads()
-                : Collections.emptySet();
+        return cfg.getHeads();
     }
 
     @Override
     public Collection<Unit> getExitsOf(SootMethod method) {
         // TODO - do exceptional exits matter?
         DirectedGraph<Unit> cfg = getCFGOf(method);
-        return cfg != null
-                ? cfg.getTails()
-                : Collections.emptySet();
+        return cfg.getTails();
     }
 
     @Override

@@ -19,7 +19,7 @@ import java.util.Collection;
 
 public abstract class AbstractICFG<Method, Node> implements ICFG<Method, Node> {
 
-    protected CallGraph<Node, Method> callGraph;
+    protected final CallGraph<Node, Method> callGraph;
 
     protected AbstractICFG(CallGraph<Node, Method> callGraph) {
         this.callGraph = callGraph;

@@ -25,7 +25,7 @@ import java.util.Map;
  */
 class StringConstantPool {
 
-    Map<String, StringConstant> constants = new HashMap<>();
+    final Map<String, StringConstant> constants = new HashMap<>();
 
     StringConstant getStringConstant(Type stringType, String constant) {
         return constants.computeIfAbsent(constant,
