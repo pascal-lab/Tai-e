@@ -18,7 +18,7 @@ import bamboo.pta.element.Method;
 
 public class CSMethod extends AbstractCSElement {
 
-    private Method method;
+    private final Method method;
 
     CSMethod(Method method, Context context) {
         super(context);

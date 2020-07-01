@@ -26,7 +26,7 @@ import java.util.Map.Entry;
  */
 class MapEntry<K, V> implements Entry<K, V>, Serializable {
 
-    private K key;
+    private final K key;
 
     private V value;
 

@@ -22,9 +22,9 @@ import java.util.Map;
  */
 public class DataFlowTag<Node, Domain> implements Tag {
 
-    private String name;
+    private final String name;
 
-    private Map<Node, Domain> dataFlowMap;
+    private final Map<Node, Domain> dataFlowMap;
 
     public DataFlowTag(String name, Map<Node, Domain> dataFlowMap) {
         this.name = name;

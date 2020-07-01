@@ -37,19 +37,19 @@ public class MapBasedDataManager implements DataManager {
 
     private PointsToSetFactory setFactory;
 
-    private Map<Variable, Map<Context, CSVariable>> vars = new HashMap<>();
+    private final Map<Variable, Map<Context, CSVariable>> vars = new HashMap<>();
 
-    private Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
+    private final Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
 
-    private Map<CSObj, ArrayIndex> arrayIndexes = new HashMap<>();
+    private final Map<CSObj, ArrayIndex> arrayIndexes = new HashMap<>();
 
-    private Map<Field, StaticField> staticFields = new HashMap<>();
+    private final Map<Field, StaticField> staticFields = new HashMap<>();
 
-    private Map<Obj, Map<Context, CSObj>> objs = new HashMap<>();
+    private final Map<Obj, Map<Context, CSObj>> objs = new HashMap<>();
 
-    private Map<CallSite, Map<Context, CSCallSite>> callSites = new HashMap<>();
+    private final Map<CallSite, Map<Context, CSCallSite>> callSites = new HashMap<>();
 
-    private Map<Method, Map<Context, CSMethod>> methods = new HashMap<>();
+    private final Map<Method, Map<Context, CSMethod>> methods = new HashMap<>();
 
     public MapBasedDataManager(PointsToSetFactory setFactory) {
         setPointsToSetFactory(setFactory);

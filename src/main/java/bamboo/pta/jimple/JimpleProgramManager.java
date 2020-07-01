@@ -34,11 +34,11 @@ import java.util.Collections;
  */
 public class JimpleProgramManager implements ProgramManager {
 
-    private FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
+    private final FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
 
-    private Environment env = new Environment();
+    private final Environment env = new Environment();
 
-    private IRBuilder irBuilder = new IRBuilder(env);
+    private final IRBuilder irBuilder = new IRBuilder(env);
 
     @Override
     public Collection<Method> getEntryMethods() {

@@ -73,19 +73,19 @@ import java.util.Map;
  */
 class IRBuilder {
 
-    private Map<Type, JimpleType> types = new HashMap<>();
+    private final Map<Type, JimpleType> types = new HashMap<>();
 
-    private Map<SootMethod, JimpleMethod> methods = new HashMap<>();
+    private final Map<SootMethod, JimpleMethod> methods = new HashMap<>();
 
-    private Map<JimpleMethod, Map<Local, JimpleVariable>> vars = new HashMap<>();
+    private final Map<JimpleMethod, Map<Local, JimpleVariable>> vars = new HashMap<>();
 
-    private Map<SootField, JimpleField> fields = new HashMap<>();
+    private final Map<SootField, JimpleField> fields = new HashMap<>();
 
-    private RelevantUnitSwitch sw = new RelevantUnitSwitch();
+    private final RelevantUnitSwitch sw = new RelevantUnitSwitch();
 
-    private NewVariableManager varManager = new NewVariableManager();
+    private final NewVariableManager varManager = new NewVariableManager();
 
-    private Environment env;
+    private final Environment env;
 
     IRBuilder(Environment env) {
         this.env = env;
@@ -468,7 +468,7 @@ class IRBuilder {
      */
     private class NewVariableManager {
 
-        private Map<JimpleMethod, MutableInteger> varNumbers = new HashMap<>();
+        private final Map<JimpleMethod, MutableInteger> varNumbers = new HashMap<>();
 
         private JimpleVariable newTempVariable(
                 String baseName, JimpleType type, JimpleMethod container) {

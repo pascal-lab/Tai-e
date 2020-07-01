@@ -74,7 +74,7 @@ public class ResultChecker {
      */
     private Map<String, String> expectedResults;
 
-    private Set<String> mismatches = new TreeSet<>();
+    private final Set<String> mismatches = new TreeSet<>();
 
     ResultChecker(Path filePath) {
         readExpectedResult(filePath);
@@ -87,7 +87,7 @@ public class ResultChecker {
     public void compare(PointerAnalysis pta) {
         Set<String> givenPointers = new TreeSet<>();
         pta.getVariables()
-                .sorted(Comparator.comparing(p -> p.toString()))
+                .sorted(Comparator.comparing(Var::toString))
                 .forEach(p -> comparePointer(p, givenPointers));
         pta.getInstanceFields()
                 .sorted(Comparator.comparing(f -> f.getBase().toString()))

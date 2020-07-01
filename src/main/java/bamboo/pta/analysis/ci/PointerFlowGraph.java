@@ -28,22 +28,22 @@ class PointerFlowGraph {
     /**
      * Set of all pointer in this PFG.
      */
-    private Set<Pointer> pointers = new HashSet<>();
+    private final Set<Pointer> pointers = new HashSet<>();
 
     /**
      * Map from Variable to Var node.
      */
-    private Map<Variable, Var> vars = new HashMap<>();
+    private final Map<Variable, Var> vars = new HashMap<>();
 
     /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private Map<Obj, Map<Field, InstanceField>> instanceFields = new HashMap<>() ;
+    private final Map<Obj, Map<Field, InstanceField>> instanceFields = new HashMap<>() ;
 
     /**
      * Map from a pointer (node) to its successors in PFG.
      */
-    private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
+    private final Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
     /**
      * Returns all pointers in this PFG.

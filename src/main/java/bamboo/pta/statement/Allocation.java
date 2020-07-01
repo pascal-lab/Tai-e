@@ -14,7 +14,6 @@
 package bamboo.pta.statement;
 
 import bamboo.pta.element.Obj;
-import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 
 /**

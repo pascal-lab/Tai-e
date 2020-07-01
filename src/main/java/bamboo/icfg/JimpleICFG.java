@@ -33,10 +33,10 @@ import static bamboo.util.CollectionUtils.addToMapSet;
 
 public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
-    private Map<Unit, Set<Edge<Unit>>> inEdges;
-    private Map<Unit, Set<Edge<Unit>>> outEdges;
-    private Map<Unit, SootMethod> unitToMethod;
-    private Map<SootMethod, DirectedGraph<Unit>> methodToCFG;
+    private final Map<Unit, Set<Edge<Unit>>> inEdges;
+    private final Map<Unit, Set<Edge<Unit>>> outEdges;
+    private final Map<Unit, SootMethod> unitToMethod;
+    private final Map<SootMethod, DirectedGraph<Unit>> methodToCFG;
 
     public JimpleICFG(CallGraph<Unit, SootMethod> callGraph) {
         super(callGraph);

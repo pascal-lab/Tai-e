@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ReversedDirectedGraph<N> implements DirectedGraph<N> {
 
-    private DirectedGraph<N> graph;
+    private final DirectedGraph<N> graph;
 
     public ReversedDirectedGraph(DirectedGraph<N> graph) {
         this.graph = graph;

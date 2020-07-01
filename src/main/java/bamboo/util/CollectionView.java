@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 public interface CollectionView<From, To> extends Collection<To> {
 
-    public static <From, To> CollectionView<From, To> of(
+    static <From, To> CollectionView<From, To> of(
             Collection<From> collection, Function<From, To> mapper) {
         return new ImmutableCollectionView<>(collection, mapper);
     }

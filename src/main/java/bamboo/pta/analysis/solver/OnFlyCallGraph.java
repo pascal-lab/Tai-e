@@ -27,7 +27,7 @@ import bamboo.util.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
-    private DataManager dataManager;
+    private final DataManager dataManager;
 
     OnFlyCallGraph(DataManager dataManager) {
         this.dataManager = dataManager;

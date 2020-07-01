@@ -31,9 +31,9 @@ public class Value {
 
     private static final Value UNDEF = new Value(Kind.UNDEF);
 
-    private Kind kind;
+    private final Kind kind;
 
-    private int value;
+    private final int value;
 
     private Value(Kind kind) {
         this(kind, 0);

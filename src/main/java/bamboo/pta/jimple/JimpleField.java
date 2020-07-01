@@ -18,11 +18,11 @@ import soot.SootField;
 
 class JimpleField implements Field {
 
-    private SootField field;
+    private final SootField field;
 
-    private JimpleType classType;
+    private final JimpleType classType;
 
-    private JimpleType fieldType;
+    private final JimpleType fieldType;
 
     public JimpleField(SootField field, JimpleType classType, JimpleType fieldType) {
         this.field = field;

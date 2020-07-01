@@ -27,11 +27,11 @@ import java.util.Set;
 
 class JimpleVariable implements Variable {
 
-    private Local var;
+    private final Local var;
 
-    private JimpleType type;
+    private final JimpleType type;
 
-    private JimpleMethod containerMethod;
+    private final JimpleMethod containerMethod;
 
     /**
      * Set of call sites where this variable is the base variable

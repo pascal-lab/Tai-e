@@ -19,9 +19,9 @@ import bamboo.pta.element.Type;
 
 class StringConstant implements Obj {
 
-    private Type type;
+    private final Type type;
 
-    private String value;
+    private final String value;
 
     StringConstant(Type type, String value) {
         this.type = type;

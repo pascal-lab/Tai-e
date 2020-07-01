@@ -25,11 +25,11 @@ import java.util.Set;
 
 public class PointerFlowGraph {
 
-    private Set<Pointer> pointers = new HashSet<>();
+    private final Set<Pointer> pointers = new HashSet<>();
 
-    private Map<Pointer, Set<PointerFlowEdge>> edges = new HashMap<>();
+    private final Map<Pointer, Set<PointerFlowEdge>> edges = new HashMap<>();
 
-    private Map<Pointer, Set<Pointer>> successors = new HashMap<>();
+    private final Map<Pointer, Set<Pointer>> successors = new HashMap<>();
 
     public boolean addEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         return addEdge(from, to, null, kind);

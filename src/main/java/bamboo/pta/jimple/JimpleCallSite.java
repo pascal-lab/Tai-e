@@ -25,9 +25,9 @@ import java.util.List;
 
 class JimpleCallSite implements CallSite {
 
-    private Stmt stmt;
+    private final Stmt stmt;
 
-    private CallKind kind;
+    private final CallKind kind;
 
     private Call call;
 

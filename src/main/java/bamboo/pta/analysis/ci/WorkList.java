@@ -24,9 +24,9 @@ import java.util.Set;
 
 class WorkList {
 
-    private Queue<Entry> pointerEntries = new LinkedList<>();
+    private final Queue<Entry> pointerEntries = new LinkedList<>();
 
-    private Set<Edge<CallSite, Method>> callEdges = new LinkedHashSet<>();
+    private final Set<Edge<CallSite, Method>> callEdges = new LinkedHashSet<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();

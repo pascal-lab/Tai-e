@@ -77,7 +77,7 @@ public class ResultChecker {
     // ---------- instance members ----------
     private Map<String, Map<String, String>> expectedResults;
 
-    private Set<String> mismatches = new TreeSet<>();
+    private final Set<String> mismatches = new TreeSet<>();
 
     ResultChecker(Path filePath) {
         readExpectedResult(filePath);

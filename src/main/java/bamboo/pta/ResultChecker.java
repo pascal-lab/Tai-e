@@ -13,7 +13,10 @@
 
 package bamboo.pta;
 
+import bamboo.pta.analysis.data.ArrayIndex;
+import bamboo.pta.analysis.data.CSVariable;
 import bamboo.pta.analysis.data.Pointer;
+import bamboo.pta.analysis.data.StaticField;
 import bamboo.pta.analysis.solver.PointerAnalysis;
 import soot.G;
 
@@ -76,7 +79,7 @@ public class ResultChecker {
      */
     private Map<String, String> expectedResults;
 
-    private Set<String> mismatches = new TreeSet<>();
+    private final Set<String> mismatches = new TreeSet<>();
 
     ResultChecker(Path filePath) {
         readExpectedResult(filePath);
@@ -89,16 +92,16 @@ public class ResultChecker {
     public void compare(PointerAnalysis pta) {
         Set<String> givenPointers = new TreeSet<>();
         pta.getVariables()
-                .sorted(Comparator.comparing(p -> p.toString()))
+                .sorted(Comparator.comparing(CSVariable::toString))
                 .forEach(p -> comparePointer(p, givenPointers));
         pta.getInstanceFields()
                 .sorted(Comparator.comparing(f -> f.getBase().toString()))
                 .forEach(f -> comparePointer(f, givenPointers));
         pta.getArrayIndexes()
-                .sorted(Comparator.comparing(p -> p.toString()))
+                .sorted(Comparator.comparing(ArrayIndex::toString))
                 .forEach(p -> comparePointer(p, givenPointers));
         pta.getStaticFields()
-                .sorted(Comparator.comparing(p -> p.toString()))
+                .sorted(Comparator.comparing(StaticField::toString))
                 .forEach(p -> comparePointer(p, givenPointers));
         expectedResults.forEach((p, pts) -> {
             if (!givenPointers.contains(p)) {

@@ -18,11 +18,11 @@ import org.junit.Test;
 
 public class MeetValueTest {
 
-    private Value i1 = Value.makeConstant(1);
-    private Value i0 = Value.makeConstant(0);
-    private Value NAC = Value.getNAC();
-    private Value undef = Value.getUndef();
-    private ConstantPropagation cp = ConstantPropagation.v();
+    private final Value i1 = Value.makeConstant(1);
+    private final Value i0 = Value.makeConstant(0);
+    private final Value NAC = Value.getNAC();
+    private final Value undef = Value.getUndef();
+    private final ConstantPropagation cp = ConstantPropagation.v();
 
     @Test
     public void testMeet() {

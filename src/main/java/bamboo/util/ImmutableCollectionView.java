@@ -19,9 +19,9 @@ import java.util.function.Function;
 
 public class ImmutableCollectionView<From, To> implements CollectionView<From, To> {
 
-    private Collection<From> collection;
+    private final Collection<From> collection;
 
-    private Function<From, To> mapper;
+    private final Function<From, To> mapper;
 
     ImmutableCollectionView(Collection<From> collection, Function<From, To> mapper) {
         this.collection = collection;
@@ -48,7 +48,7 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
     public Iterator<To> iterator() {
         return new Iterator<To>() {
 
-            private Iterator<From> iter = collection.iterator();
+            private final Iterator<From> iter = collection.iterator();
 
             @Override
             public boolean hasNext() {

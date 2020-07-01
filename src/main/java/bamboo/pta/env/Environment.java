@@ -21,7 +21,7 @@ import bamboo.pta.element.Type;
  */
 public class Environment {
 
-    private StringConstantPool scPool = new StringConstantPool();
+    private final StringConstantPool scPool = new StringConstantPool();
 
     public Obj getStringConstant(Type stringType, String constant) {
         return scPool.getStringConstant(stringType, constant);

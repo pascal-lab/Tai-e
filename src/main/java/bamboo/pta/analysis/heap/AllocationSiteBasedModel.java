@@ -21,10 +21,10 @@ import java.util.Map;
 
 public class AllocationSiteBasedModel implements HeapModel {
 
-    private Map<Allocation, Obj> objects = new HashMap<>();
+    private final Map<Allocation, Obj> objects = new HashMap<>();
 
     @Override
     public Obj getObj(Allocation alloc) {
-        return objects.computeIfAbsent(alloc, (a) -> a.getObject());
+        return objects.computeIfAbsent(alloc, Allocation::getObject);
     }
 }

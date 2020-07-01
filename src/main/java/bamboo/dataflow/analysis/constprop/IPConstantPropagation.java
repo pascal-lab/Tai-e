@@ -44,7 +44,7 @@ public class IPConstantPropagation extends SceneTransformer
 
     private ICFG<SootMethod, Unit> icfg;
 
-    private ConstantPropagation cp;
+    private final ConstantPropagation cp;
 
     public IPConstantPropagation() {
         cp = ConstantPropagation.v();
@@ -105,7 +105,7 @@ public class IPConstantPropagation extends SceneTransformer
         return changed;
     }
 
-    private EdgeTransfer<Unit, FlowMap> edgeTransfer = new EdgeTransfer<Unit, FlowMap>() {
+    private final EdgeTransfer<Unit, FlowMap> edgeTransfer = new EdgeTransfer<Unit, FlowMap>() {
 
         @Override
         public void transferLocalEdge(LocalEdge<Unit> edge, FlowMap nodeOut, FlowMap edgeFlow) {

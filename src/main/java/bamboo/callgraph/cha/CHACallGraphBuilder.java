@@ -59,8 +59,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         hierarchy = Scene.v().getOrMakeFastHierarchy();
-        CallGraph<Unit, SootMethod> callGraph = build();
-        recentCallGraph = callGraph;
+        recentCallGraph = build();
     }
 
     public CallGraph<Unit, SootMethod> build() {

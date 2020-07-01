@@ -45,7 +45,6 @@ import bamboo.pta.statement.AssignCast;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
-import bamboo.pta.statement.Statement;
 import bamboo.pta.statement.StatementVisitor;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
@@ -73,18 +72,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private WorkList workList;
 
     @Override
-    public void setProgramManager(ProgramManager programManager) {
-        this.programManager = programManager;
-    }
-
-    @Override
     public ProgramManager getProgramManager() {
         return programManager;
     }
 
     @Override
-    public void setDataManager(DataManager dataManager) {
-        this.dataManager = dataManager;
+    public void setProgramManager(ProgramManager programManager) {
+        this.programManager = programManager;
     }
 
     @Override
@@ -93,13 +87,18 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public void setContextSelector(ContextSelector contextSelector) {
-        this.contextSelector = contextSelector;
+    public void setDataManager(DataManager dataManager) {
+        this.dataManager = dataManager;
     }
 
     @Override
     public ContextSelector getContextSelector() {
         return contextSelector;
+    }
+
+    @Override
+    public void setContextSelector(ContextSelector contextSelector) {
+        this.contextSelector = contextSelector;
     }
 
     @Override
@@ -264,8 +263,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     /**
      * Processes instance stores when points-to set of the base variable changes.
+     *
      * @param baseVar the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param pts     set of new discovered objects pointed by the variable.
      */
     private void processInstanceStore(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
@@ -282,8 +282,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     /**
      * Processes instance loads when points-to set of the base variable changes.
+     *
      * @param baseVar the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param pts     set of new discovered objects pointed by the variable.
      */
     private void processInstanceLoad(CSVariable baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
@@ -300,8 +301,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     /**
      * Processes array stores when points-to set of the array variable changes.
+     *
      * @param arrayVar the array variable
-     * @param pts set of new discovered arrays pointed by the variable.
+     * @param pts      set of new discovered arrays pointed by the variable.
      */
     private void processArrayStore(CSVariable arrayVar, PointsToSet pts) {
         Context context = arrayVar.getContext();
@@ -317,8 +319,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     /**
      * Processes array loads when points-to set of the array variable changes.
+     *
      * @param arrayVar the array variable
-     * @param pts set of new discovered arrays pointed by the variable.
+     * @param pts      set of new discovered arrays pointed by the variable.
      */
     private void processArrayLoad(CSVariable arrayVar, PointsToSet pts) {
         Context context = arrayVar.getContext();
@@ -334,8 +337,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
+     *
      * @param recv the receiver variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param pts  set of new discovered objects pointed by the variable.
      */
     private void processCall(CSVariable recv, PointsToSet pts) {
         Context context = recv.getContext();
@@ -405,7 +409,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (callSite.isInterface() || callSite.isVirtual()) {
             return programManager.resolveInterfaceOrVirtualCall(
                     type, callSite.getMethod());
-        } else if (callSite.isSpecial()){
+        } else if (callSite.isSpecial()) {
             return programManager.resolveSpecialCall(
                     callSite, callSite.getContainerMethod());
         } else {

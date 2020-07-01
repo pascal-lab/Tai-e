@@ -33,27 +33,26 @@ import java.util.Map;
 public class CallGraphPrinter extends BodyTransformer {
 
     private static final CallGraphPrinter INSTANCE = new CallGraphPrinter();
-
-    public static CallGraphPrinter v() {
-        return INSTANCE;
-    }
-
     private static boolean isOutput = true;
-
-    public static void setOutput(boolean isOutput) {
-        CallGraphPrinter.isOutput = isOutput;
-    }
-
     /**
      * Whether we show empty callees.
      */
     private static boolean isPrintEmpty = false;
 
+    private CallGraphPrinter() {
+    }
+
+    public static CallGraphPrinter v() {
+        return INSTANCE;
+    }
+
+    public static void setOutput(boolean isOutput) {
+        CallGraphPrinter.isOutput = isOutput;
+    }
+
     public static void setPrintEmpty(boolean isPrintEmpty) {
         CallGraphPrinter.isPrintEmpty = isPrintEmpty;
     }
-
-    private CallGraphPrinter() {};
 
     @Override
     protected synchronized void internalTransform(Body b, String phaseName, Map<String, String> options) {
@@ -90,8 +89,9 @@ public class CallGraphPrinter extends BodyTransformer {
     /**
      * Converts a collection of callees (SootMethods) to a String in format:
      * [M1, M2, ...], where the calless are sorted by their signatures.
+     *
      * @param callees
-     * @return
+     * @return the string representation of callees
      */
     public String calleesToString(Collection<SootMethod> callees) {
         List<SootMethod> calleeList = new ArrayList<>(callees);

@@ -20,7 +20,7 @@ import soot.SootClass;
 
 class JimpleType implements Type {
 
-    private soot.Type sootType;
+    private final soot.Type sootType;
 
     /**
      * If this type is array type, then elementType is the type of the

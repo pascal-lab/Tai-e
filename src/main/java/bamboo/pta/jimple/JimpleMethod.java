@@ -25,9 +25,9 @@ import java.util.Set;
 
 class JimpleMethod implements Method {
 
-    private SootMethod method;
+    private final SootMethod method;
 
-    private JimpleType classType;
+    private final JimpleType classType;
 
     private JimpleVariable thisVar;
 
