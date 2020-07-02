@@ -1,3 +1,7 @@
+interface K {
+    A f = new A();
+}
+
 class Clinit {
     static {
         String s = "Clinit";
@@ -8,10 +12,14 @@ class Clinit {
         B[][][] barr = new B[1][1][1];
         new D();
         E.f = "x";
-        String x = F.f;
+        String s = F.f;
         G g;
         H.foo();
         new I();
+        // A a = K.f;
+        // By JLS, this does not trigger initialization of interface K,
+        // as K does not declare default methods.
+        new L();
     }
 }
 
@@ -73,4 +81,7 @@ class I {
 
 class J {
     static I f = new I();
+}
+
+class L implements K {
 }

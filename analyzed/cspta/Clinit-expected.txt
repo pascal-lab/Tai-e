@@ -1,39 +1,41 @@
 ---------- Points-to sets of all variables: ----------
 []:<A: void <clinit>()>/s -> {[]:"A"}
-[]:<A: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new A/7}
+[]:<A: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new A/11}
 []:<B: void <clinit>()>/s -> {[]:"B"}
 []:<C: void <clinit>()>/s -> {[]:"C"}
-[]:<C: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/9}
+[]:<C: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
 []:<Clinit: void <clinit>()>/s -> {[]:"Clinit"}
-[]:<Clinit: void main(java.lang.String[])>/array$1 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/8}
-[]:<Clinit: void main(java.lang.String[])>/array$2 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/8}
-[]:<Clinit: void main(java.lang.String[])>/barr -> {[]:<Clinit: void main(java.lang.String[])>/new B[][][]/8}
-[]:<Clinit: void main(java.lang.String[])>/temp$0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/7}
-[]:<Clinit: void main(java.lang.String[])>/temp$1 -> {[]:<Clinit: void main(java.lang.String[])>/new D/9}
+[]:<Clinit: void main(java.lang.String[])>/array$1 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
+[]:<Clinit: void main(java.lang.String[])>/array$2 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
+[]:<Clinit: void main(java.lang.String[])>/barr -> {[]:<Clinit: void main(java.lang.String[])>/new B[][][]/12}
+[]:<Clinit: void main(java.lang.String[])>/s -> {}
+[]:<Clinit: void main(java.lang.String[])>/temp$0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/11}
+[]:<Clinit: void main(java.lang.String[])>/temp$1 -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
 []:<Clinit: void main(java.lang.String[])>/temp$2 -> {[]:"x"}
-[]:<Clinit: void main(java.lang.String[])>/temp$3 -> {[]:<Clinit: void main(java.lang.String[])>/new I/14}
-[]:<Clinit: void main(java.lang.String[])>/x -> {}
-[]:<D: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/9}
+[]:<Clinit: void main(java.lang.String[])>/temp$3 -> {[]:<Clinit: void main(java.lang.String[])>/new I/18}
+[]:<Clinit: void main(java.lang.String[])>/temp$4 -> {[]:<Clinit: void main(java.lang.String[])>/new L/22}
+[]:<D: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
 []:<E: void <clinit>()>/s -> {[]:"E"}
 []:<F: void <clinit>()>/s -> {[]:"F"}
 []:<H: void <clinit>()>/s -> {[]:"H"}
-[]:<I: void <clinit>()>/temp$0 -> {[]:<I: void <clinit>()>/new J/70}
-[]:<I: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new I/14,[]:<J: void <clinit>()>/new I/74}
-[]:<J: void <clinit>()>/temp$0 -> {[]:<J: void <clinit>()>/new I/74}
-[]:<J: void <init>()>/this -> {[]:<I: void <clinit>()>/new J/70}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/7,[]:<Clinit: void main(java.lang.String[])>/new D/9,[]:<Clinit: void main(java.lang.String[])>/new I/14,[]:<I: void <clinit>()>/new J/70,[]:<J: void <clinit>()>/new I/74,[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<I: void <clinit>()>/temp$0 -> {[]:<I: void <clinit>()>/new J/78}
+[]:<I: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new I/18,[]:<J: void <clinit>()>/new I/82}
+[]:<J: void <clinit>()>/temp$0 -> {[]:<J: void <clinit>()>/new I/82}
+[]:<J: void <init>()>/this -> {[]:<I: void <clinit>()>/new J/78}
+[]:<L: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new L/22}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/11,[]:<Clinit: void main(java.lang.String[])>/new D/13,[]:<Clinit: void main(java.lang.String[])>/new I/18,[]:<Clinit: void main(java.lang.String[])>/new L/22,[]:<I: void <clinit>()>/new J/78,[]:<J: void <clinit>()>/new I/82,[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
 []:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
 []:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
 []:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
 []:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:<Clinit: void main(java.lang.String[])>/new B[][]/8 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/8}
-[]:<Clinit: void main(java.lang.String[])>/new B[][][]/8 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/8}
+[]:<Clinit: void main(java.lang.String[])>/new B[][]/12 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
+[]:<Clinit: void main(java.lang.String[])>/new B[][][]/12 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
 ---------- Points-to sets of all static fields: ----------
 <E: java.lang.String f> -> {[]:"x"}
 <F: java.lang.String f> -> {}
-<I: J f> -> {[]:<I: void <clinit>()>/new J/70}
-<J: I f> -> {[]:<J: void <clinit>()>/new I/74}
+<I: J f> -> {[]:<I: void <clinit>()>/new J/78}
+<J: I f> -> {[]:<J: void <clinit>()>/new I/82}
 <java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
 <java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}

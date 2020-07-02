@@ -73,8 +73,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private WorkList workList;
 
-    private Set<Type> initializedClasses;
-
     private Set<Method> reachableMethods;
 
     private ClassInitializer classInitializer;
@@ -165,13 +163,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         callGraph = new OnFlyCallGraph(dataManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        initializedClasses = new HashSet<>();
         reachableMethods = new HashSet<>();
         classInitializer = new ClassInitializer();
 
         for (Method entry : programManager.getEntryMethods()) {
             // initialize class type of entry methods
-            initializeClass(entry.getClassType());
+            classInitializer.initializeClass(entry.getClassType());
             CSMethod csMethod = dataManager.getCSMethod(
                     contextSelector.getDefaultContext(), entry);
             processNewCSMethod(csMethod);
@@ -427,27 +424,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     /**
-     * Analyzes the initializer of given class.
-     */
-    private void initializeClass(Type cls) {
-        // initialize super class
-        if (cls.getSuperClass() != null) {
-            initializeClass(cls.getSuperClass());
-        }
-        Method clinit = cls.getClassInitializer();
-        if (clinit != null && !initializedClasses.contains(cls)) {
-            // processNewCSMethod() may trigger initialization of more classes.
-            // So cls must be added before processNewCSMethod(), otherwise,
-            // infinite recursion may occur.
-            initializedClasses.add(cls);
-            CSMethod csMethod = dataManager.getCSMethod(
-                    contextSelector.getDefaultContext(), clinit);
-            processNewCSMethod(csMethod);
-            callGraph.addNewMethod(csMethod);
-        }
-    }
-
-    /**
      * Resolves callee by given receiver object and call site.
      */
     private Method resolveCallee(Obj recvObj, CallSite callSite) {
@@ -477,7 +453,43 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    /**
+     * Triggers the analysis of class initializers.
+     * Well, the description of "when initialization occurs" of
+     * JLS (14e, 12.4.1) and JVM Spec. (14e, 5.5) looks not
+     * very consistent.
+     * TODO: handles class initialization triggered by reflection,
+     *  MethodHandle, and superinterfaces (that declare default methods).
+     */
     private class ClassInitializer implements StatementVisitor {
+
+        /**
+         * Set of classes that have been initialized.
+         */
+        private Set<Type> initializedClasses = new HashSet<>();
+
+        /**
+         * Analyzes the initializer of given class.
+         */
+        private void initializeClass(Type cls) {
+            // initialize super class
+            if (cls.getSuperClass() != null) {
+                initializeClass(cls.getSuperClass());
+            }
+            // TODO: initialize the superinterfaces which
+            //  declare default methods
+            Method clinit = cls.getClassInitializer();
+            if (clinit != null && !initializedClasses.contains(cls)) {
+                // processNewCSMethod() may trigger initialization of more
+                // classes. So cls must be added before processNewCSMethod(),
+                // otherwise, infinite recursion may occur.
+                initializedClasses.add(cls);
+                CSMethod csMethod = dataManager.getCSMethod(
+                        contextSelector.getDefaultContext(), clinit);
+                processNewCSMethod(csMethod);
+                callGraph.addNewMethod(csMethod);
+            }
+        }
 
         @Override
         public void visit(Allocation alloc) {
