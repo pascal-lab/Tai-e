@@ -40,6 +40,10 @@ public class JimpleProgramManager implements ProgramManager {
 
     private final IRBuilder irBuilder = new IRBuilder(env);
 
+    public JimpleProgramManager() {
+        env.setup(this);
+    }
+
     @Override
     public Collection<Method> getEntryMethods() {
         return Collections.singleton(
@@ -85,5 +89,10 @@ public class JimpleProgramManager implements ProgramManager {
 
     IRBuilder getIRBuilder() {
         return irBuilder;
+    }
+
+    @Override
+    public Type getUniqueTypeByName(String typeName) {
+        return irBuilder.getType(Scene.v().getType(typeName));
     }
 }

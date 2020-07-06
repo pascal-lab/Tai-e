@@ -29,4 +29,6 @@ public interface ProgramManager {
     Method resolveInterfaceOrVirtualCall(Type recvType, Method method);
 
     Method resolveSpecialCall(CallSite callSite, Method container);
+
+    Type getUniqueTypeByName(String typeName);
 }

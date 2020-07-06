@@ -13,6 +13,7 @@
 
 package bamboo.pta.env;
 
+import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 
@@ -21,9 +22,18 @@ import bamboo.pta.element.Type;
  */
 public class Environment {
 
-    private final StringConstantPool scPool = new StringConstantPool();
+    private StringConstantPool scPool;
 
-    public Obj getStringConstant(Type stringType, String constant) {
-        return scPool.getStringConstant(stringType, constant);
+    /**
+     * Setup Environment object using given programManager.
+     * This method must be called before starting pointer analysis;
+     * @param programManager
+     */
+    public void setup(ProgramManager programManager) {
+        scPool = new StringConstantPool(programManager);
+    }
+
+    public Obj getStringConstant(String constant) {
+        return scPool.getStringConstant(constant);
     }
 }

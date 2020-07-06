@@ -13,6 +13,7 @@
 
 package bamboo.pta.env;
 
+import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.element.Type;
 
 import java.util.HashMap;
@@ -25,9 +26,16 @@ import java.util.Map;
  */
 class StringConstantPool {
 
+    private final Type stringType;
+
     final Map<String, StringConstant> constants = new HashMap<>();
 
-    StringConstant getStringConstant(Type stringType, String constant) {
+    StringConstantPool(ProgramManager programManager) {
+        this.stringType = programManager
+                .getUniqueTypeByName("java.lang.String");
+    }
+
+    StringConstant getStringConstant(String constant) {
         return constants.computeIfAbsent(constant,
                 (c) -> new StringConstant(stringType, c));
     }

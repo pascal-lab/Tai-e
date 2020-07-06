@@ -114,7 +114,7 @@ class IRBuilder {
         return getType(sootClass.getType());
     }
 
-    private JimpleType getType(Type type) {
+    JimpleType getType(Type type) {
         JimpleType jType = types.get(type);
         if (jType == null) {
             jType = new JimpleType(type);
@@ -245,8 +245,7 @@ class IRBuilder {
     private Obj getConstantObj(Value constant) {
         if (constant instanceof StringConstant) {
             JimpleType stringType = getType(constant.getType());
-            return env.getStringConstant(
-                    stringType, ((StringConstant) constant).value);
+            return env.getStringConstant(((StringConstant) constant).value);
         } else if (constant instanceof ClassConstant) {
             throw new UnsupportedOperationException("Class constant is not supported");
         } else if (constant instanceof MethodHandle) {
