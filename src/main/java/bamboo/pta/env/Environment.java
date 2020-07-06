@@ -22,18 +22,18 @@ import bamboo.pta.element.Type;
  */
 public class Environment {
 
-    private StringConstantPool strPool = new StringConstantPool();
+    private final StringConstantPool strPool;
 
-    private ReflectionObjectPool reflPool = new ReflectionObjectPool();
+    private final ReflectionObjectPool reflPool;
 
     /**
      * Setup Environment object using given programManager.
      * This method must be called before starting pointer analysis;
      * @param programManager
      */
-    public void setup(ProgramManager programManager) {
-        strPool.setup(programManager);
-        reflPool.setup(programManager);
+    public Environment(ProgramManager programManager) {
+        strPool  = new StringConstantPool(programManager);
+        reflPool = new ReflectionObjectPool(programManager);
     }
 
     public Obj getStringConstant(String constant) {

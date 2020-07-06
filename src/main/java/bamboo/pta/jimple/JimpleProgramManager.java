@@ -36,13 +36,9 @@ public class JimpleProgramManager implements ProgramManager {
 
     private final FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
 
-    private final Environment env = new Environment();
+    private final Environment env = new Environment(this);
 
     private final IRBuilder irBuilder = new IRBuilder(env);
-
-    public JimpleProgramManager() {
-        env.setup(this);
-    }
 
     @Override
     public Collection<Method> getEntryMethods() {
