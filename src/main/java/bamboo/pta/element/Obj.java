@@ -15,6 +15,8 @@ package bamboo.pta.element;
 
 public interface Obj {
 
+    Kind getKind();
+
     Type getType();
 
     /**
@@ -36,8 +38,9 @@ public interface Obj {
     enum Kind {
         NORMAL,
         STRING_CONSTANT,
-        REFLECTION_OBJECT, // reflection meta-objects
-        SPECIAL, // represents special objects
+        REFLECTIVE_OBJECT, // reflectively-created objects
+        SPECIAL, // represents special objects (heap sensitivity
+        // is not applied to these objects)
         ARTIFICIAL, // represents the non-exist objects
     }
 }

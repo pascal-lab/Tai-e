@@ -13,35 +13,33 @@
 
 package bamboo.pta.jimple;
 
+import bamboo.pta.element.AbstractObj;
 import bamboo.pta.element.Method;
-import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import soot.jimple.AssignStmt;
 
 import java.util.Objects;
 
-public class JimpleObj implements Obj {
+public class JimpleObj extends AbstractObj {
 
     private final Object allocation;
-
-    private final JimpleType type;
 
     private final JimpleMethod containerMethod;
 
     JimpleObj(Object allocation, JimpleType type, JimpleMethod containerMethod) {
+        super(type);
         this.allocation = allocation;
-        this.type = type;
         this.containerMethod = containerMethod;
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.NORMAL;
     }
 
     @Override
     public Object getAllocation() {
         return allocation;
-    }
-
-    @Override
-    public Type getType() {
-        return type;
     }
 
     @Override

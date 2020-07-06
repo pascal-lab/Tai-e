@@ -13,24 +13,24 @@
 
 package bamboo.pta.env;
 
+import bamboo.pta.element.AbstractObj;
 import bamboo.pta.element.Method;
-import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 
-class StringConstant implements Obj {
+import java.util.Objects;
 
-    private final Type type;
+class StringConstant extends AbstractObj {
 
     private final String value;
 
     StringConstant(Type type, String value) {
-        this.type = type;
+        super(type);
         this.value = value;
     }
 
     @Override
-    public Type getType() {
-        return type;
+    public Kind getKind() {
+        return Kind.STRING_CONSTANT;
     }
 
     @Override
@@ -43,6 +43,19 @@ class StringConstant implements Obj {
         // String constants do not have a container method, as the same
         // string constant can appear in multiple methods.
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StringConstant that = (StringConstant) o;
+        return value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, value);
     }
 
     @Override
