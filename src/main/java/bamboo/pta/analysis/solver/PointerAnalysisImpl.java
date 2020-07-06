@@ -493,7 +493,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(Allocation alloc) {
-            Type type = alloc.getObject().getType();
+            Obj obj = alloc.getObject();
+            if (obj.getKind() == Obj.Kind.CLASS) {
+                initializeClass((Type) obj.getAllocation());
+            }
+            Type type = obj.getType();
             if (type.isClassType()) {
                 initializeClass(type);
             } else if (type.isArrayType()) {

@@ -59,6 +59,6 @@ public class ClassObj extends AbstractObj {
 
     @Override
     public String toString() {
-        return "[Class]:" + klass;
+        return "[Class]" + klass;
     }
 }
