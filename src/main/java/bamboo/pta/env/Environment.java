@@ -22,9 +22,9 @@ import bamboo.pta.element.Type;
  */
 public class Environment {
 
-    private StringConstantPool strPool;
+    private StringConstantPool strPool = new StringConstantPool();
 
-    private ReflectionObjectPool reflPool;
+    private ReflectionObjectPool reflPool = new ReflectionObjectPool();
 
     /**
      * Setup Environment object using given programManager.
@@ -32,8 +32,8 @@ public class Environment {
      * @param programManager
      */
     public void setup(ProgramManager programManager) {
-        strPool = new StringConstantPool(programManager);
-        reflPool = new ReflectionObjectPool(programManager);
+        strPool.setup(programManager);
+        reflPool.setup(programManager);
     }
 
     public Obj getStringConstant(String constant) {

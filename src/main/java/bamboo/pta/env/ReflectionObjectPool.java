@@ -24,18 +24,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class ReflectionObjectPool {
 
-    private final Type classType;
+    private Type classType;
 
-    private final Type methodType;
+    private Type methodType;
 
-    private final Type fieldType;
+    private Type fieldType;
 
-    private final Type constructorType;
+    private Type constructorType;
 
     private final Map<Type, ClassObj> classMap =
             new ConcurrentHashMap<>();
 
-    ReflectionObjectPool(ProgramManager pm) {
+    void setup(ProgramManager pm) {
         classType = pm.getUniqueTypeByName("java.lang.Class");
         methodType = pm.getUniqueTypeByName("java.lang.reflect.Method");
         fieldType = pm.getUniqueTypeByName("java.lang.reflect.Field");

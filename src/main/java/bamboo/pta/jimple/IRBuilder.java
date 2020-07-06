@@ -95,6 +95,7 @@ class IRBuilder {
     JimpleMethod getMethod(SootMethod method) {
         JimpleMethod jMethod = methods.get(method);
         if (jMethod == null) {
+            System.out.println("getMethod(\"" + method + "\")");
             JimpleType jType = getType(method.getDeclaringClass());
             jMethod = new JimpleMethod(method, jType);
             // jMethod should be put into methods before building method body,
@@ -247,7 +248,7 @@ class IRBuilder {
             JimpleType stringType = getType(constant.getType());
             return env.getStringConstant(((StringConstant) constant).value);
         } else if (constant instanceof ClassConstant) {
-            throw new UnsupportedOperationException("Class constant is not supported");
+            return env.getClassObj(getType(((ClassConstant) constant).toSootType()));
         } else if (constant instanceof MethodHandle) {
             throw new UnsupportedOperationException("MethodHandle is not supported");
         } else if (constant instanceof NumericConstant) {
@@ -366,7 +367,6 @@ class IRBuilder {
             // x = null;
             // ignore
         } else if (isConstant(right)) {
-            // TODO: x = T.class;
             method.addStatement(new Allocation(lhs, getConstantObj(right)));
         } else if (right instanceof Local) {
             // x = y;
@@ -374,10 +374,14 @@ class IRBuilder {
         } else if (right instanceof CastExpr) {
             // x = (T) y;
             CastExpr cast = (CastExpr) right;
-            method.addStatement(new AssignCast(lhs,
-                    getType(cast.getCastType()),
-                    getVariable((Local) cast.getOp(), method)
-            ));
+            Value op = cast.getOp();
+            if (op instanceof Local) {
+                method.addStatement(new AssignCast(lhs,
+                        getType(cast.getCastType()),
+                        getVariable((Local) cast.getOp(), method)
+                ));
+            }
+            // ignore other casting cases
         } else if (right instanceof PhiExpr) {
             // x = phi(v1, ..., vn)
             for (Value from : ((PhiExpr) right).getValues()) {
