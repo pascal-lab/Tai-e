@@ -18,49 +18,47 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
 /**
- * Represents string constants.
+ * Represents class objects.
  */
-class StringConstant extends AbstractObj {
+public class ClassObj extends AbstractObj {
 
-    private final String value;
+    private final Type klass;
 
-    StringConstant(Type type, String value) {
+    ClassObj(Type type, Type klass) {
         super(type);
-        this.value = value;
+        this.klass = klass;
     }
 
     @Override
     public Kind getKind() {
-        return Kind.STRING_CONSTANT;
+        return Kind.CLASS;
     }
 
     @Override
     public Object getAllocation() {
-        return value;
+        return klass;
     }
 
     @Override
     public Method getContainerMethod() {
-        // String constants do not have a container method, as the same
-        // string constant can appear in multiple methods.
         return null;
+    }
+
+    @Override
+    public int hashCode() {
+        return klass.hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StringConstant that = (StringConstant) o;
-        return value.equals(that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return value.hashCode();
+        ClassObj classObj = (ClassObj) o;
+        return klass.equals(classObj.klass);
     }
 
     @Override
     public String toString() {
-        return "\"" + value + "\"";
+        return "[Class]:" + type;
     }
 }

@@ -36,8 +36,12 @@ public interface Obj {
     Method getContainerMethod();
 
     enum Kind {
-        NORMAL,
-        STRING_CONSTANT,
+        NORMAL, // normal objects created by allocation sites
+        STRING_CONSTANT, // string constants
+        CLASS, // objects of java.lang.Class
+        METHOD, // objects of java.lang.reflect.Method
+        FIELD, // objects of java.lang.reflect.Field
+        CONSTRUCTOR, // objects of java.lang.reflect.Constructor
         REFLECTIVE_OBJECT, // reflectively-created objects
         SPECIAL, // represents special objects (heap sensitivity
         // is not applied to these objects)

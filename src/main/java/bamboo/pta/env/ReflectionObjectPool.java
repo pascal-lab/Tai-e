@@ -13,8 +13,37 @@
 
 package bamboo.pta.env;
 
+import bamboo.pta.analysis.ProgramManager;
+import bamboo.pta.element.Type;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Manages the reflection meta objects.
  */
-public class ReflectionObjectPool {
+class ReflectionObjectPool {
+
+    private final Type classType;
+
+    private final Type methodType;
+
+    private final Type fieldType;
+
+    private final Type constructorType;
+
+    private final Map<Type, ClassObj> classMap =
+            new ConcurrentHashMap<>();
+
+    ReflectionObjectPool(ProgramManager pm) {
+        classType = pm.getUniqueTypeByName("java.lang.Class");
+        methodType = pm.getUniqueTypeByName("java.lang.reflect.Method");
+        fieldType = pm.getUniqueTypeByName("java.lang.reflect.Field");
+        constructorType = pm.getUniqueTypeByName("java.lang.reflect.Constructor");
+    }
+
+    ClassObj getClassObj(Type klass) {
+        return classMap.computeIfAbsent(klass,
+                c -> new ClassObj(classType, c));
+    }
 }

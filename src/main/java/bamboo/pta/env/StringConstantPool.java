@@ -16,8 +16,8 @@ package bamboo.pta.env;
 import bamboo.pta.analysis.ProgramManager;
 import bamboo.pta.element.Type;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages the string constants in the program.
@@ -28,15 +28,15 @@ class StringConstantPool {
 
     private final Type stringType;
 
-    final Map<String, StringConstant> constants = new HashMap<>();
+    private final Map<String, StringConstant> constants =
+            new ConcurrentHashMap<>();
 
-    StringConstantPool(ProgramManager programManager) {
-        this.stringType = programManager
-                .getUniqueTypeByName("java.lang.String");
+    StringConstantPool(ProgramManager pm) {
+        this.stringType = pm.getUniqueTypeByName("java.lang.String");
     }
 
     StringConstant getStringConstant(String constant) {
         return constants.computeIfAbsent(constant,
-                (c) -> new StringConstant(stringType, c));
+                c -> new StringConstant(stringType, c));
     }
 }
