@@ -95,7 +95,6 @@ class IRBuilder {
     JimpleMethod getMethod(SootMethod method) {
         JimpleMethod jMethod = methods.get(method);
         if (jMethod == null) {
-            System.out.println("getMethod(\"" + method + "\")");
             JimpleType jType = getType(method.getDeclaringClass());
             jMethod = new JimpleMethod(method, jType);
             // jMethod should be put into methods before building method body,

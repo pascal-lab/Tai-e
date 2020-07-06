@@ -1,0 +1,14 @@
+---------- Points-to sets of all variables: ----------
+[]:<ClassObj$A: void <clinit>()>/$r0 -> {[]:<ClassObj$A: void <clinit>()>/new java.lang.Object/16}
+[]:<ClassObj$A: void <clinit>()>/r1 -> {[]:<ClassObj$A: void <clinit>()>/new java.lang.Object/16}
+[]:<ClassObj: void main(java.lang.String[])>/constant$1 -> {[]:[Class]ClassObj$A}
+[]:<ClassObj: void main(java.lang.String[])>/r0 -> {[]:[Class]ClassObj$A}
+[]:<ClassObj: void main(java.lang.String[])>/r1 -> {[]:[Class]ClassObj$A}
+[]:<java.lang.Class: void <clinit>()>/$r0 -> {[]:<java.lang.Class: void <clinit>()>/new java.io.ObjectStreamField[]/3179}
+[]:<java.lang.Object: int hashCode()>/@this -> {[]:[Class]ClassObj$A}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<ClassObj$A: void <clinit>()>/new java.lang.Object/16}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------
+<ClassObj: java.lang.Class klass> -> {[]:[Class]ClassObj$A}
+<java.lang.Class: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.Class: void <clinit>()>/new java.io.ObjectStreamField[]/3179}

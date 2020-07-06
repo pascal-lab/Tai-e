@@ -90,4 +90,9 @@ public class CSPTATest {
     public void testClinit() {
         testCSPTA("Clinit");
     }
+
+    @Test
+    public void testClassObj() {
+        testCSPTA("ClassObj");
+    }
 }
