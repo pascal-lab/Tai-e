@@ -95,4 +95,9 @@ public class CSPTATest {
     public void testClassObj() {
         testCSPTA("ClassObj");
     }
+
+    @Test
+    public void testTypeSens() {
+        testCSPTA("TypeSens", "-p", "wjtp.pta", "cs:2-type");
+    }
 }

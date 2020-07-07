@@ -18,6 +18,9 @@ package bamboo.pta.element;
  */
 public abstract class AbstractObj implements Obj {
 
+    /**
+     * Type of this object.
+     */
     protected final Type type;
 
     protected AbstractObj(Type type) {

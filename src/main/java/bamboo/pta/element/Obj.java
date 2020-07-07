@@ -20,9 +20,10 @@ public interface Obj {
     Type getType();
 
     /**
-     * For NORMAL and ARRAY, returns the allocation site.
+     * For NORMAL, returns the allocation site.
      * For STRING_CONSTANT, returns the string constant.
-     * For CLASS_CONSTANT, returns the class type.
+     * For CLASS/METHOD/FIELD/CONSTRUCTOR, returns the corresponding
+     * class/method/field/constructor.
      * For SPECIAL and ARTIFICIAL, the return value
      * depends on concrete implementation.
      */
@@ -34,6 +35,14 @@ public interface Obj {
      * which do not have such method.
      */
     Method getContainerMethod();
+
+    /**
+     * This method is useful for type sensitivity.
+     *
+     * @return the type containing the allocation site of this object.
+     * For special objects, the return values of this method are also special.
+     */
+    Type getContainerType();
 
     enum Kind {
         NORMAL, // normal objects created by allocation sites

@@ -47,6 +47,12 @@ class StringConstant extends AbstractObj {
     }
 
     @Override
+    public Type getContainerType() {
+        // Uses java.lang.String as the container type.
+        return type;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

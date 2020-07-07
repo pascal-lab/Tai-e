@@ -29,7 +29,7 @@ public class TwoTypeSelector implements ContextSelector {
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, Method callee) {
         Context hctx = recv.getContext();
-        Type type = recv.getObject().getContainerMethod().getClassType();
+        Type type = recv.getObject().getContainerType();
         return hctx.depth() == 0 ?
                 new OneContext<>(type) :
                 new TwoContext<>(hctx.element(hctx.depth()), type);

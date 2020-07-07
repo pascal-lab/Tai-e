@@ -45,6 +45,12 @@ public class ClassObj extends AbstractObj {
     }
 
     @Override
+    public Type getContainerType() {
+        // Uses java.lang.Class as the container type.
+        return type;
+    }
+
+    @Override
     public int hashCode() {
         return klass.hashCode();
     }

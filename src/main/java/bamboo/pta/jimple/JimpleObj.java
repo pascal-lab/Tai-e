@@ -48,6 +48,11 @@ public class JimpleObj extends AbstractObj {
     }
 
     @Override
+    public Type getContainerType() {
+        return containerMethod.getClassType();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

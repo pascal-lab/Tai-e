@@ -30,8 +30,7 @@ public class OneTypeSelector implements ContextSelector {
 
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, Method callee) {
-        return new OneContext<>(recv.getObject()
-                .getContainerMethod().getClassType());
+        return new OneContext<>(recv.getObject().getContainerType());
     }
 
     @Override

@@ -1,0 +1,26 @@
+---------- Points-to sets of all variables: ----------
+[]:<TypeSens: void main(java.lang.String[])>/r0 -> {[]:"xxx"}
+[]:<TypeSens: void main(java.lang.String[])>/r1 -> {[]:[Class]TypeSens}
+[]:<java.lang.Class: void <clinit>()>/$r0 -> {[]:<java.lang.Class: void <clinit>()>/new java.io.ObjectStreamField[]/3179}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
+[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[java.lang.Class]:<java.lang.Class: java.lang.String getName()>/$r1 -> {}
+[java.lang.Class]:<java.lang.Class: java.lang.String getName()>/r0 -> {[]:[Class]TypeSens}
+[java.lang.Class]:<java.lang.Class: java.lang.String getName()>/r2 -> {}
+[java.lang.Class]:<java.lang.Class: java.lang.String getName0()>/@return -> {}
+[java.lang.Class]:<java.lang.Class: java.lang.String getName0()>/@this -> {[]:[Class]TypeSens}
+[java.lang.String]:<java.lang.Object: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[java.lang.String]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[java.lang.String]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[java.lang.String]:<java.lang.String: int hashCode()>/$r1 -> {}
+[java.lang.String]:<java.lang.String: int hashCode()>/$r3 -> {}
+[java.lang.String]:<java.lang.String: int hashCode()>/r0 -> {[]:"xxx"}
+[java.lang.String]:<java.lang.String: int hashCode()>/r2 -> {}
+---------- Points-to sets of all instance fields: ----------
+[]:"xxx".value -> {}
+[]:[Class]TypeSens.name -> {}
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------
+<java.lang.Class: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.Class: void <clinit>()>/new java.io.ObjectStreamField[]/3179}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
+<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
