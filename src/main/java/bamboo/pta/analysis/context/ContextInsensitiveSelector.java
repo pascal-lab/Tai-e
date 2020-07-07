@@ -17,6 +17,7 @@ import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.element.Method;
+import bamboo.pta.element.Obj;
 
 public class ContextInsensitiveSelector implements ContextSelector {
 
@@ -31,7 +32,7 @@ public class ContextInsensitiveSelector implements ContextSelector {
     }
 
     @Override
-    public Context selectHeapContext(CSMethod method, Object allocation) {
+    public Context selectHeapContext(CSMethod method, Obj allocation) {
         return DefaultContext.INSTANCE;
     }
 }

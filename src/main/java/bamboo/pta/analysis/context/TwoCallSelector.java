@@ -17,11 +17,12 @@ import bamboo.pta.analysis.data.CSCallSite;
 import bamboo.pta.analysis.data.CSMethod;
 import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.element.Method;
+import bamboo.pta.element.Obj;
 
 /**
  * 2-call-site-sensitivity with 1 heap context.
  */
-public class TwoCallSelector implements ContextSelector {
+public class TwoCallSelector extends AbstractContextSelector {
 
     @Override
     public Context selectContext(CSCallSite callSite, Method callee) {
@@ -44,7 +45,7 @@ public class TwoCallSelector implements ContextSelector {
     }
 
     @Override
-    public Context selectHeapContext(CSMethod method, Object allocationSite) {
+    protected Context doSelectHeapContext(CSMethod method, Obj obj) {
         Context ctx = method.getContext();
         if (ctx.depth() < 2) {
             return ctx;

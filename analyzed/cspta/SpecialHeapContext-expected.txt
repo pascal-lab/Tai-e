@@ -1,0 +1,27 @@
+---------- Points-to sets of all variables: ----------
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<A: java.lang.String getMyString()>/temp$0 -> {[]:"string"}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<A: java.lang.String getMyString()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<A: void <init>()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<java.lang.Object: void <init>()>/r0 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<A: java.lang.String getMyString()>/temp$0 -> {[]:"string"}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<A: java.lang.String getMyString()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<A: void <init>()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
+[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<java.lang.Object: void <init>()>/r0 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
+[<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184]:<java.lang.Object: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/a1 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/a2 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/s1 -> {[]:"string"}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/s2 -> {[]:"string"}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$0 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$1 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$2 -> {[]:"string"}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$3 -> {[]:"string"}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
+[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
+<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}

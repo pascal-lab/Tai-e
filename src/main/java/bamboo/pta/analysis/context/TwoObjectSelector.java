@@ -19,7 +19,7 @@ import bamboo.pta.analysis.data.CSObj;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 
-public class TwoObjectSelector implements ContextSelector {
+public class TwoObjectSelector extends AbstractContextSelector {
 
     @Override
     public Context selectContext(CSCallSite callSite, Method callee) {
@@ -36,7 +36,7 @@ public class TwoObjectSelector implements ContextSelector {
     }
 
     @Override
-    public Context selectHeapContext(CSMethod method, Object allocationSite) {
+    protected Context doSelectHeapContext(CSMethod method, Obj obj) {
         Context ctx = method.getContext();
         if (ctx.depth() < 2) {
             return ctx;

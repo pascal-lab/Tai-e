@@ -96,8 +96,14 @@ public class CSPTATest {
         testCSPTA("ClassObj");
     }
 
+    // Tests for handling of non-normal objects
     @Test
     public void testTypeSens() {
         testCSPTA("TypeSens", "-p", "wjtp.pta", "cs:2-type");
+    }
+
+    @Test
+    public void testSpecialHeapContext() {
+        testCSPTA("SpecialHeapContext", "-p", "wjtp.pta", "cs:2-object");
     }
 }

@@ -14,7 +14,7 @@
 package bamboo.pta.element;
 
 /**
- * All implementations of Obj should extend this class.
+ * All implementations of Obj should inherit this class.
  */
 public abstract class AbstractObj implements Obj {
 
