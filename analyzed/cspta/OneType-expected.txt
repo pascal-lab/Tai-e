@@ -37,3 +37,5 @@
 []:<A: void m()>/new C/10.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
 []:<A: void m()>/new C/12.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
 []:<B: void m()>/new C/20.f -> {[]:<B: void m()>/new D/21}
+---------- Points-to sets of all array indexes: ----------
+---------- Points-to sets of all static fields: ----------
