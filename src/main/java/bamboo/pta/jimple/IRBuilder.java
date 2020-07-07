@@ -28,7 +28,6 @@ import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
-import bamboo.util.MutableInteger;
 import soot.ArrayType;
 import soot.Body;
 import soot.Local;
@@ -68,6 +67,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Jimple-based pointer analysis IR builder.
@@ -493,7 +493,7 @@ class IRBuilder {
      */
     private class NewVariableManager {
 
-        private final Map<JimpleMethod, MutableInteger> varNumbers = new HashMap<>();
+        private final Map<JimpleMethod, AtomicInteger> varNumbers = new HashMap<>();
 
         private JimpleVariable newTempVariable(
                 String baseName, JimpleType type, JimpleMethod container) {
@@ -503,8 +503,8 @@ class IRBuilder {
 
         private int getNewNumber(JimpleMethod container) {
             return varNumbers.computeIfAbsent(container,
-                    m -> new MutableInteger(0))
-                    .increase();
+                    m -> new AtomicInteger(0))
+                    .incrementAndGet();
         }
 
         private JimpleVariable getThisVariable(JimpleMethod container) {
