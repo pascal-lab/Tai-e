@@ -1,8 +1,8 @@
 /*
  * Bamboo - A Program Analysis Framework for Java
  *
- * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * Copyright (C)  2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C)  2020 Yue Li <yueli@nju.edu.cn>
  * All rights reserved.
  *
  * This software is designed for the "Static Program Analysis" course at
@@ -11,48 +11,42 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.ci;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.element.Obj;
+import bamboo.util.HybridArrayHashSet;
 
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-/**
- * Delegate points-to set to a concrete set implementation.
- */
-abstract class DelegatePointsToSet implements PointsToSet {
+class PointsToSet implements Iterable<Obj> {
 
-    protected Set<CSObj> set;
+    private final Set<Obj> set = new HybridArrayHashSet<>();
 
-    protected DelegatePointsToSet() {
-        initializePointsToSet();
+    PointsToSet() {
     }
 
-    protected abstract void initializePointsToSet();
+    PointsToSet(Obj obj) {
+        addObject(obj);
+    }
 
-    @Override
-    public boolean addObject(CSObj obj) {
+    public boolean addObject(Obj obj) {
         return set.add(obj);
     }
 
-    @Override
     public boolean isEmpty() {
         return set.isEmpty();
     }
 
-    @Override
-    public Stream<CSObj> stream() {
+    public Stream<Obj> stream() {
         return set.stream();
     }
 
-    @Override
-    public Iterator<CSObj> iterator() {
+    public Iterator<Obj> iterator() {
         return set.iterator();
     }
 
-    @Override
     public String toString() {
         return set.toString();
     }

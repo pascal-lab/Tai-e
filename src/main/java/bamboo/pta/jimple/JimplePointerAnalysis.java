@@ -15,11 +15,11 @@ package bamboo.pta.jimple;
 
 import bamboo.callgraph.CallGraph;
 import bamboo.callgraph.JimpleCallGraph;
-import bamboo.pta.analysis.context.DefaultContext;
-import bamboo.pta.analysis.data.CSCallSite;
-import bamboo.pta.analysis.data.CSMethod;
-import bamboo.pta.analysis.data.DataManager;
-import bamboo.pta.analysis.solver.PointerAnalysis;
+import bamboo.pta.core.context.DefaultContext;
+import bamboo.pta.core.cs.CSCallSite;
+import bamboo.pta.core.cs.CSMethod;
+import bamboo.pta.core.cs.DataManager;
+import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.set.PointsToSet;
@@ -39,7 +39,7 @@ public class JimplePointerAnalysis {
     private static final JimplePointerAnalysis INSTANCE =
             new JimplePointerAnalysis();
     private PointerAnalysis pta;
-    private bamboo.pta.analysis.ci.PointerAnalysis cipta;
+    private bamboo.pta.core.ci.PointerAnalysis cipta;
     private IRBuilder irBuilder;
     private DataManager dataManager;
     private JimpleCallGraph jimpleCallGraph;
@@ -57,7 +57,7 @@ public class JimplePointerAnalysis {
     }
 
     public void setCIPointerAnalysis(
-            bamboo.pta.analysis.ci.PointerAnalysis cipta) {
+            bamboo.pta.core.ci.PointerAnalysis cipta) {
         this.cipta = cipta;
         irBuilder = ((JimpleProgramManager) cipta.getProgramManager())
                 .getIRBuilder();

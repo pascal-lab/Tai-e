@@ -11,17 +11,25 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.context;
 
-import bamboo.pta.core.cs.CSObj;
+public enum DefaultContext implements Context {
+    INSTANCE,
+    ;
 
-import java.util.stream.Stream;
+    @Override
+    public int depth() {
+        return 0;
+    }
 
-public interface PointsToSet extends Iterable<CSObj> {
+    @Override
+    public Object element(int i) {
+        throw new IllegalArgumentException(
+                "Context " + this + " doesn't have " + i + "-th element");
+    }
 
-    boolean addObject(CSObj obj);
-
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    @Override
+    public String toString() {
+        return "[]";
+    }
 }

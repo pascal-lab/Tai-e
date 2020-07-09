@@ -13,11 +13,11 @@
 
 package bamboo.pta;
 
-import bamboo.pta.analysis.data.ArrayIndex;
-import bamboo.pta.analysis.data.CSVariable;
-import bamboo.pta.analysis.data.Pointer;
-import bamboo.pta.analysis.data.StaticField;
-import bamboo.pta.analysis.solver.PointerAnalysis;
+import bamboo.pta.core.cs.ArrayIndex;
+import bamboo.pta.core.cs.CSVariable;
+import bamboo.pta.core.cs.Pointer;
+import bamboo.pta.core.cs.StaticField;
+import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.util.AnalysisException;
 import soot.G;
 

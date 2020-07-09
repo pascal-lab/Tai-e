@@ -11,17 +11,7 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
-
-import bamboo.pta.core.cs.CSObj;
-
-import java.util.stream.Stream;
-
-public interface PointsToSet extends Iterable<CSObj> {
-
-    boolean addObject(CSObj obj);
-
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
-}
+/**
+ * Provides a simplified and context-insensitive pointer analysis.
+ */
+package bamboo.pta.core.ci;

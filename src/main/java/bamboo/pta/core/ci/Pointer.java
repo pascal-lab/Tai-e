@@ -1,8 +1,8 @@
 /*
  * Bamboo - A Program Analysis Framework for Java
  *
- * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * Copyright (C)  2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C)  2020 Yue Li <yueli@nju.edu.cn>
  * All rights reserved.
  *
  * This software is designed for the "Static Program Analysis" course at
@@ -11,17 +11,13 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.ci;
 
-import bamboo.pta.core.cs.CSObj;
+abstract class Pointer {
 
-import java.util.stream.Stream;
+    private final PointsToSet pointsToSet = new PointsToSet();
 
-public interface PointsToSet extends Iterable<CSObj> {
-
-    boolean addObject(CSObj obj);
-
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    PointsToSet getPointsToSet() {
+        return pointsToSet;
+    }
 }

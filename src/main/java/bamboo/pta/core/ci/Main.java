@@ -11,18 +11,13 @@
  * commercial use is disallowed.
  */
 
-package bamboo.dataflow.analysis.constprop;
+package bamboo.pta.core.ci;
 
-import bamboo.pta.core.ci.PointerAnalysisTransformer;
-import soot.Pack;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
 
-/**
- * Bootstrap interprocedural constant propagation with CI PointerAnalysis.
- */
-public class PTAMain {
+public class Main {
 
     public static void main(String[] args) {
         // Set options
@@ -34,13 +29,11 @@ public class PTAMain {
         Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure transformer
-        Pack wjtp = PackManager.v().getPack("wjtp");
-        Transform pta = new Transform("wjtp.pta", PointerAnalysisTransformer.v());
-        wjtp.add(pta);
-        Transform cp = new Transform("wjtp.constprop", new IPConstantPropagation());
-        cp.setDeclaredOptions("enabled cg");
-        cp.setDefaultOptions("enabled:true cg:pta");
-        wjtp.add(cp);
+        Transform transform = new Transform(
+                "wjtp.pta", PointerAnalysisTransformer.v());
+        PackManager.v()
+                .getPack("wjtp")
+                .add(transform);
 
         // Run main analysis
         soot.Main.main(args);

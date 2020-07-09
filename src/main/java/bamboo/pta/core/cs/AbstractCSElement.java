@@ -11,17 +11,20 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.cs;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.core.context.Context;
 
-import java.util.stream.Stream;
+public abstract class AbstractCSElement implements CSElement {
 
-public interface PointsToSet extends Iterable<CSObj> {
+    protected final Context context;
 
-    boolean addObject(CSObj obj);
+    AbstractCSElement(Context context) {
+        this.context = context;
+    }
 
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    @Override
+    public Context getContext() {
+        return context;
+    }
 }

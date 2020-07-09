@@ -13,7 +13,7 @@
 
 package bamboo.pta.env;
 
-import bamboo.pta.analysis.ProgramManager;
+import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Type;
 
 import java.util.Map;

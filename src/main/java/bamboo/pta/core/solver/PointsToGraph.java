@@ -11,17 +11,7 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.solver;
 
-import bamboo.pta.core.cs.CSObj;
-
-import java.util.stream.Stream;
-
-public interface PointsToSet extends Iterable<CSObj> {
-
-    boolean addObject(CSObj obj);
-
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+public class PointsToGraph {
 }

@@ -11,17 +11,22 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.cs;
 
-import bamboo.pta.core.cs.CSObj;
+public class ArrayIndex extends AbstractPointer {
 
-import java.util.stream.Stream;
+    private final CSObj array;
 
-public interface PointsToSet extends Iterable<CSObj> {
+    ArrayIndex(CSObj array) {
+        this.array = array;
+    }
 
-    boolean addObject(CSObj obj);
+    public CSObj getArray() {
+        return array;
+    }
 
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    @Override
+    public String toString() {
+        return array.toString();
+    }
 }

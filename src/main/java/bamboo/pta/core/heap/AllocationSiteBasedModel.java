@@ -11,17 +11,20 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.heap;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.element.Obj;
+import bamboo.pta.statement.Allocation;
 
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface PointsToSet extends Iterable<CSObj> {
+public class AllocationSiteBasedModel implements HeapModel {
 
-    boolean addObject(CSObj obj);
+    private final Map<Allocation, Obj> objects = new HashMap<>();
 
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    @Override
+    public Obj getObj(Allocation alloc) {
+        return objects.computeIfAbsent(alloc, Allocation::getObject);
+    }
 }

@@ -11,17 +11,21 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.cs;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.set.PointsToSet;
 
-import java.util.stream.Stream;
+abstract class AbstractPointer implements Pointer {
 
-public interface PointsToSet extends Iterable<CSObj> {
+    protected PointsToSet pointsToSet;
 
-    boolean addObject(CSObj obj);
+    @Override
+    public PointsToSet getPointsToSet() {
+        return pointsToSet;
+    }
 
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    @Override
+    public void setPointsToSet(PointsToSet pointsToSet) {
+        this.pointsToSet = pointsToSet;
+    }
 }

@@ -11,17 +11,17 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.context;
 
-import bamboo.pta.core.cs.CSObj;
+public interface Context {
 
-import java.util.stream.Stream;
+    /**
+     * @return the depth (i.e., the number of elements) of this context.
+     */
+    int depth();
 
-public interface PointsToSet extends Iterable<CSObj> {
-
-    boolean addObject(CSObj obj);
-
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    /**
+     * @return the i-th element of this context. Starts from 1.
+     */
+    Object element(int i);
 }

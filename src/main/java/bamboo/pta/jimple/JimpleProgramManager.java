@@ -13,7 +13,7 @@
 
 package bamboo.pta.jimple;
 
-import bamboo.pta.analysis.ProgramManager;
+import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;

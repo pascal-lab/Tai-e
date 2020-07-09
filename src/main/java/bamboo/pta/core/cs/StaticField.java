@@ -11,17 +11,24 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.cs;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.element.Field;
 
-import java.util.stream.Stream;
+public class StaticField extends AbstractPointer {
 
-public interface PointsToSet extends Iterable<CSObj> {
+    private final Field field;
 
-    boolean addObject(CSObj obj);
+    StaticField(Field field) {
+        this.field = field;
+    }
 
-    boolean isEmpty();
+    public Field getField() {
+        return field;
+    }
 
-    Stream<CSObj> stream();
+    @Override
+    public String toString() {
+        return field.toString();
+    }
 }

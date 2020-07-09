@@ -11,20 +11,26 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.cs;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.core.context.Context;
+import bamboo.pta.element.Method;
 
-public interface PointsToSetFactory {
+public class CSMethod extends AbstractCSElement {
 
-    PointsToSet makePointsToSet();
+    private final Method method;
 
-    /**
-     * Make a singleton points-to set.
-     */
-    default PointsToSet makePointsToSet(CSObj obj) {
-        PointsToSet set = makePointsToSet();
-        set.addObject(obj);
-        return set;
+    CSMethod(Method method, Context context) {
+        super(context);
+        this.method = method;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    @Override
+    public String toString() {
+        return context + ":" + method;
     }
 }

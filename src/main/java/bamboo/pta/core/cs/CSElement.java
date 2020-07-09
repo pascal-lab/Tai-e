@@ -11,17 +11,14 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.set;
+package bamboo.pta.core.cs;
 
-import bamboo.pta.core.cs.CSObj;
+import bamboo.pta.core.context.Context;
 
-import java.util.stream.Stream;
+/**
+ * Context-sensitive elements.
+ */
+public interface CSElement {
 
-public interface PointsToSet extends Iterable<CSObj> {
-
-    boolean addObject(CSObj obj);
-
-    boolean isEmpty();
-
-    Stream<CSObj> stream();
+    Context getContext();
 }
