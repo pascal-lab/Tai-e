@@ -24,9 +24,9 @@ import bamboo.pta.set.PointsToSetFactory;
 import java.util.stream.Stream;
 
 /**
- * Manages the data structures in context-sensitive pointer analysis.
+ * Manages context-sensitive elements in pointer analysis.
  */
-public interface DataManager {
+public interface CSManager {
 
     void setPointsToSetFactory(PointsToSetFactory setFactory);
 

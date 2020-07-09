@@ -20,7 +20,7 @@ import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSCallSite;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
-import bamboo.pta.core.cs.DataManager;
+import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.InstanceField;
 import bamboo.pta.core.cs.StaticField;
 import bamboo.pta.core.heap.HeapModel;
@@ -34,9 +34,9 @@ public interface PointerAnalysis {
 
     void setProgramManager(ProgramManager programManager);
 
-    DataManager getDataManager();
+    CSManager getCSManager();
 
-    void setDataManager(DataManager dataManager);
+    void setCSManager(CSManager csManager);
 
     ContextSelector getContextSelector();
 

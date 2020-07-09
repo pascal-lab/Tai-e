@@ -18,7 +18,7 @@ import bamboo.callgraph.JimpleCallGraph;
 import bamboo.pta.core.context.DefaultContext;
 import bamboo.pta.core.cs.CSCallSite;
 import bamboo.pta.core.cs.CSMethod;
-import bamboo.pta.core.cs.DataManager;
+import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
@@ -41,7 +41,7 @@ public class JimplePointerAnalysis {
     private PointerAnalysis pta;
     private bamboo.pta.core.ci.PointerAnalysis cipta;
     private IRBuilder irBuilder;
-    private DataManager dataManager;
+    private CSManager csManager;
     private JimpleCallGraph jimpleCallGraph;
 
     public static JimplePointerAnalysis v() {
@@ -52,7 +52,7 @@ public class JimplePointerAnalysis {
         this.pta = pta;
         irBuilder = ((JimpleProgramManager) pta.getProgramManager())
                 .getIRBuilder();
-        dataManager = pta.getDataManager();
+        csManager = pta.getCSManager();
         jimpleCallGraph = null;
     }
 
@@ -77,7 +77,7 @@ public class JimplePointerAnalysis {
      */
     public PointsToSet pointsToSetOf(JimpleVariable var) {
         if (!pta.isContextSensitive()) {
-            return dataManager.getCSVariable(DefaultContext.INSTANCE, var)
+            return csManager.getCSVariable(DefaultContext.INSTANCE, var)
                     .getPointsToSet();
         } else {
             throw new UnsupportedOperationException(

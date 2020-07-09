@@ -24,7 +24,7 @@ import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.cs.InstanceField;
-import bamboo.pta.core.cs.MapBasedDataManager;
+import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.core.cs.StaticField;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
@@ -80,7 +80,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         setContextSensitivity(pta, options);
         pta.setHeapModel(new AllocationSiteBasedModel());
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
-        pta.setDataManager(new MapBasedDataManager(setFactory));
+        pta.setCSManager(new MapBasedCSManager(setFactory));
         pta.setPointsToSetFactory(setFactory);
         pta.analyze();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);

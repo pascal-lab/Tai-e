@@ -18,7 +18,7 @@ import bamboo.callgraph.Edge;
 import bamboo.pta.core.context.Context;
 import bamboo.pta.core.cs.CSCallSite;
 import bamboo.pta.core.cs.CSMethod;
-import bamboo.pta.core.cs.DataManager;
+import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.statement.Call;
@@ -27,10 +27,10 @@ import bamboo.util.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
-    private final DataManager dataManager;
+    private final CSManager csManager;
 
-    OnFlyCallGraph(DataManager dataManager) {
-        this.dataManager = dataManager;
+    OnFlyCallGraph(CSManager csManager) {
+        this.csManager = csManager;
     }
 
     boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -50,7 +50,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
             for (Statement s : method.getStatements()) {
                 if (s instanceof Call) {
                     CallSite callSite = ((Call) s).getCallSite();
-                    CSCallSite csCallSite = dataManager
+                    CSCallSite csCallSite = csManager
                             .getCSCallSite(context, callSite);
                     callSiteToContainer.put(csCallSite, csMethod);
                     CollectionUtils.addToMapSet(callSitesIn, csMethod, csCallSite);

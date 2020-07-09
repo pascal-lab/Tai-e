@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * Managing data by maintaining the data and their context-sensitive
  * counterparts by maps.
  */
-public class MapBasedDataManager implements DataManager {
+public class MapBasedCSManager implements CSManager {
 
     private final Map<Variable, Map<Context, CSVariable>> vars = new HashMap<>();
     private final Map<CSObj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
@@ -44,7 +44,7 @@ public class MapBasedDataManager implements DataManager {
     private final Map<Method, Map<Context, CSMethod>> methods = new HashMap<>();
     private PointsToSetFactory setFactory;
 
-    public MapBasedDataManager(PointsToSetFactory setFactory) {
+    public MapBasedCSManager(PointsToSetFactory setFactory) {
         setPointsToSetFactory(setFactory);
     }
 
