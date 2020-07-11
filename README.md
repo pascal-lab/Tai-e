@@ -1,29 +1,28 @@
-# README #
+# Bamboo - A Pointer Analysis Framework for Java
 
-This README would normally document whatever steps are necessary to get your application up and running.
+### Goal
+Build an efficient, feature-rich, powerful, configurable and maintainable pointer analysis framework for Java.
 
-### What is this repository for? ###
+### Features
+* [x] Core pointer analysis
+* [x] Context sensitivity
+* [x] Heap sensitivity
+* [ ] Heap abstraction
+* [ ] Native code
+* [ ] Dynamic class loading
+* [ ] Reflection analysis
+* [ ] invokedynamic and MethodHandle
+* [ ] Exception analysis
+* [ ] High performance
+* [ ] Parallelism
+* [ ] Pre-analysis (Mahjong, Scaler, Zipper, etc.)
+* ...
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+### Contributors
+* [Tian Tan](https://silverbullettt.bitbucket.io/)
+* [Yue Li](https://yuelee.bitbucket.io/)
 
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+### Dependencies
+* Soot
+* picoli
+* JUnit
