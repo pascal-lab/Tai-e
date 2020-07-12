@@ -23,6 +23,6 @@ Build an efficient, feature-rich, powerful, configurable and maintainable pointe
 * [Yue Li](https://yuelee.bitbucket.io/)
 
 ### Dependencies
-* Soot
-* picoli
-* JUnit
+* Soot (Java analysis, used as frontend)
+* picoli (command line interface)
+* JUnit (testing framework)
