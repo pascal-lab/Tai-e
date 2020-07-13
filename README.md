@@ -1,7 +1,7 @@
 # Bamboo - A Pointer Analysis Framework for Java
 
 ### Goal
-Build an efficient, feature-rich, powerful, configurable and maintainable pointer analysis framework for Java.
+Build an efficient, feature-rich, extensible, configurable and maintainable pointer analysis framework for Java.
 
 ### Features
 * [x] Core pointer analysis
@@ -23,6 +23,6 @@ Build an efficient, feature-rich, powerful, configurable and maintainable pointe
 * [Yue Li](https://yuelee.bitbucket.io/)
 
 ### Dependencies
-* Soot (Java analysis, used as frontend)
+* Soot (Java analysis framework, used as frontend)
 * picoli (command line interface)
 * JUnit (testing framework)
