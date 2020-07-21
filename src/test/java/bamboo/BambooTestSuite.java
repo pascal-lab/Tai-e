@@ -17,6 +17,7 @@ import bamboo.callgraph.cha.CHATestFull;
 import bamboo.dataflow.DataFlowTestSuite;
 import bamboo.dataflow.analysis.constprop.CPTestSuite;
 import bamboo.dataflow.lattice.LatticeTestSuite;
+import bamboo.options.OptionsTest;
 import bamboo.pta.CSPTATest;
 import bamboo.pta.PTATestFull;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ import org.junit.runners.Suite;
         CHATestFull.class,
         PTATestFull.class,
         CSPTATest.class,
+        OptionsTest.class,
 })
 public class BambooTestSuite {
 }
