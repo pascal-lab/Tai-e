@@ -14,6 +14,7 @@
 package bamboo.options;
 
 import bamboo.pta.options.Options;
+import org.junit.Assert;
 import org.junit.Test;
 import picocli.CommandLine;
 
@@ -27,5 +28,14 @@ public class OptionsTest {
     @Test
     public void testVersion() {
         new CommandLine(new Options()).execute("-V");
+    }
+
+    @Test
+    public void testOptions() {
+        new CommandLine(new Options()).execute(
+                "--no-implicit-entries",
+                "-cs", "2-object");
+        Assert.assertFalse(Options.get().isImplicitEntries());
+        Assert.assertEquals(Options.get().getContextSensitivity(), "2-object");
     }
 }

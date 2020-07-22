@@ -31,13 +31,26 @@ public class Options implements Runnable {
         Options.options = options;
     }
 
-    @Option(names = "--implicit-entries",
+    @Option(names = "--no-implicit-entries",
             description = "Analyze implicit reachable entry methods",
-            defaultValue = "true")
+            defaultValue = "true", negatable = true)
     private boolean implicitEntries;
+
+    @Option(names = { "-cs", "--context-sensitivity" },
+            description = "Context sensitivity of pointer analysis",
+            defaultValue = "ci")
+    private String contextSensitivity;
 
     @Override
     public void run() {
         set(this);
+    }
+
+    public boolean isImplicitEntries() {
+        return implicitEntries;
+    }
+
+    public String getContextSensitivity() {
+        return contextSensitivity;
     }
 }
