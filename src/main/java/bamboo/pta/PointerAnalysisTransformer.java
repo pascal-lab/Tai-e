@@ -13,28 +13,16 @@
 
 package bamboo.pta;
 
-import bamboo.pta.core.context.ContextInsensitiveSelector;
-import bamboo.pta.core.context.OneCallSelector;
-import bamboo.pta.core.context.OneObjectSelector;
-import bamboo.pta.core.context.OneTypeSelector;
-import bamboo.pta.core.context.TwoCallSelector;
-import bamboo.pta.core.context.TwoObjectSelector;
-import bamboo.pta.core.context.TwoTypeSelector;
 import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.cs.InstanceField;
-import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.core.cs.StaticField;
-import bamboo.pta.core.heap.AllocationSiteBasedModel;
 import bamboo.pta.core.solver.PointerAnalysis;
-import bamboo.pta.core.solver.PointerAnalysisImpl;
+import bamboo.pta.core.solver.PointerAnalysisBuilder;
 import bamboo.pta.jimple.JimplePointerAnalysis;
-import bamboo.pta.jimple.JimpleProgramManager;
-import bamboo.pta.set.HybridPointsToSet;
-import bamboo.pta.set.PointsToSetFactory;
-import bamboo.util.AnalysisException;
+import bamboo.pta.options.Options;
 import soot.SceneTransformer;
 
 import java.io.PrintStream;
@@ -75,13 +63,8 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-        PointerAnalysis pta = new PointerAnalysisImpl();
-        pta.setProgramManager(new JimpleProgramManager());
-        setContextSensitivity(pta, options);
-        pta.setHeapModel(new AllocationSiteBasedModel());
-        PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
-        pta.setCSManager(new MapBasedCSManager(setFactory));
-        pta.setPointsToSetFactory(setFactory);
+        PointerAnalysis pta = new PointerAnalysisBuilder()
+                .build(Options.get());
         pta.analyze();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);
         if (isOutput) {
@@ -101,40 +84,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(pta);
-        }
-    }
-
-    private void setContextSensitivity(
-            PointerAnalysis pta, Map<String, String> options) {
-        switch (options.get("cs")) {
-            case "ci":
-                pta.setContextSelector(new ContextInsensitiveSelector());
-                break;
-            case "1-call":
-            case "1-cfa":
-                pta.setContextSelector(new OneCallSelector());
-                break;
-            case "1-obj":
-            case "1-object":
-                pta.setContextSelector(new OneObjectSelector());
-                break;
-            case "1-type":
-                pta.setContextSelector(new OneTypeSelector());
-                break;
-            case "2-call":
-            case "2-cfa":
-                pta.setContextSelector(new TwoCallSelector());
-                break;
-            case "2-obj":
-            case "2-object":
-                pta.setContextSelector(new TwoObjectSelector());
-                break;
-            case "2-type":
-                pta.setContextSelector(new TwoTypeSelector());
-                break;
-            default:
-                throw new AnalysisException(
-                        "Unknown context sensitivity variant: " + options.get("cs"));
         }
     }
 
