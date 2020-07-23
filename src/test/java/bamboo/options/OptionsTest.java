@@ -35,7 +35,16 @@ public class OptionsTest {
         new CommandLine(new Options()).execute(
                 "--no-implicit-entries",
                 "-cs", "2-object");
-        Assert.assertFalse(Options.get().isImplicitEntries());
-        Assert.assertEquals(Options.get().getContextSensitivity(), "2-object");
+        Assert.assertFalse(Options.get().analyzeImplicitEntries());
+        Assert.assertEquals("2-object", Options.get().getContextSensitivity());
+    }
+
+    @Test
+    public void testSootArgs() {
+        new CommandLine(new Options()).execute(
+                "--no-implicit-entries",
+                "-cs", "2-object",
+                "--", "-cp", "a/b/c.jar", "Main");
+        Assert.assertEquals(3, Options.get().getSootArgs().length);
     }
 }

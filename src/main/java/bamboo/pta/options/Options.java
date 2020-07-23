@@ -15,9 +15,12 @@ package bamboo.pta.options;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "Bamboo", mixinStandardHelpOptions = true,
+@Command(name = "Bamboo",
         description = "A pointer analysis framework for Java",
+        mixinStandardHelpOptions = true,
+        showEndOfOptionsDelimiterInUsageHelp = true,
         version = "0.1")
 public class Options implements Runnable {
 
@@ -37,20 +40,27 @@ public class Options implements Runnable {
     private boolean implicitEntries;
 
     @Option(names = { "-cs", "--context-sensitivity" },
-            description = "Context sensitivity of pointer analysis",
+            description = "Context sensitivity for pointer analysis",
             defaultValue = "ci")
     private String contextSensitivity;
+
+    @Parameters(description = "Arguments for Soot")
+    private String[] sootArgs;
 
     @Override
     public void run() {
         set(this);
     }
 
-    public boolean isImplicitEntries() {
+    public boolean analyzeImplicitEntries() {
         return implicitEntries;
     }
 
     public String getContextSensitivity() {
         return contextSensitivity;
+    }
+
+    public String[] getSootArgs() {
+        return sootArgs;
     }
 }

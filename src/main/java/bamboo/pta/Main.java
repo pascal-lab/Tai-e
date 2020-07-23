@@ -13,6 +13,7 @@
 
 package bamboo.pta;
 
+import picocli.CommandLine;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
@@ -31,13 +32,14 @@ public class Main {
         // Configure transformer
         Transform transform = new Transform(
                 "wjtp.pta", PointerAnalysisTransformer.v());
-        transform.setDeclaredOptions("enabled cs");
-        transform.setDefaultOptions("enabled:true cs:ci");
         PackManager.v()
                 .getPack("wjtp")
                 .add(transform);
 
+        // Configure Bamboo options
+        new CommandLine(new bamboo.pta.options.Options()).execute(args);
+
         // Run main analysis
-        soot.Main.main(args);
+        soot.Main.main(bamboo.pta.options.Options.get().getSootArgs());
     }
 }

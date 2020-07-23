@@ -41,29 +41,31 @@ public class TestUtils {
 
     public static void testPTA(String inputClass) {
         test(inputClass, "pta",
-                "bamboo.pta.analysis.ci.ResultChecker");
+                "bamboo.pta.core.ci.ResultChecker");
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
+        List<String> optList = new ArrayList<>();
+        Collections.addAll(optList, opts);
+        optList.add("--"); // used by bamboo to split Soot arguments
         test(inputClass, "cspta",
-                "bamboo.pta.ResultChecker", opts);
+                "bamboo.pta.ResultChecker", optList);
     }
 
     private static void test(String inputClass, String analysis, String checker) {
-        test(inputClass, analysis, checker, new String[0]);
+        test(inputClass, analysis, checker, Collections.emptyList());
     }
 
-    private static void test(String inputClass, String analysis, String checker, String[] opts) {
+    private static void test(String inputClass, String analysis,
+                             String checker, List<String> opts) {
         String cp;
         if (new File("analyzed/" + analysis).exists()) {
             cp = "analyzed/" + analysis + "/";
         } else {
             cp = "analyzed/";
         }
-        List<String> args = new ArrayList<>();
-        Collections.addAll(args, "-cp", cp);
-        Collections.addAll(args, opts);
-        args.add(inputClass);
+        List<String> args = new ArrayList<>(opts);
+        Collections.addAll(args, "-cp", cp, inputClass);
         try {
             Class<?> c = Class.forName(checker);
             Method check = c.getMethod("check", String[].class, String.class);
