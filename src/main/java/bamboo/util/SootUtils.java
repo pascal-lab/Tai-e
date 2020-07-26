@@ -27,11 +27,12 @@ import java.util.concurrent.TimeoutException;
 
 public class SootUtils {
 
+    // Suppresses default constructor, ensuring non-instantiability.
     private SootUtils() {
     }
 
     /**
-     * Convert an Unit to its String representation.
+     * Converts an Unit to its String representation.
      */
     public static String unitToString(LabeledUnitPrinter up, Unit unit) {
         StringBuilder sb = new StringBuilder();
@@ -51,7 +52,7 @@ public class SootUtils {
     }
 
     /**
-     * Run Soot with given time budget.
+     * Runs Soot with given time budget.
      */
     public static void runSootWithTimeout(String[] args, long seconds) {
         Duration timeout = Duration.ofSeconds(seconds);

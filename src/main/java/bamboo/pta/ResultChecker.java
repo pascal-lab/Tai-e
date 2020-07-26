@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import static bamboo.util.Stringify.streamToString;
+import static bamboo.util.StringUtils.streamToString;
 
 /**
  * Boosts context-sensitive pointer analysis and checks whether the

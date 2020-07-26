@@ -24,6 +24,7 @@ import java.util.stream.Stream;
  */
 public class CollectionUtils {
 
+    // Suppresses default constructor, ensuring non-instantiability.
     private CollectionUtils() {
     }
 

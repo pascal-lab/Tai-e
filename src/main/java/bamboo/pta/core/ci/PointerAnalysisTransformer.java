@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static bamboo.util.Stringify.streamToString;
+import static bamboo.util.StringUtils.streamToString;
 
 public class PointerAnalysisTransformer extends SceneTransformer {
 

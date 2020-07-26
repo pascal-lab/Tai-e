@@ -15,8 +15,15 @@ package bamboo.util;
 
 import java.util.stream.Stream;
 
-public class Stringify {
+public class StringUtils {
 
+    // Suppresses default constructor, ensuring non-instantiability.
+    private StringUtils() {
+    }
+
+    /**
+     * Converts a stream to a string.
+     */
     public static <T> String streamToString(Stream<T> stream) {
         Iterable<String> elems = () -> stream.map(T::toString)
                 .sorted()

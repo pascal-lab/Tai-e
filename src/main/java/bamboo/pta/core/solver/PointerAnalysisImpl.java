@@ -395,7 +395,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             List<Variable> params = callee.getParameters();
             for (int i = 0; i < args.size(); ++i) {
                 if (args.get(i) == null) {
-                    continue; // args[i] is of primitive type, skipped
+                    continue; // args[i] is of primitive type or null, skipped
                 }
                 CSVariable arg = csManager.getCSVariable(callerCtx, args.get(i));
                 CSVariable param = csManager.getCSVariable(calleeCtx, params.get(i));
