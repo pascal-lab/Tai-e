@@ -19,6 +19,7 @@ import bamboo.pta.element.Type;
 import soot.jimple.AssignStmt;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class JimpleObj extends AbstractObj {
 
@@ -43,8 +44,8 @@ public class JimpleObj extends AbstractObj {
     }
 
     @Override
-    public Method getContainerMethod() {
-        return containerMethod;
+    public Optional<Method> getContainerMethod() {
+        return Optional.of(containerMethod);
     }
 
     @Override

@@ -275,13 +275,13 @@ public class PointerAnalysis {
                 addPFGEdge(arg, param);
             }
             // pass results to LHS variable
-            if (callSite.getCall().getLHS() != null) {
-                Var lhs = pointerFlowGraph.getVar(callSite.getCall().getLHS());
+            callSite.getCall().getLHS().ifPresent(lhs -> {
+                Var lhsVar = pointerFlowGraph.getVar(lhs);
                 for (Variable ret : callee.getReturnVariables()) {
                     Var retVar = pointerFlowGraph.getVar(ret);
-                    addPFGEdge(retVar, lhs);
+                    addPFGEdge(retVar, lhsVar);
                 }
-            }
+            });
         }
     }
 

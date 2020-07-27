@@ -13,6 +13,8 @@
 
 package bamboo.pta.element;
 
+import java.util.Optional;
+
 public interface Obj {
 
     Kind getKind();
@@ -31,10 +33,10 @@ public interface Obj {
 
     /**
      * @return the method containing the allocation site of this object.
-     * Returns null for Some special objects, e.g., string constants,
-     * which do not have such method.
+     * For Some special objects, e.g., string constants do not
+     * have such method.
      */
-    Method getContainerMethod();
+    Optional<Method> getContainerMethod();
 
     /**
      * This method is useful for type sensitivity.

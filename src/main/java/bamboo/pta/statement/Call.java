@@ -16,6 +16,8 @@ package bamboo.pta.statement;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Variable;
 
+import java.util.Optional;
+
 /**
  * Represents a call statement r = o.m()/r = T.m();
  */
@@ -23,6 +25,10 @@ public class Call implements Statement {
 
     private final CallSite callSite;
 
+    /**
+     * LHS variable which receives the result of the call.
+     * This field is @Nullable.
+     */
     private final Variable lhs;
 
     public Call(CallSite callSite, Variable lhs) {
@@ -34,8 +40,8 @@ public class Call implements Statement {
         return callSite;
     }
 
-    public Variable getLHS() {
-        return lhs;
+    public Optional<Variable> getLHS() {
+        return Optional.ofNullable(lhs);
     }
 
     @Override

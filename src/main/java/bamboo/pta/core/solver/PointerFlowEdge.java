@@ -17,6 +17,7 @@ import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.element.Type;
 
 import java.util.Objects;
+import java.util.Optional;
 
 class PointerFlowEdge {
 
@@ -50,8 +51,8 @@ class PointerFlowEdge {
         return to;
     }
 
-    public Type getType() {
-        return type;
+    public Optional<Type> getType() {
+        return Optional.ofNullable(type);
     }
 
     @Override

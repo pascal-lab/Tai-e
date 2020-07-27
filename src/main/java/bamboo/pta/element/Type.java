@@ -13,6 +13,7 @@
 
 package bamboo.pta.element;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface Type {
@@ -32,7 +33,7 @@ public interface Type {
     /**
      * @return the direct super class of this type.
      */
-    Type getSuperClass();
+    Optional<Type> getSuperClass();
 
     /**
      * @return the direct super interfaces of this type.
@@ -52,5 +53,5 @@ public interface Type {
     /**
      * @return the class initializer of this type.
      */
-    Method getClassInitializer();
+    Optional<Method> getClassInitializer();
 }

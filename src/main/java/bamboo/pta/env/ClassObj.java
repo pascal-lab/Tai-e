@@ -17,6 +17,8 @@ import bamboo.pta.element.AbstractObj;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
+import java.util.Optional;
+
 /**
  * Represents class objects.
  */
@@ -40,8 +42,8 @@ public class ClassObj extends AbstractObj {
     }
 
     @Override
-    public Method getContainerMethod() {
-        return null;
+    public Optional<Method> getContainerMethod() {
+        return Optional.empty();
     }
 
     @Override

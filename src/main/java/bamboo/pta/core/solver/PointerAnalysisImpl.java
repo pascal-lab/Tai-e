@@ -217,10 +217,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (!diff.isEmpty()) {
             for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(pointer)) {
                 Pointer to = edge.getTo();
-                if (edge.getType() != null) {
+                // TODO: use Optional.ifPresentOrElse() after update to Java 9+
+                if (edge.getType().isPresent()) {
                     // Checks assignable objects
                     workList.addPointerEntry(to,
-                            getAssignablePointsToSet(diff, edge.getType()));
+                            getAssignablePointsToSet(diff, edge.getType().get()));
                 } else {
                     workList.addPointerEntry(to, diff);
                 }
@@ -402,14 +403,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 addPFGEdge(arg, param, PointerFlowEdge.Kind.PARAMETER_PASSING);
             }
             // pass results to LHS variable
-            if (callSite.getCall().getLHS() != null) {
-                CSVariable lhs = csManager.getCSVariable(
-                        callerCtx, callSite.getCall().getLHS());
+            callSite.getCall().getLHS().ifPresent(lhs -> {
+                CSVariable csLHS = csManager.getCSVariable(callerCtx, lhs);
                 for (Variable ret : callee.getReturnVariables()) {
                     CSVariable csRet = csManager.getCSVariable(calleeCtx, ret);
-                    addPFGEdge(csRet, lhs, PointerFlowEdge.Kind.RETURN);
+                    addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
                 }
-            }
+            });
         }
     }
 
@@ -472,14 +472,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
          * Analyzes the initializer of given class.
          */
         private void initializeClass(Type cls) {
-            // initialize super class
-            if (cls.getSuperClass() != null) {
-                initializeClass(cls.getSuperClass());
+            if (initializedClasses.contains(cls)) {
+                // cls has already been initialized
+                return;
             }
+
+            // initialize super class
+            cls.getSuperClass().ifPresent(this::initializeClass);
             // TODO: initialize the superinterfaces which
             //  declare default methods
-            Method clinit = cls.getClassInitializer();
-            if (clinit != null && !initializedClasses.contains(cls)) {
+            cls.getClassInitializer().ifPresent(clinit -> {
                 // processNewCSMethod() may trigger initialization of more
                 // classes. So cls must be added before processNewCSMethod(),
                 // otherwise, infinite recursion may occur.
@@ -488,7 +490,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                         contextSelector.getDefaultContext(), clinit);
                 processNewCSMethod(csMethod);
                 callGraph.addNewMethod(csMethod);
-            }
+            });
         }
 
         @Override

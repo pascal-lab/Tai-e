@@ -16,11 +16,11 @@ package bamboo.pta.jimple;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 import soot.ArrayType;
-import soot.RefType;
 import soot.SootClass;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 class JimpleType implements Type {
@@ -54,8 +54,8 @@ class JimpleType implements Type {
     }
 
     @Override
-    public Method getClassInitializer() {
-        return clinit;
+    public Optional<Method> getClassInitializer() {
+        return Optional.ofNullable(clinit);
     }
 
     void setClassInitializer(Method clinit) {
@@ -97,8 +97,8 @@ class JimpleType implements Type {
     }
 
     @Override
-    public Type getSuperClass() {
-        return superClass;
+    public Optional<Type> getSuperClass() {
+        return Optional.ofNullable(superClass);
     }
 
     void setSuperClass(Type superClass) {

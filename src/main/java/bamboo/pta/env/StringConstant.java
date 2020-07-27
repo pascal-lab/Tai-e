@@ -17,6 +17,8 @@ import bamboo.pta.element.AbstractObj;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
+import java.util.Optional;
+
 /**
  * Represents string constants.
  */
@@ -40,10 +42,10 @@ class StringConstant extends AbstractObj {
     }
 
     @Override
-    public Method getContainerMethod() {
+    public Optional<Method> getContainerMethod() {
         // String constants do not have a container method, as the same
         // string constant can appear in multiple methods.
-        return null;
+        return Optional.empty();
     }
 
     @Override
