@@ -245,11 +245,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     /**
      * Adds an edge "from -> to" to the PFG.
+     * If type is not null, then we need to filter out assignable objects
+     * in from points-to set.
      */
     private void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
         if (pointerFlowGraph.addEdge(from, to, type, kind)) {
-            if (!from.getPointsToSet().isEmpty()) {
-                workList.addPointerEntry(to, from.getPointsToSet());
+            PointsToSet fromSet = type == null ?
+                    from.getPointsToSet() :
+                    getAssignablePointsToSet(from.getPointsToSet(), type);
+            if (!fromSet.isEmpty()) {
+                workList.addPointerEntry(to, fromSet);
             }
         }
     }
@@ -325,7 +330,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSVariable from = csManager.getCSVariable(context, store.getFrom());
             for (CSObj array : pts) {
                 ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                addPFGEdge(from, arrayIndex, PointerFlowEdge.Kind.ARRAY_STORE);
+                // we need type guard for array stores as Java arrays
+                // are covariant
+                addPFGEdge(from, arrayIndex, arrayIndex.getType(),
+                        PointerFlowEdge.Kind.ARRAY_STORE);
             }
         }
     }
