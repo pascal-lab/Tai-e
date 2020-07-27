@@ -14,6 +14,7 @@
 package bamboo.pta.core.cs;
 
 import bamboo.pta.element.Field;
+import bamboo.pta.element.Type;
 
 public class StaticField extends AbstractPointer {
 
@@ -25,6 +26,11 @@ public class StaticField extends AbstractPointer {
 
     public Field getField() {
         return field;
+    }
+
+    @Override
+    public Type getType() {
+        return field.getFieldType();
     }
 
     @Override

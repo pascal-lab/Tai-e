@@ -13,6 +13,8 @@
 
 package bamboo.pta.core.cs;
 
+import bamboo.pta.element.Type;
+
 public class ArrayIndex extends AbstractPointer {
 
     private final CSObj array;
@@ -23,6 +25,11 @@ public class ArrayIndex extends AbstractPointer {
 
     public CSObj getArray() {
         return array;
+    }
+
+    @Override
+    public Type getType() {
+        return array.getObject().getType().getElementType();
     }
 
     @Override

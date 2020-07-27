@@ -13,6 +13,7 @@
 
 package bamboo.pta.core.cs;
 
+import bamboo.pta.element.Type;
 import bamboo.pta.set.PointsToSet;
 
 public interface Pointer {
@@ -20,4 +21,9 @@ public interface Pointer {
     PointsToSet getPointsToSet();
 
     void setPointsToSet(PointsToSet pointsToSet);
+
+    /**
+     * @return the type of this pointer
+     */
+    Type getType();
 }

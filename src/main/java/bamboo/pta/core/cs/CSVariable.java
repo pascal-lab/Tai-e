@@ -14,6 +14,7 @@
 package bamboo.pta.core.cs;
 
 import bamboo.pta.core.context.Context;
+import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 
 public class CSVariable extends AbstractPointer implements CSElement {
@@ -34,6 +35,11 @@ public class CSVariable extends AbstractPointer implements CSElement {
 
     public Variable getVariable() {
         return var;
+    }
+
+    @Override
+    public Type getType() {
+        return var.getType();
     }
 
     @Override
