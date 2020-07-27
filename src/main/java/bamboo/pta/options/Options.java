@@ -48,6 +48,10 @@ public class Options implements Runnable {
             description = "Dump classes", defaultValue = "false")
     private boolean dumpClasses;
 
+    @Option(names = "--verbose",
+            description = "Output analysis details", defaultValue = "false")
+    private boolean verbose;
+
     // Soot-related options
     @Parameters(description = "Arguments for Soot")
     private String[] sootArgs;
@@ -67,6 +71,10 @@ public class Options implements Runnable {
 
     public boolean isDumpClasses() {
         return dumpClasses;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
     }
 
     public String[] getSootArgs() {

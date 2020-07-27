@@ -35,6 +35,7 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
+import bamboo.pta.options.Options;
 import bamboo.pta.set.PointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.pta.statement.Allocation;
@@ -207,7 +208,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * returns the difference set of pointsToSet and pt(pointer).
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-        System.out.println("Propagate " + pointsToSet + " to " + pointer);
+        if (Options.get().isVerbose()) {
+            System.out.println("Propagate " + pointsToSet + " to " + pointer);
+        }
         final PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
