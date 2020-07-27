@@ -13,6 +13,7 @@
 
 package bamboo.pta;
 
+import bamboo.pta.jimple.JimpleProgramManager;
 import picocli.CommandLine;
 import soot.PackManager;
 import soot.Transform;
@@ -37,6 +38,8 @@ public class Main {
 
         // Configure Bamboo options
         new CommandLine(new bamboo.pta.options.Options()).execute(args);
+
+        JimpleProgramManager.initSoot();
 
         // Run main analysis
         soot.Main.main(bamboo.pta.options.Options.get().getSootArgs());

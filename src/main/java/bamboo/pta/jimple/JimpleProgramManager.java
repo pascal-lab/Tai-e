@@ -29,6 +29,8 @@ import soot.jimple.SpecialInvokeExpr;
 import java.util.Collection;
 import java.util.Collections;
 
+import static soot.SootClass.HIERARCHY;
+
 /**
  * Interface between soot and pointer analysis.
  */
@@ -90,5 +92,9 @@ public class JimpleProgramManager implements ProgramManager {
     @Override
     public Type getUniqueTypeByName(String typeName) {
         return irBuilder.getType(Scene.v().getType(typeName));
+    }
+
+    public static void initSoot() {
+        Scene.v().addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
     }
 }

@@ -30,5 +30,12 @@ public interface ProgramManager {
 
     Method resolveSpecialCall(CallSite callSite, Method container);
 
+    /**
+     * Returns the type specified by the given type name.
+     * This method is supposed to be used when the caller is
+     * confident that type with the given name is unique.
+     * Ideally, this method should only be used to retrieve
+     * system classes, i.e., java.*.
+     */
     Type getUniqueTypeByName(String typeName);
 }
