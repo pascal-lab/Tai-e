@@ -17,6 +17,7 @@ import bamboo.callgraph.JimpleCallUtils;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
+import bamboo.pta.options.Options;
 import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
@@ -86,6 +87,8 @@ class IRBuilder {
 
     private final NewVariableManager varManager = new NewVariableManager();
 
+    private final ClassDumper classDumper = new ClassDumper();
+
     private final Environment env;
 
     IRBuilder(Environment env) {
@@ -138,6 +141,9 @@ class IRBuilder {
         }
         if (sootType instanceof RefType) {
             SootClass c = ((RefType) sootType).getSootClass();
+            if (Options.get().isDumpClasses()) {
+                classDumper.dump(c);
+            }
             type.setSootClass(c);
             if (c.hasSuperclass() && !c.isInterface()) {
                 type.setSuperClass(getType(c.getSuperclass()));

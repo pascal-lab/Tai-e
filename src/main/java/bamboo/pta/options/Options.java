@@ -44,6 +44,11 @@ public class Options implements Runnable {
             defaultValue = "ci")
     private String contextSensitivity;
 
+    @Option(names = "--dump-classes",
+            description = "Dump classes", defaultValue = "false")
+    private boolean dumpClasses;
+
+    // Soot-related options
     @Parameters(description = "Arguments for Soot")
     private String[] sootArgs;
 
@@ -58,6 +63,10 @@ public class Options implements Runnable {
 
     public String getContextSensitivity() {
         return contextSensitivity;
+    }
+
+    public boolean isDumpClasses() {
+        return dumpClasses;
     }
 
     public String[] getSootArgs() {
