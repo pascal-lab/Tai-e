@@ -95,6 +95,8 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     public static void initSoot() {
+        // The following line is necessary to avoid a runtime exception
+        // when running soot with java 1.8
         Scene.v().addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
     }
 }

@@ -23,5 +23,7 @@ public interface PointsToSet extends Iterable<CSObj> {
 
     boolean isEmpty();
 
+    int size();
+
     Stream<CSObj> stream();
 }

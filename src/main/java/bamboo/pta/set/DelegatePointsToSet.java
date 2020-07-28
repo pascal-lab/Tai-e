@@ -53,6 +53,11 @@ abstract class DelegatePointsToSet implements PointsToSet {
     }
 
     @Override
+    public int size() {
+        return set.size();
+    }
+
+    @Override
     public String toString() {
         return set.toString();
     }

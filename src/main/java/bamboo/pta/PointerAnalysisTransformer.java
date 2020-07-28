@@ -13,6 +13,7 @@
 
 package bamboo.pta;
 
+import bamboo.callgraph.Edge;
 import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
@@ -23,9 +24,11 @@ import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.core.solver.PointerAnalysisBuilder;
 import bamboo.pta.jimple.JimplePointerAnalysis;
 import bamboo.pta.options.Options;
+import bamboo.util.Pair;
 import soot.SceneTransformer;
 
 import java.io.PrintStream;
+import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -45,6 +48,8 @@ public class PointerAnalysisTransformer extends SceneTransformer {
      * If output analysis results.
      */
     private boolean isOutput = true;
+
+    private DecimalFormat formatter = new DecimalFormat("#,####");
 
     private PointerAnalysisTransformer() {
     }
@@ -79,6 +84,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             printInstanceFields(pta.getInstanceFields());
             printArrayIndexes(pta.getArrayIndexes());
             printStaticFields(pta.getStaticFields());
+            printStatistics(pta);
             System.out.println("----------------------------------------");
         }
 
@@ -114,5 +120,55 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     private void printPointsToSet(Pointer pointer) {
         out.println(pointer + " -> "
                 + streamToString(pointer.getPointsToSet().stream()));
+    }
+
+    private void printStatistics(PointerAnalysis pta) {
+        int vptSizeSens = pta.getVariables()
+                .mapToInt(v -> v.getPointsToSet().size())
+                .sum();
+        int ifptSizeSens = pta.getInstanceFields()
+                .mapToInt(f -> f.getPointsToSet().size())
+                .sum();
+        int aptSizeSens = pta.getArrayIndexes()
+                .mapToInt(a -> a.getPointsToSet().size())
+                .sum();
+        int sfptSizeSens = pta.getStaticFields()
+                .mapToInt(f -> f.getPointsToSet().size())
+                .sum();
+        int reachableInsens = (int) pta.getCallGraph()
+                .getReachableMethods()
+                .stream()
+                .map(CSMethod::getMethod)
+                .distinct()
+                .count();
+        int reachableSens = pta.getCallGraph()
+                .getReachableMethods()
+                .size();
+        int callEdgeInsens = (int) pta.getCallGraph()
+                .getAllEdges()
+                .map(e -> new Pair<>(e.getCallSite().getCallSite(),
+                        e.getCallee().getMethod()))
+                .distinct()
+                .count();
+        int callEdgeSens = (int) pta.getCallGraph()
+                .getAllEdges()
+                .count();
+        out.println("-------------- Pointer analysis statistics: --------------");
+        out.printf("%-30s%s (sens)\n", "#var points-to:",
+                format(vptSizeSens));
+        out.printf("%-30s%s (sens)\n", "#instance field points-to:",
+                format(ifptSizeSens));
+        out.printf("%-30s%s (sens)\n", "#array points-to:",
+                format(aptSizeSens));
+        out.printf("%-30s%s (sens)\n", "#static field points-to:",
+                format(sfptSizeSens));
+        out.printf("%-30s%s (insens) / %s (sens)\n", "#reachable methods:",
+                format(reachableInsens), format(reachableSens));
+        out.printf("%-30s%s (insens) / %s (sens)\n", "#call graph edges:",
+                format(callEdgeInsens), format(callEdgeSens));
+    }
+
+    private String format(int i) {
+        return formatter.format(i);
     }
 }
