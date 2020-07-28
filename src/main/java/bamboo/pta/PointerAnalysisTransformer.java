@@ -25,6 +25,7 @@ import bamboo.pta.core.solver.PointerAnalysisBuilder;
 import bamboo.pta.jimple.JimplePointerAnalysis;
 import bamboo.pta.options.Options;
 import bamboo.util.Pair;
+import bamboo.util.Timer;
 import soot.SceneTransformer;
 
 import java.io.PrintStream;
@@ -70,7 +71,10 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisBuilder()
                 .build(Options.get());
+        Timer ptaTimer = new Timer("Pointer analysis");
+        ptaTimer.start();
         pta.analyze();
+        ptaTimer.stop();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);
         if (isOutput) {
             System.out.println("---------- Reachable methods: ----------");
@@ -84,7 +88,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             printInstanceFields(pta.getInstanceFields());
             printArrayIndexes(pta.getArrayIndexes());
             printStaticFields(pta.getStaticFields());
-            printStatistics(pta);
+            printStatistics(pta, ptaTimer);
             System.out.println("----------------------------------------");
         }
 
@@ -122,7 +126,12 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 + streamToString(pointer.getPointsToSet().stream()));
     }
 
-    private void printStatistics(PointerAnalysis pta) {
+    private void printStatistics(PointerAnalysis pta, Timer ptaTimer) {
+        int varInsens = (int) pta.getVariables()
+                .map(CSVariable::getVariable)
+                .distinct()
+                .count();
+        int varSens = (int) pta.getVariables().count();
         int vptSizeSens = pta.getVariables()
                 .mapToInt(v -> v.getPointsToSet().size())
                 .sum();
@@ -154,6 +163,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 .getAllEdges()
                 .count();
         out.println("-------------- Pointer analysis statistics: --------------");
+        out.println(ptaTimer);
+        out.printf("%-30s%s (insens) / %s (sens)\n", "#var pointers:",
+                format(varInsens), format(varSens));
         out.printf("%-30s%s (sens)\n", "#var points-to:",
                 format(vptSizeSens));
         out.printf("%-30s%s (sens)\n", "#instance field points-to:",
