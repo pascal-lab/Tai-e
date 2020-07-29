@@ -16,33 +16,35 @@ package bamboo.options;
 import bamboo.pta.options.Options;
 import org.junit.Assert;
 import org.junit.Test;
-import picocli.CommandLine;
 
 public class OptionsTest {
 
     @Test
     public void testHelp() {
-        new CommandLine(new Options()).execute("--help");
+        Options.parse("--help");
+        if (Options.get().shouldShowHelp()) {
+            Options.get().printHelp();
+        }
     }
 
     @Test
     public void testVersion() {
-        new CommandLine(new Options()).execute("-V");
+        Options.parse("-V");
+        if (Options.get().shouldShowVersion()) {
+            Options.get().printVersion();
+        }
     }
 
     @Test
     public void testOptions() {
-        new CommandLine(new Options()).execute(
-                "--no-implicit-entries",
-                "-cs", "2-object");
+        Options.parse("--no-implicit-entries", "-cs", "2-object");
         Assert.assertFalse(Options.get().analyzeImplicitEntries());
         Assert.assertEquals("2-object", Options.get().getContextSensitivity());
     }
 
     @Test
     public void testSootArgs() {
-        new CommandLine(new Options()).execute(
-                "--no-implicit-entries",
+        Options.parse("--no-implicit-entries",
                 "-cs", "2-object",
                 "--", "-cp", "a/b/c.jar", "Main");
         Assert.assertEquals(3, Options.get().getSootArgs().length);

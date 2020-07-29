@@ -14,20 +14,20 @@
 package bamboo.pta;
 
 import bamboo.pta.jimple.JimpleProgramManager;
-import picocli.CommandLine;
+import bamboo.pta.options.Options;
 import soot.PackManager;
 import soot.Transform;
-import soot.options.Options;
 
 public class Main {
 
     public static void main(String[] args) {
         // Set options
-        Options.v().set_output_format(Options.output_format_jimple);
-        Options.v().set_keep_line_number(true);
-        Options.v().set_prepend_classpath(true);
-        Options.v().set_whole_program(true);
-        Options.v().setPhaseOption("cg", "enabled:false");
+        soot.options.Options.v().set_output_format(
+                soot.options.Options.output_format_jimple);
+        soot.options.Options.v().set_keep_line_number(true);
+        soot.options.Options.v().set_prepend_classpath(true);
+        soot.options.Options.v().set_whole_program(true);
+        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure transformer
         Transform transform = new Transform(
@@ -37,11 +37,18 @@ public class Main {
                 .add(transform);
 
         // Configure Bamboo options
-        new CommandLine(new bamboo.pta.options.Options()).execute(args);
+        Options.parse(args);
+        if (Options.get().shouldShowHelp()) {
+            Options.get().printHelp();
+            return;
+        } else if (Options.get().shouldShowVersion()) {
+            Options.get().printVersion();
+            return;
+        }
 
         JimpleProgramManager.initSoot();
 
         // Run main analysis
-        soot.Main.main(bamboo.pta.options.Options.get().getSootArgs());
+        soot.Main.main(Options.get().getSootArgs());
     }
 }

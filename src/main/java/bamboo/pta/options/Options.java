@@ -13,18 +13,54 @@
 
 package bamboo.pta.options;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "Bamboo",
         description = "A pointer analysis framework for Java",
-        mixinStandardHelpOptions = true,
         showEndOfOptionsDelimiterInUsageHelp = true,
         version = "0.1")
-public class Options implements Runnable {
+public class Options {
 
-    private static Options options;
+    // Default options
+    private static Options options = CommandLine.populateCommand(new Options());
+
+    // ---------- information options ----------
+    @Option(names = {"-V", "--version"},
+            description = "Display version information",
+            defaultValue = "false", versionHelp = true)
+    boolean version;
+
+    @Option(names = {"-h", "--help"},
+            description = "Display this help message",
+            defaultValue = "false", usageHelp = true)
+    boolean help;
+
+    // ---------- pointer analysis options ----------
+    @Option(names = "--no-implicit-entries",
+            description = "Analyze implicit reachable entry methods",
+            defaultValue = "true", negatable = true)
+    private boolean implicitEntries;
+
+    @Option(names = {"-cs", "--context-sensitivity"},
+            description = "Context sensitivity for pointer analysis",
+            defaultValue = "ci")
+    private String contextSensitivity;
+
+    // ---------- debugging options ----------
+    @Option(names = "--dump-classes",
+            description = "Dump classes", defaultValue = "false")
+    private boolean dumpClasses;
+
+    @Option(names = "--verbose",
+            description = "Output analysis details", defaultValue = "false")
+    private boolean verbose;
+
+    // ---------- Soot options ----------
+    @Parameters(description = "Arguments for Soot")
+    private String[] sootArgs;
 
     public static Options get() {
         return options;
@@ -34,31 +70,27 @@ public class Options implements Runnable {
         Options.options = options;
     }
 
-    @Option(names = "--no-implicit-entries",
-            description = "Analyze implicit reachable entry methods",
-            defaultValue = "true", negatable = true)
-    private boolean implicitEntries;
+    /**
+     * Parse arguments and set new Options object.
+     */
+    public static void parse(String... args) {
+        options = CommandLine.populateCommand(new Options(), args);
+    }
 
-    @Option(names = { "-cs", "--context-sensitivity" },
-            description = "Context sensitivity for pointer analysis",
-            defaultValue = "ci")
-    private String contextSensitivity;
+    public void printHelp() {
+        new CommandLine(this).usage(System.out);
+    }
 
-    @Option(names = "--dump-classes",
-            description = "Dump classes", defaultValue = "false")
-    private boolean dumpClasses;
+    public void printVersion() {
+        new CommandLine(this).printVersionHelp(System.out);
+    }
 
-    @Option(names = "--verbose",
-            description = "Output analysis details", defaultValue = "false")
-    private boolean verbose;
+    public boolean shouldShowHelp() {
+        return help;
+    }
 
-    // Soot-related options
-    @Parameters(description = "Arguments for Soot")
-    private String[] sootArgs;
-
-    @Override
-    public void run() {
-        set(this);
+    public boolean shouldShowVersion() {
+        return version;
     }
 
     public boolean analyzeImplicitEntries() {
