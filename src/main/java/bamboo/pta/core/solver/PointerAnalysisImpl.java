@@ -22,10 +22,10 @@ import bamboo.pta.core.context.ContextInsensitiveSelector;
 import bamboo.pta.core.context.ContextSelector;
 import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSCallSite;
+import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSObj;
 import bamboo.pta.core.cs.CSVariable;
-import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.InstanceField;
 import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.core.cs.StaticField;
@@ -51,6 +51,8 @@ import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -167,7 +169,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         reachableMethods = new HashSet<>();
         classInitializer = new ClassInitializer();
 
-        for (Method entry : programManager.getEntryMethods()) {
+        for (Method entry : computeEntries()) {
             // initialize class type of entry methods
             classInitializer.initializeClass(entry.getClassType());
             CSMethod csMethod = csManager.getCSMethod(
@@ -176,6 +178,15 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // must be called after processNewMethod()
             callGraph.addEntryMethod(csMethod);
         }
+    }
+
+    private Collection<Method> computeEntries() {
+        List<Method> entries = new ArrayList<>();
+        entries.add(programManager.getMainMethod());
+        if (Options.get().analyzeImplicitEntries()) {
+            entries.addAll(programManager.getImplicitEntries());
+        }
+        return entries;
     }
 
     /**

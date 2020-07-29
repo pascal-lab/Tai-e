@@ -26,8 +26,10 @@ import soot.Scene;
 import soot.SootMethod;
 import soot.jimple.SpecialInvokeExpr;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -36,17 +38,41 @@ import static soot.SootClass.HIERARCHY;
  */
 public class JimpleProgramManager implements ProgramManager {
 
+    private static final List<String> implicitEntries = Arrays.asList(
+            "<java.lang.System: void initializeSystemClass()>",
+            "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
+            "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>",
+            "<java.lang.ThreadGroup: void <init>()>",
+            "<java.lang.Thread: void exit()>",
+            "<java.lang.ThreadGroup: void uncaughtException(java.lang.Thread,java.lang.Throwable)>",
+            "<java.lang.ClassLoader: void <init>()>",
+            "<java.lang.ClassLoader: java.lang.Class loadClassInternal(java.lang.String)>",
+            "<java.lang.ClassLoader: void checkPackageAccess(java.lang.Class,java.security.ProtectionDomain)>",
+            "<java.lang.ClassLoader: void addClass(java.lang.Class)>",
+            "<java.lang.ClassLoader: long findNative(java.lang.ClassLoader,java.lang.String)>",
+            "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
+    );
     private final FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
-
     private final Environment env = new Environment(this);
-
     private final IRBuilder irBuilder = new IRBuilder(env);
 
+    public static void initSoot() {
+        // The following line is necessary to avoid a runtime exception
+        // when running soot with java 1.8
+        Scene.v().addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+    }
+
     @Override
-    public Collection<Method> getEntryMethods() {
-        return Collections.singleton(
-                irBuilder.getMethod(Scene.v().getMainMethod())
-        );
+    public Method getMainMethod() {
+        return irBuilder.getMethod(Scene.v().getMainMethod());
+    }
+
+    @Override
+    public Collection<Method> getImplicitEntries() {
+        return implicitEntries.stream()
+                .map(Scene.v()::getMethod)
+                .map(irBuilder::getMethod)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -92,11 +118,5 @@ public class JimpleProgramManager implements ProgramManager {
     @Override
     public Type getUniqueTypeByName(String typeName) {
         return irBuilder.getType(Scene.v().getType(typeName));
-    }
-
-    public static void initSoot() {
-        // The following line is necessary to avoid a runtime exception
-        // when running soot with java 1.8
-        Scene.v().addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
     }
 }

@@ -47,6 +47,8 @@ public class TestUtils {
     public static void testCSPTA(String inputClass, String... opts) {
         List<String> optList = new ArrayList<>();
         Collections.addAll(optList, opts);
+        // ignore implicit entries in test mode
+        optList.add("--no-implicit-entries");
         optList.add("--"); // used by bamboo to split Soot arguments
         test(inputClass, "cspta",
                 "bamboo.pta.ResultChecker", optList);

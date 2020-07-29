@@ -91,11 +91,10 @@ public class PointerAnalysis {
         callGraph = new OnFlyCallGraph();
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        for (Method entry : programManager.getEntryMethods()) {
-            addReachable(entry);
-            // must be called after addReachable()
-            callGraph.addEntryMethod(entry);
-        }
+        Method main = programManager.getMainMethod();
+        addReachable(main);
+        // must be called after addReachable()
+        callGraph.addEntryMethod(main);
     }
 
     /**

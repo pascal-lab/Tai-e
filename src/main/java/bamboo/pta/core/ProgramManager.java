@@ -21,7 +21,9 @@ import java.util.Collection;
 
 public interface ProgramManager {
 
-    Collection<Method> getEntryMethods();
+    Method getMainMethod();
+
+    Collection<Method> getImplicitEntries();
 
     // -------------- type system ----------------
     boolean canAssign(Type from, Type to);
