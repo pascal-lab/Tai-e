@@ -70,6 +70,7 @@ public class JimpleProgramManager implements ProgramManager {
     @Override
     public Collection<Method> getImplicitEntries() {
         return implicitEntries.stream()
+                .filter(Scene.v()::containsMethod)
                 .map(Scene.v()::getMethod)
                 .map(irBuilder::getMethod)
                 .collect(Collectors.toList());
