@@ -27,13 +27,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class MergedObj extends AbstractObj {
 
+    private final String name;
+
     /**
      * Set of objects represented by this merged object.
      */
     private final Set<Obj> representedObjs = ConcurrentHashMap.newKeySet();
 
-    MergedObj(Type type) {
+    MergedObj(Type type, String name) {
         super(type);
+        this.name = name;
     }
 
     void addRepresentedObj(Obj obj) {
@@ -62,7 +65,6 @@ class MergedObj extends AbstractObj {
 
     @Override
     public String toString() {
-        return String.format("[Merged %s]@%d",
-                type, System.identityHashCode(this));
+        return name;
     }
 }

@@ -39,10 +39,10 @@ public class OptionsTest {
     public void testOptions() {
         Options.parse("--no-implicit-entries", "-cs", "2-object");
         Assert.assertFalse(Options.get().analyzeImplicitEntries());
-        Assert.assertTrue(Options.get().mergeStringBuilders());
+        Assert.assertTrue(Options.get().isMergeStringBuilders());
         Assert.assertEquals("2-object", Options.get().getContextSensitivity());
         Options.parse("--no-merge-string-builders");
-        Assert.assertFalse(Options.get().mergeStringBuilders());
+        Assert.assertFalse(Options.get().isMergeStringBuilders());
     }
 
     @Test

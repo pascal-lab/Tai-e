@@ -49,7 +49,17 @@ public class Options {
             defaultValue = "ci")
     private String contextSensitivity;
 
-    @Option(names = "--no-merge-string-builders",
+    @Option(names = "--merge-string-constants",
+            description = "Merge string constants",
+            defaultValue = "false")
+    private boolean mergeStringConstants;
+
+    @Option(names = "--no-merge-string-objects",
+            description = "Merge string objects",
+            defaultValue = "true", negatable = true)
+    private boolean mergeStringObjects;
+
+    @Option(names = {"--no-merge-string-builders", "--no-merge-string-buffers"},
             description = "Merge string builders and buffers",
             defaultValue = "true", negatable = true)
     private boolean mergeStringBuilders;
@@ -106,7 +116,15 @@ public class Options {
         return contextSensitivity;
     }
 
-    public boolean mergeStringBuilders() {
+    public boolean isMergeStringConstants() {
+        return mergeStringConstants;
+    }
+
+    public boolean isMergeStringObjects() {
+        return mergeStringObjects;
+    }
+
+    public boolean isMergeStringBuilders() {
         return mergeStringBuilders;
     }
 
