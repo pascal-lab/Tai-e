@@ -18,9 +18,9 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a set of merged objects.
@@ -30,7 +30,7 @@ class MergedObj extends AbstractObj {
     /**
      * Set of objects represented by this merged object.
      */
-    private final Set<Obj> representedObjs = new HashSet<>();
+    private final Set<Obj> representedObjs = ConcurrentHashMap.newKeySet();
 
     MergedObj(Type type) {
         super(type);
@@ -62,7 +62,7 @@ class MergedObj extends AbstractObj {
 
     @Override
     public String toString() {
-        return String.format("[Merged of %s]@%d",
+        return String.format("[Merged %s]@%d",
                 type, System.identityHashCode(this));
     }
 }

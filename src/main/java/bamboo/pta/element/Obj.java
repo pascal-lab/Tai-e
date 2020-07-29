@@ -26,7 +26,7 @@ public interface Obj {
      * For STRING_CONSTANT, returns the string constant.
      * For CLASS/METHOD/FIELD/CONSTRUCTOR, returns the corresponding
      * class/method/field/constructor.
-     * For SPECIAL and ARTIFICIAL, the return value
+     * For MERGED and ARTIFICIAL, the return value
      * depends on concrete implementation.
      */
     Object getAllocation();

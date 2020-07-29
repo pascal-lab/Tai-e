@@ -13,7 +13,6 @@
 
 package bamboo.pta;
 
-import bamboo.callgraph.Edge;
 import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;

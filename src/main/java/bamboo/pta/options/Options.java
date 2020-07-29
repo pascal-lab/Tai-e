@@ -49,6 +49,11 @@ public class Options {
             defaultValue = "ci")
     private String contextSensitivity;
 
+    @Option(names = "--no-merge-string-builders",
+            description = "Merge string builders and buffers",
+            defaultValue = "true", negatable = true)
+    private boolean mergeStringBuilders;
+
     // ---------- debugging options ----------
     @Option(names = "--dump-classes",
             description = "Dump classes", defaultValue = "false")
@@ -99,6 +104,10 @@ public class Options {
 
     public String getContextSensitivity() {
         return contextSensitivity;
+    }
+
+    public boolean mergeStringBuilders() {
+        return mergeStringBuilders;
     }
 
     public boolean isDumpClasses() {

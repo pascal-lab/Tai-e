@@ -16,6 +16,7 @@ package bamboo.pta.core.heap;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
+import bamboo.pta.options.Options;
 import bamboo.pta.statement.Allocation;
 
 import java.util.HashMap;
@@ -40,6 +41,12 @@ abstract class AbstractHeapModel implements HeapModel {
 
     @Override
     public Obj getObj(Allocation alloc) {
+        Obj obj = alloc.getObject();
+        Type type = obj.getType();
+        if (Options.get().mergeStringBuilders()
+                && (type.equals(STRINGBUILDER) || type.equals(STRINGBUFFER))) {
+            return getMergedObj(type, obj);
+        }
         return doGetObj(alloc);
     }
 
@@ -48,6 +55,8 @@ abstract class AbstractHeapModel implements HeapModel {
     private Obj getMergedObj(Type type, Obj obj) {
         MergedObj mergedObj = mergedObjs.computeIfAbsent(
                 type, (k) -> new MergedObj(type));
+        // TODO: add represented objects optionally, as this affects
+        //  the concurrent computation
         mergedObj.addRepresentedObj(obj);
         return mergedObj;
     }
