@@ -13,18 +13,23 @@
 
 package bamboo.pta.core.heap;
 
+import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Obj;
 import bamboo.pta.statement.Allocation;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AllocationSiteBasedModel implements HeapModel {
+public class AllocationSiteBasedModel extends AbstractHeapModel {
 
     private final Map<Allocation, Obj> objects = new HashMap<>();
 
+    public AllocationSiteBasedModel(ProgramManager pm) {
+        super(pm);
+    }
+
     @Override
-    public Obj getObj(Allocation alloc) {
+    protected Obj doGetObj(Allocation alloc) {
         return objects.computeIfAbsent(alloc, Allocation::getObject);
     }
 }

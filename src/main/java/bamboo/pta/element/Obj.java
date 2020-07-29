@@ -57,7 +57,7 @@ public interface Obj {
 
         REFLECTIVE_OBJECT, // reflectively-created objects
 
-        SPECIAL, // represents special objects (heap sensitivity
+        MERGED, // represents merged objects (heap sensitivity
         // is not applied to these objects)
         ARTIFICIAL, // represents the non-exist objects
     }

@@ -13,6 +13,7 @@
 
 package bamboo.pta.core.ci;
 
+import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
 import bamboo.pta.element.Method;
 import bamboo.pta.jimple.JimplePointerAnalysis;
@@ -45,8 +46,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysis();
-        pta.setProgramManager(new JimpleProgramManager());
-        pta.setHeapModel(new AllocationSiteBasedModel());
+        ProgramManager pm = new JimpleProgramManager();
+        pta.setProgramManager(pm);
+        pta.setHeapModel(new AllocationSiteBasedModel(pm));
         pta.solve();
         JimplePointerAnalysis.v().setCIPointerAnalysis(pta);
 

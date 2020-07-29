@@ -13,6 +13,7 @@
 
 package bamboo.pta.core.solver;
 
+import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.context.ContextInsensitiveSelector;
 import bamboo.pta.core.context.OneCallSelector;
 import bamboo.pta.core.context.OneObjectSelector;
@@ -32,9 +33,10 @@ public class PointerAnalysisBuilder {
 
     public PointerAnalysis build(Options options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
-        pta.setProgramManager(new JimpleProgramManager());
+        ProgramManager pm = new JimpleProgramManager();
+        pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
-        pta.setHeapModel(new AllocationSiteBasedModel());
+        pta.setHeapModel(new AllocationSiteBasedModel(pm));
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setPointsToSetFactory(setFactory);
         pta.setCSManager(new MapBasedCSManager(setFactory));
