@@ -89,9 +89,9 @@ class IRBuilder {
 
     private final ClassDumper classDumper = new ClassDumper();
 
-    private final Environment env;
+    private Environment env;
 
-    IRBuilder(Environment env) {
+    void setEnv(Environment env) {
         this.env = env;
     }
 
@@ -250,7 +250,6 @@ class IRBuilder {
      */
     private Obj getConstantObj(Value constant) {
         if (constant instanceof StringConstant) {
-            JimpleType stringType = getType(constant.getType());
             return env.getStringConstant(((StringConstant) constant).value);
         } else if (constant instanceof ClassConstant) {
             return env.getClassObj(getType(((ClassConstant) constant).toSootType()));
