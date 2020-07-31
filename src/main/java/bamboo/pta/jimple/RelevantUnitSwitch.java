@@ -86,7 +86,7 @@ class RelevantUnitSwitch implements StmtSwitch {
     }
 
     public void caseNopStmt(NopStmt stmt) {
-        relevant = true;
+        relevant = false;
     }
 
     public void caseRetStmt(RetStmt stmt) {
