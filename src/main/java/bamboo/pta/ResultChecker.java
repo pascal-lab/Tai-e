@@ -76,9 +76,6 @@ public class ResultChecker {
         this.filePath = filePath;
         if (!Files.exists(filePath) || GENERATE_EXPECTED_RESULTS) {
             setupStream();
-            PointerAnalysisTransformer.v().setOutput(true);
-        } else {
-            PointerAnalysisTransformer.v().setOutput(false);
         }
     }
 

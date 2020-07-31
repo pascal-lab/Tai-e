@@ -59,7 +59,7 @@ public class Options {
             defaultValue = "true", negatable = true)
     private boolean mergeStringObjects;
 
-    @Option(names = {"--no-merge-string-builders", "--no-merge-string-buffers"},
+    @Option(names = "--no-merge-string-builders",
             description = "Merge string builders and buffers",
             defaultValue = "true", negatable = true)
     private boolean mergeStringBuilders;
@@ -72,6 +72,11 @@ public class Options {
     @Option(names = "--verbose",
             description = "Output analysis details", defaultValue = "false")
     private boolean verbose;
+
+    @Option(names = {"-o", "--output-results"},
+            description = "Output pointer analysis results",
+            defaultValue = "false")
+    private boolean outputResults;
 
     // ---------- Soot options ----------
     @Parameters(description = "Arguments for Soot")
@@ -134,6 +139,10 @@ public class Options {
 
     public boolean isVerbose() {
         return verbose;
+    }
+
+    public boolean isOutputResults() {
+        return outputResults;
     }
 
     public String[] getSootArgs() {

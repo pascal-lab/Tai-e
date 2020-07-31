@@ -44,10 +44,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
      * that are checked during testing.
      */
     private PrintStream out = System.out;
-    /**
-     * If output analysis results.
-     */
-    private boolean isOutput = true;
 
     private DecimalFormat formatter = new DecimalFormat("#,####");
 
@@ -62,10 +58,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         this.out = out;
     }
 
-    public void setOutput(boolean isOutput) {
-        this.isOutput = isOutput;
-    }
-
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisBuilder()
@@ -75,7 +67,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         pta.analyze();
         ptaTimer.stop();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);
-        if (isOutput) {
+        if (Options.get().isOutputResults()) {
             System.out.println("---------- Reachable methods: ----------");
             pta.getCallGraph().getReachableMethods()
                     .stream()
@@ -87,9 +79,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             printInstanceFields(pta.getInstanceFields());
             printArrayIndexes(pta.getArrayIndexes());
             printStaticFields(pta.getStaticFields());
-            printStatistics(pta, ptaTimer);
             System.out.println("----------------------------------------");
         }
+        printStatistics(pta, ptaTimer);
 
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(pta);
@@ -177,6 +169,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 format(reachableInsens), format(reachableSens));
         out.printf("%-30s%s (insens) / %s (sens)\n", "#call graph edges:",
                 format(callEdgeInsens), format(callEdgeSens));
+        System.out.println("----------------------------------------");
     }
 
     private String format(int i) {
