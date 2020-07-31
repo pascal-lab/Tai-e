@@ -389,9 +389,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Context calleeContext = contextSelector.selectContext(
                         csCallSite, recvObj, callee);
                 // build call edge
-                CallKind callKind = getCallKind(callSite);
                 CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                workList.addCallEdge(new Edge<>(callKind, csCallSite, csCallee));
+                workList.addCallEdge(new Edge<>(
+                        callSite.getKind(), csCallSite, csCallee));
                 // pass receiver object to *this* variable
                 CSVariable thisVar = csManager.getCSVariable(
                         calleeContext, callee.getThis());
@@ -450,28 +450,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private Method resolveCallee(Obj recvObj, CallSite callSite) {
         Type type = recvObj.getType();
-        if (callSite.isInterface() || callSite.isVirtual()) {
-            return programManager.resolveInterfaceOrVirtualCall(
-                    type, callSite.getMethod());
-        } else if (callSite.isSpecial()) {
-            return programManager.resolveSpecialCall(
-                    callSite, callSite.getContainerMethod());
-        } else {
-            throw new AnalysisException("Unknown CallSite: " + callSite);
-        }
-    }
-
-    private CallKind getCallKind(CallSite callSite) {
-        if (callSite.isInterface()) {
-            return CallKind.INTERFACE;
-        } else if (callSite.isVirtual()) {
-            return CallKind.VIRTUAL;
-        } else if (callSite.isSpecial()) {
-            return CallKind.SPECIAL;
-        } else if (callSite.isStatic()) {
-            return CallKind.STATIC;
-        } else {
-            throw new AnalysisException("Unknown call site: " + callSite);
+        switch (callSite.getKind()) {
+            case INTERFACE:
+            case VIRTUAL:
+                return programManager.resolveInterfaceOrVirtualCall(
+                        type, callSite.getMethod());
+            case SPECIAL:
+                return programManager.resolveSpecialCall(
+                        callSite, callSite.getContainerMethod());
+            default:
+                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
     }
 
@@ -532,7 +520,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
-            if (callSite.isStatic()) {
+            if (callSite.getKind() == CallKind.STATIC) {
                 initializeClass(callSite.getMethod().getClassType());
             }
         }
@@ -590,7 +578,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
-            if (callSite.isStatic()) {
+            if (callSite.getKind() == CallKind.STATIC) {
                 Method callee = callSite.getMethod();
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);

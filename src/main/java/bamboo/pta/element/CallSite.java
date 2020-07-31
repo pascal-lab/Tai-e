@@ -13,19 +13,17 @@
 
 package bamboo.pta.element;
 
+import bamboo.callgraph.CallKind;
 import bamboo.pta.statement.Call;
 
 import java.util.List;
 
 public interface CallSite {
 
-    boolean isInterface();
-
-    boolean isVirtual();
-
-    boolean isSpecial();
-
-    boolean isStatic();
+    /**
+     * @return call kind of this call site.
+     */
+    CallKind getKind();
 
     /**
      * @return the call statements containing this call site.

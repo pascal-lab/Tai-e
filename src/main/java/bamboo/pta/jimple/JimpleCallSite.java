@@ -53,23 +53,8 @@ class JimpleCallSite implements CallSite {
     }
 
     @Override
-    public boolean isInterface() {
-        return kind == CallKind.INTERFACE;
-    }
-
-    @Override
-    public boolean isVirtual() {
-        return kind == CallKind.VIRTUAL;
-    }
-
-    @Override
-    public boolean isSpecial() {
-        return kind == CallKind.SPECIAL;
-    }
-
-    @Override
-    public boolean isStatic() {
-        return kind == CallKind.STATIC;
+    public CallKind getKind() {
+        return kind;
     }
 
     @Override
@@ -79,7 +64,7 @@ class JimpleCallSite implements CallSite {
 
     void setCall(Call call) {
         this.call = call;
-        if (!isStatic()) {
+        if (kind != CallKind.STATIC) {
             receiver.addCall(call);
         }
     }

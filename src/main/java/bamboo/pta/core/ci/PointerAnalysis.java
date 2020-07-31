@@ -247,8 +247,8 @@ public class PointerAnalysis {
                 Var thisVar = pointerFlowGraph.getVar(callee.getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
                 // build call edge
-                CallKind callKind = getCallKind(callSite);
-                workList.addCallEdge(new Edge<>(callKind, callSite, callee));
+                workList.addCallEdge(new Edge<>(
+                        callSite.getKind(), callSite, callee));
             }
         }
     }
@@ -291,7 +291,7 @@ public class PointerAnalysis {
         for (Statement stmt : method.getStatements()) {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
-                if (callSite.isStatic()) {
+                if (callSite.getKind() == CallKind.STATIC) {
                     Method callee = callSite.getMethod();
                     Edge<CallSite, Method> edge =
                             new Edge<>(CallKind.STATIC, callSite, callee);
@@ -306,31 +306,16 @@ public class PointerAnalysis {
      */
     private Method resolveCallee(Obj recvObj, CallSite callSite) {
         Type type = recvObj.getType();
-        if (callSite.isInterface() || callSite.isVirtual()) {
-            return programManager.resolveInterfaceOrVirtualCall(
-                    type, callSite.getMethod());
-        } else if (callSite.isSpecial()) {
-            return programManager.resolveSpecialCall(
-                    callSite, callSite.getContainerMethod());
-        } else {
-            throw new AnalysisException("Unknown CallSite: " + callSite);
-        }
-    }
-
-    /**
-     * Returns CallKind of the given call site.
-     */
-    private CallKind getCallKind(CallSite callSite) {
-        if (callSite.isInterface()) {
-            return CallKind.INTERFACE;
-        } else if (callSite.isVirtual()) {
-            return CallKind.VIRTUAL;
-        } else if (callSite.isSpecial()) {
-            return CallKind.SPECIAL;
-        } else if (callSite.isStatic()) {
-            return CallKind.STATIC;
-        } else {
-            throw new AnalysisException("Unknown call site: " + callSite);
+        switch (callSite.getKind()) {
+            case INTERFACE:
+            case VIRTUAL:
+                return programManager.resolveInterfaceOrVirtualCall(
+                        type, callSite.getMethod());
+            case SPECIAL:
+                return programManager.resolveSpecialCall(
+                        callSite, callSite.getContainerMethod());
+            default:
+                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
     }
 }
