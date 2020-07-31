@@ -15,7 +15,7 @@ package bamboo.pta.element;
 
 import bamboo.pta.statement.Statement;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface Method {
@@ -32,7 +32,16 @@ public interface Method {
 
     Variable getThis();
 
-    List<Variable> getParameters();
+    /**
+     * @return number of parameters of this method.
+     */
+    int getParamCount();
+
+    /**
+     * @return the i-th parameter of this method. The return value is
+     * present only if the parameter is of reference type.
+     */
+    Optional<Variable> getParam(int i);
 
     Set<Variable> getReturnVariables();
 

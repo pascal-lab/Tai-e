@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -414,15 +415,14 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             Context calleeCtx = csCallee.getContext();
             Method callee = csCallee.getMethod();
             // pass arguments to parameters
-            List<Variable> args = callSite.getArguments();
-            List<Variable> params = callee.getParameters();
-            for (int i = 0; i < args.size(); ++i) {
-                if (args.get(i) == null) {
-                    continue; // args[i] is of primitive type or null, skipped
-                }
-                CSVariable arg = csManager.getCSVariable(callerCtx, args.get(i));
-                CSVariable param = csManager.getCSVariable(calleeCtx, params.get(i));
-                addPFGEdge(arg, param, PointerFlowEdge.Kind.PARAMETER_PASSING);
+            for (int i = 0; i < callSite.getArgCount(); ++i) {
+                Optional<Variable> optArg = callSite.getArg(i);
+                Optional<Variable> optParam = callee.getParam(i);
+                optArg.ifPresent(arg -> {
+                    CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
+                    CSVariable paramVar = csManager.getCSVariable(calleeCtx, optParam.get());
+                    addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+                });
             }
             // pass results to LHS variable
             callSite.getCall().getLHS().ifPresent(lhs -> {

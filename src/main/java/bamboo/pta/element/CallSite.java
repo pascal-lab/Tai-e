@@ -16,7 +16,7 @@ package bamboo.pta.element;
 import bamboo.callgraph.CallKind;
 import bamboo.pta.statement.Call;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface CallSite {
 
@@ -34,7 +34,16 @@ public interface CallSite {
 
     Variable getReceiver();
 
-    List<Variable> getArguments();
+    /**
+     * @return number of arguments of this call site.
+     */
+    int getArgCount();
+
+    /**
+     * @return the i-th argument of this call site. The return value is
+     * present only if the argument is non-null and of reference type.
+     */
+    Optional<Variable> getArg(int i);
 
     Method getContainerMethod();
 }

@@ -21,6 +21,7 @@ import soot.SootMethod;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 class JimpleMethod implements Method {
@@ -95,8 +96,13 @@ class JimpleMethod implements Method {
     }
 
     @Override
-    public List<Variable> getParameters() {
-        return parameters;
+    public int getParamCount() {
+        return parameters.size();
+    }
+
+    @Override
+    public Optional<Variable> getParam(int i) {
+        return Optional.ofNullable(parameters.get(i));
     }
 
     void setParameters(List<Variable> parameters) {

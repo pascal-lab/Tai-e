@@ -22,6 +22,7 @@ import soot.jimple.Stmt;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 class JimpleCallSite implements CallSite {
 
@@ -88,8 +89,13 @@ class JimpleCallSite implements CallSite {
     }
 
     @Override
-    public List<Variable> getArguments() {
-        return arguments;
+    public int getArgCount() {
+        return arguments.size();
+    }
+
+    @Override
+    public Optional<Variable> getArg(int i) {
+        return Optional.ofNullable(arguments.get(i));
     }
 
     void setArguments(List<Variable> arguments) {

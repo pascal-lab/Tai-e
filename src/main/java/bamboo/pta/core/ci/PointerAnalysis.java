@@ -31,7 +31,7 @@ import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.Statement;
 import bamboo.util.AnalysisException;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class PointerAnalysis {
@@ -263,15 +263,14 @@ public class PointerAnalysis {
             addReachable(callee);
             CallSite callSite = edge.getCallSite();
             // pass arguments to parameters
-            List<Variable> args = callSite.getArguments();
-            List<Variable> params = callee.getParameters();
-            for (int i = 0; i < args.size(); ++i) {
-                if (args.get(i) == null) {
-                    continue; // args[i] is of primitive type, skipped
-                }
-                Var arg = pointerFlowGraph.getVar(args.get(i));
-                Var param = pointerFlowGraph.getVar(params.get(i));
-                addPFGEdge(arg, param);
+            for (int i = 0; i < callSite.getArgCount(); ++i) {
+                Optional<Variable> optArg = callSite.getArg(i);
+                Optional<Variable> optParam = callee.getParam(i);
+                optArg.ifPresent(arg -> {
+                    Var argVar = pointerFlowGraph.getVar(arg);
+                    Var paramVar = pointerFlowGraph.getVar(optParam.get());
+                    addPFGEdge(argVar, paramVar);
+                });
             }
             // pass results to LHS variable
             callSite.getCall().getLHS().ifPresent(lhs -> {
