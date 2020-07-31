@@ -40,27 +40,27 @@ public class Options {
 
     // ---------- pointer analysis options ----------
     @Option(names = "--no-implicit-entries",
-            description = "Analyze implicit reachable entry methods",
+            description = "Analyze implicit reachable entry methods (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
     private boolean implicitEntries;
 
     @Option(names = {"-cs", "--context-sensitivity"},
-            description = "Context sensitivity for pointer analysis",
+            description = "Context sensitivity for pointer analysis (default: ${DEFAULT-VALUE})",
             defaultValue = "ci")
     private String contextSensitivity;
 
     @Option(names = "--merge-string-constants",
-            description = "Merge string constants",
+            description = "Merge string constants (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean mergeStringConstants;
 
     @Option(names = "--no-merge-string-objects",
-            description = "Merge string objects",
+            description = "Merge string objects (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
     private boolean mergeStringObjects;
 
     @Option(names = "--no-merge-string-builders",
-            description = "Merge string builders and buffers",
+            description = "Merge string builders and buffers (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
     private boolean mergeStringBuilders;
 
