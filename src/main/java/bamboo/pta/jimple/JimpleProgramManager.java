@@ -130,7 +130,12 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Field getUniqueFieldBySiganture(String signature) {
-        return irBuilder.getField(Scene.v().getField(signature));
+    public Field getUniqueFieldBySignature(String fieldSig) {
+        return irBuilder.getField(Scene.v().getField(fieldSig));
+    }
+
+    @Override
+    public Method getUniqueMethodBySignature(String methodSig) {
+        return irBuilder.getMethod(Scene.v().getMethod(methodSig));
     }
 }

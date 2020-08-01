@@ -15,6 +15,7 @@ package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Field;
+import bamboo.pta.element.Method;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
 import bamboo.pta.statement.StaticStore;
@@ -22,44 +23,44 @@ import bamboo.pta.statement.StaticStore;
 import java.util.HashMap;
 import java.util.Map;
 
-class MethodModels {
+// TODO: for correctness, record which methods have been handled?
+class NativeMethodModel {
 
-    private static ProgramManager pm;
-    private static Environment env;
-    private static Map<String, MethodHandler> models;
+    private final ProgramManager pm;
+    private final Environment env;
+    private final Map<Method, MethodHandler> handlers;
 
-    static void setup(ProgramManager pm, Environment env) {
-        MethodModels.pm = pm;
-        MethodModels.env = env;
-        models = new HashMap<>();
-        // register method handlers
-        for (Model model : Model.values()) {
-            models.put(model.signature, model.handler);
+    NativeMethodModel(ProgramManager pm, Environment env) {
+        this.pm = pm;
+        this.env = env;
+        handlers = new HashMap<>();
+        initHandlers();
+    }
+
+    void process(Method method) {
+        MethodHandler handler = handlers.get(method);
+        if (handler != null) {
+            handler.handle(method);
         }
     }
 
-    enum Model {
-
+    private void initHandlers() {
         /**********************************************************************
          * java.lang.System
          *********************************************************************/
         /**
          * <java.lang.System: void setIn0(java.io.InputStream)>
          */
-        JAVA_LANG_SYSTEM_SETIN0("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
-            Field systemIn = pm.getUniqueFieldBySiganture(
+        registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>",
+                method -> {
+            Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
             Variable param0 = method.getParam(0).get();
             method.addStatement(new StaticStore(systemIn, param0));
-        }),
-        ;
+        });
+    }
 
-        private final String signature;
-        private final MethodHandler handler;
-
-        Model(String signature, MethodHandler handler) {
-            this.signature = signature;
-            this.handler = handler;
-        }
+    private void registerHandler(String signature, MethodHandler handler) {
+        handlers.put(pm.getUniqueMethodBySignature(signature), handler);
     }
 }

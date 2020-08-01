@@ -51,5 +51,15 @@ public interface ProgramManager {
      * the fields in system classes, i.e., java.*.
      * TODO: make return value optional?
      */
-    Field getUniqueFieldBySiganture(String signature);
+    Field getUniqueFieldBySignature(String fieldSig);
+
+    /**
+     * Returns the method specified by the given method signature.
+     * This method is supposed to be used when the caller is
+     * confident that field with the given signature is unique.
+     * Ideally, this method should only be used to retrieve
+     * the methods in system classes, i.e., java.*.
+     * TODO: make return value optional?
+     */
+    Method getUniqueMethodBySignature(String methodSig);
 }
