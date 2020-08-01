@@ -22,13 +22,15 @@ import bamboo.pta.statement.StaticStore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
-// TODO: for correctness, record which methods have been handled?
+// TODO: for correctness, record which methods have been processed?
 class NativeMethodModel {
 
+    private static final Consumer<Method> dummyHandler = m -> {};
     private final ProgramManager pm;
     private final Environment env;
-    private final Map<Method, MethodHandler> handlers;
+    private final Map<Method, Consumer<Method>> handlers;
 
     NativeMethodModel(ProgramManager pm, Environment env) {
         this.pm = pm;
@@ -37,11 +39,9 @@ class NativeMethodModel {
         initHandlers();
     }
 
-    void process(Method method) {
-        MethodHandler handler = handlers.get(method);
-        if (handler != null) {
-            handler.handle(method);
-        }
+    public void process(Method method) {
+        handlers.getOrDefault(method, dummyHandler)
+                .accept(method);
     }
 
     private void initHandlers() {
@@ -51,8 +51,7 @@ class NativeMethodModel {
         /**
          * <java.lang.System: void setIn0(java.io.InputStream)>
          */
-        registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>",
-                method -> {
+        registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
             Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
             Variable param0 = method.getParam(0).get();
@@ -60,7 +59,7 @@ class NativeMethodModel {
         });
     }
 
-    private void registerHandler(String signature, MethodHandler handler) {
+    private void registerHandler(String signature, Consumer<Method> handler) {
         handlers.put(pm.getUniqueMethodBySignature(signature), handler);
     }
 }
