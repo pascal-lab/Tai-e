@@ -54,13 +54,6 @@ class JimpleMethod implements Method {
         returnVars.add(returnVar);
     }
 
-    void addStatement(Statement statement) {
-        if (statements.isEmpty()) {
-            statements = new HashSet<>(8);
-        }
-        statements.add(statement);
-    }
-
     SootMethod getSootMethod() {
         return method;
     }
@@ -112,6 +105,14 @@ class JimpleMethod implements Method {
     @Override
     public Set<Variable> getReturnVariables() {
         return returnVars;
+    }
+
+    @Override
+    public void addStatement(Statement statement) {
+        if (statements.isEmpty()) {
+            statements = new HashSet<>(8);
+        }
+        statements.add(statement);
     }
 
     @Override

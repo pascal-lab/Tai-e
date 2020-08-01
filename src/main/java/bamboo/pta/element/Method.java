@@ -45,5 +45,7 @@ public interface Method {
 
     Set<Variable> getReturnVariables();
 
+    void addStatement(Statement statement);
+
     Set<Statement> getStatements();
 }

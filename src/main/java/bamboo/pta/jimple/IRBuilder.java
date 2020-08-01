@@ -157,7 +157,7 @@ class IRBuilder {
         }
     }
 
-    private JimpleField getField(SootField sootField) {
+    JimpleField getField(SootField sootField) {
         return fields.computeIfAbsent(sootField, (f) ->
                 new JimpleField(sootField,
                         getType(sootField.getDeclaringClass()),

@@ -15,6 +15,7 @@ package bamboo.pta.jimple;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.CallSite;
+import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 import bamboo.pta.env.Environment;
@@ -126,5 +127,10 @@ public class JimpleProgramManager implements ProgramManager {
     @Override
     public Type getUniqueTypeByName(String typeName) {
         return irBuilder.getType(Scene.v().getType(typeName));
+    }
+
+    @Override
+    public Field getUniqueFieldBySiganture(String signature) {
+        return irBuilder.getField(Scene.v().getField(signature));
     }
 }

@@ -14,6 +14,7 @@
 package bamboo.pta.core;
 
 import bamboo.pta.element.CallSite;
+import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
@@ -38,6 +39,17 @@ public interface ProgramManager {
      * confident that type with the given name is unique.
      * Ideally, this method should only be used to retrieve
      * system classes, i.e., java.*.
+     * TODO: make return value optional?
      */
     Type getUniqueTypeByName(String typeName);
+
+    /**
+     * Returns the field specified by the given field signature.
+     * This method is supposed to be used when the caller is
+     * confident that field with the given signature is unique.
+     * Ideally, this method should only be used to retrieve
+     * the fields in system classes, i.e., java.*.
+     * TODO: make return value optional?
+     */
+    Field getUniqueFieldBySiganture(String signature);
 }
