@@ -17,6 +17,11 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
 import bamboo.pta.env.Environment;
 
+/**
+ * This class model native code at the call sites, i.e.,
+ * inline the calls to the Statements that have the same side effects.
+ * This kinds of model earns 1-call-site sensitivity for free.
+ */
 public interface NativeCallModel {
 
     static NativeCallModel getDefaultModel(

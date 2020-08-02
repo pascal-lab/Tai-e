@@ -18,6 +18,7 @@ import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
+import bamboo.pta.statement.Assign;
 import bamboo.pta.statement.StaticStore;
 
 import java.util.HashMap;
@@ -51,6 +52,24 @@ class DefaultMethodModel implements NativeMethodModel {
 
     private void initHandlers() {
         /**********************************************************************
+         * java.lang.Object
+         *********************************************************************/
+        /**
+         * <java.lang.Object: java.lang.Object clone()>
+         *
+         * TODO: could throw CloneNotSupportedException
+         *
+         * TODO: should check if the object is Cloneable.
+         *
+         * TODO: should return a clone of the heap allocation (not
+         *      identity). The behaviour implemented here is based on Soot.
+         */
+        registerHandler("<java.lang.Object: java.lang.Object clone()>", method ->
+            method.getReturnVariables().forEach(ret ->
+                method.addStatement(new Assign(ret, method.getThis())))
+        );
+
+        /**********************************************************************
          * java.lang.System
          *********************************************************************/
         /**
@@ -59,6 +78,26 @@ class DefaultMethodModel implements NativeMethodModel {
         registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
             Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
+            Variable param0 = method.getParam(0).get();
+            method.addStatement(new StaticStore(systemIn, param0));
+        });
+
+        /**
+         * <java.lang.System: void setOut0(java.io.PrintStream)>
+         */
+        registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
+            Field systemIn = pm.getUniqueFieldBySignature(
+                    "<java.lang.System: java.io.PrintStream out>");
+            Variable param0 = method.getParam(0).get();
+            method.addStatement(new StaticStore(systemIn, param0));
+        });
+
+        /**
+         * <java.lang.System: void setErr0(java.io.PrintStream)>
+         */
+        registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
+            Field systemIn = pm.getUniqueFieldBySignature(
+                    "<java.lang.System: java.io.PrintStream err>");
             Variable param0 = method.getParam(0).get();
             method.addStatement(new StaticStore(systemIn, param0));
         });

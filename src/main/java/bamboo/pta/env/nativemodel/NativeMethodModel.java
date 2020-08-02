@@ -17,6 +17,10 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
 import bamboo.pta.env.Environment;
 
+/**
+ * This class models native method by adding proper Statements
+ * inside the method body.
+ */
 public interface NativeMethodModel {
 
     static NativeMethodModel getDefaultModel(
