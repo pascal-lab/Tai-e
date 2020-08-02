@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 // TODO: for correctness, record which methods have been processed?
 class NativeMethodModel {
 
-    private static final Consumer<Method> dummyHandler = m -> {};
     private final ProgramManager pm;
     private final Environment env;
     private final Map<Method, Consumer<Method>> handlers;
@@ -40,8 +39,10 @@ class NativeMethodModel {
     }
 
     public void process(Method method) {
-        handlers.getOrDefault(method, dummyHandler)
-                .accept(method);
+        Consumer<Method> handler = handlers.get(method);
+        if (handler != null) {
+            handler.accept(method);
+        }
     }
 
     private void initHandlers() {

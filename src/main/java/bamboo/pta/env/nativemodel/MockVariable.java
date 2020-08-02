@@ -11,40 +11,54 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.jimple;
+package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.element.AbstractVariable;
-import soot.Local;
+import bamboo.pta.element.Method;
+import bamboo.pta.element.Type;
 
-class JimpleVariable extends AbstractVariable {
+class MockVariable extends AbstractVariable {
 
-    private final Local var;
+    /**
+     * The name of each mock variable is unique.
+     */
+    private final String name;
 
-    public JimpleVariable(Local var, JimpleType type, JimpleMethod containerMethod) {
-        super(type, containerMethod);
-        this.var = var;
+    MockVariable(Type type, Method container, String name) {
+        super(type, container);
+        this.name = name;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public Method getContainerMethod() {
+        return container;
     }
 
     @Override
     public String getName() {
-        return var.getName();
+        return name;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        JimpleVariable that = (JimpleVariable) o;
-        return var.equals(that.var);
+        MockVariable that = (MockVariable) o;
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return var.hashCode();
+        return name.hashCode();
     }
 
     @Override
     public String toString() {
-        return container + "/" + var.getName();
+        return container + "/" + name;
     }
 }
