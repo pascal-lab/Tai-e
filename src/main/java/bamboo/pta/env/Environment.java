@@ -36,7 +36,7 @@ public class Environment {
      * This method must be called before starting pointer analysis;
      * @param pm
      */
-    public void setup(ProgramManager pm) {
+    public Environment(ProgramManager pm) {
         strPool  = new StringConstantPool(pm);
         reflPool = new ReflectionObjectPool(pm);
         if (Options.get().isModelNative()) {

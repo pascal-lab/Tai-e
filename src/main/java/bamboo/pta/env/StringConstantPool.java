@@ -26,17 +26,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class StringConstantPool {
 
-    private final Type STRING;
-
+    private final ProgramManager pm;
     private final Map<String, StringConstant> constants =
             new ConcurrentHashMap<>();
+    private Type stringType;
 
     StringConstantPool(ProgramManager pm) {
-        STRING = pm.getUniqueTypeByName("java.lang.String");
+        this.pm = pm;
     }
 
     StringConstant getStringConstant(String constant) {
         return constants.computeIfAbsent(constant,
-                c -> new StringConstant(STRING, c));
+                c -> new StringConstant(getStringType(), c));
+    }
+
+    private Type getStringType() {
+        if (stringType == null) {
+            stringType = pm.getUniqueTypeByName("java.lang.String");
+        }
+        return stringType;
     }
 }

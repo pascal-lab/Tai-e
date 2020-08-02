@@ -54,14 +54,8 @@ public class JimpleProgramManager implements ProgramManager {
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
     );
     private final FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
-    private final Environment env;
-    private final IRBuilder irBuilder;
-
-    public JimpleProgramManager() {
-        env = new Environment();
-        irBuilder = new IRBuilder(env);
-        env.setup(this);
-    }
+    private final Environment env = new Environment(this);
+    private final IRBuilder irBuilder = new IRBuilder(env);
 
     public static void initSoot() {
         // The following line is necessary to avoid a runtime exception

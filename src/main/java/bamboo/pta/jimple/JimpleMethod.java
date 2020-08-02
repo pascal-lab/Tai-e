@@ -84,6 +84,11 @@ class JimpleMethod implements Method {
     }
 
     @Override
+    public String getSignature() {
+        return method.getSignature();
+    }
+
+    @Override
     public JimpleVariable getThis() {
         return thisVar;
     }

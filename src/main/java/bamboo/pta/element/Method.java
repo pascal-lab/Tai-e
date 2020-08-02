@@ -30,6 +30,8 @@ public interface Method {
 
     String getName();
 
+    String getSignature();
+
     Variable getThis();
 
     /**

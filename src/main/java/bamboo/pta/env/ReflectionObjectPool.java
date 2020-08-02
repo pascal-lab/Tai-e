@@ -24,19 +24,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class ReflectionObjectPool {
 
-    private final Type CLASS;
-    private Type METHOD;
-    private Type FIELD;
-    private Type CONSTRUCTOR;
+    private final ProgramManager pm;
+    private Type classType;
+    private Type methodType;
+    private Type fieldType;
+    private Type constructorType;
     private final Map<Type, ClassObj> classMap =
             new ConcurrentHashMap<>();
 
     ReflectionObjectPool(ProgramManager pm) {
-        CLASS = pm.getUniqueTypeByName("java.lang.Class");
+        this.pm = pm;
     }
 
     ClassObj getClassObj(Type klass) {
         return classMap.computeIfAbsent(klass,
-                c -> new ClassObj(CLASS, c));
+                c -> new ClassObj(getClassType(), c));
+    }
+
+    private Type getClassType() {
+        if (classType == null) {
+            classType = pm.getUniqueTypeByName("java.lang.Class");
+        }
+        return classType;
     }
 }

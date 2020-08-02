@@ -29,7 +29,10 @@ class DefaultMethodModel implements NativeMethodModel {
 
     private final ProgramManager pm;
     private final Environment env;
-    private final Map<Method, Consumer<Method>> handlers;
+    // Use String as key is to avoid cyclic dependence during the
+    // initialization of ProgramManager.
+    // TODO: use Method as key to improve performance?
+    private final Map<String, Consumer<Method>> handlers;
 
     DefaultMethodModel(ProgramManager pm, Environment env) {
         this.pm = pm;
@@ -40,7 +43,7 @@ class DefaultMethodModel implements NativeMethodModel {
 
     @Override
     public void process(Method method) {
-        Consumer<Method> handler = handlers.get(method);
+        Consumer<Method> handler = handlers.get(method.getSignature());
         if (handler != null) {
             handler.accept(method);
         }
@@ -62,6 +65,6 @@ class DefaultMethodModel implements NativeMethodModel {
     }
 
     private void registerHandler(String signature, Consumer<Method> handler) {
-        handlers.put(pm.getUniqueMethodBySignature(signature), handler);
+        handlers.put(signature, handler);
     }
 }
