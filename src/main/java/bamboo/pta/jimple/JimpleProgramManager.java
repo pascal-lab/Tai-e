@@ -58,10 +58,9 @@ public class JimpleProgramManager implements ProgramManager {
     private final IRBuilder irBuilder;
 
     public JimpleProgramManager() {
-        // TODO: refactor the dependency between IRBuilder and Environment
-        irBuilder = new IRBuilder();
-        env = new Environment(this);
-        irBuilder.setEnv(env);
+        env = new Environment();
+        irBuilder = new IRBuilder(env);
+        env.setup(this);
     }
 
     public static void initSoot() {

@@ -15,77 +15,18 @@ package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
-import bamboo.pta.element.Type;
-import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
-import bamboo.pta.statement.ArrayLoad;
-import bamboo.pta.statement.ArrayStore;
-import bamboo.pta.statement.Call;
-import bamboo.pta.statement.Statement;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
+public interface NativeCallModel {
 
-// TODO: for correctness, record which methods have been processed?
-class NativeCallModel {
-
-    private final ProgramManager pm;
-    private final Environment env;
-    private final Map<Method, BiConsumer<Method, Call>> handlers;
-    private final AtomicInteger counter;
-
-    NativeCallModel(ProgramManager pm, Environment env) {
-        this.pm = pm;
-        this.env = env;
-        handlers = new HashMap<>();
-        counter = new AtomicInteger(0);
-        initHandlers();
+    static NativeCallModel getDefaultModel(
+            ProgramManager pm, Environment env) {
+        return new DefaultCallModel(pm, env);
     }
 
-    void process(Method container) {
-        Statement[] statements = container.getStatements()
-                .toArray(new Statement[0]);
-        for (Statement s : statements) {
-            if (s instanceof Call) {
-                Call call = (Call) s;
-                Method callee = call.getCallSite().getMethod();
-                BiConsumer<Method, Call> handler = handlers.get(callee);
-                if (handler != null) {
-                    handler.accept(container, call);
-                }
-            }
-        }
+    static NativeCallModel getDummyModel() {
+        return (m) -> {};
     }
 
-    private void initHandlers() {
-        /**********************************************************************
-         * java.lang.System
-         *********************************************************************/
-        /**
-         * <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
-         */
-        registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
-            Variable temp = newMockVariable(
-                    pm.getUniqueTypeByName("java.lang.Object"), method);
-            Optional<Variable> src = call.getCallSite().getArg(0);
-            Optional<Variable> dest = call.getCallSite().getArg(2);
-            if (src.isPresent() && dest.isPresent()) {
-                method.addStatement(new ArrayLoad(temp, src.get()));
-                method.addStatement(new ArrayStore(dest.get(), temp));
-            }
-        });
-    }
-
-    private void registerHandler(String signature,
-                                 BiConsumer<Method, Call> handler) {
-        handlers.put(pm.getUniqueMethodBySignature(signature), handler);
-    }
-
-    private Variable newMockVariable(Type type, Method container) {
-        return new MockVariable(type, container,
-                "@native-call-mock-var" + counter.getAndIncrement());
-    }
+    void process(Method container);
 }

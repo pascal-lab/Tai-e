@@ -14,26 +14,38 @@
 package bamboo.pta.env;
 
 import bamboo.pta.core.ProgramManager;
+import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
+import bamboo.pta.env.nativemodel.NativeCallModel;
+import bamboo.pta.env.nativemodel.NativeMethodModel;
+import bamboo.pta.options.Options;
 
 /**
  * This class should be seen as part of ProgramManager
  */
 public class Environment {
 
-    private final StringConstantPool strPool;
-
-    private final ReflectionObjectPool reflPool;
+    private StringConstantPool strPool;
+    private ReflectionObjectPool reflPool;
+    private NativeCallModel nativeCallModel;
+    private NativeMethodModel nativeMethodModel;
 
     /**
-     * Setup Environment object using given programManager.
+     * Setup Environment object using given ProgramManager.
      * This method must be called before starting pointer analysis;
-     * @param programManager
+     * @param pm
      */
-    public Environment(ProgramManager programManager) {
-        strPool  = new StringConstantPool(programManager);
-        reflPool = new ReflectionObjectPool(programManager);
+    public void setup(ProgramManager pm) {
+        strPool  = new StringConstantPool(pm);
+        reflPool = new ReflectionObjectPool(pm);
+        if (Options.get().isModelNative()) {
+            nativeCallModel = NativeCallModel.getDefaultModel(pm, this);
+            nativeMethodModel = NativeMethodModel.getDefaultModel(pm, this);
+        } else {
+            nativeCallModel = NativeCallModel.getDummyModel();
+            nativeMethodModel = NativeMethodModel.getDummyModel();
+        }
     }
 
     public Obj getStringConstant(String constant) {
@@ -42,5 +54,13 @@ public class Environment {
 
     public Obj getClassObj(Type klass) {
         return reflPool.getClassObj(klass);
+    }
+
+    public void processNativeCode(Method method) {
+        if (method.isNative()) {
+            nativeMethodModel.process(method);
+        } else {
+            nativeCallModel.process(method);
+        }
     }
 }

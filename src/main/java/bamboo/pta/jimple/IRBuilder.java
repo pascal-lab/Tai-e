@@ -89,9 +89,9 @@ class IRBuilder {
 
     private final ClassDumper classDumper = new ClassDumper();
 
-    private Environment env;
+    private final Environment env;
 
-    void setEnv(Environment env) {
+    IRBuilder(Environment env) {
         this.env = env;
     }
 
@@ -109,6 +109,7 @@ class IRBuilder {
                 Body body = method.retrieveActiveBody();
                 buildConcrete(jMethod, body);
             }
+            env.processNativeCode(jMethod);
         }
         return jMethod;
     }

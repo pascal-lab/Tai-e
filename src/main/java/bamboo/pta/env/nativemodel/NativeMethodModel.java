@@ -14,53 +14,19 @@
 package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.core.ProgramManager;
-import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
-import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
-import bamboo.pta.statement.StaticStore;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
+public interface NativeMethodModel {
 
-// TODO: for correctness, record which methods have been processed?
-class NativeMethodModel {
-
-    private final ProgramManager pm;
-    private final Environment env;
-    private final Map<Method, Consumer<Method>> handlers;
-
-    NativeMethodModel(ProgramManager pm, Environment env) {
-        this.pm = pm;
-        this.env = env;
-        handlers = new HashMap<>();
-        initHandlers();
+    static NativeMethodModel getDefaultModel(
+            ProgramManager pm, Environment env) {
+        return new DefaultMethodModel(pm, env);
     }
 
-    public void process(Method method) {
-        Consumer<Method> handler = handlers.get(method);
-        if (handler != null) {
-            handler.accept(method);
-        }
+    static NativeMethodModel getDummyModel() {
+        return (m) -> {};
     }
 
-    private void initHandlers() {
-        /**********************************************************************
-         * java.lang.System
-         *********************************************************************/
-        /**
-         * <java.lang.System: void setIn0(java.io.InputStream)>
-         */
-        registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
-            Field systemIn = pm.getUniqueFieldBySignature(
-                    "<java.lang.System: java.io.InputStream in>");
-            Variable param0 = method.getParam(0).get();
-            method.addStatement(new StaticStore(systemIn, param0));
-        });
-    }
-
-    private void registerHandler(String signature, Consumer<Method> handler) {
-        handlers.put(pm.getUniqueMethodBySignature(signature), handler);
-    }
+    void process(Method method);
 }
