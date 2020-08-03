@@ -26,7 +26,6 @@ import soot.RefType;
 import soot.Scene;
 import soot.SootMethod;
 import soot.SourceLocator;
-import soot.jimple.SpecialInvokeExpr;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -141,11 +140,20 @@ public class JimpleProgramManager implements ProgramManager {
 
     @Override
     public Method resolveSpecialCall(CallSite callSite, Method container) {
-        JimpleCallSite jCallSite = (JimpleCallSite) callSite;
-        JimpleMethod jContainer = (JimpleMethod) container;
-        SootMethod callee = hierarchy.resolveSpecialDispatch(
-                (SpecialInvokeExpr) jCallSite.getSootInvokeExpr(),
-                jContainer.getSootMethod());
+        SootMethod target = ((JimpleMethod) callSite.getMethod())
+                .getSootMethod();
+        SootMethod jContainer = ((JimpleMethod) container).getSootMethod();
+        SootMethod callee;
+        // This implementation is based on FastHierarchy.resolveSpecialDispatch()
+        if (target.getName().equals("<init>") || target.isPrivate()) {
+            callee = target;
+        } else if (hierarchy.isSubclass(target.getDeclaringClass(),
+                jContainer.getDeclaringClass())) {
+            callee = hierarchy.resolveConcreteDispatch(
+                    jContainer.getDeclaringClass(), target);
+        } else {
+            callee = target;
+        }
         return irBuilder.getMethod(callee);
     }
 
