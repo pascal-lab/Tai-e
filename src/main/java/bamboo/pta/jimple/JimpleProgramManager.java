@@ -31,6 +31,7 @@ import soot.jimple.SpecialInvokeExpr;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static soot.SootClass.HIERARCHY;
@@ -155,6 +156,14 @@ public class JimpleProgramManager implements ProgramManager {
     @Override
     public Type getUniqueTypeByName(String typeName) {
         return irBuilder.getType(scene.getType(typeName));
+    }
+
+    @Override
+    public Optional<Type> tryGetUniqueTypeByName(String typeName) {
+        soot.Type sootType = scene.getTypeUnsafe(typeName);
+        return sootType != null ?
+                Optional.of(irBuilder.getType(sootType)) :
+                Optional.empty();
     }
 
     @Override

@@ -19,6 +19,7 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ProgramManager {
 
@@ -42,6 +43,12 @@ public interface ProgramManager {
      * TODO: make return value optional?
      */
     Type getUniqueTypeByName(String typeName);
+
+    /**
+     * Tries to get an unique class by name. The class may NOT
+     * exist in the class path.
+     */
+    Optional<Type> tryGetUniqueTypeByName(String typeName);
 
     /**
      * Returns the field specified by the given field signature.
