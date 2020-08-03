@@ -36,6 +36,7 @@ abstract class AbstractContextSelector implements ContextSelector {
             case FIELD:
             case CONSTRUCTOR:
             case MERGED:
+            case ENV:
                 return getDefaultContext();
             default:
                 throw new AnalysisException("Unhandled case: " + obj);

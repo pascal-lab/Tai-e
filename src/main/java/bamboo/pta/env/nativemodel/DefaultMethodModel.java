@@ -13,6 +13,7 @@
 
 package bamboo.pta.env.nativemodel;
 
+import bamboo.callgraph.CallKind;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
@@ -23,9 +24,11 @@ import bamboo.pta.env.Environment;
 import bamboo.pta.options.Options;
 import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.Assign;
+import bamboo.pta.statement.Call;
 import bamboo.pta.statement.StaticStore;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,8 +127,16 @@ class DefaultMethodModel implements NativeMethodModel {
                 for (String fsName : concreteFileSystems) {
                     pm.tryGetUniqueTypeByName(fsName).ifPresent(fs -> {
                         Obj fsObj = new EnvObj(fs.getName(), fs, method);
+                        Method ctor = pm.getUniqueMethodBySignature("<" + fs + ": void <init>()>");
                         method.getReturnVariables().forEach(ret -> {
                             method.addStatement(new Allocation(ret, fsObj));
+                            MockCallSite initCallSite = new MockCallSite(
+                                    CallKind.SPECIAL, ctor, ret,
+                                    Collections.emptyList(), method,
+                                    ctor.getSignature());
+                            Call initCall = new Call(initCallSite, null);
+                            initCallSite.setCall(initCall);
+                            method.addStatement(initCall);
                         });
                     });
                 }
