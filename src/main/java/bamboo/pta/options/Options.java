@@ -39,6 +39,11 @@ public class Options {
     boolean help;
 
     // ---------- pointer analysis options ----------
+    @Option(names = "-jdk",
+            description = "JDK version of the standard library being analyzed (default: ${DEFAULT-VALUE})",
+            defaultValue = "0")
+    private int jdkVersion;
+
     @Option(names = "--no-implicit-entries",
             description = "Analyze implicit reachable entry methods (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
@@ -116,6 +121,10 @@ public class Options {
 
     public boolean shouldShowVersion() {
         return version;
+    }
+
+    public int jdkVersion() {
+        return jdkVersion;
     }
 
     public boolean analyzeImplicitEntries() {

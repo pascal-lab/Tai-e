@@ -36,6 +36,11 @@ public class OptionsTest {
     }
 
     @Test
+    public void testJDKVersion() {
+        Options.parse("-jdk=8");
+        Assert.assertEquals(Options.get().jdkVersion(), 8);
+    }
+    @Test
     public void testOptions() {
         Options.parse("--no-implicit-entries", "-cs", "2-object");
         Assert.assertFalse(Options.get().analyzeImplicitEntries());
