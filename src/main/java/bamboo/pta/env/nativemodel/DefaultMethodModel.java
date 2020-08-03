@@ -18,11 +18,13 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
+import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.EnvObj;
 import bamboo.pta.env.Environment;
 import bamboo.pta.options.Options;
 import bamboo.pta.statement.Allocation;
+import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Assign;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.StaticStore;
@@ -32,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 // TODO: for correctness, record which methods have been processed?
@@ -43,11 +46,16 @@ class DefaultMethodModel implements NativeMethodModel {
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
     private final Map<String, Consumer<Method>> handlers;
+    /**
+     * Counter to give each mock variable an unique name.
+     */
+    private final AtomicInteger counter;
 
     DefaultMethodModel(ProgramManager pm, Environment env) {
         this.pm = pm;
         this.env = env;
         handlers = new HashMap<>();
+        counter = new AtomicInteger(0);
         initHandlers();
     }
 
@@ -63,16 +71,11 @@ class DefaultMethodModel implements NativeMethodModel {
         /**********************************************************************
          * java.lang.Object
          *********************************************************************/
-        /**
-         * <java.lang.Object: java.lang.Object clone()>
-         *
-         * TODO: could throw CloneNotSupportedException
-         *
-         * TODO: should check if the object is Cloneable.
-         *
-         * TODO: should return a clone of the heap allocation (not
-         *      identity). The behaviour implemented here is based on Soot.
-         */
+        // <java.lang.Object: java.lang.Object clone()>
+        // TODO: could throw CloneNotSupportedException
+        // TODO: should check if the object is Cloneable.
+        // TODO: should return a clone of the heap allocation (not
+        //  identity). The behaviour implemented here is based on Soot.
         registerHandler("<java.lang.Object: java.lang.Object clone()>", method ->
             method.getReturnVariables().forEach(ret ->
                     method.addStatement(new Assign(ret, method.getThis())))
@@ -81,9 +84,7 @@ class DefaultMethodModel implements NativeMethodModel {
         /**********************************************************************
          * java.lang.System
          *********************************************************************/
-        /**
-         * <java.lang.System: void setIn0(java.io.InputStream)>
-         */
+        // <java.lang.System: void setIn0(java.io.InputStream)>
         registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
             Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
@@ -91,9 +92,7 @@ class DefaultMethodModel implements NativeMethodModel {
             method.addStatement(new StaticStore(systemIn, param0));
         });
 
-        /**
-         * <java.lang.System: void setOut0(java.io.PrintStream)>
-         */
+        // <java.lang.System: void setOut0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
             Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream out>");
@@ -101,9 +100,7 @@ class DefaultMethodModel implements NativeMethodModel {
             method.addStatement(new StaticStore(systemIn, param0));
         });
 
-        /**
-         * <java.lang.System: void setErr0(java.io.PrintStream)>
-         */
+        // <java.lang.System: void setErr0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
             Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream err>");
@@ -119,32 +116,51 @@ class DefaultMethodModel implements NativeMethodModel {
                 "java.io.WinNTFileSystem",
                 "java.io.Win32FileSystem"
         );
-        /**
-         * <java.io.FileSystem: java.io.FileSystem getFileSystem()>
-         */
+        // <java.io.FileSystem: java.io.FileSystem getFileSystem()>
         registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
             if (Options.get().jdkVersion() < 7) {
-                for (String fsName : concreteFileSystems) {
+                concreteFileSystems.forEach(fsName -> {
                     pm.tryGetUniqueTypeByName(fsName).ifPresent(fs -> {
                         Obj fsObj = new EnvObj(fs.getName(), fs, method);
                         Method ctor = pm.getUniqueMethodBySignature("<" + fs + ": void <init>()>");
                         method.getReturnVariables().forEach(ret -> {
-                            method.addStatement(new Allocation(ret, fsObj));
                             MockCallSite initCallSite = new MockCallSite(
                                     CallKind.SPECIAL, ctor, ret,
                                     Collections.emptyList(), method,
                                     ctor.getSignature());
                             Call initCall = new Call(initCallSite, null);
                             initCallSite.setCall(initCall);
+                            method.addStatement(new Allocation(ret, fsObj));
                             method.addStatement(initCall);
                         });
                     });
-                }
+                });
             }
+        });
+
+        // <java.io.*FileSystem: java.lang.String[] list(java.io.File)>
+        concreteFileSystems.forEach(fsName -> {
+            registerHandler("<" + fsName + ": java.lang.String[] list(java.io.File)>", method -> {
+                Type string = pm.getUniqueTypeByName("java.lang.String");
+                EnvObj elem = new EnvObj("dir-element", string, method);
+                Variable temp = newMockVariable(string, method);
+                Type stringArray = pm.getUniqueTypeByName("java.lang.String[]");
+                EnvObj array = new EnvObj("element-array", stringArray, method);
+                method.getReturnVariables().forEach(ret -> {
+                    method.addStatement(new Allocation(temp, elem));
+                    method.addStatement(new Allocation(ret, array));
+                    method.addStatement(new ArrayStore(ret, temp));
+                });
+            });
         });
     }
 
     private void registerHandler(String signature, Consumer<Method> handler) {
         handlers.put(signature, handler);
+    }
+
+    private Variable newMockVariable(Type type, Method container) {
+        return new MockVariable(type, container,
+                "@native-method-mock-var" + counter.getAndIncrement());
     }
 }

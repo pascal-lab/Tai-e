@@ -72,9 +72,7 @@ class DefaultCallModel implements NativeCallModel {
         /**********************************************************************
          * java.lang.System
          *********************************************************************/
-        /**
-         * <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
-         */
+        // <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
         registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
             Variable temp = newMockVariable(
                     pm.getUniqueTypeByName("java.lang.Object"), method);
