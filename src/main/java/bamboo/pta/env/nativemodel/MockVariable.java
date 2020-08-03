@@ -17,6 +17,9 @@ import bamboo.pta.element.AbstractVariable;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
+/**
+ * Mock variables for native modeling.
+ */
 class MockVariable extends AbstractVariable {
 
     /**

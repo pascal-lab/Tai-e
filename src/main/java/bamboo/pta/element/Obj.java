@@ -26,7 +26,7 @@ public interface Obj {
      * For STRING_CONSTANT, returns the string constant.
      * For CLASS/METHOD/FIELD/CONSTRUCTOR, returns the corresponding
      * class/method/field/constructor.
-     * For MERGED and ARTIFICIAL, the return value
+     * For MERGED, ENV and ARTIFICIAL, the return value
      * depends on concrete implementation.
      */
     Object getAllocation();
@@ -59,6 +59,8 @@ public interface Obj {
 
         MERGED, // represents merged objects (heap sensitivity
         // is not applied to these objects)
+        ENV, // represented objects created or controlled by Java
+        // runtime environment (heap sensitivity is also not applied)
         ARTIFICIAL, // represents the non-exist objects
     }
 }

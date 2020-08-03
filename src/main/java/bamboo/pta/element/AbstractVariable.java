@@ -23,6 +23,9 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * All implementations of Variable should inherit this class.
+ */
 public abstract class AbstractVariable implements Variable {
 
     protected final Type type;

@@ -16,12 +16,18 @@ package bamboo.pta.env.nativemodel;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
+import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
+import bamboo.pta.env.EnvObj;
 import bamboo.pta.env.Environment;
+import bamboo.pta.options.Options;
+import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.Assign;
 import bamboo.pta.statement.StaticStore;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -66,7 +72,7 @@ class DefaultMethodModel implements NativeMethodModel {
          */
         registerHandler("<java.lang.Object: java.lang.Object clone()>", method ->
             method.getReturnVariables().forEach(ret ->
-                method.addStatement(new Assign(ret, method.getThis())))
+                    method.addStatement(new Assign(ret, method.getThis())))
         );
 
         /**********************************************************************
@@ -100,6 +106,30 @@ class DefaultMethodModel implements NativeMethodModel {
                     "<java.lang.System: java.io.PrintStream err>");
             Variable param0 = method.getParam(0).get();
             method.addStatement(new StaticStore(systemIn, param0));
+        });
+
+        /**********************************************************************
+         * java.io.FileSystem
+         *********************************************************************/
+        final List<String> concreteFileSystems = Arrays.asList(
+                "java.io.UnixFileSystem",
+                "java.io.WinNTFileSystem",
+                "java.io.Win32FileSystem"
+        );
+        /**
+         * <java.io.FileSystem: java.io.FileSystem getFileSystem()>
+         */
+        registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
+            if (Options.get().jdkVersion() < 7) {
+                for (String fsName : concreteFileSystems) {
+                    pm.tryGetUniqueTypeByName(fsName).ifPresent(fs -> {
+                        Obj fsObj = new EnvObj(fs.getName(), fs, method);
+                        method.getReturnVariables().forEach(ret -> {
+                            method.addStatement(new Allocation(ret, fsObj));
+                        });
+                    });
+                }
+            }
         });
     }
 

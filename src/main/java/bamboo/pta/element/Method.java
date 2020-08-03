@@ -26,6 +26,9 @@ public interface Method {
 
     boolean isNative();
 
+    /**
+     * Declaring class of this method.
+     */
     Type getClassType();
 
     String getName();
