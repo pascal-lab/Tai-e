@@ -28,12 +28,13 @@ import bamboo.pta.options.Options;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.util.AnalysisException;
+import soot.Scene;
 
 public class PointerAnalysisBuilder {
 
     public PointerAnalysis build(Options options) {
         PointerAnalysis pta = new PointerAnalysisImpl();
-        ProgramManager pm = new JimpleProgramManager();
+        ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
         pta.setHeapModel(new AllocationSiteBasedModel(pm));

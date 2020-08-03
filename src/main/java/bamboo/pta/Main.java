@@ -16,6 +16,7 @@ package bamboo.pta;
 import bamboo.pta.jimple.JimpleProgramManager;
 import bamboo.pta.options.Options;
 import soot.PackManager;
+import soot.Scene;
 import soot.Transform;
 
 public class Main {
@@ -46,7 +47,7 @@ public class Main {
             return;
         }
 
-        JimpleProgramManager.initSoot();
+        JimpleProgramManager.initSoot(Scene.v());
 
         // Run main analysis
         soot.Main.main(Options.get().getSootArgs());

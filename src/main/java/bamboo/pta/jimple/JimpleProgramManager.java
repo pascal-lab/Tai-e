@@ -25,6 +25,7 @@ import soot.FastHierarchy;
 import soot.RefType;
 import soot.Scene;
 import soot.SootMethod;
+import soot.SourceLocator;
 import soot.jimple.SpecialInvokeExpr;
 
 import java.util.Arrays;
@@ -53,26 +54,60 @@ public class JimpleProgramManager implements ProgramManager {
             "<java.lang.ClassLoader: long findNative(java.lang.ClassLoader,java.lang.String)>",
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
     );
-    private final FastHierarchy hierarchy = Scene.v().getOrMakeFastHierarchy();
+    private final Scene scene;
+    private final FastHierarchy hierarchy;
     private final Environment env = new Environment(this);
     private final IRBuilder irBuilder = new IRBuilder(env);
 
-    public static void initSoot() {
+    public JimpleProgramManager(Scene scene) {
+        this.scene = scene;
+        this.hierarchy = scene.getOrMakeFastHierarchy();
+        addBasicClasses(scene);
+    }
+
+    public static void initSoot(Scene scene) {
         // The following line is necessary to avoid a runtime exception
         // when running soot with java 1.8
-        Scene.v().addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+        scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+    }
+
+    private void addBasicClasses(Scene scene) {
+        /*
+         * For simulating the FileSystem class, we need the implementation
+         * of the FileSystem, but the classes are not loaded automatically
+         * due to the indirection via native code.
+         */
+        addCommonDynamicClass(scene, "java.io.UnixFileSystem");
+        addCommonDynamicClass(scene, "java.io.WinNTFileSystem");
+        addCommonDynamicClass(scene, "java.io.Win32FileSystem");
+
+        /* java.net.URL loads handlers dynamically */
+        addCommonDynamicClass(scene, "sun.net.www.protocol.file.Handler");
+        addCommonDynamicClass(scene, "sun.net.www.protocol.ftp.Handler");
+        addCommonDynamicClass(scene, "sun.net.www.protocol.http.Handler");
+        addCommonDynamicClass(scene, "sun.net.www.protocol.https.Handler");
+        addCommonDynamicClass(scene, "sun.net.www.protocol.jar.Handler");
+    }
+
+    private void addCommonDynamicClass(Scene scene, String className) {
+        // NOTE: SourceLocator.getClassSource() has side effect of
+        // modifying its classPath, so it MUST be called AFTER
+        // Soot has initialized the class path.
+        if (SourceLocator.v().getClassSource(className) != null) {
+            scene.addBasicClass(className);
+        }
     }
 
     @Override
     public Method getMainMethod() {
-        return irBuilder.getMethod(Scene.v().getMainMethod());
+        return irBuilder.getMethod(scene.getMainMethod());
     }
 
     @Override
     public Collection<Method> getImplicitEntries() {
         return implicitEntries.stream()
-                .filter(Scene.v()::containsMethod)
-                .map(Scene.v()::getMethod)
+                .filter(scene::containsMethod)
+                .map(scene::getMethod)
                 .map(irBuilder::getMethod)
                 .collect(Collectors.toList());
     }
@@ -119,16 +154,16 @@ public class JimpleProgramManager implements ProgramManager {
 
     @Override
     public Type getUniqueTypeByName(String typeName) {
-        return irBuilder.getType(Scene.v().getType(typeName));
+        return irBuilder.getType(scene.getType(typeName));
     }
 
     @Override
     public Field getUniqueFieldBySignature(String fieldSig) {
-        return irBuilder.getField(Scene.v().getField(fieldSig));
+        return irBuilder.getField(scene.getField(fieldSig));
     }
 
     @Override
     public Method getUniqueMethodBySignature(String methodSig) {
-        return irBuilder.getMethod(Scene.v().getMethod(methodSig));
+        return irBuilder.getMethod(scene.getMethod(methodSig));
     }
 }
