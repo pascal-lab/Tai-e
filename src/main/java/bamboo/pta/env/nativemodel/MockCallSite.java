@@ -11,68 +11,53 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.jimple;
+package bamboo.pta.env.nativemodel;
 
 import bamboo.callgraph.CallKind;
 import bamboo.pta.element.AbstractCallSite;
+import bamboo.pta.element.Method;
 import bamboo.pta.element.Variable;
-import soot.jimple.InvokeExpr;
-import soot.jimple.Stmt;
 
 import java.util.List;
+import java.util.Objects;
 
-class JimpleCallSite extends AbstractCallSite {
+/**
+ * Mock call sites for model the side effects of native code.
+ */
+class MockCallSite extends AbstractCallSite {
 
-    private final Stmt stmt;
+    /**
+     * Identifier of this mock call site.
+     */
+    private final String id;
 
-    public JimpleCallSite(Stmt stmt, CallKind kind) {
+    MockCallSite(CallKind kind, Method method, Variable receiver,
+                 List<Variable> args, Method containerMethod,
+                 String id) {
         super(kind);
-        this.stmt = stmt;
-    }
-
-    Stmt getSootStmt() {
-        return stmt;
-    }
-
-    InvokeExpr getSootInvokeExpr() {
-        return stmt.getInvokeExpr();
-    }
-
-    void setMethod(JimpleMethod method) {
         this.method = method;
-    }
-
-    void setReceiver(JimpleVariable receiver) {
         this.receiver = receiver;
-    }
-
-    void setArguments(List<Variable> args) {
         this.args = args;
-    }
-
-    void setContainerMethod(JimpleMethod containerMethod) {
         this.containerMethod = containerMethod;
+        this.id = id;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        JimpleCallSite that = (JimpleCallSite) o;
-        return stmt.equals(that.stmt);
+        MockCallSite that = (MockCallSite) o;
+        return containerMethod.equals(that.containerMethod)
+                && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return stmt.hashCode();
+        return Objects.hash(containerMethod, id);
     }
 
     @Override
     public String toString() {
-        String invoke = stmt.getInvokeExpr().toString();
-        String invokeRep = invoke.substring(invoke.indexOf(' ') + 1);
-        return containerMethod.getClassType()
-                + "(L" + stmt.getJavaSourceStartLineNumber() + "):"
-                + invokeRep;
+        return String.format("[Mock]%s/%s(%s)", containerMethod, id, args);
     }
 }
