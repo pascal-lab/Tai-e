@@ -25,7 +25,6 @@ import soot.FastHierarchy;
 import soot.RefType;
 import soot.Scene;
 import soot.SootMethod;
-import soot.SourceLocator;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,40 +61,28 @@ public class JimpleProgramManager implements ProgramManager {
     public JimpleProgramManager(Scene scene) {
         this.scene = scene;
         this.hierarchy = scene.getOrMakeFastHierarchy();
-        addBasicClasses(scene);
     }
 
     public static void initSoot(Scene scene) {
         // The following line is necessary to avoid a runtime exception
         // when running soot with java 1.8
         scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
-    }
-
-    private void addBasicClasses(Scene scene) {
-        /*
-         * For simulating the FileSystem class, we need the implementation
-         * of the FileSystem, but the classes are not loaded automatically
-         * due to the indirection via native code.
-         */
-        addCommonDynamicClass(scene, "java.io.UnixFileSystem");
-        addCommonDynamicClass(scene, "java.io.WinNTFileSystem");
-        addCommonDynamicClass(scene, "java.io.Win32FileSystem");
-
-        /* java.net.URL loads handlers dynamically */
-        addCommonDynamicClass(scene, "sun.net.www.protocol.file.Handler");
-        addCommonDynamicClass(scene, "sun.net.www.protocol.ftp.Handler");
-        addCommonDynamicClass(scene, "sun.net.www.protocol.http.Handler");
-        addCommonDynamicClass(scene, "sun.net.www.protocol.https.Handler");
-        addCommonDynamicClass(scene, "sun.net.www.protocol.jar.Handler");
-    }
-
-    private void addCommonDynamicClass(Scene scene, String className) {
-        // NOTE: SourceLocator.getClassSource() has side effect of
-        // modifying its classPath, so it MUST be called AFTER
-        // Soot has initialized the class path.
-        if (SourceLocator.v().getClassSource(className) != null) {
-            scene.addBasicClass(className);
-        }
+        // TODO: avoid adding non-exist basic classes. This requires to
+        //  check class path before adding these classes.
+        // For simulating the FileSystem class, we need the implementation
+        // of the FileSystem, but the classes are not loaded automatically
+        // due to the indirection via native code.
+        scene.addBasicClass("java.io.UnixFileSystem");
+        scene.addBasicClass("java.io.WinNTFileSystem");
+        scene.addBasicClass("java.io.Win32FileSystem");
+        // java.net.URL loads handlers dynamically
+        scene.addBasicClass("sun.net.www.protocol.file.Handler");
+        scene.addBasicClass("sun.net.www.protocol.ftp.Handler");
+        scene.addBasicClass("sun.net.www.protocol.http.Handler");
+        // The following line caused SootClassNotFoundException
+        // for sun.security.ssl.SSLSocketImpl. TODO: fix this
+        // scene.addBasicClass("sun.net.www.protocol.https.Handler");
+        scene.addBasicClass("sun.net.www.protocol.jar.Handler");
     }
 
     @Override
