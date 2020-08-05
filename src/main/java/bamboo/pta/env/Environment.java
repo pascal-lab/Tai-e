@@ -17,8 +17,7 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
-import bamboo.pta.env.nativemodel.NativeCallModel;
-import bamboo.pta.env.nativemodel.NativeMethodModel;
+import bamboo.pta.env.nativemodel.NativeModel;
 import bamboo.pta.options.Options;
 
 /**
@@ -28,8 +27,7 @@ public class Environment {
 
     private StringConstantPool strPool;
     private ReflectionObjectPool reflPool;
-    private NativeCallModel nativeCallModel;
-    private NativeMethodModel nativeMethodModel;
+    private NativeModel nativeModel;
 
     /**
      * Setup Environment object using given ProgramManager.
@@ -40,11 +38,9 @@ public class Environment {
         strPool  = new StringConstantPool(pm);
         reflPool = new ReflectionObjectPool(pm);
         if (Options.get().isModelNative()) {
-            nativeCallModel = NativeCallModel.getDefaultModel(pm, this);
-            nativeMethodModel = NativeMethodModel.getDefaultModel(pm, this);
+            nativeModel = NativeModel.getDefaultModel(pm, this);
         } else {
-            nativeCallModel = NativeCallModel.getDummyModel();
-            nativeMethodModel = NativeMethodModel.getDummyModel();
+            nativeModel = NativeModel.getDummyModel();
         }
     }
 
@@ -57,10 +53,6 @@ public class Environment {
     }
 
     public void processNativeCode(Method method) {
-        if (method.isNative()) {
-            nativeMethodModel.process(method);
-        } else {
-            nativeCallModel.process(method);
-        }
+        nativeModel.process(method);
     }
 }

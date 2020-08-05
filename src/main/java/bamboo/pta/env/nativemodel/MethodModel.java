@@ -37,8 +37,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-// TODO: for correctness, record which methods have been processed?
-class DefaultMethodModel implements NativeMethodModel {
+class MethodModel {
 
     private final ProgramManager pm;
     private final Environment env;
@@ -51,7 +50,7 @@ class DefaultMethodModel implements NativeMethodModel {
      */
     private final AtomicInteger counter;
 
-    DefaultMethodModel(ProgramManager pm, Environment env) {
+    MethodModel(ProgramManager pm, Environment env) {
         this.pm = pm;
         this.env = env;
         handlers = new HashMap<>();
@@ -59,8 +58,7 @@ class DefaultMethodModel implements NativeMethodModel {
         initHandlers();
     }
 
-    @Override
-    public void process(Method method) {
+    void process(Method method) {
         Consumer<Method> handler = handlers.get(method.getSignature());
         if (handler != null) {
             handler.accept(method);

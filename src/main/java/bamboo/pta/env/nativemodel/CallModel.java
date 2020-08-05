@@ -29,8 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-// TODO: for correctness, record which methods have been processed?
-class DefaultCallModel implements NativeCallModel {
+class CallModel {
 
     private final ProgramManager pm;
     private final Environment env;
@@ -43,7 +42,7 @@ class DefaultCallModel implements NativeCallModel {
      */
     private final AtomicInteger counter;
 
-    DefaultCallModel(ProgramManager pm, Environment env) {
+    CallModel(ProgramManager pm, Environment env) {
         this.pm = pm;
         this.env = env;
         handlers = new HashMap<>();
@@ -51,8 +50,7 @@ class DefaultCallModel implements NativeCallModel {
         initHandlers();
     }
 
-    @Override
-    public void process(Method container) {
+    void process(Method container) {
         Statement[] statements = container.getStatements()
                 .toArray(new Statement[0]);
         for (Statement s : statements) {

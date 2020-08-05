@@ -17,20 +17,14 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
 import bamboo.pta.env.Environment;
 
-/**
- * This class models native method by adding proper Statements
- * inside the method body.
- */
-public interface NativeMethodModel {
+public interface NativeModel {
 
-    static NativeMethodModel getDefaultModel(
-            ProgramManager pm, Environment env) {
-        return new DefaultMethodModel(pm, env);
+    static NativeModel getDefaultModel(ProgramManager pm, Environment env) {
+        return new DefaultModel(pm, env);
     }
 
-    static NativeMethodModel getDummyModel() {
-        return (m) -> {};
+    static NativeModel getDummyModel() {
+        return (method) -> {};
     }
-
     void process(Method method);
 }

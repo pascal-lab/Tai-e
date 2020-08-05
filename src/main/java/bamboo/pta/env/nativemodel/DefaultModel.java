@@ -17,21 +17,23 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
 import bamboo.pta.env.Environment;
 
-/**
- * This class model native code at the call sites, i.e.,
- * inline the calls to the Statements that have the same side effects.
- * This kinds of model earns 1-call-site sensitivity for free.
- */
-public interface NativeCallModel {
+// TODO: for correctness, record which methods have been processed?
+class DefaultModel implements NativeModel {
 
-    static NativeCallModel getDefaultModel(
-            ProgramManager pm, Environment env) {
-        return new DefaultCallModel(pm, env);
+    private final MethodModel methodModel;
+    private final CallModel callModel;
+
+    DefaultModel(ProgramManager pm, Environment env) {
+        methodModel = new MethodModel(pm, env);
+        callModel = new CallModel(pm, env);
     }
 
-    static NativeCallModel getDummyModel() {
-        return (m) -> {};
+    @Override
+    public void process(Method method) {
+        if (method.isNative()) {
+            methodModel.process(method);
+        } else {
+            callModel.process(method);
+        }
     }
-
-    void process(Method container);
 }
