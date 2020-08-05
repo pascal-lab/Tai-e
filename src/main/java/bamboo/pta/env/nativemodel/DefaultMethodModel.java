@@ -117,8 +117,9 @@ class DefaultMethodModel implements NativeMethodModel {
                 "java.io.Win32FileSystem"
         );
         // <java.io.FileSystem: java.io.FileSystem getFileSystem()>
-        registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
-            if (Options.get().jdkVersion() < 7) {
+        // Implemented by Java code since Java 7.
+        if (Options.get().jdkVersion() <= 6) {
+            registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
                 concreteFileSystems.forEach(fsName -> {
                     pm.tryGetUniqueTypeByName(fsName).ifPresent(fs -> {
                         Obj fsObj = new EnvObj(fs.getName(), fs, method);
@@ -135,8 +136,8 @@ class DefaultMethodModel implements NativeMethodModel {
                         });
                     });
                 });
-            }
-        });
+            });
+        }
 
         // <java.io.*FileSystem: java.lang.String[] list(java.io.File)>
         concreteFileSystems.forEach(fsName -> {

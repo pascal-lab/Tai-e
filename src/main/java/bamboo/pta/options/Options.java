@@ -90,7 +90,7 @@ public class Options {
 
     // ---------- Soot options ----------
     @Parameters(description = "Arguments for Soot")
-    private String[] sootArgs;
+    private String[] sootArgs = new String[0];
 
     public static Options get() {
         return options;
