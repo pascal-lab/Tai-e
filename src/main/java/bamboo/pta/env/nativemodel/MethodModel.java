@@ -80,6 +80,28 @@ class MethodModel {
         );
 
         /**********************************************************************
+         * java.lang.ref.Finalizer
+         *********************************************************************/
+        // <java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>
+        //
+        // Indirect invocations of finalize methods from java.lang.ref.Finalizer.
+        // Object.finalize is a protected method, so it cannot be directly
+        // invoked. Finalizer uses an indirection via native code to
+        // circumvent this. This rule implements this indirection.
+        // This API is deprecated since Java 7.
+        if (Options.get().jdkVersion() <= 6) {
+            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", method -> {
+                Method finalize = pm.getUniqueMethodBySignature("<java.lang.Object: void finalize()>");
+                Variable arg0 = method.getParam(0).get();
+                MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL, finalize,
+                        arg0, Collections.emptyList(),
+                        method, finalize.getSignature());
+                Call call = new Call(callSite, null);
+                method.addStatement(call);
+            });
+        }
+
+        /**********************************************************************
          * java.lang.System
          *********************************************************************/
         // <java.lang.System: void setIn0(java.io.InputStream)>
@@ -92,18 +114,18 @@ class MethodModel {
 
         // <java.lang.System: void setOut0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
-            Field systemIn = pm.getUniqueFieldBySignature(
+            Field systemOut = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream out>");
             Variable param0 = method.getParam(0).get();
-            method.addStatement(new StaticStore(systemIn, param0));
+            method.addStatement(new StaticStore(systemOut, param0));
         });
 
         // <java.lang.System: void setErr0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
-            Field systemIn = pm.getUniqueFieldBySignature(
+            Field systemErr = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream err>");
             Variable param0 = method.getParam(0).get();
-            method.addStatement(new StaticStore(systemIn, param0));
+            method.addStatement(new StaticStore(systemErr, param0));
         });
 
         /**********************************************************************
@@ -115,7 +137,7 @@ class MethodModel {
                 "java.io.Win32FileSystem"
         );
         // <java.io.FileSystem: java.io.FileSystem getFileSystem()>
-        // Implemented by Java code since Java 7.
+        // This API is implemented in Java code since Java 7.
         if (Options.get().jdkVersion() <= 6) {
             registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
                 concreteFileSystems.forEach(fsName -> {

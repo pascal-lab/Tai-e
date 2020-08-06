@@ -33,6 +33,7 @@ public class Call implements Statement {
 
     public Call(CallSite callSite, Variable lhs) {
         this.callSite = callSite;
+        callSite.setCall(this);
         this.lhs = lhs;
     }
 

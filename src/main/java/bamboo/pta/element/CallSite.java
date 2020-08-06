@@ -26,7 +26,12 @@ public interface CallSite {
     CallKind getKind();
 
     /**
-     * @return the call statements containing this call site.
+     * Set the call statement containing this call site.
+     */
+    void setCall(Call call);
+
+    /**
+     * @return the call statement containing this call site.
      */
     Call getCall();
 

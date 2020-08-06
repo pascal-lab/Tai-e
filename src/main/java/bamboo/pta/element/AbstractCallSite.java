@@ -41,6 +41,7 @@ public abstract class AbstractCallSite implements CallSite {
         return kind;
     }
 
+    @Override
     public void setCall(Call call) {
         this.call = call;
         if (kind != CallKind.STATIC) {

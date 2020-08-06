@@ -467,7 +467,6 @@ class IRBuilder {
                 : null;
         JimpleCallSite callSite = createCallSite(stmt, method);
         Call call = new Call(callSite, lhs);
-        callSite.setCall(call);
         method.addStatement(call);
     }
 
