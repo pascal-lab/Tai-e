@@ -21,6 +21,7 @@ import bamboo.pta.element.Type;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a set of merged objects.
@@ -34,12 +35,19 @@ class MergedObj extends AbstractObj {
      */
     private final Set<Obj> representedObjs = ConcurrentHashMap.newKeySet();
 
+    /**
+     * The representative object of this merged object. It is the first
+     * object added.
+     */
+    private final AtomicReference<Obj> representative = new AtomicReference<>();
+
     MergedObj(Type type, String name) {
         super(type);
         this.name = name;
     }
 
     void addRepresentedObj(Obj obj) {
+        representative.compareAndSet(null, obj);
         representedObjs.add(obj);
     }
 
@@ -55,12 +63,16 @@ class MergedObj extends AbstractObj {
 
     @Override
     public Optional<Method> getContainerMethod() {
-        return Optional.empty();
+        return representative.get() != null ?
+                representative.get().getContainerMethod() :
+                Optional.empty();
     }
 
     @Override
     public Type getContainerType() {
-        return type;
+        return representative.get() != null ?
+                representative.get().getContainerType() :
+                type;
     }
 
     @Override
