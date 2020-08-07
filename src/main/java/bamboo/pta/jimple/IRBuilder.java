@@ -96,6 +96,7 @@ class IRBuilder {
     }
 
     JimpleMethod getMethod(SootMethod method) {
+        assert method != null;
         JimpleMethod jMethod = methods.get(method);
         if (jMethod == null) {
             JimpleType jType = getType(method.getDeclaringClass());

@@ -23,10 +23,12 @@ class DefaultModel implements NativeModel {
 
     private final MethodModel methodModel;
     private final CallModel callModel;
+    private final FinalizerModel finalizerModel;
 
     DefaultModel(ProgramManager pm, Environment env) {
         methodModel = new MethodModel(pm, env);
         callModel = new CallModel(pm, env);
+        finalizerModel = new FinalizerModel(pm);
     }
 
     @Override
@@ -38,6 +40,7 @@ class DefaultModel implements NativeModel {
                     .toArray(new Statement[0]);
             for (Statement s : statements) {
                 s.accept(callModel);
+                s.accept(finalizerModel);
             }
         }
     }
