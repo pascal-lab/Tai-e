@@ -14,6 +14,7 @@
 package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.core.ProgramManager;
+import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
@@ -21,7 +22,7 @@ import bamboo.pta.env.Environment;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Call;
-import bamboo.pta.statement.Statement;
+import bamboo.pta.statement.StatementVisitor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-class CallModel {
+class CallModel implements StatementVisitor {
 
     private final ProgramManager pm;
     private final Environment env;
@@ -50,19 +51,15 @@ class CallModel {
         initHandlers();
     }
 
-    void process(Method container) {
-        Statement[] statements = container.getStatements()
-                .toArray(new Statement[0]);
-        for (Statement s : statements) {
-            if (s instanceof Call) {
-                Call call = (Call) s;
-                Method callee = call.getCallSite().getMethod();
-                BiConsumer<Method, Call> handler =
-                        handlers.get(callee.getSignature());
-                if (handler != null) {
-                    handler.accept(container, call);
-                }
-            }
+    @Override
+    public void visit(Call call) {
+        CallSite callSite = call.getCallSite();
+        Method callee = callSite.getMethod();
+        BiConsumer<Method, Call> handler =
+                handlers.get(callee.getSignature());
+        if (handler != null) {
+            Method container = callSite.getContainerMethod();
+            handler.accept(container, call);
         }
     }
 

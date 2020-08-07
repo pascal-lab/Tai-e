@@ -16,6 +16,7 @@ package bamboo.pta.env.nativemodel;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
 import bamboo.pta.env.Environment;
+import bamboo.pta.statement.Statement;
 
 // TODO: for correctness, record which methods have been processed?
 class DefaultModel implements NativeModel {
@@ -33,7 +34,11 @@ class DefaultModel implements NativeModel {
         if (method.isNative()) {
             methodModel.process(method);
         } else {
-            callModel.process(method);
+            Statement[] statements = method.getStatements()
+                    .toArray(new Statement[0]);
+            for (Statement s : statements) {
+                s.accept(callModel);
+            }
         }
     }
 }

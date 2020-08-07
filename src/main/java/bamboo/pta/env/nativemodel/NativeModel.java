@@ -26,5 +26,6 @@ public interface NativeModel {
     static NativeModel getDummyModel() {
         return (method) -> {};
     }
+
     void process(Method method);
 }
