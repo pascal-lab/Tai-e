@@ -124,9 +124,9 @@ class MethodModel {
                         Method ctor = pm.getUniqueMethodBySignature("<" + fs + ": void <init>()>");
                         method.getReturnVariables().forEach(ret -> {
                             MockCallSite initCallSite = new MockCallSite(
-                                    CallKind.SPECIAL, ctor, ret,
-                                    Collections.emptyList(), method,
-                                    ctor.getSignature());
+                                    CallKind.SPECIAL, ctor,
+                                    ret, Collections.emptyList(),
+                                    method, "init-file-system");
                             Call initCall = new Call(initCallSite, null);
                             initCallSite.setCall(initCall);
                             method.addStatement(new Allocation(ret, fsObj));

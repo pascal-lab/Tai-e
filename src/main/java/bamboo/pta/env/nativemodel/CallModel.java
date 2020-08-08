@@ -161,6 +161,7 @@ class CallModel implements StatementVisitor {
     /**
      * Model the side effects of a static native call r = T.foo(o, ...)
      * by mocking a virtual call r = o.m()
+     * TODO: double-check the handling of return value
      */
     private void modelStaticToVirtualCall(Method container, Call call,
                                       String calleeSig, String id) {
