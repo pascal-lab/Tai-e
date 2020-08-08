@@ -22,21 +22,6 @@ import soot.Transform;
 public class Main {
 
     public static void main(String[] args) {
-        // Set options
-        soot.options.Options.v().set_output_format(
-                soot.options.Options.output_format_jimple);
-        soot.options.Options.v().set_keep_line_number(true);
-        soot.options.Options.v().set_prepend_classpath(true);
-        soot.options.Options.v().set_whole_program(true);
-        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-
-        // Configure transformer
-        Transform transform = new Transform(
-                "wjtp.pta", PointerAnalysisTransformer.v());
-        PackManager.v()
-                .getPack("wjtp")
-                .add(transform);
-
         // Configure Bamboo options
         Options.parse(args);
         if (Options.get().shouldShowHelp()) {
@@ -46,10 +31,40 @@ public class Main {
             Options.get().printVersion();
             return;
         }
-
         JimpleProgramManager.initSoot(Scene.v());
+
+        // Set Soot options
+        soot.options.Options.v().set_output_format(
+                soot.options.Options.output_format_jimple);
+        soot.options.Options.v().set_keep_line_number(true);
+        if (!containsJDK(Options.get().getSootArgs())) {
+            soot.options.Options.v().set_prepend_classpath(true);
+        }
+        soot.options.Options.v().set_whole_program(true);
+        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+
+        // Configure Soot transformer
+        Transform transform = new Transform(
+                "wjtp.pta", PointerAnalysisTransformer.v());
+        PackManager.v()
+                .getPack("wjtp")
+                .add(transform);
 
         // Run main analysis
         soot.Main.main(Options.get().getSootArgs());
+    }
+
+    /**
+     * Check if Soot arguments contain the class paths for JRE/JDK.
+     */
+    private static boolean containsJDK(String[] sootArgs) {
+        for (String arg : sootArgs) {
+            if ((arg.toLowerCase().contains("jre")
+                    || arg.toLowerCase().contains("jdk"))
+                    && arg.toLowerCase().contains(".jar")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
