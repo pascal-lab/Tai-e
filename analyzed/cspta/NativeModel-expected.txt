@@ -1,0 +1,37 @@
+---------- Points-to sets of all variables: ----------
+[]:<A: java.lang.Object callClone()>/temp$0 -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<A: java.lang.Object callClone()>/temp$1 -> {}
+[]:<A: java.lang.Object callClone()>/this -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<A: void <init>()>/this -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27,[]:<NativeModel: void objectClone()>/new A/13}
+[]:<NativeModel$1Anonymous0: A run()>/temp$0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
+[]:<NativeModel$1Anonymous0: A run()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
+[]:<NativeModel$1Anonymous0: java.lang.Object run()>/temp$0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
+[]:<NativeModel$1Anonymous0: java.lang.Object run()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
+[]:<NativeModel$1Anonymous0: void <init>()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
+[]:<NativeModel: void arraycopy()>/@native-call-mock-var28 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+[]:<NativeModel: void arraycopy()>/dest -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
+[]:<NativeModel: void arraycopy()>/o -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+[]:<NativeModel: void arraycopy()>/src -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
+[]:<NativeModel: void arraycopy()>/temp$0 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
+[]:<NativeModel: void arraycopy()>/temp$2 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+[]:<NativeModel: void arraycopy()>/temp$3 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
+[]:<NativeModel: void doPrivileged()>/a -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
+[]:<NativeModel: void doPrivileged()>/temp$0 -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
+[]:<NativeModel: void doPrivileged()>/temp$1 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
+[]:<NativeModel: void doPrivileged()>/temp$2 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
+[]:<NativeModel: void objectClone()>/a -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<NativeModel: void objectClone()>/o -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<NativeModel: void objectClone()>/temp$0 -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<NativeModel: void objectClone()>/temp$1 -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<java.lang.Object: java.lang.Object clone()>/@return -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<java.lang.Object: java.lang.Object clone()>/@this -> {[]:<NativeModel: void objectClone()>/new A/13}
+[]:<java.lang.Object: void <init>()>/r0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27,[]:<NativeModel: void arraycopy()>/new java.lang.Object/19,[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26,[]:<NativeModel: void objectClone()>/new A/13}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/@parameter0 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/@parameter2 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
+[]:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/@parameter0 -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
+[]:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/@return -> {}
+---------- Points-to sets of all instance fields: ----------
+---------- Points-to sets of all array indexes: ----------
+[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+---------- Points-to sets of all static fields: ----------

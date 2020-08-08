@@ -106,4 +106,9 @@ public class CSPTATest {
     public void testSpecialHeapContext() {
         testCSPTA("SpecialHeapContext", "-cs", "2-object");
     }
+
+    @Test
+    public void testNativeModel() {
+        testCSPTA("NativeModel");
+    }
 }
