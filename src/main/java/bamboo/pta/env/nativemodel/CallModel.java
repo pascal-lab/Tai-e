@@ -13,17 +13,20 @@
 
 package bamboo.pta.env.nativemodel;
 
+import bamboo.callgraph.CallKind;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
+import bamboo.pta.options.Options;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.StatementVisitor;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -78,6 +81,71 @@ class CallModel implements StatementVisitor {
                 method.addStatement(new ArrayStore(dest.get(), temp));
             }
         });
+
+        /**********************************************************************
+         * java.lang.ref.Finalizer
+         *********************************************************************/
+        // <java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>
+        //
+        // Indirect invocations of finalize methods from java.lang.ref.Finalizer.
+        // Object.finalize is a protected method, so it cannot be directly
+        // invoked. Finalizer uses an indirection via native code to
+        // circumvent this. This rule implements this indirection.
+        // This API is deprecated since Java 7.
+        if (Options.get().jdkVersion() <= 6) {
+            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>",
+                    (method, call) -> {
+                modelStaticToVirtualCall(method, call,
+                        "<java.lang.Object: void finalize()>",
+                        "invoke-finalize");
+            });
+        }
+
+        /**********************************************************************
+         * java.security.AccessController
+         *********************************************************************/
+        // The run methods of privileged actions are invoked through the
+        // AccessController.doPrivileged method. This introduces an
+        // indirection via native code that needs to be simulated in a pointer
+        // analysis.
+        //
+        // Call from an invocation of doPrivileged to an implementation of the
+        // PrivilegedAction.run method that will be indirectly invoked.
+        //
+        // The first parameter of a doPrivileged invocation (a
+        // PrivilegedAction) is assigned to the 'this' variable of 'run()'
+        // method invocation.
+        //
+        // The return variable of the 'run()' method of a privileged action is
+        // assigned to the return result of the doPrivileged method
+        // invocation.
+        //
+        // TODO for PrivilegedExceptionAction, catch exceptions and wrap them
+        //  in a PriviligedActionException.
+        // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", (method, call) -> {
+            modelStaticToVirtualCall(method, call,
+                    "<java.security.PrivilegedAction: java.lang.Object run()>",
+                    "doPrivileged");
+        });
+        // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>", (method, call) -> {
+            modelStaticToVirtualCall(method, call,
+                    "<java.security.PrivilegedAction: java.lang.Object run()>",
+                    "doPrivileged");
+        });
+        // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>", (method, call) -> {
+            modelStaticToVirtualCall(method, call,
+                    "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
+                    "doPrivileged");
+        });
+        // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>", (method, call) -> {
+            modelStaticToVirtualCall(method, call,
+                    "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
+                    "doPrivileged");
+        });
     }
 
     private void registerHandler(String signature,
@@ -88,5 +156,22 @@ class CallModel implements StatementVisitor {
     private Variable newMockVariable(Type type, Method container) {
         return new MockVariable(type, container,
                 "@native-call-mock-var" + counter.getAndIncrement());
+    }
+
+    /**
+     * Model the side effects of a static native call r = T.foo(o, ...)
+     * by mocking a virtual call r = o.m()
+     */
+    private void modelStaticToVirtualCall(Method container, Call call,
+                                      String calleeSig, String id) {
+        CallSite origin = call.getCallSite();
+        origin.getArg(0).ifPresent(arg0 -> {
+            Method callee = pm.getUniqueMethodBySignature(calleeSig);
+            MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL, callee,
+                    arg0, Collections.emptyList(),
+                    container, id);
+            Call mockCall = new Call(callSite, call.getLHS().orElse(null));
+            container.addStatement(mockCall);
+        });
     }
 }

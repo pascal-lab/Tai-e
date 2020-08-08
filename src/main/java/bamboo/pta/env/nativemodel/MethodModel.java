@@ -80,28 +80,6 @@ class MethodModel {
         );
 
         /**********************************************************************
-         * java.lang.ref.Finalizer
-         *********************************************************************/
-        // <java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>
-        //
-        // Indirect invocations of finalize methods from java.lang.ref.Finalizer.
-        // Object.finalize is a protected method, so it cannot be directly
-        // invoked. Finalizer uses an indirection via native code to
-        // circumvent this. This rule implements this indirection.
-        // This API is deprecated since Java 7.
-        if (Options.get().jdkVersion() <= 6) {
-            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", method -> {
-                Method finalize = pm.getUniqueMethodBySignature("<java.lang.Object: void finalize()>");
-                Variable arg0 = method.getParam(0).get();
-                MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL, finalize,
-                        arg0, Collections.emptyList(),
-                        method, finalize.getSignature());
-                Call call = new Call(callSite, null);
-                method.addStatement(call);
-            });
-        }
-
-        /**********************************************************************
          * java.lang.System
          *********************************************************************/
         // <java.lang.System: void setIn0(java.io.InputStream)>
