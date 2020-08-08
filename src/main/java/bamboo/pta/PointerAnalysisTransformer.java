@@ -73,12 +73,14 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                     .stream()
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(System.out::println);
-            System.out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().getAllEdges().forEach(System.out::println);
-            printVariables(pta.getVariables());
-            printInstanceFields(pta.getInstanceFields());
-            printArrayIndexes(pta.getArrayIndexes());
-            printStaticFields(pta.getStaticFields());
+            if (Options.get().isVerbose()) {
+                System.out.println("---------- Call graph edges: ----------");
+                pta.getCallGraph().getAllEdges().forEach(System.out::println);
+                printVariables(pta.getVariables());
+                printInstanceFields(pta.getInstanceFields());
+                printArrayIndexes(pta.getArrayIndexes());
+                printStaticFields(pta.getStaticFields());
+            }
             System.out.println("----------------------------------------");
         }
         printStatistics(pta, ptaTimer);
