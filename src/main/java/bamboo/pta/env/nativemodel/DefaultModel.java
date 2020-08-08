@@ -18,7 +18,12 @@ import bamboo.pta.element.Method;
 import bamboo.pta.env.Environment;
 import bamboo.pta.statement.Statement;
 
-// TODO: for correctness, record which methods have been processed?
+/**
+ * Default modeling of native code.
+ * Note that current modeling is not suitable for flow-sensitive analysis.
+ *
+ * TODO: for correctness, record which methods have been processed?
+ */
 class DefaultModel implements NativeModel {
 
     private final MethodModel methodModel;
