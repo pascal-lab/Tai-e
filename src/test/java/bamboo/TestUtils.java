@@ -49,6 +49,7 @@ public class TestUtils {
         Collections.addAll(optList, opts);
         // ignore implicit entries in test mode
         optList.add("--no-implicit-entries");
+        optList.add("--test-mode");
         optList.add("--"); // used by bamboo to split Soot arguments
         test(inputClass, "cspta",
                 "bamboo.pta.ResultChecker", optList);

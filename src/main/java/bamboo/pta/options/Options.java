@@ -83,6 +83,10 @@ public class Options {
             description = "Output analysis details", defaultValue = "false")
     private boolean verbose;
 
+    @Option(names = "--test-mode",
+            description = "Flag test mode", defaultValue = "false")
+    private boolean testMode;
+
     @Option(names = {"-o", "--output-results"},
             description = "Output pointer analysis results",
             defaultValue = "false")
@@ -157,6 +161,10 @@ public class Options {
 
     public boolean isVerbose() {
         return verbose;
+    }
+
+    public boolean isTestMode() {
+        return testMode;
     }
 
     public boolean isOutputResults() {

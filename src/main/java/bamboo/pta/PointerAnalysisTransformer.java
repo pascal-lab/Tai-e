@@ -67,27 +67,34 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         pta.analyze();
         ptaTimer.stop();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);
-        if (Options.get().isOutputResults()) {
+        printResults(pta, ptaTimer);
+        if (ResultChecker.isAvailable()) {
+            ResultChecker.get().compare(pta);
+        }
+    }
+
+    private void printResults(PointerAnalysis pta, Timer ptaTimer) {
+        if (Options.get().isTestMode()) {
+            printPointers(pta);
+        } else if (Options.get().isOutputResults()) {
             System.out.println("---------- Reachable methods: ----------");
             pta.getCallGraph().getReachableMethods()
                     .stream()
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(System.out::println);
-            if (Options.get().isVerbose()) {
-                System.out.println("---------- Call graph edges: ----------");
-                pta.getCallGraph().getAllEdges().forEach(System.out::println);
-                printVariables(pta.getVariables());
-                printInstanceFields(pta.getInstanceFields());
-                printArrayIndexes(pta.getArrayIndexes());
-                printStaticFields(pta.getStaticFields());
-            }
+            System.out.println("---------- Call graph edges: ----------");
+            pta.getCallGraph().getAllEdges().forEach(System.out::println);
+            printPointers(pta);
             System.out.println("----------------------------------------");
         }
         printStatistics(pta, ptaTimer);
+    }
 
-        if (ResultChecker.isAvailable()) {
-            ResultChecker.get().compare(pta);
-        }
+    private void printPointers(PointerAnalysis pta) {
+        printVariables(pta.getVariables());
+        printInstanceFields(pta.getInstanceFields());
+        printArrayIndexes(pta.getArrayIndexes());
+        printStaticFields(pta.getStaticFields());
     }
 
     private void printVariables(Stream<CSVariable> vars) {
@@ -155,21 +162,21 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         int callEdgeSens = (int) pta.getCallGraph()
                 .getAllEdges()
                 .count();
-        out.println("-------------- Pointer analysis statistics: --------------");
-        out.println(ptaTimer);
-        out.printf("%-30s%s (insens) / %s (sens)\n", "#var pointers:",
+        System.out.println("-------------- Pointer analysis statistics: --------------");
+        System.out.println(ptaTimer);
+        System.out.printf("%-30s%s (insens) / %s (sens)\n", "#var pointers:",
                 format(varInsens), format(varSens));
-        out.printf("%-30s%s (sens)\n", "#var points-to:",
+        System.out.printf("%-30s%s (sens)\n", "#var points-to:",
                 format(vptSizeSens));
-        out.printf("%-30s%s (sens)\n", "#instance field points-to:",
+        System.out.printf("%-30s%s (sens)\n", "#instance field points-to:",
                 format(ifptSizeSens));
-        out.printf("%-30s%s (sens)\n", "#array points-to:",
+        System.out.printf("%-30s%s (sens)\n", "#array points-to:",
                 format(aptSizeSens));
-        out.printf("%-30s%s (sens)\n", "#static field points-to:",
+        System.out.printf("%-30s%s (sens)\n", "#static field points-to:",
                 format(sfptSizeSens));
-        out.printf("%-30s%s (insens) / %s (sens)\n", "#reachable methods:",
+        System.out.printf("%-30s%s (insens) / %s (sens)\n", "#reachable methods:",
                 format(reachableInsens), format(reachableSens));
-        out.printf("%-30s%s (insens) / %s (sens)\n", "#call graph edges:",
+        System.out.printf("%-30s%s (insens) / %s (sens)\n", "#call graph edges:",
                 format(callEdgeInsens), format(callEdgeSens));
         System.out.println("----------------------------------------");
     }
