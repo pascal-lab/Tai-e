@@ -141,6 +141,20 @@ class MethodModel {
                 });
             });
         });
+
+        /**********************************************************************
+         * sun.misc.Perf
+         *********************************************************************/
+        // <sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>
+        registerHandler("<sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>", method -> {
+            method.getReturnVariables().forEach(ret -> {
+                Type type = pm.getUniqueTypeByName("java.nio.DirectByteBuffer");
+                Utils.modelAllocation(pm, method,
+                        type, type.getName(), ret,
+                        "<java.nio.DirectByteBuffer: void <init>(int)>",
+                        "create-long-buffer");
+            });
+        });
     }
 
     private void registerHandler(String signature, Consumer<Method> handler) {

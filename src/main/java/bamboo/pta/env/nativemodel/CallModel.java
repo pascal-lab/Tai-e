@@ -91,8 +91,7 @@ class CallModel implements StatementVisitor {
         // circumvent this. This rule implements this indirection.
         // This API is deprecated since Java 7.
         if (Options.get().jdkVersion() <= 6) {
-            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>",
-                    (method, call) -> {
+            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", (method, call) -> {
                 Utils.modelStaticToVirtualCall(pm, method, call,
                         "<java.lang.Object: void finalize()>",
                         "invoke-finalize");

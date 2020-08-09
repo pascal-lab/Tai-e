@@ -33,6 +33,7 @@ class Utils {
 
     /**
      * Create allocation site and the corresponding constructor call site.
+     * This method only supports non-argument constructor.
      * @param pm the program manager
      * @param container method containing the allocation site
      * @param type type of the allocated object
