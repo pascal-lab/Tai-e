@@ -13,7 +13,6 @@
 
 package bamboo.pta.env.nativemodel;
 
-import bamboo.callgraph.CallKind;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
@@ -26,7 +25,6 @@ import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Call;
 import bamboo.pta.statement.StatementVisitor;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -95,7 +93,7 @@ class CallModel implements StatementVisitor {
         if (Options.get().jdkVersion() <= 6) {
             registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>",
                     (method, call) -> {
-                modelStaticToVirtualCall(method, call,
+                Utils.modelStaticToVirtualCall(pm, method, call,
                         "<java.lang.Object: void finalize()>",
                         "invoke-finalize");
             });
@@ -124,25 +122,25 @@ class CallModel implements StatementVisitor {
         //  in a PriviligedActionException.
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", (method, call) -> {
-            modelStaticToVirtualCall(method, call,
+            Utils.modelStaticToVirtualCall(pm, method, call,
                     "<java.security.PrivilegedAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>", (method, call) -> {
-            modelStaticToVirtualCall(method, call,
+            Utils.modelStaticToVirtualCall(pm, method, call,
                     "<java.security.PrivilegedAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>", (method, call) -> {
-            modelStaticToVirtualCall(method, call,
+            Utils.modelStaticToVirtualCall(pm, method, call,
                     "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>", (method, call) -> {
-            modelStaticToVirtualCall(method, call,
+            Utils.modelStaticToVirtualCall(pm, method, call,
                     "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
                     "doPrivileged");
         });
@@ -156,23 +154,5 @@ class CallModel implements StatementVisitor {
     private Variable newMockVariable(Type type, Method container) {
         return new MockVariable(type, container,
                 "@native-call-mock-var" + counter.getAndIncrement());
-    }
-
-    /**
-     * Model the side effects of a static native call r = T.foo(o, ...)
-     * by mocking a virtual call r = o.m()
-     * TODO: double-check the handling of return value
-     */
-    private void modelStaticToVirtualCall(Method container, Call call,
-                                      String calleeSig, String id) {
-        CallSite origin = call.getCallSite();
-        origin.getArg(0).ifPresent(arg0 -> {
-            Method callee = pm.getUniqueMethodBySignature(calleeSig);
-            MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL, callee,
-                    arg0, Collections.emptyList(),
-                    container, id);
-            Call mockCall = new Call(callSite, call.getLHS().orElse(null));
-            container.addStatement(mockCall);
-        });
     }
 }
