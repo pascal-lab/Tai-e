@@ -20,9 +20,10 @@ import bamboo.pta.set.PointsToSet;
 
 /**
  * Analysis monitor interface.
- * This interface provides callbacks for pointer analysis events.
- * Implementations of this interface would have side effects on
- * pointer analysis and should be thread-safe.
+ * This interface contains callbacks for pointer analysis events.
+ * It is suppose to provide a mechanism for extending functionalities
+ * of the analysis, so its implementations would have side effects
+ * on pointer analysis and should be thread-safe.
  */
 public interface AnalysisMonitor {
 

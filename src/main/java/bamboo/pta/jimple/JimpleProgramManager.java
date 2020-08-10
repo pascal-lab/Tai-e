@@ -67,6 +67,7 @@ public class JimpleProgramManager implements ProgramManager {
         // The following line is necessary to avoid a runtime exception
         // when running soot with java 1.8
         scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+        scene.addBasicClass("javax.crypto.spec.IvParameterSpec", HIERARCHY);
         // TODO: avoid adding non-exist basic classes. This requires to
         //  check class path before adding these classes.
         // For simulating the FileSystem class, we need the implementation

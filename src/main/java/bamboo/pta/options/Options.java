@@ -49,10 +49,10 @@ public class Options {
             defaultValue = "true", negatable = true)
     private boolean implicitEntries;
 
-    @Option(names = "--no-model-native",
-            description = "Model native code (default: ${DEFAULT-VALUE})",
+    @Option(names = "--no-native-model",
+            description = "Enable native model (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
-    private boolean modelNative;
+    private boolean nativeModel;
 
     @Option(names = {"-cs", "--context-sensitivity"},
             description = "Context sensitivity for pointer analysis (default: ${DEFAULT-VALUE})",
@@ -135,8 +135,8 @@ public class Options {
         return implicitEntries;
     }
 
-    public boolean isModelNative() {
-        return modelNative;
+    public boolean enableNativeModel() {
+        return nativeModel;
     }
 
     public String getContextSensitivity() {

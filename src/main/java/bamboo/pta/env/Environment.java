@@ -37,7 +37,7 @@ public class Environment {
     public Environment(ProgramManager pm) {
         strPool  = new StringConstantPool(pm);
         reflPool = new ReflectionObjectPool(pm);
-        if (Options.get().isModelNative()) {
+        if (Options.get().enableNativeModel()) {
             nativeModel = NativeModel.getDefaultModel(pm, this);
         } else {
             nativeModel = NativeModel.getDummyModel();
