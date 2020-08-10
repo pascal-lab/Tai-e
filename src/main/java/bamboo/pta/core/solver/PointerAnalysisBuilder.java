@@ -24,6 +24,7 @@ import bamboo.pta.core.context.TwoTypeSelector;
 import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
 import bamboo.pta.jimple.JimpleProgramManager;
+import bamboo.pta.monitor.CompositeMonitor;
 import bamboo.pta.options.Options;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -37,6 +38,7 @@ public class PointerAnalysisBuilder {
         ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
+        setAnalysisMonitor(pta, options);
         pta.setHeapModel(new AllocationSiteBasedModel(pm));
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setPointsToSetFactory(setFactory);
@@ -76,5 +78,11 @@ public class PointerAnalysisBuilder {
                         "Unknown context sensitivity variant: "
                                 + options.getContextSensitivity());
         }
+    }
+
+    private void setAnalysisMonitor(PointerAnalysisImpl pta, Options options) {
+        CompositeMonitor monitor = new CompositeMonitor();
+        monitor.setPointerAnalysis(pta);
+        pta.setAnalysisMonitor(monitor);
     }
 }

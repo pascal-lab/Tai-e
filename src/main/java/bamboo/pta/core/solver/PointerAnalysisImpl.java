@@ -35,6 +35,7 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
+import bamboo.pta.monitor.AnalysisMonitor;
 import bamboo.pta.options.Options;
 import bamboo.pta.set.PointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -64,6 +65,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private ProgramManager programManager;
 
     private CSManager csManager;
+
+    private AnalysisMonitor monitor;
 
     private OnFlyCallGraph callGraph;
 
@@ -97,6 +100,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     void setCSManager(CSManager csManager) {
         this.csManager = csManager;
+    }
+
+    void setAnalysisMonitor(AnalysisMonitor monitor) {
+        this.monitor = monitor;
     }
 
     @Override
@@ -153,6 +160,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     public void analyze() {
         initialize();
         solve();
+        monitor.signalFinish();
     }
 
     /**
@@ -174,6 +182,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // must be called after processNewMethod()
             callGraph.addEntryMethod(csMethod);
         }
+        monitor.signalInitialization();
     }
 
     private Collection<Method> computeEntries() {
@@ -202,6 +211,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     processArrayStore(v, diff);
                     processArrayLoad(v, diff);
                     processCall(v, diff);
+                    monitor.signalNewPointsToSet(v, diff);
                 }
             }
             while (workList.hasCallEdges()) {
@@ -435,6 +445,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private void processNewMethod(Method method) {
         if (reachableMethods.add(method)) {
+            monitor.signalNewMethod(method);
             method.getStatements()
                     .forEach(s -> s.accept(classInitializer));
         }
