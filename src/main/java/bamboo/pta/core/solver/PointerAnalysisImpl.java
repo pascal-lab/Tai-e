@@ -86,8 +86,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return programManager;
     }
 
-    @Override
-    public void setProgramManager(ProgramManager programManager) {
+    void setProgramManager(ProgramManager programManager) {
         this.programManager = programManager;
     }
 
@@ -96,8 +95,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return csManager;
     }
 
-    @Override
-    public void setCSManager(CSManager csManager) {
+    void setCSManager(CSManager csManager) {
         this.csManager = csManager;
     }
 
@@ -106,18 +104,15 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return contextSelector;
     }
 
-    @Override
-    public void setContextSelector(ContextSelector contextSelector) {
+    void setContextSelector(ContextSelector contextSelector) {
         this.contextSelector = contextSelector;
     }
 
-    @Override
-    public void setHeapModel(HeapModel heapModel) {
+    void setHeapModel(HeapModel heapModel) {
         this.heapModel = heapModel;
     }
 
-    @Override
-    public void setPointsToSetFactory(PointsToSetFactory setFactory) {
+    void setPointsToSetFactory(PointsToSetFactory setFactory) {
         this.setFactory = setFactory;
     }
 

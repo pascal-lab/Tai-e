@@ -33,7 +33,7 @@ import soot.Scene;
 public class PointerAnalysisBuilder {
 
     public PointerAnalysis build(Options options) {
-        PointerAnalysis pta = new PointerAnalysisImpl();
+        PointerAnalysisImpl pta = new PointerAnalysisImpl();
         ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
@@ -44,7 +44,7 @@ public class PointerAnalysisBuilder {
         return pta;
     }
 
-    private void setContextSensitivity(PointerAnalysis pta, Options options) {
+    private void setContextSensitivity(PointerAnalysisImpl pta, Options options) {
         switch (options.getContextSensitivity()) {
             case "ci":
                 pta.setContextSelector(new ContextInsensitiveSelector());

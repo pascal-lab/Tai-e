@@ -32,23 +32,13 @@ public interface PointerAnalysis {
 
     ProgramManager getProgramManager();
 
-    void setProgramManager(ProgramManager programManager);
-
     CSManager getCSManager();
-
-    void setCSManager(CSManager csManager);
 
     ContextSelector getContextSelector();
 
-    void setContextSelector(ContextSelector contextSelector);
-
-    void setHeapModel(HeapModel heapModel);
-
-    void setPointsToSetFactory(PointsToSetFactory setFactory);
+    CallGraph<CSCallSite, CSMethod> getCallGraph();
 
     void analyze();
-
-    CallGraph<CSCallSite, CSMethod> getCallGraph();
 
     /**
      * @return all variables in the (reachable) program.
