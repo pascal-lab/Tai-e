@@ -15,12 +15,11 @@ package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
-import bamboo.pta.env.Environment;
 
 public interface NativeModel {
 
-    static NativeModel getDefaultModel(ProgramManager pm, Environment env) {
-        return new DefaultModel(pm, env);
+    static NativeModel getDefaultModel(ProgramManager pm) {
+        return new DefaultNativeModel(pm);
     }
 
     static NativeModel getDummyModel() {

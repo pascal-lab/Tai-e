@@ -18,7 +18,6 @@ import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
-import bamboo.pta.env.Environment;
 import bamboo.pta.options.Options;
 import bamboo.pta.statement.ArrayLoad;
 import bamboo.pta.statement.ArrayStore;
@@ -34,7 +33,6 @@ import java.util.function.BiConsumer;
 class CallModel implements StatementVisitor {
 
     private final ProgramManager pm;
-    private final Environment env;
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
@@ -44,9 +42,8 @@ class CallModel implements StatementVisitor {
      */
     private final AtomicInteger counter;
 
-    CallModel(ProgramManager pm, Environment env) {
+    CallModel(ProgramManager pm) {
         this.pm = pm;
-        this.env = env;
         handlers = new HashMap<>();
         counter = new AtomicInteger(0);
         initHandlers();

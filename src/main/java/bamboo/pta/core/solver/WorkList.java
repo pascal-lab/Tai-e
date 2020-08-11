@@ -19,6 +19,7 @@ import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.set.PointsToSet;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -55,8 +56,9 @@ class WorkList {
     }
 
     Edge<CSCallSite, CSMethod> pollCallEdge() {
-        Edge<CSCallSite, CSMethod> edge = callEdges.iterator().next();
-        callEdges.remove(edge);
+        Iterator<Edge<CSCallSite, CSMethod>> iter = callEdges.iterator();
+        Edge<CSCallSite, CSMethod> edge = iter.next();
+        iter.remove();
         return edge;
     }
 

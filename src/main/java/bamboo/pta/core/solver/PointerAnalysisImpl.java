@@ -178,9 +178,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             classInitializer.initializeClass(entry.getClassType());
             CSMethod csMethod = csManager.getCSMethod(
                     contextSelector.getDefaultContext(), entry);
-            processNewCSMethod(csMethod);
-            // must be called after processNewMethod()
             callGraph.addEntryMethod(csMethod);
+            processNewCSMethod(csMethod);
         }
         monitor.signalInitialization();
     }
@@ -505,7 +504,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 CSMethod csMethod = csManager.getCSMethod(
                         contextSelector.getDefaultContext(), clinit);
                 processNewCSMethod(csMethod);
-                callGraph.addNewMethod(csMethod);
             });
         }
 

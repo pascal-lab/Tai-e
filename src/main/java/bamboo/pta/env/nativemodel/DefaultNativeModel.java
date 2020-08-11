@@ -15,7 +15,6 @@ package bamboo.pta.env.nativemodel;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Method;
-import bamboo.pta.env.Environment;
 import bamboo.pta.statement.Statement;
 
 /**
@@ -24,15 +23,15 @@ import bamboo.pta.statement.Statement;
  *
  * TODO: for correctness, record which methods have been processed?
  */
-class DefaultModel implements NativeModel {
+class DefaultNativeModel implements NativeModel {
 
     private final MethodModel methodModel;
     private final CallModel callModel;
     private final FinalizerModel finalizerModel;
 
-    DefaultModel(ProgramManager pm, Environment env) {
-        methodModel = new MethodModel(pm, env);
-        callModel = new CallModel(pm, env);
+    DefaultNativeModel(ProgramManager pm) {
+        methodModel = new MethodModel(pm);
+        callModel = new CallModel(pm);
         finalizerModel = new FinalizerModel(pm);
     }
 
