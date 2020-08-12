@@ -28,6 +28,9 @@ public class Environment {
     private NativeModel nativeModel;
     private StringConstantPool strPool;
     private ReflectionObjectPool reflPool;
+    private Obj mainThread;
+    private Obj systemThreadGroup;
+    private Obj mainThreadGroup;
 
     /**
      * Setup Environment object using given ProgramManager.
@@ -43,6 +46,12 @@ public class Environment {
                 : NativeModel.getDummyModel();
         strPool  = new StringConstantPool(pm);
         reflPool = new ReflectionObjectPool(pm);
+        mainThread = new EnvObj("<main-thread>",
+                pm.getUniqueTypeByName("java.lang.Thread"), null);
+        systemThreadGroup = new EnvObj("<system-thread-group>",
+                pm.getUniqueTypeByName("java.lang.ThreadGroup"), null);
+        mainThreadGroup = new EnvObj("<main-thread-group>",
+                pm.getUniqueTypeByName("java.lang.ThreadGroup"), null);
     }
 
     public Obj getStringConstant(String constant) {
@@ -51,6 +60,18 @@ public class Environment {
 
     public Obj getClassObj(Type klass) {
         return reflPool.getClassObj(klass);
+    }
+
+    public Obj getMainThread() {
+        return mainThread;
+    }
+
+    public Obj getSystemThreadGroup() {
+        return systemThreadGroup;
+    }
+
+    public Obj getMainThreadGroup() {
+        return mainThreadGroup;
     }
 
     public void processNativeCode(Method method) {
