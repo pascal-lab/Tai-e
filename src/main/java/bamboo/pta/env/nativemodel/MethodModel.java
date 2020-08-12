@@ -13,6 +13,7 @@
 
 package bamboo.pta.env.nativemodel;
 
+import bamboo.callgraph.CallKind;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
@@ -23,9 +24,11 @@ import bamboo.pta.options.Options;
 import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.ArrayStore;
 import bamboo.pta.statement.Assign;
+import bamboo.pta.statement.Call;
 import bamboo.pta.statement.StaticStore;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +100,26 @@ class MethodModel {
                     "<java.lang.System: java.io.PrintStream err>");
             Variable param0 = method.getParam(0).get();
             method.addStatement(new StaticStore(systemErr, param0));
+        });
+
+        /**********************************************************************
+         * java.lang.Thread
+         *********************************************************************/
+        // <java.lang.Thread: void start[0]()>
+        // Redirect calls to Thread.start() to Thread.run().
+        // Before Java 5, Thread.start() itself is native. Since Java 5,
+        // start() is written in Java which calls native method start0().
+        final String start = Options.get().jdkVersion() <= 4
+                ? "<java.lang.Thread: void start()>"
+                : "<java.lang.Thread: void start0()>";
+        registerHandler(start, method -> {
+            Method run = pm.getUniqueMethodBySignature(
+                    "<java.lang.Thread: void run()>");
+            MockCallSite runCallSite = new MockCallSite(CallKind.VIRTUAL,
+                    run, method.getThis(), Collections.emptyList(),
+                    method, "thread-run");
+            Call runCall = new Call(runCallSite, null);
+            method.addStatement(runCall);
         });
 
         /**********************************************************************
