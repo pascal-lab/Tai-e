@@ -25,23 +25,24 @@ import bamboo.pta.options.Options;
  */
 public class Environment {
 
+    private NativeModel nativeModel;
     private StringConstantPool strPool;
     private ReflectionObjectPool reflPool;
-    private NativeModel nativeModel;
 
     /**
      * Setup Environment object using given ProgramManager.
-     * This method must be called before starting pointer analysis;
-     * @param pm
+     * This method must be called before starting pointer analysis.
      */
-    public Environment(ProgramManager pm) {
+    public void setup(ProgramManager pm) {
+        // TODO: refactor NativeModel to AnalysisMonitor
+        // nativeModel must be initialized at first, because following
+        // initialization calls pm.getUniqueTypeByName(), which may
+        // build IR for class initializer and trigger nativeModel.
+        nativeModel = Options.get().enableNativeModel()
+                ? NativeModel.getDefaultModel(pm)
+                : NativeModel.getDummyModel();
         strPool  = new StringConstantPool(pm);
         reflPool = new ReflectionObjectPool(pm);
-        if (Options.get().enableNativeModel()) {
-            nativeModel = NativeModel.getDefaultModel(pm);
-        } else {
-            nativeModel = NativeModel.getDummyModel();
-        }
     }
 
     public Obj getStringConstant(String constant) {

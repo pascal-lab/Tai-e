@@ -55,12 +55,13 @@ public class JimpleProgramManager implements ProgramManager {
     );
     private final Scene scene;
     private final FastHierarchy hierarchy;
-    private final Environment env = new Environment(this);
+    private final Environment env = new Environment();
     private final IRBuilder irBuilder = new IRBuilder(env);
 
     public JimpleProgramManager(Scene scene) {
         this.scene = scene;
         this.hierarchy = scene.getOrMakeFastHierarchy();
+        env.setup(this);
     }
 
     public static void initSoot(Scene scene) {
