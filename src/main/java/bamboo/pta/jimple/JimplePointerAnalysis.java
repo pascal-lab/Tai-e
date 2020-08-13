@@ -15,10 +15,11 @@ package bamboo.pta.jimple;
 
 import bamboo.callgraph.CallGraph;
 import bamboo.callgraph.JimpleCallGraph;
+import bamboo.pta.core.context.ContextInsensitiveSelector;
 import bamboo.pta.core.context.DefaultContext;
 import bamboo.pta.core.cs.CSCallSite;
-import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSManager;
+import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
@@ -76,7 +77,7 @@ public class JimplePointerAnalysis {
      * @return points-to set of a given variable.
      */
     public PointsToSet pointsToSetOf(JimpleVariable var) {
-        if (!pta.isContextSensitive()) {
+        if (pta.getContextSelector() instanceof ContextInsensitiveSelector) {
             return csManager.getCSVariable(DefaultContext.INSTANCE, var)
                     .getPointsToSet();
         } else {

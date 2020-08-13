@@ -23,8 +23,6 @@ import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.cs.InstanceField;
 import bamboo.pta.core.cs.StaticField;
-import bamboo.pta.core.heap.HeapModel;
-import bamboo.pta.set.PointsToSetFactory;
 
 import java.util.stream.Stream;
 
@@ -59,9 +57,4 @@ public interface PointerAnalysis {
      * @return all static fields in the (reachable) program.
      */
     Stream<StaticField> getStaticFields();
-
-    /**
-     * @return if this pointer analysis is context-sensitive.
-     */
-    boolean isContextSensitive();
 }

@@ -18,7 +18,6 @@ import bamboo.callgraph.CallKind;
 import bamboo.callgraph.Edge;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.context.Context;
-import bamboo.pta.core.context.ContextInsensitiveSelector;
 import bamboo.pta.core.context.ContextSelector;
 import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSCallSite;
@@ -146,11 +145,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     @Override
     public Stream<StaticField> getStaticFields() {
         return csManager.getStaticFields();
-    }
-
-    @Override
-    public boolean isContextSensitive() {
-        return !(contextSelector instanceof ContextInsensitiveSelector);
     }
 
     /**
