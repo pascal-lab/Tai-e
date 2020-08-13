@@ -13,6 +13,7 @@
 
 package bamboo.pta.monitor;
 
+import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.Method;
@@ -36,18 +37,21 @@ public interface AnalysisMonitor {
 
     /**
      * Invoked during pointer analysis initialization.
+     * Single-thread.
      */
     default void signalInitialization() {
     }
 
     /**
      * Invoked after pointer analysis finishes.
+     * Single-thread.
      */
     default void signalFinish() {
     }
 
     /**
      * Invoked when set of new objects flow to a context-sensitive variable.
+     * Multi-thread, but single-thread on csVar
      * @param csVar variable whose points-to set changes
      * @param pts set of new objects
      */
@@ -56,8 +60,17 @@ public interface AnalysisMonitor {
 
     /**
      * Invoked when new reachable method is discovered.
+     * Single-thread.
      * @param method new reachable method
      */
     default void signalNewMethod(Method method) {
+    }
+
+    /**
+     * Invoked when new reachable context-sensitive method is discovered.
+     * Multi-thread on csMethod.
+     * @param csMethod new reachable context-sensitive method
+     */
+    default void signalNewCSMethod(CSMethod csMethod) {
     }
 }

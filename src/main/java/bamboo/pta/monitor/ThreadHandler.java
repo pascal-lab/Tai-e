@@ -13,6 +13,7 @@
 
 package bamboo.pta.monitor;
 
+import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSObj;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.solver.PointerAnalysis;
@@ -35,11 +36,11 @@ public class ThreadHandler implements AnalysisMonitor {
      */
     private Set<CSObj> runningThreads;
     /**
-     * This variable of Thread.start();
+     * This variable of Thread.start().
      */
     private Variable threadStartThis;
     /**
-     * Context-sensitive return variable of Thread.currentThread();
+     * Context-sensitive return variable of Thread.currentThread().
      */
     private Set<CSVariable> currentThreadReturns;
 
@@ -64,5 +65,10 @@ public class ThreadHandler implements AnalysisMonitor {
         if (method.getSignature().equals(START)) {
             threadStartThis = method.getThis();
         }
+    }
+
+    @Override
+    public void signalNewCSMethod(CSMethod csMethod) {
+        // add return variable os Thread.currentThread()
     }
 }

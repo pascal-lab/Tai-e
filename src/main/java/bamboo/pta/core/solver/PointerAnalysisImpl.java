@@ -289,6 +289,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             csMethod.getMethod()
                     .getStatements()
                     .forEach(s -> s.accept(processor));
+            monitor.signalNewCSMethod(csMethod);
         }
     }
 
