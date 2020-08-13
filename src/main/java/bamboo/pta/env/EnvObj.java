@@ -49,12 +49,15 @@ public class EnvObj extends AbstractObj {
 
     @Override
     public Optional<Method> getContainerMethod() {
-        return Optional.of(containerMethod);
+        return Optional.ofNullable(containerMethod);
     }
 
     @Override
     public Type getContainerType() {
-        return containerMethod.getClassType();
+        // TODO: set a better container type?
+        return containerMethod != null
+                ? containerMethod.getClassType()
+                : type;
     }
 
     @Override
