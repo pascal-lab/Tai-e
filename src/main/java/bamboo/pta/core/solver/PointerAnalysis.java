@@ -22,7 +22,10 @@ import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.cs.InstanceField;
+import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.core.cs.StaticField;
+import bamboo.pta.set.PointsToSet;
+import bamboo.pta.set.PointsToSetFactory;
 
 import java.util.stream.Stream;
 
@@ -34,9 +37,18 @@ public interface PointerAnalysis {
 
     ContextSelector getContextSelector();
 
+    PointsToSetFactory getPointsToSetFactory();
+
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
     void analyze();
+
+    /**
+     * Add <pointer, pointsToSet> entry to work list.
+     * @param pointer
+     * @param pointsToSet
+     */
+    void addPointerEntry(Pointer pointer, PointsToSet pointsToSet);
 
     /**
      * @return all variables in the (reachable) program.

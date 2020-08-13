@@ -102,6 +102,11 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
+    public Environment getEnvironment() {
+        return env;
+    }
+
+    @Override
     public boolean canAssign(Type from, Type to) {
         return hierarchy.canStoreType(
                 ((JimpleType) from).getSootType(),

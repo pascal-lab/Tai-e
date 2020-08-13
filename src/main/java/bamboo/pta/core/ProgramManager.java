@@ -17,6 +17,7 @@ import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
+import bamboo.pta.env.Environment;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -26,6 +27,8 @@ public interface ProgramManager {
     Method getMainMethod();
 
     Collection<Method> getImplicitEntries();
+
+    Environment getEnvironment();
 
     // -------------- type system ----------------
     boolean canAssign(Type from, Type to);

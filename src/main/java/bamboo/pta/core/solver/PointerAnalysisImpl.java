@@ -123,6 +123,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
+    public PointsToSetFactory getPointsToSetFactory() {
+        return setFactory;
+    }
+
+    @Override
     public CallGraph<CSCallSite, CSMethod> getCallGraph() {
         return callGraph;
     }
@@ -155,6 +160,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         initialize();
         solve();
         monitor.signalFinish();
+    }
+
+    @Override
+    public void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
+        workList.addPointerEntry(pointer, pointsToSet);
     }
 
     /**
@@ -233,10 +243,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 // TODO: use Optional.ifPresentOrElse() after update to Java 9+
                 if (edge.getType().isPresent()) {
                     // Checks assignable objects
-                    workList.addPointerEntry(to,
+                    addPointerEntry(to,
                             getAssignablePointsToSet(diff, edge.getType().get()));
                 } else {
-                    workList.addPointerEntry(to, diff);
+                    addPointerEntry(to, diff);
                 }
             }
         }
@@ -267,7 +277,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     from.getPointsToSet() :
                     getAssignablePointsToSet(from.getPointsToSet(), type);
             if (!fromSet.isEmpty()) {
-                workList.addPointerEntry(to, fromSet);
+                addPointerEntry(to, fromSet);
             }
         }
     }
@@ -395,8 +405,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 // pass receiver object to *this* variable
                 CSVariable thisVar = csManager.getCSVariable(
                         calleeContext, callee.getThis());
-                workList.addPointerEntry(thisVar,
-                        setFactory.makePointsToSet(recvObj));
+                addPointerEntry(thisVar, setFactory.makePointsToSet(recvObj));
             }
         }
     }
@@ -557,7 +566,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSObj csObj = csManager.getCSObj(heapContext, obj);
             // obtain lhs variable
             CSVariable lhs = csManager.getCSVariable(context, alloc.getVar());
-            workList.addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
+            addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
         }
 
         @Override
