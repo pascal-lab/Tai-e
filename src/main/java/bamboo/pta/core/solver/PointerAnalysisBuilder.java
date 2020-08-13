@@ -25,6 +25,7 @@ import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
 import bamboo.pta.jimple.JimpleProgramManager;
 import bamboo.pta.monitor.CompositeMonitor;
+import bamboo.pta.monitor.ThreadHandler;
 import bamboo.pta.options.Options;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -82,6 +83,9 @@ public class PointerAnalysisBuilder {
 
     private void setAnalysisMonitor(PointerAnalysisImpl pta, Options options) {
         CompositeMonitor monitor = new CompositeMonitor();
+        if (options.analyzeImplicitEntries()) {
+            monitor.addMonitor(new ThreadHandler());
+        }
         monitor.setPointerAnalysis(pta);
         pta.setAnalysisMonitor(monitor);
     }

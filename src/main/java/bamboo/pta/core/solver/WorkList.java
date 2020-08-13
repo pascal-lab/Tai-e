@@ -66,7 +66,7 @@ class WorkList {
         return pointerEntries.isEmpty() && callEdges.isEmpty();
     }
 
-    class Entry {
+    static class Entry {
 
         final Pointer pointer;
 
