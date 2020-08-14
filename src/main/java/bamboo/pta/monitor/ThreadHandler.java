@@ -33,28 +33,37 @@ import java.util.Set;
  */
 public class ThreadHandler implements AnalysisMonitor {
 
-    private static final String START = "<java.lang.Thread: void start()>";
-
     private PointerAnalysis pta;
     private ProgramManager pm;
 
-    /**
-     * Set of running threads.
-     */
-    private Set<CSObj> runningThreads;
     /**
      * This variable of Thread.start().
      */
     private Variable threadStartThis;
     /**
-     * Context-sensitive return variable of Thread.currentThread().
+     * Return variable of Thread.currentThread().
      */
-    private Set<CSVariable> currentThreadReturns;
+    private Variable currentThreadReturn;
+    /**
+     * Set of running threads.
+     */
+    private Set<CSObj> runningThreads;
+    /**
+     * Contexts of Thread.currentThread().
+     */
+    private Set<Context> currentThreadContexts;
 
     @Override
     public void setPointerAnalysis(PointerAnalysis pta) {
         this.pta = pta;
-        this.pm = pta.getProgramManager();
+        pm = pta.getProgramManager();
+        threadStartThis = pm.getUniqueMethodBySignature(
+                "<java.lang.Thread: void start()>").getThis();
+        Method currentThread = pm.getUniqueMethodBySignature(
+                "<java.lang.Thread: java.lang.Thread currentThread()>");
+        currentThreadReturn = currentThread.getReturnVariables()
+                .iterator()
+                .next();
     }
 
     @Override
@@ -105,12 +114,7 @@ public class ThreadHandler implements AnalysisMonitor {
     @Override
     public void signalNewPointsToSet(CSVariable csVar, PointsToSet pts) {
         // propagate thread objects to return value of Thread.currentThread()
-    }
-
-    @Override
-    public void signalNewMethod(Method method) {
-        if (method.getSignature().equals(START)) {
-            threadStartThis = method.getThis();
+        if (csVar.getVariable().equals(threadStartThis)) {
         }
     }
 

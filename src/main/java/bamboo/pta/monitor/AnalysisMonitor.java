@@ -37,21 +37,21 @@ public interface AnalysisMonitor {
 
     /**
      * Invoked during pointer analysis initialization.
-     * Single-thread.
+     * Thread-safe.
      */
     default void signalInitialization() {
     }
 
     /**
      * Invoked after pointer analysis finishes.
-     * Single-thread.
+     * Thread-safe.
      */
     default void signalFinish() {
     }
 
     /**
      * Invoked when set of new objects flow to a context-sensitive variable.
-     * Multi-thread, but single-thread on csVar.
+     * Not thread-safe, but single-thread on csVar.
      * @param csVar variable whose points-to set changes
      * @param pts set of new objects
      */
@@ -60,7 +60,7 @@ public interface AnalysisMonitor {
 
     /**
      * Invoked when new reachable method is discovered.
-     * Multi-thread, but single-thread on method.
+     * Not thread-safe, but single-thread on method.
      * @param method new reachable method
      */
     default void signalNewMethod(Method method) {
@@ -68,7 +68,7 @@ public interface AnalysisMonitor {
 
     /**
      * Invoked when new reachable context-sensitive method is discovered.
-     * Multi-thread, but single-thread on csMethod.
+     * Not thread-safe, but single-thread on csMethod.
      * @param csMethod new reachable context-sensitive method
      */
     default void signalNewCSMethod(CSMethod csMethod) {

@@ -161,9 +161,14 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     public void addPointsTo(Context context, Variable var,
                             Context heapContext, Obj obj) {
         // TODO: use heapModel to process obj?
-        CSVariable csVar = csManager.getCSVariable(context, var);
         CSObj csObj = csManager.getCSObj(heapContext, obj);
-        addPointerEntry(csVar, setFactory.makePointsToSet(csObj));
+        addPointsTo(context, var, setFactory.makePointsToSet(csObj));
+    }
+
+    @Override
+    public void addPointsTo(Context context, Variable var, PointsToSet pts) {
+        CSVariable csVar = csManager.getCSVariable(context, var);
+        addPointerEntry(csVar, pts);
     }
 
     /**

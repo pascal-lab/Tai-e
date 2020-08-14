@@ -26,6 +26,7 @@ import bamboo.pta.core.cs.InstanceField;
 import bamboo.pta.core.cs.StaticField;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
+import bamboo.pta.set.PointsToSet;
 
 import java.util.stream.Stream;
 
@@ -43,12 +44,14 @@ public interface PointerAnalysis {
 
     /**
      * Add a context-sensitive points-to relation.
-     * @param context
-     * @param var
+     * @param context context of the method which contains the variable
+     * @param var the variable
      * @param heapContext
      * @param obj
      */
     void addPointsTo(Context context, Variable var, Context heapContext, Obj obj);
+
+    void addPointsTo(Context context, Variable var, PointsToSet pts);
 
     /**
      * @return all variables in the (reachable) program.
