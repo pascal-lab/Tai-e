@@ -37,7 +37,7 @@ class StringConstant extends AbstractObj {
     }
 
     @Override
-    public Object getAllocation() {
+    public String getAllocation() {
         return value;
     }
 

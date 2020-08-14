@@ -23,11 +23,11 @@ import java.util.Optional;
 
 public class JimpleObj extends AbstractObj {
 
-    private final Object allocation;
+    private final AssignStmt allocation;
 
     private final JimpleMethod containerMethod;
 
-    JimpleObj(Object allocation, JimpleType type, JimpleMethod containerMethod) {
+    JimpleObj(AssignStmt allocation, JimpleType type, JimpleMethod containerMethod) {
         super(type);
         this.allocation = allocation;
         this.containerMethod = containerMethod;
@@ -39,7 +39,7 @@ public class JimpleObj extends AbstractObj {
     }
 
     @Override
-    public Object getAllocation() {
+    public AssignStmt getAllocation() {
         return allocation;
     }
 

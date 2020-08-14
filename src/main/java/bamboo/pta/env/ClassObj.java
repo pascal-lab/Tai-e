@@ -37,7 +37,7 @@ public class ClassObj extends AbstractObj {
     }
 
     @Override
-    public Object getAllocation() {
+    public Type getAllocation() {
         return klass;
     }
 

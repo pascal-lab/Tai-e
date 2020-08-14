@@ -57,7 +57,7 @@ class MergedObj extends AbstractObj {
     }
 
     @Override
-    public Object getAllocation() {
+    public Set<Obj> getAllocation() {
         return representedObjs;
     }
 

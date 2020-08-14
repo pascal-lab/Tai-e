@@ -43,7 +43,7 @@ public class EnvObj extends AbstractObj {
     }
 
     @Override
-    public Object getAllocation() {
+    public String getAllocation() {
         return name;
     }
 
