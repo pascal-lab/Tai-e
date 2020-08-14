@@ -33,6 +33,12 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         this.csManager = csManager;
     }
 
+    @Override
+    public void addEntryMethod(CSMethod entryMethod) {
+        entryMethods.add(entryMethod);
+        // Let pointer analysis explicitly call addNewMethod() of this class
+    }
+
     boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
         return CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge) ||
                 CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);

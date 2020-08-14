@@ -46,6 +46,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     public void addEntryMethod(Method entryMethod) {
         entryMethods.add(entryMethod);
+        addNewMethod(entryMethod);
     }
 
     public boolean addEdge(CallSite callSite, Method callee, CallKind kind) {
