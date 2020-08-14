@@ -15,8 +15,6 @@ package bamboo.pta.monitor;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.context.Context;
-import bamboo.pta.core.context.ContextSelector;
-import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSObj;
 import bamboo.pta.core.cs.CSVariable;
@@ -26,7 +24,6 @@ import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
 import bamboo.pta.set.PointsToSet;
-import bamboo.pta.set.PointsToSetFactory;
 
 import java.util.Set;
 
@@ -63,63 +60,46 @@ public class ThreadHandler implements AnalysisMonitor {
     @Override
     public void signalInitialization() {
         Environment env = pm.getEnvironment();
-        CSManager csManager = pta.getCSManager();
-        PointsToSetFactory setFactory = pta.getPointsToSetFactory();
         Context context = pta.getContextSelector().getDefaultContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = env.getSystemThreadGroup();
-        CSObj csSystemThreadGroup = csManager.getCSObj(context, systemThreadGroup);
         Method threadGroupInit = pm.getUniqueMethodBySignature(
                 "<java.lang.ThreadGroup: void <init>()>");
         Variable initThis = threadGroupInit.getThis();
-        CSVariable csInitThis = csManager.getCSVariable(context, initThis);
-        pta.addPointerEntry(csInitThis,
-                setFactory.makePointsToSet(csSystemThreadGroup));
+        pta.addPointsTo(context, initThis, context, systemThreadGroup);
 
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThreadGroup = env.getMainThreadGroup();
-        CSObj csMainThreadGroup = csManager.getCSObj(context, mainThreadGroup);
         threadGroupInit = pm.getUniqueMethodBySignature(
                 "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>");
         initThis = threadGroupInit.getThis();
-        csInitThis = csManager.getCSVariable(context, initThis);
-        pta.addPointerEntry(csInitThis,
-                setFactory.makePointsToSet(csMainThreadGroup));
+        pta.addPointsTo(context, initThis, context, mainThreadGroup);
         // propagate <system-thread-group> to param0
         Variable param0 = threadGroupInit.getParam(0).get();
-        CSVariable csParam0 = csManager.getCSVariable(context, param0);
-        pta.addPointerEntry(csParam0,
-                setFactory.makePointsToSet(csSystemThreadGroup));
+        pta.addPointsTo(context, param0, context, systemThreadGroup);
         // propagate "main" to param1
         Variable param1 = threadGroupInit.getParam(1).get();
-        CSVariable csParam1 = csManager.getCSVariable(context, param1);
         Obj main = env.getStringConstant("main");
-        CSObj csMain = csManager.getCSObj(context, main);
-        pta.addPointerEntry(csParam1, setFactory.makePointsToSet(csMain));
+        pta.addPointsTo(context, param1, context, main);
 
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = env.getMainThread();
-        CSObj csMainThread = csManager.getCSObj(context, mainThread);
         Method threadInit = pm.getUniqueMethodBySignature(
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>");
         initThis = threadInit.getThis();
-        csInitThis = csManager.getCSVariable(context, initThis);
-        pta.addPointerEntry(csInitThis, setFactory.makePointsToSet(csMainThread));
+        pta.addPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
         param0 = threadInit.getParam(0).get();
-        csParam0 = csManager.getCSVariable(context, param0);
-        pta.addPointerEntry(csParam0,
-                setFactory.makePointsToSet(csMainThreadGroup));
+        pta.addPointsTo(context, param0, context, mainThreadGroup);
         // propagate "main" to param1
         param1 = threadInit.getParam(1).get();
-        csParam1 = csManager.getCSVariable(context, param1);
-        pta.addPointerEntry(csParam1, setFactory.makePointsToSet(csMain));
+        pta.addPointsTo(context, param1, context, main);
     }
 
     @Override

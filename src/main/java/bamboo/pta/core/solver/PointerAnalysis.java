@@ -15,6 +15,7 @@ package bamboo.pta.core.solver;
 
 import bamboo.callgraph.CallGraph;
 import bamboo.pta.core.ProgramManager;
+import bamboo.pta.core.context.Context;
 import bamboo.pta.core.context.ContextSelector;
 import bamboo.pta.core.cs.ArrayIndex;
 import bamboo.pta.core.cs.CSCallSite;
@@ -22,10 +23,9 @@ import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.cs.InstanceField;
-import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.core.cs.StaticField;
-import bamboo.pta.set.PointsToSet;
-import bamboo.pta.set.PointsToSetFactory;
+import bamboo.pta.element.Obj;
+import bamboo.pta.element.Variable;
 
 import java.util.stream.Stream;
 
@@ -37,18 +37,18 @@ public interface PointerAnalysis {
 
     ContextSelector getContextSelector();
 
-    PointsToSetFactory getPointsToSetFactory();
-
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
     void analyze();
 
     /**
-     * Add <pointer, pointsToSet> entry to work list.
-     * @param pointer
-     * @param pointsToSet
+     * Add a context-sensitive points-to relation.
+     * @param context
+     * @param var
+     * @param heapContext
+     * @param obj
      */
-    void addPointerEntry(Pointer pointer, PointsToSet pointsToSet);
+    void addPointsTo(Context context, Variable var, Context heapContext, Obj obj);
 
     /**
      * @return all variables in the (reachable) program.

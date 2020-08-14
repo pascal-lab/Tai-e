@@ -123,11 +123,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public PointsToSetFactory getPointsToSetFactory() {
-        return setFactory;
-    }
-
-    @Override
     public CallGraph<CSCallSite, CSMethod> getCallGraph() {
         return callGraph;
     }
@@ -163,8 +158,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        workList.addPointerEntry(pointer, pointsToSet);
+    public void addPointsTo(Context context, Variable var,
+                            Context heapContext, Obj obj) {
+        // TODO: use heapModel to process obj?
+        CSVariable csVar = csManager.getCSVariable(context, var);
+        CSObj csObj = csManager.getCSObj(heapContext, obj);
+        addPointerEntry(csVar, setFactory.makePointsToSet(csObj));
     }
 
     /**
@@ -251,6 +250,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             }
         }
         return diff;
+    }
+
+    /**
+     * Add a <pointer, pointsToSet> entry to work-list.
+     */
+    private void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
+        workList.addPointerEntry(pointer, pointsToSet);
     }
 
     /**
@@ -563,10 +569,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // obtain context-sensitive heap object
             Obj obj = heapModel.getObj(alloc);
             Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            CSObj csObj = csManager.getCSObj(heapContext, obj);
-            // obtain lhs variable
-            CSVariable lhs = csManager.getCSVariable(context, alloc.getVar());
-            addPointerEntry(lhs, setFactory.makePointsToSet(csObj));
+            addPointsTo(context, alloc.getVar(), heapContext, obj);
         }
 
         @Override
