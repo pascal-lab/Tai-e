@@ -41,6 +41,6 @@ public interface FlowSet<E> extends Set<E> {
     /**
      * Set this FlowSet to the same as the given one.
      */
-    FlowSet<E> setTo(FlowSet<E> other);
+    void setTo(FlowSet<E> other);
 
 }

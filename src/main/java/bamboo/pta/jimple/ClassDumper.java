@@ -25,9 +25,9 @@ import java.lang.reflect.Method;
  */
 class ClassDumper {
 
-    private PackManager pm;
+    private final PackManager pm;
     // the method to dump class files
-    private Method writeClass;
+    private final Method writeClass;
 
     ClassDumper() {
         pm = PackManager.v();

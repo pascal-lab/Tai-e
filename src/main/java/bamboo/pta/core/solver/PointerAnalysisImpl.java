@@ -491,7 +491,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         /**
          * Set of classes that have been initialized.
          */
-        private Set<Type> initializedClasses = new HashSet<>();
+        private final Set<Type> initializedClasses = new HashSet<>();
 
         /**
          * Analyzes the initializer of given class.

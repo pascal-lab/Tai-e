@@ -45,7 +45,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
      */
     private PrintStream out = System.out;
 
-    private DecimalFormat formatter = new DecimalFormat("#,####");
+    private final DecimalFormat formatter = new DecimalFormat("#,####");
 
     private PointerAnalysisTransformer() {
     }
@@ -82,9 +82,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                     .stream()
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(System.out::println);
-            System.out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().getAllEdges().forEach(System.out::println);
-            printPointers(pta);
+//            System.out.println("---------- Call graph edges: ----------");
+//            pta.getCallGraph().getAllEdges().forEach(System.out::println);
+//            printPointers(pta);
             System.out.println("----------------------------------------");
         }
         printStatistics(pta, ptaTimer);

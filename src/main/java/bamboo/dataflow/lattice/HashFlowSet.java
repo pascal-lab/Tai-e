@@ -50,10 +50,9 @@ public class HashFlowSet<E> extends HashSet<E> implements FlowSet<E> {
     }
 
     @Override
-    public FlowSet<E> setTo(FlowSet<E> other) {
+    public void setTo(FlowSet<E> other) {
         clear();
         addAll(other);
-        return this;
     }
 
 }

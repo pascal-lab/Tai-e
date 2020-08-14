@@ -36,7 +36,9 @@ public class SootUtils {
      */
     public static String unitToString(LabeledUnitPrinter up, Unit unit) {
         StringBuilder sb = new StringBuilder();
-        sb.append("L" + unit.getJavaSourceStartLineNumber()).append("{");
+        sb.append("L")
+                .append(unit.getJavaSourceStartLineNumber())
+                .append("{");
         String label = up.labels().get(unit);
         if (label != null) {
             sb.append(label).append(": ");

@@ -23,9 +23,9 @@ import bamboo.util.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CallSite, Method> {
 
-    boolean addEdge(Edge<CallSite, Method> edge) {
-        return CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge) ||
-                CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
+    void addEdge(Edge<CallSite, Method> edge) {
+        CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge);
+        CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
     }
 
     boolean containsEdge(Edge<CallSite, Method> edge) {

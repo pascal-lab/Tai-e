@@ -21,7 +21,7 @@ import soot.Transform;
 import soot.options.Options;
 import soot.util.PhaseDumper;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class Main {
 
@@ -31,7 +31,7 @@ public class Main {
         Options.v().set_output_format(Options.output_format_jimple);
         Options.v().set_keep_line_number(true);
         Options.v().set_prepend_classpath(true);
-        Options.v().set_dump_cfg(Arrays.asList("jtp.deadcode"));
+        Options.v().set_dump_cfg(Collections.singletonList("jtp.deadcode"));
         PhaseDumper.v().dumpBefore("jtp.deadcode");
 
         // Configure transformer

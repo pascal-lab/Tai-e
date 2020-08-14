@@ -73,15 +73,10 @@ public class JimpleObj extends AbstractObj {
         if (containerMethod != null) {
             sb.append(containerMethod).append('/');
         }
-        if (allocation instanceof AssignStmt) {
-            AssignStmt alloc = (AssignStmt) allocation;
-            sb.append("new ")
-                    .append(type)
-                    .append('/')
-                    .append(alloc.getJavaSourceStartLineNumber());
-        } else {
-            sb.append(allocation);
-        }
+        sb.append("new ")
+                .append(type)
+                .append('/')
+                .append(allocation.getJavaSourceStartLineNumber());
         return sb.toString();
     }
 }

@@ -39,9 +39,9 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         // Let pointer analysis explicitly call addNewMethod() of this class
     }
 
-    boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
-        return CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge) ||
-                CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
+    void addEdge(Edge<CSCallSite, CSMethod> edge) {
+        CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge);
+        CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
     }
 
     boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {

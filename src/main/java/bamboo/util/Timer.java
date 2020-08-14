@@ -15,7 +15,7 @@ package bamboo.util;
 
 public class Timer {
 
-    private String name;
+    private final String name;
     private long elapsedTime = 0;
     private long startTime;
     private boolean inCounting = false;

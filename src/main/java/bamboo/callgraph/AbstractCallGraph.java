@@ -49,11 +49,11 @@ public abstract class AbstractCallGraph<CallSite, Method>
         addNewMethod(entryMethod);
     }
 
-    public boolean addEdge(CallSite callSite, Method callee, CallKind kind) {
+    public void addEdge(CallSite callSite, Method callee, CallKind kind) {
         addNewMethod(callee);
         Edge<CallSite, Method> edge = new Edge<>(kind, callSite, callee);
-        return CollectionUtils.addToMapSet(callSiteToEdges, callSite, edge) ||
-                CollectionUtils.addToMapSet(calleeToEdges, callee, edge);
+        CollectionUtils.addToMapSet(callSiteToEdges, callSite, edge);
+        CollectionUtils.addToMapSet(calleeToEdges, callee, edge);
     }
 
     /**
