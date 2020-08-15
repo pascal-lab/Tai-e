@@ -90,7 +90,6 @@ public class CallGraphPrinter extends BodyTransformer {
      * Converts a collection of callees (SootMethods) to a String in format:
      * [M1, M2, ...], where the calless are sorted by their signatures.
      *
-     * @param callees
      * @return the string representation of callees
      */
     public String calleesToString(Collection<SootMethod> callees) {

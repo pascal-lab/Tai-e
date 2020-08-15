@@ -62,9 +62,9 @@ class CallModel implements StatementVisitor {
     }
 
     private void initHandlers() {
-        /**********************************************************************
-         * java.lang.System
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.lang.System
+        // --------------------------------------------------------------------
         // <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
         registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
             Variable temp = newMockVariable(
@@ -77,9 +77,9 @@ class CallModel implements StatementVisitor {
             }
         });
 
-        /**********************************************************************
-         * java.lang.ref.Finalizer
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.lang.ref.Finalizer
+        // --------------------------------------------------------------------
         // <java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>
         //
         // Indirect invocations of finalize methods from java.lang.ref.Finalizer.
@@ -95,9 +95,9 @@ class CallModel implements StatementVisitor {
             });
         }
 
-        /**********************************************************************
-         * java.security.AccessController
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.security.AccessController
+        // --------------------------------------------------------------------
         // The run methods of privileged actions are invoked through the
         // AccessController.doPrivileged method. This introduces an
         // indirection via native code that needs to be simulated in a pointer

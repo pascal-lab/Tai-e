@@ -62,9 +62,9 @@ class MethodModel {
     }
 
     private void initHandlers() {
-        /**********************************************************************
-         * java.lang.Object
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.lang.Object
+        // --------------------------------------------------------------------
         // <java.lang.Object: java.lang.Object clone()>
         // TODO: could throw CloneNotSupportedException
         // TODO: should check if the object is Cloneable.
@@ -75,36 +75,36 @@ class MethodModel {
                     method.addStatement(new Assign(ret, method.getThis())))
         );
 
-        /**********************************************************************
-         * java.lang.System
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.lang.System
+        // --------------------------------------------------------------------
         // <java.lang.System: void setIn0(java.io.InputStream)>
         registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
             Field systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
-            Variable param0 = method.getParam(0).get();
-            method.addStatement(new StaticStore(systemIn, param0));
+            method.getParam(0).ifPresent(param0 ->
+                    method.addStatement(new StaticStore(systemIn, param0)));
         });
 
         // <java.lang.System: void setOut0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
             Field systemOut = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream out>");
-            Variable param0 = method.getParam(0).get();
-            method.addStatement(new StaticStore(systemOut, param0));
+            method.getParam(0).ifPresent(param0 ->
+                    method.addStatement(new StaticStore(systemOut, param0)));
         });
 
         // <java.lang.System: void setErr0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
             Field systemErr = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream err>");
-            Variable param0 = method.getParam(0).get();
-            method.addStatement(new StaticStore(systemErr, param0));
+            method.getParam(0).ifPresent(param0 ->
+                    method.addStatement(new StaticStore(systemErr, param0)));
         });
 
-        /**********************************************************************
-         * java.lang.Thread
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.lang.Thread
+        // --------------------------------------------------------------------
         // <java.lang.Thread: void start[0]()>
         // Redirect calls to Thread.start() to Thread.run().
         // Before Java 5, Thread.start() itself is native. Since Java 5,
@@ -122,9 +122,9 @@ class MethodModel {
             method.addStatement(runCall);
         });
 
-        /**********************************************************************
-         * java.io.FileSystem
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // java.io.FileSystem
+        // --------------------------------------------------------------------
         final List<String> concreteFileSystems = Arrays.asList(
                 "java.io.UnixFileSystem",
                 "java.io.WinNTFileSystem",
@@ -162,9 +162,9 @@ class MethodModel {
             });
         });
 
-        /**********************************************************************
-         * sun.misc.Perf
-         *********************************************************************/
+        // --------------------------------------------------------------------
+        // sun.misc.Perf
+        // --------------------------------------------------------------------
         // <sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>
         registerHandler("<sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>", method -> {
             method.getReturnVariables().forEach(ret -> {

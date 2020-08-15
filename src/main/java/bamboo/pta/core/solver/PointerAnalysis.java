@@ -46,8 +46,8 @@ public interface PointerAnalysis {
      * Add a context-sensitive points-to relation.
      * @param context context of the method which contains the variable
      * @param var the variable
-     * @param heapContext
-     * @param obj
+     * @param heapContext heap context for the object
+     * @param obj the object to be added
      */
     void addPointsTo(Context context, Variable var, Context heapContext, Obj obj);
 

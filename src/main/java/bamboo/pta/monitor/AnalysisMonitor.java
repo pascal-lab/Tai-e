@@ -30,7 +30,6 @@ public interface AnalysisMonitor {
 
     /**
      * Set pointer analysis interface which will be used later by the monitor.
-     * @param pta
      */
     default void setPointerAnalysis(PointerAnalysis pta) {
     }

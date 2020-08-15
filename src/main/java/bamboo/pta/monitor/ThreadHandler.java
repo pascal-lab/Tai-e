@@ -16,7 +16,6 @@ package bamboo.pta.monitor;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.context.Context;
 import bamboo.pta.core.cs.CSMethod;
-import bamboo.pta.core.cs.CSObj;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.Method;
