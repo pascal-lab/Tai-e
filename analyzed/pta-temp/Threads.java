@@ -21,6 +21,7 @@ class Threads {
             }
         });
         t.start();
+        Thread t2 = Thread.currentThread();
     }
 
     static void foo() {
