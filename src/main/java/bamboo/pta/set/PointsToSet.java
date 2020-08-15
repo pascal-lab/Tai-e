@@ -15,11 +15,16 @@ package bamboo.pta.set;
 
 import bamboo.pta.core.cs.CSObj;
 
+import java.util.Collection;
 import java.util.stream.Stream;
 
 public interface PointsToSet extends Iterable<CSObj> {
 
     boolean addObject(CSObj obj);
+
+    boolean addAll(PointsToSet pts);
+
+    Collection<CSObj> getObjects();
 
     boolean isEmpty();
 

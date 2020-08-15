@@ -15,6 +15,7 @@ package bamboo.pta.set;
 
 import bamboo.pta.core.cs.CSObj;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -35,6 +36,16 @@ abstract class DelegatePointsToSet implements PointsToSet {
     @Override
     public boolean addObject(CSObj obj) {
         return set.add(obj);
+    }
+
+    @Override
+    public boolean addAll(PointsToSet pts) {
+        return set.addAll(pts.getObjects());
+    }
+
+    @Override
+    public Collection<CSObj> getObjects() {
+        return set;
     }
 
     @Override
