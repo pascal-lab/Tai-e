@@ -13,6 +13,7 @@
 
 package bamboo.pta.monitor;
 
+import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.Method;
@@ -56,5 +57,10 @@ public class CompositeMonitor implements AnalysisMonitor {
     @Override
     public void signalNewMethod(Method method) {
         monitors.forEach(m -> m.signalNewMethod(method));
+    }
+
+    @Override
+    public void signalNewCSMethod(CSMethod csMethod) {
+        monitors.forEach(m -> m.signalNewCSMethod(csMethod));
     }
 }
