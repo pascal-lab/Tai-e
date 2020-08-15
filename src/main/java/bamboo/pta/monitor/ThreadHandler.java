@@ -23,8 +23,10 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
+import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -41,17 +43,21 @@ public class ThreadHandler implements AnalysisMonitor {
      */
     private Variable threadStartThis;
     /**
+     * Set of running threads.
+     */
+    private final PointsToSet runningThreads = new HybridPointsToSet();
+    /**
+     * Represent Thread.currentThread.
+     */
+    private Method currentThread;
+    /**
      * Return variable of Thread.currentThread().
      */
     private Variable currentThreadReturn;
     /**
-     * Set of running threads.
-     */
-    private Set<CSObj> runningThreads;
-    /**
      * Contexts of Thread.currentThread().
      */
-    private Set<Context> currentThreadContexts;
+    private final Set<Context> currentThreadContexts = new HashSet<>();
 
     @Override
     public void setPointerAnalysis(PointerAnalysis pta) {
@@ -59,7 +65,7 @@ public class ThreadHandler implements AnalysisMonitor {
         pm = pta.getProgramManager();
         threadStartThis = pm.getUniqueMethodBySignature(
                 "<java.lang.Thread: void start()>").getThis();
-        Method currentThread = pm.getUniqueMethodBySignature(
+        currentThread = pm.getUniqueMethodBySignature(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
         currentThreadReturn = currentThread.getReturnVariables()
                 .iterator()
@@ -88,12 +94,12 @@ public class ThreadHandler implements AnalysisMonitor {
         initThis = threadGroupInit.getThis();
         pta.addPointsTo(context, initThis, context, mainThreadGroup);
         // propagate <system-thread-group> to param0
-        Variable param0 = threadGroupInit.getParam(0).get();
-        pta.addPointsTo(context, param0, context, systemThreadGroup);
+        threadGroupInit.getParam(0).ifPresent(param0 ->
+                pta.addPointsTo(context, param0, context, systemThreadGroup));
         // propagate "main" to param1
-        Variable param1 = threadGroupInit.getParam(1).get();
         Obj main = env.getStringConstant("main");
-        pta.addPointsTo(context, param1, context, main);
+        threadGroupInit.getParam(1).ifPresent(param1 ->
+                pta.addPointsTo(context, param1, context, main));
 
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
@@ -104,22 +110,52 @@ public class ThreadHandler implements AnalysisMonitor {
         initThis = threadInit.getThis();
         pta.addPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
-        param0 = threadInit.getParam(0).get();
-        pta.addPointsTo(context, param0, context, mainThreadGroup);
+        threadInit.getParam(0).ifPresent(param0 ->
+                pta.addPointsTo(context, param0, context, mainThreadGroup));
         // propagate "main" to param1
-        param1 = threadInit.getParam(1).get();
-        pta.addPointsTo(context, param1, context, main);
+        threadInit.getParam(1).ifPresent(param1 ->
+                pta.addPointsTo(context, param1, context, main));
+
+        // The main thread is never explicitly started, which would make it a
+        // RunningThread. Therefore, we make it a running thread explicitly.
+        runningThreads.addObject(
+                pta.getCSManager().getCSObj(context, mainThread));
     }
 
     @Override
     public void signalNewPointsToSet(CSVariable csVar, PointsToSet pts) {
-        // propagate thread objects to return value of Thread.currentThread()
         if (csVar.getVariable().equals(threadStartThis)) {
+            // Add new reachable thread objects to set of running threads,
+            // and propagate the thread objects to return variable of
+            // Thread.currentThread().
+            // Since multiple threads may execute this method and
+            // this.signalNewCSMethod(), we need to synchronize reads/writes
+            // on runningThreads and currentThreadContexts, so we put these
+            // operations in synchronized block.
+            // Note that this *only* blocks when Thread.start()/@this change,
+            // which is rare, thur, it should not affect concurrency much.
+            synchronized (this) {
+                if (runningThreads.addAll(pts)) {
+                    currentThreadContexts.forEach(context ->
+                            pta.addPointsTo(context, currentThreadReturn, pts));
+                }
+            }
         }
     }
 
     @Override
     public void signalNewCSMethod(CSMethod csMethod) {
-        // add return variable os Thread.currentThread()
+        if (csMethod.getMethod().equals(currentThread)) {
+            // When a new CS Thread.currentThread() is reachable, we propagate
+            // all running threads to its return variable.
+            // Ideally, we should only return the real *current* thread object,
+            // which may require complicated thread analysis. So currently,
+            // we just return all running threads for soundness.
+            synchronized (this) {
+                Context context = csMethod.getContext();
+                currentThreadContexts.add(context);
+                pta.addPointsTo(context, currentThreadReturn, runningThreads);
+            }
+        }
     }
 }
