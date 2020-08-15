@@ -76,6 +76,12 @@ public class EnvObj extends AbstractObj {
 
     @Override
     public String toString() {
-        return String.format("[Env]%s/%s", containerMethod, name);
+        StringBuilder sb = new StringBuilder();
+        sb.append("[Env]");
+        if (containerMethod != null) {
+            sb.append(containerMethod);
+        }
+        sb.append(name);
+        return sb.toString();
     }
 }
