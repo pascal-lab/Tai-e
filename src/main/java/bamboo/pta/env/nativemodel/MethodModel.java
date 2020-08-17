@@ -76,6 +76,22 @@ class MethodModel {
         );
 
         // --------------------------------------------------------------------
+        // java.lang.ref.Reference
+        // --------------------------------------------------------------------
+        // The *garbage collector* assigns every reference to Reference.pending.
+        // So basically Reference.pending can point to every reference. The
+        // ReferenceHandler takes care of enqueueing the references in a
+        // reference queue. If we do not model this GC behavior,
+        // Reference.pending points to nothing, and finalize() methods won't
+        // get invoked.
+        registerHandler("<java.lang.ref.Reference: void <init>(java.lang.Object,java.lang.ref.ReferenceQueue)>", method -> {
+            Variable thisVar = method.getThis();
+            Field pending = pm.getUniqueFieldBySignature(
+                    "<java.lang.ref.Reference: java.lang.ref.Reference pending>");
+            method.addStatement(new StaticStore(pending, thisVar));
+        });
+
+        // --------------------------------------------------------------------
         // java.lang.System
         // --------------------------------------------------------------------
         // <java.lang.System: void setIn0(java.io.InputStream)>

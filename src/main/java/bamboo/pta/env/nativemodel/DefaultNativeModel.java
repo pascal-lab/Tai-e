@@ -37,15 +37,12 @@ class DefaultNativeModel implements NativeModel {
 
     @Override
     public void process(Method method) {
-        if (method.isNative()) {
-            methodModel.process(method);
-        } else {
-            Statement[] statements = method.getStatements()
-                    .toArray(new Statement[0]);
-            for (Statement s : statements) {
-                s.accept(callModel);
-                s.accept(finalizerModel);
-            }
+        methodModel.process(method);
+        Statement[] statements = method.getStatements()
+                .toArray(new Statement[0]);
+        for (Statement s : statements) {
+            s.accept(callModel);
+            s.accept(finalizerModel);
         }
     }
 }
