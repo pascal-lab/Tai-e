@@ -171,6 +171,15 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         addPointerEntry(csVar, pts);
     }
 
+    @Override
+    public void addPointsTo(Context arrayContext, Obj array,
+                            Context heapContext, Obj obj) {
+        CSObj csArray = csManager.getCSObj(arrayContext, array);
+        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
+        CSObj elem = csManager.getCSObj(heapContext, obj);
+        addPointerEntry(arrayIndex, setFactory.makePointsToSet(elem));
+    }
+
     /**
      * Initializes pointer analysis.
      */
@@ -191,16 +200,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             processNewCSMethod(csMethod);
         }
         // setup main arguments
-        Method main = programManager.getMainMethod();
         Obj args = programManager.getEnvironment().getMainArgs();
         Obj argsElem = programManager.getEnvironment().getMainArgsElem();
-        CSObj csArgs =  csManager.getCSObj(defContext, args);
-        CSObj csArgsElem = csManager.getCSObj(defContext, argsElem);
-        ArrayIndex argsIndex = csManager.getArrayIndex(csArgs);
-        addPointerEntry(argsIndex, setFactory.makePointsToSet(csArgsElem));
+        addPointsTo(defContext, args, defContext, argsElem);
+        Method main = programManager.getMainMethod();
         main.getParam(0).ifPresent(param0 ->
-                addPointsTo(defContext, param0,
-                        setFactory.makePointsToSet(csArgs)));
+                addPointsTo(defContext, param0, defContext, args));
+        // signal monitor
         monitor.signalInitialization();
     }
 

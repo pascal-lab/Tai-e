@@ -65,8 +65,8 @@ public class EnvObj extends AbstractObj {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EnvObj envObj = (EnvObj) o;
-        return name.equals(envObj.name) &&
-                containerMethod.equals(envObj.containerMethod);
+        return name.equals(envObj.name)
+                && Objects.equals(containerMethod, envObj.containerMethod);
     }
 
     @Override
