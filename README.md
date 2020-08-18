@@ -7,8 +7,8 @@ Build an efficient, feature-rich, extensible, configurable and maintainable poin
 * [x] Core pointer analysis
 * [x] Context sensitivity
 * [x] Heap sensitivity
-* [ ] Heap abstraction
-* [ ] Native code
+* [x] Heap abstraction
+* [x] Native code
 * [ ] Dynamic class loading
 * [ ] Reflection analysis
 * [ ] invokedynamic and MethodHandle
@@ -24,5 +24,5 @@ Build an efficient, feature-rich, extensible, configurable and maintainable poin
 
 ### Dependencies
 * Soot (Java analysis framework, used as frontend)
-* picoli (command line interface)
+* picocli (command line interface)
 * JUnit (testing framework)
