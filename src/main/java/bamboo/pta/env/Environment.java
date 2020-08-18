@@ -31,6 +31,8 @@ public class Environment {
     private Obj mainThread;
     private Obj systemThreadGroup;
     private Obj mainThreadGroup;
+    private Obj mainArgs; // main(String[] args)
+    private Obj mainArgsElem; // Element in args
 
     /**
      * Setup Environment object using given ProgramManager.
@@ -52,6 +54,12 @@ public class Environment {
                 pm.getUniqueTypeByName("java.lang.ThreadGroup"), null);
         mainThreadGroup = new EnvObj("<main-thread-group>",
                 pm.getUniqueTypeByName("java.lang.ThreadGroup"), null);
+        mainArgs = new EnvObj("<main-arguments>",
+                pm.getUniqueTypeByName("java.lang.String[]"),
+                pm.getMainMethod());
+        mainArgsElem = new EnvObj("<main-arguments-element>",
+                pm.getUniqueTypeByName("java.lang.String"),
+                pm.getMainMethod());
     }
 
     public Obj getStringConstant(String constant) {
@@ -72,6 +80,14 @@ public class Environment {
 
     public Obj getMainThreadGroup() {
         return mainThreadGroup;
+    }
+
+    public Obj getMainArgs() {
+        return mainArgs;
+    }
+
+    public Obj getMainArgsElem() {
+        return mainArgsElem;
     }
 
     public void processNativeCode(Method method) {

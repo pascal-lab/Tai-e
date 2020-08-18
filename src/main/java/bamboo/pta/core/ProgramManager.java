@@ -39,9 +39,9 @@ public interface ProgramManager {
 
     /**
      * Returns the type specified by the given type name.
-     * This method is supposed to be used when the caller is
+     * This API is supposed to be used when the caller is
      * confident that type with the given name is unique.
-     * Ideally, this method should only be used to retrieve
+     * Ideally, this API should only be used to retrieve
      * system classes, i.e., java.*.
      * TODO: make return value optional?
      */
@@ -55,9 +55,9 @@ public interface ProgramManager {
 
     /**
      * Returns the field specified by the given field signature.
-     * This method is supposed to be used when the caller is
+     * This API is supposed to be used when the caller is
      * confident that field with the given signature is unique.
-     * Ideally, this method should only be used to retrieve
+     * Ideally, this API should only be used to retrieve
      * the fields in system classes, i.e., java.*.
      * TODO: make return value optional?
      */
@@ -65,9 +65,9 @@ public interface ProgramManager {
 
     /**
      * Returns the method specified by the given method signature.
-     * This method is supposed to be used when the caller is
-     * confident that field with the given signature is unique.
-     * Ideally, this method should only be used to retrieve
+     * This API is supposed to be used when the caller is
+     * confident that method with the given signature is unique.
+     * Ideally, this API should only be used to retrieve
      * the methods in system classes, i.e., java.*.
      * TODO: make return value optional?
      */

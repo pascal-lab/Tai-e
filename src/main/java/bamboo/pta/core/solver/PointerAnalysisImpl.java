@@ -181,14 +181,26 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         reachableMethods = new HashSet<>();
         classInitializer = new ClassInitializer();
 
+        // process program entries (including implicit entries)
+        Context defContext = contextSelector.getDefaultContext();
         for (Method entry : computeEntries()) {
             // initialize class type of entry methods
             classInitializer.initializeClass(entry.getClassType());
-            CSMethod csMethod = csManager.getCSMethod(
-                    contextSelector.getDefaultContext(), entry);
+            CSMethod csMethod = csManager.getCSMethod(defContext, entry);
             callGraph.addEntryMethod(csMethod);
             processNewCSMethod(csMethod);
         }
+        // setup main arguments
+        Method main = programManager.getMainMethod();
+        Obj args = programManager.getEnvironment().getMainArgs();
+        Obj argsElem = programManager.getEnvironment().getMainArgsElem();
+        CSObj csArgs =  csManager.getCSObj(defContext, args);
+        CSObj csArgsElem = csManager.getCSObj(defContext, argsElem);
+        ArrayIndex argsIndex = csManager.getArrayIndex(csArgs);
+        addPointerEntry(argsIndex, setFactory.makePointsToSet(csArgsElem));
+        main.getParam(0).ifPresent(param0 ->
+                addPointsTo(defContext, param0,
+                        setFactory.makePointsToSet(csArgs)));
         monitor.signalInitialization();
     }
 
