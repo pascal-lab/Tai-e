@@ -24,11 +24,15 @@ import soot.ArrayType;
 import soot.FastHierarchy;
 import soot.RefType;
 import soot.Scene;
+import soot.SootClass;
 import soot.SootMethod;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -67,8 +71,12 @@ public class JimpleProgramManager implements ProgramManager {
     public static void initSoot(Scene scene) {
         // The following line is necessary to avoid a runtime exception
         // when running soot with java 1.8
-        scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+        scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);
+        scene.addBasicClass("java.lang.annotation.Inherited", HIERARCHY);
         scene.addBasicClass("javax.crypto.spec.IvParameterSpec", HIERARCHY);
+        scene.addBasicClass("javax.sound.sampled.Port", HIERARCHY);
+        scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+
         // TODO: avoid adding non-exist basic classes. This requires to
         //  check class path before adding these classes.
         // For simulating the FileSystem class, we need the implementation
@@ -99,6 +107,28 @@ public class JimpleProgramManager implements ProgramManager {
                 .map(scene::getMethod)
                 .map(irBuilder::getMethod)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Method> getAllMethods() {
+        Map<SootMethod, Method> methods = new HashMap<>(8192);
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            List<SootClass> classes = new ArrayList<>(scene.getClasses());
+            for (SootClass c : classes) {
+                for (SootMethod m : c.getMethods()) {
+                    if (!m.isConcrete() || m.isPhantom()
+                            || methods.containsKey(m)) {
+                        continue;
+                    } else if (m.isConcrete() || m.isNative()) {
+                        methods.put(m, irBuilder.getMethod(m));
+                        changed = true;
+                    }
+                }
+            }
+        }
+        return methods.values();
     }
 
     @Override

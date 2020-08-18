@@ -50,6 +50,7 @@ import bamboo.pta.statement.StatementVisitor;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
+import bamboo.util.Timer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -153,7 +154,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     @Override
     public void analyze() {
         initialize();
+        Timer solverTimer = new Timer("Pointer analysis solver");
+        solverTimer.start();
         solve();
+        solverTimer.stop();
+        System.out.println(solverTimer);
         monitor.signalFinish();
     }
 
@@ -189,6 +194,15 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         workList = new WorkList();
         reachableMethods = new HashSet<>();
         classInitializer = new ClassInitializer();
+
+        if (Options.get().isPreBuildIR()) {
+            Timer timer = new Timer("Pre-build IR");
+            timer.start();
+            Collection<Method> methods = programManager.getAllMethods();
+            timer.stop();
+            System.out.println(timer);
+            System.out.println("#methods: " + methods.size());
+        }
 
         // process program entries (including implicit entries)
         Context defContext = contextSelector.getDefaultContext();

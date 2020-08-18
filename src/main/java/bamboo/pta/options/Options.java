@@ -38,14 +38,23 @@ public class Options {
             defaultValue = "false", usageHelp = true)
     boolean help;
 
+    // ---------- pre-processing options ----------
+    @Option(names = "--pre-build-ir",
+            description = "Build Bamboo IR for all available methods before" +
+                    " starting pointer analysis (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
+    private boolean preBuildIR;
+
     // ---------- pointer analysis options ----------
     @Option(names = "-jdk",
-            description = "JDK version of the standard library being analyzed (default: ${DEFAULT-VALUE})",
+            description = "JDK version of the standard library being analyzed" +
+                    " (default: ${DEFAULT-VALUE})",
             defaultValue = "0")
     private int jdkVersion;
 
     @Option(names = "--no-implicit-entries",
-            description = "Analyze implicit reachable entry methods (default: ${DEFAULT-VALUE})",
+            description = "Analyze implicit reachable entry methods" +
+                    " (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
     private boolean implicitEntries;
 
@@ -55,7 +64,8 @@ public class Options {
     private boolean nativeModel;
 
     @Option(names = {"-cs", "--context-sensitivity"},
-            description = "Context sensitivity for pointer analysis (default: ${DEFAULT-VALUE})",
+            description = "Context sensitivity for pointer analysis" +
+                    " (default: ${DEFAULT-VALUE})",
             defaultValue = "ci")
     private String contextSensitivity;
 
@@ -70,7 +80,8 @@ public class Options {
     private boolean mergeStringObjects;
 
     @Option(names = "--no-merge-string-builders",
-            description = "Merge string builders and buffers (default: ${DEFAULT-VALUE})",
+            description = "Merge string builders and buffers" +
+                    " (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
     private boolean mergeStringBuilders;
 
@@ -125,6 +136,10 @@ public class Options {
 
     public boolean shouldShowVersion() {
         return version;
+    }
+
+    public boolean isPreBuildIR() {
+        return preBuildIR;
     }
 
     public int jdkVersion() {

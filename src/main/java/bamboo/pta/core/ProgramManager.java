@@ -28,6 +28,11 @@ public interface ProgramManager {
 
     Collection<Method> getImplicitEntries();
 
+    /**
+     * @return all available methods.
+     */
+    Collection<Method> getAllMethods();
+
     Environment getEnvironment();
 
     // -------------- type system ----------------
