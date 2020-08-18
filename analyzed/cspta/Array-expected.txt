@@ -4,6 +4,7 @@
 []:<Array: void arrayStore(java.lang.Object[],java.lang.Object)>/o -> {[]:<Array: void main(java.lang.String[])>/new A/10}
 []:<Array: void arrayStore(java.lang.Object[],java.lang.Object)>/temp$0 -> {[]:<Array: void main(java.lang.String[])>/new B[]/9}
 []:<Array: void main(java.lang.String[])>/a -> {[]:<Array: void main(java.lang.String[])>/new A/5,[]:<Array: void main(java.lang.String[])>/new A/6}
+[]:<Array: void main(java.lang.String[])>/args -> {[]:[Env]<Array: void main(java.lang.String[])>/<main-arguments>}
 []:<Array: void main(java.lang.String[])>/arr -> {[]:<Array: void main(java.lang.String[])>/new A[]/4}
 []:<Array: void main(java.lang.String[])>/barr -> {[]:<Array: void main(java.lang.String[])>/new B[]/9}
 []:<Array: void main(java.lang.String[])>/o -> {}
@@ -20,4 +21,5 @@
 ---------- Points-to sets of all array indexes: ----------
 []:<Array: void main(java.lang.String[])>/new A[]/4 -> {[]:<Array: void main(java.lang.String[])>/new A/5,[]:<Array: void main(java.lang.String[])>/new A/6}
 []:<Array: void main(java.lang.String[])>/new B[]/9 -> {}
+[]:[Env]<Array: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Array: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

@@ -27,8 +27,10 @@
 []:<OneObject: void m()>/temp$3 -> {[]:<OneObject: void m()>/new B/10}
 []:<OneObject: void m()>/temp$4 -> {[]:<OneObject: void m()>/new B/9}
 []:<OneObject: void m()>/x -> {[]:<OneObject: void m()>/new B/9}
+[]:<OneObject: void main(java.lang.String[])>/args -> {[]:[Env]<OneObject: void main(java.lang.String[])>/<main-arguments>}
 ---------- Points-to sets of all instance fields: ----------
 []:<OneObject: void m()>/new A/7.f -> {[]:<OneObject: void m()>/new B/9}
 []:<OneObject: void m()>/new A/8.f -> {[]:<OneObject: void m()>/new B/10}
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<OneObject: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<OneObject: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

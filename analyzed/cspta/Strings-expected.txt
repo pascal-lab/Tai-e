@@ -2,6 +2,7 @@
 []:<A: void <init>()>/this -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
 []:<Strings: java.lang.String id(java.lang.String)>/s -> {[]:"aaa"}
 []:<Strings: void main(java.lang.String[])>/a -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
+[]:<Strings: void main(java.lang.String[])>/args -> {[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments>}
 []:<Strings: void main(java.lang.String[])>/arr -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
 []:<Strings: void main(java.lang.String[])>/constant$1 -> {[]:"aaa"}
 []:<Strings: void main(java.lang.String[])>/s1 -> {[]:"aaa"}
@@ -24,6 +25,7 @@
 []:<Strings: void main(java.lang.String[])>/new A/6.f -> {[]:"bbb"}
 ---------- Points-to sets of all array indexes: ----------
 []:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13 -> {[]:"ddd"}
+[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------
 <A: java.lang.String sf> -> {[]:"ccc"}
 <java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}

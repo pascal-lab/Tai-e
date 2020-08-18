@@ -3,10 +3,12 @@
 []:<Null: A returnNull()>/temp$0 -> {}
 []:<Null: void foo(A,A)>/a1 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
 []:<Null: void main(java.lang.String[])>/a -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<Null: void main(java.lang.String[])>/args -> {[]:[Env]<Null: void main(java.lang.String[])>/<main-arguments>}
 []:<Null: void main(java.lang.String[])>/temp$0 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
 []:<Null: void main(java.lang.String[])>/temp$1 -> {}
 []:<Null: void main(java.lang.String[])>/x -> {}
 []:<java.lang.Object: void <init>()>/r0 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<Null: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Null: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

@@ -5,6 +5,7 @@
 []:<C: void <clinit>()>/s -> {[]:"C"}
 []:<C: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
 []:<Clinit: void <clinit>()>/s -> {[]:"Clinit"}
+[]:<Clinit: void main(java.lang.String[])>/args -> {[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments>}
 []:<Clinit: void main(java.lang.String[])>/array$1 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
 []:<Clinit: void main(java.lang.String[])>/array$2 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
 []:<Clinit: void main(java.lang.String[])>/barr -> {[]:<Clinit: void main(java.lang.String[])>/new B[][][]/12}
@@ -32,6 +33,7 @@
 ---------- Points-to sets of all array indexes: ----------
 []:<Clinit: void main(java.lang.String[])>/new B[][]/12 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
 []:<Clinit: void main(java.lang.String[])>/new B[][][]/12 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
+[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------
 <E: java.lang.String f> -> {[]:"x"}
 <F: java.lang.String f> -> {}

@@ -1,6 +1,7 @@
 ---------- Points-to sets of all variables: ----------
 []:<TypeSens: void main(java.lang.String[])>/r0 -> {[]:"xxx"}
 []:<TypeSens: void main(java.lang.String[])>/r1 -> {[]:[Class]TypeSens}
+[]:<TypeSens: void main(java.lang.String[])>/r3 -> {[]:[Env]<TypeSens: void main(java.lang.String[])>/<main-arguments>}
 []:<java.lang.Class: void <clinit>()>/$r0 -> {[]:<java.lang.Class: void <clinit>()>/new java.io.ObjectStreamField[]/3179}
 []:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
 []:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
@@ -20,6 +21,7 @@
 []:"xxx".value -> {}
 []:[Class]TypeSens.name -> {}
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<TypeSens: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<TypeSens: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------
 <java.lang.Class: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.Class: void <clinit>()>/new java.io.ObjectStreamField[]/3179}
 <java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}

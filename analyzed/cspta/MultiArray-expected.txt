@@ -1,6 +1,7 @@
 ---------- Points-to sets of all variables: ----------
 []:<A: void <init>()>/this -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
 []:<MultiArray: void main(java.lang.String[])>/a -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
+[]:<MultiArray: void main(java.lang.String[])>/args -> {[]:[Env]<MultiArray: void main(java.lang.String[])>/<main-arguments>}
 []:<MultiArray: void main(java.lang.String[])>/arr -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4}
 []:<MultiArray: void main(java.lang.String[])>/array$1 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
 []:<MultiArray: void main(java.lang.String[])>/array$2 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
@@ -17,4 +18,5 @@
 []:<MultiArray: void main(java.lang.String[])>/new A[]/4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
 []:<MultiArray: void main(java.lang.String[])>/new A[][]/4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
 []:<MultiArray: void main(java.lang.String[])>/new A[][][]/4 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
+[]:[Env]<MultiArray: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<MultiArray: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

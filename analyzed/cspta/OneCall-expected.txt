@@ -19,8 +19,10 @@
 [OneCall(L8):c.<C: void m()>()]:<C: void m()>/x -> {[]:<C: void m()>/new One/16}
 [OneCall(L8):c.<C: void m()>()]:<C: void m()>/y -> {[]:<C: void m()>/new Two/17}
 [Two(L40):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[]:<C: void m()>/new Two/17}
+[]:<OneCall: void main(java.lang.String[])>/args -> {[]:[Env]<OneCall: void main(java.lang.String[])>/<main-arguments>}
 []:<OneCall: void main(java.lang.String[])>/c -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
 []:<OneCall: void main(java.lang.String[])>/temp$0 -> {[]:<OneCall: void main(java.lang.String[])>/new C/7}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<OneCall: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<OneCall: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

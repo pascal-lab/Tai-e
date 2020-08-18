@@ -49,6 +49,7 @@
 [TwoType]:<B: void b()>/temp$3 -> {[TwoType]:<B: void b()>/new java.lang.Object/29}
 [TwoType]:<B: void b()>/this -> {[]:<TwoType: void main(java.lang.String[])>/new B/8}
 [TwoType]:<java.lang.Object: void <init>()>/r0 -> {[]:<TwoType: void main(java.lang.String[])>/new A/7,[]:<TwoType: void main(java.lang.String[])>/new B/8}
+[]:<TwoType: void main(java.lang.String[])>/args -> {[]:[Env]<TwoType: void main(java.lang.String[])>/<main-arguments>}
 []:<TwoType: void main(java.lang.String[])>/temp$0 -> {[]:<TwoType: void main(java.lang.String[])>/new A/7}
 []:<TwoType: void main(java.lang.String[])>/temp$1 -> {[]:<TwoType: void main(java.lang.String[])>/new B/8}
 ---------- Points-to sets of all instance fields: ----------
@@ -58,4 +59,5 @@
 [TwoType]:<A: void a()>/new List/16.element -> {[TwoType]:<A: void a()>/new java.lang.Object/15,[TwoType]:<A: void a()>/new java.lang.Object/17}
 [TwoType]:<B: void b()>/new List/28.element -> {[TwoType]:<B: void b()>/new java.lang.Object/29}
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<TwoType: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<TwoType: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

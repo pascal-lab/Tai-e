@@ -24,6 +24,8 @@
 [TwoCall(L9):a.<A: B id(B)>(temp$3),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/p -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
 [TwoCall(L9):a.<A: B id(B)>(temp$3),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
 [TwoCall(L9):temp$3.<C: void <init>()>(),C(L26):this.<B: void <init>()>()]:<B: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
+[]:<TwoCall: void main(java.lang.String[])>/args -> {[]:[Env]<TwoCall: void main(java.lang.String[])>/<main-arguments>}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<TwoCall: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<TwoCall: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

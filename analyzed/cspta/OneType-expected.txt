@@ -31,6 +31,7 @@
 [OneType]:<B: void m()>/this -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
 [OneType]:<B: void m()>/y -> {[]:<B: void m()>/new D/21}
 [OneType]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneType: void main(java.lang.String[])>/new A/3,[]:<OneType: void main(java.lang.String[])>/new B/4}
+[]:<OneType: void main(java.lang.String[])>/args -> {[]:[Env]<OneType: void main(java.lang.String[])>/<main-arguments>}
 []:<OneType: void main(java.lang.String[])>/temp$0 -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
 []:<OneType: void main(java.lang.String[])>/temp$1 -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
 ---------- Points-to sets of all instance fields: ----------
@@ -38,4 +39,5 @@
 []:<A: void m()>/new C/12.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
 []:<B: void m()>/new C/20.f -> {[]:<B: void m()>/new D/21}
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<OneType: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<OneType: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

@@ -19,6 +19,7 @@
 []:<NativeModel: void doPrivileged()>/temp$0 -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
 []:<NativeModel: void doPrivileged()>/temp$1 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
 []:<NativeModel: void doPrivileged()>/temp$2 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
+[]:<NativeModel: void main(java.lang.String[])>/args -> {[]:[Env]<NativeModel: void main(java.lang.String[])>/<main-arguments>}
 []:<NativeModel: void objectClone()>/a -> {[]:<NativeModel: void objectClone()>/new A/13}
 []:<NativeModel: void objectClone()>/o -> {[]:<NativeModel: void objectClone()>/new A/13}
 []:<NativeModel: void objectClone()>/temp$0 -> {[]:<NativeModel: void objectClone()>/new A/13}
@@ -34,4 +35,5 @@
 ---------- Points-to sets of all array indexes: ----------
 []:<NativeModel: void arraycopy()>/new java.lang.Object[]/18 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
 []:<NativeModel: void arraycopy()>/new java.lang.Object[]/20 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+[]:[Env]<NativeModel: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<NativeModel: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------

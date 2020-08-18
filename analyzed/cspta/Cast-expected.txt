@@ -9,7 +9,9 @@
 []:<Cast: void m()>/temp$0 -> {[]:<Cast: void m()>/new A/7}
 []:<Cast: void m()>/temp$1 -> {[]:<Cast: void m()>/new B/8}
 []:<Cast: void m()>/temp$2 -> {[]:<Cast: void m()>/new C/9}
+[]:<Cast: void main(java.lang.String[])>/args -> {[]:[Env]<Cast: void main(java.lang.String[])>/<main-arguments>}
 []:<java.lang.Object: void <init>()>/r0 -> {[]:<Cast: void m()>/new A/7,[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
+[]:[Env]<Cast: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Cast: void main(java.lang.String[])>/<main-arguments-element>}
 ---------- Points-to sets of all static fields: ----------
