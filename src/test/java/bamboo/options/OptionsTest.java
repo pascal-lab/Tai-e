@@ -17,6 +17,8 @@ import bamboo.pta.options.Options;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+
 public class OptionsTest {
 
     @Test
@@ -29,7 +31,7 @@ public class OptionsTest {
 
     @Test
     public void testVersion() {
-        Options.parse("-V");
+        Options.parse("-v");
         if (Options.get().shouldShowVersion()) {
             Options.get().printVersion();
         }
@@ -48,6 +50,15 @@ public class OptionsTest {
         Assert.assertEquals("2-object", Options.get().getContextSensitivity());
         Options.parse("--no-merge-string-builders");
         Assert.assertFalse(Options.get().isMergeStringBuilders());
+    }
+
+    @Test
+    public void testOutputFile() {
+        // Well, README will never be output file,
+        // this is just for testing ...
+        Options.parse("-f", "README");
+        Assert.assertEquals(new File("README"),
+                Options.get().getOutputFile());
     }
 
     @Test

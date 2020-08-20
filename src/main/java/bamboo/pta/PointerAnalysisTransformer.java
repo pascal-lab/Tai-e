@@ -27,6 +27,9 @@ import bamboo.util.Pair;
 import bamboo.util.Timer;
 import soot.SceneTransformer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
@@ -77,15 +80,23 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         if (Options.get().isTestMode()) {
             printPointers(pta);
         } else if (Options.get().isOutputResults()) {
-            System.out.println("---------- Reachable methods: ----------");
+            File output = Options.get().getOutputFile();
+            if (output != null) {
+                try {
+                    setOut(new PrintStream(new FileOutputStream(output)));
+                } catch (FileNotFoundException e) {
+                    System.err.println("Failed to write output, caused by " + e);
+                }
+            }
+            out.println("---------- Reachable methods: ----------");
             pta.getCallGraph().getReachableMethods()
                     .stream()
                     .sorted(Comparator.comparing(CSMethod::toString))
-                    .forEach(System.out::println);
-            System.out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().getAllEdges().forEach(System.out::println);
+                    .forEach(out::println);
+            out.println("---------- Call graph edges: ----------");
+            pta.getCallGraph().getAllEdges().forEach(out::println);
             printPointers(pta);
-            System.out.println("----------------------------------------");
+            out.println("----------------------------------------");
         }
         printStatistics(pta, ptaTimer);
     }
@@ -123,6 +134,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private void printPointsToSet(Pointer pointer) {
         out.println(pointer + " -> "
+                + "\t" + pointer.getPointsToSet().size() + "\t"
                 + streamToString(pointer.getPointsToSet().stream()));
     }
 

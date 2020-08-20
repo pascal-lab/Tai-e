@@ -18,6 +18,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
+import java.io.File;
+
 @Command(name = "Bamboo",
         description = "A pointer analysis framework for Java",
         showEndOfOptionsDelimiterInUsageHelp = true,
@@ -28,7 +30,7 @@ public class Options {
     private static Options options = CommandLine.populateCommand(new Options());
 
     // ---------- information options ----------
-    @Option(names = {"-V", "--version"},
+    @Option(names = {"-v", "--version"},
             description = "Display version information",
             defaultValue = "false", versionHelp = true)
     boolean version;
@@ -108,6 +110,9 @@ public class Options {
             description = "Output pointer analysis results",
             defaultValue = "false")
     private boolean outputResults;
+
+    @Option(names = {"-f", "--output-file"}, description = "The output file")
+    private File outputFile;
 
     // ---------- Soot options ----------
     @Parameters(description = "Arguments for Soot")
@@ -194,6 +199,10 @@ public class Options {
 
     public boolean isOutputResults() {
         return outputResults;
+    }
+
+    public File getOutputFile() {
+        return outputFile;
     }
 
     public String[] getSootArgs() {

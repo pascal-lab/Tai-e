@@ -4,3 +4,4 @@ build/
 sootOutput/
 .idea/
 benchmark/
+output/
