@@ -28,9 +28,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 abstract class AbstractHeapModel implements HeapModel {
 
+    private final ProgramManager pm;
+
     private final Type STRING;
     private final Type STRINGBUILDER;
     private final Type STRINGBUFFER;
+    private final Type THROWABLE;
     /**
      * The merged object representing string constants.
      */
@@ -38,9 +41,11 @@ abstract class AbstractHeapModel implements HeapModel {
     private final Map<Type, MergedObj> mergedObjs = new ConcurrentHashMap<>();
 
     AbstractHeapModel(ProgramManager pm) {
+        this.pm = pm;
         STRING = pm.getUniqueTypeByName("java.lang.String");
         STRINGBUILDER = pm.getUniqueTypeByName("java.lang.StringBuilder");
         STRINGBUFFER = pm.getUniqueTypeByName("java.lang.StringBuffer");
+        THROWABLE = pm.getUniqueTypeByName("java.lang.Throwable");
         mergedSC = new MergedObj(STRING, "<Merged string constants>");
     }
 
@@ -62,6 +67,10 @@ abstract class AbstractHeapModel implements HeapModel {
         }
         if (Options.get().isMergeStringBuilders()
                 && (type.equals(STRINGBUILDER) || type.equals(STRINGBUFFER))) {
+            return getMergedObj(type, obj);
+        }
+        if (Options.get().isMergeExceptionObjects()
+                && pm.isSubtype(THROWABLE, type)) {
             return getMergedObj(type, obj);
         }
         return doGetObj(alloc);

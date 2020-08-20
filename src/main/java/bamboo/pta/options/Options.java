@@ -85,6 +85,12 @@ public class Options {
             defaultValue = "true", negatable = true)
     private boolean mergeStringBuilders;
 
+    @Option(names = "--no-merge-exception-objects",
+            description = "Merge exception objects by their types" +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "true", negatable = true)
+    private boolean mergeExceptionObjects;
+
     // ---------- debugging options ----------
     @Option(names = "--dump-classes",
             description = "Dump classes", defaultValue = "false")
@@ -168,6 +174,10 @@ public class Options {
 
     public boolean isMergeStringBuilders() {
         return mergeStringBuilders;
+    }
+
+    public boolean isMergeExceptionObjects() {
+        return mergeExceptionObjects;
     }
 
     public boolean isDumpClasses() {

@@ -38,6 +38,8 @@ public interface ProgramManager {
     // -------------- type system ----------------
     boolean canAssign(Type from, Type to);
 
+    boolean isSubtype(Type parent, Type child);
+
     Method resolveInterfaceOrVirtualCall(Type recvType, Method method);
 
     Method resolveSpecialCall(CallSite callSite, Method container);
