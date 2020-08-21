@@ -49,13 +49,14 @@ class MockCallSite extends AbstractCallSite {
         MockCallSite that = (MockCallSite) o;
         return containerMethod.equals(that.containerMethod)
                 && Objects.equals(receiver, that.receiver)
+                && args.equals(that.args)
                 && method.equals(that.method)
                 && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(containerMethod, receiver, method, id);
+        return Objects.hash(containerMethod, receiver, args, method, id);
     }
 
     @Override
