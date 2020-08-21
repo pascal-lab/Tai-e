@@ -17,6 +17,8 @@ import bamboo.pta.element.AbstractVariable;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 
+import java.util.Objects;
+
 /**
  * Mock variables for native modeling.
  */
@@ -52,12 +54,13 @@ class MockVariable extends AbstractVariable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MockVariable that = (MockVariable) o;
-        return name.equals(that.name);
+        return container.equals(that.container)
+                && name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return Objects.hash(container, name);
     }
 
     @Override

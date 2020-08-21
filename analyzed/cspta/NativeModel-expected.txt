@@ -8,7 +8,7 @@
 []:<NativeModel$1Anonymous0: java.lang.Object run()>/temp$0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
 []:<NativeModel$1Anonymous0: java.lang.Object run()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
 []:<NativeModel$1Anonymous0: void <init>()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
-[]:<NativeModel: void arraycopy()>/@native-call-mock-var28 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
+[]:<NativeModel: void arraycopy()>/@native-call-mock-var0 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
 []:<NativeModel: void arraycopy()>/dest -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
 []:<NativeModel: void arraycopy()>/o -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
 []:<NativeModel: void arraycopy()>/src -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}

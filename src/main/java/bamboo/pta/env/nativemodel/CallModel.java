@@ -27,6 +27,7 @@ import bamboo.pta.statement.StatementVisitor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
@@ -38,14 +39,14 @@ class CallModel implements StatementVisitor {
     // TODO: use Method as key to improve performance?
     private final Map<String, BiConsumer<Method, Call>> handlers;
     /**
-     * Counter to give each mock variable an unique name.
+     * Counter to give each mock variable an unique name in each method.
      */
-    private final AtomicInteger counter;
+    private final Map<Method, AtomicInteger> counter;
 
     CallModel(ProgramManager pm) {
         this.pm = pm;
         handlers = new HashMap<>();
-        counter = new AtomicInteger(0);
+        counter = new ConcurrentHashMap<>();
         initHandlers();
     }
 
@@ -148,7 +149,9 @@ class CallModel implements StatementVisitor {
     }
 
     private Variable newMockVariable(Type type, Method container) {
-        return new MockVariable(type, container,
-                "@native-call-mock-var" + counter.getAndIncrement());
+        int id = counter.computeIfAbsent(container,
+                (k) -> new AtomicInteger(0))
+                .getAndIncrement();
+        return new MockVariable(type, container, "@native-call-mock-var" + id);
     }
 }

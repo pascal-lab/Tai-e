@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -43,14 +44,14 @@ class MethodModel {
     // TODO: use Method as key to improve performance?
     private final Map<String, Consumer<Method>> handlers;
     /**
-     * Counter to give each mock variable an unique name.
+     * Counter to give each mock variable an unique name in each method.
      */
-    private final AtomicInteger counter;
+    private final Map<Method, AtomicInteger> counter;
 
     MethodModel(ProgramManager pm) {
         this.pm = pm;
         handlers = new HashMap<>();
-        counter = new AtomicInteger(0);
+        counter = new ConcurrentHashMap<>(0);
         initHandlers();
     }
 
@@ -198,7 +199,10 @@ class MethodModel {
     }
 
     private Variable newMockVariable(Type type, Method container) {
+        int id = counter.computeIfAbsent(container,
+                (k) -> new AtomicInteger(0))
+                .getAndIncrement();
         return new MockVariable(type, container,
-                "@native-method-mock-var" + counter.getAndIncrement());
+                "@native-method-mock-var" + id);
     }
 }
