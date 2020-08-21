@@ -60,7 +60,6 @@ import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.ThrowStmt;
-import soot.jimple.internal.JimpleLocal;
 import soot.shimple.PhiExpr;
 
 import java.util.ArrayList;
@@ -68,7 +67,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Jimple-based pointer analysis IR builder.
@@ -85,7 +83,7 @@ class IRBuilder {
 
     private final RelevantUnitSwitch sw = new RelevantUnitSwitch();
 
-    private final NewVariableManager varManager = new NewVariableManager();
+    private final NewVariableManager varManager = new NewVariableManager(this);
 
     private final ClassDumper classDumper = new ClassDumper();
 
@@ -491,46 +489,5 @@ class IRBuilder {
 
     private void buildThrow(JimpleMethod method, ThrowStmt stmt) {
         // currently ignore throw statements
-    }
-
-
-    /**
-     * Manager for new created variables during method creation.
-     */
-    private class NewVariableManager {
-
-        private final Map<JimpleMethod, AtomicInteger> varNumbers = new HashMap<>();
-
-        private JimpleVariable newTempVariable(
-                String baseName, JimpleType type, JimpleMethod container) {
-            String varName = baseName + getNewNumber(container);
-            return newVariable(varName, type, container);
-        }
-
-        private int getNewNumber(JimpleMethod container) {
-            return varNumbers.computeIfAbsent(container,
-                    m -> new AtomicInteger(0))
-                    .incrementAndGet();
-        }
-
-        private JimpleVariable getThisVariable(JimpleMethod container) {
-            return newVariable("@this", container.getClassType(), container);
-        }
-
-        private JimpleVariable getParameter(JimpleMethod container, int index) {
-            JimpleType type = getType(container.getSootMethod().getParameterType(index));
-            return newVariable("@parameter" + index, type, container);
-        }
-
-        private JimpleVariable getReturnVariable(JimpleMethod container) {
-            JimpleType type = getType(container.getSootMethod().getReturnType());
-            return newVariable("@return", type, container);
-        }
-
-        private JimpleVariable newVariable(
-                String varName, JimpleType type, JimpleMethod container) {
-            Local local = new JimpleLocal(varName, type.getSootType());
-            return new JimpleVariable(local, type, container);
-        }
     }
 }

@@ -1,7 +1,7 @@
 ---------- Points-to sets of all variables: ----------
 []:<ClassObj$A: void <clinit>()>/$r0 -> {[]:<ClassObj$A: void <clinit>()>/new java.lang.Object/16}
 []:<ClassObj$A: void <clinit>()>/r1 -> {[]:<ClassObj$A: void <clinit>()>/new java.lang.Object/16}
-[]:<ClassObj: void main(java.lang.String[])>/constant$1 -> {[]:[Class]ClassObj$A}
+[]:<ClassObj: void main(java.lang.String[])>/constant$0 -> {[]:[Class]ClassObj$A}
 []:<ClassObj: void main(java.lang.String[])>/r0 -> {[]:[Class]ClassObj$A}
 []:<ClassObj: void main(java.lang.String[])>/r1 -> {[]:[Class]ClassObj$A}
 []:<ClassObj: void main(java.lang.String[])>/r2 -> {[]:[Env]<ClassObj: void main(java.lang.String[])>/<main-arguments>}

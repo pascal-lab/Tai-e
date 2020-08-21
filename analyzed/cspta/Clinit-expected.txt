@@ -6,8 +6,8 @@
 []:<C: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
 []:<Clinit: void <clinit>()>/s -> {[]:"Clinit"}
 []:<Clinit: void main(java.lang.String[])>/args -> {[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments>}
-[]:<Clinit: void main(java.lang.String[])>/array$1 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
-[]:<Clinit: void main(java.lang.String[])>/array$2 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
+[]:<Clinit: void main(java.lang.String[])>/array$0 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
+[]:<Clinit: void main(java.lang.String[])>/array$1 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
 []:<Clinit: void main(java.lang.String[])>/barr -> {[]:<Clinit: void main(java.lang.String[])>/new B[][][]/12}
 []:<Clinit: void main(java.lang.String[])>/s -> {}
 []:<Clinit: void main(java.lang.String[])>/temp$0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/11}

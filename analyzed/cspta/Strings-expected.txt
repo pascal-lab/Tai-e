@@ -4,7 +4,7 @@
 []:<Strings: void main(java.lang.String[])>/a -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
 []:<Strings: void main(java.lang.String[])>/args -> {[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments>}
 []:<Strings: void main(java.lang.String[])>/arr -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
-[]:<Strings: void main(java.lang.String[])>/constant$1 -> {[]:"aaa"}
+[]:<Strings: void main(java.lang.String[])>/constant$0 -> {[]:"aaa"}
 []:<Strings: void main(java.lang.String[])>/s1 -> {[]:"aaa"}
 []:<Strings: void main(java.lang.String[])>/s2 -> {[]:"bbb"}
 []:<Strings: void main(java.lang.String[])>/s3 -> {[]:"ccc"}

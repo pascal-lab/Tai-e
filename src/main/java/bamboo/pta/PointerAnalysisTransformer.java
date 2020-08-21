@@ -134,7 +134,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private void printPointsToSet(Pointer pointer) {
         out.println(pointer + " -> "
-                + "\t" + pointer.getPointsToSet().size() + "\t"
+//                + "\t" + pointer.getPointsToSet().size() + "\t"
                 + streamToString(pointer.getPointsToSet().stream()));
     }
 

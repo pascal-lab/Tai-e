@@ -3,8 +3,8 @@
 []:<MultiArray: void main(java.lang.String[])>/a -> {[]:<MultiArray: void main(java.lang.String[])>/new A/5}
 []:<MultiArray: void main(java.lang.String[])>/args -> {[]:[Env]<MultiArray: void main(java.lang.String[])>/<main-arguments>}
 []:<MultiArray: void main(java.lang.String[])>/arr -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4}
-[]:<MultiArray: void main(java.lang.String[])>/array$1 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
-[]:<MultiArray: void main(java.lang.String[])>/array$2 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
+[]:<MultiArray: void main(java.lang.String[])>/array$0 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
+[]:<MultiArray: void main(java.lang.String[])>/array$1 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
 []:<MultiArray: void main(java.lang.String[])>/temp$0 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][][]/4}
 []:<MultiArray: void main(java.lang.String[])>/temp$11 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[]/4}
 []:<MultiArray: void main(java.lang.String[])>/temp$2 -> {[]:<MultiArray: void main(java.lang.String[])>/new A[][]/4}
