@@ -20,6 +20,7 @@ import soot.SootMethod;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -115,7 +116,7 @@ class JimpleMethod implements Method {
     @Override
     public void addStatement(Statement statement) {
         if (statements.isEmpty()) {
-            statements = new HashSet<>(8);
+            statements = new LinkedHashSet<>(8);
         }
         statements.add(statement);
     }
