@@ -58,7 +58,7 @@ class CallModel implements StatementVisitor {
                 handlers.get(callee.getSignature());
         if (handler != null) {
             Method container = callSite.getContainerMethod();
-//            handler.accept(container, call);
+            handler.accept(container, call);
         }
     }
 

@@ -65,9 +65,6 @@ public class Options {
             defaultValue = "true", negatable = true)
     private boolean nativeModel;
 
-    @Option(names = "--native-monitor", defaultValue = "false")
-    private boolean nativeMonitor;
-
     @Option(names = {"-cs", "--context-sensitivity"},
             description = "Context sensitivity for pointer analysis" +
                     " (default: ${DEFAULT-VALUE})",
@@ -166,10 +163,6 @@ public class Options {
 
     public boolean enableNativeModel() {
         return nativeModel;
-    }
-
-    public boolean enableNativeMonitor() {
-        return nativeMonitor;
     }
 
     public String getContextSensitivity() {

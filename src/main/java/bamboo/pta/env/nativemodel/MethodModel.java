@@ -136,7 +136,7 @@ class MethodModel {
                     run, method.getThis(), Collections.emptyList(),
                     method, "thread-run");
             Call runCall = new Call(runCallSite, null);
-//            method.addStatement(runCall);
+            method.addStatement(runCall);
         });
 
         // --------------------------------------------------------------------

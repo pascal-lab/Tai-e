@@ -23,7 +23,6 @@ import bamboo.pta.core.context.TwoObjectSelector;
 import bamboo.pta.core.context.TwoTypeSelector;
 import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
-import bamboo.pta.env.nativemodel.DefaultNativeModel2;
 import bamboo.pta.jimple.JimpleProgramManager;
 import bamboo.pta.monitor.CompositeMonitor;
 import bamboo.pta.monitor.ThreadHandler;
@@ -84,9 +83,6 @@ public class PointerAnalysisBuilder {
 
     private void setAnalysisMonitor(PointerAnalysisImpl pta, Options options) {
         CompositeMonitor monitor = new CompositeMonitor();
-        if (options.enableNativeMonitor()) {
-            monitor.addMonitor(new DefaultNativeModel2());
-        }
         if (options.analyzeImplicitEntries()) {
             monitor.addMonitor(new ThreadHandler());
         }
