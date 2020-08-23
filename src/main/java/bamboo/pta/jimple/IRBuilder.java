@@ -81,8 +81,6 @@ class IRBuilder {
 
     private final Map<SootField, JimpleField> fields = new HashMap<>();
 
-    private final RelevantUnitSwitch sw = new RelevantUnitSwitch();
-
     private final NewVariableManager varManager = new NewVariableManager(this);
 
     private final ClassDumper classDumper = new ClassDumper();
@@ -322,6 +320,7 @@ class IRBuilder {
             method.setParameters(params);
         }
         // add statements
+        RelevantUnitSwitch sw = new RelevantUnitSwitch();
         for (Unit unit : body.getUnits()) {
             unit.apply(sw);
             if (sw.isRelevant()) {

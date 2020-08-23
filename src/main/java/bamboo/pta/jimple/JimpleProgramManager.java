@@ -34,6 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static soot.SootClass.HIERARCHY;
@@ -111,24 +114,36 @@ public class JimpleProgramManager implements ProgramManager {
 
     @Override
     public Collection<Method> getAllMethods() {
-        Map<SootMethod, Method> methods = new HashMap<>(8192);
-        boolean changed = true;
-        while (changed) {
-            changed = false;
-            List<SootClass> classes = new ArrayList<>(scene.getClasses());
-            for (SootClass c : classes) {
-                for (SootMethod m : c.getMethods()) {
-                    if (!m.isConcrete() || m.isPhantom()
-                            || methods.containsKey(m)) {
-                        continue;
-                    } else if (m.isConcrete() || m.isNative()) {
-                        methods.put(m, irBuilder.getMethod(m));
-                        changed = true;
-                    }
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        List<List<SootMethod>> groups = new ArrayList<>();
+        for (int i = 0; i < nThreads; ++i) {
+            groups.add(new ArrayList<>());
+        }
+        List<SootClass> classes = new ArrayList<>(scene.getClasses());
+        int i = 0;
+        for (SootClass c : classes) {
+            for (SootMethod m : c.getMethods()) {
+                if (!m.isConcrete() || m.isPhantom()) {
+                    continue;
+                } else if (m.isConcrete() || m.isNative()) {
+                    groups.get(i++ % nThreads).add(m);
                 }
             }
         }
-        return methods.values();
+        ExecutorService service = Executors.newFixedThreadPool(nThreads);
+        for (List<SootMethod> group : groups) {
+            service.execute(() -> group.forEach(irBuilder::getMethod));
+        }
+        service.shutdown();
+        try {
+            service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return groups.stream()
+                .flatMap(Collection::stream)
+                .map(irBuilder::getMethod)
+                .collect(Collectors.toList());
     }
 
     @Override
