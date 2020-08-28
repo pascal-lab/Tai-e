@@ -112,6 +112,7 @@ class JimpleType implements Type {
 
     @Override
     public Type getElementType() {
+        assert isArrayType();
         return elementType;
     }
 
@@ -121,6 +122,7 @@ class JimpleType implements Type {
 
     @Override
     public Type getBaseType() {
+        assert isArrayType();
         return baseType;
     }
 

@@ -91,6 +91,7 @@ class JimpleMethod implements Method {
 
     @Override
     public JimpleVariable getThis() {
+        assert isInstance();
         return thisVar;
     }
 
