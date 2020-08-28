@@ -40,9 +40,25 @@ public interface ProgramManager {
 
     boolean isSubtype(Type parent, Type child);
 
-    Method resolveInterfaceOrVirtualCall(Type recvType, Method method);
+    /**
+     * @param recvType type of receiver object
+     * @param target target method at the call site
+     * @return the callee
+     */
+    Method resolveInterfaceOrVirtualCall(Type recvType, Method target);
 
+    /**
+     * @param callSite the call site
+     * @param container containing method of the call site
+     * @return the callee
+     */
     Method resolveSpecialCall(CallSite callSite, Method container);
+
+    /**
+     * @param target target method at the call site
+     * @return the callee
+     */
+    Method resolveStaticCall(Method target);
 
     /**
      * Returns the type specified by the given type name.

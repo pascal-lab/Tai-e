@@ -501,15 +501,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * Resolves callee by given receiver object and call site.
      */
     private Method resolveCallee(Obj recvObj, CallSite callSite) {
-        Type type = recvObj.getType();
         switch (callSite.getKind()) {
             case INTERFACE:
             case VIRTUAL:
                 return programManager.resolveInterfaceOrVirtualCall(
-                        type, callSite.getMethod());
+                        recvObj.getType(), callSite.getMethod());
             case SPECIAL:
                 return programManager.resolveSpecialCall(
                         callSite, callSite.getContainerMethod());
+            case STATIC:
+                return programManager.resolveStaticCall(callSite.getMethod());
             default:
                 throw new AnalysisException("Unknown CallSite: " + callSite);
         }
@@ -627,7 +628,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
             if (callSite.getKind() == CallKind.STATIC) {
-                Method callee = callSite.getMethod();
+                Method callee = resolveCallee(null, callSite);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);

@@ -167,9 +167,9 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method resolveInterfaceOrVirtualCall(Type recvType, Method method) {
+    public Method resolveInterfaceOrVirtualCall(Type recvType, Method target) {
         JimpleType jType = (JimpleType) recvType;
-        JimpleMethod jMethod = (JimpleMethod) method;
+        JimpleMethod jMethod = (JimpleMethod) target;
         soot.Type type = jType.getSootType();
         soot.RefType concreteType;
         if (type instanceof ArrayType) {
@@ -201,6 +201,12 @@ public class JimpleProgramManager implements ProgramManager {
         } else {
             callee = target;
         }
+        return irBuilder.getMethod(callee);
+    }
+
+    @Override
+    public Method resolveStaticCall(Method target) {
+        SootMethod callee = ((JimpleMethod) target).getSootMethod();
         return irBuilder.getMethod(callee);
     }
 
