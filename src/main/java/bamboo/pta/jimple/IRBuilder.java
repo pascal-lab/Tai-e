@@ -147,10 +147,6 @@ class IRBuilder {
             }
             c.getInterfaces()
                     .forEach(i -> type.addSuperInterface(getType(i)));
-            SootMethod clinit = c.getMethodUnsafe("void <clinit>()");
-            if (clinit != null) {
-                type.setClassInitializer(getMethod(clinit));
-            }
         }
     }
 

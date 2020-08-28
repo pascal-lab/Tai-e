@@ -26,13 +26,12 @@ import soot.RefType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.util.NumberedString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,12 +61,14 @@ public class JimpleProgramManager implements ProgramManager {
     );
     private final Scene scene;
     private final FastHierarchy hierarchy;
+    private final NumberedString CLINIT_SIG;
     private final Environment env = new Environment();
     private final IRBuilder irBuilder = new IRBuilder(env);
 
     public JimpleProgramManager(Scene scene) {
         this.scene = scene;
-        this.hierarchy = scene.getOrMakeFastHierarchy();
+        hierarchy = scene.getOrMakeFastHierarchy();
+        CLINIT_SIG = scene.getSubSigNumberer().findOrAdd("void <clinit>()");
         env.setup(this);
     }
 
@@ -212,6 +213,18 @@ public class JimpleProgramManager implements ProgramManager {
 
     IRBuilder getIRBuilder() {
         return irBuilder;
+    }
+
+    @Override
+    public Optional<Method> getClassInitializerOf(Type type) {
+        if (type.isClassType()) {
+            SootClass cls = ((JimpleType) type).getSootClass();
+            SootMethod clinit = cls.getMethodUnsafe(CLINIT_SIG);
+            if (clinit != null) {
+                return Optional.of(irBuilder.getMethod(clinit));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

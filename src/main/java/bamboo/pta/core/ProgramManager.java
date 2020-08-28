@@ -24,6 +24,7 @@ import java.util.Optional;
 
 public interface ProgramManager {
 
+    // -------------- program entry ----------------
     Method getMainMethod();
 
     Collection<Method> getImplicitEntries();
@@ -59,6 +60,12 @@ public interface ProgramManager {
      * @return the callee
      */
     Method resolveStaticCall(Method target);
+
+    // -------------- program element ----------------
+    /**
+     * @return the class initializer of given type.
+     */
+    Optional<Method> getClassInitializerOf(Type type);
 
     /**
      * Returns the type specified by the given type name.

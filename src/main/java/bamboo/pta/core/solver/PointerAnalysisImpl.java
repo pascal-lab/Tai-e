@@ -544,7 +544,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             cls.getSuperClass().ifPresent(this::initializeClass);
             // TODO: initialize the superinterfaces which
             //  declare default methods
-            cls.getClassInitializer().ifPresent(clinit -> {
+            programManager.getClassInitializerOf(cls).ifPresent(clinit -> {
                 // processNewCSMethod() may trigger initialization of more
                 // classes. So cls must be added before processNewCSMethod(),
                 // otherwise, infinite recursion may occur.

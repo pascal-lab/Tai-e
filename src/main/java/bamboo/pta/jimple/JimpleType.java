@@ -13,7 +13,6 @@
 
 package bamboo.pta.jimple;
 
-import bamboo.pta.element.Method;
 import bamboo.pta.element.Type;
 import soot.ArrayType;
 import soot.SootClass;
@@ -44,22 +43,8 @@ class JimpleType implements Type {
      */
     private Type baseType;
 
-    /**
-     * Class initializer of this type.
-     */
-    private Method clinit;
-
     JimpleType(soot.Type sootType) {
         this.sootType = sootType;
-    }
-
-    @Override
-    public Optional<Method> getClassInitializer() {
-        return Optional.ofNullable(clinit);
-    }
-
-    void setClassInitializer(Method clinit) {
-        this.clinit = clinit;
     }
 
     void addSuperInterface(Type superInterface) {

@@ -49,9 +49,4 @@ public interface Type {
      * @return the base type if this type is array type, e.g., A for A[][].
      */
     Type getBaseType();
-
-    /**
-     * @return the class initializer of this type.
-     */
-    Optional<Method> getClassInitializer();
 }
