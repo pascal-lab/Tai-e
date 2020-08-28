@@ -26,6 +26,11 @@ class JimpleType implements Type {
 
     private final soot.Type sootType;
 
+    /**
+     * Flag if this type has been built.
+     */
+    private volatile boolean built;
+
     private SootClass sootClass;
 
     private Type superClass;
@@ -45,6 +50,14 @@ class JimpleType implements Type {
 
     JimpleType(soot.Type sootType) {
         this.sootType = sootType;
+    }
+
+    boolean hasBuilt() {
+        return built;
+    }
+
+    void setBuilt(boolean built) {
+        this.built = built;
     }
 
     void addSuperInterface(Type superInterface) {

@@ -117,15 +117,22 @@ class IRBuilder {
         return getType(sootClass.getType());
     }
 
-    JimpleType getType(Type type) {
-        return types.computeIfAbsent(type, this::buildType);
+    JimpleType getType(Type sootType) {
+        JimpleType type = types.computeIfAbsent(sootType, JimpleType::new);
+        if (!type.hasBuilt()) {
+            synchronized (type) {
+                if (!type.hasBuilt()) { // double-check
+                    buildType(type, sootType);
+                }
+            }
+        }
+        return type;
     }
 
     /**
      * Build type information.
      */
-    private JimpleType buildType(Type sootType) {
-        JimpleType type = new JimpleType(sootType);
+    private void buildType(JimpleType type, Type sootType) {
         if (sootType instanceof ArrayType) {
             ArrayType t = (ArrayType) sootType;
             type.setElementType(getType(t.getElementType()));
@@ -143,7 +150,7 @@ class IRBuilder {
             c.getInterfaces()
                     .forEach(i -> type.addSuperInterface(getType(i)));
         }
-        return type;
+        type.setBuilt(true);
     }
 
     JimpleField getField(SootField sootField) {
