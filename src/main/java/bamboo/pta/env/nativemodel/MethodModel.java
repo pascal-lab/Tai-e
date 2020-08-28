@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -46,7 +47,7 @@ class MethodModel {
     /**
      * Counter to give each mock variable an unique name in each method.
      */
-    private final Map<Method, AtomicInteger> counter;
+    private final ConcurrentMap<Method, AtomicInteger> counter;
 
     MethodModel(ProgramManager pm) {
         this.pm = pm;

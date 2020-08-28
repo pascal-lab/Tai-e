@@ -16,8 +16,8 @@ package bamboo.pta.env;
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.Type;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Manages the reflection meta objects.
@@ -28,7 +28,8 @@ class ReflectionObjectPool {
     private Type methodType;
     private Type fieldType;
     private Type constructorType;
-    private final Map<Type, ClassObj> classMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Type, ClassObj> classMap
+            = new ConcurrentHashMap<>();
 
     ReflectionObjectPool(ProgramManager pm) {
         CLASS = pm.getUniqueTypeByName("java.lang.Class");

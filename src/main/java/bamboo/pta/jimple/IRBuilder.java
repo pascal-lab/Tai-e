@@ -67,21 +67,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Jimple-based pointer analysis IR builder.
  */
 class IRBuilder {
 
-    private final Map<Type, JimpleType> types = new ConcurrentHashMap<>();
-
-    private final Map<SootMethod, JimpleMethod> methods
+    private final ConcurrentMap<Type, JimpleType> types
             = new ConcurrentHashMap<>();
 
-    private final Map<JimpleMethod, Map<Local, JimpleVariable>> vars
+    private final ConcurrentMap<SootMethod, JimpleMethod> methods
             = new ConcurrentHashMap<>();
 
-    private final Map<SootField, JimpleField> fields
+    private final ConcurrentMap<JimpleMethod, Map<Local, JimpleVariable>> vars
+            = new ConcurrentHashMap<>();
+
+    private final ConcurrentMap<SootField, JimpleField> fields
             = new ConcurrentHashMap<>();
 
     private final NewVariableManager varManager = new NewVariableManager(this);

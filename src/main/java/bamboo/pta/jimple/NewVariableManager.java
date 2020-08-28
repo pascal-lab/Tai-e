@@ -16,8 +16,8 @@ package bamboo.pta.jimple;
 import soot.Local;
 import soot.jimple.internal.JimpleLocal;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class NewVariableManager {
 
     private final IRBuilder irBuilder;
-    private final Map<JimpleMethod, AtomicInteger> varNumbers =
+    private final ConcurrentMap<JimpleMethod, AtomicInteger> varNumbers =
             new ConcurrentHashMap<>();
 
     NewVariableManager(IRBuilder irBuilder) {

@@ -19,8 +19,8 @@ import bamboo.pta.element.Type;
 import bamboo.pta.options.Options;
 import bamboo.pta.statement.Allocation;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * All heap models should inherit this class, and we can define
@@ -38,7 +38,8 @@ abstract class AbstractHeapModel implements HeapModel {
      * The merged object representing string constants.
      */
     private final MergedObj mergedSC;
-    private final Map<Type, MergedObj> mergedObjs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Type, MergedObj> mergedObjs
+            = new ConcurrentHashMap<>();
 
     AbstractHeapModel(ProgramManager pm) {
         this.pm = pm;
