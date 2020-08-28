@@ -63,7 +63,7 @@ import soot.jimple.ThrowStmt;
 import soot.shimple.PhiExpr;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +75,8 @@ class IRBuilder {
 
     private final Map<Type, JimpleType> types = new ConcurrentHashMap<>();
 
-    private final Map<SootMethod, JimpleMethod> methods = new HashMap<>();
+    private final Map<SootMethod, JimpleMethod> methods
+            = new ConcurrentHashMap<>();
 
     private final Map<JimpleMethod, Map<Local, JimpleVariable>> vars
             = new ConcurrentHashMap<>();
@@ -93,24 +94,31 @@ class IRBuilder {
         this.env = env;
     }
 
-    JimpleMethod getMethod(SootMethod method) {
-        assert method != null;
-        JimpleMethod jMethod = methods.get(method);
-        if (jMethod == null) {
-            JimpleType jType = getType(method.getDeclaringClass());
-            jMethod = new JimpleMethod(method, jType);
-            // jMethod should be put into methods before building method body,
-            // otherwise infinite recursion may occur.
-            methods.put(method, jMethod);
-            if (method.isNative()) {
-                buildNative(jMethod);
-            } else if (!method.isAbstract()) {
-                Body body = method.retrieveActiveBody();
-                buildConcrete(jMethod, body);
+    JimpleMethod getMethod(SootMethod sootMethod) {
+        return getMethod(sootMethod, true);
+    }
+
+    private JimpleMethod getMethod(SootMethod sootMethod, boolean builtBody) {
+        assert sootMethod != null;
+        JimpleMethod method = methods.computeIfAbsent(sootMethod, (m) -> {
+            JimpleType type = getType(m.getDeclaringClass());
+            return new JimpleMethod(m, type);
+        });
+        if (builtBody && !method.hasBuilt()) {
+            synchronized (method) {
+                if (!method.hasBuilt()) {
+                    if (method.isNative()) {
+                        buildNative(method);
+                    } else if (!sootMethod.isAbstract()) {
+                        Body body = sootMethod.retrieveActiveBody();
+                        buildConcrete(method, body);
+                    }
+                    env.processNativeCode(method);
+                    method.setBuilt(true);
+                }
             }
-            env.processNativeCode(jMethod);
         }
-        return jMethod;
+        return method;
     }
 
     private JimpleType getType(SootClass sootClass) {
@@ -162,7 +170,7 @@ class IRBuilder {
 
     JimpleVariable getVariable(Local var, JimpleMethod container) {
         if (var.getType() instanceof RefLikeType) {
-            return vars.computeIfAbsent(container, (m) -> new HashMap<>())
+            return vars.computeIfAbsent(container, (m) -> new LinkedHashMap<>())
                     .computeIfAbsent(var, (v) -> {
                         JimpleType type = getType(var.getType());
                         return new JimpleVariable(var, type, container);
@@ -176,7 +184,7 @@ class IRBuilder {
         InvokeExpr invoke = stmt.getInvokeExpr();
         JimpleCallSite callSite = new JimpleCallSite(
                 stmt, JimpleCallUtils.getCallKind(invoke));
-        callSite.setMethod(getMethod(invoke.getMethod()));
+        callSite.setMethod(getMethod(invoke.getMethod(), false));
         if (invoke instanceof InstanceInvokeExpr) {
             Local base = (Local) ((InstanceInvokeExpr) invoke).getBase();
             callSite.setReceiver(getVariable(base, container));

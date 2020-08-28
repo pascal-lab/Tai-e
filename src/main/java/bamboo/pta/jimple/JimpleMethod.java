@@ -31,6 +31,12 @@ class JimpleMethod implements Method {
 
     private final JimpleType classType;
 
+    /**
+     * Flag if this type has been built.
+     * TODO: how about following fields? Need to make them volatile too?
+     */
+    private volatile boolean built;
+
     private JimpleVariable thisVar;
 
     private List<Variable> parameters = Collections.emptyList();
@@ -42,6 +48,14 @@ class JimpleMethod implements Method {
     JimpleMethod(SootMethod method, JimpleType classType) {
         this.method = method;
         this.classType = classType;
+    }
+
+    boolean hasBuilt() {
+        return built;
+    }
+
+    void setBuilt(boolean built) {
+        this.built = built;
     }
 
     void setThisVar(JimpleVariable thisVar) {

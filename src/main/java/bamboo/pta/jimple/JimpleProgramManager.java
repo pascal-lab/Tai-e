@@ -124,9 +124,7 @@ public class JimpleProgramManager implements ProgramManager {
         int i = 0;
         for (SootClass c : classes) {
             for (SootMethod m : c.getMethods()) {
-                if (!m.isConcrete() || m.isPhantom()) {
-                    continue;
-                } else if (m.isConcrete() || m.isNative()) {
+                if ((m.isConcrete() || m.isNative()) && !m.isPhantom()) {
                     groups.get(i++ % nThreads).add(m);
                 }
             }
