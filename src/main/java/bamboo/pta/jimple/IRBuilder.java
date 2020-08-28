@@ -66,19 +66,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Jimple-based pointer analysis IR builder.
  */
 class IRBuilder {
 
-    private final Map<Type, JimpleType> types = new HashMap<>();
+    private final Map<Type, JimpleType> types = new ConcurrentHashMap<>();
 
     private final Map<SootMethod, JimpleMethod> methods = new HashMap<>();
 
-    private final Map<JimpleMethod, Map<Local, JimpleVariable>> vars = new HashMap<>();
+    private final Map<JimpleMethod, Map<Local, JimpleVariable>> vars
+            = new ConcurrentHashMap<>();
 
-    private final Map<SootField, JimpleField> fields = new HashMap<>();
+    private final Map<SootField, JimpleField> fields
+            = new ConcurrentHashMap<>();
 
     private final NewVariableManager varManager = new NewVariableManager(this);
 
@@ -115,22 +118,14 @@ class IRBuilder {
     }
 
     JimpleType getType(Type type) {
-        JimpleType jType = types.get(type);
-        if (jType == null) {
-            jType = new JimpleType(type);
-            // jType should be put into types before building type information,
-            // otherwise infinite recursion may occur.
-            types.put(type, jType);
-            buildType(jType);
-        }
-        return jType;
+        return types.computeIfAbsent(type, this::buildType);
     }
 
     /**
      * Build type information.
      */
-    private void buildType(JimpleType type) {
-        soot.Type sootType = type.getSootType();
+    private JimpleType buildType(Type sootType) {
+        JimpleType type = new JimpleType(sootType);
         if (sootType instanceof ArrayType) {
             ArrayType t = (ArrayType) sootType;
             type.setElementType(getType(t.getElementType()));
@@ -148,13 +143,14 @@ class IRBuilder {
             c.getInterfaces()
                     .forEach(i -> type.addSuperInterface(getType(i)));
         }
+        return type;
     }
 
     JimpleField getField(SootField sootField) {
-        return fields.computeIfAbsent(sootField, (f) ->
-                new JimpleField(sootField,
-                        getType(sootField.getDeclaringClass()),
-                        getType(sootField.getType())));
+        return fields.computeIfAbsent(sootField, (field) ->
+                new JimpleField(field,
+                        getType(field.getDeclaringClass()),
+                        getType(field.getType())));
     }
 
     JimpleVariable getVariable(Local var, JimpleMethod container) {
