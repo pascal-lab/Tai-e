@@ -41,12 +41,12 @@ public interface Type {
     Set<Type> getSuperInterfaces();
 
     /**
-     * @return the element type if this type is array type.
+     * @return the element type if this type is array type, e.g., A[] for A[][].
      */
     Type getElementType();
 
     /**
-     * @return the base element type if this type is array type.
+     * @return the base type if this type is array type, e.g., A for A[][].
      */
     Type getBaseType();
 

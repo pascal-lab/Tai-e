@@ -134,7 +134,7 @@ class IRBuilder {
         if (sootType instanceof ArrayType) {
             ArrayType t = (ArrayType) sootType;
             type.setElementType(getType(t.getElementType()));
-            type.setBaseType(getType(t.getElementType()));
+            type.setBaseType(getType(t.baseType));
         }
         if (sootType instanceof RefType) {
             SootClass c = ((RefType) sootType).getSootClass();
