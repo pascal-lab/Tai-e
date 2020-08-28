@@ -15,21 +15,15 @@ package bamboo.pta.jimple;
 
 import bamboo.callgraph.CallGraph;
 import bamboo.callgraph.JimpleCallGraph;
-import bamboo.pta.core.context.ContextInsensitiveSelector;
-import bamboo.pta.core.context.DefaultContext;
 import bamboo.pta.core.cs.CSCallSite;
 import bamboo.pta.core.cs.CSManager;
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
-import bamboo.pta.set.PointsToSet;
 import bamboo.util.AnalysisException;
-import soot.Local;
 import soot.SootMethod;
 import soot.Unit;
-
-import java.util.Collection;
 
 /**
  * Provides an interface to access pointer analysis results from
@@ -63,36 +57,6 @@ public class JimplePointerAnalysis {
         irBuilder = ((JimpleProgramManager) cipta.getProgramManager())
                 .getIRBuilder();
         jimpleCallGraph = null;
-    }
-
-    /**
-     * @return all local variables of a given method.
-     */
-    public Collection<JimpleVariable> localVariablesOf(SootMethod method) {
-        return irBuilder.getLocalVariablesOf(
-                irBuilder.getMethod(method));
-    }
-
-    /**
-     * @return points-to set of a given variable.
-     */
-    public PointsToSet pointsToSetOf(JimpleVariable var) {
-        if (pta.getContextSelector() instanceof ContextInsensitiveSelector) {
-            return csManager.getCSVariable(DefaultContext.INSTANCE, var)
-                    .getPointsToSet();
-        } else {
-            throw new UnsupportedOperationException(
-                    "Context-sensitive points-to set is not supported yet.");
-        }
-    }
-
-    /**
-     * @return points-to set of a local in a given method.
-     */
-    public PointsToSet pointsToSetOf(SootMethod container, Local local) {
-        JimpleMethod m = irBuilder.getMethod(container);
-        JimpleVariable var = irBuilder.getVariable(local, m);
-        return pointsToSetOf(var);
     }
 
     /**

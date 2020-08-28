@@ -63,7 +63,6 @@ import soot.jimple.ThrowStmt;
 import soot.shimple.PhiExpr;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,13 +159,6 @@ class IRBuilder {
                 new JimpleField(sootField,
                         getType(sootField.getDeclaringClass()),
                         getType(sootField.getType())));
-    }
-
-    /**
-     * Returns all local variables in a given method.
-     */
-    Collection<JimpleVariable> getLocalVariablesOf(JimpleMethod container) {
-        return vars.get(container).values();
     }
 
     JimpleVariable getVariable(Local var, JimpleMethod container) {
