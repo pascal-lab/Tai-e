@@ -29,11 +29,13 @@ import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
 import bamboo.util.AnalysisException;
+import bamboo.util.Timer;
 import soot.ArrayType;
 import soot.Body;
 import soot.Local;
 import soot.RefLikeType;
 import soot.RefType;
+import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -68,6 +70,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Jimple-based pointer analysis IR builder.
@@ -94,6 +99,43 @@ class IRBuilder {
 
     IRBuilder(Environment env) {
         this.env = env;
+    }
+
+    /**
+     * Build IR for all methods in given Scene.
+     */
+    void buildAllMethods(Scene scene) {
+        Timer timer = new Timer("Build IR for all methods");
+        timer.start();
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        // Group all methods by number of threads
+        List<List<SootMethod>> groups = new ArrayList<>();
+        for (int i = 0; i < nThreads; ++i) {
+            groups.add(new ArrayList<>());
+        }
+        List<SootClass> classes = new ArrayList<>(scene.getClasses());
+        int i = 0;
+        for (SootClass c : classes) {
+            for (SootMethod m : c.getMethods()) {
+                if ((m.isConcrete() || m.isNative()) && !m.isPhantom()) {
+                    groups.get(i++ % nThreads).add(m);
+                }
+            }
+        }
+        // Build IR for all methods in parallel
+        ExecutorService service = Executors.newFixedThreadPool(nThreads);
+        for (List<SootMethod> group : groups) {
+            service.execute(() -> group.forEach(this::getMethod));
+        }
+        service.shutdown();
+        try {
+            service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        timer.stop();
+        System.out.println(timer);
+        System.out.println("#methods: " + methods.size());
     }
 
     JimpleMethod getMethod(SootMethod sootMethod) {

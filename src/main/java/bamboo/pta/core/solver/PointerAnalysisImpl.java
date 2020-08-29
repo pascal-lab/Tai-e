@@ -196,12 +196,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         classInitializer = new ClassInitializer();
 
         if (Options.get().isPreBuildIR()) {
-            Timer timer = new Timer("Pre-build IR");
-            timer.start();
-            Collection<Method> methods = programManager.getAllMethods();
-            timer.stop();
-            System.out.println(timer);
-            System.out.println("#methods: " + methods.size());
+            programManager.buildIRForAllMethods();
         }
 
         // process program entries (including implicit entries)
