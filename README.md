@@ -23,6 +23,6 @@ Build an efficient, feature-rich, extensible, configurable and maintainable poin
 * [Yue Li](https://yuelee.bitbucket.io/)
 
 ### Dependencies
-* Soot (Java analysis framework, used as frontend)
-* picocli (command line interface)
-* JUnit (testing framework)
+* [Soot](https://soot-oss.github.io/soot/) (Java analysis framework, used as frontend)
+* [picocli](https://picocli.info/) (command line interface)
+* [JUnit](https://junit.org/junit4/) (testing framework)
