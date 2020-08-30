@@ -21,7 +21,6 @@ import bamboo.pta.core.heap.HeapModel;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
-import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
 import bamboo.pta.statement.Allocation;
 import bamboo.pta.statement.Assign;
@@ -126,8 +125,8 @@ public class PointerAnalysis {
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
 //         System.out.println("Propagate "
-//                 + Stringify.pointsToSetToString(pointsToSet)
-//                 + " to " + Stringify.pointerToString(pointer));
+//                 + StringUtils.streamToString(pointsToSet.stream())
+//                 + " to " + pointer);
         PointsToSet diff = new PointsToSet();
         for (Obj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
@@ -291,7 +290,7 @@ public class PointerAnalysis {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {
-                    Method callee = callSite.getMethod();
+                    Method callee = resolveCallee(null, callSite);
                     Edge<CallSite, Method> edge =
                             new Edge<>(CallKind.STATIC, callSite, callee);
                     workList.addCallEdge(edge);
@@ -304,15 +303,16 @@ public class PointerAnalysis {
      * Resolves callee by given receiver object and call site.
      */
     private Method resolveCallee(Obj recvObj, CallSite callSite) {
-        Type type = recvObj.getType();
         switch (callSite.getKind()) {
             case INTERFACE:
             case VIRTUAL:
                 return programManager.resolveInterfaceOrVirtualCall(
-                        type, callSite.getMethod());
+                        recvObj.getType(), callSite.getMethod());
             case SPECIAL:
                 return programManager.resolveSpecialCall(
                         callSite, callSite.getContainerMethod());
+            case STATIC:
+                return programManager.resolveStaticCall(callSite.getMethod());
             default:
                 throw new AnalysisException("Unknown CallSite: " + callSite);
         }
