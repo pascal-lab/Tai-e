@@ -40,10 +40,21 @@ public interface ProgramManager {
 
     /**
      * @param recvType type of receiver object
-     * @param target target method at the call site
+     * @param callSite the call site
      * @return the callee
      */
-    Method resolveInterfaceOrVirtualCall(Type recvType, Method target);
+    default Method resolveInterfaceOrVirtualCall(
+            Type recvType, CallSite callSite) {
+        return dispatch(recvType, callSite.getMethod());
+    }
+
+    /**
+     * Dispatch callee based on receiver type and target method
+     * @param recvType type of receiver object
+     * @param target the target method
+     * @return the callee
+     */
+    Method dispatch(Type recvType, Method target);
 
     /**
      * @param callSite the call site
@@ -53,10 +64,10 @@ public interface ProgramManager {
     Method resolveSpecialCall(CallSite callSite, Method container);
 
     /**
-     * @param target target method at the call site
+     * @param callSite the call site
      * @return the callee
      */
-    Method resolveStaticCall(Method target);
+    Method resolveStaticCall(CallSite callSite);
 
     // -------------- program element ----------------
     /**

@@ -135,21 +135,19 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method resolveInterfaceOrVirtualCall(Type recvType, Method target) {
-        JimpleType jType = (JimpleType) recvType;
-        JimpleMethod jMethod = (JimpleMethod) target;
-        soot.Type type = jType.getSootType();
+    public Method dispatch(Type recvType, Method target) {
+        soot.Type sootType = ((JimpleType) recvType).getSootType();
+        SootMethod sootMethod = ((JimpleMethod) target).getSootMethod();
         soot.RefType concreteType;
-        if (type instanceof ArrayType) {
+        if (sootType instanceof ArrayType) {
             concreteType = RefType.v("java.lang.Object");
-        } else if (type instanceof RefType) {
-            concreteType = (RefType) type;
+        } else if (sootType instanceof RefType) {
+            concreteType = (RefType) sootType;
         } else {
-            throw new AnalysisException("Unknown type: " + type);
+            throw new AnalysisException("Unknown type: " + sootType);
         }
         SootMethod callee = hierarchy.resolveConcreteDispatch(
-                concreteType.getSootClass(),
-                jMethod.getSootMethod());
+                concreteType.getSootClass(), sootMethod);
         return irBuilder.getMethod(callee);
     }
 
@@ -157,15 +155,15 @@ public class JimpleProgramManager implements ProgramManager {
     public Method resolveSpecialCall(CallSite callSite, Method container) {
         SootMethod target = ((JimpleMethod) callSite.getMethod())
                 .getSootMethod();
-        SootMethod jContainer = ((JimpleMethod) container).getSootMethod();
+        SootMethod sootContainer = ((JimpleMethod) container).getSootMethod();
         SootMethod callee;
         // This implementation is based on FastHierarchy.resolveSpecialDispatch()
         if (target.getName().equals("<init>") || target.isPrivate()) {
             callee = target;
         } else if (hierarchy.isSubclass(target.getDeclaringClass(),
-                jContainer.getDeclaringClass())) {
+                sootContainer.getDeclaringClass())) {
             callee = hierarchy.resolveConcreteDispatch(
-                    jContainer.getDeclaringClass(), target);
+                    sootContainer.getDeclaringClass(), target);
         } else {
             callee = target;
         }
@@ -173,8 +171,9 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method resolveStaticCall(Method target) {
-        SootMethod callee = ((JimpleMethod) target).getSootMethod();
+    public Method resolveStaticCall(CallSite callSite) {
+        JimpleMethod target = (JimpleMethod) callSite.getMethod();
+        SootMethod callee = target.getSootMethod();
         return irBuilder.getMethod(callee);
     }
 

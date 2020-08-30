@@ -74,7 +74,6 @@ class FinalizerModel implements StatementVisitor {
 
     private boolean isOverridesFinalize(Type type) {
         Method finalize = getFinalize();
-        return !pm.resolveInterfaceOrVirtualCall(type, finalize)
-                .equals(finalize);
+        return !pm.dispatch(type, finalize).equals(finalize);
     }
 }

@@ -307,12 +307,12 @@ public class PointerAnalysis {
             case INTERFACE:
             case VIRTUAL:
                 return programManager.resolveInterfaceOrVirtualCall(
-                        recvObj.getType(), callSite.getMethod());
+                        recvObj.getType(), callSite);
             case SPECIAL:
                 return programManager.resolveSpecialCall(
                         callSite, callSite.getContainerMethod());
             case STATIC:
-                return programManager.resolveStaticCall(callSite.getMethod());
+                return programManager.resolveStaticCall(callSite);
             default:
                 throw new AnalysisException("Unknown CallSite: " + callSite);
         }
