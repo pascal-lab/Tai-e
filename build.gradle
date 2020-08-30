@@ -12,8 +12,8 @@ repositories {
 dependencies {
     implementation files('lib/sootclasses-modified.jar')
     compile group: 'org.soot-oss', name: 'soot', version: '4.2.0'
-    compile group: 'info.picocli', name: 'picocli', version: '4.4.0'
-    testImplementation 'junit:junit:4.12'
+    compile group: 'info.picocli', name: 'picocli', version: '4.5.0'
+    testImplementation 'junit:junit:4.13'
 }
 
 application {
