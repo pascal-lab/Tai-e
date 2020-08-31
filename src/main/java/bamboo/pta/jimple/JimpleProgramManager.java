@@ -17,6 +17,7 @@ import bamboo.pta.core.ProgramManager;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
+import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.env.Environment;
 import bamboo.util.AnalysisException;
@@ -119,6 +120,10 @@ public class JimpleProgramManager implements ProgramManager {
         return env;
     }
 
+    IRBuilder getIRBuilder() {
+        return irBuilder;
+    }
+
     @Override
     public boolean canAssign(Type from, Type to) {
         return hierarchy.canStoreType(
@@ -135,24 +140,38 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method dispatch(Type recvType, Method target) {
-        soot.Type sootType = ((JimpleType) recvType).getSootType();
-        SootMethod sootMethod = ((JimpleMethod) target).getSootMethod();
-        soot.RefType concreteType;
-        if (sootType instanceof ArrayType) {
-            concreteType = RefType.v("java.lang.Object");
-        } else if (sootType instanceof RefType) {
-            concreteType = (RefType) sootType;
-        } else {
-            throw new AnalysisException("Unknown type: " + sootType);
+    public Method resolveCallee(Obj recvObj, CallSite callSite) {
+        switch (callSite.getKind()) {
+            case INTERFACE:
+            case VIRTUAL:
+                return resolveInterfaceOrVirtualCall(
+                        recvObj.getType(), callSite);
+            case SPECIAL:
+                return resolveSpecialCall(
+                        callSite, callSite.getContainerMethod());
+            case STATIC:
+                return resolveStaticCall(callSite);
+            default:
+                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
-        SootMethod callee = hierarchy.resolveConcreteDispatch(
-                concreteType.getSootClass(), sootMethod);
-        return irBuilder.getMethod(callee);
     }
 
-    @Override
-    public Method resolveSpecialCall(CallSite callSite, Method container) {
+    /**
+     * @param recvType type of receiver object
+     * @param callSite the call site
+     * @return the callee
+     */
+    private Method resolveInterfaceOrVirtualCall(
+            Type recvType, CallSite callSite) {
+        return dispatch(recvType, callSite.getMethod());
+    }
+
+    /**
+     * @param callSite the call site
+     * @param container containing method of the call site
+     * @return the callee
+     */
+    private Method resolveSpecialCall(CallSite callSite, Method container) {
         SootMethod target = ((JimpleMethod) callSite.getMethod())
                 .getSootMethod();
         SootMethod sootContainer = ((JimpleMethod) container).getSootMethod();
@@ -170,15 +189,31 @@ public class JimpleProgramManager implements ProgramManager {
         return irBuilder.getMethod(callee);
     }
 
-    @Override
-    public Method resolveStaticCall(CallSite callSite) {
+    /**
+     * @param callSite the call site
+     * @return the callee
+     */
+    private Method resolveStaticCall(CallSite callSite) {
         JimpleMethod target = (JimpleMethod) callSite.getMethod();
         SootMethod callee = target.getSootMethod();
         return irBuilder.getMethod(callee);
     }
 
-    IRBuilder getIRBuilder() {
-        return irBuilder;
+    @Override
+    public Method dispatch(Type recvType, Method target) {
+        soot.Type sootType = ((JimpleType) recvType).getSootType();
+        SootMethod sootMethod = ((JimpleMethod) target).getSootMethod();
+        soot.RefType concreteType;
+        if (sootType instanceof ArrayType) {
+            concreteType = RefType.v("java.lang.Object");
+        } else if (sootType instanceof RefType) {
+            concreteType = (RefType) sootType;
+        } else {
+            throw new AnalysisException("Unknown type: " + sootType);
+        }
+        SootMethod callee = hierarchy.resolveConcreteDispatch(
+                concreteType.getSootClass(), sootMethod);
+        return irBuilder.getMethod(callee);
     }
 
     @Override

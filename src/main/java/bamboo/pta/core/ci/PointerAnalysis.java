@@ -28,7 +28,6 @@ import bamboo.pta.statement.Call;
 import bamboo.pta.statement.InstanceLoad;
 import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.Statement;
-import bamboo.util.AnalysisException;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -241,7 +240,7 @@ public class PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (Obj recvObj : pts) {
                 // resolve callee
-                Method callee = resolveCallee(recvObj, callSite);
+                Method callee = programManager.resolveCallee(recvObj, callSite);
                 // pass receiver object to *this* variable
                 Var thisVar = pointerFlowGraph.getVar(callee.getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
@@ -290,31 +289,12 @@ public class PointerAnalysis {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {
-                    Method callee = resolveCallee(null, callSite);
+                    Method callee = programManager.resolveCallee(null, callSite);
                     Edge<CallSite, Method> edge =
                             new Edge<>(CallKind.STATIC, callSite, callee);
                     workList.addCallEdge(edge);
                 }
             }
-        }
-    }
-
-    /**
-     * Resolves callee by given receiver object and call site.
-     */
-    private Method resolveCallee(Obj recvObj, CallSite callSite) {
-        switch (callSite.getKind()) {
-            case INTERFACE:
-            case VIRTUAL:
-                return programManager.resolveInterfaceOrVirtualCall(
-                        recvObj.getType(), callSite);
-            case SPECIAL:
-                return programManager.resolveSpecialCall(
-                        callSite, callSite.getContainerMethod());
-            case STATIC:
-                return programManager.resolveStaticCall(callSite);
-            default:
-                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
     }
 }

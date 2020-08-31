@@ -16,6 +16,7 @@ package bamboo.pta.core;
 import bamboo.pta.element.CallSite;
 import bamboo.pta.element.Field;
 import bamboo.pta.element.Method;
+import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.env.Environment;
 
@@ -39,14 +40,9 @@ public interface ProgramManager {
     boolean isSubtype(Type parent, Type child);
 
     /**
-     * @param recvType type of receiver object
-     * @param callSite the call site
-     * @return the callee
+     * Resolves callee by given receiver object and call site.
      */
-    default Method resolveInterfaceOrVirtualCall(
-            Type recvType, CallSite callSite) {
-        return dispatch(recvType, callSite.getMethod());
-    }
+    Method resolveCallee(Obj recvObj, CallSite callSite);
 
     /**
      * Dispatch callee based on receiver type and target method
@@ -55,19 +51,6 @@ public interface ProgramManager {
      * @return the callee
      */
     Method dispatch(Type recvType, Method target);
-
-    /**
-     * @param callSite the call site
-     * @param container containing method of the call site
-     * @return the callee
-     */
-    Method resolveSpecialCall(CallSite callSite, Method container);
-
-    /**
-     * @param callSite the call site
-     * @return the callee
-     */
-    Method resolveStaticCall(CallSite callSite);
 
     // -------------- program element ----------------
     /**

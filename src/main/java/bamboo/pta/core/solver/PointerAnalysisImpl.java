@@ -49,7 +49,6 @@ import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.StatementVisitor;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
-import bamboo.util.AnalysisException;
 import bamboo.util.Timer;
 
 import java.util.ArrayList;
@@ -431,7 +430,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (CSObj recvObj : pts) {
                 // resolve callee
-                Method callee = resolveCallee(recvObj.getObject(), callSite);
+                Method callee = programManager.resolveCallee(
+                        recvObj.getObject(), callSite);
                 // select context
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeContext = contextSelector.selectContext(
@@ -489,25 +489,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             monitor.signalNewMethod(method);
             method.getStatements()
                     .forEach(s -> s.accept(classInitializer));
-        }
-    }
-
-    /**
-     * Resolves callee by given receiver object and call site.
-     */
-    private Method resolveCallee(Obj recvObj, CallSite callSite) {
-        switch (callSite.getKind()) {
-            case INTERFACE:
-            case VIRTUAL:
-                return programManager.resolveInterfaceOrVirtualCall(
-                        recvObj.getType(), callSite);
-            case SPECIAL:
-                return programManager.resolveSpecialCall(
-                        callSite, callSite.getContainerMethod());
-            case STATIC:
-                return programManager.resolveStaticCall(callSite);
-            default:
-                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
     }
 
@@ -623,7 +604,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
             if (callSite.getKind() == CallKind.STATIC) {
-                Method callee = resolveCallee(null, callSite);
+                Method callee = programManager.resolveCallee(null, callSite);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
