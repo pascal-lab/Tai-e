@@ -152,6 +152,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     @Override
     public void analyze() {
+        monitor.signalPreprocessing();
         initialize();
         Timer solverTimer = new Timer("Pointer analysis solver");
         solverTimer.start();
@@ -193,10 +194,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         workList = new WorkList();
         reachableMethods = new HashSet<>();
         classInitializer = new ClassInitializer();
-
-        if (Options.get().isPreBuildIR()) {
-            programManager.buildIRForAllMethods();
-        }
 
         // process program entries (including implicit entries)
         Context defContext = contextSelector.getDefaultContext();

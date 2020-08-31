@@ -35,6 +35,13 @@ public interface AnalysisMonitor {
     }
 
     /**
+     * Invoked during pre-processing, i.e., before pointer analysis starts.
+     * Thread-safe.
+     */
+    default void signalPreprocessing() {
+    }
+
+    /**
      * Invoked during pointer analysis initialization.
      * Thread-safe.
      */

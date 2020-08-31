@@ -40,6 +40,11 @@ public class CompositeMonitor implements AnalysisMonitor {
     }
 
     @Override
+    public void signalPreprocessing() {
+        monitors.forEach(AnalysisMonitor::signalPreprocessing);
+    }
+
+    @Override
     public void signalInitialization() {
         monitors.forEach(AnalysisMonitor::signalInitialization);
     }
