@@ -34,8 +34,8 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
-import bamboo.pta.plugin.Plugin;
 import bamboo.pta.options.Options;
+import bamboo.pta.plugin.Plugin;
 import bamboo.pta.set.PointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.pta.statement.Allocation;
@@ -49,7 +49,6 @@ import bamboo.pta.statement.InstanceStore;
 import bamboo.pta.statement.StatementVisitor;
 import bamboo.pta.statement.StaticLoad;
 import bamboo.pta.statement.StaticStore;
-import bamboo.util.Timer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,11 +153,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     public void analyze() {
         plugin.preprocess();
         initialize();
-        Timer solverTimer = new Timer("Pointer analysis solver");
-        solverTimer.start();
         solve();
-        solverTimer.stop();
-        System.out.println(solverTimer);
         plugin.postprocess();
     }
 
@@ -211,7 +206,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Method main = programManager.getMainMethod();
         main.getParam(0).ifPresent(param0 ->
                 addPointsTo(defContext, param0, defContext, args));
-        // signal monitor
         plugin.initialize();
     }
 

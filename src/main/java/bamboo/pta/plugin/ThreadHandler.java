@@ -22,6 +22,7 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Variable;
 import bamboo.pta.env.Environment;
+import bamboo.pta.options.Options;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSet;
 
@@ -73,6 +74,9 @@ public class ThreadHandler implements Plugin {
 
     @Override
     public void initialize() {
+        if (!Options.get().analyzeImplicitEntries()) {
+            return;
+        }
         Environment env = pm.getEnvironment();
         Context context = pta.getContextSelector().getDefaultContext();
 

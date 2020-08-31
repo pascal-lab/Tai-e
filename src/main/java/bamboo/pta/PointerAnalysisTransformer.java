@@ -24,7 +24,6 @@ import bamboo.pta.core.solver.PointerAnalysisBuilder;
 import bamboo.pta.jimple.JimplePointerAnalysis;
 import bamboo.pta.options.Options;
 import bamboo.util.Pair;
-import bamboo.util.Timer;
 import soot.SceneTransformer;
 
 import java.io.File;
@@ -65,25 +64,22 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysisBuilder()
                 .build(Options.get());
-        Timer ptaTimer = new Timer("Pointer analysis");
-        ptaTimer.start();
         pta.analyze();
-        ptaTimer.stop();
         JimplePointerAnalysis.v().setPointerAnalysis(pta);
-        printResults(pta, ptaTimer);
+        printResults(pta);
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(pta);
         }
     }
 
-    private void printResults(PointerAnalysis pta, Timer ptaTimer) {
+    private void printResults(PointerAnalysis pta) {
         if (Options.get().isTestMode()) {
             printPointers(pta);
         } else if (Options.get().isOutputResults()) {
             File output = Options.get().getOutputFile();
             if (output != null) {
                 try {
-                    setOut(new PrintStream(new FileOutputStream(output)));
+                    out = new PrintStream(new FileOutputStream(output));
                 } catch (FileNotFoundException e) {
                     System.err.println("Failed to write output, caused by " + e);
                 }
@@ -98,7 +94,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             printPointers(pta);
             out.println("----------------------------------------");
         }
-        printStatistics(pta, ptaTimer);
+        printStatistics(pta);
     }
 
     private void printPointers(PointerAnalysis pta) {
@@ -138,7 +134,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 + streamToString(pointer.getPointsToSet().stream()));
     }
 
-    private void printStatistics(PointerAnalysis pta, Timer ptaTimer) {
+    private void printStatistics(PointerAnalysis pta) {
         int varInsens = (int) pta.getVariables()
                 .map(CSVariable::getVariable)
                 .distinct()
@@ -175,7 +171,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                 .getAllEdges()
                 .count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
-        System.out.println(ptaTimer);
         System.out.printf("%-30s%s (insens) / %s (sens)\n", "#var pointers:",
                 format(varInsens), format(varSens));
         System.out.printf("%-30s%s (sens)\n", "#var points-to:",

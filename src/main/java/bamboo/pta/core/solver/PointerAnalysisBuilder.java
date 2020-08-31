@@ -24,10 +24,11 @@ import bamboo.pta.core.context.TwoTypeSelector;
 import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
 import bamboo.pta.jimple.JimpleProgramManager;
+import bamboo.pta.options.Options;
+import bamboo.pta.plugin.AnalysisTimer;
 import bamboo.pta.plugin.CompositePlugin;
 import bamboo.pta.plugin.Preprocessor;
 import bamboo.pta.plugin.ThreadHandler;
-import bamboo.pta.options.Options;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
 import bamboo.util.AnalysisException;
@@ -84,10 +85,14 @@ public class PointerAnalysisBuilder {
 
     private void setPlugin(PointerAnalysisImpl pta, Options options) {
         CompositePlugin plugin = new CompositePlugin();
-        plugin.addPlugin(new Preprocessor());
-        if (options.analyzeImplicitEntries()) {
-            plugin.addPlugin(new ThreadHandler());
-        }
+        // To record elapsed time precisely, AnalysisTimer should be
+        // added at first.
+        // TODO: remove such order dependency
+        plugin.addPlugin(
+                new AnalysisTimer(),
+                new Preprocessor(),
+                new ThreadHandler()
+        );
         plugin.setPointerAnalysis(pta);
         pta.setPlugin(plugin);
     }

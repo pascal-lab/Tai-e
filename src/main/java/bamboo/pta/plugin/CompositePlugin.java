@@ -20,6 +20,7 @@ import bamboo.pta.element.Method;
 import bamboo.pta.set.PointsToSet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,8 +31,8 @@ public class CompositePlugin implements Plugin {
 
     private final List<Plugin> plugins = new ArrayList<>();
 
-    public void addPlugin(Plugin plugin) {
-        plugins.add(plugin);
+    public void addPlugin(Plugin... plugins) {
+        Collections.addAll(this.plugins, plugins);
     }
 
     @Override
