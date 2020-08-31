@@ -42,17 +42,24 @@ public interface Plugin {
     }
 
     /**
-     * Invoked during pointer analysis initialization.
+     * Invoked when pointer analysis initializes.
      * Thread-safe.
      */
     default void initialize() {
     }
 
     /**
-     * Invoked after pointer analysis finishes.
+     * Invoked when pointer analysis finishes.
      * Thread-safe.
      */
     default void finish() {
+    }
+
+    /**
+     * Invoked during post-processing, i.e., after pointer analysis finishes.
+     * Thread-safe.
+     */
+    default void postprocess() {
     }
 
     /**

@@ -55,6 +55,11 @@ public class CompositePlugin implements Plugin {
     }
 
     @Override
+    public void postprocess() {
+        plugins.forEach(Plugin::postprocess);
+    }
+
+    @Override
     public void handleNewPointsToSet(CSVariable csVar, PointsToSet pts) {
         plugins.forEach(p -> p.handleNewPointsToSet(csVar, pts));
     }

@@ -159,7 +159,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         solve();
         solverTimer.stop();
         System.out.println(solverTimer);
-        plugin.finish();
+        plugin.postprocess();
     }
 
     @Override
@@ -248,6 +248,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 processCallEdge(workList.pollCallEdge());
             }
         }
+        plugin.finish();
     }
 
     /**
