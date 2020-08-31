@@ -28,6 +28,7 @@ import bamboo.pta.options.Options;
 import bamboo.pta.plugin.AnalysisTimer;
 import bamboo.pta.plugin.CompositePlugin;
 import bamboo.pta.plugin.Preprocessor;
+import bamboo.pta.plugin.ResultPrinter;
 import bamboo.pta.plugin.ThreadHandler;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -41,7 +42,7 @@ public class PointerAnalysisBuilder {
         ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
-        setPlugin(pta, options);
+        setPlugin(pta);
         pta.setHeapModel(new AllocationSiteBasedModel(pm));
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setPointsToSetFactory(setFactory);
@@ -83,7 +84,7 @@ public class PointerAnalysisBuilder {
         }
     }
 
-    private void setPlugin(PointerAnalysisImpl pta, Options options) {
+    private void setPlugin(PointerAnalysisImpl pta) {
         CompositePlugin plugin = new CompositePlugin();
         // To record elapsed time precisely, AnalysisTimer should be
         // added at first.
@@ -91,7 +92,8 @@ public class PointerAnalysisBuilder {
         plugin.addPlugin(
                 new AnalysisTimer(),
                 new Preprocessor(),
-                new ThreadHandler()
+                new ThreadHandler(),
+                ResultPrinter.v()
         );
         plugin.setPointerAnalysis(pta);
         pta.setPlugin(plugin);

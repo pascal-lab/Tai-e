@@ -18,6 +18,7 @@ import bamboo.pta.core.cs.CSVariable;
 import bamboo.pta.core.cs.Pointer;
 import bamboo.pta.core.cs.StaticField;
 import bamboo.pta.core.solver.PointerAnalysis;
+import bamboo.pta.plugin.ResultPrinter;
 import bamboo.util.AnalysisException;
 import soot.G;
 
@@ -168,7 +169,7 @@ public class ResultChecker {
         } catch (UnsupportedEncodingException e) {
             throw new AnalysisException(e);
         }
-        PointerAnalysisTransformer.v().setOut(printStream);
+        ResultPrinter.v().setOut(printStream);
     }
 
     /**
