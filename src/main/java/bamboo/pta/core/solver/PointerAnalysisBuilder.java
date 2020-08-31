@@ -24,9 +24,9 @@ import bamboo.pta.core.context.TwoTypeSelector;
 import bamboo.pta.core.cs.MapBasedCSManager;
 import bamboo.pta.core.heap.AllocationSiteBasedModel;
 import bamboo.pta.jimple.JimpleProgramManager;
-import bamboo.pta.monitor.CompositeMonitor;
-import bamboo.pta.monitor.Preprocessor;
-import bamboo.pta.monitor.ThreadHandler;
+import bamboo.pta.plugin.CompositePlugin;
+import bamboo.pta.plugin.Preprocessor;
+import bamboo.pta.plugin.ThreadHandler;
 import bamboo.pta.options.Options;
 import bamboo.pta.set.HybridPointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -40,7 +40,7 @@ public class PointerAnalysisBuilder {
         ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
-        setAnalysisMonitor(pta, options);
+        setPlugin(pta, options);
         pta.setHeapModel(new AllocationSiteBasedModel(pm));
         PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
         pta.setPointsToSetFactory(setFactory);
@@ -82,13 +82,13 @@ public class PointerAnalysisBuilder {
         }
     }
 
-    private void setAnalysisMonitor(PointerAnalysisImpl pta, Options options) {
-        CompositeMonitor monitor = new CompositeMonitor();
-        monitor.addMonitor(new Preprocessor());
+    private void setPlugin(PointerAnalysisImpl pta, Options options) {
+        CompositePlugin plugin = new CompositePlugin();
+        plugin.addPlugin(new Preprocessor());
         if (options.analyzeImplicitEntries()) {
-            monitor.addMonitor(new ThreadHandler());
+            plugin.addPlugin(new ThreadHandler());
         }
-        monitor.setPointerAnalysis(pta);
-        pta.setAnalysisMonitor(monitor);
+        plugin.setPointerAnalysis(pta);
+        pta.setPlugin(plugin);
     }
 }

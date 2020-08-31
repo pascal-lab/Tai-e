@@ -34,7 +34,7 @@ import bamboo.pta.element.Method;
 import bamboo.pta.element.Obj;
 import bamboo.pta.element.Type;
 import bamboo.pta.element.Variable;
-import bamboo.pta.monitor.AnalysisMonitor;
+import bamboo.pta.plugin.Plugin;
 import bamboo.pta.options.Options;
 import bamboo.pta.set.PointsToSet;
 import bamboo.pta.set.PointsToSetFactory;
@@ -65,7 +65,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private CSManager csManager;
 
-    private AnalysisMonitor monitor;
+    private Plugin plugin;
 
     private OnFlyCallGraph callGraph;
 
@@ -101,8 +101,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         this.csManager = csManager;
     }
 
-    void setAnalysisMonitor(AnalysisMonitor monitor) {
-        this.monitor = monitor;
+    void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
@@ -152,14 +152,14 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     @Override
     public void analyze() {
-        monitor.signalPreprocessing();
+        plugin.preprocess();
         initialize();
         Timer solverTimer = new Timer("Pointer analysis solver");
         solverTimer.start();
         solve();
         solverTimer.stop();
         System.out.println(solverTimer);
-        monitor.signalFinish();
+        plugin.finish();
     }
 
     @Override
@@ -212,7 +212,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         main.getParam(0).ifPresent(param0 ->
                 addPointsTo(defContext, param0, defContext, args));
         // signal monitor
-        monitor.signalInitialization();
+        plugin.initialize();
     }
 
     private Collection<Method> computeEntries() {
@@ -241,7 +241,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     processArrayStore(v, diff);
                     processArrayLoad(v, diff);
                     processCall(v, diff);
-                    monitor.signalNewPointsToSet(v, diff);
+                    plugin.handleNewPointsToSet(v, diff);
                 }
             }
             while (workList.hasCallEdges()) {
@@ -333,7 +333,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             csMethod.getMethod()
                     .getStatements()
                     .forEach(s -> s.accept(processor));
-            monitor.signalNewCSMethod(csMethod);
+            plugin.handleNewCSMethod(csMethod);
         }
     }
 
@@ -483,7 +483,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private void processNewMethod(Method method) {
         if (reachableMethods.add(method)) {
-            monitor.signalNewMethod(method);
+            plugin.handleNewMethod(method);
             method.getStatements()
                     .forEach(s -> s.accept(classInitializer));
         }

@@ -11,13 +11,13 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.monitor;
+package bamboo.pta.plugin;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.solver.PointerAnalysis;
 import bamboo.pta.options.Options;
 
-public class Preprocessor implements AnalysisMonitor {
+public class Preprocessor implements Plugin {
 
     private ProgramManager pm;
 
@@ -27,7 +27,7 @@ public class Preprocessor implements AnalysisMonitor {
     }
 
     @Override
-    public void signalPreprocessing() {
+    public void preprocess() {
         if (Options.get().isPreBuildIR()) {
             pm.buildIRForAllMethods();
         }

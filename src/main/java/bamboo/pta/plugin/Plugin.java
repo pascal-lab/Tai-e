@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.monitor;
+package bamboo.pta.plugin;
 
 import bamboo.pta.core.cs.CSMethod;
 import bamboo.pta.core.cs.CSVariable;
@@ -20,13 +20,13 @@ import bamboo.pta.element.Method;
 import bamboo.pta.set.PointsToSet;
 
 /**
- * Analysis monitor interface.
+ * Analysis plugin interface.
  * This interface contains callbacks for pointer analysis events.
  * It is suppose to provide a mechanism for extending functionalities
  * of the analysis, so its implementations would have side effects
  * on pointer analysis and should be thread-safe.
  */
-public interface AnalysisMonitor {
+public interface Plugin {
 
     /**
      * Set pointer analysis interface which will be used later by the monitor.
@@ -38,21 +38,21 @@ public interface AnalysisMonitor {
      * Invoked during pre-processing, i.e., before pointer analysis starts.
      * Thread-safe.
      */
-    default void signalPreprocessing() {
+    default void preprocess() {
     }
 
     /**
      * Invoked during pointer analysis initialization.
      * Thread-safe.
      */
-    default void signalInitialization() {
+    default void initialize() {
     }
 
     /**
      * Invoked after pointer analysis finishes.
      * Thread-safe.
      */
-    default void signalFinish() {
+    default void finish() {
     }
 
     /**
@@ -61,7 +61,7 @@ public interface AnalysisMonitor {
      * @param csVar variable whose points-to set changes
      * @param pts set of new objects
      */
-    default void signalNewPointsToSet(CSVariable csVar, PointsToSet pts) {
+    default void handleNewPointsToSet(CSVariable csVar, PointsToSet pts) {
     }
 
     /**
@@ -69,7 +69,7 @@ public interface AnalysisMonitor {
      * Not thread-safe, but single-thread on method.
      * @param method new reachable method
      */
-    default void signalNewMethod(Method method) {
+    default void handleNewMethod(Method method) {
     }
 
     /**
@@ -77,6 +77,6 @@ public interface AnalysisMonitor {
      * Not thread-safe, but single-thread on csMethod.
      * @param csMethod new reachable context-sensitive method
      */
-    default void signalNewCSMethod(CSMethod csMethod) {
+    default void handleNewCSMethod(CSMethod csMethod) {
     }
 }

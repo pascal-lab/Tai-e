@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package bamboo.pta.monitor;
+package bamboo.pta.plugin;
 
 import bamboo.pta.core.ProgramManager;
 import bamboo.pta.core.context.Context;
@@ -32,7 +32,7 @@ import java.util.Set;
  * Model initialization of main thread, system thread group,
  * and some Thread APIs.
  */
-public class ThreadHandler implements AnalysisMonitor {
+public class ThreadHandler implements Plugin {
 
     private PointerAnalysis pta;
     private ProgramManager pm;
@@ -72,7 +72,7 @@ public class ThreadHandler implements AnalysisMonitor {
     }
 
     @Override
-    public void signalInitialization() {
+    public void initialize() {
         Environment env = pm.getEnvironment();
         Context context = pta.getContextSelector().getDefaultContext();
 
@@ -122,7 +122,7 @@ public class ThreadHandler implements AnalysisMonitor {
     }
 
     @Override
-    public void signalNewPointsToSet(CSVariable csVar, PointsToSet pts) {
+    public void handleNewPointsToSet(CSVariable csVar, PointsToSet pts) {
         if (csVar.getVariable().equals(threadStartThis)) {
             // Add new reachable thread objects to set of running threads,
             // and propagate the thread objects to return variable of
@@ -143,7 +143,7 @@ public class ThreadHandler implements AnalysisMonitor {
     }
 
     @Override
-    public void signalNewCSMethod(CSMethod csMethod) {
+    public void handleNewCSMethod(CSMethod csMethod) {
         if (csMethod.getMethod().equals(currentThread)) {
             // When a new CS Thread.currentThread() is reachable, we propagate
             // all running threads to its return variable.
