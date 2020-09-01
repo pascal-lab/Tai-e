@@ -25,4 +25,5 @@ Build an efficient, feature-rich, extensible, configurable and maintainable prog
 ### Dependencies
 * [Soot](https://soot-oss.github.io/soot/) (Java analysis framework, used as frontend)
 * [picocli](https://picocli.info/) (command line interface)
+* [Log4j](https://logging.apache.org/log4j/2.x/) (logging utility)
 * [JUnit](https://junit.org/junit4/) (testing framework)
