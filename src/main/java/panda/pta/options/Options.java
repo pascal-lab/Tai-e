@@ -20,8 +20,8 @@ import picocli.CommandLine.Parameters;
 
 import java.io.File;
 
-@Command(name = "Bamboo",
-        description = "A pointer analysis framework for Java",
+@Command(name = "Panda",
+        description = "A program analysis framework for Java",
         showEndOfOptionsDelimiterInUsageHelp = true,
         version = "0.1")
 public class Options {
@@ -42,7 +42,7 @@ public class Options {
 
     // ---------- pre-processing options ----------
     @Option(names = "--pre-build-ir",
-            description = "Build Bamboo IR for all available methods before" +
+            description = "Build Panda IR for all available methods before" +
                     " starting pointer analysis (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean preBuildIR;

@@ -22,7 +22,7 @@ import soot.Transform;
 public class Main {
 
     public static void main(String[] args) {
-        // Configure Bamboo options
+        // Configure Panda options
         Options.parse(args);
         if (Options.get().shouldShowHelp()) {
             Options.get().printHelp();

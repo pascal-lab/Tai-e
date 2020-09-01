@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 class Utils {
 
     static void test(String cp, String inputClass, Consumer<IRBuilder> func) {
-        // setup Bamboo options
         // reset Soot
         G.reset();
         // set Soot options

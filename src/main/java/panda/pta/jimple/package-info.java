@@ -13,7 +13,7 @@
 
 /**
  * This package acts as the interface between Jimple IR (and other program
- * information provided by soot) and Bamboo's pointer analysis framework,
- * and it converts Jimple to Bamboo's pointer analysis IR.
+ * information provided by soot) and Panda's pointer analysis framework,
+ * and it converts Jimple to Panda's pointer analysis IR.
  */
 package panda.pta.jimple;
