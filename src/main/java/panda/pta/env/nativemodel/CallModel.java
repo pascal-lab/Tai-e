@@ -21,6 +21,7 @@ import panda.pta.element.Variable;
 import panda.pta.options.Options;
 import panda.pta.statement.ArrayLoad;
 import panda.pta.statement.ArrayStore;
+import panda.pta.statement.AssignCast;
 import panda.pta.statement.Call;
 import panda.pta.statement.StatementVisitor;
 
@@ -69,13 +70,22 @@ class CallModel implements StatementVisitor {
         // --------------------------------------------------------------------
         // <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
         registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
-            Variable temp = newMockVariable(
-                    pm.getUniqueTypeByName("java.lang.Object"), method);
             Optional<Variable> src = call.getCallSite().getArg(0);
             Optional<Variable> dest = call.getCallSite().getArg(2);
             if (src.isPresent() && dest.isPresent()) {
-                method.addStatement(new ArrayLoad(temp, src.get()));
-                method.addStatement(new ArrayStore(dest.get(), temp));
+                Type arrayType = pm.getUniqueTypeByName("java.lang.Object[]");
+                Variable srcArray = newMockVariable(arrayType , method);
+                Variable destArray = newMockVariable(arrayType , method);
+                Variable temp = newMockVariable(
+                        pm.getUniqueTypeByName("java.lang.Object"), method);
+                // src/dest may point to non-array objects due to imprecision
+                // of pointer analysis, thus we add cast statements to filter
+                // out load/store operations on non-array objects.
+                // Note that the cast statements will exclude primitive arrays.
+                method.addStatement(new AssignCast(srcArray, arrayType, src.get()));
+                method.addStatement(new AssignCast(destArray, arrayType, dest.get()));
+                method.addStatement(new ArrayLoad(temp, srcArray));
+                method.addStatement(new ArrayStore(destArray, temp));
             }
         });
 

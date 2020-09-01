@@ -61,6 +61,7 @@ public abstract class AbstractCallSite implements CallSite {
 
     @Override
     public Variable getReceiver() {
+        assert kind != CallKind.STATIC;
         return receiver;
     }
 
