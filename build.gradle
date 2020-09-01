@@ -17,5 +17,5 @@ dependencies {
 }
 
 application {
-    mainClassName = 'bamboo.pta.Main'
+    mainClassName = 'panda.pta.Main'
 }

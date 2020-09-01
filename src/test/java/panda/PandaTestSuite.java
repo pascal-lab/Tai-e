@@ -33,5 +33,5 @@ import org.junit.runners.Suite;
         CSPTATest.class,
         OptionsTest.class,
 })
-public class BambooTestSuite {
+public class PandaTestSuite {
 }

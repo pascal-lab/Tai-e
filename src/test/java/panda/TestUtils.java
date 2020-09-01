@@ -26,22 +26,22 @@ import java.util.Set;
 public class TestUtils {
     public static void testCP(String inputClass) {
         test(inputClass, "constprop",
-                "bamboo.dataflow.analysis.constprop.ResultChecker");
+                "panda.dataflow.analysis.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
         test(inputClass, "deadcode",
-                "bamboo.dataflow.analysis.deadcode.ResultChecker");
+                "panda.dataflow.analysis.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {
         test(inputClass, "cha",
-                "bamboo.callgraph.cha.ResultChecker");
+                "panda.callgraph.cha.ResultChecker");
     }
 
     public static void testPTA(String inputClass) {
         test(inputClass, "pta",
-                "bamboo.pta.core.ci.ResultChecker");
+                "panda.pta.core.ci.ResultChecker");
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
@@ -50,9 +50,9 @@ public class TestUtils {
         // ignore implicit entries in test mode
         optList.add("--no-implicit-entries");
         optList.add("--test-mode");
-        optList.add("--"); // used by bamboo to split Soot arguments
+        optList.add("--"); // used by panda to split Soot arguments
         test(inputClass, "cspta",
-                "bamboo.pta.ResultChecker", optList);
+                "panda.pta.ResultChecker", optList);
     }
 
     private static void test(String inputClass, String analysis, String checker) {
