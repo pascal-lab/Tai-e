@@ -24,8 +24,8 @@ public class DaCapoRunner {
 
     private static final String SEP = File.separator;
     private static final List<String> BENCHMARK06
-            = Arrays.asList("antlr", "bloat", "chart", "eclipse", "fop",
-            "hsqldb", "jython", "luindex", "lusearch", "pmd", "xalan");
+            = Arrays.asList("antlr", /*"bloat",*/ "chart", "eclipse", "fop",
+            "hsqldb", /*"jython",*/ "luindex", "lusearch", "pmd", "xalan");
     private static final String PATH06 = "benchmark" + SEP + "dacapo-2006";
     private static final String JDK6 = "benchmark" + SEP + "jre1.6.0_24";
 
@@ -51,15 +51,13 @@ public class DaCapoRunner {
     }
 
     private String[] compose06Args(String benchmark) {
-        List<String> args = new ArrayList<>();
-        args.add("-jdk=6");
-        args.add("--merge-string-constants");
-        args.add("--pre-build-ir");
-        args.add("--");
-        args.add("-cp");
-        args.add(buildCP(JDK6, PATH06, benchmark));
-        args.add("dacapo." + benchmark + ".Main");
-        return args.toArray(new String[0]);
+        return new String[]{
+                "-jdk=6",
+                "--merge-string-constants",
+                "--pre-build-ir",
+                "-cs", "2-obj",
+                "--", "-cp", buildCP(JDK6, PATH06, benchmark),
+                "dacapo." + benchmark + ".Main"};
     }
 
     private String buildCP(String jdkPath, String dacapoPath,
