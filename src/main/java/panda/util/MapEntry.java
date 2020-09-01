@@ -1,17 +1,14 @@
 /*
- * Copyright 2009-2019 Aarhus University
+ * Panda - A Program Analysis Framework for Java
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * All rights reserved.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This software is designed for the "Static Program Analysis" course at
+ * Nanjing University, and it supports a subset of Java features.
+ * Panda is only for educational and academic purposes, and any form of
+ * commercial use is disallowed.
  */
 
 package panda.util;
