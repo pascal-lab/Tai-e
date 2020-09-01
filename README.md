@@ -1,7 +1,7 @@
-# Bamboo - A Pointer Analysis Framework for Java
+# Panda - A Parallel and Practical Program Analysis Framework for Java
 
 ### Goal
-Build an efficient, feature-rich, extensible, configurable and maintainable pointer analysis framework for Java.
+Build an efficient, feature-rich, extensible, configurable and maintainable program analysis framework for Java.
 
 ### Features
 * [x] Core pointer analysis
