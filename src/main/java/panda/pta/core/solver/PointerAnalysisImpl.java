@@ -13,6 +13,8 @@
 
 package panda.pta.core.solver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import panda.callgraph.CallGraph;
 import panda.callgraph.CallKind;
 import panda.callgraph.Edge;
@@ -60,26 +62,18 @@ import java.util.stream.Stream;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
 
+    private static final Logger logger = LogManager.getLogger(PointerAnalysisImpl.class);
+
     private ProgramManager programManager;
-
     private CSManager csManager;
-
     private Plugin plugin;
-
     private OnFlyCallGraph callGraph;
-
     private PointerFlowGraph pointerFlowGraph;
-
     private HeapModel heapModel;
-
     private ContextSelector contextSelector;
-
     private PointsToSetFactory setFactory;
-
     private WorkList workList;
-
     private Set<Method> reachableMethods;
-
     private ClassInitializer classInitializer;
 
     @Override
@@ -250,8 +244,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * returns the difference set of pointsToSet and pt(pointer).
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-        if (Options.get().isVerbose()) {
-            System.out.println("Propagate " + pointsToSet + " to " + pointer);
+        if (logger.isTraceEnabled()) { // frequently invoked
+            logger.trace("Propagate {} to {}", pointsToSet, pointer);
         }
         final PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {

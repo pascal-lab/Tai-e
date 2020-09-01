@@ -98,10 +98,6 @@ public class Options {
             description = "Dump classes", defaultValue = "false")
     private boolean dumpClasses;
 
-    @Option(names = "--verbose",
-            description = "Output analysis details", defaultValue = "false")
-    private boolean verbose;
-
     @Option(names = "--test-mode",
             description = "Flag test mode", defaultValue = "false")
     private boolean testMode;
@@ -187,10 +183,6 @@ public class Options {
 
     public boolean isDumpClasses() {
         return dumpClasses;
-    }
-
-    public boolean isVerbose() {
-        return verbose;
     }
 
     public boolean isTestMode() {
