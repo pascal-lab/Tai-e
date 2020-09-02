@@ -3,6 +3,5 @@ gradle/
 build/
 sootOutput/
 .idea/
-benchmark/
 output/
 out/
