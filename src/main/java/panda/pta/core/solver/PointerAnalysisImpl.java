@@ -244,9 +244,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * returns the difference set of pointsToSet and pt(pointer).
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-        if (logger.isTraceEnabled()) { // frequently invoked
-            logger.trace("Propagate {} to {}", pointsToSet, pointer);
-        }
+        logger.trace("Propagate {} to {}", pointsToSet, pointer);
         final PointsToSet diff = setFactory.makePointsToSet();
         for (CSObj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
@@ -256,7 +254,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (!diff.isEmpty()) {
             for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(pointer)) {
                 Pointer to = edge.getTo();
-                // TODO: use Optional.ifPresentOrElse() after update to Java 9+
+                // TODO: use Optional.ifPresentOrElse() after upgrade to Java 9+
                 if (edge.getType().isPresent()) {
                     // Checks assignable objects
                     addPointerEntry(to,
