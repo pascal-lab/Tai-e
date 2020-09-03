@@ -19,17 +19,14 @@ import panda.pta.core.cs.CSMethod;
 import panda.pta.core.cs.Pointer;
 import panda.pta.set.PointsToSet;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 
 class WorkList {
 
     private final Queue<Entry> pointerEntries = new LinkedList<>();
 
-    private final Set<Edge<CSCallSite, CSMethod>> callEdges = new LinkedHashSet<>();
+    private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new LinkedList<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();
@@ -56,10 +53,7 @@ class WorkList {
     }
 
     Edge<CSCallSite, CSMethod> pollCallEdge() {
-        Iterator<Edge<CSCallSite, CSMethod>> iter = callEdges.iterator();
-        Edge<CSCallSite, CSMethod> edge = iter.next();
-        iter.remove();
-        return edge;
+        return callEdges.poll();
     }
 
     boolean isEmpty() {
