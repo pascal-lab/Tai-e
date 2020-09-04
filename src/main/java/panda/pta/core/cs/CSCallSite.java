@@ -13,12 +13,25 @@
 
 package panda.pta.core.cs;
 
+import panda.callgraph.Edge;
 import panda.pta.core.context.Context;
 import panda.pta.element.CallSite;
+import panda.util.HybridArrayHashSet;
+
+import java.util.Set;
 
 public class CSCallSite extends AbstractCSElement {
 
     private final CallSite callSite;
+    /**
+     * Context-sensitive method which contains this CS call site.
+     */
+    private CSMethod container;
+    /**
+     * Call edges from this call site.
+     */
+    private final Set<Edge<CSCallSite, CSMethod>> edges
+            = new HybridArrayHashSet<>();
 
     CSCallSite(CallSite callSite, Context context) {
         super(context);
@@ -27,6 +40,23 @@ public class CSCallSite extends AbstractCSElement {
 
     public CallSite getCallSite() {
         return callSite;
+    }
+
+    public void setContainer(CSMethod container) {
+        assert this.container == null; // should be set only once
+        this.container = container;
+    }
+
+    public CSMethod getContainer() {
+        return container;
+    }
+
+    public boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
+        return edges.add(edge);
+    }
+
+    public Set<Edge<CSCallSite, CSMethod>> getEdges() {
+        return edges;
     }
 
     @Override

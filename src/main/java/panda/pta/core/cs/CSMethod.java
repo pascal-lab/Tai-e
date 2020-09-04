@@ -15,10 +15,17 @@ package panda.pta.core.cs;
 
 import panda.pta.core.context.Context;
 import panda.pta.element.Method;
+import panda.util.HybridArrayHashSet;
+
+import java.util.Set;
 
 public class CSMethod extends AbstractCSElement {
 
     private final Method method;
+    /**
+     * Callers of this CS method.
+     */
+    private final Set<CSCallSite> callers = new HybridArrayHashSet<>();
 
     CSMethod(Method method, Context context) {
         super(context);
@@ -27,6 +34,14 @@ public class CSMethod extends AbstractCSElement {
 
     public Method getMethod() {
         return method;
+    }
+
+    public void addCaller(CSCallSite caller) {
+        callers.add(caller);
+    }
+
+    public Set<CSCallSite> getCallers() {
+        return callers;
     }
 
     @Override
