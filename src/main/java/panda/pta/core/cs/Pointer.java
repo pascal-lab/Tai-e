@@ -13,14 +13,31 @@
 
 package panda.pta.core.cs;
 
+import panda.pta.core.solver.PointerFlowEdge;
 import panda.pta.element.Type;
 import panda.pta.set.PointsToSet;
 
+import java.util.Set;
+
+/**
+ * Represent pointers/nodes in pointer analysis/pointer flow graph.
+ */
 public interface Pointer {
 
     PointsToSet getPointsToSet();
 
     void setPointsToSet(PointsToSet pointsToSet);
+
+    /**
+     * @param edge an out edge of this pointer
+     * @return if the given edge is an new edge for this pointer.
+     */
+    boolean addOutEdge(PointerFlowEdge edge);
+
+    /**
+     * @return out edges of this pointer in pointer flow graph.
+     */
+    Set<PointerFlowEdge> getOutEdges();
 
     /**
      * @return the type of this pointer

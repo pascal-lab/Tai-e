@@ -19,7 +19,7 @@ import panda.pta.element.Type;
 import java.util.Objects;
 import java.util.Optional;
 
-class PointerFlowEdge {
+public class PointerFlowEdge {
 
     private final Kind kind;
     private final Pointer from;

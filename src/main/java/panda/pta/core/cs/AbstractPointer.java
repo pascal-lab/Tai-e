@@ -13,11 +13,16 @@
 
 package panda.pta.core.cs;
 
+import panda.pta.core.solver.PointerFlowEdge;
 import panda.pta.set.PointsToSet;
+import panda.util.HybridArrayHashSet;
+
+import java.util.Set;
 
 abstract class AbstractPointer implements Pointer {
 
-    protected PointsToSet pointsToSet;
+    private PointsToSet pointsToSet;
+    private final Set<PointerFlowEdge> outEdges = new HybridArrayHashSet<>();
 
     @Override
     public PointsToSet getPointsToSet() {
@@ -27,5 +32,15 @@ abstract class AbstractPointer implements Pointer {
     @Override
     public void setPointsToSet(PointsToSet pointsToSet) {
         this.pointsToSet = pointsToSet;
+    }
+
+    @Override
+    public boolean addOutEdge(PointerFlowEdge edge) {
+        return outEdges.add(edge);
+    }
+
+    @Override
+    public Set<PointerFlowEdge> getOutEdges() {
+        return outEdges;
     }
 }
