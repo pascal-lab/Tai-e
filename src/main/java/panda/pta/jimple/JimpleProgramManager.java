@@ -47,6 +47,7 @@ public class JimpleProgramManager implements ProgramManager {
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>",
             "<java.lang.ThreadGroup: void <init>()>",
+            "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>",
             "<java.lang.Thread: void exit()>",
             "<java.lang.ThreadGroup: void uncaughtException(java.lang.Thread,java.lang.Throwable)>",
             "<java.lang.ClassLoader: void <init>()>",
