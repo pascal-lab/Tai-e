@@ -13,58 +13,124 @@
 
 package panda.pta.core.solver;
 
-import panda.callgraph.AbstractCallGraph;
+import panda.callgraph.CallGraph;
 import panda.callgraph.Edge;
 import panda.pta.core.context.Context;
 import panda.pta.core.cs.CSCallSite;
-import panda.pta.core.cs.CSMethod;
 import panda.pta.core.cs.CSManager;
+import panda.pta.core.cs.CSMethod;
 import panda.pta.element.CallSite;
 import panda.pta.element.Method;
 import panda.pta.statement.Call;
 import panda.pta.statement.Statement;
-import panda.util.CollectionUtils;
+import panda.util.CollectionView;
 
-class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+
+class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
+    private final Set<CSMethod> entryMethods = new HashSet<>();
+    private final Set<CSMethod> reachableMethods
+            = ConcurrentHashMap.newKeySet();
 
     OnFlyCallGraph(CSManager csManager) {
         this.csManager = csManager;
     }
 
-    @Override
-    public void addEntryMethod(CSMethod entryMethod) {
+    void addEntryMethod(CSMethod entryMethod) {
         entryMethods.add(entryMethod);
         // Let pointer analysis explicitly call addNewMethod() of this class
     }
 
+    @Override
+    public Collection<CSMethod> getEntryMethods() {
+        return entryMethods;
+    }
+
     void addEdge(Edge<CSCallSite, CSMethod> edge) {
-        CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge);
-        CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
+        edge.getCallSite().addEdge(edge);
+        edge.getCallee().addCaller(edge.getCallSite());
     }
 
     boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
         return getEdgesOf(edge.getCallSite()).contains(edge);
     }
 
-    @Override
-    protected boolean addNewMethod(CSMethod csMethod) {
+    boolean addNewMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
-            Method method = csMethod.getMethod();
-            Context context = csMethod.getContext();
-            for (Statement s : method.getStatements()) {
-                if (s instanceof Call) {
-                    CallSite callSite = ((Call) s).getCallSite();
-                    CSCallSite csCallSite = csManager
-                            .getCSCallSite(context, callSite);
-                    callSiteToContainer.put(csCallSite, csMethod);
-                    CollectionUtils.addToMapSet(callSitesIn, csMethod, csCallSite);
-                }
-            }
+            getCallSitesIn(csMethod).forEach(csCallSite ->
+                    csCallSite.setContainer(csMethod));
             return true;
         } else {
             return false;
         }
+    }
+
+    @Override
+    public Collection<CSMethod> getCallees(CSCallSite csCallSite) {
+        return CollectionView.of(csCallSite.getEdges(), Edge::getCallee);
+    }
+
+    @Override
+    public Collection<CSCallSite> getCallers(CSMethod callee) {
+        return callee.getCallers();
+    }
+
+    @Override
+    public CSMethod getContainerMethodOf(CSCallSite csCallSite) {
+        return csCallSite.getContainer();
+    }
+
+    @Override
+    public Collection<CSCallSite> getCallSitesIn(CSMethod csMethod) {
+        Method method = csMethod.getMethod();
+        Context context = csMethod.getContext();
+        List<CSCallSite> callSites = new ArrayList<>();
+        for (Statement s : method.getStatements()) {
+            if (s instanceof Call) {
+                CallSite callSite = ((Call) s).getCallSite();
+                CSCallSite csCallSite = csManager
+                        .getCSCallSite(context, callSite);
+                callSites.add(csCallSite);
+            }
+        }
+        return callSites;
+    }
+
+    @Override
+    public Collection<Edge<CSCallSite, CSMethod>> getEdgesOf(CSCallSite csCallSite) {
+        return csCallSite.getEdges();
+    }
+
+    @Override
+    public Stream<Edge<CSCallSite, CSMethod>> getAllEdges() {
+        return reachableMethods.stream()
+                .map(this::getCallSitesIn)
+                .flatMap(Collection::stream)
+                .map(this::getEdgesOf)
+                .flatMap(Collection::stream);
+    }
+
+    @Override
+    public Collection<CSMethod> getReachableMethods() {
+        return reachableMethods;
+    }
+
+    @Override
+    public boolean contains(CSMethod csMethod) {
+        return reachableMethods.contains(csMethod);
+    }
+
+    @Override
+    public Iterator<Edge<CSCallSite, CSMethod>> iterator() {
+        return getAllEdges().iterator();
     }
 }
