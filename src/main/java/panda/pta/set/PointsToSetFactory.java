@@ -15,16 +15,26 @@ package panda.pta.set;
 
 import panda.pta.core.cs.CSObj;
 
-public interface PointsToSetFactory {
+public abstract class PointsToSetFactory {
 
-    PointsToSet makePointsToSet();
+    private static PointsToSetFactory factory;
+
+    public static void setFactory(PointsToSetFactory factory) {
+        PointsToSetFactory.factory = factory;
+    }
+
+    public static PointsToSet make() {
+        return factory.makePointsToSet();
+    }
 
     /**
-     * Make a singleton points-to set.
+     * Convenient method for making one-element points-to set.
      */
-    default PointsToSet makePointsToSet(CSObj obj) {
-        PointsToSet set = makePointsToSet();
+    public static PointsToSet make(CSObj obj) {
+        PointsToSet set = make();
         set.addObject(obj);
         return set;
     }
+
+    protected abstract PointsToSet makePointsToSet();
 }

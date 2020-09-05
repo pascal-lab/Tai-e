@@ -22,10 +22,10 @@ public class HybridPointsToSet extends DelegatePointsToSet {
         set = new HybridArrayHashSet<>();
     }
 
-    public static class Factory implements PointsToSetFactory {
+    public static class Factory extends PointsToSetFactory {
 
         @Override
-        public PointsToSet makePointsToSet() {
+        protected PointsToSet makePointsToSet() {
             return new HybridPointsToSet();
         }
     }

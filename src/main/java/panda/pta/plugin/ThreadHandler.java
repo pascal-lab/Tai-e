@@ -23,8 +23,8 @@ import panda.pta.element.Obj;
 import panda.pta.element.Variable;
 import panda.pta.env.Environment;
 import panda.pta.options.Options;
-import panda.pta.set.HybridPointsToSet;
 import panda.pta.set.PointsToSet;
+import panda.pta.set.PointsToSetFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class ThreadHandler implements Plugin {
     /**
      * Set of running threads.
      */
-    private final PointsToSet runningThreads = new HybridPointsToSet();
+    private final PointsToSet runningThreads = PointsToSetFactory.make();
     /**
      * Represent Thread.currentThread.
      */

@@ -42,21 +42,11 @@ public class MapBasedCSManager implements CSManager {
     private final Map<Obj, Map<Context, CSObj>> objs = new HashMap<>();
     private final Map<CallSite, Map<Context, CSCallSite>> callSites = new HashMap<>();
     private final Map<Method, Map<Context, CSMethod>> methods = new HashMap<>();
-    private PointsToSetFactory setFactory;
-
-    public MapBasedCSManager(PointsToSetFactory setFactory) {
-        setPointsToSetFactory(setFactory);
-    }
 
     private static <R, Key1, Key2> R getOrCreateCSElement(
             Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
         return map.computeIfAbsent(key1, k -> new HybridArrayHashMap<>())
                 .computeIfAbsent(key2, (k) -> creator.apply(key1, key2));
-    }
-
-    @Override
-    public void setPointsToSetFactory(PointsToSetFactory setFactory) {
-        this.setFactory = setFactory;
     }
 
     @Override
@@ -119,7 +109,7 @@ public class MapBasedCSManager implements CSManager {
     }
 
     private <P extends Pointer> P initializePointsToSet(P pointer) {
-        pointer.setPointsToSet(setFactory.makePointsToSet());
+        pointer.setPointsToSet(PointsToSetFactory.make());
         return pointer;
     }
 }

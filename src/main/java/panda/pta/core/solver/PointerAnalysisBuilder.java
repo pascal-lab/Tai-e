@@ -38,15 +38,14 @@ import soot.Scene;
 public class PointerAnalysisBuilder {
 
     public PointerAnalysis build(Options options) {
+        PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
         PointerAnalysisImpl pta = new PointerAnalysisImpl();
         ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
         setContextSensitivity(pta, options);
         setPlugin(pta);
         pta.setHeapModel(new AllocationSiteBasedModel(pm));
-        PointsToSetFactory setFactory = new HybridPointsToSet.Factory();
-        pta.setPointsToSetFactory(setFactory);
-        pta.setCSManager(new MapBasedCSManager(setFactory));
+        pta.setCSManager(new MapBasedCSManager());
         return pta;
     }
 

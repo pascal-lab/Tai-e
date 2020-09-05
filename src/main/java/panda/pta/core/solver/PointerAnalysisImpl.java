@@ -71,7 +71,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private PointerFlowGraph pointerFlowGraph;
     private HeapModel heapModel;
     private ContextSelector contextSelector;
-    private PointsToSetFactory setFactory;
     private WorkList workList;
     private Set<Method> reachableMethods;
     private ClassInitializer classInitializer;
@@ -109,10 +108,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     void setHeapModel(HeapModel heapModel) {
         this.heapModel = heapModel;
-    }
-
-    void setPointsToSetFactory(PointsToSetFactory setFactory) {
-        this.setFactory = setFactory;
     }
 
     @Override
@@ -156,7 +151,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                             Context heapContext, Obj obj) {
         // TODO: use heapModel to process obj?
         CSObj csObj = csManager.getCSObj(heapContext, obj);
-        addPointsTo(context, var, setFactory.makePointsToSet(csObj));
+        addPointsTo(context, var, PointsToSetFactory.make(csObj));
     }
 
     @Override
@@ -171,7 +166,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         CSObj csArray = csManager.getCSObj(arrayContext, array);
         ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
         CSObj elem = csManager.getCSObj(heapContext, obj);
-        addPointerEntry(arrayIndex, setFactory.makePointsToSet(elem));
+        addPointerEntry(arrayIndex, PointsToSetFactory.make(elem));
     }
 
     /**
@@ -245,7 +240,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         logger.trace("Propagate {} to {}", pointsToSet, pointer);
-        final PointsToSet diff = setFactory.makePointsToSet();
+        final PointsToSet diff = PointsToSetFactory.make();
         for (CSObj obj : pointsToSet) {
             if (pointer.getPointsToSet().addObject(obj)) {
                 diff.addObject(obj);
@@ -279,7 +274,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * which can be assigned to t.
      */
     private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
-        PointsToSet result = setFactory.makePointsToSet();
+        PointsToSet result = PointsToSetFactory.make();
         pts.stream()
                 .filter(o -> programManager.canAssign(
                         o.getObject().getType(), type))
@@ -427,7 +422,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 // pass receiver object to *this* variable
                 CSVariable thisVar = csManager.getCSVariable(
                         calleeContext, callee.getThis());
-                addPointerEntry(thisVar, setFactory.makePointsToSet(recvObj));
+                addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
             }
         }
     }

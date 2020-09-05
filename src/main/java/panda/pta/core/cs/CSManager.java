@@ -19,7 +19,6 @@ import panda.pta.element.Field;
 import panda.pta.element.Method;
 import panda.pta.element.Obj;
 import panda.pta.element.Variable;
-import panda.pta.set.PointsToSetFactory;
 
 import java.util.stream.Stream;
 
@@ -27,8 +26,6 @@ import java.util.stream.Stream;
  * Manages context-sensitive elements in pointer analysis.
  */
 public interface CSManager {
-
-    void setPointsToSetFactory(PointsToSetFactory setFactory);
 
     CSVariable getCSVariable(Context context, Variable var);
 
