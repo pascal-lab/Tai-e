@@ -13,6 +13,8 @@
 
 package panda;
 
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import panda.callgraph.cha.CHATestFull;
 import panda.dataflow.DataFlowTestSuite;
 import panda.dataflow.analysis.constprop.CPTestSuite;
@@ -20,8 +22,7 @@ import panda.dataflow.lattice.LatticeTestSuite;
 import panda.options.OptionsTest;
 import panda.pta.CSPTATest;
 import panda.pta.PTATestFull;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import panda.util.ArraySetTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -32,6 +33,7 @@ import org.junit.runners.Suite;
         PTATestFull.class,
         CSPTATest.class,
         OptionsTest.class,
+        ArraySetTest.class,
 })
 public class PandaTestSuite {
 }
