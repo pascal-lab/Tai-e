@@ -22,6 +22,9 @@ import java.util.Objects;
 /**
  * Set implementation based on ArrayList. This class should only be
  * used for small set. Elements cannot be null.
+ * Note that remove(Object) will shift the rest elements to the end.
+ * TODO: if necessary, optimize remove(Object) and let add(Object) add
+ *  element to empty hole of the array.
  */
 public class ArraySet<E> extends AbstractSet<E> {
 
