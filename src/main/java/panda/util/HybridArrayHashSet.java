@@ -17,48 +17,45 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * Hybrid of array and hash set.
- * Small maps are represented as arrays; above a certain threshold a hash set is used instead.
+ * Small maps are represented as array set; above a certain threshold a hash set is used instead.
  * Moreover, empty sets and singleton sets are represented with just a reference.
  * Elements cannot be null.
  */
 @SuppressWarnings("SuspiciousArrayCast")
-public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
+public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
 
     // invariant: at most one of singleton, array and hashset is non-null
 
-    private static final String NULL_KEY = "HybridArrayHashSet does not permit null keys";
+    private static final String NULL_MESSAGE = "HybridArrayHashSet does not permit null keys";
 
     /**
-     * Default threshold for the number of items necessary for the array to become a hash set.
+     * Default threshold for the number of items necessary for the array set to become a hash set.
      */
     private static final int ARRAY_SIZE = 8;
 
     /**
      * The singleton value. Null if not a singleton.
      */
-    private V singleton;
+    private E singleton;
 
     /**
-     * The array with the items. Null if the array is not used.
+     * The array set set with the items. Null if the array set is not used.
      */
-    private V[] array;
-
-    /**
-     * Counter for the number of items in the container.
-     */
-    private int number_of_used_array_entries; // = number of non-null entries in array, if non-null
+    private ArraySet<E> arraySet;
 
     /**
      * The hash set with the items. Null if the hash set is not used.
      */
-    private HashSet<V> hashset;
+    private HashSet<E> hashSet;
 
     /**
      * Constructs a new hybrid set.
@@ -71,187 +68,110 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
      * Constructs a new hybrid set from the given collection.
      */
     @SuppressWarnings("unchecked")
-    public HybridArrayHashSet(Collection<V> m) {
-        int m_size = m.size();
-        if (m_size == 0)
-            return;
-        if (m_size == 1) {
-            singleton = getFirstElement(m);
-        } else if (m_size <= ARRAY_SIZE) {
-            array = (V[]) new Object[ARRAY_SIZE];
-            number_of_used_array_entries = 0;
-            boolean m_is_set = m instanceof Set;
-            outer:
-            for (V v : m) {
-                if (v == null)
-                    throw new NullPointerException(NULL_KEY);
-                if (!m_is_set) { // avoid duplicates
-                    for (int i = 0; i < number_of_used_array_entries; i++) {
-                        if (array[i].equals(v)) {
-                            continue outer;
-                        }
-                    }
-                }
-                array[number_of_used_array_entries++] = v;
-            }
-        } else {
-            for (V v : m)
-                if (v == null)
-                    throw new NullPointerException(NULL_KEY);
-            hashset = new HashSet<>(m);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <V> V getFirstElement(Collection<V> m) {
-        if (!(m instanceof HybridArrayHashSet<?>))
-            return m.iterator().next();
-        HybridArrayHashSet<?> set = (HybridArrayHashSet<?>) m;
-        if (set.singleton != null)
-            return (V) set.singleton;
-        if (set.array != null) {
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (set.array[i] != null)
-                    return (V) set.array[i];
-            return null;
-        }
-        if (set.hashset != null)
-            return (V) set.hashset.iterator().next();
-        return null;
+    public HybridArrayHashSet(Collection<E> c) {
+        addAll(c);
     }
 
     @Override
-    public boolean add(V e) {
-        if (e == null)
-            throw new NullPointerException(NULL_KEY);
+    public boolean add(E e) {
+        Objects.requireNonNull(e, NULL_MESSAGE);
         if (singleton != null) {
-            if (singleton.equals(e))
+            if (singleton.equals(e)) {
                 return false;
-            convertSingletonToArray();
-        }
-        if (array != null) {
-            for (int i = 0; i < ARRAY_SIZE; i++) {
-                if (array[i] != null && array[i].equals(e))
-                    return false;
             }
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (array[i] == null) {
-                    array[i] = e;
-                    number_of_used_array_entries++;
-                    return true;
-                }
-            convertArrayToHashSet();
+            convertSingletonToArraySet();
         }
-        if (hashset != null)
-            return hashset.add(e);
+        if (arraySet != null) {
+            if (arraySet.size() + 1 <= ARRAY_SIZE) {
+                return arraySet.add(e);
+            }
+            convertArraySetToHashSet();
+        }
+        if (hashSet != null) {
+            return hashSet.add(e);
+        }
         singleton = e;
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    private void convertSingletonToArray() {
-        array = (V[]) new Object[ARRAY_SIZE];
-        array[0] = singleton;
-        number_of_used_array_entries = 1;
+    private void convertSingletonToArraySet() {
+        arraySet = new ArraySet<>(ARRAY_SIZE);
+        arraySet.add(singleton);
         singleton = null;
     }
 
-    private void convertArrayToHashSet() {
-        hashset = new HashSet<>(ARRAY_SIZE * 2);
-        for (int i = 0; i < ARRAY_SIZE; i++)
-            if (array[i] != null)
-                hashset.add(array[i]);
-        array = null;
-        number_of_used_array_entries = 0;
+    private void convertArraySetToHashSet() {
+        hashSet = new HashSet<>(ARRAY_SIZE * 2);
+        hashSet.addAll(arraySet);
+        arraySet = null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public boolean addAll(Collection<? extends V> c) {
+    public boolean addAll(Collection<? extends E> c) {
         int c_size = c.size();
         if (c_size == 0)
             return false;
         int max_new_size = c_size + size();
-        if (array == null && hashset == null && max_new_size == 1) {
-            V v = getFirstElement(c);
-            if (v == null)
-                throw new NullPointerException(NULL_KEY);
-            singleton = v;
+        if (arraySet == null && hashSet == null && max_new_size == 1) {
+            E e = c.iterator().next();
+            singleton = Objects.requireNonNull(e, NULL_MESSAGE);
             return true;
         }
-        if (array == null && hashset == null && max_new_size <= ARRAY_SIZE) {
+        if (arraySet == null && hashSet == null && max_new_size <= ARRAY_SIZE) {
             if (singleton != null)
-                convertSingletonToArray();
+                convertSingletonToArraySet();
             else {
-                array = (V[]) new Object[ARRAY_SIZE];
-                number_of_used_array_entries = 0;
+                arraySet = new ArraySet<>(ARRAY_SIZE);
             }
+            return arraySet.addAll(c);
         }
-        if (array != null && max_new_size <= ARRAY_SIZE) {
-            boolean changed = false;
-            int next = 0;
-            loop:
-            for (V e : c) {
-                if (e == null)
-                    throw new NullPointerException(NULL_KEY);
-                for (int i = 0; i < ARRAY_SIZE; i++)
-                    if (array[i] != null && array[i].equals(e))
-                        continue loop;
-                while (array[next] != null)
-                    next++;
-                array[next++] = e;
-                number_of_used_array_entries++;
-                changed = true;
-            }
-            return changed;
+        c.forEach(Objects::requireNonNull);
+        if (arraySet != null) {
+            convertArraySetToHashSet();
         }
-        for (V v : c)
-            if (v == null)
-                throw new NullPointerException(NULL_KEY);
-        if (array != null) {
-            convertArrayToHashSet();
-        }
-        if (hashset == null) {
-            hashset = new HashSet<>(ARRAY_SIZE + max_new_size);
+        if (hashSet == null) {
+            hashSet = new HashSet<>(ARRAY_SIZE + max_new_size);
         }
         if (singleton != null) {
-            hashset.add(singleton);
+            hashSet.add(singleton);
             singleton = null;
         }
-        return hashset.addAll(c);
+        return hashSet.addAll(c);
     }
 
     @Override
     public void clear() {
-        if (singleton != null)
+        if (singleton != null) {
             singleton = null;
-        else if (array != null) {
-            Arrays.fill(array, null);
-            number_of_used_array_entries = 0;
-        } else if (hashset != null)
-            hashset.clear();
+        } else if (arraySet != null) {
+            arraySet.clear();
+        } else if (hashSet != null) {
+            hashSet.clear();
+        }
     }
 
     @Override
     public boolean contains(Object o) {
-        if (singleton != null)
+        if (singleton != null) {
             return singleton.equals(o);
-        if (array != null) {
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (array[i] != null && array[i].equals(o))
-                    return true;
-            return false;
         }
-        if (hashset != null)
-            return hashset.contains(o);
+        if (arraySet != null) {
+            return arraySet.contains(o);
+        }
+        if (hashSet != null) {
+            return hashSet.contains(o);
+        }
         return false;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        for (Object o : c)
-            if (!contains(o))
+        for (Object o : c) {
+            if (!contains(o)) {
                 return false;
+            }
+        }
         return true;
     }
 
@@ -259,10 +179,10 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     public boolean isEmpty() {
         if (singleton != null)
             return false;
-        if (array != null)
-            return number_of_used_array_entries == 0;
-        if (hashset != null)
-            return hashset.isEmpty();
+        if (arraySet != null)
+            return arraySet.isEmpty();
+        if (hashSet != null)
+            return hashSet.isEmpty();
         return true;
     }
 
@@ -270,17 +190,17 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     public int size() {
         if (singleton != null)
             return 1;
-        if (array != null)
-            return number_of_used_array_entries;
-        if (hashset != null)
-            return hashset.size();
+        if (arraySet != null)
+            return arraySet.size();
+        if (hashSet != null)
+            return hashSet.size();
         return 0;
     }
 
     @Override
-    public Iterator<V> iterator() {
+    public Iterator<E> iterator() {
         if (singleton != null)
-            return new Iterator<V>() {
+            return new Iterator<E>() {
 
                 boolean done;
 
@@ -290,7 +210,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
                 }
 
                 @Override
-                public V next() {
+                public E next() {
                     if (done)
                         throw new NoSuchElementException();
                     done = true;
@@ -305,27 +225,11 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
                         throw new IllegalStateException();
                 }
             };
-        if (array != null)
-            return new ArrayIterator();
-        if (hashset != null)
-            return hashset.iterator();
-        return new Iterator<V>() {
-
-            @Override
-            public boolean hasNext() {
-                return false;
-            }
-
-            @Override
-            public V next() {
-                throw new NoSuchElementException();
-            }
-
-            @Override
-            public void remove() {
-                throw new IllegalStateException();
-            }
-        };
+        if (arraySet != null)
+            return arraySet.iterator();
+        if (hashSet != null)
+            return hashSet.iterator();
+        return Collections.emptyIterator();
     }
 
     @Override
@@ -337,18 +241,12 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
             }
             return false;
         }
-        if (array != null) {
-            for (int i = 0; i < ARRAY_SIZE; i++) {
-                if (array[i] != null && array[i].equals(o)) {
-                    array[i] = null;
-                    number_of_used_array_entries--;
-                    return true;
-                }
-            }
-            return false;
+        if (arraySet != null) {
+            return arraySet.remove(o);
         }
-        if (hashset != null)
-            return hashset.remove(o);
+        if (hashSet != null) {
+            return hashSet.remove(o);
+        }
         return false;
     }
 
@@ -363,7 +261,7 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     @Override
     public boolean retainAll(Collection<?> c) {
         boolean changed = false;
-        for (Iterator<V> it = iterator(); it.hasNext(); )
+        for (Iterator<E> it = iterator(); it.hasNext(); )
             if (!c.contains(it.next())) {
                 it.remove();
                 changed = true;
@@ -378,16 +276,12 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
             a[0] = singleton;
             return a;
         }
-        if (array != null) {
-            Object[] a = new Object[number_of_used_array_entries];
-            int k = 0;
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (array[i] != null)
-                    a[k++] = array[i];
-            return a;
+        if (arraySet != null) {
+            return arraySet.toArray();
         }
-        if (hashset != null)
-            return hashset.toArray();
+        if (hashSet != null) {
+            return hashSet.toArray();
+        }
         return new Object[0];
     }
 
@@ -400,20 +294,13 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
             a[0] = (T) singleton; // TODO: throw ArrayStoreException if not T :> V
             return a;
         }
-        if (array != null) {
-            if (a.length < number_of_used_array_entries)
-                a = (T[]) Array.newInstance(a.getClass().getComponentType(), number_of_used_array_entries);
-            int k = 0;
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (array[i] != null)
-                    a[k++] = (T) array[i]; // TODO: throw ArrayStoreException if not T :> V
-            while (k < a.length)
-                a[k++] = null;
-            return a;
+        if (arraySet != null) {
+            return arraySet.toArray(a);
         }
-        if (hashset != null)
+        if (hashSet != null) {
             //noinspection SuspiciousToArrayCall
-            return hashset.toArray(a);
+            return hashSet.toArray(a);
+        }
         Arrays.fill(a, null);
         return a;
     }
@@ -422,15 +309,12 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
     public int hashCode() { // see contract for Set.hashCode
         if (singleton != null)
             return singleton.hashCode();
-        if (array != null) {
-            int h = 0;
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (array[i] != null)
-                    h += array[i].hashCode();
-            return h;
+        if (arraySet != null) {
+            return arraySet.hashCode();
         }
-        if (hashset != null)
-            return hashset.hashCode();
+        if (hashSet != null) {
+            return hashSet.hashCode();
+        }
         return 0;
     }
 
@@ -451,64 +335,15 @@ public final class HybridArrayHashSet<V> implements Set<V>, Serializable {
 
     @Override
     public String toString() {
-        if (singleton != null)
+        if (singleton != null) {
             return "[" + singleton + ']';
-        if (array != null) {
-            StringBuilder b = new StringBuilder();
-            b.append('[');
-            boolean first = true;
-            for (int i = 0; i < ARRAY_SIZE; i++)
-                if (array[i] != null) {
-                    if (first)
-                        first = false;
-                    else
-                        b.append(", ");
-                    b.append(array[i]);
-                }
-            b.append(']');
-            return b.toString();
         }
-        if (hashset != null)
-            return hashset.toString();
+        if (arraySet != null) {
+            return arraySet.toString();
+        }
+        if (hashSet != null) {
+            return hashSet.toString();
+        }
         return "[]";
-    }
-
-    private final class ArrayIterator implements Iterator<V> {
-
-        int next, last;
-
-        ArrayIterator() {
-            findNext();
-            last = -1;
-        }
-
-        private void findNext() {
-            while (next < ARRAY_SIZE && array[next] == null)
-                next++;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return next < ARRAY_SIZE;
-        }
-
-        @Override
-        public V next() {
-            if (next == ARRAY_SIZE)
-                throw new NoSuchElementException();
-            last = next;
-            V v = array[next++];
-            findNext();
-            return v;
-        }
-
-        @Override
-        public void remove() {
-            if (last == -1 || array[last] == null)
-                throw new IllegalStateException();
-            array[last] = null;
-            number_of_used_array_entries--;
-            findNext();
-        }
     }
 }

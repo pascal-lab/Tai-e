@@ -75,7 +75,7 @@ public class ArraySet<E> extends AbstractSet<E> {
 
     @Override
     public boolean remove(Object o) {
-        return elements.remove(o);
+        return o != null && elements.remove(o);
     }
 
     @Override
