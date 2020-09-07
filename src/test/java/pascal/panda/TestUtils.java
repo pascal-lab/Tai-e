@@ -26,22 +26,22 @@ import java.util.Set;
 public class TestUtils {
     public static void testCP(String inputClass) {
         test(inputClass, "constprop",
-                "panda.dataflow.analysis.constprop.ResultChecker");
+                "pascal.pandadataflow.analysis.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
         test(inputClass, "deadcode",
-                "panda.dataflow.analysis.deadcode.ResultChecker");
+                "pascal.pandadataflow.analysis.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {
         test(inputClass, "cha",
-                "panda.callgraph.cha.ResultChecker");
+                "pascal.pandacallgraph.cha.ResultChecker");
     }
 
     public static void testPTA(String inputClass) {
         test(inputClass, "pta",
-                "panda.pta.core.ci.ResultChecker");
+                "pascal.pandapta.core.ci.ResultChecker");
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
@@ -52,7 +52,7 @@ public class TestUtils {
         optList.add("--test-mode");
         optList.add("--"); // used by panda to split Soot arguments
         test(inputClass, "cspta",
-                "panda.pta.ResultChecker", optList);
+                "pascal.panda.pta.ResultChecker", optList);
     }
 
     private static void test(String inputClass, String analysis, String checker) {

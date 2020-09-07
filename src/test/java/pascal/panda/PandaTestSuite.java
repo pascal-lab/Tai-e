@@ -22,7 +22,7 @@ import pascal.panda.dataflow.lattice.LatticeTestSuite;
 import pascal.panda.options.OptionsTest;
 import pascal.panda.pta.CSPTATest;
 import pascal.panda.pta.PTATestFull;
-import pascal.panda.util.ArraySetTest;
+import pascal.panda.util.UtilTestSuite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -33,7 +33,7 @@ import pascal.panda.util.ArraySetTest;
         PTATestFull.class,
         CSPTATest.class,
         OptionsTest.class,
-        ArraySetTest.class,
+        UtilTestSuite.class,
 })
 public class PandaTestSuite {
 }

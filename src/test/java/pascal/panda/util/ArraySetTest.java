@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+@SuppressWarnings("ALL")
 public class ArraySetTest {
 
     @Test

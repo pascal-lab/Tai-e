@@ -117,6 +117,9 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             singleton = Objects.requireNonNull(e, NULL_MESSAGE);
             return true;
         }
+        if (!(c instanceof HybridArrayHashSet)) {
+            c.forEach(e -> Objects.requireNonNull(e, NULL_MESSAGE));
+        }
         if (arraySet == null && hashSet == null && max_new_size <= ARRAYSET_SIZE) {
             if (singleton != null)
                 convertSingletonToArraySet();
@@ -125,7 +128,6 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             }
             return arraySet.addAll(c);
         }
-        c.forEach(Objects::requireNonNull);
         if (arraySet != null) {
             convertArraySetToHashSet();
         }

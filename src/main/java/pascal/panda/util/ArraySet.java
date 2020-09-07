@@ -15,26 +15,19 @@ package pascal.panda.util;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Objects;
 
 /**
- * Set implementation based on ArrayList. This class should only be
+ * Set implementation based on ArrayMap. This class should only be
  * used for small set. Elements cannot be null.
- * Note that remove(Object) will shift the rest elements to the end.
- * TODO: if necessary, optimize remove(Object) and let add(Object) add
- *  element to empty hole of the array.
  */
 public class ArraySet<E> extends AbstractSet<E> {
 
-    private static final String NULL_MESSAGE = "ArraySet does not permit null element";
     private static final int DEFAULT_CAPACITY = 8;
+    // Dummy value to associate with an Object in the backing Map
+    private static final Object PRESENT = new Object();
 
-    private final ArrayList<E> elements;
-    private final int initialCapacity;
-    private final boolean fixedCapacity;
+    private final ArrayMap<E, Object> map;
 
     public ArraySet() {
         this(DEFAULT_CAPACITY, true);
@@ -45,84 +38,43 @@ public class ArraySet<E> extends AbstractSet<E> {
     }
 
     public ArraySet(int initialCapacity, boolean fixedCapacity) {
-        this.initialCapacity = initialCapacity;
-        this.fixedCapacity = fixedCapacity;
-        elements = new ArrayList<>(initialCapacity);
+        map = new ArrayMap<>(initialCapacity, fixedCapacity);
     }
 
     @Override
     public boolean isEmpty() {
-        return elements.isEmpty();
+        return map.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        return elements.contains(o);
-    }
-
-    @Nonnull
-    @Override
-    public Object[] toArray() {
-        return elements.toArray();
-    }
-
-    @Nonnull
-    @Override
-    public <T> T[] toArray(@Nonnull T[] a) {
-        //noinspection SuspiciousToArrayCall
-        return elements.toArray(a);
+        //noinspection SuspiciousMethodCalls
+        return map.containsKey(o);
     }
 
     @Override
     public boolean add(E e) {
-        Objects.requireNonNull(e, NULL_MESSAGE);
-        ensureCapacity(size() + 1);
-        return !elements.contains(e) && elements.add(e);
+        return map.put(e, PRESENT) == null;
     }
 
     @Override
     public boolean remove(Object o) {
-        return o != null && elements.remove(o);
-    }
-
-    @Override
-    public boolean containsAll(@Nonnull Collection<?> c) {
-        return elements.containsAll(c);
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends E> c) {
-        boolean changed = false;
-        for (E e : c) {
-            changed |= add(e);
-        }
-        return changed;
-    }
-
-    @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
-        return elements.retainAll(c);
+        return map.remove(o) == PRESENT;
     }
 
     @Override
     public void clear() {
-        elements.clear();
+        map.clear();
     }
 
     @Nonnull
     @Override
     public Iterator<E> iterator() {
-        return elements.iterator();
+        return map.keySet().iterator();
     }
 
     @Override
     public int size() {
-        return elements.size();
-    }
-
-    private void ensureCapacity(int minCapacity) {
-        if (fixedCapacity && minCapacity > initialCapacity) {
-            throw new TooManyElementsException("Capacity of this ArraySet is fixed");
-        }
+        return map.size();
     }
 }
