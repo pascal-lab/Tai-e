@@ -36,12 +36,11 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     // invariant: at most one of singleton, array and hashset is non-null
 
     private static final String NULL_MESSAGE = "HybridArrayHashSet does not permit null keys";
-
     /**
      * Default threshold for the number of items necessary for the array set
      * to become a hash set.
      */
-    private static final int ARRAYSET_SIZE = 8;
+    private static final int ARRAY_SET_SIZE = 8;
 
     /**
      * The singleton value. Null if not a singleton.
@@ -82,7 +81,7 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             convertSingletonToArraySet();
         }
         if (arraySet != null) {
-            if (arraySet.size() + 1 <= ARRAYSET_SIZE) {
+            if (arraySet.size() + 1 <= ARRAY_SET_SIZE) {
                 return arraySet.add(e);
             }
             convertArraySetToHashSet();
@@ -95,13 +94,13 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     }
 
     private void convertSingletonToArraySet() {
-        arraySet = new ArraySet<>(ARRAYSET_SIZE);
+        arraySet = new ArraySet<>(ARRAY_SET_SIZE);
         arraySet.add(singleton);
         singleton = null;
     }
 
     private void convertArraySetToHashSet() {
-        hashSet = new HashSet<>(ARRAYSET_SIZE * 2);
+        hashSet = new HashSet<>(ARRAY_SET_SIZE * 2);
         hashSet.addAll(arraySet);
         arraySet = null;
     }
@@ -109,8 +108,9 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     @Override
     public boolean addAll(Collection<? extends E> c) {
         int c_size = c.size();
-        if (c_size == 0)
+        if (c_size == 0) {
             return false;
+        }
         int max_new_size = c_size + size();
         if (arraySet == null && hashSet == null && max_new_size == 1) {
             E e = c.iterator().next();
@@ -120,19 +120,23 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
         if (!(c instanceof HybridArrayHashSet)) {
             c.forEach(e -> Objects.requireNonNull(e, NULL_MESSAGE));
         }
-        if (arraySet == null && hashSet == null && max_new_size <= ARRAYSET_SIZE) {
+        if (arraySet == null && hashSet == null
+                && max_new_size <= ARRAY_SET_SIZE) {
             if (singleton != null)
                 convertSingletonToArraySet();
             else {
-                arraySet = new ArraySet<>(ARRAYSET_SIZE);
+                arraySet = new ArraySet<>(ARRAY_SET_SIZE);
             }
-            return arraySet.addAll(c);
         }
         if (arraySet != null) {
-            convertArraySetToHashSet();
+            if (max_new_size <= ARRAY_SET_SIZE) {
+                return arraySet.addAll(c);
+            } else {
+                convertArraySetToHashSet();
+            }
         }
         if (hashSet == null) {
-            hashSet = new HashSet<>(ARRAYSET_SIZE + max_new_size);
+            hashSet = new HashSet<>(ARRAY_SET_SIZE + max_new_size);
         }
         if (singleton != null) {
             hashSet.add(singleton);

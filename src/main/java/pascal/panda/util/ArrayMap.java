@@ -39,7 +39,11 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     private final boolean fixedCapacity;
 
     public ArrayMap() {
-        this(DEFAULT_CAPACITY, true);
+        this(DEFAULT_CAPACITY);
+    }
+
+    public ArrayMap(int initialCapacity) {
+        this(initialCapacity, true);
     }
 
     public ArrayMap(int initialCapacity, boolean fixedCapacity) {
