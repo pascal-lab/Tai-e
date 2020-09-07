@@ -15,20 +15,23 @@ package pascal.panda.util;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * Map implementation based on ArrayList. This class should only be
- * used for small set. Elements cannot be null.
+ * used for small set. Keys cannot be null.
  * Note that remove(Object) will shift the rest elements to the end.
  * TODO: if necessary, optimize remove(Object) and let add(Object) add
  *  element to empty hole of the array.
  */
 public class ArrayMap<K, V> extends AbstractMap<K, V> {
 
-    private static final String NULL_MESSAGE = "ArraySet does not permit null element";
+    private static final String NULL_KEY = "ArrayMap does not permit null keys";
+    private static final String EXCEED_CAPACITY = "Capacity of this ArrayMap is fixed";
     private static final int DEFAULT_CAPACITY = 8;
 
     private final ArrayList<Entry<K, V>> entries;
@@ -78,7 +81,9 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public V put(K key, V value) {
-        return super.put(key, value);
+        Objects.requireNonNull(key, NULL_KEY);
+        ensureCapacity(size() + 1);
+        return putValue(key, value);
     }
 
     @Override
@@ -92,30 +97,10 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
         return null;
     }
 
-    @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        super.putAll(m);
-    }
-
-    @Override
-    public void clear() {
-        entries.clear();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
     @Nonnull
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return null;
+        return new EntrySet();
     }
 
     private Entry<K, V> getEntry(Object key) {
@@ -125,5 +110,42 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
             }
         }
         return null;
+    }
+
+    private void ensureCapacity(int minCapacity) {
+        if (fixedCapacity && minCapacity > initialCapacity) {
+            throw new TooManyElementsException(EXCEED_CAPACITY);
+        }
+    }
+
+    private V putValue(K key, V value) {
+        Entry<K, V> e = getEntry(key);
+        if (e == null) {
+            entries.add(new MapEntry<>(key, value));
+            return null;
+        } else {
+            V oldValue = e.getValue();
+            e.setValue(value);
+            return oldValue;
+        }
+    }
+
+    private class EntrySet extends AbstractSet<Entry<K, V>> {
+
+        @Nonnull
+        @Override
+        public Iterator<Entry<K, V>> iterator() {
+            return entries.iterator();
+        }
+
+        @Override
+        public int size() {
+            return entries.size();
+        }
+
+        @Override
+        public void clear() {
+            entries.clear();
+        }
     }
 }
