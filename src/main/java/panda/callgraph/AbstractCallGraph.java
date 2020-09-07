@@ -16,6 +16,7 @@ package panda.callgraph;
 import panda.util.CollectionUtils;
 import panda.util.CollectionView;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -119,6 +120,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
         return reachableMethods.contains(method);
     }
 
+    @Nonnull
     @Override
     public Iterator<Edge<CallSite, Method>> iterator() {
         return getAllEdges().iterator();

@@ -16,6 +16,7 @@ package panda.pta.core.ci;
 import panda.pta.element.Obj;
 import panda.util.HybridArrayHashSet;
 
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -43,6 +44,7 @@ class PointsToSet implements Iterable<Obj> {
         return set.stream();
     }
 
+    @Nonnull
     public Iterator<Obj> iterator() {
         return set.iterator();
     }

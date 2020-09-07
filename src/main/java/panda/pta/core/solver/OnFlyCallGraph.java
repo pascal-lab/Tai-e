@@ -25,6 +25,7 @@ import panda.pta.statement.Call;
 import panda.pta.statement.Statement;
 import panda.util.CollectionView;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -129,6 +130,7 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
         return reachableMethods.contains(csMethod);
     }
 
+    @Nonnull
     @Override
     public Iterator<Edge<CSCallSite, CSMethod>> iterator() {
         return getAllEdges().iterator();

@@ -13,6 +13,7 @@
 
 package panda.util;
 
+import javax.annotation.Nonnull;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,13 +60,16 @@ public class ArraySet<E> extends AbstractSet<E> {
         return elements.contains(o);
     }
 
+    @Nonnull
     @Override
     public Object[] toArray() {
         return elements.toArray();
     }
 
+    @Nonnull
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(@Nonnull T[] a) {
+        //noinspection SuspiciousToArrayCall
         return elements.toArray(a);
     }
 
@@ -82,7 +86,7 @@ public class ArraySet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@Nonnull Collection<?> c) {
         return elements.containsAll(c);
     }
 
@@ -96,7 +100,7 @@ public class ArraySet<E> extends AbstractSet<E> {
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@Nonnull Collection<?> c) {
         return elements.retainAll(c);
     }
 
@@ -105,6 +109,7 @@ public class ArraySet<E> extends AbstractSet<E> {
         elements.clear();
     }
 
+    @Nonnull
     @Override
     public Iterator<E> iterator() {
         return elements.iterator();
@@ -117,7 +122,7 @@ public class ArraySet<E> extends AbstractSet<E> {
 
     private void ensureCapacity(int minCapacity) {
         if (fixedCapacity && minCapacity > initialCapacity) {
-            throw new TooManyElementsException();
+            throw new TooManyElementsException("Capacity of this ArraySet is fixed");
         }
     }
 }

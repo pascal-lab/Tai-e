@@ -13,6 +13,7 @@
 
 package panda.util;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
                 "contains() currently is not supported");
     }
 
+    @Nonnull
     @Override
     public Iterator<To> iterator() {
         return new Iterator<To>() {
@@ -62,6 +64,7 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
         };
     }
 
+    @Nonnull
     @Override
     public Object[] toArray() {
         return collection.stream()
@@ -69,8 +72,9 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
                 .toArray();
     }
 
+    @Nonnull
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(@Nonnull T[] a) {
         throw new UnsupportedOperationException("ImmutableCollectionView does not support toArray(T[]) yet.");
     }
 
@@ -85,22 +89,22 @@ public class ImmutableCollectionView<From, To> implements CollectionView<From, T
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@Nonnull Collection<?> c) {
         return collection.containsAll(c);
     }
 
     @Override
-    public boolean addAll(Collection<? extends To> c) {
+    public boolean addAll(@Nonnull Collection<? extends To> c) {
         throw new UnsupportedOperationException("ImmutableCollectionView cannot be modified.");
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@Nonnull Collection<?> c) {
         throw new UnsupportedOperationException("ImmutableCollectionView cannot be modified.");
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@Nonnull Collection<?> c) {
         throw new UnsupportedOperationException("ImmutableCollectionView cannot be modified.");
     }
 

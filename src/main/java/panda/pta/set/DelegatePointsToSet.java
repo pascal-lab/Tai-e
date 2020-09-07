@@ -15,6 +15,7 @@ package panda.pta.set;
 
 import panda.pta.core.cs.CSObj;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -58,6 +59,7 @@ abstract class DelegatePointsToSet implements PointsToSet {
         return set.stream();
     }
 
+    @Nonnull
     @Override
     public Iterator<CSObj> iterator() {
         return set.iterator();

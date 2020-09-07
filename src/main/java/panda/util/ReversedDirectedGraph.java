@@ -15,6 +15,7 @@ package panda.util;
 
 import soot.toolkits.graph.DirectedGraph;
 
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,6 +52,7 @@ public class ReversedDirectedGraph<N> implements DirectedGraph<N> {
         return graph.size();
     }
 
+    @Nonnull
     @Override
     public Iterator<N> iterator() {
         return graph.iterator();

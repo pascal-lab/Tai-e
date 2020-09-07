@@ -20,6 +20,7 @@ import soot.jimple.Stmt;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -129,6 +130,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
         return unitToMethod.size();
     }
 
+    @Nonnull
     @Override
     public Iterator<Unit> iterator() {
         return unitToMethod.keySet().iterator();

@@ -13,16 +13,15 @@
 
 package panda.util;
 
+import javax.annotation.Nonnull;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Map implementation based on two ArrayLists (one for keys and one for
- * values). This class should only be used for small set.
- * Elements cannot be null.
+ * Map implementation based on ArrayList. This class should only be
+ * used for small set. Elements cannot be null.
  * Note that remove(Object) will shift the rest elements to the end.
  * TODO: if necessary, optimize remove(Object) and let add(Object) add
  *  element to empty hole of the array.
@@ -113,6 +112,7 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
         return super.hashCode();
     }
 
+    @Nonnull
     @Override
     public Set<Entry<K, V>> entrySet() {
         return null;

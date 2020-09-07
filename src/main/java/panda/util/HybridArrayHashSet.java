@@ -13,6 +13,7 @@
 
 package panda.util;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ import java.util.Set;
  * Moreover, empty sets and singleton sets are represented with just a reference.
  * Elements cannot be null.
  */
-@SuppressWarnings("SuspiciousArrayCast")
 public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
 
     // invariant: at most one of singleton, array and hashset is non-null
@@ -38,9 +38,10 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     private static final String NULL_MESSAGE = "HybridArrayHashSet does not permit null keys";
 
     /**
-     * Default threshold for the number of items necessary for the array set to become a hash set.
+     * Default threshold for the number of items necessary for the array set
+     * to become a hash set.
      */
-    private static final int ARRAY_SIZE = 8;
+    private static final int ARRAYSET_SIZE = 8;
 
     /**
      * The singleton value. Null if not a singleton.
@@ -67,7 +68,6 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     /**
      * Constructs a new hybrid set from the given collection.
      */
-    @SuppressWarnings("unchecked")
     public HybridArrayHashSet(Collection<E> c) {
         addAll(c);
     }
@@ -82,7 +82,7 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             convertSingletonToArraySet();
         }
         if (arraySet != null) {
-            if (arraySet.size() + 1 <= ARRAY_SIZE) {
+            if (arraySet.size() + 1 <= ARRAYSET_SIZE) {
                 return arraySet.add(e);
             }
             convertArraySetToHashSet();
@@ -95,18 +95,17 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     }
 
     private void convertSingletonToArraySet() {
-        arraySet = new ArraySet<>(ARRAY_SIZE);
+        arraySet = new ArraySet<>(ARRAYSET_SIZE);
         arraySet.add(singleton);
         singleton = null;
     }
 
     private void convertArraySetToHashSet() {
-        hashSet = new HashSet<>(ARRAY_SIZE * 2);
+        hashSet = new HashSet<>(ARRAYSET_SIZE * 2);
         hashSet.addAll(arraySet);
         arraySet = null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean addAll(Collection<? extends E> c) {
         int c_size = c.size();
@@ -118,11 +117,11 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             singleton = Objects.requireNonNull(e, NULL_MESSAGE);
             return true;
         }
-        if (arraySet == null && hashSet == null && max_new_size <= ARRAY_SIZE) {
+        if (arraySet == null && hashSet == null && max_new_size <= ARRAYSET_SIZE) {
             if (singleton != null)
                 convertSingletonToArraySet();
             else {
-                arraySet = new ArraySet<>(ARRAY_SIZE);
+                arraySet = new ArraySet<>(ARRAYSET_SIZE);
             }
             return arraySet.addAll(c);
         }
@@ -131,7 +130,7 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             convertArraySetToHashSet();
         }
         if (hashSet == null) {
-            hashSet = new HashSet<>(ARRAY_SIZE + max_new_size);
+            hashSet = new HashSet<>(ARRAYSET_SIZE + max_new_size);
         }
         if (singleton != null) {
             hashSet.add(singleton);
@@ -155,14 +154,13 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     public boolean contains(Object o) {
         if (singleton != null) {
             return singleton.equals(o);
-        }
-        if (arraySet != null) {
+        } else if (arraySet != null) {
             return arraySet.contains(o);
-        }
-        if (hashSet != null) {
+        } else if (hashSet != null) {
             return hashSet.contains(o);
+        } else {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -177,29 +175,34 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
 
     @Override
     public boolean isEmpty() {
-        if (singleton != null)
+        if (singleton != null) {
             return false;
-        if (arraySet != null)
+        } else if (arraySet != null) {
             return arraySet.isEmpty();
-        if (hashSet != null)
+        } else if (hashSet != null) {
             return hashSet.isEmpty();
-        return true;
+        } else {
+            return true;
+        }
     }
 
     @Override
     public int size() {
-        if (singleton != null)
+        if (singleton != null) {
             return 1;
-        if (arraySet != null)
+        } else if (arraySet != null) {
             return arraySet.size();
-        if (hashSet != null)
+        } else if (hashSet != null) {
             return hashSet.size();
-        return 0;
+        } else {
+            return 0;
+        }
     }
 
+    @Nonnull
     @Override
     public Iterator<E> iterator() {
-        if (singleton != null)
+        if (singleton != null) {
             return new Iterator<E>() {
 
                 boolean done;
@@ -225,11 +228,13 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
                         throw new IllegalStateException();
                 }
             };
-        if (arraySet != null)
+        } else if (arraySet != null) {
             return arraySet.iterator();
-        if (hashSet != null)
+        } else if (hashSet != null) {
             return hashSet.iterator();
-        return Collections.emptyIterator();
+        } else {
+            return Collections.emptyIterator();
+        }
     }
 
     @Override
@@ -240,32 +245,33 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
                 return true;
             }
             return false;
-        }
-        if (arraySet != null) {
+        } else if (arraySet != null) {
             return arraySet.remove(o);
-        }
-        if (hashSet != null) {
+        } else if (hashSet != null) {
             return hashSet.remove(o);
+        } else {
+            return false;
         }
-        return false;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
         boolean changed = false;
-        for (Object o : c)
+        for (Object o : c) {
             changed |= remove(o);
+        }
         return changed;
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@Nonnull Collection<?> c) {
         boolean changed = false;
-        for (Iterator<E> it = iterator(); it.hasNext(); )
+        for (Iterator<E> it = iterator(); it.hasNext(); ) {
             if (!c.contains(it.next())) {
                 it.remove();
                 changed = true;
             }
+        }
         return changed;
     }
 
@@ -275,61 +281,65 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             Object[] a = new Object[1];
             a[0] = singleton;
             return a;
-        }
-        if (arraySet != null) {
+        } else if (arraySet != null) {
             return arraySet.toArray();
-        }
-        if (hashSet != null) {
+        } else if (hashSet != null) {
             return hashSet.toArray();
+        } else {
+            return new Object[0];
         }
-        return new Object[0];
     }
 
-    @SuppressWarnings("unchecked")
+    @Nonnull
     @Override
-    public <T> T[] toArray(T[] a) {
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(@Nonnull T[] a) {
         if (singleton != null) {
             if (a.length < 1)
                 a = (T[]) Array.newInstance(a.getClass().getComponentType(), 1);
             a[0] = (T) singleton; // TODO: throw ArrayStoreException if not T :> V
             return a;
-        }
-        if (arraySet != null) {
+        } else if (arraySet != null) {
+            //noinspection SuspiciousToArrayCall
             return arraySet.toArray(a);
-        }
-        if (hashSet != null) {
+        } else if (hashSet != null) {
             //noinspection SuspiciousToArrayCall
             return hashSet.toArray(a);
+        } else {
+            Arrays.fill(a, null);
+            return a;
         }
-        Arrays.fill(a, null);
-        return a;
     }
 
     @Override
     public int hashCode() { // see contract for Set.hashCode
-        if (singleton != null)
+        if (singleton != null) {
             return singleton.hashCode();
-        if (arraySet != null) {
+        } else if (arraySet != null) {
             return arraySet.hashCode();
-        }
-        if (hashSet != null) {
+        } else if (hashSet != null) {
             return hashSet.hashCode();
+        } else {
+            return 0;
         }
-        return 0;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this)
+        if (obj == this) {
             return true;
-        if (!(obj instanceof Set<?>))
+        }
+        if (!(obj instanceof Set<?>)) {
             return false;
+        }
         Set<?> s = (Set<?>) obj;
-        if (size() != s.size())
+        if (size() != s.size()) {
             return false;
+        }
         // TODO: special support for singletons...
-        if (hashCode() != s.hashCode())
+        if (hashCode() != s.hashCode()) {
             return false;
+        }
         return containsAll(s);
     }
 
@@ -337,13 +347,12 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     public String toString() {
         if (singleton != null) {
             return "[" + singleton + ']';
-        }
-        if (arraySet != null) {
+        } else if (arraySet != null) {
             return arraySet.toString();
-        }
-        if (hashSet != null) {
+        } else if (hashSet != null) {
             return hashSet.toString();
+        } else {
+            return "[]";
         }
-        return "[]";
     }
 }
