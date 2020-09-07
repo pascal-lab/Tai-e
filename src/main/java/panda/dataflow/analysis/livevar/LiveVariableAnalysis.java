@@ -74,6 +74,7 @@ public class LiveVariableAnalysis extends BodyTransformer
         FlowSet<Local> oldOut = out.duplicate();
         out.setTo(in);
         // Kill definitions in unit
+        //noinspection SuspiciousMethodCalls
         unit.getDefBoxes()
                 .stream()
                 .map(ValueBox::getValue)

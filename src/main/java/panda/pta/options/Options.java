@@ -111,6 +111,7 @@ public class Options {
     private File outputFile;
 
     // ---------- Soot options ----------
+    @SuppressWarnings("FieldMayBeFinal")
     @Parameters(description = "Arguments for Soot")
     private String[] sootArgs = new String[0];
 

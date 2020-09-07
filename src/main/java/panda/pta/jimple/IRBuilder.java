@@ -149,6 +149,7 @@ class IRBuilder {
             return new JimpleMethod(m, type);
         });
         if (builtBody && !method.hasBuilt()) {
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (method) {
                 if (!method.hasBuilt()) {
                     if (method.isNative()) {
@@ -172,6 +173,7 @@ class IRBuilder {
     JimpleType getType(Type sootType) {
         JimpleType type = types.computeIfAbsent(sootType, JimpleType::new);
         if (!type.hasBuilt()) {
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (type) {
                 if (!type.hasBuilt()) { // double-check
                     buildType(type, sootType);

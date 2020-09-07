@@ -36,7 +36,6 @@ public class JimplePointerAnalysis {
     private PointerAnalysis pta;
     private panda.pta.core.ci.PointerAnalysis cipta;
     private IRBuilder irBuilder;
-    private CSManager csManager;
     private JimpleCallGraph jimpleCallGraph;
 
     public static JimplePointerAnalysis v() {
@@ -47,7 +46,7 @@ public class JimplePointerAnalysis {
         this.pta = pta;
         irBuilder = ((JimpleProgramManager) pta.getProgramManager())
                 .getIRBuilder();
-        csManager = pta.getCSManager();
+        CSManager csManager = pta.getCSManager();
         jimpleCallGraph = null;
     }
 

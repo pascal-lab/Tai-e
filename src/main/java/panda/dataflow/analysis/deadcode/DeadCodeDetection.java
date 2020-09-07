@@ -152,6 +152,7 @@ public class DeadCodeDetection extends BodyTransformer {
         for (Unit unit : body.getUnits()) {
             if (unit instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) unit;
+                //noinspection SuspiciousMethodCalls
                 if (!liveVarMap.get(unit).contains(assign.getLeftOp())
                         && !mayHaveSideEffect(assign)) {
                     deadAssigns.add(assign);

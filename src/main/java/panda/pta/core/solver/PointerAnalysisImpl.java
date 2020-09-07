@@ -445,6 +445,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Optional<Variable> optParam = callee.getParam(i);
                 optArg.ifPresent(arg -> {
                     CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
+                    //noinspection OptionalGetWithoutIsPresent
                     CSVariable paramVar = csManager.getCSVariable(calleeCtx, optParam.get());
                     addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
                 });

@@ -266,6 +266,7 @@ public class PointerAnalysis {
                 Optional<Variable> optParam = callee.getParam(i);
                 optArg.ifPresent(arg -> {
                     Var argVar = pointerFlowGraph.getVar(arg);
+                    //noinspection OptionalGetWithoutIsPresent
                     Var paramVar = pointerFlowGraph.getVar(optParam.get());
                     addPFGEdge(argVar, paramVar);
                 });
