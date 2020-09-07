@@ -7,7 +7,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="panda.pta.core.solver.PointerAnalysisImpl"
+        <Logger name="pascal.panda.pta.core.solver.PointerAnalysisImpl"
                 level="error" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
