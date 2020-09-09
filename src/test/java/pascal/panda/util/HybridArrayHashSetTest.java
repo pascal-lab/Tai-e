@@ -13,24 +13,19 @@
 
 package pascal.panda.util;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Set;
 
-public class ArraySetTest extends AbstractSetTest {
+public class HybridArrayHashSetTest extends AbstractSetTest {
 
+    @Override
     protected <E> Set<E> newSet() {
-        return new ArraySet<>();
-    }
-
-    @Test(expected = TooManyElementsException.class)
-    public void testFixedCapacity() {
-        testAddNElements(new ArraySet<>(4), 5);
+        return new HybridArrayHashSet<>();
     }
 
     @Test
-    public void testNonFixedCapacity() {
-        testAddNElements(new ArraySet<>(4, false), 5);
+    public void testAdd20() {
+        testAddNElements(newSet(), 20);
     }
 }

@@ -13,24 +13,11 @@
 
 package pascal.panda.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.Map;
 
-import java.util.Set;
+public class HybridArrayHashMapTest extends AbstractMapTest {
 
-public class ArraySetTest extends AbstractSetTest {
-
-    protected <E> Set<E> newSet() {
-        return new ArraySet<>();
-    }
-
-    @Test(expected = TooManyElementsException.class)
-    public void testFixedCapacity() {
-        testAddNElements(new ArraySet<>(4), 5);
-    }
-
-    @Test
-    public void testNonFixedCapacity() {
-        testAddNElements(new ArraySet<>(4, false), 5);
+    protected <K, V> Map<K, V> newMap() {
+        return new HybridArrayHashMap<>();
     }
 }

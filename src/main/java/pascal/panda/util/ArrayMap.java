@@ -18,6 +18,7 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     private final ArrayList<Entry<K, V>> entries;
     private final int initialCapacity;
     private final boolean fixedCapacity;
+    private Set<Entry<K, V>> entrySet;
 
     public ArrayMap() {
         this(DEFAULT_CAPACITY);
@@ -104,7 +106,8 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     @Nonnull
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return new EntrySet();
+        Set<Map.Entry<K,V>> es;
+        return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
     }
 
     private Entry<K, V> getEntry(Object key) {

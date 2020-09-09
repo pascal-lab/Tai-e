@@ -20,6 +20,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         ArraySetTest.class,
         ArrayMapTest.class,
+        HybridArrayHashMapTest.class,
+        HybridArrayHashSetTest.class,
 })
 public class UtilTestSuite {
 }
