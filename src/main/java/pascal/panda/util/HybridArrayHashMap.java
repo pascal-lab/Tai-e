@@ -80,9 +80,11 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
         if (singleton_key != null) {
             singleton_key = null;
             singleton_value = null;
-        } else if (arrayMap != null) {
+        }
+        if (arrayMap != null) {
             arrayMap.clear();
-        } else if (hashMap != null) {
+        }
+        if (hashMap != null) {
             hashMap.clear();
         }
     }
@@ -91,26 +93,28 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
     public boolean containsKey(Object key) {
         if (singleton_key != null) {
             return singleton_key.equals(key);
-        } else if (arrayMap != null) {
-            return arrayMap.containsKey(key);
-        } else if (hashMap != null) {
-            return hashMap.containsKey(key);
-        } else {
-            return false;
         }
+        if (arrayMap != null) {
+            return arrayMap.containsKey(key);
+        }
+        if (hashMap != null) {
+            return hashMap.containsKey(key);
+        }
+        return false;
     }
 
     @Override
     public boolean containsValue(Object value) {
         if (singleton_key != null) {
             return singleton_value.equals(value);
-        } else if (arrayMap != null) {
-            return arrayMap.containsValue(value);
-        } else if (hashMap != null) {
-            return hashMap.containsValue(value);
-        } else {
-            return false;
         }
+        if (arrayMap != null) {
+            return arrayMap.containsValue(value);
+        }
+        if (hashMap != null) {
+            return hashMap.containsValue(value);
+        }
+        return false;
     }
 
     @Override
@@ -119,13 +123,14 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
             if (singleton_key.equals(key))
                 return singleton_value;
             return null;
-        } else if (arrayMap != null) {
-            return arrayMap.get(key);
-        } else if (hashMap != null) {
-            return hashMap.get(key);
-        } else {
-            return null;
         }
+        if (arrayMap != null) {
+            return arrayMap.get(key);
+        }
+        if (hashMap != null) {
+            return hashMap.get(key);
+        }
+        return null;
     }
 
     @Override
@@ -219,39 +224,42 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
                 return oldValue;
             }
             return null;
-        } else if (arrayMap != null) {
-            return arrayMap.remove(key);
-        } else if (hashMap != null) {
-            return hashMap.remove(key);
-        } else {
-            return null;
         }
+        if (arrayMap != null) {
+            return arrayMap.remove(key);
+        }
+        if (hashMap != null) {
+            return hashMap.remove(key);
+        }
+        return null;
     }
 
     @Override
     public int size() {
         if (singleton_key != null) {
             return 1;
-        } else if (arrayMap != null) {
-            return arrayMap.size();
-        } else if (hashMap != null) {
-            return hashMap.size();
-        } else {
-            return 0;
         }
+        if (arrayMap != null) {
+            return arrayMap.size();
+        }
+        if (hashMap != null) {
+            return hashMap.size();
+        }
+        return 0;
     }
 
     @Override
     public boolean isEmpty() {
         if (singleton_key != null) {
             return false;
-        } else if (arrayMap != null) {
-            return arrayMap.isEmpty();
-        } else if (hashMap != null) {
-            return hashMap.isEmpty();
-        } else {
-            return true;
         }
+        if (arrayMap != null) {
+            return arrayMap.isEmpty();
+        }
+        if (hashMap != null) {
+            return hashMap.isEmpty();
+        }
+        return true;
     }
 
     @Nonnull
@@ -297,26 +305,28 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
     public int hashCode() { // see contract for Map.hashCode
         if (singleton_key != null) {
             return Objects.hash(singleton_key, singleton_value);
-        } else if (arrayMap != null) {
-            return arrayMap.hashCode();
-        } else if (hashMap != null) {
-            return hashMap.hashCode();
-        } else {
-            return 0;
         }
+        if (arrayMap != null) {
+            return arrayMap.hashCode();
+        }
+        if (hashMap != null) {
+            return hashMap.hashCode();
+        }
+        return 0;
     }
 
     @Override
     public String toString() {
         if (singleton_key != null) {
             return "[" + singleton_key + '=' + singleton_value + ']';
-        } else if (arrayMap != null) {
-            return arrayMap.toString();
-        } else if (hashMap != null) {
-            return hashMap.toString();
-        } else {
-            return "[]";
         }
+        if (arrayMap != null) {
+            return arrayMap.toString();
+        }
+        if (hashMap != null) {
+            return hashMap.toString();
+        }
+        return "[]";
     }
 
     private final class KeySet extends AbstractSet<K> {
@@ -341,13 +351,14 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
                         return nextKey();
                     }
                 };
-            } else if (arrayMap != null) {
-                return arrayMap.keySet().iterator();
-            } else if (hashMap != null) {
-                return hashMap.keySet().iterator();
-            } else {
-                return Collections.emptyIterator();
             }
+            if (arrayMap != null) {
+                return arrayMap.keySet().iterator();
+            }
+            if (hashMap != null) {
+                return hashMap.keySet().iterator();
+            }
+            return Collections.emptyIterator();
         }
 
         @Override
@@ -377,13 +388,14 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
                         return nextValue();
                     }
                 };
-            } else if (arrayMap != null) {
-                return arrayMap.values().iterator();
-            } else if (hashMap != null) {
-                return hashMap.values().iterator();
-            } else {
-                return Collections.emptyIterator();
             }
+            if (arrayMap != null) {
+                return arrayMap.values().iterator();
+            }
+            if (hashMap != null) {
+                return hashMap.values().iterator();
+            }
+            return Collections.emptyIterator();
         }
 
         @Override
@@ -404,13 +416,14 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
                         return nextEntry();
                     }
                 };
-            } else if (arrayMap != null) {
-                return arrayMap.entrySet().iterator();
-            } else if (hashMap != null) {
-                return hashMap.entrySet().iterator();
-            } else {
-                return Collections.emptyIterator();
             }
+            if (arrayMap != null) {
+                return arrayMap.entrySet().iterator();
+            }
+            if (hashMap != null) {
+                return hashMap.entrySet().iterator();
+            }
+            return Collections.emptyIterator();
         }
 
         @Override
@@ -422,13 +435,14 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
             if (singleton_key != null) {
                 return singleton_key.equals(e.getKey())
                         && Objects.equals(singleton_value, e.getValue());
-            } else if (arrayMap != null) {
-                return arrayMap.entrySet().contains(o);
-            } else if (hashMap != null) {
-                return hashMap.entrySet().contains(o);
-            } else {
-                return false;
             }
+            if (arrayMap != null) {
+                return arrayMap.entrySet().contains(o);
+            }
+            if (hashMap != null) {
+                return hashMap.entrySet().contains(o);
+            }
+            return false;
         }
 
         @Override
@@ -452,23 +466,26 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
         }
 
         public Entry<K, V> nextEntry() {
-            if (done)
+            if (done) {
                 throw new NoSuchElementException();
+            }
             Entry<K, V> e = new MapEntry<>(singleton_key, singleton_value);
             done = true;
             return e;
         }
 
         public K nextKey() {
-            if (done)
+            if (done) {
                 throw new NoSuchElementException();
+            }
             done = true;
             return singleton_key;
         }
 
         public V nextValue() {
-            if (done)
+            if (done) {
                 throw new NoSuchElementException();
+            }
             done = true;
             return singleton_value;
         }
@@ -478,8 +495,9 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
             if (done && singleton_key != null) {
                 singleton_key = null;
                 singleton_value = null;
-            } else
+            } else {
                 throw new IllegalStateException();
+            }
         }
     }
 }

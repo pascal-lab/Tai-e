@@ -149,9 +149,11 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     public void clear() {
         if (singleton != null) {
             singleton = null;
-        } else if (arraySet != null) {
+        }
+        if (arraySet != null) {
             arraySet.clear();
-        } else if (hashSet != null) {
+        }
+        if (hashSet != null) {
             hashSet.clear();
         }
     }
@@ -160,13 +162,14 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     public boolean contains(Object o) {
         if (singleton != null) {
             return singleton.equals(o);
-        } else if (arraySet != null) {
-            return arraySet.contains(o);
-        } else if (hashSet != null) {
-            return hashSet.contains(o);
-        } else {
-            return false;
         }
+        if (arraySet != null) {
+            return arraySet.contains(o);
+        }
+        if (hashSet != null) {
+            return hashSet.contains(o);
+        }
+        return false;
     }
 
     @Override
@@ -183,26 +186,28 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     public boolean isEmpty() {
         if (singleton != null) {
             return false;
-        } else if (arraySet != null) {
-            return arraySet.isEmpty();
-        } else if (hashSet != null) {
-            return hashSet.isEmpty();
-        } else {
-            return true;
         }
+        if (arraySet != null) {
+            return arraySet.isEmpty();
+        }
+        if (hashSet != null) {
+            return hashSet.isEmpty();
+        }
+        return true;
     }
 
     @Override
     public int size() {
         if (singleton != null) {
             return 1;
-        } else if (arraySet != null) {
-            return arraySet.size();
-        } else if (hashSet != null) {
-            return hashSet.size();
-        } else {
-            return 0;
         }
+        if (arraySet != null) {
+            return arraySet.size();
+        }
+        if (hashSet != null) {
+            return hashSet.size();
+        }
+        return 0;
     }
 
     @Nonnull
@@ -220,8 +225,9 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
 
                 @Override
                 public E next() {
-                    if (done)
+                    if (done) {
                         throw new NoSuchElementException();
+                    }
                     done = true;
                     return singleton;
                 }
@@ -230,17 +236,19 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
                 public void remove() {
                     if (done && singleton != null) {
                         singleton = null;
-                    } else
+                    } else {
                         throw new IllegalStateException();
+                    }
                 }
             };
-        } else if (arraySet != null) {
-            return arraySet.iterator();
-        } else if (hashSet != null) {
-            return hashSet.iterator();
-        } else {
-            return Collections.emptyIterator();
         }
+        if (arraySet != null) {
+            return arraySet.iterator();
+        }
+        if (hashSet != null) {
+            return hashSet.iterator();
+        }
+        return Collections.emptyIterator();
     }
 
     @Override
@@ -251,13 +259,14 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
                 return true;
             }
             return false;
-        } else if (arraySet != null) {
-            return arraySet.remove(o);
-        } else if (hashSet != null) {
-            return hashSet.remove(o);
-        } else {
-            return false;
         }
+        if (arraySet != null) {
+            return arraySet.remove(o);
+        }
+        if (hashSet != null) {
+            return hashSet.remove(o);
+        }
+        return false;
     }
 
     @Override
@@ -287,13 +296,14 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
             Object[] a = new Object[1];
             a[0] = singleton;
             return a;
-        } else if (arraySet != null) {
-            return arraySet.toArray();
-        } else if (hashSet != null) {
-            return hashSet.toArray();
-        } else {
-            return new Object[0];
         }
+        if (arraySet != null) {
+            return arraySet.toArray();
+        }
+        if (hashSet != null) {
+            return hashSet.toArray();
+        }
+        return new Object[0];
     }
 
     @Nonnull
@@ -305,29 +315,31 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
                 a = (T[]) Array.newInstance(a.getClass().getComponentType(), 1);
             a[0] = (T) singleton; // TODO: throw ArrayStoreException if not T :> V
             return a;
-        } else if (arraySet != null) {
+        }
+        if (arraySet != null) {
             //noinspection SuspiciousToArrayCall
             return arraySet.toArray(a);
-        } else if (hashSet != null) {
+        }
+        if (hashSet != null) {
             //noinspection SuspiciousToArrayCall
             return hashSet.toArray(a);
-        } else {
-            Arrays.fill(a, null);
-            return a;
         }
+        Arrays.fill(a, null);
+        return a;
     }
 
     @Override
     public int hashCode() { // see contract for Set.hashCode
         if (singleton != null) {
             return singleton.hashCode();
-        } else if (arraySet != null) {
-            return arraySet.hashCode();
-        } else if (hashSet != null) {
-            return hashSet.hashCode();
-        } else {
-            return 0;
         }
+        if (arraySet != null) {
+            return arraySet.hashCode();
+        }
+        if (hashSet != null) {
+            return hashSet.hashCode();
+        }
+        return 0;
     }
 
     @Override
@@ -353,12 +365,13 @@ public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
     public String toString() {
         if (singleton != null) {
             return "[" + singleton + ']';
-        } else if (arraySet != null) {
-            return arraySet.toString();
-        } else if (hashSet != null) {
-            return hashSet.toString();
-        } else {
-            return "[]";
         }
+        if (arraySet != null) {
+            return arraySet.toString();
+        }
+        if (hashSet != null) {
+            return hashSet.toString();
+        }
+        return "[]";
     }
 }
