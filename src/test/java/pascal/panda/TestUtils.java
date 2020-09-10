@@ -26,22 +26,22 @@ import java.util.Set;
 public class TestUtils {
     public static void testCP(String inputClass) {
         test(inputClass, "constprop",
-                "pascal.pandadataflow.analysis.constprop.ResultChecker");
+                "pascal.panda.dataflow.analysis.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
         test(inputClass, "deadcode",
-                "pascal.pandadataflow.analysis.deadcode.ResultChecker");
+                "pascal.panda.dataflow.analysis.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {
         test(inputClass, "cha",
-                "pascal.pandacallgraph.cha.ResultChecker");
+                "pascal.panda.callgraph.cha.ResultChecker");
     }
 
     public static void testPTA(String inputClass) {
         test(inputClass, "pta",
-                "pascal.pandapta.core.ci.ResultChecker");
+                "pascal.panda.pta.core.ci.ResultChecker");
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
