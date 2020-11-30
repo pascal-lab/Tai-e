@@ -22,10 +22,12 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.SootMethodRef;
 import soot.Unit;
 import soot.jimple.InvokeExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.Stmt;
+import soot.util.NumberedString;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -101,7 +103,9 @@ public class CHACallGraphBuilder extends SceneTransformer {
         switch (kind) {
             case INTERFACE:
             case VIRTUAL:
-                return hierarchy.resolveAbstractDispatch(method.getDeclaringClass(), method);
+                return hierarchy.resolveAbstractDispatch(
+                        invoke.getMethodRef().getDeclaringClass(),
+                        method);
             case SPECIAL:
                 return Collections.singleton(hierarchy.resolveSpecialDispatch(
                         (SpecialInvokeExpr) invoke,
@@ -118,13 +122,14 @@ public class CHACallGraphBuilder extends SceneTransformer {
      */
     private Set<SootMethod> resolveCalleesOf(Unit callSite) {
         InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
-        SootMethod method = invoke.getMethod();
+        SootMethodRef methodRef = invoke.getMethodRef();
         CallKind kind = getCallKind(callSite);
+        SootClass cls = methodRef.getDeclaringClass();
+        NumberedString subSig = methodRef.getSubSignature();
         switch (kind) {
             case INTERFACE: // invokeinterface
             case VIRTUAL: { // invokevirtual
                 Set<SootMethod> targets = new HashSet<>();
-                SootClass cls = method.getDeclaringClass();
                 Deque<SootClass> workList = new ArrayDeque<>();
                 workList.add(cls);
                 while (!workList.isEmpty()) {
@@ -132,7 +137,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
                     if (c.isInterface()) {
                         workList.addAll(hierarchy.getAllImplementersOfInterface(c));
                     } else {
-                        SootMethod target = dispatch(c, method);
+                        SootMethod target = dispatch(c, subSig);
                         if (target != null) {
                             targets.add(target);
                         }
@@ -141,21 +146,23 @@ public class CHACallGraphBuilder extends SceneTransformer {
                 }
                 return targets;
             }
-            case SPECIAL: // invokespecial
-            case STATIC: // invokestatic
-                return Collections.singleton(method);
+            case SPECIAL: { // invokespecial
+                return Collections.singleton(dispatch(cls, subSig));
+            }
+            case STATIC: { // invokestatic
+                return Collections.singleton(cls.getMethodUnsafe(subSig));
+            }
             default:
                 throw new AnalysisException("Unknown invocation expression: " + invoke);
         }
     }
 
     /**
-     * Looks up the target method based on given class and method signature.
+     * Looks up the target method based on given class and method subsignature.
      * Returns null if no satisfying method can be found.
      */
-    private SootMethod dispatch(SootClass cls, SootMethod method) {
+    private SootMethod dispatch(SootClass cls, NumberedString subSig) {
         SootMethod target = null;
-        String subSig = method.getSubSignature();
         while (true) {
             SootMethod m = cls.getMethodUnsafe(subSig);
             if (m != null && m.isConcrete()) {

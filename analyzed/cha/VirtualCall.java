@@ -23,3 +23,8 @@ class D extends B {
     void foo() {
     }
 }
+
+class E extends A {
+    void foo() {
+    }
+}
