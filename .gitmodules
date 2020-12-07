@@ -2,3 +2,6 @@
 	path = panda-benchmarks
 	url = https://silverbullettt@bitbucket.org/pascal-group/panda-benchmarks.git
 	branch = master
+[submodule "taie-benchmarks"]
+	path = taie-benchmarks
+	url = https://silverbullettt@bitbucket.org/pascal-group/taie-benchmarks.git
