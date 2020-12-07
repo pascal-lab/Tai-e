@@ -26,22 +26,22 @@ import java.util.Set;
 public class TestUtils {
     public static void testCP(String inputClass) {
         test(inputClass, "constprop",
-                "pascal.panda.dataflow.analysis.constprop.ResultChecker");
+                "pascal.taie.dataflow.analysis.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
         test(inputClass, "deadcode",
-                "pascal.panda.dataflow.analysis.deadcode.ResultChecker");
+                "pascal.taie.dataflow.analysis.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {
         test(inputClass, "cha",
-                "pascal.panda.callgraph.cha.ResultChecker");
+                "pascal.taie.callgraph.cha.ResultChecker");
     }
 
     public static void testPTA(String inputClass) {
         test(inputClass, "pta",
-                "pascal.panda.pta.core.ci.ResultChecker");
+                "pascal.taie.pta.core.ci.ResultChecker");
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
@@ -50,9 +50,9 @@ public class TestUtils {
         // ignore implicit entries in test mode
         optList.add("--no-implicit-entries");
         optList.add("--test-mode");
-        optList.add("--"); // used by panda to split Soot arguments
+        optList.add("--"); // used by Tai'e to split Soot arguments
         test(inputClass, "cspta",
-                "pascal.panda.pta.ResultChecker", optList);
+                "pascal.taie.pta.ResultChecker", optList);
     }
 
     private static void test(String inputClass, String analysis, String checker) {

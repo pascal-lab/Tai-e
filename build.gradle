@@ -19,5 +19,5 @@ dependencies {
 }
 
 application {
-    mainClassName = 'panda.pta.Main'
+    mainClassName = 'pascal.taie.pta.Main'
 }

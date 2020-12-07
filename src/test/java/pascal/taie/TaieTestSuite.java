@@ -35,5 +35,5 @@ import pascal.taie.util.UtilTestSuite;
         OptionsTest.class,
         UtilTestSuite.class,
 })
-public class PandaTestSuite {
+public class TaieTestSuite {
 }
