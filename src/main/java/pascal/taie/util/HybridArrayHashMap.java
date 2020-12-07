@@ -14,7 +14,6 @@
 package pascal.taie.util;
 
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -32,7 +31,7 @@ import java.util.Set;
  * a hash map is used instead. Moreover, empty maps and singleton maps
  * are represented with just a reference. Keys cannot be null.
  */
-public final class HybridArrayHashMap<K, V> implements Map<K, V>, Serializable {
+public final class HybridArrayHashMap<K, V> implements Map<K, V> {
     // invariant: at most one of singleton_key, array and hashmap is non-null
 
     private static final String NULL_KEY = "HybridArrayHashMap does not permit null keys";

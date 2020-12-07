@@ -125,7 +125,7 @@ public class ResultChecker {
                     Value value = entry.getValue();
                     if (!value.toString().equals(expected)) {
                         mismatches.add(String.format(
-                                "\n%s:L%d, '%s', expected: %s, given: %s",
+                                "%n%s:L%d, '%s', expected: %s, given: %s",
                                 method, lineNumber, var, expected, value.toString()));
                     }
                 }
@@ -134,7 +134,7 @@ public class ResultChecker {
                 // An expected non-undefined value of var is absent (undefined)
                 // in analysis result, which is also a mismatch.
                 mismatches.add(String.format(
-                        "\n%s:L%d, '%s', expected: %s, given: UNDEF",
+                        "%n%s:L%d, '%s', expected: %s, given: UNDEF",
                         method, lineNumber, var, expected));
             }
         });

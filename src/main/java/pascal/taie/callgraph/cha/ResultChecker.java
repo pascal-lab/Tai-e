@@ -98,12 +98,12 @@ public class ResultChecker {
             if (expected != null) {
                 if (!expected.equals(given)) {
                     mismatches.add(String.format(
-                            "\nCallees of %s, expected: %s, given: %s",
+                            "%nCallees of %s, expected: %s, given: %s",
                             callUnit, expected, given));
                 }
             } else if (!callGraph.getCallees(u).isEmpty()) {
                 mismatches.add(String.format(
-                        "\nCallees of %s, expected: [], given: %s",
+                        "%nCallees of %s, expected: [], given: %s",
                         callUnit, given));
             }
         });

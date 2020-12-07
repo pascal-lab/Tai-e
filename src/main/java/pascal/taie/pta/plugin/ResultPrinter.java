@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.stream.Stream;
@@ -81,8 +82,9 @@ public enum ResultPrinter implements Plugin {
             File output = Options.get().getOutputFile();
             if (output != null) {
                 try {
-                    out = new PrintStream(new FileOutputStream(output));
-                } catch (FileNotFoundException e) {
+                    out = new PrintStream(new FileOutputStream(output),
+                            false, "UTF-8");
+                } catch (FileNotFoundException | UnsupportedEncodingException e) {
                     System.err.println("Failed to write output, caused by " + e);
                 }
             }
@@ -173,19 +175,19 @@ public enum ResultPrinter implements Plugin {
                 .getAllEdges()
                 .count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
-        System.out.printf("%-30s%s (insens) / %s (sens)\n", "#var pointers:",
+        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",
                 format(varInsens), format(varSens));
-        System.out.printf("%-30s%s (sens)\n", "#var points-to:",
+        System.out.printf("%-30s%s (sens)%n", "#var points-to:",
                 format(vptSizeSens));
-        System.out.printf("%-30s%s (sens)\n", "#instance field points-to:",
+        System.out.printf("%-30s%s (sens)%n", "#instance field points-to:",
                 format(ifptSizeSens));
-        System.out.printf("%-30s%s (sens)\n", "#array points-to:",
+        System.out.printf("%-30s%s (sens)%n", "#array points-to:",
                 format(aptSizeSens));
-        System.out.printf("%-30s%s (sens)\n", "#static field points-to:",
+        System.out.printf("%-30s%s (sens)%n", "#static field points-to:",
                 format(sfptSizeSens));
-        System.out.printf("%-30s%s (insens) / %s (sens)\n", "#reachable methods:",
+        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#reachable methods:",
                 format(reachableInsens), format(reachableSens));
-        System.out.printf("%-30s%s (insens) / %s (sens)\n", "#call graph edges:",
+        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#call graph edges:",
                 format(callEdgeInsens), format(callEdgeSens));
         System.out.println("----------------------------------------");
     }

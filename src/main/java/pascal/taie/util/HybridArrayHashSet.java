@@ -14,7 +14,6 @@
 package pascal.taie.util;
 
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +30,7 @@ import java.util.Set;
  * Moreover, empty sets and singleton sets are represented with just a reference.
  * Elements cannot be null.
  */
-public final class HybridArrayHashSet<E> implements Set<E>, Serializable {
+public final class HybridArrayHashSet<E> implements Set<E> {
 
     // invariant: at most one of singleton, array and hashset is non-null
 

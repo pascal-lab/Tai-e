@@ -45,7 +45,6 @@ public class DaCapoRunner {
 
     private void run06(String benchmark) {
         G.reset();
-        System.gc();
         System.out.println("\nAnalyzing " + benchmark);
         Main.main(compose06Args(benchmark));
     }

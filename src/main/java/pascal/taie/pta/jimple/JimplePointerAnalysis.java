@@ -16,7 +16,6 @@ package pascal.taie.pta.jimple;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.JimpleCallGraph;
 import pascal.taie.pta.core.cs.CSCallSite;
-import pascal.taie.pta.core.cs.CSManager;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.element.CallSite;
@@ -46,7 +45,6 @@ public class JimplePointerAnalysis {
         this.pta = pta;
         irBuilder = ((JimpleProgramManager) pta.getProgramManager())
                 .getIRBuilder();
-        CSManager csManager = pta.getCSManager();
         jimpleCallGraph = null;
     }
 

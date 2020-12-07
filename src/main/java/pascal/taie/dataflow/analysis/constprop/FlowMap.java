@@ -13,6 +13,7 @@
 
 package pascal.taie.dataflow.analysis.constprop;
 
+import pascal.taie.dataflow.lattice.IFlowMap;
 import soot.Local;
 
 import java.util.LinkedHashMap;
@@ -23,7 +24,7 @@ import java.util.Objects;
  * a corresponding value (i.e., a product lattice of Local x Value).
  */
 public class FlowMap extends LinkedHashMap<Local, Value>
-        implements pascal.taie.dataflow.lattice.FlowMap<Local, Value> {
+        implements IFlowMap<Local, Value> {
 
     @Override
     public Value get(Object key) {
