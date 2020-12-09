@@ -1,4 +1,4 @@
-# Tai'e - A Practical Program Analysis Framework for Java
+# Tai-e: A Practical Program Analysis Framework for Java
 
 ### Goal
 Build an efficient, feature-rich, extensible, configurable and maintainable program analysis framework for Java.
