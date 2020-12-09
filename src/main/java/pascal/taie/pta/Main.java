@@ -22,7 +22,7 @@ import soot.Transform;
 public class Main {
 
     public static void main(String[] args) {
-        // Configure Tai'e options
+        // Configure Tai-e options
         Options.parse(args);
         if (Options.get().shouldShowHelp()) {
             Options.get().printHelp();
