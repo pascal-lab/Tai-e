@@ -1,3 +1,3 @@
-[submodule "taie-benchmarks"]
-	path = taie-benchmarks
-	url = https://silverbullettt@bitbucket.org/pascal-group/taie-benchmarks.git
+[submodule "Java-benchmarks"]
+	path = Java-benchmarks
+	url = https://silverbullettt@bitbucket.org/pascal-group/java-benchmarks.git
