@@ -11,8 +11,9 @@ Build an efficient, feature-rich, extensible, configurable and maintainable prog
 * [x] Native code
 * [ ] Dynamic class loading
 * [ ] Reflection analysis
-* [ ] invokedynamic and MethodHandle
 * [ ] Exception analysis
+* [ ] invokedynamic
+* [ ] Lambda expressions
 * [ ] High performance
 * [ ] Parallelism
 * [ ] Pre-analysis (Mahjong, Scaler, Zipper, etc.)

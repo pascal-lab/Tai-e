@@ -42,63 +42,63 @@ public enum Modifier {
         return name().toLowerCase();
     }
 
-    public static boolean isPublic(Set<Modifier> modifiers) {
+    public static boolean hasPublic(Set<Modifier> modifiers) {
         return modifiers.contains(PUBLIC);
     }
 
-    public static boolean isProtected(Set<Modifier> modifiers) {
+    public static boolean hasProtected(Set<Modifier> modifiers) {
         return modifiers.contains(PROTECTED);
     }
 
-    public static boolean isPrivate(Set<Modifier> modifiers) {
+    public static boolean hasPrivate(Set<Modifier> modifiers) {
         return modifiers.contains(PRIVATE);
     }
 
-    public static boolean isStatic(Set<Modifier> modifiers) {
+    public static boolean hasStatic(Set<Modifier> modifiers) {
         return modifiers.contains(STATIC);
     }
 
-    public static boolean isFinal(Set<Modifier> modifiers) {
+    public static boolean hasFinal(Set<Modifier> modifiers) {
         return modifiers.contains(FINAL);
     }
 
-    public static boolean isSynchronized(Set<Modifier> modifiers) {
+    public static boolean hasSynchronized(Set<Modifier> modifiers) {
         return modifiers.contains(SYNCHRONIZED);
     }
 
-    public static boolean isVolatile(Set<Modifier> modifiers) {
+    public static boolean hasVolatile(Set<Modifier> modifiers) {
         return modifiers.contains(VOLATILE);
     }
 
-    public static boolean isTransient(Set<Modifier> modifiers) {
+    public static boolean hasTransient(Set<Modifier> modifiers) {
         return modifiers.contains(TRANSIENT);
     }
 
-    public static boolean isNative(Set<Modifier> modifiers) {
+    public static boolean hasNative(Set<Modifier> modifiers) {
         return modifiers.contains(NATIVE);
     }
 
-    public static boolean isInterface(Set<Modifier> modifiers) {
+    public static boolean hasInterface(Set<Modifier> modifiers) {
         return modifiers.contains(INTERFACE);
     }
 
-    public static boolean isAbstract(Set<Modifier> modifiers) {
+    public static boolean hasAbstract(Set<Modifier> modifiers) {
         return modifiers.contains(ABSTRACT);
     }
 
-    public static boolean isStrictFP(Set<Modifier> modifiers) {
+    public static boolean hasStrictFP(Set<Modifier> modifiers) {
         return modifiers.contains(STRICTFP);
     }
 
-    public static boolean isSynthetic(Set<Modifier> modifiers) {
+    public static boolean hasSynthetic(Set<Modifier> modifiers) {
         return modifiers.contains(SYNTHETIC);
     }
 
-    public static boolean isAnnotation(Set<Modifier> modifiers) {
+    public static boolean hasAnnotation(Set<Modifier> modifiers) {
         return modifiers.contains(ANNOTATION);
     }
 
-    public static boolean isEnum(Set<Modifier> modifiers) {
+    public static boolean hasEnum(Set<Modifier> modifiers) {
         return modifiers.contains(ENUM);
     }
 }
