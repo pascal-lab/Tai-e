@@ -13,25 +13,8 @@
 
 package pascal.taie.java;
 
-public enum PrimitiveType implements Type {
-
-    BYTE("byte"),
-    SHORT("short"),
-    INT("int"),
-    LONG("long"),
-    FLOAT("float"),
-    DOUBLE("double"),
-    CHAR("char"),
-    BOOLEAN("boolean");
-
-    private final String name;
-
-    PrimitiveType(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
+/**
+ * Manages the classes and class-related resolution of the program being analyzed.
+ */
+public interface ClassHierarchy {
 }

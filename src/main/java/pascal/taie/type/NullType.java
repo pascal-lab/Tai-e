@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.type;
 
 public enum NullType implements ReferenceType {
 

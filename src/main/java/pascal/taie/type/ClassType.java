@@ -11,7 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.type;
+
+import pascal.taie.java.JClass;
 
 public class ClassType implements ReferenceType {
 

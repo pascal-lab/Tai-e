@@ -11,14 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.type;
 
-public enum VoidType implements Type {
-
-    INSTANCE;
-
-    @Override
-    public String toString() {
-        return "void";
-    }
+public interface ReferenceType extends Type {
 }

@@ -13,5 +13,8 @@
 
 package pascal.taie.java;
 
-public interface Type {
+/**
+ * Manages the whole-program information of the program being analyzed.
+ */
+public class World {
 }
