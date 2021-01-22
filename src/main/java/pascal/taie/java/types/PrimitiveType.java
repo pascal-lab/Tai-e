@@ -11,14 +11,32 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.type;
+package pascal.taie.java.types;
 
-public enum NullType implements ReferenceType {
+public enum PrimitiveType implements Type {
 
-    INSTANCE;
+    BYTE("byte"),
+    SHORT("short"),
+    INT("int"),
+    LONG("long"),
+    FLOAT("float"),
+    DOUBLE("double"),
+    CHAR("char"),
+    BOOLEAN("boolean");
+
+    private final String name;
+
+    PrimitiveType(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     @Override
     public String toString() {
-        return "<null type>";
+        return getName();
     }
 }

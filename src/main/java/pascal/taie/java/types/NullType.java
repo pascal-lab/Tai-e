@@ -11,7 +11,19 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.type;
+package pascal.taie.java.types;
 
-public interface Type {
+public enum NullType implements ReferenceType {
+
+    INSTANCE;
+
+    @Override
+    public String getName() {
+        return "<null type>";
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

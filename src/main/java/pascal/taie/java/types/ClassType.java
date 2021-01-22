@@ -11,9 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.type;
+package pascal.taie.java.types;
 
-import pascal.taie.java.JClass;
+import pascal.taie.java.classes.JClass;
 
 public class ClassType implements ReferenceType {
 
@@ -21,6 +21,11 @@ public class ClassType implements ReferenceType {
 
     public ClassType(JClass jclass) {
         this.jclass = jclass;
+    }
+
+    @Override
+    public String getName() {
+        return jclass.getName();
     }
 
     public JClass getJClass() {

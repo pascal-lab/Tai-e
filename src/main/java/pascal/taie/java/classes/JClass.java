@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.java.classes;
 
 import pascal.taie.pta.element.Field;
 import pascal.taie.pta.element.Method;

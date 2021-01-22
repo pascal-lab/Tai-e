@@ -11,7 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.type;
+package pascal.taie.java.types;
 
-public interface ReferenceType extends Type {
+public interface Type {
+
+    String getName();
 }

@@ -11,17 +11,17 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.type;
+package pascal.taie.java.types;
 
 import java.util.Objects;
 
-public class ArrarType implements ReferenceType {
+public class ArrayType implements ReferenceType {
 
     private final Type baseType;
     private final int dimensions;
     private final Type elementType;
 
-    public ArrarType(Type baseType, int dimensions, Type elementType) {
+    public ArrayType(Type baseType, int dimensions, Type elementType) {
         this.baseType = baseType;
         this.dimensions = dimensions;
         this.elementType = elementType;
@@ -40,12 +40,17 @@ public class ArrarType implements ReferenceType {
     }
 
     @Override
+    public String getName() {
+        return elementType + "[]";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArrarType arrarType = (ArrarType) o;
-        return dimensions == arrarType.dimensions
-                && baseType.equals(arrarType.baseType);
+        ArrayType arrayType = (ArrayType) o;
+        return dimensions == arrayType.dimensions
+                && baseType.equals(arrayType.baseType);
     }
 
     @Override
@@ -55,6 +60,6 @@ public class ArrarType implements ReferenceType {
 
     @Override
     public String toString() {
-        return elementType + "[]";
+        return getName();
     }
 }

@@ -11,14 +11,19 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.type;
+package pascal.taie.java.types;
 
 public enum VoidType implements Type {
 
     INSTANCE;
 
     @Override
-    public String toString() {
+    public String getName() {
         return "void";
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

@@ -17,4 +17,44 @@ package pascal.taie.java;
  * Manages the whole-program information of the program being analyzed.
  */
 public class World {
+
+    private static World theWorld;
+
+    public static World get() {
+        return theWorld;
+    }
+
+    public static void set(World world) {
+        theWorld = world;
+    }
+
+    private Options options;
+
+    private TypeManager typeManager;
+
+    private ClassHierarchy classHierarchy;
+
+    public Options getOptions() {
+        return options;
+    }
+
+    public void setOptions(Options options) {
+        this.options = options;
+    }
+
+    public TypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    public void setTypeManager(TypeManager typeManager) {
+        this.typeManager = typeManager;
+    }
+
+    public ClassHierarchy getClassHierarchy() {
+        return classHierarchy;
+    }
+
+    public void setClassHierarchy(ClassHierarchy classHierarchy) {
+        this.classHierarchy = classHierarchy;
+    }
 }
