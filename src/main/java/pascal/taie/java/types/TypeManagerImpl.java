@@ -13,6 +13,7 @@
 
 package pascal.taie.java.types;
 
+import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JClassLoader;
 
@@ -28,6 +29,12 @@ public class TypeManagerImpl implements TypeManager {
         for (PrimitiveType type : PrimitiveType.values()) {
             primTypes.put(type.getName(), type);
         }
+    }
+
+    private final ClassHierarchy classHierarchy;
+
+    public TypeManagerImpl(ClassHierarchy classHierarchy) {
+        this.classHierarchy = classHierarchy;
     }
 
     @Override
@@ -47,16 +54,19 @@ public class TypeManagerImpl implements TypeManager {
 
     @Override
     public ArrayType getArrayType(Type baseType, int dimensions) {
+        assert !(baseType instanceof VoidType)
+                && !(baseType instanceof NullType);
+        assert dimensions >= 1;
         return null;
-    }
-
-    @Override
-    public NullType getNullType() {
-        return NullType.INSTANCE;
     }
 
     @Override
     public VoidType getVoidType() {
         return VoidType.INSTANCE;
+    }
+
+    @Override
+    public NullType getNullType() {
+        return NullType.INSTANCE;
     }
 }

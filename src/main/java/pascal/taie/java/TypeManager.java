@@ -31,7 +31,7 @@ public interface TypeManager {
 
     ArrayType getArrayType(Type baseType, int dimensions);
 
-    NullType getNullType();
-
     VoidType getVoidType();
+
+    NullType getNullType();
 }

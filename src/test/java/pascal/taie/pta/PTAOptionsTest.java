@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.options;
+package pascal.taie.pta;
 
 import pascal.taie.pta.PTAOptions;
 import org.junit.Assert;
