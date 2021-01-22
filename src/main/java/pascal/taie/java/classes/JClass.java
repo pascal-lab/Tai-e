@@ -13,9 +13,6 @@
 
 package pascal.taie.java.classes;
 
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Method;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -30,8 +27,8 @@ public class JClass {
     private Collection<JClass> superInterfaces;
     private JClass outerClass;
     private Collection<JClass> innerClasses;
-    private List<Method> declaredMethods;
-    private List<Field> declaredFields;
+    private List<JMethod> declaredMethods;
+    private List<JField> declaredFields;
 
     public JClass(JClassLoader loader, String name,
                   Set<Modifier> modifiers, String moduleName) {

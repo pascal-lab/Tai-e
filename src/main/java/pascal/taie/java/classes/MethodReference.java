@@ -11,18 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.java.classes;
 
-import pascal.taie.java.classes.JClass;
-
-/**
- * Manages the classes and class-related resolution of the program being analyzed.
- */
-public interface ClassHierarchy {
-
-
-
-    boolean isSubclass(JClass superclass, JClass subclass);
-
-    boolean isAssignable(JClass from, JClass to);
+public class MethodReference extends MemberReference {
 }
