@@ -16,7 +16,7 @@ package pascal.taie.pta.core.heap;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.element.Obj;
 import pascal.taie.pta.element.Type;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.statement.Allocation;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,23 +54,23 @@ abstract class AbstractHeapModel implements HeapModel {
     public Obj getObj(Allocation alloc) {
         Obj obj = alloc.getObject();
         Type type = obj.getType();
-        if (Options.get().isMergeStringConstants()
+        if (PTAOptions.get().isMergeStringConstants()
                 && obj.getKind() == Obj.Kind.STRING_CONSTANT) {
             // TODO: add represented objects optionally, as this affects
             //  the concurrent computation
             mergedSC.addRepresentedObj(obj);
             return mergedSC;
         }
-        if (Options.get().isMergeStringObjects()
+        if (PTAOptions.get().isMergeStringObjects()
                 && type.equals(STRING)
                 && obj.getKind() != Obj.Kind.STRING_CONSTANT) {
             return getMergedObj(type, obj);
         }
-        if (Options.get().isMergeStringBuilders()
+        if (PTAOptions.get().isMergeStringBuilders()
                 && (type.equals(STRINGBUILDER) || type.equals(STRINGBUFFER))) {
             return getMergedObj(type, obj);
         }
-        if (Options.get().isMergeExceptionObjects()
+        if (PTAOptions.get().isMergeExceptionObjects()
                 && pm.isSubtype(THROWABLE, type)) {
             return getMergedObj(type, obj);
         }

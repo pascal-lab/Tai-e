@@ -36,7 +36,7 @@ import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Obj;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.element.Variable;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.plugin.Plugin;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
@@ -201,7 +201,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private Collection<Method> computeEntries() {
         List<Method> entries = new ArrayList<>();
         entries.add(programManager.getMainMethod());
-        if (Options.get().analyzeImplicitEntries()) {
+        if (PTAOptions.get().analyzeImplicitEntries()) {
             entries.addAll(programManager.getImplicitEntries());
         }
         return entries;

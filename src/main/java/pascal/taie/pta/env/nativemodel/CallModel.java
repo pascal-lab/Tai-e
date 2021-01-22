@@ -18,7 +18,7 @@ import pascal.taie.pta.element.CallSite;
 import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.element.Variable;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.statement.ArrayLoad;
 import pascal.taie.pta.statement.ArrayStore;
 import pascal.taie.pta.statement.AssignCast;
@@ -99,7 +99,7 @@ class CallModel implements StatementVisitor {
         // invoked. Finalizer uses an indirection via native code to
         // circumvent this. This rule implements this indirection.
         // This API is deprecated since Java 7.
-        if (Options.get().jdkVersion() <= 6) {
+        if (PTAOptions.get().jdkVersion() <= 6) {
             registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", (method, call) -> {
                 Utils.modelStaticToVirtualCall(pm, method, call,
                         "<java.lang.Object: void finalize()>",

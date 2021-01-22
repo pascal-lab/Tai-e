@@ -22,7 +22,7 @@ import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Obj;
 import pascal.taie.pta.element.Variable;
 import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
 
@@ -74,7 +74,7 @@ public class ThreadHandler implements Plugin {
 
     @Override
     public void initialize() {
-        if (!Options.get().analyzeImplicitEntries()) {
+        if (!PTAOptions.get().analyzeImplicitEntries()) {
             return;
         }
         Environment env = pm.getEnvironment();

@@ -24,7 +24,7 @@ import pascal.taie.pta.core.context.TwoTypeSelector;
 import pascal.taie.pta.core.cs.MapBasedCSManager;
 import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.pta.jimple.JimpleProgramManager;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.plugin.AnalysisTimer;
 import pascal.taie.pta.plugin.CompositePlugin;
 import pascal.taie.pta.plugin.Preprocessor;
@@ -37,20 +37,20 @@ import soot.Scene;
 
 public class PointerAnalysisBuilder {
 
-    public PointerAnalysis build(Options options) {
+    public PointerAnalysis build(PTAOptions PTAOptions) {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
         PointerAnalysisImpl pta = new PointerAnalysisImpl();
         ProgramManager pm = new JimpleProgramManager(Scene.v());
         pta.setProgramManager(pm);
-        setContextSensitivity(pta, options);
+        setContextSensitivity(pta, PTAOptions);
         setPlugin(pta);
         pta.setHeapModel(new AllocationSiteBasedModel(pm));
         pta.setCSManager(new MapBasedCSManager());
         return pta;
     }
 
-    private void setContextSensitivity(PointerAnalysisImpl pta, Options options) {
-        switch (options.getContextSensitivity()) {
+    private void setContextSensitivity(PointerAnalysisImpl pta, PTAOptions PTAOptions) {
+        switch (PTAOptions.getContextSensitivity()) {
             case "ci":
                 pta.setContextSelector(new ContextInsensitiveSelector());
                 break;
@@ -79,7 +79,7 @@ public class PointerAnalysisBuilder {
             default:
                 throw new AnalysisException(
                         "Unknown context sensitivity variant: "
-                                + options.getContextSensitivity());
+                                + PTAOptions.getContextSensitivity());
         }
     }
 

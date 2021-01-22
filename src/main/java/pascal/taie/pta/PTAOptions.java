@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.options;
+package pascal.taie.pta;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -20,14 +20,14 @@ import picocli.CommandLine.Parameters;
 
 import java.io.File;
 
-@Command(name = "Panda",
-        description = "A program analysis framework for Java",
+@Command(name = "PTAOptions",
+        description = "Pointer analysis options",
         showEndOfOptionsDelimiterInUsageHelp = true,
         version = "0.1")
-public class Options {
+public class PTAOptions {
 
     // Default options
-    private static Options options = CommandLine.populateCommand(new Options());
+    private static PTAOptions PTAOptions = CommandLine.populateCommand(new PTAOptions());
 
     // ---------- information options ----------
     @Option(names = {"-v", "--version"},
@@ -115,19 +115,19 @@ public class Options {
     @Parameters(description = "Arguments for Soot")
     private String[] sootArgs = new String[0];
 
-    public static Options get() {
-        return options;
+    public static PTAOptions get() {
+        return PTAOptions;
     }
 
-    public static void set(Options options) {
-        Options.options = options;
+    public static void set(PTAOptions PTAOptions) {
+        PTAOptions.PTAOptions = PTAOptions;
     }
 
     /**
      * Parse arguments and set new Options object.
      */
     public static void parse(String... args) {
-        options = CommandLine.populateCommand(new Options(), args);
+        PTAOptions = CommandLine.populateCommand(new PTAOptions(), args);
     }
 
     public void printHelp() {

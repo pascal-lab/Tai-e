@@ -18,7 +18,7 @@ import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Obj;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.env.nativemodel.NativeModel;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 
 /**
  * This class should be seen as part of ProgramManager
@@ -43,7 +43,7 @@ public class Environment {
         // nativeModel must be initialized at first, because following
         // initialization calls pm.getUniqueTypeByName(), which may
         // build IR for class initializer and trigger nativeModel.
-        nativeModel = Options.get().enableNativeModel()
+        nativeModel = PTAOptions.get().enableNativeModel()
                 ? NativeModel.getDefaultModel(pm)
                 : NativeModel.getDummyModel();
         strPool  = new StringConstantPool(pm);

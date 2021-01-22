@@ -17,7 +17,7 @@ import pascal.taie.callgraph.JimpleCallUtils;
 import pascal.taie.pta.element.Obj;
 import pascal.taie.pta.element.Variable;
 import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.statement.Allocation;
 import pascal.taie.pta.statement.ArrayLoad;
 import pascal.taie.pta.statement.ArrayStore;
@@ -194,7 +194,7 @@ class IRBuilder {
         }
         if (sootType instanceof RefType) {
             SootClass c = ((RefType) sootType).getSootClass();
-            if (Options.get().isDumpClasses()) {
+            if (PTAOptions.get().isDumpClasses()) {
                 classDumper.dump(c);
             }
             type.setSootClass(c);

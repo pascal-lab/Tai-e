@@ -21,7 +21,7 @@ import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.Pointer;
 import pascal.taie.pta.core.cs.StaticField;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.Pair;
 
 import java.io.File;
@@ -76,10 +76,10 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printResults(PointerAnalysis pta) {
-        if (Options.get().isTestMode()) {
+        if (PTAOptions.get().isTestMode()) {
             printPointers(pta);
-        } else if (Options.get().isOutputResults()) {
-            File output = Options.get().getOutputFile();
+        } else if (PTAOptions.get().isOutputResults()) {
+            File output = PTAOptions.get().getOutputFile();
             if (output != null) {
                 try {
                     out = new PrintStream(new FileOutputStream(output),

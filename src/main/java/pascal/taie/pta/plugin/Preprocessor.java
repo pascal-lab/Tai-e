@@ -15,7 +15,7 @@ package pascal.taie.pta.plugin;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 
 public class Preprocessor implements Plugin {
 
@@ -28,7 +28,7 @@ public class Preprocessor implements Plugin {
 
     @Override
     public void preprocess() {
-        if (Options.get().isPreBuildIR()) {
+        if (PTAOptions.get().isPreBuildIR()) {
             pm.buildIRForAllMethods();
         }
     }

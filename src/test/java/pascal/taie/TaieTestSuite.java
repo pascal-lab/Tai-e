@@ -19,7 +19,7 @@ import pascal.taie.callgraph.cha.CHATestFull;
 import pascal.taie.dataflow.DataFlowTestSuite;
 import pascal.taie.dataflow.analysis.constprop.CPTestSuite;
 import pascal.taie.dataflow.lattice.LatticeTestSuite;
-import pascal.taie.options.OptionsTest;
+import pascal.taie.options.PTAOptionsTest;
 import pascal.taie.pta.CSPTATest;
 import pascal.taie.pta.PTATestFull;
 import pascal.taie.util.UtilTestSuite;
@@ -32,7 +32,7 @@ import pascal.taie.util.UtilTestSuite;
         CHATestFull.class,
         PTATestFull.class,
         CSPTATest.class,
-        OptionsTest.class,
+        PTAOptionsTest.class,
         UtilTestSuite.class,
 })
 public class TaieTestSuite {

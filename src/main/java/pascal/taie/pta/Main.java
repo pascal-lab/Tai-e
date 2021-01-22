@@ -14,7 +14,6 @@
 package pascal.taie.pta;
 
 import pascal.taie.pta.jimple.JimpleProgramManager;
-import pascal.taie.pta.options.Options;
 import soot.PackManager;
 import soot.Scene;
 import soot.Transform;
@@ -23,12 +22,12 @@ public class Main {
 
     public static void main(String[] args) {
         // Configure Tai-e options
-        Options.parse(args);
-        if (Options.get().shouldShowHelp()) {
-            Options.get().printHelp();
+        PTAOptions.parse(args);
+        if (PTAOptions.get().shouldShowHelp()) {
+            PTAOptions.get().printHelp();
             return;
-        } else if (Options.get().shouldShowVersion()) {
-            Options.get().printVersion();
+        } else if (PTAOptions.get().shouldShowVersion()) {
+            PTAOptions.get().printVersion();
             return;
         }
         JimpleProgramManager.initSoot(Scene.v());
@@ -37,7 +36,7 @@ public class Main {
         soot.options.Options.v().set_output_format(
                 soot.options.Options.output_format_jimple);
         soot.options.Options.v().set_keep_line_number(true);
-        if (!containsJDK(Options.get().getSootArgs())) {
+        if (!containsJDK(PTAOptions.get().getSootArgs())) {
             soot.options.Options.v().set_prepend_classpath(true);
         }
         soot.options.Options.v().set_whole_program(true);
@@ -51,7 +50,7 @@ public class Main {
                 .add(transform);
 
         // Run main analysis
-        soot.Main.main(Options.get().getSootArgs());
+        soot.Main.main(PTAOptions.get().getSootArgs());
     }
 
     /**

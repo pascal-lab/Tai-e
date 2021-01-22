@@ -20,7 +20,7 @@ import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.element.Variable;
 import pascal.taie.pta.env.EnvObj;
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.statement.Allocation;
 import pascal.taie.pta.statement.ArrayStore;
 import pascal.taie.pta.statement.Assign;
@@ -127,7 +127,7 @@ class MethodModel {
         // Redirect calls to Thread.start() to Thread.run().
         // Before Java 5, Thread.start() itself is native. Since Java 5,
         // start() is written in Java which calls native method start0().
-        final String start = Options.get().jdkVersion() <= 4
+        final String start = PTAOptions.get().jdkVersion() <= 4
                 ? "<java.lang.Thread: void start()>"
                 : "<java.lang.Thread: void start0()>";
         registerHandler(start, method -> {
@@ -150,7 +150,7 @@ class MethodModel {
         );
         // <java.io.FileSystem: java.io.FileSystem getFileSystem()>
         // This API is implemented in Java code since Java 7.
-        if (Options.get().jdkVersion() <= 6) {
+        if (PTAOptions.get().jdkVersion() <= 6) {
             registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
                 concreteFileSystems.forEach(fsName -> {
                     pm.tryGetUniqueTypeByName(fsName).ifPresent(fs -> {

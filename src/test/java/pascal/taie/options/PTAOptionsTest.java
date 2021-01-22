@@ -13,59 +13,59 @@
 
 package pascal.taie.options;
 
-import pascal.taie.pta.options.Options;
+import pascal.taie.pta.PTAOptions;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 
-public class OptionsTest {
+public class PTAOptionsTest {
 
     @Test
     public void testHelp() {
-        Options.parse("--help");
-        if (Options.get().shouldShowHelp()) {
-            Options.get().printHelp();
+        PTAOptions.parse("--help");
+        if (PTAOptions.get().shouldShowHelp()) {
+            PTAOptions.get().printHelp();
         }
     }
 
     @Test
     public void testVersion() {
-        Options.parse("-v");
-        if (Options.get().shouldShowVersion()) {
-            Options.get().printVersion();
+        PTAOptions.parse("-v");
+        if (PTAOptions.get().shouldShowVersion()) {
+            PTAOptions.get().printVersion();
         }
     }
 
     @Test
     public void testJDKVersion() {
-        Options.parse("-jdk=8");
-        Assert.assertEquals(Options.get().jdkVersion(), 8);
+        PTAOptions.parse("-jdk=8");
+        Assert.assertEquals(PTAOptions.get().jdkVersion(), 8);
     }
     @Test
     public void testOptions() {
-        Options.parse("--no-implicit-entries", "-cs", "2-object");
-        Assert.assertFalse(Options.get().analyzeImplicitEntries());
-        Assert.assertTrue(Options.get().isMergeStringBuilders());
-        Assert.assertEquals("2-object", Options.get().getContextSensitivity());
-        Options.parse("--no-merge-string-builders");
-        Assert.assertFalse(Options.get().isMergeStringBuilders());
+        PTAOptions.parse("--no-implicit-entries", "-cs", "2-object");
+        Assert.assertFalse(PTAOptions.get().analyzeImplicitEntries());
+        Assert.assertTrue(PTAOptions.get().isMergeStringBuilders());
+        Assert.assertEquals("2-object", PTAOptions.get().getContextSensitivity());
+        PTAOptions.parse("--no-merge-string-builders");
+        Assert.assertFalse(PTAOptions.get().isMergeStringBuilders());
     }
 
     @Test
     public void testOutputFile() {
         // Well, README will never be output file,
         // this is just for testing ...
-        Options.parse("-f", "README");
+        PTAOptions.parse("-f", "README");
         Assert.assertEquals(new File("README"),
-                Options.get().getOutputFile());
+                PTAOptions.get().getOutputFile());
     }
 
     @Test
     public void testSootArgs() {
-        Options.parse("--no-implicit-entries",
+        PTAOptions.parse("--no-implicit-entries",
                 "-cs", "2-object",
                 "--", "-cp", "a/b/c.jar", "Main");
-        Assert.assertEquals(3, Options.get().getSootArgs().length);
+        Assert.assertEquals(3, PTAOptions.get().getSootArgs().length);
     }
 }
