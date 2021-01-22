@@ -13,14 +13,31 @@
 
 package pascal.taie.java;
 
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JClass;
+import pascal.taie.java.classes.JClassLoader;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
+
+import java.util.Collection;
 
 /**
  * Manages the classes and class-related resolution of the program being analyzed.
  */
 public interface ClassHierarchy {
 
+    Collection<JClass> getAllClasses();
 
+    JClass getJClass(JClassLoader loader, String className);
+
+    JClass getJClass(String className);
+
+    JMethod resolveMethod(MethodReference methodRef);
+
+    JField resolveField(FieldReference fieldRef);
+
+    JMethod dispatch(JClass receiverClass, MethodReference methodRef);
 
     boolean isSubclass(JClass superclass, JClass subclass);
 
