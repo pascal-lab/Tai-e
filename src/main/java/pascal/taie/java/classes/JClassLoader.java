@@ -13,5 +13,11 @@
 
 package pascal.taie.java.classes;
 
+import java.util.Collection;
+
 public interface JClassLoader {
+
+    JClass loadClass(String name);
+
+    Collection<JClass> getLoadedClasses();
 }

@@ -27,11 +27,17 @@ import java.util.Collection;
  */
 public interface ClassHierarchy {
 
+    JClassLoader getDefaultClassLoader();
+
+    Collection<JClassLoader> getClassLoaders();
+
     Collection<JClass> getAllClasses();
 
-    JClass getClass(JClassLoader loader, String className);
+    default JClass getClass(JClassLoader loader, String name) {
+        return loader.loadClass(name);
+    }
 
-    JClass getClass(String className);
+    JClass getClass(String name);
 
     JMethod resolveMethod(MethodReference methodRef);
 
