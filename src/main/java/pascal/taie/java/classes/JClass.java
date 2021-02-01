@@ -14,7 +14,7 @@
 package pascal.taie.java.classes;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class JClass {
@@ -35,9 +35,9 @@ public class JClass {
 
     private Collection<JClass> innerClasses;
 
-    private List<JMethod> declaredMethods;
+    private Map<String, JField> declaredFields;
 
-    private List<JField> declaredFields;
+    private Map<Subsignature, JMethod> declaredMethods;
 
     public JClass(JClassLoader loader, String name, String moduleName) {
         this.loader = loader;
