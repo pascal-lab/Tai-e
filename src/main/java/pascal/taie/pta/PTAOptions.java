@@ -42,7 +42,7 @@ public class PTAOptions {
 
     // ---------- pre-processing options ----------
     @Option(names = "--pre-build-ir",
-            description = "Build Panda IR for all available methods before" +
+            description = "Build Tai-e IR for all available methods before" +
                     " starting pointer analysis (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean preBuildIR;
