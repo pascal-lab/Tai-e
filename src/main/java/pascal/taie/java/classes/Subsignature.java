@@ -13,14 +13,16 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.util.InternalCanonicalized;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /**
  * Method name and descriptor.
- * Apply internal canonicalization.
  */
+@InternalCanonicalized
 public class Subsignature {
 
     private final Key key;

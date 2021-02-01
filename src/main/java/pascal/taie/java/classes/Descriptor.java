@@ -14,6 +14,7 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.InternalCanonicalized;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,9 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Apply internal canonicalization.
- */
+@InternalCanonicalized
 public class Descriptor {
 
     private final static Map<Key, Descriptor> map = new HashMap<>();
