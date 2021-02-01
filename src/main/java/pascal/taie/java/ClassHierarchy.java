@@ -29,9 +29,9 @@ public interface ClassHierarchy {
 
     Collection<JClass> getAllClasses();
 
-    JClass getJClass(JClassLoader loader, String className);
+    JClass getClass(JClassLoader loader, String className);
 
-    JClass getJClass(String className);
+    JClass getClass(String className);
 
     JMethod resolveMethod(MethodReference methodRef);
 

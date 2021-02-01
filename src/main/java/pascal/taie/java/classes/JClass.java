@@ -20,21 +20,28 @@ import java.util.Set;
 public class JClass {
 
     private final JClassLoader loader;
+
     private final String name;
-    private final Set<Modifier> modifiers;
+
     private final String moduleName;
+
+    private Set<Modifier> modifiers;
+
     private JClass superClass;
+
     private Collection<JClass> superInterfaces;
+
     private JClass outerClass;
+
     private Collection<JClass> innerClasses;
+
     private List<JMethod> declaredMethods;
+
     private List<JField> declaredFields;
 
-    public JClass(JClassLoader loader, String name,
-                  Set<Modifier> modifiers, String moduleName) {
+    public JClass(JClassLoader loader, String name, String moduleName) {
         this.loader = loader;
         this.name = name;
-        this.modifiers = modifiers;
         this.moduleName = moduleName;
     }
 

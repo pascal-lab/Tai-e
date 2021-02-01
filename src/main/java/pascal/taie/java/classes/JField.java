@@ -13,5 +13,23 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.Type;
+
+import java.util.Set;
+
 public class JField extends ClassMember {
+
+    private Type type;
+
+    public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
+                  Type type) {
+        super(declaringClass, name, modifiers);
+        this.type = type;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    // TODO: more modifiers
 }

@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,7 +11,12 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java.classes;
+package pascal.taie.util;
 
-public class JMethod /*extends ClassMember*/ {
+public class SignatureUtils {
+
+    private SignatureUtils() {
+    }
+
+
 }

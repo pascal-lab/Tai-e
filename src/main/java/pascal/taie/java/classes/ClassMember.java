@@ -13,5 +13,48 @@
 
 package pascal.taie.java.classes;
 
+import java.util.Set;
+
 public abstract class ClassMember {
+
+    protected JClass declaringClass;
+
+    protected String name;
+
+    protected Set<Modifier> modifiers;
+
+    protected ClassMember(JClass declaringClass, String name,
+                          Set<Modifier> modifiers) {
+        this.declaringClass = declaringClass;
+        this.name = name;
+        this.modifiers = modifiers;
+    }
+
+    public JClass getDeclaringClass() {
+        return declaringClass;
+    }
+
+    protected void setDeclaringClass(JClass declaringClass) {
+        this.declaringClass = declaringClass;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isPublic() {
+        return Modifier.hasPublic(modifiers);
+    }
+
+    public boolean isProtected() {
+        return Modifier.hasProtected(modifiers);
+    }
+
+    public boolean isPrivate() {
+        return Modifier.hasPrivate(modifiers);
+    }
+
+    public boolean isStatic() {
+        return Modifier.hasStatic(modifiers);
+    }
 }
