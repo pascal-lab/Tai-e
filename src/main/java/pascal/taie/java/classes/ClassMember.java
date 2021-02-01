@@ -23,6 +23,8 @@ public abstract class ClassMember {
 
     protected Set<Modifier> modifiers;
 
+    // TODO: annotations, source location
+
     protected ClassMember(JClass declaringClass, String name,
                           Set<Modifier> modifiers) {
         this.declaringClass = declaringClass;

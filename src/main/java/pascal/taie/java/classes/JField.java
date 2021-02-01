@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class JField extends ClassMember {
 
-    private Type type;
+    private final Type type;
 
     public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
                   Type type) {

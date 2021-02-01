@@ -39,6 +39,8 @@ public class JClass {
 
     private Map<Subsignature, JMethod> declaredMethods;
 
+    // TODO: annotations
+
     public JClass(JClassLoader loader, String name, String moduleName) {
         this.loader = loader;
         this.name = name;

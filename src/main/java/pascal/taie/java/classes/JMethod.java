@@ -13,5 +13,27 @@
 
 package pascal.taie.java.classes;
 
-public class JMethod /*extends ClassMember*/ {
+import java.util.Set;
+
+public class JMethod extends ClassMember {
+
+    private final Descriptor descriptor;
+
+    public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
+                   Descriptor descriptor) {
+        super(declaringClass, name, modifiers);
+        this.descriptor = descriptor;
+    }
+
+    public Descriptor getDescriptor() {
+        return descriptor;
+    }
+
+    public boolean isAbstract() {
+        return Modifier.hasAbstract(modifiers);
+    }
+
+    public boolean isNative() {
+        return Modifier.hasNative(modifiers);
+    }
 }
