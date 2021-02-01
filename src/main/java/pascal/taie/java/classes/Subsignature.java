@@ -13,6 +13,7 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public class Subsignature {
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, descriptor);
+            return HashUtils.hash(name, descriptor);
         }
     }
 }

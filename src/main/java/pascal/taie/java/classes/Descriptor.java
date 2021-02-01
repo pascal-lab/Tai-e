@@ -14,13 +14,13 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @InternalCanonicalized
 public class Descriptor {
@@ -64,7 +64,7 @@ public class Descriptor {
         public Key(List<Type> parameterTypes, Type returnType) {
             this.parameterTypes = parameterTypes;
             this.returnType = returnType;
-            this.hashCode = Objects.hash(parameterTypes, returnType);
+            this.hashCode = HashUtils.hash(parameterTypes, returnType);
         }
 
         @Override
