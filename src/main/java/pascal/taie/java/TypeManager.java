@@ -13,6 +13,7 @@
 
 package pascal.taie.java;
 
+import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
@@ -28,6 +29,8 @@ public interface TypeManager {
     ClassType getClassType(JClassLoader loader, String className);
 
     ClassType getClassType(String className);
+
+    void addClassType(JClass jclass);
 
     ArrayType getArrayType(Type baseType, int dimensions);
 

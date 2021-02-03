@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -13,9 +13,9 @@
 
 package pascal.taie.java.classes;
 
-public class FieldReference extends MemberReference {
+// requires TypeManager and ClassHierarchy
+public interface JClassBuilder {
 
-    public FieldReference(JClass declaringClass, String name) {
-        super(declaringClass, name);
-    }
+    JClass build(JClassLoader loader, String name);
+
 }
