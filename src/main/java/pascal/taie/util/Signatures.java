@@ -13,10 +13,9 @@
 
 package pascal.taie.util;
 
-public class SignatureUtils {
+public class Signatures {
 
-    private SignatureUtils() {
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Signatures() {
     }
-
-
 }

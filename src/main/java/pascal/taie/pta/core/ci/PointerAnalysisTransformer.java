@@ -18,7 +18,7 @@ import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.pta.element.Method;
 import pascal.taie.pta.jimple.JimplePointerAnalysis;
 import pascal.taie.pta.jimple.JimpleProgramManager;
-import pascal.taie.util.StringUtils;
+import pascal.taie.util.Strings;
 import soot.Scene;
 import soot.SceneTransformer;
 
@@ -84,6 +84,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     private void printPointsToSet(Pointer pointer) {
         System.out.println(pointer + " -> "
-                + StringUtils.streamToString(pointer.getPointsToSet().stream()));
+                + Strings.streamToString(pointer.getPointsToSet().stream()));
     }
 }

@@ -15,10 +15,10 @@ package pascal.taie.util;
 
 import java.util.stream.Stream;
 
-public class StringUtils {
+public class Strings {
 
     // Suppresses default constructor, ensuring non-instantiability.
-    private StringUtils() {
+    private Strings() {
     }
 
     /**

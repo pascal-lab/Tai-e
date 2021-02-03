@@ -33,7 +33,7 @@ import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.StringUtils.streamToString;
+import static pascal.taie.util.Strings.streamToString;
 
 /**
  * Print pointer analysis results to specify output stream.

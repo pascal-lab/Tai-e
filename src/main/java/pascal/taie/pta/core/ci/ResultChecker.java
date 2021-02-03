@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.ci;
 
-import pascal.taie.util.StringUtils;
+import pascal.taie.util.Strings;
 import soot.G;
 
 import java.io.IOException;
@@ -101,7 +101,7 @@ public class ResultChecker {
 
     private void comparePointer(Pointer p, Set<String> givenPointers) {
         String ptr = p.toString();
-        String given = StringUtils.streamToString(p.getPointsToSet().stream());
+        String given = Strings.streamToString(p.getPointsToSet().stream());
         String expected = expectedResults.get(ptr);
         if (!Objects.equals(given, expected)) {
             mismatches.add(String.format(

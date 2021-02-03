@@ -20,7 +20,7 @@ import pascal.taie.pta.core.cs.StaticField;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.plugin.ResultPrinter;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.StringUtils;
+import pascal.taie.util.Strings;
 import soot.G;
 
 import java.io.ByteArrayOutputStream;
@@ -148,7 +148,7 @@ public class ResultChecker {
 
     private void comparePointer(Pointer p, Set<String> givenPointers) {
         String ptr = p.toString();
-        String given = StringUtils.streamToString(p.getPointsToSet().stream());
+        String given = Strings.streamToString(p.getPointsToSet().stream());
         String expected = expectedResults.get(ptr);
         if (!Objects.equals(given, expected)) {
             mismatches.add(String.format(
