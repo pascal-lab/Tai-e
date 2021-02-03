@@ -13,20 +13,19 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.Type;
+
+import java.util.List;
 import java.util.Set;
 
 public class JMethod extends ClassMember {
 
-    private final MethodDescriptor descriptor;
+    private List<Type> parameterTypes;
 
-    public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
-                   MethodDescriptor descriptor) {
+    private Type returnType;
+
+    public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers) {
         super(declaringClass, name, modifiers);
-        this.descriptor = descriptor;
-    }
-
-    public MethodDescriptor getDescriptor() {
-        return descriptor;
     }
 
     public boolean isAbstract() {

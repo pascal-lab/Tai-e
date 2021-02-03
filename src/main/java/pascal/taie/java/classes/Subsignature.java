@@ -29,7 +29,7 @@ public class Subsignature {
 
     private final static Map<Key, Subsignature> map = new HashMap<>();
 
-    public static Subsignature get(String name, MethodDescriptor descriptor) {
+    public static Subsignature get(String name, String descriptor) {
         Key key = new Key(name, descriptor);
         return map.computeIfAbsent(key, Subsignature::new);
     }
@@ -46,7 +46,7 @@ public class Subsignature {
         return key.name;
     }
 
-    public MethodDescriptor getDescriptor() {
+    public String getDescriptor() {
         return key.descriptor;
     }
 
@@ -54,9 +54,9 @@ public class Subsignature {
 
         private final String name;
 
-        private final MethodDescriptor descriptor;
+        private final String descriptor;
 
-        public Key(String name, MethodDescriptor descriptor) {
+        public Key(String name, String descriptor) {
             this.name = name;
             this.descriptor = descriptor;
         }
