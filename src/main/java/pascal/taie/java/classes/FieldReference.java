@@ -14,4 +14,9 @@
 package pascal.taie.java.classes;
 
 public class FieldReference extends MemberReference {
+
+    public FieldReference(JClass declaringClass, String name) {
+        super(declaringClass, name);
+    }
 }
+

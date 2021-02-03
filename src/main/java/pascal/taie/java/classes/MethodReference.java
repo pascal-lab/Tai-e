@@ -14,4 +14,8 @@
 package pascal.taie.java.classes;
 
 public class MethodReference extends MemberReference {
+
+    public MethodReference(JClass declaringClass, String name) {
+        super(declaringClass, name);
+    }
 }

@@ -17,11 +17,11 @@ import java.util.Set;
 
 public abstract class ClassMember {
 
-    protected JClass declaringClass;
+    protected final JClass declaringClass;
 
-    protected String name;
+    protected final String name;
 
-    protected Set<Modifier> modifiers;
+    protected final Set<Modifier> modifiers;
 
     // TODO: annotations, source location
 
@@ -34,10 +34,6 @@ public abstract class ClassMember {
 
     public JClass getDeclaringClass() {
         return declaringClass;
-    }
-
-    protected void setDeclaringClass(JClass declaringClass) {
-        this.declaringClass = declaringClass;
     }
 
     public String getName() {

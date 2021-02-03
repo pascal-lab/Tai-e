@@ -14,4 +14,21 @@
 package pascal.taie.java.classes;
 
 public abstract class MemberReference {
+
+    protected final JClass declaringClass;
+
+    protected final String name;
+
+    public MemberReference(JClass declaringClass, String name) {
+        this.declaringClass = declaringClass;
+        this.name = name;
+    }
+
+    public JClass getDeclaringClass() {
+        return declaringClass;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
