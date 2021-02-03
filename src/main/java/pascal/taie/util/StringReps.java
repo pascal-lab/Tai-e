@@ -46,6 +46,10 @@ public class StringReps {
         throw new UnsupportedOperationException();
     }
 
+    public static String getSubsignatureOf(String methodSig) {
+        throw new UnsupportedOperationException();
+    }
+
     public static String getDescriptorOf(JMethod method) {
         throw new UnsupportedOperationException();
     }
