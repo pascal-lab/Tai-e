@@ -23,25 +23,25 @@ import java.util.List;
 import java.util.Map;
 
 @InternalCanonicalized
-public class Descriptor {
+public class MethodDescriptor {
 
-    private final static Map<Key, Descriptor> map = new HashMap<>();
+    private final static Map<Key, MethodDescriptor> map = new HashMap<>();
 
     private final Key key;
 
-    public static Descriptor get(List<Type> parameterTypes, Type returnType) {
+    public static MethodDescriptor get(List<Type> parameterTypes, Type returnType) {
         if (parameterTypes == null) {
             parameterTypes = Collections.emptyList();
         }
         Key key = new Key(parameterTypes, returnType);
-        return map.computeIfAbsent(key, Descriptor::new);
+        return map.computeIfAbsent(key, MethodDescriptor::new);
     }
 
     public static void clear() {
         map.clear();
     }
 
-    private Descriptor(Key key) {
+    private MethodDescriptor(Key key) {
         this.key = key;
     }
 

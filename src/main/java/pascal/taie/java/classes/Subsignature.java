@@ -18,7 +18,6 @@ import pascal.taie.util.InternalCanonicalized;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Method name and descriptor.
@@ -30,7 +29,7 @@ public class Subsignature {
 
     private final static Map<Key, Subsignature> map = new HashMap<>();
 
-    public static Subsignature get(String name, Descriptor descriptor) {
+    public static Subsignature get(String name, MethodDescriptor descriptor) {
         Key key = new Key(name, descriptor);
         return map.computeIfAbsent(key, Subsignature::new);
     }
@@ -47,7 +46,7 @@ public class Subsignature {
         return key.name;
     }
 
-    public Descriptor getDescriptor() {
+    public MethodDescriptor getDescriptor() {
         return key.descriptor;
     }
 
@@ -55,9 +54,9 @@ public class Subsignature {
 
         private final String name;
 
-        private final Descriptor descriptor;
+        private final MethodDescriptor descriptor;
 
-        public Key(String name, Descriptor descriptor) {
+        public Key(String name, MethodDescriptor descriptor) {
             this.name = name;
             this.descriptor = descriptor;
         }

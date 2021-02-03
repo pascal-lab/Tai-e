@@ -17,15 +17,15 @@ import java.util.Set;
 
 public class JMethod extends ClassMember {
 
-    private final Descriptor descriptor;
+    private final MethodDescriptor descriptor;
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
-                   Descriptor descriptor) {
+                   MethodDescriptor descriptor) {
         super(declaringClass, name, modifiers);
         this.descriptor = descriptor;
     }
 
-    public Descriptor getDescriptor() {
+    public MethodDescriptor getDescriptor() {
         return descriptor;
     }
 

@@ -47,5 +47,5 @@ public interface ClassHierarchy {
 
     boolean isSubclass(JClass superclass, JClass subclass);
 
-    boolean isAssignable(JClass from, JClass to);
+    boolean isAssignable(JClass fromClass, JClass toClass);
 }
