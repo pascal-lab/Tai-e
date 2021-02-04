@@ -35,7 +35,9 @@ public class StringReps {
     }
 
     public static String getSignatureOf(JField field) {
-        throw new UnsupportedOperationException();
+        return "<" + field.getDeclaringClass() + ": " +
+                field.getType() + " " +
+                field.getName() + ">";
     }
 
     public static String getSubsignatureOf(JMethod method) {

@@ -14,6 +14,7 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.StringReps;
 
 import java.util.Set;
 
@@ -32,4 +33,9 @@ public class JField extends ClassMember {
     }
 
     // TODO: more modifiers
+
+    @Override
+    public String toString() {
+        return StringReps.getSignatureOf(this);
+    }
 }
