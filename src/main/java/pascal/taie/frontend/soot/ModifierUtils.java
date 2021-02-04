@@ -13,13 +13,8 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.World;
-import pascal.taie.java.WorldBuilder;
+class ModifierUtils {
 
-public class SootBuilder implements WorldBuilder {
-
-    @Override
-    public World buildWorld() {
-        throw new UnsupportedOperationException();
+    private ModifierUtils() {
     }
 }

@@ -11,11 +11,15 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java.classes;
+package pascal.taie.frontend.soot;
 
-// requires TypeManager and ClassHierarchy
-public interface JClassBuilder {
+import pascal.taie.java.World;
+import pascal.taie.java.WorldBuilder;
 
-    JClass build(JClassLoader loader, String name);
+public class SootWorldBuilder implements WorldBuilder {
 
+    @Override
+    public World buildWorld() {
+        throw new UnsupportedOperationException();
+    }
 }

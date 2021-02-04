@@ -17,8 +17,6 @@ import java.util.Collection;
 
 public interface JClassLoader {
 
-    boolean addClass(JClass jclass);
-
     JClass loadClass(String name);
 
     Collection<JClass> getLoadedClasses();

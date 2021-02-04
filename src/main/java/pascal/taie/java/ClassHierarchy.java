@@ -15,7 +15,6 @@ package pascal.taie.java;
 
 import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
@@ -31,8 +30,6 @@ public interface ClassHierarchy {
     JClassLoader getDefaultClassLoader();
 
     Collection<JClassLoader> getClassLoaders();
-
-    void setClassBuilder(JClassBuilder builder);
 
     Collection<JClass> getAllClasses();
 
