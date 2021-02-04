@@ -14,12 +14,15 @@
 package pascal.taie.java.classes;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 public class JClass {
 
     private final JClassLoader loader;
+
+    private JClassBuilder builder;
 
     private final String name;
 
@@ -29,7 +32,7 @@ public class JClass {
 
     private JClass superClass;
 
-    private Collection<JClass> superInterfaces;
+    private Collection<JClass> implementedInterfaces = Collections.emptySet();
 
     private JClass outerClass;
 
@@ -41,10 +44,23 @@ public class JClass {
 
     // TODO: annotations
 
+    public JClass(JClassLoader loader, String name) {
+        this(loader, name, null);
+    }
+
     public JClass(JClassLoader loader, String name, String moduleName) {
         this.loader = loader;
+        this.builder = loader.getClassBuilder(name);
         this.name = name;
         this.moduleName = moduleName;
+        init();
+    }
+
+    private void init() {
+        builder = loader.getClassBuilder(name);
+        modifiers = builder.getModifiers();
+        superClass = builder.getSuperClass();
+        implementedInterfaces = builder.getInterfaces();
     }
 
     public String getName() {
@@ -85,5 +101,9 @@ public class JClass {
 
     public boolean isSynthetic() {
         return Modifier.hasSynthetic(modifiers);
+    }
+
+    public JClass getSuperClass() {
+        return superClass;
     }
 }

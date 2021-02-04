@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -14,12 +14,17 @@
 package pascal.taie.java.classes;
 
 import java.util.Collection;
+import java.util.Set;
 
-public interface JClassLoader {
+public interface JClassBuilder {
 
-    JClassBuilder getClassBuilder(String name);
+    Set<Modifier> getModifiers();
 
-    JClass loadClass(String name);
+    JClass getSuperClass();
 
-    Collection<JClass> getLoadedClasses();
+    Collection<JClass> getInterfaces();
+
+    Collection<JField> getDeclaredFields();
+
+    Collection<JMethod> getDeclaredMethods();
 }

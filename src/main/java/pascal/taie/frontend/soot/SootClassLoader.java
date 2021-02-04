@@ -14,8 +14,10 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.java.classes.JClass;
+import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JClassLoader;
 import soot.Scene;
+import soot.SootClass;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,25 +29,34 @@ public class SootClassLoader implements JClassLoader {
 
     private final Map<String, JClass> classes = new HashMap<>(1024);
 
+    private final Map<String, JClassBuilder> builders = new HashMap<>(1024);
+
     public SootClassLoader(Scene scene) {
         this.scene = scene;
     }
 
     @Override
+    public JClassBuilder getClassBuilder(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public JClass loadClass(String name) {
-        return null;
+        JClass jclass = classes.get(name);
+        if (jclass == null) {
+            // TODO: confirm if this API is suitable
+            SootClass sootClass = scene.loadClassAndSupport(name);
+            if (sootClass != null) {
+                builders.put(name, new SootClassBuilder(sootClass, this));
+                jclass = new JClass(this, name);
+                classes.put(name, jclass);
+            }
+        }
+        return jclass;
     }
 
     @Override
     public Collection<JClass> getLoadedClasses() {
         return classes.values();
-    }
-
-    private void build(JClass jclass) {
-        // modifiers
-        // super class
-        // super interfaces
-        // fields
-        // methods
     }
 }
