@@ -19,9 +19,12 @@ import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.Modifier;
 import soot.SootClass;
+import soot.util.Chain;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SootClassBuilder implements JClassBuilder {
 
@@ -41,12 +44,23 @@ public class SootClassBuilder implements JClassBuilder {
 
     @Override
     public JClass getSuperClass() {
-        throw new UnsupportedOperationException();
+        if (sootClass.getName().equals("java.lang.Object")) {
+            return null;
+        } else {
+            return getJClass(sootClass.getSuperclass());
+        }
     }
 
     @Override
     public Collection<JClass> getInterfaces() {
-        throw new UnsupportedOperationException();
+        Chain<SootClass> interfaces = sootClass.getInterfaces();
+        if (interfaces.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return interfaces.stream()
+                    .map(this::getJClass)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -57,5 +71,9 @@ public class SootClassBuilder implements JClassBuilder {
     @Override
     public Collection<JMethod> getDeclaredMethods() {
         throw new UnsupportedOperationException();
+    }
+
+    private JClass getJClass(SootClass sootClass) {
+        return loader.loadClass(sootClass.getName());
     }
 }

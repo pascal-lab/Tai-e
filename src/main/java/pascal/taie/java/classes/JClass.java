@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class JClass {
 
@@ -61,6 +63,12 @@ public class JClass {
         modifiers = builder.getModifiers();
         superClass = builder.getSuperClass();
         implementedInterfaces = builder.getInterfaces();
+        declaredFields = builder.getDeclaredFields().stream()
+                .collect(Collectors.toMap(JField::getName,
+                        Function.identity()));
+        declaredMethods = builder.getDeclaredMethods().stream()
+                .collect(Collectors.toMap(JMethod::getSubsignature,
+                        Function.identity()));
     }
 
     public String getName() {
@@ -105,5 +113,17 @@ public class JClass {
 
     public JClass getSuperClass() {
         return superClass;
+    }
+
+    public Collection<JClass> getImplementedInterfaces() {
+        return implementedInterfaces;
+    }
+
+    public Collection<JField> getDeclaredFields() {
+        return declaredFields.values();
+    }
+
+    public Collection<JMethod> getDeclaredMethods() {
+        return declaredMethods.values();
     }
 }

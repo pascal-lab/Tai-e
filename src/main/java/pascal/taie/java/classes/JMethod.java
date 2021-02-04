@@ -14,6 +14,7 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.StringReps;
 
 import java.util.List;
 import java.util.Set;
@@ -34,5 +35,9 @@ public class JMethod extends ClassMember {
 
     public boolean isNative() {
         return Modifier.hasNative(modifiers);
+    }
+
+    public Subsignature getSubsignature() {
+        return Subsignature.get(StringReps.getSubsignatureOf(this));
     }
 }
