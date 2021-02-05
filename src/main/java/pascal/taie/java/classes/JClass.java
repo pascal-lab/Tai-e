@@ -26,8 +26,6 @@ public class JClass {
 
     private final JClassLoader loader;
 
-    private JClassBuilder builder;
-
     private final String name;
 
     private final String moduleName;
@@ -56,14 +54,12 @@ public class JClass {
 
     public JClass(JClassLoader loader, String name, String moduleName) {
         this.loader = loader;
-        this.builder = loader.getClassBuilder(name);
         this.name = name;
         this.moduleName = moduleName;
-        init();
     }
 
-    private void init() {
-        builder = loader.getClassBuilder(name);
+    public void init(JClassBuilder builder) {
+        type = builder.getClassType();
         modifiers = builder.getModifiers();
         superClass = builder.getSuperClass();
         implementedInterfaces = builder.getInterfaces();

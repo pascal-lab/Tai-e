@@ -20,6 +20,8 @@ import java.util.Set;
 
 public interface JClassBuilder {
 
+    JClass build();
+
     Set<Modifier> getModifiers();
 
     ClassType getClassType();

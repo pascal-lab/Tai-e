@@ -13,12 +13,18 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.java.TypeManager;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.Modifier;
 import pascal.taie.java.types.ClassType;
+import pascal.taie.java.types.Type;
+import soot.ArrayType;
+import soot.PrimType;
+import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
 import soot.util.Chain;
@@ -30,13 +36,25 @@ import java.util.stream.Collectors;
 
 public class SootClassBuilder implements JClassBuilder {
 
-    private final SootClass sootClass;
-
     private final SootClassLoader loader;
 
-    public SootClassBuilder(SootClass sootClass, SootClassLoader loader) {
-        this.sootClass = sootClass;
+    private final SootClass sootClass;
+
+    private JClass jclass;
+
+    private final TypeManager typeManager;
+
+    public SootClassBuilder(SootClassLoader loader, SootClass sootClass) {
         this.loader = loader;
+        this.sootClass = sootClass;
+        this.typeManager = World.get().getTypeManager();
+    }
+
+    @Override
+    public JClass build() {
+        jclass = new JClass(loader, sootClass.getName());
+        jclass.init(this);
+        return jclass;
     }
 
     @Override
@@ -46,6 +64,9 @@ public class SootClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
+        // how to (gracefully) obtain TypeManager?
+        // World.getTypeManager(), well, this requires to initialize *Manager
+        // at the very beginning.
         throw new UnsupportedOperationException();
     }
 
@@ -54,7 +75,7 @@ public class SootClassBuilder implements JClassBuilder {
         if (sootClass.getName().equals("java.lang.Object")) {
             return null;
         } else {
-            return getJClass(sootClass.getSuperclass());
+            return convertClass(sootClass.getSuperclass());
         }
     }
 
@@ -65,7 +86,7 @@ public class SootClassBuilder implements JClassBuilder {
             return Collections.emptyList();
         } else {
             return interfaces.stream()
-                    .map(this::getJClass)
+                    .map(this::convertClass)
                     .collect(Collectors.toList());
         }
     }
@@ -80,11 +101,29 @@ public class SootClassBuilder implements JClassBuilder {
         throw new UnsupportedOperationException();
     }
 
-    private JClass getJClass(SootClass sootClass) {
+    private JClass convertClass(SootClass sootClass) {
         return loader.loadClass(sootClass.getName());
     }
 
-    private JField getJField(SootField sootField) {
-        throw new UnsupportedOperationException();
+    private JField convertField(SootField sootField) {
+        return new JField(jclass, sootField.getName(),
+                Modifiers.convert(sootField.getModifiers()),
+                convertType(sootField.getType()));
+    }
+
+    private Type convertType(soot.Type sootType) {
+        if (sootType instanceof PrimType) {
+            return typeManager.getPrimitiveType(sootType.toString());
+        } else if (sootType instanceof RefType) {
+            return typeManager.getClassType(loader, sootType.toString());
+        } else if (sootType instanceof ArrayType) {
+            ArrayType arrayType = (ArrayType) sootType;
+            return typeManager.getArrayType(
+                    convertType(arrayType.baseType),
+                    arrayType.numDimensions);
+        } else {
+            throw new SootFrontendException(
+                    "Cannot convert soot Type: " + sootType);
+        }
     }
 }

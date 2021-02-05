@@ -47,7 +47,7 @@ public class SootClassLoader implements JClassLoader {
             // TODO: confirm if this API is suitable
             SootClass sootClass = scene.loadClassAndSupport(name);
             if (sootClass != null) {
-                builders.put(name, new SootClassBuilder(sootClass, this));
+                builders.put(name, new SootClassBuilder(this, sootClass));
                 jclass = new JClass(this, name);
                 classes.put(name, jclass);
             }
