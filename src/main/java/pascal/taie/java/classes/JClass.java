@@ -58,7 +58,11 @@ public class JClass {
         this.moduleName = moduleName;
     }
 
-    public void init(JClassBuilder builder) {
+    /**
+     * This method should be called after creating this instance.
+     * @param builder
+     */
+    public void build(JClassBuilder builder) {
         type = builder.getClassType();
         modifiers = builder.getModifiers();
         superClass = builder.getSuperClass();
