@@ -13,12 +13,16 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.ClassType;
+
 import java.util.Collection;
 import java.util.Set;
 
 public interface JClassBuilder {
 
     Set<Modifier> getModifiers();
+
+    ClassType getClassType();
 
     JClass getSuperClass();
 

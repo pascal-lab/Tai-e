@@ -13,6 +13,8 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.ClassType;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -29,6 +31,8 @@ public class JClass {
     private final String name;
 
     private final String moduleName;
+
+    private ClassType type;
 
     private Set<Modifier> modifiers;
 

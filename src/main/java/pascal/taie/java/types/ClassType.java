@@ -14,39 +14,54 @@
 package pascal.taie.java.types;
 
 import pascal.taie.java.classes.JClass;
+import pascal.taie.java.classes.JClassLoader;
+import pascal.taie.util.HashUtils;
 
 public class ClassType implements ReferenceType {
 
-    private final JClass jclass;
+    private final JClassLoader loader;
 
-    public ClassType(JClass jclass) {
-        this.jclass = jclass;
+    private final String name;
+
+    private JClass jclass;
+
+    public ClassType(JClassLoader loader, String name) {
+        this.loader = loader;
+        this.name = name;
     }
 
     @Override
     public String getName() {
-        return jclass.getName();
+        return name;
     }
 
     public JClass getJClass() {
+        if (jclass == null) {
+            jclass = loader.loadClass(name);
+        }
         return jclass;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ClassType classType = (ClassType) o;
-        return jclass.equals(classType.jclass);
+        return loader.equals(classType.loader)
+                && name.equals(classType.name);
     }
 
     @Override
     public int hashCode() {
-        return jclass.hashCode();
+        return HashUtils.hash(loader, name);
     }
 
     @Override
     public String toString() {
-        return jclass.getName();
+        return name;
     }
 }

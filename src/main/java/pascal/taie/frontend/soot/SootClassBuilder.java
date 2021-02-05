@@ -18,7 +18,9 @@ import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.Modifier;
+import pascal.taie.java.types.ClassType;
 import soot.SootClass;
+import soot.SootField;
 import soot.util.Chain;
 
 import java.util.Collection;
@@ -40,6 +42,11 @@ public class SootClassBuilder implements JClassBuilder {
     @Override
     public Set<Modifier> getModifiers() {
         return Modifiers.convert(sootClass.getModifiers());
+    }
+
+    @Override
+    public ClassType getClassType() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -75,5 +82,9 @@ public class SootClassBuilder implements JClassBuilder {
 
     private JClass getJClass(SootClass sootClass) {
         return loader.loadClass(sootClass.getName());
+    }
+
+    private JField getJField(SootField sootField) {
+        throw new UnsupportedOperationException();
     }
 }
