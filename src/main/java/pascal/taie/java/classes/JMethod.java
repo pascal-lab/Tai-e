@@ -21,12 +21,15 @@ import java.util.Set;
 
 public class JMethod extends ClassMember {
 
-    private List<Type> parameterTypes;
+    private final List<Type> parameterTypes;
 
-    private Type returnType;
+    private final Type returnType;
 
-    public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers) {
+    public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
+                   List<Type> parameterTypes, Type returnType) {
         super(declaringClass, name, modifiers);
+        this.parameterTypes = parameterTypes;
+        this.returnType = returnType;
     }
 
     public boolean isAbstract() {
@@ -37,7 +40,20 @@ public class JMethod extends ClassMember {
         return Modifier.hasNative(modifiers);
     }
 
+    public List<Type> getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public Type getReturnType() {
+        return returnType;
+    }
+
     public Subsignature getSubsignature() {
         return Subsignature.get(StringReps.getSubsignatureOf(this));
+    }
+
+    @Override
+    public String toString() {
+        return StringReps.getSignatureOf(this);
     }
 }
