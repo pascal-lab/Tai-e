@@ -27,11 +27,12 @@ import soot.PrimType;
 import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
-import soot.util.Chain;
+import soot.SootMethod;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SootClassBuilder implements JClassBuilder {
@@ -64,10 +65,7 @@ public class SootClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
-        // how to (gracefully) obtain TypeManager?
-        // World.getTypeManager(), well, this requires to initialize *Manager
-        // at the very beginning.
-        throw new UnsupportedOperationException();
+        return typeManager.getClassType(loader, sootClass.getName());
     }
 
     @Override
@@ -81,34 +79,29 @@ public class SootClassBuilder implements JClassBuilder {
 
     @Override
     public Collection<JClass> getInterfaces() {
-        Chain<SootClass> interfaces = sootClass.getInterfaces();
-        if (interfaces.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return interfaces.stream()
-                    .map(this::convertClass)
-                    .collect(Collectors.toList());
-        }
+        return convertCollection(sootClass.getInterfaces(),
+                this::convertClass);
     }
 
     @Override
     public Collection<JField> getDeclaredFields() {
-        throw new UnsupportedOperationException();
+        return convertCollection(sootClass.getFields(), this::convertField);
     }
 
     @Override
     public Collection<JMethod> getDeclaredMethods() {
-        throw new UnsupportedOperationException();
+        return convertCollection(sootClass.getMethods(), this::convertMethod);
     }
 
-    private JClass convertClass(SootClass sootClass) {
-        return loader.loadClass(sootClass.getName());
-    }
-
-    private JField convertField(SootField sootField) {
-        return new JField(jclass, sootField.getName(),
-                Modifiers.convert(sootField.getModifiers()),
-                convertType(sootField.getType()));
+    private <S, T> Collection<T> convertCollection(
+            Collection<S> collection, Function<S, T> mapper) {
+        if (collection.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return collection.stream()
+                    .map(mapper)
+                    .collect(Collectors.toList());
+        }
     }
 
     private Type convertType(soot.Type sootType) {
@@ -125,5 +118,19 @@ public class SootClassBuilder implements JClassBuilder {
             throw new SootFrontendException(
                     "Cannot convert soot Type: " + sootType);
         }
+    }
+
+    private JClass convertClass(SootClass sootClass) {
+        return loader.loadClass(sootClass.getName());
+    }
+
+    private JField convertField(SootField sootField) {
+        return new JField(jclass, sootField.getName(),
+                Modifiers.convert(sootField.getModifiers()),
+                convertType(sootField.getType()));
+    }
+
+    private JMethod convertMethod(SootMethod sootMethod) {
+        throw new UnsupportedOperationException();
     }
 }

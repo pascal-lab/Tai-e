@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * Utility class for compute string representations of various program
- * information, such as class name, method descriptor, method signature, etc.
+ * elements, such as class name, method descriptor, method signature, etc.
  */
 public class StringReps {
 

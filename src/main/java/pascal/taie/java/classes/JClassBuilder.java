@@ -18,6 +18,10 @@ import pascal.taie.java.types.ClassType;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Each JClassBuilder builds one JClass.
+ * TODO: make the relation between JClassBuilder and JClass explicit.
+ */
 public interface JClassBuilder {
 
     JClass build();
