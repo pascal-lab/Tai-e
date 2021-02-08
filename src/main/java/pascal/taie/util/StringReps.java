@@ -34,14 +34,7 @@ public class StringReps {
     public static String getSignatureOf(JMethod method) {
         return "<" +
                 method.getDeclaringClass() + ": " +
-                method.getReturnType() + " " +
-                method.getName() +
-                "(" +
-                method.getParameterTypes()
-                        .stream()
-                        .map(Type::toString)
-                        .collect(Collectors.joining(",")) +
-                ")" +
+                getSubsignatureOf(method) +
                 ">";
     }
 
@@ -54,7 +47,14 @@ public class StringReps {
     }
 
     public static String getSubsignatureOf(JMethod method) {
-        throw new UnsupportedOperationException();
+        return method.getReturnType() + " " +
+                method.getName() +
+                "(" +
+                method.getParameterTypes()
+                        .stream()
+                        .map(Type::toString)
+                        .collect(Collectors.joining(",")) +
+                ")";
     }
 
     public static String getSubsignatureOf(MethodReference methodRef) {

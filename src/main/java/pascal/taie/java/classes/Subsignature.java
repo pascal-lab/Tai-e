@@ -37,4 +37,8 @@ public class Subsignature {
         this.subsig = subsig;
     }
 
+    @Override
+    public String toString() {
+        return subsig;
+    }
 }

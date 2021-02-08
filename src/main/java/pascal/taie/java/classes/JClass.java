@@ -130,4 +130,9 @@ public class JClass {
     public Collection<JMethod> getDeclaredMethods() {
         return declaredMethods.values();
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

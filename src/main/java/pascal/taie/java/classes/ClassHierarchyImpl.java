@@ -14,16 +14,23 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.util.ArrayMap;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JClassLoader defaultLoader;
 
+    // TODO: properly organize class loaders
+    private final Map<String, JClassLoader> loaders = new ArrayMap<>();
+
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
         this.defaultLoader = loader;
+        loaders.put("default", loader);
     }
 
     @Override
@@ -33,12 +40,15 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public Collection<JClassLoader> getClassLoaders() {
-        throw new UnsupportedOperationException();
+        return loaders.values();
     }
 
     @Override
     public Collection<JClass> getAllClasses() {
-        return null;
+        return loaders.values().stream()
+                .map(JClassLoader::getLoadedClasses)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
