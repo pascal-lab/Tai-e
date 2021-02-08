@@ -23,6 +23,8 @@ public abstract class ClassMember {
 
     protected final Set<Modifier> modifiers;
 
+    protected String signature;
+
     // TODO: annotations, source location
 
     protected ClassMember(JClass declaringClass, String name,
@@ -40,6 +42,10 @@ public abstract class ClassMember {
         return name;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
     public boolean isPublic() {
         return Modifier.hasPublic(modifiers);
     }
@@ -54,5 +60,10 @@ public abstract class ClassMember {
 
     public boolean isStatic() {
         return Modifier.hasStatic(modifiers);
+    }
+
+    @Override
+    public String toString() {
+        return signature;
     }
 }

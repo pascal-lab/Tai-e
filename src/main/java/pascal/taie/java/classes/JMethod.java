@@ -16,6 +16,7 @@ package pascal.taie.java.classes;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.StringReps;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -25,11 +26,16 @@ public class JMethod extends ClassMember {
 
     private final Type returnType;
 
+    private final Subsignature subsignature;
+
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> parameterTypes, Type returnType) {
         super(declaringClass, name, modifiers);
-        this.parameterTypes = parameterTypes;
+        this.parameterTypes = Collections.unmodifiableList(parameterTypes);
         this.returnType = returnType;
+        this.signature = StringReps.getSignatureOf(this);
+        this.subsignature = Subsignature.get(
+                StringReps.getSubsignatureOf(this));
     }
 
     public boolean isAbstract() {
@@ -38,6 +44,10 @@ public class JMethod extends ClassMember {
 
     public boolean isNative() {
         return Modifier.hasNative(modifiers);
+    }
+
+    public Type getParameterType(int i) {
+        return parameterTypes.get(i);
     }
 
     public List<Type> getParameterTypes() {
@@ -49,11 +59,6 @@ public class JMethod extends ClassMember {
     }
 
     public Subsignature getSubsignature() {
-        return Subsignature.get(StringReps.getSubsignatureOf(this));
-    }
-
-    @Override
-    public String toString() {
-        return StringReps.getSignatureOf(this);
+        return subsignature;
     }
 }

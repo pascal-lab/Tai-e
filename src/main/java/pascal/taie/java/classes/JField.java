@@ -26,6 +26,7 @@ public class JField extends ClassMember {
                   Type type) {
         super(declaringClass, name, modifiers);
         this.type = type;
+        this.signature = StringReps.getSignatureOf(this);
     }
 
     public Type getType() {

@@ -19,6 +19,7 @@ import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for compute string representations of various program
@@ -31,13 +32,25 @@ public class StringReps {
     }
 
     public static String getSignatureOf(JMethod method) {
-        throw new UnsupportedOperationException();
+        return "<" +
+                method.getDeclaringClass() + ": " +
+                method.getReturnType() + " " +
+                method.getName() +
+                "(" +
+                method.getParameterTypes()
+                        .stream()
+                        .map(Type::toString)
+                        .collect(Collectors.joining(",")) +
+                ")" +
+                ">";
     }
 
     public static String getSignatureOf(JField field) {
-        return "<" + field.getDeclaringClass() + ": " +
+        return "<" +
+                field.getDeclaringClass() + ": " +
                 field.getType() + " " +
-                field.getName() + ">";
+                field.getName() +
+                ">";
     }
 
     public static String getSubsignatureOf(JMethod method) {
