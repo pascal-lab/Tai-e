@@ -13,7 +13,6 @@
 
 package pascal.taie.java;
 
-import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
@@ -26,11 +25,25 @@ public interface TypeManager {
 
     PrimitiveType getPrimitiveType(String typeName);
 
+    PrimitiveType getByte();
+
+    PrimitiveType getShort();
+
+    PrimitiveType getInt();
+
+    PrimitiveType getLong();
+
+    PrimitiveType getFloat();
+
+    PrimitiveType getDouble();
+
+    PrimitiveType getChar();
+
+    PrimitiveType getBoolean();
+
     ClassType getClassType(JClassLoader loader, String className);
 
     ClassType getClassType(String className);
-
-    void addClassType(JClass jclass);
 
     ArrayType getArrayType(Type baseType, int dimensions);
 

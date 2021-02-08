@@ -15,12 +15,15 @@ package pascal.taie.java.types;
 
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassLoader;
+import pascal.taie.util.ArrayMap;
 
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO:
+//  1. mount ArrayType to element type (like Soot)?
+//  2. optimize maps (classTypes and arrayTypes)
 public class TypeManagerImpl implements TypeManager {
 
     private static final Map<String, PrimitiveType> primTypes;
@@ -32,10 +35,14 @@ public class TypeManagerImpl implements TypeManager {
         }
     }
 
-    private final ClassHierarchy classHierarchy;
+    private final ClassHierarchy hierarchy;
 
-    public TypeManagerImpl(ClassHierarchy classHierarchy) {
-        this.classHierarchy = classHierarchy;
+    private final Map<JClassLoader, Map<String, ClassType>> classTypes = new ArrayMap<>();
+
+    private final Map<Integer, Map<Type, ArrayType>> arrayTypes = new ArrayMap<>();
+
+    public TypeManagerImpl(ClassHierarchy hierarchy) {
+        this.hierarchy = hierarchy;
     }
 
     @Override
@@ -44,26 +51,66 @@ public class TypeManagerImpl implements TypeManager {
     }
 
     @Override
+    public PrimitiveType getByte() {
+        return PrimitiveType.BYTE;
+    }
+
+    @Override
+    public PrimitiveType getShort() {
+        return PrimitiveType.SHORT;
+    }
+
+    @Override
+    public PrimitiveType getInt() {
+        return PrimitiveType.INT;
+    }
+
+    @Override
+    public PrimitiveType getLong() {
+        return PrimitiveType.LONG;
+    }
+
+    @Override
+    public PrimitiveType getFloat() {
+        return PrimitiveType.FLOAT;
+    }
+
+    @Override
+    public PrimitiveType getDouble() {
+        return PrimitiveType.DOUBLE;
+    }
+
+    @Override
+    public PrimitiveType getChar() {
+        return PrimitiveType.CHAR;
+    }
+
+    @Override
+    public PrimitiveType getBoolean() {
+        return PrimitiveType.BOOLEAN;
+    }
+
+    @Override
     public ClassType getClassType(JClassLoader loader, String className) {
-        return null;
+        return classTypes.computeIfAbsent(loader, l -> new HashMap<>())
+                .computeIfAbsent(className, name -> new ClassType(loader, name));
     }
 
     @Override
     public ClassType getClassType(String className) {
-        return null;
+        // TODO: add warning
+        return getClassType(hierarchy.getDefaultClassLoader(), className);
     }
 
     @Override
-    public void addClassType(JClass jclass) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ArrayType getArrayType(Type baseType, int dimensions) {
+    public ArrayType getArrayType(Type baseType, int dim) {
         assert !(baseType instanceof VoidType)
                 && !(baseType instanceof NullType);
-        assert dimensions >= 1;
-        throw new UnsupportedOperationException();
+        assert dim >= 1;
+        return arrayTypes.computeIfAbsent(dim, d -> new HashMap<>())
+                .computeIfAbsent(baseType, t ->
+                        new ArrayType(t, dim
+                                , dim == 1 ? t : getArrayType(t, dim - 1)));
     }
 
     @Override

@@ -13,12 +13,12 @@
 
 package pascal.taie.java.types;
 
-import java.util.Objects;
-
 public class ArrayType implements ReferenceType {
 
     private final Type baseType;
+
     private final int dimensions;
+
     private final Type elementType;
 
     public ArrayType(Type baseType, int dimensions, Type elementType) {
@@ -55,7 +55,7 @@ public class ArrayType implements ReferenceType {
 
     @Override
     public int hashCode() {
-        return Objects.hash(baseType, dimensions);
+        return baseType.hashCode() * 31 + dimensions * 17; // magic prime ...
     }
 
     @Override
