@@ -27,6 +27,8 @@ import java.util.Collection;
  */
 public interface ClassHierarchy {
 
+    void setDefaultClassLoader(JClassLoader loader);
+
     JClassLoader getDefaultClassLoader();
 
     Collection<JClassLoader> getClassLoaders();
