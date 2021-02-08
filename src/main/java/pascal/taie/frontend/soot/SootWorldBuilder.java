@@ -13,13 +13,30 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.World;
 import pascal.taie.java.WorldBuilder;
+import pascal.taie.java.classes.ClassHierarchyImpl;
+import pascal.taie.java.types.TypeManagerImpl;
+import soot.Scene;
 
 public class SootWorldBuilder implements WorldBuilder {
 
     @Override
-    public World buildWorld() {
-        throw new UnsupportedOperationException();
+    public World build() {
+        World world = new World();
+        ClassHierarchy hierarchy = new ClassHierarchyImpl();
+        Scene scene = Scene.v();
+        hierarchy.setDefaultClassLoader(new SootClassLoader(scene));
+        world.setClassHierarchy(hierarchy);
+        world.setTypeManager(new TypeManagerImpl(hierarchy));
+        World.set(world);
+        buildClasses(hierarchy, scene);
+        return world;
+    }
+
+    private void buildClasses(ClassHierarchy hierarchy, Scene scene) {
+        scene.getClasses().forEach(c ->
+                hierarchy.getDefaultClassLoader().loadClass(c.getName()));
     }
 }
