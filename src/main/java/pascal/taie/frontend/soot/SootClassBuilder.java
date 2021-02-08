@@ -28,9 +28,11 @@ import soot.RefType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.VoidType;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -109,6 +111,8 @@ public class SootClassBuilder implements JClassBuilder {
             return typeManager.getPrimitiveType(sootType.toString());
         } else if (sootType instanceof RefType) {
             return typeManager.getClassType(loader, sootType.toString());
+        } else if (sootType instanceof VoidType) {
+            return typeManager.getVoidType();
         } else if (sootType instanceof ArrayType) {
             ArrayType arrayType = (ArrayType) sootType;
             return typeManager.getArrayType(
@@ -131,6 +135,13 @@ public class SootClassBuilder implements JClassBuilder {
     }
 
     private JMethod convertMethod(SootMethod sootMethod) {
-        throw new UnsupportedOperationException();
+        List<Type> paramTypes = sootMethod.getParameterTypes()
+                .stream()
+                .map(this::convertType)
+                .collect(Collectors.toList());
+        Type returnType = convertType(sootMethod.getReturnType());
+        return new JMethod(jclass, sootMethod.getName(),
+                Modifiers.convert(sootMethod.getModifiers()),
+                paramTypes, returnType);
     }
 }
