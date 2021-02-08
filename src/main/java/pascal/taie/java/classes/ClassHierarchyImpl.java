@@ -24,7 +24,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JClassLoader defaultLoader;
 
-    // TODO: properly organize class loaders
+    // TODO: properly manage class loaders
     private final Map<String, JClassLoader> loaders = new ArrayMap<>();
 
     @Override

@@ -127,8 +127,16 @@ public class JClass {
         return declaredFields.values();
     }
 
+    public JField getDeclaredField(String name) {
+        return declaredFields.get(name);
+    }
+
     public Collection<JMethod> getDeclaredMethods() {
         return declaredMethods.values();
+    }
+
+    public JMethod getDeclaredMethod(Subsignature subSignature) {
+        return declaredMethods.get(subSignature);
     }
 
     @Override
