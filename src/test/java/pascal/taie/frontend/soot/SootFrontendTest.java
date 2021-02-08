@@ -13,13 +13,19 @@
 
 package pascal.taie.frontend.soot;
 
+import org.junit.Assert;
 import org.junit.Test;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.Subsignature;
 import soot.G;
 import soot.Main;
 import soot.PackManager;
+import soot.Scene;
 import soot.SceneTransformer;
+import soot.SootClass;
 import soot.Transform;
 import soot.options.Options;
 
@@ -45,11 +51,16 @@ public class SootFrontendTest {
                     @Override
                     protected void internalTransform(String phaseName, Map<String, String> options) {
                         new SootWorldBuilder().build();
+                        Scene scene = Scene.v();
                         World.get().getClassHierarchy()
                                 .getAllClasses()
                                 .stream()
                                 .sorted(Comparator.comparing(JClass::getName))
-                                .forEach(System.out::println);
+                                .forEach(jclass -> {
+                                    SootClass sootClass =
+                                            scene.getSootClass(jclass.getName());
+                                    examineJClass(jclass, sootClass);
+                                });
                     }
                 }));
 
@@ -64,5 +75,38 @@ public class SootFrontendTest {
 
         // Run main analysis
         Main.main(args);
+    }
+
+    /**
+     * Compare the information of JClass and SootClass.
+     * @param jclass
+     * @param sootClass
+     */
+    private void examineJClass(JClass jclass, SootClass sootClass) {
+        Assert.assertEquals(jclass.getName(), sootClass.getName());
+
+        if (!jclass.getName().equals("java.lang.Object")) {
+            Assert.assertEquals(jclass.getSuperClass().getName(),
+                    sootClass.getSuperclass().getName());
+        }
+
+        Assert.assertEquals(jclass.getImplementedInterfaces().size(),
+                sootClass.getInterfaceCount());
+
+        sootClass.getFields().forEach(sootField -> {
+            JField field = jclass.getDeclaredField(sootField.getName());
+            Assert.assertEquals(
+                    // Soot signatures are quoted, remove quotes for comparison
+                    sootField.getSignature().replace("'", ""),
+                    field.getSignature());
+        });
+
+        sootClass.getMethods().forEach(sootMethod -> {
+            // Soot signatures are quoted, remove quotes for comparison
+            String sig = sootMethod.getSignature().replace("'", "");
+            String subSig = sootMethod.getSubSignature().replace("'", "");
+            JMethod method = jclass.getDeclaredMethod(Subsignature.get(subSig));
+            Assert.assertEquals(method.getSignature(), sig);
+        });
     }
 }
