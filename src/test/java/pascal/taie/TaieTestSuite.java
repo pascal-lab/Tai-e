@@ -19,6 +19,7 @@ import pascal.taie.callgraph.cha.CHATestFull;
 import pascal.taie.dataflow.DataFlowTestSuite;
 import pascal.taie.dataflow.analysis.constprop.CPTestSuite;
 import pascal.taie.dataflow.lattice.LatticeTestSuite;
+import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.java.TypeTest;
 import pascal.taie.pta.PTAOptionsTest;
 import pascal.taie.pta.CSPTATest;
@@ -28,6 +29,7 @@ import pascal.taie.util.UtilTestSuite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         // world
+        SootFrontendTest.class,
         TypeTest.class,
         // analysis
         CPTestSuite.class,
