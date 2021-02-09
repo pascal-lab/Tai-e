@@ -26,6 +26,8 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
+import soot.SootField;
+import soot.SootMethod;
 import soot.Transform;
 import soot.options.Options;
 
@@ -83,11 +85,11 @@ public class SootFrontendTest {
      * @param sootClass
      */
     private void examineJClass(JClass jclass, SootClass sootClass) {
-        Assert.assertEquals(jclass.getName(), sootClass.getName());
+        Assert.assertTrue(areSameClasses(jclass, sootClass));
 
         if (!jclass.getName().equals("java.lang.Object")) {
-            Assert.assertEquals(jclass.getSuperClass().getName(),
-                    sootClass.getSuperclass().getName());
+            Assert.assertTrue(areSameClasses(
+                    jclass.getSuperClass(), sootClass.getSuperclass()));
         }
 
         Assert.assertEquals(jclass.getImplementedInterfaces().size(),
@@ -95,18 +97,30 @@ public class SootFrontendTest {
 
         sootClass.getFields().forEach(sootField -> {
             JField field = jclass.getDeclaredField(sootField.getName());
-            Assert.assertEquals(
-                    // Soot signatures are quoted, remove quotes for comparison
-                    sootField.getSignature().replace("'", ""),
-                    field.getSignature());
+            Assert.assertTrue(areSameFields(field, sootField));
         });
 
         sootClass.getMethods().forEach(sootMethod -> {
             // Soot signatures are quoted, remove quotes for comparison
-            String sig = sootMethod.getSignature().replace("'", "");
             String subSig = sootMethod.getSubSignature().replace("'", "");
             JMethod method = jclass.getDeclaredMethod(Subsignature.get(subSig));
-            Assert.assertEquals(method.getSignature(), sig);
+            Assert.assertTrue(areSameMethods(method, sootMethod));
         });
+    }
+
+    private static boolean areSameClasses(JClass jclass, SootClass sootClass) {
+        return jclass.getName().equals(sootClass.getName());
+    }
+
+    private static boolean areSameFields(JField jfield, SootField sootField) {
+        // Soot signatures are quoted, remove quotes for comparison
+        return jfield.getSignature()
+                .equals(sootField.getSignature().replace("'", ""));
+    }
+
+    private static boolean areSameMethods(JMethod jmethod, SootMethod sootMethod) {
+        // Soot signatures are quoted, remove quotes for comparison
+        return jmethod.getSignature()
+                .equals(sootMethod.getSignature().replace("'", ""));
     }
 }
