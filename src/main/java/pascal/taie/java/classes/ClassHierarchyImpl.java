@@ -14,23 +14,25 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.ClassHierarchy;
-import pascal.taie.util.ArrayMap;
+import pascal.taie.util.ArraySet;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JClassLoader defaultLoader;
 
+    private JClassLoader bootstrapLoader;
+
     // TODO: properly manage class loaders
-    private final Map<String, JClassLoader> loaders = new ArrayMap<>();
+    private final Set<JClassLoader> loaders = new ArraySet<>();
 
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
         this.defaultLoader = loader;
-        loaders.put("default", loader);
+        loaders.add(loader);
     }
 
     @Override
@@ -39,22 +41,27 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
+    public void setBootstrapClassLoader(JClassLoader loader) {
+        this.bootstrapLoader = loader;
+        loaders.add(loader);
+    }
+
+    @Override
+    public JClassLoader getBootstrapClassLoader() {
+        return bootstrapLoader;
+    }
+
+    @Override
     public Collection<JClassLoader> getClassLoaders() {
-        return loaders.values();
+        return loaders;
     }
 
     @Override
     public Collection<JClass> getAllClasses() {
-        return loaders.values().stream()
+        return loaders.stream()
                 .map(JClassLoader::getLoadedClasses)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public JClass getClass(String name) {
-        // TODO: add warning
-        return defaultLoader.loadClass(name);
     }
 
     @Override

@@ -31,6 +31,18 @@ public class StringReps {
     private StringReps() {
     }
 
+    public static String getDeclaringClass(String signature) {
+        if (signature.charAt(0) != '<' &&
+                signature.charAt(signature.length() - 1) != '>') {
+            throw new AnalysisException(signature + " is not valid signature");
+        }
+        int index = signature.indexOf(":");
+        if (index < 0) {
+            throw new AnalysisException(signature + " is not valid signature");
+        }
+        return signature.substring(1, index);
+    }
+
     public static String getSignatureOf(JMethod method) {
         return "<" +
                 method.getDeclaringClass() + ": " +

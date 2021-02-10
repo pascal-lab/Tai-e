@@ -19,6 +19,8 @@ import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.Subsignature;
+import pascal.taie.util.StringReps;
 
 import java.util.Collection;
 
@@ -31,6 +33,10 @@ public interface ClassHierarchy {
 
     JClassLoader getDefaultClassLoader();
 
+    void setBootstrapClassLoader(JClassLoader loader);
+
+    JClassLoader getBootstrapClassLoader();
+
     Collection<JClassLoader> getClassLoaders();
 
     Collection<JClass> getAllClasses();
@@ -39,7 +45,35 @@ public interface ClassHierarchy {
         return loader.loadClass(name);
     }
 
-    JClass getClass(String name);
+    default JClass getClass(String name) {
+        // TODO: add warning
+        return getClass(getDefaultClassLoader(), name);
+    }
+
+    /**
+     * Get a JRE class by it name.
+     *
+     * @param name the class name
+     * @return the {@link JClass} for name if found; null if can't find the class.
+     */
+    default JClass getJREClass(String name) {
+        return getClass(getBootstrapClassLoader(), name);
+    }
+
+    /**
+     * Get a method declared in a JRE class by its signature.
+     *
+     * @param signature of the method
+     * @return the {@link JMethod} for signature if found;
+     * null if can't find the class.
+     * @throws pascal.taie.util.AnalysisException if signature is invalid.
+     */
+    default JMethod getJREMethod(String signature) {
+        String className = StringReps.getDeclaringClass(signature);
+        Subsignature subsig = Subsignature.get(
+                StringReps.getSubsignatureOf(signature));
+        return getJREClass(className).getDeclaredMethod(subsig);
+    }
 
     JMethod resolveMethod(MethodReference methodRef);
 
