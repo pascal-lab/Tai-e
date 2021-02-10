@@ -25,21 +25,21 @@ public interface TypeManager {
 
     PrimitiveType getPrimitiveType(String typeName);
 
-    PrimitiveType getByte();
+    PrimitiveType getByteType();
 
-    PrimitiveType getShort();
+    PrimitiveType getShortType();
 
-    PrimitiveType getInt();
+    PrimitiveType getIntType();
 
-    PrimitiveType getLong();
+    PrimitiveType getLongType();
 
-    PrimitiveType getFloat();
+    PrimitiveType getFloatType();
 
-    PrimitiveType getDouble();
+    PrimitiveType getDoubleType();
 
-    PrimitiveType getChar();
+    PrimitiveType getCharType();
 
-    PrimitiveType getBoolean();
+    PrimitiveType getBooleanType();
 
     ClassType getClassType(JClassLoader loader, String className);
 

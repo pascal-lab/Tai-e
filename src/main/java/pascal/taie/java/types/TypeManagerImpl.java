@@ -51,42 +51,42 @@ public class TypeManagerImpl implements TypeManager {
     }
 
     @Override
-    public PrimitiveType getByte() {
+    public PrimitiveType getByteType() {
         return PrimitiveType.BYTE;
     }
 
     @Override
-    public PrimitiveType getShort() {
+    public PrimitiveType getShortType() {
         return PrimitiveType.SHORT;
     }
 
     @Override
-    public PrimitiveType getInt() {
+    public PrimitiveType getIntType() {
         return PrimitiveType.INT;
     }
 
     @Override
-    public PrimitiveType getLong() {
+    public PrimitiveType getLongType() {
         return PrimitiveType.LONG;
     }
 
     @Override
-    public PrimitiveType getFloat() {
+    public PrimitiveType getFloatType() {
         return PrimitiveType.FLOAT;
     }
 
     @Override
-    public PrimitiveType getDouble() {
+    public PrimitiveType getDoubleType() {
         return PrimitiveType.DOUBLE;
     }
 
     @Override
-    public PrimitiveType getChar() {
+    public PrimitiveType getCharType() {
         return PrimitiveType.CHAR;
     }
 
     @Override
-    public PrimitiveType getBoolean() {
+    public PrimitiveType getBooleanType() {
         return PrimitiveType.BOOLEAN;
     }
 
