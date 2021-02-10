@@ -85,7 +85,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public boolean isAssignable(JClass fromClass, JClass toClass) {
+    public boolean canAssign(JClass fromClass, JClass toClass) {
         throw new UnsupportedOperationException();
     }
 }

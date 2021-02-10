@@ -50,4 +50,6 @@ public interface TypeManager {
     VoidType getVoidType();
 
     NullType getNullType();
+
+    boolean canAssign(Type fromType, Type toType);
 }

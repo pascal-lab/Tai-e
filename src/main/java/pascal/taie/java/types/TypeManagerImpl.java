@@ -41,8 +41,19 @@ public class TypeManagerImpl implements TypeManager {
 
     private final Map<Integer, Map<Type, ArrayType>> arrayTypes = new ArrayMap<>();
 
+    private final ClassType JavaLangObject;
+
+    private final ClassType JavaLangSerializable;
+
+    private final ClassType JavaLangCloneable;
+
     public TypeManagerImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
+        // Initialize special types
+        JClassLoader loader = hierarchy.getBootstrapClassLoader();
+        JavaLangObject = getClassType(loader, "java.lang.Object");
+        JavaLangSerializable = getClassType(loader, "java.lang.Serializable");
+        JavaLangCloneable = getClassType(loader, "java.lang.Cloneable");
     }
 
     @Override
@@ -121,5 +132,10 @@ public class TypeManagerImpl implements TypeManager {
     @Override
     public NullType getNullType() {
         return NullType.INSTANCE;
+    }
+
+    @Override
+    public boolean canAssign(Type fromType, Type toType) {
+        return false;
     }
 }
