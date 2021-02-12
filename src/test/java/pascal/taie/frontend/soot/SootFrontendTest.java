@@ -20,52 +20,17 @@ import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.Subsignature;
-import soot.G;
-import soot.Main;
-import soot.PackManager;
 import soot.Scene;
-import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.Transform;
-import soot.options.Options;
 
 import java.util.Comparator;
-import java.util.Map;
 
 public class SootFrontendTest {
     
     @Test
     public void testWorldBuilder() {
-        G.reset();
-        // Set Soot options
-        Options.v().set_output_format(
-                Options.output_format_jimple);
-        Options.v().set_keep_line_number(true);
-        Options.v().set_whole_program(true);
-        Options.v().setPhaseOption("cg", "enabled:false");
-
-        // Configure Soot transformer
-        PackManager.v()
-                .getPack("wjtp")
-                .add(new Transform("wjtp.Tai-e", new SceneTransformer() {
-                    @Override
-                    protected void internalTransform(String phaseName, Map<String, String> options) {
-                        new SootWorldBuilder().build();
-                        Scene scene = Scene.v();
-                        World.get().getClassHierarchy()
-                                .getAllClasses()
-                                .stream()
-                                .sorted(Comparator.comparing(JClass::getName))
-                                .forEach(jclass -> {
-                                    SootClass sootClass =
-                                            scene.getSootClass(jclass.getName());
-                                    examineJClass(jclass, sootClass);
-                                });
-                    }
-                }));
-
         String[] args = new String[] {
                 "-cp",
                 "java-benchmarks/jre1.6.0_24/rt.jar;" +
@@ -74,9 +39,16 @@ public class SootFrontendTest {
                         "analyzed/pta",
                 "Assign"
         };
-
-        // Run main analysis
-        Main.main(args);
+        TestUtils.buildWorld(args);
+        World.get().getClassHierarchy()
+                .getAllClasses()
+                .stream()
+                .sorted(Comparator.comparing(JClass::getName))
+                .forEach(jclass -> {
+                    SootClass sootClass =
+                            Scene.v().getSootClass(jclass.getName());
+                    examineJClass(jclass, sootClass);
+                });
     }
 
     /**
