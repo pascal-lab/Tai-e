@@ -13,6 +13,7 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JClassLoader;
@@ -27,10 +28,13 @@ public class SootClassLoader implements JClassLoader {
 
     private final Scene scene;
 
+    private final ClassHierarchy hierarchy;
+
     private final Map<String, JClass> classes = new HashMap<>(1024);
 
-    public SootClassLoader(Scene scene) {
+    public SootClassLoader(Scene scene, ClassHierarchy hierarchy) {
         this.scene = scene;
+        this.hierarchy = hierarchy;
     }
 
     @Override
@@ -47,6 +51,7 @@ public class SootClassLoader implements JClassLoader {
             if (sootClass != null) {
                 jclass = new SootClassBuilder(this, sootClass).build();
                 classes.put(name, jclass);
+                hierarchy.addClass(jclass);
             }
         }
         // TODO: add warning for missing classes

@@ -27,7 +27,7 @@ public class SootWorldBuilder implements WorldBuilder {
         World world = new World();
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         Scene scene = Scene.v();
-        SootClassLoader loader = new SootClassLoader(scene);
+        SootClassLoader loader = new SootClassLoader(scene, hierarchy);
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);

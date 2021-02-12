@@ -92,7 +92,7 @@ public class SootFrontendTest {
                     jclass.getSuperClass(), sootClass.getSuperclass()));
         }
 
-        Assert.assertEquals(jclass.getImplementedInterfaces().size(),
+        Assert.assertEquals(jclass.getInterfaces().size(),
                 sootClass.getInterfaceCount());
 
         sootClass.getFields().forEach(sootField -> {

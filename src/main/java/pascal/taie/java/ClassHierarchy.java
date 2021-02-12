@@ -37,6 +37,13 @@ public interface ClassHierarchy {
 
     Collection<JClassLoader> getClassLoaders();
 
+    /**
+     * Add a JClass into class hierarchy.
+     * This API should be invoked everytime {@link JClassLoader}
+     * loads a new JClass.
+     */
+    void addClass(JClass jclass);
+
     Collection<JClass> getAllClasses();
 
     JClass getClass(JClassLoader loader, String name);

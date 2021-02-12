@@ -36,7 +36,7 @@ public class JClass {
 
     private JClass superClass;
 
-    private Collection<JClass> implementedInterfaces = Collections.emptySet();
+    private Collection<JClass> interfaces = Collections.emptySet();
 
     private JClass outerClass;
 
@@ -66,7 +66,7 @@ public class JClass {
         type = builder.getClassType();
         modifiers = builder.getModifiers();
         superClass = builder.getSuperClass();
-        implementedInterfaces = builder.getInterfaces();
+        interfaces = builder.getInterfaces();
         declaredFields = builder.getDeclaredFields().stream()
                 .collect(Collectors.toMap(JField::getName,
                         Function.identity()));
@@ -77,6 +77,10 @@ public class JClass {
 
     public String getName() {
         return name;
+    }
+
+    public ClassType getType() {
+        return type;
     }
 
     public boolean isPublic() {
@@ -119,8 +123,8 @@ public class JClass {
         return superClass;
     }
 
-    public Collection<JClass> getImplementedInterfaces() {
-        return implementedInterfaces;
+    public Collection<JClass> getInterfaces() {
+        return interfaces;
     }
 
     public Collection<JField> getDeclaredFields() {
