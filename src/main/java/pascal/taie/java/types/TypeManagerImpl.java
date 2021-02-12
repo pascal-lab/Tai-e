@@ -26,15 +26,6 @@ import java.util.Map;
 //  2. optimize maps (classTypes and arrayTypes)
 public class TypeManagerImpl implements TypeManager {
 
-    private static final Map<String, PrimitiveType> primTypes;
-
-    static {
-        primTypes = new HashMap<>();
-        for (PrimitiveType type : PrimitiveType.values()) {
-            primTypes.put(type.getName(), type);
-        }
-    }
-
     private final ClassHierarchy hierarchy;
 
     private final Map<JClassLoader, Map<String, ClassType>> classTypes = new ArrayMap<>();
@@ -54,11 +45,6 @@ public class TypeManagerImpl implements TypeManager {
         JavaLangObject = getClassType(loader, "java.lang.Object");
         JavaLangSerializable = getClassType(loader, "java.lang.Serializable");
         JavaLangCloneable = getClassType(loader, "java.lang.Cloneable");
-    }
-
-    @Override
-    public PrimitiveType getPrimitiveType(String typeName) {
-        return primTypes.get(typeName);
     }
 
     @Override

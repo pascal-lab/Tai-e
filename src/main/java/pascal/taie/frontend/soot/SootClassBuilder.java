@@ -23,8 +23,16 @@ import pascal.taie.java.classes.Modifier;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
 import soot.ArrayType;
+import soot.BooleanType;
+import soot.ByteType;
+import soot.CharType;
+import soot.DoubleType;
+import soot.FloatType;
+import soot.IntType;
+import soot.LongType;
 import soot.PrimType;
 import soot.RefType;
+import soot.ShortType;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
@@ -108,7 +116,23 @@ public class SootClassBuilder implements JClassBuilder {
 
     private Type convertType(soot.Type sootType) {
         if (sootType instanceof PrimType) {
-            return typeManager.getPrimitiveType(sootType.toString());
+            if (sootType instanceof ByteType) {
+                return typeManager.getByteType();
+            } else if (sootType instanceof ShortType) {
+                return typeManager.getShortType();
+            } else if (sootType instanceof IntType) {
+                return typeManager.getIntType();
+            } else if (sootType instanceof LongType) {
+                return typeManager.getLongType();
+            } else if (sootType instanceof FloatType) {
+                return typeManager.getFloatType();
+            } else if (sootType instanceof DoubleType) {
+                return typeManager.getDoubleType();
+            } else if (sootType instanceof CharType) {
+                return typeManager.getCharType();
+            } else if (sootType instanceof BooleanType) {
+                return typeManager.getBooleanType();
+            }
         } else if (sootType instanceof RefType) {
             return typeManager.getClassType(loader, sootType.toString());
         } else if (sootType instanceof VoidType) {
@@ -118,10 +142,8 @@ public class SootClassBuilder implements JClassBuilder {
             return typeManager.getArrayType(
                     convertType(arrayType.baseType),
                     arrayType.numDimensions);
-        } else {
-            throw new SootFrontendException(
-                    "Cannot convert soot Type: " + sootType);
         }
+        throw new SootFrontendException("Cannot convert soot Type: " + sootType);
     }
 
     private JClass convertClass(SootClass sootClass) {

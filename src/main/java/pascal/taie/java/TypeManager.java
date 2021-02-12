@@ -23,8 +23,6 @@ import pascal.taie.java.types.VoidType;
 
 public interface TypeManager {
 
-    PrimitiveType getPrimitiveType(String typeName);
-
     PrimitiveType getByteType();
 
     PrimitiveType getShortType();
