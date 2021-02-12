@@ -41,14 +41,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
      * Map from each interface to its subclasses/subinterfaces
      * that directly implements/extends it.
      */
-    private final ConcurrentMap<JClass, Set<JClass>> directInterfaceSubs
+    private final ConcurrentMap<JClass, Set<JClass>> directInterfaceChildren
             = new ConcurrentHashMap<>();
 
     /**
      * Map from each interface to all its subclasses/subinterfaces
      * that implements/extends it.
      */
-    private final ConcurrentMap<JClass, Set<JClass>> allInterfaceSubs
+    private final ConcurrentMap<JClass, Set<JClass>> allInterfaceChildren
             = new ConcurrentHashMap<>();
 
     @Override
@@ -84,7 +84,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     public void addClass(JClass jclass) {
         jclass.getInterfaces().forEach(iface ->
-                directInterfaceSubs.computeIfAbsent(iface,
+                directInterfaceChildren.computeIfAbsent(iface,
                         i -> new HybridArrayHashSet<>())
                         .add(jclass));
     }
@@ -173,14 +173,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return JavaLangObject;
     }
 
-    /**
-     * TODO: make this method thread-safe?
-     */
     private Set<JClass> getAllInterfaceSubs(JClass iface) {
         assert iface.isInterface();
-        Set<JClass> result = allInterfaceSubs.get(iface);
+        Set<JClass> result = allInterfaceChildren.get(iface);
         if (result == null) {
-            Set<JClass> directSubs = directInterfaceSubs.get(iface);
+            Set<JClass> directSubs = directInterfaceChildren.get(iface);
             if (directSubs == null) {
                 result = Collections.emptySet();
             } else {
@@ -189,7 +186,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                     result.addAll(getAllInterfaceSubs(sub));
                 }
             }
-            allInterfaceSubs.put(iface, result);
+            allInterfaceChildren.put(iface, result);
         }
         return result;
     }

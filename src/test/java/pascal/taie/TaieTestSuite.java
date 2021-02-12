@@ -20,6 +20,7 @@ import pascal.taie.dataflow.DataFlowTestSuite;
 import pascal.taie.dataflow.analysis.constprop.CPTestSuite;
 import pascal.taie.dataflow.lattice.LatticeTestSuite;
 import pascal.taie.frontend.soot.SootFrontendTest;
+import pascal.taie.java.HierarchyTest;
 import pascal.taie.java.TypeTest;
 import pascal.taie.pta.PTAOptionsTest;
 import pascal.taie.pta.CSPTATest;
@@ -31,6 +32,7 @@ import pascal.taie.util.UtilTestSuite;
         // world
         SootFrontendTest.class,
         TypeTest.class,
+        HierarchyTest.class,
         // analysis
         CPTestSuite.class,
         LatticeTestSuite.class,
