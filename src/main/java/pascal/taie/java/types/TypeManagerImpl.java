@@ -135,7 +135,44 @@ public class TypeManagerImpl implements TypeManager {
     }
 
     @Override
-    public boolean canAssign(Type fromType, Type toType) {
+    public boolean canAssign(Type to, Type from) {
+        if (from.equals(to)) { // TODO: use ==?
+            return true;
+        } else if (from instanceof NullType) {
+            return to instanceof ReferenceType;
+        } else if (from instanceof ClassType) {
+           if (to instanceof ClassType) {
+                return hierarchy.isSubclass(
+                        ((ClassType) to).getJClass(),
+                        ((ClassType) from).getJClass());
+            }
+        } else if (from instanceof ArrayType) {
+            if (to instanceof ClassType) {
+                // JLS, Chapter 10, Arrays
+                return to == JavaLangObject ||
+                        to == JavaLangCloneable ||
+                        to == JavaLangSerializable;
+            } else if (to instanceof ArrayType) {
+                ArrayType toArray = (ArrayType) to;
+                ArrayType fromArray = (ArrayType) from;
+                Type toBase = toArray.getBaseType();
+                Type fromBase = fromArray.getBaseType();
+                if (toArray.getDimensions() == fromArray.getDimensions()) {
+                    if (fromBase.equals(toBase)) {
+                        return true;
+                    } else if (toBase instanceof ClassType &&
+                            fromBase instanceof ClassType) {
+                        return hierarchy.isSubclass(
+                                ((ClassType) toBase).getJClass(),
+                                ((ClassType) fromBase).getJClass());
+                    }
+                } else if (toArray.getDimensions() < fromArray.getDimensions()) {
+                    return toBase == JavaLangObject ||
+                            toBase == JavaLangCloneable ||
+                            toBase == JavaLangSerializable;
+                }
+            }
+        }
         return false;
     }
 }

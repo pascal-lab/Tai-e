@@ -51,5 +51,5 @@ public interface TypeManager {
 
     NullType getNullType();
 
-    boolean canAssign(Type fromType, Type toType);
+    boolean canAssign(Type to, Type from);
 }
