@@ -41,14 +41,9 @@ public interface ClassHierarchy {
 
     Collection<JClass> getAllClasses();
 
-    default JClass getClass(JClassLoader loader, String name) {
-        return loader.loadClass(name);
-    }
+    JClass getClass(JClassLoader loader, String name);
 
-    default JClass getClass(String name) {
-        // TODO: add warning
-        return getClass(getDefaultClassLoader(), name);
-    }
+    JClass getClass(String name);
 
     /**
      * Get a JRE class by it name.
@@ -56,9 +51,7 @@ public interface ClassHierarchy {
      * @param name the class name
      * @return the {@link JClass} for name if found; null if can't find the class.
      */
-    default JClass getJREClass(String name) {
-        return getClass(getBootstrapClassLoader(), name);
-    }
+    JClass getJREClass(String name);
 
     /**
      * Get a method declared in a JRE class by its signature.
@@ -68,12 +61,7 @@ public interface ClassHierarchy {
      * null if can't find the class.
      * @throws pascal.taie.util.AnalysisException if signature is invalid.
      */
-    default JMethod getJREMethod(String signature) {
-        String className = StringReps.getDeclaringClass(signature);
-        Subsignature subsig = Subsignature.get(
-                StringReps.getSubsignatureOf(signature));
-        return getJREClass(className).getDeclaredMethod(subsig);
-    }
+    JMethod getJREMethod(String signature);
 
     JMethod resolveMethod(MethodReference methodRef);
 
@@ -82,6 +70,4 @@ public interface ClassHierarchy {
     JMethod dispatch(JClass receiverClass, MethodReference methodRef);
 
     boolean isSubclass(JClass superclass, JClass subclass);
-
-    boolean canAssign(JClass fromClass, JClass toClass);
 }

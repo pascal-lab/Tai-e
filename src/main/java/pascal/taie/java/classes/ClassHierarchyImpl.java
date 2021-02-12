@@ -15,6 +15,7 @@ package pascal.taie.java.classes;
 
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.util.ArraySet;
+import pascal.taie.util.StringReps;
 
 import java.util.Collection;
 import java.util.Set;
@@ -65,6 +66,30 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
+    public JClass getClass(JClassLoader loader, String name) {
+        return loader.loadClass(name);
+    }
+
+    @Override
+    public JClass getClass(String name) {
+        // TODO: add warning
+        return getClass(getDefaultClassLoader(), name);
+    }
+
+    @Override
+    public JClass getJREClass(String name) {
+        return getClass(getBootstrapClassLoader(), name);
+    }
+
+    @Override
+    public JMethod getJREMethod(String signature) {
+        String className = StringReps.getDeclaringClass(signature);
+        Subsignature subsig = Subsignature.get(
+                StringReps.getSubsignatureOf(signature));
+        return getJREClass(className).getDeclaredMethod(subsig);
+    }
+
+    @Override
     public JMethod resolveMethod(MethodReference methodRef) {
         throw new UnsupportedOperationException();
     }
@@ -81,11 +106,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public boolean isSubclass(JClass superclass, JClass subclass) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean canAssign(JClass fromClass, JClass toClass) {
         throw new UnsupportedOperationException();
     }
 }
