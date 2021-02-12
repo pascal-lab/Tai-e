@@ -142,7 +142,7 @@ public class TypeManagerImpl implements TypeManager {
             return to instanceof ReferenceType;
         } else if (from instanceof ClassType) {
            if (to instanceof ClassType) {
-                return hierarchy.isSubclass(
+                return hierarchy.canAssign(
                         ((ClassType) to).getJClass(),
                         ((ClassType) from).getJClass());
             }
@@ -162,7 +162,7 @@ public class TypeManagerImpl implements TypeManager {
                         return true;
                     } else if (toBase instanceof ClassType &&
                             fromBase instanceof ClassType) {
-                        return hierarchy.isSubclass(
+                        return hierarchy.canAssign(
                                 ((ClassType) toBase).getJClass(),
                                 ((ClassType) fromBase).getJClass());
                     }

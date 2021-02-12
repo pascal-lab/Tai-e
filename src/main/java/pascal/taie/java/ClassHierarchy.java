@@ -19,8 +19,6 @@ import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodReference;
-import pascal.taie.java.classes.Subsignature;
-import pascal.taie.util.StringReps;
 
 import java.util.Collection;
 
@@ -69,5 +67,5 @@ public interface ClassHierarchy {
 
     JMethod dispatch(JClass receiverClass, MethodReference methodRef);
 
-    boolean isSubclass(JClass superclass, JClass subclass);
+    boolean canAssign(JClass toClass, JClass fromClass);
 }
