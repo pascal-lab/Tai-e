@@ -14,6 +14,7 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.types.Type;
 import pascal.taie.util.ArrayMap;
 import pascal.taie.util.HybridArrayHashSet;
 import pascal.taie.util.StringReps;
@@ -131,7 +132,47 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public JField resolveField(FieldReference fieldRef) {
-        throw new UnsupportedOperationException();
+        if (!fieldRef.isResolved()) {
+            JField result = resolveField(fieldRef.getDeclaringClass(),
+                    fieldRef.getName(), fieldRef.getType());
+            if (result != null) {
+                fieldRef.setField(result);
+                fieldRef.setResolved(true);
+            } else {
+                throw new FieldResolutionFailedException("Cannot resolve " + fieldRef);
+            }
+        }
+        return fieldRef.getField();
+    }
+
+    private JField resolveField(JClass jclass, String name, Type type) {
+        // JVM Spec. (Java 13 Ed.), 5.4.3.2 Field Resolution
+        // 1. If C declares a field with the name and descriptor specified
+        // by the field reference, field lookup succeeds. The declared field
+        // is the result of the field lookup.
+        JField field = jclass.getDeclaredField(name);
+        if (field != null && field.getType().equals(type)) {
+            return field;
+        }
+        // 2. Otherwise, field lookup is applied recursively to the
+        // direct superinterfaces of the specified class or interface C.
+        for (JClass iface : jclass.getInterfaces()) {
+            field = resolveField(iface, name, type);
+            if (field != null) {
+                return field;
+            }
+        }
+        // 3. Otherwise, if C has a superclass S, field lookup is applied
+        // recursively to S.
+        if (jclass.getSuperClass() != null) {
+            return resolveField(jclass.getSuperClass(), name, type);
+        }
+        // 4. Otherwise, field lookup fails.
+        return null;
+        // TODO:
+        //  1. check accessibility
+        //  2. handle erroneous cases (e.g., multiple fields with same name)
+        //  3. handle phantom fields
     }
 
     @Override

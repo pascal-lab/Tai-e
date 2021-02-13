@@ -134,7 +134,7 @@ public class TypeManagerImpl implements TypeManager {
             }
         } else if (from instanceof ArrayType) {
             if (to instanceof ClassType) {
-                // JLS, Chapter 10, Arrays
+                // JLS (Java 13 Ed.), Chapter 10, Arrays
                 return to == JavaLangObject ||
                         to == JavaLangCloneable ||
                         to == JavaLangSerializable;

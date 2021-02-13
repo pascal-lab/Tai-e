@@ -13,9 +13,45 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.Type;
+
 public class FieldReference extends MemberReference {
 
-    public FieldReference(JClass declaringClass, String name) {
+    private final Type type;
+
+    /**
+     * Whether this field reference has been resolved.
+     */
+    private boolean isResolved = false;
+
+    /**
+     * Cache the resolved field for this reference to avoid redundant
+     * field resolution.
+     */
+    private JField field;
+
+    public FieldReference(JClass declaringClass, String name, Type type) {
         super(declaringClass, name);
+        this.type = type;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public boolean isResolved() {
+        return isResolved;
+    }
+
+    public void setResolved(boolean resolved) {
+        isResolved = resolved;
+    }
+
+    public JField getField() {
+        return field;
+    }
+
+    public void setField(JField field) {
+        this.field = field;
     }
 }
