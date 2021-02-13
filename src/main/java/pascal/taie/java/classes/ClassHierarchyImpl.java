@@ -38,17 +38,15 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     private JClass JavaLangObject;
 
     /**
-     * Map from each interface to its subclasses/subinterfaces
-     * that directly implements/extends it.
+     * Map from each interface to its direct subinterfaces.
      */
-    private final ConcurrentMap<JClass, Set<JClass>> directInterfaceChildren
+    private final ConcurrentMap<JClass, Set<JClass>> directSubinterfaces
             = new ConcurrentHashMap<>();
 
     /**
-     * Map from each interface to all its subclasses/subinterfaces
-     * that implements/extends it.
+     * Map from each interface to all its subinterfaces.
      */
-    private final ConcurrentMap<JClass, Set<JClass>> allInterfaceChildren
+    private final ConcurrentMap<JClass, Set<JClass>> allSubinterfaces
             = new ConcurrentHashMap<>();
 
     @Override
@@ -83,10 +81,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public void addClass(JClass jclass) {
-        jclass.getInterfaces().forEach(iface ->
-                directInterfaceChildren.computeIfAbsent(iface,
-                        i -> new HybridArrayHashSet<>())
-                        .add(jclass));
+        // Add direct subinterface
+        if (jclass.isInterface()) {
+            jclass.getInterfaces().forEach(iface ->
+                    directSubinterfaces.computeIfAbsent(iface,
+                            i -> new HybridArrayHashSet<>())
+                            .add(jclass));
+        }
     }
 
     @Override
@@ -144,16 +145,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             return true;
         } else if (toClass == getObjectClass()) {
             return true;
-        } else if (toClass.isInterface()) {
-            return getAllInterfaceSubs(toClass).contains(fromClass);
+        } else if (fromClass.isInterface()) {
+            return toClass.isInterface() &&
+                    getAllSubinterfaces(toClass).contains(fromClass);
         } else {
-            for (JClass c = fromClass.getSuperClass(); c != null;
-                 c = c.getSuperClass()) {
-                if (c.equals(toClass)) {
-                    return true;
-                }
-            }
-            return false;
+            return canAssign0(toClass, fromClass);
         }
     }
 
@@ -173,21 +169,46 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return JavaLangObject;
     }
 
-    private Set<JClass> getAllInterfaceSubs(JClass iface) {
+    private Set<JClass> getAllSubinterfaces(JClass iface) {
         assert iface.isInterface();
-        Set<JClass> result = allInterfaceChildren.get(iface);
+        Set<JClass> result = allSubinterfaces.get(iface);
         if (result == null) {
-            Set<JClass> directSubs = directInterfaceChildren.get(iface);
+            Set<JClass> directSubs = directSubinterfaces.get(iface);
             if (directSubs == null) {
                 result = Collections.emptySet();
             } else {
-                result = new HybridArrayHashSet<>();
+                result = new HybridArrayHashSet<>(directSubs);
                 for (JClass sub : directSubs) {
-                    result.addAll(getAllInterfaceSubs(sub));
+                    result.addAll(getAllSubinterfaces(sub));
                 }
             }
-            allInterfaceChildren.put(iface, result);
+            allSubinterfaces.put(iface, result);
         }
         return result;
+    }
+
+    /**
+     * Traverse class hierarchy to check if fromClass can be assigned to toClass.
+     * TODO: optimize performance
+     */
+    private boolean canAssign0(JClass toClass, JClass fromClass) {
+        boolean isToInterface = toClass.isInterface();
+        for (JClass jclass = fromClass; jclass != null;
+             jclass = jclass.getSuperClass()) {
+            if (jclass.equals(toClass)) {
+                return true;
+            }
+            if (isToInterface) {
+                // Interfaces can only extend other interfaces, thus we only
+                // have to consider the interfaces of the fromClass
+                // if toClass is an interface.
+                for (JClass iface : jclass.getInterfaces()) {
+                    if (canAssign0(toClass, iface)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
