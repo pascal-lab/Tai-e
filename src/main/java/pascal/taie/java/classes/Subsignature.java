@@ -13,7 +13,11 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.Type;
+import pascal.taie.util.StringReps;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +28,11 @@ public class Subsignature {
     private final String subsig;
 
     private final static Map<String, Subsignature> map = new HashMap<>();
+
+    public static Subsignature get(
+            String name, List<Type> parameterTypes, Type returnType) {
+        return get(StringReps.toSubsignature(name, parameterTypes, returnType));
+    }
 
     public static Subsignature get(String subsig) {
         return map.computeIfAbsent(subsig, Subsignature::new);

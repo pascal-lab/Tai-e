@@ -46,9 +46,22 @@ public class StringReps {
     }
 
     public static String getSignatureOf(JMethod method) {
+        return getMethodSignature(method.getDeclaringClass(), method.getName(),
+                method.getParameterTypes(), method.getReturnType());
+    }
+
+    public static String getSignatureOf(MethodReference methodRef) {
+        return getMethodSignature(methodRef.getDeclaringClass(),
+                methodRef.getName(),
+                methodRef.getParameterTypes(), methodRef.getReturnType());
+    }
+
+    private static String getMethodSignature(
+            JClass declaringClass, String methodName,
+            List<Type> parameterTypes, Type returnType) {
         return "<" +
-                method.getDeclaringClass() + ": " +
-                getSubsignatureOf(method) +
+                declaringClass + ": " +
+                toSubsignature(methodName, parameterTypes, returnType) +
                 ">";
     }
 
@@ -68,14 +81,8 @@ public class StringReps {
     }
 
     public static String getSubsignatureOf(JMethod method) {
-        return method.getReturnType() + " " +
-                method.getName() +
-                "(" +
-                method.getParameterTypes()
-                        .stream()
-                        .map(Type::toString)
-                        .collect(Collectors.joining(",")) +
-                ")";
+        return toSubsignature(method.getName(),
+                method.getParameterTypes(), method.getReturnType());
     }
 
     public static String getSubsignatureOf(MethodReference methodRef) {
@@ -96,5 +103,16 @@ public class StringReps {
 
     public static String toDescriptor(List<Type> parameterTypes, Type returnType) {
         throw new UnsupportedOperationException();
+    }
+
+    public static String toSubsignature(String name, List<Type> parameterTypes, Type returnType) {
+        return returnType + " " +
+                name +
+                "(" +
+                parameterTypes
+                        .stream()
+                        .map(Type::toString)
+                        .collect(Collectors.joining(",")) +
+                ")";
     }
 }
