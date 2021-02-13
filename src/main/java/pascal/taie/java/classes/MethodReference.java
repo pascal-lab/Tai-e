@@ -13,9 +13,55 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.types.Type;
+import pascal.taie.util.StringReps;
+
+import java.util.List;
+
 public class MethodReference extends MemberReference {
 
-    public MethodReference(JClass declaringClass, String name) {
+    private final List<Type> parameterTypes;
+
+    private final Type returnType;
+
+    private final Subsignature subsignature;
+
+    /**
+     * Cache the resolved method for this reference to avoid redundant
+     * method resolution.
+     */
+    private JMethod method;
+
+    public MethodReference(JClass declaringClass, String name,
+                           List<Type> parameterTypes, Type returnType) {
         super(declaringClass, name);
+        this.parameterTypes = parameterTypes;
+        this.returnType = returnType;
+        this.subsignature = Subsignature.get(name, parameterTypes, returnType);
+    }
+
+    public List<Type> getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public Type getReturnType() {
+        return returnType;
+    }
+
+    public Subsignature getSubsignature() {
+        return subsignature;
+    }
+
+    public JMethod getMethod() {
+        return method;
+    }
+
+    public void setMethod(JMethod method) {
+        this.method = method;
+    }
+
+    @Override
+    public String toString() {
+        return StringReps.getSignatureOf(this);
     }
 }

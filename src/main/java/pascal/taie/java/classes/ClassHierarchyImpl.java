@@ -127,7 +127,65 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public JMethod resolveMethod(MethodReference methodRef) {
-        throw new UnsupportedOperationException();
+        JMethod method = methodRef.getMethod();
+        if (method == null) {
+            method = resolveMethod(methodRef.getDeclaringClass(),
+                    methodRef.getSubsignature());
+            if (method != null) {
+                methodRef.setMethod(method);
+            } else {
+                throw new MethodResolutionFailedException(
+                        "Cannot resolve " + methodRef);
+            }
+        }
+        return method;
+    }
+
+    private JMethod resolveMethod(JClass jclass, Subsignature subsignature) {
+        // JVM Spec. (Java 13 Ed.), 5.4.3.3 Method Resolution
+        // 1. If C is an interface, method resolution throws
+        // an IncompatibleClassChangeError. TODO: ???
+
+        // 2. Otherwise, method resolution attempts to locate the
+        // referenced method in C and its superclasses
+        for (JClass c = jclass; c != null; c = c.getSuperClass()) {
+            JMethod method = c.getDeclaredMethod(subsignature);
+            if (method != null) {
+                return method;
+            }
+        }
+
+        // 3. Otherwise, method resolution attempts to locate the
+        // referenced method in the superinterfaces of the specified class C
+        for (JClass c = jclass; c != null; c = c.getSuperClass()) {
+            for (JClass iface : jclass.getInterfaces()) {
+                JMethod method = resolveMethodFromSuperinterfaces(
+                        iface, subsignature);
+                if (method != null) {
+                    return method;
+                }
+            }
+        }
+        return null;
+        // TODO:
+        //  1. check accessibility
+        //  2. handle phantom methods
+        //  3. double-check correctness
+    }
+
+    private JMethod resolveMethodFromSuperinterfaces(
+            JClass jclass, Subsignature subsignature) {
+        JMethod method = jclass.getDeclaredMethod(subsignature);
+        if (method != null) {
+            return method;
+        }
+        for (JClass iface : jclass.getInterfaces()) {
+            method = resolveMethodFromSuperinterfaces(iface, subsignature);
+            if (method != null) {
+                return method;
+            }
+        }
+        return null;
     }
 
     @Override

@@ -34,8 +34,7 @@ public class JMethod extends ClassMember {
         this.parameterTypes = Collections.unmodifiableList(parameterTypes);
         this.returnType = returnType;
         this.signature = StringReps.getSignatureOf(this);
-        this.subsignature = Subsignature.get(
-                StringReps.getSubsignatureOf(this));
+        this.subsignature = Subsignature.get(name, parameterTypes, returnType);
     }
 
     public boolean isAbstract() {
