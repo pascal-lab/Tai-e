@@ -171,7 +171,6 @@ public class HierarchyTest {
         Type refType = typeManager.getClassType("java.lang.String");
         FieldReference fieldRef = new FieldReference(refJClass, refName, refType);
         JField field = hierarchy.resolveField(fieldRef);
-        Assert.assertTrue(fieldRef.isResolved());
         Assert.assertEquals(declaringJClass, field.getDeclaringClass());
     }
 }

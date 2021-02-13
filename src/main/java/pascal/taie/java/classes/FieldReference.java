@@ -21,11 +21,6 @@ public class FieldReference extends MemberReference {
     private final Type type;
 
     /**
-     * Whether this field reference has been resolved.
-     */
-    private boolean isResolved = false;
-
-    /**
      * Cache the resolved field for this reference to avoid redundant
      * field resolution.
      */
@@ -40,16 +35,7 @@ public class FieldReference extends MemberReference {
         return type;
     }
 
-    public boolean isResolved() {
-        return isResolved;
-    }
-
-    public void setResolved(boolean resolved) {
-        isResolved = resolved;
-    }
-
     public JField getField() {
-        assert isResolved;
         return field;
     }
 
