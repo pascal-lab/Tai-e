@@ -13,6 +13,8 @@
 
 package pascal.taie.util;
 
+import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodReference;
@@ -51,11 +53,18 @@ public class StringReps {
     }
 
     public static String getSignatureOf(JField field) {
-        return "<" +
-                field.getDeclaringClass() + ": " +
-                field.getType() + " " +
-                field.getName() +
-                ">";
+        return getFieldSignature(field.getDeclaringClass(),
+                field.getName(), field.getType());
+    }
+
+    public static String getSignatureOf(FieldReference fieldRef) {
+        return getFieldSignature(fieldRef.getDeclaringClass(),
+                fieldRef.getName(), fieldRef.getType());
+    }
+
+    private static String getFieldSignature(
+            JClass declaringClass, String fieldName, Type fieldType) {
+        return "<" + declaringClass + ": " + fieldType + " " + fieldName + ">";
     }
 
     public static String getSubsignatureOf(JMethod method) {

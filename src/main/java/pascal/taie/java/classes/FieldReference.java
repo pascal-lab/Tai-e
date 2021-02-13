@@ -14,6 +14,7 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.StringReps;
 
 public class FieldReference extends MemberReference {
 
@@ -48,10 +49,16 @@ public class FieldReference extends MemberReference {
     }
 
     public JField getField() {
+        assert isResolved;
         return field;
     }
 
     public void setField(JField field) {
         this.field = field;
+    }
+
+    @Override
+    public String toString() {
+        return StringReps.getSignatureOf(this);
     }
 }
