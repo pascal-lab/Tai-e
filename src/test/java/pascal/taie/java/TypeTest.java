@@ -56,6 +56,9 @@ public class TypeTest {
         Assert.assertFalse(typeManager.canAssign(intType, longType));
     }
 
+    /**
+     * Test arrays and some special classes.
+     */
     @Test
     public void testCanAssignArray1() {
         Type intType = typeManager.getIntType();
@@ -73,6 +76,9 @@ public class TypeTest {
         Assert.assertFalse(typeManager.canAssign(a, intArray));
     }
 
+    /**
+     * Test arrays with different dimensions.
+     */
     @Test
     public void testCanAssignArray2() {
         Type intType = typeManager.getIntType();
@@ -85,6 +91,9 @@ public class TypeTest {
         Assert.assertTrue(typeManager.canAssign(objectArray, intArray3));
     }
 
+    /**
+     * Test arrays of different classes with subtyping relation.
+     */
     @Test
     public void testCanAssignArray3() {
         Type object = typeManager.getClassType("java.lang.Object");
