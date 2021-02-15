@@ -33,15 +33,9 @@ public class StringReps {
     private StringReps() {
     }
 
-    public static String getDeclaringClass(String signature) {
-        if (signature.charAt(0) != '<' &&
-                signature.charAt(signature.length() - 1) != '>') {
-            throw new AnalysisException(signature + " is not valid signature");
-        }
+    public static String getClassNameOf(String signature) {
+        validateSignature(signature);
         int index = signature.indexOf(":");
-        if (index < 0) {
-            throw new AnalysisException(signature + " is not valid signature");
-        }
         return signature.substring(1, index);
     }
 
@@ -80,6 +74,12 @@ public class StringReps {
         return "<" + declaringClass + ": " + fieldType + " " + fieldName + ">";
     }
 
+    public static String getFieldNameOf(String fieldSig) {
+        validateSignature(fieldSig);
+        int index = fieldSig.lastIndexOf(' ');
+        return fieldSig.substring(index + 1, fieldSig.length() - 1);
+    }
+
     public static String getSubsignatureOf(JMethod method) {
         return toSubsignature(method.getName(),
                 method.getParameterTypes(), method.getReturnType());
@@ -114,5 +114,16 @@ public class StringReps {
                         .map(Type::toString)
                         .collect(Collectors.joining(",")) +
                 ")";
+    }
+
+    private static void validateSignature(String signature) {
+        if (signature.charAt(0) != '<' &&
+                signature.charAt(signature.length() - 1) != '>') {
+            throw new AnalysisException(signature + " is not valid signature");
+        }
+        int index = signature.indexOf(":");
+        if (index < 0) {
+            throw new AnalysisException(signature + " is not valid signature");
+        }
     }
 }

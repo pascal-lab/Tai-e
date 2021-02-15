@@ -124,11 +124,18 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod getJREMethod(String signature) {
-        String className = StringReps.getDeclaringClass(signature);
+    public JMethod getJREMethod(String methodSig) {
+        String className = StringReps.getClassNameOf(methodSig);
         Subsignature subsig = Subsignature.get(
-                StringReps.getSubsignatureOf(signature));
+                StringReps.getSubsignatureOf(methodSig));
         return getJREClass(className).getDeclaredMethod(subsig);
+    }
+
+    @Override
+    public JField getJREField(String fieldSig) {
+        String className = StringReps.getClassNameOf(fieldSig);
+        String fieldName = StringReps.getFieldNameOf(fieldSig);
+        return getJREClass(className).getDeclaredField(fieldName);
     }
 
     @Override
