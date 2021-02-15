@@ -61,12 +61,22 @@ public interface ClassHierarchy {
     /**
      * Get a method declared in a JRE class by its signature.
      *
-     * @param signature of the method
+     * @param methodSig of the method
      * @return the {@link JMethod} for signature if found;
-     * null if can't find the class.
+     * null if can't find the method.
      * @throws pascal.taie.util.AnalysisException if signature is invalid.
      */
-    JMethod getJREMethod(String signature);
+    JMethod getJREMethod(String methodSig);
+
+    /**
+     * Get a field declared in a JRE class by its signature.
+     *
+     * @param fieldSig signature of the field
+     * @return the {@link JField} for signature if found;
+     * null if can't find the field.
+     * @throws pascal.taie.util.AnalysisException if signature is invalid.
+     */
+    JField getJREField(String fieldSig);
 
     JMethod resolveMethod(MethodReference methodRef);
 

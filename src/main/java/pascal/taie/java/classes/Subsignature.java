@@ -25,9 +25,11 @@ import java.util.Map;
  */
 public class Subsignature {
 
-    private final String subsig;
+    private static final Map<String, Subsignature> map = new HashMap<>();
 
-    private final static Map<String, Subsignature> map = new HashMap<>();
+    public static final Subsignature CLINIT = get("void <clinit>()");
+
+    private final String subsig;
 
     public static Subsignature get(
             String name, List<Type> parameterTypes, Type returnType) {
