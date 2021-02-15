@@ -21,7 +21,11 @@ import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.FieldResolutionFailedException;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
+
+import java.util.Arrays;
 
 public class HierarchyTest {
 
@@ -44,6 +48,7 @@ public class HierarchyTest {
     }
 
     // ---------- Test subclass checking canAssign() ----------
+
     /**
      * Test interface and subinterfaces.
      */
@@ -172,5 +177,68 @@ public class HierarchyTest {
         FieldReference fieldRef = new FieldReference(refJClass, refName, refType);
         JField field = hierarchy.resolveField(fieldRef);
         Assert.assertEquals(declaringJClass, field.getDeclaringClass());
+    }
+
+    // ---------- Test method resolution resolveMethod()  ----------
+
+    /**
+     * Find methods in current class.
+     */
+    @Test
+    public void testResolveMethod1() {
+        testResolveMethod("E", "foo", "E", typeManager.getIntType());
+        testResolveMethod("E", "<init>", "E");
+    }
+
+    /**
+     * Find methods in superclasses.
+     */
+    @Test
+    public void testResolveMethod2() {
+        testResolveMethod("E", "foo", "C", typeManager.getLongType());
+        testResolveMethod("E", "bar", "C");
+        testResolveMethod("E", "hashCode", typeManager.getIntType(),
+                "java.lang.Object");
+        // The priority of superclasses is higher than superinterfaces
+        testResolveMethod("G", "baz", "C", typeManager.getBooleanType());
+    }
+
+    /**
+     * Find methods in superinterfaces.
+     */
+    @Test
+    public void testResolveMethod3() {
+        testResolveMethod("IIII", "biu", "I", typeManager.getClassType("I"));
+        testResolveMethod("G", "biubiu", "IIII",
+                typeManager.getClassType("IIII"));
+        testResolveMethod("G", "biu", "I", typeManager.getClassType("I"));
+    }
+
+    /**
+     * Test resolveMethod() with specified class and name.
+     * The declaring class of the resolved method should be the same
+     * as the given expected class.
+     * @param refClass declaring class of the reference
+     * @param refName method name of the reference
+     * @param declaringClass expected declaring class of the resolved method
+     * @param returnType returnType of the reference
+     * @param parameterTypes parameter types of the reference
+     */
+    private static void testResolveMethod(
+            String refClass, String refName, Type returnType,
+            String declaringClass, Type... parameterTypes) {
+        JClass refJClass = hierarchy.getClass(refClass);
+        JClass declaringJClass = hierarchy.getClass(declaringClass);
+        MethodReference methodRef = new MethodReference(refJClass, refName,
+                Arrays.asList(parameterTypes), returnType);
+        JMethod method = hierarchy.resolveMethod(methodRef);
+        Assert.assertEquals(declaringJClass, method.getDeclaringClass());
+    }
+
+    private static void testResolveMethod(
+            String refClass, String refName, String declaringClass,
+            Type... parameterTypes) {
+        testResolveMethod(refClass, refName, typeManager.getVoidType(),
+                declaringClass, parameterTypes);
     }
 }
