@@ -27,9 +27,9 @@ public interface IR {
 
     Variable getThis();
 
-    int getParameterCount();
+    int getParamCount();
 
-    Variable getParameter(int i);
+    Variable getParam(int i);
 
     Collection<Variable> getReturnVariables();
 

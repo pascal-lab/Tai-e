@@ -264,7 +264,7 @@ public class PointerAnalysis {
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Variable arg = callSite.getArg(i);
                 if (arg.getType() instanceof ReferenceType) {
-                    Variable param = callee.getIR().getParameter(i);
+                    Variable param = callee.getIR().getParam(i);
                     Var argVar = pointerFlowGraph.getVar(arg);
                     Var paramVar = pointerFlowGraph.getVar(param);
                     addPFGEdge(argVar, paramVar);

@@ -28,7 +28,7 @@ public class DefaultIR implements IR {
 
     private Variable thisVar;
 
-    private List<Variable> parameters;
+    private List<Variable> params;
 
     private Set<Variable> returnVars;
 
@@ -53,17 +53,17 @@ public class DefaultIR implements IR {
     }
 
     @Override
-    public int getParameterCount() {
-        return parameters.size();
+    public int getParamCount() {
+        return params.size();
     }
 
     @Override
-    public Variable getParameter(int i) {
-        return parameters.get(i);
+    public Variable getParam(int i) {
+        return params.get(i);
     }
 
-    public void setParameters(List<Variable> parameters) {
-        this.parameters = parameters;
+    public void setParams(List<Variable> params) {
+        this.params = params;
     }
 
     @Override
