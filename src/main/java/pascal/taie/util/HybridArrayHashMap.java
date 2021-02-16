@@ -178,7 +178,7 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V> {
         }
         int max_new_size = m_size + size();
         if (arrayMap == null && hashMap == null && max_new_size == 1) {
-            Entry<? extends K, ? extends V> e = m.entrySet().iterator().next();
+            Entry<? extends K, ? extends V> e = CollectionUtils.getOne(m.entrySet());
             singleton_key = Objects.requireNonNull(e.getKey(), NULL_KEY);
             singleton_value = e.getValue();
             return;

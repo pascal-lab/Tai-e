@@ -112,7 +112,7 @@ public final class HybridArrayHashSet<E> implements Set<E> {
         }
         int max_new_size = c_size + size();
         if (arraySet == null && hashSet == null && max_new_size == 1) {
-            E e = c.iterator().next();
+            E e = CollectionUtils.getOne(c);
             singleton = Objects.requireNonNull(e, NULL_MESSAGE);
             return true;
         }

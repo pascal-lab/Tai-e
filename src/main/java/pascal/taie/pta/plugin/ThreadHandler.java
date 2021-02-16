@@ -30,6 +30,8 @@ import pascal.taie.pta.set.PointsToSetFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static pascal.taie.util.CollectionUtils.getOne;
+
 /**
  * Model initialization of main thread, system thread group,
  * and some Thread APIs.
@@ -71,11 +73,9 @@ public class ThreadHandler implements Plugin {
                 .getThis();
         currentThread = hierarchy.getJREMethod(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
-        currentThreadReturn = currentThread
+        currentThreadReturn = getOne(currentThread
                 .getIR()
-                .getReturnVariables()
-                .iterator()
-                .next();
+                .getReturnVariables());
     }
 
     @Override

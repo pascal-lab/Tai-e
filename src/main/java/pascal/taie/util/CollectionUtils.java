@@ -13,6 +13,7 @@
 
 package pascal.taie.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,5 +54,12 @@ public class CollectionUtils {
                 .stream()
                 .flatMap(m -> m.entrySet().stream())
                 .map(Map.Entry::getValue);
+    }
+
+    /**
+     * @return an arbitrary element of the given collection.
+     */
+    public static <T> T getOne(Collection<T> collection) {
+        return collection.iterator().next();
     }
 }

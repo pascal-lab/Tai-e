@@ -16,6 +16,7 @@ package pascal.taie.pta.core.ci;
 import pascal.taie.callgraph.Edge;
 import pascal.taie.pta.ir.CallSite;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.util.CollectionUtils;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -53,7 +54,7 @@ class WorkList {
     }
 
     Edge<CallSite, JMethod> pollCallEdge() {
-        Edge<CallSite, JMethod> edge = callEdges.iterator().next();
+        Edge<CallSite, JMethod> edge = CollectionUtils.getOne(callEdges);
         callEdges.remove(edge);
         return edge;
     }
