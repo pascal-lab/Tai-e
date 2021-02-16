@@ -16,9 +16,9 @@ package pascal.taie.pta.env.nativemodel;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
@@ -44,12 +44,12 @@ class Utils {
      * @param callId ID of the mock constructor call site
      */
     static void modelAllocation(
-            ProgramManager pm, Method container,
+            ProgramManager pm, JMethod container,
             Type type, String name, Variable recv,
             String ctorSig, String callId) {
         Obj obj = new EnvObj(name, type, container);
         container.addStatement(new Allocation(recv, obj));
-        Method ctor = pm.getUniqueMethodBySignature(ctorSig);
+        JMethod ctor = pm.getUniqueMethodBySignature(ctorSig);
         MockCallSite initCallSite = new MockCallSite(
                 CallKind.SPECIAL, ctor,
                 recv, Collections.emptyList(),
@@ -63,11 +63,11 @@ class Utils {
      * by mocking a virtual call r = o.m().
      */
     static void modelStaticToVirtualCall(
-            ProgramManager pm, Method container, Call call,
+            ProgramManager pm, JMethod container, Call call,
             String calleeSig, String callId) {
         CallSite origin = call.getCallSite();
         origin.getArg(0).ifPresent(arg0 -> {
-            Method callee = pm.getUniqueMethodBySignature(calleeSig);
+            JMethod callee = pm.getUniqueMethodBySignature(calleeSig);
             MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL, callee,
                     arg0, Collections.emptyList(),
                     container, callId);

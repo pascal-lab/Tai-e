@@ -15,8 +15,8 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.ArrayLoad;
@@ -39,11 +39,11 @@ class CallModel implements StatementVisitor {
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
-    private final Map<String, BiConsumer<Method, Call>> handlers;
+    private final Map<String, BiConsumer<JMethod, Call>> handlers;
     /**
      * Counter to give each mock variable an unique name in each method.
      */
-    private final ConcurrentMap<Method, AtomicInteger> counter;
+    private final ConcurrentMap<JMethod, AtomicInteger> counter;
 
     CallModel(ProgramManager pm) {
         this.pm = pm;
@@ -55,11 +55,11 @@ class CallModel implements StatementVisitor {
     @Override
     public void visit(Call call) {
         CallSite callSite = call.getCallSite();
-        Method callee = callSite.getMethod();
-        BiConsumer<Method, Call> handler =
+        JMethod callee = callSite.getMethod();
+        BiConsumer<JMethod, Call> handler =
                 handlers.get(callee.getSignature());
         if (handler != null) {
-            Method container = callSite.getContainerMethod();
+            JMethod container = callSite.getContainerMethod();
             handler.accept(container, call);
         }
     }
@@ -155,11 +155,11 @@ class CallModel implements StatementVisitor {
     }
 
     private void registerHandler(String signature,
-                                 BiConsumer<Method, Call> handler) {
+                                 BiConsumer<JMethod, Call> handler) {
         handlers.put(signature, handler);
     }
 
-    private Variable newMockVariable(Type type, Method container) {
+    private Variable newMockVariable(Type type, JMethod container) {
         int id = counter.computeIfAbsent(container,
                 (k) -> new AtomicInteger(0))
                 .getAndIncrement();

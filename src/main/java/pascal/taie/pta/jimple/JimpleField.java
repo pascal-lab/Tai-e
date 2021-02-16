@@ -13,10 +13,10 @@
 
 package pascal.taie.pta.jimple;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 import soot.SootField;
 
-class JimpleField implements Field {
+class JimpleField implements JField {
 
     private final SootField field;
 

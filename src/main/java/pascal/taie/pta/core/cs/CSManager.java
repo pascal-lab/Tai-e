@@ -15,8 +15,8 @@ package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 
@@ -29,17 +29,17 @@ public interface CSManager {
 
     CSVariable getCSVariable(Context context, Variable var);
 
-    InstanceField getInstanceField(CSObj base, Field field);
+    InstanceField getInstanceField(CSObj base, JField field);
 
     ArrayIndex getArrayIndex(CSObj array);
 
-    StaticField getStaticField(Field field);
+    StaticField getStaticField(JField field);
 
     CSObj getCSObj(Context heapContext, Obj obj);
 
     CSCallSite getCSCallSite(Context context, CallSite callSite);
 
-    CSMethod getCSMethod(Context context, Method method);
+    CSMethod getCSMethod(Context context, JMethod method);
 
     Stream<CSVariable> getCSVariables();
 

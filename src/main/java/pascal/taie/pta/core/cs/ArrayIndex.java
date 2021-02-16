@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.cs;
 
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 
 public class ArrayIndex extends AbstractPointer {
 

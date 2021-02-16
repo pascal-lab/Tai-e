@@ -15,9 +15,9 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.PTAOptions;
@@ -43,11 +43,11 @@ class MethodModel {
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
-    private final Map<String, Consumer<Method>> handlers;
+    private final Map<String, Consumer<JMethod>> handlers;
     /**
      * Counter to give each mock variable an unique name in each method.
      */
-    private final ConcurrentMap<Method, AtomicInteger> counter;
+    private final ConcurrentMap<JMethod, AtomicInteger> counter;
 
     MethodModel(ProgramManager pm) {
         this.pm = pm;
@@ -56,8 +56,8 @@ class MethodModel {
         initHandlers();
     }
 
-    void process(Method method) {
-        Consumer<Method> handler = handlers.get(method.getSignature());
+    void process(JMethod method) {
+        Consumer<JMethod> handler = handlers.get(method.getSignature());
         if (handler != null) {
             handler.accept(method);
         }
@@ -88,7 +88,7 @@ class MethodModel {
         // get invoked.
         registerHandler("<java.lang.ref.Reference: void <init>(java.lang.Object,java.lang.ref.ReferenceQueue)>", method -> {
             Variable thisVar = method.getThis();
-            Field pending = pm.getUniqueFieldBySignature(
+            JField pending = pm.getUniqueFieldBySignature(
                     "<java.lang.ref.Reference: java.lang.ref.Reference pending>");
             method.addStatement(new StaticStore(pending, thisVar));
         });
@@ -98,7 +98,7 @@ class MethodModel {
         // --------------------------------------------------------------------
         // <java.lang.System: void setIn0(java.io.InputStream)>
         registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
-            Field systemIn = pm.getUniqueFieldBySignature(
+            JField systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
             method.getParam(0).ifPresent(param0 ->
                     method.addStatement(new StaticStore(systemIn, param0)));
@@ -106,7 +106,7 @@ class MethodModel {
 
         // <java.lang.System: void setOut0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
-            Field systemOut = pm.getUniqueFieldBySignature(
+            JField systemOut = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream out>");
             method.getParam(0).ifPresent(param0 ->
                     method.addStatement(new StaticStore(systemOut, param0)));
@@ -114,7 +114,7 @@ class MethodModel {
 
         // <java.lang.System: void setErr0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
-            Field systemErr = pm.getUniqueFieldBySignature(
+            JField systemErr = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream err>");
             method.getParam(0).ifPresent(param0 ->
                     method.addStatement(new StaticStore(systemErr, param0)));
@@ -131,7 +131,7 @@ class MethodModel {
                 ? "<java.lang.Thread: void start()>"
                 : "<java.lang.Thread: void start0()>";
         registerHandler(start, method -> {
-            Method run = pm.getUniqueMethodBySignature(
+            JMethod run = pm.getUniqueMethodBySignature(
                     "<java.lang.Thread: void run()>");
             MockCallSite runCallSite = new MockCallSite(CallKind.VIRTUAL,
                     run, method.getThis(), Collections.emptyList(),
@@ -195,11 +195,11 @@ class MethodModel {
         });
     }
 
-    private void registerHandler(String signature, Consumer<Method> handler) {
+    private void registerHandler(String signature, Consumer<JMethod> handler) {
         handlers.put(signature, handler);
     }
 
-    private Variable newMockVariable(Type type, Method container) {
+    private Variable newMockVariable(Type type, JMethod container) {
         int id = counter.computeIfAbsent(container,
                 (k) -> new AtomicInteger(0))
                 .getAndIncrement();

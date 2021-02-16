@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 
 public class AssignCast implements Statement {
 

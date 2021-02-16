@@ -13,8 +13,8 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -26,7 +26,7 @@ import java.util.Set;
 public abstract class AbstractVariable implements Variable {
 
     protected final Type type;
-    protected final Method container;
+    protected final JMethod container;
 
     /**
      * Set of call sites where this variable is the base variable
@@ -53,7 +53,7 @@ public abstract class AbstractVariable implements Variable {
      */
     private Set<ArrayLoad> arrayLoads = Collections.emptySet();
 
-    protected AbstractVariable(Type type, Method container) {
+    protected AbstractVariable(Type type, JMethod container) {
         this.type = type;
         this.container = container;
     }
@@ -64,7 +64,7 @@ public abstract class AbstractVariable implements Variable {
     }
 
     @Override
-    public Method getContainerMethod() {
+    public JMethod getContainerMethod() {
         return container;
     }
 

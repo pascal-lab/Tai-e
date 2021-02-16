@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.ci;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 import pascal.taie.pta.ir.Obj;
 
 /**
@@ -23,9 +23,9 @@ public class InstanceField extends Pointer {
 
     private final Obj base;
 
-    private final Field field;
+    private final JField field;
 
-    InstanceField(Obj base, Field field) {
+    InstanceField(Obj base, JField field) {
         this.base = base;
         this.field = field;
     }
@@ -34,7 +34,7 @@ public class InstanceField extends Pointer {
         return base;
     }
 
-    Field getField() {
+    JField getField() {
         return field;
     }
 

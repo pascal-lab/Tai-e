@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 
 /**
  * Represents a static load: to = T.field.
@@ -22,9 +22,9 @@ public class StaticLoad implements Statement {
 
     private final Variable to;
 
-    private final Field field;
+    private final JField field;
 
-    public StaticLoad(Variable to, Field field) {
+    public StaticLoad(Variable to, JField field) {
         this.to = to;
         this.field = field;
     }
@@ -33,7 +33,7 @@ public class StaticLoad implements Statement {
         return to;
     }
 
-    public Field getField() {
+    public JField getField() {
         return field;
     }
 

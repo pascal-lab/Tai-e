@@ -14,7 +14,7 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Statement;
 
 /**
@@ -36,7 +36,7 @@ class DefaultNativeModel implements NativeModel {
     }
 
     @Override
-    public void process(Method method) {
+    public void process(JMethod method) {
         methodModel.process(method);
         Statement[] statements = method.getStatements()
                 .toArray(new Statement[0]);

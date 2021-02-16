@@ -16,7 +16,7 @@ package pascal.taie.pta.core.context;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 
 public interface ContextSelector {
@@ -28,12 +28,12 @@ public interface ContextSelector {
     /**
      * Selects contexts for static methods.
      */
-    Context selectContext(CSCallSite callSite, Method callee);
+    Context selectContext(CSCallSite callSite, JMethod callee);
 
     /**
      * Selects contexts for instance methods.
      */
-    Context selectContext(CSCallSite callSite, CSObj recv, Method callee);
+    Context selectContext(CSCallSite callSite, CSObj recv, JMethod callee);
 
     /**
      * Selects heap contexts for new-created abstract objects.

@@ -18,7 +18,7 @@ import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.env.Environment;
@@ -49,7 +49,7 @@ public class ThreadHandler implements Plugin {
     /**
      * Represent Thread.currentThread.
      */
-    private Method currentThread;
+    private JMethod currentThread;
     /**
      * Return variable of Thread.currentThread().
      */
@@ -83,7 +83,7 @@ public class ThreadHandler implements Plugin {
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = env.getSystemThreadGroup();
-        Method threadGroupInit = pm.getUniqueMethodBySignature(
+        JMethod threadGroupInit = pm.getUniqueMethodBySignature(
                 "<java.lang.ThreadGroup: void <init>()>");
         Variable initThis = threadGroupInit.getThis();
         pta.addPointsTo(context, initThis, context, systemThreadGroup);
@@ -108,7 +108,7 @@ public class ThreadHandler implements Plugin {
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = env.getMainThread();
-        Method threadInit = pm.getUniqueMethodBySignature(
+        JMethod threadInit = pm.getUniqueMethodBySignature(
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>");
         initThis = threadInit.getThis();
         pta.addPointsTo(context, initThis, context, mainThread);

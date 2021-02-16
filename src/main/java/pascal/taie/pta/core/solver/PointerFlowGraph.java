@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.solver;
 
 import pascal.taie.pta.core.cs.Pointer;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 
 import java.util.HashSet;
 import java.util.Set;

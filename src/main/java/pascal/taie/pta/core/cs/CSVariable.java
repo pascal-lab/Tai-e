@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Variable;
 
 public class CSVariable extends AbstractPointer implements CSElement {

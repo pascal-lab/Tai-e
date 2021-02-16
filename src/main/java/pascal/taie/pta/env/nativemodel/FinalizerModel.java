@@ -15,9 +15,9 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
@@ -34,8 +34,8 @@ import java.util.Collections;
 class FinalizerModel implements StatementVisitor {
 
     private final ProgramManager pm;
-    private Method finalize;
-    private Method register;
+    private JMethod finalize;
+    private JMethod register;
 
     FinalizerModel(ProgramManager pm) {
         this.pm = pm;
@@ -56,7 +56,7 @@ class FinalizerModel implements StatementVisitor {
         }
     }
 
-    private Method getFinalize() {
+    private JMethod getFinalize() {
         if (finalize == null) {
             finalize = pm.getUniqueMethodBySignature(
                     "<java.lang.Object: void finalize()>");
@@ -64,7 +64,7 @@ class FinalizerModel implements StatementVisitor {
         return finalize;
     }
 
-    private Method getRegister() {
+    private JMethod getRegister() {
         if (register == null) {
             register = pm.getUniqueMethodBySignature(
                     "<java.lang.ref.Finalizer: void register(java.lang.Object)>");
@@ -73,7 +73,7 @@ class FinalizerModel implements StatementVisitor {
     }
 
     private boolean isOverridesFinalize(Type type) {
-        Method finalize = getFinalize();
+        JMethod finalize = getFinalize();
         return !pm.dispatch(type, finalize).equals(finalize);
     }
 }

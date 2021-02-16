@@ -14,7 +14,7 @@
 package pascal.taie.pta.ir;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ public interface CallSite {
      */
     Call getCall();
 
-    Method getMethod();
+    JMethod getMethod();
 
     Variable getReceiver();
 
@@ -50,5 +50,5 @@ public interface CallSite {
      */
     Optional<Variable> getArg(int i);
 
-    Method getContainerMethod();
+    JMethod getContainerMethod();
 }

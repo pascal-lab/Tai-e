@@ -15,7 +15,7 @@ package pascal.taie.pta.core.ci;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.jimple.JimplePointerAnalysis;
 import pascal.taie.pta.jimple.JimpleProgramManager;
 import pascal.taie.util.Strings;
@@ -56,7 +56,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
             System.out.println("---------- Reachable methods: ----------");
             pta.getCallGraph().getReachableMethods()
                     .stream()
-                    .sorted(Comparator.comparing(Method::toString))
+                    .sorted(Comparator.comparing(JMethod::toString))
                     .forEach(System.out::println);
             System.out.println("---------- Call graph edges: ----------");
             pta.getCallGraph().getAllEdges().forEach(System.out::println);

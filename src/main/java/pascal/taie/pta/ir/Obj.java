@@ -13,8 +13,8 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 
 import java.util.Optional;
 
@@ -39,7 +39,7 @@ public interface Obj {
      * For Some special objects, e.g., string constants do not
      * have such method.
      */
-    Optional<Method> getContainerMethod();
+    Optional<JMethod> getContainerMethod();
 
     /**
      * This method is useful for type sensitivity.

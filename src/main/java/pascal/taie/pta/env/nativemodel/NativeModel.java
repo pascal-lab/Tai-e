@@ -14,7 +14,7 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 
 public interface NativeModel {
 
@@ -26,5 +26,5 @@ public interface NativeModel {
         return (method) -> {};
     }
 
-    void process(Method method);
+    void process(JMethod method);
 }

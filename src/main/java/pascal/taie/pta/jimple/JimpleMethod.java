@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.jimple;
 
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.ir.Statement;
 import soot.SootMethod;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-class JimpleMethod implements Method {
+class JimpleMethod implements JMethod {
 
     private final SootMethod method;
 

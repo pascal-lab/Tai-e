@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 
 /**
  * Represents an instance load: to = base.field.
@@ -24,9 +24,9 @@ public class InstanceLoad implements Statement {
 
     private final Variable base;
 
-    private final Field field;
+    private final JField field;
 
-    public InstanceLoad(Variable to, Variable base, Field field) {
+    public InstanceLoad(Variable to, Variable base, JField field) {
         this.to = to;
         this.base = base;
         this.field = field;
@@ -41,7 +41,7 @@ public class InstanceLoad implements Statement {
         return base;
     }
 
-    public Field getField() {
+    public JField getField() {
         return field;
     }
 

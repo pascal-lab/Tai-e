@@ -16,7 +16,7 @@ package pascal.taie.pta.plugin;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.set.PointsToSet;
 
 /**
@@ -76,7 +76,7 @@ public interface Plugin {
      * Not thread-safe, but single-thread on method.
      * @param method new reachable method
      */
-    default void handleNewMethod(Method method) {
+    default void handleNewMethod(JMethod method) {
     }
 
     /**

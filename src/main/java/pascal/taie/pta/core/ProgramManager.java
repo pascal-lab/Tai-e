@@ -14,10 +14,10 @@
 package pascal.taie.pta.core;
 
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.env.Environment;
 
 import java.util.Collection;
@@ -26,9 +26,9 @@ import java.util.Optional;
 public interface ProgramManager {
 
     // -------------- program entry ----------------
-    Method getMainMethod();
+    JMethod getMainMethod();
 
-    Collection<Method> getImplicitEntries();
+    Collection<JMethod> getImplicitEntries();
 
     void buildIRForAllMethods();
 
@@ -42,7 +42,7 @@ public interface ProgramManager {
     /**
      * Resolves callee by given receiver object and call site.
      */
-    Method resolveCallee(Obj recvObj, CallSite callSite);
+    JMethod resolveCallee(Obj recvObj, CallSite callSite);
 
     /**
      * Dispatch callee based on receiver type and target method
@@ -50,13 +50,13 @@ public interface ProgramManager {
      * @param target the target method
      * @return the callee
      */
-    Method dispatch(Type recvType, Method target);
+    JMethod dispatch(Type recvType, JMethod target);
 
     // -------------- program element ----------------
     /**
      * @return the class initializer of given type.
      */
-    Optional<Method> getClassInitializerOf(Type type);
+    Optional<JMethod> getClassInitializerOf(Type type);
 
     /**
      * Returns the type specified by the given type name.
@@ -82,7 +82,7 @@ public interface ProgramManager {
      * the fields in system classes, i.e., java.*.
      * TODO: make return value optional?
      */
-    Field getUniqueFieldBySignature(String fieldSig);
+    JField getUniqueFieldBySignature(String fieldSig);
 
     /**
      * Returns the method specified by the given method signature.
@@ -92,5 +92,5 @@ public interface ProgramManager {
      * the methods in system classes, i.e., java.*.
      * TODO: make return value optional?
      */
-    Method getUniqueMethodBySignature(String methodSig);
+    JMethod getUniqueMethodBySignature(String methodSig);
 }

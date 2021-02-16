@@ -16,18 +16,18 @@ package pascal.taie.pta.core.context;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 
 public class TwoObjectSelector extends AbstractContextSelector {
 
     @Override
-    public Context selectContext(CSCallSite callSite, Method callee) {
+    public Context selectContext(CSCallSite callSite, JMethod callee) {
         return callSite.getContext();
     }
 
     @Override
-    public Context selectContext(CSCallSite callSite, CSObj recv, Method callee) {
+    public Context selectContext(CSCallSite callSite, CSObj recv, JMethod callee) {
         Context hctx = recv.getContext();
         Obj obj = recv.getObject();
         return hctx.depth() == 0 ?

@@ -20,7 +20,7 @@ import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSManager;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.util.CollectionView;
@@ -92,7 +92,7 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
 
     @Override
     public Collection<CSCallSite> getCallSitesIn(CSMethod csMethod) {
-        Method method = csMethod.getMethod();
+        JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
         List<CSCallSite> callSites = new ArrayList<>();
         for (Statement s : method.getStatements()) {

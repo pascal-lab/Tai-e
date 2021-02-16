@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 
 /**
  * Represents an instance store: base.field = from.
@@ -22,11 +22,11 @@ public class InstanceStore implements Statement {
 
     private final Variable base;
 
-    private final Field field;
+    private final JField field;
 
     private final Variable from;
 
-    public InstanceStore(Variable base, Field field, Variable from) {
+    public InstanceStore(Variable base, JField field, Variable from) {
         this.base = base;
         this.field = field;
         this.from = from;
@@ -37,7 +37,7 @@ public class InstanceStore implements Statement {
         return base;
     }
 
-    public Field getField() {
+    public JField getField() {
         return field;
     }
 

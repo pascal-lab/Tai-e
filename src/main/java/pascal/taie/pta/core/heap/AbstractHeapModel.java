@@ -15,7 +15,7 @@ package pascal.taie.pta.core.heap;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.Allocation;
 

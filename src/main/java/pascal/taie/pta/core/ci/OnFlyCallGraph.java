@@ -16,24 +16,24 @@ package pascal.taie.pta.core.ci;
 import pascal.taie.callgraph.AbstractCallGraph;
 import pascal.taie.callgraph.Edge;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.util.CollectionUtils;
 
-class OnFlyCallGraph extends AbstractCallGraph<CallSite, Method> {
+class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {
 
-    void addEdge(Edge<CallSite, Method> edge) {
+    void addEdge(Edge<CallSite, JMethod> edge) {
         CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge);
         CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
     }
 
-    boolean containsEdge(Edge<CallSite, Method> edge) {
+    boolean containsEdge(Edge<CallSite, JMethod> edge) {
         return getEdgesOf(edge.getCallSite()).contains(edge);
     }
 
     @Override
-    protected boolean addNewMethod(Method method) {
+    protected boolean addNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             for (Statement s : method.getStatements()) {
                 if (s instanceof Call) {

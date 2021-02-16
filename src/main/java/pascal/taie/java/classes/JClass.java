@@ -143,6 +143,10 @@ public class JClass {
         return declaredMethods.get(subSignature);
     }
 
+    public JMethod getClinit() {
+        return getDeclaredMethod(Subsignature.CLINIT);
+    }
+
     @Override
     public String toString() {
         return getName();

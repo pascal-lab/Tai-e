@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.ci;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 
@@ -38,7 +38,7 @@ class PointerFlowGraph {
     /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private final Map<Obj, Map<Field, InstanceField>> instanceFields = new HashMap<>();
+    private final Map<Obj, Map<JField, InstanceField>> instanceFields = new HashMap<>();
 
     /**
      * Map from a pointer (node) to its successors in PFG.
@@ -67,7 +67,7 @@ class PointerFlowGraph {
      * Returns the corresponding instance field node
      * for the given object and field.
      */
-    InstanceField getInstanceField(Obj base, Field field) {
+    InstanceField getInstanceField(Obj base, JField field) {
         return instanceFields.computeIfAbsent(base, o -> new HashMap<>())
                 .computeIfAbsent(field, f -> {
                     InstanceField instField = new InstanceField(base, f);

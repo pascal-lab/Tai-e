@@ -14,9 +14,9 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.pta.ir.AbstractObj;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 
 import java.util.Optional;
 import java.util.Set;
@@ -62,7 +62,7 @@ class MergedObj extends AbstractObj {
     }
 
     @Override
-    public Optional<Method> getContainerMethod() {
+    public Optional<JMethod> getContainerMethod() {
         return representative.get() != null ?
                 representative.get().getContainerMethod() :
                 Optional.empty();

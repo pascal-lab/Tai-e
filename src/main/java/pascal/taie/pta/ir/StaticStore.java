@@ -13,23 +13,23 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Field;
+import pascal.taie.java.classes.JField;
 
 /**
  * Represents a static store: T.f = from.
  */
 public class StaticStore implements Statement {
 
-    private final Field field;
+    private final JField field;
 
     private final Variable from;
 
-    public StaticStore(Field field, Variable from) {
+    public StaticStore(JField field, Variable from) {
         this.field = field;
         this.from = from;
     }
 
-    public Field getField() {
+    public JField getField() {
         return field;
     }
 

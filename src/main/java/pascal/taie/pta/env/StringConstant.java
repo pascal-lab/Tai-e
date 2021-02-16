@@ -14,8 +14,8 @@
 package pascal.taie.pta.env;
 
 import pascal.taie.pta.ir.AbstractObj;
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 
 import java.util.Optional;
 
@@ -42,7 +42,7 @@ class StringConstant extends AbstractObj {
     }
 
     @Override
-    public Optional<Method> getContainerMethod() {
+    public Optional<JMethod> getContainerMethod() {
         // String constants do not have a container method, as the same
         // string constant can appear in multiple methods.
         return Optional.empty();

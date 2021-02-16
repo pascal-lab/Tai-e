@@ -14,25 +14,25 @@
 package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.Set;
 
 public class CSMethod extends AbstractCSElement {
 
-    private final Method method;
+    private final JMethod method;
     /**
      * Callers of this CS method.
      */
     private final Set<CSCallSite> callers = new HybridArrayHashSet<>();
 
-    CSMethod(Method method, Context context) {
+    CSMethod(JMethod method, Context context) {
         super(context);
         this.method = method;
     }
 
-    public Method getMethod() {
+    public JMethod getMethod() {
         return method;
     }
 

@@ -14,7 +14,7 @@
 package pascal.taie.pta.env;
 
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

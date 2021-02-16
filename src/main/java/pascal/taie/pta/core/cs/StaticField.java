@@ -13,18 +13,18 @@
 
 package pascal.taie.pta.core.cs;
 
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.types.Type;
 
 public class StaticField extends AbstractPointer {
 
-    private final Field field;
+    private final JField field;
 
-    StaticField(Field field) {
+    StaticField(JField field) {
         this.field = field;
     }
 
-    public Field getField() {
+    public JField getField() {
         return field;
     }
 

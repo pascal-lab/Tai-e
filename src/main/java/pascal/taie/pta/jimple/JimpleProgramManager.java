@@ -15,10 +15,10 @@ package pascal.taie.pta.jimple;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.env.Environment;
 import pascal.taie.util.AnalysisException;
 import soot.ArrayType;
@@ -98,12 +98,12 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method getMainMethod() {
+    public JMethod getMainMethod() {
         return irBuilder.getMethod(scene.getMainMethod());
     }
 
     @Override
-    public Collection<Method> getImplicitEntries() {
+    public Collection<JMethod> getImplicitEntries() {
         return implicitEntries.stream()
                 .filter(scene::containsMethod)
                 .map(scene::getMethod)
@@ -141,7 +141,7 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Method resolveCallee(Obj recvObj, CallSite callSite) {
+    public JMethod resolveCallee(Obj recvObj, CallSite callSite) {
         switch (callSite.getKind()) {
             case INTERFACE:
             case VIRTUAL:
@@ -162,7 +162,7 @@ public class JimpleProgramManager implements ProgramManager {
      * @param callSite the call site
      * @return the callee
      */
-    private Method resolveInterfaceOrVirtualCall(
+    private JMethod resolveInterfaceOrVirtualCall(
             Type recvType, CallSite callSite) {
         return dispatch(recvType, callSite.getMethod());
     }
@@ -172,7 +172,7 @@ public class JimpleProgramManager implements ProgramManager {
      * @param container containing method of the call site
      * @return the callee
      */
-    private Method resolveSpecialCall(CallSite callSite, Method container) {
+    private JMethod resolveSpecialCall(CallSite callSite, JMethod container) {
         SootMethod target = ((JimpleMethod) callSite.getMethod())
                 .getSootMethod();
         SootMethod sootContainer = ((JimpleMethod) container).getSootMethod();
@@ -194,14 +194,14 @@ public class JimpleProgramManager implements ProgramManager {
      * @param callSite the call site
      * @return the callee
      */
-    private Method resolveStaticCall(CallSite callSite) {
+    private JMethod resolveStaticCall(CallSite callSite) {
         JimpleMethod target = (JimpleMethod) callSite.getMethod();
         SootMethod callee = target.getSootMethod();
         return irBuilder.getMethod(callee);
     }
 
     @Override
-    public Method dispatch(Type recvType, Method target) {
+    public JMethod dispatch(Type recvType, JMethod target) {
         soot.Type sootType = ((JimpleType) recvType).getSootType();
         SootMethod sootMethod = ((JimpleMethod) target).getSootMethod();
         soot.RefType concreteType;
@@ -218,7 +218,7 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Optional<Method> getClassInitializerOf(Type type) {
+    public Optional<JMethod> getClassInitializerOf(Type type) {
         if (type.isClassType()) {
             SootClass cls = ((JimpleType) type).getSootClass();
             SootMethod clinit = cls.getMethodUnsafe(CLINIT_SIG);
@@ -243,12 +243,12 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public Field getUniqueFieldBySignature(String fieldSig) {
+    public JField getUniqueFieldBySignature(String fieldSig) {
         return irBuilder.getField(scene.getField(fieldSig));
     }
 
     @Override
-    public Method getUniqueMethodBySignature(String methodSig) {
+    public JMethod getUniqueMethodBySignature(String methodSig) {
         return irBuilder.getMethod(scene.getMethod(methodSig));
     }
 }

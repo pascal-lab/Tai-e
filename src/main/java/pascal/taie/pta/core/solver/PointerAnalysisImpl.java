@@ -18,6 +18,9 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
+import pascal.taie.java.classes.JClass;
+import pascal.taie.java.types.Type;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
@@ -31,26 +34,24 @@ import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.Pointer;
 import pascal.taie.pta.core.cs.StaticField;
 import pascal.taie.pta.core.heap.HeapModel;
-import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.element.Type;
-import pascal.taie.pta.ir.Variable;
-import pascal.taie.pta.PTAOptions;
-import pascal.taie.pta.plugin.Plugin;
-import pascal.taie.pta.set.PointsToSet;
-import pascal.taie.pta.set.PointsToSetFactory;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.ArrayLoad;
 import pascal.taie.pta.ir.ArrayStore;
 import pascal.taie.pta.ir.Assign;
 import pascal.taie.pta.ir.AssignCast;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.ir.InstanceLoad;
 import pascal.taie.pta.ir.InstanceStore;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.StatementVisitor;
 import pascal.taie.pta.ir.StaticLoad;
 import pascal.taie.pta.ir.StaticStore;
+import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.plugin.Plugin;
+import pascal.taie.pta.set.PointsToSet;
+import pascal.taie.pta.set.PointsToSetFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,7 +73,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private HeapModel heapModel;
     private ContextSelector contextSelector;
     private WorkList workList;
-    private Set<Method> reachableMethods;
+    private Set<JMethod> reachableMethods;
     private ClassInitializer classInitializer;
 
     @Override
@@ -181,7 +182,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         // process program entries (including implicit entries)
         Context defContext = contextSelector.getDefaultContext();
-        for (Method entry : computeEntries()) {
+        for (JMethod entry : computeEntries()) {
             // initialize class type of entry methods
             classInitializer.initializeClass(entry.getClassType());
             CSMethod csMethod = csManager.getCSMethod(defContext, entry);
@@ -192,14 +193,14 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Obj args = programManager.getEnvironment().getMainArgs();
         Obj argsElem = programManager.getEnvironment().getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
-        Method main = programManager.getMainMethod();
+        JMethod main = programManager.getMainMethod();
         main.getParam(0).ifPresent(param0 ->
                 addPointsTo(defContext, param0, defContext, args));
         plugin.initialize();
     }
 
-    private Collection<Method> computeEntries() {
-        List<Method> entries = new ArrayList<>();
+    private Collection<JMethod> computeEntries() {
+        List<JMethod> entries = new ArrayList<>();
         entries.add(programManager.getMainMethod());
         if (PTAOptions.get().analyzeImplicitEntries()) {
             entries.addAll(programManager.getImplicitEntries());
@@ -409,7 +410,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (CSObj recvObj : pts) {
                 // resolve callee
-                Method callee = programManager.resolveCallee(
+                JMethod callee = programManager.resolveCallee(
                         recvObj.getObject(), callSite);
                 // select context
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
@@ -438,7 +439,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             Context callerCtx = edge.getCallSite().getContext();
             CallSite callSite = edge.getCallSite().getCallSite();
             Context calleeCtx = csCallee.getContext();
-            Method callee = csCallee.getMethod();
+            JMethod callee = csCallee.getMethod();
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Optional<Variable> optArg = callSite.getArg(i);
@@ -464,7 +465,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Processes new reachable methods.
      */
-    private void processNewMethod(Method method) {
+    private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.handleNewMethod(method);
             method.getStatements()
@@ -485,19 +486,23 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         /**
          * Set of classes that have been initialized.
          */
-        private final Set<Type> initializedClasses = new HashSet<>();
+        private final Set<JClass> initializedClasses = new HashSet<>();
 
         /**
          * Analyzes the initializer of given class.
+         * @param cls
          */
-        private void initializeClass(Type cls) {
+        private void initializeClass(JClass cls) {
             if (initializedClasses.contains(cls)) {
                 // cls has already been initialized
                 return;
             }
 
             // initialize super class
-            cls.getSuperClass().ifPresent(this::initializeClass);
+            JClass superclass = cls.getSuperClass();
+            if (superclass != null) {
+                initializeClass(superclass);
+            }
             // TODO: initialize the superinterfaces which
             //  declare default methods
             programManager.getClassInitializerOf(cls).ifPresent(clinit -> {
@@ -584,7 +589,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
             if (callSite.getKind() == CallKind.STATIC) {
-                Method callee = programManager.resolveCallee(null, callSite);
+                JMethod callee = programManager.resolveCallee(null, callSite);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);

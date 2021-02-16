@@ -14,8 +14,8 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.pta.ir.AbstractVariable;
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 
 import java.util.Objects;
 
@@ -29,7 +29,7 @@ class MockVariable extends AbstractVariable {
      */
     private final String name;
 
-    MockVariable(Type type, Method container, String name) {
+    MockVariable(Type type, JMethod container, String name) {
         super(type, container);
         this.name = name;
     }
@@ -40,7 +40,7 @@ class MockVariable extends AbstractVariable {
     }
 
     @Override
-    public Method getContainerMethod() {
+    public JMethod getContainerMethod() {
         return container;
     }
 

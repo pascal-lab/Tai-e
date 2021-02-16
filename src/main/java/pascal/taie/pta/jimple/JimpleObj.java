@@ -14,8 +14,8 @@
 package pascal.taie.pta.jimple;
 
 import pascal.taie.pta.ir.AbstractObj;
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 import soot.jimple.AssignStmt;
 
 import java.util.Objects;
@@ -44,7 +44,7 @@ public class JimpleObj extends AbstractObj {
     }
 
     @Override
-    public Optional<Method> getContainerMethod() {
+    public Optional<JMethod> getContainerMethod() {
         return Optional.of(containerMethod);
     }
 

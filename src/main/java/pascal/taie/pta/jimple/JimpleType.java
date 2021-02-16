@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.jimple;
 
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import soot.ArrayType;
 import soot.SootClass;
 

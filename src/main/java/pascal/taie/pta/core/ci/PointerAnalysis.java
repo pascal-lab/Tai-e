@@ -19,7 +19,7 @@ import pascal.taie.callgraph.Edge;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.heap.HeapModel;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.ir.Allocation;
@@ -56,7 +56,7 @@ public class PointerAnalysis {
         this.heapModel = heapModel;
     }
 
-    public CallGraph<CallSite, Method> getCallGraph() {
+    public CallGraph<CallSite, JMethod> getCallGraph() {
         return callGraph;
     }
 
@@ -89,7 +89,7 @@ public class PointerAnalysis {
         callGraph = new OnFlyCallGraph();
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        Method main = programManager.getMainMethod();
+        JMethod main = programManager.getMainMethod();
         addReachable(main);
         // must be called after addReachable()
         callGraph.addEntryMethod(main);
@@ -154,7 +154,7 @@ public class PointerAnalysis {
     /**
      * Processes new reachable method.
      */
-    private void addReachable(Method method) {
+    private void addReachable(JMethod method) {
         if (callGraph.addNewMethod(method)) {
             processAllocations(method);
             processLocalAssign(method);
@@ -165,7 +165,7 @@ public class PointerAnalysis {
     /**
      * Processes allocations (new statements) in the given method.
      */
-    private void processAllocations(Method method) {
+    private void processAllocations(JMethod method) {
         for (Statement stmt : method.getStatements()) {
             if (stmt instanceof Allocation) {
                 Allocation alloc = (Allocation) stmt;
@@ -181,7 +181,7 @@ public class PointerAnalysis {
     /**
      * Adds local assign edges of the given method to pointer flow graph.
      */
-    private void processLocalAssign(Method method) {
+    private void processLocalAssign(JMethod method) {
         for (Statement stmt : method.getStatements()) {
             if (stmt instanceof Assign) {
                 Assign assign = (Assign) stmt;
@@ -240,7 +240,7 @@ public class PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (Obj recvObj : pts) {
                 // resolve callee
-                Method callee = programManager.resolveCallee(recvObj, callSite);
+                JMethod callee = programManager.resolveCallee(recvObj, callSite);
                 // pass receiver object to *this* variable
                 Var thisVar = pointerFlowGraph.getVar(callee.getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
@@ -254,10 +254,10 @@ public class PointerAnalysis {
     /**
      * Process the call edges in work list.
      */
-    private void processCallEdge(Edge<CallSite, Method> edge) {
+    private void processCallEdge(Edge<CallSite, JMethod> edge) {
         if (!callGraph.containsEdge(edge)) {
             callGraph.addEdge(edge);
-            Method callee = edge.getCallee();
+            JMethod callee = edge.getCallee();
             addReachable(callee);
             CallSite callSite = edge.getCallSite();
             // pass arguments to parameters
@@ -285,13 +285,13 @@ public class PointerAnalysis {
     /**
      * Process static calls in given method.
      */
-    private void processStaticCalls(Method method) {
+    private void processStaticCalls(JMethod method) {
         for (Statement stmt : method.getStatements()) {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {
-                    Method callee = programManager.resolveCallee(null, callSite);
-                    Edge<CallSite, Method> edge =
+                    JMethod callee = programManager.resolveCallee(null, callSite);
+                    Edge<CallSite, JMethod> edge =
                             new Edge<>(CallKind.STATIC, callSite, callee);
                     workList.addCallEdge(edge);
                 }

@@ -15,7 +15,7 @@ package pascal.taie.pta.core.ci;
 
 import pascal.taie.callgraph.Edge;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -26,7 +26,7 @@ class WorkList {
 
     private final Queue<Entry> pointerEntries = new LinkedList<>();
 
-    private final Set<Edge<CallSite, Method>> callEdges = new LinkedHashSet<>();
+    private final Set<Edge<CallSite, JMethod>> callEdges = new LinkedHashSet<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();
@@ -48,12 +48,12 @@ class WorkList {
         return !callEdges.isEmpty();
     }
 
-    void addCallEdge(Edge<CallSite, Method> edge) {
+    void addCallEdge(Edge<CallSite, JMethod> edge) {
         callEdges.add(edge);
     }
 
-    Edge<CallSite, Method> pollCallEdge() {
-        Edge<CallSite, Method> edge = callEdges.iterator().next();
+    Edge<CallSite, JMethod> pollCallEdge() {
+        Edge<CallSite, JMethod> edge = callEdges.iterator().next();
         callEdges.remove(edge);
         return edge;
     }

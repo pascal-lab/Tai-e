@@ -13,16 +13,16 @@
 
 package pascal.taie.pta.core.cs;
 
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JField;
+import pascal.taie.java.types.Type;
 
 public class InstanceField extends AbstractPointer {
 
     private final CSObj base;
 
-    private final Field field;
+    private final JField field;
 
-    InstanceField(CSObj base, Field field) {
+    InstanceField(CSObj base, JField field) {
         this.base = base;
         this.field = field;
     }
@@ -31,7 +31,7 @@ public class InstanceField extends AbstractPointer {
         return base;
     }
 
-    public Field getField() {
+    public JField getField() {
         return field;
     }
 

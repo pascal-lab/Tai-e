@@ -19,7 +19,7 @@ import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.util.AnalysisException;
 import soot.SootMethod;
 import soot.Unit;
@@ -79,7 +79,7 @@ public class JimplePointerAnalysis {
                 });
             } else if (cipta != null) {
                 // Process context-insensitive call graph
-                CallGraph<CallSite, Method> callGraph = cipta.getCallGraph();
+                CallGraph<CallSite, JMethod> callGraph = cipta.getCallGraph();
                 callGraph.getEntryMethods()
                         .stream()
                         .map(m -> ((JimpleMethod) m).getSootMethod())

@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.solver.PointerFlowEdge;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.set.PointsToSet;
 
 import java.util.Set;

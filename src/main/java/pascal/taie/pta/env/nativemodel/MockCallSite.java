@@ -15,7 +15,7 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.pta.ir.AbstractCallSite;
-import pascal.taie.pta.element.Method;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Variable;
 
 import java.util.List;
@@ -31,8 +31,8 @@ class MockCallSite extends AbstractCallSite {
      */
     private final String id;
 
-    MockCallSite(CallKind kind, Method method, Variable receiver,
-                 List<Variable> args, Method containerMethod,
+    MockCallSite(CallKind kind, JMethod method, Variable receiver,
+                 List<Variable> args, JMethod containerMethod,
                  String id) {
         super(kind);
         this.method = method;

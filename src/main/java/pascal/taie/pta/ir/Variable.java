@@ -13,8 +13,8 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Type;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.Type;
 
 import java.util.Set;
 
@@ -22,7 +22,7 @@ public interface Variable {
 
     Type getType();
 
-    Method getContainerMethod();
+    JMethod getContainerMethod();
 
     String getName();
 
