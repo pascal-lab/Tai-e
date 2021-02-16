@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.ci;
 
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Variable;
 
 /**
  * Represents variable nodes in PFG.

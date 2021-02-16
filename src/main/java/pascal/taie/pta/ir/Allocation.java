@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,31 +11,28 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.statement;
-
-import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Variable;
+package pascal.taie.pta.ir;
 
 /**
- * Represents a static store: T.f = from.
+ * Represents a new statement: var = new T;
  */
-public class StaticStore implements Statement {
+public class Allocation implements Statement {
 
-    private final Field field;
+    private final Variable var;
 
-    private final Variable from;
+    private final Obj object;
 
-    public StaticStore(Field field, Variable from) {
-        this.field = field;
-        this.from = from;
+    public Allocation(Variable var, Obj object) {
+        this.var = var;
+        this.object = object;
     }
 
-    public Field getField() {
-        return field;
+    public Variable getVar() {
+        return var;
     }
 
-    public Variable getFrom() {
-        return from;
+    public Obj getObject() {
+        return object;
     }
 
     @Override
@@ -45,11 +42,11 @@ public class StaticStore implements Statement {
 
     @Override
     public Kind getKind() {
-        return Kind.STATIC_STORE;
+        return Kind.ALLOCATION;
     }
 
     @Override
     public String toString() {
-        return field + " = " + from;
+        return var + " = " + object;
     }
 }

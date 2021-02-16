@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.jimple;
 
-import pascal.taie.pta.element.AbstractVariable;
+import pascal.taie.pta.ir.AbstractVariable;
 import soot.Local;
 
 class JimpleVariable extends AbstractVariable {

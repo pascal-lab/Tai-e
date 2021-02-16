@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 
 public class CSObj extends AbstractCSElement {
 

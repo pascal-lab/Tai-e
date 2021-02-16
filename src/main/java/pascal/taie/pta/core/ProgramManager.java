@@ -13,10 +13,10 @@
 
 package pascal.taie.pta.core;
 
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Field;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.env.Environment;
 

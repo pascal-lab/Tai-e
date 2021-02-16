@@ -14,10 +14,10 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.PTAOptions;
-import pascal.taie.pta.statement.Allocation;
+import pascal.taie.pta.ir.Allocation;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

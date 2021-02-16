@@ -13,8 +13,8 @@
 
 package pascal.taie.pta.core.heap;
 
-import pascal.taie.pta.element.Obj;
-import pascal.taie.pta.statement.Allocation;
+import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.ir.Allocation;
 
 public interface HeapModel {
 

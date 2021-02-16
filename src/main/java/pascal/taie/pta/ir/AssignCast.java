@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,27 +11,34 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.statement;
+package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.element.Type;
 
-/**
- * Represents an array store: base[*] = from.
- */
-public class ArrayStore implements Statement {
+public class AssignCast implements Statement {
 
-    private final Variable base;
+
+    private final Variable to;
 
     private final Variable from;
 
-    public ArrayStore(Variable base, Variable from) {
-        this.base = base;
+    /**
+     * Type to be casted.
+     */
+    private final Type type;
+
+    public AssignCast(Variable to, Type type, Variable from) {
+        this.to = to;
+        this.type = type;
         this.from = from;
-        base.addArrayStore(this);
     }
 
-    public Variable getBase() {
-        return base;
+    public Variable getTo() {
+        return to;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public Variable getFrom() {
@@ -45,11 +52,11 @@ public class ArrayStore implements Statement {
 
     @Override
     public Kind getKind() {
-        return Kind.ARRAY_STORE;
+        return Kind.ASSIGN_CAST;
     }
 
     @Override
     public String toString() {
-        return base + "[*] = " + from;
+        return to + " = (" + type + ") " + from;
     }
 }

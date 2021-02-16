@@ -14,4 +14,6 @@
 package pascal.taie.java;
 
 public interface IRManager {
+
+    
 }

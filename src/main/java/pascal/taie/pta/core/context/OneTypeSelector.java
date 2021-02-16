@@ -17,7 +17,7 @@ import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 
 /**
  * 1-type-sensitivity with no heap context.

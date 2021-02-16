@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,39 +11,38 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.statement;
+package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Type;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.element.Field;
 
-public class AssignCast implements Statement {
-
+/**
+ * Represents an instance load: to = base.field.
+ */
+public class InstanceLoad implements Statement {
 
     private final Variable to;
 
-    private final Variable from;
+    private final Variable base;
 
-    /**
-     * Type to be casted.
-     */
-    private final Type type;
+    private final Field field;
 
-    public AssignCast(Variable to, Type type, Variable from) {
+    public InstanceLoad(Variable to, Variable base, Field field) {
         this.to = to;
-        this.type = type;
-        this.from = from;
+        this.base = base;
+        this.field = field;
+        base.addInstanceLoad(this);
     }
 
     public Variable getTo() {
         return to;
     }
 
-    public Type getType() {
-        return type;
+    public Variable getBase() {
+        return base;
     }
 
-    public Variable getFrom() {
-        return from;
+    public Field getField() {
+        return field;
     }
 
     @Override
@@ -53,11 +52,11 @@ public class AssignCast implements Statement {
 
     @Override
     public Kind getKind() {
-        return Kind.ASSIGN_CAST;
+        return Kind.INSTANCE_LOAD;
     }
 
     @Override
     public String toString() {
-        return to + " = (" + type + ") " + from;
+        return to + " = " + base + "." + field;
     }
 }

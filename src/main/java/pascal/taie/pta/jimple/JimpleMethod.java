@@ -14,8 +14,8 @@
 package pascal.taie.pta.jimple;
 
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Variable;
-import pascal.taie.pta.statement.Statement;
+import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.ir.Statement;
 import soot.SootMethod;
 
 import java.util.Collections;

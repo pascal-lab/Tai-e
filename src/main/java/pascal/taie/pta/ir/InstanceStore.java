@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,26 +11,34 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.statement;
+package pascal.taie.pta.ir;
 
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.element.Field;
 
 /**
- * Represents a local assignment: to = from;
+ * Represents an instance store: base.field = from.
  */
-public class Assign implements Statement {
+public class InstanceStore implements Statement {
 
-    private final Variable to;
+    private final Variable base;
+
+    private final Field field;
 
     private final Variable from;
 
-    public Assign(Variable to, Variable from) {
-        this.to = to;
+    public InstanceStore(Variable base, Field field, Variable from) {
+        this.base = base;
+        this.field = field;
         this.from = from;
+        base.addInstanceStore(this);
     }
 
-    public Variable getTo() {
-        return to;
+    public Variable getBase() {
+        return base;
+    }
+
+    public Field getField() {
+        return field;
     }
 
     public Variable getFrom() {
@@ -44,11 +52,11 @@ public class Assign implements Statement {
 
     @Override
     public Kind getKind() {
-        return Kind.ASSIGN;
+        return Kind.INSTANCE_STORE;
     }
 
     @Override
     public String toString() {
-        return to + " = " + from;
+        return base + "." + field + " = " + from;
     }
 }

@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.context;
 
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.util.AnalysisException;
 
 /**

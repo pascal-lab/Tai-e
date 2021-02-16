@@ -15,10 +15,10 @@ package pascal.taie.pta.core.ci;
 
 import pascal.taie.callgraph.AbstractCallGraph;
 import pascal.taie.callgraph.Edge;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.statement.Call;
-import pascal.taie.pta.statement.Statement;
+import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.Statement;
 import pascal.taie.util.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CallSite, Method> {

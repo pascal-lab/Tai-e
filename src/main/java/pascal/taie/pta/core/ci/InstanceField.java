@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.ci;
 
 import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 
 /**
  * Represents instance field nodes in PFG.

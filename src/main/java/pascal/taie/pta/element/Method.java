@@ -13,7 +13,8 @@
 
 package pascal.taie.pta.element;
 
-import pascal.taie.pta.statement.Statement;
+import pascal.taie.pta.ir.Statement;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.Optional;
 import java.util.Set;

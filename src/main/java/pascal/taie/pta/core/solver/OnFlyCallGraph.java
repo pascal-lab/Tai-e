@@ -19,10 +19,10 @@ import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSManager;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.statement.Call;
-import pascal.taie.pta.statement.Statement;
+import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.Statement;
 import pascal.taie.util.CollectionView;
 
 import javax.annotation.Nonnull;

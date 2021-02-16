@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,31 +11,28 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.statement;
-
-import pascal.taie.pta.element.Variable;
+package pascal.taie.pta.ir;
 
 /**
- * Represents an array load: to = base[*];
+ * Represents a local assignment: to = from;
  */
-public class ArrayLoad implements Statement {
+public class Assign implements Statement {
 
     private final Variable to;
 
-    private final Variable base;
+    private final Variable from;
 
-    public ArrayLoad(Variable to, Variable base) {
+    public Assign(Variable to, Variable from) {
         this.to = to;
-        this.base = base;
-        base.addArrayLoad(this);
+        this.from = from;
     }
 
     public Variable getTo() {
         return to;
     }
 
-    public Variable getBase() {
-        return base;
+    public Variable getFrom() {
+        return from;
     }
 
     @Override
@@ -45,11 +42,11 @@ public class ArrayLoad implements Statement {
 
     @Override
     public Kind getKind() {
-        return Kind.ARRAY_LOAD;
+        return Kind.ASSIGN;
     }
 
     @Override
     public String toString() {
-        return to + " = " + base + "[*]";
+        return to + " = " + from;
     }
 }

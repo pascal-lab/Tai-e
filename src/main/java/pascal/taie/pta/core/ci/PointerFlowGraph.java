@@ -14,8 +14,8 @@
 package pascal.taie.pta.core.ci;
 
 import pascal.taie.pta.element.Field;
-import pascal.taie.pta.element.Obj;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.Collections;
 import java.util.HashMap;

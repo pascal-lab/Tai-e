@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.ci;
 
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.util.HybridArrayHashSet;
 
 import javax.annotation.Nonnull;

@@ -13,9 +13,9 @@
 
 package pascal.taie.pta.core.heap;
 
-import pascal.taie.pta.element.AbstractObj;
+import pascal.taie.pta.ir.AbstractObj;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.element.Type;
 
 import java.util.Optional;

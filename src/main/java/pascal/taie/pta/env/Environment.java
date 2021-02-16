@@ -15,7 +15,7 @@ package pascal.taie.pta.env;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.element.Type;
 import pascal.taie.pta.env.nativemodel.NativeModel;
 import pascal.taie.pta.PTAOptions;

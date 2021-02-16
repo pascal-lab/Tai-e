@@ -24,8 +24,8 @@ import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.StaticField;
-import pascal.taie.pta.element.Obj;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSet;
 
 import java.util.stream.Stream;

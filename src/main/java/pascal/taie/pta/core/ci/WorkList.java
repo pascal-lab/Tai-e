@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.ci;
 
 import pascal.taie.callgraph.Edge;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Method;
 
 import java.util.LinkedHashSet;

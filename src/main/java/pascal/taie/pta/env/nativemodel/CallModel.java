@@ -14,16 +14,16 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Type;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.PTAOptions;
-import pascal.taie.pta.statement.ArrayLoad;
-import pascal.taie.pta.statement.ArrayStore;
-import pascal.taie.pta.statement.AssignCast;
-import pascal.taie.pta.statement.Call;
-import pascal.taie.pta.statement.StatementVisitor;
+import pascal.taie.pta.ir.ArrayLoad;
+import pascal.taie.pta.ir.ArrayStore;
+import pascal.taie.pta.ir.AssignCast;
+import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.StatementVisitor;
 
 import java.util.HashMap;
 import java.util.Map;

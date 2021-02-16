@@ -14,9 +14,9 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.pta.element.AbstractCallSite;
+import pascal.taie.pta.ir.AbstractCallSite;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.List;
 import java.util.Objects;

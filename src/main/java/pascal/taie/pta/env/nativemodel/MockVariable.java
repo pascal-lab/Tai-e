@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.env.nativemodel;
 
-import pascal.taie.pta.element.AbstractVariable;
+import pascal.taie.pta.ir.AbstractVariable;
 import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Type;
 

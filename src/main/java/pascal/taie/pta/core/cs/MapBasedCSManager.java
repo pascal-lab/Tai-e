@@ -14,11 +14,11 @@
 package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Field;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Obj;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSetFactory;
 import pascal.taie.util.CollectionUtils;
 import pascal.taie.util.HybridArrayHashMap;

@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.env;
 
-import pascal.taie.pta.element.AbstractObj;
+import pascal.taie.pta.ir.AbstractObj;
 import pascal.taie.pta.element.Method;
 import pascal.taie.pta.element.Type;
 

@@ -15,7 +15,7 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.statement.Statement;
+import pascal.taie.pta.ir.Statement;
 
 /**
  * Default modeling of native code.

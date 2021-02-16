@@ -16,6 +16,7 @@ package pascal.taie.java.classes;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.ArrayMap;
+import pascal.taie.util.HybridArrayHashMap;
 import pascal.taie.util.HybridArrayHashSet;
 import pascal.taie.util.StringReps;
 
@@ -203,7 +204,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     public JMethod dispatch(JClass receiverClass, MethodReference methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.computeIfAbsent(receiverClass,
-                c -> new HashMap<>()).get(subsignature);
+                c -> new HybridArrayHashMap<>()).get(subsignature);
         if (target == null) {
             target = lookupMethod(receiverClass, subsignature, false);
             if (target != null) {

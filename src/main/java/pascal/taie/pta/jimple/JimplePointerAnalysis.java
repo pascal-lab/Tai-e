@@ -18,7 +18,7 @@ import pascal.taie.callgraph.JimpleCallGraph;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Method;
 import pascal.taie.util.AnalysisException;
 import soot.SootMethod;

@@ -15,14 +15,14 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.element.Method;
-import pascal.taie.pta.element.Obj;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.element.Type;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.env.EnvObj;
-import pascal.taie.pta.statement.Allocation;
-import pascal.taie.pta.statement.Call;
+import pascal.taie.pta.ir.Allocation;
+import pascal.taie.pta.ir.Call;
 
 import java.util.Collections;
 

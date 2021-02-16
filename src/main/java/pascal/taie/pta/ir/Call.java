@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,10 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.statement;
-
-import pascal.taie.pta.element.CallSite;
-import pascal.taie.pta.element.Variable;
+package pascal.taie.pta.ir;
 
 import java.util.Optional;
 

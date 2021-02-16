@@ -14,8 +14,8 @@
 package pascal.taie.pta.jimple;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.pta.element.AbstractCallSite;
-import pascal.taie.pta.element.Variable;
+import pascal.taie.pta.ir.AbstractCallSite;
+import pascal.taie.pta.ir.Variable;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 

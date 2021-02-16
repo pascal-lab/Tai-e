@@ -15,7 +15,7 @@ package pascal.taie.pta.core.cs;
 
 import pascal.taie.callgraph.Edge;
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.element.CallSite;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.Set;
