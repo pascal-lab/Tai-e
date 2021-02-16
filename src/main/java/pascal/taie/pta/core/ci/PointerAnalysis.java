@@ -16,20 +16,20 @@ package pascal.taie.pta.core.ci;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.ReferenceType;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.heap.HeapModel;
-import pascal.taie.pta.ir.CallSite;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Assign;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.ir.InstanceLoad;
 import pascal.taie.pta.ir.InstanceStore;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Statement;
+import pascal.taie.pta.ir.Variable;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public class PointerAnalysis {
@@ -166,7 +166,7 @@ public class PointerAnalysis {
      * Processes allocations (new statements) in the given method.
      */
     private void processAllocations(JMethod method) {
-        for (Statement stmt : method.getStatements()) {
+        for (Statement stmt : method.getIR().getStatements()) {
             if (stmt instanceof Allocation) {
                 Allocation alloc = (Allocation) stmt;
                 // obtain abstract object
@@ -182,7 +182,7 @@ public class PointerAnalysis {
      * Adds local assign edges of the given method to pointer flow graph.
      */
     private void processLocalAssign(JMethod method) {
-        for (Statement stmt : method.getStatements()) {
+        for (Statement stmt : method.getIR().getStatements()) {
             if (stmt instanceof Assign) {
                 Assign assign = (Assign) stmt;
                 Var from = pointerFlowGraph.getVar(assign.getFrom());
@@ -242,7 +242,7 @@ public class PointerAnalysis {
                 // resolve callee
                 JMethod callee = programManager.resolveCallee(recvObj, callSite);
                 // pass receiver object to *this* variable
-                Var thisVar = pointerFlowGraph.getVar(callee.getThis());
+                Var thisVar = pointerFlowGraph.getVar(callee.getIR().getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
                 // build call edge
                 workList.addCallEdge(new Edge<>(
@@ -262,19 +262,18 @@ public class PointerAnalysis {
             CallSite callSite = edge.getCallSite();
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
-                Optional<Variable> optArg = callSite.getArg(i);
-                Optional<Variable> optParam = callee.getParam(i);
-                optArg.ifPresent(arg -> {
+                Variable arg = callSite.getArg(i);
+                if (arg.getType() instanceof ReferenceType) {
+                    Variable param = callee.getIR().getParameter(i);
                     Var argVar = pointerFlowGraph.getVar(arg);
-                    //noinspection OptionalGetWithoutIsPresent
-                    Var paramVar = pointerFlowGraph.getVar(optParam.get());
+                    Var paramVar = pointerFlowGraph.getVar(param);
                     addPFGEdge(argVar, paramVar);
-                });
+                }
             }
             // pass results to LHS variable
             callSite.getCall().getLHS().ifPresent(lhs -> {
                 Var lhsVar = pointerFlowGraph.getVar(lhs);
-                for (Variable ret : callee.getReturnVariables()) {
+                for (Variable ret : callee.getIR().getReturnVariables()) {
                     Var retVar = pointerFlowGraph.getVar(ret);
                     addPFGEdge(retVar, lhsVar);
                 }
@@ -286,7 +285,7 @@ public class PointerAnalysis {
      * Process static calls in given method.
      */
     private void processStaticCalls(JMethod method) {
-        for (Statement stmt : method.getStatements()) {
+        for (Statement stmt : method.getIR().getStatements()) {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {

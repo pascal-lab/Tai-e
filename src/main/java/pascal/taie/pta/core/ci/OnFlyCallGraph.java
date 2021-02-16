@@ -15,9 +15,9 @@ package pascal.taie.pta.core.ci;
 
 import pascal.taie.callgraph.AbstractCallGraph;
 import pascal.taie.callgraph.Edge;
-import pascal.taie.pta.ir.CallSite;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.util.CollectionUtils;
 
@@ -35,7 +35,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {
     @Override
     protected boolean addNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
-            for (Statement s : method.getStatements()) {
+            for (Statement s : method.getIR().getStatements()) {
                 if (s instanceof Call) {
                     CallSite callSite = ((Call) s).getCallSite();
                     callSiteToContainer.put(callSite, method);
