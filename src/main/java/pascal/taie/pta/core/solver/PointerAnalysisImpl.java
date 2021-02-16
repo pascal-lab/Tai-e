@@ -448,8 +448,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Variable arg = callSite.getArg(i);
-                Variable param = callee.getIR().getParameter(i);
                 if (arg.getType() instanceof ReferenceType) {
+                    Variable param = callee.getIR().getParameter(i);
                     CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
                     CSVariable paramVar = csManager.getCSVariable(calleeCtx, param);
                     addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
@@ -612,7 +612,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(StaticLoad load) {
-            StaticField field = csManager.getStaticField(load.getFieldRef());
+            JField jfield = hierarchy.resolveField(load.getFieldRef());
+            StaticField field = csManager.getStaticField(jfield);
             CSVariable to = csManager.getCSVariable(context, load.getTo());
             addPFGEdge(field, to, PointerFlowEdge.Kind.STATIC_LOAD);
         }
@@ -620,7 +621,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(StaticStore store) {
             CSVariable from = csManager.getCSVariable(context, store.getFrom());
-            StaticField field = csManager.getStaticField(store.getFieldRef());
+            JField jfield = hierarchy.resolveField(store.getFieldRef());
+            StaticField field = csManager.getStaticField(jfield);
             addPFGEdge(from, field, PointerFlowEdge.Kind.STATIC_STORE);
         }
     }
