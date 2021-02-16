@@ -30,7 +30,7 @@ public class StaticField extends AbstractPointer {
 
     @Override
     public Type getType() {
-        return field.getFieldType();
+        return field.getType();
     }
 
     @Override

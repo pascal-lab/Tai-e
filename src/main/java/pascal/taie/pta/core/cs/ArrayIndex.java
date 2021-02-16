@@ -13,6 +13,7 @@
 
 package pascal.taie.pta.core.cs;
 
+import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.Type;
 
 public class ArrayIndex extends AbstractPointer {
@@ -29,7 +30,8 @@ public class ArrayIndex extends AbstractPointer {
 
     @Override
     public Type getType() {
-        return array.getObject().getType().getElementType();
+        return ((ArrayType) array.getObject().getType())
+                .getElementType();
     }
 
     @Override

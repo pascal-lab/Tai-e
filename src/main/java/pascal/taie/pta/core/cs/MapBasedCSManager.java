@@ -13,11 +13,10 @@
 
 package pascal.taie.pta.core.cs;
 
-import pascal.taie.java.classes.FieldReference;
-import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.ir.CallSite;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.core.context.Context;
+import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSetFactory;
@@ -69,7 +68,7 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public StaticField getStaticField(FieldReference field) {
+    public StaticField getStaticField(JField field) {
         return staticFields.computeIfAbsent(field,
                 (f) -> initializePointsToSet(new StaticField(f)));
     }

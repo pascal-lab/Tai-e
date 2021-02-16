@@ -37,7 +37,7 @@ public class InstanceField extends AbstractPointer {
 
     @Override
     public Type getType() {
-        return field.getFieldType();
+        return field.getType();
     }
 
     @Override
