@@ -13,9 +13,9 @@
 
 package pascal.taie.pta.env;
 
-import pascal.taie.pta.ir.AbstractObj;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
+import pascal.taie.pta.ir.AbstractObj;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -56,7 +56,7 @@ public class EnvObj extends AbstractObj {
     public Type getContainerType() {
         // TODO: set a better container type?
         return containerMethod != null
-                ? containerMethod.getClassType()
+                ? containerMethod.getDeclaringClass().getType()
                 : type;
     }
 

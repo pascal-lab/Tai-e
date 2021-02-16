@@ -19,7 +19,6 @@ import pascal.taie.java.classes.MethodReference;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * All implementations of CallSite should inherit this class.
@@ -28,7 +27,7 @@ public abstract class AbstractCallSite implements CallSite {
 
     protected final CallKind kind;
     protected Call call;
-    protected JMethod method;
+    protected MethodReference methodRef;
     protected Variable receiver;
     protected List<Variable> args = Collections.emptyList();
     protected JMethod containerMethod;
@@ -57,7 +56,7 @@ public abstract class AbstractCallSite implements CallSite {
 
     @Override
     public MethodReference getMethodRef() {
-        return method;
+        return methodRef;
     }
 
     @Override
@@ -73,7 +72,7 @@ public abstract class AbstractCallSite implements CallSite {
 
     @Override
     public Variable getArg(int i) {
-        return Optional.ofNullable(args.get(i));
+        return args.get(i);
     }
 
     @Override

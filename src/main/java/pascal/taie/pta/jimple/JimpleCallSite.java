@@ -39,7 +39,7 @@ class JimpleCallSite extends AbstractCallSite {
     }
 
     void setMethod(JimpleMethod method) {
-        this.method = method;
+        this.methodRef = method;
     }
 
     void setReceiver(JimpleVariable receiver) {
