@@ -13,24 +13,24 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.java.classes.JField;
+import pascal.taie.java.classes.FieldReference;
 
 /**
  * Represents a static store: T.f = from.
  */
 public class StaticStore implements Statement {
 
-    private final JField field;
+    private final FieldReference fieldRef;
 
     private final Variable from;
 
-    public StaticStore(JField field, Variable from) {
-        this.field = field;
+    public StaticStore(FieldReference fieldRef, Variable from) {
+        this.fieldRef = fieldRef;
         this.from = from;
     }
 
-    public JField getField() {
-        return field;
+    public FieldReference getFieldRef() {
+        return fieldRef;
     }
 
     public Variable getFrom() {
@@ -49,6 +49,6 @@ public class StaticStore implements Statement {
 
     @Override
     public String toString() {
-        return field + " = " + from;
+        return fieldRef + " = " + from;
     }
 }

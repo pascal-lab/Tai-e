@@ -13,7 +13,9 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.util.StringReps;
 
 import java.util.Collections;
@@ -27,6 +29,8 @@ public class JMethod extends ClassMember {
     private final Type returnType;
 
     private final Subsignature subsignature;
+
+    private IR ir;
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> parameterTypes, Type returnType) {
@@ -59,5 +63,12 @@ public class JMethod extends ClassMember {
 
     public Subsignature getSubsignature() {
         return subsignature;
+    }
+
+    public IR getIR() {
+        if (ir == null) {
+            ir = World.get().getIRBuilder().build(this);
+        }
+        return ir;
     }
 }

@@ -15,8 +15,7 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.classes.JMethod;
-
-import java.util.Optional;
+import pascal.taie.java.classes.MethodReference;
 
 public interface CallSite {
 
@@ -35,7 +34,7 @@ public interface CallSite {
      */
     Call getCall();
 
-    JMethod getMethod();
+    MethodReference getMethodRef();
 
     Variable getReceiver();
 
@@ -48,7 +47,7 @@ public interface CallSite {
      * @return the i-th argument of this call site. The return value is
      * present only if the argument is non-null and of reference type.
      */
-    Optional<Variable> getArg(int i);
+    Variable getArg(int i);
 
     JMethod getContainerMethod();
 }

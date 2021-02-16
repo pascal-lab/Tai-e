@@ -13,6 +13,7 @@
 
 package pascal.taie.pta.core.cs;
 
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.ir.CallSite;
 import pascal.taie.java.classes.JField;
@@ -33,7 +34,7 @@ public interface CSManager {
 
     ArrayIndex getArrayIndex(CSObj array);
 
-    StaticField getStaticField(JField field);
+    StaticField getStaticField(FieldReference field);
 
     CSObj getCSObj(Context heapContext, Obj obj);
 

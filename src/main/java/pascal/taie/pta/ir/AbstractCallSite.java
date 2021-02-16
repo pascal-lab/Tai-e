@@ -15,6 +15,7 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +56,7 @@ public abstract class AbstractCallSite implements CallSite {
     }
 
     @Override
-    public JMethod getMethod() {
+    public MethodReference getMethodRef() {
         return method;
     }
 
@@ -71,7 +72,7 @@ public abstract class AbstractCallSite implements CallSite {
     }
 
     @Override
-    public Optional<Variable> getArg(int i) {
+    public Variable getArg(int i) {
         return Optional.ofNullable(args.get(i));
     }
 

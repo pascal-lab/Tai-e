@@ -13,9 +13,9 @@
 
 package pascal.taie.pta.jimple;
 
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.java.types.Type;
@@ -164,7 +164,7 @@ public class JimpleProgramManager implements ProgramManager {
      */
     private JMethod resolveInterfaceOrVirtualCall(
             Type recvType, CallSite callSite) {
-        return dispatch(recvType, callSite.getMethod());
+        return dispatch(recvType, callSite.getMethodRef());
     }
 
     /**
@@ -173,7 +173,7 @@ public class JimpleProgramManager implements ProgramManager {
      * @return the callee
      */
     private JMethod resolveSpecialCall(CallSite callSite, JMethod container) {
-        SootMethod target = ((JimpleMethod) callSite.getMethod())
+        SootMethod target = ((JimpleMethod) callSite.getMethodRef())
                 .getSootMethod();
         SootMethod sootContainer = ((JimpleMethod) container).getSootMethod();
         SootMethod callee;
@@ -195,7 +195,7 @@ public class JimpleProgramManager implements ProgramManager {
      * @return the callee
      */
     private JMethod resolveStaticCall(CallSite callSite) {
-        JimpleMethod target = (JimpleMethod) callSite.getMethod();
+        JimpleMethod target = (JimpleMethod) callSite.getMethodRef();
         SootMethod callee = target.getSootMethod();
         return irBuilder.getMethod(callee);
     }
@@ -243,7 +243,7 @@ public class JimpleProgramManager implements ProgramManager {
     }
 
     @Override
-    public JField getUniqueFieldBySignature(String fieldSig) {
+    public FieldReference getUniqueFieldBySignature(String fieldSig) {
         return irBuilder.getField(scene.getField(fieldSig));
     }
 

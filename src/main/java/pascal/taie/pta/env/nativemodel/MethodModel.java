@@ -14,8 +14,8 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Variable;
@@ -88,7 +88,7 @@ class MethodModel {
         // get invoked.
         registerHandler("<java.lang.ref.Reference: void <init>(java.lang.Object,java.lang.ref.ReferenceQueue)>", method -> {
             Variable thisVar = method.getThis();
-            JField pending = pm.getUniqueFieldBySignature(
+            FieldReference pending = pm.getUniqueFieldBySignature(
                     "<java.lang.ref.Reference: java.lang.ref.Reference pending>");
             method.addStatement(new StaticStore(pending, thisVar));
         });
@@ -98,7 +98,7 @@ class MethodModel {
         // --------------------------------------------------------------------
         // <java.lang.System: void setIn0(java.io.InputStream)>
         registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
-            JField systemIn = pm.getUniqueFieldBySignature(
+            FieldReference systemIn = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.InputStream in>");
             method.getParam(0).ifPresent(param0 ->
                     method.addStatement(new StaticStore(systemIn, param0)));
@@ -106,7 +106,7 @@ class MethodModel {
 
         // <java.lang.System: void setOut0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
-            JField systemOut = pm.getUniqueFieldBySignature(
+            FieldReference systemOut = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream out>");
             method.getParam(0).ifPresent(param0 ->
                     method.addStatement(new StaticStore(systemOut, param0)));
@@ -114,7 +114,7 @@ class MethodModel {
 
         // <java.lang.System: void setErr0(java.io.PrintStream)>
         registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
-            JField systemErr = pm.getUniqueFieldBySignature(
+            FieldReference systemErr = pm.getUniqueFieldBySignature(
                     "<java.lang.System: java.io.PrintStream err>");
             method.getParam(0).ifPresent(param0 ->
                     method.addStatement(new StaticStore(systemErr, param0)));

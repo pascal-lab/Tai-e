@@ -14,6 +14,7 @@
 package pascal.taie.pta.jimple;
 
 import pascal.taie.callgraph.JimpleCallUtils;
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.env.Environment;
@@ -207,7 +208,7 @@ class IRBuilder {
         type.setBuilt(true);
     }
 
-    JimpleField getField(SootField sootField) {
+    FieldReference getField(SootField sootField) {
         return fields.computeIfAbsent(sootField, (field) ->
                 new JimpleField(field,
                         getType(field.getDeclaringClass()),

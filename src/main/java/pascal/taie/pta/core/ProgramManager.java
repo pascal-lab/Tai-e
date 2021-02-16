@@ -13,8 +13,8 @@
 
 package pascal.taie.pta.core;
 
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.java.types.Type;
@@ -82,7 +82,7 @@ public interface ProgramManager {
      * the fields in system classes, i.e., java.*.
      * TODO: make return value optional?
      */
-    JField getUniqueFieldBySignature(String fieldSig);
+    FieldReference getUniqueFieldBySignature(String fieldSig);
 
     /**
      * Returns the method specified by the given method signature.

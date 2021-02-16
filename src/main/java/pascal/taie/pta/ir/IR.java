@@ -11,9 +11,27 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.pta.ir;
 
-public interface IRManager {
+import pascal.taie.java.classes.JMethod;
 
-    
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * Intermediate representation of method body.
+ */
+public interface IR {
+
+    JMethod getMethod();
+
+    Variable getThis();
+
+    int getParameterCount();
+
+    Variable getParameter(int i);
+
+    Collection<Variable> getReturnVariables();
+
+    List<Statement> getStatements();
 }

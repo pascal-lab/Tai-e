@@ -55,7 +55,7 @@ class CallModel implements StatementVisitor {
     @Override
     public void visit(Call call) {
         CallSite callSite = call.getCallSite();
-        JMethod callee = callSite.getMethod();
+        JMethod callee = callSite.getMethodRef();
         BiConsumer<JMethod, Call> handler =
                 handlers.get(callee.getSignature());
         if (handler != null) {

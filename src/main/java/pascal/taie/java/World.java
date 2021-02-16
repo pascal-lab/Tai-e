@@ -34,7 +34,7 @@ public class World {
 
     private ClassHierarchy classHierarchy;
 
-    private IRManager irManager;
+    private IRBuilder irBuilder;
 
     public Options getOptions() {
         return options;
@@ -60,11 +60,11 @@ public class World {
         this.classHierarchy = classHierarchy;
     }
 
-    public IRManager getIRManager() {
-        return irManager;
+    public IRBuilder getIRBuilder() {
+        return irBuilder;
     }
 
-    public void setIRManager(IRManager irManager) {
-        this.irManager = irManager;
+    public void setIRManager(IRBuilder irBuilder) {
+        this.irBuilder = irBuilder;
     }
 }

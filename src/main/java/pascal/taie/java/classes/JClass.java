@@ -15,6 +15,7 @@ package pascal.taie.java.classes;
 
 import pascal.taie.java.types.ClassType;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -119,7 +120,7 @@ public class JClass {
         return Modifier.hasSynthetic(modifiers);
     }
 
-    public JClass getSuperClass() {
+    public @Nullable JClass getSuperClass() {
         return superClass;
     }
 
@@ -131,7 +132,7 @@ public class JClass {
         return declaredFields.values();
     }
 
-    public JField getDeclaredField(String name) {
+    public @Nullable JField getDeclaredField(String name) {
         return declaredFields.get(name);
     }
 
@@ -139,11 +140,11 @@ public class JClass {
         return declaredMethods.values();
     }
 
-    public JMethod getDeclaredMethod(Subsignature subSignature) {
+    public @Nullable JMethod getDeclaredMethod(Subsignature subSignature) {
         return declaredMethods.get(subSignature);
     }
 
-    public JMethod getClinit() {
+    public @Nullable JMethod getClinit() {
         return getDeclaredMethod(Subsignature.CLINIT);
     }
 
