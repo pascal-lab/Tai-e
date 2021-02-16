@@ -13,16 +13,17 @@
 
 package pascal.taie.pta.plugin;
 
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.env.Environment;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
-import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
 
@@ -36,7 +37,8 @@ import java.util.Set;
 public class ThreadHandler implements Plugin {
 
     private PointerAnalysis pta;
-    private ProgramManager pm;
+
+    private ClassHierarchy hierarchy;
 
     /**
      * This variable of Thread.start().
@@ -62,12 +64,16 @@ public class ThreadHandler implements Plugin {
     @Override
     public void setPointerAnalysis(PointerAnalysis pta) {
         this.pta = pta;
-        pm = pta.getProgramManager();
-        threadStartThis = pm.getUniqueMethodBySignature(
-                "<java.lang.Thread: void start()>").getThis();
-        currentThread = pm.getUniqueMethodBySignature(
+        hierarchy = pta.getHierarchy();
+        threadStartThis = hierarchy.getJREMethod(
+                "<java.lang.Thread: void start()>")
+                .getIR()
+                .getThis();
+        currentThread = hierarchy.getJREMethod(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
-        currentThreadReturn = currentThread.getReturnVariables()
+        currentThreadReturn = currentThread
+                .getIR()
+                .getReturnVariables()
                 .iterator()
                 .next();
     }
@@ -77,47 +83,49 @@ public class ThreadHandler implements Plugin {
         if (!PTAOptions.get().analyzeImplicitEntries()) {
             return;
         }
-        Environment env = pm.getEnvironment();
+        Environment env = pta.getEnvironment();
         Context context = pta.getContextSelector().getDefaultContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = env.getSystemThreadGroup();
-        JMethod threadGroupInit = pm.getUniqueMethodBySignature(
-                "<java.lang.ThreadGroup: void <init>()>");
-        Variable initThis = threadGroupInit.getThis();
+        IR threadGroupInitIR = hierarchy.getJREMethod(
+                "<java.lang.ThreadGroup: void <init>()>")
+                .getIR();
+        Variable initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, systemThreadGroup);
 
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThreadGroup = env.getMainThreadGroup();
-        threadGroupInit = pm.getUniqueMethodBySignature(
-                "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>");
-        initThis = threadGroupInit.getThis();
+        threadGroupInitIR = hierarchy.getJREMethod(
+                "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
+                .getIR();
+
+        initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThreadGroup);
         // propagate <system-thread-group> to param0
-        threadGroupInit.getParam(0).ifPresent(param0 ->
-                pta.addPointsTo(context, param0, context, systemThreadGroup));
+        pta.addPointsTo(context, threadGroupInitIR.getParam(0),
+                context, systemThreadGroup);
         // propagate "main" to param1
         Obj main = env.getStringConstant("main");
-        threadGroupInit.getParam(1).ifPresent(param1 ->
-                pta.addPointsTo(context, param1, context, main));
+        pta.addPointsTo(context, threadGroupInitIR.getParam(1), context, main);
 
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = env.getMainThread();
-        JMethod threadInit = pm.getUniqueMethodBySignature(
-                "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>");
-        initThis = threadInit.getThis();
+        IR threadInitIR = hierarchy.getJREMethod(
+                "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
+                .getIR();
+        initThis = threadInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
-        threadInit.getParam(0).ifPresent(param0 ->
-                pta.addPointsTo(context, param0, context, mainThreadGroup));
+        pta.addPointsTo(context, threadInitIR.getParam(0),
+                context, mainThreadGroup);
         // propagate "main" to param1
-        threadInit.getParam(1).ifPresent(param1 ->
-                pta.addPointsTo(context, param1, context, main));
+        pta.addPointsTo(context, threadInitIR.getParam(1), context, main);
 
         // The main thread is never explicitly started, which would make it a
         // RunningThread. Therefore, we make it a running thread explicitly.

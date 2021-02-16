@@ -40,6 +40,7 @@ import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.Pointer;
 import pascal.taie.pta.core.cs.StaticField;
 import pascal.taie.pta.core.heap.HeapModel;
+import pascal.taie.pta.env.Environment;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.ArrayLoad;
 import pascal.taie.pta.ir.ArrayStore;
@@ -71,6 +72,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private ProgramManager programManager;
     private ClassHierarchy hierarchy;
+    private Environment environment;
     private CSManager csManager;
     private Plugin plugin;
     private OnFlyCallGraph callGraph;
@@ -88,6 +90,24 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     void setProgramManager(ProgramManager programManager) {
         this.programManager = programManager;
+    }
+
+    @Override
+    public ClassHierarchy getHierarchy() {
+        return hierarchy;
+    }
+
+    public void setHierarchy(ClassHierarchy hierarchy) {
+        this.hierarchy = hierarchy;
+    }
+
+    @Override
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     @Override
@@ -199,7 +219,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Obj argsElem = programManager.getEnvironment().getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
         JMethod main = programManager.getMainMethod();
-        addPointsTo(defContext, main.getIR().getParameter(0), defContext, args);
+        addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
@@ -449,7 +469,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Variable arg = callSite.getArg(i);
                 if (arg.getType() instanceof ReferenceType) {
-                    Variable param = callee.getIR().getParameter(i);
+                    Variable param = callee.getIR().getParam(i);
                     CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
                     CSVariable paramVar = csManager.getCSVariable(calleeCtx, param);
                     addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);

@@ -14,6 +14,7 @@
 package pascal.taie.pta.core.solver;
 
 import pascal.taie.callgraph.CallGraph;
+import pascal.taie.java.ClassHierarchy;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
@@ -24,6 +25,7 @@ import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.StaticField;
+import pascal.taie.pta.env.Environment;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSet;
@@ -33,6 +35,10 @@ import java.util.stream.Stream;
 public interface PointerAnalysis {
 
     ProgramManager getProgramManager();
+
+    ClassHierarchy getHierarchy();
+
+    Environment getEnvironment();
 
     CSManager getCSManager();
 
