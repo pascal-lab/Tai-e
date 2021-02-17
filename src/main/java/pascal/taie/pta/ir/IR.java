@@ -34,4 +34,6 @@ public interface IR {
     Collection<Variable> getReturnVariables();
 
     List<Statement> getStatements();
+
+    void addStatement(Statement s);
 }

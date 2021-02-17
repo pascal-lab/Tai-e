@@ -15,7 +15,9 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.java.classes.JMethod;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +34,7 @@ public class DefaultIR implements IR {
 
     private Set<Variable> returnVars;
 
-    private List<Statement> statements;
+    private List<Statement> statements = Collections.emptyList();
 
     public DefaultIR(JMethod method) {
         this.method = method;
@@ -80,7 +82,11 @@ public class DefaultIR implements IR {
         return statements;
     }
 
-    public void setStatements(List<Statement> statements) {
-        this.statements = statements;
+    @Override
+    public void addStatement(Statement s) {
+        if (statements.isEmpty()) {
+            statements = new ArrayList<>();
+        }
+        statements.add(s);
     }
 }
