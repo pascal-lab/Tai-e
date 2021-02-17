@@ -45,9 +45,9 @@ class FinalizerModel implements StatementVisitor {
     FinalizerModel(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
         finalize = hierarchy.getJREMethod("<java.lang.Object: void finalize()>");
-        finalizeRef = MethodReference.get(finalize);
-        registerRef = MethodReference.get(
-                hierarchy.getJREMethod("<java.lang.ref.Finalizer: void register(java.lang.Object)>"));
+        finalizeRef = finalize.getRef();
+        registerRef = hierarchy.getJREMethod("<java.lang.ref.Finalizer: void register(java.lang.Object)>")
+                .getRef();
     }
 
     @Override

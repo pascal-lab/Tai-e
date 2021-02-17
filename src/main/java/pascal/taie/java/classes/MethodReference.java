@@ -50,13 +50,6 @@ public class MethodReference extends MemberReference {
                 new MethodReference(k, name, parameterTypes, returnType));
     }
 
-    public static MethodReference get(JMethod method) {
-        Key key = new Key(method.getDeclaringClass(), method.getSubsignature());
-        return map.computeIfAbsent(key, k ->
-                new MethodReference(k, method.getName(),
-                        method.getParameterTypes(), method.getReturnType()));
-    }
-
     public static void clear() {
         map.clear();
     }

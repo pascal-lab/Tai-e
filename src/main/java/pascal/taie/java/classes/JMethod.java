@@ -71,4 +71,12 @@ public class JMethod extends ClassMember {
         }
         return ir;
     }
+
+    /**
+     * @return the {@link MethodReference} pointing to this method.
+     */
+    public MethodReference getRef() {
+        return MethodReference.get(declaringClass, name,
+                parameterTypes, returnType);
+    }
 }

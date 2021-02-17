@@ -16,9 +16,7 @@ package pascal.taie.pta.env.nativemodel;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
@@ -52,9 +50,8 @@ class Utils {
         Obj obj = new EnvObj(name, type, container);
         container.getIR().addStatement(new Allocation(recv, obj));
         JMethod ctor = hierarchy.getJREMethod(ctorSig);
-        MethodReference ctorRef = MethodReference.get(ctor);
         MockCallSite initCallSite = new MockCallSite(
-                CallKind.SPECIAL, ctorRef,
+                CallKind.SPECIAL, ctor.getRef(),
                 recv, Collections.emptyList(),
                 container, callId);
         Call initCall = new Call(initCallSite, null);
@@ -66,16 +63,15 @@ class Utils {
      * by mocking a virtual call r = o.m().
      */
     static void modelStaticToVirtualCall(
-            ProgramManager pm, JMethod container, Call call,
+            ClassHierarchy hierarchy, JMethod container, Call call,
             String calleeSig, String callId) {
         CallSite origin = call.getCallSite();
-        origin.getArg(0).ifPresent(arg0 -> {
-            JMethod callee = pm.getUniqueMethodBySignature(calleeSig);
-            MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL, callee,
-                    arg0, Collections.emptyList(),
-                    container, callId);
-            Call mockCall = new Call(callSite, call.getLHS().orElse(null));
-            container.addStatement(mockCall);
-        });
+        JMethod callee = hierarchy.getJREMethod(calleeSig);
+        MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL,
+                callee.getRef(),
+                origin.getArg(0), Collections.emptyList(),
+                container, callId);
+        Call mockCall = new Call(callSite, call.getLHS().orElse(null));
+        container.getIR().addStatement(mockCall);
     }
 }

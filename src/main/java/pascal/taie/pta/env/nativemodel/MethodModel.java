@@ -20,7 +20,6 @@ import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.env.EnvObj;
@@ -135,9 +134,8 @@ class MethodModel {
         registerHandler(start, ir -> {
             JMethod run = hierarchy.getJREMethod(
                     "<java.lang.Thread: void run()>");
-            MethodReference runRef = MethodReference.get(run);
             MockCallSite runCallSite = new MockCallSite(CallKind.VIRTUAL,
-                    runRef, ir.getThis(), Collections.emptyList(),
+                    run.getRef(), ir.getThis(), Collections.emptyList(),
                     ir.getMethod(), "thread-run");
             Call runCall = new Call(runCallSite, null);
             ir.addStatement(runCall);
