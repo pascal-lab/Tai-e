@@ -13,21 +13,22 @@
 
 package pascal.taie.pta.env.nativemodel;
 
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.ir.CallSite;
+import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.ArrayLoad;
 import pascal.taie.pta.ir.ArrayStore;
 import pascal.taie.pta.ir.AssignCast;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.CallSite;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.StatementVisitor;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,18 +36,23 @@ import java.util.function.BiConsumer;
 
 class CallModel implements StatementVisitor {
 
-    private final ProgramManager pm;
+    private final ClassHierarchy hierarchy;
+
+    private final TypeManager typeManager;
+
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
     private final Map<String, BiConsumer<JMethod, Call>> handlers;
+
     /**
      * Counter to give each mock variable an unique name in each method.
      */
     private final ConcurrentMap<JMethod, AtomicInteger> counter;
 
-    CallModel(ProgramManager pm) {
-        this.pm = pm;
+    CallModel(ClassHierarchy hierarchy, TypeManager typeManager) {
+        this.hierarchy = hierarchy;
+        this.typeManager = typeManager;
         handlers = new HashMap<>();
         counter = new ConcurrentHashMap<>();
         initHandlers();
@@ -55,7 +61,7 @@ class CallModel implements StatementVisitor {
     @Override
     public void visit(Call call) {
         CallSite callSite = call.getCallSite();
-        JMethod callee = callSite.getMethodRef();
+        JMethod callee = hierarchy.resolveMethod(callSite.getMethodRef());
         BiConsumer<JMethod, Call> handler =
                 handlers.get(callee.getSignature());
         if (handler != null) {
@@ -70,23 +76,22 @@ class CallModel implements StatementVisitor {
         // --------------------------------------------------------------------
         // <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
         registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
-            Optional<Variable> src = call.getCallSite().getArg(0);
-            Optional<Variable> dest = call.getCallSite().getArg(2);
-            if (src.isPresent() && dest.isPresent()) {
-                Type arrayType = pm.getUniqueTypeByName("java.lang.Object[]");
-                Variable srcArray = newMockVariable(arrayType , method);
-                Variable destArray = newMockVariable(arrayType , method);
-                Variable temp = newMockVariable(
-                        pm.getUniqueTypeByName("java.lang.Object"), method);
-                // src/dest may point to non-array objects due to imprecision
-                // of pointer analysis, thus we add cast statements to filter
-                // out load/store operations on non-array objects.
-                // Note that the cast statements will exclude primitive arrays.
-                method.addStatement(new AssignCast(srcArray, arrayType, src.get()));
-                method.addStatement(new AssignCast(destArray, arrayType, dest.get()));
-                method.addStatement(new ArrayLoad(temp, srcArray));
-                method.addStatement(new ArrayStore(destArray, temp));
-            }
+            Variable src = call.getCallSite().getArg(0);
+            Variable dest = call.getCallSite().getArg(2);
+            Type object = typeManager.getClassType("java.lang.Object");
+            Type arrayType = typeManager.getArrayType(object, 1);
+            Variable srcArray = newMockVariable(arrayType , method);
+            Variable destArray = newMockVariable(arrayType , method);
+            Variable temp = newMockVariable(object, method);
+            // src/dest may point to non-array objects due to imprecision
+            // of pointer analysis, thus we add cast statements to filter
+            // out load/store operations on non-array objects.
+            // Note that the cast statements will exclude primitive arrays.
+            IR ir = method.getIR();
+            ir.addStatement(new AssignCast(srcArray, arrayType, src));
+            ir.addStatement(new AssignCast(destArray, arrayType, dest));
+            ir.addStatement(new ArrayLoad(temp, srcArray));
+            ir.addStatement(new ArrayStore(destArray, temp));
         });
 
         // --------------------------------------------------------------------
@@ -101,7 +106,7 @@ class CallModel implements StatementVisitor {
         // This API is deprecated since Java 7.
         if (PTAOptions.get().jdkVersion() <= 6) {
             registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", (method, call) -> {
-                Utils.modelStaticToVirtualCall(pm, method, call,
+                Utils.modelStaticToVirtualCall(hierarchy, method, call,
                         "<java.lang.Object: void finalize()>",
                         "invoke-finalize");
             });
@@ -130,25 +135,25 @@ class CallModel implements StatementVisitor {
         //  in a PriviligedActionException.
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(pm, method, call,
+            Utils.modelStaticToVirtualCall(hierarchy, method, call,
                     "<java.security.PrivilegedAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(pm, method, call,
+            Utils.modelStaticToVirtualCall(hierarchy, method, call,
                     "<java.security.PrivilegedAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(pm, method, call,
+            Utils.modelStaticToVirtualCall(hierarchy, method, call,
                     "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(pm, method, call,
+            Utils.modelStaticToVirtualCall(hierarchy, method, call,
                     "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
                     "doPrivileged");
         });
