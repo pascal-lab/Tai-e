@@ -19,7 +19,7 @@ import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodReference;
-import pascal.taie.java.types.ReferenceType;
+import pascal.taie.java.types.Type;
 
 import java.util.Collection;
 
@@ -84,7 +84,7 @@ public interface ClassHierarchy {
 
     JField resolveField(FieldReference fieldRef);
 
-    JMethod dispatch(ReferenceType receiverType, MethodReference methodRef);
+    JMethod dispatch(Type receiverType, MethodReference methodRef);
 
     JMethod dispatch(JClass receiverClass, MethodReference methodRef);
 

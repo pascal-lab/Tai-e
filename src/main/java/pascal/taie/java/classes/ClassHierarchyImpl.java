@@ -16,7 +16,6 @@ package pascal.taie.java.classes;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
-import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.ArrayMap;
@@ -205,7 +204,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod dispatch(ReferenceType receiverType, MethodReference methodRef) {
+    public JMethod dispatch(Type receiverType, MethodReference methodRef) {
         JClass cls;
         if (receiverType instanceof ClassType) {
             cls = ((ClassType) receiverType).getJClass();

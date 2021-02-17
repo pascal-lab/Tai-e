@@ -14,14 +14,15 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.StatementVisitor;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.Collections;
 
@@ -33,12 +34,20 @@ import java.util.Collections;
  */
 class FinalizerModel implements StatementVisitor {
 
-    private final ProgramManager pm;
-    private JMethod finalize;
-    private JMethod register;
+    private final ClassHierarchy hierarchy;
 
-    FinalizerModel(ProgramManager pm) {
-        this.pm = pm;
+    private final JMethod finalize;
+
+    private final MethodReference finalizeRef;
+
+    private final MethodReference registerRef;
+
+    FinalizerModel(ClassHierarchy hierarchy) {
+        this.hierarchy = hierarchy;
+        finalize = hierarchy.getJREMethod("<java.lang.Object: void finalize()>");
+        finalizeRef = MethodReference.get(finalize);
+        registerRef = MethodReference.get(
+                hierarchy.getJREMethod("<java.lang.ref.Finalizer: void register(java.lang.Object)>"));
     }
 
     @Override
@@ -48,32 +57,15 @@ class FinalizerModel implements StatementVisitor {
             obj.getContainerMethod().ifPresent(container -> {
                 Variable lhs = alloc.getVar();
                 MockCallSite callSite = new MockCallSite(CallKind.STATIC,
-                        getRegister(), null, Collections.singletonList(lhs),
+                        registerRef, null, Collections.singletonList(lhs),
                         container, "register-finalize");
                 Call call = new Call(callSite, null);
-                container.addStatement(call);
+                container.getIR().addStatement(call);
             });
         }
     }
 
-    private JMethod getFinalize() {
-        if (finalize == null) {
-            finalize = pm.getUniqueMethodBySignature(
-                    "<java.lang.Object: void finalize()>");
-        }
-        return finalize;
-    }
-
-    private JMethod getRegister() {
-        if (register == null) {
-            register = pm.getUniqueMethodBySignature(
-                    "<java.lang.ref.Finalizer: void register(java.lang.Object)>");
-        }
-        return register;
-    }
-
     private boolean isOverridesFinalize(Type type) {
-        JMethod finalize = getFinalize();
-        return !pm.dispatch(type, finalize).equals(finalize);
+        return hierarchy.dispatch(type, finalizeRef).equals(finalize);
     }
 }
