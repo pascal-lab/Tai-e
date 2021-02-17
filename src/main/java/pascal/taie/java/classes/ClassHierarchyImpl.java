@@ -14,7 +14,11 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.types.ArrayType;
+import pascal.taie.java.types.ClassType;
+import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.ArrayMap;
 import pascal.taie.util.HybridArrayHashMap;
 import pascal.taie.util.HybridArrayHashSet;
@@ -198,6 +202,19 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         //  1. check accessibility
         //  2. handle erroneous cases (e.g., multiple fields with same name)
         //  3. handle phantom fields
+    }
+
+    @Override
+    public JMethod dispatch(ReferenceType receiverType, MethodReference methodRef) {
+        JClass cls;
+        if (receiverType instanceof ClassType) {
+            cls = ((ClassType) receiverType).getJClass();
+        } else if (receiverType instanceof ArrayType) {
+            cls = getJREClass("java.lang.Object");
+        } else {
+            throw new AnalysisException(receiverType + " cannot be dispatched");
+        }
+        return dispatch(cls, methodRef);
     }
 
     @Override
