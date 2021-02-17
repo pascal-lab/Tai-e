@@ -13,13 +13,13 @@
 
 package pascal.taie.pta.env.nativemodel;
 
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
 
 public interface NativeModel {
 
-    static NativeModel getDefaultModel(ProgramManager pm) {
-        return new DefaultNativeModel(pm);
+    static NativeModel getDefaultModel(World world) {
+        return new DefaultNativeModel(world);
     }
 
     static NativeModel getDummyModel() {

@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.env.nativemodel;
 
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Statement;
 
@@ -26,19 +26,25 @@ import pascal.taie.pta.ir.Statement;
 class DefaultNativeModel implements NativeModel {
 
     private final MethodModel methodModel;
+
     private final CallModel callModel;
+
     private final FinalizerModel finalizerModel;
 
-    DefaultNativeModel(ProgramManager pm) {
-        methodModel = new MethodModel(pm);
-        callModel = new CallModel(pm);
-        finalizerModel = new FinalizerModel(pm);
+    DefaultNativeModel(World world) {
+        methodModel = new MethodModel(world.getClassHierarchy(),
+                world.getTypeManager());
+        callModel = new CallModel(world.getClassHierarchy(),
+                world.getTypeManager());
+        finalizerModel = new FinalizerModel(world.getClassHierarchy());
     }
 
     @Override
     public void process(JMethod method) {
         methodModel.process(method);
-        Statement[] statements = method.getStatements()
+        // Statements may be changed by native model, thus we process on a copy
+        Statement[] statements = method.getIR()
+                .getStatements()
                 .toArray(new Statement[0]);
         for (Statement s : statements) {
             s.accept(callModel);

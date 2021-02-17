@@ -78,11 +78,11 @@ class CallModel implements StatementVisitor {
         registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
             Variable src = call.getCallSite().getArg(0);
             Variable dest = call.getCallSite().getArg(2);
-            Type object = typeManager.getClassType("java.lang.Object");
-            Type arrayType = typeManager.getArrayType(object, 1);
+            Type objType = typeManager.getClassType("java.lang.Object");
+            Type arrayType = typeManager.getArrayType(objType, 1);
             Variable srcArray = newMockVariable(arrayType , method);
             Variable destArray = newMockVariable(arrayType , method);
-            Variable temp = newMockVariable(object, method);
+            Variable temp = newMockVariable(objType, method);
             // src/dest may point to non-array objects due to imprecision
             // of pointer analysis, thus we add cast statements to filter
             // out load/store operations on non-array objects.

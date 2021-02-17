@@ -13,6 +13,7 @@
 
 package pascal.taie.pta.env;
 
+import pascal.taie.java.World;
 import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
@@ -44,7 +45,7 @@ public class Environment {
         // initialization calls pm.getUniqueTypeByName(), which may
         // build IR for class initializer and trigger nativeModel.
         nativeModel = PTAOptions.get().enableNativeModel()
-                ? NativeModel.getDefaultModel(pm)
+                ? NativeModel.getDefaultModel(World.get())
                 : NativeModel.getDummyModel();
         strPool  = new StringConstantPool(pm);
         reflPool = new ReflectionObjectPool(pm);
