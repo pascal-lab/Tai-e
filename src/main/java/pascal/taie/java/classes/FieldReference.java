@@ -14,9 +14,18 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.HashUtils;
+import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.StringReps;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+@InternalCanonicalized
 public class FieldReference extends MemberReference {
+
+    private static final ConcurrentMap<Key, FieldReference> map =
+            new ConcurrentHashMap<>(4096);
 
     private final Type type;
 
@@ -26,9 +35,23 @@ public class FieldReference extends MemberReference {
      */
     private JField field;
 
-    public FieldReference(JClass declaringClass, String name, Type type) {
-        super(declaringClass, name);
-        this.type = type;
+    public static FieldReference get(
+            JClass declaringClass, String name, Type type) {
+        Key key = new Key(declaringClass, name, type);
+        return map.computeIfAbsent(key, FieldReference::new);
+    }
+
+    public static FieldReference get(JField field) {
+        return get(field.getDeclaringClass(), field.name, field.getType());
+    }
+
+    public static void clear() {
+        map.clear();
+    }
+
+    private FieldReference(Key key) {
+        super(key.declaringClass, key.name);
+        this.type = key.type;
     }
 
     public Type getType() {
@@ -46,5 +69,39 @@ public class FieldReference extends MemberReference {
     @Override
     public String toString() {
         return StringReps.getSignatureOf(this);
+    }
+
+    private static class Key {
+
+        private final JClass declaringClass;
+
+        private final String name;
+
+        private final Type type;
+
+        private Key(JClass declaringClass, String name, Type type) {
+            this.declaringClass = declaringClass;
+            this.name = name;
+            this.type = type;
+        }
+
+        @Override
+        public int hashCode() {
+            return HashUtils.hash(declaringClass, name, type);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Key key = (Key) o;
+            return declaringClass.equals(key.declaringClass) &&
+                    name.equals(key.name) &&
+                    type.equals(key.type);
+        }
     }
 }
