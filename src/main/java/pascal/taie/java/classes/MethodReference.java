@@ -14,11 +14,19 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.HashUtils;
+import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.StringReps;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+@InternalCanonicalized
 public class MethodReference extends MemberReference {
+
+    private static final ConcurrentMap<Key, MethodReference> map =
+            new ConcurrentHashMap<>(4096);
 
     private final List<Type> parameterTypes;
 
@@ -32,12 +40,33 @@ public class MethodReference extends MemberReference {
      */
     private JMethod method;
 
-    public MethodReference(JClass declaringClass, String name,
-                           List<Type> parameterTypes, Type returnType) {
-        super(declaringClass, name);
+    public static MethodReference get(
+            JClass declaringClass, String name,
+            List<Type> parameterTypes, Type returnType) {
+        Subsignature subsignature = Subsignature.get(
+                name, parameterTypes, returnType);
+        Key key = new Key(declaringClass, subsignature);
+        return map.computeIfAbsent(key, k ->
+                new MethodReference(k, name, parameterTypes, returnType));
+    }
+
+    public static MethodReference get(JMethod method) {
+        Key key = new Key(method.getDeclaringClass(), method.getSubsignature());
+        return map.computeIfAbsent(key, k ->
+                new MethodReference(k, method.getName(),
+                        method.getParameterTypes(), method.getReturnType()));
+    }
+
+    public static void clear() {
+        map.clear();
+    }
+
+    private MethodReference(
+            Key key, String name, List<Type> parameterTypes, Type returnType) {
+        super(key.declaringClass, name);
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
-        this.subsignature = Subsignature.get(name, parameterTypes, returnType);
+        this.subsignature = key.subsignature;
     }
 
     public List<Type> getParameterTypes() {
@@ -63,5 +92,35 @@ public class MethodReference extends MemberReference {
     @Override
     public String toString() {
         return StringReps.getSignatureOf(this);
+    }
+
+    private static class Key {
+
+        private final JClass declaringClass;
+
+        private final Subsignature subsignature;
+
+        private Key(JClass declaringClass, Subsignature subsignature) {
+            this.declaringClass = declaringClass;
+            this.subsignature = subsignature;
+        }
+
+        @Override
+        public int hashCode() {
+            return HashUtils.hash(declaringClass, subsignature);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Key key = (Key) o;
+            return declaringClass.equals(key.declaringClass) &&
+                    subsignature.equals(key.subsignature);
+        }
     }
 }

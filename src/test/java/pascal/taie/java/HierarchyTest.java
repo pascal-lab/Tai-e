@@ -229,7 +229,7 @@ public class HierarchyTest {
             String declaringClass, Type... parameterTypes) {
         JClass refJClass = hierarchy.getClass(refClass);
         JClass declaringJClass = hierarchy.getClass(declaringClass);
-        MethodReference methodRef = new MethodReference(refJClass, refName,
+        MethodReference methodRef = MethodReference.get(refJClass, refName,
                 Arrays.asList(parameterTypes), returnType);
         JMethod method = hierarchy.resolveMethod(methodRef);
         Assert.assertEquals(declaringJClass, method.getDeclaringClass());
