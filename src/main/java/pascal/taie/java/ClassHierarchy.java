@@ -55,7 +55,8 @@ public interface ClassHierarchy {
      * Get a JRE class by it name.
      *
      * @param name the class name
-     * @return the {@link JClass} for name if found; null if can't find the class.
+     * @return the {@link JClass} for name if found;
+     * null if can't find the class. TODO: return Optional<JClass>?
      */
     JClass getJREClass(String name);
 
@@ -64,7 +65,7 @@ public interface ClassHierarchy {
      *
      * @param methodSig of the method
      * @return the {@link JMethod} for signature if found;
-     * null if can't find the method.
+     * null if can't find the method. TODO: return Optional<JMethod>?
      * @throws pascal.taie.util.AnalysisException if signature is invalid.
      */
     JMethod getJREMethod(String methodSig);
@@ -74,7 +75,7 @@ public interface ClassHierarchy {
      *
      * @param fieldSig signature of the field
      * @return the {@link JField} for signature if found;
-     * null if can't find the field.
+     * null if can't find the field. TODO: return Optional<JField>?
      * @throws pascal.taie.util.AnalysisException if signature is invalid.
      */
     JField getJREField(String fieldSig);

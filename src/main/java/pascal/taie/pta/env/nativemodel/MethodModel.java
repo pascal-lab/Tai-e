@@ -14,18 +14,23 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
+import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.FieldReference;
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.classes.JClass;
+import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.Variable;
-import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.PTAOptions;
+import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.ArrayStore;
 import pascal.taie.pta.ir.Assign;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.StaticStore;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,27 +44,32 @@ import java.util.function.Consumer;
 
 class MethodModel {
 
-    private final ProgramManager pm;
+    private final ClassHierarchy hierarchy;
+
+    private final TypeManager typeManager;
+
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
-    private final Map<String, Consumer<JMethod>> handlers;
+    private final Map<JMethod, Consumer<IR>> handlers;
+
     /**
      * Counter to give each mock variable an unique name in each method.
      */
     private final ConcurrentMap<JMethod, AtomicInteger> counter;
 
-    MethodModel(ProgramManager pm) {
-        this.pm = pm;
+    MethodModel(ClassHierarchy hierarchy, TypeManager typeManager) {
+        this.hierarchy = hierarchy;
+        this.typeManager = typeManager;
         handlers = new HashMap<>();
         counter = new ConcurrentHashMap<>(0);
         initHandlers();
     }
 
     void process(JMethod method) {
-        Consumer<JMethod> handler = handlers.get(method.getSignature());
+        Consumer<IR> handler = handlers.get(method);
         if (handler != null) {
-            handler.accept(method);
+            handler.accept(method.getIR());
         }
     }
 
@@ -72,9 +82,9 @@ class MethodModel {
         // TODO: should check if the object is Cloneable.
         // TODO: should return a clone of the heap allocation (not
         //  identity). The behaviour implemented here is based on Soot.
-        registerHandler("<java.lang.Object: java.lang.Object clone()>", method ->
-            method.getReturnVariables().forEach(ret ->
-                    method.addStatement(new Assign(ret, method.getThis())))
+        registerHandler("<java.lang.Object: java.lang.Object clone()>", ir ->
+            ir.getReturnVariables().forEach(ret ->
+                    ir.addStatement(new Assign(ret, ir.getThis())))
         );
 
         // --------------------------------------------------------------------
@@ -86,38 +96,30 @@ class MethodModel {
         // reference queue. If we do not model this GC behavior,
         // Reference.pending points to nothing, and finalize() methods won't
         // get invoked.
-        registerHandler("<java.lang.ref.Reference: void <init>(java.lang.Object,java.lang.ref.ReferenceQueue)>", method -> {
-            Variable thisVar = method.getThis();
-            FieldReference pending = pm.getUniqueFieldBySignature(
-                    "<java.lang.ref.Reference: java.lang.ref.Reference pending>");
-            method.addStatement(new StaticStore(pending, thisVar));
+        registerHandler("<java.lang.ref.Reference: void <init>(java.lang.Object,java.lang.ref.ReferenceQueue)>", ir -> {
+            addStaticStore(ir, "<java.lang.ref.Reference: java.lang.ref.Reference pending>",
+                    ir.getThis());
         });
 
         // --------------------------------------------------------------------
         // java.lang.System
         // --------------------------------------------------------------------
         // <java.lang.System: void setIn0(java.io.InputStream)>
-        registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", method -> {
-            FieldReference systemIn = pm.getUniqueFieldBySignature(
-                    "<java.lang.System: java.io.InputStream in>");
-            method.getParam(0).ifPresent(param0 ->
-                    method.addStatement(new StaticStore(systemIn, param0)));
+        registerHandler("<java.lang.System: void setIn0(java.io.InputStream)>", ir -> {
+            addStaticStore(ir, "<java.lang.System: java.io.InputStream in>",
+                    ir.getParam(0));
         });
 
         // <java.lang.System: void setOut0(java.io.PrintStream)>
-        registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", method -> {
-            FieldReference systemOut = pm.getUniqueFieldBySignature(
-                    "<java.lang.System: java.io.PrintStream out>");
-            method.getParam(0).ifPresent(param0 ->
-                    method.addStatement(new StaticStore(systemOut, param0)));
+        registerHandler("<java.lang.System: void setOut0(java.io.PrintStream)>", ir -> {
+            addStaticStore(ir, "<java.lang.System: java.io.PrintStream out>",
+                    ir.getParam(0));
         });
 
         // <java.lang.System: void setErr0(java.io.PrintStream)>
-        registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", method -> {
-            FieldReference systemErr = pm.getUniqueFieldBySignature(
-                    "<java.lang.System: java.io.PrintStream err>");
-            method.getParam(0).ifPresent(param0 ->
-                    method.addStatement(new StaticStore(systemErr, param0)));
+        registerHandler("<java.lang.System: void setErr0(java.io.PrintStream)>", ir -> {
+            addStaticStore(ir, "<java.lang.System: java.io.PrintStream err>",
+                    ir.getParam(0));
         });
 
         // --------------------------------------------------------------------
@@ -130,14 +132,15 @@ class MethodModel {
         final String start = PTAOptions.get().jdkVersion() <= 4
                 ? "<java.lang.Thread: void start()>"
                 : "<java.lang.Thread: void start0()>";
-        registerHandler(start, method -> {
-            JMethod run = pm.getUniqueMethodBySignature(
+        registerHandler(start, ir -> {
+            JMethod run = hierarchy.getJREMethod(
                     "<java.lang.Thread: void run()>");
+            MethodReference runRef = MethodReference.get(run);
             MockCallSite runCallSite = new MockCallSite(CallKind.VIRTUAL,
-                    run, method.getThis(), Collections.emptyList(),
-                    method, "thread-run");
+                    runRef, ir.getThis(), Collections.emptyList(),
+                    ir.getMethod(), "thread-run");
             Call runCall = new Call(runCallSite, null);
-            method.addStatement(runCall);
+            ir.addStatement(runCall);
         });
 
         // --------------------------------------------------------------------
@@ -151,31 +154,34 @@ class MethodModel {
         // <java.io.FileSystem: java.io.FileSystem getFileSystem()>
         // This API is implemented in Java code since Java 7.
         if (PTAOptions.get().jdkVersion() <= 6) {
-            registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", method -> {
+            registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", ir -> {
                 concreteFileSystems.forEach(fsName -> {
-                    pm.tryGetUniqueTypeByName(fsName).ifPresent(fs -> {
-                        method.getReturnVariables().forEach(ret -> {
-                            Utils.modelAllocation(pm, method, fs, fsName, ret,
+                    JClass fs = hierarchy.getJREClass(fsName);
+                    if (fs != null) {
+                        ir.getReturnVariables().forEach(ret -> {
+                            Utils.modelAllocation(hierarchy, ir.getMethod(),
+                                    fs.getType(), fsName, ret,
                                     "<" + fs.getName() + ": void <init>()>",
                                     "init-file-system");
                         });
-                    });
+                    }
                 });
             });
         }
 
         // <java.io.*FileSystem: java.lang.String[] list(java.io.File)>
         concreteFileSystems.forEach(fsName -> {
-            registerHandler("<" + fsName + ": java.lang.String[] list(java.io.File)>", method -> {
-                Type string = pm.getUniqueTypeByName("java.lang.String");
+            registerHandler("<" + fsName + ": java.lang.String[] list(java.io.File)>", ir -> {
+                JMethod method = ir.getMethod();
+                Type string = typeManager.getClassType("java.lang.String");
                 EnvObj elem = new EnvObj("dir-element", string, method);
                 Variable temp = newMockVariable(string, method);
-                Type stringArray = pm.getUniqueTypeByName("java.lang.String[]");
+                Type stringArray = typeManager.getArrayType(string, 1);
                 EnvObj array = new EnvObj("element-array", stringArray, method);
-                method.getReturnVariables().forEach(ret -> {
-                    method.addStatement(new Allocation(temp, elem));
-                    method.addStatement(new Allocation(ret, array));
-                    method.addStatement(new ArrayStore(ret, temp));
+                ir.getReturnVariables().forEach(ret -> {
+                    ir.addStatement(new Allocation(temp, elem));
+                    ir.addStatement(new Allocation(ret, array));
+                    ir.addStatement(new ArrayStore(ret, temp));
                 });
             });
         });
@@ -184,19 +190,20 @@ class MethodModel {
         // sun.misc.Perf
         // --------------------------------------------------------------------
         // <sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>
-        registerHandler("<sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>", method -> {
-            method.getReturnVariables().forEach(ret -> {
-                Type type = pm.getUniqueTypeByName("java.nio.DirectByteBuffer");
-                Utils.modelAllocation(pm, method,
-                        type, type.getName(), ret,
+        registerHandler("<sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>", ir -> {
+            ir.getReturnVariables().forEach(ret -> {
+                Type buffer = typeManager.getClassType("java.nio.DirectByteBuffer");
+                Utils.modelAllocation(hierarchy, ir.getMethod(),
+                        buffer, buffer.getName(), ret,
                         "<java.nio.DirectByteBuffer: void <init>(int)>",
                         "create-long-buffer");
             });
         });
     }
 
-    private void registerHandler(String signature, Consumer<JMethod> handler) {
-        handlers.put(signature, handler);
+    private void registerHandler(String signature, Consumer<IR> handler) {
+        JMethod method = hierarchy.getJREMethod(signature);
+        handlers.put(method, handler);
     }
 
     private Variable newMockVariable(Type type, JMethod container) {
@@ -205,5 +212,11 @@ class MethodModel {
                 .getAndIncrement();
         return new MockVariable(type, container,
                 "@native-method-mock-var" + id);
+    }
+
+    private void addStaticStore(IR ir, String fieldSig, Variable from) {
+        JField field = hierarchy.getJREField(fieldSig);
+        FieldReference fieldRef = FieldReference.get(field);
+        ir.addStatement(new StaticStore(fieldRef, from));
     }
 }

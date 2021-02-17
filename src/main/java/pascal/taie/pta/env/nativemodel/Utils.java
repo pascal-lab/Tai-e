@@ -14,15 +14,17 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.ir.CallSite;
+import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.CallSite;
+import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.ir.Variable;
 
 import java.util.Collections;
 
@@ -34,7 +36,7 @@ class Utils {
     /**
      * Create allocation site and the corresponding constructor call site.
      * This method only supports non-argument constructor.
-     * @param pm the program manager
+     * @param hierarchy the class hierarchy
      * @param container method containing the allocation site
      * @param type type of the allocated object
      * @param name name of the allocated object
@@ -44,18 +46,19 @@ class Utils {
      * @param callId ID of the mock constructor call site
      */
     static void modelAllocation(
-            ProgramManager pm, JMethod container,
+            ClassHierarchy hierarchy, JMethod container,
             Type type, String name, Variable recv,
             String ctorSig, String callId) {
         Obj obj = new EnvObj(name, type, container);
-        container.addStatement(new Allocation(recv, obj));
-        JMethod ctor = pm.getUniqueMethodBySignature(ctorSig);
+        container.getIR().addStatement(new Allocation(recv, obj));
+        JMethod ctor = hierarchy.getJREMethod(ctorSig);
+        MethodReference ctorRef = MethodReference.get(ctor);
         MockCallSite initCallSite = new MockCallSite(
-                CallKind.SPECIAL, ctor,
+                CallKind.SPECIAL, ctorRef,
                 recv, Collections.emptyList(),
                 container, callId);
         Call initCall = new Call(initCallSite, null);
-        container.addStatement(initCall);
+        container.getIR().addStatement(initCall);
     }
 
     /**
