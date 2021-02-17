@@ -14,18 +14,21 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
+import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.StringReps;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Method name and descriptor.
  */
+@InternalCanonicalized
 public class Subsignature {
 
-    private static final Map<String, Subsignature> map = new HashMap<>();
+    private static final ConcurrentMap<String, Subsignature> map =
+            new ConcurrentHashMap<>();
 
     public static final Subsignature CLINIT = get("void <clinit>()");
 
