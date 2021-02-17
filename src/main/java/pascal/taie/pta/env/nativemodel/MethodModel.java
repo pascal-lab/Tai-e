@@ -16,7 +16,6 @@ package pascal.taie.pta.env.nativemodel;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
@@ -214,7 +213,6 @@ class MethodModel {
 
     private void addStaticStore(IR ir, String fieldSig, Variable from) {
         JField field = hierarchy.getJREField(fieldSig);
-        FieldReference fieldRef = FieldReference.get(field);
-        ir.addStatement(new StaticStore(fieldRef, from));
+        ir.addStatement(new StaticStore(field.getRef(), from));
     }
 }

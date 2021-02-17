@@ -41,10 +41,6 @@ public class FieldReference extends MemberReference {
         return map.computeIfAbsent(key, FieldReference::new);
     }
 
-    public static FieldReference get(JField field) {
-        return get(field.getDeclaringClass(), field.name, field.getType());
-    }
-
     public static void clear() {
         map.clear();
     }

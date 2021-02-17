@@ -35,6 +35,13 @@ public class JField extends ClassMember {
 
     // TODO: more modifiers
 
+    /**
+     * @return the {@link FieldReference} pointing to this field.
+     */
+    public FieldReference getRef() {
+        return FieldReference.get(declaringClass, name, type);
+    }
+
     @Override
     public String toString() {
         return StringReps.getSignatureOf(this);
