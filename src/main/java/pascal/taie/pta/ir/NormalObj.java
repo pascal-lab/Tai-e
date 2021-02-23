@@ -16,7 +16,6 @@ package pascal.taie.pta.ir;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
-import soot.jimple.AssignStmt;
 
 import java.util.Optional;
 
@@ -78,7 +77,7 @@ public class NormalObj extends AbstractObj {
         sb.append("new ")
                 .append(type)
                 .append('/')
-                .append(allocation.getJavaSourceStartLineNumber());
+                .append(allocation.getStartLineNumber());
         return sb.toString();
     }
 }

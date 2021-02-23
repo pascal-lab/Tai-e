@@ -25,6 +25,9 @@ public class Allocation extends AbstractStatement {
     public Allocation(Variable var, Obj object) {
         this.var = var;
         this.object = object;
+        if (object instanceof NormalObj) {
+            ((NormalObj) object).setAllocation(this);
+        }
     }
 
     public Variable getVar() {
