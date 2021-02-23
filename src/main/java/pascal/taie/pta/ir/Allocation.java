@@ -16,7 +16,7 @@ package pascal.taie.pta.ir;
 /**
  * Represents a new statement: var = new T;
  */
-public class Allocation implements Statement {
+public class Allocation extends AbstractStatement {
 
     private final Variable var;
 

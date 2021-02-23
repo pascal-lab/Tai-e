@@ -16,7 +16,7 @@ package pascal.taie.pta.ir;
 /**
  * Represents an array store: base[*] = from.
  */
-public class ArrayStore implements Statement {
+public class ArrayStore extends AbstractStatement {
 
     private final Variable base;
 

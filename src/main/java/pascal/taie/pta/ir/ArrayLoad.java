@@ -16,7 +16,7 @@ package pascal.taie.pta.ir;
 /**
  * Represents an array load: to = base[*];
  */
-public class ArrayLoad implements Statement {
+public class ArrayLoad extends AbstractStatement {
 
     private final Variable to;
 

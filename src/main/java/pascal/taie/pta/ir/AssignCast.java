@@ -15,7 +15,7 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.java.types.Type;
 
-public class AssignCast implements Statement {
+public class AssignCast extends AbstractStatement {
 
 
     private final Variable to;

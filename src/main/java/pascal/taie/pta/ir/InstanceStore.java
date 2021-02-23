@@ -18,7 +18,7 @@ import pascal.taie.java.classes.JField;
 /**
  * Represents an instance store: base.field = from.
  */
-public class InstanceStore implements Statement {
+public class InstanceStore extends AbstractStatement {
 
     private final Variable base;
 

@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Represents a call statement r = o.m()/r = T.m();
  */
-public class Call implements Statement {
+public class Call extends AbstractStatement {
 
     private final CallSite callSite;
 

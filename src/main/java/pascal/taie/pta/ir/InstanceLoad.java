@@ -18,7 +18,7 @@ import pascal.taie.java.classes.JField;
 /**
  * Represents an instance load: to = base.field.
  */
-public class InstanceLoad implements Statement {
+public class InstanceLoad extends AbstractStatement {
 
     private final Variable to;
 

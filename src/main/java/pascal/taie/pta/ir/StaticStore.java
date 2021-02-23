@@ -18,7 +18,7 @@ import pascal.taie.java.classes.FieldReference;
 /**
  * Represents a static store: T.f = from.
  */
-public class StaticStore implements Statement {
+public class StaticStore extends AbstractStatement {
 
     private final FieldReference fieldRef;
 

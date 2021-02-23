@@ -18,7 +18,7 @@ import pascal.taie.java.classes.FieldReference;
 /**
  * Represents a static load: to = T.field.
  */
-public class StaticLoad implements Statement {
+public class StaticLoad extends AbstractStatement {
 
     private final Variable to;
 

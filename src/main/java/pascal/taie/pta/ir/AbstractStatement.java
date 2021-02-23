@@ -1,5 +1,5 @@
 /*
- * Tai-e - A Program Analysis Framework for Java
+ * Tai-e: A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -13,12 +13,16 @@
 
 package pascal.taie.pta.ir;
 
-public interface Statement {
+abstract class AbstractStatement implements Statement {
 
-    void accept(StatementVisitor visitor);
+    private int startLineNumber = -1;
 
-    /**
-     * @return the start line number in source code if available, otherwise -1.
-     */
-    int getStartLineNumber();
+    @Override
+    public int getStartLineNumber() {
+        return startLineNumber;
+    }
+
+    public void setStartLineNumber(int startLine) {
+        this.startLineNumber = startLine;
+    }
 }

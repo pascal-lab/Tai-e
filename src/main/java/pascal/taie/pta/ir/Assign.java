@@ -16,7 +16,7 @@ package pascal.taie.pta.ir;
 /**
  * Represents a local assignment: to = from;
  */
-public class Assign implements Statement {
+public class Assign extends AbstractStatement {
 
     private final Variable to;
 
