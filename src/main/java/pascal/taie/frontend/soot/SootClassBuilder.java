@@ -114,7 +114,7 @@ public class SootClassBuilder implements JClassBuilder {
         }
     }
 
-    private Type convertType(soot.Type sootType) {
+    Type convertType(soot.Type sootType) {
         if (sootType instanceof PrimType) {
             if (sootType instanceof ByteType) {
                 return typeManager.getByteType();
@@ -146,17 +146,17 @@ public class SootClassBuilder implements JClassBuilder {
         throw new SootFrontendException("Cannot convert soot Type: " + sootType);
     }
 
-    private JClass convertClass(SootClass sootClass) {
+    JClass convertClass(SootClass sootClass) {
         return loader.loadClass(sootClass.getName());
     }
 
-    private JField convertField(SootField sootField) {
+    JField convertField(SootField sootField) {
         return new JField(jclass, sootField.getName(),
                 Modifiers.convert(sootField.getModifiers()),
                 convertType(sootField.getType()));
     }
 
-    private JMethod convertMethod(SootMethod sootMethod) {
+    JMethod convertMethod(SootMethod sootMethod) {
         List<Type> paramTypes = sootMethod.getParameterTypes()
                 .stream()
                 .map(this::convertType)
