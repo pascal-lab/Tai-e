@@ -22,10 +22,17 @@ import java.util.List;
 
 class DefaultCallSite extends AbstractCallSite {
 
-    private final Stmt stmt;
-
-    public DefaultCallSite(Stmt stmt, CallKind kind) {
+    public DefaultCallSite(CallKind kind) {
         super(kind);
+    }
+
+    /**
+     * Temporarily holds this field for compatibility with JimpleCallGraph.
+     * TODO: get rid of stmt.
+     */
+    private Stmt stmt;
+
+    void setSootStmt(Stmt stmt) {
         this.stmt = stmt;
     }
 
@@ -54,20 +61,21 @@ class DefaultCallSite extends AbstractCallSite {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DefaultCallSite that = (DefaultCallSite) o;
-        return stmt.equals(that.stmt);
+        return call.equals(that.call);
     }
 
     @Override
     public int hashCode() {
-        return stmt.hashCode();
+        return call.hashCode();
     }
 
     @Override
     public String toString() {
+        // TODO: construct invokeRep without stmt.
         String invoke = stmt.getInvokeExpr().toString();
         String invokeRep = invoke.substring(invoke.indexOf(' ') + 1);
         return containerMethod.getDeclaringClass()
-                + "(L" + stmt.getJavaSourceStartLineNumber() + "):"
+                + "(L" + call.getStartLineNumber() + "):"
                 + invokeRep;
     }
 }
