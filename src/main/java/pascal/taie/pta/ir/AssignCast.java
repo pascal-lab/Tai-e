@@ -51,11 +51,6 @@ public class AssignCast implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.ASSIGN_CAST;
-    }
-
-    @Override
     public String toString() {
         return to + " = (" + type + ") " + from;
     }

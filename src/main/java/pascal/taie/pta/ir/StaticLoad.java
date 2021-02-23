@@ -43,11 +43,6 @@ public class StaticLoad implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.STATIC_LOAD;
-    }
-
-    @Override
     public String toString() {
         return to + " = " + fieldRef;
     }

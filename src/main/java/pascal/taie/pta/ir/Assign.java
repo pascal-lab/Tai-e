@@ -41,11 +41,6 @@ public class Assign implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.ASSIGN;
-    }
-
-    @Override
     public String toString() {
         return to + " = " + from;
     }

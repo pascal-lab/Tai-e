@@ -15,24 +15,5 @@ package pascal.taie.pta.ir;
 
 public interface Statement {
 
-    Kind getKind();
-
     void accept(StatementVisitor visitor);
-
-    enum Kind {
-        ALLOCATION,
-        ASSIGN,
-        ASSIGN_CAST,
-
-        INSTANCE_LOAD,
-        INSTANCE_STORE,
-
-        ARRAY_LOAD,
-        ARRAY_STORE,
-
-        STATIC_LOAD,
-        STATIC_STORE,
-
-        CALL,
-    }
 }

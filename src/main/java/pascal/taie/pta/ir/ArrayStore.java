@@ -42,11 +42,6 @@ public class ArrayStore implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.ARRAY_STORE;
-    }
-
-    @Override
     public String toString() {
         return base + "[*] = " + from;
     }

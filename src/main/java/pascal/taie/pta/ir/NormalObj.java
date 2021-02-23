@@ -22,14 +22,17 @@ import java.util.Optional;
 
 public class NormalObj extends AbstractObj {
 
-    private final AssignStmt allocation;
+    private Allocation allocation;
 
     private final JMethod containerMethod;
 
-    NormalObj(AssignStmt allocation, Type type, JMethod containerMethod) {
+    NormalObj(Type type, JMethod containerMethod) {
         super(type);
-        this.allocation = allocation;
         this.containerMethod = containerMethod;
+    }
+
+    public void setAllocation(Allocation allocation) {
+        this.allocation = allocation;
     }
 
     @Override
@@ -38,7 +41,7 @@ public class NormalObj extends AbstractObj {
     }
 
     @Override
-    public AssignStmt getAllocation() {
+    public Allocation getAllocation() {
         return allocation;
     }
 

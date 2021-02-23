@@ -43,11 +43,6 @@ public class StaticStore implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.STATIC_STORE;
-    }
-
-    @Override
     public String toString() {
         return fieldRef + " = " + from;
     }

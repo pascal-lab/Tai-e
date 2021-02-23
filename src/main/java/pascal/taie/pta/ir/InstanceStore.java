@@ -51,11 +51,6 @@ public class InstanceStore implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.INSTANCE_STORE;
-    }
-
-    @Override
     public String toString() {
         return base + "." + field + " = " + from;
     }

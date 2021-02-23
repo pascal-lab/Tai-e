@@ -42,11 +42,6 @@ public class ArrayLoad implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.ARRAY_LOAD;
-    }
-
-    @Override
     public String toString() {
         return to + " = " + base + "[*]";
     }

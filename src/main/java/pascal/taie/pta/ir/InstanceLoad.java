@@ -51,11 +51,6 @@ public class InstanceLoad implements Statement {
     }
 
     @Override
-    public Kind getKind() {
-        return Kind.INSTANCE_LOAD;
-    }
-
-    @Override
     public String toString() {
         return to + " = " + base + "." + field;
     }
