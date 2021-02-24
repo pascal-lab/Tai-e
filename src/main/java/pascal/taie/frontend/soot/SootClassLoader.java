@@ -30,6 +30,8 @@ public class SootClassLoader implements JClassLoader {
 
     private final ClassHierarchy hierarchy;
 
+    private Converter converter;
+
     private final Map<String, JClass> classes = new HashMap<>(1024);
 
     public SootClassLoader(Scene scene, ClassHierarchy hierarchy) {
@@ -49,7 +51,8 @@ public class SootClassLoader implements JClassLoader {
             // TODO: confirm if this API is suitable
             SootClass sootClass = scene.loadClassAndSupport(name);
             if (sootClass != null) {
-                jclass = new SootClassBuilder(this, sootClass).build();
+                jclass = new SootClassBuilder(this, converter, sootClass)
+                        .build();
                 classes.put(name, jclass);
                 hierarchy.addClass(jclass);
             }
@@ -61,5 +64,9 @@ public class SootClassLoader implements JClassLoader {
     @Override
     public Collection<JClass> getLoadedClasses() {
         return classes.values();
+    }
+
+    void setConverter(Converter converter) {
+        this.converter = converter;
     }
 }

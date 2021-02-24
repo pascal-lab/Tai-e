@@ -66,6 +66,7 @@ public class JMethod extends ClassMember {
     }
 
     public IR getIR() {
+        assert !isAbstract();
         if (ir == null) {
             ir = World.get().getIRBuilder().build(this);
         }

@@ -14,6 +14,7 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.WorldBuilder;
 import pascal.taie.java.classes.ClassHierarchyImpl;
@@ -31,7 +32,10 @@ public class SootWorldBuilder implements WorldBuilder {
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);
-        world.setTypeManager(new TypeManagerImpl(hierarchy));
+        TypeManager typeManager = new TypeManagerImpl(hierarchy);
+        world.setTypeManager(typeManager);
+        Converter converter = new Converter(loader, typeManager);
+        loader.setConverter(converter);
         World.set(world);
         buildClasses(hierarchy, scene);
         return world;

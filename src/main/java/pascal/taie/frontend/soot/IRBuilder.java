@@ -26,6 +26,8 @@ import pascal.taie.pta.ir.ArrayStore;
 import pascal.taie.pta.ir.Assign;
 import pascal.taie.pta.ir.AssignCast;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.DefaultIR;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.InstanceLoad;
 import pascal.taie.pta.ir.InstanceStore;
 import pascal.taie.pta.ir.Obj;
@@ -80,7 +82,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Jimple-based pointer analysis IR builder.
  */
-class IRBuilder {
+class IRBuilder implements pascal.taie.java.IRBuilder {
 
     private final ConcurrentMap<soot.Type, Type> types
             = new ConcurrentHashMap<>();
@@ -94,13 +96,16 @@ class IRBuilder {
     private final ConcurrentMap<SootField, JField> fields
             = new ConcurrentHashMap<>();
 
+    private final Converter converter;
+
     private final NewVariableManager varManager = new NewVariableManager();
 
     private final ClassDumper classDumper = new ClassDumper();
 
     private final Environment env;
 
-    IRBuilder(Environment env) {
+    IRBuilder(Converter converter, Environment env) {
+        this.converter = converter;
         this.env = env;
     }
 
@@ -139,6 +144,12 @@ class IRBuilder {
         timer.stop();
         System.out.println(timer);
         System.out.println("#methods: " + methods.size());
+    }
+
+    @Override
+    public IR build(JMethod method) {
+        DefaultIR ir = new DefaultIR(method);
+        throw new UnsupportedOperationException();
     }
 
     JimpleMethod getMethod(SootMethod sootMethod) {

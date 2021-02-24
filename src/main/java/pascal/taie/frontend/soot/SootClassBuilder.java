@@ -13,57 +13,34 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.Modifier;
 import pascal.taie.java.types.ClassType;
-import pascal.taie.java.types.Type;
-import soot.ArrayType;
-import soot.BooleanType;
-import soot.ByteType;
-import soot.CharType;
-import soot.DoubleType;
-import soot.FloatType;
-import soot.IntType;
-import soot.LongType;
-import soot.PrimType;
-import soot.RefType;
-import soot.ShortType;
 import soot.SootClass;
-import soot.SootField;
-import soot.SootMethod;
-import soot.VoidType;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class SootClassBuilder implements JClassBuilder {
 
     private final SootClassLoader loader;
 
+    private final Converter converter;
+
     private final SootClass sootClass;
 
-    private JClass jclass;
-
-    private final TypeManager typeManager;
-
-    public SootClassBuilder(SootClassLoader loader, SootClass sootClass) {
+    SootClassBuilder(SootClassLoader loader, Converter converter, SootClass sootClass) {
         this.loader = loader;
+        this.converter = converter;
         this.sootClass = sootClass;
-        this.typeManager = World.get().getTypeManager();
     }
 
     @Override
     public JClass build() {
-        jclass = new JClass(loader, sootClass.getName());
+        JClass jclass = new JClass(loader, sootClass.getName());
         jclass.build(this);
         return jclass;
     }
@@ -75,7 +52,7 @@ public class SootClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
-        return typeManager.getClassType(loader, sootClass.getName());
+        return (ClassType) converter.convertType(sootClass.getType());
     }
 
     @Override
@@ -83,87 +60,25 @@ public class SootClassBuilder implements JClassBuilder {
         if (sootClass.getName().equals("java.lang.Object")) {
             return null;
         } else {
-            return convertClass(sootClass.getSuperclass());
+            return converter.convertClass(sootClass.getSuperclass());
         }
     }
 
     @Override
     public Collection<JClass> getInterfaces() {
-        return convertCollection(sootClass.getInterfaces(),
-                this::convertClass);
+        return converter.convertCollection(sootClass.getInterfaces(),
+                converter::convertClass);
     }
 
     @Override
     public Collection<JField> getDeclaredFields() {
-        return convertCollection(sootClass.getFields(), this::convertField);
+        return converter.convertCollection(sootClass.getFields(),
+                converter::convertField);
     }
 
     @Override
     public Collection<JMethod> getDeclaredMethods() {
-        return convertCollection(sootClass.getMethods(), this::convertMethod);
-    }
-
-    private <S, T> Collection<T> convertCollection(
-            Collection<S> collection, Function<S, T> mapper) {
-        if (collection.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return collection.stream()
-                    .map(mapper)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    Type convertType(soot.Type sootType) {
-        if (sootType instanceof PrimType) {
-            if (sootType instanceof ByteType) {
-                return typeManager.getByteType();
-            } else if (sootType instanceof ShortType) {
-                return typeManager.getShortType();
-            } else if (sootType instanceof IntType) {
-                return typeManager.getIntType();
-            } else if (sootType instanceof LongType) {
-                return typeManager.getLongType();
-            } else if (sootType instanceof FloatType) {
-                return typeManager.getFloatType();
-            } else if (sootType instanceof DoubleType) {
-                return typeManager.getDoubleType();
-            } else if (sootType instanceof CharType) {
-                return typeManager.getCharType();
-            } else if (sootType instanceof BooleanType) {
-                return typeManager.getBooleanType();
-            }
-        } else if (sootType instanceof RefType) {
-            return typeManager.getClassType(loader, sootType.toString());
-        } else if (sootType instanceof VoidType) {
-            return typeManager.getVoidType();
-        } else if (sootType instanceof ArrayType) {
-            ArrayType arrayType = (ArrayType) sootType;
-            return typeManager.getArrayType(
-                    convertType(arrayType.baseType),
-                    arrayType.numDimensions);
-        }
-        throw new SootFrontendException("Cannot convert soot Type: " + sootType);
-    }
-
-    JClass convertClass(SootClass sootClass) {
-        return loader.loadClass(sootClass.getName());
-    }
-
-    JField convertField(SootField sootField) {
-        return new JField(jclass, sootField.getName(),
-                Modifiers.convert(sootField.getModifiers()),
-                convertType(sootField.getType()));
-    }
-
-    JMethod convertMethod(SootMethod sootMethod) {
-        List<Type> paramTypes = sootMethod.getParameterTypes()
-                .stream()
-                .map(this::convertType)
-                .collect(Collectors.toList());
-        Type returnType = convertType(sootMethod.getReturnType());
-        return new JMethod(jclass, sootMethod.getName(),
-                Modifiers.convert(sootMethod.getModifiers()),
-                paramTypes, returnType);
+        return converter.convertCollection(sootClass.getMethods(),
+                converter::convertMethod);
     }
 }
