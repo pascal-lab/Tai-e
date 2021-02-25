@@ -14,6 +14,7 @@
 package pascal.taie.pta.ir;
 
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,9 +31,9 @@ public class DefaultIR implements IR {
 
     private Variable thisVar;
 
-    private List<Variable> params;
+    private List<Variable> params = Collections.emptyList();
 
-    private Set<Variable> returnVars;
+    private Set<Variable> returnVars = Collections.emptySet();
 
     private List<Statement> statements = Collections.emptyList();
 
@@ -75,6 +76,13 @@ public class DefaultIR implements IR {
 
     public void setReturnVars(Set<Variable> returnVars) {
         this.returnVars = returnVars;
+    }
+
+    public void addReturnVar(Variable returnVar) {
+        if (returnVars.isEmpty()) {
+            returnVars = new HybridArrayHashSet<>();
+        }
+        returnVars.add(returnVar);
     }
 
     @Override

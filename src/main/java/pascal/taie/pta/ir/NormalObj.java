@@ -25,7 +25,7 @@ public class NormalObj extends AbstractObj {
 
     private final JMethod containerMethod;
 
-    NormalObj(Type type, JMethod containerMethod) {
+    public NormalObj(Type type, JMethod containerMethod) {
         super(type);
         this.containerMethod = containerMethod;
     }
