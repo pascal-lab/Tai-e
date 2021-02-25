@@ -14,10 +14,12 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.java.TypeManager;
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
 import soot.ArrayType;
 import soot.BooleanType;
@@ -32,12 +34,16 @@ import soot.RefType;
 import soot.ShortType;
 import soot.SootClass;
 import soot.SootField;
+import soot.SootFieldRef;
 import soot.SootMethod;
+import soot.SootMethodRef;
 import soot.VoidType;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,6 +55,16 @@ class Converter {
     private final JClassLoader loader;
 
     private final TypeManager typeManager;
+
+    private final Map<SootField, JField> fieldMap = new HashMap<>();
+
+    private final Map<SootMethod, JMethod> methodMap = new HashMap<>();
+
+    private final Map<SootFieldRef, FieldReference> fieldRefMap
+            = new HashMap<>();
+
+    private final Map<SootMethodRef, MethodReference> methodRefMap
+            = new HashMap<>();
 
     public Converter(JClassLoader loader, TypeManager typeManager) {
         this.loader = loader;
@@ -92,22 +108,45 @@ class Converter {
     }
 
     JField convertField(SootField sootField) {
-        return new JField(convertClass(sootField.getDeclaringClass()),
-                sootField.getName(),
-                Modifiers.convert(sootField.getModifiers()),
-                convertType(sootField.getType()));
+        return fieldMap.computeIfAbsent(sootField, f ->
+                new JField(convertClass(sootField.getDeclaringClass()),
+                        sootField.getName(),
+                        Modifiers.convert(sootField.getModifiers()),
+                        convertType(sootField.getType())));
     }
 
     JMethod convertMethod(SootMethod sootMethod) {
-        List<Type> paramTypes = sootMethod.getParameterTypes()
-                .stream()
-                .map(this::convertType)
-                .collect(Collectors.toList());
-        Type returnType = convertType(sootMethod.getReturnType());
-        return new JMethod(convertClass(sootMethod.getDeclaringClass()),
-                sootMethod.getName(),
-                Modifiers.convert(sootMethod.getModifiers()),
-                paramTypes, returnType);
+        return methodMap.computeIfAbsent(sootMethod, m -> {
+            List<Type> paramTypes = m.getParameterTypes()
+                    .stream()
+                    .map(this::convertType)
+                    .collect(Collectors.toList());
+            Type returnType = convertType(m.getReturnType());
+            return new JMethod(convertClass(m.getDeclaringClass()),
+                    m.getName(),
+                    Modifiers.convert(m.getModifiers()),
+                    paramTypes, returnType);
+        });
+    }
+
+    FieldReference convertFieldRef(SootFieldRef sootFieldRef) {
+        return fieldRefMap.computeIfAbsent(sootFieldRef, ref -> {
+            JClass cls = convertClass(ref.declaringClass());
+            Type type = convertType(ref.type());
+            return FieldReference.get(cls, ref.name(), type);
+        });
+    }
+
+    MethodReference convertMethodRef(SootMethodRef sootMethodRef) {
+        return methodRefMap.computeIfAbsent(sootMethodRef, ref -> {
+            JClass cls = convertClass(ref.getDeclaringClass());
+            List<Type> paramTypes = ref.getParameterTypes()
+                    .stream()
+                    .map(this::convertType)
+                    .collect(Collectors.toList());
+            Type returnType = convertType(ref.getReturnType());
+            return MethodReference.get(cls, ref.getName(), paramTypes, returnType);
+        });
     }
 
     <S, T> Collection<T> convertCollection(
