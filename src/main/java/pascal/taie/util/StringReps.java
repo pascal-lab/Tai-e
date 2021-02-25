@@ -41,7 +41,7 @@ public class StringReps {
 
     public static String getSignatureOf(JMethod method) {
         return getMethodSignature(method.getDeclaringClass(), method.getName(),
-                method.getParameterTypes(), method.getReturnType());
+                method.getParamTypes(), method.getReturnType());
     }
 
     public static String getSignatureOf(MethodReference methodRef) {
@@ -82,7 +82,7 @@ public class StringReps {
 
     public static String getSubsignatureOf(JMethod method) {
         return toSubsignature(method.getName(),
-                method.getParameterTypes(), method.getReturnType());
+                method.getParamTypes(), method.getReturnType());
     }
 
     public static String getSubsignatureOf(MethodReference methodRef) {

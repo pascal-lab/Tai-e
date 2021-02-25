@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class JMethod extends ClassMember {
 
-    private final List<Type> parameterTypes;
+    private final List<Type> paramTypes;
 
     private final Type returnType;
 
@@ -33,12 +33,12 @@ public class JMethod extends ClassMember {
     private IR ir;
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
-                   List<Type> parameterTypes, Type returnType) {
+                   List<Type> paramTypes, Type returnType) {
         super(declaringClass, name, modifiers);
-        this.parameterTypes = Collections.unmodifiableList(parameterTypes);
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
         this.returnType = returnType;
         this.signature = StringReps.getSignatureOf(this);
-        this.subsignature = Subsignature.get(name, parameterTypes, returnType);
+        this.subsignature = Subsignature.get(name, paramTypes, returnType);
     }
 
     public boolean isAbstract() {
@@ -49,12 +49,16 @@ public class JMethod extends ClassMember {
         return Modifier.hasNative(modifiers);
     }
 
-    public Type getParameterType(int i) {
-        return parameterTypes.get(i);
+    public int getParamCount() {
+        return paramTypes.size();
     }
 
-    public List<Type> getParameterTypes() {
-        return parameterTypes;
+    public Type getParamType(int i) {
+        return paramTypes.get(i);
+    }
+
+    public List<Type> getParamTypes() {
+        return paramTypes;
     }
 
     public Type getReturnType() {
@@ -78,6 +82,6 @@ public class JMethod extends ClassMember {
      */
     public MethodReference getRef() {
         return MethodReference.get(declaringClass, name,
-                parameterTypes, returnType);
+                paramTypes, returnType);
     }
 }

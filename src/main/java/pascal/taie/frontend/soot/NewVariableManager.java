@@ -43,7 +43,7 @@ class NewVariableManager {
 
     Variable getParameter(JMethod container, int index) {
         return newVariable("@parameter" + index,
-                container.getParameterType(index), container);
+                container.getParamType(index), container);
     }
 
     Variable getReturnVariable(JMethod container) {
