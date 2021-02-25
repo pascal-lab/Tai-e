@@ -36,6 +36,7 @@ import pascal.taie.pta.ir.InstanceLoad;
 import pascal.taie.pta.ir.InstanceStore;
 import pascal.taie.pta.ir.NormalObj;
 import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.StaticLoad;
 import pascal.taie.pta.ir.StaticStore;
 import pascal.taie.pta.ir.Variable;
@@ -244,7 +245,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
                 || right instanceof NewArrayExpr) {
             // x = new T();
             // x = new T[];
-            ir.addStatement(new Allocation(lhs, createObject(stmt, method)));
+            addStatement(ir, new Allocation(lhs, createObject(stmt, method)), stmt);
         } else if (right instanceof NewMultiArrayExpr) {
             // x = new T[][]...;
             newMultiArray(stmt, lhs, (ArrayType) right.getType(), method, ir);
@@ -252,26 +253,27 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
             // x = null;
             // ignore
         } else if (isConstant(right)) {
-            ir.addStatement(new Allocation(lhs, getConstantObj(right)));
+            addStatement(ir, new Allocation(lhs, getConstantObj(right)), stmt);
         } else if (right instanceof Local) {
             // x = y;
-            ir.addStatement(new Assign(lhs, getVariable((Local) right, method)));
+            addStatement(ir, new Assign(lhs, getVariable((Local) right, method)), stmt);
         } else if (right instanceof CastExpr) {
             // x = (T) y;
             CastExpr cast = (CastExpr) right;
             Value op = cast.getOp();
             if (op instanceof Local) {
-                ir.addStatement(new AssignCast(lhs,
-                        converter.convertType(cast.getCastType()),
-                        getVariable((Local) cast.getOp(), method)
-                ));
+                addStatement(ir, new AssignCast(lhs,
+                                converter.convertType(cast.getCastType()),
+                                getVariable((Local) cast.getOp(), method)),
+                        stmt);
             }
             // ignore other casting cases
         } else if (right instanceof PhiExpr) {
             // x = phi(v1, ..., vn)
             for (Value from : ((PhiExpr) right).getValues()) {
-                ir.addStatement(new Assign(lhs,
-                        getVariable((Local) from, method)));
+                addStatement(ir,
+                        new Assign(lhs, getVariable((Local) from, method)),
+                        stmt);
             }
         } else if (right instanceof InstanceFieldRef) {
             // x = y.f;
@@ -279,20 +281,20 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
             Variable base = getVariable((Local) ref.getBase(), method);
             InstanceLoad load = new InstanceLoad(lhs, base,
                     converter.convertFieldRef(ref.getFieldRef()));
-            ir.addStatement(load);
+            addStatement(ir, load, stmt);
         } else if (right instanceof ArrayRef) {
             // x = y[i];
             // TODO: consider constant index?
             ArrayRef ref = (ArrayRef) right;
             Variable base = getVariable((Local) ref.getBase(), method);
             ArrayLoad load = new ArrayLoad(lhs, base);
-            ir.addStatement(load);
+            addStatement(ir, load, stmt);
         } else if (right instanceof StaticFieldRef) {
             // x = T.f;
             StaticFieldRef ref = (StaticFieldRef) right;
             StaticLoad load = new StaticLoad(lhs,
                     converter.convertFieldRef(ref.getFieldRef()));
-            ir.addStatement(load);
+            addStatement(ir, load, stmt);
         } else {
             throw new AnalysisException("Unhandled case: " + right);
         }
@@ -317,20 +319,20 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
             Variable base = getVariable((Local) ref.getBase(), method);
             InstanceStore store = new InstanceStore(base,
                     converter.convertFieldRef(ref.getFieldRef()), rhs);
-            ir.addStatement(store);
+            addStatement(ir, store, stmt);
         } else if (left instanceof StaticFieldRef) {
             // T.f = x;
             StaticFieldRef ref = (StaticFieldRef) left;
             StaticStore store = new StaticStore(
                     converter.convertFieldRef(ref.getFieldRef()), rhs);
-            ir.addStatement(store);
+            addStatement(ir, store, stmt);
         } else if (left instanceof ArrayRef) {
             // x[i] = y;
             // TODO: consider constant index?
             ArrayRef ref = (ArrayRef) left;
             Variable base = getVariable((Local) ref.getBase(), method);
             ArrayStore store = new ArrayStore(base, rhs);
-            ir.addStatement(store);
+            addStatement(ir, store, stmt);
         } else {
             throw new AnalysisException("Unhandled case: " + left);
         }
@@ -350,7 +352,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
                 : null;
         CallSite callSite = createCallSite(stmt, method, ir);
         Call call = new Call(callSite, lhs);
-        ir.addStatement(call);
+        addStatement(ir, call, stmt);
     }
 
     private CallSite createCallSite(Stmt stmt, JMethod container, DefaultIR ir) {
@@ -408,6 +410,11 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         // currently ignore throw statements
     }
 
+    private void addStatement(DefaultIR ir, Statement stmt, Stmt sootStmt) {
+        stmt.setStartLineNumber(sootStmt.getJavaSourceStartLineNumber());
+        ir.addStatement(stmt);
+    }
+    
     private Variable getVariable(Local var, JMethod container) {
         return vars.computeIfAbsent(container, (m) -> new LinkedHashMap<>())
                 .computeIfAbsent(var, (v) -> {
@@ -470,13 +477,13 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     private void newMultiArray(AssignStmt alloc, Variable lhs, ArrayType arrayType,
                                JMethod container, DefaultIR ir) {
         Obj array = new NormalObj(converter.convertType(arrayType), container);
-        ir.addStatement(new Allocation(lhs, array));
+        addStatement(ir, new Allocation(lhs, array), alloc);
         soot.Type elemType = arrayType.getElementType();
         if (elemType instanceof ArrayType) {
             Variable temp = varManager.newTempVariable("array$",
                     converter.convertType(arrayType), container);
             newMultiArray(alloc, temp, (ArrayType) elemType, container, ir);
-            ir.addStatement(new ArrayStore(lhs, temp));
+            addStatement(ir, new ArrayStore(lhs, temp), alloc);
         }
     }
 }

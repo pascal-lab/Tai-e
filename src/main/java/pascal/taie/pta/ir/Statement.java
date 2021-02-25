@@ -21,4 +21,6 @@ public interface Statement {
      * @return the start line number in source code if available, otherwise -1.
      */
     int getStartLineNumber();
+
+    void setStartLineNumber(int startLineNumber);
 }

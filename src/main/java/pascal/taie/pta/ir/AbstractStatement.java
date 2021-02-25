@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-abstract class AbstractStatement implements Statement {
+public abstract class AbstractStatement implements Statement {
 
     private int startLineNumber = -1;
 
@@ -22,7 +22,8 @@ abstract class AbstractStatement implements Statement {
         return startLineNumber;
     }
 
-    public void setStartLineNumber(int startLine) {
-        this.startLineNumber = startLine;
+    @Override
+    public void setStartLineNumber(int startLineNumber) {
+        this.startLineNumber = startLineNumber;
     }
 }
