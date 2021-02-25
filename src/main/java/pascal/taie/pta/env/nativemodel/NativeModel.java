@@ -14,7 +14,7 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.java.World;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.ir.IR;
 
 public interface NativeModel {
 
@@ -23,8 +23,8 @@ public interface NativeModel {
     }
 
     static NativeModel getDummyModel() {
-        return (method) -> {};
+        return (ir) -> {};
     }
 
-    void process(JMethod method);
+    void process(IR ir);
 }

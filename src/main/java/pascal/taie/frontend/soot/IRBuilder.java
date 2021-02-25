@@ -162,7 +162,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         } else if (!method.isAbstract()) {
             buildConcrete(method, ir);
         }
-        env.processNativeCode(method);
+        env.processNativeCode(ir);
         return ir;
     }
 

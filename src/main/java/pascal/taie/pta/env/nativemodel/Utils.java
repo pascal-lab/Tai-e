@@ -21,6 +21,7 @@ import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.CallSite;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 
@@ -35,7 +36,7 @@ class Utils {
      * Create allocation site and the corresponding constructor call site.
      * This method only supports non-argument constructor.
      * @param hierarchy the class hierarchy
-     * @param container method containing the allocation site
+     * @param containerIR IR of the containing method of the allocation site
      * @param type type of the allocated object
      * @param name name of the allocated object
      * @param recv variable holds the allocated object and
@@ -44,18 +45,19 @@ class Utils {
      * @param callId ID of the mock constructor call site
      */
     static void modelAllocation(
-            ClassHierarchy hierarchy, JMethod container,
+            ClassHierarchy hierarchy, IR containerIR,
             Type type, String name, Variable recv,
             String ctorSig, String callId) {
+        JMethod container = containerIR.getMethod();
         Obj obj = new EnvObj(name, type, container);
-        container.getIR().addStatement(new Allocation(recv, obj));
+        containerIR.addStatement(new Allocation(recv, obj));
         JMethod ctor = hierarchy.getJREMethod(ctorSig);
         MockCallSite initCallSite = new MockCallSite(
                 CallKind.SPECIAL, ctor.getRef(),
                 recv, Collections.emptyList(),
                 container, callId);
         Call initCall = new Call(initCallSite, null);
-        container.getIR().addStatement(initCall);
+        containerIR.addStatement(initCall);
     }
 
     /**
@@ -63,15 +65,15 @@ class Utils {
      * by mocking a virtual call r = o.m().
      */
     static void modelStaticToVirtualCall(
-            ClassHierarchy hierarchy, JMethod container, Call call,
+            ClassHierarchy hierarchy, IR containerIR, Call call,
             String calleeSig, String callId) {
         CallSite origin = call.getCallSite();
         JMethod callee = hierarchy.getJREMethod(calleeSig);
         MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL,
                 callee.getRef(),
                 origin.getArg(0), Collections.emptyList(),
-                container, callId);
+                containerIR.getMethod(), callId);
         Call mockCall = new Call(callSite, call.getLHS().orElse(null));
-        container.getIR().addStatement(mockCall);
+        containerIR.addStatement(mockCall);
     }
 }

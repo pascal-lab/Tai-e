@@ -14,12 +14,12 @@
 package pascal.taie.pta.env;
 
 import pascal.taie.java.World;
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.Obj;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.env.nativemodel.NativeModel;
 import pascal.taie.pta.PTAOptions;
+import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.pta.env.nativemodel.NativeModel;
+import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.Obj;
 
 /**
  * This class should be seen as part of ProgramManager
@@ -91,7 +91,7 @@ public class Environment {
         return mainArgsElem;
     }
 
-    public void processNativeCode(JMethod method) {
-        nativeModel.process(method);
+    public void processNativeCode(IR ir) {
+        nativeModel.process(ir);
     }
 }

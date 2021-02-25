@@ -14,7 +14,7 @@
 package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.java.World;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Statement;
 
 /**
@@ -40,15 +40,14 @@ class DefaultNativeModel implements NativeModel {
     }
 
     @Override
-    public void process(JMethod method) {
-        methodModel.process(method);
+    public void process(IR ir) {
+        methodModel.process(ir);
         // Statements may be changed by native model, thus we process on a copy
-        Statement[] statements = method.getIR()
-                .getStatements()
+        Statement[] statements = ir.getStatements()
                 .toArray(new Statement[0]);
         for (Statement s : statements) {
-            s.accept(callModel);
-            s.accept(finalizerModel);
+            callModel.process(s, ir);
+            finalizerModel.process(s, ir);
         }
     }
 }

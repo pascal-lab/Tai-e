@@ -20,8 +20,9 @@ import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
+import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.StatementVisitor;
+import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.Variable;
 
 import java.util.Collections;
@@ -32,7 +33,7 @@ import java.util.Collections;
  * NOTE: finalize() has been deprecated starting with Java 9, and will
  * eventually be removed.
  */
-class FinalizerModel implements StatementVisitor {
+class FinalizerModel {
 
     private final ClassHierarchy hierarchy;
 
@@ -50,18 +51,20 @@ class FinalizerModel implements StatementVisitor {
                 .getRef();
     }
 
-    @Override
-    public void visit(Allocation alloc) {
-        Obj obj = alloc.getObject();
-        if (isOverridesFinalize(obj.getType())) {
-            obj.getContainerMethod().ifPresent(container -> {
-                Variable lhs = alloc.getVar();
-                MockCallSite callSite = new MockCallSite(CallKind.STATIC,
-                        registerRef, null, Collections.singletonList(lhs),
-                        container, "register-finalize");
-                Call call = new Call(callSite, null);
-                container.getIR().addStatement(call);
-            });
+    void process(Statement s, IR containerIR) {
+        if (s instanceof Allocation) {
+            Allocation alloc = (Allocation) s;
+            Obj obj = alloc.getObject();
+            if (isOverridesFinalize(obj.getType())) {
+                obj.getContainerMethod().ifPresent(container -> {
+                    Variable lhs = alloc.getVar();
+                    MockCallSite callSite = new MockCallSite(CallKind.STATIC,
+                            registerRef, null, Collections.singletonList(lhs),
+                            container, "register-finalize");
+                    Call call = new Call(callSite, null);
+                    containerIR.addStatement(call);
+                });
+            }
         }
     }
 

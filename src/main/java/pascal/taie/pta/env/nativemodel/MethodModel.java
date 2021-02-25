@@ -64,10 +64,10 @@ class MethodModel {
         initHandlers();
     }
 
-    void process(JMethod method) {
-        Consumer<IR> handler = handlers.get(method);
+    void process(IR ir) {
+        Consumer<IR> handler = handlers.get(ir.getMethod());
         if (handler != null) {
-            handler.accept(method.getIR());
+            handler.accept(ir);
         }
     }
 
@@ -156,7 +156,7 @@ class MethodModel {
                     JClass fs = hierarchy.getJREClass(fsName);
                     if (fs != null) {
                         ir.getReturnVariables().forEach(ret -> {
-                            Utils.modelAllocation(hierarchy, ir.getMethod(),
+                            Utils.modelAllocation(hierarchy, ir,
                                     fs.getType(), fsName, ret,
                                     "<" + fs.getName() + ": void <init>()>",
                                     "init-file-system");
@@ -190,7 +190,7 @@ class MethodModel {
         registerHandler("<sun.misc.Perf: java.nio.ByteBuffer createLong(java.lang.String,int,int,long)>", ir -> {
             ir.getReturnVariables().forEach(ret -> {
                 Type buffer = typeManager.getClassType("java.nio.DirectByteBuffer");
-                Utils.modelAllocation(hierarchy, ir.getMethod(),
+                Utils.modelAllocation(hierarchy, ir,
                         buffer, buffer.getName(), ret,
                         "<java.nio.DirectByteBuffer: void <init>(int)>",
                         "create-long-buffer");

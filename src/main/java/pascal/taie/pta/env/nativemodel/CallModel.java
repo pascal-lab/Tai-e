@@ -24,7 +24,7 @@ import pascal.taie.pta.ir.AssignCast;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.ir.IR;
-import pascal.taie.pta.ir.StatementVisitor;
+import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.Variable;
 
 import java.util.HashMap;
@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-class CallModel implements StatementVisitor {
+class CallModel {
 
     private final ClassHierarchy hierarchy;
 
@@ -43,7 +43,7 @@ class CallModel implements StatementVisitor {
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
-    private final Map<String, BiConsumer<JMethod, Call>> handlers;
+    private final Map<String, BiConsumer<IR, Call>> handlers;
 
     /**
      * Counter to give each mock variable an unique name in each method.
@@ -58,15 +58,16 @@ class CallModel implements StatementVisitor {
         initHandlers();
     }
 
-    @Override
-    public void visit(Call call) {
-        CallSite callSite = call.getCallSite();
-        JMethod callee = hierarchy.resolveMethod(callSite.getMethodRef());
-        BiConsumer<JMethod, Call> handler =
-                handlers.get(callee.getSignature());
-        if (handler != null) {
-            JMethod container = callSite.getContainerMethod();
-            handler.accept(container, call);
+    void process(Statement s, IR containerIR) {
+        if (s instanceof Call) {
+            Call call = (Call) s;
+            CallSite callSite = call.getCallSite();
+            JMethod callee = hierarchy.resolveMethod(callSite.getMethodRef());
+            BiConsumer<IR, Call> handler =
+                    handlers.get(callee.getSignature());
+            if (handler != null) {
+                handler.accept(containerIR, call);
+            }
         }
     }
 
@@ -75,7 +76,8 @@ class CallModel implements StatementVisitor {
         // java.lang.System
         // --------------------------------------------------------------------
         // <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
-        registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (method, call) -> {
+        registerHandler("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", (ir, call) -> {
+            JMethod method = ir.getMethod();
             Variable src = call.getCallSite().getArg(0);
             Variable dest = call.getCallSite().getArg(2);
             Type objType = typeManager.getClassType("java.lang.Object");
@@ -87,7 +89,6 @@ class CallModel implements StatementVisitor {
             // of pointer analysis, thus we add cast statements to filter
             // out load/store operations on non-array objects.
             // Note that the cast statements will exclude primitive arrays.
-            IR ir = method.getIR();
             ir.addStatement(new AssignCast(srcArray, arrayType, src));
             ir.addStatement(new AssignCast(destArray, arrayType, dest));
             ir.addStatement(new ArrayLoad(temp, srcArray));
@@ -105,8 +106,8 @@ class CallModel implements StatementVisitor {
         // circumvent this. This rule implements this indirection.
         // This API is deprecated since Java 7.
         if (PTAOptions.get().jdkVersion() <= 6) {
-            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", (method, call) -> {
-                Utils.modelStaticToVirtualCall(hierarchy, method, call,
+            registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", (ir, call) -> {
+                Utils.modelStaticToVirtualCall(hierarchy, ir, call,
                         "<java.lang.Object: void finalize()>",
                         "invoke-finalize");
             });
@@ -134,33 +135,33 @@ class CallModel implements StatementVisitor {
         // TODO for PrivilegedExceptionAction, catch exceptions and wrap them
         //  in a PriviligedActionException.
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>
-        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(hierarchy, method, call,
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", (ir, call) -> {
+            Utils.modelStaticToVirtualCall(hierarchy, ir, call,
                     "<java.security.PrivilegedAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>
-        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(hierarchy, method, call,
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>", (ir, call) -> {
+            Utils.modelStaticToVirtualCall(hierarchy, ir, call,
                     "<java.security.PrivilegedAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>
-        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(hierarchy, method, call,
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>", (ir, call) -> {
+            Utils.modelStaticToVirtualCall(hierarchy, ir, call,
                     "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
                     "doPrivileged");
         });
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>
-        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>", (method, call) -> {
-            Utils.modelStaticToVirtualCall(hierarchy, method, call,
+        registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>", (ir, call) -> {
+            Utils.modelStaticToVirtualCall(hierarchy, ir, call,
                     "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
                     "doPrivileged");
         });
     }
 
     private void registerHandler(String signature,
-                                 BiConsumer<JMethod, Call> handler) {
+                                 BiConsumer<IR, Call> handler) {
         handlers.put(signature, handler);
     }
 
