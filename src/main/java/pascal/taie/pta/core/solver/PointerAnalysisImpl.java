@@ -358,7 +358,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSVariable from = csManager.getCSVariable(context, store.getFrom());
             for (CSObj baseObj : pts) {
                 InstanceField instField = csManager.getInstanceField(
-                        baseObj, store.getField());
+                        baseObj, hierarchy.resolveField(store.getFieldRef()));
                 addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
             }
         }
@@ -377,7 +377,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSVariable to = csManager.getCSVariable(context, load.getTo());
             for (CSObj baseObj : pts) {
                 InstanceField instField = csManager.getInstanceField(
-                        baseObj, load.getField());
+                        baseObj, hierarchy.resolveField(load.getFieldRef()));
                 addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
             }
         }
@@ -468,7 +468,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Variable arg = callSite.getArg(i);
-                if (arg.getType() instanceof ReferenceType) {
+                if (arg != null) {
+                    assert arg.getType() instanceof ReferenceType;
                     Variable param = callee.getIR().getParam(i);
                     CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
                     CSVariable paramVar = csManager.getCSVariable(calleeCtx, param);
