@@ -16,7 +16,6 @@ package pascal.taie.frontend.soot;
 import pascal.taie.callgraph.JimpleCallUtils;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
 import pascal.taie.java.types.VoidType;
@@ -47,7 +46,6 @@ import soot.Body;
 import soot.Local;
 import soot.RefLikeType;
 import soot.Scene;
-import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -89,16 +87,7 @@ import java.util.concurrent.TimeUnit;
  */
 class IRBuilder implements pascal.taie.java.IRBuilder {
 
-    private final ConcurrentMap<soot.Type, Type> types
-            = new ConcurrentHashMap<>();
-
-    private final ConcurrentMap<SootMethod, JMethod> methods
-            = new ConcurrentHashMap<>();
-
     private final ConcurrentMap<JMethod, Map<Local, Variable>> vars
-            = new ConcurrentHashMap<>();
-
-    private final ConcurrentMap<SootField, JField> fields
             = new ConcurrentHashMap<>();
 
     private final Scene scene;
@@ -106,8 +95,6 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     private final Converter converter;
 
     private final NewVariableManager varManager = new NewVariableManager();
-
-    private final ClassDumper classDumper = new ClassDumper();
 
     private final Environment env;
 
@@ -152,7 +139,6 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
         timer.stop();
         System.out.println(timer);
-        System.out.println("#methods: " + methods.size());
     }
 
     @Override
@@ -414,7 +400,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         stmt.setStartLineNumber(sootStmt.getJavaSourceStartLineNumber());
         ir.addStatement(stmt);
     }
-    
+
     private Variable getVariable(Local var, JMethod container) {
         return vars.computeIfAbsent(container, (m) -> new LinkedHashMap<>())
                 .computeIfAbsent(var, (v) -> {
