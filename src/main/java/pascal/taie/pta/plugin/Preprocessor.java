@@ -13,23 +13,16 @@
 
 package pascal.taie.pta.plugin;
 
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.core.solver.PointerAnalysis;
+import pascal.taie.java.World;
 import pascal.taie.pta.PTAOptions;
 
 public class Preprocessor implements Plugin {
 
-    private ProgramManager pm;
-
-    @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        pm = pta.getProgramManager();
-    }
-
     @Override
     public void preprocess() {
         if (PTAOptions.get().isPreBuildIR()) {
-            pm.buildIRForAllMethods();
+            World.get().getIRBuilder()
+                    .buildAll(World.get().getClassHierarchy());
         }
     }
 }

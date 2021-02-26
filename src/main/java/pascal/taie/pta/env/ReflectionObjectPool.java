@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.env;
 
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.types.Type;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,8 +31,8 @@ class ReflectionObjectPool {
     private final ConcurrentMap<Type, ClassObj> classMap
             = new ConcurrentHashMap<>();
 
-    ReflectionObjectPool(ProgramManager pm) {
-        CLASS = pm.getUniqueTypeByName("java.lang.Class");
+    ReflectionObjectPool(TypeManager typeManager) {
+        CLASS = typeManager.getClassType("java.lang.Class");
     }
 
     ClassObj getClassObj(Type klass) {

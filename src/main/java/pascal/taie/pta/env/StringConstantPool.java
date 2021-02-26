@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.env;
 
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.types.Type;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,8 +30,8 @@ class StringConstantPool {
     private final ConcurrentMap<String, StringConstant> constants
             = new ConcurrentHashMap<>();
 
-    StringConstantPool(ProgramManager pm) {
-        STRING = pm.getUniqueTypeByName("java.lang.String");
+    StringConstantPool(TypeManager typeManager) {
+        STRING = typeManager.getClassType("java.lang.String");
     }
 
     StringConstant getStringConstant(String constant) {

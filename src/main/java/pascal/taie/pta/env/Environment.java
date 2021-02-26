@@ -13,10 +13,10 @@
 
 package pascal.taie.pta.env;
 
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
-import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.env.nativemodel.NativeModel;
 import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Obj;
@@ -39,28 +39,29 @@ public class Environment {
      * Setup Environment object using given ProgramManager.
      * This method must be called before starting pointer analysis.
      */
-    public void setup(ProgramManager pm) {
+    public void setup(World world) {
         // TODO: refactor NativeModel to AnalysisMonitor
         // nativeModel must be initialized at first, because following
         // initialization calls pm.getUniqueTypeByName(), which may
         // build IR for class initializer and trigger nativeModel.
         nativeModel = PTAOptions.get().enableNativeModel()
-                ? NativeModel.getDefaultModel(World.get())
+                ? NativeModel.getDefaultModel(world)
                 : NativeModel.getDummyModel();
-        strPool  = new StringConstantPool(pm);
-        reflPool = new ReflectionObjectPool(pm);
+        TypeManager typeManager = world.getTypeManager();
+        strPool  = new StringConstantPool(typeManager);
+        reflPool = new ReflectionObjectPool(typeManager);
         mainThread = new EnvObj("<main-thread>",
-                pm.getUniqueTypeByName("java.lang.Thread"), null);
+                typeManager.getClassType("java.lang.Thread"), null);
         systemThreadGroup = new EnvObj("<system-thread-group>",
-                pm.getUniqueTypeByName("java.lang.ThreadGroup"), null);
+                typeManager.getClassType("java.lang.ThreadGroup"), null);
         mainThreadGroup = new EnvObj("<main-thread-group>",
-                pm.getUniqueTypeByName("java.lang.ThreadGroup"), null);
+                typeManager.getClassType("java.lang.ThreadGroup"), null);
+        Type string = typeManager.getClassType("java.lang.String");
+        Type stringArray = typeManager.getArrayType(string, 1);
         mainArgs = new EnvObj("<main-arguments>",
-                pm.getUniqueTypeByName("java.lang.String[]"),
-                pm.getMainMethod());
+                stringArray, world.getMainMethod());
         mainArgsElem = new EnvObj("<main-arguments-element>",
-                pm.getUniqueTypeByName("java.lang.String"),
-                pm.getMainMethod());
+                string, world.getMainMethod());
     }
 
     public Obj getStringConstant(String constant) {
