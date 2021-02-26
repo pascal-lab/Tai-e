@@ -55,6 +55,7 @@ public class SootClassLoader implements JClassLoader {
                         .build();
                 classes.put(name, jclass);
                 hierarchy.addClass(jclass);
+                // TODO: dump class
             }
         }
         // TODO: add warning for missing classes

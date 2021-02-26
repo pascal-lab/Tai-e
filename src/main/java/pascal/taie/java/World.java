@@ -13,6 +13,10 @@
 
 package pascal.taie.java;
 
+import pascal.taie.java.classes.JMethod;
+
+import java.util.Collection;
+
 /**
  * Manages the whole-program information of the program being analyzed.
  */
@@ -35,6 +39,10 @@ public class World {
     private ClassHierarchy classHierarchy;
 
     private IRBuilder irBuilder;
+
+    private JMethod mainMethod;
+
+    private Collection<JMethod> implicitEntries;
 
     public Options getOptions() {
         return options;
@@ -64,7 +72,23 @@ public class World {
         return irBuilder;
     }
 
-    public void setIRManager(IRBuilder irBuilder) {
+    public void setIRBuilder(IRBuilder irBuilder) {
         this.irBuilder = irBuilder;
+    }
+
+    public JMethod getMainMethod() {
+        return mainMethod;
+    }
+
+    public void setMainMethod(JMethod mainMethod) {
+        this.mainMethod = mainMethod;
+    }
+
+    public Collection<JMethod> getImplicitEntries() {
+        return implicitEntries;
+    }
+
+    public void setImplicitEntries(Collection<JMethod> implicitEntries) {
+        this.implicitEntries = implicitEntries;
     }
 }
