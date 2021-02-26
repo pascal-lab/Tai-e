@@ -13,6 +13,7 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
@@ -74,12 +75,13 @@ public class MethodReference extends MemberReference {
         return subsignature;
     }
 
-    public JMethod getMethod() {
+    public JMethod resolve() {
+        if (method == null) {
+            method = World.get()
+                    .getClassHierarchy()
+                    .resolveMethod(this);
+        }
         return method;
-    }
-
-    public void setMethod(JMethod method) {
-        this.method = method;
     }
 
     @Override

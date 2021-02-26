@@ -144,33 +144,25 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public JMethod resolveMethod(MethodReference methodRef) {
-        JMethod method = methodRef.getMethod();
-        if (method == null) {
-            method = lookupMethod(methodRef.getDeclaringClass(),
-                    methodRef.getSubsignature(), true);
-            if (method != null) {
-                methodRef.setMethod(method);
-            } else {
-                throw new MethodResolutionFailedException(
-                        "Cannot resolve " + methodRef);
-            }
+        JMethod method = lookupMethod(methodRef.getDeclaringClass(),
+                methodRef.getSubsignature(), true);
+        if (method != null) {
+            return method;
+        } else {
+            throw new MethodResolutionFailedException(
+                    "Cannot resolve " + methodRef);
         }
-        return method;
     }
 
     @Override
     public JField resolveField(FieldReference fieldRef) {
-        JField field = fieldRef.getField();
-        if (field == null) {
-            field = resolveField(fieldRef.getDeclaringClass(),
-                    fieldRef.getName(), fieldRef.getType());
-            if (field != null) {
-                fieldRef.setField(field);
-            } else {
-                throw new FieldResolutionFailedException("Cannot resolve " + fieldRef);
-            }
+        JField field = resolveField(fieldRef.getDeclaringClass(),
+                fieldRef.getName(), fieldRef.getType());
+        if (field != null) {
+            return field;
+        } else {
+            throw new FieldResolutionFailedException("Cannot resolve " + fieldRef);
         }
-        return field;
     }
 
     private JField resolveField(JClass jclass, String name, Type type) {

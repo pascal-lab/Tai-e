@@ -13,6 +13,7 @@
 
 package pascal.taie.java.classes;
 
+import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
@@ -54,12 +55,13 @@ public class FieldReference extends MemberReference {
         return type;
     }
 
-    public JField getField() {
+    public JField resolve() {
+        if (field == null) {
+            field = World.get()
+                    .getClassHierarchy()
+                    .resolveField(this);
+        }
         return field;
-    }
-
-    public void setField(JField field) {
-        this.field = field;
     }
 
     @Override
