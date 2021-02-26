@@ -358,7 +358,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSVariable from = csManager.getCSVariable(context, store.getFrom());
             for (CSObj baseObj : pts) {
                 InstanceField instField = csManager.getInstanceField(
-                        baseObj, hierarchy.resolveField(store.getFieldRef()));
+                        baseObj, store.getFieldRef().resolve());
                 addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
             }
         }
@@ -377,7 +377,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSVariable to = csManager.getCSVariable(context, load.getTo());
             for (CSObj baseObj : pts) {
                 InstanceField instField = csManager.getInstanceField(
-                        baseObj, hierarchy.resolveField(load.getFieldRef()));
+                        baseObj, load.getFieldRef().resolve());
                 addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
             }
         }
@@ -562,21 +562,20 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
             if (callSite.getKind() == CallKind.STATIC) {
-                JMethod method = hierarchy.resolveMethod(
-                        callSite.getMethodRef());
+                JMethod method = callSite.getMethodRef().resolve();
                 initializeClass(method.getDeclaringClass());
             }
         }
 
         @Override
         public void visit(StaticLoad load) {
-            JField field = hierarchy.resolveField(load.getFieldRef());
+            JField field = load.getFieldRef().resolve();
             initializeClass(field.getDeclaringClass());
         }
 
         @Override
         public void visit(StaticStore store) {
-            JField field = hierarchy.resolveField(store.getFieldRef());
+            JField field = store.getFieldRef().resolve();
             initializeClass(field.getDeclaringClass());
         }
     }
@@ -633,7 +632,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(StaticLoad load) {
-            JField jfield = hierarchy.resolveField(load.getFieldRef());
+            JField jfield = load.getFieldRef().resolve();
             StaticField field = csManager.getStaticField(jfield);
             CSVariable to = csManager.getCSVariable(context, load.getTo());
             addPFGEdge(field, to, PointerFlowEdge.Kind.STATIC_LOAD);
@@ -642,7 +641,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(StaticStore store) {
             CSVariable from = csManager.getCSVariable(context, store.getFrom());
-            JField jfield = hierarchy.resolveField(store.getFieldRef());
+            JField jfield = store.getFieldRef().resolve();
             StaticField field = csManager.getStaticField(jfield);
             addPFGEdge(from, field, PointerFlowEdge.Kind.STATIC_STORE);
         }

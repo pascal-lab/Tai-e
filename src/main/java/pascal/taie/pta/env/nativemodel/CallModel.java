@@ -62,7 +62,7 @@ class CallModel {
         if (s instanceof Call) {
             Call call = (Call) s;
             CallSite callSite = call.getCallSite();
-            JMethod callee = hierarchy.resolveMethod(callSite.getMethodRef());
+            JMethod callee = callSite.getMethodRef().resolve();
             BiConsumer<IR, Call> handler =
                     handlers.get(callee.getSignature());
             if (handler != null) {

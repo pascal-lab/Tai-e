@@ -204,7 +204,7 @@ public class PointerAnalysis {
             Var from = pointerFlowGraph.getVar(store.getFrom());
             for (Obj baseObj : pts) {
                 InstanceField instField = pointerFlowGraph.getInstanceField(
-                        baseObj, store.getField());
+                        baseObj, store.getFieldRef().resolve());
                 addPFGEdge(from, instField);
             }
         }
@@ -222,7 +222,7 @@ public class PointerAnalysis {
             Var to = pointerFlowGraph.getVar(load.getTo());
             for (Obj baseObj : pts) {
                 InstanceField instField = pointerFlowGraph.getInstanceField(
-                        baseObj, load.getField());
+                        baseObj, load.getFieldRef().resolve());
                 addPFGEdge(instField, to);
             }
         }
