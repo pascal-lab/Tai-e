@@ -271,16 +271,16 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public boolean canAssign(JClass toClass, JClass fromClass) {
-        if (toClass.equals(fromClass)) {
+    public boolean isSubclass(JClass superclass, JClass subclass) {
+        if (superclass.equals(subclass)) {
             return true;
-        } else if (toClass == getObjectClass()) {
+        } else if (superclass == getObjectClass()) {
             return true;
-        } else if (fromClass.isInterface()) {
-            return toClass.isInterface() &&
-                    getAllSubinterfaces(toClass).contains(fromClass);
+        } else if (subclass.isInterface()) {
+            return superclass.isInterface() &&
+                    getAllSubinterfaces(superclass).contains(subclass);
         } else {
-            return canAssign0(toClass, fromClass);
+            return isSubclass0(superclass, subclass);
         }
     }
 
@@ -319,22 +319,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     /**
-     * Traverse class hierarchy to check if fromClass can be assigned to toClass.
+     * Traverse class hierarchy to check if subclass is a subclass of superclass.
      * TODO: optimize performance
      */
-    private boolean canAssign0(JClass toClass, JClass fromClass) {
-        boolean isToInterface = toClass.isInterface();
-        for (JClass jclass = fromClass; jclass != null;
+    private boolean isSubclass0(JClass superclass, JClass subclass) {
+        boolean isToInterface = superclass.isInterface();
+        for (JClass jclass = subclass; jclass != null;
              jclass = jclass.getSuperClass()) {
-            if (jclass.equals(toClass)) {
+            if (jclass.equals(superclass)) {
                 return true;
             }
             if (isToInterface) {
                 // Interfaces can only extend other interfaces, thus we only
-                // have to consider the interfaces of the fromClass
-                // if toClass is an interface.
+                // have to consider the interfaces of the subclass
+                // if superclass is an interface.
                 for (JClass iface : jclass.getInterfaces()) {
-                    if (canAssign0(toClass, iface)) {
+                    if (isSubclass0(superclass, iface)) {
                         return true;
                     }
                 }

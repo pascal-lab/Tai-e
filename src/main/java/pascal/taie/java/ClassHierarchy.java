@@ -88,5 +88,5 @@ public interface ClassHierarchy {
 
     JMethod dispatch(JClass receiverClass, MethodReference methodRef);
 
-    boolean canAssign(JClass toClass, JClass fromClass);
+    boolean isSubclass(JClass superclass, JClass subclass);
 }

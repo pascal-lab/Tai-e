@@ -47,66 +47,66 @@ public class HierarchyTest {
         typeManager = World.get().getTypeManager();
     }
 
-    // ---------- Test subclass checking canAssign() ----------
+    // ---------- Test subclass checking Subclass() ----------
 
     /**
      * Test interface and subinterfaces.
      */
     @Test
-    public void testCanAssign1() {
+    public void testSubclass1() {
         String I = "I", II = "II", III = "III", IIII = "IIII";
-        expectedCanAssign(I, III);
-        expectedCanAssign(I, IIII);
-        expectedCannotAssign(I, II);
-        expectedCannotAssign(II, I);
-        expectedCannotAssign(III, I);
+        expectedSubclass(I, III);
+        expectedSubclass(I, IIII);
+        expectedNotSubclass(I, II);
+        expectedNotSubclass(II, I);
+        expectedNotSubclass(III, I);
     }
 
     /**
      * Test interfaces and java.lang.Object.
      */
     @Test
-    public void testCanAssign2() {
+    public void testSubclass2() {
         String Object = "java.lang.Object", I = "I", C = "C";
-        expectedCanAssign(Object, I);
-        expectedCannotAssign(I, Object);
-        expectedCanAssign(Object, C);
-        expectedCannotAssign(C, Object);
+        expectedSubclass(Object, I);
+        expectedNotSubclass(I, Object);
+        expectedSubclass(Object, C);
+        expectedNotSubclass(C, Object);
     }
 
     /**
      * Test interface and implementers
      */
     @Test
-    public void testCanAssign3() {
+    public void testSubclass3() {
         String I = "I", E = "E", F = "F", G = "G";
-        expectedCanAssign(I, E);
-        expectedCanAssign(I, F);
-        expectedCanAssign(I, G);
-        expectedCannotAssign(E, I);
+        expectedSubclass(I, E);
+        expectedSubclass(I, F);
+        expectedSubclass(I, G);
+        expectedNotSubclass(E, I);
     }
 
     /**
      * Test class and subclasses.
      */
     @Test
-    public void testCanAssign4() {
+    public void testSubclass4() {
         String C = "C", D = "D", G = "G";
-        expectedCanAssign(C, D);
-        expectedCanAssign(C, G);
-        expectedCannotAssign(D, C);
+        expectedSubclass(C, D);
+        expectedSubclass(C, G);
+        expectedNotSubclass(D, C);
     }
 
-    private static void expectedCanAssign(String toClass, String fromClass) {
-        JClass to = hierarchy.getClass(toClass);
-        JClass from = hierarchy.getClass(fromClass);
-        Assert.assertTrue(hierarchy.canAssign(to, from));
+    private static void expectedSubclass(String sup, String sub) {
+        JClass superclass = hierarchy.getClass(sup);
+        JClass subclass = hierarchy.getClass(sub);
+        Assert.assertTrue(hierarchy.isSubclass(superclass, subclass));
     }
 
-    private static void expectedCannotAssign(String toClass, String fromClass) {
-        JClass to = hierarchy.getClass(toClass);
-        JClass from = hierarchy.getClass(fromClass);
-        Assert.assertFalse(hierarchy.canAssign(to, from));
+    private static void expectedNotSubclass(String sup, String sub) {
+        JClass superclass = hierarchy.getClass(sup);
+        JClass subclass = hierarchy.getClass(sub);
+        Assert.assertFalse(hierarchy.isSubclass(superclass, subclass));
     }
 
     // ---------- Test field resolution resolveField()  ----------

@@ -49,5 +49,5 @@ public interface TypeManager {
 
     NullType getNullType();
 
-    boolean canAssign(Type to, Type from);
+    boolean isSubtype(Type supertype, Type subtype);
 }

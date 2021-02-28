@@ -37,74 +37,74 @@ public class TypeTest {
     }
 
     @Test
-    public void testCanAssignNull() {
+    public void testSubtypeNull() {
         Type nullType = typeManager.getNullType();
         Type object = typeManager.getClassType("java.lang.Object");
         Type intType = typeManager.getIntType();
         Type intArray = typeManager.getArrayType(intType, 1);
 
-        Assert.assertTrue(typeManager.canAssign(object, nullType));
-        Assert.assertFalse(typeManager.canAssign(intType, nullType));
-        Assert.assertTrue(typeManager.canAssign(intArray, nullType));
+        Assert.assertTrue(typeManager.isSubtype(object, nullType));
+        Assert.assertFalse(typeManager.isSubtype(intType, nullType));
+        Assert.assertTrue(typeManager.isSubtype(intArray, nullType));
     }
 
     @Test
-    public void testCanAssignPrimitive() {
+    public void testSubtypePrimitive() {
         Type intType = typeManager.getIntType();
         Type longType = typeManager.getLongType();
-        Assert.assertTrue(typeManager.canAssign(intType, intType));
-        Assert.assertFalse(typeManager.canAssign(intType, longType));
+        Assert.assertTrue(typeManager.isSubtype(intType, intType));
+        Assert.assertFalse(typeManager.isSubtype(intType, longType));
     }
 
     /**
      * Test arrays and some special classes.
      */
     @Test
-    public void testCanAssignArray1() {
+    public void testSubtypeArray1() {
         Type intType = typeManager.getIntType();
         Type intArray = typeManager.getArrayType(intType, 1);
         Type object = typeManager.getClassType("java.lang.Object");
-        Assert.assertTrue(typeManager.canAssign(object, intArray));
+        Assert.assertTrue(typeManager.isSubtype(object, intArray));
 
         Type serializable = typeManager.getClassType("java.lang.Serializable");
-        Assert.assertTrue(typeManager.canAssign(serializable, intArray));
+        Assert.assertTrue(typeManager.isSubtype(serializable, intArray));
 
         Type cloneable = typeManager.getClassType("java.lang.Cloneable");
-        Assert.assertTrue(typeManager.canAssign(cloneable, intArray));
+        Assert.assertTrue(typeManager.isSubtype(cloneable, intArray));
 
         Type a = typeManager.getClassType("A");
-        Assert.assertFalse(typeManager.canAssign(a, intArray));
+        Assert.assertFalse(typeManager.isSubtype(a, intArray));
     }
 
     /**
      * Test arrays with different dimensions.
      */
     @Test
-    public void testCanAssignArray2() {
+    public void testSubtypeArray2() {
         Type intType = typeManager.getIntType();
         Type intArray2 = typeManager.getArrayType(intType, 2);
         Type object = typeManager.getClassType("java.lang.Object");
         Type objectArray = typeManager.getArrayType(object, 1);
-        Assert.assertTrue(typeManager.canAssign(objectArray, intArray2));
+        Assert.assertTrue(typeManager.isSubtype(objectArray, intArray2));
 
         Type intArray3 = typeManager.getArrayType(intType, 3);
-        Assert.assertTrue(typeManager.canAssign(objectArray, intArray3));
+        Assert.assertTrue(typeManager.isSubtype(objectArray, intArray3));
     }
 
     /**
      * Test arrays of different classes with subtyping relation.
      */
     @Test
-    public void testCanAssignArray3() {
+    public void testSubtypeArray3() {
         Type object = typeManager.getClassType("java.lang.Object");
         Type objectArray = typeManager.getArrayType(object, 1);
         Type a = typeManager.getClassType("A");
         Type aArray = typeManager.getArrayType(a, 1);
-        Assert.assertTrue(typeManager.canAssign(objectArray, aArray));
+        Assert.assertTrue(typeManager.isSubtype(objectArray, aArray));
 
         Type b = typeManager.getClassType("B");
         Type bArray = typeManager.getArrayType(b, 1);
-        Assert.assertTrue(typeManager.canAssign(aArray, bArray));
-        Assert.assertFalse(typeManager.canAssign(bArray, aArray));
+        Assert.assertTrue(typeManager.isSubtype(aArray, bArray));
+        Assert.assertFalse(typeManager.isSubtype(bArray, aArray));
     }
 }
