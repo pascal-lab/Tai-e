@@ -13,7 +13,8 @@
 
 package pascal.taie.pta.core.solver;
 
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.World;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.core.context.ContextInsensitiveSelector;
 import pascal.taie.pta.core.context.OneCallSelector;
 import pascal.taie.pta.core.context.OneObjectSelector;
@@ -23,8 +24,6 @@ import pascal.taie.pta.core.context.TwoObjectSelector;
 import pascal.taie.pta.core.context.TwoTypeSelector;
 import pascal.taie.pta.core.cs.MapBasedCSManager;
 import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
-import pascal.taie.pta.jimple.JimpleProgramManager;
-import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.plugin.AnalysisTimer;
 import pascal.taie.pta.plugin.CompositePlugin;
 import pascal.taie.pta.plugin.Preprocessor;
@@ -33,18 +32,16 @@ import pascal.taie.pta.plugin.ThreadHandler;
 import pascal.taie.pta.set.HybridPointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
 import pascal.taie.util.AnalysisException;
-import soot.Scene;
 
 public class PointerAnalysisBuilder {
 
     public PointerAnalysis build(PTAOptions PTAOptions) {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
-        PointerAnalysisImpl pta = new PointerAnalysisImpl();
-        ProgramManager pm = new JimpleProgramManager(Scene.v());
-        pta.setProgramManager(pm);
+        PointerAnalysisImpl pta = new PointerAnalysisImpl(World.get());
         setContextSensitivity(pta, PTAOptions);
         setPlugin(pta);
-        pta.setHeapModel(new AllocationSiteBasedModel(pm));
+        pta.setHeapModel(new AllocationSiteBasedModel(
+                World.get().getTypeManager()));
         pta.setCSManager(new MapBasedCSManager());
         return pta;
     }

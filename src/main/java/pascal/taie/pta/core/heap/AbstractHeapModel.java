@@ -13,11 +13,11 @@
 
 package pascal.taie.pta.core.heap;
 
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.Allocation;
+import pascal.taie.pta.ir.Obj;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,12 +27,15 @@ import java.util.concurrent.ConcurrentMap;
  * some uniform behaviors of heap modeling here.
  */
 abstract class AbstractHeapModel implements HeapModel {
-
-    private final ProgramManager pm;
-
+    
+    private final TypeManager typeManager;
+    
     private final Type STRING;
+    
     private final Type STRINGBUILDER;
+    
     private final Type STRINGBUFFER;
+    
     private final Type THROWABLE;
     /**
      * The merged object representing string constants.
@@ -41,12 +44,12 @@ abstract class AbstractHeapModel implements HeapModel {
     private final ConcurrentMap<Type, MergedObj> mergedObjs
             = new ConcurrentHashMap<>();
 
-    AbstractHeapModel(ProgramManager pm) {
-        this.pm = pm;
-        STRING = pm.getUniqueTypeByName("java.lang.String");
-        STRINGBUILDER = pm.getUniqueTypeByName("java.lang.StringBuilder");
-        STRINGBUFFER = pm.getUniqueTypeByName("java.lang.StringBuffer");
-        THROWABLE = pm.getUniqueTypeByName("java.lang.Throwable");
+    AbstractHeapModel(TypeManager typeManager) {
+        this.typeManager = typeManager;
+        STRING = typeManager.getClassType("java.lang.String");
+        STRINGBUILDER = typeManager.getClassType("java.lang.StringBuilder");
+        STRINGBUFFER = typeManager.getClassType("java.lang.StringBuffer");
+        THROWABLE = typeManager.getClassType("java.lang.Throwable");
         mergedSC = new MergedObj(STRING, "<Merged string constants>");
     }
 
@@ -71,7 +74,7 @@ abstract class AbstractHeapModel implements HeapModel {
             return getMergedObj(type, obj);
         }
         if (PTAOptions.get().isMergeExceptionObjects()
-                && pm.isSubtype(THROWABLE, type)) {
+                && typeManager.isSubtype(THROWABLE, type)) {
             return getMergedObj(type, obj);
         }
         return doGetObj(alloc);

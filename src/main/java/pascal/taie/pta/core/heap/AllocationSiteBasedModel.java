@@ -13,9 +13,9 @@
 
 package pascal.taie.pta.core.heap;
 
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.java.TypeManager;
 import pascal.taie.pta.ir.Allocation;
+import pascal.taie.pta.ir.Obj;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +24,8 @@ public class AllocationSiteBasedModel extends AbstractHeapModel {
 
     private final Map<Allocation, Obj> objects = new HashMap<>();
 
-    public AllocationSiteBasedModel(ProgramManager pm) {
-        super(pm);
+    public AllocationSiteBasedModel(TypeManager typeManager) {
+        super(typeManager);
     }
 
     @Override

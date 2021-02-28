@@ -19,15 +19,17 @@ import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.TypeManager;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
-import pascal.taie.pta.core.ProgramManager;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
 import pascal.taie.pta.core.cs.ArrayIndex;
@@ -58,6 +60,7 @@ import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.plugin.Plugin;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
+import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,26 +73,37 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private static final Logger logger = LogManager.getLogger(PointerAnalysisImpl.class);
 
-    private ProgramManager programManager;
-    private ClassHierarchy hierarchy;
-    private Environment environment;
+    private final World world;
+
+    private final ClassHierarchy hierarchy;
+
+    private final TypeManager typeManager;
+
+    private final Environment environment;
+
     private CSManager csManager;
+
     private Plugin plugin;
+
     private OnFlyCallGraph callGraph;
+
     private PointerFlowGraph pointerFlowGraph;
+
     private HeapModel heapModel;
+
     private ContextSelector contextSelector;
+
     private WorkList workList;
+
     private Set<JMethod> reachableMethods;
+
     private ClassInitializer classInitializer;
 
-    @Override
-    public ProgramManager getProgramManager() {
-        return programManager;
-    }
-
-    void setProgramManager(ProgramManager programManager) {
-        this.programManager = programManager;
+    public PointerAnalysisImpl(World world) {
+        this.world = world;
+        this.typeManager = world.getTypeManager();
+        this.hierarchy = world.getClassHierarchy();
+        this.environment = new Environment(world);
     }
 
     @Override
@@ -97,17 +111,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return hierarchy;
     }
 
-    public void setHierarchy(ClassHierarchy hierarchy) {
-        this.hierarchy = hierarchy;
-    }
-
     @Override
     public Environment getEnvironment() {
         return environment;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     @Override
@@ -215,19 +221,19 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             processNewCSMethod(csMethod);
         }
         // setup main arguments
-        Obj args = programManager.getEnvironment().getMainArgs();
-        Obj argsElem = programManager.getEnvironment().getMainArgsElem();
+        Obj args = environment.getMainArgs();
+        Obj argsElem = environment.getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
-        JMethod main = programManager.getMainMethod();
+        JMethod main = world.getMainMethod();
         addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
     private Collection<JMethod> computeEntries() {
         List<JMethod> entries = new ArrayList<>();
-        entries.add(programManager.getMainMethod());
+        entries.add(world.getMainMethod());
         if (PTAOptions.get().analyzeImplicitEntries()) {
-            entries.addAll(programManager.getImplicitEntries());
+            entries.addAll(world.getImplicitEntries());
         }
         return entries;
     }
@@ -301,8 +307,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
         PointsToSet result = PointsToSetFactory.make();
         pts.stream()
-                .filter(o -> programManager.canAssign(
-                        o.getObject().getType(), type))
+                .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
                 .forEach(result::addObject);
         return result;
     }
@@ -435,8 +440,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (CSObj recvObj : pts) {
                 // resolve callee
-                JMethod callee = programManager.resolveCallee(
-                        recvObj.getObject(), callSite);
+                JMethod callee = resolveCallee(
+                        recvObj.getObject().getType(), callSite);
                 // select context
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeContext = contextSelector.selectContext(
@@ -495,6 +500,20 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             plugin.handleNewMethod(method);
             method.getIR().getStatements()
                     .forEach(s -> s.accept(classInitializer));
+        }
+    }
+
+    private JMethod resolveCallee(Type type, CallSite callSite) {
+        MethodReference methodRef = callSite.getMethodRef();
+        switch (callSite.getKind()) {
+            case VIRTUAL:
+            case INTERFACE:
+                return hierarchy.dispatch(type, methodRef);
+            case SPECIAL:
+            case STATIC:
+                return methodRef.resolve();
+            default:
+                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
     }
 
@@ -620,7 +639,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(Call call) {
             CallSite callSite = call.getCallSite();
             if (callSite.getKind() == CallKind.STATIC) {
-                JMethod callee = programManager.resolveCallee(null, callSite);
+                JMethod callee = resolveCallee(null, callSite);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);

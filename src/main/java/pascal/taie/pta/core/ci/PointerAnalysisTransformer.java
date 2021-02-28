@@ -13,13 +13,11 @@
 
 package pascal.taie.pta.core.ci;
 
-import pascal.taie.pta.core.ProgramManager;
-import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.pta.jimple.JimplePointerAnalysis;
-import pascal.taie.pta.jimple.JimpleProgramManager;
 import pascal.taie.util.Strings;
-import soot.Scene;
 import soot.SceneTransformer;
 
 import java.util.Comparator;
@@ -46,9 +44,8 @@ public class PointerAnalysisTransformer extends SceneTransformer {
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         PointerAnalysis pta = new PointerAnalysis();
-        ProgramManager pm = new JimpleProgramManager(Scene.v());
-        pta.setProgramManager(pm);
-        pta.setHeapModel(new AllocationSiteBasedModel(pm));
+        pta.setHeapModel(new AllocationSiteBasedModel(
+                World.get().getTypeManager()));
         pta.solve();
         JimplePointerAnalysis.v().setCIPointerAnalysis(pta);
 

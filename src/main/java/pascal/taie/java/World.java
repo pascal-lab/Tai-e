@@ -14,6 +14,7 @@
 package pascal.taie.java;
 
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.env.Environment;
 
 import java.util.Collection;
 

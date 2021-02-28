@@ -26,20 +26,23 @@ import pascal.taie.pta.ir.Obj;
  */
 public class Environment {
 
-    private NativeModel nativeModel;
-    private StringConstantPool strPool;
-    private ReflectionObjectPool reflPool;
-    private Obj mainThread;
-    private Obj systemThreadGroup;
-    private Obj mainThreadGroup;
-    private Obj mainArgs; // main(String[] args)
-    private Obj mainArgsElem; // Element in args
+    private final NativeModel nativeModel;
 
-    /**
-     * Setup Environment object using given ProgramManager.
-     * This method must be called before starting pointer analysis.
-     */
-    public void setup(World world) {
+    private final StringConstantPool strPool;
+
+    private final ReflectionObjectPool reflPool;
+
+    private final Obj mainThread;
+
+    private final Obj systemThreadGroup;
+
+    private final Obj mainThreadGroup;
+
+    private final Obj mainArgs; // main(String[] args)
+
+    private final Obj mainArgsElem; // Element in args
+
+    public Environment(World world) {
         // TODO: refactor NativeModel to AnalysisMonitor
         // nativeModel must be initialized at first, because following
         // initialization calls pm.getUniqueTypeByName(), which may

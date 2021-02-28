@@ -16,9 +16,12 @@ package pascal.taie.pta.core.ci;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
+import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.ReferenceType;
-import pascal.taie.pta.core.ProgramManager;
+import pascal.taie.java.types.Type;
 import pascal.taie.pta.core.heap.HeapModel;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Assign;
@@ -29,12 +32,13 @@ import pascal.taie.pta.ir.InstanceStore;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.Variable;
+import pascal.taie.util.AnalysisException;
 
 import java.util.stream.Stream;
 
 public class PointerAnalysis {
 
-    private ProgramManager programManager;
+    private ClassHierarchy hierarchy;
 
     private OnFlyCallGraph callGraph;
 
@@ -43,14 +47,6 @@ public class PointerAnalysis {
     private HeapModel heapModel;
 
     private WorkList workList;
-
-    public ProgramManager getProgramManager() {
-        return programManager;
-    }
-
-    public void setProgramManager(ProgramManager programManager) {
-        this.programManager = programManager;
-    }
 
     public void setHeapModel(HeapModel heapModel) {
         this.heapModel = heapModel;
@@ -86,10 +82,11 @@ public class PointerAnalysis {
      * Initializes pointer analysis.
      */
     private void initialize() {
+        hierarchy = World.get().getClassHierarchy();
         callGraph = new OnFlyCallGraph();
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        JMethod main = programManager.getMainMethod();
+        JMethod main = World.get().getMainMethod();
         addReachable(main);
         // must be called after addReachable()
         callGraph.addEntryMethod(main);
@@ -240,7 +237,7 @@ public class PointerAnalysis {
             CallSite callSite = call.getCallSite();
             for (Obj recvObj : pts) {
                 // resolve callee
-                JMethod callee = programManager.resolveCallee(recvObj, callSite);
+                JMethod callee = resolveCallee(recvObj.getType(), callSite);
                 // pass receiver object to *this* variable
                 Var thisVar = pointerFlowGraph.getVar(callee.getIR().getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
@@ -289,12 +286,26 @@ public class PointerAnalysis {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {
-                    JMethod callee = programManager.resolveCallee(null, callSite);
+                    JMethod callee = resolveCallee(null, callSite);
                     Edge<CallSite, JMethod> edge =
                             new Edge<>(CallKind.STATIC, callSite, callee);
                     workList.addCallEdge(edge);
                 }
             }
+        }
+    }
+
+    private JMethod resolveCallee(Type type, CallSite callSite) {
+        MethodReference methodRef = callSite.getMethodRef();
+        switch (callSite.getKind()) {
+            case VIRTUAL:
+            case INTERFACE:
+                return hierarchy.dispatch(type, methodRef);
+            case SPECIAL:
+            case STATIC:
+                return methodRef.resolve();
+            default:
+                throw new AnalysisException("Unknown CallSite: " + callSite);
         }
     }
 }

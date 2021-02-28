@@ -18,9 +18,6 @@ import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.WorldBuilder;
 import pascal.taie.java.classes.ClassHierarchyImpl;
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.Subsignature;
 import pascal.taie.java.types.TypeManagerImpl;
 import soot.Scene;
 
@@ -51,7 +48,7 @@ public class SootWorldBuilder implements WorldBuilder {
     @Override
     public World build() {
         World world = new World();
-        // initialize  class hierarchy
+        // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         Scene scene = Scene.v();
         SootClassLoader loader = new SootClassLoader(scene, hierarchy);
