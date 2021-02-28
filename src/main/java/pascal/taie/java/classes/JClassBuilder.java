@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public interface JClassBuilder {
 
-    JClass build();
+    void build(JClass jclass);
 
     Set<Modifier> getModifiers();
 

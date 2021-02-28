@@ -66,7 +66,9 @@ public class SootWorldBuilder implements WorldBuilder {
         initSoot(scene);
         buildClasses(hierarchy, scene);
         // set main method
-        world.setMainMethod(converter.convertMethod(scene.getMainMethod()));
+        if (scene.hasMainClass()) {
+            world.setMainMethod(converter.convertMethod(scene.getMainMethod()));
+        }
         // set implicit entries
         world.setImplicitEntries(implicitEntries.stream()
                 .map(hierarchy::getJREMethod)

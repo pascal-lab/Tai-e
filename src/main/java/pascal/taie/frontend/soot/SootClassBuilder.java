@@ -39,10 +39,8 @@ public class SootClassBuilder implements JClassBuilder {
     }
 
     @Override
-    public JClass build() {
-        JClass jclass = new JClass(loader, sootClass.getName());
+    public void build(JClass jclass) {
         jclass.build(this);
-        return jclass;
     }
 
     @Override

@@ -90,6 +90,7 @@ public class StringReps {
     }
 
     public static String getSubsignatureOf(String methodSig) {
+        validateSignature(methodSig);
         throw new UnsupportedOperationException();
     }
 
