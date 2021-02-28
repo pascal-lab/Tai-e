@@ -32,7 +32,7 @@ public class DefaultCallSite extends AbstractCallSite {
      */
     private Stmt stmt;
 
-    public void setSootStmt(Stmt stmt) {
+    public void setStmt(Stmt stmt) {
         this.stmt = stmt;
     }
 

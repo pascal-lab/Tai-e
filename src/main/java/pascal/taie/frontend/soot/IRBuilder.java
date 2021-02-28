@@ -345,6 +345,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         InvokeExpr invoke = stmt.getInvokeExpr();
         DefaultCallSite callSite = new DefaultCallSite(
                 JimpleCallUtils.getCallKind(invoke));
+        callSite.setStmt(stmt); // TODO: <-- get rid of this
         callSite.setMethodRef(
                 converter.convertMethodRef(invoke.getMethodRef()));
         if (invoke instanceof InstanceInvokeExpr) {

@@ -15,7 +15,7 @@ package pascal.taie.pta;
 
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.core.solver.PointerAnalysisBuilder;
-import pascal.taie.pta.jimple.JimplePointerAnalysis;
+import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import soot.SceneTransformer;
 
 import java.util.Map;

@@ -24,7 +24,7 @@ import pascal.taie.icfg.ICFG;
 import pascal.taie.icfg.JimpleICFG;
 import pascal.taie.icfg.LocalEdge;
 import pascal.taie.icfg.ReturnEdge;
-import pascal.taie.pta.jimple.JimplePointerAnalysis;
+import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.util.AnalysisException;
 import soot.Local;
 import soot.SceneTransformer;

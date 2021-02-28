@@ -125,7 +125,7 @@ class Converter {
             return new JMethod(convertClass(m.getDeclaringClass()),
                     m.getName(),
                     Modifiers.convert(m.getModifiers()),
-                    paramTypes, returnType);
+                    paramTypes, returnType, sootMethod);
         });
     }
 

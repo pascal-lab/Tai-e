@@ -1,5 +1,5 @@
 /*
- * Tai-e: A Program Analysis Framework for Java
+ * Tai-e - A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,15 +11,16 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.jimple;
+package pascal.taie.frontend.soot;
 
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.JimpleCallGraph;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.ir.DefaultCallSite;
 import pascal.taie.util.AnalysisException;
 import soot.SootMethod;
 import soot.Unit;
@@ -32,9 +33,11 @@ public class JimplePointerAnalysis {
 
     private static final JimplePointerAnalysis INSTANCE =
             new JimplePointerAnalysis();
+
     private PointerAnalysis pta;
+
     private pascal.taie.pta.core.ci.PointerAnalysis cipta;
-    private IRBuilder irBuilder;
+
     private JimpleCallGraph jimpleCallGraph;
 
     public static JimplePointerAnalysis v() {
@@ -43,16 +46,12 @@ public class JimplePointerAnalysis {
 
     public void setPointerAnalysis(PointerAnalysis pta) {
         this.pta = pta;
-        irBuilder = ((JimpleProgramManager) pta.getProgramManager())
-                .getIRBuilder();
         jimpleCallGraph = null;
     }
 
     public void setCIPointerAnalysis(
             pascal.taie.pta.core.ci.PointerAnalysis cipta) {
         this.cipta = cipta;
-        irBuilder = ((JimpleProgramManager) cipta.getProgramManager())
-                .getIRBuilder();
         jimpleCallGraph = null;
     }
 
@@ -82,14 +81,13 @@ public class JimplePointerAnalysis {
                 CallGraph<CallSite, JMethod> callGraph = cipta.getCallGraph();
                 callGraph.getEntryMethods()
                         .stream()
-                        .map(m -> ((JimpleMethod) m).getSootMethod())
+                        .map(JMethod::getSootMethod)
                         .forEach(jimpleCallGraph::addEntryMethod);
                 // Add call graph edges
                 callGraph.forEach(edge -> {
-                    Unit call = ((JimpleCallSite) edge.getCallSite())
+                    Unit call = ((DefaultCallSite) edge.getCallSite())
                             .getSootStmt();
-                    SootMethod target = ((JimpleMethod) edge.getCallee())
-                            .getSootMethod();
+                    SootMethod target = edge.getCallee().getSootMethod();
                     jimpleCallGraph.addEdge(call, target, edge.getKind());
                 });
             } else {
@@ -100,10 +98,10 @@ public class JimplePointerAnalysis {
     }
 
     private Unit toSootUnit(CSCallSite callSite) {
-        return ((JimpleCallSite) callSite.getCallSite()).getSootStmt();
+        return ((DefaultCallSite) callSite.getCallSite()).getSootStmt();
     }
 
     private SootMethod toSootMethod(CSMethod method) {
-        return ((JimpleMethod) method.getMethod()).getSootMethod();
+        return method.getMethod().getSootMethod();
     }
 }
