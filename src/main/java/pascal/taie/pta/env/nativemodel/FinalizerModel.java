@@ -55,7 +55,7 @@ class FinalizerModel {
         if (s instanceof Allocation) {
             Allocation alloc = (Allocation) s;
             Obj obj = alloc.getObject();
-            if (isOverridesFinalize(obj.getType())) {
+            if (hasOverriddenFinalize(obj.getType())) {
                 obj.getContainerMethod().ifPresent(container -> {
                     Variable lhs = alloc.getVar();
                     MockCallSite callSite = new MockCallSite(CallKind.STATIC,
@@ -68,7 +68,7 @@ class FinalizerModel {
         }
     }
 
-    private boolean isOverridesFinalize(Type type) {
-        return hierarchy.dispatch(type, finalizeRef).equals(finalize);
+    private boolean hasOverriddenFinalize(Type type) {
+        return !hierarchy.dispatch(type, finalizeRef).equals(finalize);
     }
 }
