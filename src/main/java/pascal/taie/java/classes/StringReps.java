@@ -1,5 +1,5 @@
 /*
- * Tai-e - A Program Analysis Framework for Java
+ * Tai-e: A Program Analysis Framework for Java
  *
  * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
  * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
@@ -11,14 +11,10 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.util;
+package pascal.taie.java.classes;
 
-import pascal.taie.java.classes.FieldReference;
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
+import pascal.taie.util.AnalysisException;
 
 import java.util.List;
 import java.util.stream.Collectors;

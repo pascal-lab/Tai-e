@@ -21,7 +21,6 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.ArrayMap;
 import pascal.taie.util.HybridArrayHashMap;
 import pascal.taie.util.HybridArrayHashSet;
-import pascal.taie.util.StringReps;
 
 import java.util.Collection;
 import java.util.Collections;

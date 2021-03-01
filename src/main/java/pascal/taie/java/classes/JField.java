@@ -14,7 +14,6 @@
 package pascal.taie.java.classes;
 
 import pascal.taie.java.types.Type;
-import pascal.taie.util.StringReps;
 
 import java.util.Set;
 

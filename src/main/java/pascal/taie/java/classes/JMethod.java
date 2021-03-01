@@ -16,7 +16,6 @@ package pascal.taie.java.classes;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.IR;
-import pascal.taie.util.StringReps;
 import soot.SootMethod;
 
 import java.util.Collections;

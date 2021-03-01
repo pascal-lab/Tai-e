@@ -17,7 +17,6 @@ import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
-import pascal.taie.util.StringReps;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
