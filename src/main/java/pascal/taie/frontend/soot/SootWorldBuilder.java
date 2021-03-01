@@ -20,6 +20,7 @@ import pascal.taie.java.WorldBuilder;
 import pascal.taie.java.classes.ClassHierarchyImpl;
 import pascal.taie.java.types.TypeManagerImpl;
 import pascal.taie.pta.env.Environment;
+import pascal.taie.util.Timer;
 import soot.Scene;
 
 import java.util.Arrays;
@@ -87,9 +88,14 @@ public class SootWorldBuilder implements WorldBuilder {
     }
 
     private static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
+        // Parallelize?
+        Timer timer = new Timer("Build all classes");
+        timer.start();
         scene.getClasses().forEach(c ->
                 // TODO: dump classes
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
+        timer.stop();
+        System.out.println(timer);
     }
 
     public static void initSoot(Scene scene) {
