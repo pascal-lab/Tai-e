@@ -18,7 +18,10 @@ import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,6 +30,55 @@ public class MethodReference extends MemberReference {
 
     private static final ConcurrentMap<Key, MethodReference> map =
             new ConcurrentHashMap<>(4096);
+
+    // Class and method names of polymorphic signature methods.
+    private static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";
+
+    private static final Set<String> METHOD_HANDLE_METHODS = new HashSet<>(Arrays.asList(
+            "invokeExact",
+            "invoke",
+            "invokeBasic",
+            "linkToVirtual",
+            "linkToStatic",
+            "linkToSpecial",
+            "linkToInterface"
+    ));
+
+    private static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
+
+    private static final Set<String> VAR_HANDLE_METHODS = new HashSet<>(Arrays.asList(
+            "get",
+            "set",
+            "getVolatile",
+            "setVolatile",
+            "getOpaque",
+            "setOpaque",
+            "getAcquire",
+            "setRelease",
+            "compareAndSet",
+            "compareAndExchange",
+            "compareAndExchangeAcquire",
+            "compareAndExchangeRelease",
+            "weakCompareAndSetPlain",
+            "weakCompareAndSet",
+            "weakCompareAndSetAcquire",
+            "weakCompareAndSetRelease",
+            "getAndSet",
+            "getAndSetAcquire",
+            "getAndSetRelease",
+            "getAndAdd",
+            "getAndAddAcquire",
+            "getAndAddRelease",
+            "getAndBitwiseOr",
+            "getAndBitwiseOrAcquire",
+            "getAndBitwiseOrRelease",
+            "getAndBitwiseAnd",
+            "getAndBitwiseAndAcquire",
+            "getAndBitwiseAndRelease",
+            "getAndBitwiseXor",
+            "getAndBitwiseXorAcquire",
+            "getAndBitwiseXorRelease"
+    ));
 
     private final List<Type> parameterTypes;
 
@@ -72,6 +124,19 @@ public class MethodReference extends MemberReference {
 
     public Subsignature getSubsignature() {
         return subsignature;
+    }
+
+    /**
+     * @return if this is a reference to polymorphic signature method.
+     */
+    public boolean isPolymorphicSignature() {
+        if (getDeclaringClass().getName().equals(METHOD_HANDLE)) {
+            return METHOD_HANDLE_METHODS.contains(getName());
+        }
+        if (getDeclaringClass().getName().equals(VAR_HANDLE)) {
+            return VAR_HANDLE_METHODS.contains(getName());
+        }
+        return false;
     }
 
     public JMethod resolve() {

@@ -132,12 +132,31 @@ public class JClass {
         return declaredFields.values();
     }
 
-    public @Nullable JField getDeclaredField(String name) {
-        return declaredFields.get(name);
+    public @Nullable JField getDeclaredField(String fieldName) {
+        return declaredFields.get(fieldName);
     }
 
     public Collection<JMethod> getDeclaredMethods() {
         return declaredMethods.values();
+    }
+
+    /**
+     * Attempts to retrieve the method with the given name.
+     * @throws AmbiguousMethodException if this class has multiple methods
+     *  with the given name.
+     */
+    public @Nullable JMethod getDeclaredMethod(String methodName) {
+        JMethod result = null;
+        for (JMethod method : declaredMethods.values()) {
+            if (method.getName().equals(methodName)) {
+                if (result == null) {
+                    result = method;
+                } else {
+                    throw new AmbiguousMethodException(name, methodName);
+                }
+            }
+        }
+        return result;
     }
 
     public @Nullable JMethod getDeclaredMethod(Subsignature subSignature) {

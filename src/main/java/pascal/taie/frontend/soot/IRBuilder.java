@@ -45,7 +45,6 @@ import soot.ArrayType;
 import soot.Body;
 import soot.Local;
 import soot.RefLikeType;
-import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -90,16 +89,13 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     private final ConcurrentMap<JMethod, Map<Local, Variable>> vars
             = new ConcurrentHashMap<>();
 
-    private final Scene scene;
-
     private final Converter converter;
 
     private final NewVariableManager varManager = new NewVariableManager();
 
     private final Environment env;
 
-    IRBuilder(Scene scene, Converter converter, Environment env) {
-        this.scene = scene;
+    IRBuilder(Converter converter, Environment env) {
         this.converter = converter;
         this.env = env;
     }

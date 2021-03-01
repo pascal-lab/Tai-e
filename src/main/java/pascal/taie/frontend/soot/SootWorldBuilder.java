@@ -83,7 +83,7 @@ public class SootWorldBuilder implements WorldBuilder {
         // initialize IR builder
         Environment env = new Environment(world);
         world.setEnvironment(env);
-        world.setIRBuilder(new IRBuilder(scene, converter, env));
+        world.setIRBuilder(new IRBuilder(converter, env));
         return world;
     }
 

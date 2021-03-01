@@ -152,14 +152,17 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public JMethod resolveMethod(MethodReference methodRef) {
-        JMethod method = lookupMethod(methodRef.getDeclaringClass(),
+        JClass declaringClass = methodRef.getDeclaringClass();
+        JMethod method = lookupMethod(declaringClass,
                 methodRef.getSubsignature(), true);
         if (method != null) {
             return method;
-        } else {
-            throw new MethodResolutionFailedException(
-                    "Cannot resolve " + methodRef);
+        } else if (methodRef.isPolymorphicSignature()) {
+            // For reference to polymorphic signature method, we return
+            // method with the same name that is declared in declaringClass.
+            return declaringClass.getDeclaredMethod(methodRef.getName());
         }
+        throw new MethodResolutionFailedException("Cannot resolve " + methodRef);
     }
 
     @Override
