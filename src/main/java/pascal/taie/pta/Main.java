@@ -13,7 +13,9 @@
 
 package pascal.taie.pta;
 
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import soot.PackManager;
+import soot.Scene;
 import soot.Transform;
 
 public class Main {
@@ -28,6 +30,7 @@ public class Main {
             PTAOptions.get().printVersion();
             return;
         }
+        SootWorldBuilder.initSoot(Scene.v());
 
         // Set Soot options
         soot.options.Options.v().set_output_format(

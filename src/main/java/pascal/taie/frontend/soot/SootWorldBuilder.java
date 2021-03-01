@@ -70,7 +70,6 @@ public class SootWorldBuilder implements WorldBuilder {
         loader.setConverter(converter);
         World.set(world); // <-- order?
         // build classes in hierarchy
-        initSoot(scene);
         buildClasses(hierarchy, scene);
         // set main method
         if (scene.hasMainClass()) {
