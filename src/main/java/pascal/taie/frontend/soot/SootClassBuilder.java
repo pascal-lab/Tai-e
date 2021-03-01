@@ -26,14 +26,11 @@ import java.util.Set;
 
 public class SootClassBuilder implements JClassBuilder {
 
-    private final SootClassLoader loader;
-
     private final Converter converter;
 
     private final SootClass sootClass;
 
-    SootClassBuilder(SootClassLoader loader, Converter converter, SootClass sootClass) {
-        this.loader = loader;
+    SootClassBuilder(Converter converter, SootClass sootClass) {
         this.converter = converter;
         this.sootClass = sootClass;
     }

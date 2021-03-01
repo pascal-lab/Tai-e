@@ -172,7 +172,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     }
 
     private void buildConcrete(JMethod method, DefaultIR ir) {
-        SootMethod sootMethod = scene.getMethod(method.getSignature());
+        SootMethod sootMethod = method.getSootMethod();
         Body body = sootMethod.retrieveActiveBody();
         // add this variable
         if (!method.isStatic()) {

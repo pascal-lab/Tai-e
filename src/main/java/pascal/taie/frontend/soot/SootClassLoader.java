@@ -53,7 +53,7 @@ public class SootClassLoader implements JClassLoader {
             if (sootClass != null) {
                 jclass = new JClass(this, sootClass.getName());
                 classes.put(name, jclass);
-                new SootClassBuilder(this, converter, sootClass)
+                new SootClassBuilder(converter, sootClass)
                         .build(jclass);
                 hierarchy.addClass(jclass);
                 // TODO: dump class
