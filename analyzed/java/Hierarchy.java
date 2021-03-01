@@ -42,3 +42,5 @@ abstract class E extends C implements I, II {
 abstract class F implements III {}
 
 abstract class G extends E implements IIII {}
+
+abstract class H extends F {}

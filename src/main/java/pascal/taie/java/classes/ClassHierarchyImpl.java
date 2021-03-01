@@ -247,7 +247,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 3. Otherwise, method resolution attempts to locate the
         // referenced method in the superinterfaces of the specified class C
         for (JClass c = jclass; c != null; c = c.getSuperClass()) {
-            for (JClass iface : jclass.getInterfaces()) {
+            for (JClass iface : c.getInterfaces()) {
                 JMethod method = lookupMethodFromSuperinterfaces(
                         iface, subsignature, allowAbstract);
                 if (method != null) {

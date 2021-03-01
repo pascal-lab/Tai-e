@@ -215,6 +215,14 @@ public class HierarchyTest {
     }
 
     /**
+     * Find method in superclass's superinterface.
+     */
+    @Test
+    public void testResolveMethod4() {
+        testResolveMethod("H", "biu", "I", typeManager.getClassType("I"));
+    }
+
+    /**
      * Test resolveMethod() with specified class and name.
      * The declaring class of the resolved method should be the same
      * as the given expected class.
