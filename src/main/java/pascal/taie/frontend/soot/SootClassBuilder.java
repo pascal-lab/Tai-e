@@ -24,7 +24,7 @@ import soot.SootClass;
 import java.util.Collection;
 import java.util.Set;
 
-public class SootClassBuilder implements JClassBuilder {
+class SootClassBuilder implements JClassBuilder {
 
     private final Converter converter;
 

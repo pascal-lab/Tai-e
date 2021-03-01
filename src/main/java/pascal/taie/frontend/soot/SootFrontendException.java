@@ -16,32 +16,12 @@ package pascal.taie.frontend.soot;
 /**
  * Represents the errors raised during reading program information from soot.
  */
-public class SootFrontendException extends RuntimeException {
+class SootFrontendException extends RuntimeException {
 
     /**
      * Constructs a new exception.
      */
-    public SootFrontendException() {
-    }
-
-    /**
-     * Constructs a new exception.
-     */
-    public SootFrontendException(String msg) {
+    SootFrontendException(String msg) {
         super(msg);
-    }
-
-    /**
-     * Constructs a new exception.
-     */
-    public SootFrontendException(Throwable t) {
-        super(t);
-    }
-
-    /**
-     * Constructs a new exception.
-     */
-    public SootFrontendException(String msg, Throwable t) {
-        super(msg, t);
     }
 }

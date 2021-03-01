@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SootClassLoader implements JClassLoader {
+class SootClassLoader implements JClassLoader {
 
     private final Scene scene;
 
@@ -34,7 +34,7 @@ public class SootClassLoader implements JClassLoader {
 
     private final Map<String, JClass> classes = new HashMap<>(1024);
 
-    public SootClassLoader(Scene scene, ClassHierarchy hierarchy) {
+    SootClassLoader(Scene scene, ClassHierarchy hierarchy) {
         this.scene = scene;
         this.hierarchy = hierarchy;
     }
@@ -56,7 +56,6 @@ public class SootClassLoader implements JClassLoader {
                 new SootClassBuilder(converter, sootClass)
                         .build(jclass);
                 hierarchy.addClass(jclass);
-                // TODO: dump class
             }
         }
         // TODO: add warning for missing classes

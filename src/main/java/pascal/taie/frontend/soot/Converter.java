@@ -66,7 +66,7 @@ class Converter {
     private final Map<SootMethodRef, MethodReference> methodRefMap
             = new HashMap<>();
 
-    public Converter(JClassLoader loader, TypeManager typeManager) {
+    Converter(JClassLoader loader, TypeManager typeManager) {
         this.loader = loader;
         this.typeManager = typeManager;
     }
