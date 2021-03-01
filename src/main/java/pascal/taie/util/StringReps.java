@@ -91,7 +91,8 @@ public class StringReps {
 
     public static String getSubsignatureOf(String methodSig) {
         validateSignature(methodSig);
-        throw new UnsupportedOperationException();
+        int index = methodSig.indexOf(":");
+        return methodSig.substring(index + 2, methodSig.length() - 1);
     }
 
     public static String getDescriptorOf(JMethod method) {
