@@ -537,6 +537,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
          * @param cls
          */
         private void initializeClass(JClass cls) {
+            if (cls == null) {
+                return;
+            }
+
             if (initializedClasses.contains(cls)) {
                 // cls has already been initialized
                 return;
@@ -564,17 +568,24 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(Allocation alloc) {
             Obj obj = alloc.getObject();
-            Type type = obj.getKind() == Obj.Kind.CLASS ?
-                    (Type) obj.getAllocation() :
-                    obj.getType();
-            if (type instanceof ClassType) {
-                initializeClass(((ClassType) type).getJClass());
-            } else if (type instanceof ArrayType) {
-                Type baseType = ((ArrayType) type).getBaseType();
-                if (baseType instanceof ClassType) {
-                    initializeClass(((ClassType) baseType).getJClass());
-                }
+            if (obj.getKind() == Obj.Kind.CLASS) {
+                initializeClass(extractClass((Type) obj.getAllocation()));
             }
+            initializeClass(extractClass(obj.getType()));
+        }
+
+        /**
+         * Extract the class to be initialized from given type.
+         */
+        private JClass extractClass(Type type) {
+            if (type instanceof ClassType) {
+                return ((ClassType) type).getJClass();
+            } else if (type instanceof ArrayType) {
+                return extractClass(((ArrayType) type).getBaseType());
+            }
+            // Some types do not contain class to be initialized,
+            // e.g., int[], then return null for such cases.
+            return null;
         }
 
         @Override
