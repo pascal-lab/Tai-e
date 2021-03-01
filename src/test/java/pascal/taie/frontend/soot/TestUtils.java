@@ -16,6 +16,7 @@ package pascal.taie.frontend.soot;
 import soot.G;
 import soot.Main;
 import soot.PackManager;
+import soot.Scene;
 import soot.SceneTransformer;
 import soot.Transform;
 import soot.options.Options;
@@ -42,7 +43,7 @@ public class TestUtils {
                 .add(new Transform("wjtp.Tai-e", new SceneTransformer() {
                     @Override
                     protected void internalTransform(String phaseName, Map<String, String> options) {
-                        new SootWorldBuilder().build();
+                        new SootWorldBuilder(Scene.v()).build();
                     }
                 }));
 

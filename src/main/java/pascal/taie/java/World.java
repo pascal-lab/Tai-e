@@ -17,6 +17,7 @@ import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.classes.Subsignature;
+import pascal.taie.pta.env.Environment;
 
 import java.util.Collection;
 
@@ -49,6 +50,8 @@ public class World {
     private ClassHierarchy classHierarchy;
 
     private IRBuilder irBuilder;
+
+    private Environment environment;
 
     private JMethod mainMethod;
 
@@ -84,6 +87,14 @@ public class World {
 
     public void setIRBuilder(IRBuilder irBuilder) {
         this.irBuilder = irBuilder;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public JMethod getMainMethod() {

@@ -103,7 +103,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         this.world = world;
         this.typeManager = world.getTypeManager();
         this.hierarchy = world.getClassHierarchy();
-        this.environment = new Environment(world);
+        this.environment = world.getEnvironment();
     }
 
     @Override

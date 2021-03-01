@@ -13,11 +13,13 @@
 
 package pascal.taie.pta.core.ci;
 
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.util.Strings;
+import soot.Scene;
 import soot.SceneTransformer;
 
 import java.util.Comparator;
@@ -43,6 +45,9 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
+        World.reset();
+        new SootWorldBuilder(Scene.v()).build();
+
         PointerAnalysis pta = new PointerAnalysis();
         pta.setHeapModel(new AllocationSiteBasedModel(
                 World.get().getTypeManager()));

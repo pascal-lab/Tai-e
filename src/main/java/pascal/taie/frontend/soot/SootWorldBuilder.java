@@ -19,6 +19,7 @@ import pascal.taie.java.World;
 import pascal.taie.java.WorldBuilder;
 import pascal.taie.java.classes.ClassHierarchyImpl;
 import pascal.taie.java.types.TypeManagerImpl;
+import pascal.taie.pta.env.Environment;
 import soot.Scene;
 
 import java.util.Arrays;
@@ -45,12 +46,17 @@ public class SootWorldBuilder implements WorldBuilder {
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
     );
 
+    private final Scene scene;
+
+    public SootWorldBuilder(Scene scene) {
+        this.scene = scene;
+    }
+
     @Override
     public World build() {
         World world = new World();
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
-        Scene scene = Scene.v();
         SootClassLoader loader = new SootClassLoader(scene, hierarchy);
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
@@ -73,6 +79,10 @@ public class SootWorldBuilder implements WorldBuilder {
         world.setImplicitEntries(implicitEntries.stream()
                 .map(hierarchy::getJREMethod)
                 .collect(Collectors.toList()));
+        // initialize IR builder
+        Environment env = new Environment(world);
+        world.setEnvironment(env);
+        world.setIRBuilder(new IRBuilder(scene, converter, env));
         return world;
     }
 
@@ -82,7 +92,7 @@ public class SootWorldBuilder implements WorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
     }
 
-    private static void initSoot(Scene scene) {
+    public static void initSoot(Scene scene) {
         // The following line is necessary to avoid a runtime exception
         // when running soot with java 1.8
         scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);
