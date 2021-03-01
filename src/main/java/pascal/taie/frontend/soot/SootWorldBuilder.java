@@ -96,6 +96,11 @@ public class SootWorldBuilder implements WorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
         timer.stop();
         System.out.println(timer);
+        System.out.println("#classes: " + hierarchy.getAllClasses().size());
+        System.out.println("#methods: " + hierarchy.getAllClasses()
+                .stream()
+                .mapToInt(c -> c.getDeclaredMethods().size())
+                .sum());
     }
 
     public static void initSoot(Scene scene) {
