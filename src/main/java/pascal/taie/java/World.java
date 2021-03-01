@@ -13,8 +13,10 @@
 
 package pascal.taie.java;
 
+import pascal.taie.java.classes.FieldReference;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.env.Environment;
+import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.Subsignature;
 
 import java.util.Collection;
 
@@ -31,6 +33,13 @@ public class World {
 
     public static void set(World world) {
         theWorld = world;
+    }
+
+    public static void reset() {
+        Subsignature.reset();
+        FieldReference.reset();
+        MethodReference.reset();
+        theWorld = null;
     }
 
     private Options options;

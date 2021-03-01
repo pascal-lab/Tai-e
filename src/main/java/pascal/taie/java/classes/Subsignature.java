@@ -43,7 +43,7 @@ public class Subsignature {
         return map.computeIfAbsent(subsig, Subsignature::new);
     }
 
-    public static void clear() {
+    public static void reset() {
         map.clear();
     }
 

@@ -51,7 +51,7 @@ public class MethodReference extends MemberReference {
                 new MethodReference(k, name, parameterTypes, returnType));
     }
 
-    public static void clear() {
+    public static void reset() {
         map.clear();
     }
 

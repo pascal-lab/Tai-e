@@ -42,7 +42,7 @@ public class FieldReference extends MemberReference {
         return map.computeIfAbsent(key, FieldReference::new);
     }
 
-    public static void clear() {
+    public static void reset() {
         map.clear();
     }
 
