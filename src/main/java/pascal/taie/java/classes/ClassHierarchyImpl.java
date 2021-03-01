@@ -22,6 +22,7 @@ import pascal.taie.util.ArrayMap;
 import pascal.taie.util.HybridArrayHashMap;
 import pascal.taie.util.HybridArrayHashSet;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -111,23 +112,23 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JClass getClass(JClassLoader loader, String name) {
+    public @Nullable JClass getClass(JClassLoader loader, String name) {
         return loader.loadClass(name);
     }
 
     @Override
-    public JClass getClass(String name) {
+    public @Nullable JClass getClass(String name) {
         // TODO: add warning
         return getClass(getDefaultClassLoader(), name);
     }
 
     @Override
-    public JClass getJREClass(String name) {
+    public @Nullable JClass getJREClass(String name) {
         return getClass(getBootstrapClassLoader(), name);
     }
 
     @Override
-    public JMethod getJREMethod(String methodSig) {
+    public @Nullable JMethod getJREMethod(String methodSig) {
         String className = StringReps.getClassNameOf(methodSig);
         JClass jclass = getJREClass(className);
         if (jclass != null) {
@@ -141,8 +142,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     public JField getJREField(String fieldSig) {
         String className = StringReps.getClassNameOf(fieldSig);
-        String fieldName = StringReps.getFieldNameOf(fieldSig);
-        return getJREClass(className).getDeclaredField(fieldName);
+        JClass jclass = getJREClass(className);
+        if (jclass != null) {
+            String fieldName = StringReps.getFieldNameOf(fieldSig);
+            return jclass.getDeclaredField(fieldName);
+        }
+        return null;
     }
 
     @Override

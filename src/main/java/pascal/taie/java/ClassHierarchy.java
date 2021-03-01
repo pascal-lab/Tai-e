@@ -21,6 +21,7 @@ import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodReference;
 import pascal.taie.java.types.Type;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -47,9 +48,9 @@ public interface ClassHierarchy {
 
     Collection<JClass> getAllClasses();
 
-    JClass getClass(JClassLoader loader, String name);
+    @Nullable JClass getClass(JClassLoader loader, String name);
 
-    JClass getClass(String name);
+    @Nullable JClass getClass(String name);
 
     /**
      * Get a JRE class by it name.
@@ -58,7 +59,7 @@ public interface ClassHierarchy {
      * @return the {@link JClass} for name if found;
      * null if can't find the class. TODO: return Optional<JClass>?
      */
-    JClass getJREClass(String name);
+    @Nullable JClass getJREClass(String name);
 
     /**
      * Get a method declared in a JRE class by its signature.
@@ -68,7 +69,7 @@ public interface ClassHierarchy {
      * null if can't find the method. TODO: return Optional<JMethod>?
      * @throws pascal.taie.util.AnalysisException if signature is invalid.
      */
-    JMethod getJREMethod(String methodSig);
+    @Nullable JMethod getJREMethod(String methodSig);
 
     /**
      * Get a field declared in a JRE class by its signature.
