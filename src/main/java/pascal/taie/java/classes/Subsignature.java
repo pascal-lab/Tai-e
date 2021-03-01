@@ -29,8 +29,6 @@ public class Subsignature {
     private static final ConcurrentMap<String, Subsignature> map =
             new ConcurrentHashMap<>();
 
-    public static final Subsignature CLINIT = get("void <clinit>()");
-
     private final String subsig;
 
     public static Subsignature get(

@@ -145,7 +145,7 @@ public class JClass {
     }
 
     public @Nullable JMethod getClinit() {
-        return getDeclaredMethod(Subsignature.CLINIT);
+        return getDeclaredMethod(Subsignature.get(StringReps.CLINIT));
     }
 
     @Override
