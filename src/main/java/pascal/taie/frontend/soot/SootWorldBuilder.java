@@ -54,6 +54,7 @@ public class SootWorldBuilder implements WorldBuilder {
 
     @Override
     public World build() {
+        World.reset();
         World world = new World();
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
