@@ -130,9 +130,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     public JMethod getJREMethod(String methodSig) {
         String className = StringReps.getClassNameOf(methodSig);
-        Subsignature subsig = Subsignature.get(
-                StringReps.getSubsignatureOf(methodSig));
-        return getJREClass(className).getDeclaredMethod(subsig);
+        JClass jclass = getJREClass(className);
+        if (jclass != null) {
+            Subsignature subsig = Subsignature.get(
+                    StringReps.getSubsignatureOf(methodSig));
+            return jclass.getDeclaredMethod(subsig);
+        }
+        return null;
     }
 
     @Override

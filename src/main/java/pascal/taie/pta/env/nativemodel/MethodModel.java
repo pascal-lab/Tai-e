@@ -200,7 +200,9 @@ class MethodModel {
 
     private void registerHandler(String signature, Consumer<IR> handler) {
         JMethod method = hierarchy.getJREMethod(signature);
-        handlers.put(method, handler);
+        if (method != null) {
+            handlers.put(method, handler);
+        }
     }
 
     private Variable newMockVariable(Type type, JMethod container) {

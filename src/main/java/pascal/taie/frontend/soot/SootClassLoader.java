@@ -49,7 +49,7 @@ public class SootClassLoader implements JClassLoader {
         JClass jclass = classes.get(name);
         if (jclass == null) {
             // TODO: confirm if this API is suitable
-            SootClass sootClass = scene.loadClassAndSupport(name);
+            SootClass sootClass = scene.getSootClassUnsafe(name, false);
             if (sootClass != null) {
                 jclass = new JClass(this, sootClass.getName());
                 classes.put(name, jclass);
