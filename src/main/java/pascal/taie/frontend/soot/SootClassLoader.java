@@ -15,7 +15,6 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JClassBuilder;
 import pascal.taie.java.classes.JClassLoader;
 import soot.Scene;
 import soot.SootClass;
@@ -40,11 +39,6 @@ class SootClassLoader implements JClassLoader {
     }
 
     @Override
-    public JClassBuilder getClassBuilder(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public JClass loadClass(String name) {
         JClass jclass = classes.get(name);
         if (jclass == null) {
@@ -52,6 +46,10 @@ class SootClassLoader implements JClassLoader {
             SootClass sootClass = scene.getSootClassUnsafe(name, false);
             if (sootClass != null) {
                 jclass = new JClass(this, sootClass.getName());
+                // New class must be put into classes map at first,
+                // at build(jclass) may also trigger the loading of
+                // the new created class. Not putting the class into classes
+                // may cause infinite recursion.
                 classes.put(name, jclass);
                 new SootClassBuilder(converter, sootClass)
                         .build(jclass);

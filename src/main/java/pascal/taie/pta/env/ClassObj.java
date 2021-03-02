@@ -13,9 +13,9 @@
 
 package pascal.taie.pta.env;
 
-import pascal.taie.pta.ir.AbstractObj;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
+import pascal.taie.pta.ir.AbstractObj;
 
 import java.util.Optional;
 

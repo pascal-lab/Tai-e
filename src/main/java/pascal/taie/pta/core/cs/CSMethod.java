@@ -13,8 +13,8 @@
 
 package pascal.taie.pta.core.cs;
 
-import pascal.taie.pta.core.context.Context;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.pta.core.context.Context;
 import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.Set;

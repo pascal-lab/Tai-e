@@ -13,10 +13,10 @@
 
 package pascal.taie.pta.core.heap;
 
-import pascal.taie.pta.ir.AbstractObj;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.Obj;
 import pascal.taie.java.types.Type;
+import pascal.taie.pta.ir.AbstractObj;
+import pascal.taie.pta.ir.Obj;
 
 import java.util.Optional;
 import java.util.Set;

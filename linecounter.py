@@ -1,4 +1,6 @@
-import os, sys
+import os
+import sys
+
 
 def countLine(filePath):
 	f = open(filePath)

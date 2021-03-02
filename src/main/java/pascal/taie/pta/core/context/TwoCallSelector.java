@@ -13,10 +13,10 @@
 
 package pascal.taie.pta.core.context;
 
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
-import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.Obj;
 
 /**

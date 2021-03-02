@@ -13,9 +13,9 @@
 
 package pascal.taie.dataflow.analysis.constprop;
 
-import pascal.taie.util.AnalysisException;
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.AnalysisException;
 
 public class ValueTest {
 

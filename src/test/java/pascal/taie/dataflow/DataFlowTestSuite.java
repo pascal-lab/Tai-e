@@ -13,11 +13,11 @@
 
 package pascal.taie.dataflow;
 
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import pascal.taie.dataflow.analysis.constprop.CPTestSuite;
 import pascal.taie.dataflow.analysis.deadcode.DCDTestFull;
 import pascal.taie.dataflow.lattice.LatticeTestSuite;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

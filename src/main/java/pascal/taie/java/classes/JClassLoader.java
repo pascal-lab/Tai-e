@@ -17,8 +17,6 @@ import java.util.Collection;
 
 public interface JClassLoader {
 
-    JClassBuilder getClassBuilder(String name);
-
     JClass loadClass(String name);
 
     Collection<JClass> getLoadedClasses();

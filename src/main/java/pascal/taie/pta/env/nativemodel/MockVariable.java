@@ -13,9 +13,9 @@
 
 package pascal.taie.pta.env.nativemodel;
 
-import pascal.taie.pta.ir.AbstractVariable;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
+import pascal.taie.pta.ir.AbstractVariable;
 
 import java.util.Objects;
 

@@ -13,10 +13,10 @@
 
 package pascal.taie.pta.plugin;
 
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.set.PointsToSet;
 
 import java.util.ArrayList;

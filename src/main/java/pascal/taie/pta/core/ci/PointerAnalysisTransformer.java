@@ -13,11 +13,11 @@
 
 package pascal.taie.pta.core.ci;
 
+import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
-import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.util.Strings;
 import soot.Scene;
 import soot.SceneTransformer;
