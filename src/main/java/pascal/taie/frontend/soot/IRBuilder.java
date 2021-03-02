@@ -248,8 +248,9 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
                                 converter.convertType(cast.getCastType()),
                                 getVariable((Local) cast.getOp(), method)),
                         stmt);
+            } else {
+                // TODO: handle constants
             }
-            // ignore other casting cases
         } else if (right instanceof PhiExpr) {
             // x = phi(v1, ..., vn)
             for (Value from : ((PhiExpr) right).getValues()) {

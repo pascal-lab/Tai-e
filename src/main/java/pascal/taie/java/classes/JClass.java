@@ -61,7 +61,6 @@ public class JClass {
 
     /**
      * This method should be called after creating this instance.
-     * @param builder
      */
     public void build(JClassBuilder builder) {
         type = builder.getClassType();
@@ -76,8 +75,16 @@ public class JClass {
                         Function.identity()));
     }
 
+    public JClassLoader getClassLoader() {
+        return loader;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public String getModuleName() {
+        return moduleName;
     }
 
     public ClassType getType() {

@@ -133,7 +133,7 @@ class CallModel {
         // invocation.
         //
         // TODO for PrivilegedExceptionAction, catch exceptions and wrap them
-        //  in a PriviligedActionException.
+        //  in a PrivilegedActionException.
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>
         registerHandler("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", (ir, call) -> {
             Utils.modelStaticToVirtualCall(hierarchy, ir, call,

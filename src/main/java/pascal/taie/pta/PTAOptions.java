@@ -27,7 +27,7 @@ import java.io.File;
 public class PTAOptions {
 
     // Default options
-    private static PTAOptions PTAOptions = CommandLine.populateCommand(new PTAOptions());
+    private static PTAOptions options = CommandLine.populateCommand(new PTAOptions());
 
     // ---------- information options ----------
     @Option(names = {"-v", "--version"},
@@ -116,18 +116,18 @@ public class PTAOptions {
     private String[] sootArgs = new String[0];
 
     public static PTAOptions get() {
-        return PTAOptions;
+        return options;
     }
 
-    public static void set(PTAOptions PTAOptions) {
-        PTAOptions.PTAOptions = PTAOptions;
+    public static void set(PTAOptions options) {
+        PTAOptions.options = options;
     }
 
     /**
      * Parse arguments and set new Options object.
      */
     public static void parse(String... args) {
-        PTAOptions = CommandLine.populateCommand(new PTAOptions(), args);
+        options = CommandLine.populateCommand(new PTAOptions(), args);
     }
 
     public void printHelp() {

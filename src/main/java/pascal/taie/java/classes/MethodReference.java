@@ -128,12 +128,13 @@ public class MethodReference extends MemberReference {
 
     /**
      * @return if this is a reference to polymorphic signature method.
+     * See JLS (Java 13 Ed.), 15.12.3 for the definition of polymorphic signature method.
      */
     public boolean isPolymorphicSignature() {
-        if (getDeclaringClass().getName().equals(METHOD_HANDLE)) {
+        if (METHOD_HANDLE.equals(getDeclaringClass().getName())) {
             return METHOD_HANDLE_METHODS.contains(getName());
         }
-        if (getDeclaringClass().getName().equals(VAR_HANDLE)) {
+        if (VAR_HANDLE.equals(getDeclaringClass().getName())) {
             return VAR_HANDLE_METHODS.contains(getName());
         }
         return false;
