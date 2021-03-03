@@ -42,7 +42,7 @@ public class StringReps {
                 method.getParamTypes(), method.getReturnType());
     }
 
-    public static String getSignatureOf(MethodReference methodRef) {
+    public static String getSignatureOf(MethodRef methodRef) {
         return getMethodSignature(methodRef.getDeclaringClass(),
                 methodRef.getName(),
                 methodRef.getParameterTypes(), methodRef.getReturnType());
@@ -62,7 +62,7 @@ public class StringReps {
                 field.getName(), field.getType());
     }
 
-    public static String getSignatureOf(FieldReference fieldRef) {
+    public static String getSignatureOf(FieldRef fieldRef) {
         return getFieldSignature(fieldRef.getDeclaringClass(),
                 fieldRef.getName(), fieldRef.getType());
     }
@@ -83,7 +83,7 @@ public class StringReps {
                 method.getParamTypes(), method.getReturnType());
     }
 
-    public static String getSubsignatureOf(MethodReference methodRef) {
+    public static String getSubsignatureOf(MethodRef methodRef) {
         throw new UnsupportedOperationException();
     }
 
@@ -97,7 +97,7 @@ public class StringReps {
         throw new UnsupportedOperationException();
     }
 
-    public static String getDescriptorOf(MethodReference methodRef) {
+    public static String getDescriptorOf(MethodRef methodRef) {
         throw new UnsupportedOperationException();
     }
 

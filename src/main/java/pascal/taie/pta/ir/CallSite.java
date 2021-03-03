@@ -15,7 +15,7 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 
 public interface CallSite {
 
@@ -34,7 +34,7 @@ public interface CallSite {
      */
     Call getCall();
 
-    MethodReference getMethodRef();
+    MethodRef getMethodRef();
 
     Variable getReceiver();
 

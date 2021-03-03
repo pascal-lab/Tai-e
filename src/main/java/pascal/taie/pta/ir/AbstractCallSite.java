@@ -15,7 +15,7 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +27,7 @@ public abstract class AbstractCallSite implements CallSite {
 
     protected final CallKind kind;
     protected Call call;
-    protected MethodReference methodRef;
+    protected MethodRef methodRef;
     protected Variable receiver;
     protected List<Variable> args = Collections.emptyList();
     protected JMethod containerMethod;
@@ -55,7 +55,7 @@ public abstract class AbstractCallSite implements CallSite {
     }
 
     @Override
-    public MethodReference getMethodRef() {
+    public MethodRef getMethodRef() {
         return methodRef;
     }
 

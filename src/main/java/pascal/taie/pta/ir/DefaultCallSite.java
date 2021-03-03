@@ -15,7 +15,7 @@ package pascal.taie.pta.ir;
 
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import soot.jimple.Stmt;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class DefaultCallSite extends AbstractCallSite {
         return stmt;
     }
 
-    public void setMethodRef(MethodReference methodRef) {
+    public void setMethodRef(MethodRef methodRef) {
         this.methodRef = methodRef;
     }
 

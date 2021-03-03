@@ -35,10 +35,10 @@ public class JField extends ClassMember {
     // TODO: more modifiers
 
     /**
-     * @return the {@link FieldReference} pointing to this field.
+     * @return the {@link FieldRef} pointing to this field.
      */
-    public FieldReference getRef() {
-        return FieldReference.get(declaringClass, name, type);
+    public FieldRef getRef() {
+        return FieldRef.get(declaringClass, name, type);
     }
 
     @Override

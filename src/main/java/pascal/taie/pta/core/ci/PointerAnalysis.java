@@ -19,7 +19,7 @@ import pascal.taie.callgraph.Edge;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.core.heap.HeapModel;
@@ -296,7 +296,7 @@ public class PointerAnalysis {
     }
 
     private JMethod resolveCallee(Type type, CallSite callSite) {
-        MethodReference methodRef = callSite.getMethodRef();
+        MethodRef methodRef = callSite.getMethodRef();
         switch (callSite.getKind()) {
             case VIRTUAL:
             case INTERFACE:

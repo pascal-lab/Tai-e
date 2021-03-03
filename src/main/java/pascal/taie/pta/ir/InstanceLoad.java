@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 
 /**
  * Represents an instance load: to = base.field.
@@ -24,9 +24,9 @@ public class InstanceLoad extends AbstractStatement {
 
     private final Variable base;
 
-    private final FieldReference fieldRef;
+    private final FieldRef fieldRef;
 
-    public InstanceLoad(Variable to, Variable base, FieldReference fieldRef) {
+    public InstanceLoad(Variable to, Variable base, FieldRef fieldRef) {
         this.to = to;
         this.base = base;
         this.fieldRef = fieldRef;
@@ -41,7 +41,7 @@ public class InstanceLoad extends AbstractStatement {
         return base;
     }
 
-    public FieldReference getFieldRef() {
+    public FieldRef getFieldRef() {
         return fieldRef;
     }
 

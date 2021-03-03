@@ -16,7 +16,7 @@ package pascal.taie.pta.env.nativemodel;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
@@ -39,9 +39,9 @@ class FinalizerModel {
 
     private final JMethod finalize;
 
-    private final MethodReference finalizeRef;
+    private final MethodRef finalizeRef;
 
-    private final MethodReference registerRef;
+    private final MethodRef registerRef;
 
     FinalizerModel(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;

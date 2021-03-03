@@ -22,9 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @InternalCanonicalized
-public class FieldReference extends MemberReference {
+public class FieldRef extends MemberRef {
 
-    private static final ConcurrentMap<Key, FieldReference> map =
+    private static final ConcurrentMap<Key, FieldRef> map =
             new ConcurrentHashMap<>(4096);
 
     private final Type type;
@@ -35,17 +35,17 @@ public class FieldReference extends MemberReference {
      */
     private JField field;
 
-    public static FieldReference get(
+    public static FieldRef get(
             JClass declaringClass, String name, Type type) {
         Key key = new Key(declaringClass, name, type);
-        return map.computeIfAbsent(key, FieldReference::new);
+        return map.computeIfAbsent(key, FieldRef::new);
     }
 
     public static void reset() {
         map.clear();
     }
 
-    private FieldReference(Key key) {
+    private FieldRef(Key key) {
         super(key.declaringClass, key.name);
         this.type = key.type;
     }

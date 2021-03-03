@@ -26,9 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @InternalCanonicalized
-public class MethodReference extends MemberReference {
+public class MethodRef extends MemberRef {
 
-    private static final ConcurrentMap<Key, MethodReference> map =
+    private static final ConcurrentMap<Key, MethodRef> map =
             new ConcurrentHashMap<>(4096);
 
     // Class and method names of polymorphic signature methods.
@@ -92,21 +92,21 @@ public class MethodReference extends MemberReference {
      */
     private JMethod method;
 
-    public static MethodReference get(
+    public static MethodRef get(
             JClass declaringClass, String name,
             List<Type> parameterTypes, Type returnType) {
         Subsignature subsignature = Subsignature.get(
                 name, parameterTypes, returnType);
         Key key = new Key(declaringClass, subsignature);
         return map.computeIfAbsent(key, k ->
-                new MethodReference(k, name, parameterTypes, returnType));
+                new MethodRef(k, name, parameterTypes, returnType));
     }
 
     public static void reset() {
         map.clear();
     }
 
-    private MethodReference(
+    private MethodRef(
             Key key, String name, List<Type> parameterTypes, Type returnType) {
         super(key.declaringClass, name);
         this.parameterTypes = parameterTypes;

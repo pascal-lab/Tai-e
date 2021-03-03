@@ -24,7 +24,7 @@ import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.ReferenceType;
@@ -504,7 +504,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     private JMethod resolveCallee(Type type, CallSite callSite) {
-        MethodReference methodRef = callSite.getMethodRef();
+        MethodRef methodRef = callSite.getMethodRef();
         switch (callSite.getKind()) {
             case VIRTUAL:
             case INTERFACE:

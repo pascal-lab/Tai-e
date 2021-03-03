@@ -13,23 +13,23 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 
 /**
  * Represents a static store: T.f = from.
  */
 public class StaticStore extends AbstractStatement {
 
-    private final FieldReference fieldRef;
+    private final FieldRef fieldRef;
 
     private final Variable from;
 
-    public StaticStore(FieldReference fieldRef, Variable from) {
+    public StaticStore(FieldRef fieldRef, Variable from) {
         this.fieldRef = fieldRef;
         this.from = from;
     }
 
-    public FieldReference getFieldRef() {
+    public FieldRef getFieldRef() {
         return fieldRef;
     }
 

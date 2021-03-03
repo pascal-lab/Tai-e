@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 
 /**
  * Represents a static load: to = T.field.
@@ -22,9 +22,9 @@ public class StaticLoad extends AbstractStatement {
 
     private final Variable to;
 
-    private final FieldReference fieldRef;
+    private final FieldRef fieldRef;
 
-    public StaticLoad(Variable to, FieldReference fieldRef) {
+    public StaticLoad(Variable to, FieldRef fieldRef) {
         this.to = to;
         this.fieldRef = fieldRef;
     }
@@ -33,7 +33,7 @@ public class StaticLoad extends AbstractStatement {
         return to;
     }
 
-    public FieldReference getFieldRef() {
+    public FieldRef getFieldRef() {
         return fieldRef;
     }
 

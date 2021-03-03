@@ -13,12 +13,12 @@
 
 package pascal.taie.java;
 
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.Type;
 
 import javax.annotation.Nullable;
@@ -81,13 +81,13 @@ public interface ClassHierarchy {
      */
     JField getJREField(String fieldSig);
 
-    JMethod resolveMethod(MethodReference methodRef);
+    JMethod resolveMethod(MethodRef methodRef);
 
-    JField resolveField(FieldReference fieldRef);
+    JField resolveField(FieldRef fieldRef);
 
-    JMethod dispatch(Type receiverType, MethodReference methodRef);
+    JMethod dispatch(Type receiverType, MethodRef methodRef);
 
-    JMethod dispatch(JClass receiverClass, MethodReference methodRef);
+    JMethod dispatch(JClass receiverClass, MethodRef methodRef);
 
     boolean isSubclass(JClass superclass, JClass subclass);
 }

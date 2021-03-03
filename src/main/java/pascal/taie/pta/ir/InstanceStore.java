@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.ir;
 
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 
 /**
  * Represents an instance store: base.field = from.
@@ -22,11 +22,11 @@ public class InstanceStore extends AbstractStatement {
 
     private final Variable base;
 
-    private final FieldReference fieldRef;
+    private final FieldRef fieldRef;
 
     private final Variable from;
 
-    public InstanceStore(Variable base, FieldReference fieldRef, Variable from) {
+    public InstanceStore(Variable base, FieldRef fieldRef, Variable from) {
         this.base = base;
         this.fieldRef = fieldRef;
         this.from = from;
@@ -37,7 +37,7 @@ public class InstanceStore extends AbstractStatement {
         return base;
     }
 
-    public FieldReference getFieldRef() {
+    public FieldRef getFieldRef() {
         return fieldRef;
     }
 

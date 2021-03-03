@@ -14,12 +14,12 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.Type;
 import soot.ArrayType;
 import soot.BooleanType;
@@ -60,10 +60,10 @@ class Converter {
 
     private final Map<SootMethod, JMethod> methodMap = new HashMap<>();
 
-    private final Map<SootFieldRef, FieldReference> fieldRefMap
+    private final Map<SootFieldRef, FieldRef> fieldRefMap
             = new HashMap<>();
 
-    private final Map<SootMethodRef, MethodReference> methodRefMap
+    private final Map<SootMethodRef, MethodRef> methodRefMap
             = new HashMap<>();
 
     Converter(JClassLoader loader, TypeManager typeManager) {
@@ -129,15 +129,15 @@ class Converter {
         });
     }
 
-    FieldReference convertFieldRef(SootFieldRef sootFieldRef) {
+    FieldRef convertFieldRef(SootFieldRef sootFieldRef) {
         return fieldRefMap.computeIfAbsent(sootFieldRef, ref -> {
             JClass cls = convertClass(ref.declaringClass());
             Type type = convertType(ref.type());
-            return FieldReference.get(cls, ref.name(), type);
+            return FieldRef.get(cls, ref.name(), type);
         });
     }
 
-    MethodReference convertMethodRef(SootMethodRef sootMethodRef) {
+    MethodRef convertMethodRef(SootMethodRef sootMethodRef) {
         return methodRefMap.computeIfAbsent(sootMethodRef, ref -> {
             JClass cls = convertClass(ref.getDeclaringClass());
             List<Type> paramTypes = ref.getParameterTypes()
@@ -145,7 +145,7 @@ class Converter {
                     .map(this::convertType)
                     .collect(Collectors.toList());
             Type returnType = convertType(ref.getReturnType());
-            return MethodReference.get(cls, ref.getName(), paramTypes, returnType);
+            return MethodRef.get(cls, ref.getName(), paramTypes, returnType);
         });
     }
 

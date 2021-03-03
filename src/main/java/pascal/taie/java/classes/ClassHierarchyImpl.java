@@ -151,7 +151,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod resolveMethod(MethodReference methodRef) {
+    public JMethod resolveMethod(MethodRef methodRef) {
         JClass declaringClass = methodRef.getDeclaringClass();
         JMethod method = lookupMethod(declaringClass,
                 methodRef.getSubsignature(), true);
@@ -166,7 +166,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JField resolveField(FieldReference fieldRef) {
+    public JField resolveField(FieldRef fieldRef) {
         JField field = resolveField(fieldRef.getDeclaringClass(),
                 fieldRef.getName(), fieldRef.getType());
         if (field != null) {
@@ -207,7 +207,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod dispatch(Type receiverType, MethodReference methodRef) {
+    public JMethod dispatch(Type receiverType, MethodRef methodRef) {
         JClass cls;
         if (receiverType instanceof ClassType) {
             cls = ((ClassType) receiverType).getJClass();
@@ -220,7 +220,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod dispatch(JClass receiverClass, MethodReference methodRef) {
+    public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.computeIfAbsent(receiverClass,
                 c -> new HybridArrayHashMap<>()).get(subsignature);

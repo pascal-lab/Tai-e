@@ -13,13 +13,13 @@
 
 package pascal.taie.java.classes;
 
-public abstract class MemberReference {
+public abstract class MemberRef {
 
     private final JClass declaringClass;
 
     private final String name;
 
-    public MemberReference(JClass declaringClass, String name) {
+    public MemberRef(JClass declaringClass, String name) {
         this.declaringClass = declaringClass;
         this.name = name;
     }

@@ -17,12 +17,12 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.frontend.soot.TestUtils;
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 import pascal.taie.java.classes.FieldResolutionFailedException;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.Type;
 
 import java.util.Arrays;
@@ -174,7 +174,7 @@ public class HierarchyTest {
         JClass refJClass = hierarchy.getClass(refClass);
         JClass declaringJClass = hierarchy.getClass(declaringClass);
         Type refType = typeManager.getClassType("java.lang.String");
-        FieldReference fieldRef = FieldReference.get(refJClass, refName, refType);
+        FieldRef fieldRef = FieldRef.get(refJClass, refName, refType);
         JField field = fieldRef.resolve();
         Assert.assertEquals(declaringJClass, field.getDeclaringClass());
     }
@@ -237,7 +237,7 @@ public class HierarchyTest {
             String declaringClass, Type... parameterTypes) {
         JClass refJClass = hierarchy.getClass(refClass);
         JClass declaringJClass = hierarchy.getClass(declaringClass);
-        MethodReference methodRef = MethodReference.get(refJClass, refName,
+        MethodRef methodRef = MethodRef.get(refJClass, refName,
                 Arrays.asList(parameterTypes), returnType);
         JMethod method = methodRef.resolve();
         Assert.assertEquals(declaringJClass, method.getDeclaringClass());

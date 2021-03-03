@@ -13,9 +13,9 @@
 
 package pascal.taie.java;
 
-import pascal.taie.java.classes.FieldReference;
+import pascal.taie.java.classes.FieldRef;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodReference;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.classes.Subsignature;
 import pascal.taie.pta.env.Environment;
 
@@ -38,8 +38,8 @@ public class World {
 
     public static void reset() {
         Subsignature.reset();
-        FieldReference.reset();
-        MethodReference.reset();
+        FieldRef.reset();
+        MethodRef.reset();
         theWorld = null;
     }
 
