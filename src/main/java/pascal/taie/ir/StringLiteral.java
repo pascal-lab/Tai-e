@@ -20,9 +20,7 @@ import static pascal.taie.java.classes.StringReps.STRING;
 
 public class StringLiteral implements Literal {
 
-    private static final ClassType type = World.get()
-            .getTypeManager()
-            .getClassType(STRING);
+    private static ClassType type;
 
     private final String value;
 
@@ -37,6 +35,11 @@ public class StringLiteral implements Literal {
 
     @Override
     public ClassType getType() {
+        if (type == null) {
+            type = World.get()
+                    .getTypeManager()
+                    .getClassType(STRING);
+        }
         return type;
     }
 

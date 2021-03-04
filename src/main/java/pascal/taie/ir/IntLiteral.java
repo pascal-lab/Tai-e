@@ -18,9 +18,7 @@ import pascal.taie.java.types.PrimitiveType;
 
 public class IntLiteral implements IntegerLiteral {
 
-    private static final PrimitiveType type = World.get()
-            .getTypeManager()
-            .getIntType();
+    private static PrimitiveType type;
 
     /**
      * Cache frequently used literals for saving space.
@@ -48,6 +46,11 @@ public class IntLiteral implements IntegerLiteral {
 
     @Override
     public PrimitiveType getType() {
+        if (type == null) {
+            type = World.get()
+                    .getTypeManager()
+                    .getIntType();
+        }
         return type;
     }
 

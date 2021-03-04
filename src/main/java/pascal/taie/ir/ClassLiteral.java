@@ -21,9 +21,7 @@ import static pascal.taie.java.classes.StringReps.CLASS;
 
 public class ClassLiteral implements Literal {
 
-    private static final ClassType type = World.get()
-            .getTypeManager()
-            .getClassType(CLASS);
+    private static ClassType type;
 
     /**
      * The type represented by this class object.
@@ -40,6 +38,11 @@ public class ClassLiteral implements Literal {
 
     @Override
     public ClassType getType() {
+        if (type == null) {
+            type = World.get()
+                    .getTypeManager()
+                    .getClassType(CLASS);
+        }
         return type;
     }
 

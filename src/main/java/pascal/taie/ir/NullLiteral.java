@@ -20,9 +20,7 @@ public enum NullLiteral implements Literal {
 
     INSTANCE;
 
-    private static final NullType type = World.get()
-            .getTypeManager()
-            .getNullType();
+    private static NullType type;
 
     public static NullLiteral get() {
         return INSTANCE;
@@ -30,6 +28,11 @@ public enum NullLiteral implements Literal {
 
     @Override
     public NullType getType() {
+        if (type == null) {
+            type = World.get()
+                    .getTypeManager()
+                    .getNullType();
+        }
         return type;
     }
 }
