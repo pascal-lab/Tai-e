@@ -17,6 +17,7 @@ import pascal.taie.pta.core.cs.CSObj;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -46,7 +47,7 @@ abstract class DelegatePointsToSet implements PointsToSet {
 
     @Override
     public Collection<CSObj> getObjects() {
-        return set;
+        return Collections.unmodifiableSet(set);
     }
 
     @Override
@@ -62,7 +63,7 @@ abstract class DelegatePointsToSet implements PointsToSet {
     @Nonnull
     @Override
     public Iterator<CSObj> iterator() {
-        return set.iterator();
+        return Collections.unmodifiableSet(set).iterator();
     }
 
     @Override

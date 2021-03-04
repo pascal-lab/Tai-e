@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
  */
 public class StringReps {
 
+    public static final String CLASS = "java.lang.Class";
+
+    public static final String STRING = "java.lang.String";
+
     public static final String CLINIT = "void <clinit>()";
 
     // Suppresses default constructor, ensuring non-instantiability.
