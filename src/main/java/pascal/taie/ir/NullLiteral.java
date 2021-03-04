@@ -35,4 +35,9 @@ public enum NullLiteral implements Literal {
         }
         return type;
     }
+    
+    @Override
+    public String toString() {
+        return "null";
+    }
 }

@@ -58,4 +58,8 @@ public class LongLiteral implements IntegerLiteral {
         return value;
     }
 
+    @Override
+    public String toString() {
+        return value + "L";
+    }
 }

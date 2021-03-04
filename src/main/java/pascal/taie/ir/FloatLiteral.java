@@ -48,4 +48,9 @@ public class FloatLiteral implements FloatingPointLiteral {
     public float getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return value + "F";
+    }
 }

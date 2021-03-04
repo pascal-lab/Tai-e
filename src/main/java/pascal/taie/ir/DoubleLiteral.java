@@ -48,4 +48,9 @@ public class DoubleLiteral implements FloatingPointLiteral {
     public double getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return Double.toString(value);
+    }
 }

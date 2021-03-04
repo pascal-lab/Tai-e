@@ -49,4 +49,9 @@ public class ClassLiteral implements Literal {
     public Type getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return value.getName() + ".class";
+    }
 }

@@ -46,4 +46,9 @@ public class StringLiteral implements Literal {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }
