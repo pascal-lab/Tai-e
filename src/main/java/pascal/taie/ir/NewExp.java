@@ -13,8 +13,6 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.java.types.Type;
-
 /**
  * Representation of new expressions.
  */
