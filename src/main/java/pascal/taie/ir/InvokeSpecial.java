@@ -1,0 +1,33 @@
+/*
+ * Tai-e: A Program Analysis Framework for Java
+ *
+ * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
+ * All rights reserved.
+ *
+ * This software is designed for the "Static Program Analysis" course at
+ * Nanjing University, and it supports a subset of Java features.
+ * Tai-e is only for educational and academic purposes, and any form of
+ * commercial use is disallowed.
+ */
+
+package pascal.taie.ir;
+
+import pascal.taie.java.classes.MethodRef;
+
+import java.util.List;
+
+/**
+ * Representation of invokespecial expression, e.g., super.m(..).
+ */
+public class InvokeSpecial extends InvokeInstanceExp {
+
+    public InvokeSpecial(MethodRef methodRef, Var base, List<Atom> args) {
+        super(methodRef, base, args);
+    }
+
+    @Override
+    protected String getInvokeString() {
+        return "invokespecial";
+    }
+}
