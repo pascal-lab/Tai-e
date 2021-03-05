@@ -14,6 +14,7 @@
 package pascal.taie.ir;
 
 import pascal.taie.java.types.PrimitiveType;
+import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
 
 /**
@@ -31,6 +32,7 @@ public class InstanceOfExp implements Exp {
     public InstanceOfExp(Atom value, Type checkedType) {
         this.value = value;
         this.checkedType = checkedType;
+        assert checkedType instanceof ReferenceType;
     }
 
     public Atom getValue() {

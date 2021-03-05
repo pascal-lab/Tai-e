@@ -25,6 +25,7 @@ public class NegExp implements UnaryExp {
 
     public NegExp(Atom value) {
         this.value = value;
+        assert value.getType() instanceof PrimitiveType;
     }
 
     public Atom getValue() {

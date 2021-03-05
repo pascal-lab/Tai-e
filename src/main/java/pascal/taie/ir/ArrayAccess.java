@@ -28,6 +28,7 @@ public class ArrayAccess implements Exp {
     public ArrayAccess(Var base, Atom index) {
         this.base = base;
         this.index = index;
+        assert base.getType() instanceof ArrayType;
     }
 
     public Var getBase() {
