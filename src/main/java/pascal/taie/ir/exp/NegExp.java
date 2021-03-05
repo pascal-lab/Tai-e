@@ -21,14 +21,14 @@ import pascal.taie.java.types.PrimitiveType;
  */
 public class NegExp implements UnaryExp {
 
-    private final Atom value;
+    private final Var value;
 
-    public NegExp(Atom value) {
+    public NegExp(Var value) {
         this.value = value;
         assert value.getType() instanceof PrimitiveType;
     }
 
-    public Atom getValue() {
+    public Var getValue() {
         return value;
     }
 

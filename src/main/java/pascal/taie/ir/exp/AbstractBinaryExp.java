@@ -15,11 +15,11 @@ package pascal.taie.ir.exp;
 
 public abstract class AbstractBinaryExp implements BinaryExp {
 
-    protected final Atom value1;
+    protected final Var value1;
 
-    protected final Atom value2;
+    protected final Var value2;
 
-    protected AbstractBinaryExp(Atom value1, Atom value2) {
+    protected AbstractBinaryExp(Var value1, Var value2) {
         this.value1 = value1;
         this.value2 = value2;
         validate();
@@ -32,12 +32,12 @@ public abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     @Override
-    public Atom getValue1() {
+    public Var getValue1() {
         return value1;
     }
 
     @Override
-    public Atom getValue2() {
+    public Var getValue2() {
         return value2;
     }
 

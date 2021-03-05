@@ -19,7 +19,7 @@ import pascal.taie.java.types.Type;
  * Representation of method/constructor parameters, lambda parameters,
  * exception parameters, and local variables.
  */
-public class Var implements Atom {
+public class Var implements Exp {
 
     private final String name;
 

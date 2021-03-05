@@ -25,7 +25,7 @@ public abstract class InvokeInstanceExp extends InvokeExp {
 
     protected final Var base;
 
-    protected InvokeInstanceExp(MethodRef methodRef, Var base, List<Atom> args) {
+    protected InvokeInstanceExp(MethodRef methodRef, Var base, List<Var> args) {
         super(methodRef, args);
         this.base = base;
     }

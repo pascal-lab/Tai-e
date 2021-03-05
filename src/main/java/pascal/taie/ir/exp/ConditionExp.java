@@ -51,7 +51,7 @@ public class ConditionExp extends AbstractBinaryExp {
 
     private final Op op;
 
-    public ConditionExp(Atom value1, Atom value2, Op op) {
+    public ConditionExp(Op op, Var value1, Var value2) {
         super(value1, value2);
         this.op = op;
     }

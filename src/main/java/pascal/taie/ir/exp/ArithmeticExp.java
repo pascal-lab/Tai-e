@@ -48,7 +48,7 @@ public class ArithmeticExp extends AbstractBinaryExp {
 
     private final Op op;
 
-    public ArithmeticExp(Op op, Atom value1, Atom value2) {
+    public ArithmeticExp(Op op, Var value1, Var value2) {
         super(value1, value2);
         this.op = op;
     }

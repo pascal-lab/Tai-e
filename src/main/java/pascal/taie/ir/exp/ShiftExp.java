@@ -46,9 +46,9 @@ public class ShiftExp extends AbstractBinaryExp {
 
     private final Op op;
 
-    public ShiftExp(Atom value1, Atom value2, Op operator) {
+    public ShiftExp(Op op, Var value1, Var value2) {
         super(value1, value2);
-        this.op = operator;
+        this.op = op;
     }
 
     @Override

@@ -28,11 +28,11 @@ public abstract class InvokeExp implements Exp {
 
     protected final MethodRef methodRef;
 
-    protected final List<Atom> args;
+    protected final List<Var> args;
 
     private Site callSite;
 
-    protected InvokeExp(MethodRef methodRef, List<Atom> args) {
+    protected InvokeExp(MethodRef methodRef, List<Var> args) {
         this.methodRef = methodRef;
         this.args = Collections.unmodifiableList(args);
     }
@@ -50,11 +50,11 @@ public abstract class InvokeExp implements Exp {
         return args.size();
     }
 
-    public Atom getArg(int i) {
+    public Var getArg(int i) {
         return args.get(i);
     }
 
-    public List<Atom> getArgs() {
+    public List<Var> getArgs() {
         return args;
     }
 
@@ -70,7 +70,7 @@ public abstract class InvokeExp implements Exp {
 
     protected String getArgsString() {
         return args.stream()
-                .map(Atom::toString)
+                .map(Var::toString)
                 .collect(Collectors.joining(","));
     }
 }

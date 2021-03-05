@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class InvokeStatic extends InvokeExp {
 
-    public InvokeStatic(MethodRef methodRef, List<Atom> args) {
+    public InvokeStatic(MethodRef methodRef, List<Var> args) {
         super(methodRef, args);
     }
 

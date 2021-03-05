@@ -23,16 +23,16 @@ public class CastExp implements Exp {
     /**
      * The value to be casted.
      */
-    private final Atom value;
+    private final Var value;
 
     private final Type castType;
 
-    public CastExp(Atom value, Type castType) {
+    public CastExp(Var value, Type castType) {
         this.value = value;
         this.castType = castType;
     }
 
-    public Atom getValue() {
+    public Var getValue() {
         return value;
     }
 

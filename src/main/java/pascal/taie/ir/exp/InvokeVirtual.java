@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class InvokeVirtual extends InvokeInstanceExp {
 
-    public InvokeVirtual(MethodRef methodRef, Var base, List<Atom> args) {
+    public InvokeVirtual(MethodRef methodRef, Var base, List<Var> args) {
         super(methodRef, base, args);
     }
 

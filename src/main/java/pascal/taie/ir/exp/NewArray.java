@@ -22,9 +22,9 @@ public class NewArray extends NewExp {
 
     private final ArrayType type;
 
-    private final Atom length;
+    private final Var length;
 
-    public NewArray(ArrayType type, Atom length) {
+    public NewArray(ArrayType type, Var length) {
         this.type = type;
         this.length = length;
     }
@@ -34,7 +34,7 @@ public class NewArray extends NewExp {
         return type;
     }
 
-    public Atom getLength() {
+    public Var getLength() {
         return length;
     }
 

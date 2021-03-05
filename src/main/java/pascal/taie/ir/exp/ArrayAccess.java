@@ -23,9 +23,9 @@ public class ArrayAccess implements Exp {
 
     private final Var base;
 
-    private final Atom index;
+    private final Var index;
 
-    public ArrayAccess(Var base, Atom index) {
+    public ArrayAccess(Var base, Var index) {
         this.base = base;
         this.index = index;
         assert base.getType() instanceof ArrayType;
@@ -35,7 +35,7 @@ public class ArrayAccess implements Exp {
         return base;
     }
 
-    public Atom getIndex() {
+    public Var getIndex() {
         return index;
     }
 

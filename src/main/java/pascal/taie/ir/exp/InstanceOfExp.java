@@ -25,17 +25,17 @@ public class InstanceOfExp implements Exp {
     /**
      * The value to be checked.
      */
-    private final Atom value;
+    private final Var value;
 
     private final Type checkedType;
 
-    public InstanceOfExp(Atom value, Type checkedType) {
+    public InstanceOfExp(Var value, Type checkedType) {
         this.value = value;
         this.checkedType = checkedType;
         assert checkedType instanceof ReferenceType;
     }
 
-    public Atom getValue() {
+    public Var getValue() {
         return value;
     }
 

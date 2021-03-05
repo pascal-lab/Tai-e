@@ -16,5 +16,5 @@ package pascal.taie.ir.exp;
 /**
  * Representation of literal in Tai-e IR.
  */
-public interface Literal extends Atom {
+public interface Literal extends Exp {
 }

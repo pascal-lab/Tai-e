@@ -45,7 +45,7 @@ public class ComparisonExp extends AbstractBinaryExp {
 
     private final Op op;
 
-    public ComparisonExp(Atom value1, Atom value2, Op op) {
+    public ComparisonExp(Op op, Var value1, Var value2) {
         super(value1, value2);
         this.op = op;
     }

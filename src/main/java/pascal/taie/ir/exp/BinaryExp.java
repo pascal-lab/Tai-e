@@ -22,7 +22,7 @@ public interface BinaryExp extends Exp {
 
     Op getOperator();
 
-    Atom getValue1();
+    Var getValue1();
 
-    Atom getValue2();
+    Var getValue2();
 }

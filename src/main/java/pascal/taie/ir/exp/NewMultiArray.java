@@ -25,9 +25,9 @@ public class NewMultiArray extends NewExp {
 
     private final ArrayType type;
 
-    private final List<Atom> lengths;
+    private final List<Var> lengths;
 
-    public NewMultiArray(ArrayType type, List<Atom> lengths) {
+    public NewMultiArray(ArrayType type, List<Var> lengths) {
         this.type = type;
         this.lengths = Collections.unmodifiableList(lengths);
     }
@@ -41,11 +41,11 @@ public class NewMultiArray extends NewExp {
         return lengths.size();
     }
 
-    public Atom getLength(int i) {
+    public Var getLength(int i) {
         return lengths.get(i);
     }
 
-    public List<Atom> getLengths() {
+    public List<Var> getLengths() {
         return lengths;
     }
 
