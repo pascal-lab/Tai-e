@@ -14,31 +14,22 @@
 package pascal.taie.ir.stmt;
 
 /**
- * Representation of assign statements.
- * @param <L> type of lvalue.
- * @param <R> type of rvalue.
+ * Representation of goto statement, e.g., goto L.
  */
-abstract class Assign<L, R> extends AbstractStmt {
+public class Goto extends AbstractStmt {
 
-    private final L lvalue;
+    private final Stmt target;
 
-    private final R rvalue;
-
-    public Assign(L lvalue, R rvalue) {
-        this.lvalue = lvalue;
-        this.rvalue = rvalue;
+    public Goto(Stmt target) {
+        this.target = target;
     }
 
-    public L getLValue() {
-        return lvalue;
-    }
-
-    public R getRValue() {
-        return rvalue;
+    public Stmt getTarget() {
+        return target;
     }
 
     @Override
     public String toString() {
-        return lvalue + " = " + rvalue;
+        return "goto " + target;
     }
 }

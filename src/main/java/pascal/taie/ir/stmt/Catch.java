@@ -13,32 +13,28 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Var;
+
 /**
- * Representation of assign statements.
- * @param <L> type of lvalue.
- * @param <R> type of rvalue.
+ * Representation of catch exception, e.g., catch (e).
  */
-abstract class Assign<L, R> extends AbstractStmt {
+public class Catch extends AbstractStmt {
 
-    private final L lvalue;
+    /**
+     * Reference of the exception object to be caught.
+     */
+    private final Var ref;
 
-    private final R rvalue;
-
-    public Assign(L lvalue, R rvalue) {
-        this.lvalue = lvalue;
-        this.rvalue = rvalue;
+    public Catch(Var ref) {
+        this.ref = ref;
     }
 
-    public L getLValue() {
-        return lvalue;
-    }
-
-    public R getRValue() {
-        return rvalue;
+    public Var getRef() {
+        return ref;
     }
 
     @Override
     public String toString() {
-        return lvalue + " = " + rvalue;
+        return "catch " + ref;
     }
 }

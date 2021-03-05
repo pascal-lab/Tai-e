@@ -13,32 +13,32 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.ConditionExp;
+
 /**
- * Representation of assign statements.
- * @param <L> type of lvalue.
- * @param <R> type of rvalue.
+ * Representation of if statement, e.g., if a == b goto L;
  */
-abstract class Assign<L, R> extends AbstractStmt {
+public class If extends AbstractStmt {
 
-    private final L lvalue;
+    private final ConditionExp condition;
 
-    private final R rvalue;
+    private final Stmt target;
 
-    public Assign(L lvalue, R rvalue) {
-        this.lvalue = lvalue;
-        this.rvalue = rvalue;
+    public If(ConditionExp condition, Stmt target) {
+        this.condition = condition;
+        this.target = target;
     }
 
-    public L getLValue() {
-        return lvalue;
+    public ConditionExp getCondition() {
+        return condition;
     }
 
-    public R getRValue() {
-        return rvalue;
+    public Stmt getTarget() {
+        return target;
     }
 
     @Override
     public String toString() {
-        return lvalue + " = " + rvalue;
+        return String.format("if (%s) goto %s", condition, target);
     }
 }
