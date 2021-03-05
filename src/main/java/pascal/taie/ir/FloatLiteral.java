@@ -13,12 +13,9 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.java.World;
 import pascal.taie.java.types.PrimitiveType;
 
 public class FloatLiteral implements FloatingPointLiteral {
-
-    private static PrimitiveType floatType;
 
     /**
      * Cache frequently used literals for saving space.
@@ -37,12 +34,7 @@ public class FloatLiteral implements FloatingPointLiteral {
 
     @Override
     public PrimitiveType getType() {
-        if (floatType == null) {
-            floatType = World.get()
-                    .getTypeManager()
-                    .getFloatType();
-        }
-        return floatType;
+        return PrimitiveType.FLOAT;
     }
 
     public float getValue() {

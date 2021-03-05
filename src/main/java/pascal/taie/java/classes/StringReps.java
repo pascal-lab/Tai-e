@@ -113,8 +113,7 @@ public class StringReps {
         return returnType + " " +
                 name +
                 "(" +
-                parameterTypes
-                        .stream()
+                parameterTypes.stream()
                         .map(Type::toString)
                         .collect(Collectors.joining(",")) +
                 ")";

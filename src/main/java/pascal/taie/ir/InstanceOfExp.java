@@ -13,7 +13,6 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.java.World;
 import pascal.taie.java.types.PrimitiveType;
 import pascal.taie.java.types.Type;
 
@@ -21,8 +20,6 @@ import pascal.taie.java.types.Type;
  * Representation of instanceof expression, e.g., o instanceof T.
  */
 public class InstanceOfExp implements Exp {
-
-    private static PrimitiveType booleanType;
 
     /**
      * The value to be checked.
@@ -45,13 +42,8 @@ public class InstanceOfExp implements Exp {
     }
 
     @Override
-    public Type getType() {
-        if (booleanType == null) {
-            booleanType = World.get()
-                    .getTypeManager()
-                    .getBooleanType();
-        }
-        return booleanType;
+    public PrimitiveType getType() {
+        return PrimitiveType.BOOLEAN;
     }
 
     @Override

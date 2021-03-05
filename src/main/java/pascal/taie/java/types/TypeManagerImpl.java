@@ -48,46 +48,6 @@ public class TypeManagerImpl implements TypeManager {
     }
 
     @Override
-    public PrimitiveType getByteType() {
-        return PrimitiveType.BYTE;
-    }
-
-    @Override
-    public PrimitiveType getShortType() {
-        return PrimitiveType.SHORT;
-    }
-
-    @Override
-    public PrimitiveType getIntType() {
-        return PrimitiveType.INT;
-    }
-
-    @Override
-    public PrimitiveType getLongType() {
-        return PrimitiveType.LONG;
-    }
-
-    @Override
-    public PrimitiveType getFloatType() {
-        return PrimitiveType.FLOAT;
-    }
-
-    @Override
-    public PrimitiveType getDoubleType() {
-        return PrimitiveType.DOUBLE;
-    }
-
-    @Override
-    public PrimitiveType getCharType() {
-        return PrimitiveType.CHAR;
-    }
-
-    @Override
-    public PrimitiveType getBooleanType() {
-        return PrimitiveType.BOOLEAN;
-    }
-
-    @Override
     public ClassType getClassType(JClassLoader loader, String className) {
         return classTypes.computeIfAbsent(loader, l -> new HashMap<>())
                 .computeIfAbsent(className, name -> new ClassType(loader, name));
@@ -108,16 +68,6 @@ public class TypeManagerImpl implements TypeManager {
                 .computeIfAbsent(baseType, t ->
                         new ArrayType(t, dim
                                 , dim == 1 ? t : getArrayType(t, dim - 1)));
-    }
-
-    @Override
-    public VoidType getVoidType() {
-        return VoidType.INSTANCE;
-    }
-
-    @Override
-    public NullType getNullType() {
-        return NullType.INSTANCE;
     }
 
     @Override

@@ -20,6 +20,7 @@ import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodRef;
+import pascal.taie.java.types.PrimitiveType;
 import pascal.taie.java.types.Type;
 import soot.ArrayType;
 import soot.BooleanType;
@@ -46,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static pascal.taie.java.types.VoidType.VOID;
 
 /**
  * Convert Soot classes to Tai-e's representation.
@@ -74,21 +77,21 @@ class Converter {
     Type convertType(soot.Type sootType) {
         if (sootType instanceof PrimType) {
             if (sootType instanceof ByteType) {
-                return typeManager.getByteType();
+                return PrimitiveType.BYTE;
             } else if (sootType instanceof ShortType) {
-                return typeManager.getShortType();
+                return PrimitiveType.SHORT;
             } else if (sootType instanceof IntType) {
-                return typeManager.getIntType();
+                return PrimitiveType.INT;
             } else if (sootType instanceof LongType) {
-                return typeManager.getLongType();
+                return PrimitiveType.LONG;
             } else if (sootType instanceof FloatType) {
-                return typeManager.getFloatType();
+                return PrimitiveType.FLOAT;
             } else if (sootType instanceof DoubleType) {
-                return typeManager.getDoubleType();
+                return PrimitiveType.DOUBLE;
             } else if (sootType instanceof CharType) {
-                return typeManager.getCharType();
+                return PrimitiveType.CHAR;
             } else if (sootType instanceof BooleanType) {
-                return typeManager.getBooleanType();
+                return PrimitiveType.BOOLEAN;
             }
         } else if (sootType instanceof RefType) {
             return typeManager.getClassType(loader, sootType.toString());
@@ -98,7 +101,7 @@ class Converter {
                     convertType(arrayType.baseType),
                     arrayType.numDimensions);
         } else if (sootType instanceof VoidType) {
-            return typeManager.getVoidType();
+            return VOID;
         }
         throw new SootFrontendException("Cannot convert soot Type: " + sootType);
     }

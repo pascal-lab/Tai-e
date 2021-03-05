@@ -15,7 +15,7 @@ package pascal.taie.java.types;
 
 public enum VoidType implements Type {
 
-    INSTANCE;
+    VOID;
 
     @Override
     public String getName() {

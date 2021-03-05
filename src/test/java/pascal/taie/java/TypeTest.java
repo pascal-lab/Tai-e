@@ -19,6 +19,10 @@ import org.junit.Test;
 import pascal.taie.frontend.soot.TestUtils;
 import pascal.taie.java.types.Type;
 
+import static pascal.taie.java.types.NullType.NULL;
+import static pascal.taie.java.types.PrimitiveType.INT;
+import static pascal.taie.java.types.PrimitiveType.LONG;
+
 public class TypeTest {
 
     private static TypeManager typeManager;
@@ -38,22 +42,18 @@ public class TypeTest {
 
     @Test
     public void testSubtypeNull() {
-        Type nullType = typeManager.getNullType();
         Type object = typeManager.getClassType("java.lang.Object");
-        Type intType = typeManager.getIntType();
-        Type intArray = typeManager.getArrayType(intType, 1);
+        Type intArray = typeManager.getArrayType(INT, 1);
 
-        Assert.assertTrue(typeManager.isSubtype(object, nullType));
-        Assert.assertFalse(typeManager.isSubtype(intType, nullType));
-        Assert.assertTrue(typeManager.isSubtype(intArray, nullType));
+        Assert.assertTrue(typeManager.isSubtype(object, NULL));
+        Assert.assertFalse(typeManager.isSubtype(INT, NULL));
+        Assert.assertTrue(typeManager.isSubtype(intArray, NULL));
     }
 
     @Test
     public void testSubtypePrimitive() {
-        Type intType = typeManager.getIntType();
-        Type longType = typeManager.getLongType();
-        Assert.assertTrue(typeManager.isSubtype(intType, intType));
-        Assert.assertFalse(typeManager.isSubtype(intType, longType));
+        Assert.assertTrue(typeManager.isSubtype(INT, INT));
+        Assert.assertFalse(typeManager.isSubtype(INT, LONG));
     }
 
     /**
@@ -61,8 +61,7 @@ public class TypeTest {
      */
     @Test
     public void testSubtypeArray1() {
-        Type intType = typeManager.getIntType();
-        Type intArray = typeManager.getArrayType(intType, 1);
+        Type intArray = typeManager.getArrayType(INT, 1);
         Type object = typeManager.getClassType("java.lang.Object");
         Assert.assertTrue(typeManager.isSubtype(object, intArray));
 
@@ -81,13 +80,12 @@ public class TypeTest {
      */
     @Test
     public void testSubtypeArray2() {
-        Type intType = typeManager.getIntType();
-        Type intArray2 = typeManager.getArrayType(intType, 2);
+        Type intArray2 = typeManager.getArrayType(INT, 2);
         Type object = typeManager.getClassType("java.lang.Object");
         Type objectArray = typeManager.getArrayType(object, 1);
         Assert.assertTrue(typeManager.isSubtype(objectArray, intArray2));
 
-        Type intArray3 = typeManager.getArrayType(intType, 3);
+        Type intArray3 = typeManager.getArrayType(INT, 3);
         Assert.assertTrue(typeManager.isSubtype(objectArray, intArray3));
     }
 

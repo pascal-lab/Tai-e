@@ -27,6 +27,11 @@ import pascal.taie.java.types.Type;
 
 import java.util.Arrays;
 
+import static pascal.taie.java.types.PrimitiveType.BOOLEAN;
+import static pascal.taie.java.types.PrimitiveType.INT;
+import static pascal.taie.java.types.PrimitiveType.LONG;
+import static pascal.taie.java.types.VoidType.VOID;
+
 public class HierarchyTest {
 
     private static ClassHierarchy hierarchy;
@@ -186,7 +191,7 @@ public class HierarchyTest {
      */
     @Test
     public void testResolveMethod1() {
-        testResolveMethod("E", "foo", "E", typeManager.getIntType());
+        testResolveMethod("E", "foo", "E", INT);
         testResolveMethod("E", "<init>", "E");
     }
 
@@ -195,12 +200,12 @@ public class HierarchyTest {
      */
     @Test
     public void testResolveMethod2() {
-        testResolveMethod("E", "foo", "C", typeManager.getLongType());
+        testResolveMethod("E", "foo", "C", LONG);
         testResolveMethod("E", "bar", "C");
-        testResolveMethod("E", "hashCode", typeManager.getIntType(),
+        testResolveMethod("E", "hashCode", INT,
                 "java.lang.Object");
         // The priority of superclasses is higher than superinterfaces
-        testResolveMethod("G", "baz", "C", typeManager.getBooleanType());
+        testResolveMethod("G", "baz", "C", BOOLEAN);
     }
 
     /**
@@ -246,7 +251,7 @@ public class HierarchyTest {
     private static void testResolveMethod(
             String refClass, String refName, String declaringClass,
             Type... parameterTypes) {
-        testResolveMethod(refClass, refName, typeManager.getVoidType(),
+        testResolveMethod(refClass, refName, VOID,
                 declaringClass, parameterTypes);
     }
 }

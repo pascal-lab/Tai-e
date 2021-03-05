@@ -13,12 +13,9 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.java.World;
 import pascal.taie.java.types.PrimitiveType;
 
 public class LongLiteral implements IntegerLiteral {
-
-    private static PrimitiveType longType;
 
     /**
      * Cache frequently used literals for saving space.
@@ -46,12 +43,7 @@ public class LongLiteral implements IntegerLiteral {
 
     @Override
     public PrimitiveType getType() {
-        if (longType == null) {
-            longType = World.get()
-                    .getTypeManager()
-                    .getLongType();
-        }
-        return longType;
+        return PrimitiveType.LONG;
     }
 
     public long getValue() {

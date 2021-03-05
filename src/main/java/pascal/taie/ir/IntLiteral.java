@@ -13,12 +13,9 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.java.World;
 import pascal.taie.java.types.PrimitiveType;
 
 public class IntLiteral implements IntegerLiteral {
-
-    private static PrimitiveType intType;
 
     /**
      * Cache frequently used literals for saving space.
@@ -46,12 +43,7 @@ public class IntLiteral implements IntegerLiteral {
 
     @Override
     public PrimitiveType getType() {
-        if (intType == null) {
-            intType = World.get()
-                    .getTypeManager()
-                    .getIntType();
-        }
-        return intType;
+        return PrimitiveType.INT;
     }
 
     public int getValue() {

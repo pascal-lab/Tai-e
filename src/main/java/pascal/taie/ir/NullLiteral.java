@@ -13,14 +13,11 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.java.World;
 import pascal.taie.java.types.NullType;
 
 public enum NullLiteral implements Literal {
 
     INSTANCE;
-
-    private static NullType nullType;
 
     public static NullLiteral get() {
         return INSTANCE;
@@ -28,12 +25,7 @@ public enum NullLiteral implements Literal {
 
     @Override
     public NullType getType() {
-        if (nullType == null) {
-            nullType = World.get()
-                    .getTypeManager()
-                    .getNullType();
-        }
-        return nullType;
+        return NullType.NULL;
     }
     
     @Override

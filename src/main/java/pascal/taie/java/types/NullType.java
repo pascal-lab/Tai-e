@@ -15,7 +15,7 @@ package pascal.taie.java.types;
 
 public enum NullType implements ReferenceType {
 
-    INSTANCE;
+    NULL;
 
     @Override
     public String getName() {
