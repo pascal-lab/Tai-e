@@ -13,17 +13,14 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 
 /**
- * Representation of following kinds of unary assign statements:
- * - negation: x = -y
- * - array length: x = arr.length
+ * Representation of copy statement, e.g., a = b.
  */
-public class Unary extends AbstractAssignStmt<Var, UnaryExp> {
+public class Copy extends AbstractAssignStmt<Var, Var> {
 
-    public Unary(Var lvalue, UnaryExp rvalue) {
+    public Copy(Var lvalue, Var rvalue) {
         super(lvalue, rvalue);
     }
 }

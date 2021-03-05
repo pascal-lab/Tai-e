@@ -16,7 +16,7 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * Representation of invocation statement, e.g., r = o.m(..).
@@ -40,8 +40,8 @@ public class Invoke extends AbstractStmt {
         return invokeExp;
     }
 
-    public Optional<Var> getResult() {
-        return Optional.ofNullable(result);
+    public @Nullable Var getResult() {
+        return result;
     }
 
     @Override

@@ -19,7 +19,7 @@ import pascal.taie.ir.exp.Var;
 /**
  * Representation of load array statement, e.g., x = a[..].
  */
-public class LoadArray extends Assign<Var, ArrayAccess> {
+public class LoadArray extends AbstractAssignStmt<Var, ArrayAccess> {
 
     public LoadArray(Var lvalue, ArrayAccess rvalue) {
         super(lvalue, rvalue);

@@ -18,13 +18,13 @@ package pascal.taie.ir.stmt;
  * @param <L> type of lvalue.
  * @param <R> type of rvalue.
  */
-abstract class Assign<L, R> extends AbstractStmt {
+abstract class AbstractAssignStmt<L, R> extends AbstractStmt {
 
     private final L lvalue;
 
     private final R rvalue;
 
-    public Assign(L lvalue, R rvalue) {
+    public AbstractAssignStmt(L lvalue, R rvalue) {
         this.lvalue = lvalue;
         this.rvalue = rvalue;
     }

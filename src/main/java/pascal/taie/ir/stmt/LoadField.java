@@ -21,7 +21,7 @@ import pascal.taie.ir.exp.Var;
  * - load instance field: x = o.f
  * - load static field: x = T.f
  */
-public class LoadField extends Assign<Var, FieldAccess> {
+public class LoadField extends AbstractAssignStmt<Var, FieldAccess> {
 
     public LoadField(Var lvalue, FieldAccess rvalue) {
         super(lvalue, rvalue);

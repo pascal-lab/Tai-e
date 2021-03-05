@@ -23,18 +23,18 @@ public class Throw extends AbstractStmt {
     /**
      * Reference of the exception object to be thrown.
      */
-    private final Var ref;
+    private final Var exceptionRef;
 
-    public Throw(Var ref) {
-        this.ref = ref;
+    public Throw(Var exceptionRef) {
+        this.exceptionRef = exceptionRef;
     }
 
-    public Var getRef() {
-        return ref;
+    public Var getExceptionRef() {
+        return exceptionRef;
     }
 
     @Override
     public String toString() {
-        return "throw " + ref;
+        return "throw " + exceptionRef;
     }
 }

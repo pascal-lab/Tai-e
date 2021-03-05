@@ -13,17 +13,16 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Atom;
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.Var;
 
 /**
- * Representation of following kinds of move statements:
- * - move variable: a = b
- * - move literal: a = 10
+ * Representation of statement that assigns literals, e.g., a = 10.
+ * TODO: give a better name (replace Assign)?
  */
-public class Move extends Assign<Var, Atom> {
+public class AssignLiteral extends AbstractAssignStmt<Var, Literal> {
 
-    public Move(Var lvalue, Atom rvalue) {
+    public AssignLiteral(Var lvalue, Literal rvalue) {
         super(lvalue, rvalue);
     }
 }

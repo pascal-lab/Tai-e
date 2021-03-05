@@ -22,7 +22,7 @@ import pascal.taie.ir.exp.Var;
  * - new array: o = new T[..]
  * - new multi-array: o = new T[..][..]
  */
-public class New extends Assign<Var, NewExp> {
+public class New extends AbstractAssignStmt<Var, NewExp> {
 
     public New(Var lvalue, NewExp rvalue) {
         super(lvalue, rvalue);

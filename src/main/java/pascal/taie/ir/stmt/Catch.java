@@ -23,18 +23,18 @@ public class Catch extends AbstractStmt {
     /**
      * Reference of the exception object to be caught.
      */
-    private final Var ref;
+    private final Var exceptionRef;
 
-    public Catch(Var ref) {
-        this.ref = ref;
+    public Catch(Var exceptionRef) {
+        this.exceptionRef = exceptionRef;
     }
 
-    public Var getRef() {
-        return ref;
+    public Var getExceptionRef() {
+        return exceptionRef;
     }
 
     @Override
     public String toString() {
-        return "catch " + ref;
+        return "catch " + exceptionRef;
     }
 }
