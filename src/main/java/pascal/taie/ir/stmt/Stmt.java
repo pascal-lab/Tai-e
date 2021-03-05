@@ -17,4 +17,6 @@ package pascal.taie.ir.stmt;
  * Representation of statements.
  */
 public interface Stmt {
+
+    int getIndex();
 }
