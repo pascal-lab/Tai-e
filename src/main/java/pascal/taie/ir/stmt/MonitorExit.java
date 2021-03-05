@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.Var;
 /**
  * Representation of monitorexit instruction.
  */
-public class MonitorExit extends AbstractMonitorStmt {
+public class MonitorExit extends MonitorStmt {
 
     public MonitorExit(Var objectRef) {
         super(objectRef);

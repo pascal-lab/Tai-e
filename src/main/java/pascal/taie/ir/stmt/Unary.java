@@ -21,7 +21,7 @@ import pascal.taie.ir.exp.Var;
  * - negation: x = -y
  * - array length: x = arr.length
  */
-public class Unary extends AbstractAssignStmt<Var, UnaryExp> {
+public class Unary extends AssignStmt<Var, UnaryExp> {
 
     public Unary(Var lvalue, UnaryExp rvalue) {
         super(lvalue, rvalue);

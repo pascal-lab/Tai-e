@@ -19,7 +19,7 @@ import pascal.taie.ir.exp.Var;
 /**
  * Representation of assign statement for binary expression, e.g., a = b + c.
  */
-public class Binary extends AbstractAssignStmt<Var, BinaryExp> {
+public class Binary extends AssignStmt<Var, BinaryExp> {
 
     public Binary(Var lvalue, BinaryExp rvalue) {
         super(lvalue, rvalue);

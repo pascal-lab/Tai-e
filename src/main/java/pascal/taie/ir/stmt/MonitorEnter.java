@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.Var;
 /**
  * Representation of monitorenter instruction.
  */
-public class MonitorEnter extends AbstractMonitorStmt {
+public class MonitorEnter extends MonitorStmt {
 
     public MonitorEnter(Var objectRef) {
         super(objectRef);

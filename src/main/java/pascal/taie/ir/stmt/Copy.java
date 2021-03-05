@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.Var;
 /**
  * Representation of copy statement, e.g., a = b.
  */
-public class Copy extends AbstractAssignStmt<Var, Var> {
+public class Copy extends AssignStmt<Var, Var> {
 
     public Copy(Var lvalue, Var rvalue) {
         super(lvalue, rvalue);

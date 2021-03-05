@@ -30,6 +30,6 @@ public class Goto extends AbstractStmt {
 
     @Override
     public String toString() {
-        return "goto " + target;
+        return "goto " + target.getIndex();
     }
 }

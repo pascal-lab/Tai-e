@@ -39,6 +39,6 @@ public class If extends AbstractStmt {
 
     @Override
     public String toString() {
-        return String.format("if (%s) goto %s", condition, target);
+        return String.format("if (%s) goto %d", condition, target.getIndex());
     }
 }

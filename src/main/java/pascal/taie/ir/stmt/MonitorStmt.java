@@ -13,32 +13,27 @@
 
 package pascal.taie.ir.stmt;
 
-/**
- * Representation of assign statements.
- * @param <L> type of lvalue.
- * @param <R> type of rvalue.
- */
-abstract class AbstractAssignStmt<L, R> extends AbstractStmt {
+import pascal.taie.ir.exp.Var;
 
-    private final L lvalue;
+abstract class MonitorStmt extends AbstractStmt {
 
-    private final R rvalue;
+    /**
+     * Reference of the object to be locked/unlocked.
+     */
+    protected final Var objectRef;
 
-    public AbstractAssignStmt(L lvalue, R rvalue) {
-        this.lvalue = lvalue;
-        this.rvalue = rvalue;
+    protected MonitorStmt(Var objectRef) {
+        this.objectRef = objectRef;
     }
 
-    public L getLValue() {
-        return lvalue;
+    public Var getObjectRef() {
+        return objectRef;
     }
 
-    public R getRValue() {
-        return rvalue;
-    }
+    protected abstract String getInsnString();
 
     @Override
     public String toString() {
-        return lvalue + " = " + rvalue;
+        return getInsnString() + " " + objectRef;
     }
 }
