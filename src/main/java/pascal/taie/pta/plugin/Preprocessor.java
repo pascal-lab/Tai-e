@@ -21,8 +21,8 @@ public class Preprocessor implements Plugin {
     @Override
     public void preprocess() {
         if (PTAOptions.get().isPreBuildIR()) {
-            World.get().getIRBuilder()
-                    .buildAll(World.get().getClassHierarchy());
+            World.getIRBuilder()
+                    .buildAll(World.getClassHierarchy());
         }
     }
 }

@@ -15,5 +15,5 @@ package pascal.taie.java;
 
 public interface WorldBuilder {
 
-    World build();
+    void build();
 }

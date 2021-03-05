@@ -82,11 +82,11 @@ public class PointerAnalysis {
      * Initializes pointer analysis.
      */
     private void initialize() {
-        hierarchy = World.get().getClassHierarchy();
+        hierarchy = World.getClassHierarchy();
         callGraph = new OnFlyCallGraph();
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        JMethod main = World.get().getMainMethod();
+        JMethod main = World.getMainMethod();
         addReachable(main);
         // must be called after addReachable()
         callGraph.addEntryMethod(main);

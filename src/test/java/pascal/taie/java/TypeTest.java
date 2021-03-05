@@ -37,7 +37,7 @@ public class TypeTest {
                         "analyzed/java",
                 "Types"
         });
-        typeManager = World.get().getTypeManager();
+        typeManager = World.getTypeManager();
     }
 
     @Test

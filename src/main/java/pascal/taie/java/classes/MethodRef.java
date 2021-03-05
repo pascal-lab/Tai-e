@@ -142,8 +142,7 @@ public class MethodRef extends MemberRef {
 
     public JMethod resolve() {
         if (method == null) {
-            method = World.get()
-                    .getClassHierarchy()
+            method = World.getClassHierarchy()
                     .resolveMethod(this);
         }
         return method;

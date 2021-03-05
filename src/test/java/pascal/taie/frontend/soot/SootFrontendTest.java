@@ -40,7 +40,7 @@ public class SootFrontendTest {
                 "Assign"
         };
         TestUtils.buildWorld(args);
-        World.get().getClassHierarchy()
+        World.getClassHierarchy()
                 .getAllClasses()
                 .stream()
                 .sorted(Comparator.comparing(JClass::getName))

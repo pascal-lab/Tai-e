@@ -56,8 +56,7 @@ public class FieldRef extends MemberRef {
 
     public JField resolve() {
         if (field == null) {
-            field = World.get()
-                    .getClassHierarchy()
+            field = World.getClassHierarchy()
                     .resolveField(this);
         }
         return field;

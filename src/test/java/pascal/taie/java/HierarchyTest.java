@@ -48,8 +48,8 @@ public class HierarchyTest {
                         "analyzed/java",
                 "Hierarchy"
         });
-        hierarchy = World.get().getClassHierarchy();
-        typeManager = World.get().getTypeManager();
+        hierarchy = World.getClassHierarchy();
+        typeManager = World.getTypeManager();
     }
 
     // ---------- Test subclass checking Subclass() ----------

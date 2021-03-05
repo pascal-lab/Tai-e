@@ -42,15 +42,16 @@ public class Environment {
 
     private final Obj mainArgsElem; // Element in args
 
-    public Environment(World world) {
+    public Environment() {
         // TODO: refactor NativeModel to AnalysisMonitor
         // nativeModel must be initialized at first, because following
         // initialization calls pm.getUniqueTypeByName(), which may
         // build IR for class initializer and trigger nativeModel.
         nativeModel = PTAOptions.get().enableNativeModel()
-                ? NativeModel.getDefaultModel(world)
+                ? NativeModel.getDefaultModel(
+                        World.getClassHierarchy(), World.getTypeManager())
                 : NativeModel.getDummyModel();
-        TypeManager typeManager = world.getTypeManager();
+        TypeManager typeManager = World.getTypeManager();
         strPool  = new StringConstantPool(typeManager);
         reflPool = new ReflectionObjectPool(typeManager);
         mainThread = new EnvObj("<main-thread>",
@@ -62,9 +63,9 @@ public class Environment {
         Type string = typeManager.getClassType("java.lang.String");
         Type stringArray = typeManager.getArrayType(string, 1);
         mainArgs = new EnvObj("<main-arguments>",
-                stringArray, world.getMainMethod());
+                stringArray, World.getMainMethod());
         mainArgsElem = new EnvObj("<main-arguments-element>",
-                string, world.getMainMethod());
+                string, World.getMainMethod());
     }
 
     public Obj getStringConstant(String constant) {

@@ -73,8 +73,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private static final Logger logger = LogManager.getLogger(PointerAnalysisImpl.class);
 
-    private final World world;
-
     private final ClassHierarchy hierarchy;
 
     private final TypeManager typeManager;
@@ -99,11 +97,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private ClassInitializer classInitializer;
 
-    public PointerAnalysisImpl(World world) {
-        this.world = world;
-        this.typeManager = world.getTypeManager();
-        this.hierarchy = world.getClassHierarchy();
-        this.environment = world.getEnvironment();
+    public PointerAnalysisImpl() {
+        this.typeManager = World.getTypeManager();
+        this.hierarchy = World.getClassHierarchy();
+        this.environment = World.getEnvironment();
     }
 
     @Override
@@ -224,16 +221,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Obj args = environment.getMainArgs();
         Obj argsElem = environment.getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
-        JMethod main = world.getMainMethod();
+        JMethod main = World.getMainMethod();
         addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
     private Collection<JMethod> computeEntries() {
         List<JMethod> entries = new ArrayList<>();
-        entries.add(world.getMainMethod());
+        entries.add(World.getMainMethod());
         if (PTAOptions.get().analyzeImplicitEntries()) {
-            entries.addAll(world.getImplicitEntries());
+            entries.addAll(World.getImplicitEntries());
         }
         return entries;
     }

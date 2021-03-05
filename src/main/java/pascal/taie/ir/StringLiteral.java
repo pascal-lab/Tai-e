@@ -36,8 +36,7 @@ public class StringLiteral implements Literal {
     @Override
     public ClassType getType() {
         if (stringType == null) {
-            stringType = World.get()
-                    .getTypeManager()
+            stringType = World.getTypeManager()
                     .getClassType(STRING);
         }
         return stringType;

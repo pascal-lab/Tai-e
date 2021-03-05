@@ -55,9 +55,10 @@ public class SootWorldBuilder implements WorldBuilder {
     }
 
     @Override
-    public World build() {
+    public void build() {
         World.reset();
         World world = new World();
+        World.set(world);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         SootClassLoader loader = new SootClassLoader(scene, hierarchy);
@@ -70,7 +71,6 @@ public class SootWorldBuilder implements WorldBuilder {
         // initialize converter
         Converter converter = new Converter(loader, typeManager);
         loader.setConverter(converter);
-        World.set(world); // <-- order?
         // build classes in hierarchy
         buildClasses(hierarchy, scene);
         // set main method
@@ -82,10 +82,9 @@ public class SootWorldBuilder implements WorldBuilder {
                 .map(hierarchy::getJREMethod)
                 .collect(Collectors.toList()));
         // initialize IR builder
-        Environment env = new Environment(world);
+        Environment env = new Environment();
         world.setEnvironment(env);
         world.setIRBuilder(new IRBuilder(converter, env));
-        return world;
     }
 
     private static void buildClasses(ClassHierarchy hierarchy, Scene scene) {

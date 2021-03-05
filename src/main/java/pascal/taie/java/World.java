@@ -26,11 +26,11 @@ import java.util.Collection;
  */
 public class World {
 
+    /**
+     * We maintain an instance instead of using static fields to ease the reset
+     * of the world.
+     */
     private static World theWorld;
-
-    public static World get() {
-        return theWorld;
-    }
 
     public static void set(World world) {
         theWorld = world;
@@ -57,59 +57,59 @@ public class World {
 
     private Collection<JMethod> implicitEntries;
 
-    public Options getOptions() {
-        return options;
+    public static Options getOptions() {
+        return theWorld.options;
     }
 
     public void setOptions(Options options) {
-        this.options = options;
+        theWorld.options = options;
     }
 
-    public TypeManager getTypeManager() {
-        return typeManager;
+    public static TypeManager getTypeManager() {
+        return theWorld.typeManager;
     }
 
     public void setTypeManager(TypeManager typeManager) {
-        this.typeManager = typeManager;
+        theWorld.typeManager = typeManager;
     }
 
-    public ClassHierarchy getClassHierarchy() {
-        return classHierarchy;
+    public static ClassHierarchy getClassHierarchy() {
+        return theWorld.classHierarchy;
     }
 
     public void setClassHierarchy(ClassHierarchy classHierarchy) {
-        this.classHierarchy = classHierarchy;
+        theWorld.classHierarchy = classHierarchy;
     }
 
-    public IRBuilder getIRBuilder() {
-        return irBuilder;
+    public static IRBuilder getIRBuilder() {
+        return theWorld.irBuilder;
     }
 
     public void setIRBuilder(IRBuilder irBuilder) {
-        this.irBuilder = irBuilder;
+        theWorld.irBuilder = irBuilder;
     }
 
-    public Environment getEnvironment() {
-        return environment;
+    public static Environment getEnvironment() {
+        return theWorld.environment;
     }
 
     public void setEnvironment(Environment environment) {
-        this.environment = environment;
+        theWorld.environment = environment;
     }
 
-    public JMethod getMainMethod() {
-        return mainMethod;
+    public static JMethod getMainMethod() {
+        return theWorld.mainMethod;
     }
 
     public void setMainMethod(JMethod mainMethod) {
-        this.mainMethod = mainMethod;
+        theWorld.mainMethod = mainMethod;
     }
 
-    public Collection<JMethod> getImplicitEntries() {
-        return implicitEntries;
+    public static Collection<JMethod> getImplicitEntries() {
+        return theWorld.implicitEntries;
     }
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
-        this.implicitEntries = implicitEntries;
+        theWorld.implicitEntries = implicitEntries;
     }
 }

@@ -39,8 +39,7 @@ public class ClassLiteral implements Literal {
     @Override
     public ClassType getType() {
         if (classType == null) {
-            classType = World.get()
-                    .getTypeManager()
+            classType = World.getTypeManager()
                     .getClassType(CLASS);
         }
         return classType;

@@ -13,7 +13,8 @@
 
 package pascal.taie.pta.env.nativemodel;
 
-import pascal.taie.java.World;
+import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.TypeManager;
 import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Statement;
 
@@ -31,12 +32,10 @@ class DefaultNativeModel implements NativeModel {
 
     private final FinalizerModel finalizerModel;
 
-    DefaultNativeModel(World world) {
-        methodModel = new MethodModel(world.getClassHierarchy(),
-                world.getTypeManager());
-        callModel = new CallModel(world.getClassHierarchy(),
-                world.getTypeManager());
-        finalizerModel = new FinalizerModel(world.getClassHierarchy());
+    DefaultNativeModel(ClassHierarchy hierarchy, TypeManager typeManager) {
+        methodModel = new MethodModel(hierarchy, typeManager);
+        callModel = new CallModel(hierarchy, typeManager);
+        finalizerModel = new FinalizerModel(hierarchy);
     }
 
     @Override

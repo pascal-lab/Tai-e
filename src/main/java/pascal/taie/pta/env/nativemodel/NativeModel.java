@@ -13,13 +13,16 @@
 
 package pascal.taie.pta.env.nativemodel;
 
+import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.pta.ir.IR;
 
 public interface NativeModel {
 
-    static NativeModel getDefaultModel(World world) {
-        return new DefaultNativeModel(world);
+    static NativeModel getDefaultModel(
+            ClassHierarchy hierarchy, TypeManager typeManager) {
+        return new DefaultNativeModel(hierarchy, typeManager);
     }
 
     static NativeModel getDummyModel() {

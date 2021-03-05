@@ -49,7 +49,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
         PointerAnalysis pta = new PointerAnalysis();
         pta.setHeapModel(new AllocationSiteBasedModel(
-                World.get().getTypeManager()));
+                World.getTypeManager()));
         pta.solve();
         JimplePointerAnalysis.v().setCIPointerAnalysis(pta);
 
