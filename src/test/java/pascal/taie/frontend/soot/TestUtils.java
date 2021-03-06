@@ -35,6 +35,7 @@ public class TestUtils {
                 Options.output_format_jimple);
         Options.v().set_keep_line_number(true);
         Options.v().set_whole_program(true);
+        Options.v().set_drop_bodies_after_load(false);
         Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure Soot transformer
