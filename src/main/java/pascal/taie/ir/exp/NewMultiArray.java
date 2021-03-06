@@ -51,8 +51,8 @@ public class NewMultiArray extends NewExp {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("new ");
-        sb.append(type.getBaseType());
+        StringBuilder sb = new StringBuilder("newmultiarray ");
+        sb.append('(').append(type.getBaseType()).append(')');
         lengths.forEach(length ->
                 sb.append('[').append(length).append(']'));
         for (int i = lengths.size(); i < type.getDimensions(); ++i) {

@@ -40,6 +40,6 @@ public class NewArray extends NewExp {
 
     @Override
     public String toString() {
-        return String.format("new %s[%s]", type.getElementType(), length);
+        return String.format("newarray (%s)[%s]", type.getElementType(), length);
     }
 }

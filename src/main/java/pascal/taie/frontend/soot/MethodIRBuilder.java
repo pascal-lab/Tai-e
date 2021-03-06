@@ -25,6 +25,10 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.exp.NewInstance;
+import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StringLiteral;
@@ -32,8 +36,11 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.types.ArrayType;
+import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
 import soot.Body;
 import soot.Local;
@@ -59,6 +66,9 @@ import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.LongConstant;
 import soot.jimple.MulExpr;
+import soot.jimple.NewArrayExpr;
+import soot.jimple.NewExpr;
+import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.OrExpr;
 import soot.jimple.RemExpr;
@@ -73,6 +83,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static pascal.taie.util.CollectionUtils.freeze;
 
@@ -118,6 +129,23 @@ class MethodIRBuilder {
         body.getUnits().forEach(unit -> unit.apply(builder));
     }
 
+    /**
+     * Shortcut for converting Local to corresponding Var.
+     */
+    private Var getVar(Local local) {
+        return varManager.getVar(local);
+    }
+    /**
+     * Shortcut for obtaining and converting the type of soot.Value.
+     */
+    private Type getType(Value value) {
+        return converter.convertType(value.getType());
+    }
+
+    private Type getType(String typeName) {
+        throw new UnsupportedOperationException();
+    }
+
     private class StmtBuilder extends AbstractStmtSwitch {
 
         /**
@@ -126,7 +154,7 @@ class MethodIRBuilder {
         private Unit currentStmt;
 
         /**
-         * Convert Constants to Literals.
+         * Convert Jimple Constants to Literals.
          */
         private final AbstractConstantSwitch constantConverter
                 = new AbstractConstantSwitch() {
@@ -174,7 +202,7 @@ class MethodIRBuilder {
         };
 
         /**
-         * Extract BinaryExp.Op from BinopExpr.
+         * Extract BinaryExp.Op from Jimple BinopExpr.
          */
         private final AbstractJimpleValueSwitch binaryOpExtractor
                 = new AbstractJimpleValueSwitch() {
@@ -256,21 +284,50 @@ class MethodIRBuilder {
             @Override
             public void defaultCase(Object v) {
                 throw new SootFrontendException(
-                        "Unexpected binary expression: " + v);
+                        "Expected binary expression, given " + v);
             }
         };
 
-        private void buildNew(Value lhs, AnyNewExpr newExpr) {
+        /**
+         * Convert Jimple NewExpr to NewExp
+         */
+        private final AbstractJimpleValueSwitch newExprConverter
+                = new AbstractJimpleValueSwitch() {
 
+            @Override
+            public void caseNewExpr(NewExpr v) {
+                setResult(new NewInstance((ClassType) getType(v)));
+            }
+
+            @Override
+            public void caseNewArrayExpr(NewArrayExpr v) {
+                setResult(new NewArray((ArrayType) getType(v),
+                        getLocalOrConstant(v.getSize())));
+            }
+
+            @Override
+            public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
+                List<Var> lengths = v.getSizes()
+                        .stream()
+                        .map(StmtBuilder.this::getLocalOrConstant)
+                        .collect(Collectors.toList());
+                setResult(new NewMultiArray((ArrayType) getType(v), lengths));
+            }
+        };
+
+        private void buildNew(Local lhs, AnyNewExpr newExpr) {
+            newExpr.apply(newExprConverter);
+            addStmt(new New(getVar(lhs), (NewExp) newExprConverter.getResult()));
+            // TODO: set allocation site
         }
 
         private void buildCopy(Local lhs, Local rhs) {
-            addStmt(new Copy(varManager.getVar(lhs), varManager.getVar(rhs)));
+            addStmt(new Copy(getVar(lhs), getVar(rhs)));
         }
 
         private void buildAssignLiteral(Local lhs, Constant constant) {
             constant.apply(constantConverter);
-            addStmt(new AssignLiteral(varManager.getVar(lhs),
+            addStmt(new AssignLiteral(getVar(lhs),
                     (Literal) constantConverter.getResult()));
         }
 
@@ -291,7 +348,7 @@ class MethodIRBuilder {
             } else {
                 throw new SootFrontendException("Cannot handle BinopExpr: " + rhs);
             }
-            addStmt(new Binary(varManager.getVar(lhs), binaryExp));
+            addStmt(new Binary(getVar(lhs), binaryExp));
         }
 
         private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
@@ -300,7 +357,7 @@ class MethodIRBuilder {
 
         private Var getLocalOrConstant(Value value) {
             if (value instanceof Local) {
-                return varManager.getVar((Local) value);
+                return getVar((Local) value);
             } else if (value instanceof Constant) {
                 value.apply(constantConverter);
                 Literal rvalue = (Literal) constantConverter.getResult();
@@ -309,10 +366,6 @@ class MethodIRBuilder {
                 return lvalue;
             }
             throw new SootFrontendException("Expected Local or Constant, given " + value);
-        }
-
-        private Type getType(String typeName) {
-            throw new UnsupportedOperationException();
         }
 
         private void addStmt(Stmt stmt) {
@@ -329,7 +382,9 @@ class MethodIRBuilder {
                 return;
             }
             if (lhs instanceof Local) {
-                if (rhs instanceof Constant) {
+                if (rhs instanceof AnyNewExpr) {
+                    buildNew((Local) lhs, (AnyNewExpr) rhs);
+                } else if (rhs instanceof Constant) {
                     buildAssignLiteral((Local) lhs, (Constant) rhs);
                 } else if (rhs instanceof Local) {
                     buildCopy((Local) lhs, (Local) rhs);
@@ -343,13 +398,6 @@ class MethodIRBuilder {
         public void defaultCase(Object obj) {
             System.out.println("Unhandled Stmt: " + obj);
         }
-    }
-
-    /**
-     * Shortcut for obtaining and converting the type of soot.Value.
-     */
-    private Type getType(Value value) {
-        return converter.convertType(value.getType());
     }
 
     private class VarManager {
