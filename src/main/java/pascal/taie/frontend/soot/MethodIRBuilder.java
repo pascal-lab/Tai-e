@@ -16,12 +16,15 @@ package pascal.taie.frontend.soot;
 import pascal.taie.ir.DefaultNewIR;
 import pascal.taie.ir.NewIR;
 import pascal.taie.ir.exp.ArithmeticExp;
+import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.DoubleLiteral;
+import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
@@ -31,11 +34,14 @@ import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ShiftExp;
+import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.classes.JMethod;
@@ -52,6 +58,7 @@ import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AddExpr;
 import soot.jimple.AndExpr;
 import soot.jimple.AnyNewExpr;
+import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.ClassConstant;
@@ -61,7 +68,9 @@ import soot.jimple.CmplExpr;
 import soot.jimple.Constant;
 import soot.jimple.DivExpr;
 import soot.jimple.DoubleConstant;
+import soot.jimple.FieldRef;
 import soot.jimple.FloatConstant;
+import soot.jimple.InstanceFieldRef;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.LongConstant;
@@ -74,6 +83,7 @@ import soot.jimple.OrExpr;
 import soot.jimple.RemExpr;
 import soot.jimple.ShlExpr;
 import soot.jimple.ShrExpr;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
 import soot.jimple.UshrExpr;
@@ -130,13 +140,13 @@ class MethodIRBuilder {
     }
 
     /**
-     * Shortcut for converting Local to corresponding Var.
+     * Shortcut: convert Jimple Local to Var.
      */
     private Var getVar(Local local) {
         return varManager.getVar(local);
     }
     /**
-     * Shortcut for obtaining and converting the type of soot.Value.
+     * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
      */
     private Type getType(Value value) {
         return converter.convertType(value.getType());
@@ -149,7 +159,7 @@ class MethodIRBuilder {
     private class StmtBuilder extends AbstractStmtSwitch {
 
         /**
-         * Current Jimple statement being handled.
+         * Current Jimple statement being converted.
          */
         private Unit currentStmt;
 
@@ -321,14 +331,22 @@ class MethodIRBuilder {
             // TODO: set allocation site
         }
 
-        private void buildCopy(Local lhs, Local rhs) {
-            addStmt(new Copy(getVar(lhs), getVar(rhs)));
-        }
-
         private void buildAssignLiteral(Local lhs, Constant constant) {
             constant.apply(constantConverter);
             addStmt(new AssignLiteral(getVar(lhs),
                     (Literal) constantConverter.getResult()));
+        }
+
+        private void buildCopy(Local lhs, Local rhs) {
+            addStmt(new Copy(getVar(lhs), getVar(rhs)));
+        }
+
+        private void buildLoadArray(Local lhs, ArrayRef arrayRef) {
+            addStmt(new LoadArray(getVar(lhs), getArrayAccess(arrayRef)));
+        }
+
+        private void buildLoadField(Local lhs, FieldRef fieldRef) {
+            addStmt(new LoadField(getVar(lhs), getFieldAccess(fieldRef)));
         }
 
         private void buildBinary(Local lhs, BinopExpr rhs) {
@@ -355,6 +373,12 @@ class MethodIRBuilder {
 
         }
 
+        /**
+         * Convert a Jimple Local or Constant to Var.
+         * If {@param value} is Local, then directly return the corresponding Var.
+         * If {@param value} is Constant, then add a temporary assignment,
+         * e.g., x = 10 for constant 10, and return Var x.
+         */
         private Var getLocalOrConstant(Value value) {
             if (value instanceof Local) {
                 return getVar((Local) value);
@@ -366,6 +390,29 @@ class MethodIRBuilder {
                 return lvalue;
             }
             throw new SootFrontendException("Expected Local or Constant, given " + value);
+        }
+
+        /**
+         * Convert Jimple ArrayRef to ArrayAccess.
+         */
+        private ArrayAccess getArrayAccess(ArrayRef arrayRef) {
+            return new ArrayAccess(getVar((Local) arrayRef.getBase()),
+                    getLocalOrConstant(arrayRef.getIndex()));
+        }
+
+        /**
+         * Convert Jimple FieldRef to FieldAccess.
+         */
+        private FieldAccess getFieldAccess(FieldRef fieldRef) {
+            pascal.taie.java.classes.FieldRef jfieldRef =
+                    converter.convertFieldRef(fieldRef.getFieldRef());
+            if (fieldRef instanceof InstanceFieldRef) {
+                return new InstanceFieldAccess(jfieldRef,
+                        getVar((Local) ((InstanceFieldRef) fieldRef).getBase()));
+            } else {
+                assert fieldRef instanceof StaticFieldRef;
+                return new StaticFieldAccess(jfieldRef);
+            }
         }
 
         private void addStmt(Stmt stmt) {
@@ -382,14 +429,19 @@ class MethodIRBuilder {
                 return;
             }
             if (lhs instanceof Local) {
+                Local lvar = (Local) lhs;
                 if (rhs instanceof AnyNewExpr) {
-                    buildNew((Local) lhs, (AnyNewExpr) rhs);
+                    buildNew(lvar, (AnyNewExpr) rhs);
                 } else if (rhs instanceof Constant) {
-                    buildAssignLiteral((Local) lhs, (Constant) rhs);
+                    buildAssignLiteral(lvar, (Constant) rhs);
                 } else if (rhs instanceof Local) {
-                    buildCopy((Local) lhs, (Local) rhs);
+                    buildCopy(lvar, (Local) rhs);
+                } else if (rhs instanceof ArrayRef) {
+                    buildLoadArray(lvar, (ArrayRef) rhs);
+                } else if (rhs instanceof FieldRef) {
+                    buildLoadField(lvar, (FieldRef) rhs);
                 } else if (rhs instanceof BinopExpr) {
-                    buildBinary((Local) lhs, (BinopExpr) rhs);
+                    buildBinary(lvar, (BinopExpr) rhs);
                 }
             }
         }
