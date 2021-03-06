@@ -27,8 +27,8 @@ public class ComparisonExp extends AbstractBinaryExp {
         CMP("cmp"),
         /** cmpl */
         CMPL("cmpl"),
-        /** cmpr */
-        CMPR("cmpr"),
+        /** cmpg */
+        CMPG("cmpg"),
         ;
 
         private final String name;

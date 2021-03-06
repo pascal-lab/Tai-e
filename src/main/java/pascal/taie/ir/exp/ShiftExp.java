@@ -26,8 +26,6 @@ public class ShiftExp extends AbstractBinaryExp {
         SHL("<<"),
         /** >> */
         SHR(">>"),
-        /** <<< */
-        USHL("<<<"),
         /** >>> */
         USHR(">>>"),
         ;
