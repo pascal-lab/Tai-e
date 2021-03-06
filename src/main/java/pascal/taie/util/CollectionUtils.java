@@ -13,9 +13,12 @@
 
 package pascal.taie.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -61,5 +64,18 @@ public class CollectionUtils {
      */
     public static <T> T getOne(Collection<T> collection) {
         return collection.iterator().next();
+    }
+
+    /**
+     * @return an unmodifiable list of the given list.
+     */
+    public static <T> List<T> freeze(List<T> list) {
+        if (list.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            List<T> result = new ArrayList<>(list.size());
+            result.addAll(list);
+            return Collections.unmodifiableList(result);
+        }
     }
 }

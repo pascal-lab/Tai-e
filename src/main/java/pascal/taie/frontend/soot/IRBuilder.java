@@ -103,7 +103,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
 
     @Override
     public NewIR buildNewIR(JMethod method) {
-        return new MethodIRBuilder(method).build();
+        return new MethodIRBuilder(method, converter).build();
     }
 
     /**

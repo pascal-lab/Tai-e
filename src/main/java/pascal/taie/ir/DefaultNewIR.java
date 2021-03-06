@@ -18,7 +18,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.classes.JMethod;
 
 import java.util.List;
-import java.util.Set;
 
 public class DefaultNewIR implements NewIR {
 
@@ -28,13 +27,13 @@ public class DefaultNewIR implements NewIR {
 
     private final List<Var> params;
 
-    private final Set<Var> vars;
+    private final List<Var> vars;
 
     private final List<Stmt> stmts;
 
     public DefaultNewIR(
             JMethod method, Var thisVar, List<Var> params,
-            Set<Var> vars, List<Stmt> stmts) {
+            List<Var> vars, List<Stmt> stmts) {
         this.method = method;
         this.thisVar = thisVar;
         this.params = params;
@@ -62,7 +61,7 @@ public class DefaultNewIR implements NewIR {
     }
 
     @Override
-    public Set<Var> getVars() {
+    public List<Var> getVars() {
         return vars;
     }
 

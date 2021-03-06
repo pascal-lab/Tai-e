@@ -17,7 +17,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.classes.JMethod;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface NewIR {
@@ -30,7 +29,7 @@ public interface NewIR {
 
     Var getParam(int i);
 
-    Collection<Var> getVars();
+    List<Var> getVars();
 
     List<Stmt> getStmts();
 }
