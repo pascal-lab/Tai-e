@@ -50,14 +50,14 @@ class Utils {
             String ctorSig, String callId) {
         JMethod container = containerIR.getMethod();
         Obj obj = new EnvObj(name, type, container);
-        containerIR.addStatement(new Allocation(recv, obj));
+        containerIR.addPTAStatement(new Allocation(recv, obj));
         JMethod ctor = hierarchy.getJREMethod(ctorSig);
         MockCallSite initCallSite = new MockCallSite(
                 CallKind.SPECIAL, ctor.getRef(),
                 recv, Collections.emptyList(),
                 container, callId);
         Call initCall = new Call(initCallSite, null);
-        containerIR.addStatement(initCall);
+        containerIR.addPTAStatement(initCall);
     }
 
     /**
@@ -74,6 +74,6 @@ class Utils {
                 origin.getArg(0), Collections.emptyList(),
                 containerIR.getMethod(), callId);
         Call mockCall = new Call(callSite, call.getLHS().orElse(null));
-        containerIR.addStatement(mockCall);
+        containerIR.addPTAStatement(mockCall);
     }
 }

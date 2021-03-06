@@ -35,7 +35,7 @@ public class DefaultIR implements IR {
 
     private Set<Variable> returnVars = Collections.emptySet();
 
-    private List<Statement> statements = Collections.emptyList();
+    private List<Statement> ptaStatements = Collections.emptyList();
 
     public DefaultIR(JMethod method) {
         this.method = method;
@@ -86,15 +86,15 @@ public class DefaultIR implements IR {
     }
 
     @Override
-    public List<Statement> getStatements() {
-        return statements;
+    public List<Statement> getPTAStatements() {
+        return ptaStatements;
     }
 
     @Override
-    public void addStatement(Statement s) {
-        if (statements.isEmpty()) {
-            statements = new ArrayList<>();
+    public void addPTAStatement(Statement s) {
+        if (ptaStatements.isEmpty()) {
+            ptaStatements = new ArrayList<>();
         }
-        statements.add(s);
+        ptaStatements.add(s);
     }
 }

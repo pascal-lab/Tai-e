@@ -396,7 +396,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
 
     private void addStatement(DefaultIR ir, Statement stmt, Stmt sootStmt) {
         stmt.setStartLineNumber(sootStmt.getJavaSourceStartLineNumber());
-        ir.addStatement(stmt);
+        ir.addPTAStatement(stmt);
     }
 
     private Variable getVariable(Local var, JMethod container) {
@@ -419,7 +419,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         Variable temp = varManager.newTempVariable(
                 "constant$", converter.convertType(constant.getType()),
                 container);
-        ir.addStatement(new Allocation(temp, obj));
+        ir.addPTAStatement(new Allocation(temp, obj));
         return temp;
     }
 

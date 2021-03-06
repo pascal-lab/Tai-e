@@ -42,7 +42,7 @@ class DefaultNativeModel implements NativeModel {
     public void process(IR ir) {
         methodModel.process(ir);
         // Statements may be changed by native model, thus we process on a copy
-        Statement[] statements = ir.getStatements()
+        Statement[] statements = ir.getPTAStatements()
                 .toArray(new Statement[0]);
         for (Statement s : statements) {
             callModel.process(s, ir);

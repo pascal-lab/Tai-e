@@ -62,7 +62,7 @@ class FinalizerModel {
                             registerRef, null, Collections.singletonList(lhs),
                             container, "register-finalize");
                     Call call = new Call(callSite, null);
-                    containerIR.addStatement(call);
+                    containerIR.addPTAStatement(call);
                 });
             }
         }

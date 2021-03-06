@@ -341,7 +341,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             StatementProcessor processor = new StatementProcessor(csMethod);
             csMethod.getMethod()
                     .getIR()
-                    .getStatements()
+                    .getPTAStatements()
                     .forEach(s -> s.accept(processor));
             plugin.handleNewCSMethod(csMethod);
         }
@@ -495,7 +495,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.handleNewMethod(method);
-            method.getIR().getStatements()
+            method.getIR().getPTAStatements()
                     .forEach(s -> s.accept(classInitializer));
         }
     }

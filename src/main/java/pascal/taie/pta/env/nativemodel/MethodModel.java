@@ -82,7 +82,7 @@ class MethodModel {
         //  identity). The behaviour implemented here is based on Soot.
         registerHandler("<java.lang.Object: java.lang.Object clone()>", ir ->
             ir.getReturnVariables().forEach(ret ->
-                    ir.addStatement(new Assign(ret, ir.getThis())))
+                    ir.addPTAStatement(new Assign(ret, ir.getThis())))
         );
 
         // --------------------------------------------------------------------
@@ -137,7 +137,7 @@ class MethodModel {
                     run.getRef(), ir.getThis(), Collections.emptyList(),
                     ir.getMethod(), "thread-run");
             Call runCall = new Call(runCallSite, null);
-            ir.addStatement(runCall);
+            ir.addPTAStatement(runCall);
         });
 
         // --------------------------------------------------------------------
@@ -176,9 +176,9 @@ class MethodModel {
                 Type stringArray = typeManager.getArrayType(string, 1);
                 EnvObj array = new EnvObj("element-array", stringArray, method);
                 ir.getReturnVariables().forEach(ret -> {
-                    ir.addStatement(new Allocation(temp, elem));
-                    ir.addStatement(new Allocation(ret, array));
-                    ir.addStatement(new ArrayStore(ret, temp));
+                    ir.addPTAStatement(new Allocation(temp, elem));
+                    ir.addPTAStatement(new Allocation(ret, array));
+                    ir.addPTAStatement(new ArrayStore(ret, temp));
                 });
             });
         });
@@ -215,6 +215,6 @@ class MethodModel {
 
     private void addStaticStore(IR ir, String fieldSig, Variable from) {
         JField field = hierarchy.getJREField(fieldSig);
-        ir.addStatement(new StaticStore(field.getRef(), from));
+        ir.addPTAStatement(new StaticStore(field.getRef(), from));
     }
 }

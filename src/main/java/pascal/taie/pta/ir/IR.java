@@ -33,7 +33,7 @@ public interface IR {
 
     Collection<Variable> getReturnVariables();
 
-    List<Statement> getStatements();
+    List<Statement> getPTAStatements();
 
-    void addStatement(Statement s);
+    void addPTAStatement(Statement s);
 }

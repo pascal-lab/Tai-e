@@ -89,10 +89,10 @@ class CallModel {
             // of pointer analysis, thus we add cast statements to filter
             // out load/store operations on non-array objects.
             // Note that the cast statements will exclude primitive arrays.
-            ir.addStatement(new AssignCast(srcArray, arrayType, src));
-            ir.addStatement(new AssignCast(destArray, arrayType, dest));
-            ir.addStatement(new ArrayLoad(temp, srcArray));
-            ir.addStatement(new ArrayStore(destArray, temp));
+            ir.addPTAStatement(new AssignCast(srcArray, arrayType, src));
+            ir.addPTAStatement(new AssignCast(destArray, arrayType, dest));
+            ir.addPTAStatement(new ArrayLoad(temp, srcArray));
+            ir.addPTAStatement(new ArrayStore(destArray, temp));
         });
 
         // --------------------------------------------------------------------

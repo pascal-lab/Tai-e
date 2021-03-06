@@ -163,7 +163,7 @@ public class PointerAnalysis {
      * Processes allocations (new statements) in the given method.
      */
     private void processAllocations(JMethod method) {
-        for (Statement stmt : method.getIR().getStatements()) {
+        for (Statement stmt : method.getIR().getPTAStatements()) {
             if (stmt instanceof Allocation) {
                 Allocation alloc = (Allocation) stmt;
                 // obtain abstract object
@@ -179,7 +179,7 @@ public class PointerAnalysis {
      * Adds local assign edges of the given method to pointer flow graph.
      */
     private void processLocalAssign(JMethod method) {
-        for (Statement stmt : method.getIR().getStatements()) {
+        for (Statement stmt : method.getIR().getPTAStatements()) {
             if (stmt instanceof Assign) {
                 Assign assign = (Assign) stmt;
                 Var from = pointerFlowGraph.getVar(assign.getFrom());
@@ -282,7 +282,7 @@ public class PointerAnalysis {
      * Process static calls in given method.
      */
     private void processStaticCalls(JMethod method) {
-        for (Statement stmt : method.getIR().getStatements()) {
+        for (Statement stmt : method.getIR().getPTAStatements()) {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {
