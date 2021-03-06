@@ -89,7 +89,6 @@ public class SootWorldBuilder implements WorldBuilder {
 
     private static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
         // Parallelize?
-
         Timer timer = new Timer("Build all classes");
         timer.start();
         scene.getClasses().forEach(c ->

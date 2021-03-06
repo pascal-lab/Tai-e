@@ -14,6 +14,7 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.callgraph.JimpleCallUtils;
+import pascal.taie.ir.NewIR;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JMethod;
@@ -98,6 +99,11 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     IRBuilder(Converter converter, Environment env) {
         this.converter = converter;
         this.env = env;
+    }
+
+    @Override
+    public NewIR buildNewIR(JMethod method) {
+        return new MethodIRBuilder(method).build();
     }
 
     /**

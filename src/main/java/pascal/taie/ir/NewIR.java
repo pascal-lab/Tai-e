@@ -11,20 +11,26 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.ir;
 
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.IR;
 
-public interface IRBuilder {
+import java.util.Collection;
+import java.util.List;
 
-    NewIR buildNewIR(JMethod method);
+public interface NewIR {
 
-    IR build(JMethod method);
+    JMethod getMethod();
 
-    /**
-     * Build IR for all methods in the given hierarchy.
-     */
-    void buildAll(ClassHierarchy hierarchy);
+    Var getThis();
+
+    List<Var> getParams();
+
+    Var getParam(int i);
+
+    Collection<Var> getVars();
+
+    List<Stmt> getStmts();
 }
