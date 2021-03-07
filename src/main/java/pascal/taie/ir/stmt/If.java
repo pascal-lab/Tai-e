@@ -22,11 +22,10 @@ public class If extends AbstractStmt {
 
     private final ConditionExp condition;
 
-    private final Stmt target;
+    private Stmt target;
 
-    public If(ConditionExp condition, Stmt target) {
+    public If(ConditionExp condition) {
         this.condition = condition;
-        this.target = target;
     }
 
     public ConditionExp getCondition() {
@@ -37,8 +36,14 @@ public class If extends AbstractStmt {
         return target;
     }
 
+    public void setTarget(Stmt target) {
+        this.target = target;
+    }
+
     @Override
     public String toString() {
-        return String.format("if (%s) goto %d", condition, target.getIndex());
+        String targetStr = target == null ?
+                "[unknown]" : Integer.toString(target.getIndex());
+        return String.format("if (%s) goto %s", condition, targetStr);
     }
 }

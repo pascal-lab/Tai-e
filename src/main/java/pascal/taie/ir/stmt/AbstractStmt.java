@@ -15,7 +15,7 @@ package pascal.taie.ir.stmt;
 
 abstract class AbstractStmt implements Stmt {
 
-    protected int index;
+    protected int index = -1;
 
     @Override
     public int getIndex() {

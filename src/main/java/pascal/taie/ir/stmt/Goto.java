@@ -18,18 +18,20 @@ package pascal.taie.ir.stmt;
  */
 public class Goto extends AbstractStmt {
 
-    private final Stmt target;
-
-    public Goto(Stmt target) {
-        this.target = target;
-    }
+    private Stmt target;
 
     public Stmt getTarget() {
         return target;
     }
 
+    public void setTarget(Stmt target) {
+        this.target = target;
+    }
+
     @Override
     public String toString() {
-        return "goto " + target.getIndex();
+        return target == null ?
+                "goto [unknown]" :
+                "goto " + target.getIndex();
     }
 }

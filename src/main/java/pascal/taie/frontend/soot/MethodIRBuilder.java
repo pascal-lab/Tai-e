@@ -23,6 +23,7 @@ import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
+import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
@@ -52,6 +53,8 @@ import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.Goto;
+import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
@@ -71,6 +74,7 @@ import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
+import pascal.taie.util.HybridArrayHashMap;
 import soot.Body;
 import soot.Local;
 import soot.Value;
@@ -89,14 +93,20 @@ import soot.jimple.ClassConstant;
 import soot.jimple.CmpExpr;
 import soot.jimple.CmpgExpr;
 import soot.jimple.CmplExpr;
+import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
 import soot.jimple.DivExpr;
 import soot.jimple.DoubleConstant;
 import soot.jimple.EnterMonitorStmt;
+import soot.jimple.EqExpr;
 import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.FloatConstant;
+import soot.jimple.GeExpr;
+import soot.jimple.GotoStmt;
+import soot.jimple.GtExpr;
 import soot.jimple.IdentityStmt;
+import soot.jimple.IfStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
@@ -104,9 +114,13 @@ import soot.jimple.IntConstant;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
+import soot.jimple.LeExpr;
 import soot.jimple.LengthExpr;
 import soot.jimple.LongConstant;
+import soot.jimple.LookupSwitchStmt;
+import soot.jimple.LtExpr;
 import soot.jimple.MulExpr;
+import soot.jimple.NeExpr;
 import soot.jimple.NegExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
@@ -124,6 +138,7 @@ import soot.jimple.StaticFieldRef;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
+import soot.jimple.TableSwitchStmt;
 import soot.jimple.ThrowStmt;
 import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
@@ -181,7 +196,25 @@ class MethodIRBuilder {
     private void buildStmts(Body body) {
         StmtBuilder builder = new StmtBuilder();
         body.getUnits().forEach(unit -> unit.apply(builder));
+        linkJumpTargets(builder.jumpMap, builder.jumpTargetMap);
         // TODO: add labels/indexes
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    private static void linkJumpTargets(
+            Map<soot.jimple.Stmt, Stmt> jumpMap,
+            Map<soot.jimple.Stmt, Stmt> jumpTargetMap) {
+        jumpMap.forEach((jimpleStmt, stmt) -> {
+            if (jimpleStmt instanceof GotoStmt) {
+                GotoStmt jimpleGoto = (GotoStmt) jimpleStmt;
+                Goto taieGoto = (Goto) stmt;
+                taieGoto.setTarget(jumpTargetMap.get(jimpleGoto.getTarget()));
+            } else if (jimpleStmt instanceof IfStmt) {
+                IfStmt jimpleIf = (IfStmt) jimpleStmt;
+                If taieIf = (If) stmt;
+                taieIf.setTarget(jumpTargetMap.get(jimpleIf.getTarget()));
+            }
+        });
     }
 
     /**
@@ -208,6 +241,41 @@ class MethodIRBuilder {
          * Current Jimple statement being converted.
          */
         private soot.jimple.Stmt currentStmt;
+
+        /**
+         * Map from jump statements in Jimple to the corresponding Tai-e statements.
+         */
+        private Map<soot.jimple.Stmt, Stmt> jumpMap = new HybridArrayHashMap<>();
+
+        /**
+         * Map from jump target statements in Jimple to the corresponding Tai-e statements.
+         */
+        private Map<soot.jimple.Stmt, Stmt> jumpTargetMap = new HybridArrayHashMap<>();
+
+        /**
+         * If {@link #currentStmt} is a jump target in Jimple, then this field
+         * holds the corresponding jump target in Tai-e IR.
+         * This field is useful when converting the Jimple statements that
+         * contain constant values, as Tai-e IR will emit {@link AssignLiteral}
+         * for constant values before the actual corresponding {@link Stmt}.
+         *
+         * For example, consider following Jimple code:
+         * if a > b goto label1;
+         * label1:
+         *     x = 1 + y;
+         *
+         * In Tai-e IR, above code will be converted to this:
+         * if a > b goto label1;
+         * label1:
+         *     #intconstant0 = 1; // <-- tempJumpTarget
+         *     x = #intconstant0 + y;
+         *
+         * Tai-e adds an {@link AssignLiteral} statement before the
+         * corresponding addition, so we need to set the jump target
+         * of {@link If} to the tempJumpTarget instead of the addition.
+         * We use this field to maintain temporary jump targets.
+         */
+        private Stmt tempJumpTarget;
 
         /**
          * Convert Jimple NewExpr to NewExp
@@ -475,6 +543,37 @@ class MethodIRBuilder {
             addStmt(new Cast(getVar(lhs), castExp));
         }
 
+        private void buildGoto() {
+            Goto gotoStmt = new Goto();
+            jumpMap.put(currentStmt, gotoStmt);
+            addStmt(gotoStmt);
+        }
+
+        private void buildIf(ConditionExpr condition) {
+            ConditionExp.Op op;
+            if (condition instanceof EqExpr) {
+                op = ConditionExp.Op.EQ;
+            } else if (condition instanceof NeExpr) {
+                op = ConditionExp.Op.NE;
+            } else if (condition instanceof LtExpr) {
+                op = ConditionExp.Op.LT;
+            } else if (condition instanceof GtExpr) {
+                op = ConditionExp.Op.GT;
+            } else if (condition instanceof LeExpr) {
+                op = ConditionExp.Op.LE;
+            } else if (condition instanceof GeExpr) {
+                op = ConditionExp.Op.GE;
+            } else {
+                throw new SootFrontendException(
+                        "Expected conditional expression, given: " + condition);
+            }
+            Var v1 = getLocalOrConstant(condition.getOp1());
+            Var v2 = getLocalOrConstant(condition.getOp2());
+            If ifStmt = new If(new ConditionExp(op, v1, v2));
+            jumpMap.put(currentStmt, ifStmt);
+            addStmt(ifStmt);
+        }
+
         private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
             Var result = lhs == null ? null : getVar(lhs);
             addStmt(new Invoke(getInvokeExp(invokeExpr), result));
@@ -539,8 +638,8 @@ class MethodIRBuilder {
 
         /**
          * Convert a Jimple Local or Constant to Var.
-         * If {@param value} is Local, then directly return the corresponding Var.
-         * If {@param value} is Constant, then add a temporary assignment,
+         * If <code>value</code> is Local, then directly return the corresponding Var.
+         * If <code>value</code> is Constant, then add a temporary assignment,
          * e.g., x = 10 for constant 10, and return Var x.
          */
         private Var getLocalOrConstant(Value value) {
@@ -550,15 +649,30 @@ class MethodIRBuilder {
                 value.apply(constantConverter);
                 Literal rvalue = (Literal) constantConverter.getResult();
                 Var lvalue = varManager.newConstantVar(rvalue);
-                addStmt(new AssignLiteral(lvalue, rvalue));
+                addTempStmt(new AssignLiteral(lvalue, rvalue));
                 return lvalue;
             }
             throw new SootFrontendException("Expected Local or Constant, given " + value);
         }
 
+        private void addTempStmt(Stmt stmt) {
+            if (tempJumpTarget == null) {
+                tempJumpTarget = stmt;
+            }
+            stmts.add(stmt);
+        }
+
         private void addStmt(Stmt stmt) {
             // TODO: add more information to Stmt
             stmts.add(stmt);
+            if (!currentStmt.getBoxesPointingToThis().isEmpty()) {
+                if (tempJumpTarget != null) {
+                    jumpTargetMap.put(currentStmt, tempJumpTarget);
+                } else {
+                    jumpTargetMap.put(currentStmt, stmt);
+                }
+            }
+            tempJumpTarget = null;
         }
 
         @Override
@@ -602,6 +716,18 @@ class MethodIRBuilder {
                 throw new SootFrontendException(
                         "Cannot handle AssignStmt: " + stmt);
             }
+        }
+
+        @Override
+        public void caseGotoStmt(GotoStmt stmt) {
+            currentStmt = stmt;
+            buildGoto();
+        }
+
+        @Override
+        public void caseIfStmt(IfStmt stmt) {
+            currentStmt = stmt;
+            buildIf((ConditionExpr) stmt.getCondition());
         }
 
         @Override
