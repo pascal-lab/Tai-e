@@ -59,6 +59,7 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.MonitorEnter;
 import pascal.taie.ir.stmt.MonitorExit;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
@@ -110,6 +111,7 @@ import soot.jimple.NegExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
+import soot.jimple.NopStmt;
 import soot.jimple.NullConstant;
 import soot.jimple.OrExpr;
 import soot.jimple.RemExpr;
@@ -179,6 +181,7 @@ class MethodIRBuilder {
     private void buildStmts(Body body) {
         StmtBuilder builder = new StmtBuilder();
         body.getUnits().forEach(unit -> unit.apply(builder));
+        // TODO: add labels/indexes
     }
 
     /**
@@ -530,6 +533,10 @@ class MethodIRBuilder {
             }
         }
 
+        private void buildNop() {
+            addStmt(new Nop());
+        }
+
         /**
          * Convert a Jimple Local or Constant to Var.
          * If {@param value} is Local, then directly return the corresponding Var.
@@ -641,6 +648,12 @@ class MethodIRBuilder {
         public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
             currentStmt = stmt;
             buildMonitorStmt(stmt.getOp(), MONITOR_EXIT);
+        }
+
+        @Override
+        public void caseNopStmt(NopStmt stmt) {
+            currentStmt = stmt;
+            buildNop();
         }
 
         @Override
