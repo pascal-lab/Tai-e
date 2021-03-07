@@ -13,23 +13,13 @@
 
 package pascal.taie.ir.stmt;
 
-/**
- * Representation of goto statement, e.g., goto L.
- */
-public class Goto extends JumpStmt {
+abstract class JumpStmt extends AbstractStmt {
 
-    private Stmt target;
-
-    public Stmt getTarget() {
-        return target;
-    }
-
-    public void setTarget(Stmt target) {
-        this.target = target;
-    }
-
-    @Override
-    public String toString() {
-        return "goto " + toString(target);
+    /**
+     * Convert a target statement to its String representation.
+     */
+    protected String toString(Stmt target) {
+        return target == null ?
+                "[unknown]" : Integer.toString(target.getIndex());
     }
 }

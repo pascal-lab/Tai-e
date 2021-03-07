@@ -59,6 +59,7 @@ import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.MonitorEnter;
 import pascal.taie.ir.stmt.MonitorExit;
 import pascal.taie.ir.stmt.New;
@@ -67,6 +68,8 @@ import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.java.classes.JMethod;
@@ -213,6 +216,16 @@ class MethodIRBuilder {
                 IfStmt jimpleIf = (IfStmt) jimpleStmt;
                 If taieIf = (If) stmt;
                 taieIf.setTarget(jumpTargetMap.get(jimpleIf.getTarget()));
+            } else if (jimpleStmt instanceof soot.jimple.SwitchStmt) {
+                soot.jimple.SwitchStmt jimpleSwitch
+                        = (soot.jimple.SwitchStmt) jimpleStmt;
+                SwitchStmt taieSwitch = (SwitchStmt) stmt;
+                taieSwitch.setTargets(jimpleSwitch.getTargets()
+                        .stream()
+                        .map(jumpTargetMap::get)
+                        .collect(Collectors.toList()));
+                taieSwitch.setDefaultTarget(
+                        jumpTargetMap.get(jimpleSwitch.getDefaultTarget()));
             }
         });
     }
@@ -245,12 +258,12 @@ class MethodIRBuilder {
         /**
          * Map from jump statements in Jimple to the corresponding Tai-e statements.
          */
-        private Map<soot.jimple.Stmt, Stmt> jumpMap = new HybridArrayHashMap<>();
+        private final Map<soot.jimple.Stmt, Stmt> jumpMap = new HybridArrayHashMap<>();
 
         /**
          * Map from jump target statements in Jimple to the corresponding Tai-e statements.
          */
-        private Map<soot.jimple.Stmt, Stmt> jumpTargetMap = new HybridArrayHashMap<>();
+        private final Map<soot.jimple.Stmt, Stmt> jumpTargetMap = new HybridArrayHashMap<>();
 
         /**
          * If {@link #currentStmt} is a jump target in Jimple, then this field
@@ -574,6 +587,25 @@ class MethodIRBuilder {
             addStmt(ifStmt);
         }
 
+        private void buildLookupSwitch(
+                Value key, List<IntConstant> lookupValues) {
+            Var var = getLocalOrConstant(key);
+            List<Integer> caseValues = lookupValues
+                    .stream()
+                    .map(v -> v.value)
+                    .collect(Collectors.toList());
+            LookupSwitch lookupSwitch = new LookupSwitch(var, caseValues);
+            jumpMap.put(currentStmt, lookupSwitch);
+            addStmt(lookupSwitch);
+        }
+
+        private void buildTableSwitch(Value key, int lowIndex, int highIndex) {
+            Var var = getLocalOrConstant(key);
+            TableSwitch tableSwitch = new TableSwitch(var, lowIndex, highIndex);
+            jumpMap.put(currentStmt, tableSwitch);
+            addStmt(tableSwitch);
+        }
+
         private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
             Var result = lhs == null ? null : getVar(lhs);
             addStmt(new Invoke(getInvokeExp(invokeExpr), result));
@@ -728,6 +760,19 @@ class MethodIRBuilder {
         public void caseIfStmt(IfStmt stmt) {
             currentStmt = stmt;
             buildIf((ConditionExpr) stmt.getCondition());
+        }
+
+        @Override
+        public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
+            currentStmt = stmt;
+            buildLookupSwitch(stmt.getKey(), stmt.getLookupValues());
+        }
+
+        @Override
+        public void caseTableSwitchStmt(TableSwitchStmt stmt) {
+            currentStmt = stmt;
+            buildTableSwitch(stmt.getKey(),
+                    stmt.getLowIndex(), stmt.getHighIndex());
         }
 
         @Override

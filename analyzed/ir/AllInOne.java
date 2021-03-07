@@ -48,7 +48,50 @@ public class AllInOne {
     void cast(Object o, int i) {
         AllInOne a = (AllInOne) o;
         long l = i; // implicit type conversion
+    }
 
+    int ifStmt(int x) {
+        int y = 10;
+        int z;
+        if (x > 0) {
+            z = x + 2;
+        } else {
+            foo(0, 1, 2);
+            z = 10 + x;
+        }
+        return z;
+    }
+
+    int switchStmt(int x) {
+        switch (x) {
+            case 1:
+                int y = 5 + x;
+                return y;
+            case 10:
+                foo(10);
+                return 500;
+            case 100:
+                foo(x);
+                return 1000;
+            default:
+                bar(1, null);
+        }
+        x = x * 2;
+        switch (x) {
+            case 1:
+                int y = 5 + x;
+                return y;
+            case 2:
+                foo(10);
+                return 500;
+            case 5:
+                foo(x);
+                return 1000;
+            default:
+                bar(1, null);
+        }
+
+        return 0;
     }
 
     void invoke(int x, I i) {
@@ -76,12 +119,6 @@ public class AllInOne {
         return;
     }
 
-    static void bar(int x, Object o) {}
-
-    int foo(int x) {
-        return 20;
-    }
-
     void exception(int x) {
         try {
             throw new Exception();
@@ -99,6 +136,16 @@ public class AllInOne {
         synchronized (this) {
             foo(0);
         }
+    }
+
+    static void bar(int x, Object o) {}
+
+    int foo(int x) {
+        return 20;
+    }
+
+    int foo(int x, int y, int z) {
+        return 30;
     }
 
     private void hidden() {}

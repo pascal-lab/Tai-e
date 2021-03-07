@@ -17,4 +17,9 @@ package pascal.taie.ir.stmt;
  * Representation of nop statement which does nothing.
  */
 public class Nop extends AbstractStmt {
+
+    @Override
+    public String toString() {
+        return "nop";
+    }
 }

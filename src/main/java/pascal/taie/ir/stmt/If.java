@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.ConditionExp;
 /**
  * Representation of if statement, e.g., if a == b goto L;
  */
-public class If extends AbstractStmt {
+public class If extends JumpStmt {
 
     private final ConditionExp condition;
 
@@ -42,8 +42,7 @@ public class If extends AbstractStmt {
 
     @Override
     public String toString() {
-        String targetStr = target == null ?
-                "[unknown]" : Integer.toString(target.getIndex());
-        return String.format("if (%s) goto %s", condition, targetStr);
+        return String.format(
+                "if (%s) goto %s", condition, toString(target));
     }
 }

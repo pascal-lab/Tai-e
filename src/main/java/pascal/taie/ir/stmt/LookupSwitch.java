@@ -16,7 +16,6 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.Pair;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -25,11 +24,9 @@ public class LookupSwitch extends SwitchStmt {
 
     private final List<Integer> caseValues;
 
-    public LookupSwitch(Var value,
-                        List<Integer> caseValues, List<Stmt> targets,
-                        Stmt defaultTarget) {
-        super(value, targets, defaultTarget);
-        this.caseValues = Collections.unmodifiableList(caseValues);
+    public LookupSwitch(Var value, List<Integer> caseValues) {
+        super(value);
+        this.caseValues = caseValues;
     }
 
     public int getCaseValue(int index) {
@@ -43,8 +40,8 @@ public class LookupSwitch extends SwitchStmt {
     @Override
     public Stream<Pair<Integer, Stmt>> getCaseTargets() {
         return IntStream.range(0, caseValues.size())
-                .mapToObj(i -> new Pair<>(caseValues.get(i), targets.get(i)));
-
+                .mapToObj(i -> new Pair<>(caseValues.get(i),
+                        targets == null ? null : targets.get(i)));
     }
 
     @Override

@@ -16,7 +16,6 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.Pair;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -28,18 +27,16 @@ import java.util.stream.Stream;
  *   default: ...
  * }.
  */
-abstract class SwitchStmt extends AbstractStmt {
+public abstract class SwitchStmt extends JumpStmt {
 
     protected final Var value;
 
-    protected final List<Stmt> targets;
+    protected List<Stmt> targets;
 
-    protected final Stmt defaultTarget;
+    protected Stmt defaultTarget;
 
-    public SwitchStmt(Var value, List<Stmt> targets, Stmt defaultTarget) {
+    public SwitchStmt(Var value) {
         this.value = value;
-        this.targets = Collections.unmodifiableList(targets);
-        this.defaultTarget = defaultTarget;
     }
 
     public Var getValue() {
@@ -54,27 +51,34 @@ abstract class SwitchStmt extends AbstractStmt {
         return targets;
     }
 
+    public void setTargets(List<Stmt> targets) {
+        this.targets = targets;
+    }
+
     public abstract Stream<Pair<Integer, Stmt>> getCaseTargets();
 
     public Stmt getDefaultTarget() {
         return defaultTarget;
     }
 
+    public void setDefaultTarget(Stmt defaultTarget) {
+        this.defaultTarget = defaultTarget;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getInsnString());
-        sb.append('(').append(value).append(')');
-        sb.append('\n').append('{');
+        sb.append('(').append(value).append(')').append(" {\n");
         getCaseTargets().forEach(caseTarget -> {
             int caseValue = caseTarget.getFirst();
             Stmt target = caseTarget.getSecond();
             sb.append("  ").append("case ").append(caseValue)
                     .append(": goto ")
-                    .append(target.getIndex())
+                    .append(toString(target))
                     .append(";\n");
         });
         sb.append("  default: goto ")
-                .append(defaultTarget.getIndex())
+                .append(toString(defaultTarget))
                 .append(";\n}");
         return sb.toString();
     }
