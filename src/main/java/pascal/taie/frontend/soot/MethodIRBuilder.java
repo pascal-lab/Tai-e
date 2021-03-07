@@ -506,16 +506,17 @@ class MethodIRBuilder {
 
         private void addNativeThis(Type thisType) {
             thisVar = newVar(THIS, thisType);
+            // TODO: add to varMap?
         }
 
         private void addParam(Local paramLocal) {
-            Var param = newVar(paramLocal.getName(), getType(paramLocal));
-            params.add(param);
+            params.add(getVar(paramLocal));
         }
 
         private void addNativeParam(Type paramType) {
             Var param = newVar(PARAM + params.size(), paramType);
             params.add(param);
+            // TODO: add to varMap?
         }
 
         private Var getVar(Local local) {
