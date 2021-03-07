@@ -50,6 +50,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
@@ -60,6 +61,7 @@ import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodRef;
@@ -79,6 +81,7 @@ import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
 import soot.jimple.CastExpr;
+import soot.jimple.CaughtExceptionRef;
 import soot.jimple.ClassConstant;
 import soot.jimple.CmpExpr;
 import soot.jimple.CmpgExpr;
@@ -88,6 +91,7 @@ import soot.jimple.DivExpr;
 import soot.jimple.DoubleConstant;
 import soot.jimple.FieldRef;
 import soot.jimple.FloatConstant;
+import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
@@ -114,6 +118,7 @@ import soot.jimple.StaticFieldRef;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
+import soot.jimple.ThrowStmt;
 import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
@@ -497,6 +502,14 @@ class MethodIRBuilder {
             Var var = value == null ? null : getLocalOrConstant(value);
             addStmt(new Return(var));
         }
+        
+        private void buildThrow(Value exception) {
+            addStmt(new Throw(getLocalOrConstant(exception)));
+        }
+        
+        private void buildCatch(Local exception) {
+            addStmt(new Catch(getVar(exception)));
+        }
 
         /**
          * Convert a Jimple Local or Constant to Var.
@@ -567,17 +580,36 @@ class MethodIRBuilder {
 
         @Override
         public void caseInvokeStmt(InvokeStmt stmt) {
+            currentStmt = stmt;
             buildInvoke(null, stmt.getInvokeExpr());
         }
 
         @Override
         public void caseReturnStmt(ReturnStmt stmt) {
+            currentStmt = stmt;
             buildReturn(stmt.getOp());
         }
 
         @Override
         public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
+            currentStmt = stmt;
             buildReturn(null);
+        }
+
+        @Override
+        public void caseThrowStmt(ThrowStmt stmt) {
+            currentStmt = stmt;
+            buildThrow(stmt.getOp());
+        }
+
+        @Override
+        public void caseIdentityStmt(IdentityStmt stmt) {
+            currentStmt = stmt;
+            Value lhs = stmt.getLeftOp();
+            Value rhs = stmt.getRightOp();
+            if (rhs instanceof CaughtExceptionRef) {
+                buildCatch((Local) lhs);
+            }
         }
 
         @Override

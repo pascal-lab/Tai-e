@@ -82,6 +82,16 @@ public class AllInOne {
         return 20;
     }
 
+    void exception(int x) {
+        try {
+            throw new Exception();
+        } catch (RuntimeException e) {
+            foo(20);
+        } catch (Exception e) {
+            hidden();
+        }
+    }
+
     private void hidden() {}
 }
 
