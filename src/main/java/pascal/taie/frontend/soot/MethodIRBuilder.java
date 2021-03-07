@@ -17,6 +17,7 @@ import pascal.taie.ir.DefaultNewIR;
 import pascal.taie.ir.NewIR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ClassLiteral;
@@ -28,6 +29,7 @@ import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
@@ -36,6 +38,7 @@ import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
@@ -44,13 +47,13 @@ import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Unary;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
 import soot.Body;
 import soot.Local;
-import soot.Unit;
 import soot.Value;
 import soot.jimple.AbstractConstantSwitch;
 import soot.jimple.AbstractJimpleValueSwitch;
@@ -73,8 +76,10 @@ import soot.jimple.FloatConstant;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
+import soot.jimple.LengthExpr;
 import soot.jimple.LongConstant;
 import soot.jimple.MulExpr;
+import soot.jimple.NegExpr;
 import soot.jimple.NewArrayExpr;
 import soot.jimple.NewExpr;
 import soot.jimple.NewMultiArrayExpr;
@@ -86,6 +91,7 @@ import soot.jimple.ShrExpr;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
+import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.XorExpr;
 
@@ -161,7 +167,7 @@ class MethodIRBuilder {
         /**
          * Current Jimple statement being converted.
          */
-        private Unit currentStmt;
+        private soot.jimple.Stmt currentStmt;
 
         /**
          * Convert Jimple Constants to Literals.
@@ -369,6 +375,19 @@ class MethodIRBuilder {
             addStmt(new Binary(getVar(lhs), binaryExp));
         }
 
+        private void buildUnary(Local lhs, UnopExpr rhs) {
+            Var v = getLocalOrConstant(rhs.getOp());
+            UnaryExp unaryExp;
+            if (rhs instanceof NegExpr) {
+                unaryExp = new NegExp(v);
+            } else if (rhs instanceof LengthExpr) {
+                unaryExp = new ArrayLengthExp(v);
+            } else {
+                throw new SootFrontendException("Cannot handle UnopExpr: " + rhs);
+            }
+            addStmt(new Unary(getVar(lhs), unaryExp));
+        }
+
         private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
 
         }
@@ -416,6 +435,7 @@ class MethodIRBuilder {
         }
 
         private void addStmt(Stmt stmt) {
+            // TODO: add more information to Stmt
             stmts.add(stmt);
         }
 
@@ -442,6 +462,8 @@ class MethodIRBuilder {
                     buildLoadField(lvar, (FieldRef) rhs);
                 } else if (rhs instanceof BinopExpr) {
                     buildBinary(lvar, (BinopExpr) rhs);
+                } else if (rhs instanceof UnopExpr) {
+                    buildUnary(lvar, (UnopExpr) rhs);
                 }
             }
         }
