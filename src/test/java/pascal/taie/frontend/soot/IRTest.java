@@ -18,16 +18,14 @@ import pascal.taie.ir.NewIR;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class IRTest {
 
-    private static final List<String> targets = Arrays.asList(
-            "Assigns",
-            "AssignStmts"
-    );
+    private static final List<String> targets
+            = Collections.singletonList("AllInOne");
 
     private static void initWorld(String mainClass) {
         String[] args = new String[]{
