@@ -92,6 +92,15 @@ public class AllInOne {
         }
     }
 
+    void monitor(Object o) {
+        synchronized (o) {
+            hidden();
+        }
+        synchronized (this) {
+            foo(0);
+        }
+    }
+
     private void hidden() {}
 }
 

@@ -56,6 +56,8 @@ import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.MonitorEnter;
+import pascal.taie.ir.stmt.MonitorExit;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -89,6 +91,8 @@ import soot.jimple.CmplExpr;
 import soot.jimple.Constant;
 import soot.jimple.DivExpr;
 import soot.jimple.DoubleConstant;
+import soot.jimple.EnterMonitorStmt;
+import soot.jimple.ExitMonitorStmt;
 import soot.jimple.FieldRef;
 import soot.jimple.FloatConstant;
 import soot.jimple.IdentityStmt;
@@ -132,6 +136,9 @@ import java.util.stream.Collectors;
 
 import static pascal.taie.util.CollectionUtils.freeze;
 
+/**
+ * Convert Jimple to Tai-e IR.
+ */
 class MethodIRBuilder {
 
     private final JMethod method;
@@ -511,6 +518,18 @@ class MethodIRBuilder {
             addStmt(new Catch(getVar(exception)));
         }
 
+        private static final String MONITOR_ENTER = "monitorenter";
+
+        private static final String MONITOR_EXIT = "monitorexit";
+
+        private void buildMonitorStmt(Value object, String operation) {
+            if (operation.equals(MONITOR_ENTER)) {
+                addStmt(new MonitorEnter(getLocalOrConstant(object)));
+            } else {
+                addStmt(new MonitorExit(getLocalOrConstant(object)));
+            }
+        }
+
         /**
          * Convert a Jimple Local or Constant to Var.
          * If {@param value} is Local, then directly return the corresponding Var.
@@ -610,6 +629,18 @@ class MethodIRBuilder {
             if (rhs instanceof CaughtExceptionRef) {
                 buildCatch((Local) lhs);
             }
+        }
+
+        @Override
+        public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
+            currentStmt = stmt;
+            buildMonitorStmt(stmt.getOp(), MONITOR_ENTER);
+        }
+
+        @Override
+        public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
+            currentStmt = stmt;
+            buildMonitorStmt(stmt.getOp(), MONITOR_EXIT);
         }
 
         @Override

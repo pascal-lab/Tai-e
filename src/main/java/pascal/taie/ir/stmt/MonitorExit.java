@@ -26,9 +26,6 @@ public class MonitorExit extends MonitorStmt {
 
     @Override
     protected String getInsnString() {
-        synchronized (this) {
-            int x = 1;
-        }
         return "monitorexit";
     }
 }
