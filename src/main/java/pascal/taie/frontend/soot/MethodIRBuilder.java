@@ -20,12 +20,14 @@ import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
@@ -42,11 +44,15 @@ import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.ArrayType;
@@ -64,6 +70,7 @@ import soot.jimple.AnyNewExpr;
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.BinopExpr;
+import soot.jimple.CastExpr;
 import soot.jimple.ClassConstant;
 import soot.jimple.CmpExpr;
 import soot.jimple.CmpgExpr;
@@ -74,6 +81,7 @@ import soot.jimple.DoubleConstant;
 import soot.jimple.FieldRef;
 import soot.jimple.FloatConstant;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceOfExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
 import soot.jimple.LengthExpr;
@@ -151,6 +159,7 @@ class MethodIRBuilder {
     private Var getVar(Local local) {
         return varManager.getVar(local);
     }
+
     /**
      * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
      */
@@ -388,6 +397,30 @@ class MethodIRBuilder {
             addStmt(new Unary(getVar(lhs), unaryExp));
         }
 
+        private void buildInstanceOf(Local lhs, InstanceOfExpr rhs) {
+            InstanceOfExp instanceOfExp = new InstanceOfExp(
+                    getLocalOrConstant(rhs.getOp()),
+                    converter.convertType(rhs.getCheckType()));
+            addStmt(new InstanceOf(getVar(lhs), instanceOfExp));
+        }
+
+        private void buildCast(Local lhs, CastExpr rhs) {
+            CastExp castExp = new CastExp(
+                    getLocalOrConstant(rhs.getOp()),
+                    converter.convertType(rhs.getCastType()));
+            addStmt(new Cast(getVar(lhs), castExp));
+        }
+
+        private void buildStoreField(FieldRef lhs, Value rhs) {
+            addStmt(new StoreField(
+                    getFieldAccess(lhs), getLocalOrConstant(rhs)));
+        }
+
+        private void buildStoreArray(ArrayRef lhs, Value rhs) {
+            addStmt(new StoreArray(
+                    getArrayAccess(lhs), getLocalOrConstant(rhs)));
+        }
+
         private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
 
         }
@@ -450,21 +483,35 @@ class MethodIRBuilder {
             }
             if (lhs instanceof Local) {
                 Local lvar = (Local) lhs;
-                if (rhs instanceof AnyNewExpr) {
+                if (rhs instanceof Local) {
+                    buildCopy(lvar, (Local) rhs);
+                } else if (rhs instanceof AnyNewExpr) {
                     buildNew(lvar, (AnyNewExpr) rhs);
                 } else if (rhs instanceof Constant) {
                     buildAssignLiteral(lvar, (Constant) rhs);
-                } else if (rhs instanceof Local) {
-                    buildCopy(lvar, (Local) rhs);
-                } else if (rhs instanceof ArrayRef) {
-                    buildLoadArray(lvar, (ArrayRef) rhs);
                 } else if (rhs instanceof FieldRef) {
                     buildLoadField(lvar, (FieldRef) rhs);
+                } else if (rhs instanceof ArrayRef) {
+                    buildLoadArray(lvar, (ArrayRef) rhs);
                 } else if (rhs instanceof BinopExpr) {
                     buildBinary(lvar, (BinopExpr) rhs);
                 } else if (rhs instanceof UnopExpr) {
                     buildUnary(lvar, (UnopExpr) rhs);
+                } else if (rhs instanceof InstanceOfExpr) {
+                    buildInstanceOf(lvar, (InstanceOfExpr) rhs);
+                } else if (rhs instanceof CastExpr) {
+                    buildCast(lvar, (CastExpr) rhs);
+                } else {
+                    throw new SootFrontendException(
+                            "Cannot handle AssignStmt: " + stmt);
                 }
+            } else if (lhs instanceof FieldRef) {
+                buildStoreField((FieldRef) lhs, rhs);
+            } else if (lhs instanceof ArrayRef) {
+                buildStoreArray((ArrayRef) lhs, rhs);
+            } else {
+                throw new SootFrontendException(
+                        "Cannot handle AssignStmt: " + stmt);
             }
         }
 

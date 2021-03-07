@@ -13,17 +13,15 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.Var;
 
 /**
- * Representation of following load field statements:
- * - load instance field: x = o.f
- * - load static field: x = T.f
+ * Representation of store array statement, e.g., a[..] = x.
  */
-public class LoadField extends AssignStmt<Var, FieldAccess> {
+public class StoreArray extends AssignStmt<ArrayAccess, Var> {
 
-    public LoadField(Var lvalue, FieldAccess rvalue) {
+    public StoreArray(ArrayAccess lvalue, Var rvalue) {
         super(lvalue, rvalue);
     }
 }
