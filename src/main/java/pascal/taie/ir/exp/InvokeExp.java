@@ -69,8 +69,8 @@ public abstract class InvokeExp implements Exp {
     protected abstract String getInvokeString();
 
     protected String getArgsString() {
-        return args.stream()
+        return "(" + args.stream()
                 .map(Var::toString)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining(",")) + ")";
     }
 }

@@ -29,6 +29,11 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInterface;
+import pascal.taie.ir.exp.InvokeSpecial;
+import pascal.taie.ir.exp.InvokeStatic;
+import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.NegExp;
@@ -47,14 +52,17 @@ import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.InstanceOf;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
@@ -81,9 +89,12 @@ import soot.jimple.DoubleConstant;
 import soot.jimple.FieldRef;
 import soot.jimple.FloatConstant;
 import soot.jimple.InstanceFieldRef;
+import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InstanceOfExpr;
 import soot.jimple.IntConstant;
+import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.LengthExpr;
 import soot.jimple.LongConstant;
 import soot.jimple.MulExpr;
@@ -94,13 +105,18 @@ import soot.jimple.NewMultiArrayExpr;
 import soot.jimple.NullConstant;
 import soot.jimple.OrExpr;
 import soot.jimple.RemExpr;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
 import soot.jimple.ShlExpr;
 import soot.jimple.ShrExpr;
+import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
+import soot.jimple.StaticInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
 import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
+import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
 
 import java.util.ArrayList;
@@ -179,6 +195,39 @@ class MethodIRBuilder {
         private soot.jimple.Stmt currentStmt;
 
         /**
+         * Convert Jimple NewExpr to NewExp
+         */
+        private final AbstractJimpleValueSwitch newExprConverter
+                = new AbstractJimpleValueSwitch() {
+
+            @Override
+            public void caseNewExpr(NewExpr v) {
+                setResult(new NewInstance((ClassType) getType(v)));
+            }
+
+            @Override
+            public void caseNewArrayExpr(NewArrayExpr v) {
+                setResult(new NewArray((ArrayType) getType(v),
+                        getLocalOrConstant(v.getSize())));
+            }
+
+            @Override
+            public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
+                List<Var> lengths = v.getSizes()
+                        .stream()
+                        .map(StmtBuilder.this::getLocalOrConstant)
+                        .collect(Collectors.toList());
+                setResult(new NewMultiArray((ArrayType) getType(v), lengths));
+            }
+        };
+
+        private void buildNew(Local lhs, AnyNewExpr newExpr) {
+            newExpr.apply(newExprConverter);
+            addStmt(new New(getVar(lhs), (NewExp) newExprConverter.getResult()));
+            // TODO: set allocation site
+        }
+
+        /**
          * Convert Jimple Constants to Literals.
          */
         private final AbstractConstantSwitch constantConverter
@@ -225,6 +274,57 @@ class MethodIRBuilder {
                         "Cannot convert constant: " + v);
             }
         };
+
+        private void buildAssignLiteral(Local lhs, Constant constant) {
+            constant.apply(constantConverter);
+            addStmt(new AssignLiteral(getVar(lhs),
+                    (Literal) constantConverter.getResult()));
+        }
+
+        private void buildCopy(Local lhs, Local rhs) {
+            addStmt(new Copy(getVar(lhs), getVar(rhs)));
+        }
+
+        private void buildLoadArray(Local lhs, ArrayRef arrayRef) {
+            addStmt(new LoadArray(getVar(lhs), getArrayAccess(arrayRef)));
+        }
+
+        private void buildStoreArray(ArrayRef lhs, Value rhs) {
+            addStmt(new StoreArray(
+                    getArrayAccess(lhs), getLocalOrConstant(rhs)));
+        }
+
+        /**
+         * Convert Jimple ArrayRef to ArrayAccess.
+         */
+        private ArrayAccess getArrayAccess(ArrayRef arrayRef) {
+            return new ArrayAccess(getVar((Local) arrayRef.getBase()),
+                    getLocalOrConstant(arrayRef.getIndex()));
+        }
+
+        private void buildLoadField(Local lhs, FieldRef fieldRef) {
+            addStmt(new LoadField(getVar(lhs), getFieldAccess(fieldRef)));
+        }
+
+        private void buildStoreField(FieldRef lhs, Value rhs) {
+            addStmt(new StoreField(
+                    getFieldAccess(lhs), getLocalOrConstant(rhs)));
+        }
+
+        /**
+         * Convert Jimple FieldRef to FieldAccess.
+         */
+        private FieldAccess getFieldAccess(FieldRef fieldRef) {
+            pascal.taie.java.classes.FieldRef jfieldRef =
+                    converter.convertFieldRef(fieldRef.getFieldRef());
+            if (fieldRef instanceof InstanceFieldRef) {
+                return new InstanceFieldAccess(jfieldRef,
+                        getVar((Local) ((InstanceFieldRef) fieldRef).getBase()));
+            } else {
+                assert fieldRef instanceof StaticFieldRef;
+                return new StaticFieldAccess(jfieldRef);
+            }
+        }
 
         /**
          * Extract BinaryExp.Op from Jimple BinopExpr.
@@ -313,57 +413,6 @@ class MethodIRBuilder {
             }
         };
 
-        /**
-         * Convert Jimple NewExpr to NewExp
-         */
-        private final AbstractJimpleValueSwitch newExprConverter
-                = new AbstractJimpleValueSwitch() {
-
-            @Override
-            public void caseNewExpr(NewExpr v) {
-                setResult(new NewInstance((ClassType) getType(v)));
-            }
-
-            @Override
-            public void caseNewArrayExpr(NewArrayExpr v) {
-                setResult(new NewArray((ArrayType) getType(v),
-                        getLocalOrConstant(v.getSize())));
-            }
-
-            @Override
-            public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
-                List<Var> lengths = v.getSizes()
-                        .stream()
-                        .map(StmtBuilder.this::getLocalOrConstant)
-                        .collect(Collectors.toList());
-                setResult(new NewMultiArray((ArrayType) getType(v), lengths));
-            }
-        };
-
-        private void buildNew(Local lhs, AnyNewExpr newExpr) {
-            newExpr.apply(newExprConverter);
-            addStmt(new New(getVar(lhs), (NewExp) newExprConverter.getResult()));
-            // TODO: set allocation site
-        }
-
-        private void buildAssignLiteral(Local lhs, Constant constant) {
-            constant.apply(constantConverter);
-            addStmt(new AssignLiteral(getVar(lhs),
-                    (Literal) constantConverter.getResult()));
-        }
-
-        private void buildCopy(Local lhs, Local rhs) {
-            addStmt(new Copy(getVar(lhs), getVar(rhs)));
-        }
-
-        private void buildLoadArray(Local lhs, ArrayRef arrayRef) {
-            addStmt(new LoadArray(getVar(lhs), getArrayAccess(arrayRef)));
-        }
-
-        private void buildLoadField(Local lhs, FieldRef fieldRef) {
-            addStmt(new LoadField(getVar(lhs), getFieldAccess(fieldRef)));
-        }
-
         private void buildBinary(Local lhs, BinopExpr rhs) {
             rhs.apply(binaryOpExtractor);
             BinaryExp.Op op = (BinaryExp.Op) binaryOpExtractor.getResult();
@@ -411,18 +460,42 @@ class MethodIRBuilder {
             addStmt(new Cast(getVar(lhs), castExp));
         }
 
-        private void buildStoreField(FieldRef lhs, Value rhs) {
-            addStmt(new StoreField(
-                    getFieldAccess(lhs), getLocalOrConstant(rhs)));
-        }
-
-        private void buildStoreArray(ArrayRef lhs, Value rhs) {
-            addStmt(new StoreArray(
-                    getArrayAccess(lhs), getLocalOrConstant(rhs)));
-        }
-
         private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
+            Var result = lhs == null ? null : getVar(lhs);
+            addStmt(new Invoke(getInvokeExp(invokeExpr), result));
+        }
 
+        /**
+         * Convert Jimple InvokeExpr to InvokeExp.
+         */
+        private InvokeExp getInvokeExp(InvokeExpr invokeExpr) {
+            MethodRef methodRef = converter
+                    .convertMethodRef(invokeExpr.getMethodRef());
+            List<Var> args = invokeExpr.getArgs()
+                    .stream()
+                    .map(this::getLocalOrConstant)
+                    .collect(Collectors.toList());
+            if (invokeExpr instanceof InstanceInvokeExpr) {
+                Var base = getVar(
+                        (Local) ((InstanceInvokeExpr) invokeExpr).getBase());
+                if (invokeExpr instanceof VirtualInvokeExpr) {
+                    return new InvokeVirtual(methodRef, base, args);
+                } else if (invokeExpr instanceof InterfaceInvokeExpr) {
+                    return new InvokeInterface(methodRef, base, args);
+                } else if (invokeExpr instanceof SpecialInvokeExpr) {
+                    return new InvokeSpecial(methodRef, base, args);
+                }
+            } else if (invokeExpr instanceof StaticInvokeExpr) {
+                return new InvokeStatic(methodRef, args);
+            }
+            // TODO: handle invokedynamic
+            throw new SootFrontendException(
+                    "Cannot handle InvokeExpr: " + invokeExpr);
+        }
+
+        private void buildReturn(Value value) {
+            Var var = value == null ? null : getLocalOrConstant(value);
+            addStmt(new Return(var));
         }
 
         /**
@@ -442,29 +515,6 @@ class MethodIRBuilder {
                 return lvalue;
             }
             throw new SootFrontendException("Expected Local or Constant, given " + value);
-        }
-
-        /**
-         * Convert Jimple ArrayRef to ArrayAccess.
-         */
-        private ArrayAccess getArrayAccess(ArrayRef arrayRef) {
-            return new ArrayAccess(getVar((Local) arrayRef.getBase()),
-                    getLocalOrConstant(arrayRef.getIndex()));
-        }
-
-        /**
-         * Convert Jimple FieldRef to FieldAccess.
-         */
-        private FieldAccess getFieldAccess(FieldRef fieldRef) {
-            pascal.taie.java.classes.FieldRef jfieldRef =
-                    converter.convertFieldRef(fieldRef.getFieldRef());
-            if (fieldRef instanceof InstanceFieldRef) {
-                return new InstanceFieldAccess(jfieldRef,
-                        getVar((Local) ((InstanceFieldRef) fieldRef).getBase()));
-            } else {
-                assert fieldRef instanceof StaticFieldRef;
-                return new StaticFieldAccess(jfieldRef);
-            }
         }
 
         private void addStmt(Stmt stmt) {
@@ -513,6 +563,21 @@ class MethodIRBuilder {
                 throw new SootFrontendException(
                         "Cannot handle AssignStmt: " + stmt);
             }
+        }
+
+        @Override
+        public void caseInvokeStmt(InvokeStmt stmt) {
+            buildInvoke(null, stmt.getInvokeExpr());
+        }
+
+        @Override
+        public void caseReturnStmt(ReturnStmt stmt) {
+            buildReturn(stmt.getOp());
+        }
+
+        @Override
+        public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
+            buildReturn(null);
         }
 
         @Override

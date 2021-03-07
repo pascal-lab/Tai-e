@@ -35,4 +35,9 @@ public class Return extends AbstractStmt {
     public @Nullable Var getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return value != null ? "return " + value : "return";
+    }
 }

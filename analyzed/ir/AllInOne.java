@@ -51,5 +51,40 @@ public class AllInOne {
 
     }
 
-    void foo(int x) {}
+    void invoke(int x, I i) {
+        // invokevirtual
+        int a = foo(x);
+        // invokeinterface
+        Object r = i.goo();
+        // invokespecial
+        AllInOne o = new AllInOne();
+        super.toString();
+        hidden();
+        // invokestatic
+        bar(10, null);
+    }
+
+    int returnInt(int x) {
+        if (x > 0) {
+            return x;
+        }
+        return 0;
+    }
+
+    void returnVoid() {
+        foo(100);
+        return;
+    }
+
+    static void bar(int x, Object o) {}
+
+    int foo(int x) {
+        return 20;
+    }
+
+    private void hidden() {}
+}
+
+interface I {
+    Object goo();
 }
