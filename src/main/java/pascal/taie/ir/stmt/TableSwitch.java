@@ -47,7 +47,7 @@ public class TableSwitch extends SwitchStmt {
     }
 
     @Override
-    protected String getInsnString() {
+    public String getInsnString() {
         return "tableswitch";
     }
 }

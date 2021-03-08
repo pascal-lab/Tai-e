@@ -14,13 +14,12 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.Test;
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IRPrinter;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class IRTest {
 
@@ -44,21 +43,8 @@ public class IRTest {
         targets.forEach(main -> {
             initWorld(main);
             JClass mainClass = World.getMainMethod().getDeclaringClass();
-            mainClass.getDeclaredMethods().forEach(m -> {
-                System.out.println(m);
-                NewIR ir = m.getNewIR();
-                System.out.println("Parameters:");
-                System.out.println(ir.getParams()
-                        .stream()
-                        .map(p -> p.getType() + " " + p)
-                        .collect(Collectors.joining(", ")));
-                System.out.println("Variables:");
-                ir.getVars().forEach(v ->
-                        System.out.println(v.getType() + " " + v));
-                System.out.println("Statements:");
-                ir.getStmts().forEach(System.out::println);
-                System.out.println();
-            });
+            mainClass.getDeclaredMethods().forEach(m ->
+                    IRPrinter.print(m.getNewIR(), System.out));
             System.out.println("------------------------------\n");
         });
     }

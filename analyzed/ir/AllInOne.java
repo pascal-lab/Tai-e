@@ -62,6 +62,21 @@ public class AllInOne {
         return z;
     }
 
+    int gotoStmt(int x) {
+        for (int i = 0; i < x; ++i) {
+            int z = 1 + x;
+            if (x < 100) {
+                continue;
+            }
+            int a = z - 10;
+            if (a == 100) {
+                break;
+            }
+            int b = a - z;
+        }
+        return 0;
+    }
+
     int switchStmt(int x) {
         switch (x) {
             case 1:
@@ -90,7 +105,6 @@ public class AllInOne {
             default:
                 bar(1, null);
         }
-
         return 0;
     }
 

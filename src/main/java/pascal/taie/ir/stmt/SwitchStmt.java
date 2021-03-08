@@ -83,5 +83,5 @@ public abstract class SwitchStmt extends JumpStmt {
         return sb.toString();
     }
 
-    protected abstract String getInsnString();
+    public abstract String getInsnString();
 }

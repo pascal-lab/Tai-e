@@ -18,7 +18,7 @@ abstract class JumpStmt extends AbstractStmt {
     /**
      * Convert a target statement to its String representation.
      */
-    protected String toString(Stmt target) {
+    public String toString(Stmt target) {
         return target == null ?
                 "[unknown]" : Integer.toString(target.getIndex());
     }

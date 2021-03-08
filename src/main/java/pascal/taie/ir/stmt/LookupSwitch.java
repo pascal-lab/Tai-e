@@ -45,7 +45,7 @@ public class LookupSwitch extends SwitchStmt {
     }
 
     @Override
-    protected String getInsnString() {
+    public String getInsnString() {
         return "lookupswitch";
     }
 }
