@@ -198,7 +198,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     private void buildStmts(Body body) {
         body.getUnits().forEach(unit -> unit.apply(this));
         linkJumpTargets(jumpMap, jumpTargetMap);
-        // TODO: add labels/indexes
+        setIndexes(stmts);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
@@ -226,6 +226,17 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                         jumpTargetMap.get(jimpleSwitch.getDefaultTarget()));
             }
         });
+    }
+
+    /**
+     * Give each statement an unique index in each IR. Currently we use
+     * their indexes in <code>stmts</code> as the index.
+     */
+    private static void setIndexes(List<Stmt> stmts) {
+        int index = 0;
+        for (Stmt stmt : stmts) {
+            stmt.setIndex(index++);
+        }
     }
 
     /**

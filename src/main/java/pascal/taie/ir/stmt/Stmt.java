@@ -19,4 +19,6 @@ package pascal.taie.ir.stmt;
 public interface Stmt {
 
     int getIndex();
+
+    void setIndex(int i);
 }

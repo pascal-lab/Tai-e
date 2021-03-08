@@ -22,6 +22,7 @@ abstract class AbstractStmt implements Stmt {
         return index;
     }
 
+    @Override
     public void setIndex(int index) {
         this.index = index;
     }
