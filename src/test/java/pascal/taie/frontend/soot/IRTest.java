@@ -40,6 +40,10 @@ public class IRTest {
 
     @Test
     public void testIRBuilder() {
+        // This will enable PackManager run several BodyTransformers
+        // to optimize Jimple body.
+        System.setProperty("ENABLE_JIMPLE_OPT", "true");
+
         targets.forEach(main -> {
             initWorld(main);
             JClass mainClass = World.getMainMethod().getDeclaringClass();
