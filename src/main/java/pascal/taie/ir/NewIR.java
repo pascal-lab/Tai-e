@@ -32,4 +32,6 @@ public interface NewIR {
     List<Var> getVars();
 
     List<Stmt> getStmts();
+
+    List<TryCatchBlock> getTryCatchBlocks();
 }

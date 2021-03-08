@@ -15,6 +15,7 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.ir.DefaultNewIR;
 import pascal.taie.ir.NewIR;
+import pascal.taie.ir.TryCatchBlock;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -80,6 +81,9 @@ import pascal.taie.java.types.Type;
 import pascal.taie.util.HybridArrayHashMap;
 import soot.Body;
 import soot.Local;
+import soot.Trap;
+import soot.Unit;
+import soot.UnitBox;
 import soot.Value;
 import soot.jimple.AbstractConstantSwitch;
 import soot.jimple.AbstractJimpleValueSwitch;
@@ -147,10 +151,14 @@ import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
+import soot.util.Chain;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.util.CollectionUtils.freeze;
@@ -168,6 +176,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     private List<Stmt> stmts;
 
+    private List<TryCatchBlock> tryCatchBlocks;
+
     MethodIRBuilder(JMethod method, Converter converter) {
         this.method = method;
         this.converter = converter;
@@ -178,45 +188,54 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         varManager = new VarManager(converter);
         stmts = new ArrayList<>();
         if (!method.isStatic()) {
-            buildThis(body);
+            buildThis(body.getThisLocal());
         }
-        buildParams(body);
+        buildParams(body.getParameterLocals());
         buildStmts(body);
+        buildTryCatchBlocks(body.getTraps());
         return new DefaultNewIR(method,
                 varManager.getThis(), freeze(varManager.getParams()),
-                freeze(varManager.getVars()), freeze(stmts));
+                freeze(varManager.getVars()), freeze(stmts),
+                freeze(tryCatchBlocks));
     }
 
-    private void buildThis(Body body) {
-        varManager.addThis(body.getThisLocal());
+    private void buildThis(Local thisLocal) {
+        varManager.addThis(thisLocal);
     }
 
-    private void buildParams(Body body) {
-        body.getParameterLocals().forEach(varManager::addParam);
+    private void buildParams(List<Local> params) {
+        params.forEach(varManager::addParam);
     }
 
     private void buildStmts(Body body) {
+        if (!body.getTraps().isEmpty()) {
+            trapUnits = body.getTraps()
+                    .stream()
+                    .map(Trap::getUnitBoxes)
+                    .flatMap(List::stream)
+                    .map(UnitBox::getUnit)
+                    .collect(Collectors.toSet());
+            trapUnitMap = new HashMap<>(body.getTraps().size() * 3);
+        }
         body.getUnits().forEach(unit -> unit.apply(this));
         linkJumpTargets(jumpMap, jumpTargetMap);
         setIndexes(stmts);
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     private static void linkJumpTargets(
-            Map<soot.jimple.Stmt, Stmt> jumpMap,
-            Map<soot.jimple.Stmt, Stmt> jumpTargetMap) {
-        jumpMap.forEach((jimpleStmt, stmt) -> {
-            if (jimpleStmt instanceof GotoStmt) {
-                GotoStmt jimpleGoto = (GotoStmt) jimpleStmt;
+            Map<Unit, Stmt> jumpMap, Map<Unit, Stmt> jumpTargetMap) {
+        jumpMap.forEach((unit, stmt) -> {
+            if (unit instanceof GotoStmt) {
+                GotoStmt jimpleGoto = (GotoStmt) unit;
                 Goto taieGoto = (Goto) stmt;
                 taieGoto.setTarget(jumpTargetMap.get(jimpleGoto.getTarget()));
-            } else if (jimpleStmt instanceof IfStmt) {
-                IfStmt jimpleIf = (IfStmt) jimpleStmt;
+            } else if (unit instanceof IfStmt) {
+                IfStmt jimpleIf = (IfStmt) unit;
                 If taieIf = (If) stmt;
                 taieIf.setTarget(jumpTargetMap.get(jimpleIf.getTarget()));
-            } else if (jimpleStmt instanceof soot.jimple.SwitchStmt) {
+            } else if (unit instanceof soot.jimple.SwitchStmt) {
                 soot.jimple.SwitchStmt jimpleSwitch
-                        = (soot.jimple.SwitchStmt) jimpleStmt;
+                        = (soot.jimple.SwitchStmt) unit;
                 SwitchStmt taieSwitch = (SwitchStmt) stmt;
                 taieSwitch.setTargets(jimpleSwitch.getTargets()
                         .stream()
@@ -239,24 +258,56 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         }
     }
 
+    private void buildTryCatchBlocks(Chain<Trap> traps) {
+        if (traps.isEmpty()) {
+            tryCatchBlocks = Collections.emptyList();
+        } else {
+            tryCatchBlocks = traps
+                    .stream()
+                    .map(trap -> {
+                        Unit begin = trap.getBeginUnit();
+                        Unit end = trap.getEndUnit();
+                        Unit handler = trap.getHandlerUnit();
+                        soot.Type exceptionType = trap.getException().getType();
+                        return new TryCatchBlock(trapUnitMap.get(begin),
+                                trapUnitMap.get(end),
+                                (Catch) trapUnitMap.get(handler),
+                                (ClassType) converter.convertType(exceptionType));
+                    })
+                    .collect(Collectors.toList());
+        }
+    }
+
     /**
-     * Current Jimple statement being converted.
+     * Current Jimple unit being converted.
      */
-    private soot.jimple.Stmt currentStmt;
+    private Unit currentUnit;
 
     /**
      * Map from jump statements in Jimple to the corresponding Tai-e statements.
      */
-    private final Map<soot.jimple.Stmt, Stmt> jumpMap = new HybridArrayHashMap<>();
+    private final Map<Unit, Stmt> jumpMap = new HybridArrayHashMap<>();
 
     /**
      * Map from jump target statements in Jimple to the corresponding Tai-e statements.
      */
-    private final Map<soot.jimple.Stmt, Stmt> jumpTargetMap = new HybridArrayHashMap<>();
+    private final Map<Unit, Stmt> jumpTargetMap = new HybridArrayHashMap<>();
 
     /**
-     * If {@link #currentStmt} is a jump target in Jimple, then this field
-     * holds the corresponding jump target in Tai-e IR.
+     * All trap-related units of current Jimple body.
+     */
+    private Set<Unit> trapUnits = Collections.emptySet();
+
+    /**
+     * Map from trap beginning statements in Jimple to
+     * the corresponding Tai-e statements.
+     */
+    private Map<Unit, Stmt> trapUnitMap = Collections.emptyMap();
+
+    /**
+     * If {@link #currentUnit} is a jump target (or trap begin unit,
+     * which can be seen as the beginning target of exception scope) in Jimple,
+     * then this field holds the corresponding statement in Tai-e IR.
      * This field is useful when converting the Jimple statements that
      * contain constant values, as Tai-e IR will emit {@link AssignLiteral}
      * for constant values before the actual corresponding {@link Stmt}.
@@ -273,15 +324,15 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      *     x = #intconstant0 + y;
      *
      * Tai-e adds an {@link AssignLiteral} statement before the
-     * corresponding addition, so we need to set the jump target
-     * of {@link If} to the tempJumpTarget instead of the addition.
-     * We use this field to maintain temporary jump targets.
+     * corresponding addition, so we need to set the target
+     * of {@link If} to the tempTarget instead of the addition.
+     * We use this field to maintain temporary targets.
      */
-    private Stmt tempJumpTarget;
+    private Stmt tempTarget;
 
     private void addTempStmt(Stmt stmt) {
-        if (tempJumpTarget == null) {
-            tempJumpTarget = stmt;
+        if (tempTarget == null) {
+            tempTarget = stmt;
         }
         stmts.add(stmt);
     }
@@ -289,14 +340,21 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     private void addStmt(Stmt stmt) {
         // TODO: add more information to Stmt
         stmts.add(stmt);
-        if (!currentStmt.getBoxesPointingToThis().isEmpty()) {
-            if (tempJumpTarget != null) {
-                jumpTargetMap.put(currentStmt, tempJumpTarget);
+        if (!currentUnit.getBoxesPointingToThis().isEmpty()) {
+            if (tempTarget != null) {
+                jumpTargetMap.put(currentUnit, tempTarget);
             } else {
-                jumpTargetMap.put(currentStmt, stmt);
+                jumpTargetMap.put(currentUnit, stmt);
             }
         }
-        tempJumpTarget = null;
+        if (trapUnits.contains(currentUnit)) {
+            if (tempTarget != null) {
+                trapUnitMap.put(currentUnit, tempTarget);
+            } else {
+                trapUnitMap.put(currentUnit, stmt);
+            }
+        }
+        tempTarget = null;
     }
 
     /**
@@ -376,7 +434,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     @Override
     public void caseAssignStmt(AssignStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         Value lhs = stmt.getLeftOp();
         Value rhs = stmt.getRightOp();
         if (rhs instanceof InvokeExpr) {
@@ -623,15 +681,15 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     @Override
     public void caseGotoStmt(GotoStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         Goto gotoStmt = new Goto();
-        jumpMap.put(currentStmt, gotoStmt);
+        jumpMap.put(currentUnit, gotoStmt);
         addStmt(gotoStmt);
     }
 
     @Override
     public void caseIfStmt(IfStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         ConditionExpr condition = (ConditionExpr) stmt.getCondition();
         ConditionExp.Op op;
         if (condition instanceof EqExpr) {
@@ -653,37 +711,37 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         Var v1 = getLocalOrConstant(condition.getOp1());
         Var v2 = getLocalOrConstant(condition.getOp2());
         If ifStmt = new If(new ConditionExp(op, v1, v2));
-        jumpMap.put(currentStmt, ifStmt);
+        jumpMap.put(currentUnit, ifStmt);
         addStmt(ifStmt);
     }
 
     @Override
     public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         Var var = getLocalOrConstant(stmt.getKey());
         List<Integer> caseValues = stmt.getLookupValues()
                 .stream()
                 .map(v -> v.value)
                 .collect(Collectors.toList());
         LookupSwitch lookupSwitch = new LookupSwitch(var, caseValues);
-        jumpMap.put(currentStmt, lookupSwitch);
+        jumpMap.put(currentUnit, lookupSwitch);
         addStmt(lookupSwitch);
 
     }
 
     @Override
     public void caseTableSwitchStmt(TableSwitchStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         Var var = getLocalOrConstant(stmt.getKey());
         TableSwitch tableSwitch = new TableSwitch(var,
                 stmt.getLowIndex(), stmt.getHighIndex());
-        jumpMap.put(currentStmt, tableSwitch);
+        jumpMap.put(currentUnit, tableSwitch);
         addStmt(tableSwitch);
     }
 
     @Override
     public void caseInvokeStmt(InvokeStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new Invoke(getInvokeExp(stmt.getInvokeExpr())));
     }
 
@@ -717,25 +775,25 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     @Override
     public void caseReturnStmt(ReturnStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new Return(getLocalOrConstant(stmt.getOp())));
     }
 
     @Override
     public void caseReturnVoidStmt(ReturnVoidStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new Return());
     }
 
     @Override
     public void caseThrowStmt(ThrowStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new Throw(getLocalOrConstant(stmt.getOp())));
     }
 
     @Override
     public void caseIdentityStmt(IdentityStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         Value lhs = stmt.getLeftOp();
         Value rhs = stmt.getRightOp();
         if (rhs instanceof CaughtExceptionRef) {
@@ -745,19 +803,19 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     @Override
     public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new MonitorEnter(getLocalOrConstant(stmt.getOp())));
     }
 
     @Override
     public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new MonitorExit(getLocalOrConstant(stmt.getOp())));
     }
 
     @Override
     public void caseNopStmt(NopStmt stmt) {
-        currentStmt = stmt;
+        currentUnit = stmt;
         addStmt(new Nop());
     }
 

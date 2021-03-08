@@ -15,17 +15,15 @@ package pascal.taie.ir;
 
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
-import pascal.taie.java.classes.JMethod;
 
 import java.io.PrintStream;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class IRPrinter {
 
     public static void print(NewIR ir, PrintStream out) {
         // print method signature
-        out.println(toString(ir.getMethod()));
+        out.println(ir.getMethod());
         // print parameters
         out.print("Parameters: ");
         out.println(ir.getParams()
@@ -44,20 +42,11 @@ public class IRPrinter {
                 out.println(toString(s));
             }
         });
-    }
-
-    private static String toString(JMethod method) {
-        StringBuilder sb = new StringBuilder();
-        method.getModifiers().forEach(m -> sb.append(m).append(' '));
-        sb.append(method.getReturnType()).append(' ');
-        sb.append(method.getName());
-        sb.append('(');
-        sb.append(method.getParamTypes()
-                        .stream()
-                        .map(Objects::toString)
-                        .collect(Collectors.joining(",")));
-        sb.append(')');
-        return sb.toString();
+        // print all try-catch blocks
+        if (!ir.getTryCatchBlocks().isEmpty()) {
+            out.println("Try-catch blocks:");
+            ir.getTryCatchBlocks().forEach(b -> out.println("   " + b));
+        }
     }
 
     private static String toString(SwitchStmt switchStmt) {
