@@ -91,6 +91,10 @@ public class JClass {
         return type;
     }
 
+    public Set<Modifier> getModifiers() {
+        return Collections.unmodifiableSet(modifiers);
+    }
+
     public boolean isPublic() {
         return Modifier.hasPublic(modifiers);
     }

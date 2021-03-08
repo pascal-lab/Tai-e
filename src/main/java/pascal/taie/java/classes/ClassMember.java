@@ -13,6 +13,7 @@
 
 package pascal.taie.java.classes;
 
+import java.util.Collections;
 import java.util.Set;
 
 public abstract class ClassMember {
@@ -44,6 +45,10 @@ public abstract class ClassMember {
 
     public String getSignature() {
         return signature;
+    }
+
+    public Set<Modifier> getModifiers() {
+        return Collections.unmodifiableSet(modifiers);
     }
 
     public boolean isPublic() {

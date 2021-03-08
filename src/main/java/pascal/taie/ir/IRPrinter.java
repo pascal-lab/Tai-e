@@ -15,15 +15,17 @@ package pascal.taie.ir;
 
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.java.classes.JMethod;
 
 import java.io.PrintStream;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class IRPrinter {
 
     public static void print(NewIR ir, PrintStream out) {
         // print method signature
-        out.println(ir.getMethod());
+        out.println(toString(ir.getMethod()));
         // print parameters
         out.print("Parameters: ");
         out.println(ir.getParams()
@@ -37,28 +39,44 @@ public class IRPrinter {
         out.println("Statements:");
         ir.getStmts().forEach(s -> {
             if (s instanceof SwitchStmt) {
-                printSwitch((SwitchStmt) s, out);
+                out.println(toString((SwitchStmt) s));
             } else {
-                printNonSwitchStmt(s, out);
+                out.println(toString(s));
             }
         });
     }
 
-    private static void printSwitch(SwitchStmt switchStmt, PrintStream out) {
-        out.printf("%4d: %s(%s){%n", switchStmt.getIndex(),
-                switchStmt.getInsnString(), switchStmt.getValue());
+    private static String toString(JMethod method) {
+        StringBuilder sb = new StringBuilder();
+        method.getModifiers().forEach(m -> sb.append(m).append(' '));
+        sb.append(method.getReturnType()).append(' ');
+        sb.append(method.getName());
+        sb.append('(');
+        sb.append(method.getParamTypes()
+                        .stream()
+                        .map(Objects::toString)
+                        .collect(Collectors.joining(",")));
+        sb.append(')');
+        return sb.toString();
+    }
+
+    private static String toString(SwitchStmt switchStmt) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%4d: %s(%s){%n", switchStmt.getIndex(),
+                switchStmt.getInsnString(), switchStmt.getValue()));
         switchStmt.getCaseTargets().forEach(caseTarget -> {
             int caseValue = caseTarget.getFirst();
             Stmt target = caseTarget.getSecond();
-            out.printf("        case %d: goto %s;%n",
-                    caseValue, switchStmt.toString(target));
+            sb.append(String.format("        case %d: goto %s;%n",
+                    caseValue, switchStmt.toString(target)));
         });
-        out.printf("        default: goto %s;%n",
-                switchStmt.toString(switchStmt.getDefaultTarget()));
-        out.println("      };");
+        sb.append(String.format("        default: goto %s;%n",
+                switchStmt.toString(switchStmt.getDefaultTarget())));
+        sb.append("      };");
+        return sb.toString();
     }
 
-    private static void printNonSwitchStmt(Stmt stmt, PrintStream out) {
-        out.printf("%4d: %s;%n", stmt.getIndex(), stmt);
+    private static String toString(Stmt stmt) {
+        return String.format("%4d: %s;", stmt.getIndex(), stmt);
     }
 }

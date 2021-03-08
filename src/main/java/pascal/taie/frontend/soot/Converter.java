@@ -125,6 +125,7 @@ class Converter {
                     .map(this::convertType)
                     .collect(Collectors.toList());
             Type returnType = convertType(m.getReturnType());
+            // TODO: convert attributes
             return new JMethod(convertClass(m.getDeclaringClass()),
                     m.getName(),
                     Modifiers.convert(m.getModifiers()),
