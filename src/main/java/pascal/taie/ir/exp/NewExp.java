@@ -18,7 +18,7 @@ import pascal.taie.ir.Site;
 /**
  * Representation of new expressions.
  */
-public abstract class NewExp implements Exp {
+public abstract class NewExp implements RValue {
 
     private Site allocationSite;
 

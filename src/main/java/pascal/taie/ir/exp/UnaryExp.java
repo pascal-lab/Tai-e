@@ -16,5 +16,5 @@ package pascal.taie.ir.exp;
 /**
  * Representation of unary expression.
  */
-public interface UnaryExp extends Exp {
+public interface UnaryExp extends RValue {
 }

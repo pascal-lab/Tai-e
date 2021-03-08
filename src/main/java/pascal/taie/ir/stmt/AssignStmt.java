@@ -13,12 +13,15 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
+
 /**
  * Representation of assign statements.
  * @param <L> type of lvalue.
  * @param <R> type of rvalue.
  */
-abstract class AssignStmt<L, R> extends AbstractStmt {
+abstract class AssignStmt<L extends LValue, R extends RValue> extends AbstractStmt {
 
     private final L lvalue;
 

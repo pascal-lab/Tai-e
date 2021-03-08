@@ -19,7 +19,7 @@ import pascal.taie.java.types.Type;
 /**
  * Representation of field access expressions.
  */
-public abstract class FieldAccess implements Exp {
+public abstract class FieldAccess implements LValue, RValue {
 
     protected final FieldRef fieldRef;
 

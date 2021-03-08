@@ -20,7 +20,7 @@ import pascal.taie.java.types.Type;
 /**
  * Representation of instanceof expression, e.g., o instanceof T.
  */
-public class InstanceOfExp implements Exp {
+public class InstanceOfExp implements RValue {
 
     /**
      * The value to be checked.

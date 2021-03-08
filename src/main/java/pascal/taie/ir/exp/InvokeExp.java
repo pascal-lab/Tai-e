@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * Representation of method invocation expression.
  */
-public abstract class InvokeExp implements Exp {
+public abstract class InvokeExp implements RValue {
 
     protected final MethodRef methodRef;
 

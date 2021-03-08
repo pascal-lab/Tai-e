@@ -19,7 +19,7 @@ import pascal.taie.java.types.Type;
 /**
  * Representation of array access expression, e.g., a[i].
  */
-public class ArrayAccess implements Exp {
+public class ArrayAccess implements LValue, RValue {
 
     private final Var base;
 

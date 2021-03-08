@@ -14,15 +14,7 @@
 package pascal.taie.ir.exp;
 
 /**
- * Representation of binary expression.
+ * Marker interface for all left-hand-side value.
  */
-public interface BinaryExp extends RValue {
-
-    interface Op {}
-
-    Op getOperator();
-
-    Var getValue1();
-
-    Var getValue2();
+public interface LValue extends Exp {
 }

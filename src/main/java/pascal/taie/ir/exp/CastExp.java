@@ -18,7 +18,7 @@ import pascal.taie.java.types.Type;
 /**
  * Representation of cast expression, e.g., (T) o.
  */
-public class CastExp implements Exp {
+public class CastExp implements RValue {
 
     /**
      * The value to be casted.
