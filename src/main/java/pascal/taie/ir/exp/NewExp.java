@@ -13,20 +13,20 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.ir.Site;
+import pascal.taie.ir.ProgramPoint;
 
 /**
  * Representation of new expressions.
  */
 public abstract class NewExp implements RValue {
 
-    private Site allocationSite;
+    private ProgramPoint allocationSite;
 
-    public Site getAllocationSite() {
+    public ProgramPoint getAllocationSite() {
         return allocationSite;
     }
 
-    public void setAllocationSite(Site allocationSite) {
+    public void setAllocationSite(ProgramPoint allocationSite) {
         this.allocationSite = allocationSite;
     }
 }

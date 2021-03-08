@@ -15,6 +15,7 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.ir.DefaultNewIR;
 import pascal.taie.ir.NewIR;
+import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.TryCatchBlock;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -262,19 +263,17 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         if (traps.isEmpty()) {
             tryCatchBlocks = Collections.emptyList();
         } else {
-            tryCatchBlocks = traps
-                    .stream()
-                    .map(trap -> {
-                        Unit begin = trap.getBeginUnit();
-                        Unit end = trap.getEndUnit();
-                        Unit handler = trap.getHandlerUnit();
-                        soot.Type exceptionType = trap.getException().getType();
-                        return new TryCatchBlock(trapUnitMap.get(begin),
-                                trapUnitMap.get(end),
-                                (Catch) trapUnitMap.get(handler),
-                                (ClassType) converter.convertType(exceptionType));
-                    })
-                    .collect(Collectors.toList());
+            tryCatchBlocks = new ArrayList<>(traps.size());
+            for (Trap trap : traps) {
+                Unit begin = trap.getBeginUnit();
+                Unit end = trap.getEndUnit();
+                Unit handler = trap.getHandlerUnit();
+                soot.Type exceptionType = trap.getException().getType();
+                tryCatchBlocks.add(new TryCatchBlock(trapUnitMap.get(begin),
+                        trapUnitMap.get(end),
+                        (Catch) trapUnitMap.get(handler),
+                        (ClassType) converter.convertType(exceptionType)));
+            }
         }
     }
 
@@ -358,33 +357,6 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple NewExpr to NewExp
-     */
-    private final AbstractJimpleValueSwitch newExprConverter
-            = new AbstractJimpleValueSwitch() {
-
-        @Override
-        public void caseNewExpr(NewExpr v) {
-            setResult(new NewInstance((ClassType) getType(v)));
-        }
-
-        @Override
-        public void caseNewArrayExpr(NewArrayExpr v) {
-            setResult(new NewArray((ArrayType) getType(v),
-                    getLocalOrConstant(v.getSize())));
-        }
-
-        @Override
-        public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
-            List<Var> lengths = v.getSizes()
-                    .stream()
-                    .map(MethodIRBuilder.this::getLocalOrConstant)
-                    .collect(Collectors.toList());
-            setResult(new NewMultiArray((ArrayType) getType(v), lengths));
-        }
-    };
-
-    /**
      * Convert Jimple Constants to Literals.
      */
     private final AbstractConstantSwitch constantConverter
@@ -438,8 +410,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         Value lhs = stmt.getLeftOp();
         Value rhs = stmt.getRightOp();
         if (rhs instanceof InvokeExpr) {
-            addStmt(new Invoke(getInvokeExp(stmt.getInvokeExpr()),
-                    getVar((Local) lhs)));
+            buildInvoke((Local) lhs, stmt.getInvokeExpr());
             return;
         }
         if (lhs instanceof Local) {
@@ -447,10 +418,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
             if (rhs instanceof Local) {
                 addStmt(new Copy(getVar(lvar), getVar((Local) rhs)));
             } else if (rhs instanceof AnyNewExpr) {
-                rhs.apply(newExprConverter);
-                addStmt(new New(getVar(lvar),
-                        (NewExp) newExprConverter.getResult()));
-                // TODO: set allocation site
+                buildNew(lvar, (AnyNewExpr) rhs);
             } else if (rhs instanceof Constant) {
                 rhs.apply(constantConverter);
                 addStmt(new AssignLiteral(getVar(lvar),
@@ -543,6 +511,41 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     private ArrayAccess getArrayAccess(ArrayRef arrayRef) {
         return new ArrayAccess(getVar((Local) arrayRef.getBase()),
                 getLocalOrConstant(arrayRef.getIndex()));
+    }
+
+    /**
+     * Convert Jimple NewExpr to NewExp
+     */
+    private final AbstractJimpleValueSwitch newExprConverter
+            = new AbstractJimpleValueSwitch() {
+
+        @Override
+        public void caseNewExpr(NewExpr v) {
+            setResult(new NewInstance((ClassType) getType(v)));
+        }
+
+        @Override
+        public void caseNewArrayExpr(NewArrayExpr v) {
+            setResult(new NewArray((ArrayType) getType(v),
+                    getLocalOrConstant(v.getSize())));
+        }
+
+        @Override
+        public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
+            List<Var> lengths = v.getSizes()
+                    .stream()
+                    .map(MethodIRBuilder.this::getLocalOrConstant)
+                    .collect(Collectors.toList());
+            setResult(new NewMultiArray((ArrayType) getType(v), lengths));
+        }
+    };
+
+    private void buildNew(Local lhs, AnyNewExpr rhs) {
+        rhs.apply(newExprConverter);
+        NewExp newExp = (NewExp) newExprConverter.getResult();
+        New newStmt = new New(getVar(lhs), newExp);
+        newExp.setAllocationSite(new ProgramPoint(method, newStmt));
+        addStmt(newStmt);
     }
 
     /**
@@ -742,7 +745,15 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     @Override
     public void caseInvokeStmt(InvokeStmt stmt) {
         currentUnit = stmt;
-        addStmt(new Invoke(getInvokeExp(stmt.getInvokeExpr())));
+        buildInvoke(null, stmt.getInvokeExpr());
+    }
+
+    private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
+        Var result = lhs == null ? null : getVar(lhs);
+        InvokeExp invokeExp = getInvokeExp(invokeExpr);
+        Invoke invoke = new Invoke(invokeExp, result);
+        invokeExp.setCallSite(new ProgramPoint(method, invoke));
+        addStmt(invoke);
     }
 
     /**
