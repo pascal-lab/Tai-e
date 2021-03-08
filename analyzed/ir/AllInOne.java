@@ -133,14 +133,37 @@ public class AllInOne {
         return;
     }
 
-    void exception(int x) {
+    int exception(int x) {
         try {
-            throw new Exception();
+            if (x > 100) {
+                hidden();
+                x = x * 10;
+                try {
+                    if (x == 0) {
+                        throw new RuntimeException();
+                    }
+                } catch (RuntimeException re) {
+                    x = x + 1;
+                }
+                throw new Exception();
+            } else {
+                foo(10);
+            }
         } catch (RuntimeException e) {
             foo(20);
         } catch (Exception e) {
-            hidden();
         }
+        x = x * 100;
+        return x;
+    }
+
+    void emptyExceptionHandler() {
+        try {
+            throw new Exception();
+        } catch (Exception e) {}
+        foo(0);
+        try {
+        } catch (Exception e) {}
     }
 
     void monitor(Object o) {
@@ -163,8 +186,13 @@ public class AllInOne {
     }
 
     private void hidden() {}
+
+//    @MyAnno
+//    void testAnno() {}
 }
 
 interface I {
     Object goo();
 }
+
+//@interface MyAnno {}

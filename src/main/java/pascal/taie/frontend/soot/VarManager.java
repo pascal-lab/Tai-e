@@ -31,8 +31,6 @@ class VarManager {
 
     private final static String THIS = "#this";
 
-    private final static String PARAM = "#param";
-
     private final static String STRING_CONSTANT = "#stringconstant";
 
     private final static String CLASS_CONSTANT = "#classconstant";
@@ -63,19 +61,8 @@ class VarManager {
         varMap.put(thisLocal, thisVar);
     }
 
-    private void addNativeThis(Type thisType) {
-        thisVar = newVar(THIS, thisType);
-        // TODO: add to varMap?
-    }
-
     void addParam(Local paramLocal) {
         params.add(getVar(paramLocal));
-    }
-
-    private void addNativeParam(Type paramType) {
-        Var param = newVar(PARAM + params.size(), paramType);
-        params.add(param);
-        // TODO: add to varMap?
     }
 
     Var getVar(Local local) {
