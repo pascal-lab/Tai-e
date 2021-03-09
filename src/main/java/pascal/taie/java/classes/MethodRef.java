@@ -18,12 +18,12 @@ import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static pascal.taie.util.CollectionUtils.newSet;
 
 @InternalCanonicalized
 public class MethodRef extends MemberRef {
@@ -34,7 +34,7 @@ public class MethodRef extends MemberRef {
     // Class and method names of polymorphic signature methods.
     private static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";
 
-    private static final Set<String> METHOD_HANDLE_METHODS = new HashSet<>(Arrays.asList(
+    private static final Set<String> METHOD_HANDLE_METHODS = newSet(
             "invokeExact",
             "invoke",
             "invokeBasic",
@@ -42,11 +42,11 @@ public class MethodRef extends MemberRef {
             "linkToStatic",
             "linkToSpecial",
             "linkToInterface"
-    ));
+    );
 
     private static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
 
-    private static final Set<String> VAR_HANDLE_METHODS = new HashSet<>(Arrays.asList(
+    private static final Set<String> VAR_HANDLE_METHODS = newSet(
             "get",
             "set",
             "getVolatile",
@@ -78,7 +78,7 @@ public class MethodRef extends MemberRef {
             "getAndBitwiseXor",
             "getAndBitwiseXorAcquire",
             "getAndBitwiseXorRelease"
-    ));
+    );
 
     private final List<Type> parameterTypes;
 

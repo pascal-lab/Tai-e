@@ -29,8 +29,9 @@ import java.util.Objects;
  */
 public class ArraySet<E> extends AbstractSet<E> {
 
+    public static final int DEFAULT_CAPACITY = 8;
+
     private static final String NULL_MESSAGE = "ArraySet does not permit null element";
-    private static final int DEFAULT_CAPACITY = 8;
 
     private final ArrayList<E> elements;
     private final int initialCapacity;

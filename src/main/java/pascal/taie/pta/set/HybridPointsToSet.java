@@ -13,13 +13,13 @@
 
 package pascal.taie.pta.set;
 
-import pascal.taie.util.HybridArrayHashSet;
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 public class HybridPointsToSet extends DelegatePointsToSet {
 
     @Override
     protected void initializePointsToSet() {
-        set = new HybridArrayHashSet<>();
+        set = newHybridSet();
     }
 
     public static class Factory extends PointsToSetFactory {

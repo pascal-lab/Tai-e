@@ -32,13 +32,13 @@ import soot.util.NumberedString;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 import static pascal.taie.callgraph.JimpleCallUtils.getCallKind;
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 public class CHACallGraphBuilder extends SceneTransformer {
 
@@ -129,7 +129,7 @@ public class CHACallGraphBuilder extends SceneTransformer {
         switch (kind) {
             case INTERFACE: // invokeinterface
             case VIRTUAL: { // invokevirtual
-                Set<SootMethod> targets = new HashSet<>();
+                Set<SootMethod> targets = newHybridSet();
                 Deque<SootClass> workList = new ArrayDeque<>();
                 workList.add(cls);
                 while (!workList.isEmpty()) {

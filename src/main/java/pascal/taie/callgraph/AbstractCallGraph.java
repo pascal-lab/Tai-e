@@ -19,12 +19,13 @@ import pascal.taie.util.CollectionView;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.CollectionUtils.newSet;
 
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
@@ -37,12 +38,12 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected final Set<Method> reachableMethods;
 
     protected AbstractCallGraph() {
-        callSiteToEdges = new HashMap<>();
-        calleeToEdges = new HashMap<>();
-        callSiteToContainer = new HashMap<>();
-        callSitesIn = new HashMap<>();
-        entryMethods = new HashSet<>();
-        reachableMethods = new HashSet<>();
+        callSiteToEdges = newMap();
+        calleeToEdges = newMap();
+        callSiteToContainer = newMap();
+        callSitesIn = newMap();
+        entryMethods = newSet();
+        reachableMethods = newSet();
     }
 
     public void addEntryMethod(Method entryMethod) {

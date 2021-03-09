@@ -27,10 +27,10 @@ import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static pascal.taie.util.CollectionUtils.getOne;
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 /**
  * Model initialization of main thread, system thread group,
@@ -61,7 +61,7 @@ public class ThreadHandler implements Plugin {
     /**
      * Contexts of Thread.currentThread().
      */
-    private final Set<Context> currentThreadContexts = new HashSet<>();
+    private final Set<Context> currentThreadContexts = newHybridSet();
 
     @Override
     public void setPointerAnalysis(PointerAnalysis pta) {

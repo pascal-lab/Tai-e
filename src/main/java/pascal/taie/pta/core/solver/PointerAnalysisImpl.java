@@ -64,10 +64,11 @@ import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static pascal.taie.util.CollectionUtils.newSet;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
 
@@ -205,7 +206,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         callGraph = new OnFlyCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        reachableMethods = new HashSet<>();
+        reachableMethods = newSet();
         classInitializer = new ClassInitializer();
 
         // process program entries (including implicit entries)
@@ -527,7 +528,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         /**
          * Set of classes that have been initialized.
          */
-        private final Set<JClass> initializedClasses = new HashSet<>();
+        private final Set<JClass> initializedClasses = newSet();
 
         /**
          * Analyzes the initializer of given class.

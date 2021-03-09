@@ -14,16 +14,17 @@
 package pascal.taie.pta.core.ci;
 
 import pascal.taie.pta.ir.Obj;
-import pascal.taie.util.HybridArrayHashSet;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.CollectionUtils.newHybridSet;
+
 class PointsToSet implements Iterable<Obj> {
 
-    private final Set<Obj> set = new HybridArrayHashSet<>();
+    private final Set<Obj> set = newHybridSet();
 
     PointsToSet() {
     }

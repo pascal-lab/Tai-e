@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import static pascal.taie.util.CollectionUtils.newHybridSet;
+
 public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JClassLoader defaultLoader;
@@ -96,7 +98,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         if (jclass.isInterface()) {
             jclass.getInterfaces().forEach(iface ->
                     directSubinterfaces.computeIfAbsent(iface,
-                            i -> new HybridArrayHashSet<>())
+                            i -> newHybridSet())
                             .add(jclass));
         }
     }

@@ -37,11 +37,12 @@ import soot.toolkits.graph.DirectedGraph;
 import soot.toolkits.scalar.Pair;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newSet;
 
 /**
  * The analysis that detects dead code. This transformer must be executed after
@@ -66,7 +67,7 @@ public class DeadCodeDetection extends BodyTransformer {
     // ---------- analysis for dead code detection ----------
     private Set<Unit> findDeadCode(Body b) {
         DirectedGraph<Unit> cfg = new BriefUnitGraph(b);
-        Set<Unit> deadCode = new HashSet<>();
+        Set<Unit> deadCode = newSet();
 
         // 1. unreachable branches
         EdgeSet unreachableBranches = findUnreachableBranches(b);
@@ -114,7 +115,7 @@ public class DeadCodeDetection extends BodyTransformer {
                                           EdgeSet filteredEdges) {
         // Initialize graph traversal
         Unit entry = getEntry(cfg);
-        Set<Unit> reachable = new HashSet<>();
+        Set<Unit> reachable = newSet();
         Queue<Unit> queue = new LinkedList<>();
         queue.add(entry);
         // Traverse the CFG to find reachable code
@@ -129,7 +130,7 @@ public class DeadCodeDetection extends BodyTransformer {
             }
         }
         // Collect unreachable code
-        Set<Unit> unreachable = new HashSet<>();
+        Set<Unit> unreachable = newSet();
         for (Unit unit : cfg) {
             if (!reachable.contains(unit)) {
                 unreachable.add(unit);
@@ -148,7 +149,7 @@ public class DeadCodeDetection extends BodyTransformer {
                 (DataFlowTag<Unit, FlowSet<Local>>) body.getTag("LiveVarTag");
         // Obtain the live variable analysis results for this method.
         Map<Unit, FlowSet<Local>> liveVarMap = liveVarTag.getDataFlowMap();
-        Set<Unit> deadAssigns = new HashSet<>();
+        Set<Unit> deadAssigns = newSet();
         for (Unit unit : body.getUnits()) {
             if (unit instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) unit;
@@ -213,7 +214,7 @@ public class DeadCodeDetection extends BodyTransformer {
      */
     private static class EdgeSet {
 
-        private final Set<Pair<Unit, Unit>> edgeSet = new HashSet<>();
+        private final Set<Pair<Unit, Unit>> edgeSet = newSet();
 
         private void addEdge(Unit from, Unit to) {
             edgeSet.add(new Pair<>(from, to));

@@ -15,14 +15,15 @@ package pascal.taie.pta.core.cs;
 
 import pascal.taie.pta.core.solver.PointerFlowEdge;
 import pascal.taie.pta.set.PointsToSet;
-import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 abstract class AbstractPointer implements Pointer {
 
     private PointsToSet pointsToSet;
-    private final Set<PointerFlowEdge> outEdges = new HybridArrayHashSet<>();
+    private final Set<PointerFlowEdge> outEdges = newHybridSet();
 
     @Override
     public PointsToSet getPointsToSet() {

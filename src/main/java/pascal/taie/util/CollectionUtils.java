@@ -14,6 +14,7 @@
 package pascal.taie.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -41,12 +43,50 @@ public class CollectionUtils {
         map.computeIfAbsent(key1, k -> newMap()).put(key2, value);
     }
 
+    // Factory methods for sets and maps
     public static <E> Set<E> newSet() {
         return new HashSet<>();
     }
 
+    public static <E> Set<E> newSet(int initialCapacity) {
+        if (initialCapacity <= ArraySet.DEFAULT_CAPACITY) {
+            return newSmallSet();
+        } else {
+            return newSet();
+        }
+    }
+
+    // TODO: deprecate this and use Sets.of() after upgrading to Java 9.
+    public static <E> Set<E> newSet(E... elems) {
+        return Arrays.stream(elems).collect(Collectors.toSet());
+    }
+
+    public static <E> Set<E> newSmallSet() {
+        return new ArraySet<>();
+    }
+
+    public static <E> Set<E> newHybridSet() {
+        return new HybridArrayHashSet<>();
+    }
+
     public static <K, V> Map<K, V> newMap() {
         return new HashMap<>();
+    }
+
+    public static <K, V> Map<K, V> newMap(int initialCapacity) {
+        if (initialCapacity <= ArrayMap.DEFAULT_CAPACITY) {
+            return newSmallMap();
+        } else {
+            return newMap();
+        }
+    }
+
+    public static <K, V> Map<K, V> newSmallMap() {
+        return new ArrayMap<>();
+    }
+
+    public static <K, V> Map<K, V> newHybridMap() {
+        return new HybridArrayHashMap<>();
     }
 
     /**

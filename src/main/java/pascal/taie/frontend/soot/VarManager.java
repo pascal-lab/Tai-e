@@ -29,13 +29,13 @@ import java.util.Map;
 
 class VarManager {
 
-    private final static String THIS = "#this";
+    private final static String THIS = "%this";
 
-    private final static String STRING_CONSTANT = "#stringconstant";
+    private final static String STRING_CONSTANT = "%stringconstant";
 
-    private final static String CLASS_CONSTANT = "#classconstant";
+    private final static String CLASS_CONSTANT = "%classconstant";
 
-    private final static String NULL_CONSTANT = "#nullconstant";
+    private final static String NULL_CONSTANT = "%nullconstant";
 
     private final Converter converter;
 
@@ -82,7 +82,7 @@ class VarManager {
         } else if (literal instanceof NullLiteral) {
             varName = NULL_CONSTANT + counter++;
         } else {
-            varName = "#" + literal.getType().getName() +
+            varName = "%" + literal.getType().getName() +
                     "constant" + counter++;
         }
         return newVar(varName, literal.getType());

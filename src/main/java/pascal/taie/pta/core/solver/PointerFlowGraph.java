@@ -16,12 +16,13 @@ package pascal.taie.pta.core.solver;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.core.cs.Pointer;
 
-import java.util.HashSet;
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newSet;
 
 public class PointerFlowGraph {
 
-    private final Set<Pointer> pointers = new HashSet<>();
+    private final Set<Pointer> pointers = newSet();
 
     public boolean addEdge(Pointer from, Pointer to,
                            PointerFlowEdge.Kind kind) {

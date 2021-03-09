@@ -31,9 +31,10 @@ import java.util.Set;
  */
 public class ArrayMap<K, V> extends AbstractMap<K, V> {
 
+    public static final int DEFAULT_CAPACITY = 8;
+
     private static final String NULL_KEY = "ArrayMap does not permit null keys";
     private static final String EXCEED_CAPACITY = "Capacity of this ArrayMap is fixed";
-    private static final int DEFAULT_CAPACITY = 8;
 
     private final ArrayList<Entry<K, V>> entries;
     private final int initialCapacity;

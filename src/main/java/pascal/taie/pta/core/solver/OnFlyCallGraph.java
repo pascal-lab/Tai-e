@@ -28,17 +28,18 @@ import pascal.taie.util.CollectionView;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.CollectionUtils.newHybridSet;
+
 class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
-    private final Set<CSMethod> entryMethods = new HashSet<>();
+    private final Set<CSMethod> entryMethods = newHybridSet();
     private final Set<CSMethod> reachableMethods
             = ConcurrentHashMap.newKeySet();
 

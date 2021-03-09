@@ -16,9 +16,10 @@ package pascal.taie.pta.core.cs;
 import pascal.taie.callgraph.Edge;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 public class CSCallSite extends AbstractCSElement {
 
@@ -30,8 +31,7 @@ public class CSCallSite extends AbstractCSElement {
     /**
      * Call edges from this call site.
      */
-    private final Set<Edge<CSCallSite, CSMethod>> edges
-            = new HybridArrayHashSet<>();
+    private final Set<Edge<CSCallSite, CSMethod>> edges = newHybridSet();
 
     CSCallSite(CallSite callSite, Context context) {
         super(context);

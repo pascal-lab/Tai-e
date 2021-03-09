@@ -19,16 +19,18 @@ import pascal.taie.pta.ir.Variable;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.CollectionUtils.newSet;
 
 class PointerFlowGraph {
 
     /**
      * Set of all pointer in this PFG.
      */
-    private final Set<Pointer> pointers = new HashSet<>();
+    private final Set<Pointer> pointers = newSet();
 
     /**
      * Map from Variable to Var node.
@@ -82,7 +84,7 @@ class PointerFlowGraph {
      * otherwise returns true.
      */
     boolean addEdge(Pointer from, Pointer to) {
-        return successors.computeIfAbsent(from, p -> new HashSet<>())
+        return successors.computeIfAbsent(from, p -> newHybridSet())
                 .add(to);
     }
 

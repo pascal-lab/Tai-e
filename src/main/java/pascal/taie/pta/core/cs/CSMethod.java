@@ -15,9 +15,10 @@ package pascal.taie.pta.core.cs;
 
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 public class CSMethod extends AbstractCSElement {
 
@@ -25,7 +26,7 @@ public class CSMethod extends AbstractCSElement {
     /**
      * Callers of this CS method.
      */
-    private final Set<CSCallSite> callers = new HybridArrayHashSet<>();
+    private final Set<CSCallSite> callers = newHybridSet();
 
     CSMethod(JMethod method, Context context) {
         super(context);

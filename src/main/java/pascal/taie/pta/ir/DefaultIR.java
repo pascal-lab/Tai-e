@@ -14,13 +14,14 @@
 package pascal.taie.pta.ir;
 
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.util.HybridArrayHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 /**
  * Default implementation of IR.
@@ -80,7 +81,7 @@ public class DefaultIR implements IR {
 
     public void addReturnVar(Variable returnVar) {
         if (returnVars.isEmpty()) {
-            returnVars = new HybridArrayHashSet<>();
+            returnVars = newHybridSet();
         }
         returnVars.add(returnVar);
     }
