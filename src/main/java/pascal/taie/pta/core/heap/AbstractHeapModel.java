@@ -19,8 +19,9 @@ import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Obj;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 
 /**
  * All heap models should inherit this class, and we can define
@@ -41,8 +42,7 @@ abstract class AbstractHeapModel implements HeapModel {
      * The merged object representing string constants.
      */
     private final MergedObj mergedSC;
-    private final ConcurrentMap<Type, MergedObj> mergedObjs
-            = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Type, MergedObj> mergedObjs = newConcurrentMap();
 
     AbstractHeapModel(TypeManager typeManager) {
         this.typeManager = typeManager;

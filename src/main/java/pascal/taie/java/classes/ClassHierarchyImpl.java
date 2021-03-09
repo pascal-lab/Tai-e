@@ -19,20 +19,19 @@ import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.ArrayMap;
-import pascal.taie.util.HybridArrayHashMap;
 import pascal.taie.util.HybridArrayHashSet;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 
@@ -49,18 +48,18 @@ public class ClassHierarchyImpl implements ClassHierarchy {
      * Map from each interface to its direct subinterfaces.
      */
     private final ConcurrentMap<JClass, Set<JClass>> directSubinterfaces
-            = new ConcurrentHashMap<>();
+            = newConcurrentMap();
 
     /**
      * Map from each interface to all its subinterfaces.
      */
     private final ConcurrentMap<JClass, Set<JClass>> allSubinterfaces
-            = new ConcurrentHashMap<>();
+            = newConcurrentMap();
 
     /**
      * Cache results of method dispatch.
      */
-    private final Map<JClass, Map<Subsignature, JMethod>> dispatchTable = new HashMap<>();
+    private final Map<JClass, Map<Subsignature, JMethod>> dispatchTable = newMap();
 
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
@@ -225,7 +224,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.computeIfAbsent(receiverClass,
-                c -> new HybridArrayHashMap<>()).get(subsignature);
+                c -> newConcurrentMap()).get(subsignature);
         if (target == null) {
             target = lookupMethod(receiverClass, subsignature, false);
             if (target != null) {

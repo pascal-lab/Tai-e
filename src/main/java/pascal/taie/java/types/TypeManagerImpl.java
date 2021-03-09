@@ -18,8 +18,9 @@ import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JClassLoader;
 import pascal.taie.util.ArrayMap;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import static pascal.taie.util.CollectionUtils.newMap;
 
 // TODO:
 //  1. mount ArrayType to element type (like Soot)?
@@ -49,7 +50,7 @@ public class TypeManagerImpl implements TypeManager {
 
     @Override
     public ClassType getClassType(JClassLoader loader, String className) {
-        return classTypes.computeIfAbsent(loader, l -> new HashMap<>())
+        return classTypes.computeIfAbsent(loader, l -> newMap())
                 .computeIfAbsent(className, name -> new ClassType(loader, name));
     }
 
@@ -64,7 +65,7 @@ public class TypeManagerImpl implements TypeManager {
         assert !(baseType instanceof VoidType)
                 && !(baseType instanceof NullType);
         assert dim >= 1;
-        return arrayTypes.computeIfAbsent(dim, d -> new HashMap<>())
+        return arrayTypes.computeIfAbsent(dim, d -> newMap())
                 .computeIfAbsent(baseType, t ->
                         new ArrayType(t, dim
                                 , dim == 1 ? t : getArrayType(t, dim - 1)));

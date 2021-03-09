@@ -20,16 +20,16 @@ import pascal.taie.util.InternalCanonicalized;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.CollectionUtils.newSet;
 
 @InternalCanonicalized
 public class MethodRef extends MemberRef {
 
     private static final ConcurrentMap<Key, MethodRef> map =
-            new ConcurrentHashMap<>(4096);
+            newConcurrentMap(4096);
 
     // Class and method names of polymorphic signature methods.
     private static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";

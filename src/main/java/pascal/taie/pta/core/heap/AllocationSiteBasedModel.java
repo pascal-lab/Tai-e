@@ -17,12 +17,13 @@ import pascal.taie.java.TypeManager;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Obj;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import static pascal.taie.util.CollectionUtils.newMap;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {
 
-    private final Map<Allocation, Obj> objects = new HashMap<>();
+    private final Map<Allocation, Obj> objects = newMap();
 
     public AllocationSiteBasedModel(TypeManager typeManager) {
         super(typeManager);

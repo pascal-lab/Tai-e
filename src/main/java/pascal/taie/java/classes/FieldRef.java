@@ -18,14 +18,15 @@ import pascal.taie.java.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 
 @InternalCanonicalized
 public class FieldRef extends MemberRef {
 
     private static final ConcurrentMap<Key, FieldRef> map =
-            new ConcurrentHashMap<>(4096);
+            newConcurrentMap(4096);
 
     private final Type type;
 

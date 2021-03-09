@@ -18,11 +18,11 @@ import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.CollectionUtils.newMap;
 import static pascal.taie.util.CollectionUtils.newSet;
 
 class PointerFlowGraph {
@@ -35,17 +35,17 @@ class PointerFlowGraph {
     /**
      * Map from Variable to Var node.
      */
-    private final Map<Variable, Var> vars = new HashMap<>();
+    private final Map<Variable, Var> vars = newMap();
 
     /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private final Map<Obj, Map<JField, InstanceField>> instanceFields = new HashMap<>();
+    private final Map<Obj, Map<JField, InstanceField>> instanceFields = newMap();
 
     /**
      * Map from a pointer (node) to its successors in PFG.
      */
-    private final Map<Pointer, Set<Pointer>> successors = new HashMap<>();
+    private final Map<Pointer, Set<Pointer>> successors = newMap();
 
     /**
      * Returns all pointers in this PFG.
@@ -70,7 +70,7 @@ class PointerFlowGraph {
      * for the given object and field.
      */
     InstanceField getInstanceField(Obj base, JField field) {
-        return instanceFields.computeIfAbsent(base, o -> new HashMap<>())
+        return instanceFields.computeIfAbsent(base, o -> newMap())
                 .computeIfAbsent(field, f -> {
                     InstanceField instField = new InstanceField(base, f);
                     pointers.add(instField);

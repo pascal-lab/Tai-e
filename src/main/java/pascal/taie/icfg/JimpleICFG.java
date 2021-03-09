@@ -23,7 +23,6 @@ import soot.toolkits.graph.DirectedGraph;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.util.CollectionUtils.addToMapSet;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
@@ -41,10 +41,10 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
     public JimpleICFG(CallGraph<Unit, SootMethod> callGraph) {
         super(callGraph);
-        inEdges = new HashMap<>();
-        outEdges = new HashMap<>();
-        unitToMethod = new HashMap<>();
-        methodToCFG = new HashMap<>();
+        inEdges = newMap();
+        outEdges = newMap();
+        unitToMethod = newMap();
+        methodToCFG = newMap();
         build(callGraph);
     }
 

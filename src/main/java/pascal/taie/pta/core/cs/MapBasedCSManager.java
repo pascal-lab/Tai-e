@@ -21,13 +21,14 @@ import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSetFactory;
 import pascal.taie.util.CollectionUtils;
-import pascal.taie.util.HybridArrayHashMap;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
+
+import static pascal.taie.util.CollectionUtils.newHybridMap;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 /**
  * Managing data by maintaining the data and their context-sensitive
@@ -35,17 +36,17 @@ import java.util.stream.Stream;
  */
 public class MapBasedCSManager implements CSManager {
 
-    private final Map<Variable, Map<Context, CSVariable>> vars = new HashMap<>();
-    private final Map<CSObj, Map<JField, InstanceField>> instanceFields = new HashMap<>();
-    private final Map<CSObj, ArrayIndex> arrayIndexes = new HashMap<>();
-    private final Map<JField, StaticField> staticFields = new HashMap<>();
-    private final Map<Obj, Map<Context, CSObj>> objs = new HashMap<>();
-    private final Map<CallSite, Map<Context, CSCallSite>> callSites = new HashMap<>();
-    private final Map<JMethod, Map<Context, CSMethod>> methods = new HashMap<>();
+    private final Map<Variable, Map<Context, CSVariable>> vars = newMap();
+    private final Map<CSObj, Map<JField, InstanceField>> instanceFields = newMap();
+    private final Map<CSObj, ArrayIndex> arrayIndexes = newMap();
+    private final Map<JField, StaticField> staticFields = newMap();
+    private final Map<Obj, Map<Context, CSObj>> objs = newMap();
+    private final Map<CallSite, Map<Context, CSCallSite>> callSites = newMap();
+    private final Map<JMethod, Map<Context, CSMethod>> methods = newMap();
 
     private static <R, Key1, Key2> R getOrCreateCSElement(
             Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
-        return map.computeIfAbsent(key1, k -> new HybridArrayHashMap<>())
+        return map.computeIfAbsent(key1, k -> newHybridMap())
                 .computeIfAbsent(key2, (k) -> creator.apply(key1, key2));
     }
 

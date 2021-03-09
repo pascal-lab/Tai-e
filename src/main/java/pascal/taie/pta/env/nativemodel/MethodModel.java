@@ -32,13 +32,14 @@ import pascal.taie.pta.ir.Variable;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 class MethodModel {
 
@@ -59,8 +60,8 @@ class MethodModel {
     MethodModel(ClassHierarchy hierarchy, TypeManager typeManager) {
         this.hierarchy = hierarchy;
         this.typeManager = typeManager;
-        handlers = new HashMap<>();
-        counter = new ConcurrentHashMap<>(0);
+        handlers = newMap();
+        counter = newConcurrentMap();
         initHandlers();
     }
 

@@ -16,8 +16,9 @@ package pascal.taie.pta.env;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.types.Type;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 
 /**
  * Manages the reflection meta objects.
@@ -28,8 +29,7 @@ class ReflectionObjectPool {
     private Type methodType;
     private Type fieldType;
     private Type constructorType;
-    private final ConcurrentMap<Type, ClassObj> classMap
-            = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Type, ClassObj> classMap = newConcurrentMap();
 
     ReflectionObjectPool(TypeManager typeManager) {
         CLASS = typeManager.getClassType("java.lang.Class");

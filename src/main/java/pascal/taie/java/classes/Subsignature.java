@@ -17,8 +17,9 @@ import pascal.taie.java.types.Type;
 import pascal.taie.util.InternalCanonicalized;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 
 /**
  * Method name and descriptor.
@@ -26,8 +27,8 @@ import java.util.concurrent.ConcurrentMap;
 @InternalCanonicalized
 public class Subsignature {
 
-    private static final ConcurrentMap<String, Subsignature> map =
-            new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Subsignature> map
+            = newConcurrentMap();
 
     private final String subsig;
 

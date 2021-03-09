@@ -42,13 +42,13 @@ import soot.VoidType;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static pascal.taie.java.types.VoidType.VOID;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 /**
  * Convert Soot classes to Tai-e's representation.
@@ -59,15 +59,13 @@ class Converter {
 
     private final TypeManager typeManager;
 
-    private final Map<SootField, JField> fieldMap = new HashMap<>();
+    private final Map<SootField, JField> fieldMap = newMap();
 
-    private final Map<SootMethod, JMethod> methodMap = new HashMap<>();
+    private final Map<SootMethod, JMethod> methodMap = newMap();
 
-    private final Map<SootFieldRef, FieldRef> fieldRefMap
-            = new HashMap<>();
+    private final Map<SootFieldRef, FieldRef> fieldRefMap = newMap();
 
-    private final Map<SootMethodRef, MethodRef> methodRefMap
-            = new HashMap<>();
+    private final Map<SootMethodRef, MethodRef> methodRefMap = newMap();
 
     Converter(JClassLoader loader, TypeManager typeManager) {
         this.loader = loader;

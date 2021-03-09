@@ -79,7 +79,6 @@ import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
-import pascal.taie.util.HybridArrayHashMap;
 import soot.Body;
 import soot.Local;
 import soot.Trap;
@@ -163,6 +162,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.util.CollectionUtils.freeze;
+import static pascal.taie.util.CollectionUtils.newHybridMap;
 
 /**
  * Convert Jimple to Tai-e IR.
@@ -285,12 +285,12 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * Map from jump statements in Jimple to the corresponding Tai-e statements.
      */
-    private final Map<Unit, Stmt> jumpMap = new HybridArrayHashMap<>();
+    private final Map<Unit, Stmt> jumpMap = newHybridMap();
 
     /**
      * Map from jump target statements in Jimple to the corresponding Tai-e statements.
      */
-    private final Map<Unit, Stmt> jumpTargetMap = new HybridArrayHashMap<>();
+    private final Map<Unit, Stmt> jumpTargetMap = newHybridMap();
 
     /**
      * All trap-related units of current Jimple body.

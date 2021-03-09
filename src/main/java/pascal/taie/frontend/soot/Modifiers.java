@@ -16,13 +16,14 @@ package pascal.taie.frontend.soot;
 import pascal.taie.java.classes.Modifier;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static pascal.taie.util.CollectionUtils.newMap;
+
 class Modifiers {
 
-    private static final Map<Integer, Set<Modifier>> modMap = new HashMap<>();
+    private static final Map<Integer, Set<Modifier>> modMap = newMap();
 
     private Modifiers() {
     }

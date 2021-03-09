@@ -18,17 +18,18 @@ import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.DefaultVariable;
 import pascal.taie.pta.ir.Variable;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 
 /**
  * Manager for new created variables during method creation.
  */
 class NewVariableManager {
 
-    private final ConcurrentMap<JMethod, AtomicInteger> varNumbers =
-            new ConcurrentHashMap<>();
+    private final ConcurrentMap<JMethod, AtomicInteger> varNumbers
+            = newConcurrentMap();
 
     Variable newTempVariable(
             String baseName, Type type, JMethod container) {

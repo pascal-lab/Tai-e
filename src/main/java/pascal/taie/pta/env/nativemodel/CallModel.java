@@ -27,12 +27,13 @@ import pascal.taie.pta.ir.IR;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.Variable;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 class CallModel {
 
@@ -53,8 +54,8 @@ class CallModel {
     CallModel(ClassHierarchy hierarchy, TypeManager typeManager) {
         this.hierarchy = hierarchy;
         this.typeManager = typeManager;
-        handlers = new HashMap<>();
-        counter = new ConcurrentHashMap<>();
+        handlers = newMap();
+        counter = newConcurrentMap();
         initHandlers();
     }
 
