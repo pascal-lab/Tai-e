@@ -14,9 +14,9 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.ir.DefaultNewIR;
+import pascal.taie.ir.ExceptionEntry;
 import pascal.taie.ir.NewIR;
 import pascal.taie.ir.ProgramPoint;
-import pascal.taie.ir.TryCatchBlock;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -177,7 +177,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     private List<Stmt> stmts;
 
-    private List<TryCatchBlock> tryCatchBlocks;
+    private List<ExceptionEntry> exceptionEntries;
 
     MethodIRBuilder(JMethod method, Converter converter) {
         this.method = method;
@@ -193,11 +193,11 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         }
         buildParams(body.getParameterLocals());
         buildStmts(body);
-        buildTryCatchBlocks(body.getTraps());
+        buildExceptionEntries(body.getTraps());
         return new DefaultNewIR(method,
                 varManager.getThis(), freeze(varManager.getParams()),
                 freeze(varManager.getVars()), freeze(stmts),
-                freeze(tryCatchBlocks));
+                freeze(exceptionEntries));
     }
 
     private void buildThis(Local thisLocal) {
@@ -259,20 +259,20 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         }
     }
 
-    private void buildTryCatchBlocks(Chain<Trap> traps) {
+    private void buildExceptionEntries(Chain<Trap> traps) {
         if (traps.isEmpty()) {
-            tryCatchBlocks = Collections.emptyList();
+            exceptionEntries = Collections.emptyList();
         } else {
-            tryCatchBlocks = new ArrayList<>(traps.size());
+            exceptionEntries = new ArrayList<>(traps.size());
             for (Trap trap : traps) {
                 Unit begin = trap.getBeginUnit();
                 Unit end = trap.getEndUnit();
                 Unit handler = trap.getHandlerUnit();
-                soot.Type exceptionType = trap.getException().getType();
-                tryCatchBlocks.add(new TryCatchBlock(trapUnitMap.get(begin),
+                soot.Type catchType = trap.getException().getType();
+                exceptionEntries.add(new ExceptionEntry(trapUnitMap.get(begin),
                         trapUnitMap.get(end),
                         (Catch) trapUnitMap.get(handler),
-                        (ClassType) converter.convertType(exceptionType)));
+                        (ClassType) converter.convertType(catchType)));
             }
         }
     }

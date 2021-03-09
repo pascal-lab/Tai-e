@@ -18,72 +18,76 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.types.ClassType;
 
 /**
- * Representation of try-catch block.
+ * Representation of exception entries. Each entry consists of four items:
+ * start, end: the ranges in the Stmt array at which the exception
+ *  handler is active.
+ * handler: start of exception handler.
+ * catchType: the class of exceptions that this exception handler
+ *  is designated to catch.
  */
-public class TryCatchBlock {
+public class ExceptionEntry {
 
     /**
      * The beginning of the try-block (inclusive).
      */
-    private final Stmt tryBegin;
+    private final Stmt start;
 
     /**
      * The end of the try-block (exclusive).
      */
-    private final Stmt tryEnd;
+    private final Stmt end;
 
     /**
      * The beginning of the catch-block (inclusive), i.e., the catch statement,
      * which is the handler for the exceptions thrown by the try-block.
      */
-    private final Catch catchBegin;
+    private final Catch handler;
 
     /**
      * The type of exceptions handled by the handler.
      */
-    private final ClassType exceptionType;
+    private final ClassType catchType;
 
-    public TryCatchBlock(Stmt tryBegin, Stmt tryEnd, Catch catchBegin, ClassType exceptionType) {
-        this.tryBegin = tryBegin;
-        this.tryEnd = tryEnd;
-        this.catchBegin = catchBegin;
-        this.exceptionType = exceptionType;
+    public ExceptionEntry(Stmt start, Stmt end, Catch handler, ClassType catchType) {
+        this.start = start;
+        this.end = end;
+        this.handler = handler;
+        this.catchType = catchType;
     }
 
     /**
      * @return the beginning of the try-block (inclusive).
      */
-    public Stmt getTryBegin() {
-        return tryBegin;
+    public Stmt getStart() {
+        return start;
     }
 
     /**
      * @return the end of the try-block (exclusive).
      */
-    public Stmt getTryEnd() {
-        return tryEnd;
+    public Stmt getEnd() {
+        return end;
     }
 
     /**
      * @return the beginning of the catch-block (inclusive), i.e.,
-     * the catch statement, which is the handler for the exceptions
-     * thrown by the try-block.
+     * the handler for the exceptions thrown by the try-block.
      */
-    public Catch getCatchBegin() {
-        return catchBegin;
+    public Catch getHandler() {
+        return handler;
     }
 
     /**
      * @return the type of exceptions handled by the handler.
      */
-    public ClassType getExceptionType() {
-        return exceptionType;
+    public ClassType getCatchType() {
+        return catchType;
     }
 
     @Override
     public String toString() {
         return String.format("try [%d, %d), catch %s at %d",
-                tryBegin.getIndex(), tryEnd.getIndex(),
-                exceptionType, catchBegin.getIndex());
+                start.getIndex(), end.getIndex(),
+                catchType, handler.getIndex());
     }
 }

@@ -31,17 +31,17 @@ public class DefaultNewIR implements NewIR {
 
     private final List<Stmt> stmts;
 
-    private final List<TryCatchBlock> tryCatchBlocks;
+    private final List<ExceptionEntry> exceptionEntries;
 
     public DefaultNewIR(
             JMethod method, Var thisVar, List<Var> params, List<Var> vars,
-            List<Stmt> stmts, List<TryCatchBlock> tryCatchBlocks) {
+            List<Stmt> stmts, List<ExceptionEntry> exceptionEntries) {
         this.method = method;
         this.thisVar = thisVar;
         this.params = params;
         this.vars = vars;
         this.stmts = stmts;
-        this.tryCatchBlocks = tryCatchBlocks;
+        this.exceptionEntries = exceptionEntries;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class DefaultNewIR implements NewIR {
     }
 
     @Override
-    public List<TryCatchBlock> getTryCatchBlocks() {
-        return tryCatchBlocks;
+    public List<ExceptionEntry> getExceptionEntries() {
+        return exceptionEntries;
     }
 }

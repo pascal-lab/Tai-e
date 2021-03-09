@@ -33,5 +33,5 @@ public interface NewIR {
 
     List<Stmt> getStmts();
 
-    List<TryCatchBlock> getTryCatchBlocks();
+    List<ExceptionEntry> getExceptionEntries();
 }
