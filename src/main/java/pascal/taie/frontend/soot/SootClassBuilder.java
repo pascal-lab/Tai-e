@@ -24,6 +24,8 @@ import soot.SootClass;
 import java.util.Collection;
 import java.util.Set;
 
+import static pascal.taie.java.classes.StringReps.OBJECT;
+
 class SootClassBuilder implements JClassBuilder {
 
     private final Converter converter;
@@ -52,7 +54,7 @@ class SootClassBuilder implements JClassBuilder {
 
     @Override
     public JClass getSuperClass() {
-        if (sootClass.getName().equals("java.lang.Object")) {
+        if (sootClass.getName().equals(OBJECT)) {
             return null;
         } else {
             return converter.convertClass(sootClass.getSuperclass());

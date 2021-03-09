@@ -14,6 +14,7 @@
 package pascal.taie.pta.env;
 
 import pascal.taie.java.TypeManager;
+import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
 
 import java.util.concurrent.ConcurrentMap;
@@ -32,7 +33,7 @@ class StringConstantPool {
             = newConcurrentMap();
 
     StringConstantPool(TypeManager typeManager) {
-        STRING = typeManager.getClassType("java.lang.String");
+        STRING = typeManager.getClassType(StringReps.STRING);
     }
 
     StringConstant getStringConstant(String constant) {

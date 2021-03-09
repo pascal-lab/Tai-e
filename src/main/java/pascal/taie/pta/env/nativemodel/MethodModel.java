@@ -19,6 +19,7 @@ import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.env.EnvObj;
@@ -171,7 +172,7 @@ class MethodModel {
         concreteFileSystems.forEach(fsName -> {
             registerHandler("<" + fsName + ": java.lang.String[] list(java.io.File)>", ir -> {
                 JMethod method = ir.getMethod();
-                Type string = typeManager.getClassType("java.lang.String");
+                Type string = typeManager.getClassType(StringReps.STRING);
                 EnvObj elem = new EnvObj("dir-element", string, method);
                 Variable temp = newMockVariable(string, method);
                 Type stringArray = typeManager.getArrayType(string, 1);

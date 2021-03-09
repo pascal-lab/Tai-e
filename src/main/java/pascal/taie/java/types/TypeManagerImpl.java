@@ -16,6 +16,7 @@ package pascal.taie.java.types;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JClassLoader;
+import pascal.taie.java.classes.StringReps;
 import pascal.taie.util.ArrayMap;
 
 import java.util.Map;
@@ -43,9 +44,9 @@ public class TypeManagerImpl implements TypeManager {
         this.hierarchy = hierarchy;
         // Initialize special types
         JClassLoader loader = hierarchy.getBootstrapClassLoader();
-        JavaLangObject = getClassType(loader, "java.lang.Object");
-        JavaLangSerializable = getClassType(loader, "java.lang.Serializable");
-        JavaLangCloneable = getClassType(loader, "java.lang.Cloneable");
+        JavaLangObject = getClassType(loader, StringReps.OBJECT);
+        JavaLangSerializable = getClassType(loader, StringReps.SERIALIZABLE);
+        JavaLangCloneable = getClassType(loader, StringReps.CLONEABLE);
     }
 
     @Override

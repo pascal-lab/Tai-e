@@ -14,6 +14,7 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.java.TypeManager;
+import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.Allocation;
@@ -33,9 +34,9 @@ abstract class AbstractHeapModel implements HeapModel {
     
     private final Type STRING;
     
-    private final Type STRINGBUILDER;
+    private final Type STRING_BUILDER;
     
-    private final Type STRINGBUFFER;
+    private final Type STRING_BUFFER;
     
     private final Type THROWABLE;
     /**
@@ -46,10 +47,10 @@ abstract class AbstractHeapModel implements HeapModel {
 
     AbstractHeapModel(TypeManager typeManager) {
         this.typeManager = typeManager;
-        STRING = typeManager.getClassType("java.lang.String");
-        STRINGBUILDER = typeManager.getClassType("java.lang.StringBuilder");
-        STRINGBUFFER = typeManager.getClassType("java.lang.StringBuffer");
-        THROWABLE = typeManager.getClassType("java.lang.Throwable");
+        STRING = typeManager.getClassType(StringReps.STRING);
+        STRING_BUILDER = typeManager.getClassType(StringReps.STRING_BUILDER);
+        STRING_BUFFER = typeManager.getClassType(StringReps.STRING_BUFFER);
+        THROWABLE = typeManager.getClassType(StringReps.THROWABLE);
         mergedSC = new MergedObj(STRING, "<Merged string constants>");
     }
 
@@ -70,7 +71,7 @@ abstract class AbstractHeapModel implements HeapModel {
             return getMergedObj(type, obj);
         }
         if (PTAOptions.get().isMergeStringBuilders()
-                && (type.equals(STRINGBUILDER) || type.equals(STRINGBUFFER))) {
+                && (type.equals(STRING_BUILDER) || type.equals(STRING_BUFFER))) {
             return getMergedObj(type, obj);
         }
         if (PTAOptions.get().isMergeExceptionObjects()

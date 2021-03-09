@@ -16,6 +16,7 @@ package pascal.taie.pta.env.nativemodel;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.ir.ArrayLoad;
@@ -81,7 +82,7 @@ class CallModel {
             JMethod method = ir.getMethod();
             Variable src = call.getCallSite().getArg(0);
             Variable dest = call.getCallSite().getArg(2);
-            Type objType = typeManager.getClassType("java.lang.Object");
+            Type objType = typeManager.getClassType(StringReps.OBJECT);
             Type arrayType = typeManager.getArrayType(objType, 1);
             Variable srcArray = newMockVariable(arrayType , method);
             Variable destArray = newMockVariable(arrayType , method);

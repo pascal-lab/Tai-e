@@ -25,10 +25,32 @@ import java.util.stream.Collectors;
  */
 public class StringReps {
 
+    // Names of special important classes
+    public static final String OBJECT = "java.lang.Object";
+
     public static final String CLASS = "java.lang.Class";
+
+    public static final String SERIALIZABLE = "java.lang.Serializable";
+
+    public static final String CLONEABLE = "java.lang.Cloneable";
 
     public static final String STRING = "java.lang.String";
 
+    public static final String STRING_BUILDER = "java.lang.StringBuilder";
+
+    public static final String STRING_BUFFER ="java.lang.StringBuffer";
+
+    public static final String THREAD = "java.lang.Thread";
+
+    public static final String THREAD_GROUP = "java.lang.ThreadGroup";
+
+    public static final String THROWABLE = "java.lang.Throwable";
+
+    public static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";
+
+    public static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
+
+    // Subsignatures of special methods
     public static final String CLINIT = "void <clinit>()";
 
     // Suppresses default constructor, ensuring non-instantiability.
