@@ -43,29 +43,31 @@ public class IRPrinter {
             }
         });
         // print all try-catch blocks
-        if (!ir.getTryCatchBlocks().isEmpty()) {
-            out.println("Try-catch blocks:");
-            ir.getTryCatchBlocks().forEach(b -> out.println("   " + b));
+        if (!ir.getExceptionEntries().isEmpty()) {
+            out.println("Exception entries:");
+            ir.getExceptionEntries().forEach(b -> out.println("  " + b));
         }
     }
 
     private static String toString(SwitchStmt switchStmt) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%4d: %s(%s){%n", switchStmt.getIndex(),
+        sb.append(String.format("%4d@L%-4d: %s(%s){%n",
+                switchStmt.getIndex(), switchStmt.getLineNumber(),
                 switchStmt.getInsnString(), switchStmt.getValue()));
         switchStmt.getCaseTargets().forEach(caseTarget -> {
             int caseValue = caseTarget.getFirst();
             Stmt target = caseTarget.getSecond();
-            sb.append(String.format("        case %d: goto %s;%n",
+            sb.append(String.format("              case %d: goto %s;%n",
                     caseValue, switchStmt.toString(target)));
         });
-        sb.append(String.format("        default: goto %s;%n",
+        sb.append(String.format("              default: goto %s;%n",
                 switchStmt.toString(switchStmt.getDefaultTarget())));
-        sb.append("      };");
+        sb.append("            };");
         return sb.toString();
     }
 
     private static String toString(Stmt stmt) {
-        return String.format("%4d: %s;", stmt.getIndex(), stmt);
+        return String.format("%4d@L%-4d: %s;",
+                stmt.getIndex(), stmt.getLineNumber(), stmt);
     }
 }

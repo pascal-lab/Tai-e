@@ -18,7 +18,18 @@ package pascal.taie.ir.stmt;
  */
 public interface Stmt {
 
+    /**
+     * @return the index of this Stmt in the container IR.
+     */
     int getIndex();
 
-    void setIndex(int i);
+    void setIndex(int index);
+
+    /**
+     * @return the line number of this Stmt in the original source file.
+     * If the line number is unavailable, return -1.
+     */
+    int getLineNumber();
+
+    void setLineNumber(int lineNumber);
 }

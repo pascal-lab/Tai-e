@@ -333,12 +333,10 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         if (tempTarget == null) {
             tempTarget = stmt;
         }
-        stmts.add(stmt);
+        processNewStmt(stmt);
     }
 
     private void addStmt(Stmt stmt) {
-        // TODO: add more information to Stmt
-        stmts.add(stmt);
         if (!currentUnit.getBoxesPointingToThis().isEmpty()) {
             if (tempTarget != null) {
                 jumpTargetMap.put(currentUnit, tempTarget);
@@ -354,6 +352,13 @@ class MethodIRBuilder extends AbstractStmtSwitch {
             }
         }
         tempTarget = null;
+        processNewStmt(stmt);
+    }
+
+    private void processNewStmt(Stmt stmt) {
+        stmts.add(stmt);
+        // TODO: add more information to Stmt
+        stmt.setLineNumber(currentUnit.getJavaSourceStartLineNumber());
     }
 
     /**

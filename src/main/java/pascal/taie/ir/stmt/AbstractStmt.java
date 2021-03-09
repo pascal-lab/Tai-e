@@ -17,6 +17,8 @@ abstract class AbstractStmt implements Stmt {
 
     protected int index = -1;
 
+    protected int lineNumber = -1;
+
     @Override
     public int getIndex() {
         return index;
@@ -25,5 +27,15 @@ abstract class AbstractStmt implements Stmt {
     @Override
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    @Override
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    @Override
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 }
