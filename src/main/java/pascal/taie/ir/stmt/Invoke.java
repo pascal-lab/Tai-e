@@ -14,6 +14,7 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
 
 import javax.annotation.Nullable;
@@ -30,6 +31,10 @@ public class Invoke extends AbstractStmt {
     public Invoke(InvokeExp invokeExp, Var result) {
         this.invokeExp = invokeExp;
         this.result = result;
+        if (invokeExp instanceof InvokeInstanceExp) {
+            Var base = ((InvokeInstanceExp) invokeExp).getBase();
+            base.addInvoke(this);
+        }
     }
 
     public Invoke(InvokeExp invokeExp) {

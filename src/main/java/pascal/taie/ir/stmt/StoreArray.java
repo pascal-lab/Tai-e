@@ -23,5 +23,6 @@ public class StoreArray extends AssignStmt<ArrayAccess, Var> {
 
     public StoreArray(ArrayAccess lvalue, Var rvalue) {
         super(lvalue, rvalue);
+        lvalue.getBase().addStoreArray(this);
     }
 }

@@ -23,5 +23,6 @@ public class LoadArray extends AssignStmt<Var, ArrayAccess> {
 
     public LoadArray(Var lvalue, ArrayAccess rvalue) {
         super(lvalue, rvalue);
+        rvalue.getBase().addLoadArray(this);
     }
 }

@@ -14,6 +14,7 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.Var;
 
 /**
@@ -25,5 +26,9 @@ public class LoadField extends AssignStmt<Var, FieldAccess> {
 
     public LoadField(Var lvalue, FieldAccess rvalue) {
         super(lvalue, rvalue);
+        if (rvalue instanceof InstanceFieldAccess) {
+            Var base = ((InstanceFieldAccess) rvalue).getBase();
+            base.addLoadField(this);
+        }
     }
 }

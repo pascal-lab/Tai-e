@@ -14,6 +14,7 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.Var;
 
 /**
@@ -25,5 +26,9 @@ public class StoreField extends AssignStmt<FieldAccess, Var> {
 
     public StoreField(FieldAccess lvalue, Var rvalue) {
         super(lvalue, rvalue);
+        if (lvalue instanceof InstanceFieldAccess) {
+            Var base = ((InstanceFieldAccess) lvalue).getBase();
+            base.addStoreField(this);
+        }
     }
 }
