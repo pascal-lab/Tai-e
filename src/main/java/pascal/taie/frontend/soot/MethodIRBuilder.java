@@ -62,8 +62,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.LookupSwitch;
-import pascal.taie.ir.stmt.MonitorEnter;
-import pascal.taie.ir.stmt.MonitorExit;
+import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
@@ -808,13 +807,15 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     @Override
     public void caseEnterMonitorStmt(EnterMonitorStmt stmt) {
         currentUnit = stmt;
-        addStmt(new MonitorEnter(getLocalOrConstant(stmt.getOp())));
+        addStmt(new Monitor(Monitor.Op.ENTER,
+                getLocalOrConstant(stmt.getOp())));
     }
 
     @Override
     public void caseExitMonitorStmt(ExitMonitorStmt stmt) {
         currentUnit = stmt;
-        addStmt(new MonitorExit(getLocalOrConstant(stmt.getOp())));
+        addStmt(new Monitor(Monitor.Op.EXIT,
+                getLocalOrConstant(stmt.getOp())));
     }
 
     @Override
