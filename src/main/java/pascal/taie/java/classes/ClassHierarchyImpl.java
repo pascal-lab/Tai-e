@@ -307,7 +307,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         if (JavaLangObject == null) {
             JClassLoader loader = bootstrapLoader != null ?
                     bootstrapLoader : defaultLoader;
-            JavaLangObject = loader.loadClass(StringReps.CLASS);
+            JavaLangObject = loader.loadClass(StringReps.OBJECT);
         }
         return JavaLangObject;
     }

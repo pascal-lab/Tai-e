@@ -155,11 +155,13 @@ import soot.util.Chain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static pascal.taie.java.types.VoidType.VOID;
 import static pascal.taie.util.CollectionUtils.freeze;
 import static pascal.taie.util.CollectionUtils.newHybridMap;
 
@@ -174,6 +176,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     private VarManager varManager;
 
+    private Set<Var> returnVars;
+
     private List<Stmt> stmts;
 
     private List<ExceptionEntry> exceptionEntries;
@@ -186,6 +190,11 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     NewIR build() {
         Body body = method.getSootMethod().retrieveActiveBody();
         varManager = new VarManager(converter);
+        if (method.getReturnType().equals(VOID)) {
+            returnVars = Collections.emptySet();
+        } else {
+            returnVars = new LinkedHashSet<>();
+        }
         stmts = new ArrayList<>();
         if (!method.isStatic()) {
             buildThis(body.getThisLocal());
@@ -195,8 +204,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         buildExceptionEntries(body.getTraps());
         return new DefaultNewIR(method,
                 varManager.getThis(), freeze(varManager.getParams()),
-                freeze(varManager.getVars()), freeze(stmts),
-                freeze(exceptionEntries));
+                freeze(returnVars), freeze(varManager.getVars()),
+                freeze(stmts), freeze(exceptionEntries));
     }
 
     private void buildThis(Local thisLocal) {
@@ -779,7 +788,9 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     @Override
     public void caseReturnStmt(ReturnStmt stmt) {
         currentUnit = stmt;
-        addStmt(new Return(getLocalOrConstant(stmt.getOp())));
+        Var returnVar = getLocalOrConstant(stmt.getOp());
+        returnVars.add(returnVar);
+        addStmt(new Return(returnVar));
     }
 
     @Override

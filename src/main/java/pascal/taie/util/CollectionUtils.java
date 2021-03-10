@@ -117,15 +117,16 @@ public class CollectionUtils {
     }
 
     /**
-     * @return an unmodifiable list of the given list.
+     * @return an unmodifiable list of the given elements.
      */
-    public static <T> List<T> freeze(List<T> list) {
-        if (list.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            List<T> result = new ArrayList<>(list.size());
-            result.addAll(list);
-            return Collections.unmodifiableList(result);
+    public static <T> List<T> freeze(Collection<T> elements) {
+        switch (elements.size()) {
+            case 0:
+                return Collections.emptyList();
+            case 1:
+                return Collections.singletonList(getOne(elements));
+            default:
+                return Collections.unmodifiableList(new ArrayList<>(elements));
         }
     }
 }

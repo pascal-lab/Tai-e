@@ -29,16 +29,20 @@ public class DefaultNewIR implements NewIR {
 
     private final List<Var> vars;
 
+    private final List<Var> returnVars;
+
     private final List<Stmt> stmts;
 
     private final List<ExceptionEntry> exceptionEntries;
 
     public DefaultNewIR(
-            JMethod method, Var thisVar, List<Var> params, List<Var> vars,
+            JMethod method, Var thisVar,
+            List<Var> params, List<Var> returnVars, List<Var> vars,
             List<Stmt> stmts, List<ExceptionEntry> exceptionEntries) {
         this.method = method;
         this.thisVar = thisVar;
         this.params = params;
+        this.returnVars = returnVars;
         this.vars = vars;
         this.stmts = stmts;
         this.exceptionEntries = exceptionEntries;
@@ -61,6 +65,11 @@ public class DefaultNewIR implements NewIR {
     @Override
     public Var getParam(int i) {
         return params.get(i);
+    }
+
+    @Override
+    public List<Var> getReturnVars() {
+        return returnVars;
     }
 
     @Override

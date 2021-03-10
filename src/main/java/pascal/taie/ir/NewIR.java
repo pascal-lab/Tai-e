@@ -29,6 +29,8 @@ public interface NewIR {
 
     Var getParam(int i);
 
+    List<Var> getReturnVars();
+
     List<Var> getVars();
 
     List<Stmt> getStmts();
