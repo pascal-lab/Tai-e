@@ -40,6 +40,10 @@ public class ProgramPoint {
         return stmt;
     }
 
+    public int getIndex() {
+        return stmt.getIndex();
+    }
+
     @Override
     public int hashCode() {
         return HashUtils.hash(method, stmt);
@@ -60,6 +64,6 @@ public class ProgramPoint {
     @Override
     public String toString() {
         // TODO: display source location?
-        return "[PP] " +method + ":" + stmt.getIndex();
+        return "[PP] " + method + ":" + getIndex();
     }
 }
