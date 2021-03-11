@@ -11,50 +11,50 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta.core.heap;
+package pascal.taie.newpta.core.heap;
 
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.AbstractObj;
-import pascal.taie.pta.ir.Obj;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentSet;
+import static pascal.taie.util.CollectionUtils.newSet;
 
 /**
  * Represents a set of merged objects.
  */
-class MergedObj extends AbstractObj {
-
+public class MergedObj implements Obj {
+    
     private final String name;
+
+    private final Type type;
 
     /**
      * Set of objects represented by this merged object.
      */
-    private final Set<Obj> representedObjs = newConcurrentSet();
+    private final Set<Obj> representedObjs = newSet();
 
     /**
      * The representative object of this merged object. It is the first
      * object added.
      */
-    private final AtomicReference<Obj> representative = new AtomicReference<>();
+    private Obj representative;
 
     MergedObj(Type type, String name) {
-        super(type);
+        this.type = type;
         this.name = name;
     }
 
     void addRepresentedObj(Obj obj) {
-        representative.compareAndSet(null, obj);
+        setRepresentative(obj);
         representedObjs.add(obj);
     }
 
-    @Override
-    public Kind getKind() {
-        return Kind.MERGED;
+    private void setRepresentative(Obj obj) {
+        if (representative == null) {
+            representative = obj;
+        }
     }
 
     @Override
@@ -63,17 +63,21 @@ class MergedObj extends AbstractObj {
     }
 
     @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
     public Optional<JMethod> getContainerMethod() {
-        return representative.get() != null ?
-                representative.get().getContainerMethod() :
+        return representative != null ?
+                representative.getContainerMethod() :
                 Optional.empty();
     }
 
     @Override
     public Type getContainerType() {
-        return representative.get() != null ?
-                representative.get().getContainerType() :
-                type;
+        return representative != null ?
+                representative.getContainerType() : type;
     }
 
     @Override

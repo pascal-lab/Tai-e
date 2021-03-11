@@ -31,17 +31,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.CollectionUtils.newSet;
 
 class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
     private final Set<CSMethod> entryMethods = newHybridSet();
-    private final Set<CSMethod> reachableMethods
-            = ConcurrentHashMap.newKeySet();
+    private final Set<CSMethod> reachableMethods = newSet();
 
     OnFlyCallGraph(CSManager csManager) {
         this.csManager = csManager;

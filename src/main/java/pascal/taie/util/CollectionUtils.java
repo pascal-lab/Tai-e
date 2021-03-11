@@ -71,6 +71,10 @@ public class CollectionUtils {
         return new HybridArrayHashSet<>();
     }
 
+    public static <E> Set<E> newConcurrentSet() {
+        return ConcurrentHashMap.newKeySet();
+    }
+
     public static <K, V> Map<K, V> newMap() {
         return new HashMap<>();
     }

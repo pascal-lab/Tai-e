@@ -13,20 +13,14 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.ir.ProgramPoint;
+import pascal.taie.newpta.core.heap.Obj;
 
 /**
- * Representation of new expressions.
+ * Expressions that can represent objects.
  */
-public abstract class NewExp implements RValue, ObjectExp {
+public interface ObjectExp extends RValue {
 
-    private ProgramPoint allocationSite;
-
-    public ProgramPoint getAllocationSite() {
-        return allocationSite;
-    }
-
-    public void setAllocationSite(ProgramPoint allocationSite) {
-        this.allocationSite = allocationSite;
+    default Obj getObj() {
+        throw new UnsupportedOperationException();
     }
 }

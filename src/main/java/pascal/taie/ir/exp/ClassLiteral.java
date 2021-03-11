@@ -19,7 +19,7 @@ import pascal.taie.java.types.Type;
 
 import static pascal.taie.java.classes.StringReps.CLASS;
 
-public class ClassLiteral implements Literal {
+public class ClassLiteral implements Literal, ObjectExp {
 
     private static ClassType classType;
 
