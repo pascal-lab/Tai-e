@@ -16,11 +16,24 @@ package pascal.taie.newpta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.callgraph.CallGraph;
+import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
+import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MemberRef;
+import pascal.taie.java.types.ArrayType;
+import pascal.taie.java.types.ClassType;
+import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
 import pascal.taie.newpta.core.context.Context;
 import pascal.taie.newpta.core.context.ContextSelector;
@@ -72,6 +85,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private WorkList workList;
 
     private Set<JMethod> reachableMethods;
+
+    private ClassInitializer classInitializer;
 
     public PointerAnalysisImpl() {
         this.typeManager = World.getTypeManager();
@@ -158,13 +173,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         reachableMethods = newSet();
-//        classInitializer = new ClassInitializer();
+        classInitializer = new ClassInitializer();
 
         // process program entries (including implicit entries)
         Context defContext = contextSelector.getDefaultContext();
         for (JMethod entry : computeEntries()) {
             // initialize class type of entry methods
-//            classInitializer.initializeClass(entry.getDeclaringClass());
+            classInitializer.initializeClass(entry.getDeclaringClass());
             CSMethod csMethod = csManager.getCSMethod(defContext, entry);
             callGraph.addEntryMethod(csMethod);
 //            processNewCSMethod(csMethod);
@@ -280,5 +295,105 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
                 .forEach(result::addObject);
         return result;
+    }
+
+    /**
+     * Triggers the analysis of class initializers.
+     * Well, the description of "when initialization occurs" of
+     * JLS (14e, 12.4.1) and JVM Spec. (14e, 5.5) looks not
+     * very consistent.
+     * TODO: handles class initialization triggered by reflection,
+     *  MethodHandle, and superinterfaces (that declare default methods).
+     */
+    private class ClassInitializer implements StmtVisitor {
+
+        /**
+         * Set of classes that have been initialized.
+         */
+        private final Set<JClass> initializedClasses = newSet();
+
+        @Override
+        public void visit(New stmt) {
+            initializeClass(extractClass(stmt.getRValue().getType()));
+        }
+
+        @Override
+        public void visit(AssignLiteral stmt) {
+            Literal rvalue = stmt.getRValue();
+            if (rvalue.getType() instanceof ReferenceType) {
+                initializeClass(extractClass(rvalue.getType()));
+                if (rvalue instanceof ClassLiteral) {
+                    initializeClass(extractClass(
+                            ((ClassLiteral) rvalue).getValue()));
+                }
+            }
+        }
+
+        /**
+         * Analyzes the initializer of given class.
+         */
+        private void initializeClass(JClass cls) {
+            if (cls == null) {
+                return;
+            }
+
+            if (initializedClasses.contains(cls)) {
+                // cls has already been initialized
+                return;
+            }
+
+            // initialize super class
+            JClass superclass = cls.getSuperClass();
+            if (superclass != null) {
+                initializeClass(superclass);
+            }
+            // TODO: initialize the superinterfaces which
+            //  declare default methods
+            JMethod clinit = cls.getClinit();
+            if (clinit != null) {
+                // processNewCSMethod() may trigger initialization of more
+                // classes. So cls must be added before processNewCSMethod(),
+                // otherwise, infinite recursion may occur.
+                initializedClasses.add(cls);
+                CSMethod csMethod = csManager.getCSMethod(
+                        contextSelector.getDefaultContext(), clinit);
+//                processNewCSMethod(csMethod);
+            }
+        }
+
+        /**
+         * Extract the class to be initialized from given type.
+         */
+        private JClass extractClass(Type type) {
+            if (type instanceof ClassType) {
+                return ((ClassType) type).getJClass();
+            } else if (type instanceof ArrayType) {
+                return extractClass(((ArrayType) type).getBaseType());
+            }
+            // Some types do not contain class to be initialized,
+            // e.g., int[], then return null for such cases.
+            return null;
+        }
+
+        @Override
+        public void visit(Invoke stmt) {
+            processMemberRef(stmt.getInvokeExp().getMethodRef());
+        }
+
+        @Override
+        public void visit(LoadField stmt) {
+            processMemberRef(stmt.getRValue().getFieldRef());
+        }
+
+        @Override
+        public void visit(StoreField stmt) {
+            processMemberRef(stmt.getLValue().getFieldRef());
+        }
+
+        private void processMemberRef(MemberRef memberRef) {
+            if (memberRef.isStatic()) {
+                initializeClass(memberRef.resolve().getDeclaringClass());
+            }
+        }
     }
 }
