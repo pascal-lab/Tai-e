@@ -17,7 +17,6 @@ public interface ContextFactory<T> {
 
     /**
      * @return the default context.
-     * TODO: call this root context?
      */
     Context getDefaultContext();
 
@@ -25,6 +24,11 @@ public interface ContextFactory<T> {
      * @return the context with one element.
      */
     Context get(T elem);
+
+    /**
+     * @return the context of elements.
+     */
+    Context get(T... elems);
 
     /**
      * Construct a context by appending an context element to a parent context.
