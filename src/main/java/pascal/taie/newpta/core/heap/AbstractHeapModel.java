@@ -69,20 +69,19 @@ abstract class AbstractHeapModel implements HeapModel {
     @Override
     public Obj getObj(NewExp newExp) {
         Type type = newExp.getType();
-        NewObj obj = objs.computeIfAbsent(newExp, NewObj::new);
         if (PTAOptions.get().isMergeStringObjects() &&
                 type.equals(string)) {
-            return getMergedObj(type, obj);
+            return getMergedObj(newExp);
         }
         if (PTAOptions.get().isMergeStringBuilders() &&
                 (type.equals(stringBuilder) || type.equals(stringBuffer))) {
-            return getMergedObj(type, obj);
+            return getMergedObj(newExp);
         }
         if (PTAOptions.get().isMergeExceptionObjects() &&
                 typeManager.isSubtype(throwable, type)) {
-            return getMergedObj(type, obj);
+            return getMergedObj(newExp);
         }
-        return doGetObj(obj);
+        return doGetObj(newExp);
     }
 
     @Override
@@ -107,21 +106,25 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     /**
-     * The method which controls the heap modeling for normal objects.
-     */
-    protected abstract Obj doGetObj(NewObj obj);
-
-    /**
-     * @param type the type of the objects to be merged
-     * @param obj the object to be merged
+     * Merge given object given by its type.
+     * @param newExp the allocation site of the object
      * @return the merged object
      */
-    private Obj getMergedObj(Type type, Obj obj) {
-        MergedObj mergedObj = mergedObjs.computeIfAbsent(
-                type, (k) -> new MergedObj(type, "<Merged " + type + ">"));
-        mergedObj.addRepresentedObj(obj);
+    protected MergedObj getMergedObj(NewExp newExp) {
+        MergedObj mergedObj = mergedObjs.computeIfAbsent(newExp.getType(),
+                t -> new MergedObj(t, "<Merged " + t + ">"));
+        mergedObj.addRepresentedObj(getNewObj(newExp));
         return mergedObj;
     }
+
+    protected NewObj getNewObj(NewExp newExp) {
+        return objs.computeIfAbsent(newExp, NewObj::new);
+    }
+
+    /**
+     * The method which controls the heap modeling for normal objects.
+     */
+    protected abstract Obj doGetObj(NewExp newExp);
 
     @Override
     public EnvObjs getEnvObjs() {
