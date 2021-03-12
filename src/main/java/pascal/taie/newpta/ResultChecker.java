@@ -19,7 +19,6 @@ import pascal.taie.newpta.core.cs.Pointer;
 import pascal.taie.newpta.core.cs.StaticField;
 import pascal.taie.newpta.core.solver.PointerAnalysis;
 import pascal.taie.newpta.plugin.ResultPrinter;
-import pascal.taie.pta.Main;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
 import soot.G;
