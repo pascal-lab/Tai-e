@@ -24,7 +24,8 @@ import static pascal.taie.util.CollectionUtils.newHybridMap;
  * For example, for Context[A, B], its parent is Context@[A], and its children
  * may be Context@[A, B, C] or Context@[A, B, D].
  * {@link TreeContext.Factory} ensures that the contexts with the same elements
- * have only one instance. Thus, we can test their equality by ==.
+ * have only one instance. Thus, we can avoid creating redundant
+ * context objects, and test their equality by efficient ==.
  *
  * @param <T> type of context elements.
  */
