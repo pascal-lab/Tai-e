@@ -179,7 +179,7 @@ public class HierarchyTest {
         JClass refJClass = hierarchy.getClass(refClass);
         JClass declaringJClass = hierarchy.getClass(declaringClass);
         Type refType = typeManager.getClassType("java.lang.String");
-        FieldRef fieldRef = FieldRef.get(refJClass, refName, refType);
+        FieldRef fieldRef = FieldRef.get(refJClass, refName, refType, false);
         JField field = fieldRef.resolve();
         Assert.assertEquals(declaringJClass, field.getDeclaringClass());
     }
@@ -243,7 +243,7 @@ public class HierarchyTest {
         JClass refJClass = hierarchy.getClass(refClass);
         JClass declaringJClass = hierarchy.getClass(declaringClass);
         MethodRef methodRef = MethodRef.get(refJClass, refName,
-                Arrays.asList(parameterTypes), returnType);
+                Arrays.asList(parameterTypes), returnType, false);
         JMethod method = methodRef.resolve();
         Assert.assertEquals(declaringJClass, method.getDeclaringClass());
     }

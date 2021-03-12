@@ -135,7 +135,7 @@ class Converter {
         return fieldRefMap.computeIfAbsent(sootFieldRef, ref -> {
             JClass cls = convertClass(ref.declaringClass());
             Type type = convertType(ref.type());
-            return FieldRef.get(cls, ref.name(), type);
+            return FieldRef.get(cls, ref.name(), type, ref.isStatic());
         });
     }
 
@@ -147,7 +147,8 @@ class Converter {
                     .map(this::convertType)
                     .collect(Collectors.toList());
             Type returnType = convertType(ref.getReturnType());
-            return MethodRef.get(cls, ref.getName(), paramTypes, returnType);
+            return MethodRef.get(cls, ref.getName(), paramTypes, returnType,
+                    ref.isStatic());
         });
     }
 

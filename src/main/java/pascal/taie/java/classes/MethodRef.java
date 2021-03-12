@@ -92,12 +92,13 @@ public class MethodRef extends MemberRef {
 
     public static MethodRef get(
             JClass declaringClass, String name,
-            List<Type> parameterTypes, Type returnType) {
+            List<Type> parameterTypes, Type returnType,
+            boolean isStatic) {
         Subsignature subsignature = Subsignature.get(
                 name, parameterTypes, returnType);
         Key key = new Key(declaringClass, subsignature);
         return map.computeIfAbsent(key, k ->
-                new MethodRef(k, name, parameterTypes, returnType));
+                new MethodRef(k, name, parameterTypes, returnType, isStatic));
     }
 
     public static void reset() {
@@ -105,8 +106,9 @@ public class MethodRef extends MemberRef {
     }
 
     private MethodRef(
-            Key key, String name, List<Type> parameterTypes, Type returnType) {
-        super(key.declaringClass, name);
+            Key key, String name, List<Type> parameterTypes, Type returnType,
+            boolean isStatic) {
+        super(key.declaringClass, name, isStatic);
         this.parameterTypes = parameterTypes;
         this.returnType = returnType;
         this.subsignature = key.subsignature;
@@ -138,6 +140,7 @@ public class MethodRef extends MemberRef {
         return false;
     }
 
+    @Override
     public JMethod resolve() {
         if (method == null) {
             method = World.getClassHierarchy()

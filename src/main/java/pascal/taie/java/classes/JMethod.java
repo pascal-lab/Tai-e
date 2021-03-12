@@ -101,6 +101,6 @@ public class JMethod extends ClassMember {
      */
     public MethodRef getRef() {
         return MethodRef.get(declaringClass, name,
-                paramTypes, returnType);
+                paramTypes, returnType, isStatic());
     }
 }

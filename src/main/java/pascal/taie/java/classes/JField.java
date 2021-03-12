@@ -38,7 +38,7 @@ public class JField extends ClassMember {
      * @return the {@link FieldRef} pointing to this field.
      */
     public FieldRef getRef() {
-        return FieldRef.get(declaringClass, name, type);
+        return FieldRef.get(declaringClass, name, type, isStatic());
     }
 
     @Override

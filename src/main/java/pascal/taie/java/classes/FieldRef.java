@@ -37,17 +37,17 @@ public class FieldRef extends MemberRef {
     private JField field;
 
     public static FieldRef get(
-            JClass declaringClass, String name, Type type) {
+            JClass declaringClass, String name, Type type, boolean isStatic) {
         Key key = new Key(declaringClass, name, type);
-        return map.computeIfAbsent(key, FieldRef::new);
+        return map.computeIfAbsent(key, k -> new FieldRef(k, isStatic));
     }
 
     public static void reset() {
         map.clear();
     }
 
-    private FieldRef(Key key) {
-        super(key.declaringClass, key.name);
+    private FieldRef(Key key, boolean isStatic) {
+        super(key.declaringClass, key.name, isStatic);
         this.type = key.type;
     }
 
@@ -55,6 +55,7 @@ public class FieldRef extends MemberRef {
         return type;
     }
 
+    @Override
     public JField resolve() {
         if (field == null) {
             field = World.getClassHierarchy()

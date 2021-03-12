@@ -19,9 +19,12 @@ public abstract class MemberRef {
 
     private final String name;
 
-    public MemberRef(JClass declaringClass, String name) {
+    private final boolean isStatic;
+
+    public MemberRef(JClass declaringClass, String name, boolean isStatic) {
         this.declaringClass = declaringClass;
         this.name = name;
+        this.isStatic = isStatic;
     }
 
     public JClass getDeclaringClass() {
@@ -31,4 +34,10 @@ public abstract class MemberRef {
     public String getName() {
         return name;
     }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public abstract ClassMember resolve();
 }
