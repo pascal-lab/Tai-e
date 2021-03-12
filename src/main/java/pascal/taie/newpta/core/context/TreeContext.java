@@ -121,22 +121,30 @@ class TreeContext<T> implements Context {
         }
 
         @Override
+        public TreeContext<T> getLastK(Context context, int k) {
+            if (k == 0) {
+                return rootContext;
+            }
+            TreeContext<T> c = (TreeContext<T>) context;
+            if (c.getDepth() <= k) {
+                return c;
+            }
+            Object[] elems = new Object[k];
+            for (int i = k; i > 0; --i) {
+                elems[i - 1] = c.getElem();
+                c = c.getParent();
+            }
+            return get((T[]) elems);
+        }
+
+        @Override
         public TreeContext<T> append(Context parent, T elem, int limit) {
             TreeContext<T> p = (TreeContext<T>) parent;
             if (parent.getDepth() < limit) {
                 return p.getChild(elem);
             } else {
-                return findParent(p, limit - 1).getChild(elem);
+                return getLastK(p, limit - 1).getChild(elem);
             }
-        }
-
-        private TreeContext<T> findParent(TreeContext<T> c, int distance) {
-            Object[] elems = new Object[distance];
-            for (int i = distance; i > 0; --i) {
-                elems[i - 1] = c.getElem();
-                c = c.getParent();
-            }
-            return get((T[]) elems);
         }
     }
 }
