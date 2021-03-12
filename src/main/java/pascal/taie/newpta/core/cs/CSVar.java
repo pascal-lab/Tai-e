@@ -33,7 +33,7 @@ public class CSVar extends AbstractPointer implements CSElement {
         return context;
     }
 
-    public Var getVariable() {
+    public Var getVar() {
         return var;
     }
 

@@ -25,6 +25,7 @@ import pascal.taie.newpta.core.cs.CSMethod;
 import pascal.taie.newpta.core.cs.CSVar;
 import pascal.taie.newpta.core.cs.InstanceField;
 import pascal.taie.newpta.core.cs.StaticField;
+import pascal.taie.newpta.core.heap.HeapModel;
 import pascal.taie.newpta.core.heap.Obj;
 import pascal.taie.newpta.set.PointsToSet;
 
@@ -33,6 +34,8 @@ import java.util.stream.Stream;
 public interface PointerAnalysis {
 
     ClassHierarchy getHierarchy();
+
+    HeapModel getHeapModel();
 
     CSManager getCSManager();
 
