@@ -26,4 +26,9 @@ public class Unary extends AssignStmt<Var, UnaryExp> {
     public Unary(Var lvalue, UnaryExp rvalue) {
         super(lvalue, rvalue);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

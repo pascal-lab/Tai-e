@@ -27,4 +27,9 @@ public class New extends AssignStmt<Var, NewExp> {
     public New(Var lvalue, NewExp rvalue) {
         super(lvalue, rvalue);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

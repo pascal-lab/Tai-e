@@ -24,4 +24,9 @@ public class Binary extends AssignStmt<Var, BinaryExp> {
     public Binary(Var lvalue, BinaryExp rvalue) {
         super(lvalue, rvalue);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

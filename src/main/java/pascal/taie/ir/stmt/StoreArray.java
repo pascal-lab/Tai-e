@@ -25,4 +25,9 @@ public class StoreArray extends AssignStmt<ArrayAccess, Var> {
         super(lvalue, rvalue);
         lvalue.getBase().addStoreArray(this);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

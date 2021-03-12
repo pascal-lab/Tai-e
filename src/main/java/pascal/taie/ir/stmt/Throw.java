@@ -34,6 +34,11 @@ public class Throw extends AbstractStmt {
     }
 
     @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return "throw " + exceptionRef;
     }

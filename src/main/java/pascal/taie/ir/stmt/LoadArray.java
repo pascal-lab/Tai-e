@@ -25,4 +25,9 @@ public class LoadArray extends AssignStmt<Var, ArrayAccess> {
         super(lvalue, rvalue);
         rvalue.getBase().addLoadArray(this);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

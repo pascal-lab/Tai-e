@@ -31,4 +31,9 @@ public class StoreField extends AssignStmt<FieldAccess, Var> {
             base.addStoreField(this);
         }
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

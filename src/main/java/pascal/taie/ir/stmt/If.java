@@ -41,6 +41,11 @@ public class If extends JumpStmt {
     }
 
     @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return String.format(
                 "if (%s) goto %s", condition, toString(target));

@@ -64,6 +64,11 @@ public class Monitor extends AbstractStmt {
     }
 
     @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return "monitor" + op + " " + objectRef;
     }

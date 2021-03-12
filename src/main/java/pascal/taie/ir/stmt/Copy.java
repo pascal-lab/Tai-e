@@ -23,4 +23,9 @@ public class Copy extends AssignStmt<Var, Var> {
     public Copy(Var lvalue, Var rvalue) {
         super(lvalue, rvalue);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -24,4 +24,9 @@ public class Cast extends AssignStmt<Var, CastExp> {
     public Cast(Var lvalue, CastExp rvalue) {
         super(lvalue, rvalue);
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

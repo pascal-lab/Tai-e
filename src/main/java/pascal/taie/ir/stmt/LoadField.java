@@ -31,4 +31,9 @@ public class LoadField extends AssignStmt<Var, FieldAccess> {
             base.addLoadField(this);
         }
     }
+
+    @Override
+    public void accept(StmtVisitor visitor) {
+        visitor.visit(this);
+    }
 }

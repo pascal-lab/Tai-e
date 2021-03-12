@@ -20,11 +20,10 @@ import pascal.taie.newpta.core.cs.CSObj;
 import pascal.taie.newpta.core.heap.Obj;
 
 /**
- * Context-insensitive selector do not use any context elements, thus
- * the type of context elements is irrelevant, and can be safely ignored.
+ * Context-insensitive selector do not use any context elements,
+ * thus the type of context elements is irrelevant.
  */
-@SuppressWarnings("rawtypes")
-public class ContextInsensitiveSelector extends AbstractContextSelector {
+public class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
 
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {

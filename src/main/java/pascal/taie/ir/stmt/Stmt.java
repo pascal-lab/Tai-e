@@ -32,4 +32,6 @@ public interface Stmt {
     int getLineNumber();
 
     void setLineNumber(int lineNumber);
+
+    void accept(StmtVisitor visitor);
 }
