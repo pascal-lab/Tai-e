@@ -18,7 +18,7 @@ import pascal.taie.ir.ProgramPoint;
 /**
  * Representation of new expressions.
  */
-public abstract class NewExp implements RValue, ObjectExp {
+public abstract class NewExp implements RValue {
 
     private ProgramPoint allocationSite;
 

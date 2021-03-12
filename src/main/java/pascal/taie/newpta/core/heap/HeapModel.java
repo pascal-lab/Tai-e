@@ -13,7 +13,8 @@
 
 package pascal.taie.newpta.core.heap;
 
-import pascal.taie.ir.exp.ObjectExp;
+import pascal.taie.ir.exp.NewExp;
+import pascal.taie.java.types.Type;
 
 /**
  * Model for heap objects.
@@ -23,21 +24,18 @@ public interface HeapModel {
     /**
      * @return the abstract object for given object expression.
      */
-    Obj getObj(ObjectExp exp);
+    Obj getObj(NewExp newExp);
 
     /**
-     * @return the mock object which represents given argument.
+     * @return the constant object for given value.
      */
-    <T> Obj getMockObj(T arg);
-    
-    // Special objects managed/created by Java runtime environment
-    Obj getMainThread();
+    <T> Obj getConstantObj(Type type, T value);
 
-    Obj getSystemThreadGroup();
+    /**
+     * @return the mock object (e.g., taint value) which represents
+     * given argument.
+     */
+    <T> Obj getMockObj(T value);
 
-    Obj getMainThreadGroup();
-
-    Obj getMainArgs();
-
-    Obj getMainArgsElem();
+    EnvObjs getEnvObjs();
 }

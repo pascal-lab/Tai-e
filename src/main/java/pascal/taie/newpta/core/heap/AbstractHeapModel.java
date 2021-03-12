@@ -13,18 +13,18 @@
 
 package pascal.taie.newpta.core.heap;
 
-import pascal.taie.ir.exp.ObjectExp;
-import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.ir.exp.NewExp;
 import pascal.taie.java.TypeManager;
-import pascal.taie.java.World;
-import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.PTAOptions;
 
 import java.util.Map;
 
-import static pascal.taie.java.classes.StringReps.THREAD;
-import static pascal.taie.java.classes.StringReps.THREAD_GROUP;
+import static pascal.taie.java.classes.StringReps.STRING;
+import static pascal.taie.java.classes.StringReps.STRING_BUFFER;
+import static pascal.taie.java.classes.StringReps.STRING_BUILDER;
+import static pascal.taie.java.classes.StringReps.THROWABLE;
+import static pascal.taie.util.CollectionUtils.newHybridMap;
 import static pascal.taie.util.CollectionUtils.newMap;
 
 /**
@@ -43,6 +43,10 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final Type throwable;
 
+    private final Map<NewExp, NewObj> objs = newMap();
+
+    private final Map<Type, Map<Object, ConstantObj<?>>> constantObjs = newHybridMap();
+
     /**
      * The merged object representing string constants.
      */
@@ -50,67 +54,62 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<Type, MergedObj> mergedObjs = newMap();
 
-    // Special objects managed/created by Java runtime environment
-    private final Obj mainThread;
-
-    private final Obj systemThreadGroup;
-
-    private final Obj mainThreadGroup;
-
-    private final Obj mainArgs; // main(String[] args)
-
-    private final Obj mainArgsElem; // Element in args
+    private final EnvObjs envObjs;
 
     protected AbstractHeapModel(TypeManager typeManager) {
         this.typeManager = typeManager;
-        string = typeManager.getClassType(StringReps.STRING);
-        stringBuilder = typeManager.getClassType(StringReps.STRING_BUILDER);
-        stringBuffer = typeManager.getClassType(StringReps.STRING_BUFFER);
-        throwable = typeManager.getClassType(StringReps.THROWABLE);
+        string = typeManager.getClassType(STRING);
+        stringBuilder = typeManager.getClassType(STRING_BUILDER);
+        stringBuffer = typeManager.getClassType(STRING_BUFFER);
+        throwable = typeManager.getClassType(THROWABLE);
         mergedSC = new MergedObj(string, "<Merged string constants>");
-
-        mainThread = new EnvObj("<main-thread>",
-                typeManager.getClassType(THREAD), null);
-        systemThreadGroup = new EnvObj("<system-thread-group>",
-                typeManager.getClassType(THREAD_GROUP), null);
-        mainThreadGroup = new EnvObj("<main-thread-group>",
-                typeManager.getClassType(THREAD_GROUP), null);
-        Type stringArray = typeManager.getArrayType(string, 1);
-        mainArgs = new EnvObj("<main-arguments>",
-                stringArray, World.getMainMethod());
-        mainArgsElem = new EnvObj("<main-arguments-element>",
-                string, World.getMainMethod());
+        envObjs = new EnvObjs(typeManager);
     }
 
     @Override
-    public Obj getObj(ObjectExp exp) {
-        Type type = exp.getType();
-        Obj obj = exp.getObj();
+    public Obj getObj(NewExp newExp) {
+        Type type = newExp.getType();
+        NewObj obj = objs.computeIfAbsent(newExp, NewObj::new);
+        if (PTAOptions.get().isMergeStringObjects() &&
+                type.equals(string)) {
+            return getMergedObj(type, obj);
+        }
+        if (PTAOptions.get().isMergeStringBuilders() &&
+                (type.equals(stringBuilder) || type.equals(stringBuffer))) {
+            return getMergedObj(type, obj);
+        }
+        if (PTAOptions.get().isMergeExceptionObjects() &&
+                typeManager.isSubtype(throwable, type)) {
+            return getMergedObj(type, obj);
+        }
+        return doGetObj(obj);
+    }
+
+    @Override
+    public <T> Obj getConstantObj(Type type, T value) {
+        Obj obj = doGetConstantObj(type, value);
         if (PTAOptions.get().isMergeStringConstants() &&
-                exp instanceof StringLiteral) {
+                type.equals(string)) {
             mergedSC.addRepresentedObj(obj);
             return mergedSC;
         }
-        if (PTAOptions.get().isMergeStringObjects() &&
-                type.equals(string) &&
-                !(exp instanceof StringLiteral)) {
-            return getMergedObj(type, obj);
-        }
-        if (PTAOptions.get().isMergeStringBuilders()
-                && (type.equals(stringBuilder) || type.equals(stringBuffer))) {
-            return getMergedObj(type, obj);
-        }
-        if (PTAOptions.get().isMergeExceptionObjects()
-                && typeManager.isSubtype(throwable, type)) {
-            return getMergedObj(type, obj);
-        }
-        return doGetObj(exp);
+        return obj;
+    }
+
+    protected <T> Obj doGetConstantObj(Type type, T value) {
+        return constantObjs.computeIfAbsent(type, t -> newMap())
+                .computeIfAbsent(value, v -> new ConstantObj<>(type, v));
+    }
+
+    @Override
+    public <T> Obj getMockObj(T value) {
+        throw new UnsupportedOperationException();
     }
 
     /**
      * The method which controls the heap modeling for normal objects.
      */
-    protected abstract Obj doGetObj(ObjectExp exp);
+    protected abstract Obj doGetObj(NewObj obj);
 
     /**
      * @param type the type of the objects to be merged
@@ -125,27 +124,7 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     @Override
-    public Obj getMainThread() {
-        return mainThread;
-    }
-
-    @Override
-    public Obj getSystemThreadGroup() {
-        return systemThreadGroup;
-    }
-
-    @Override
-    public Obj getMainThreadGroup() {
-        return mainThreadGroup;
-    }
-
-    @Override
-    public Obj getMainArgs() {
-        return mainArgs;
-    }
-
-    @Override
-    public Obj getMainArgsElem() {
-        return mainArgsElem;
+    public EnvObjs getEnvObjs() {
+        return envObjs;
     }
 }

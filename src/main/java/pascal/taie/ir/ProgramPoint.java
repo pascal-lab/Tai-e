@@ -63,7 +63,7 @@ public class ProgramPoint {
 
     @Override
     public String toString() {
-        // TODO: display source location?
-        return "[PP] " + method + ":" + getIndex();
+        return String.format("[PP] %s:%d(@L%d)",
+                method, getIndex(), stmt.getLineNumber());
     }
 }
