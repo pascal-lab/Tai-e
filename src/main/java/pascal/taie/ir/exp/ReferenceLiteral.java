@@ -13,28 +13,11 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.NullType;
+/**
+ * Literal of reference type.
+ * @param <T> type of the value.
+ */
+public interface ReferenceLiteral<T> extends Literal {
 
-public enum NullLiteral implements ReferenceLiteral<Void> {
-
-    INSTANCE;
-
-    public static NullLiteral get() {
-        return INSTANCE;
-    }
-
-    @Override
-    public NullType getType() {
-        return NullType.NULL;
-    }
-
-    @Override
-    public Void getValue() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return "null";
-    }
+    T getValue();
 }

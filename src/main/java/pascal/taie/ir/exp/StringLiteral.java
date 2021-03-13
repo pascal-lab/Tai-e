@@ -18,7 +18,7 @@ import pascal.taie.java.types.ClassType;
 
 import static pascal.taie.java.classes.StringReps.STRING;
 
-public class StringLiteral implements Literal {
+public class StringLiteral implements ReferenceLiteral<String> {
 
     private static ClassType stringType;
 
@@ -42,6 +42,7 @@ public class StringLiteral implements Literal {
         return stringType;
     }
 
+    @Override
     public String getValue() {
         return value;
     }
