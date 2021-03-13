@@ -20,6 +20,7 @@ import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
@@ -352,7 +353,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Var arg = callSite.getArg(i);
-                if (arg.getType() instanceof ReferenceType) {
+                if (isReferenceType(arg)) {
                     Var param = callee.getNewIR().getParam(i);
                     CSVar argVar = csManager.getCSVar(callerCtx, arg);
                     CSVar paramVar = csManager.getCSVar(calleeCtx, param);
@@ -362,7 +363,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass results to LHS variable
             Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
             Var lhs = invoke.getResult();
-            if (lhs != null) {
+            if (lhs != null && isReferenceType(lhs)) {
                 CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
                 for (Var ret : callee.getNewIR().getReturnVars()) {
                     CSVar csRet = csManager.getCSVar(calleeCtx, ret);
@@ -415,6 +416,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    private static boolean isReferenceType(Exp exp) {
+        return exp.getType() instanceof ReferenceType;
+    }
+
     /**
      * Process the statements in context-sensitive new reachable methods.
      */
@@ -441,8 +446,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(AssignLiteral stmt) {
             Literal literal = stmt.getRValue();
-            if (!(literal instanceof ReferenceLiteral) ||
-                    literal instanceof NullLiteral) {
+            if (!isReferenceType(literal) || literal instanceof NullLiteral) {
                 return;
             }
             Obj obj = heapModel.getConstantObj(literal.getType(),
@@ -453,23 +457,28 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(Copy stmt) {
-            CSVar from = csManager.getCSVar(context, stmt.getRValue());
-            CSVar to = csManager.getCSVar(context, stmt.getLValue());
-            addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            if (isReferenceType(stmt.getRValue())) {
+                CSVar from = csManager.getCSVar(context, stmt.getRValue());
+                CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
         }
 
         @Override
         public void visit(Cast stmt) {
             CastExp cast = stmt.getRValue();
-            CSVar from = csManager.getCSVar(context, cast.getValue());
-            CSVar to = csManager.getCSVar(context, stmt.getLValue());
-            addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+            if (isReferenceType(cast)) {
+                CSVar from = csManager.getCSVar(context, cast.getValue());
+                CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+            }
         }
 
         @Override
         public void visit(LoadField stmt) {
             FieldAccess fieldAccess = stmt.getRValue();
-            if (fieldAccess instanceof StaticFieldAccess) {
+            if (fieldAccess instanceof StaticFieldAccess &&
+                    isReferenceType(fieldAccess)) {
                 JField field = fieldAccess.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
@@ -480,7 +489,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(StoreField stmt) {
             FieldAccess fieldAccess = stmt.getLValue();
-            if (fieldAccess instanceof StaticFieldAccess) {
+            if (fieldAccess instanceof StaticFieldAccess &&
+                    isReferenceType(fieldAccess)) {
                 JField field = fieldAccess.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar from = csManager.getCSVar(context, stmt.getRValue());
