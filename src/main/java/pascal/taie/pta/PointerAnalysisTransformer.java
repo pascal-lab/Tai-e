@@ -41,6 +41,6 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         PointerAnalysis pta = new PointerAnalysisBuilder()
                 .build(PTAOptions.get());
         pta.analyze();
-        JimplePointerAnalysis.v().setPointerAnalysis(pta);
+        JimplePointerAnalysis.get().setPointerAnalysis(pta);
     }
 }

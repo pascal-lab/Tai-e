@@ -166,7 +166,7 @@ public class IPConstantPropagation extends SceneTransformer
                 callGraph = CHACallGraphBuilder.v().getRecentCallGraph();
                 break;
             case "pta":
-                callGraph = JimplePointerAnalysis.v().getJimpleCallGraph();
+                callGraph = JimplePointerAnalysis.get().getJimpleCallGraph();
                 break;
             default:
                 throw new AnalysisException(

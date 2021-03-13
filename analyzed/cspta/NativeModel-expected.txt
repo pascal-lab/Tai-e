@@ -1,6 +1,5 @@
 ---------- Points-to sets of all variables: ----------
 []:<A: java.lang.Object callClone()>/temp$0 -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<A: java.lang.Object callClone()>/temp$1 -> {}
 []:<A: java.lang.Object callClone()>/this -> {[]:<NativeModel: void objectClone()>/new A/13}
 []:<A: void <init>()>/this -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27,[]:<NativeModel: void objectClone()>/new A/13}
 []:<NativeModel$1Anonymous0: A run()>/temp$0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}

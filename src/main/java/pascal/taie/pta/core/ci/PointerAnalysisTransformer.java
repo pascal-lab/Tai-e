@@ -51,7 +51,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         pta.setHeapModel(new AllocationSiteBasedModel(
                 World.getTypeManager()));
         pta.solve();
-        JimplePointerAnalysis.v().setCIPointerAnalysis(pta);
+        JimplePointerAnalysis.get().setCIPointerAnalysis(pta);
 
         if (isOutput) {
             System.out.println("---------- Reachable methods: ----------");

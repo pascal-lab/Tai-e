@@ -40,7 +40,7 @@ public class JimplePointerAnalysis {
 
     private JimpleCallGraph jimpleCallGraph;
 
-    public static JimplePointerAnalysis v() {
+    public static JimplePointerAnalysis get() {
         return INSTANCE;
     }
 

@@ -3,13 +3,13 @@ import java.security.PrivilegedAction;
 
 class NativeModel {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         objectClone();
         arraycopy();
         doPrivileged();
     }
 
-    static void objectClone() {
+    static void objectClone() throws Exception {
         A a = new A();
         Object o = a.callClone();
     }
@@ -33,11 +33,7 @@ class NativeModel {
 }
 
 class A {
-    Object callClone() {
-        try {
-            return clone();
-        } catch (CloneNotSupportedException) {
-            return null;
-        }
+    Object callClone() throws CloneNotSupportedException {
+        return clone();
     }
 }

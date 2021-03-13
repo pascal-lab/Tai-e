@@ -28,11 +28,11 @@ import static pascal.taie.util.CollectionUtils.freeze;
 
 class NativeIRBuilder {
 
-    private final static String THIS = "%this";
+    private final static String THIS = "%native-this";
 
-    private final static String PARAM = "%param";
+    private final static String PARAM = "%native-param";
 
-    private final static String RETURN = "%ret";
+    private final static String RETURN = "%native-ret";
 
     private final JMethod method;
 
