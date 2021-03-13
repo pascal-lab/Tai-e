@@ -84,7 +84,7 @@ public class SootWorldBuilder implements WorldBuilder {
                 .map(hierarchy::getJREMethod)
                 .collect(Collectors.toList()));
         // initialize IR builder
-        world.setNativeModel(new DefaultNativeModel(typeManager));
+        world.setNativeModel(new DefaultNativeModel(typeManager, hierarchy));
         Environment env = new Environment();
         world.setEnvironment(env);
         world.setIRBuilder(new IRBuilder(converter, env));

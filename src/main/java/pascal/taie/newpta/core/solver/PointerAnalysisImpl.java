@@ -362,7 +362,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Var var = baseVar.getVar();
         for (StoreField store : var.getStoreFields()) {
             Var fromVar = store.getRValue();
-            if (isReferenceType(fromVar)) {
+            if (isConcerned(fromVar)) {
                 CSVar from = csManager.getCSVar(context, fromVar);
                 for (CSObj baseObj : pts) {
                     InstanceField instField = csManager.getInstanceField(
@@ -384,7 +384,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Var var = baseVar.getVar();
         for (LoadField load : var.getLoadFields()) {
             Var toVar = load.getLValue();
-            if (isReferenceType(toVar)) {
+            if (isConcerned(toVar)) {
                 CSVar to = csManager.getCSVar(context, toVar);
                 for (CSObj baseObj : pts) {
                     InstanceField instField = csManager.getInstanceField(
@@ -406,7 +406,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Var var = arrayVar.getVar();
         for (StoreArray store : var.getStoreArrays()) {
             Var rvalue = store.getRValue();
-            if (isReferenceType(rvalue)) {
+            if (isConcerned(rvalue)) {
                 CSVar from = csManager.getCSVar(context, rvalue);
                 for (CSObj array : pts) {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
@@ -430,7 +430,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Var var = arrayVar.getVar();
         for (LoadArray load : var.getLoadArrays()) {
             Var lvalue = load.getLValue();
-            if (isReferenceType(lvalue)) {
+            if (isConcerned(lvalue)) {
                 CSVar to = csManager.getCSVar(context, lvalue);
                 for (CSObj array : pts) {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
@@ -486,7 +486,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Var arg = callSite.getArg(i);
-                if (isReferenceType(arg)) {
+                if (isConcerned(arg)) {
                     Var param = callee.getNewIR().getParam(i);
                     CSVar argVar = csManager.getCSVar(callerCtx, arg);
                     CSVar paramVar = csManager.getCSVar(calleeCtx, param);
@@ -496,7 +496,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass results to LHS variable
             Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
             Var lhs = invoke.getResult();
-            if (lhs != null && isReferenceType(lhs)) {
+            if (lhs != null && isConcerned(lhs)) {
                 CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
                 for (Var ret : callee.getNewIR().getReturnVars()) {
                     CSVar csRet = csManager.getCSVar(calleeCtx, ret);
@@ -559,9 +559,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
-    private static boolean isReferenceType(Exp exp) {
-        return exp.getType() instanceof ReferenceType &&
-                !(exp.getType() instanceof NullType);
+    /**
+     * @return if the type of given expression is concerned in pointer analysis.
+     */
+    private static boolean isConcerned(Exp exp) {
+        Type type = exp.getType();
+        return type instanceof ReferenceType && !(type instanceof NullType);
     }
 
     /**
@@ -664,7 +667,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(AssignLiteral stmt) {
             Literal literal = stmt.getRValue();
-            if (!isReferenceType(literal) || literal instanceof NullLiteral) {
+            if (!isConcerned(literal) || literal instanceof NullLiteral) {
                 return;
             }
             Obj obj = heapModel.getConstantObj(literal.getType(),
@@ -675,7 +678,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(Copy stmt) {
-            if (isReferenceType(stmt.getRValue())) {
+            if (isConcerned(stmt.getRValue())) {
                 CSVar from = csManager.getCSVar(context, stmt.getRValue());
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
@@ -685,7 +688,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(Cast stmt) {
             CastExp cast = stmt.getRValue();
-            if (isReferenceType(cast)) {
+            if (isConcerned(cast)) {
                 CSVar from = csManager.getCSVar(context, cast.getValue());
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
@@ -697,7 +700,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
          */
         @Override
         public void visit(LoadField stmt) {
-            if (stmt.isStatic() && isReferenceType(stmt.getLValue())) {
+            if (stmt.isStatic() && isConcerned(stmt.getLValue())) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
@@ -710,7 +713,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
          */
         @Override
         public void visit(StoreField stmt) {
-            if (stmt.isStatic() && isReferenceType(stmt.getRValue())) {
+            if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar from = csManager.getCSVar(context, stmt.getRValue());
@@ -752,7 +755,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(AssignLiteral stmt) {
             Literal rvalue = stmt.getRValue();
-            if (isReferenceType(rvalue)) {
+            if (isConcerned(rvalue)) {
                 initializeClass(extractClass(rvalue.getType()));
                 if (rvalue instanceof ClassLiteral) {
                     initializeClass(extractClass(

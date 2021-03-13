@@ -19,8 +19,6 @@ import pascal.taie.newpta.core.heap.Obj;
 
 public interface NativeModel {
 
-    NewIR buildNativeIR(JMethod method);
-
     Obj getMainThread();
 
     Obj getSystemThreadGroup();
@@ -30,4 +28,6 @@ public interface NativeModel {
     Obj getMainArgs();
 
     Obj getMainArgsElem();
+
+    NewIR buildNativeIR(JMethod method);
 }
