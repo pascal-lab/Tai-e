@@ -28,6 +28,9 @@ import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.StaticFieldAccess;
@@ -77,9 +80,11 @@ import pascal.taie.util.AnalysisException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.CollectionUtils.newMap;
 import static pascal.taie.util.CollectionUtils.newSet;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
@@ -105,6 +110,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private WorkList workList;
 
     private Set<JMethod> reachableMethods;
+
+    private StmtProcessor stmtProcessor;
 
     private ClassInitializer classInitializer;
 
@@ -193,6 +200,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         reachableMethods = newSet();
+        stmtProcessor = new StmtProcessor();
         classInitializer = new ClassInitializer();
 
         // process program entries (including implicit entries)
@@ -493,11 +501,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
         if (callGraph.addNewMethod(csMethod)) {
             processNewMethod(csMethod.getMethod());
-            StmtProcessor processor = new StmtProcessor(csMethod);
+            stmtProcessor.setCSMethod(csMethod);
             csMethod.getMethod()
                     .getNewIR()
                     .getStmts()
-                    .forEach(s -> s.accept(processor));
+                    .forEach(s -> s.accept(stmtProcessor));
             plugin.handleNewCSMethod(csMethod);
         }
     }
@@ -549,11 +557,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private class StmtProcessor implements StmtVisitor {
 
-        private final CSMethod csMethod;
+        private CSMethod csMethod;
 
-        private final Context context;
+        private Context context;
 
-        StmtProcessor(CSMethod csMethod) {
+        private final Map<NewMultiArray, NewArray[]> newArrays = newMap();
+
+        private void setCSMethod(CSMethod csMethod) {
             this.csMethod = csMethod;
             this.context = csMethod.getContext();
         }
@@ -561,10 +571,38 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(New stmt) {
             // obtain context-sensitive heap object
-            Obj obj = heapModel.getObj(stmt.getRValue());
+            NewExp rvalue = stmt.getRValue();
+            Obj obj = heapModel.getObj(rvalue);
             Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
             addPointsTo(context, stmt.getLValue(), heapContext, obj);
-            // TODO: handle new multi-array
+            if (rvalue instanceof NewMultiArray) {
+                processNewMultiArray((NewMultiArray) rvalue, heapContext, obj);
+            }
+            }
+        }
+
+        private void processNewMultiArray(NewMultiArray newMultiArray,
+                                          Context arrayContext, Obj array) {
+            NewArray[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
+                ArrayType type = nma.getType();
+                NewArray[] newArrays = new NewArray[nma.getLengthCount() - 1];
+                for (int i = 1; i < nma.getLengthCount(); ++i) {
+                    type = (ArrayType) type.getElementType();
+                    NewArray newArray = new NewArray(type, nma.getLength(i));
+                    newArray.setAllocationSite(nma.getAllocationSite());
+                    newArrays[i - 1] = newArray;
+                }
+                return newArrays;
+            });
+            for (NewArray newArray : arrays) {
+                Obj elem = heapModel.getObj(newArray);
+                Context elemContext = contextSelector
+                        .selectHeapContext(csMethod, elem);
+                addPointsTo(arrayContext, array, elemContext, elem);
+                array = elem;
+                arrayContext = elemContext;
+            }
+        }
         }
 
         @Override
