@@ -215,7 +215,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     private void buildParams(List<Local> params) {
-        params.forEach(varManager::addParam);
+        varManager.addParams(params);
     }
 
     private void buildStmts(Body body) {

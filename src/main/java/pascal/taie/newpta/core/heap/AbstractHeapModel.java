@@ -54,8 +54,6 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<Type, MergedObj> mergedObjs = newMap();
 
-    private final EnvObjs envObjs;
-
     protected AbstractHeapModel(TypeManager typeManager) {
         this.typeManager = typeManager;
         string = typeManager.getClassType(STRING);
@@ -63,7 +61,6 @@ abstract class AbstractHeapModel implements HeapModel {
         stringBuffer = typeManager.getClassType(STRING_BUFFER);
         throwable = typeManager.getClassType(THROWABLE);
         mergedSC = new MergedObj(string, "<Merged string constants>");
-        envObjs = new EnvObjs(typeManager);
     }
 
     @Override
@@ -125,9 +122,4 @@ abstract class AbstractHeapModel implements HeapModel {
      * The method which controls the heap modeling for normal objects.
      */
     protected abstract Obj doGetObj(NewExp newExp);
-
-    @Override
-    public EnvObjs getEnvObjs() {
-        return envObjs;
-    }
 }

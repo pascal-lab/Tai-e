@@ -94,7 +94,11 @@ public class JMethod extends ClassMember {
     public NewIR getNewIR() {
         assert !isAbstract();
         if (newIR == null) {
-            newIR = World.getIRBuilder().buildNewIR(this);
+            if (isNative()) {
+                newIR = World.getNativeModel().buildNativeIR(this);
+            } else {
+                newIR = World.getIRBuilder().buildNewIR(this);
+            }
         }
         return newIR;
     }

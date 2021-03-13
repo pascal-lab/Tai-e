@@ -68,8 +68,8 @@ class VarManager {
         varMap.put(thisLocal, thisVar);
     }
 
-    void addParam(Local paramLocal) {
-        params.add(getVar(paramLocal));
+    void addParams(List<Local> paramLocals) {
+        paramLocals.forEach(p -> params.add(getVar(p)));
     }
 
     Var getVar(Local local) {

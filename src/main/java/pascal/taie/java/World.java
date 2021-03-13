@@ -17,6 +17,7 @@ import pascal.taie.java.classes.FieldRef;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.classes.Subsignature;
+import pascal.taie.java.natives.NativeModel;
 import pascal.taie.pta.env.Environment;
 
 import java.util.Collection;
@@ -27,8 +28,9 @@ import java.util.Collection;
 public class World {
 
     /**
-     * We maintain an instance instead of using static fields to ease the reset
-     * of the world.
+     * To store whole-program information, we maintain an instance,
+     * (i.e., theWorld, with its instance fields pointing to the information),
+     * instead of using static fields, to ease the reset of ZA WARUDO.
      */
     private static World theWorld;
 
@@ -51,6 +53,12 @@ public class World {
 
     private IRBuilder irBuilder;
 
+    private NativeModel nativeModel;
+
+    /**
+     * Will be deprecated after removing old PTA.
+     */
+    @Deprecated
     private Environment environment;
 
     private JMethod mainMethod;
@@ -62,7 +70,7 @@ public class World {
     }
 
     public void setOptions(Options options) {
-        theWorld.options = options;
+        this.options = options;
     }
 
     public static TypeManager getTypeManager() {
@@ -70,7 +78,7 @@ public class World {
     }
 
     public void setTypeManager(TypeManager typeManager) {
-        theWorld.typeManager = typeManager;
+        this.typeManager = typeManager;
     }
 
     public static ClassHierarchy getClassHierarchy() {
@@ -78,7 +86,7 @@ public class World {
     }
 
     public void setClassHierarchy(ClassHierarchy classHierarchy) {
-        theWorld.classHierarchy = classHierarchy;
+        this.classHierarchy = classHierarchy;
     }
 
     public static IRBuilder getIRBuilder() {
@@ -86,15 +94,25 @@ public class World {
     }
 
     public void setIRBuilder(IRBuilder irBuilder) {
-        theWorld.irBuilder = irBuilder;
+        this.irBuilder = irBuilder;
     }
 
+    public static NativeModel getNativeModel() {
+        return theWorld.nativeModel;
+    }
+
+    public void setNativeModel(NativeModel nativeModel) {
+        this.nativeModel = nativeModel;
+    }
+
+    @Deprecated
     public static Environment getEnvironment() {
         return theWorld.environment;
     }
 
+    @Deprecated
     public void setEnvironment(Environment environment) {
-        theWorld.environment = environment;
+        this.environment = environment;
     }
 
     public static JMethod getMainMethod() {
@@ -102,7 +120,7 @@ public class World {
     }
 
     public void setMainMethod(JMethod mainMethod) {
-        theWorld.mainMethod = mainMethod;
+        this.mainMethod = mainMethod;
     }
 
     public static Collection<JMethod> getImplicitEntries() {
@@ -110,6 +128,6 @@ public class World {
     }
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
-        theWorld.implicitEntries = implicitEntries;
+        this.implicitEntries = implicitEntries;
     }
 }

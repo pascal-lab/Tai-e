@@ -18,10 +18,10 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.natives.NativeModel;
 import pascal.taie.newpta.core.context.Context;
 import pascal.taie.newpta.core.cs.CSMethod;
 import pascal.taie.newpta.core.cs.CSVar;
-import pascal.taie.newpta.core.heap.EnvObjs;
 import pascal.taie.newpta.core.heap.Obj;
 import pascal.taie.newpta.core.solver.PointerAnalysis;
 import pascal.taie.newpta.set.PointsToSet;
@@ -85,12 +85,12 @@ public class ThreadHandler implements Plugin {
         if (!PTAOptions.get().analyzeImplicitEntries()) {
             return;
         }
-        EnvObjs envObjs = pta.getHeapModel().getEnvObjs();
+        NativeModel nativeModel = World.getNativeModel();
         Context context = pta.getContextSelector().getDefaultContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
-        Obj systemThreadGroup = envObjs.getSystemThreadGroup();
+        Obj systemThreadGroup = nativeModel.getSystemThreadGroup();
         NewIR threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>()>")
                 .getNewIR();
@@ -100,7 +100,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThreadGroup = envObjs.getMainThreadGroup();
+        Obj mainThreadGroup = nativeModel.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getNewIR();
@@ -120,7 +120,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThread = envObjs.getMainThread();
+        Obj mainThread = nativeModel.getMainThread();
         NewIR threadInitIR = hierarchy.getJREMethod(
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getNewIR();

@@ -53,6 +53,7 @@ import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MemberRef;
 import pascal.taie.java.classes.MethodRef;
+import pascal.taie.java.natives.NativeModel;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.ReferenceType;
@@ -68,7 +69,6 @@ import pascal.taie.newpta.core.cs.CSVar;
 import pascal.taie.newpta.core.cs.InstanceField;
 import pascal.taie.newpta.core.cs.Pointer;
 import pascal.taie.newpta.core.cs.StaticField;
-import pascal.taie.newpta.core.heap.EnvObjs;
 import pascal.taie.newpta.core.heap.HeapModel;
 import pascal.taie.newpta.core.heap.Obj;
 import pascal.taie.newpta.plugin.Plugin;
@@ -216,9 +216,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             processNewCSMethod(csMethod);
         }
         // setup main arguments
-        EnvObjs envObjs = heapModel.getEnvObjs();
-        Obj args = envObjs.getMainArgs();
-        Obj argsElem = envObjs.getMainArgsElem();
+        NativeModel nativeModel = World.getNativeModel();
+        Obj args = nativeModel.getMainArgs();
+        Obj argsElem = nativeModel.getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
         addPointsTo(defContext, main.getNewIR().getParam(0), defContext, args);
@@ -510,10 +510,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * Processes new reachable context-sensitive method.
      */
     private void processNewCSMethod(CSMethod csMethod) {
-        if (csMethod.getMethod().isNative()) {
-            // TODO: handle native methods
-            return;
-        }
         if (callGraph.addNewMethod(csMethod)) {
             processNewMethod(csMethod.getMethod());
             stmtProcessor.setCSMethod(csMethod);

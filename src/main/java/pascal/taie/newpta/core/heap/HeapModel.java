@@ -36,6 +36,4 @@ public interface HeapModel {
      * given argument.
      */
     <T> Obj getMockObj(T value);
-
-    EnvObjs getEnvObjs();
 }

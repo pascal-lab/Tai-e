@@ -11,20 +11,21 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.newpta.core.heap;
+package pascal.taie.java.natives;
 
+import pascal.taie.ir.NewIR;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
+import pascal.taie.newpta.core.heap.EnvObj;
+import pascal.taie.newpta.core.heap.Obj;
 
 import static pascal.taie.java.classes.StringReps.STRING;
 import static pascal.taie.java.classes.StringReps.THREAD;
 import static pascal.taie.java.classes.StringReps.THREAD_GROUP;
 
-/**
- * Manage objects that are implicitly created by Java runtime environment.
- */
-public class EnvObjs {
+public class DefaultNativeModel implements NativeModel {
 
     private final Obj mainThread;
 
@@ -36,7 +37,7 @@ public class EnvObjs {
 
     private final Obj mainArgsElem; // Element in args
 
-    EnvObjs(TypeManager typeManager) {
+    public DefaultNativeModel(TypeManager typeManager) {
         mainThread = new EnvObj("<main-thread>",
                 typeManager.getClassType(THREAD), null);
         systemThreadGroup = new EnvObj("<system-thread-group>",
@@ -49,6 +50,11 @@ public class EnvObjs {
                 stringArray, World.getMainMethod());
         mainArgsElem = new EnvObj("<main-arguments-element>",
                 string, World.getMainMethod());
+    }
+
+    @Override
+    public NewIR buildNativeIR(JMethod method) {
+        return new NativeIRBuilder(method).buildEmpty();
     }
 
     public Obj getMainThread() {

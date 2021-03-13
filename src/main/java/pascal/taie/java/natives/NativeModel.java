@@ -11,23 +11,23 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java;
+package pascal.taie.java.natives;
 
 import pascal.taie.ir.NewIR;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.newpta.core.heap.Obj;
 
-public interface IRBuilder {
+public interface NativeModel {
 
-    /**
-     * Build IR for concrete methods.
-     */
-    NewIR buildNewIR(JMethod method);
+    NewIR buildNativeIR(JMethod method);
 
-    IR build(JMethod method);
+    Obj getMainThread();
 
-    /**
-     * Build IR for all methods in the given hierarchy.
-     */
-    void buildAll(ClassHierarchy hierarchy);
+    Obj getSystemThreadGroup();
+
+    Obj getMainThreadGroup();
+
+    Obj getMainArgs();
+
+    Obj getMainArgsElem();
 }

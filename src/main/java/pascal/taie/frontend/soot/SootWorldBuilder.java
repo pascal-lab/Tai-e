@@ -18,6 +18,7 @@ import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.WorldBuilder;
 import pascal.taie.java.classes.ClassHierarchyImpl;
+import pascal.taie.java.natives.DefaultNativeModel;
 import pascal.taie.java.types.TypeManagerImpl;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.env.Environment;
@@ -83,6 +84,7 @@ public class SootWorldBuilder implements WorldBuilder {
                 .map(hierarchy::getJREMethod)
                 .collect(Collectors.toList()));
         // initialize IR builder
+        world.setNativeModel(new DefaultNativeModel(typeManager));
         Environment env = new Environment();
         world.setEnvironment(env);
         world.setIRBuilder(new IRBuilder(converter, env));
