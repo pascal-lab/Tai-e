@@ -16,10 +16,24 @@ package pascal.taie.newpta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.callgraph.CallGraph;
+import pascal.taie.callgraph.CallKind;
+import pascal.taie.callgraph.Edge;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInterface;
+import pascal.taie.ir.exp.InvokeSpecial;
+import pascal.taie.ir.exp.InvokeStatic;
+import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.ReferenceLiteral;
+import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
@@ -29,8 +43,10 @@ import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
+import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MemberRef;
+import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.ReferenceType;
@@ -53,6 +69,7 @@ import pascal.taie.newpta.plugin.Plugin;
 import pascal.taie.newpta.set.PointsToSet;
 import pascal.taie.newpta.set.PointsToSetFactory;
 import pascal.taie.pta.PTAOptions;
+import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -182,7 +199,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             classInitializer.initializeClass(entry.getDeclaringClass());
             CSMethod csMethod = csManager.getCSMethod(defContext, entry);
             callGraph.addEntryMethod(csMethod);
-//            processNewCSMethod(csMethod);
+            processNewCSMethod(csMethod);
         }
         // setup main arguments
         EnvObjs envObjs = heapModel.getEnvObjs();
@@ -224,7 +241,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 }
             }
             while (workList.hasCallEdges()) {
-//                processCallEdge(workList.pollCallEdge());
+                processCallEdge(workList.pollCallEdge());
             }
         }
         plugin.finish();
@@ -298,6 +315,191 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     /**
+     * Adds an edge "from -> to" to the PFG.
+     * If type is not null, then we need to filter out assignable objects
+     * in from points-to set.
+     */
+    private void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
+        if (pointerFlowGraph.addEdge(from, to, type, kind)) {
+            PointsToSet fromSet = type == null ?
+                    from.getPointsToSet() :
+                    getAssignablePointsToSet(from.getPointsToSet(), type);
+            if (!fromSet.isEmpty()) {
+                addPointerEntry(to, fromSet);
+            }
+        }
+    }
+
+    /**
+     * Adds an edge "from -> to" to the PFG.
+     */
+    private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+        addPFGEdge(from, to, null, kind);
+    }
+
+    /**
+     * Process the call edges in work list.
+     */
+    private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        if (!callGraph.containsEdge(edge)) {
+            callGraph.addEdge(edge);
+            CSMethod csCallee = edge.getCallee();
+            processNewCSMethod(csCallee);
+            Context callerCtx = edge.getCallSite().getContext();
+            InvokeExp callSite = edge.getCallSite().getCallSite();
+            Context calleeCtx = csCallee.getContext();
+            JMethod callee = csCallee.getMethod();
+            // pass arguments to parameters
+            for (int i = 0; i < callSite.getArgCount(); ++i) {
+                Var arg = callSite.getArg(i);
+                if (arg.getType() instanceof ReferenceType) {
+                    Var param = callee.getNewIR().getParam(i);
+                    CSVar argVar = csManager.getCSVar(callerCtx, arg);
+                    CSVar paramVar = csManager.getCSVar(calleeCtx, param);
+                    addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+                }
+            }
+            // pass results to LHS variable
+            Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
+            Var lhs = invoke.getResult();
+            if (lhs != null) {
+                CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
+                for (Var ret : callee.getNewIR().getReturnVars()) {
+                    CSVar csRet = csManager.getCSVar(calleeCtx, ret);
+                    addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                }
+            }
+        }
+    }
+
+    /**
+     * Processes new reachable context-sensitive method.
+     */
+    private void processNewCSMethod(CSMethod csMethod) {
+        if (callGraph.addNewMethod(csMethod)) {
+            processNewMethod(csMethod.getMethod());
+            StmtProcessor processor = new StmtProcessor(csMethod);
+            csMethod.getMethod()
+                    .getNewIR()
+                    .getStmts()
+                    .forEach(s -> s.accept(processor));
+            plugin.handleNewCSMethod(csMethod);
+        }
+    }
+
+    /**
+     * Processes new reachable methods.
+     */
+    private void processNewMethod(JMethod method) {
+        if (reachableMethods.add(method)) {
+            plugin.handleNewMethod(method);
+            method.getNewIR().getStmts()
+                    .forEach(s -> s.accept(classInitializer));
+        }
+    }
+
+    private JMethod resolveCallee(Type type, InvokeExp callSite) {
+        MethodRef methodRef = callSite.getMethodRef();
+        if (callSite instanceof InvokeVirtual ||
+                callSite instanceof InvokeInterface) {
+            return hierarchy.dispatch(type, methodRef);
+        } else if (callSite instanceof InvokeSpecial ||
+                callSite instanceof InvokeStatic) {
+            return methodRef.resolve();
+        } else {
+            throw new AnalysisException("Cannot resolve InvokeExp: " + callSite);
+        }
+    }
+
+    /**
+     * Process the statements in context-sensitive new reachable methods.
+     */
+    private class StmtProcessor implements StmtVisitor {
+
+        private final CSMethod csMethod;
+
+        private final Context context;
+
+        StmtProcessor(CSMethod csMethod) {
+            this.csMethod = csMethod;
+            this.context = csMethod.getContext();
+        }
+
+        @Override
+        public void visit(New stmt) {
+            // obtain context-sensitive heap object
+            Obj obj = heapModel.getObj(stmt.getRValue());
+            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+            addPointsTo(context, stmt.getLValue(), heapContext, obj);
+            // TODO: handle new multi-array
+        }
+
+        @Override
+        public void visit(AssignLiteral stmt) {
+            Literal literal = stmt.getRValue();
+            if (!(literal instanceof ReferenceLiteral) ||
+                    literal instanceof NullLiteral) {
+                return;
+            }
+            Obj obj = heapModel.getConstantObj(literal.getType(),
+                    ((ReferenceLiteral<?>) literal).getValue());
+            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+            addPointsTo(context, stmt.getLValue(), heapContext, obj);
+        }
+
+        @Override
+        public void visit(Copy stmt) {
+            CSVar from = csManager.getCSVar(context, stmt.getRValue());
+            CSVar to = csManager.getCSVar(context, stmt.getLValue());
+            addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+        }
+
+        @Override
+        public void visit(Cast stmt) {
+            CastExp cast = stmt.getRValue();
+            CSVar from = csManager.getCSVar(context, cast.getValue());
+            CSVar to = csManager.getCSVar(context, stmt.getLValue());
+            addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+        }
+
+        @Override
+        public void visit(LoadField stmt) {
+            FieldAccess fieldAccess = stmt.getRValue();
+            if (fieldAccess instanceof StaticFieldAccess) {
+                JField field = fieldAccess.getFieldRef().resolve();
+                StaticField sfield = csManager.getStaticField(field);
+                CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+            }
+        }
+
+        @Override
+        public void visit(StoreField stmt) {
+            FieldAccess fieldAccess = stmt.getLValue();
+            if (fieldAccess instanceof StaticFieldAccess) {
+                JField field = fieldAccess.getFieldRef().resolve();
+                StaticField sfield = csManager.getStaticField(field);
+                CSVar from = csManager.getCSVar(context, stmt.getRValue());
+                addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+            }
+        }
+
+        @Override
+        public void visit(Invoke stmt) {
+            InvokeExp callSite = stmt.getInvokeExp();
+            if (callSite instanceof InvokeStatic) {
+                JMethod callee = resolveCallee(null, callSite);
+                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+                CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
+                Edge<CSCallSite, CSMethod> edge =
+                        new Edge<>(CallKind.STATIC, csCallSite, csCallee);
+                workList.addCallEdge(edge);
+            }
+        }
+    }
+
+    /**
      * Triggers the analysis of class initializers.
      * Well, the description of "when initialization occurs" of
      * JLS (14e, 12.4.1) and JVM Spec. (14e, 5.5) looks not
@@ -357,7 +559,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 initializedClasses.add(cls);
                 CSMethod csMethod = csManager.getCSMethod(
                         contextSelector.getDefaultContext(), clinit);
-//                processNewCSMethod(csMethod);
+                processNewCSMethod(csMethod);
             }
         }
 
