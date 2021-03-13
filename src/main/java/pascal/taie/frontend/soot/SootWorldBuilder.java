@@ -22,6 +22,7 @@ import pascal.taie.java.types.TypeManagerImpl;
 import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.env.Environment;
 import pascal.taie.util.Timer;
+import soot.G;
 import soot.Scene;
 
 import java.util.Arrays;
@@ -106,7 +107,9 @@ public class SootWorldBuilder implements WorldBuilder {
                 .sum());
     }
 
-    public static void initSoot(Scene scene) {
+    public static void initSoot() {
+        G.reset();
+        Scene scene = G.v().soot_Scene();
         // The following line is necessary to avoid a runtime exception
         // when running soot with java 1.8
         scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);

@@ -54,7 +54,7 @@ public enum ResultPrinter implements Plugin {
 
     private PointerAnalysis pta;
 
-    public static ResultPrinter v() {
+    public static ResultPrinter get() {
         return INSTANCE;
     }
 

@@ -15,7 +15,7 @@ package pascal.taie.dataflow.analysis.deadcode;
 
 import pascal.taie.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.dataflow.analysis.livevar.LiveVariableAnalysis;
-import pascal.taie.util.SootUtils;
+import pascal.taie.frontend.soot.SootUtils;
 import soot.Body;
 import soot.BriefUnitPrinter;
 import soot.G;

@@ -17,7 +17,7 @@ import pascal.taie.dataflow.analysis.DataFlowAnalysis;
 import pascal.taie.dataflow.lattice.DataFlowTag;
 import pascal.taie.dataflow.solver.Solver;
 import pascal.taie.dataflow.solver.SolverFactory;
-import pascal.taie.util.SootUtils;
+import pascal.taie.frontend.soot.SootUtils;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.BriefUnitPrinter;

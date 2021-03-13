@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.util;
+package pascal.taie.frontend.soot;
 
 import soot.LabeledUnitPrinter;
 import soot.Unit;

@@ -18,7 +18,7 @@ import pascal.taie.dataflow.analysis.constprop.FlowMap;
 import pascal.taie.dataflow.analysis.constprop.Value;
 import pascal.taie.dataflow.lattice.DataFlowTag;
 import pascal.taie.dataflow.lattice.FlowSet;
-import pascal.taie.util.SootUtils;
+import pascal.taie.frontend.soot.SootUtils;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.BriefUnitPrinter;

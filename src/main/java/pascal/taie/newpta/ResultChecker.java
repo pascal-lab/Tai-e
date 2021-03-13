@@ -21,7 +21,6 @@ import pascal.taie.newpta.core.solver.PointerAnalysis;
 import pascal.taie.newpta.plugin.ResultPrinter;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
-import soot.G;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -102,7 +101,6 @@ public class ResultChecker {
         ResultChecker checker = new ResultChecker(Paths.get(path));
         setChecker(checker);
 
-        G.reset(); // reset the whole Soot environment
         Main.main(args);
         return checker.getMismatches();
     }
@@ -168,7 +166,7 @@ public class ResultChecker {
         } catch (UnsupportedEncodingException e) {
             throw new AnalysisException(e);
         }
-        ResultPrinter.v().setOut(printStream);
+        ResultPrinter.get().setOut(printStream);
     }
 
     /**
