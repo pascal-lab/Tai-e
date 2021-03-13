@@ -36,9 +36,11 @@ import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
@@ -233,11 +235,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 PointsToSet diff = propagate(p, pts);
                 if (p instanceof CSVar) {
                     CSVar v = (CSVar) p;
-//                    processInstanceStore(v, diff);
-//                    processInstanceLoad(v, diff);
-//                    processArrayStore(v, diff);
-//                    processArrayLoad(v, diff);
-//                    processCall(v, diff);
+                    processInstanceStore(v, diff);
+                    processInstanceLoad(v, diff);
+                    processArrayStore(v, diff);
+                    processArrayLoad(v, diff);
+                    processCall(v, diff);
                     plugin.handleNewPointsToSet(v, diff);
                 }
             }
@@ -337,7 +339,115 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         addPFGEdge(from, to, null, kind);
     }
+    
+    /**
+     * Processes instance stores when points-to set of the base variable changes.
+     *
+     * @param baseVar the base variable
+     * @param pts     set of new discovered objects pointed by the variable.
+     */
+    private void processInstanceStore(CSVar baseVar, PointsToSet pts) {
+        Context context = baseVar.getContext();
+        Var var = baseVar.getVar();
+        for (StoreField store : var.getStoreFields()) {
+            CSVar from = csManager.getCSVar(context, store.getRValue());
+            for (CSObj baseObj : pts) {
+                InstanceField instField = csManager.getInstanceField(
+                        baseObj, store.getLValue().getFieldRef().resolve());
+                addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+            }
+        }
+    }
 
+    /**
+     * Processes instance loads when points-to set of the base variable changes.
+     *
+     * @param baseVar the base variable
+     * @param pts     set of new discovered objects pointed by the variable.
+     */
+    private void processInstanceLoad(CSVar baseVar, PointsToSet pts) {
+        Context context = baseVar.getContext();
+        Var var = baseVar.getVar();
+        for (LoadField load : var.getLoadFields()) {
+            CSVar to = csManager.getCSVar(context, load.getLValue());
+            for (CSObj baseObj : pts) {
+                InstanceField instField = csManager.getInstanceField(
+                        baseObj, load.getRValue().getFieldRef().resolve());
+                addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+            }
+        }
+    }
+    
+        /**
+     * Processes array stores when points-to set of the array variable changes.
+     *
+     * @param arrayVar the array variable
+     * @param pts      set of new discovered arrays pointed by the variable.
+     */
+    private void processArrayStore(CSVar arrayVar, PointsToSet pts) {
+        Context context = arrayVar.getContext();
+        Var var = arrayVar.getVar();
+        for (StoreArray store : var.getStoreArrays()) {
+            CSVar from = csManager.getCSVar(context, store.getRValue());
+            for (CSObj array : pts) {
+                ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                // we need type guard for array stores as Java arrays
+                // are covariant
+                addPFGEdge(from, arrayIndex, arrayIndex.getType(),
+                        PointerFlowEdge.Kind.ARRAY_STORE);
+            }
+        }
+    }
+
+    /**
+     * Processes array loads when points-to set of the array variable changes.
+     *
+     * @param arrayVar the array variable
+     * @param pts      set of new discovered arrays pointed by the variable.
+     */
+    private void processArrayLoad(CSVar arrayVar, PointsToSet pts) {
+        Context context = arrayVar.getContext();
+        Var var = arrayVar.getVar();
+        for (LoadArray load : var.getLoadArrays()) {
+            CSVar to = csManager.getCSVar(context, load.getLValue());
+            for (CSObj array : pts) {
+                ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+            }
+        }
+    }
+    
+    /**
+     * Processes instance calls when points-to set of the receiver variable changes.
+     *
+     * @param recv the receiver variable
+     * @param pts  set of new discovered objects pointed by the variable.
+     */
+    private void processCall(CSVar recv, PointsToSet pts) {
+        Context context = recv.getContext();
+        Var var = recv.getVar();
+        for (Invoke invoke : var.getInvokes()) {
+            InvokeExp callSite = invoke.getInvokeExp();
+            for (CSObj recvObj : pts) {
+                // resolve callee
+                JMethod callee = resolveCallee(
+                        recvObj.getObject().getType(), callSite);
+                // select context
+                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+                Context calleeContext = contextSelector.selectContext(
+                        csCallSite, recvObj, callee);
+                // build call edge
+                CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
+                workList.addCallEdge(new Edge<>(
+                        getCallKind(callSite), csCallSite, csCallee));
+                // pass receiver object to *this* variable
+                CSVar thisVar = csManager.getCSVar(
+                        calleeContext, callee.getNewIR().getThis());
+                addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
+            }
+        }
+    }
+    
     /**
      * Process the call edges in work list.
      */
@@ -416,6 +526,20 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
+    private static CallKind getCallKind(InvokeExp invokeExp) {
+        if (invokeExp instanceof InvokeVirtual) {
+            return CallKind.VIRTUAL;
+        } else if (invokeExp instanceof InvokeInterface) {
+            return CallKind.INTERFACE;
+        } else if (invokeExp instanceof InvokeSpecial) {
+            return CallKind.SPECIAL;
+        } else if (invokeExp instanceof InvokeStatic) {
+            return CallKind.STATIC;
+        } else {
+            throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
+        }
+    }
+
     private static boolean isReferenceType(Exp exp) {
         return exp.getType() instanceof ReferenceType;
     }
@@ -474,6 +598,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             }
         }
 
+        /**
+         * Process static load.
+         */
         @Override
         public void visit(LoadField stmt) {
             FieldAccess fieldAccess = stmt.getRValue();
@@ -486,6 +613,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             }
         }
 
+        /**
+         * Process static store.
+         */
         @Override
         public void visit(StoreField stmt) {
             FieldAccess fieldAccess = stmt.getLValue();
@@ -498,6 +628,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             }
         }
 
+        /**
+         * Process static invocation.
+         */
         @Override
         public void visit(Invoke stmt) {
             InvokeExp callSite = stmt.getInvokeExp();
