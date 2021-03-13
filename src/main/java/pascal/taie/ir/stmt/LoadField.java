@@ -22,7 +22,7 @@ import pascal.taie.ir.exp.Var;
  * - load instance field: x = o.f
  * - load static field: x = T.f
  */
-public class LoadField extends AssignStmt<Var, FieldAccess> {
+public class LoadField extends FieldStmt<Var, FieldAccess> {
 
     public LoadField(Var lvalue, FieldAccess rvalue) {
         super(lvalue, rvalue);
@@ -30,6 +30,11 @@ public class LoadField extends AssignStmt<Var, FieldAccess> {
             Var base = ((InstanceFieldAccess) rvalue).getBase();
             base.addLoadField(this);
         }
+    }
+
+    @Override
+    public FieldAccess getFieldAccess() {
+        return getRValue();
     }
 
     @Override

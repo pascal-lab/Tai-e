@@ -22,7 +22,7 @@ import pascal.taie.ir.exp.Var;
  * - store instance field: o.f = x
  * - store static field: T.f = x
  */
-public class StoreField extends AssignStmt<FieldAccess, Var> {
+public class StoreField extends FieldStmt<FieldAccess, Var> {
 
     public StoreField(FieldAccess lvalue, Var rvalue) {
         super(lvalue, rvalue);
@@ -30,6 +30,11 @@ public class StoreField extends AssignStmt<FieldAccess, Var> {
             Var base = ((InstanceFieldAccess) lvalue).getBase();
             base.addStoreField(this);
         }
+    }
+
+    @Override
+    public FieldAccess getFieldAccess() {
+        return getLValue();
     }
 
     @Override

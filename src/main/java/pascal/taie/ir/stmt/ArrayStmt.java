@@ -14,25 +14,14 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.ArrayAccess;
-import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
 
-/**
- * Representation of load array statement, e.g., x = a[..].
- */
-public class LoadArray extends ArrayStmt<Var, ArrayAccess> {
+abstract class ArrayStmt<L extends LValue, R extends RValue> extends AssignStmt<L, R> {
 
-    public LoadArray(Var lvalue, ArrayAccess rvalue) {
+    ArrayStmt(L lvalue, R rvalue) {
         super(lvalue, rvalue);
-        rvalue.getBase().addLoadArray(this);
     }
 
-    @Override
-    public ArrayAccess getArrayAccess() {
-        return getRValue();
-    }
-
-    @Override
-    public void accept(StmtVisitor visitor) {
-        visitor.visit(this);
-    }
+    public abstract ArrayAccess getArrayAccess();
 }

@@ -15,7 +15,9 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.java.classes.MethodRef;
 
 import javax.annotation.Nullable;
 
@@ -47,6 +49,14 @@ public class Invoke extends AbstractStmt {
 
     public @Nullable Var getResult() {
         return result;
+    }
+
+    public MethodRef getMethodRef() {
+        return invokeExp.getMethodRef();
+    }
+
+    public boolean isStatic() {
+        return invokeExp instanceof InvokeStatic;
     }
 
     @Override
