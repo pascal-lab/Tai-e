@@ -17,7 +17,6 @@ import pascal.taie.ir.NewIR;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.IR;
-import soot.SootMethod;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +30,11 @@ public class JMethod extends ClassMember {
 
     private final Subsignature subsignature;
 
-    private final SootMethod sootMethod; // TODO: <-- get rid of this
+    /**
+     * Source of the body (and/or other information) of this method.
+     * IRBuilder can use this to build method IR.
+     */
+    private final Object methodSource;
 
     private IR ir;
 
@@ -39,13 +42,13 @@ public class JMethod extends ClassMember {
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> paramTypes, Type returnType,
-                   SootMethod sootMethod) {
+                   Object methodSource) {
         super(declaringClass, name, modifiers);
         this.paramTypes = Collections.unmodifiableList(paramTypes);
         this.returnType = returnType;
         this.signature = StringReps.getSignatureOf(this);
         this.subsignature = Subsignature.get(name, paramTypes, returnType);
-        this.sootMethod = sootMethod;
+        this.methodSource = methodSource;
     }
 
     public boolean isAbstract() {
@@ -76,8 +79,8 @@ public class JMethod extends ClassMember {
         return subsignature;
     }
 
-    public SootMethod getSootMethod() {
-        return sootMethod;
+    public Object getMethodSource() {
+        return methodSource;
     }
 
     public IR getIR() {

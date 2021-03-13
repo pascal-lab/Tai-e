@@ -81,13 +81,14 @@ public class JimplePointerAnalysis {
                 CallGraph<CallSite, JMethod> callGraph = cipta.getCallGraph();
                 callGraph.getEntryMethods()
                         .stream()
-                        .map(JMethod::getSootMethod)
+                        .map(e -> (SootMethod) e.getMethodSource())
                         .forEach(jimpleCallGraph::addEntryMethod);
                 // Add call graph edges
                 callGraph.forEach(edge -> {
                     Unit call = ((DefaultCallSite) edge.getCallSite())
                             .getSootStmt();
-                    SootMethod target = edge.getCallee().getSootMethod();
+                    SootMethod target =
+                            (SootMethod) edge.getCallee().getMethodSource();
                     jimpleCallGraph.addEdge(call, target, edge.getKind());
                 });
             } else {
@@ -102,6 +103,6 @@ public class JimplePointerAnalysis {
     }
 
     private SootMethod toSootMethod(CSMethod method) {
-        return method.getMethod().getSootMethod();
+        return (SootMethod) method.getMethod().getMethodSource();
     }
 }

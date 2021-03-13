@@ -80,6 +80,7 @@ import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.Type;
 import soot.Body;
 import soot.Local;
+import soot.SootMethod;
 import soot.Trap;
 import soot.Unit;
 import soot.UnitBox;
@@ -188,7 +189,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     NewIR build() {
-        Body body = method.getSootMethod().retrieveActiveBody();
+        Body body = ((SootMethod) method.getMethodSource())
+                .retrieveActiveBody();
         varManager = new VarManager(method, converter);
         if (method.getReturnType().equals(VOID)) {
             returnVars = Collections.emptySet();
