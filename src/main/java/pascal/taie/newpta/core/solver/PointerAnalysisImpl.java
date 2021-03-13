@@ -79,11 +79,14 @@ import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static pascal.taie.java.classes.StringReps.FINALIZE;
+import static pascal.taie.java.classes.StringReps.FINALIZER_REGISTER;
 import static pascal.taie.util.CollectionUtils.newMap;
 import static pascal.taie.util.CollectionUtils.newSet;
 
@@ -575,6 +578,15 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         private final Map<NewMultiArray, NewArray[]> newArrays = newMap();
 
+        private final JMethod finalize = hierarchy.getJREMethod(FINALIZE);
+
+        private final MethodRef finalizeRef = finalize.getRef();
+
+        private final MethodRef registerRef = hierarchy
+                .getJREMethod(FINALIZER_REGISTER).getRef();
+
+        private final Map<New, InvokeStatic> registerInvokes = newMap();
+
         private void setCSMethod(CSMethod csMethod) {
             this.csMethod = csMethod;
             this.context = csMethod.getContext();
@@ -590,6 +602,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             if (rvalue instanceof NewMultiArray) {
                 processNewMultiArray((NewMultiArray) rvalue, heapContext, obj);
             }
+            if (hasOverriddenFinalize(rvalue)) {
+                processFinalizer(stmt);
             }
         }
 
@@ -615,6 +629,36 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 arrayContext = elemContext;
             }
         }
+
+        private boolean hasOverriddenFinalize(NewExp newExp) {
+            return !hierarchy.dispatch(newExp.getType(), finalizeRef)
+                    .equals(finalize);
+        }
+
+        /**
+         * Call Finalizer.register() at allocation sites of objects which override
+         * Object.finalize() method.
+         * NOTE: finalize() has been deprecated starting with Java 9, and will
+         * eventually be removed.
+         */
+        private void processFinalizer(New stmt) {
+            InvokeStatic registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
+                InvokeStatic callSite = new InvokeStatic(registerRef,
+                        Collections.singletonList(s.getLValue()));
+                callSite.setCallSite(s.getRValue().getAllocationSite());
+                return callSite;
+            });
+            processInvokeStatic(registerInvoke);
+        }
+
+        private void processInvokeStatic(InvokeStatic callSite) {
+            JMethod callee = resolveCallee(null, callSite);
+            CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+            Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+            CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
+            Edge<CSCallSite, CSMethod> edge =
+                    new Edge<>(CallKind.STATIC, csCallSite, csCallee);
+            workList.addCallEdge(edge);
         }
 
         @Override
@@ -685,13 +729,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(Invoke stmt) {
             InvokeExp callSite = stmt.getInvokeExp();
             if (callSite instanceof InvokeStatic) {
-                JMethod callee = resolveCallee(null, callSite);
-                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
-                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
-                CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-                Edge<CSCallSite, CSMethod> edge =
-                        new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                workList.addCallEdge(edge);
+                processInvokeStatic((InvokeStatic) callSite);
             }
         }
     }

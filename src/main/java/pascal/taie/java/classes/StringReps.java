@@ -53,6 +53,11 @@ public class StringReps {
     // Subsignatures of special methods
     public static final String CLINIT = "void <clinit>()";
 
+    // Signature of special methods
+    public static final String FINALIZE = "<java.lang.Object: void finalize()>";
+
+    public static final String FINALIZER_REGISTER = "<java.lang.ref.Finalizer: void register(java.lang.Object)>";
+
     // Suppresses default constructor, ensuring non-instantiability.
     private StringReps() {
     }
