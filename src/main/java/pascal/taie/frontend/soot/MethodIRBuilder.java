@@ -395,7 +395,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
         @Override
         public void caseClassConstant(ClassConstant v) {
-            setResult(ClassLiteral.get(getType(v.value)));
+            Type type = converter.convertType(v.toSootType());
+            setResult(ClassLiteral.get(type));
         }
 
         @Override
@@ -457,12 +458,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
      */
-    private Type getType(Value value) {
+    private Type getTypeOf(Value value) {
         return converter.convertType(value.getType());
-    }
-
-    private Type getType(String typeName) {
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -522,12 +519,12 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
         @Override
         public void caseNewExpr(NewExpr v) {
-            setResult(new NewInstance((ClassType) getType(v)));
+            setResult(new NewInstance((ClassType) getTypeOf(v)));
         }
 
         @Override
         public void caseNewArrayExpr(NewArrayExpr v) {
-            setResult(new NewArray((ArrayType) getType(v),
+            setResult(new NewArray((ArrayType) getTypeOf(v),
                     getLocalOrConstant(v.getSize())));
         }
 
@@ -537,7 +534,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                     .stream()
                     .map(MethodIRBuilder.this::getLocalOrConstant)
                     .collect(Collectors.toList());
-            setResult(new NewMultiArray((ArrayType) getType(v), lengths));
+            setResult(new NewMultiArray((ArrayType) getTypeOf(v), lengths));
         }
     };
 

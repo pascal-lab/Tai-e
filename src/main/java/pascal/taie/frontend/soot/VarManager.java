@@ -57,7 +57,7 @@ class VarManager {
     }
 
     void addThis(Local thisLocal) {
-        thisVar = newVar(THIS, getType(thisLocal));
+        thisVar = newVar(THIS, getTypeOf(thisLocal));
         varMap.put(thisLocal, thisVar);
     }
 
@@ -67,7 +67,7 @@ class VarManager {
 
     Var getVar(Local local) {
         return varMap.computeIfAbsent(local, l ->
-                newVar(l.getName(), getType(l)));
+                newVar(l.getName(), getTypeOf(l)));
     }
 
     /**
@@ -109,7 +109,7 @@ class VarManager {
     /**
      * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
      */
-    private Type getType(Value value) {
+    private Type getTypeOf(Value value) {
         return converter.convertType(value.getType());
     }
 }
