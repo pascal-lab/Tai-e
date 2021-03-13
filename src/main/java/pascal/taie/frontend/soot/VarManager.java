@@ -18,6 +18,7 @@ import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
 import soot.Local;
 import soot.Value;
@@ -37,6 +38,11 @@ class VarManager {
 
     private final static String NULL_CONSTANT = "%nullconstant";
 
+    /**
+     * The method which contains the variable managed by this VarManager.
+     */
+    private final JMethod method;
+
     private final Converter converter;
 
     private final Map<Local, Var> varMap = new LinkedHashMap<>();
@@ -52,7 +58,8 @@ class VarManager {
      */
     private int counter = 0;
 
-    VarManager(Converter converter) {
+    public VarManager(JMethod method, Converter converter) {
+        this.method = method;
         this.converter = converter;
     }
 
@@ -101,7 +108,7 @@ class VarManager {
     }
 
     private Var newVar(String name, Type type) {
-        Var var = new Var(name, type);
+        Var var = new Var(method, name, type);
         vars.add(var);
         return var;
     }

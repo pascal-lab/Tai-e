@@ -18,6 +18,7 @@ import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.types.Type;
 
 import java.util.ArrayList;
@@ -30,6 +31,11 @@ import java.util.List;
  */
 public class Var implements LValue, RValue {
 
+    /**
+     * The method containing this Var.
+     */
+    private final JMethod method;
+
     private final String name;
 
     private final Type type;
@@ -39,9 +45,17 @@ public class Var implements LValue, RValue {
      */
     private RelevantStmts relevantStmts = RelevantStmts.EMPTY;
 
-    public Var(String name, Type type) {
+    public Var(JMethod method, String name, Type type) {
+        this.method = method;
         this.name = name;
         this.type = type;
+    }
+
+    /**
+     * @return the method containing this Var.
+     */
+    public JMethod getMethod() {
+        return method;
     }
 
     public String getName() {
