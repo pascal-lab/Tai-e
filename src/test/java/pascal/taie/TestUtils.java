@@ -55,6 +55,17 @@ public class TestUtils {
                 "pascal.taie.pta.ResultChecker", optList);
     }
 
+    public static void testNewCSPTA(String inputClass, String... opts) {
+        List<String> optList = new ArrayList<>();
+        Collections.addAll(optList, opts);
+        // ignore implicit entries in test mode
+        optList.add("--no-implicit-entries");
+        optList.add("--test-mode");
+        optList.add("--"); // used by Tai'e to split Soot arguments
+        test(inputClass, "cspta",
+                "pascal.taie.newpta.ResultChecker", optList);
+    }
+
     private static void test(String inputClass, String analysis, String checker) {
         test(inputClass, analysis, checker, Collections.emptyList());
     }
