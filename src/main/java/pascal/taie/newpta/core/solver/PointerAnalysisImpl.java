@@ -358,11 +358,14 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = baseVar.getContext();
         Var var = baseVar.getVar();
         for (StoreField store : var.getStoreFields()) {
-            CSVar from = csManager.getCSVar(context, store.getRValue());
-            for (CSObj baseObj : pts) {
-                InstanceField instField = csManager.getInstanceField(
-                        baseObj, store.getLValue().getFieldRef().resolve());
-                addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+            FieldAccess fieldAccess = store.getLValue();
+            if (isReferenceType(fieldAccess)) {
+                CSVar from = csManager.getCSVar(context, store.getRValue());
+                for (CSObj baseObj : pts) {
+                    InstanceField instField = csManager.getInstanceField(
+                            baseObj, fieldAccess.getFieldRef().resolve());
+                    addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+                }
             }
         }
     }
@@ -377,11 +380,14 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = baseVar.getContext();
         Var var = baseVar.getVar();
         for (LoadField load : var.getLoadFields()) {
-            CSVar to = csManager.getCSVar(context, load.getLValue());
-            for (CSObj baseObj : pts) {
-                InstanceField instField = csManager.getInstanceField(
-                        baseObj, load.getRValue().getFieldRef().resolve());
-                addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+            FieldAccess fieldAccess = load.getRValue();
+            if (isReferenceType(fieldAccess)) {
+                CSVar to = csManager.getCSVar(context, load.getLValue());
+                for (CSObj baseObj : pts) {
+                    InstanceField instField = csManager.getInstanceField(
+                            baseObj, fieldAccess.getFieldRef().resolve());
+                    addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                }
             }
         }
     }
@@ -396,13 +402,16 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = arrayVar.getContext();
         Var var = arrayVar.getVar();
         for (StoreArray store : var.getStoreArrays()) {
-            CSVar from = csManager.getCSVar(context, store.getRValue());
-            for (CSObj array : pts) {
-                ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                // we need type guard for array stores as Java arrays
-                // are covariant
-                addPFGEdge(from, arrayIndex, arrayIndex.getType(),
-                        PointerFlowEdge.Kind.ARRAY_STORE);
+            Var rvalue = store.getRValue();
+            if (isReferenceType(rvalue)) {
+                CSVar from = csManager.getCSVar(context, rvalue);
+                for (CSObj array : pts) {
+                    ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                    // we need type guard for array stores as Java arrays
+                    // are covariant
+                    addPFGEdge(from, arrayIndex, arrayIndex.getType(),
+                            PointerFlowEdge.Kind.ARRAY_STORE);
+                }
             }
         }
     }
@@ -417,10 +426,13 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Context context = arrayVar.getContext();
         Var var = arrayVar.getVar();
         for (LoadArray load : var.getLoadArrays()) {
-            CSVar to = csManager.getCSVar(context, load.getLValue());
-            for (CSObj array : pts) {
-                ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+            Var lvalue = load.getLValue();
+            if (isReferenceType(lvalue)) {
+                CSVar to = csManager.getCSVar(context, lvalue);
+                for (CSObj array : pts) {
+                    ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                    addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+                }
             }
         }
     }
@@ -707,7 +719,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(AssignLiteral stmt) {
             Literal rvalue = stmt.getRValue();
-            if (rvalue.getType() instanceof ReferenceType) {
+            if (isReferenceType(rvalue)) {
                 initializeClass(extractClass(rvalue.getType()));
                 if (rvalue instanceof ClassLiteral) {
                     initializeClass(extractClass(
