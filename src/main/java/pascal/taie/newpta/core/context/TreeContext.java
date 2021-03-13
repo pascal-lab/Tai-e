@@ -90,7 +90,7 @@ class TreeContext<T> implements Context {
             elems[i] = c.getElem();
             c = c.getParent();
         }
-        return "Context@" + Arrays.toString(elems);
+        return Arrays.toString(elems);
     }
 
     static class Factory<T> implements ContextFactory<T> {

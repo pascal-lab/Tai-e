@@ -79,11 +79,11 @@ public class EnvObj implements Obj {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[Env]");
+        sb.append("EnvObj{");
         if (containerMethod != null) {
             sb.append(containerMethod).append("/");
         }
-        sb.append(descr);
+        sb.append(descr).append('}');
         return sb.toString();
     }
 }

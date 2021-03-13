@@ -82,6 +82,6 @@ public class MergedObj implements Obj {
 
     @Override
     public String toString() {
-        return name;
+        return "MergedObj{" + name + "}";
     }
 }

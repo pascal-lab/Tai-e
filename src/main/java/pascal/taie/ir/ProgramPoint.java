@@ -63,7 +63,7 @@ public class ProgramPoint {
 
     @Override
     public String toString() {
-        return String.format("[PP] %s:%d(@L%d)",
+        return String.format("%s:%d(@L%d)",
                 method, getIndex(), stmt.getLineNumber());
     }
 }
