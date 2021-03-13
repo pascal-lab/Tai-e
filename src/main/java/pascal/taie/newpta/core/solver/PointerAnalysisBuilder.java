@@ -85,7 +85,7 @@ public class PointerAnalysisBuilder {
         plugin.addPlugin(
                 new AnalysisTimer(),
                 new Preprocessor(),
-                new ThreadHandler(),
+//                new ThreadHandler(),
                 ResultPrinter.v()
         );
         plugin.setPointerAnalysis(pta);

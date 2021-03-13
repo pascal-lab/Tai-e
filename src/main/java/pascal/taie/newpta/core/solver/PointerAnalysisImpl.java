@@ -112,7 +112,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     
     @Override
     public ClassHierarchy getHierarchy() {
-        return null;
+        return hierarchy;
     }
 
     @Override
@@ -376,6 +376,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * Processes new reachable context-sensitive method.
      */
     private void processNewCSMethod(CSMethod csMethod) {
+        if (csMethod.getMethod().isNative()) {
+            // TODO: handle native methods
+            return;
+        }
         if (callGraph.addNewMethod(csMethod)) {
             processNewMethod(csMethod.getMethod());
             StmtProcessor processor = new StmtProcessor(csMethod);
