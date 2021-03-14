@@ -24,6 +24,7 @@ import pascal.taie.newpta.plugin.AnalysisTimer;
 import pascal.taie.newpta.plugin.CompositePlugin;
 import pascal.taie.newpta.plugin.Preprocessor;
 import pascal.taie.newpta.plugin.ResultPrinter;
+import pascal.taie.newpta.plugin.ThreadHandler;
 import pascal.taie.newpta.set.HybridPointsToSet;
 import pascal.taie.newpta.set.PointsToSetFactory;
 import pascal.taie.pta.PTAOptions;
@@ -84,7 +85,7 @@ public class PointerAnalysisBuilder {
         plugin.addPlugin(
                 new AnalysisTimer(),
                 new Preprocessor(),
-//                new ThreadHandler(),
+                new ThreadHandler(),
                 ResultPrinter.get()
         );
         plugin.setPointerAnalysis(pta);

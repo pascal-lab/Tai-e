@@ -45,6 +45,9 @@ class NativeIRBuilder {
 
     private List<Var> params;
 
+    /**
+     * Counter for numbering temporary variables.
+     */
     private int tempCounter = 0;
 
     private Var returnVar;
@@ -73,14 +76,24 @@ class NativeIRBuilder {
     }
 
     /**
+     * @return a new return statement of the IR being built.
+     */
+    Return newReturn() {
+        return returnVar != null ? new Return(returnVar) : new Return();
+    }
+
+    /**
      * Build an IR with empty body which contains only a return statement.
      */
     NewIR buildEmpty() {
-        Return ret = returnVar != null ? new Return(returnVar) : new Return();
-        return build(singletonList(ret));
+        return build(singletonList(newReturn()));
     }
 
     NewIR build(List<Stmt> stmts) {
+        int i = 0;
+        for (Stmt stmt : stmts) {
+            stmt.setIndex(i++);
+        }
         return new DefaultNewIR(method, thisVar, freeze(params),
                 singletonList(returnVar), freeze(vars),
                 freeze(stmts), Collections.emptyList());
@@ -91,7 +104,7 @@ class NativeIRBuilder {
         if (!method.isStatic()) {
             thisVar = newVar(THIS, method.getDeclaringClass().getType());
         }
-        int counter = 1;
+        int counter = 0;
         params = new ArrayList<>(method.getParamCount());
         for (Type paramType : method.getParamTypes()) {
             params.add(newVar(PARAM + counter++, paramType));
