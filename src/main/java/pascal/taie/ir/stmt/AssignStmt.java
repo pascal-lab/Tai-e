@@ -21,7 +21,7 @@ import pascal.taie.ir.exp.RValue;
  * @param <L> type of lvalue.
  * @param <R> type of rvalue.
  */
-abstract class AssignStmt<L extends LValue, R extends RValue> extends AbstractStmt {
+public abstract class AssignStmt<L extends LValue, R extends RValue> extends AbstractStmt {
 
     private final L lvalue;
 

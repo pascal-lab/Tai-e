@@ -20,8 +20,6 @@ import static pascal.taie.java.classes.StringReps.STRING;
 
 public class StringLiteral implements ReferenceLiteral<String> {
 
-    private static ClassType stringType;
-
     private final String value;
 
     private StringLiteral(String value) {
@@ -35,11 +33,9 @@ public class StringLiteral implements ReferenceLiteral<String> {
 
     @Override
     public ClassType getType() {
-        if (stringType == null) {
-            stringType = World.getTypeManager()
-                    .getClassType(STRING);
-        }
-        return stringType;
+        // TODO: cache String type in a static field? Doing so
+        //  requires to reset the field when resetting World.
+        return World.getTypeManager().getClassType(STRING);
     }
 
     @Override

@@ -229,6 +229,9 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             target = lookupMethod(receiverClass, subsignature, false);
             if (target != null) {
                 dispatchTable.get(receiverClass).put(subsignature, target);
+            } else {
+                throw new AnalysisException("Fail to dispatch \"" +
+                        subsignature + "\" on " + receiverClass);
             }
         }
         return target;

@@ -21,14 +21,12 @@ import static pascal.taie.java.classes.StringReps.CLASS;
 
 public class ClassLiteral implements ReferenceLiteral<Type> {
 
-    private static ClassType classType;
-
     /**
      * The type represented by this class object.
      */
     private final Type value;
 
-    public ClassLiteral(Type value) {
+    private ClassLiteral(Type value) {
         this.value = value;
     }
 
@@ -38,11 +36,9 @@ public class ClassLiteral implements ReferenceLiteral<Type> {
 
     @Override
     public ClassType getType() {
-        if (classType == null) {
-            classType = World.getTypeManager()
-                    .getClassType(CLASS);
-        }
-        return classType;
+        // TODO: cache Class type in a static field? Doing so
+        //  requires to reset the field when resetting World.
+        return World.getTypeManager().getClassType(CLASS);
     }
 
     @Override
