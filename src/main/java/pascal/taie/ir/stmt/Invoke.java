@@ -13,10 +13,12 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodRef;
 
 import javax.annotation.Nullable;
@@ -30,17 +32,18 @@ public class Invoke extends AbstractStmt {
 
     private final Var result;
 
-    public Invoke(InvokeExp invokeExp, Var result) {
+    public Invoke(JMethod method, InvokeExp invokeExp, Var result) {
         this.invokeExp = invokeExp;
         this.result = result;
         if (invokeExp instanceof InvokeInstanceExp) {
             Var base = ((InvokeInstanceExp) invokeExp).getBase();
             base.addInvoke(this);
         }
+        invokeExp.setCallSite(new ProgramPoint(method, this));
     }
 
-    public Invoke(InvokeExp invokeExp) {
-        this(invokeExp, null);
+    public Invoke(JMethod method, InvokeExp invokeExp) {
+        this(method, invokeExp, null);
     }
 
     public InvokeExp getInvokeExp() {

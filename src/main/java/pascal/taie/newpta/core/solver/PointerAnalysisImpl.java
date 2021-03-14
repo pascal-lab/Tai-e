@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
-import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Exp;
@@ -645,10 +644,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             InvokeStatic registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
                 InvokeStatic callSite = new InvokeStatic(registerRef,
                         Collections.singletonList(s.getLValue()));
-                Invoke invoke = new Invoke(callSite);
+                Invoke invoke = new Invoke(csMethod.getMethod(), callSite);
                 invoke.setLineNumber(stmt.getLineNumber());
-                callSite.setCallSite(
-                        new ProgramPoint(csMethod.getMethod(), invoke));
                 return callSite;
             });
             processInvokeStatic(registerInvoke);

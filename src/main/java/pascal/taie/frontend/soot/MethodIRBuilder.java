@@ -16,7 +16,6 @@ package pascal.taie.frontend.soot;
 import pascal.taie.ir.DefaultNewIR;
 import pascal.taie.ir.ExceptionEntry;
 import pascal.taie.ir.NewIR;
-import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -543,8 +542,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     private void buildNew(Local lhs, AnyNewExpr rhs) {
         rhs.apply(newExprConverter);
         NewExp newExp = (NewExp) newExprConverter.getResult();
-        New newStmt = new New(getVar(lhs), newExp);
-        newExp.setAllocationSite(new ProgramPoint(method, newStmt));
+        New newStmt = new New(method, getVar(lhs), newExp);
         addStmt(newStmt);
     }
 
@@ -751,8 +749,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
         Var result = lhs == null ? null : getVar(lhs);
         InvokeExp invokeExp = getInvokeExp(invokeExpr);
-        Invoke invoke = new Invoke(invokeExp, result);
-        invokeExp.setCallSite(new ProgramPoint(method, invoke));
+        Invoke invoke = new Invoke(method, invokeExp, result);
         addStmt(invoke);
     }
 

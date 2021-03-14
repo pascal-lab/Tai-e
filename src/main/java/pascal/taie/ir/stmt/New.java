@@ -13,8 +13,10 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.java.classes.JMethod;
 
 /**
  * Representation of following kinds of new statements:
@@ -24,8 +26,9 @@ import pascal.taie.ir.exp.Var;
  */
 public class New extends AssignStmt<Var, NewExp> {
 
-    public New(Var lvalue, NewExp rvalue) {
+    public New(JMethod method, Var lvalue, NewExp rvalue) {
         super(lvalue, rvalue);
+        rvalue.setAllocationSite(new ProgramPoint(method, this));
     }
 
     @Override
