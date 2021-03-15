@@ -58,6 +58,11 @@ public class StringReps {
 
     public static final String FINALIZER_REGISTER = "<java.lang.ref.Finalizer: void register(java.lang.Object)>";
 
+    public static final String REFERENCE_INIT = "<java.lang.ref.Reference: void <init>(java.lang.Object,java.lang.ref.ReferenceQueue)>";
+
+    // Signature of special fields
+    public static final String REFERENCE_PENDING = "<java.lang.ref.Reference: java.lang.ref.Reference pending>";
+
     // Suppresses default constructor, ensuring non-instantiability.
     private StringReps() {
     }

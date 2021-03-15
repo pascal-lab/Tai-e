@@ -23,6 +23,7 @@ import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.pta.plugin.AnalysisTimer;
 import pascal.taie.pta.plugin.CompositePlugin;
 import pascal.taie.pta.plugin.Preprocessor;
+import pascal.taie.pta.plugin.ReferenceHandler;
 import pascal.taie.pta.plugin.ResultPrinter;
 import pascal.taie.pta.plugin.ThreadHandler;
 import pascal.taie.pta.set.HybridPointsToSet;
@@ -86,6 +87,7 @@ public class PointerAnalysisBuilder {
                 new AnalysisTimer(),
                 new Preprocessor(),
                 new ThreadHandler(),
+                new ReferenceHandler(),
                 ResultPrinter.get()
         );
         plugin.setPointerAnalysis(pta);

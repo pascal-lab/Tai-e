@@ -16,6 +16,7 @@ package pascal.taie.pta.core.solver;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.classes.JField;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
 import pascal.taie.pta.core.cs.ArrayIndex;
@@ -66,6 +67,13 @@ public interface PointerAnalysis {
      */
     void addPointsTo(Context arrayContext, Obj array,
                      Context heapContext, Obj obj);
+
+    /**
+     * Add static field points-to relations.
+     * @param field the static field
+     * @param pts the objects to be added to the points-to set of the field.
+     */
+    void addPointsTo(JField field, PointsToSet pts);
 
     /**
      * @return all variables in the (reachable) program.

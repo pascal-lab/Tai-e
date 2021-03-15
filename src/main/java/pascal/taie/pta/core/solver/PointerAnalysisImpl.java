@@ -308,6 +308,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         addPointerEntry(arrayIndex, PointsToSetFactory.make(elem));
     }
 
+    @Override
+    public void addPointsTo(JField field, PointsToSet pts) {
+        StaticField sfield = csManager.getStaticField(field);
+        addPointerEntry(sfield, pts);
+    }
+
     /**
      * Add a <pointer, pointsToSet> entry to work-list.
      */
