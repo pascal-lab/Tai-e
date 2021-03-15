@@ -55,8 +55,9 @@ public class ArithmeticExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert value1.getType().equals(value2.getType());
-        assert value1.getType() instanceof PrimitiveType;
+        assert (isIntLike(value1) && isIntLike(value2)) ||
+                value1.getType().equals(value2.getType());
+        assert isPrimitive(value1);
     }
 
     @Override

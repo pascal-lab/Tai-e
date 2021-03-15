@@ -34,6 +34,25 @@ public class AllInOne {
         long ll = 100 >>> x;
     }
 
+    void binaryMixedType(byte b, short s, boolean bb, char c, int i,
+                         float f, long l) {
+        int[] a = new int[10];
+        // arithmetic
+        a[0] = b + i;
+        // bitwise
+        a[0] = b & i;
+        // compare
+
+        // condition
+        if (b > s) {
+            a[0] = b;
+        }
+        // shift
+        a[0] = s >> s;
+        l = l >> s;
+        a[0] = (int) l;
+    }
+
     void unary(int a[], int x) {
         if (a.length != 1) {
             a[1] = 10;

@@ -51,9 +51,7 @@ public class ShiftExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert value1.getType().equals(PrimitiveType.INT) ||
-                value1.getType().equals(PrimitiveType.LONG);
-        assert value2.getType().equals(PrimitiveType.INT);
+        assert isIntLikeOrLong(value1) && isIntLike(value2);
     }
 
     @Override

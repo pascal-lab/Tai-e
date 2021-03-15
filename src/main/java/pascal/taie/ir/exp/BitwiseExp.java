@@ -51,9 +51,8 @@ public class BitwiseExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert value1.getType().equals(value2.getType());
-        assert value1.getType().equals(PrimitiveType.INT) ||
-                value1.getType().equals(PrimitiveType.LONG);
+        assert (isIntLike(value1) && isIntLike(value2)) ||
+                (isLong(value1) && isLong(value2));
     }
 
     @Override

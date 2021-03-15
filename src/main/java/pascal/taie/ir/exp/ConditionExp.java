@@ -14,7 +14,6 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.java.types.PrimitiveType;
-import pascal.taie.java.types.ReferenceType;
 
 /**
  * Representation of condition expression, e.g., a == b.
@@ -58,10 +57,8 @@ public class ConditionExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert !value1.getType().equals(PrimitiveType.INT) ||
-                value2.getType().equals(PrimitiveType.INT);
-        assert !(value1.getType() instanceof ReferenceType) ||
-                value2.getType() instanceof ReferenceType;
+        assert (isIntLike(value1) && isIntLike(value2)) ||
+                (isReference(value1) && isReference(value2));
     }
 
     @Override
