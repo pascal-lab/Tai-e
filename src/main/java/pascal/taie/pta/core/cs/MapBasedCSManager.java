@@ -13,12 +13,12 @@
 
 package pascal.taie.pta.core.cs;
 
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.core.heap.Obj;
 import pascal.taie.pta.set.PointsToSetFactory;
 import pascal.taie.util.CollectionUtils;
 
@@ -36,12 +36,12 @@ import static pascal.taie.util.CollectionUtils.newMap;
  */
 public class MapBasedCSManager implements CSManager {
 
-    private final Map<Variable, Map<Context, CSVariable>> vars = newMap();
+    private final Map<Var, Map<Context, CSVar>> vars = newMap();
     private final Map<CSObj, Map<JField, InstanceField>> instanceFields = newMap();
     private final Map<CSObj, ArrayIndex> arrayIndexes = newMap();
     private final Map<JField, StaticField> staticFields = newMap();
     private final Map<Obj, Map<Context, CSObj>> objs = newMap();
-    private final Map<CallSite, Map<Context, CSCallSite>> callSites = newMap();
+    private final Map<InvokeExp, Map<Context, CSCallSite>> callSites = newMap();
     private final Map<JMethod, Map<Context, CSMethod>> methods = newMap();
 
     private static <R, Key1, Key2> R getOrCreateCSElement(
@@ -51,9 +51,9 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public CSVariable getCSVariable(Context context, Variable var) {
+    public CSVar getCSVar(Context context, Var var) {
         return getOrCreateCSElement(vars, Objects.requireNonNull(var), context,
-                (v, c) -> initializePointsToSet(new CSVariable(v, c)));
+                (v, c) -> initializePointsToSet(new CSVar(v, c)));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public CSCallSite getCSCallSite(Context context, CallSite callSite) {
+    public CSCallSite getCSCallSite(Context context, InvokeExp callSite) {
         return getOrCreateCSElement(callSites, callSite, context, CSCallSite::new);
     }
 
@@ -90,7 +90,7 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Stream<CSVariable> getCSVariables() {
+    public Stream<CSVar> getCSVars() {
         return CollectionUtils.getAllValues(vars);
     }
 

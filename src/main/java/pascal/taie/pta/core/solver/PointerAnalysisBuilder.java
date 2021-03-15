@@ -14,14 +14,10 @@
 package pascal.taie.pta.core.solver;
 
 import pascal.taie.java.World;
-import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.core.context.ContextInsensitiveSelector;
-import pascal.taie.pta.core.context.OneCallSelector;
-import pascal.taie.pta.core.context.OneObjectSelector;
-import pascal.taie.pta.core.context.OneTypeSelector;
-import pascal.taie.pta.core.context.TwoCallSelector;
-import pascal.taie.pta.core.context.TwoObjectSelector;
-import pascal.taie.pta.core.context.TwoTypeSelector;
+import pascal.taie.pta.core.context.KCallSelector;
+import pascal.taie.pta.core.context.KObjSelector;
+import pascal.taie.pta.core.context.KTypeSelector;
 import pascal.taie.pta.core.cs.MapBasedCSManager;
 import pascal.taie.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.pta.plugin.AnalysisTimer;
@@ -31,6 +27,7 @@ import pascal.taie.pta.plugin.ResultPrinter;
 import pascal.taie.pta.plugin.ThreadHandler;
 import pascal.taie.pta.set.HybridPointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {
@@ -53,25 +50,25 @@ public class PointerAnalysisBuilder {
                 break;
             case "1-call":
             case "1-cfa":
-                pta.setContextSelector(new OneCallSelector());
+                pta.setContextSelector(new KCallSelector(1));
                 break;
             case "1-obj":
             case "1-object":
-                pta.setContextSelector(new OneObjectSelector());
+                pta.setContextSelector(new KObjSelector(1));
                 break;
             case "1-type":
-                pta.setContextSelector(new OneTypeSelector());
+                pta.setContextSelector(new KTypeSelector(1));
                 break;
             case "2-call":
             case "2-cfa":
-                pta.setContextSelector(new TwoCallSelector());
+                pta.setContextSelector(new KCallSelector(2));
                 break;
             case "2-obj":
             case "2-object":
-                pta.setContextSelector(new TwoObjectSelector());
+                pta.setContextSelector(new KObjSelector(2));
                 break;
             case "2-type":
-                pta.setContextSelector(new TwoTypeSelector());
+                pta.setContextSelector(new KTypeSelector(2));
                 break;
             default:
                 throw new AnalysisException(
@@ -89,7 +86,7 @@ public class PointerAnalysisBuilder {
                 new AnalysisTimer(),
                 new Preprocessor(),
                 new ThreadHandler(),
-                ResultPrinter.v()
+                ResultPrinter.get()
         );
         plugin.setPointerAnalysis(pta);
         pta.setPlugin(plugin);

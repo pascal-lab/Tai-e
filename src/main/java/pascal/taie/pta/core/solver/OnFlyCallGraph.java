@@ -15,14 +15,14 @@ package pascal.taie.pta.core.solver;
 
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.Edge;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSManager;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.ir.Call;
-import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.ir.Statement;
 import pascal.taie.util.CollectionView;
 
 import javax.annotation.Nonnull;
@@ -95,9 +95,9 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
         List<CSCallSite> callSites = new ArrayList<>();
-        for (Statement s : method.getPTAIR().getStatements()) {
-            if (s instanceof Call) {
-                CallSite callSite = ((Call) s).getCallSite();
+        for (Stmt s : method.getIR().getStmts()) {
+            if (s instanceof Invoke) {
+                InvokeExp callSite = ((Invoke) s).getInvokeExp();
                 CSCallSite csCallSite = csManager
                         .getCSCallSite(context, callSite);
                 callSites.add(csCallSite);

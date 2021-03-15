@@ -17,22 +17,26 @@ import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.core.heap.Obj;
 
-public class ContextInsensitiveSelector implements ContextSelector {
+/**
+ * Context-insensitive selector do not use any context elements,
+ * thus the type of context elements is irrelevant.
+ */
+public class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
 
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
-        return DefaultContext.INSTANCE;
+        return getDefaultContext();
     }
 
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, JMethod callee) {
-        return DefaultContext.INSTANCE;
+        return getDefaultContext();
     }
 
     @Override
-    public Context selectHeapContext(CSMethod method, Obj allocation) {
-        return DefaultContext.INSTANCE;
+    protected Context doSelectHeapContext(CSMethod method, Obj obj) {
+        return getDefaultContext();
     }
 }

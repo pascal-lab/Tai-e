@@ -13,12 +13,12 @@
 
 package pascal.taie.pta.core.cs;
 
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
-import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.core.heap.Obj;
 
 import java.util.stream.Stream;
 
@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  */
 public interface CSManager {
 
-    CSVariable getCSVariable(Context context, Variable var);
+    CSVar getCSVar(Context context, Var var);
 
     InstanceField getInstanceField(CSObj base, JField field);
 
@@ -37,11 +37,11 @@ public interface CSManager {
 
     CSObj getCSObj(Context heapContext, Obj obj);
 
-    CSCallSite getCSCallSite(Context context, CallSite callSite);
+    CSCallSite getCSCallSite(Context context, InvokeExp callSite);
 
     CSMethod getCSMethod(Context context, JMethod method);
 
-    Stream<CSVariable> getCSVariables();
+    Stream<CSVar> getCSVars();
 
     Stream<InstanceField> getInstanceFields();
 

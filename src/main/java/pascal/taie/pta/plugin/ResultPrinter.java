@@ -13,15 +13,15 @@
 
 package pascal.taie.pta.plugin;
 
-import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.ResultChecker;
 import pascal.taie.pta.core.cs.ArrayIndex;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.core.cs.CSVariable;
+import pascal.taie.pta.core.cs.CSVar;
 import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.Pointer;
 import pascal.taie.pta.core.cs.StaticField;
 import pascal.taie.pta.core.solver.PointerAnalysis;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.Pair;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public enum ResultPrinter implements Plugin {
 
     private PointerAnalysis pta;
 
-    public static ResultPrinter v() {
+    public static ResultPrinter get() {
         return INSTANCE;
     }
 
@@ -102,15 +102,15 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printPointers(PointerAnalysis pta) {
-        printVariables(pta.getVariables());
+        printVariables(pta.getVars());
         printInstanceFields(pta.getInstanceFields());
         printArrayIndexes(pta.getArrayIndexes());
         printStaticFields(pta.getStaticFields());
     }
 
-    private void printVariables(Stream<CSVariable> vars) {
+    private void printVariables(Stream<CSVar> vars) {
         out.println("---------- Points-to sets of all variables: ----------");
-        vars.sorted(Comparator.comparing(CSVariable::toString))
+        vars.sorted(Comparator.comparing(CSVar::toString))
                 .forEach(this::printPointsToSet);
     }
 
@@ -139,12 +139,12 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printStatistics(PointerAnalysis pta) {
-        int varInsens = (int) pta.getVariables()
-                .map(CSVariable::getVariable)
+        int varInsens = (int) pta.getVars()
+                .map(CSVar::getVar)
                 .distinct()
                 .count();
-        int varSens = (int) pta.getVariables().count();
-        int vptSizeSens = pta.getVariables()
+        int varSens = (int) pta.getVars().count();
+        int vptSizeSens = pta.getVars()
                 .mapToInt(v -> v.getPointsToSet().size())
                 .sum();
         int ifptSizeSens = pta.getInstanceFields()

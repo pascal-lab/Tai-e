@@ -18,18 +18,45 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
+import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInterface;
+import pascal.taie.ir.exp.InvokeSpecial;
+import pascal.taie.ir.exp.InvokeStatic;
+import pascal.taie.ir.exp.InvokeVirtual;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.exp.NewMultiArray;
+import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.ReferenceLiteral;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
+import pascal.taie.java.classes.MemberRef;
 import pascal.taie.java.classes.MethodRef;
+import pascal.taie.java.natives.NativeModel;
 import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
+import pascal.taie.java.types.NullType;
 import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
-import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
 import pascal.taie.pta.core.cs.ArrayIndex;
@@ -37,37 +64,29 @@ import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSManager;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
-import pascal.taie.pta.core.cs.CSVariable;
+import pascal.taie.pta.core.cs.CSVar;
 import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.Pointer;
 import pascal.taie.pta.core.cs.StaticField;
 import pascal.taie.pta.core.heap.HeapModel;
-import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.ir.Allocation;
-import pascal.taie.pta.ir.ArrayLoad;
-import pascal.taie.pta.ir.ArrayStore;
-import pascal.taie.pta.ir.Assign;
-import pascal.taie.pta.ir.AssignCast;
-import pascal.taie.pta.ir.Call;
-import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.ir.InstanceLoad;
-import pascal.taie.pta.ir.InstanceStore;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.StatementVisitor;
-import pascal.taie.pta.ir.StaticLoad;
-import pascal.taie.pta.ir.StaticStore;
-import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.core.heap.Obj;
 import pascal.taie.pta.plugin.Plugin;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static pascal.taie.java.classes.StringReps.FINALIZE;
+import static pascal.taie.java.classes.StringReps.FINALIZER_REGISTER;
+import static pascal.taie.util.CollectionUtils.newMap;
 import static pascal.taie.util.CollectionUtils.newSet;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
@@ -77,8 +96,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private final ClassHierarchy hierarchy;
 
     private final TypeManager typeManager;
-
-    private final Environment environment;
 
     private CSManager csManager;
 
@@ -96,22 +113,27 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private Set<JMethod> reachableMethods;
 
+    private StmtProcessor stmtProcessor;
+
     private ClassInitializer classInitializer;
 
     public PointerAnalysisImpl() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
-        this.environment = World.getEnvironment();
     }
-
+    
     @Override
     public ClassHierarchy getHierarchy() {
         return hierarchy;
     }
 
     @Override
-    public Environment getEnvironment() {
-        return environment;
+    public HeapModel getHeapModel() {
+        return heapModel;
+    }
+
+    public void setHeapModel(HeapModel heapModel) {
+        this.heapModel = heapModel;
     }
 
     @Override
@@ -119,12 +141,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return csManager;
     }
 
-    void setCSManager(CSManager csManager) {
+    public void setCSManager(CSManager csManager) {
         this.csManager = csManager;
-    }
-
-    void setPlugin(Plugin plugin) {
-        this.plugin = plugin;
     }
 
     @Override
@@ -132,12 +150,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return contextSelector;
     }
 
-    void setContextSelector(ContextSelector contextSelector) {
+    public void setContextSelector(ContextSelector contextSelector) {
         this.contextSelector = contextSelector;
     }
 
-    void setHeapModel(HeapModel heapModel) {
-        this.heapModel = heapModel;
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
@@ -146,8 +164,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public Stream<CSVariable> getVariables() {
-        return csManager.getCSVariables();
+    public Stream<CSVar> getVars() {
+        return csManager.getCSVars();
     }
 
     @Override
@@ -166,7 +184,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     /**
-     * Runs pointer analysis algorithm.
+     * Run pointer analysis algorithm.
      */
     @Override
     public void analyze() {
@@ -176,30 +194,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         plugin.postprocess();
     }
 
-    @Override
-    public void addPointsTo(Context context, Variable var,
-                            Context heapContext, Obj obj) {
-        // TODO: use heapModel to process obj?
-        CSObj csObj = csManager.getCSObj(heapContext, obj);
-        addPointsTo(context, var, PointsToSetFactory.make(csObj));
-    }
-
-    @Override
-    public void addPointsTo(Context context, Variable var, PointsToSet pts) {
-        CSVariable csVar = csManager.getCSVariable(context, var);
-        addPointerEntry(csVar, pts);
-    }
-
-    @Override
-    public void addPointsTo(Context arrayContext, Obj array,
-                            Context heapContext, Obj obj) {
-        CSObj csArray = csManager.getCSObj(arrayContext, array);
-        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
-        CSObj elem = csManager.getCSObj(heapContext, obj);
-        addPointerEntry(arrayIndex, PointsToSetFactory.make(elem));
-    }
-
-    /**
+     /**
      * Initializes pointer analysis.
      */
     private void initialize() {
@@ -207,6 +202,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         reachableMethods = newSet();
+        stmtProcessor = new StmtProcessor();
         classInitializer = new ClassInitializer();
 
         // process program entries (including implicit entries)
@@ -219,11 +215,12 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             processNewCSMethod(csMethod);
         }
         // setup main arguments
-        Obj args = environment.getMainArgs();
-        Obj argsElem = environment.getMainArgsElem();
+        NativeModel nativeModel = World.getNativeModel();
+        Obj args = nativeModel.getMainArgs();
+        Obj argsElem = nativeModel.getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
-        addPointsTo(defContext, main.getPTAIR().getParam(0), defContext, args);
+        addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
@@ -246,8 +243,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Pointer p = entry.pointer;
                 PointsToSet pts = entry.pointsToSet;
                 PointsToSet diff = propagate(p, pts);
-                if (p instanceof CSVariable) {
-                    CSVariable v = (CSVariable) p;
+                if (p instanceof CSVar) {
+                    CSVar v = (CSVar) p;
                     processInstanceStore(v, diff);
                     processInstanceLoad(v, diff);
                     processArrayStore(v, diff);
@@ -291,6 +288,26 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         return diff;
     }
 
+    @Override
+    public void addPointsTo(Context context, Var var, Context heapContext, Obj obj) {
+        CSObj csObj = csManager.getCSObj(heapContext, obj);
+        addPointsTo(context, var, PointsToSetFactory.make(csObj));
+    }
+
+    @Override
+    public void addPointsTo(Context context, Var var, PointsToSet pts) {
+        CSVar csVar = csManager.getCSVar(context, var);
+        addPointerEntry(csVar, pts);
+    }
+
+    @Override
+    public void addPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj) {
+        CSObj csArray = csManager.getCSObj(arrayContext, array);
+        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
+        CSObj elem = csManager.getCSObj(heapContext, obj);
+        addPointerEntry(arrayIndex, PointsToSetFactory.make(elem));
+    }
+
     /**
      * Add a <pointer, pointsToSet> entry to work-list.
      */
@@ -332,37 +349,25 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         addPFGEdge(from, to, null, kind);
     }
-
-    /**
-     * Processes new reachable context-sensitive method.
-     */
-    private void processNewCSMethod(CSMethod csMethod) {
-        if (callGraph.addNewMethod(csMethod)) {
-            processNewMethod(csMethod.getMethod());
-            StatementProcessor processor = new StatementProcessor(csMethod);
-            csMethod.getMethod()
-                    .getPTAIR()
-                    .getStatements()
-                    .forEach(s -> s.accept(processor));
-            plugin.handleNewCSMethod(csMethod);
-        }
-    }
-
+    
     /**
      * Processes instance stores when points-to set of the base variable changes.
      *
      * @param baseVar the base variable
      * @param pts     set of new discovered objects pointed by the variable.
      */
-    private void processInstanceStore(CSVariable baseVar, PointsToSet pts) {
+    private void processInstanceStore(CSVar baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
-        Variable var = baseVar.getVariable();
-        for (InstanceStore store : var.getInstanceStores()) {
-            CSVariable from = csManager.getCSVariable(context, store.getFrom());
-            for (CSObj baseObj : pts) {
-                InstanceField instField = csManager.getInstanceField(
-                        baseObj, store.getFieldRef().resolve());
-                addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+        Var var = baseVar.getVar();
+        for (StoreField store : var.getStoreFields()) {
+            Var fromVar = store.getRValue();
+            if (isConcerned(fromVar)) {
+                CSVar from = csManager.getCSVar(context, fromVar);
+                for (CSObj baseObj : pts) {
+                    InstanceField instField = csManager.getInstanceField(
+                            baseObj, store.getFieldRef().resolve());
+                    addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+                }
             }
         }
     }
@@ -373,36 +378,42 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * @param baseVar the base variable
      * @param pts     set of new discovered objects pointed by the variable.
      */
-    private void processInstanceLoad(CSVariable baseVar, PointsToSet pts) {
+    private void processInstanceLoad(CSVar baseVar, PointsToSet pts) {
         Context context = baseVar.getContext();
-        Variable var = baseVar.getVariable();
-        for (InstanceLoad load : var.getInstanceLoads()) {
-            CSVariable to = csManager.getCSVariable(context, load.getTo());
-            for (CSObj baseObj : pts) {
-                InstanceField instField = csManager.getInstanceField(
-                        baseObj, load.getFieldRef().resolve());
-                addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+        Var var = baseVar.getVar();
+        for (LoadField load : var.getLoadFields()) {
+            Var toVar = load.getLValue();
+            if (isConcerned(toVar)) {
+                CSVar to = csManager.getCSVar(context, toVar);
+                for (CSObj baseObj : pts) {
+                    InstanceField instField = csManager.getInstanceField(
+                            baseObj, load.getFieldRef().resolve());
+                    addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                }
             }
         }
     }
-
-    /**
+    
+        /**
      * Processes array stores when points-to set of the array variable changes.
      *
      * @param arrayVar the array variable
      * @param pts      set of new discovered arrays pointed by the variable.
      */
-    private void processArrayStore(CSVariable arrayVar, PointsToSet pts) {
+    private void processArrayStore(CSVar arrayVar, PointsToSet pts) {
         Context context = arrayVar.getContext();
-        Variable var = arrayVar.getVariable();
-        for (ArrayStore store : var.getArrayStores()) {
-            CSVariable from = csManager.getCSVariable(context, store.getFrom());
-            for (CSObj array : pts) {
-                ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                // we need type guard for array stores as Java arrays
-                // are covariant
-                addPFGEdge(from, arrayIndex, arrayIndex.getType(),
-                        PointerFlowEdge.Kind.ARRAY_STORE);
+        Var var = arrayVar.getVar();
+        for (StoreArray store : var.getStoreArrays()) {
+            Var rvalue = store.getRValue();
+            if (isConcerned(rvalue)) {
+                CSVar from = csManager.getCSVar(context, rvalue);
+                for (CSObj array : pts) {
+                    ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                    // we need type guard for array stores as Java arrays
+                    // are covariant
+                    addPFGEdge(from, arrayIndex, arrayIndex.getType(),
+                            PointerFlowEdge.Kind.ARRAY_STORE);
+                }
             }
         }
     }
@@ -413,29 +424,32 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * @param arrayVar the array variable
      * @param pts      set of new discovered arrays pointed by the variable.
      */
-    private void processArrayLoad(CSVariable arrayVar, PointsToSet pts) {
+    private void processArrayLoad(CSVar arrayVar, PointsToSet pts) {
         Context context = arrayVar.getContext();
-        Variable var = arrayVar.getVariable();
-        for (ArrayLoad load : var.getArrayLoads()) {
-            CSVariable to = csManager.getCSVariable(context, load.getTo());
-            for (CSObj array : pts) {
-                ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+        Var var = arrayVar.getVar();
+        for (LoadArray load : var.getLoadArrays()) {
+            Var lvalue = load.getLValue();
+            if (isConcerned(lvalue)) {
+                CSVar to = csManager.getCSVar(context, lvalue);
+                for (CSObj array : pts) {
+                    ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                    addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+                }
             }
         }
     }
-
+    
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
      *
      * @param recv the receiver variable
      * @param pts  set of new discovered objects pointed by the variable.
      */
-    private void processCall(CSVariable recv, PointsToSet pts) {
+    private void processCall(CSVar recv, PointsToSet pts) {
         Context context = recv.getContext();
-        Variable var = recv.getVariable();
-        for (Call call : var.getCalls()) {
-            CallSite callSite = call.getCallSite();
+        Var var = recv.getVar();
+        for (Invoke invoke : var.getInvokes()) {
+            InvokeExp callSite = invoke.getInvokeExp();
             for (CSObj recvObj : pts) {
                 // resolve callee
                 JMethod callee = resolveCallee(
@@ -447,15 +461,15 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 // build call edge
                 CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
                 workList.addCallEdge(new Edge<>(
-                        callSite.getKind(), csCallSite, csCallee));
+                        getCallKind(callSite), csCallSite, csCallee));
                 // pass receiver object to *this* variable
-                CSVariable thisVar = csManager.getCSVariable(
-                        calleeContext, callee.getPTAIR().getThis());
+                CSVar thisVar = csManager.getCSVar(
+                        calleeContext, callee.getIR().getThis());
                 addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
             }
         }
     }
-
+    
     /**
      * Process the call edges in work list.
      */
@@ -465,28 +479,44 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSMethod csCallee = edge.getCallee();
             processNewCSMethod(csCallee);
             Context callerCtx = edge.getCallSite().getContext();
-            CallSite callSite = edge.getCallSite().getCallSite();
+            InvokeExp callSite = edge.getCallSite().getCallSite();
             Context calleeCtx = csCallee.getContext();
             JMethod callee = csCallee.getMethod();
             // pass arguments to parameters
             for (int i = 0; i < callSite.getArgCount(); ++i) {
-                Variable arg = callSite.getArg(i);
-                if (arg != null) {
-                    assert arg.getType() instanceof ReferenceType;
-                    Variable param = callee.getPTAIR().getParam(i);
-                    CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
-                    CSVariable paramVar = csManager.getCSVariable(calleeCtx, param);
+                Var arg = callSite.getArg(i);
+                if (isConcerned(arg)) {
+                    Var param = callee.getIR().getParam(i);
+                    CSVar argVar = csManager.getCSVar(callerCtx, arg);
+                    CSVar paramVar = csManager.getCSVar(calleeCtx, param);
                     addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
                 }
             }
             // pass results to LHS variable
-            callSite.getCall().getLHS().ifPresent(lhs -> {
-                CSVariable csLHS = csManager.getCSVariable(callerCtx, lhs);
-                for (Variable ret : callee.getPTAIR().getReturnVariables()) {
-                    CSVariable csRet = csManager.getCSVariable(calleeCtx, ret);
+            Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
+            Var lhs = invoke.getResult();
+            if (lhs != null && isConcerned(lhs)) {
+                CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
+                for (Var ret : callee.getIR().getReturnVars()) {
+                    CSVar csRet = csManager.getCSVar(calleeCtx, ret);
                     addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
                 }
-            });
+            }
+        }
+    }
+
+    /**
+     * Processes new reachable context-sensitive method.
+     */
+    private void processNewCSMethod(CSMethod csMethod) {
+        if (callGraph.addNewMethod(csMethod)) {
+            processNewMethod(csMethod.getMethod());
+            stmtProcessor.setCSMethod(csMethod);
+            csMethod.getMethod()
+                    .getIR()
+                    .getStmts()
+                    .forEach(s -> s.accept(stmtProcessor));
+            plugin.handleNewCSMethod(csMethod);
         }
     }
 
@@ -496,22 +526,206 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.handleNewMethod(method);
-            method.getPTAIR().getStatements()
+            method.getIR().getStmts()
                     .forEach(s -> s.accept(classInitializer));
         }
     }
 
-    private JMethod resolveCallee(Type type, CallSite callSite) {
+    private JMethod resolveCallee(Type type, InvokeExp callSite) {
         MethodRef methodRef = callSite.getMethodRef();
-        switch (callSite.getKind()) {
-            case VIRTUAL:
-            case INTERFACE:
-                return hierarchy.dispatch(type, methodRef);
-            case SPECIAL:
-            case STATIC:
-                return methodRef.resolve();
-            default:
-                throw new AnalysisException("Unknown CallSite: " + callSite);
+        if (callSite instanceof InvokeVirtual ||
+                callSite instanceof InvokeInterface) {
+            return hierarchy.dispatch(type, methodRef);
+        } else if (callSite instanceof InvokeSpecial ||
+                callSite instanceof InvokeStatic) {
+            return methodRef.resolve();
+        } else {
+            throw new AnalysisException("Cannot resolve InvokeExp: " + callSite);
+        }
+    }
+
+    private static CallKind getCallKind(InvokeExp invokeExp) {
+        if (invokeExp instanceof InvokeVirtual) {
+            return CallKind.VIRTUAL;
+        } else if (invokeExp instanceof InvokeInterface) {
+            return CallKind.INTERFACE;
+        } else if (invokeExp instanceof InvokeSpecial) {
+            return CallKind.SPECIAL;
+        } else if (invokeExp instanceof InvokeStatic) {
+            return CallKind.STATIC;
+        } else {
+            throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
+        }
+    }
+
+    /**
+     * @return if the type of given expression is concerned in pointer analysis.
+     */
+    private static boolean isConcerned(Exp exp) {
+        Type type = exp.getType();
+        return type instanceof ReferenceType && !(type instanceof NullType);
+    }
+
+    /**
+     * Process the statements in context-sensitive new reachable methods.
+     */
+    private class StmtProcessor implements StmtVisitor {
+
+        private CSMethod csMethod;
+
+        private Context context;
+
+        private final Map<NewMultiArray, NewArray[]> newArrays = newMap();
+
+        private final JMethod finalize = hierarchy.getJREMethod(FINALIZE);
+
+        private final MethodRef finalizeRef = finalize.getRef();
+
+        private final MethodRef registerRef = hierarchy
+                .getJREMethod(FINALIZER_REGISTER).getRef();
+
+        private final Map<New, InvokeStatic> registerInvokes = newMap();
+
+        private void setCSMethod(CSMethod csMethod) {
+            this.csMethod = csMethod;
+            this.context = csMethod.getContext();
+        }
+
+        @Override
+        public void visit(New stmt) {
+            // obtain context-sensitive heap object
+            NewExp rvalue = stmt.getRValue();
+            Obj obj = heapModel.getObj(rvalue);
+            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+            addPointsTo(context, stmt.getLValue(), heapContext, obj);
+            if (rvalue instanceof NewMultiArray) {
+                processNewMultiArray((NewMultiArray) rvalue, heapContext, obj);
+            }
+            if (hasOverriddenFinalize(rvalue)) {
+                processFinalizer(stmt);
+            }
+        }
+
+        private void processNewMultiArray(NewMultiArray newMultiArray,
+                                          Context arrayContext, Obj array) {
+            NewArray[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
+                ArrayType type = nma.getType();
+                NewArray[] newArrays = new NewArray[nma.getLengthCount() - 1];
+                for (int i = 1; i < nma.getLengthCount(); ++i) {
+                    type = (ArrayType) type.getElementType();
+                    NewArray newArray = new NewArray(type, nma.getLength(i));
+                    newArray.setAllocationSite(nma.getAllocationSite());
+                    newArrays[i - 1] = newArray;
+                }
+                return newArrays;
+            });
+            for (NewArray newArray : arrays) {
+                Obj elem = heapModel.getObj(newArray);
+                Context elemContext = contextSelector
+                        .selectHeapContext(csMethod, elem);
+                addPointsTo(arrayContext, array, elemContext, elem);
+                array = elem;
+                arrayContext = elemContext;
+            }
+        }
+
+        private boolean hasOverriddenFinalize(NewExp newExp) {
+            return !hierarchy.dispatch(newExp.getType(), finalizeRef)
+                    .equals(finalize);
+        }
+
+        /**
+         * Call Finalizer.register() at allocation sites of objects which override
+         * Object.finalize() method.
+         * NOTE: finalize() has been deprecated starting with Java 9, and will
+         * eventually be removed.
+         */
+        private void processFinalizer(New stmt) {
+            InvokeStatic registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
+                InvokeStatic callSite = new InvokeStatic(registerRef,
+                        Collections.singletonList(s.getLValue()));
+                Invoke invoke = new Invoke(csMethod.getMethod(), callSite);
+                invoke.setLineNumber(stmt.getLineNumber());
+                return callSite;
+            });
+            processInvokeStatic(registerInvoke);
+        }
+
+        private void processInvokeStatic(InvokeStatic callSite) {
+            JMethod callee = resolveCallee(null, callSite);
+            CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+            Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+            CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
+            Edge<CSCallSite, CSMethod> edge =
+                    new Edge<>(CallKind.STATIC, csCallSite, csCallee);
+            workList.addCallEdge(edge);
+        }
+
+        @Override
+        public void visit(AssignLiteral stmt) {
+            Literal literal = stmt.getRValue();
+            if (!isConcerned(literal) || literal instanceof NullLiteral) {
+                return;
+            }
+            Obj obj = heapModel.getConstantObj(literal.getType(),
+                    ((ReferenceLiteral<?>) literal).getValue());
+            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
+            addPointsTo(context, stmt.getLValue(), heapContext, obj);
+        }
+
+        @Override
+        public void visit(Copy stmt) {
+            if (isConcerned(stmt.getRValue())) {
+                CSVar from = csManager.getCSVar(context, stmt.getRValue());
+                CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
+        }
+
+        @Override
+        public void visit(Cast stmt) {
+            CastExp cast = stmt.getRValue();
+            if (isConcerned(cast)) {
+                CSVar from = csManager.getCSVar(context, cast.getValue());
+                CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+            }
+        }
+
+        /**
+         * Process static load.
+         */
+        @Override
+        public void visit(LoadField stmt) {
+            if (stmt.isStatic() && isConcerned(stmt.getLValue())) {
+                JField field = stmt.getFieldRef().resolve();
+                StaticField sfield = csManager.getStaticField(field);
+                CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+            }
+        }
+
+        /**
+         * Process static store.
+         */
+        @Override
+        public void visit(StoreField stmt) {
+            if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
+                JField field = stmt.getFieldRef().resolve();
+                StaticField sfield = csManager.getStaticField(field);
+                CSVar from = csManager.getCSVar(context, stmt.getRValue());
+                addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+            }
+        }
+
+        /**
+         * Process static invocation.
+         */
+        @Override
+        public void visit(Invoke stmt) {
+            if (stmt.isStatic()) {
+                processInvokeStatic((InvokeStatic) stmt.getInvokeExp());
+            }
         }
     }
 
@@ -523,16 +737,32 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * TODO: handles class initialization triggered by reflection,
      *  MethodHandle, and superinterfaces (that declare default methods).
      */
-    private class ClassInitializer implements StatementVisitor {
+    private class ClassInitializer implements StmtVisitor {
 
         /**
          * Set of classes that have been initialized.
          */
         private final Set<JClass> initializedClasses = newSet();
 
+        @Override
+        public void visit(New stmt) {
+            initializeClass(extractClass(stmt.getRValue().getType()));
+        }
+
+        @Override
+        public void visit(AssignLiteral stmt) {
+            Literal rvalue = stmt.getRValue();
+            if (isConcerned(rvalue)) {
+                initializeClass(extractClass(rvalue.getType()));
+                if (rvalue instanceof ClassLiteral) {
+                    initializeClass(extractClass(
+                            ((ClassLiteral) rvalue).getValue()));
+                }
+            }
+        }
+
         /**
          * Analyzes the initializer of given class.
-         * @param cls
          */
         private void initializeClass(JClass cls) {
             if (cls == null) {
@@ -563,15 +793,6 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             }
         }
 
-        @Override
-        public void visit(Allocation alloc) {
-            Obj obj = alloc.getObject();
-            if (obj.getKind() == Obj.Kind.CLASS) {
-                initializeClass(extractClass((Type) obj.getAllocation()));
-            }
-            initializeClass(extractClass(obj.getType()));
-        }
-
         /**
          * Extract the class to be initialized from given type.
          */
@@ -587,91 +808,24 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
 
         @Override
-        public void visit(Call call) {
-            CallSite callSite = call.getCallSite();
-            if (callSite.getKind() == CallKind.STATIC) {
-                JMethod method = callSite.getMethodRef().resolve();
-                initializeClass(method.getDeclaringClass());
+        public void visit(Invoke stmt) {
+            processMemberRef(stmt.getInvokeExp().getMethodRef());
+        }
+
+        @Override
+        public void visit(LoadField stmt) {
+            processMemberRef(stmt.getRValue().getFieldRef());
+        }
+
+        @Override
+        public void visit(StoreField stmt) {
+            processMemberRef(stmt.getLValue().getFieldRef());
+        }
+
+        private void processMemberRef(MemberRef memberRef) {
+            if (memberRef.isStatic()) {
+                initializeClass(memberRef.resolve().getDeclaringClass());
             }
-        }
-
-        @Override
-        public void visit(StaticLoad load) {
-            JField field = load.getFieldRef().resolve();
-            initializeClass(field.getDeclaringClass());
-        }
-
-        @Override
-        public void visit(StaticStore store) {
-            JField field = store.getFieldRef().resolve();
-            initializeClass(field.getDeclaringClass());
-        }
-    }
-
-    /**
-     * Process the statements in context-sensitive new reachable methods.
-     */
-    private class StatementProcessor implements StatementVisitor {
-
-        private final CSMethod csMethod;
-
-        private final Context context;
-
-        StatementProcessor(CSMethod csMethod) {
-            this.csMethod = csMethod;
-            this.context = csMethod.getContext();
-        }
-
-        @Override
-        public void visit(Allocation alloc) {
-            // obtain context-sensitive heap object
-            Obj obj = heapModel.getObj(alloc);
-            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            addPointsTo(context, alloc.getVar(), heapContext, obj);
-        }
-
-        @Override
-        public void visit(Assign assign) {
-            CSVariable from = csManager.getCSVariable(context, assign.getFrom());
-            CSVariable to = csManager.getCSVariable(context, assign.getTo());
-            addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
-        }
-
-        @Override
-        public void visit(AssignCast cast) {
-            CSVariable from = csManager.getCSVariable(context, cast.getFrom());
-            CSVariable to = csManager.getCSVariable(context, cast.getTo());
-            addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
-        }
-
-        @Override
-        public void visit(Call call) {
-            CallSite callSite = call.getCallSite();
-            if (callSite.getKind() == CallKind.STATIC) {
-                JMethod callee = resolveCallee(null, callSite);
-                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
-                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
-                CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-                Edge<CSCallSite, CSMethod> edge =
-                        new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                workList.addCallEdge(edge);
-            }
-        }
-
-        @Override
-        public void visit(StaticLoad load) {
-            JField jfield = load.getFieldRef().resolve();
-            StaticField field = csManager.getStaticField(jfield);
-            CSVariable to = csManager.getCSVariable(context, load.getTo());
-            addPFGEdge(field, to, PointerFlowEdge.Kind.STATIC_LOAD);
-        }
-
-        @Override
-        public void visit(StaticStore store) {
-            CSVariable from = csManager.getCSVariable(context, store.getFrom());
-            JField jfield = store.getFieldRef().resolve();
-            StaticField field = csManager.getStaticField(jfield);
-            addPFGEdge(from, field, PointerFlowEdge.Kind.STATIC_STORE);
         }
     }
 }

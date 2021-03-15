@@ -17,13 +17,11 @@ import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSObj;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.core.heap.Obj;
 
 public interface ContextSelector {
 
-    default Context getDefaultContext() {
-        return DefaultContext.INSTANCE;
-    }
+    Context getDefaultContext();
 
     /**
      * Selects contexts for static methods.

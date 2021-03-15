@@ -13,24 +13,17 @@
 
 package pascal.taie.pta.core.heap;
 
+import pascal.taie.ir.exp.NewExp;
 import pascal.taie.java.TypeManager;
-import pascal.taie.pta.ir.Allocation;
-import pascal.taie.pta.ir.Obj;
-
-import java.util.Map;
-
-import static pascal.taie.util.CollectionUtils.newMap;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {
-
-    private final Map<Allocation, Obj> objects = newMap();
 
     public AllocationSiteBasedModel(TypeManager typeManager) {
         super(typeManager);
     }
 
     @Override
-    protected Obj doGetObj(Allocation alloc) {
-        return objects.computeIfAbsent(alloc, Allocation::getObject);
+    protected Obj doGetObj(NewExp newExp) {
+        return getNewObj(newExp);
     }
 }

@@ -14,6 +14,7 @@
 package pascal.taie.pta.core.solver;
 
 import pascal.taie.callgraph.CallGraph;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
@@ -21,12 +22,11 @@ import pascal.taie.pta.core.cs.ArrayIndex;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSManager;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.core.cs.CSVariable;
+import pascal.taie.pta.core.cs.CSVar;
 import pascal.taie.pta.core.cs.InstanceField;
 import pascal.taie.pta.core.cs.StaticField;
-import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.Variable;
+import pascal.taie.pta.core.heap.HeapModel;
+import pascal.taie.pta.core.heap.Obj;
 import pascal.taie.pta.set.PointsToSet;
 
 import java.util.stream.Stream;
@@ -35,7 +35,7 @@ public interface PointerAnalysis {
 
     ClassHierarchy getHierarchy();
 
-    Environment getEnvironment();
+    HeapModel getHeapModel();
 
     CSManager getCSManager();
 
@@ -52,10 +52,10 @@ public interface PointerAnalysis {
      * @param heapContext heap context for the object
      * @param obj the object to be added
      */
-    void addPointsTo(Context context, Variable var,
+    void addPointsTo(Context context, Var var,
                      Context heapContext, Obj obj);
 
-    void addPointsTo(Context context, Variable var, PointsToSet pts);
+    void addPointsTo(Context context, Var var, PointsToSet pts);
 
     /**
      * Add a context-sensitive array index points-to relation.
@@ -70,7 +70,7 @@ public interface PointerAnalysis {
     /**
      * @return all variables in the (reachable) program.
      */
-    Stream<CSVariable> getVariables();
+    Stream<CSVar> getVars();
 
     /**
      * @return all instance fields in the (reachable) program.

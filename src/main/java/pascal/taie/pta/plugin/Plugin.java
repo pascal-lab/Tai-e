@@ -15,7 +15,7 @@ package pascal.taie.pta.plugin;
 
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.core.cs.CSVariable;
+import pascal.taie.pta.core.cs.CSVar;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.set.PointsToSet;
 
@@ -68,7 +68,7 @@ public interface Plugin {
      * @param csVar variable whose points-to set changes
      * @param pts set of new objects
      */
-    default void handleNewPointsToSet(CSVariable csVar, PointsToSet pts) {
+    default void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
     }
 
     /**

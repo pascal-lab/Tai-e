@@ -14,32 +14,26 @@
 package pascal.taie.pta.core.context;
 
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.util.AnalysisException;
+import pascal.taie.pta.core.heap.NewObj;
+import pascal.taie.pta.core.heap.Obj;
 
-/**
- * All context selectors should inherit this class, and we can define
- * some uniform behaviors of context selectors here.
- */
-abstract class AbstractContextSelector implements ContextSelector {
+abstract class AbstractContextSelector<T> implements ContextSelector {
+
+    protected final ContextFactory<T> factory = new TreeContext.Factory<>();
+
+    @Override
+    public Context getDefaultContext() {
+        return factory.getDefaultContext();
+    }
 
     @Override
     public Context selectHeapContext(CSMethod method, Obj obj) {
         // Uses different strategies to select heap contexts
         // for different kinds of objects.
-        switch (obj.getKind()) {
-            case NORMAL:
-                return doSelectHeapContext(method, obj);
-            case STRING_CONSTANT:
-            case CLASS:
-            case METHOD:
-            case FIELD:
-            case CONSTRUCTOR:
-            case MERGED:
-            case ENV:
-                return getDefaultContext();
-            default:
-                throw new AnalysisException("Unhandled case: " + obj);
+        if (obj instanceof NewObj) {
+            return doSelectHeapContext(method, obj);
+        } else {
+            return getDefaultContext();
         }
     }
 

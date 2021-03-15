@@ -16,7 +16,7 @@ package pascal.taie.java.classes;
 import pascal.taie.ir.IR;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.PTAIR;
+import pascal.taie.oldpta.ir.PTAIR;
 
 import java.util.Collections;
 import java.util.List;

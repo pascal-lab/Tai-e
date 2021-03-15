@@ -13,7 +13,7 @@
 
 package pascal.taie.dataflow.analysis.constprop;
 
-import pascal.taie.pta.PointerAnalysisTransformer;
+import pascal.taie.oldpta.PointerAnalysisTransformer;
 import soot.Pack;
 import soot.PackManager;
 import soot.Transform;

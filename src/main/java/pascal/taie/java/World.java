@@ -18,7 +18,7 @@ import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.classes.Subsignature;
 import pascal.taie.java.natives.NativeModel;
-import pascal.taie.pta.env.Environment;
+import pascal.taie.oldpta.env.Environment;
 
 import java.util.Collection;
 

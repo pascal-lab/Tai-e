@@ -14,9 +14,9 @@
 package pascal.taie.pta;
 
 import pascal.taie.frontend.soot.SootWorldBuilder;
-import pascal.taie.newpta.PTAOptions;
 import soot.PackManager;
 import soot.Transform;
+import soot.options.Options;
 
 public class Main {
 
@@ -33,14 +33,14 @@ public class Main {
         SootWorldBuilder.initSoot();
 
         // Set Soot options
-        soot.options.Options.v().set_output_format(
-                soot.options.Options.output_format_jimple);
-        soot.options.Options.v().set_keep_line_number(true);
+        Options.v().set_output_format(
+                Options.output_format_jimple);
+        Options.v().set_keep_line_number(true);
         if (!containsJDK(PTAOptions.get().getSootArgs())) {
-            soot.options.Options.v().set_prepend_classpath(true);
+            Options.v().set_prepend_classpath(true);
         }
-        soot.options.Options.v().set_whole_program(true);
-        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+        Options.v().set_whole_program(true);
+        Options.v().setPhaseOption("cg", "enabled:false");
 
         // Configure Soot transformer
         Transform transform = new Transform(

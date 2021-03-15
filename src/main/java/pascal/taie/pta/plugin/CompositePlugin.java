@@ -15,7 +15,7 @@ package pascal.taie.pta.plugin;
 
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.core.cs.CSVariable;
+import pascal.taie.pta.core.cs.CSVar;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.set.PointsToSet;
 
@@ -61,7 +61,7 @@ public class CompositePlugin implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVariable csVar, PointsToSet pts) {
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
         plugins.forEach(p -> p.handleNewPointsToSet(csVar, pts));
     }
 

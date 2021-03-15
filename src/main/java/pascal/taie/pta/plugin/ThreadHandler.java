@@ -13,22 +13,24 @@
 
 package pascal.taie.pta.plugin;
 
+import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.java.ClassHierarchy;
+import pascal.taie.java.World;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.newpta.PTAOptions;
+import pascal.taie.java.natives.NativeModel;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSMethod;
-import pascal.taie.pta.core.cs.CSVariable;
+import pascal.taie.pta.core.cs.CSVar;
+import pascal.taie.pta.core.heap.Obj;
 import pascal.taie.pta.core.solver.PointerAnalysis;
-import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.ir.PTAIR;
-import pascal.taie.pta.ir.Obj;
-import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
+import pascal.taie.pta.PTAOptions;
 
 import java.util.Set;
 
+import static pascal.taie.java.classes.StringReps.STRING;
 import static pascal.taie.util.CollectionUtils.getOne;
 import static pascal.taie.util.CollectionUtils.newHybridSet;
 
@@ -45,7 +47,7 @@ public class ThreadHandler implements Plugin {
     /**
      * This variable of Thread.start().
      */
-    private Variable threadStartThis;
+    private Var threadStartThis;
     /**
      * Set of running threads.
      */
@@ -57,7 +59,7 @@ public class ThreadHandler implements Plugin {
     /**
      * Return variable of Thread.currentThread().
      */
-    private Variable currentThreadReturn;
+    private Var currentThreadReturn;
     /**
      * Contexts of Thread.currentThread().
      */
@@ -69,13 +71,13 @@ public class ThreadHandler implements Plugin {
         hierarchy = pta.getHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                 "<java.lang.Thread: void start()>")
-                .getPTAIR()
+                .getIR()
                 .getThis();
         currentThread = hierarchy.getJREMethod(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
         currentThreadReturn = getOne(currentThread
-                .getPTAIR()
-                .getReturnVariables());
+                .getIR()
+                .getReturnVars());
     }
 
     @Override
@@ -83,25 +85,25 @@ public class ThreadHandler implements Plugin {
         if (!PTAOptions.get().analyzeImplicitEntries()) {
             return;
         }
-        Environment env = pta.getEnvironment();
+        NativeModel nativeModel = World.getNativeModel();
         Context context = pta.getContextSelector().getDefaultContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
-        Obj systemThreadGroup = env.getSystemThreadGroup();
-        PTAIR threadGroupInitIR = hierarchy.getJREMethod(
+        Obj systemThreadGroup = nativeModel.getSystemThreadGroup();
+        IR threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>()>")
-                .getPTAIR();
-        Variable initThis = threadGroupInitIR.getThis();
+                .getIR();
+        Var initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, systemThreadGroup);
 
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThreadGroup = env.getMainThreadGroup();
+        Obj mainThreadGroup = nativeModel.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
-                .getPTAIR();
+                .getIR();
 
         initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThreadGroup);
@@ -109,16 +111,19 @@ public class ThreadHandler implements Plugin {
         pta.addPointsTo(context, threadGroupInitIR.getParam(0),
                 context, systemThreadGroup);
         // propagate "main" to param1
-        Obj main = env.getStringConstant("main");
+        Obj main = pta.getHeapModel()
+                .getConstantObj(World.getTypeManager()
+                        .getClassType(STRING),
+                        "main");
         pta.addPointsTo(context, threadGroupInitIR.getParam(1), context, main);
 
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThread = env.getMainThread();
-        PTAIR threadInitIR = hierarchy.getJREMethod(
+        Obj mainThread = nativeModel.getMainThread();
+        IR threadInitIR = hierarchy.getJREMethod(
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
-                .getPTAIR();
+                .getIR();
         initThis = threadInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
@@ -134,8 +139,8 @@ public class ThreadHandler implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVariable csVar, PointsToSet pts) {
-        if (csVar.getVariable().equals(threadStartThis)) {
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        if (csVar.getVar().equals(threadStartThis)) {
             // Add new reachable thread objects to set of running threads,
             // and propagate the thread objects to return variable of
             // Thread.currentThread().

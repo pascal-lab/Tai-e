@@ -18,10 +18,10 @@ public interface Context {
     /**
      * @return the depth (i.e., the number of elements) of this context.
      */
-    int depth();
+    int getDepth();
 
     /**
      * @return the i-th element of this context. Starts from 1.
      */
-    Object element(int i);
+    Object getElementAt(int i);
 }

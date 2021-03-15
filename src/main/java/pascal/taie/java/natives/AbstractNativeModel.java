@@ -17,8 +17,8 @@ import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
-import pascal.taie.newpta.core.heap.EnvObj;
-import pascal.taie.newpta.core.heap.Obj;
+import pascal.taie.pta.core.heap.EnvObj;
+import pascal.taie.pta.core.heap.Obj;
 
 import static pascal.taie.java.classes.StringReps.STRING;
 import static pascal.taie.java.classes.StringReps.THREAD;

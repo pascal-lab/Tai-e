@@ -13,90 +13,113 @@
 
 package pascal.taie.pta.core.heap;
 
+import pascal.taie.ir.exp.NewExp;
 import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
-import pascal.taie.newpta.PTAOptions;
-import pascal.taie.pta.ir.Allocation;
-import pascal.taie.pta.ir.Obj;
+import pascal.taie.pta.PTAOptions;
 
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.java.classes.StringReps.STRING;
+import static pascal.taie.java.classes.StringReps.STRING_BUFFER;
+import static pascal.taie.java.classes.StringReps.STRING_BUILDER;
+import static pascal.taie.java.classes.StringReps.THROWABLE;
+import static pascal.taie.util.CollectionUtils.newHybridMap;
+import static pascal.taie.util.CollectionUtils.newMap;
 
 /**
  * All heap models should inherit this class, and we can define
  * some uniform behaviors of heap modeling here.
  */
 abstract class AbstractHeapModel implements HeapModel {
-    
+
     private final TypeManager typeManager;
-    
-    private final Type STRING;
-    
-    private final Type STRING_BUILDER;
-    
-    private final Type STRING_BUFFER;
-    
-    private final Type THROWABLE;
+
+    private final Type string;
+
+    private final Type stringBuilder;
+
+    private final Type stringBuffer;
+
+    private final Type throwable;
+
+    private final Map<NewExp, NewObj> objs = newMap();
+
+    private final Map<Type, Map<Object, ConstantObj<?>>> constantObjs = newHybridMap();
+
     /**
      * The merged object representing string constants.
      */
     private final MergedObj mergedSC;
-    private final ConcurrentMap<Type, MergedObj> mergedObjs = newConcurrentMap();
 
-    AbstractHeapModel(TypeManager typeManager) {
+    private final Map<Type, MergedObj> mergedObjs = newMap();
+
+    protected AbstractHeapModel(TypeManager typeManager) {
         this.typeManager = typeManager;
-        STRING = typeManager.getClassType(StringReps.STRING);
-        STRING_BUILDER = typeManager.getClassType(StringReps.STRING_BUILDER);
-        STRING_BUFFER = typeManager.getClassType(StringReps.STRING_BUFFER);
-        THROWABLE = typeManager.getClassType(StringReps.THROWABLE);
-        mergedSC = new MergedObj(STRING, "<Merged string constants>");
+        string = typeManager.getClassType(STRING);
+        stringBuilder = typeManager.getClassType(STRING_BUILDER);
+        stringBuffer = typeManager.getClassType(STRING_BUFFER);
+        throwable = typeManager.getClassType(THROWABLE);
+        mergedSC = new MergedObj(string, "<Merged string constants>");
     }
 
     @Override
-    public Obj getObj(Allocation alloc) {
-        Obj obj = alloc.getObject();
-        Type type = obj.getType();
-        if (PTAOptions.get().isMergeStringConstants()
-                && obj.getKind() == Obj.Kind.STRING_CONSTANT) {
-            // TODO: add represented objects optionally, as this affects
-            //  the concurrent computation
+    public Obj getObj(NewExp newExp) {
+        Type type = newExp.getType();
+        if (PTAOptions.get().isMergeStringObjects() &&
+                type.equals(string)) {
+            return getMergedObj(newExp);
+        }
+        if (PTAOptions.get().isMergeStringBuilders() &&
+                (type.equals(stringBuilder) || type.equals(stringBuffer))) {
+            return getMergedObj(newExp);
+        }
+        if (PTAOptions.get().isMergeExceptionObjects() &&
+                typeManager.isSubtype(throwable, type)) {
+            return getMergedObj(newExp);
+        }
+        return doGetObj(newExp);
+    }
+
+    @Override
+    public <T> Obj getConstantObj(Type type, T value) {
+        Obj obj = doGetConstantObj(type, value);
+        if (PTAOptions.get().isMergeStringConstants() &&
+                type.equals(string)) {
             mergedSC.addRepresentedObj(obj);
             return mergedSC;
         }
-        if (PTAOptions.get().isMergeStringObjects()
-                && type.equals(STRING)
-                && obj.getKind() != Obj.Kind.STRING_CONSTANT) {
-            return getMergedObj(type, obj);
-        }
-        if (PTAOptions.get().isMergeStringBuilders()
-                && (type.equals(STRING_BUILDER) || type.equals(STRING_BUFFER))) {
-            return getMergedObj(type, obj);
-        }
-        if (PTAOptions.get().isMergeExceptionObjects()
-                && typeManager.isSubtype(THROWABLE, type)) {
-            return getMergedObj(type, obj);
-        }
-        return doGetObj(alloc);
+        return obj;
+    }
+
+    protected <T> Obj doGetConstantObj(Type type, T value) {
+        return constantObjs.computeIfAbsent(type, t -> newMap())
+                .computeIfAbsent(value, v -> new ConstantObj<>(type, v));
+    }
+
+    @Override
+    public <T> Obj getMockObj(T value) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Merge given object given by its type.
+     * @param newExp the allocation site of the object
+     * @return the merged object
+     */
+    protected MergedObj getMergedObj(NewExp newExp) {
+        MergedObj mergedObj = mergedObjs.computeIfAbsent(newExp.getType(),
+                t -> new MergedObj(t, "<Merged " + t + ">"));
+        mergedObj.addRepresentedObj(getNewObj(newExp));
+        return mergedObj;
+    }
+
+    protected NewObj getNewObj(NewExp newExp) {
+        return objs.computeIfAbsent(newExp, NewObj::new);
     }
 
     /**
      * The method which controls the heap modeling for normal objects.
      */
-    protected abstract Obj doGetObj(Allocation alloc);
-
-    /**
-     * @param type the type of the objects to be merged
-     * @param obj the object to be merged
-     * @return the merged object
-     */
-    private Obj getMergedObj(Type type, Obj obj) {
-        MergedObj mergedObj = mergedObjs.computeIfAbsent(
-                type, (k) -> new MergedObj(type, "<Merged " + type + ">"));
-        // TODO: add represented objects optionally, as this affects
-        //  the concurrent computation
-        mergedObj.addRepresentedObj(obj);
-        return mergedObj;
-    }
+    protected abstract Obj doGetObj(NewExp newExp);
 }

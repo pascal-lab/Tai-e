@@ -15,7 +15,7 @@ package pascal.taie.java;
 
 import pascal.taie.ir.IR;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.ir.PTAIR;
+import pascal.taie.oldpta.ir.PTAIR;
 
 public interface IRBuilder {
 

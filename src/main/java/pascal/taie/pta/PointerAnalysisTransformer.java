@@ -13,9 +13,7 @@
 
 package pascal.taie.pta;
 
-import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.frontend.soot.SootWorldBuilder;
-import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.core.solver.PointerAnalysisBuilder;
 import soot.Scene;
@@ -42,6 +40,5 @@ public class PointerAnalysisTransformer extends SceneTransformer {
         PointerAnalysis pta = new PointerAnalysisBuilder()
                 .build(PTAOptions.get());
         pta.analyze();
-        JimplePointerAnalysis.get().setPointerAnalysis(pta);
     }
 }
