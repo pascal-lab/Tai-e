@@ -53,7 +53,7 @@ public class DaCapoRunner {
         return new String[]{
                 "-jdk=6",
                 "--merge-string-constants",
-//                "--pre-build-ir",
+                "--pre-build-ir",
                 "-cs", "2-obj",
                 "--", "-cp", buildCP(JDK6, PATH06, benchmark),
                 "dacapo." + benchmark + ".Main"};

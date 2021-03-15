@@ -80,6 +80,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 
@@ -112,6 +113,15 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {
+        buildAll(hierarchy, JMethod::getIR);
+    }
+
+    @Override
+    public void buildAllPTA(ClassHierarchy hierarchy) {
+        buildAll(hierarchy, JMethod::getPTAIR);
+    }
+
+    private void buildAll(ClassHierarchy hierarchy, Consumer<JMethod> builder) {
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
         int nThreads = Runtime.getRuntime().availableProcessors();
@@ -132,7 +142,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         // Build IR for all methods in parallel
         ExecutorService service = Executors.newFixedThreadPool(nThreads);
         for (List<JMethod> group : groups) {
-            service.execute(() -> group.forEach(JMethod::getPTAIR));
+            service.execute(() -> group.forEach(builder));
         }
         service.shutdown();
         try {

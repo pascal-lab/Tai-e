@@ -30,4 +30,6 @@ public interface IRBuilder {
      * Build IR for all methods in the given hierarchy.
      */
     void buildAll(ClassHierarchy hierarchy);
+
+    void buildAllPTA(ClassHierarchy hierarchy);
 }

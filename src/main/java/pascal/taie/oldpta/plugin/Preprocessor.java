@@ -22,7 +22,7 @@ public class Preprocessor implements Plugin {
     public void preprocess() {
         if (PTAOptions.get().isPreBuildIR()) {
             World.getIRBuilder()
-                    .buildAll(World.getClassHierarchy());
+                    .buildAllPTA(World.getClassHierarchy());
         }
     }
 }
