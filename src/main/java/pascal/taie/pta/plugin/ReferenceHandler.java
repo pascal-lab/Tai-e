@@ -40,7 +40,7 @@ public class ReferenceHandler implements Plugin {
     private Var referenceInitThis;
 
     /**
-     *
+     * The static field Reference.pending.
      */
     private JField referencePending;
 
@@ -57,7 +57,7 @@ public class ReferenceHandler implements Plugin {
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
         // Let Reference.pending points to every reference.
         if (csVar.getVar().equals(referenceInitThis)) {
-            pta.addPointsTo(referencePending, pts);
+            pta.addStaticFieldPointsTo(referencePending, pts);
         }
     }
 }

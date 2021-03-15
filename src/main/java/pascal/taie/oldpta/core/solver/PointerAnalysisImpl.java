@@ -518,7 +518,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Triggers the analysis of class initializers.
      * Well, the description of "when initialization occurs" of
-     * JLS (14e, 12.4.1) and JVM Spec. (14e, 5.5) looks not
+     * JLS (11 Ed., 12.4.1) and JVM Spec. (11 Ed., 5.5) looks not
      * very consistent.
      * TODO: handles class initialization triggered by reflection,
      *  MethodHandle, and superinterfaces (that declare default methods).

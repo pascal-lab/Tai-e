@@ -128,7 +128,7 @@ public class MethodRef extends MemberRef {
 
     /**
      * @return if this is a reference to polymorphic signature method.
-     * See JLS (Java 13 Ed.), 15.12.3 for the definition of polymorphic signature method.
+     * See JLS (11 Ed.), 15.12.3 for the definition of polymorphic signature method.
      */
     public boolean isPolymorphicSignature() {
         if (METHOD_HANDLE.equals(getDeclaringClass().getName())) {

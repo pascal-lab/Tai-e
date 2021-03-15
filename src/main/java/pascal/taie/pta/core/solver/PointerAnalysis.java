@@ -53,10 +53,10 @@ public interface PointerAnalysis {
      * @param heapContext heap context for the object
      * @param obj the object to be added
      */
-    void addPointsTo(Context context, Var var,
-                     Context heapContext, Obj obj);
+    void addVarPointsTo(Context context, Var var,
+                        Context heapContext, Obj obj);
 
-    void addPointsTo(Context context, Var var, PointsToSet pts);
+    void addVarPointsTo(Context context, Var var, PointsToSet pts);
 
     /**
      * Add a context-sensitive array index points-to relation.
@@ -65,15 +65,15 @@ public interface PointerAnalysis {
      * @param heapContext heap context for the element
      * @param obj the element to be stored into the array
      */
-    void addPointsTo(Context arrayContext, Obj array,
-                     Context heapContext, Obj obj);
+    void addArrayPointsTo(Context arrayContext, Obj array,
+                          Context heapContext, Obj obj);
 
     /**
      * Add static field points-to relations.
      * @param field the static field
      * @param pts the objects to be added to the points-to set of the field.
      */
-    void addPointsTo(JField field, PointsToSet pts);
+    void addStaticFieldPointsTo(JField field, PointsToSet pts);
 
     /**
      * @return all variables in the (reachable) program.

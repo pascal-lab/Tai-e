@@ -86,7 +86,7 @@ public class TypeManagerImpl implements TypeManager {
             }
         } else if (subtype instanceof ArrayType) {
             if (supertype instanceof ClassType) {
-                // JLS (Java 13 Ed.), Chapter 10, Arrays
+                // JLS (11 Ed.), Chapter 10, Arrays
                 return supertype == JavaLangObject ||
                         supertype == JavaLangCloneable ||
                         supertype == JavaLangSerializable;

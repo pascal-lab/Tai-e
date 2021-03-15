@@ -218,9 +218,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         NativeModel nativeModel = World.getNativeModel();
         Obj args = nativeModel.getMainArgs();
         Obj argsElem = nativeModel.getMainArgsElem();
-        addPointsTo(defContext, args, defContext, argsElem);
+        addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
-        addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
+        addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
@@ -289,19 +289,19 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public void addPointsTo(Context context, Var var, Context heapContext, Obj obj) {
+    public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
         CSObj csObj = csManager.getCSObj(heapContext, obj);
-        addPointsTo(context, var, PointsToSetFactory.make(csObj));
+        addVarPointsTo(context, var, PointsToSetFactory.make(csObj));
     }
 
     @Override
-    public void addPointsTo(Context context, Var var, PointsToSet pts) {
+    public void addVarPointsTo(Context context, Var var, PointsToSet pts) {
         CSVar csVar = csManager.getCSVar(context, var);
         addPointerEntry(csVar, pts);
     }
 
     @Override
-    public void addPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj) {
+    public void addArrayPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj) {
         CSObj csArray = csManager.getCSObj(arrayContext, array);
         ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
         CSObj elem = csManager.getCSObj(heapContext, obj);
@@ -309,7 +309,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public void addPointsTo(JField field, PointsToSet pts) {
+    public void addStaticFieldPointsTo(JField field, PointsToSet pts) {
+        assert field.isStatic();
         StaticField sfield = csManager.getStaticField(field);
         addPointerEntry(sfield, pts);
     }
@@ -603,7 +604,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             NewExp rvalue = stmt.getRValue();
             Obj obj = heapModel.getObj(rvalue);
             Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            addPointsTo(context, stmt.getLValue(), heapContext, obj);
+            addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
             if (rvalue instanceof NewMultiArray) {
                 processNewMultiArray((NewMultiArray) rvalue, heapContext, obj);
             }
@@ -629,7 +630,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Obj elem = heapModel.getObj(newArray);
                 Context elemContext = contextSelector
                         .selectHeapContext(csMethod, elem);
-                addPointsTo(arrayContext, array, elemContext, elem);
+                addArrayPointsTo(arrayContext, array, elemContext, elem);
                 array = elem;
                 arrayContext = elemContext;
             }
@@ -676,7 +677,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             Obj obj = heapModel.getConstantObj(literal.getType(),
                     ((ReferenceLiteral<?>) literal).getValue());
             Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            addPointsTo(context, stmt.getLValue(), heapContext, obj);
+            addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
         }
 
         @Override
@@ -738,7 +739,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Triggers the analysis of class initializers.
      * Well, the description of "when initialization occurs" of
-     * JLS (14e, 12.4.1) and JVM Spec. (14e, 5.5) looks not
+     * JLS (11 Ed., 12.4.1) and JVM Spec. (11 Ed., 5.5) looks not
      * very consistent.
      * TODO: handles class initialization triggered by reflection,
      *  MethodHandle, and superinterfaces (that declare default methods).

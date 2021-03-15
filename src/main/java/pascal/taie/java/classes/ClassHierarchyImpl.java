@@ -178,7 +178,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     private JField resolveField(JClass jclass, String name, Type type) {
-        // JVM Spec. (Java 13 Ed.), 5.4.3.2 Field Resolution
+        // JVM Spec. (11 Ed.), 5.4.3.2 Field Resolution
         // 1. If C declares a field with the name and descriptor specified
         // by the field reference, field lookup succeeds. The declared field
         // is the result of the field lookup.
@@ -239,7 +239,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JMethod lookupMethod(JClass jclass, Subsignature subsignature,
                                  boolean allowAbstract) {
-        // JVM Spec. (Java 13 Ed.), 5.4.3.3 Method Resolution
+        // JVM Spec. (11 Ed.), 5.4.3.3 Method Resolution
         // 1. If C is an interface, method resolution throws
         // an IncompatibleClassChangeError. TODO: ???
 

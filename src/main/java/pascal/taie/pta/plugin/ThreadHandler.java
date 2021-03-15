@@ -95,7 +95,7 @@ public class ThreadHandler implements Plugin {
                 "<java.lang.ThreadGroup: void <init>()>")
                 .getIR();
         Var initThis = threadGroupInitIR.getThis();
-        pta.addPointsTo(context, initThis, context, systemThreadGroup);
+        pta.addVarPointsTo(context, initThis, context, systemThreadGroup);
 
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
@@ -106,16 +106,16 @@ public class ThreadHandler implements Plugin {
                 .getIR();
 
         initThis = threadGroupInitIR.getThis();
-        pta.addPointsTo(context, initThis, context, mainThreadGroup);
+        pta.addVarPointsTo(context, initThis, context, mainThreadGroup);
         // propagate <system-thread-group> to param0
-        pta.addPointsTo(context, threadGroupInitIR.getParam(0),
+        pta.addVarPointsTo(context, threadGroupInitIR.getParam(0),
                 context, systemThreadGroup);
         // propagate "main" to param1
         Obj main = pta.getHeapModel()
                 .getConstantObj(World.getTypeManager()
                         .getClassType(STRING),
                         "main");
-        pta.addPointsTo(context, threadGroupInitIR.getParam(1), context, main);
+        pta.addVarPointsTo(context, threadGroupInitIR.getParam(1), context, main);
 
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
@@ -125,12 +125,12 @@ public class ThreadHandler implements Plugin {
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
         initThis = threadInitIR.getThis();
-        pta.addPointsTo(context, initThis, context, mainThread);
+        pta.addVarPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
-        pta.addPointsTo(context, threadInitIR.getParam(0),
+        pta.addVarPointsTo(context, threadInitIR.getParam(0),
                 context, mainThreadGroup);
         // propagate "main" to param1
-        pta.addPointsTo(context, threadInitIR.getParam(1), context, main);
+        pta.addVarPointsTo(context, threadInitIR.getParam(1), context, main);
 
         // The main thread is never explicitly started, which would make it a
         // RunningThread. Therefore, we make it a running thread explicitly.
@@ -145,7 +145,7 @@ public class ThreadHandler implements Plugin {
             // and propagate the thread objects to return variable of
             // Thread.currentThread().
             // Since multiple threads may execute this method and
-            // this.signalNewCSMethod(), we need to synchronize reads/writes
+            // this.handleNewCSMethod(), we need to synchronize reads/writes
             // on runningThreads and currentThreadContexts, so we put these
             // operations in synchronized block.
             // Note that this *only* blocks when Thread.start()/@this change,
@@ -153,7 +153,7 @@ public class ThreadHandler implements Plugin {
             synchronized (this) {
                 if (runningThreads.addAll(pts)) {
                     currentThreadContexts.forEach(context ->
-                            pta.addPointsTo(context, currentThreadReturn, pts));
+                            pta.addVarPointsTo(context, currentThreadReturn, pts));
                 }
             }
         }
@@ -170,7 +170,7 @@ public class ThreadHandler implements Plugin {
             synchronized (this) {
                 Context context = csMethod.getContext();
                 currentThreadContexts.add(context);
-                pta.addPointsTo(context, currentThreadReturn, runningThreads);
+                pta.addVarPointsTo(context, currentThreadReturn, runningThreads);
             }
         }
     }
