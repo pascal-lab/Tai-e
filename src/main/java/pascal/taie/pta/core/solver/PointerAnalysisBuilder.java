@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.solver;
 
 import pascal.taie.java.World;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.core.context.ContextInsensitiveSelector;
 import pascal.taie.pta.core.context.OneCallSelector;
 import pascal.taie.pta.core.context.OneObjectSelector;

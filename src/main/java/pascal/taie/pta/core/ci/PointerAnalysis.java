@@ -163,7 +163,7 @@ public class PointerAnalysis {
      * Processes allocations (new statements) in the given method.
      */
     private void processAllocations(JMethod method) {
-        for (Statement stmt : method.getIR().getPTAStatements()) {
+        for (Statement stmt : method.getPTAIR().getStatements()) {
             if (stmt instanceof Allocation) {
                 Allocation alloc = (Allocation) stmt;
                 // obtain abstract object
@@ -179,7 +179,7 @@ public class PointerAnalysis {
      * Adds local assign edges of the given method to pointer flow graph.
      */
     private void processLocalAssign(JMethod method) {
-        for (Statement stmt : method.getIR().getPTAStatements()) {
+        for (Statement stmt : method.getPTAIR().getStatements()) {
             if (stmt instanceof Assign) {
                 Assign assign = (Assign) stmt;
                 Var from = pointerFlowGraph.getVar(assign.getFrom());
@@ -239,7 +239,7 @@ public class PointerAnalysis {
                 // resolve callee
                 JMethod callee = resolveCallee(recvObj.getType(), callSite);
                 // pass receiver object to *this* variable
-                Var thisVar = pointerFlowGraph.getVar(callee.getIR().getThis());
+                Var thisVar = pointerFlowGraph.getVar(callee.getPTAIR().getThis());
                 workList.addPointerEntry(thisVar, new PointsToSet(recvObj));
                 // build call edge
                 workList.addCallEdge(new Edge<>(
@@ -261,7 +261,7 @@ public class PointerAnalysis {
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Variable arg = callSite.getArg(i);
                 if (arg.getType() instanceof ReferenceType) {
-                    Variable param = callee.getIR().getParam(i);
+                    Variable param = callee.getPTAIR().getParam(i);
                     Var argVar = pointerFlowGraph.getVar(arg);
                     Var paramVar = pointerFlowGraph.getVar(param);
                     addPFGEdge(argVar, paramVar);
@@ -270,7 +270,7 @@ public class PointerAnalysis {
             // pass results to LHS variable
             callSite.getCall().getLHS().ifPresent(lhs -> {
                 Var lhsVar = pointerFlowGraph.getVar(lhs);
-                for (Variable ret : callee.getIR().getReturnVariables()) {
+                for (Variable ret : callee.getPTAIR().getReturnVariables()) {
                     Var retVar = pointerFlowGraph.getVar(ret);
                     addPFGEdge(retVar, lhsVar);
                 }
@@ -282,7 +282,7 @@ public class PointerAnalysis {
      * Process static calls in given method.
      */
     private void processStaticCalls(JMethod method) {
-        for (Statement stmt : method.getIR().getPTAStatements()) {
+        for (Statement stmt : method.getPTAIR().getStatements()) {
             if (stmt instanceof Call) {
                 CallSite callSite = ((Call) stmt).getCallSite();
                 if (callSite.getKind() == CallKind.STATIC) {

@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.plugin;
 
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.ResultChecker;
 import pascal.taie.pta.core.cs.ArrayIndex;
 import pascal.taie.pta.core.cs.CSMethod;

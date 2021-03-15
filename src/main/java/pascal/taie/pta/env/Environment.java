@@ -16,9 +16,9 @@ package pascal.taie.pta.env;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.env.nativemodel.NativeModel;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.Obj;
 
 import static pascal.taie.java.classes.StringReps.STRING;
@@ -100,7 +100,7 @@ public class Environment {
         return mainArgsElem;
     }
 
-    public void processNativeCode(IR ir) {
+    public void processNativeCode(PTAIR ir) {
         nativeModel.process(ir);
     }
 }

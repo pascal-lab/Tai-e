@@ -16,7 +16,7 @@ package pascal.taie.java.classes;
 import pascal.taie.ir.NewIR;
 import pascal.taie.java.World;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ public class JMethod extends ClassMember {
      */
     private final Object methodSource;
 
-    private IR ir;
+    private PTAIR ptair;
 
     private NewIR newIR;
 
@@ -83,12 +83,12 @@ public class JMethod extends ClassMember {
         return methodSource;
     }
 
-    public IR getIR() {
+    public PTAIR getPTAIR() {
         assert !isAbstract();
-        if (ir == null) {
-            ir = World.getIRBuilder().build(this);
+        if (ptair == null) {
+            ptair = World.getIRBuilder().build(this);
         }
-        return ir;
+        return ptair;
     }
 
     public NewIR getNewIR() {

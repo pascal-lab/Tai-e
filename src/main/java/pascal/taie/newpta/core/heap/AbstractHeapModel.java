@@ -16,7 +16,7 @@ package pascal.taie.newpta.core.heap;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 
 import java.util.Map;
 

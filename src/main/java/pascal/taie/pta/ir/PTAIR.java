@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Intermediate representation of method body.
  */
-public interface IR {
+public interface PTAIR {
 
     JMethod getMethod();
 
@@ -33,7 +33,7 @@ public interface IR {
 
     Collection<Variable> getReturnVariables();
 
-    List<Statement> getPTAStatements();
+    List<Statement> getStatements();
 
-    void addPTAStatement(Statement s);
+    void addStatement(Statement s);
 }

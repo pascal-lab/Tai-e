@@ -95,7 +95,7 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
         List<CSCallSite> callSites = new ArrayList<>();
-        for (Statement s : method.getIR().getPTAStatements()) {
+        for (Statement s : method.getPTAIR().getStatements()) {
             if (s instanceof Call) {
                 CallSite callSite = ((Call) s).getCallSite();
                 CSCallSite csCallSite = csManager

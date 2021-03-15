@@ -15,13 +15,13 @@ package pascal.taie.pta.plugin;
 
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVariable;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.env.Environment;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 import pascal.taie.pta.set.PointsToSet;
@@ -69,12 +69,12 @@ public class ThreadHandler implements Plugin {
         hierarchy = pta.getHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                 "<java.lang.Thread: void start()>")
-                .getIR()
+                .getPTAIR()
                 .getThis();
         currentThread = hierarchy.getJREMethod(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
         currentThreadReturn = getOne(currentThread
-                .getIR()
+                .getPTAIR()
                 .getReturnVariables());
     }
 
@@ -89,9 +89,9 @@ public class ThreadHandler implements Plugin {
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = env.getSystemThreadGroup();
-        IR threadGroupInitIR = hierarchy.getJREMethod(
+        PTAIR threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>()>")
-                .getIR();
+                .getPTAIR();
         Variable initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, systemThreadGroup);
 
@@ -101,7 +101,7 @@ public class ThreadHandler implements Plugin {
         Obj mainThreadGroup = env.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
-                .getIR();
+                .getPTAIR();
 
         initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThreadGroup);
@@ -116,9 +116,9 @@ public class ThreadHandler implements Plugin {
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = env.getMainThread();
-        IR threadInitIR = hierarchy.getJREMethod(
+        PTAIR threadInitIR = hierarchy.getJREMethod(
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
-                .getIR();
+                .getPTAIR();
         initThis = threadInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0

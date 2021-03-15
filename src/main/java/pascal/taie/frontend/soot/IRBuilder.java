@@ -29,9 +29,9 @@ import pascal.taie.pta.ir.AssignCast;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.CallSite;
 import pascal.taie.pta.ir.DefaultCallSite;
-import pascal.taie.pta.ir.DefaultIR;
+import pascal.taie.pta.ir.DefaultPTAIR;
 import pascal.taie.pta.ir.DefaultVariable;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.InstanceLoad;
 import pascal.taie.pta.ir.InstanceStore;
 import pascal.taie.pta.ir.NormalObj;
@@ -132,7 +132,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         // Build IR for all methods in parallel
         ExecutorService service = Executors.newFixedThreadPool(nThreads);
         for (List<JMethod> group : groups) {
-            service.execute(() -> group.forEach(JMethod::getIR));
+            service.execute(() -> group.forEach(JMethod::getPTAIR));
         }
         service.shutdown();
         try {
@@ -145,8 +145,8 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     }
 
     @Override
-    public IR build(JMethod method) {
-        DefaultIR ir = new DefaultIR(method);
+    public PTAIR build(JMethod method) {
+        DefaultPTAIR ir = new DefaultPTAIR(method);
         if (method.isNative()) {
             buildNative(method, ir);
         } else if (!method.isAbstract()) {
@@ -156,7 +156,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         return ir;
     }
 
-    private void buildNative(JMethod method, DefaultIR ir) {
+    private void buildNative(JMethod method, DefaultPTAIR ir) {
         if (!method.isStatic()) {
             ir.setThis(varManager.getThisVariable(method));
         }
@@ -174,7 +174,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
     }
 
-    private void buildConcrete(JMethod method, DefaultIR ir) {
+    private void buildConcrete(JMethod method, DefaultPTAIR ir) {
         SootMethod sootMethod = (SootMethod) method.getMethodSource();
         Body body = sootMethod.retrieveActiveBody();
         // add this variable
@@ -212,7 +212,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
     }
 
-    private void buildAssign(JMethod method, DefaultIR ir, AssignStmt stmt) {
+    private void buildAssign(JMethod method, DefaultPTAIR ir, AssignStmt stmt) {
         Value left = stmt.getLeftOp();
         if (stmt.containsInvokeExpr()) {
             buildCall(method, ir, stmt, left);
@@ -226,7 +226,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
     }
 
-    private void buildLeftLocal(JMethod method, DefaultIR ir,
+    private void buildLeftLocal(JMethod method, DefaultPTAIR ir,
                                 AssignStmt stmt, Local left) {
         Variable lhs = getVariable(left, method);
         Value right = stmt.getRightOp();
@@ -290,7 +290,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
     }
 
-    private void buildLeftNonLocal(JMethod method, DefaultIR ir,
+    private void buildLeftNonLocal(JMethod method, DefaultPTAIR ir,
                                    AssignStmt stmt, Value left) {
         Value right = stmt.getRightOp();
         Variable rhs;
@@ -328,13 +328,13 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
     }
 
-    private void buildIdentity(JMethod method, DefaultIR ir, IdentityStmt stmt) {
+    private void buildIdentity(JMethod method, DefaultPTAIR ir, IdentityStmt stmt) {
         // identity statement is for parameter passing and catch statements
         // parameters have been handled when creating JimpleMethod
         // currently ignore catch statements
     }
 
-    private void buildCall(JMethod method, DefaultIR ir, Stmt stmt, Value left) {
+    private void buildCall(JMethod method, DefaultPTAIR ir, Stmt stmt, Value left) {
         // x.m()     for left == null
         // r = x.m() for left != null
         Variable lhs = left != null && left.getType() instanceof RefLikeType
@@ -345,7 +345,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         addStatement(ir, call, stmt);
     }
 
-    private CallSite createCallSite(Stmt stmt, JMethod container, DefaultIR ir) {
+    private CallSite createCallSite(Stmt stmt, JMethod container, DefaultPTAIR ir) {
         InvokeExpr invoke = stmt.getInvokeExpr();
         DefaultCallSite callSite = new DefaultCallSite(
                 JimpleCallUtils.getCallKind(invoke));
@@ -379,7 +379,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         return callSite;
     }
 
-    private void buildReturn(JMethod method, DefaultIR ir, ReturnStmt stmt) {
+    private void buildReturn(JMethod method, DefaultPTAIR ir, ReturnStmt stmt) {
         if (stmt.getOp().getType() instanceof RefLikeType) {
             Value value = stmt.getOp();
             Variable ret;
@@ -397,13 +397,13 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         }
     }
 
-    private void buildThrow(JMethod method, DefaultIR ir, ThrowStmt stmt) {
+    private void buildThrow(JMethod method, DefaultPTAIR ir, ThrowStmt stmt) {
         // currently ignore throw statements
     }
 
-    private void addStatement(DefaultIR ir, Statement stmt, Stmt sootStmt) {
+    private void addStatement(DefaultPTAIR ir, Statement stmt, Stmt sootStmt) {
         stmt.setStartLineNumber(sootStmt.getJavaSourceStartLineNumber());
-        ir.addPTAStatement(stmt);
+        ir.addStatement(stmt);
     }
 
     private Variable getVariable(Local var, JMethod container) {
@@ -421,12 +421,12 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
      * to the container method.
      */
     private Variable getVariableOfConstant(
-            Value constant, JMethod container, DefaultIR ir) {
+            Value constant, JMethod container, DefaultPTAIR ir) {
         Obj obj = getConstantObj(constant);
         Variable temp = varManager.newTempVariable(
                 "constant$", converter.convertType(constant.getType()),
                 container);
-        ir.addPTAStatement(new Allocation(temp, obj));
+        ir.addStatement(new Allocation(temp, obj));
         return temp;
     }
 
@@ -466,7 +466,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
      * allocated separately for every dimension of the array.
      */
     private void newMultiArray(AssignStmt alloc, Variable lhs, ArrayType arrayType,
-                               JMethod container, DefaultIR ir) {
+                               JMethod container, DefaultPTAIR ir) {
         Obj array = new NormalObj(converter.convertType(arrayType), container);
         addStatement(ir, new Allocation(lhs, array), alloc);
         soot.Type elemType = arrayType.getElementType();

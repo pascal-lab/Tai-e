@@ -20,7 +20,7 @@ import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.Type;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.Variable;
@@ -51,7 +51,7 @@ class FinalizerModel {
                 .getRef();
     }
 
-    void process(Statement s, IR containerIR) {
+    void process(Statement s, PTAIR containerIR) {
         if (s instanceof Allocation) {
             Allocation alloc = (Allocation) s;
             Obj obj = alloc.getObject();
@@ -62,7 +62,7 @@ class FinalizerModel {
                             registerRef, null, Collections.singletonList(lhs),
                             container, "register-finalize");
                     Call call = new Call(callSite, null);
-                    containerIR.addPTAStatement(call);
+                    containerIR.addStatement(call);
                 });
             }
         }

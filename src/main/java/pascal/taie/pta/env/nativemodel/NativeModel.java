@@ -15,7 +15,7 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 
 public interface NativeModel {
 
@@ -28,5 +28,5 @@ public interface NativeModel {
         return (ir) -> {};
     }
 
-    void process(IR ir);
+    void process(PTAIR ir);
 }

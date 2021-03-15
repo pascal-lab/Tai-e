@@ -14,7 +14,7 @@
 package pascal.taie.pta.plugin;
 
 import pascal.taie.java.World;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 
 public class Preprocessor implements Plugin {
 

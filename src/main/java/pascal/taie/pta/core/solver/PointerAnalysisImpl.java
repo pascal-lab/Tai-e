@@ -29,7 +29,7 @@ import pascal.taie.java.types.ArrayType;
 import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
 import pascal.taie.pta.core.cs.ArrayIndex;
@@ -223,7 +223,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Obj argsElem = environment.getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
-        addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
+        addPointsTo(defContext, main.getPTAIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
@@ -341,8 +341,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             processNewMethod(csMethod.getMethod());
             StatementProcessor processor = new StatementProcessor(csMethod);
             csMethod.getMethod()
-                    .getIR()
-                    .getPTAStatements()
+                    .getPTAIR()
+                    .getStatements()
                     .forEach(s -> s.accept(processor));
             plugin.handleNewCSMethod(csMethod);
         }
@@ -450,7 +450,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                         callSite.getKind(), csCallSite, csCallee));
                 // pass receiver object to *this* variable
                 CSVariable thisVar = csManager.getCSVariable(
-                        calleeContext, callee.getIR().getThis());
+                        calleeContext, callee.getPTAIR().getThis());
                 addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
             }
         }
@@ -473,7 +473,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 Variable arg = callSite.getArg(i);
                 if (arg != null) {
                     assert arg.getType() instanceof ReferenceType;
-                    Variable param = callee.getIR().getParam(i);
+                    Variable param = callee.getPTAIR().getParam(i);
                     CSVariable argVar = csManager.getCSVariable(callerCtx, arg);
                     CSVariable paramVar = csManager.getCSVariable(calleeCtx, param);
                     addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
@@ -482,7 +482,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             // pass results to LHS variable
             callSite.getCall().getLHS().ifPresent(lhs -> {
                 CSVariable csLHS = csManager.getCSVariable(callerCtx, lhs);
-                for (Variable ret : callee.getIR().getReturnVariables()) {
+                for (Variable ret : callee.getPTAIR().getReturnVariables()) {
                     CSVariable csRet = csManager.getCSVariable(calleeCtx, ret);
                     addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
                 }
@@ -496,7 +496,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.handleNewMethod(method);
-            method.getIR().getPTAStatements()
+            method.getPTAIR().getStatements()
                     .forEach(s -> s.accept(classInitializer));
         }
     }

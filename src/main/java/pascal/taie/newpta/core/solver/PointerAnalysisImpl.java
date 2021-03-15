@@ -73,7 +73,7 @@ import pascal.taie.newpta.core.heap.Obj;
 import pascal.taie.newpta.plugin.Plugin;
 import pascal.taie.newpta.set.PointsToSet;
 import pascal.taie.newpta.set.PointsToSetFactory;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;

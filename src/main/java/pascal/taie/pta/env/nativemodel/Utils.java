@@ -21,7 +21,7 @@ import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.Obj;
 import pascal.taie.pta.ir.Variable;
 
@@ -45,19 +45,19 @@ class Utils {
      * @param callId ID of the mock constructor call site
      */
     static void modelAllocation(
-            ClassHierarchy hierarchy, IR containerIR,
+            ClassHierarchy hierarchy, PTAIR containerIR,
             Type type, String name, Variable recv,
             String ctorSig, String callId) {
         JMethod container = containerIR.getMethod();
         Obj obj = new EnvObj(name, type, container);
-        containerIR.addPTAStatement(new Allocation(recv, obj));
+        containerIR.addStatement(new Allocation(recv, obj));
         JMethod ctor = hierarchy.getJREMethod(ctorSig);
         MockCallSite initCallSite = new MockCallSite(
                 CallKind.SPECIAL, ctor.getRef(),
                 recv, Collections.emptyList(),
                 container, callId);
         Call initCall = new Call(initCallSite, null);
-        containerIR.addPTAStatement(initCall);
+        containerIR.addStatement(initCall);
     }
 
     /**
@@ -65,7 +65,7 @@ class Utils {
      * by mocking a virtual call r = o.m().
      */
     static void modelStaticToVirtualCall(
-            ClassHierarchy hierarchy, IR containerIR, Call call,
+            ClassHierarchy hierarchy, PTAIR containerIR, Call call,
             String calleeSig, String callId) {
         CallSite origin = call.getCallSite();
         JMethod callee = hierarchy.getJREMethod(calleeSig);
@@ -74,6 +74,6 @@ class Utils {
                 origin.getArg(0), Collections.emptyList(),
                 containerIR.getMethod(), callId);
         Call mockCall = new Call(callSite, call.getLHS().orElse(null));
-        containerIR.addPTAStatement(mockCall);
+        containerIR.addStatement(mockCall);
     }
 }

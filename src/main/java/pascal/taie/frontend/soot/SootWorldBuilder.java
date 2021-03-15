@@ -22,7 +22,7 @@ import pascal.taie.java.natives.DefaultNativeModel;
 import pascal.taie.java.natives.EmptyNativeModel;
 import pascal.taie.java.natives.NativeModel;
 import pascal.taie.java.types.TypeManagerImpl;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.env.Environment;
 import pascal.taie.util.Timer;
 import soot.G;

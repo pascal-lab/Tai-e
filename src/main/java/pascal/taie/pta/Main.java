@@ -14,6 +14,7 @@
 package pascal.taie.pta;
 
 import pascal.taie.frontend.soot.SootWorldBuilder;
+import pascal.taie.newpta.PTAOptions;
 import soot.PackManager;
 import soot.Transform;
 

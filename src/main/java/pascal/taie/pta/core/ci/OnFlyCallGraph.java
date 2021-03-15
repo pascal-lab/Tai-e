@@ -35,7 +35,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {
     @Override
     protected boolean addNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
-            for (Statement s : method.getIR().getPTAStatements()) {
+            for (Statement s : method.getPTAIR().getStatements()) {
                 if (s instanceof Call) {
                     CallSite callSite = ((Call) s).getCallSite();
                     callSiteToContainer.put(callSite, method);

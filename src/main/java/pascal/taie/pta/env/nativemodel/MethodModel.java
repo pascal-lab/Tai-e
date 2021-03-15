@@ -21,13 +21,13 @@ import pascal.taie.java.classes.JField;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.env.EnvObj;
 import pascal.taie.pta.ir.Allocation;
 import pascal.taie.pta.ir.ArrayStore;
 import pascal.taie.pta.ir.Assign;
 import pascal.taie.pta.ir.Call;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.StaticStore;
 import pascal.taie.pta.ir.Variable;
 
@@ -51,7 +51,7 @@ class MethodModel {
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
-    private final Map<JMethod, Consumer<IR>> handlers;
+    private final Map<JMethod, Consumer<PTAIR>> handlers;
 
     /**
      * Counter to give each mock variable an unique name in each method.
@@ -66,8 +66,8 @@ class MethodModel {
         initHandlers();
     }
 
-    void process(IR ir) {
-        Consumer<IR> handler = handlers.get(ir.getMethod());
+    void process(PTAIR ir) {
+        Consumer<PTAIR> handler = handlers.get(ir.getMethod());
         if (handler != null) {
             handler.accept(ir);
         }
@@ -84,7 +84,7 @@ class MethodModel {
         //  identity). The behaviour implemented here is based on Soot.
         registerHandler("<java.lang.Object: java.lang.Object clone()>", ir ->
             ir.getReturnVariables().forEach(ret ->
-                    ir.addPTAStatement(new Assign(ret, ir.getThis())))
+                    ir.addStatement(new Assign(ret, ir.getThis())))
         );
 
         // --------------------------------------------------------------------
@@ -139,7 +139,7 @@ class MethodModel {
                     run.getRef(), ir.getThis(), Collections.emptyList(),
                     ir.getMethod(), "thread-run");
             Call runCall = new Call(runCallSite, null);
-            ir.addPTAStatement(runCall);
+            ir.addStatement(runCall);
         });
 
         // --------------------------------------------------------------------
@@ -178,9 +178,9 @@ class MethodModel {
                 Type stringArray = typeManager.getArrayType(string, 1);
                 EnvObj array = new EnvObj("element-array", stringArray, method);
                 ir.getReturnVariables().forEach(ret -> {
-                    ir.addPTAStatement(new Allocation(temp, elem));
-                    ir.addPTAStatement(new Allocation(ret, array));
-                    ir.addPTAStatement(new ArrayStore(ret, temp));
+                    ir.addStatement(new Allocation(temp, elem));
+                    ir.addStatement(new Allocation(ret, array));
+                    ir.addStatement(new ArrayStore(ret, temp));
                 });
             });
         });
@@ -200,7 +200,7 @@ class MethodModel {
         });
     }
 
-    private void registerHandler(String signature, Consumer<IR> handler) {
+    private void registerHandler(String signature, Consumer<PTAIR> handler) {
         JMethod method = hierarchy.getJREMethod(signature);
         if (method != null) {
             handlers.put(method, handler);
@@ -215,8 +215,8 @@ class MethodModel {
                 "@native-method-mock-var" + id);
     }
 
-    private void addStaticStore(IR ir, String fieldSig, Variable from) {
+    private void addStaticStore(PTAIR ir, String fieldSig, Variable from) {
         JField field = hierarchy.getJREField(fieldSig);
-        ir.addPTAStatement(new StaticStore(field.getRef(), from));
+        ir.addStatement(new StaticStore(field.getRef(), from));
     }
 }

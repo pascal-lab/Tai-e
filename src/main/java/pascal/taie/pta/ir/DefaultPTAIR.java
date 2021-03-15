@@ -26,7 +26,7 @@ import static pascal.taie.util.CollectionUtils.newHybridSet;
 /**
  * Default implementation of IR.
  */
-public class DefaultIR implements IR {
+public class DefaultPTAIR implements PTAIR {
 
     private final JMethod method;
 
@@ -38,7 +38,7 @@ public class DefaultIR implements IR {
 
     private List<Statement> ptaStatements = Collections.emptyList();
 
-    public DefaultIR(JMethod method) {
+    public DefaultPTAIR(JMethod method) {
         this.method = method;
     }
 
@@ -87,12 +87,12 @@ public class DefaultIR implements IR {
     }
 
     @Override
-    public List<Statement> getPTAStatements() {
+    public List<Statement> getStatements() {
         return ptaStatements;
     }
 
     @Override
-    public void addPTAStatement(Statement s) {
+    public void addStatement(Statement s) {
         if (ptaStatements.isEmpty()) {
             ptaStatements = new ArrayList<>();
         }

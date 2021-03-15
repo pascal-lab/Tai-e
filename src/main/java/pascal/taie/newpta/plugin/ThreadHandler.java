@@ -26,7 +26,7 @@ import pascal.taie.newpta.core.heap.Obj;
 import pascal.taie.newpta.core.solver.PointerAnalysis;
 import pascal.taie.newpta.set.PointsToSet;
 import pascal.taie.newpta.set.PointsToSetFactory;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 
 import java.util.Set;
 

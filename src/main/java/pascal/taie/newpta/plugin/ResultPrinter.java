@@ -21,7 +21,7 @@ import pascal.taie.newpta.core.cs.InstanceField;
 import pascal.taie.newpta.core.cs.Pointer;
 import pascal.taie.newpta.core.cs.StaticField;
 import pascal.taie.newpta.core.solver.PointerAnalysis;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.util.Pair;
 
 import java.io.File;

@@ -15,7 +15,7 @@ package pascal.taie.pta.env.nativemodel;
 
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.Statement;
 
 /**
@@ -39,10 +39,10 @@ class DefaultNativeModel implements NativeModel {
     }
 
     @Override
-    public void process(IR ir) {
+    public void process(PTAIR ir) {
         methodModel.process(ir);
         // Statements may be changed by native model, thus we process on a copy
-        Statement[] statements = ir.getPTAStatements()
+        Statement[] statements = ir.getStatements()
                 .toArray(new Statement[0]);
         for (Statement s : statements) {
             callModel.process(s, ir);

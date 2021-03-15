@@ -27,7 +27,7 @@ import pascal.taie.newpta.plugin.ResultPrinter;
 import pascal.taie.newpta.plugin.ThreadHandler;
 import pascal.taie.newpta.set.HybridPointsToSet;
 import pascal.taie.newpta.set.PointsToSetFactory;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {

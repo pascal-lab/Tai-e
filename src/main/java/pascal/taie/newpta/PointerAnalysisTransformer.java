@@ -16,7 +16,6 @@ package pascal.taie.newpta;
 import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.newpta.core.solver.PointerAnalysis;
 import pascal.taie.newpta.core.solver.PointerAnalysisBuilder;
-import pascal.taie.pta.PTAOptions;
 import soot.Scene;
 import soot.SceneTransformer;
 

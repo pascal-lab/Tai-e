@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.pta;
+package pascal.taie.newpta;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;

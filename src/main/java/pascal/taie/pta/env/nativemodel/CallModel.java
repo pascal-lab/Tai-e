@@ -18,13 +18,13 @@ import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.StringReps;
 import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.newpta.PTAOptions;
 import pascal.taie.pta.ir.ArrayLoad;
 import pascal.taie.pta.ir.ArrayStore;
 import pascal.taie.pta.ir.AssignCast;
 import pascal.taie.pta.ir.Call;
 import pascal.taie.pta.ir.CallSite;
-import pascal.taie.pta.ir.IR;
+import pascal.taie.pta.ir.PTAIR;
 import pascal.taie.pta.ir.Statement;
 import pascal.taie.pta.ir.Variable;
 
@@ -45,7 +45,7 @@ class CallModel {
     // Use String as key is to avoid cyclic dependence during the
     // initialization of ProgramManager.
     // TODO: use Method as key to improve performance?
-    private final Map<String, BiConsumer<IR, Call>> handlers;
+    private final Map<String, BiConsumer<PTAIR, Call>> handlers;
 
     /**
      * Counter to give each mock variable an unique name in each method.
@@ -60,12 +60,12 @@ class CallModel {
         initHandlers();
     }
 
-    void process(Statement s, IR containerIR) {
+    void process(Statement s, PTAIR containerIR) {
         if (s instanceof Call) {
             Call call = (Call) s;
             CallSite callSite = call.getCallSite();
             JMethod callee = callSite.getMethodRef().resolve();
-            BiConsumer<IR, Call> handler =
+            BiConsumer<PTAIR, Call> handler =
                     handlers.get(callee.getSignature());
             if (handler != null) {
                 handler.accept(containerIR, call);
@@ -91,10 +91,10 @@ class CallModel {
             // of pointer analysis, thus we add cast statements to filter
             // out load/store operations on non-array objects.
             // Note that the cast statements will exclude primitive arrays.
-            ir.addPTAStatement(new AssignCast(srcArray, arrayType, src));
-            ir.addPTAStatement(new AssignCast(destArray, arrayType, dest));
-            ir.addPTAStatement(new ArrayLoad(temp, srcArray));
-            ir.addPTAStatement(new ArrayStore(destArray, temp));
+            ir.addStatement(new AssignCast(srcArray, arrayType, src));
+            ir.addStatement(new AssignCast(destArray, arrayType, dest));
+            ir.addStatement(new ArrayLoad(temp, srcArray));
+            ir.addStatement(new ArrayStore(destArray, temp));
         });
 
         // --------------------------------------------------------------------
@@ -163,7 +163,7 @@ class CallModel {
     }
 
     private void registerHandler(String signature,
-                                 BiConsumer<IR, Call> handler) {
+                                 BiConsumer<PTAIR, Call> handler) {
         handlers.put(signature, handler);
     }
 
