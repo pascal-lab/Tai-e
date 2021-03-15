@@ -13,7 +13,7 @@
 
 package pascal.taie.newpta.plugin;
 
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.World;
@@ -71,12 +71,12 @@ public class ThreadHandler implements Plugin {
         hierarchy = pta.getHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                 "<java.lang.Thread: void start()>")
-                .getNewIR()
+                .getIR()
                 .getThis();
         currentThread = hierarchy.getJREMethod(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
         currentThreadReturn = getOne(currentThread
-                .getNewIR()
+                .getIR()
                 .getReturnVars());
     }
 
@@ -91,9 +91,9 @@ public class ThreadHandler implements Plugin {
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = nativeModel.getSystemThreadGroup();
-        NewIR threadGroupInitIR = hierarchy.getJREMethod(
+        IR threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>()>")
-                .getNewIR();
+                .getIR();
         Var initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, systemThreadGroup);
 
@@ -103,7 +103,7 @@ public class ThreadHandler implements Plugin {
         Obj mainThreadGroup = nativeModel.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
                 "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
-                .getNewIR();
+                .getIR();
 
         initThis = threadGroupInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThreadGroup);
@@ -121,9 +121,9 @@ public class ThreadHandler implements Plugin {
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = nativeModel.getMainThread();
-        NewIR threadInitIR = hierarchy.getJREMethod(
+        IR threadInitIR = hierarchy.getJREMethod(
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
-                .getNewIR();
+                .getIR();
         initThis = threadInitIR.getThis();
         pta.addPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0

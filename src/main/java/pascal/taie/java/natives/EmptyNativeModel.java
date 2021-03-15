@@ -13,7 +13,7 @@
 
 package pascal.taie.java.natives;
 
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IR;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.TypeManager;
 import pascal.taie.java.classes.JMethod;
@@ -28,7 +28,7 @@ public class EmptyNativeModel extends AbstractNativeModel {
     }
 
     @Override
-    public NewIR buildNativeIR(JMethod method) {
+    public IR buildNativeIR(JMethod method) {
         return new NativeIRBuilder(method).buildEmpty();
     }
 }

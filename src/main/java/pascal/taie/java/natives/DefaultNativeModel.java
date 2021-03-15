@@ -15,7 +15,7 @@ package pascal.taie.java.natives;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -61,7 +61,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
 
     private final ClassHierarchy hierarchy;
 
-    private final Map<JMethod, Function<JMethod, NewIR>> models = newMap();
+    private final Map<JMethod, Function<JMethod, IR>> models = newMap();
 
     public DefaultNativeModel(TypeManager typeManager,
                               ClassHierarchy hierarchy) {
@@ -72,7 +72,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     }
 
     @Override
-    public NewIR buildNativeIR(JMethod method) {
+    public IR buildNativeIR(JMethod method) {
         return models.getOrDefault(method,
                 m -> new NativeIRBuilder(method).buildEmpty())
                 .apply(method);
@@ -304,7 +304,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     /**
      * Register models for specific native methods.
      */
-    private void register(String methodSig, Function<JMethod, NewIR> model) {
+    private void register(String methodSig, Function<JMethod, IR> model) {
         JMethod method = hierarchy.getJREMethod(methodSig);
         models.put(method, model);
     }
@@ -312,7 +312,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     /**
      * Create an IR which contains a store statement to the specified static field.
      */
-    private NewIR storeStaticField(
+    private IR storeStaticField(
             JMethod method, String fieldSig,
             Function<NativeIRBuilder, Var> getFrom) {
         NativeIRBuilder builder = new NativeIRBuilder(method);
@@ -327,7 +327,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     /**
      * Create an IR which contains a invoke statement to the specific virtual method.
      */
-    private NewIR invokeVirtualMethod(
+    private IR invokeVirtualMethod(
             JMethod method, String calleeSig,
             Function<NativeIRBuilder, Var> getRecv,
             Function<NativeIRBuilder, Var> getRet) {
@@ -345,7 +345,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
      * Create an IR which allocates a new object, invokes its specified
      * constructor, and returns it.
      */
-    private NewIR allocateObject(
+    private IR allocateObject(
             JMethod method, String ctorSig,
             Function<NativeIRBuilder, List<Var>> getArgs) {
         NativeIRBuilder builder = new NativeIRBuilder(method);

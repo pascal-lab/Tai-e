@@ -19,7 +19,7 @@ import pascal.taie.java.classes.JMethod;
 
 import java.util.List;
 
-public interface NewIR {
+public interface IR {
 
     JMethod getMethod();
 

@@ -220,7 +220,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         Obj argsElem = nativeModel.getMainArgsElem();
         addPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
-        addPointsTo(defContext, main.getNewIR().getParam(0), defContext, args);
+        addPointsTo(defContext, main.getIR().getParam(0), defContext, args);
         plugin.initialize();
     }
 
@@ -464,7 +464,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                         getCallKind(callSite), csCallSite, csCallee));
                 // pass receiver object to *this* variable
                 CSVar thisVar = csManager.getCSVar(
-                        calleeContext, callee.getNewIR().getThis());
+                        calleeContext, callee.getIR().getThis());
                 addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
             }
         }
@@ -486,7 +486,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             for (int i = 0; i < callSite.getArgCount(); ++i) {
                 Var arg = callSite.getArg(i);
                 if (isConcerned(arg)) {
-                    Var param = callee.getNewIR().getParam(i);
+                    Var param = callee.getIR().getParam(i);
                     CSVar argVar = csManager.getCSVar(callerCtx, arg);
                     CSVar paramVar = csManager.getCSVar(calleeCtx, param);
                     addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
@@ -497,7 +497,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             Var lhs = invoke.getResult();
             if (lhs != null && isConcerned(lhs)) {
                 CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
-                for (Var ret : callee.getNewIR().getReturnVars()) {
+                for (Var ret : callee.getIR().getReturnVars()) {
                     CSVar csRet = csManager.getCSVar(calleeCtx, ret);
                     addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
                 }
@@ -513,7 +513,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             processNewMethod(csMethod.getMethod());
             stmtProcessor.setCSMethod(csMethod);
             csMethod.getMethod()
-                    .getNewIR()
+                    .getIR()
                     .getStmts()
                     .forEach(s -> s.accept(stmtProcessor));
             plugin.handleNewCSMethod(csMethod);
@@ -526,7 +526,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.handleNewMethod(method);
-            method.getNewIR().getStmts()
+            method.getIR().getStmts()
                     .forEach(s -> s.accept(classInitializer));
         }
     }

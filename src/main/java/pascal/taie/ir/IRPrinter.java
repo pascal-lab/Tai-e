@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class IRPrinter {
 
-    public static void print(NewIR ir, PrintStream out) {
+    public static void print(IR ir, PrintStream out) {
         // print method signature
         out.println(ir.getMethod());
         // print parameters

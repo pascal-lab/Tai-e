@@ -13,9 +13,9 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.ir.DefaultNewIR;
+import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.ExceptionEntry;
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -187,7 +187,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         this.converter = converter;
     }
 
-    NewIR build() {
+    IR build() {
         Body body = ((SootMethod) method.getMethodSource())
                 .retrieveActiveBody();
         varManager = new VarManager(method, converter);
@@ -203,7 +203,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         buildParams(body.getParameterLocals());
         buildStmts(body);
         buildExceptionEntries(body.getTraps());
-        return new DefaultNewIR(method,
+        return new DefaultIR(method,
                 varManager.getThis(), freeze(varManager.getParams()),
                 freeze(returnVars), freeze(varManager.getVars()),
                 freeze(stmts), freeze(exceptionEntries));

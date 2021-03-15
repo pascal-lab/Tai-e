@@ -48,7 +48,7 @@ public class IRTest {
             initWorld(main);
             JClass mainClass = World.getMainMethod().getDeclaringClass();
             mainClass.getDeclaredMethods().forEach(m ->
-                    IRPrinter.print(m.getNewIR(), System.out));
+                    IRPrinter.print(m.getIR(), System.out));
             System.out.println("------------------------------\n");
         });
     }

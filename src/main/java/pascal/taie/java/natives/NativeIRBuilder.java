@@ -13,8 +13,8 @@
 
 package pascal.taie.java.natives;
 
-import pascal.taie.ir.DefaultNewIR;
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.DefaultIR;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -85,16 +85,16 @@ class NativeIRBuilder {
     /**
      * Build an IR with empty body which contains only a return statement.
      */
-    NewIR buildEmpty() {
+    IR buildEmpty() {
         return build(singletonList(newReturn()));
     }
 
-    NewIR build(List<Stmt> stmts) {
+    IR build(List<Stmt> stmts) {
         int i = 0;
         for (Stmt stmt : stmts) {
             stmt.setIndex(i++);
         }
-        return new DefaultNewIR(method, thisVar, freeze(params),
+        return new DefaultIR(method, thisVar, freeze(params),
                 singletonList(returnVar), freeze(vars),
                 freeze(stmts), Collections.emptyList());
     }

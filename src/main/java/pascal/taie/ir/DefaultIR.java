@@ -19,7 +19,7 @@ import pascal.taie.java.classes.JMethod;
 
 import java.util.List;
 
-public class DefaultNewIR implements NewIR {
+public class DefaultIR implements IR {
 
     private final JMethod method;
 
@@ -35,7 +35,7 @@ public class DefaultNewIR implements NewIR {
 
     private final List<ExceptionEntry> exceptionEntries;
 
-    public DefaultNewIR(
+    public DefaultIR(
             JMethod method, Var thisVar,
             List<Var> params, List<Var> returnVars, List<Var> vars,
             List<Stmt> stmts, List<ExceptionEntry> exceptionEntries) {

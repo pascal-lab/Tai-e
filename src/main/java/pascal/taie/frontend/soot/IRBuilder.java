@@ -14,7 +14,7 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.callgraph.JimpleCallUtils;
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IR;
 import pascal.taie.java.ClassHierarchy;
 import pascal.taie.java.classes.JClass;
 import pascal.taie.java.classes.JMethod;
@@ -103,7 +103,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     }
 
     @Override
-    public NewIR buildNewIR(JMethod method) {
+    public IR buildIR(JMethod method) {
         return new MethodIRBuilder(method, converter).build();
     }
 
@@ -145,7 +145,7 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
     }
 
     @Override
-    public PTAIR build(JMethod method) {
+    public PTAIR buildPTAIR(JMethod method) {
         DefaultPTAIR ir = new DefaultPTAIR(method);
         if (method.isNative()) {
             buildNative(method, ir);

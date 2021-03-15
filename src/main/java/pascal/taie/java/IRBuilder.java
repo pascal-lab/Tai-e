@@ -13,7 +13,7 @@
 
 package pascal.taie.java;
 
-import pascal.taie.ir.NewIR;
+import pascal.taie.ir.IR;
 import pascal.taie.java.classes.JMethod;
 import pascal.taie.pta.ir.PTAIR;
 
@@ -22,9 +22,9 @@ public interface IRBuilder {
     /**
      * Build IR for concrete methods.
      */
-    NewIR buildNewIR(JMethod method);
+    IR buildIR(JMethod method);
 
-    PTAIR build(JMethod method);
+    PTAIR buildPTAIR(JMethod method);
 
     /**
      * Build IR for all methods in the given hierarchy.
