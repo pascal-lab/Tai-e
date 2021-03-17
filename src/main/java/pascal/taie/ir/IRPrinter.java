@@ -13,8 +13,14 @@
 
 package pascal.taie.ir;
 
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.TableSwitch;
 
 import java.io.PrintStream;
 import java.util.stream.Collectors;
@@ -35,13 +41,8 @@ public class IRPrinter {
         ir.getVars().forEach(v -> out.println(v.getType() + " " + v));
         // print all statements
         out.println("Statements:");
-        ir.getStmts().forEach(s -> {
-            if (s instanceof SwitchStmt) {
-                out.println(toString((SwitchStmt) s));
-            } else {
-                out.println(toString(s));
-            }
-        });
+        StmtVisitor stmtPrinter = new StmtPrinter(out);
+        ir.getStmts().forEach(s -> s.accept(stmtPrinter));
         // print all try-catch blocks
         if (!ir.getExceptionEntries().isEmpty()) {
             out.println("Exception entries:");
@@ -49,25 +50,56 @@ public class IRPrinter {
         }
     }
 
-    private static String toString(SwitchStmt switchStmt) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%4d@L%-4d: %s(%s){%n",
-                switchStmt.getIndex(), switchStmt.getLineNumber(),
-                switchStmt.getInsnString(), switchStmt.getValue()));
-        switchStmt.getCaseTargets().forEach(caseTarget -> {
-            int caseValue = caseTarget.getFirst();
-            Stmt target = caseTarget.getSecond();
-            sb.append(String.format("              case %d: goto %s;%n",
-                    caseValue, switchStmt.toString(target)));
-        });
-        sb.append(String.format("              default: goto %s;%n",
-                switchStmt.toString(switchStmt.getDefaultTarget())));
-        sb.append("            };");
-        return sb.toString();
-    }
+    private static class StmtPrinter implements StmtVisitor {
 
-    private static String toString(Stmt stmt) {
-        return String.format("%4d@L%-4d: %s;",
-                stmt.getIndex(), stmt.getLineNumber(), stmt);
+        private final PrintStream out;
+
+        private StmtPrinter(PrintStream out) {
+            this.out = out;
+        }
+
+        @Override
+        public void visit(TableSwitch stmt) {
+            printSwitch(stmt);
+        }
+
+        @Override
+        public void visit(LookupSwitch stmt) {
+            printSwitch(stmt);
+        }
+
+        private void printSwitch(SwitchStmt switchStmt) {
+            out.printf("%4d@L%-4d: %s(%s){%n",
+                    switchStmt.getIndex(), switchStmt.getLineNumber(),
+                    switchStmt.getInsnString(), switchStmt.getValue());
+            switchStmt.getCaseTargets().forEach(caseTarget -> {
+                int caseValue = caseTarget.getFirst();
+                Stmt target = caseTarget.getSecond();
+                out.printf("              case %d: goto %s;%n",
+                        caseValue, switchStmt.toString(target));
+            });
+            out.printf("              default: goto %s;%n",
+                    switchStmt.toString(switchStmt.getDefaultTarget()));
+            out.println("            };");
+        }
+
+        @Override
+        public void visit(Invoke stmt) {
+            out.printf("%4d@L%-4d: ", stmt.getIndex(), stmt.getLineNumber());
+            InvokeExp ie = stmt.getInvokeExp();
+            out.print(ie.getInvokeString());
+            out.print(' ');
+            if (ie instanceof InvokeInstanceExp) {
+                out.print(((InvokeInstanceExp) ie).getBase().getName());
+                out.print('.');
+            }
+            out.printf("%s%s;%n", ie.getMethodRef(), ie.getArgsString());
+        }
+
+        @Override
+        public void visitDefault(Stmt stmt) {
+            out.printf("%4d@L%-4d: %s;%n",
+                    stmt.getIndex(), stmt.getLineNumber(), stmt);
+        }
     }
 }

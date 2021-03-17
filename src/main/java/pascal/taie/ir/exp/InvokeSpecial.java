@@ -27,7 +27,7 @@ public class InvokeSpecial extends InvokeInstanceExp {
     }
 
     @Override
-    protected String getInvokeString() {
+    public String getInvokeString() {
         return "invokespecial";
     }
 }

@@ -66,9 +66,9 @@ public abstract class InvokeExp implements RValue {
         this.callSite = callSite;
     }
 
-    protected abstract String getInvokeString();
+    public abstract String getInvokeString();
 
-    protected String getArgsString() {
+    public String getArgsString() {
         return "(" + args.stream()
                 .map(Var::toString)
                 .collect(Collectors.joining(",")) + ")";

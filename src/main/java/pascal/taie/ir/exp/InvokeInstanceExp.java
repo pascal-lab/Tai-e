@@ -36,7 +36,7 @@ public abstract class InvokeInstanceExp extends InvokeExp {
 
     @Override
     public String toString() {
-        return String.format("%s %s.%s%s",
-                getInvokeString(), base, methodRef, getArgsString());
+        return String.format("%s %s/%s.%s%s", getInvokeString(), getCallSite(),
+                base.getName(), methodRef.getName(), getArgsString());
     }
 }

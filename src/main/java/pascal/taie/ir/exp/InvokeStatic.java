@@ -28,11 +28,13 @@ public class InvokeStatic extends InvokeExp {
 
     @Override
     public String toString() {
-        return getInvokeString() + " " + methodRef + getArgsString();
+        return String.format("%s %s/%s.%s%s", getInvokeString(), getCallSite(),
+                methodRef.getDeclaringClass(), methodRef.getName(),
+                getArgsString());
     }
 
     @Override
-    protected String getInvokeString() {
+    public String getInvokeString() {
         return "invokestatic";
     }
 }

@@ -27,7 +27,7 @@ public class InvokeVirtual extends InvokeInstanceExp {
     }
 
     @Override
-    protected String getInvokeString() {
+    public String getInvokeString() {
         return "invokevirtual";
     }
 }

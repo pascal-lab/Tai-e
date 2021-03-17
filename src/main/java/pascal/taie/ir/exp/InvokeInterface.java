@@ -27,7 +27,7 @@ public class InvokeInterface extends InvokeInstanceExp {
     }
 
     @Override
-    protected String getInvokeString() {
+    public String getInvokeString() {
         return "invokeinterface";
     }
 }
