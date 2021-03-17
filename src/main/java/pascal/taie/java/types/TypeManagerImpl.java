@@ -20,19 +20,24 @@ import pascal.taie.java.classes.StringReps;
 import pascal.taie.util.ArrayMap;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.CollectionUtils.newMap;
 
-// TODO:
-//  1. mount ArrayType to element type (like Soot)?
-//  2. optimize maps (classTypes and arrayTypes)
+// TODO: optimize maps (classTypes and arrayTypes)
 public class TypeManagerImpl implements TypeManager {
 
     private final ClassHierarchy hierarchy;
 
     private final Map<JClassLoader, Map<String, ClassType>> classTypes = new ArrayMap<>();
 
-    private final Map<Integer, Map<Type, ArrayType>> arrayTypes = new ArrayMap<>();
+    /**
+     * This map may be concurrently written during IR construction,
+     * thus we use concurrent map to ensure its thread-safety.
+     */
+    private final ConcurrentMap<Integer, ConcurrentMap<Type, ArrayType>> arrayTypes
+            = newConcurrentMap(8);
 
     private final ClassType JavaLangObject;
 
@@ -57,7 +62,7 @@ public class TypeManagerImpl implements TypeManager {
 
     @Override
     public ClassType getClassType(String className) {
-        // TODO: add warning
+        // TODO: add warning for missing class loader
         return getClassType(hierarchy.getDefaultClassLoader(), className);
     }
 
@@ -66,7 +71,7 @@ public class TypeManagerImpl implements TypeManager {
         assert !(baseType instanceof VoidType)
                 && !(baseType instanceof NullType);
         assert dim >= 1;
-        return arrayTypes.computeIfAbsent(dim, d -> newMap())
+        return arrayTypes.computeIfAbsent(dim, d -> newConcurrentMap())
                 .computeIfAbsent(baseType, t ->
                         new ArrayType(t, dim
                                 , dim == 1 ? t : getArrayType(t, dim - 1)));
@@ -74,7 +79,7 @@ public class TypeManagerImpl implements TypeManager {
 
     @Override
     public boolean isSubtype(Type supertype, Type subtype) {
-        if (subtype.equals(supertype)) { // TODO: use ==?
+        if (subtype.equals(supertype)) {
             return true;
         } else if (subtype instanceof NullType) {
             return supertype instanceof ReferenceType;

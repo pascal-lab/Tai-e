@@ -44,10 +44,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static pascal.taie.java.types.VoidType.VOID;
+import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.CollectionUtils.newMap;
 
 /**
@@ -63,9 +65,13 @@ class Converter {
 
     private final Map<SootMethod, JMethod> methodMap = newMap();
 
-    private final Map<SootFieldRef, FieldRef> fieldRefMap = newMap();
+    // Following two maps may be concurrently written during IR construction,
+    // thus we use concurrent map to ensure their thread-safety.
+    private final ConcurrentMap<SootFieldRef, FieldRef> fieldRefMap
+            = newConcurrentMap(1024);
 
-    private final Map<SootMethodRef, MethodRef> methodRefMap = newMap();
+    private final ConcurrentMap<SootMethodRef, MethodRef> methodRefMap
+            = newConcurrentMap(1024);
 
     Converter(JClassLoader loader, TypeManager typeManager) {
         this.loader = loader;
