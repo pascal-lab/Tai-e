@@ -36,7 +36,7 @@ public class SootFrontendTest {
                 "java-benchmarks/jre1.6.0_24/rt.jar;" +
                         "java-benchmarks/jre1.6.0_24/jce.jar;" +
                         "java-benchmarks/jre1.6.0_24/jsse.jar;" +
-                        "analyzed/pta",
+                        "analyzed/cspta",
                 "Assign"
         };
         TestUtils.buildWorld(args);
@@ -53,8 +53,6 @@ public class SootFrontendTest {
 
     /**
      * Compare the information of JClass and SootClass.
-     * @param jclass
-     * @param sootClass
      */
     private void examineJClass(JClass jclass, SootClass sootClass) {
         Assert.assertTrue(areSameClasses(jclass, sootClass));

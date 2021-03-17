@@ -22,9 +22,8 @@ import pascal.taie.dataflow.lattice.LatticeTestSuite;
 import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.java.HierarchyTest;
 import pascal.taie.java.TypeTest;
-import pascal.taie.oldpta.CSPTATest;
-import pascal.taie.oldpta.PTAOptionsTest;
-import pascal.taie.oldpta.PTATestFull;
+import pascal.taie.pta.CSPTATest;
+import pascal.taie.pta.PTAOptionsTest;
 import pascal.taie.util.UtilTestSuite;
 
 @RunWith(Suite.class)
@@ -38,7 +37,6 @@ import pascal.taie.util.UtilTestSuite;
         LatticeTestSuite.class,
         DataFlowTestSuite.class,
         CHATestFull.class,
-        PTATestFull.class,
         CSPTATest.class,
         // util
         PTAOptionsTest.class,

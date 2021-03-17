@@ -1,40 +1,40 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: java.lang.Object callClone()>/temp$0 -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<A: java.lang.Object callClone()>/this -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<A: void <init>()>/this -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27,[]:<NativeModel: void objectClone()>/new A/13}
-[]:<NativeModel$1Anonymous0: A run()>/temp$0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
-[]:<NativeModel$1Anonymous0: A run()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
-[]:<NativeModel$1Anonymous0: java.lang.Object run()>/temp$0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
-[]:<NativeModel$1Anonymous0: java.lang.Object run()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
-[]:<NativeModel$1Anonymous0: void <init>()>/this -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
-[]:<NativeModel: void arraycopy()>/@native-call-mock-var0 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
-[]:<NativeModel: void arraycopy()>/@native-call-mock-var1 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
-[]:<NativeModel: void arraycopy()>/@native-call-mock-var2 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
-[]:<NativeModel: void arraycopy()>/dest -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
-[]:<NativeModel: void arraycopy()>/o -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
-[]:<NativeModel: void arraycopy()>/src -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
-[]:<NativeModel: void arraycopy()>/temp$0 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
-[]:<NativeModel: void arraycopy()>/temp$2 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
-[]:<NativeModel: void arraycopy()>/temp$3 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
-[]:<NativeModel: void doPrivileged()>/a -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
-[]:<NativeModel: void doPrivileged()>/temp$0 -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
-[]:<NativeModel: void doPrivileged()>/temp$1 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
-[]:<NativeModel: void doPrivileged()>/temp$2 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27}
-[]:<NativeModel: void main(java.lang.String[])>/args -> {[]:[Env]<NativeModel: void main(java.lang.String[])>/<main-arguments>}
-[]:<NativeModel: void objectClone()>/a -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<NativeModel: void objectClone()>/o -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<NativeModel: void objectClone()>/temp$0 -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<NativeModel: void objectClone()>/temp$1 -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<java.lang.Object: java.lang.Object clone()>/@return -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<java.lang.Object: java.lang.Object clone()>/@this -> {[]:<NativeModel: void objectClone()>/new A/13}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<NativeModel$1Anonymous0: A run()>/new A/27,[]:<NativeModel: void arraycopy()>/new java.lang.Object/19,[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26,[]:<NativeModel: void objectClone()>/new A/13}
-[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/@parameter0 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18}
-[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/@parameter2 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20}
-[]:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/@parameter0 -> {[]:<NativeModel: void doPrivileged()>/new NativeModel$1Anonymous0/26}
-[]:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/@return -> {}
+[]:<A: java.lang.Object callClone()>/%this -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<A: java.lang.Object callClone()>/temp$0 -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<A: void <init>()>/%this -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A},[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<NativeModel$1Anonymous0: A run()>/%this -> {[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}}
+[]:<NativeModel$1Anonymous0: A run()>/temp$0 -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
+[]:<NativeModel$1Anonymous0: java.lang.Object run()>/%this -> {[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}}
+[]:<NativeModel$1Anonymous0: java.lang.Object run()>/temp$0 -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
+[]:<NativeModel$1Anonymous0: void <init>()>/%this -> {[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}}
+[]:<NativeModel: void arraycopy()>/dest -> {[]:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconstant1]}}
+[]:<NativeModel: void arraycopy()>/o -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
+[]:<NativeModel: void arraycopy()>/src -> {[]:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconstant0]}}
+[]:<NativeModel: void arraycopy()>/temp$0 -> {[]:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconstant0]}}
+[]:<NativeModel: void arraycopy()>/temp$2 -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
+[]:<NativeModel: void arraycopy()>/temp$3 -> {[]:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconstant1]}}
+[]:<NativeModel: void doPrivileged()>/a -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
+[]:<NativeModel: void doPrivileged()>/temp$0 -> {[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}}
+[]:<NativeModel: void doPrivileged()>/temp$1 -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
+[]:<NativeModel: void doPrivileged()>/temp$2 -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
+[]:<NativeModel: void main(java.lang.String[])>/args -> {[]:EnvObj{<NativeModel: void main(java.lang.String[])>/<main-arguments>}}
+[]:<NativeModel: void objectClone()>/a -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<NativeModel: void objectClone()>/o -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<NativeModel: void objectClone()>/temp$0 -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<NativeModel: void objectClone()>/temp$1 -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<java.lang.Object: java.lang.Object clone()>/%native-ret -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<java.lang.Object: java.lang.Object clone()>/%native-this -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A},[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object},[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0},[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/%native-param0 -> {[]:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconstant0]}}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/%native-param2 -> {[]:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconstant1]}}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/%native-temp0 -> {[]:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconstant0]}}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/%native-temp1 -> {[]:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconstant1]}}
+[]:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/%native-temp2 -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
+[]:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/%native-param0 -> {[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}}
+[]:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/%native-ret -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/18 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
-[]:<NativeModel: void arraycopy()>/new java.lang.Object[]/20 -> {[]:<NativeModel: void arraycopy()>/new java.lang.Object/19}
-[]:[Env]<NativeModel: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<NativeModel: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<NativeModel: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<NativeModel: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconstant0]}[*] -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
+[]:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconstant1]}[*] -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
 ---------- Points-to sets of all static fields: ----------

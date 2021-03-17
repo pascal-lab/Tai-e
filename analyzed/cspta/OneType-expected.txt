@@ -1,43 +1,43 @@
 ---------- Points-to sets of all variables: ----------
-[A]:<C: D get()>/temp$0 -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[A]:<C: D get()>/this -> {[]:<A: void m()>/new C/10}
-[A]:<C: void <init>()>/this -> {[]:<A: void m()>/new C/10,[]:<A: void m()>/new C/12}
-[A]:<C: void set(D)>/p -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[A]:<C: void set(D)>/this -> {[]:<A: void m()>/new C/10,[]:<A: void m()>/new C/12}
-[A]:<D: void <init>()>/this -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[A]:<java.lang.Object: void <init>()>/r0 -> {[]:<A: void m()>/new C/10,[]:<A: void m()>/new C/12,[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[B]:<C: D get()>/temp$0 -> {[]:<B: void m()>/new D/21}
-[B]:<C: D get()>/this -> {[]:<B: void m()>/new C/20}
-[B]:<C: void <init>()>/this -> {[]:<B: void m()>/new C/20}
-[B]:<C: void set(D)>/p -> {[]:<B: void m()>/new D/21}
-[B]:<C: void set(D)>/this -> {[]:<B: void m()>/new C/20}
-[B]:<D: void <init>()>/this -> {[]:<B: void m()>/new D/21}
-[B]:<java.lang.Object: void <init>()>/r0 -> {[]:<B: void m()>/new C/20,[]:<B: void m()>/new D/21}
-[OneType]:<A: void <init>()>/this -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
-[OneType]:<A: void m()>/c1 -> {[]:<A: void m()>/new C/10}
-[OneType]:<A: void m()>/c2 -> {[]:<A: void m()>/new C/12}
-[OneType]:<A: void m()>/temp$0 -> {[]:<A: void m()>/new C/10}
-[OneType]:<A: void m()>/temp$1 -> {[]:<A: void m()>/new D/11}
-[OneType]:<A: void m()>/temp$2 -> {[]:<A: void m()>/new C/12}
-[OneType]:<A: void m()>/temp$3 -> {[]:<A: void m()>/new D/13}
-[OneType]:<A: void m()>/temp$4 -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[OneType]:<A: void m()>/this -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
-[OneType]:<A: void m()>/x -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[OneType]:<B: void <init>()>/this -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
-[OneType]:<B: void m()>/c3 -> {[]:<B: void m()>/new C/20}
-[OneType]:<B: void m()>/temp$0 -> {[]:<B: void m()>/new C/20}
-[OneType]:<B: void m()>/temp$1 -> {[]:<B: void m()>/new D/21}
-[OneType]:<B: void m()>/temp$2 -> {[]:<B: void m()>/new D/21}
-[OneType]:<B: void m()>/this -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
-[OneType]:<B: void m()>/y -> {[]:<B: void m()>/new D/21}
-[OneType]:<java.lang.Object: void <init>()>/r0 -> {[]:<OneType: void main(java.lang.String[])>/new A/3,[]:<OneType: void main(java.lang.String[])>/new B/4}
-[]:<OneType: void main(java.lang.String[])>/args -> {[]:[Env]<OneType: void main(java.lang.String[])>/<main-arguments>}
-[]:<OneType: void main(java.lang.String[])>/temp$0 -> {[]:<OneType: void main(java.lang.String[])>/new A/3}
-[]:<OneType: void main(java.lang.String[])>/temp$1 -> {[]:<OneType: void main(java.lang.String[])>/new B/4}
+[A]:<C: D get()>/%this -> {[]:NewObj{<A: void m()>:0(@L10)/new C}}
+[A]:<C: D get()>/temp$0 -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[A]:<C: void <init>()>/%this -> {[]:NewObj{<A: void m()>:0(@L10)/new C},[]:NewObj{<A: void m()>:6(@L12)/new C}}
+[A]:<C: void set(D)>/%this -> {[]:NewObj{<A: void m()>:0(@L10)/new C},[]:NewObj{<A: void m()>:6(@L12)/new C}}
+[A]:<C: void set(D)>/p -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[A]:<D: void <init>()>/%this -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[A]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<A: void m()>:0(@L10)/new C},[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:6(@L12)/new C},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[B]:<C: D get()>/%this -> {[]:NewObj{<B: void m()>:0(@L20)/new C}}
+[B]:<C: D get()>/temp$0 -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[B]:<C: void <init>()>/%this -> {[]:NewObj{<B: void m()>:0(@L20)/new C}}
+[B]:<C: void set(D)>/%this -> {[]:NewObj{<B: void m()>:0(@L20)/new C}}
+[B]:<C: void set(D)>/p -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[B]:<D: void <init>()>/%this -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[B]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<B: void m()>:0(@L20)/new C},[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[OneType]:<A: void <init>()>/%this -> {[]:NewObj{<OneType: void main(java.lang.String[])>:0(@L3)/new A}}
+[OneType]:<A: void m()>/%this -> {[]:NewObj{<OneType: void main(java.lang.String[])>:0(@L3)/new A}}
+[OneType]:<A: void m()>/c1 -> {[]:NewObj{<A: void m()>:0(@L10)/new C}}
+[OneType]:<A: void m()>/c2 -> {[]:NewObj{<A: void m()>:6(@L12)/new C}}
+[OneType]:<A: void m()>/temp$0 -> {[]:NewObj{<A: void m()>:0(@L10)/new C}}
+[OneType]:<A: void m()>/temp$1 -> {[]:NewObj{<A: void m()>:3(@L11)/new D}}
+[OneType]:<A: void m()>/temp$2 -> {[]:NewObj{<A: void m()>:6(@L12)/new C}}
+[OneType]:<A: void m()>/temp$3 -> {[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[OneType]:<A: void m()>/temp$4 -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[OneType]:<A: void m()>/x -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[OneType]:<B: void <init>()>/%this -> {[]:NewObj{<OneType: void main(java.lang.String[])>:3(@L4)/new B}}
+[OneType]:<B: void m()>/%this -> {[]:NewObj{<OneType: void main(java.lang.String[])>:3(@L4)/new B}}
+[OneType]:<B: void m()>/c3 -> {[]:NewObj{<B: void m()>:0(@L20)/new C}}
+[OneType]:<B: void m()>/temp$0 -> {[]:NewObj{<B: void m()>:0(@L20)/new C}}
+[OneType]:<B: void m()>/temp$1 -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[OneType]:<B: void m()>/temp$2 -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[OneType]:<B: void m()>/y -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
+[OneType]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<OneType: void main(java.lang.String[])>:0(@L3)/new A},[]:NewObj{<OneType: void main(java.lang.String[])>:3(@L4)/new B}}
+[]:<OneType: void main(java.lang.String[])>/args -> {[]:EnvObj{<OneType: void main(java.lang.String[])>/<main-arguments>}}
+[]:<OneType: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<OneType: void main(java.lang.String[])>:0(@L3)/new A}}
+[]:<OneType: void main(java.lang.String[])>/temp$1 -> {[]:NewObj{<OneType: void main(java.lang.String[])>:3(@L4)/new B}}
 ---------- Points-to sets of all instance fields: ----------
-[]:<A: void m()>/new C/10.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[]:<A: void m()>/new C/12.f -> {[]:<A: void m()>/new D/11,[]:<A: void m()>/new D/13}
-[]:<B: void m()>/new C/20.f -> {[]:<B: void m()>/new D/21}
+[]:NewObj{<A: void m()>:0(@L10)/new C}.f -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[]:NewObj{<A: void m()>:6(@L12)/new C}.f -> {[]:NewObj{<A: void m()>:3(@L11)/new D},[]:NewObj{<A: void m()>:9(@L13)/new D}}
+[]:NewObj{<B: void m()>:0(@L20)/new C}.f -> {[]:NewObj{<B: void m()>:3(@L21)/new D}}
 ---------- Points-to sets of all array indexes: ----------
-[]:[Env]<OneType: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<OneType: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<OneType: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<OneType: void main(java.lang.String[])>/<main-arguments-element>}}
 ---------- Points-to sets of all static fields: ----------

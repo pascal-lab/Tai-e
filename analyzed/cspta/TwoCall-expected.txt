@@ -1,31 +1,31 @@
 ---------- Points-to sets of all variables: ----------
-[C(L26):this.<B: void <init>()>(),B(L23):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L7):temp$0.<A: void <init>()>()]:<A: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L8):a.<A: B id(B)>(temp$1)]:<A: B id(B)>/b -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L8):a.<A: B id(B)>(temp$1)]:<A: B id(B)>/temp$0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L8):a.<A: B id(B)>(temp$1)]:<A: B id(B)>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L8):temp$1.<B: void <init>()>()]:<B: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L9):a.<A: B id(B)>(temp$3)]:<A: B id(B)>/b -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L9):a.<A: B id(B)>(temp$3)]:<A: B id(B)>/temp$0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L9):a.<A: B id(B)>(temp$3)]:<A: B id(B)>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L3):<TwoCall: void m()>(),TwoCall(L9):temp$3.<C: void <init>()>()]:<C: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/a -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/b -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/c -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/temp$0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/temp$1 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/temp$2 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/temp$3 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/temp$4 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L7):temp$0.<A: void <init>()>(),A(L13):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L8):a.<A: B id(B)>(temp$1),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/p -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L8):a.<A: B id(B)>(temp$1),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L8):temp$1.<B: void <init>()>(),B(L23):this.<java.lang.Object: void <init>()>()]:<java.lang.Object: void <init>()>/r0 -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new B/8}
-[TwoCall(L9):a.<A: B id(B)>(temp$3),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/p -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[TwoCall(L9):a.<A: B id(B)>(temp$3),A(L15):this.<A: B _id(B)>(b)]:<A: B _id(B)>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new A/7}
-[TwoCall(L9):temp$3.<C: void <init>()>(),C(L26):this.<B: void <init>()>()]:<B: void <init>()>/this -> {[TwoCall(L3):<TwoCall: void m()>()]:<TwoCall: void m()>/new C/9}
-[]:<TwoCall: void main(java.lang.String[])>/args -> {[]:[Env]<TwoCall: void main(java.lang.String[])>/<main-arguments>}
+[]:<TwoCall: void main(java.lang.String[])>/args -> {[]:EnvObj{<TwoCall: void main(java.lang.String[])>/<main-arguments>}}
+[invokespecial <C: void <init>()>:0(@L26)/%this.<init>(), invokespecial <B: void <init>()>:0(@L23)/%this.<init>()]:<java.lang.Object: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokespecial <TwoCall: void m()>:1(@L7)/temp$0.<init>(), invokespecial <A: void <init>()>:0(@L13)/%this.<init>()]:<java.lang.Object: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokespecial <TwoCall: void m()>:4(@L8)/temp$1.<init>(), invokespecial <B: void <init>()>:0(@L23)/%this.<init>()]:<java.lang.Object: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokespecial <TwoCall: void m()>:8(@L9)/temp$3.<init>(), invokespecial <C: void <init>()>:0(@L26)/%this.<init>()]:<B: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokespecial <TwoCall: void m()>:1(@L7)/temp$0.<init>()]:<A: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokespecial <TwoCall: void m()>:4(@L8)/temp$1.<init>()]:<B: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokespecial <TwoCall: void m()>:8(@L9)/temp$3.<init>()]:<C: void <init>()>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokevirtual <TwoCall: void m()>:5(@L8)/a.id(temp$1)]:<A: B id(B)>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokevirtual <TwoCall: void m()>:5(@L8)/a.id(temp$1)]:<A: B id(B)>/b -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokevirtual <TwoCall: void m()>:5(@L8)/a.id(temp$1)]:<A: B id(B)>/temp$0 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokevirtual <TwoCall: void m()>:9(@L9)/a.id(temp$3)]:<A: B id(B)>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokevirtual <TwoCall: void m()>:9(@L9)/a.id(temp$3)]:<A: B id(B)>/b -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m(), invokevirtual <TwoCall: void m()>:9(@L9)/a.id(temp$3)]:<A: B id(B)>/temp$0 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/a -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/b -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/c -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/temp$0 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/temp$1 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/temp$2 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/temp$3 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:<TwoCall: void m()>/temp$4 -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
+[invokevirtual <TwoCall: void m()>:5(@L8)/a.id(temp$1), invokevirtual <A: B id(B)>:0(@L15)/%this._id(b)]:<A: B _id(B)>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokevirtual <TwoCall: void m()>:5(@L8)/a.id(temp$1), invokevirtual <A: B id(B)>:0(@L15)/%this._id(b)]:<A: B _id(B)>/p -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:3(@L8)/new B}}
+[invokevirtual <TwoCall: void m()>:9(@L9)/a.id(temp$3), invokevirtual <A: B id(B)>:0(@L15)/%this._id(b)]:<A: B _id(B)>/%this -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:0(@L7)/new A}}
+[invokevirtual <TwoCall: void m()>:9(@L9)/a.id(temp$3), invokevirtual <A: B id(B)>:0(@L15)/%this._id(b)]:<A: B _id(B)>/p -> {[invokestatic <TwoCall: void main(java.lang.String[])>:0(@L3)/TwoCall.m()]:NewObj{<TwoCall: void m()>:7(@L9)/new C}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:[Env]<TwoCall: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<TwoCall: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<TwoCall: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<TwoCall: void main(java.lang.String[])>/<main-arguments-element>}}
 ---------- Points-to sets of all static fields: ----------

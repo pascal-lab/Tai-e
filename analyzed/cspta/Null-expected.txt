@@ -1,14 +1,14 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: void <init>()>/this -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<A: void <init>()>/%this -> {[]:NewObj{<Null: void main(java.lang.String[])>:0(@L4)/new A}}
 []:<Null: A returnNull()>/temp$0 -> {}
-[]:<Null: void foo(A,A)>/a1 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
-[]:<Null: void main(java.lang.String[])>/a -> {[]:<Null: void main(java.lang.String[])>/new A/4}
-[]:<Null: void main(java.lang.String[])>/args -> {[]:[Env]<Null: void main(java.lang.String[])>/<main-arguments>}
-[]:<Null: void main(java.lang.String[])>/temp$0 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<Null: void foo(A,A)>/a1 -> {[]:NewObj{<Null: void main(java.lang.String[])>:0(@L4)/new A}}
+[]:<Null: void main(java.lang.String[])>/a -> {[]:NewObj{<Null: void main(java.lang.String[])>:0(@L4)/new A}}
+[]:<Null: void main(java.lang.String[])>/args -> {[]:EnvObj{<Null: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Null: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<Null: void main(java.lang.String[])>:0(@L4)/new A}}
 []:<Null: void main(java.lang.String[])>/temp$1 -> {}
 []:<Null: void main(java.lang.String[])>/x -> {}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Null: void main(java.lang.String[])>/new A/4}
+[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Null: void main(java.lang.String[])>:0(@L4)/new A}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:[Env]<Null: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Null: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<Null: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Null: void main(java.lang.String[])>/<main-arguments-element>}}
 ---------- Points-to sets of all static fields: ----------

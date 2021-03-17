@@ -1,43 +1,41 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: void <clinit>()>/s -> {[]:"A"}
-[]:<A: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new A/11}
-[]:<B: void <clinit>()>/s -> {[]:"B"}
-[]:<C: void <clinit>()>/s -> {[]:"C"}
-[]:<C: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
-[]:<Clinit: void <clinit>()>/s -> {[]:"Clinit"}
-[]:<Clinit: void main(java.lang.String[])>/args -> {[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments>}
-[]:<Clinit: void main(java.lang.String[])>/array$0 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
-[]:<Clinit: void main(java.lang.String[])>/array$1 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
-[]:<Clinit: void main(java.lang.String[])>/barr -> {[]:<Clinit: void main(java.lang.String[])>/new B[][][]/12}
+[]:<A: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "A"}}
+[]:<A: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:0(@L11)/new A}}
+[]:<B: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "B"}}
+[]:<C: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "C"}}
+[]:<C: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:6(@L13)/new D}}
+[]:<Clinit: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "Clinit"}}
+[]:<Clinit: void main(java.lang.String[])>/args -> {[]:EnvObj{<Clinit: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Clinit: void main(java.lang.String[])>/barr -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2]}}
 []:<Clinit: void main(java.lang.String[])>/s -> {}
-[]:<Clinit: void main(java.lang.String[])>/temp$0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/11}
-[]:<Clinit: void main(java.lang.String[])>/temp$1 -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
-[]:<Clinit: void main(java.lang.String[])>/temp$2 -> {[]:"x"}
-[]:<Clinit: void main(java.lang.String[])>/temp$3 -> {[]:<Clinit: void main(java.lang.String[])>/new I/18}
-[]:<Clinit: void main(java.lang.String[])>/temp$4 -> {[]:<Clinit: void main(java.lang.String[])>/new L/22}
-[]:<D: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new D/13}
-[]:<E: void <clinit>()>/s -> {[]:"E"}
-[]:<F: void <clinit>()>/s -> {[]:"F"}
-[]:<H: void <clinit>()>/s -> {[]:"H"}
-[]:<I: void <clinit>()>/temp$0 -> {[]:<I: void <clinit>()>/new J/78}
-[]:<I: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new I/18,[]:<J: void <clinit>()>/new I/82}
-[]:<J: void <clinit>()>/temp$0 -> {[]:<J: void <clinit>()>/new I/82}
-[]:<J: void <init>()>/this -> {[]:<I: void <clinit>()>/new J/78}
-[]:<L: void <init>()>/this -> {[]:<Clinit: void main(java.lang.String[])>/new L/22}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Clinit: void main(java.lang.String[])>/new A/11,[]:<Clinit: void main(java.lang.String[])>/new D/13,[]:<Clinit: void main(java.lang.String[])>/new I/18,[]:<Clinit: void main(java.lang.String[])>/new L/22,[]:<I: void <clinit>()>/new J/78,[]:<J: void <clinit>()>/new I/82,[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
-[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<Clinit: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:0(@L11)/new A}}
+[]:<Clinit: void main(java.lang.String[])>/temp$1 -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:6(@L13)/new D}}
+[]:<Clinit: void main(java.lang.String[])>/temp$2 -> {[]:ConstantObj{java.lang.String: "x"}}
+[]:<Clinit: void main(java.lang.String[])>/temp$3 -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:12(@L18)/new I}}
+[]:<Clinit: void main(java.lang.String[])>/temp$4 -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:14(@L22)/new L}}
+[]:<D: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:6(@L13)/new D}}
+[]:<E: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "E"}}
+[]:<F: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "F"}}
+[]:<H: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "H"}}
+[]:<I: void <clinit>()>/temp$0 -> {[]:NewObj{<I: void <clinit>()>:0(@L78)/new J}}
+[]:<I: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:12(@L18)/new I},[]:NewObj{<J: void <clinit>()>:0(@L82)/new I}}
+[]:<J: void <clinit>()>/temp$0 -> {[]:NewObj{<J: void <clinit>()>:0(@L82)/new I}}
+[]:<J: void <init>()>/%this -> {[]:NewObj{<I: void <clinit>()>:0(@L78)/new J}}
+[]:<L: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:14(@L22)/new L}}
+[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:0(@L11)/new A},[]:NewObj{<Clinit: void main(java.lang.String[])>:12(@L18)/new I},[]:NewObj{<Clinit: void main(java.lang.String[])>:14(@L22)/new L},[]:NewObj{<Clinit: void main(java.lang.String[])>:6(@L13)/new D},[]:NewObj{<I: void <clinit>()>:0(@L78)/new J},[]:NewObj{<J: void <clinit>()>:0(@L82)/new I},[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L129)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:<Clinit: void main(java.lang.String[])>/new B[][]/12 -> {[]:<Clinit: void main(java.lang.String[])>/new B[]/12}
-[]:<Clinit: void main(java.lang.String[])>/new B[][][]/12 -> {[]:<Clinit: void main(java.lang.String[])>/new B[][]/12}
-[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Clinit: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<Clinit: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Clinit: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newarray (B[])[%intconstant1]}[*] -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newarray (B)[%intconstant2]}}
+[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2]}[*] -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newarray (B[])[%intconstant1]}}
 ---------- Points-to sets of all static fields: ----------
-<E: java.lang.String f> -> {[]:"x"}
+<E: java.lang.String f> -> {[]:ConstantObj{java.lang.String: "x"}}
 <F: java.lang.String f> -> {}
-<I: J f> -> {[]:<I: void <clinit>()>/new J/78}
-<J: I f> -> {[]:<J: void <clinit>()>/new I/82}
-<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
-<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+<I: J f> -> {[]:NewObj{<I: void <clinit>()>:0(@L78)/new J}}
+<J: I f> -> {[]:NewObj{<J: void <clinit>()>:0(@L82)/new I}}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L129)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}

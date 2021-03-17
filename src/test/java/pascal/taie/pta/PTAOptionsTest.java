@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.oldpta;
+package pascal.taie.pta;
 
 import org.junit.Assert;
 import org.junit.Test;

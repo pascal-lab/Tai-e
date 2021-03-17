@@ -18,6 +18,52 @@ import pascal.taie.TestUtils;
 
 public class CSPTATest {
 
+    // Tests for context insensitivity
+    @Test
+    public void testNew() {
+        TestUtils.testCSPTA("New");
+    }
+
+    @Test
+    public void testAssign() {
+        TestUtils.testCSPTA("Assign");
+    }
+
+    @Test
+    public void testStoreLoad() {
+        TestUtils.testCSPTA("StoreLoad");
+    }
+
+    @Test
+    public void testCall() {
+        TestUtils.testCSPTA("Call");
+    }
+
+    @Test
+    public void testAssign2() {
+        TestUtils.testCSPTA("Assign2");
+    }
+
+    @Test
+    public void testInstanceField() {
+        TestUtils.testCSPTA("InstanceField");
+    }
+
+    @Test
+    public void testInstanceField2() {
+        TestUtils.testCSPTA("InstanceField2");
+    }
+
+    @Test
+    public void testCallParamRet() {
+        TestUtils.testCSPTA("CallParamRet");
+    }
+
+    @Test
+    public void testCallField() {
+        TestUtils.testCSPTA("CallField");
+    }
+    
     // Tests for context sensitivity variants
     @Test
     public void testOneCall() {

@@ -1,29 +1,29 @@
 ---------- Points-to sets of all variables: ----------
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<A: java.lang.String getMyString()>/temp$0 -> {[]:"string"}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<A: java.lang.String getMyString()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<A: void <init>()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/4]:<java.lang.Object: void <init>()>/r0 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<A: java.lang.String getMyString()>/temp$0 -> {[]:"string"}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<A: java.lang.String getMyString()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<A: void <init>()>/this -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
-[<SpecialHeapContext: void main(java.lang.String[])>/new A/5]:<java.lang.Object: void <init>()>/r0 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
-[<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184]:<java.lang.Object: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/a1 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/a2 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/args -> {[]:[Env]<SpecialHeapContext: void main(java.lang.String[])>/<main-arguments>}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/s1 -> {[]:"string"}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/s2 -> {[]:"string"}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$0 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/4}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$1 -> {[]:<SpecialHeapContext: void main(java.lang.String[])>/new A/5}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$2 -> {[]:"string"}
-[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$3 -> {[]:"string"}
-[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
-[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<A: java.lang.String getMyString()>/%this -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<A: java.lang.String getMyString()>/temp$0 -> {[]:ConstantObj{java.lang.String: "string"}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<A: void <init>()>/%this -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<A: java.lang.String getMyString()>/%this -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<A: java.lang.String getMyString()>/temp$0 -> {[]:ConstantObj{java.lang.String: "string"}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<A: void <init>()>/%this -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}}
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}}
+[NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/a1 -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/a2 -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/args -> {[]:EnvObj{<SpecialHeapContext: void main(java.lang.String[])>/<main-arguments>}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/s1 -> {[]:ConstantObj{java.lang.String: "string"}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/s2 -> {[]:ConstantObj{java.lang.String: "string"}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$1 -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$2 -> {[]:ConstantObj{java.lang.String: "string"}}
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$3 -> {[]:ConstantObj{java.lang.String: "string"}}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L129)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:[Env]<SpecialHeapContext: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<SpecialHeapContext: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<SpecialHeapContext: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<SpecialHeapContext: void main(java.lang.String[])>/<main-arguments-element>}}
 ---------- Points-to sets of all static fields: ----------
-<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
-<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L129)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}

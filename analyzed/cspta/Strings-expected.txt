@@ -1,32 +1,32 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: void <init>()>/this -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
-[]:<Strings: java.lang.String id(java.lang.String)>/s -> {[]:"aaa"}
-[]:<Strings: void main(java.lang.String[])>/a -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
-[]:<Strings: void main(java.lang.String[])>/args -> {[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments>}
-[]:<Strings: void main(java.lang.String[])>/arr -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
-[]:<Strings: void main(java.lang.String[])>/constant$0 -> {[]:"aaa"}
-[]:<Strings: void main(java.lang.String[])>/s1 -> {[]:"aaa"}
-[]:<Strings: void main(java.lang.String[])>/s2 -> {[]:"bbb"}
-[]:<Strings: void main(java.lang.String[])>/s3 -> {[]:"ccc"}
-[]:<Strings: void main(java.lang.String[])>/s4 -> {[]:"ddd"}
-[]:<Strings: void main(java.lang.String[])>/temp$0 -> {[]:"aaa"}
-[]:<Strings: void main(java.lang.String[])>/temp$1 -> {[]:<Strings: void main(java.lang.String[])>/new A/6}
-[]:<Strings: void main(java.lang.String[])>/temp$2 -> {[]:"bbb"}
-[]:<Strings: void main(java.lang.String[])>/temp$3 -> {[]:"ccc"}
-[]:<Strings: void main(java.lang.String[])>/temp$4 -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
-[]:<Strings: void main(java.lang.String[])>/temp$6 -> {[]:"ddd"}
-[]:<Strings: void main(java.lang.String[])>/temp$7 -> {[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Strings: void main(java.lang.String[])>/new A/6,[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/r0 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
-[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
-[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+[]:<A: void <init>()>/%this -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
+[]:<Strings: java.lang.String id(java.lang.String)>/s -> {[]:ConstantObj{java.lang.String: "aaa"}}
+[]:<Strings: void main(java.lang.String[])>/%stringconstant0 -> {[]:ConstantObj{java.lang.String: "aaa"}}
+[]:<Strings: void main(java.lang.String[])>/a -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
+[]:<Strings: void main(java.lang.String[])>/args -> {[]:EnvObj{<Strings: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Strings: void main(java.lang.String[])>/arr -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
+[]:<Strings: void main(java.lang.String[])>/s1 -> {[]:ConstantObj{java.lang.String: "aaa"}}
+[]:<Strings: void main(java.lang.String[])>/s2 -> {[]:ConstantObj{java.lang.String: "bbb"}}
+[]:<Strings: void main(java.lang.String[])>/s3 -> {[]:ConstantObj{java.lang.String: "ccc"}}
+[]:<Strings: void main(java.lang.String[])>/s4 -> {[]:ConstantObj{java.lang.String: "ddd"}}
+[]:<Strings: void main(java.lang.String[])>/temp$0 -> {[]:ConstantObj{java.lang.String: "aaa"}}
+[]:<Strings: void main(java.lang.String[])>/temp$1 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
+[]:<Strings: void main(java.lang.String[])>/temp$2 -> {[]:ConstantObj{java.lang.String: "bbb"}}
+[]:<Strings: void main(java.lang.String[])>/temp$3 -> {[]:ConstantObj{java.lang.String: "ccc"}}
+[]:<Strings: void main(java.lang.String[])>/temp$4 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
+[]:<Strings: void main(java.lang.String[])>/temp$6 -> {[]:ConstantObj{java.lang.String: "ddd"}}
+[]:<Strings: void main(java.lang.String[])>/temp$7 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
+[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A},[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<java.lang.String$CaseInsensitiveComparator: void <init>()>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L129)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+[]:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}
 ---------- Points-to sets of all instance fields: ----------
-[]:<Strings: void main(java.lang.String[])>/new A/6.f -> {[]:"bbb"}
+[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}.f -> {[]:ConstantObj{java.lang.String: "bbb"}}
 ---------- Points-to sets of all array indexes: ----------
-[]:<Strings: void main(java.lang.String[])>/new java.lang.String[]/13 -> {[]:"ddd"}
-[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Strings: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<Strings: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Strings: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}[*] -> {[]:ConstantObj{java.lang.String: "ddd"}}
 ---------- Points-to sets of all static fields: ----------
-<A: java.lang.String sf> -> {[]:"ccc"}
-<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:<java.lang.String: void <clinit>()>/new java.io.ObjectStreamField[]/129}
-<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:<java.lang.String: void <clinit>()>/new java.lang.String$CaseInsensitiveComparator/1184}
+<A: java.lang.String sf> -> {[]:ConstantObj{java.lang.String: "ccc"}}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L129)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+<java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1184)/new java.lang.String$CaseInsensitiveComparator}}

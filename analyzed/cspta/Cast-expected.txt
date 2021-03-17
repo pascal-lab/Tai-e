@@ -1,17 +1,17 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: void <init>()>/this -> {[]:<Cast: void m()>/new A/7}
-[]:<B: void <init>()>/this -> {[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
-[]:<C: void <init>()>/this -> {[]:<Cast: void m()>/new C/9}
-[]:<Cast: void m()>/a -> {[]:<Cast: void m()>/new A/7}
-[]:<Cast: void m()>/b -> {[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
-[]:<Cast: void m()>/c -> {[]:<Cast: void m()>/new C/9}
-[]:<Cast: void m()>/o -> {[]:<Cast: void m()>/new A/7,[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
-[]:<Cast: void m()>/temp$0 -> {[]:<Cast: void m()>/new A/7}
-[]:<Cast: void m()>/temp$1 -> {[]:<Cast: void m()>/new B/8}
-[]:<Cast: void m()>/temp$2 -> {[]:<Cast: void m()>/new C/9}
-[]:<Cast: void main(java.lang.String[])>/args -> {[]:[Env]<Cast: void main(java.lang.String[])>/<main-arguments>}
-[]:<java.lang.Object: void <init>()>/r0 -> {[]:<Cast: void m()>/new A/7,[]:<Cast: void m()>/new B/8,[]:<Cast: void m()>/new C/9}
+[]:<A: void <init>()>/%this -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A}}
+[]:<B: void <init>()>/%this -> {[]:NewObj{<Cast: void m()>:3(@L8)/new B},[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
+[]:<C: void <init>()>/%this -> {[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
+[]:<Cast: void m()>/a -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A}}
+[]:<Cast: void m()>/b -> {[]:NewObj{<Cast: void m()>:3(@L8)/new B},[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
+[]:<Cast: void m()>/c -> {[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
+[]:<Cast: void m()>/o -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A},[]:NewObj{<Cast: void m()>:3(@L8)/new B},[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
+[]:<Cast: void m()>/temp$0 -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A}}
+[]:<Cast: void m()>/temp$1 -> {[]:NewObj{<Cast: void m()>:3(@L8)/new B}}
+[]:<Cast: void m()>/temp$2 -> {[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
+[]:<Cast: void main(java.lang.String[])>/args -> {[]:EnvObj{<Cast: void main(java.lang.String[])>/<main-arguments>}}
+[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A},[]:NewObj{<Cast: void m()>:3(@L8)/new B},[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:[Env]<Cast: void main(java.lang.String[])>/<main-arguments> -> {[]:[Env]<Cast: void main(java.lang.String[])>/<main-arguments-element>}
+[]:EnvObj{<Cast: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Cast: void main(java.lang.String[])>/<main-arguments-element>}}
 ---------- Points-to sets of all static fields: ----------
