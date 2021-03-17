@@ -505,8 +505,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             if (lhs != null && isConcerned(lhs)) {
                 CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
                 for (Var ret : callee.getIR().getReturnVars()) {
-                    CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                    addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                    if (isConcerned(ret)) {
+                        CSVar csRet = csManager.getCSVar(calleeCtx, ret);
+                        addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                    }
                 }
             }
         }
@@ -692,7 +694,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(Cast stmt) {
             CastExp cast = stmt.getRValue();
-            if (isConcerned(cast)) {
+            if (isConcerned(cast.getValue())) {
                 CSVar from = csManager.getCSVar(context, cast.getValue());
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
