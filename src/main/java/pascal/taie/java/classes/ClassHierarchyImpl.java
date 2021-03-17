@@ -119,7 +119,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public @Nullable JClass getClass(String name) {
-        // TODO: add warning
+        // TODO: add warning for missing class loader
         return getClass(getDefaultClassLoader(), name);
     }
 
@@ -241,7 +241,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                                  boolean allowAbstract) {
         // JVM Spec. (11 Ed.), 5.4.3.3 Method Resolution
         // 1. If C is an interface, method resolution throws
-        // an IncompatibleClassChangeError. TODO: ???
+        // an IncompatibleClassChangeError. TODO: what does this mean???
 
         // 2. Otherwise, method resolution attempts to locate the
         // referenced method in C and its superclasses

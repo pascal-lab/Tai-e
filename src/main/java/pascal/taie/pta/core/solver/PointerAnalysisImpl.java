@@ -30,7 +30,6 @@ import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewMultiArray;
-import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
@@ -57,6 +56,7 @@ import pascal.taie.java.types.ClassType;
 import pascal.taie.java.types.NullType;
 import pascal.taie.java.types.ReferenceType;
 import pascal.taie.java.types.Type;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
 import pascal.taie.pta.core.cs.ArrayIndex;
@@ -73,7 +73,6 @@ import pascal.taie.pta.core.heap.Obj;
 import pascal.taie.pta.plugin.Plugin;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
-import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
@@ -673,19 +672,20 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         @Override
         public void visit(AssignLiteral stmt) {
             Literal literal = stmt.getRValue();
-            if (!isConcerned(literal) || literal instanceof NullLiteral) {
-                return;
+            if (isConcerned(literal)) {
+                Obj obj = heapModel.getConstantObj(literal.getType(),
+                        ((ReferenceLiteral<?>) literal).getValue());
+                Context heapContext = contextSelector
+                        .selectHeapContext(csMethod, obj);
+                addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
             }
-            Obj obj = heapModel.getConstantObj(literal.getType(),
-                    ((ReferenceLiteral<?>) literal).getValue());
-            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
         }
 
         @Override
         public void visit(Copy stmt) {
-            if (isConcerned(stmt.getRValue())) {
-                CSVar from = csManager.getCSVar(context, stmt.getRValue());
+            Var rvalue = stmt.getRValue();
+            if (isConcerned(rvalue)) {
+                CSVar from = csManager.getCSVar(context, rvalue);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
@@ -706,7 +706,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
          */
         @Override
         public void visit(LoadField stmt) {
-            if (stmt.isStatic() && isConcerned(stmt.getLValue())) {
+            if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
@@ -774,15 +774,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
          * Analyzes the initializer of given class.
          */
         private void initializeClass(JClass cls) {
-            if (cls == null) {
+            if (cls == null || initializedClasses.contains(cls)) {
                 return;
             }
-
-            if (initializedClasses.contains(cls)) {
-                // cls has already been initialized
-                return;
-            }
-
             // initialize super class
             JClass superclass = cls.getSuperClass();
             if (superclass != null) {
@@ -818,17 +812,17 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(Invoke stmt) {
-            processMemberRef(stmt.getInvokeExp().getMethodRef());
+            processMemberRef(stmt.getMethodRef());
         }
 
         @Override
         public void visit(LoadField stmt) {
-            processMemberRef(stmt.getRValue().getFieldRef());
+            processMemberRef(stmt.getFieldRef());
         }
 
         @Override
         public void visit(StoreField stmt) {
-            processMemberRef(stmt.getLValue().getFieldRef());
+            processMemberRef(stmt.getFieldRef());
         }
 
         private void processMemberRef(MemberRef memberRef) {

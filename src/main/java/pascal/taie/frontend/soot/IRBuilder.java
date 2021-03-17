@@ -31,11 +31,11 @@ import pascal.taie.oldpta.ir.CallSite;
 import pascal.taie.oldpta.ir.DefaultCallSite;
 import pascal.taie.oldpta.ir.DefaultPTAIR;
 import pascal.taie.oldpta.ir.DefaultVariable;
-import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.InstanceLoad;
 import pascal.taie.oldpta.ir.InstanceStore;
 import pascal.taie.oldpta.ir.NormalObj;
 import pascal.taie.oldpta.ir.Obj;
+import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Statement;
 import pascal.taie.oldpta.ir.StaticLoad;
 import pascal.taie.oldpta.ir.StaticStore;
@@ -265,8 +265,6 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
                                 converter.convertType(cast.getCastType()),
                                 getVariable((Local) cast.getOp(), method)),
                         stmt);
-            } else {
-                // TODO: handle constants
             }
         } else if (right instanceof PhiExpr) {
             // x = phi(v1, ..., vn)
@@ -284,7 +282,6 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
             addStatement(ir, load, stmt);
         } else if (right instanceof ArrayRef) {
             // x = y[i];
-            // TODO: consider constant index?
             ArrayRef ref = (ArrayRef) right;
             Variable base = getVariable((Local) ref.getBase(), method);
             ArrayLoad load = new ArrayLoad(lhs, base);
@@ -328,7 +325,6 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
             addStatement(ir, store, stmt);
         } else if (left instanceof ArrayRef) {
             // x[i] = y;
-            // TODO: consider constant index?
             ArrayRef ref = (ArrayRef) left;
             Variable base = getVariable((Local) ref.getBase(), method);
             ArrayStore store = new ArrayStore(base, rhs);
@@ -359,14 +355,13 @@ class IRBuilder implements pascal.taie.java.IRBuilder {
         InvokeExpr invoke = stmt.getInvokeExpr();
         DefaultCallSite callSite = new DefaultCallSite(
                 JimpleCallUtils.getCallKind(invoke));
-        callSite.setStmt(stmt); // TODO: <-- get rid of this
+        callSite.setStmt(stmt);
         callSite.setMethodRef(
                 converter.convertMethodRef(invoke.getMethodRef()));
         if (invoke instanceof InstanceInvokeExpr) {
             Local base = (Local) ((InstanceInvokeExpr) invoke).getBase();
             callSite.setReceiver(getVariable(base, container));
         }
-        // TODO: handle DynamicInvokeExpr
         if (invoke.getArgCount() > 0) {
             List<Variable> args = new ArrayList<>(invoke.getArgCount());
             for (Value arg : invoke.getArgs()) {
