@@ -12,6 +12,8 @@
 
 package pascal.taie.util.collection;
 
+import pascal.taie.util.HashUtils;
+
 import javax.annotation.Nonnull;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -302,7 +304,7 @@ public final class HybridArrayHashMap<K, V> implements Map<K, V> {
     @Override
     public int hashCode() { // see contract for Map.hashCode
         if (singleton_key != null) {
-            return Objects.hash(singleton_key, singleton_value);
+            return HashUtils.safeHash(singleton_key, singleton_value);
         }
         if (arrayMap != null) {
             return arrayMap.hashCode();

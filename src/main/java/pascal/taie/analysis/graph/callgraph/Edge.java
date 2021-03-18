@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import java.util.Objects;
+import pascal.taie.util.HashUtils;
 
 public class Edge<CallSite, Method> {
 
@@ -28,7 +28,7 @@ public class Edge<CallSite, Method> {
         this.kind = kind;
         this.callSite = callSite;
         this.callee = callee;
-        hashCode = Objects.hash(kind, callSite, callee);
+        hashCode = HashUtils.hash(kind, callSite, callee);
     }
 
     public CallKind getKind() {
@@ -49,8 +49,8 @@ public class Edge<CallSite, Method> {
         if (o == null || getClass() != o.getClass()) return false;
         Edge<?, ?> edge = (Edge<?, ?>) o;
         return kind == edge.kind &&
-                Objects.equals(callSite, edge.callSite) &&
-                Objects.equals(callee, edge.callee);
+                callSite.equals(edge.callSite) &&
+                callee.equals(edge.callee);
     }
 
     @Override

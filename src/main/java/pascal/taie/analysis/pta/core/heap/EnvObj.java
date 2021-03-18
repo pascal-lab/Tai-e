@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.types.Type;
+import pascal.taie.util.HashUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -72,7 +73,7 @@ public class EnvObj implements Obj {
 
     @Override
     public int hashCode() {
-        return Objects.hash(descr, containerMethod);
+        return HashUtils.safeHash(descr, containerMethod);
     }
 
     @Override

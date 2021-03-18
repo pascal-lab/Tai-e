@@ -13,8 +13,7 @@
 package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
-
-import java.util.Objects;
+import pascal.taie.util.HashUtils;
 
 public abstract class Edge<Node> {
 
@@ -46,7 +45,7 @@ public abstract class Edge<Node> {
                                          Domain edgeFlow);
 
     protected int computeHashCode() {
-        return Objects.hash(kind, source, target);
+        return HashUtils.hash(kind, source, target);
     }
 
     @Override
@@ -55,8 +54,8 @@ public abstract class Edge<Node> {
         if (o == null || getClass() != o.getClass()) return false;
         Edge<?> edge = (Edge<?>) o;
         return kind == edge.kind &&
-                Objects.equals(source, edge.source) &&
-                Objects.equals(target, edge.target);
+                source.equals(edge.source) &&
+                target.equals(edge.target);
     }
 
     @Override

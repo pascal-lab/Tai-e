@@ -13,8 +13,7 @@
 package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
-
-import java.util.Objects;
+import pascal.taie.util.HashUtils;
 
 public class ReturnEdge<Node> extends Edge<Node> {
 
@@ -38,6 +37,6 @@ public class ReturnEdge<Node> extends Edge<Node> {
 
     @Override
     protected int computeHashCode() {
-        return Objects.hash(kind, source, target, callSite);
+        return HashUtils.hash(kind, source, target, callSite);
     }
 }
