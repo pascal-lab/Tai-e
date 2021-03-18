@@ -122,16 +122,16 @@ public class ResultChecker {
         } else {
             readExpectedResult(filePath);
             Set<String> givenPointers = new TreeSet<>();
-            pta.getVars()
+            pta.vars()
                     .sorted(Comparator.comparing(CSVar::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
-            pta.getInstanceFields()
+            pta.instanceFields()
                     .sorted(Comparator.comparing(f -> f.getBase().toString()))
                     .forEach(f -> comparePointer(f, givenPointers));
-            pta.getArrayIndexes()
+            pta.arrayIndexes()
                     .sorted(Comparator.comparing(ArrayIndex::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
-            pta.getStaticFields()
+            pta.staticFields()
                     .sorted(Comparator.comparing(StaticField::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
             expectedResults.forEach((p, pts) -> {

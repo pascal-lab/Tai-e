@@ -99,7 +99,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Stream<Edge<CallSite, Method>> getAllEdges() {
+    public Stream<Edge<CallSite, Method>> allEdges() {
         return callSiteToEdges.values()
                 .stream()
                 .flatMap(Set::stream);
@@ -123,6 +123,6 @@ public abstract class AbstractCallGraph<CallSite, Method>
     @Nonnull
     @Override
     public Iterator<Edge<CallSite, Method>> iterator() {
-        return getAllEdges().iterator();
+        return allEdges().iterator();
     }
 }

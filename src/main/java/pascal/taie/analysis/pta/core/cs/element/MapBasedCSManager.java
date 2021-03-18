@@ -89,22 +89,22 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Stream<CSVar> getCSVars() {
+    public Stream<CSVar> CSVars() {
         return CollectionUtils.getAllValues(vars);
     }
 
     @Override
-    public Stream<InstanceField> getInstanceFields() {
+    public Stream<InstanceField> instanceFields() {
         return CollectionUtils.getAllValues(instanceFields);
     }
 
     @Override
-    public Stream<ArrayIndex> getArrayIndexes() {
+    public Stream<ArrayIndex> arrayIndexes() {
         return arrayIndexes.values().stream();
     }
 
     @Override
-    public Stream<StaticField> getStaticFields() {
+    public Stream<StaticField> staticFields() {
         return staticFields.values().stream();
     }
 

@@ -46,7 +46,7 @@ public interface CallGraph<CallSite, Method>
     /**
      * Returns all call edges in this call graph.
      */
-    Stream<Edge<CallSite, Method>> getAllEdges();
+    Stream<Edge<CallSite, Method>> allEdges();
 
     /**
      * Returns the entry methods of this call graph.

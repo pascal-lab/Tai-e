@@ -77,20 +77,20 @@ public interface PointerAnalysis {
     /**
      * @return all variables in the (reachable) program.
      */
-    Stream<CSVar> getVars();
+    Stream<CSVar> vars();
 
     /**
      * @return all instance fields in the (reachable) program.
      */
-    Stream<InstanceField> getInstanceFields();
+    Stream<InstanceField> instanceFields();
 
     /**
      * @return all array indexes in the (reachable) program.
      */
-    Stream<ArrayIndex> getArrayIndexes();
+    Stream<ArrayIndex> arrayIndexes();
 
     /**
      * @return all static fields in the (reachable) program.
      */
-    Stream<StaticField> getStaticFields();
+    Stream<StaticField> staticFields();
 }

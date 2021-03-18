@@ -59,7 +59,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
                     .sorted(Comparator.comparing(JMethod::toString))
                     .forEach(System.out::println);
             System.out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().getAllEdges().forEach(System.out::println);
+            pta.getCallGraph().allEdges().forEach(System.out::println);
             printVariables(pta.getVariables());
             printInstanceFields(pta.getInstanceFields());
             System.out.println("----------------------------------------");

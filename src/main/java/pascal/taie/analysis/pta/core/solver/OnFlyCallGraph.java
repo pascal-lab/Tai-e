@@ -111,7 +111,7 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Stream<Edge<CSCallSite, CSMethod>> getAllEdges() {
+    public Stream<Edge<CSCallSite, CSMethod>> allEdges() {
         return reachableMethods.stream()
                 .map(this::getCallSitesIn)
                 .flatMap(Collection::stream)
@@ -132,6 +132,6 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
     @Nonnull
     @Override
     public Iterator<Edge<CSCallSite, CSMethod>> iterator() {
-        return getAllEdges().iterator();
+        return allEdges().iterator();
     }
 }

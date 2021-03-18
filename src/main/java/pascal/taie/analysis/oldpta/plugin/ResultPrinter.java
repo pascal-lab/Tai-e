@@ -93,7 +93,7 @@ public enum ResultPrinter implements Plugin {
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(out::println);
             out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().getAllEdges().forEach(out::println);
+            pta.getCallGraph().allEdges().forEach(out::println);
             printPointers(pta);
             out.println("----------------------------------------");
         }
@@ -165,13 +165,13 @@ public enum ResultPrinter implements Plugin {
                 .getReachableMethods()
                 .size();
         int callEdgeInsens = (int) pta.getCallGraph()
-                .getAllEdges()
+                .allEdges()
                 .map(e -> new Pair<>(e.getCallSite().getCallSite(),
                         e.getCallee().getMethod()))
                 .distinct()
                 .count();
         int callEdgeSens = (int) pta.getCallGraph()
-                .getAllEdges()
+                .allEdges()
                 .count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",

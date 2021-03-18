@@ -93,7 +93,7 @@ public enum ResultPrinter implements Plugin {
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(out::println);
             out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().getAllEdges().forEach(out::println);
+            pta.getCallGraph().allEdges().forEach(out::println);
             printPointers(pta);
             out.println("----------------------------------------");
         }
@@ -101,10 +101,10 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printPointers(PointerAnalysis pta) {
-        printVariables(pta.getVars());
-        printInstanceFields(pta.getInstanceFields());
-        printArrayIndexes(pta.getArrayIndexes());
-        printStaticFields(pta.getStaticFields());
+        printVariables(pta.vars());
+        printInstanceFields(pta.instanceFields());
+        printArrayIndexes(pta.arrayIndexes());
+        printStaticFields(pta.staticFields());
     }
 
     private void printVariables(Stream<CSVar> vars) {
@@ -138,21 +138,21 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printStatistics(PointerAnalysis pta) {
-        int varInsens = (int) pta.getVars()
+        int varInsens = (int) pta.vars()
                 .map(CSVar::getVar)
                 .distinct()
                 .count();
-        int varSens = (int) pta.getVars().count();
-        int vptSizeSens = pta.getVars()
+        int varSens = (int) pta.vars().count();
+        int vptSizeSens = pta.vars()
                 .mapToInt(v -> v.getPointsToSet().size())
                 .sum();
-        int ifptSizeSens = pta.getInstanceFields()
+        int ifptSizeSens = pta.instanceFields()
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
-        int aptSizeSens = pta.getArrayIndexes()
+        int aptSizeSens = pta.arrayIndexes()
                 .mapToInt(a -> a.getPointsToSet().size())
                 .sum();
-        int sfptSizeSens = pta.getStaticFields()
+        int sfptSizeSens = pta.staticFields()
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
         int reachableInsens = (int) pta.getCallGraph()
@@ -165,13 +165,13 @@ public enum ResultPrinter implements Plugin {
                 .getReachableMethods()
                 .size();
         int callEdgeInsens = (int) pta.getCallGraph()
-                .getAllEdges()
+                .allEdges()
                 .map(e -> new Pair<>(e.getCallSite().getCallSite(),
                         e.getCallee().getMethod()))
                 .distinct()
                 .count();
         int callEdgeSens = (int) pta.getCallGraph()
-                .getAllEdges()
+                .allEdges()
                 .count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",

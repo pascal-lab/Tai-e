@@ -162,23 +162,23 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
-    public Stream<CSVar> getVars() {
-        return csManager.getCSVars();
+    public Stream<CSVar> vars() {
+        return csManager.CSVars();
     }
 
     @Override
-    public Stream<InstanceField> getInstanceFields() {
-        return csManager.getInstanceFields();
+    public Stream<InstanceField> instanceFields() {
+        return csManager.instanceFields();
     }
 
     @Override
-    public Stream<ArrayIndex> getArrayIndexes() {
-        return csManager.getArrayIndexes();
+    public Stream<ArrayIndex> arrayIndexes() {
+        return csManager.arrayIndexes();
     }
 
     @Override
-    public Stream<StaticField> getStaticFields() {
-        return csManager.getStaticFields();
+    public Stream<StaticField> staticFields() {
+        return csManager.staticFields();
     }
 
     /**
@@ -271,7 +271,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             }
         }
         if (!diff.isEmpty()) {
-            for (PointerFlowEdge edge : pointerFlowGraph.getOutEdgesOf(pointer)) {
+            pointerFlowGraph.outEdgesOf(pointer).forEach(edge -> {
                 Pointer to = edge.getTo();
                 // TODO: use Optional.ifPresentOrElse() after upgrade to Java 9+
                 if (edge.getType().isPresent()) {
@@ -281,7 +281,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 } else {
                     addPointerEntry(to, diff);
                 }
-            }
+            });
         }
         return diff;
     }

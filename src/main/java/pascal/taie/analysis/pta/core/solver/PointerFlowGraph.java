@@ -16,6 +16,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.language.types.Type;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.newSet;
 
@@ -39,11 +40,11 @@ public class PointerFlowGraph {
         }
     }
 
-    public Set<PointerFlowEdge> getOutEdgesOf(Pointer pointer) {
-        return pointer.getOutEdges();
+    public Stream<PointerFlowEdge> outEdgesOf(Pointer pointer) {
+        return pointer.getOutEdges().stream();
     }
 
-    public Set<Pointer> getPointers() {
-        return pointers;
+    public Stream<Pointer> pointer() {
+        return pointers.stream();
     }
 }
