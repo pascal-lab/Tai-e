@@ -13,11 +13,6 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.World;
-import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.natives.NativeModel;
 import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -26,6 +21,11 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
+import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.natives.NativeModel;
 
 import java.util.Set;
 

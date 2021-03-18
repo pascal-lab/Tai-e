@@ -12,8 +12,6 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.MapEntry;
-
 import javax.annotation.Nonnull;
 import java.util.AbstractMap;
 import java.util.AbstractSet;

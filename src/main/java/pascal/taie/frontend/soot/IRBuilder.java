@@ -13,12 +13,6 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.analysis.graph.callgraph.JimpleCallUtils;
-import pascal.taie.ir.IR;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.VoidType;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.ArrayLoad;
@@ -39,6 +33,12 @@ import pascal.taie.analysis.oldpta.ir.Statement;
 import pascal.taie.analysis.oldpta.ir.StaticLoad;
 import pascal.taie.analysis.oldpta.ir.StaticStore;
 import pascal.taie.analysis.oldpta.ir.Variable;
+import pascal.taie.ir.IR;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.VoidType;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Timer;
 import soot.ArrayType;

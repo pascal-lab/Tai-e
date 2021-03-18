@@ -13,11 +13,11 @@
 package pascal.taie.analysis.pta.core.cs.selector;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.language.classes.JMethod;
 
 /**
  * Context-insensitive selector do not use any context elements,

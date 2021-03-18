@@ -13,12 +13,12 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.World;
+import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KObjSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
-import pascal.taie.analysis.pta.PTAOptions;
-import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;

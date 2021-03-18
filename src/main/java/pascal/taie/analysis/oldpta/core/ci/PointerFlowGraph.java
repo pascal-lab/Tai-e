@@ -12,9 +12,9 @@
 
 package pascal.taie.analysis.oldpta.core.ci;
 
-import pascal.taie.language.classes.JField;
 import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.analysis.oldpta.ir.Variable;
+import pascal.taie.language.classes.JField;
 
 import java.util.Collections;
 import java.util.Map;

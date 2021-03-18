@@ -12,12 +12,12 @@
 
 package pascal.taie.analysis.oldpta.core.context;
 
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
 import pascal.taie.analysis.oldpta.core.cs.CSMethod;
 import pascal.taie.analysis.oldpta.core.cs.CSObj;
 import pascal.taie.analysis.oldpta.ir.Obj;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 
 public class TwoTypeSelector extends AbstractContextSelector {
 

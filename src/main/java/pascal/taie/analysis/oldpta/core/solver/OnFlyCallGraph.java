@@ -15,13 +15,13 @@ package pascal.taie.analysis.oldpta.core.solver;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.oldpta.core.context.Context;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
 import pascal.taie.analysis.oldpta.core.cs.CSManager;
 import pascal.taie.analysis.oldpta.core.cs.CSMethod;
 import pascal.taie.analysis.oldpta.ir.Call;
 import pascal.taie.analysis.oldpta.ir.CallSite;
 import pascal.taie.analysis.oldpta.ir.Statement;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionView;
 
 import javax.annotation.Nonnull;

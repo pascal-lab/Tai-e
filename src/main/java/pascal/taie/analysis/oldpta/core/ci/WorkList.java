@@ -13,8 +13,8 @@
 package pascal.taie.analysis.oldpta.core.ci;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.ir.CallSite;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.LinkedHashSet;

@@ -13,8 +13,8 @@
 package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
-import pascal.taie.language.types.Type;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.language.types.Type;
 
 import java.util.Set;
 

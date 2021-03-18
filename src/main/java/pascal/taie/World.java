@@ -12,6 +12,7 @@
 
 package pascal.taie;
 
+import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
@@ -20,7 +21,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.analysis.oldpta.env.Environment;
 
 import java.util.Collection;
 

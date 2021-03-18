@@ -13,9 +13,9 @@
 package pascal.taie.analysis.dataflow.clients.constprop;
 
 import pascal.taie.analysis.dataflow.framework.DataFlowAnalysis;
-import pascal.taie.analysis.dataflow.lattice.DataFlowTag;
 import pascal.taie.analysis.dataflow.framework.Solver;
 import pascal.taie.analysis.dataflow.framework.SolverFactory;
+import pascal.taie.analysis.dataflow.lattice.DataFlowTag;
 import pascal.taie.frontend.soot.SootUtils;
 import soot.Body;
 import soot.BodyTransformer;

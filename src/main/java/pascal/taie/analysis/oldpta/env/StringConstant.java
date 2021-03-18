@@ -12,9 +12,9 @@
 
 package pascal.taie.analysis.oldpta.env;
 
+import pascal.taie.analysis.oldpta.ir.AbstractObj;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.types.Type;
-import pascal.taie.analysis.oldpta.ir.AbstractObj;
 
 import java.util.Optional;
 

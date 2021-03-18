@@ -14,6 +14,7 @@ package pascal.taie.language.natives;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
@@ -39,7 +40,6 @@ import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.PrimitiveType;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.analysis.pta.PTAOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;

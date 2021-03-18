@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.oldpta.core.ci;
 
-import pascal.taie.language.classes.JField;
 import pascal.taie.analysis.oldpta.ir.Obj;
+import pascal.taie.language.classes.JField;
 
 /**
  * Represents instance field nodes in PFG.

@@ -12,11 +12,11 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.language.classes.JMethod;
 
 /**
  * Analysis plugin interface.

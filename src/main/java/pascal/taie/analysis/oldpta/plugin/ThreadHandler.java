@@ -12,8 +12,6 @@
 
 package pascal.taie.analysis.oldpta.plugin;
 
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.core.context.Context;
 import pascal.taie.analysis.oldpta.core.cs.CSMethod;
 import pascal.taie.analysis.oldpta.core.cs.CSVariable;
@@ -25,6 +23,8 @@ import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.analysis.oldpta.set.PointsToSet;
 import pascal.taie.analysis.oldpta.set.PointsToSetFactory;
 import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
 

@@ -13,13 +13,6 @@
 package pascal.taie.analysis.oldpta.env.nativemodel;
 
 import pascal.taie.analysis.graph.callgraph.CallKind;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JField;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
 import pascal.taie.analysis.oldpta.env.EnvObj;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.ArrayStore;
@@ -29,6 +22,13 @@ import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.analysis.oldpta.ir.StaticStore;
 import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 
 import java.util.Arrays;
 import java.util.Collections;

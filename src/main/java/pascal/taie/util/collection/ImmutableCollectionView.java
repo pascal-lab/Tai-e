@@ -12,8 +12,6 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.collection.CollectionView;
-
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;

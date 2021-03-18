@@ -15,7 +15,6 @@ package pascal.taie.analysis.oldpta.core.solver;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.oldpta.core.context.Context;
 import pascal.taie.analysis.oldpta.core.context.ContextSelector;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.analysis.oldpta.core.cs.ArrayIndex;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
 import pascal.taie.analysis.oldpta.core.cs.CSManager;
@@ -27,6 +26,7 @@ import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.analysis.oldpta.set.PointsToSet;
+import pascal.taie.language.classes.ClassHierarchy;
 
 import java.util.stream.Stream;
 

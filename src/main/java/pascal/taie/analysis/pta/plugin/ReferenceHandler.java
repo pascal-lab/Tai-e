@@ -12,12 +12,12 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JField;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JField;
 
 import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
 import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;

@@ -14,12 +14,12 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.JimpleCallGraph;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
 import pascal.taie.analysis.oldpta.core.cs.CSMethod;
 import pascal.taie.analysis.oldpta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.oldpta.ir.CallSite;
 import pascal.taie.analysis.oldpta.ir.DefaultCallSite;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
 import soot.SootMethod;
 import soot.Unit;

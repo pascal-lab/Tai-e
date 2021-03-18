@@ -14,6 +14,8 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.World;
 import pascal.taie.WorldBuilder;
+import pascal.taie.analysis.oldpta.env.Environment;
+import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.natives.DefaultNativeModel;
@@ -21,8 +23,6 @@ import pascal.taie.language.natives.EmptyNativeModel;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.types.TypeManager;
 import pascal.taie.language.types.TypeManagerImpl;
-import pascal.taie.analysis.oldpta.env.Environment;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.util.Timer;
 import soot.G;
 import soot.Scene;

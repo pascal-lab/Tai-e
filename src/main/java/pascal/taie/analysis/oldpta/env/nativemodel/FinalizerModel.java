@@ -13,16 +13,16 @@
 package pascal.taie.analysis.oldpta.env.nativemodel;
 
 import pascal.taie.analysis.graph.callgraph.CallKind;
-import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.Call;
 import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.analysis.oldpta.ir.Statement;
 import pascal.taie.analysis.oldpta.ir.Variable;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 
 import java.util.Collections;
 

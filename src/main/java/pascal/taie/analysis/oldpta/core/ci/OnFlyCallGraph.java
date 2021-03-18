@@ -14,10 +14,10 @@ package pascal.taie.analysis.oldpta.core.ci;
 
 import pascal.taie.analysis.graph.callgraph.AbstractCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.ir.Call;
 import pascal.taie.analysis.oldpta.ir.CallSite;
 import pascal.taie.analysis.oldpta.ir.Statement;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {

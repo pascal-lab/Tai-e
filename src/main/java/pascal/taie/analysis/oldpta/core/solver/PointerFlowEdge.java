@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.oldpta.core.solver;
 
-import pascal.taie.language.types.Type;
 import pascal.taie.analysis.oldpta.core.cs.Pointer;
+import pascal.taie.language.types.Type;
 
 import java.util.Objects;
 import java.util.Optional;

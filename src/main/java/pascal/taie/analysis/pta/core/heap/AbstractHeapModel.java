@@ -12,10 +12,10 @@
 
 package pascal.taie.analysis.pta.core.heap;
 
+import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.analysis.pta.PTAOptions;
 
 import java.util.Map;
 

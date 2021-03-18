@@ -12,18 +12,18 @@
 
 package pascal.taie.analysis.dataflow.clients.constprop;
 
-import pascal.taie.analysis.graph.callgraph.CallGraph;
-import pascal.taie.analysis.graph.callgraph.cha.CHACallGraphBuilder;
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 import pascal.taie.analysis.dataflow.framework.IPDataFlowAnalysis;
 import pascal.taie.analysis.dataflow.framework.IPSolver;
 import pascal.taie.analysis.dataflow.framework.IPWorkListSolver;
-import pascal.taie.frontend.soot.JimplePointerAnalysis;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.cha.CHACallGraphBuilder;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
 import pascal.taie.analysis.graph.icfg.JimpleICFG;
 import pascal.taie.analysis.graph.icfg.LocalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
+import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.util.AnalysisException;
 import soot.Local;
 import soot.SceneTransformer;

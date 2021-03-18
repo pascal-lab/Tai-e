@@ -13,10 +13,10 @@
 package pascal.taie.analysis.pta.core.cs.selector;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.ir.exp.InvokeExp;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.language.classes.JMethod;
 
 public class KCallSelector extends KContextSelector<InvokeExp> {
 

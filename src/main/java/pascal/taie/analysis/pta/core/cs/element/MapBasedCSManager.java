@@ -14,11 +14,11 @@ package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.Map;

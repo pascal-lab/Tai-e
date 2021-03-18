@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.oldpta;
 
-import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import soot.PackManager;
 import soot.Transform;
 

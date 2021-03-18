@@ -13,11 +13,11 @@
 package pascal.taie.language.natives;
 
 import pascal.taie.World;
+import pascal.taie.analysis.pta.core.heap.EnvObj;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.analysis.pta.core.heap.EnvObj;
-import pascal.taie.analysis.pta.core.heap.Obj;
 
 import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.language.classes.StringReps.THREAD;
