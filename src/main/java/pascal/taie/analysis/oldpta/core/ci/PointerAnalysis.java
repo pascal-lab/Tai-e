@@ -14,9 +14,9 @@
 package pascal.taie.analysis.oldpta.core.ci;
 
 import pascal.taie.World;
-import pascal.taie.analysis.callgraph.CallGraph;
-import pascal.taie.analysis.callgraph.CallKind;
-import pascal.taie.analysis.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.oldpta.core.heap.HeapModel;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.ClassHierarchy;

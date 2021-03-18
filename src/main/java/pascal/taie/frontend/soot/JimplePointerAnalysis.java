@@ -13,8 +13,8 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.analysis.callgraph.CallGraph;
-import pascal.taie.analysis.callgraph.JimpleCallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.JimpleCallGraph;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
 import pascal.taie.analysis.oldpta.core.cs.CSMethod;

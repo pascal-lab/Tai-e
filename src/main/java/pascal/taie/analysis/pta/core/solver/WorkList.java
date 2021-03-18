@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.analysis.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.CSMethod;
 import pascal.taie.analysis.pta.core.cs.Pointer;

@@ -11,12 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.analysis.callgraph;
-
-public enum CallKind {
-    INTERFACE,
-    VIRTUAL,
-    SPECIAL,
-    STATIC,
-    OTHER,
-}
+/**
+ * Implementation of class hierarchy analysis (CHA),
+ */
+package pascal.taie.analysis.graph.callgraph.cha;

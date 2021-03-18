@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.oldpta.ir;
 
-import pascal.taie.analysis.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
 import soot.jimple.Stmt;

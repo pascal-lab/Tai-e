@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.oldpta.env.nativemodel;
 
-import pascal.taie.analysis.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;

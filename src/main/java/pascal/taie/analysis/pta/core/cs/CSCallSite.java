@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.pta.core.cs;
 
-import pascal.taie.analysis.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.context.Context;
 import pascal.taie.ir.exp.InvokeExp;
 

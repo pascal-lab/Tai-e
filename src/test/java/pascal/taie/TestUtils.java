@@ -36,7 +36,7 @@ public class TestUtils {
 
     public static void testCHA(String inputClass) {
         test(inputClass, "cha",
-                "pascal.taie.analysis.callgraph.cha.ResultChecker");
+                "pascal.taie.analysis.graph.callgraph.cha.ResultChecker");
     }
 
     public static void testOldPTA(String inputClass) {

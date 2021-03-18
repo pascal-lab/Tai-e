@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.oldpta.env.nativemodel;
 
-import pascal.taie.analysis.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.ir.AbstractCallSite;

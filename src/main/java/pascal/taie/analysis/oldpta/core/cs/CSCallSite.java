@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.oldpta.core.cs;
 
-import pascal.taie.analysis.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.oldpta.core.context.Context;
 import pascal.taie.analysis.oldpta.ir.CallSite;
 

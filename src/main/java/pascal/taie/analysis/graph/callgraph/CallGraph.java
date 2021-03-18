@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.analysis.callgraph;
+package pascal.taie.analysis.graph.callgraph;
 
 import java.util.Collection;
 import java.util.stream.Stream;

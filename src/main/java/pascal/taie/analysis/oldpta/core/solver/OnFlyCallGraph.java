@@ -13,8 +13,8 @@
 
 package pascal.taie.analysis.oldpta.core.solver;
 
-import pascal.taie.analysis.callgraph.CallGraph;
-import pascal.taie.analysis.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.oldpta.core.context.Context;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;

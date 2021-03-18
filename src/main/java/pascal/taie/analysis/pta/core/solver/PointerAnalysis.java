@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.analysis.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.context.Context;
 import pascal.taie.analysis.pta.core.context.ContextSelector;
 import pascal.taie.ir.exp.Var;

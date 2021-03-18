@@ -11,9 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.icfg;
+package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.analysis.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
 
 import java.util.Collection;
 

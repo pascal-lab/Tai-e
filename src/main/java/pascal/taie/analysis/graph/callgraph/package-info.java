@@ -12,6 +12,6 @@
  */
 
 /**
- * Implementation of class hierarchy analysis (CHA),
+ * Provides the classes necessary to represent a call graph.
  */
-package pascal.taie.analysis.callgraph.cha;
+package pascal.taie.analysis.graph.callgraph;

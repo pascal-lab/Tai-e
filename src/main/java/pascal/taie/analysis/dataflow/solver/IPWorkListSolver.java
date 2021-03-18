@@ -14,8 +14,8 @@
 package pascal.taie.analysis.dataflow.solver;
 
 import pascal.taie.analysis.dataflow.analysis.IPDataFlowAnalysis;
-import pascal.taie.icfg.Edge;
-import pascal.taie.icfg.ICFG;
+import pascal.taie.analysis.graph.icfg.Edge;
+import pascal.taie.analysis.graph.icfg.ICFG;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;

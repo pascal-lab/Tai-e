@@ -13,9 +13,9 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.icfg.CallEdge;
-import pascal.taie.icfg.LocalEdge;
-import pascal.taie.icfg.ReturnEdge;
+import pascal.taie.analysis.graph.icfg.CallEdge;
+import pascal.taie.analysis.graph.icfg.LocalEdge;
+import pascal.taie.analysis.graph.icfg.ReturnEdge;
 
 public interface EdgeTransfer<Node, Domain> {
 

@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.analysis.callgraph.cha;
+package pascal.taie.analysis.graph.callgraph.cha;
 
 import org.junit.Test;
 import pascal.taie.TestUtils;

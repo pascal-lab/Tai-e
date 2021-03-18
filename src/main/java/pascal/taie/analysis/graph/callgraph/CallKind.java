@@ -11,8 +11,12 @@
  * commercial use is disallowed.
  */
 
-/**
- * Provides the classes necessary to represent an inter-procedural
- * control-flow graph (ICFG).
- */
-package pascal.taie.icfg;
+package pascal.taie.analysis.graph.callgraph;
+
+public enum CallKind {
+    INTERFACE,
+    VIRTUAL,
+    SPECIAL,
+    STATIC,
+    OTHER,
+}

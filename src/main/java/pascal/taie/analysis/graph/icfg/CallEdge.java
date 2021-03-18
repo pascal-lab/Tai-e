@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.icfg;
+package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.dataflow.analysis.EdgeTransfer;
 

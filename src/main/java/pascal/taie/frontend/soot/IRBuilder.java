@@ -13,7 +13,7 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.analysis.callgraph.JimpleCallUtils;
+import pascal.taie.analysis.graph.callgraph.JimpleCallUtils;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;

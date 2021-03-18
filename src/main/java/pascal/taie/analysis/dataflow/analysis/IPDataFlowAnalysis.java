@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.icfg.Edge;
+import pascal.taie.analysis.graph.icfg.Edge;
 
 /**
  * Inter-procedural data-flow analysis problem.

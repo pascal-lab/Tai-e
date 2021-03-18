@@ -11,11 +11,11 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.analysis.callgraph.cha;
+package pascal.taie.analysis.graph.callgraph.cha;
 
-import pascal.taie.analysis.callgraph.CallGraph;
-import pascal.taie.analysis.callgraph.CallKind;
-import pascal.taie.analysis.callgraph.JimpleCallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.JimpleCallGraph;
 import pascal.taie.util.AnalysisException;
 import soot.FastHierarchy;
 import soot.Scene;
@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import static pascal.taie.analysis.callgraph.JimpleCallUtils.getCallKind;
+import static pascal.taie.analysis.graph.callgraph.JimpleCallUtils.getCallKind;
 import static pascal.taie.util.CollectionUtils.newHybridSet;
 
 public class CHACallGraphBuilder extends SceneTransformer {

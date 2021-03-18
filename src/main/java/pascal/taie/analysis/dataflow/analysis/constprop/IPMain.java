@@ -13,7 +13,7 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import pascal.taie.analysis.callgraph.cha.CHACallGraphBuilder;
+import pascal.taie.analysis.graph.callgraph.cha.CHACallGraphBuilder;
 import soot.Pack;
 import soot.PackManager;
 import soot.Transform;

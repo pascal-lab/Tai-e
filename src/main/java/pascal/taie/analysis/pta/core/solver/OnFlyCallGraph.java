@@ -13,8 +13,8 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.analysis.callgraph.CallGraph;
-import pascal.taie.analysis.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.context.Context;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.stmt.Invoke;

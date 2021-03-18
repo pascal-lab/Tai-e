@@ -11,9 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.analysis.callgraph.cha;
+package pascal.taie.analysis.graph.callgraph.cha;
 
-import pascal.taie.analysis.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.frontend.soot.SootUtils;
 import soot.Body;
 import soot.BodyTransformer;
