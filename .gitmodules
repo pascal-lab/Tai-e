@@ -1,3 +1,4 @@
 [submodule "java-benchmarks"]
 	path = java-benchmarks
-	url = https://silverbullettt@bitbucket.org/pascal-group/java-benchmarks.git
+	url = ../java-benchmarks.git
+	branch = master
