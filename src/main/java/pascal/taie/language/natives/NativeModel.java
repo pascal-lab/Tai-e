@@ -15,7 +15,7 @@ package pascal.taie.language.natives;
 
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.heap.Obj;
 
 public interface NativeModel {
 

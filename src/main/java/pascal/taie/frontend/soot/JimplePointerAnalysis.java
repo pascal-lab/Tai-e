@@ -13,14 +13,14 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.callgraph.CallGraph;
-import pascal.taie.callgraph.JimpleCallGraph;
+import pascal.taie.analysis.callgraph.CallGraph;
+import pascal.taie.analysis.callgraph.JimpleCallGraph;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.oldpta.core.cs.CSCallSite;
-import pascal.taie.oldpta.core.cs.CSMethod;
-import pascal.taie.oldpta.core.solver.PointerAnalysis;
-import pascal.taie.oldpta.ir.CallSite;
-import pascal.taie.oldpta.ir.DefaultCallSite;
+import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
+import pascal.taie.analysis.oldpta.core.cs.CSMethod;
+import pascal.taie.analysis.oldpta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.oldpta.ir.CallSite;
+import pascal.taie.analysis.oldpta.ir.DefaultCallSite;
 import pascal.taie.util.AnalysisException;
 import soot.SootMethod;
 import soot.Unit;
@@ -36,7 +36,7 @@ public class JimplePointerAnalysis {
 
     private PointerAnalysis pta;
 
-    private pascal.taie.oldpta.core.ci.PointerAnalysis cipta;
+    private pascal.taie.analysis.oldpta.core.ci.PointerAnalysis cipta;
 
     private JimpleCallGraph jimpleCallGraph;
 
@@ -50,7 +50,7 @@ public class JimplePointerAnalysis {
     }
 
     public void setCIPointerAnalysis(
-            pascal.taie.oldpta.core.ci.PointerAnalysis cipta) {
+            pascal.taie.analysis.oldpta.core.ci.PointerAnalysis cipta) {
         this.cipta = cipta;
         jimpleCallGraph = null;
     }

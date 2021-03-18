@@ -26,22 +26,22 @@ import java.util.Set;
 public class TestUtils {
     public static void testCP(String inputClass) {
         test(inputClass, "constprop",
-                "pascal.taie.dataflow.analysis.constprop.ResultChecker");
+                "pascal.taie.analysis.dataflow.analysis.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
         test(inputClass, "deadcode",
-                "pascal.taie.dataflow.analysis.deadcode.ResultChecker");
+                "pascal.taie.analysis.dataflow.analysis.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {
         test(inputClass, "cha",
-                "pascal.taie.callgraph.cha.ResultChecker");
+                "pascal.taie.analysis.callgraph.cha.ResultChecker");
     }
 
     public static void testOldPTA(String inputClass) {
         test(inputClass, "pta",
-                "pascal.taie.oldpta.core.ci.ResultChecker");
+                "pascal.taie.analysis.oldpta.core.ci.ResultChecker");
     }
 
     public static void testOldCSPTA(String inputClass, String... opts) {
@@ -52,7 +52,7 @@ public class TestUtils {
         optList.add("--test-mode");
         optList.add("--"); // used by Tai'e to split Soot arguments
         test(inputClass, "cspta",
-                "pascal.taie.oldpta.ResultChecker", optList);
+                "pascal.taie.analysis.oldpta.ResultChecker", optList);
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
@@ -63,7 +63,7 @@ public class TestUtils {
         optList.add("--test-mode");
         optList.add("--"); // used by Tai'e to split Soot arguments
         test(inputClass, "cspta",
-                "pascal.taie.pta.ResultChecker", optList);
+                "pascal.taie.analysis.pta.ResultChecker", optList);
     }
 
     private static void test(String inputClass, String analysis, String checker) {

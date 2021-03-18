@@ -15,7 +15,7 @@ package pascal.taie.ir;
 
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.oldpta.ir.PTAIR;
+import pascal.taie.analysis.oldpta.ir.PTAIR;
 
 public interface IRBuilder {
 

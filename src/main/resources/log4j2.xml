@@ -20,7 +20,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="pascal.taie.pta.core.solver.PointerAnalysisImpl"
+        <Logger name="pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl"
                 level="error" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>

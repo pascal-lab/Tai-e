@@ -40,7 +40,7 @@ import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.PrimitiveType;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.analysis.pta.PTAOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;

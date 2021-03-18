@@ -13,7 +13,7 @@
 
 package pascal.taie.icfg;
 
-import pascal.taie.dataflow.analysis.EdgeTransfer;
+import pascal.taie.analysis.dataflow.analysis.EdgeTransfer;
 
 import java.util.Objects;
 

@@ -21,7 +21,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.oldpta.env.Environment;
+import pascal.taie.analysis.oldpta.env.Environment;
 
 import java.util.Collection;
 

@@ -17,7 +17,7 @@ import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.types.Type;
-import pascal.taie.oldpta.ir.PTAIR;
+import pascal.taie.analysis.oldpta.ir.PTAIR;
 
 import java.util.Collections;
 import java.util.List;

@@ -13,7 +13,7 @@
 
 package pascal.taie.icfg;
 
-import pascal.taie.callgraph.CallGraph;
+import pascal.taie.analysis.callgraph.CallGraph;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;
