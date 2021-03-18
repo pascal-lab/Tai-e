@@ -17,7 +17,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 import pascal.taie.analysis.pta.core.cs.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
-import pascal.taie.analysis.pta.set.PointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 
 import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
 import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;

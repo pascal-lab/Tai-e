@@ -10,8 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta;
+package pascal.taie.analysis.pta.tmp;
 
+import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysisBuilder;
 import pascal.taie.frontend.soot.SootWorldBuilder;

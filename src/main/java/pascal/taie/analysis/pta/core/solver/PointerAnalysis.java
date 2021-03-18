@@ -27,7 +27,7 @@ import pascal.taie.analysis.pta.core.cs.InstanceField;
 import pascal.taie.analysis.pta.core.cs.StaticField;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.set.PointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 
 import java.util.stream.Stream;
 

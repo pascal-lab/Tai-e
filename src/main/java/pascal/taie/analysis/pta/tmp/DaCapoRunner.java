@@ -10,8 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta;
+package pascal.taie.analysis.pta.tmp;
 
+import pascal.taie.analysis.pta.Main;
 import soot.G;
 
 import java.io.File;

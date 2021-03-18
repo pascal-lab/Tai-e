@@ -26,8 +26,8 @@ import pascal.taie.analysis.pta.plugin.Preprocessor;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
-import pascal.taie.analysis.pta.set.HybridPointsToSet;
-import pascal.taie.analysis.pta.set.PointsToSetFactory;
+import pascal.taie.analysis.pta.pts.HybridPointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {

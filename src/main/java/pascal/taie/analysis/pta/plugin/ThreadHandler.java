@@ -24,8 +24,8 @@ import pascal.taie.analysis.pta.core.cs.CSMethod;
 import pascal.taie.analysis.pta.core.cs.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
-import pascal.taie.analysis.pta.set.PointsToSet;
-import pascal.taie.analysis.pta.set.PointsToSetFactory;
+import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 
 import java.util.Set;
 

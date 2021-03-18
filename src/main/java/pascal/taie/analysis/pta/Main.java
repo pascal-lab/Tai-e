@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta;
 
+import pascal.taie.analysis.pta.tmp.PointerAnalysisTransformer;
 import pascal.taie.frontend.soot.SootWorldBuilder;
 import soot.PackManager;
 import soot.Transform;

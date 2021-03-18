@@ -16,7 +16,7 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.CSMethod;
 import pascal.taie.analysis.pta.core.cs.Pointer;
-import pascal.taie.analysis.pta.set.PointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 
 import java.util.LinkedList;
 import java.util.Queue;

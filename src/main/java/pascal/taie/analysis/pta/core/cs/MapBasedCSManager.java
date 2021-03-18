@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.analysis.pta.set.PointsToSetFactory;
+import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.util.CollectionUtils;
 
 import java.util.Map;

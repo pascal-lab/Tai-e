@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta.set;
+package pascal.taie.analysis.pta.pts;
 
 import static pascal.taie.util.CollectionUtils.newHybridSet;
 

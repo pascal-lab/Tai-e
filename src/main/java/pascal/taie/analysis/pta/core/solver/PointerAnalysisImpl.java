@@ -70,8 +70,8 @@ import pascal.taie.analysis.pta.core.cs.Pointer;
 import pascal.taie.analysis.pta.core.cs.StaticField;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.set.PointsToSet;
-import pascal.taie.analysis.pta.set.PointsToSetFactory;
+import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;

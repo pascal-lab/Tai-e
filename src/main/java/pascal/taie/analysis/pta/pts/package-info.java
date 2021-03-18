@@ -14,4 +14,4 @@
  * Implementation of various sets (and maybe maps in the future)
  * used in pointer analysis.
  */
-package pascal.taie.analysis.pta.set;
+package pascal.taie.analysis.pta.pts;
