@@ -25,6 +25,7 @@ import pascal.taie.java.classes.JMethod;
 import pascal.taie.java.classes.MethodRef;
 import pascal.taie.java.types.Type;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static pascal.taie.java.types.PrimitiveType.BOOLEAN;
@@ -42,10 +43,11 @@ public class HierarchyTest {
     public static void initTypeManager() {
         TestUtils.buildWorld(new String[]{
                 "-cp",
-                "java-benchmarks/jre1.6.0_24/rt.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jce.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jsse.jar;" +
-                        "analyzed/java",
+                String.join(File.pathSeparator,
+                        "java-benchmarks/jre1.6.0_24/rt.jar",
+                        "java-benchmarks/jre1.6.0_24/jce.jar",
+                        "java-benchmarks/jre1.6.0_24/jsse.jar",
+                        "analyzed/java"),
                 "Hierarchy"
         });
         hierarchy = World.getClassHierarchy();

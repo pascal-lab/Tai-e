@@ -25,6 +25,7 @@ import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 
+import java.io.File;
 import java.util.Comparator;
 
 public class SootFrontendTest {
@@ -33,10 +34,11 @@ public class SootFrontendTest {
     public void testWorldBuilder() {
         String[] args = new String[] {
                 "-cp",
-                "java-benchmarks/jre1.6.0_24/rt.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jce.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jsse.jar;" +
-                        "analyzed/cspta",
+                String.join(File.pathSeparator,
+                        "java-benchmarks/jre1.6.0_24/rt.jar",
+                        "java-benchmarks/jre1.6.0_24/jce.jar",
+                        "java-benchmarks/jre1.6.0_24/jsse.jar",
+                        "analyzed/cspta"),
                 "Assign"
         };
         TestUtils.buildWorld(args);

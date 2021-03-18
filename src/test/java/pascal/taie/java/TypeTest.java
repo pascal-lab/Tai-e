@@ -19,6 +19,8 @@ import org.junit.Test;
 import pascal.taie.frontend.soot.TestUtils;
 import pascal.taie.java.types.Type;
 
+import java.io.File;
+
 import static pascal.taie.java.types.NullType.NULL;
 import static pascal.taie.java.types.PrimitiveType.INT;
 import static pascal.taie.java.types.PrimitiveType.LONG;
@@ -31,10 +33,11 @@ public class TypeTest {
     public static void initTypeManager() {
         TestUtils.buildWorld(new String[]{
                 "-cp",
-                "java-benchmarks/jre1.6.0_24/rt.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jce.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jsse.jar;" +
-                        "analyzed/java",
+                String.join(File.pathSeparator,
+                        "java-benchmarks/jre1.6.0_24/rt.jar",
+                        "java-benchmarks/jre1.6.0_24/jce.jar",
+                        "java-benchmarks/jre1.6.0_24/jsse.jar",
+                        "analyzed/java"),
                 "Types"
         });
         typeManager = World.getTypeManager();
