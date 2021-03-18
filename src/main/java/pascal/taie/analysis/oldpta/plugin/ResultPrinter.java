@@ -88,8 +88,7 @@ public enum ResultPrinter implements Plugin {
                 }
             }
             out.println("---------- Reachable methods: ----------");
-            pta.getCallGraph().getReachableMethods()
-                    .stream()
+            pta.getCallGraph().reachableMethods()
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(out::println);
             out.println("---------- Call graph edges: ----------");
@@ -156,14 +155,13 @@ public enum ResultPrinter implements Plugin {
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
         int reachableInsens = (int) pta.getCallGraph()
-                .getReachableMethods()
-                .stream()
+                .reachableMethods()
                 .map(CSMethod::getMethod)
                 .distinct()
                 .count();
-        int reachableSens = pta.getCallGraph()
-                .getReachableMethods()
-                .size();
+        int reachableSens = (int) pta.getCallGraph()
+                .reachableMethods()
+                .count();
         int callEdgeInsens = (int) pta.getCallGraph()
                 .allEdges()
                 .map(e -> new Pair<>(e.getCallSite().getCallSite(),

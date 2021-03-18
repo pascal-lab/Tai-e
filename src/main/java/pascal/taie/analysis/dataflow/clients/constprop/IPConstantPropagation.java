@@ -175,8 +175,7 @@ public class IPConstantPropagation extends SceneTransformer
         setICFG(icfg);
         IPSolver<FlowMap, SootMethod, Unit> solver = new IPWorkListSolver<>(this, icfg);
         solver.solve();
-        callGraph.getReachableMethods()
-                .stream()
+        callGraph.reachableMethods()
                 .map(SootMethod::getActiveBody)
                 .forEach(b -> cp.outputResult(b, solver.getAfterFlow()));
     }

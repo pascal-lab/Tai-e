@@ -111,8 +111,8 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Collection<Method> getReachableMethods() {
-        return reachableMethods;
+    public Stream<Method> reachableMethods() {
+        return reachableMethods.stream();
     }
 
     @Override

@@ -136,7 +136,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     }
 
     private void build(CallGraph<Unit, SootMethod> callGraph) {
-        for (SootMethod method : callGraph.getReachableMethods()) {
+        callGraph.reachableMethods().forEach(method -> {
             DirectedGraph<Unit> cfg = getCFGOf(method);
             // TODO - handle special cases
             for (Unit unit : cfg) {
@@ -166,7 +166,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
                     }
                 }
             }
-        }
+        });
     }
 
     private DirectedGraph<Unit> getCFGOf(SootMethod method) {

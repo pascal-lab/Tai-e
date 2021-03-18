@@ -56,7 +56,7 @@ public interface CallGraph<CallSite, Method>
     /**
      * Returns all reachable methods in this call graph.
      */
-    Collection<Method> getReachableMethods();
+    Stream<Method> reachableMethods();
 
     /**
      * Returns if this call graph contains the given method.

@@ -54,8 +54,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
         if (isOutput) {
             System.out.println("---------- Reachable methods: ----------");
-            pta.getCallGraph().getReachableMethods()
-                    .stream()
+            pta.getCallGraph().reachableMethods()
                     .sorted(Comparator.comparing(JMethod::toString))
                     .forEach(System.out::println);
             System.out.println("---------- Call graph edges: ----------");

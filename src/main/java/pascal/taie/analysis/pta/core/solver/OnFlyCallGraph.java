@@ -120,8 +120,8 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Collection<CSMethod> getReachableMethods() {
-        return reachableMethods;
+    public Stream<CSMethod> reachableMethods() {
+        return reachableMethods.stream();
     }
 
     @Override
