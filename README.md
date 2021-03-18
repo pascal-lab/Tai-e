@@ -1,23 +1,7 @@
-# Tai-e: A Practical Program Analysis Framework for Java
+# Tai-e: An Easy-to-Learn/Use Static Analysis Framework for Java
 
 ### Goal
-Build an efficient, feature-rich, extensible, configurable and maintainable program analysis framework for Java.
-
-### Features
-* [x] Core pointer analysis
-* [x] Context sensitivity
-* [x] Heap sensitivity
-* [x] Heap abstraction
-* [x] Native code
-* [ ] Dynamic class loading
-* [ ] Reflection analysis
-* [ ] Exception analysis
-* [ ] invokedynamic
-* [ ] Lambda expressions
-* [ ] High performance
-* [ ] Parallelism
-* [ ] Pre-analysis (Mahjong, Scaler, Zipper, etc.)
-* ...
+Build an easy-to-learn, easy-to-use, efficient and extensible static analysis framework for Java.
 
 ### Contributors
 * [Tian Tan](https://silverbullettt.bitbucket.io/)
