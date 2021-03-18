@@ -13,15 +13,15 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.FieldRef;
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JClassLoader;
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
-import pascal.taie.java.types.PrimitiveType;
-import pascal.taie.java.types.Type;
+import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassLoader;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.PrimitiveType;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 import soot.ArrayType;
 import soot.BooleanType;
 import soot.ByteType;
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static pascal.taie.java.types.VoidType.VOID;
+import static pascal.taie.language.types.VoidType.VOID;
 import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.CollectionUtils.newMap;
 

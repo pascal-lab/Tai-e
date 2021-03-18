@@ -15,11 +15,11 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.callgraph.JimpleCallUtils;
 import pascal.taie.ir.IR;
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.types.Type;
-import pascal.taie.java.types.VoidType;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.VoidType;
 import pascal.taie.oldpta.env.Environment;
 import pascal.taie.oldpta.ir.Allocation;
 import pascal.taie.oldpta.ir.ArrayLoad;
@@ -87,7 +87,7 @@ import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 /**
  * Jimple-based pointer analysis IR builder.
  */
-class IRBuilder implements pascal.taie.java.IRBuilder {
+class IRBuilder implements pascal.taie.ir.IRBuilder {
 
     private final ConcurrentMap<JMethod, Map<Local, Variable>> vars
             = newConcurrentMap();

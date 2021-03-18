@@ -14,7 +14,7 @@
 package pascal.taie.oldpta.core.solver;
 
 import pascal.taie.callgraph.CallGraph;
-import pascal.taie.java.ClassHierarchy;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.oldpta.core.context.Context;
 import pascal.taie.oldpta.core.context.ContextSelector;
 import pascal.taie.oldpta.core.cs.ArrayIndex;

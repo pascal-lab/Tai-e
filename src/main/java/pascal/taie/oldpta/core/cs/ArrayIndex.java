@@ -13,8 +13,8 @@
 
 package pascal.taie.oldpta.core.cs;
 
-import pascal.taie.java.types.ArrayType;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.ArrayType;
+import pascal.taie.language.types.Type;
 
 public class ArrayIndex extends AbstractPointer {
 

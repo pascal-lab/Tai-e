@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.ir.ProgramPoint;
+import pascal.taie.ir.proginfo.ProgramPoint;
 
 /**
  * Representation of new expressions.

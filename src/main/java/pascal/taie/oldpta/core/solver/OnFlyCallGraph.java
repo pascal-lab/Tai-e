@@ -15,7 +15,7 @@ package pascal.taie.oldpta.core.solver;
 
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.Edge;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.core.context.Context;
 import pascal.taie.oldpta.core.cs.CSCallSite;
 import pascal.taie.oldpta.core.cs.CSManager;

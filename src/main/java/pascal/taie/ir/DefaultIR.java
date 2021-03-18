@@ -14,8 +14,9 @@
 package pascal.taie.ir;
 
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 

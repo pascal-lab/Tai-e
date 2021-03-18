@@ -13,17 +13,17 @@
 
 package pascal.taie.oldpta.env;
 
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.World;
-import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.World;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.oldpta.env.nativemodel.NativeModel;
-import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Obj;
+import pascal.taie.oldpta.ir.PTAIR;
+import pascal.taie.pta.PTAOptions;
 
-import static pascal.taie.java.classes.StringReps.STRING;
-import static pascal.taie.java.classes.StringReps.THREAD;
-import static pascal.taie.java.classes.StringReps.THREAD_GROUP;
+import static pascal.taie.language.classes.StringReps.STRING;
+import static pascal.taie.language.classes.StringReps.THREAD;
+import static pascal.taie.language.classes.StringReps.THREAD_GROUP;
 
 /**
  * This class should be seen as part of ProgramManager

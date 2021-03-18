@@ -14,8 +14,8 @@
 package pascal.taie.oldpta.ir;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.JMethod;
 
 public interface CallSite {
 

@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.classes.MethodRef;
+import pascal.taie.ir.proginfo.MethodRef;
 
 import java.util.List;
 

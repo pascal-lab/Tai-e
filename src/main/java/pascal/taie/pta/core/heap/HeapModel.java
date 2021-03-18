@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.ir.exp.NewExp;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
 
 /**
  * Model for heap objects.

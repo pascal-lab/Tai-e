@@ -13,7 +13,7 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.classes.Modifier;
+import pascal.taie.language.classes.Modifier;
 
 import java.util.EnumSet;
 import java.util.Map;

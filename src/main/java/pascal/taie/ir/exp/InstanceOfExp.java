@@ -13,9 +13,9 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.PrimitiveType;
-import pascal.taie.java.types.ReferenceType;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.PrimitiveType;
+import pascal.taie.language.types.ReferenceType;
+import pascal.taie.language.types.Type;
 
 /**
  * Representation of instanceof expression, e.g., o instanceof T.

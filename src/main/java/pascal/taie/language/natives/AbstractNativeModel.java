@@ -13,10 +13,10 @@
 
 package pascal.taie.language.natives;
 
-import pascal.taie.language.ClassHierarchy;
-import pascal.taie.language.TypeManager;
-import pascal.taie.language.World;
+import pascal.taie.World;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.pta.core.heap.EnvObj;
 import pascal.taie.pta.core.heap.Obj;
 

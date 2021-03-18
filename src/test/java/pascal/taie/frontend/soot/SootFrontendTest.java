@@ -15,7 +15,7 @@ package pascal.taie.frontend.soot;
 
 import org.junit.Assert;
 import org.junit.Test;
-import pascal.taie.language.World;
+import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;

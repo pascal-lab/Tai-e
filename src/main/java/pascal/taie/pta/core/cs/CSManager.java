@@ -15,8 +15,8 @@ package pascal.taie.pta.core.cs;
 
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.heap.Obj;
 

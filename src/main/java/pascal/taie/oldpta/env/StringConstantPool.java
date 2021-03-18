@@ -13,9 +13,9 @@
 
 package pascal.taie.oldpta.env;
 
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.StringReps;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 
 import java.util.concurrent.ConcurrentMap;
 

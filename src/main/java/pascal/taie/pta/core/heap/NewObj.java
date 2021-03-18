@@ -14,8 +14,8 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.ir.exp.NewExp;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 
 import java.util.Optional;
 

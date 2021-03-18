@@ -11,10 +11,10 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.ir;
+package pascal.taie.ir.proginfo;
 
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.HashUtils;
 
 /**

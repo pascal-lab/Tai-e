@@ -13,9 +13,9 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.World;
 import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.ir.PTAIR;
 

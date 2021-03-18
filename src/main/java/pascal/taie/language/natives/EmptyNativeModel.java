@@ -14,9 +14,9 @@
 package pascal.taie.language.natives;
 
 import pascal.taie.ir.IR;
-import pascal.taie.language.ClassHierarchy;
-import pascal.taie.language.TypeManager;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.TypeManager;
 
 /**
  * Builds empty IR for every native method.

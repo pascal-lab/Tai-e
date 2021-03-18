@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.PrimitiveType;
+import pascal.taie.language.types.PrimitiveType;
 
 public class DoubleLiteral implements FloatingPointLiteral {
 

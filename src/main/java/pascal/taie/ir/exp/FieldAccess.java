@@ -13,8 +13,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.classes.FieldRef;
-import pascal.taie.java.types.Type;
+import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.language.types.Type;
 
 /**
  * Representation of field access expressions.

@@ -15,7 +15,6 @@ package pascal.taie.pta;
 
 import org.junit.Assert;
 import org.junit.Test;
-import pascal.taie.pta.PTAOptions;
 
 import java.io.File;
 

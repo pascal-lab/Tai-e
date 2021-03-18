@@ -13,8 +13,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.PrimitiveType;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.PrimitiveType;
+import pascal.taie.language.types.Type;
 
 /**
  * Representation of comparison expression, e.g., cmp.

@@ -13,9 +13,9 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JClassLoader;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassLoader;
 import soot.Scene;
 import soot.SootClass;
 

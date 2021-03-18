@@ -13,15 +13,15 @@
 
 package pascal.taie.oldpta.core.ci;
 
+import pascal.taie.World;
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.CallKind;
 import pascal.taie.callgraph.Edge;
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.World;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
-import pascal.taie.java.types.ReferenceType;
-import pascal.taie.java.types.Type;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.ReferenceType;
+import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.core.heap.HeapModel;
 import pascal.taie.oldpta.ir.Allocation;
 import pascal.taie.oldpta.ir.Assign;

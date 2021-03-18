@@ -14,14 +14,14 @@
 package pascal.taie.pta.plugin;
 
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.classes.JField;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JField;
 import pascal.taie.pta.core.cs.CSVar;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.set.PointsToSet;
 
-import static pascal.taie.java.classes.StringReps.REFERENCE_INIT;
-import static pascal.taie.java.classes.StringReps.REFERENCE_PENDING;
+import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
+import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;
 
 /**
  * Model GC behavior that it assigns every reference to Reference.pending.

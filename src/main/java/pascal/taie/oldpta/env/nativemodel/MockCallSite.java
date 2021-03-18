@@ -14,8 +14,8 @@
 package pascal.taie.oldpta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.ir.AbstractCallSite;
 import pascal.taie.oldpta.ir.Variable;
 

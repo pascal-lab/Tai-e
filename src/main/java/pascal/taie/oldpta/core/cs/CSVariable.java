@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.core.cs;
 
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.core.context.Context;
 import pascal.taie.oldpta.ir.Variable;
 

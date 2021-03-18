@@ -13,8 +13,8 @@
 
 package pascal.taie.oldpta.env.nativemodel;
 
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.TypeManager;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Statement;
 

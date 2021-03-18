@@ -13,10 +13,10 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.World;
-import pascal.taie.java.types.ClassType;
+import pascal.taie.World;
+import pascal.taie.language.types.ClassType;
 
-import static pascal.taie.java.classes.StringReps.STRING;
+import static pascal.taie.language.classes.StringReps.STRING;
 
 public class StringLiteral implements ReferenceLiteral<String> {
 

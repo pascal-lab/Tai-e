@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.ir;
 
-import pascal.taie.java.classes.FieldRef;
+import pascal.taie.ir.proginfo.FieldRef;
 
 /**
  * Represents a static store: T.f = from.

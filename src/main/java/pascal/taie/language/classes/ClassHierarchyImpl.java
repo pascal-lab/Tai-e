@@ -15,7 +15,6 @@ package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.ClassHierarchy;
 import pascal.taie.language.types.ArrayType;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;

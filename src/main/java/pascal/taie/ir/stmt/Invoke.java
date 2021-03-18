@@ -13,13 +13,13 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.proginfo.ProgramPoint;
+import pascal.taie.language.classes.JMethod;
 
 import javax.annotation.Nullable;
 

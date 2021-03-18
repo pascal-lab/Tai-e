@@ -13,9 +13,9 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.ir.ProgramPoint;
-import pascal.taie.java.classes.MethodRef;
-import pascal.taie.java.types.Type;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.proginfo.ProgramPoint;
+import pascal.taie.language.types.Type;
 
 import java.util.Collections;
 import java.util.List;

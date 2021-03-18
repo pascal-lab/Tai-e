@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.classes.FieldRef;
+import pascal.taie.ir.proginfo.FieldRef;
 
 /**
  * Representation of instance field access expression, e.g., o.f.

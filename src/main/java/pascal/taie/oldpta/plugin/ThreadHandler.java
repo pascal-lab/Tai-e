@@ -13,19 +13,19 @@
 
 package pascal.taie.oldpta.plugin;
 
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.core.context.Context;
 import pascal.taie.oldpta.core.cs.CSMethod;
 import pascal.taie.oldpta.core.cs.CSVariable;
 import pascal.taie.oldpta.core.solver.PointerAnalysis;
 import pascal.taie.oldpta.env.Environment;
-import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Obj;
+import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Variable;
 import pascal.taie.oldpta.set.PointsToSet;
 import pascal.taie.oldpta.set.PointsToSetFactory;
+import pascal.taie.pta.PTAOptions;
 
 import java.util.Set;
 

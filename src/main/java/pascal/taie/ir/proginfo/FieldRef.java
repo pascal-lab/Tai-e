@@ -11,10 +11,13 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java.classes;
+package pascal.taie.ir.proginfo;
 
-import pascal.taie.java.World;
-import pascal.taie.java.types.Type;
+import pascal.taie.World;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 

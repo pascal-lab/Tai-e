@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.ir;
 
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
 
 /**
  * All implementations of Obj should inherit this class.

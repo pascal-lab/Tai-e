@@ -13,7 +13,6 @@
 
 package pascal.taie.oldpta.plugin;
 
-import pascal.taie.pta.PTAOptions;
 import pascal.taie.oldpta.ResultChecker;
 import pascal.taie.oldpta.core.cs.ArrayIndex;
 import pascal.taie.oldpta.core.cs.CSMethod;
@@ -22,6 +21,7 @@ import pascal.taie.oldpta.core.cs.InstanceField;
 import pascal.taie.oldpta.core.cs.Pointer;
 import pascal.taie.oldpta.core.cs.StaticField;
 import pascal.taie.oldpta.core.solver.PointerAnalysis;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.Pair;
 
 import java.io.File;

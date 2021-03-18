@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.ClassType;
+import pascal.taie.language.types.ClassType;
 
 /**
  * Representation of new instance expression, e.g., new T.

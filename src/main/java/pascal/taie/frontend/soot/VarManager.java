@@ -18,8 +18,8 @@ import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 import soot.Local;
 import soot.Value;
 

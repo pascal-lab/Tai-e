@@ -11,7 +11,10 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java.classes;
+package pascal.taie.ir.proginfo;
+
+import pascal.taie.language.classes.ClassMember;
+import pascal.taie.language.classes.JClass;
 
 public abstract class MemberRef {
 

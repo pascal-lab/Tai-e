@@ -11,11 +11,11 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.ir;
+package pascal.taie.ir.proginfo;
 
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.java.types.ClassType;
+import pascal.taie.language.types.ClassType;
 
 /**
  * Representation of exception entries. Each entry consists of four items:

@@ -11,9 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.language;
+package pascal.taie.ir;
 
-import pascal.taie.ir.IR;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.ir.PTAIR;
 

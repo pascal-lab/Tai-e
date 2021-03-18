@@ -13,10 +13,10 @@
 
 package pascal.taie.oldpta.core.ci;
 
+import pascal.taie.World;
 import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.frontend.soot.SootWorldBuilder;
-import pascal.taie.java.World;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.util.Strings;
 import soot.Scene;

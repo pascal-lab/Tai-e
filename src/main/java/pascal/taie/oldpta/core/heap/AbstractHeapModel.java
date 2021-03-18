@@ -13,12 +13,12 @@
 
 package pascal.taie.oldpta.core.heap;
 
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.classes.StringReps;
-import pascal.taie.java.types.Type;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.oldpta.ir.Allocation;
 import pascal.taie.oldpta.ir.Obj;
+import pascal.taie.pta.PTAOptions;
 
 import java.util.concurrent.ConcurrentMap;
 

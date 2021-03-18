@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.ir.exp.NewExp;
-import pascal.taie.java.TypeManager;
+import pascal.taie.language.types.TypeManager;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {
 

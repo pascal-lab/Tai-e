@@ -11,12 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.language;
+package pascal.taie.language.types;
 
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.types.ArrayType;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.Type;
 
 /**
  * This class provides APIs for retrieving types in the analyzed program.

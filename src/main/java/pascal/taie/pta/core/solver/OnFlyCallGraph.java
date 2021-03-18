@@ -18,7 +18,7 @@ import pascal.taie.callgraph.Edge;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSCallSite;
 import pascal.taie.pta.core.cs.CSManager;

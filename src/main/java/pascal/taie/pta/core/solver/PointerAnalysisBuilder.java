@@ -13,7 +13,8 @@
 
 package pascal.taie.pta.core.solver;
 
-import pascal.taie.java.World;
+import pascal.taie.World;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.core.context.ContextInsensitiveSelector;
 import pascal.taie.pta.core.context.KCallSelector;
 import pascal.taie.pta.core.context.KObjSelector;
@@ -28,7 +29,6 @@ import pascal.taie.pta.plugin.ResultPrinter;
 import pascal.taie.pta.plugin.ThreadHandler;
 import pascal.taie.pta.set.HybridPointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
-import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {

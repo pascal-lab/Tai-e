@@ -14,7 +14,6 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.ir.DefaultIR;
-import pascal.taie.ir.ExceptionEntry;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -49,6 +48,8 @@ import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
@@ -72,11 +73,10 @@ import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
-import pascal.taie.java.types.ArrayType;
-import pascal.taie.java.types.ClassType;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.ArrayType;
+import pascal.taie.language.types.ClassType;
+import pascal.taie.language.types.Type;
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
@@ -161,7 +161,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.java.types.VoidType.VOID;
+import static pascal.taie.language.types.VoidType.VOID;
 import static pascal.taie.util.CollectionUtils.freeze;
 import static pascal.taie.util.CollectionUtils.newHybridMap;
 
@@ -493,7 +493,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * Convert Jimple FieldRef to FieldAccess.
      */
     private FieldAccess getFieldAccess(FieldRef fieldRef) {
-        pascal.taie.java.classes.FieldRef jfieldRef =
+        pascal.taie.ir.proginfo.FieldRef jfieldRef =
                 converter.convertFieldRef(fieldRef.getFieldRef());
         if (fieldRef instanceof InstanceFieldRef) {
             return new InstanceFieldAccess(jfieldRef,

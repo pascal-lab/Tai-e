@@ -15,8 +15,8 @@ package pascal.taie.pta.core.solver;
 
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.classes.JField;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JField;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.context.ContextSelector;
 import pascal.taie.pta.core.cs.ArrayIndex;

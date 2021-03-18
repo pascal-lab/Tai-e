@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
 
 /**
  * Representation of expressions appear in Tai-e IR.

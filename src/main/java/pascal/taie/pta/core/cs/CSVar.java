@@ -14,7 +14,7 @@
 package pascal.taie.pta.core.cs;
 
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
 import pascal.taie.pta.core.context.Context;
 
 public class CSVar extends AbstractPointer implements CSElement {

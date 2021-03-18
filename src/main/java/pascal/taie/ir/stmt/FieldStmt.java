@@ -16,7 +16,7 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
-import pascal.taie.java.classes.FieldRef;
+import pascal.taie.ir.proginfo.FieldRef;
 
 /**
  * Load/Store field statements.

@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.ir;
 
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.ArrayList;
 import java.util.Collection;

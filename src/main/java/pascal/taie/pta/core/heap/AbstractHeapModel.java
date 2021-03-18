@@ -14,16 +14,16 @@
 package pascal.taie.pta.core.heap;
 
 import pascal.taie.ir.exp.NewExp;
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.pta.PTAOptions;
 
 import java.util.Map;
 
-import static pascal.taie.java.classes.StringReps.STRING;
-import static pascal.taie.java.classes.StringReps.STRING_BUFFER;
-import static pascal.taie.java.classes.StringReps.STRING_BUILDER;
-import static pascal.taie.java.classes.StringReps.THROWABLE;
+import static pascal.taie.language.classes.StringReps.STRING;
+import static pascal.taie.language.classes.StringReps.STRING_BUFFER;
+import static pascal.taie.language.classes.StringReps.STRING_BUILDER;
+import static pascal.taie.language.classes.StringReps.THROWABLE;
 import static pascal.taie.util.CollectionUtils.newHybridMap;
 import static pascal.taie.util.CollectionUtils.newMap;
 

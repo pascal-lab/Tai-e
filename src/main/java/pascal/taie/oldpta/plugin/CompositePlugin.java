@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.plugin;
 
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.core.cs.CSMethod;
 import pascal.taie.oldpta.core.cs.CSVariable;
 import pascal.taie.oldpta.core.solver.PointerAnalysis;

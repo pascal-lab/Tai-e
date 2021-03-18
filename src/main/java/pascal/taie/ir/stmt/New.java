@@ -13,10 +13,10 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.ProgramPoint;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.ir.proginfo.ProgramPoint;
+import pascal.taie.language.classes.JMethod;
 
 /**
  * Representation of following kinds of new statements:

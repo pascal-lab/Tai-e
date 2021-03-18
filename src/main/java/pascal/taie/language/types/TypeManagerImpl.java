@@ -13,8 +13,7 @@
 
 package pascal.taie.language.types;
 
-import pascal.taie.language.ClassHierarchy;
-import pascal.taie.language.TypeManager;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.util.ArrayMap;

@@ -15,7 +15,7 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.callgraph.CallGraph;
 import pascal.taie.callgraph.JimpleCallGraph;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.core.cs.CSCallSite;
 import pascal.taie.oldpta.core.cs.CSMethod;
 import pascal.taie.oldpta.core.solver.PointerAnalysis;

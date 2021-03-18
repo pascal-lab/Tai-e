@@ -11,13 +11,9 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.language;
+package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.FieldRef;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.classes.JField;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.types.Type;
 

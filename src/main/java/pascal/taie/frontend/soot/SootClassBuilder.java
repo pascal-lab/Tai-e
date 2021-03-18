@@ -13,18 +13,18 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JClassBuilder;
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.Modifier;
-import pascal.taie.java.types.ClassType;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.types.ClassType;
 import soot.SootClass;
 
 import java.util.Collection;
 import java.util.Set;
 
-import static pascal.taie.java.classes.StringReps.OBJECT;
+import static pascal.taie.language.classes.StringReps.OBJECT;
 
 class SootClassBuilder implements JClassBuilder {
 

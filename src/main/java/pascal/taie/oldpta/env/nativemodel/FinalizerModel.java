@@ -14,14 +14,14 @@
 package pascal.taie.oldpta.env.nativemodel;
 
 import pascal.taie.callgraph.CallKind;
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.MethodRef;
-import pascal.taie.java.types.Type;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.ir.Allocation;
 import pascal.taie.oldpta.ir.Call;
-import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Obj;
+import pascal.taie.oldpta.ir.PTAIR;
 import pascal.taie.oldpta.ir.Statement;
 import pascal.taie.oldpta.ir.Variable;
 

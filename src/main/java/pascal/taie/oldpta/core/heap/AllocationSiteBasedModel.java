@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.core.heap;
 
-import pascal.taie.java.TypeManager;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.oldpta.ir.Allocation;
 import pascal.taie.oldpta.ir.Obj;
 

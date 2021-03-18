@@ -13,8 +13,8 @@
 
 package pascal.taie.oldpta.core.cs;
 
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.core.context.Context;
 import pascal.taie.oldpta.ir.CallSite;
 import pascal.taie.oldpta.ir.Obj;

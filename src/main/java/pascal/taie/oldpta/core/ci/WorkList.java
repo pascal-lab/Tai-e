@@ -14,7 +14,7 @@
 package pascal.taie.oldpta.core.ci;
 
 import pascal.taie.callgraph.Edge;
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.oldpta.ir.CallSite;
 import pascal.taie.util.CollectionUtils;
 

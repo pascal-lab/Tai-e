@@ -14,8 +14,8 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.Test;
+import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
-import pascal.taie.language.World;
 import pascal.taie.language.classes.JClass;
 
 import java.util.Collections;

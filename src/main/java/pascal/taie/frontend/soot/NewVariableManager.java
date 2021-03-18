@@ -13,8 +13,8 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.ir.DefaultVariable;
 import pascal.taie.oldpta.ir.Variable;
 

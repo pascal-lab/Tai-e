@@ -13,8 +13,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.ArrayType;
-import pascal.taie.java.types.PrimitiveType;
+import pascal.taie.language.types.ArrayType;
+import pascal.taie.language.types.PrimitiveType;
 
 /**
  * Representation of array length expression, e.g., arr.length.

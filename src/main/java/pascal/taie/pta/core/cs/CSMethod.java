@@ -13,7 +13,7 @@
 
 package pascal.taie.pta.core.cs;
 
-import pascal.taie.java.classes.JMethod;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.pta.core.context.Context;
 
 import java.util.Set;

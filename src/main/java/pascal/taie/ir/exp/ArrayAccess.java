@@ -13,8 +13,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.ArrayType;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.ArrayType;
+import pascal.taie.language.types.Type;
 
 /**
  * Representation of array access expression, e.g., a[i].

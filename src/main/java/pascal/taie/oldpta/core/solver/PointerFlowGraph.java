@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.core.solver;
 
-import pascal.taie.java.types.Type;
+import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.core.cs.Pointer;
 
 import java.util.Set;

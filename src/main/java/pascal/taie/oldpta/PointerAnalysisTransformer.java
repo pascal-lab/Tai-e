@@ -15,9 +15,9 @@ package pascal.taie.oldpta;
 
 import pascal.taie.frontend.soot.JimplePointerAnalysis;
 import pascal.taie.frontend.soot.SootWorldBuilder;
-import pascal.taie.pta.PTAOptions;
 import pascal.taie.oldpta.core.solver.PointerAnalysis;
 import pascal.taie.oldpta.core.solver.PointerAnalysisBuilder;
+import pascal.taie.pta.PTAOptions;
 import soot.Scene;
 import soot.SceneTransformer;
 

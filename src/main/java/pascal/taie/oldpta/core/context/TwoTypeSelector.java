@@ -13,8 +13,8 @@
 
 package pascal.taie.oldpta.core.context;
 
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.Type;
 import pascal.taie.oldpta.core.cs.CSCallSite;
 import pascal.taie.oldpta.core.cs.CSMethod;
 import pascal.taie.oldpta.core.cs.CSObj;

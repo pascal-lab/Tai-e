@@ -13,7 +13,7 @@
 
 package pascal.taie.oldpta.core.ci;
 
-import pascal.taie.java.classes.JField;
+import pascal.taie.language.classes.JField;
 import pascal.taie.oldpta.ir.Obj;
 import pascal.taie.oldpta.ir.Variable;
 

@@ -13,8 +13,8 @@
 
 package pascal.taie.oldpta.core.cs;
 
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.types.Type;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.types.Type;
 
 public class StaticField extends AbstractPointer {
 

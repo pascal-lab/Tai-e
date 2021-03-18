@@ -11,7 +11,7 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.language;
+package pascal.taie;
 
 public class Options {
 }

@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.classes.FieldRef;
+import pascal.taie.ir.proginfo.FieldRef;
 
 /**
  * Representation of static field access expression, e.g., T.f.

@@ -32,14 +32,14 @@ import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
-import pascal.taie.language.ClassHierarchy;
-import pascal.taie.language.TypeManager;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.types.ArrayType;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.PrimitiveType;
 import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 import pascal.taie.pta.PTAOptions;
 
 import java.util.ArrayList;

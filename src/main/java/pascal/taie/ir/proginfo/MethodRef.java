@@ -11,10 +11,14 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.java.classes;
+package pascal.taie.ir.proginfo;
 
-import pascal.taie.java.World;
-import pascal.taie.java.types.Type;
+import pascal.taie.World;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.classes.Subsignature;
+import pascal.taie.language.types.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
@@ -22,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.java.classes.StringReps.METHOD_HANDLE;
-import static pascal.taie.java.classes.StringReps.VAR_HANDLE;
+import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
+import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
 import static pascal.taie.util.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.CollectionUtils.newSet;
 

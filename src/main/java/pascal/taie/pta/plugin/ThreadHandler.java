@@ -13,12 +13,13 @@
 
 package pascal.taie.pta.plugin;
 
+import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.World;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.natives.NativeModel;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.natives.NativeModel;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.pta.core.context.Context;
 import pascal.taie.pta.core.cs.CSMethod;
 import pascal.taie.pta.core.cs.CSVar;
@@ -26,11 +27,10 @@ import pascal.taie.pta.core.heap.Obj;
 import pascal.taie.pta.core.solver.PointerAnalysis;
 import pascal.taie.pta.set.PointsToSet;
 import pascal.taie.pta.set.PointsToSetFactory;
-import pascal.taie.pta.PTAOptions;
 
 import java.util.Set;
 
-import static pascal.taie.java.classes.StringReps.STRING;
+import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.util.CollectionUtils.getOne;
 import static pascal.taie.util.CollectionUtils.newHybridSet;
 

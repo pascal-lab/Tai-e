@@ -13,17 +13,17 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.java.ClassHierarchy;
-import pascal.taie.java.TypeManager;
-import pascal.taie.java.World;
-import pascal.taie.java.WorldBuilder;
-import pascal.taie.java.classes.ClassHierarchyImpl;
-import pascal.taie.java.natives.DefaultNativeModel;
-import pascal.taie.java.natives.EmptyNativeModel;
-import pascal.taie.java.natives.NativeModel;
-import pascal.taie.java.types.TypeManagerImpl;
-import pascal.taie.pta.PTAOptions;
+import pascal.taie.World;
+import pascal.taie.WorldBuilder;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassHierarchyImpl;
+import pascal.taie.language.natives.DefaultNativeModel;
+import pascal.taie.language.natives.EmptyNativeModel;
+import pascal.taie.language.natives.NativeModel;
+import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.types.TypeManagerImpl;
 import pascal.taie.oldpta.env.Environment;
+import pascal.taie.pta.PTAOptions;
 import pascal.taie.util.Timer;
 import soot.G;
 import soot.Scene;

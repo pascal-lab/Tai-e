@@ -16,14 +16,17 @@ package pascal.taie.language;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import pascal.taie.World;
 import pascal.taie.frontend.soot.TestUtils;
 import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.FieldResolutionFailedException;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.types.Type;
+import pascal.taie.language.types.TypeManager;
 
 import java.io.File;
 import java.util.Arrays;

@@ -13,7 +13,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.java.types.ArrayType;
+import pascal.taie.language.types.ArrayType;
 
 /**
  * Representation of new array expression, e.g., new T[..].
