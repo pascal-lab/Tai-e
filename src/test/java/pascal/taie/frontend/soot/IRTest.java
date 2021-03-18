@@ -15,8 +15,8 @@ package pascal.taie.frontend.soot;
 
 import org.junit.Test;
 import pascal.taie.ir.IRPrinter;
-import pascal.taie.java.World;
-import pascal.taie.java.classes.JClass;
+import pascal.taie.language.World;
+import pascal.taie.language.classes.JClass;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,7 @@ public class IRTest {
                 "java-benchmarks/jre1.6.0_24/rt.jar;" +
                         "java-benchmarks/jre1.6.0_24/jce.jar;" +
                         "java-benchmarks/jre1.6.0_24/jsse.jar;" +
-                        "analyzed/ir",
+                        "test-resources/ir",
                 mainClass
         };
         TestUtils.buildWorld(args);

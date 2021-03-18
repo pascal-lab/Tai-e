@@ -15,11 +15,11 @@ package pascal.taie.frontend.soot;
 
 import org.junit.Assert;
 import org.junit.Test;
-import pascal.taie.java.World;
-import pascal.taie.java.classes.JClass;
-import pascal.taie.java.classes.JField;
-import pascal.taie.java.classes.JMethod;
-import pascal.taie.java.classes.Subsignature;
+import pascal.taie.language.World;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Subsignature;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
@@ -38,7 +38,7 @@ public class SootFrontendTest {
                         "java-benchmarks/jre1.6.0_24/rt.jar",
                         "java-benchmarks/jre1.6.0_24/jce.jar",
                         "java-benchmarks/jre1.6.0_24/jsse.jar",
-                        "analyzed/cspta"),
+                        "test-resources/cspta"),
                 "Assign"
         };
         TestUtils.buildWorld(args);

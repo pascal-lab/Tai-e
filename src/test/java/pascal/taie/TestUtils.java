@@ -73,10 +73,10 @@ public class TestUtils {
     private static void test(String inputClass, String analysis,
                              String checker, List<String> opts) {
         String cp;
-        if (new File("analyzed/" + analysis).exists()) {
-            cp = "analyzed/" + analysis + "/";
+        if (new File("test-resources/" + analysis).exists()) {
+            cp = "test-resources/" + analysis + "/";
         } else {
-            cp = "analyzed/";
+            cp = "test-resources/";
         }
         List<String> args = new ArrayList<>(opts);
         Collections.addAll(args, "-cp", cp, inputClass);
