@@ -11,7 +11,6 @@
  */
 
 /**
- * Implementation of various sets (and maybe maps in the future)
- * used in pointer analysis.
+ * Implementation of various points-to sets used in pointer analysis.
  */
 package pascal.taie.analysis.pta.pts;
