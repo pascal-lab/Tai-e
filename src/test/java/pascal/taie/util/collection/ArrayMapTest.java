@@ -10,22 +10,21 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.collection;
 
 import org.junit.Test;
-import pascal.taie.util.collection.HybridArrayHashSet;
 
-import java.util.Set;
+import java.util.Map;
 
-public class HybridArrayHashSetTest extends AbstractSetTest {
+public class ArrayMapTest extends AbstractMapTest {
 
     @Override
-    protected <E> Set<E> newSet() {
-        return new HybridArrayHashSet<>();
+    protected <K, V> Map<K, V> newMap() {
+        return new ArrayMap<>();
     }
 
-    @Test
-    public void testAdd20() {
-        testAddNElements(newSet(), 20);
+    @Test(expected = TooManyElementsException.class)
+    public void testKeySet20() {
+        super.testKeySet20();
     }
 }

@@ -10,27 +10,21 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.collection;
 
 import org.junit.Test;
-import pascal.taie.util.collection.ArraySet;
-import pascal.taie.util.collection.TooManyElementsException;
 
 import java.util.Set;
 
-public class ArraySetTest extends AbstractSetTest {
+public class HybridArrayHashSetTest extends AbstractSetTest {
 
+    @Override
     protected <E> Set<E> newSet() {
-        return new ArraySet<>();
-    }
-
-    @Test(expected = TooManyElementsException.class)
-    public void testFixedCapacity() {
-        testAddNElements(new ArraySet<>(4), 5);
+        return new HybridArrayHashSet<>();
     }
 
     @Test
-    public void testNonFixedCapacity() {
-        testAddNElements(new ArraySet<>(4, false), 5);
+    public void testAdd20() {
+        testAddNElements(newSet(), 20);
     }
 }

@@ -40,7 +40,7 @@ public interface CSManager {
 
     CSMethod getCSMethod(Context context, JMethod method);
 
-    Stream<CSVar> CSVars();
+    Stream<CSVar> csVars();
 
     Stream<InstanceField> instanceFields();
 

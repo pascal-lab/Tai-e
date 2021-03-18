@@ -163,7 +163,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     @Override
     public Stream<CSVar> vars() {
-        return csManager.CSVars();
+        return csManager.csVars();
     }
 
     @Override

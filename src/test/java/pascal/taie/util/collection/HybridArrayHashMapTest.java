@@ -10,9 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
-
-import pascal.taie.util.collection.HybridArrayHashMap;
+package pascal.taie.util.collection;
 
 import java.util.Map;
 

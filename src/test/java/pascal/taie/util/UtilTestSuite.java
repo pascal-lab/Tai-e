@@ -14,6 +14,10 @@ package pascal.taie.util;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import pascal.taie.util.collection.ArrayMapTest;
+import pascal.taie.util.collection.ArraySetTest;
+import pascal.taie.util.collection.HybridArrayHashMapTest;
+import pascal.taie.util.collection.HybridArrayHashSetTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

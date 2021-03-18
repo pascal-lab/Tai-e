@@ -89,7 +89,7 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Stream<CSVar> CSVars() {
+    public Stream<CSVar> csVars() {
         return CollectionUtils.getAllValues(vars);
     }
 
