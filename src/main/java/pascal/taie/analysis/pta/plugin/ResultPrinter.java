@@ -14,12 +14,12 @@ package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.analysis.pta.ResultChecker;
-import pascal.taie.analysis.pta.core.cs.ArrayIndex;
-import pascal.taie.analysis.pta.core.cs.CSMethod;
-import pascal.taie.analysis.pta.core.cs.CSVar;
-import pascal.taie.analysis.pta.core.cs.InstanceField;
-import pascal.taie.analysis.pta.core.cs.Pointer;
-import pascal.taie.analysis.pta.core.cs.StaticField;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.util.Pair;
 

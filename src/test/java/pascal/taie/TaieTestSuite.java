@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.dataflow.DataFlowTestSuite;
-import pascal.taie.analysis.dataflow.analysis.constprop.CPTestSuite;
+import pascal.taie.analysis.dataflow.clients.constprop.CPTestSuite;
 import pascal.taie.analysis.dataflow.lattice.LatticeTestSuite;
 import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.HierarchyTest;

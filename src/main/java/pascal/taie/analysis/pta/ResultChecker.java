@@ -12,10 +12,10 @@
 
 package pascal.taie.analysis.pta;
 
-import pascal.taie.analysis.pta.core.cs.ArrayIndex;
-import pascal.taie.analysis.pta.core.cs.CSVar;
-import pascal.taie.analysis.pta.core.cs.Pointer;
-import pascal.taie.analysis.pta.core.cs.StaticField;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.util.AnalysisException;

@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.pts;
 
-import pascal.taie.analysis.pta.core.cs.CSObj;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 
 public abstract class PointsToSetFactory {
 

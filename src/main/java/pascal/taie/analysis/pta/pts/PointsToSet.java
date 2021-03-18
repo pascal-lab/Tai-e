@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.pts;
 
-import pascal.taie.analysis.pta.core.cs.CSObj;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 
 import java.util.Collection;
 import java.util.stream.Stream;

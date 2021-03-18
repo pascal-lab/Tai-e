@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.analysis.dataflow.analysis.EdgeTransfer;
+import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 
 public class LocalEdge<Node> extends Edge<Node> {
 

@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.language.types.Type;
-import pascal.taie.analysis.pta.core.cs.Pointer;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -25,12 +25,12 @@ import java.util.Set;
 public class TestUtils {
     public static void testCP(String inputClass) {
         test(inputClass, "constprop",
-                "pascal.taie.analysis.dataflow.analysis.constprop.ResultChecker");
+                "pascal.taie.analysis.dataflow.clients.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
         test(inputClass, "deadcode",
-                "pascal.taie.analysis.dataflow.analysis.deadcode.ResultChecker");
+                "pascal.taie.analysis.dataflow.clients.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {

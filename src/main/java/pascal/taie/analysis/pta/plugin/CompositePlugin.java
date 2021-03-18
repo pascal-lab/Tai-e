@@ -13,8 +13,8 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.analysis.pta.core.cs.CSMethod;
-import pascal.taie.analysis.pta.core.cs.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 
