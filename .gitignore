@@ -5,3 +5,5 @@ sootOutput/
 .idea/
 output/
 out/
+gradlew.bat
+gradlew
