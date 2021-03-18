@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 @InternalCanonicalized
 public class MethodRef extends MemberRef {

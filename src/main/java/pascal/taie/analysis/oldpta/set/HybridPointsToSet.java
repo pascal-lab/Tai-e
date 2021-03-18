@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.oldpta.set;
 
-import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 public class HybridPointsToSet extends DelegatePointsToSet {
 

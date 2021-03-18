@@ -17,7 +17,7 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 public class CSMethod extends AbstractCSElement {
 

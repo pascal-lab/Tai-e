@@ -20,7 +20,7 @@ import pascal.taie.analysis.oldpta.ir.Variable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 /**
  * Manager for new created variables during method creation.

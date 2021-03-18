@@ -10,7 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.collection;
+
+import pascal.taie.util.MapEntry;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractMap;

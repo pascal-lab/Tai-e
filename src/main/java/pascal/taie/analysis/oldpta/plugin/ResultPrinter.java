@@ -21,7 +21,7 @@ import pascal.taie.analysis.oldpta.core.cs.Pointer;
 import pascal.taie.analysis.oldpta.core.cs.StaticField;
 import pascal.taie.analysis.oldpta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.PTAOptions;
-import pascal.taie.util.Pair;
+import pascal.taie.util.collection.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;

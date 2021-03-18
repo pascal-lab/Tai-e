@@ -28,8 +28,8 @@ import pascal.taie.analysis.pta.PTAOptions;
 
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.getOne;
-import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.getOne;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 /**
  * Model initialization of main thread, system thread group,

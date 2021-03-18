@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.CollectionUtils;
-import pascal.taie.util.CollectionView;
+import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.CollectionView;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.CollectionUtils.newMap;
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {

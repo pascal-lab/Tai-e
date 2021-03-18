@@ -18,7 +18,7 @@ import pascal.taie.language.types.TypeManager;
 
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 /**
  * Manages the string constants in the program.

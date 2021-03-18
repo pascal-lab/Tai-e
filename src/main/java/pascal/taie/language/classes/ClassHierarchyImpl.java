@@ -18,8 +18,8 @@ import pascal.taie.language.types.ArrayType;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.ArrayMap;
-import pascal.taie.util.HybridArrayHashSet;
+import pascal.taie.util.collection.ArrayMap;
+import pascal.taie.util.collection.HybridArrayHashSet;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -29,9 +29,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
-import static pascal.taie.util.CollectionUtils.newHybridSet;
-import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 

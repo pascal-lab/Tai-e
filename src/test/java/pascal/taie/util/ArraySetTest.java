@@ -13,6 +13,8 @@
 package pascal.taie.util;
 
 import org.junit.Test;
+import pascal.taie.util.collection.ArraySet;
+import pascal.taie.util.collection.TooManyElementsException;
 
 import java.util.Set;
 

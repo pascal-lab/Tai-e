@@ -13,6 +13,7 @@
 package pascal.taie.util;
 
 import org.junit.Test;
+import pascal.taie.util.collection.HybridArrayHashSet;
 
 import java.util.Set;
 

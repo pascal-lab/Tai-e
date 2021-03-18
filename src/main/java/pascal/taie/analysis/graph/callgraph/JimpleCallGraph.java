@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.CollectionUtils;
+import pascal.taie.util.collection.CollectionUtils;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;

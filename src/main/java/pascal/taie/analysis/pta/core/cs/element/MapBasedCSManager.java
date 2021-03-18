@@ -19,15 +19,15 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
-import pascal.taie.util.CollectionUtils;
+import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.CollectionUtils.newHybridMap;
-import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
  * Managing data by maintaining the data and their context-sensitive

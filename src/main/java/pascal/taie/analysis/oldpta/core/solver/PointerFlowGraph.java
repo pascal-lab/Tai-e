@@ -17,7 +17,7 @@ import pascal.taie.analysis.oldpta.core.cs.Pointer;
 
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 public class PointerFlowGraph {
 

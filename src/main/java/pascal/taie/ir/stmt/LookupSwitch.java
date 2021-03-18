@@ -13,7 +13,7 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.Var;
-import pascal.taie.util.Pair;
+import pascal.taie.util.collection.Pair;
 
 import java.util.List;
 import java.util.stream.IntStream;

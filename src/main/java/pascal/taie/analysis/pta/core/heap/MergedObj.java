@@ -18,7 +18,7 @@ import pascal.taie.language.types.Type;
 import java.util.Optional;
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
  * Represents a set of merged objects.

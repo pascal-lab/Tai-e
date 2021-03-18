@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 /**
  * Default implementation of IR.

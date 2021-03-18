@@ -18,7 +18,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.oldpta.ir.Call;
 import pascal.taie.analysis.oldpta.ir.CallSite;
 import pascal.taie.analysis.oldpta.ir.Statement;
-import pascal.taie.util.CollectionUtils;
+import pascal.taie.util.collection.CollectionUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {
 

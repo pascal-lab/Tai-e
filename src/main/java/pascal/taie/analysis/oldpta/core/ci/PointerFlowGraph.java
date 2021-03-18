@@ -20,9 +20,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newHybridSet;
-import static pascal.taie.util.CollectionUtils.newMap;
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 class PointerFlowGraph {
 

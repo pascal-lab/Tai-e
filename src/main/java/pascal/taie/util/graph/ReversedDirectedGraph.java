@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.graph;
 
 import soot.toolkits.graph.DirectedGraph;
 

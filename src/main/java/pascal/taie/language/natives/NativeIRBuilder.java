@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
-import static pascal.taie.util.CollectionUtils.freeze;
+import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 class NativeIRBuilder {
 

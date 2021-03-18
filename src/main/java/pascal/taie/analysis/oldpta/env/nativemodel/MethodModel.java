@@ -38,8 +38,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
-import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 class MethodModel {
 

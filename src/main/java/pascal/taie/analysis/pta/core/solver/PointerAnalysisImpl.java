@@ -84,8 +84,8 @@ import java.util.stream.Stream;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
 import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
-import static pascal.taie.util.CollectionUtils.newMap;
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
 

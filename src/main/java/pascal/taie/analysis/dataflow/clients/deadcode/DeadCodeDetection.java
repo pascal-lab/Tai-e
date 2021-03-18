@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
  * The analysis that detects dead code. This transformer must be executed after

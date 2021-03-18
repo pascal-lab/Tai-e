@@ -18,7 +18,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 class Modifiers {
 

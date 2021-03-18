@@ -161,8 +161,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.types.VoidType.VOID;
-import static pascal.taie.util.CollectionUtils.freeze;
-import static pascal.taie.util.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.CollectionUtils.freeze;
+import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 /**
  * Convert Jimple to Tai-e IR.

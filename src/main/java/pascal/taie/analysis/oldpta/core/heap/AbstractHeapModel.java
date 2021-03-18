@@ -21,7 +21,7 @@ import pascal.taie.analysis.pta.PTAOptions;
 
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 /**
  * All heap models should inherit this class, and we can define

@@ -15,13 +15,13 @@ package pascal.taie.language.types;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.util.ArrayMap;
+import pascal.taie.util.collection.ArrayMap;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
-import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 // TODO: optimize maps (classTypes and arrayTypes)
 public class TypeManagerImpl implements TypeManager {

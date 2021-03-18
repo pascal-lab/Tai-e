@@ -22,7 +22,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.util.CollectionView;
+import pascal.taie.util.collection.CollectionView;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.CollectionUtils.newHybridSet;
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
 

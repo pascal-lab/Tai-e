@@ -18,7 +18,7 @@ import pascal.taie.analysis.oldpta.ir.Obj;
 
 import java.util.Map;
 
-import static pascal.taie.util.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {
 

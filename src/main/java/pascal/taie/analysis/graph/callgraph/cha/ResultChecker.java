@@ -14,7 +14,7 @@ package pascal.taie.analysis.graph.callgraph.cha;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.frontend.soot.SootUtils;
-import pascal.taie.util.CollectionUtils;
+import pascal.taie.util.collection.CollectionUtils;
 import soot.Body;
 import soot.BriefUnitPrinter;
 import soot.G;

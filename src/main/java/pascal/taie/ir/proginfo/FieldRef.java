@@ -22,7 +22,7 @@ import pascal.taie.util.InternalCanonicalized;
 
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 @InternalCanonicalized
 public class FieldRef extends MemberRef {

@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.framework;
 
-import pascal.taie.util.ReversedDirectedGraph;
+import pascal.taie.util.graph.ReversedDirectedGraph;
 import soot.toolkits.graph.DirectedGraph;
 
 import java.util.Map;

@@ -67,7 +67,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.CollectionUtils.newSet;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 public class PointerAnalysisImpl implements PointerAnalysis {
 

@@ -12,6 +12,8 @@
 
 package pascal.taie.util;
 
+import pascal.taie.util.collection.HybridArrayHashMap;
+
 import java.util.Map;
 
 public class HybridArrayHashMapTest extends AbstractMapTest {
