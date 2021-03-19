@@ -12,11 +12,12 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
+import pascal.taie.util.graph.Graph;
+
 import java.util.Collection;
 import java.util.stream.Stream;
 
-public interface CallGraph<CallSite, Method>
-        extends Iterable<Edge<CallSite, Method>> {
+public interface CallGraph<CallSite, Method> extends Graph<Method> {
 
     /**
      * Returns the set of methods that are called by the given call site.
@@ -46,7 +47,7 @@ public interface CallGraph<CallSite, Method>
     /**
      * Returns all call edges in this call graph.
      */
-    Stream<Edge<CallSite, Method>> allEdges();
+    Stream<Edge<CallSite, Method>> edges();
 
     /**
      * Returns the entry methods of this call graph.
@@ -54,7 +55,7 @@ public interface CallGraph<CallSite, Method>
     Collection<Method> getEntryMethods();
 
     /**
-     * Returns all reachable methods in this call graph.
+     * Returns stream of all reachable methods in this call graph.
      */
     Stream<Method> reachableMethods();
 

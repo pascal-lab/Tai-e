@@ -70,7 +70,7 @@ public class JimplePointerAnalysis {
                         .map(this::toSootMethod)
                         .forEach(jimpleCallGraph::addEntryMethod);
                 // Add call graph edges
-                callGraph.forEach(edge -> {
+                callGraph.edges().forEach(edge -> {
                     Unit call = toSootUnit(edge.getCallSite());
                     SootMethod target = toSootMethod(edge.getCallee());
                     jimpleCallGraph.addEdge(call, target, edge.getKind());
@@ -83,7 +83,7 @@ public class JimplePointerAnalysis {
                         .map(e -> (SootMethod) e.getMethodSource())
                         .forEach(jimpleCallGraph::addEntryMethod);
                 // Add call graph edges
-                callGraph.forEach(edge -> {
+                callGraph.edges().forEach(edge -> {
                     Unit call = ((DefaultCallSite) edge.getCallSite())
                             .getSootStmt();
                     SootMethod target =

@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.oldpta.core.solver;
 
-import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.AbstractCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.oldpta.core.context.Context;
 import pascal.taie.analysis.oldpta.core.cs.CSCallSite;
@@ -29,23 +29,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 import static pascal.taie.util.collection.CollectionUtils.newSet;
 
-class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
+class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
-    private final Set<CSMethod> entryMethods = newHybridSet();
-    private final Set<CSMethod> reachableMethods = newSet();
 
     OnFlyCallGraph(CSManager csManager) {
         this.csManager = csManager;
+        this.entryMethods = newHybridSet();
+        this.reachableMethods = newSet();
     }
 
-    void addEntryMethod(CSMethod entryMethod) {
+    @Override
+    public void addEntryMethod(CSMethod entryMethod) {
         entryMethods.add(entryMethod);
         // Let pointer analysis explicitly call addNewMethod() of this class
     }
@@ -64,7 +64,8 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
         return getEdgesOf(edge.getCallSite()).contains(edge);
     }
 
-    boolean addNewMethod(CSMethod csMethod) {
+    @Override
+    public boolean addNewMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
             getCallSitesIn(csMethod).forEach(csCallSite ->
                     csCallSite.setContainer(csMethod));
@@ -111,7 +112,7 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Stream<Edge<CSCallSite, CSMethod>> allEdges() {
+    public Stream<Edge<CSCallSite, CSMethod>> edges() {
         return reachableMethods.stream()
                 .map(this::getCallSitesIn)
                 .flatMap(Collection::stream)
@@ -127,11 +128,5 @@ class OnFlyCallGraph implements CallGraph<CSCallSite, CSMethod> {
     @Override
     public boolean contains(CSMethod csMethod) {
         return reachableMethods.contains(csMethod);
-    }
-
-    @Nonnull
-    @Override
-    public Iterator<Edge<CSCallSite, CSMethod>> iterator() {
-        return allEdges().iterator();
     }
 }

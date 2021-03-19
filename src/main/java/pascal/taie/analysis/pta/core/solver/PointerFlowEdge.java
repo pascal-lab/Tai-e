@@ -24,6 +24,7 @@ public class PointerFlowEdge {
     private final Kind kind;
     private final Pointer from;
     private final Pointer to;
+
     /**
      * Type of "to" node. This type is useful for handling some cases,
      * e.g., type casting and reflective assignment.

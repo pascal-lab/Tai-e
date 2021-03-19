@@ -33,8 +33,8 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges;
     protected final Map<CallSite, Method> callSiteToContainer;
     protected final Map<Method, Set<CallSite>> callSitesIn;
-    protected final Set<Method> entryMethods;
-    protected final Set<Method> reachableMethods;
+    protected Set<Method> entryMethods;
+    protected Set<Method> reachableMethods;
 
     protected AbstractCallGraph() {
         callSiteToEdges = newMap();
@@ -99,7 +99,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Stream<Edge<CallSite, Method>> allEdges() {
+    public Stream<Edge<CallSite, Method>> edges() {
         return callSiteToEdges.values()
                 .stream()
                 .flatMap(Set::stream);
@@ -120,9 +120,42 @@ public abstract class AbstractCallGraph<CallSite, Method>
         return reachableMethods.contains(method);
     }
 
-    @Nonnull
+    // Implementation for Graph interface.
+    
     @Override
-    public Iterator<Edge<CallSite, Method>> iterator() {
-        return allEdges().iterator();
+    public boolean hasNode(Method node) {
+        return contains(node);
+    }
+
+    @Override
+    public boolean hasEdge(Method source, Method target) {
+        return succsOf(source).anyMatch(target::equals);
+    }
+
+    @Override
+    public Stream<Method> predsOf(Method node) {
+        return getCallers(node)
+                .stream()
+                .map(this::getContainerMethodOf)
+                .distinct();
+    }
+
+    @Override
+    public Stream<Method> succsOf(Method node) {
+        return getCallSitesIn(node)
+                .stream()
+                .map(this::getCallees)
+                .flatMap(Collection::stream)
+                .distinct();
+    }
+
+    @Override
+    public Stream<Method> nodes() {
+        return reachableMethods();
+    }
+
+    @Override
+    public int getNumberOfNodes() {
+        return reachableMethods.size();
     }
 }
