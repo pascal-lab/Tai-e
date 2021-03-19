@@ -27,6 +27,8 @@ dependencies {
     compile group: 'info.picocli', name: 'picocli', version: '4.5.0'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
+    // Fix SLF4J warning
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.5'
     testImplementation 'junit:junit:4.13'
 }
 
