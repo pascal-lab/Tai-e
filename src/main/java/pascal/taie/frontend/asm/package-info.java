@@ -11,6 +11,6 @@
  */
 
 /**
- * TODO: We'll add another frontend implemented based on BCEL
+ * TODO: We'll add another frontend implemented based on ASM
  */
-package pascal.taie.frontend.bcel;
+package pascal.taie.frontend.asm;
