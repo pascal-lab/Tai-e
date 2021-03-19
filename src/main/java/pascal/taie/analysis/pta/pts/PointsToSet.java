@@ -14,20 +14,42 @@ package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 
-import java.util.Collection;
 import java.util.stream.Stream;
 
+/**
+ * Representation of points-to sets that consist of {@link CSObj}.
+ */
 public interface PointsToSet extends Iterable<CSObj> {
 
+    /**
+     * Add an object to this set.
+     * @return if the add operation changes this set.
+     */
     boolean addObject(CSObj obj);
 
+    /**
+     * Add all objects in given pts to this set.
+     * @return if the add operation changes this set.
+     */
     boolean addAll(PointsToSet pts);
 
-    Collection<CSObj> getObjects();
+    /**
+     * @return if this set contains given object.
+     */
+    boolean contains(CSObj obj);
 
+    /**
+     * @return is this set if empty.
+     */
     boolean isEmpty();
 
+    /**
+     * @return the number of objects in this set.
+     */
     int size();
 
-    Stream<CSObj> stream();
+    /**
+     * @return a stream of all objects in this set.
+     */
+    Stream<CSObj> objects();
 }

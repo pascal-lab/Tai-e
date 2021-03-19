@@ -326,7 +326,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      */
     private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
         PointsToSet result = PointsToSetFactory.make();
-        pts.stream()
+        pts.objects()
                 .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
                 .forEach(result::addObject);
         return result;

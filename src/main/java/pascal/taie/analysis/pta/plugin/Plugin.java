@@ -28,7 +28,7 @@ import pascal.taie.language.classes.JMethod;
 public interface Plugin {
 
     /**
-     * Set pointer analysis interface which will be used later by the monitor.
+     * Set pointer analysis which will be used later by the plugin.
      */
     default void setPointerAnalysis(PointerAnalysis pta) {
     }

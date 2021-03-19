@@ -11,8 +11,8 @@
  */
 
 /**
- * Provide data structures and algorithms of context-sensitive
- * pointer analysis solver.
- * @see pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl
+ * Provide model for native methods.
+ * @see pascal.taie.language.natives.NativeModel
+ * @see pascal.taie.language.natives.DefaultNativeModel
  */
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.language.natives;

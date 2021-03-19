@@ -15,7 +15,6 @@ package pascal.taie.analysis.pta.pts;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -41,12 +40,16 @@ abstract class DelegatePointsToSet implements PointsToSet {
 
     @Override
     public boolean addAll(PointsToSet pts) {
-        return set.addAll(pts.getObjects());
+        boolean changed = false;
+        for (CSObj o : pts) {
+            changed |= addObject(o);
+        }
+        return changed;
     }
 
     @Override
-    public Collection<CSObj> getObjects() {
-        return Collections.unmodifiableSet(set);
+    public boolean contains(CSObj obj) {
+        return set.contains(obj);
     }
 
     @Override
@@ -55,7 +58,7 @@ abstract class DelegatePointsToSet implements PointsToSet {
     }
 
     @Override
-    public Stream<CSObj> stream() {
+    public Stream<CSObj> objects() {
         return set.stream();
     }
 

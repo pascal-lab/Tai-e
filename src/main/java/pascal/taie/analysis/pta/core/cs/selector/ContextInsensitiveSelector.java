@@ -16,11 +16,12 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.heap.NewObj;
 import pascal.taie.language.classes.JMethod;
 
 /**
- * Context-insensitive selector do not use any context elements,
+ * Selector for context-insensitive analysis.
+ * Context insensitivity does not use any context elements,
  * thus the type of context elements is irrelevant.
  */
 public class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
@@ -36,7 +37,7 @@ public class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
     }
 
     @Override
-    protected Context doSelectHeapContext(CSMethod method, Obj obj) {
+    protected Context selectNewObjContext(CSMethod method, NewObj obj) {
         return getDefaultContext();
     }
 }

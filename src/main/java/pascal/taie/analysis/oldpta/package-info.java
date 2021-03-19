@@ -11,8 +11,10 @@
  */
 
 /**
- * Provide data structures and algorithms of context-sensitive
- * pointer analysis solver.
- * @see pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl
+ * Pointer analysis using old PTA IR. This package will be deprecated.
+ * We keep it for now as it is depended by some interprocedural analyses,
+ * and it will be removed after we rewrite the relevant analyses.
+ * The user should use pointer analysis in {@link pascal.taie.analysis.pta}.
  */
-package pascal.taie.analysis.pta.core.solver;
+@Deprecated
+package pascal.taie.analysis.oldpta;

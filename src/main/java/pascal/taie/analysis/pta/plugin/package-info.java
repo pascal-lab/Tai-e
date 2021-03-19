@@ -11,8 +11,8 @@
  */
 
 /**
- * Provide data structures and algorithms of context-sensitive
- * pointer analysis solver.
- * @see pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl
+ * Provide plugin interface of pointer analysis and
+ * some instances (implementations).
+ * @see pascal.taie.analysis.pta.plugin.Plugin (interface for all plugins)
  */
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.analysis.pta.plugin;

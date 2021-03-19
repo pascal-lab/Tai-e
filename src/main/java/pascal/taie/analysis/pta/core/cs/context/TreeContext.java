@@ -18,12 +18,12 @@ import java.util.Map;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 /**
- * Contexts that are organized like a tree.
+ * An implementation of {@link Context}, which organizes contexts like a tree.
  * Each context has a parent context and zero or more children contexts.
  * For example, for Context[A, B], its parent is Context@[A], and its children
  * may be Context@[A, B, C] or Context@[A, B, D].
  * {@link TreeContext.Factory} ensures that the contexts with the same elements
- * have only one instance. Thus, we can avoid creating redundant
+ * will be created at most once. Thus, we can avoid creating redundant
  * context objects, and test their equality by efficient ==.
  *
  * @param <T> type of context elements.
@@ -34,31 +34,31 @@ public class TreeContext<T> implements Context {
 
     private final T elem;
 
-    private final int depth;
+    private final int length;
 
     private Map<T, TreeContext<T>> children;
 
     private TreeContext() {
         parent = null;
         elem = null;
-        depth = 0;
+        length = 0;
     }
 
     private TreeContext(TreeContext<T> parent, T elem) {
         this.parent = parent;
         this.elem = elem;
-        this.depth = parent.getDepth() + 1;
+        this.length = parent.getLength() + 1;
     }
 
     @Override
-    public int getDepth() {
-        return depth;
+    public int getLength() {
+        return length;
     }
 
     @Override
     public T getElementAt(int i) {
-        assert 0 < i && i <= depth;
-        if (i == depth) {
+        assert 0 < i && i <= length;
+        if (i == length) {
             return elem;
         } else {
             return parent.getElementAt(i);
@@ -83,9 +83,9 @@ public class TreeContext<T> implements Context {
 
     @Override
     public String toString() {
-        Object[] elems = new Object[depth];
+        Object[] elems = new Object[length];
         TreeContext<T> c = this;
-        for (int i = depth - 1; i >= 0; --i) {
+        for (int i = length - 1; i >= 0; --i) {
             elems[i] = c.getElem();
             c = c.getParent();
         }
@@ -125,7 +125,7 @@ public class TreeContext<T> implements Context {
                 return rootContext;
             }
             TreeContext<T> c = (TreeContext<T>) context;
-            if (c.getDepth() <= k) {
+            if (c.getLength() <= k) {
                 return c;
             }
             Object[] elems = new Object[k];
@@ -139,7 +139,7 @@ public class TreeContext<T> implements Context {
         @Override
         public TreeContext<T> append(Context parent, T elem, int limit) {
             TreeContext<T> p = (TreeContext<T>) parent;
-            if (parent.getDepth() < limit) {
+            if (parent.getLength() < limit) {
                 return p.getChild(elem);
             } else {
                 return getLastK(p, limit - 1).getChild(elem);

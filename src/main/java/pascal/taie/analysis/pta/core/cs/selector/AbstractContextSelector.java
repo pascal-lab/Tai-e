@@ -33,14 +33,14 @@ abstract class AbstractContextSelector<T> implements ContextSelector {
         // Uses different strategies to select heap contexts
         // for different kinds of objects.
         if (obj instanceof NewObj) {
-            return doSelectHeapContext(method, obj);
+            return selectNewObjContext(method, (NewObj) obj);
         } else {
             return getDefaultContext();
         }
     }
 
     /**
-     * This method defines the real heap context selector.
+     * This method defines the real heap context selector for NewObj.
      */
-    protected abstract Context doSelectHeapContext(CSMethod method, Obj obj);
+    protected abstract Context selectNewObjContext(CSMethod method, NewObj obj);
 }

@@ -145,7 +145,7 @@ public class ResultChecker {
 
     private void comparePointer(Pointer p, Set<String> givenPointers) {
         String ptr = p.toString();
-        String given = Strings.streamToString(p.getPointsToSet().stream());
+        String given = Strings.streamToString(p.getPointsToSet().objects());
         String expected = expectedResults.get(ptr);
         if (!Objects.equals(given, expected)) {
             mismatches.add(String.format(

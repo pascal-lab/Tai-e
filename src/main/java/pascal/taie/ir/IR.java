@@ -19,6 +19,9 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 
+/**
+ * Intermediate representation for method body of non-abstract methods.
+ */
 public interface IR {
 
     JMethod getMethod();

@@ -12,6 +12,10 @@
 
 package pascal.taie.analysis.pta.core.cs.context;
 
+/**
+ * Factory of contexts, which provides convenient APIs to create contexts.
+ * @param <T> type of elements of created contexts.
+ */
 public interface ContextFactory<T> {
 
     /**
@@ -25,7 +29,7 @@ public interface ContextFactory<T> {
     Context get(T elem);
 
     /**
-     * @return the context of elements.
+     * @return the context that consists of given elements.
      */
     Context get(T... elems);
 

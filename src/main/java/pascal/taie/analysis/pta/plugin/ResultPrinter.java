@@ -133,7 +133,7 @@ public enum ResultPrinter implements Plugin {
     private void printPointsToSet(Pointer pointer) {
         out.println(pointer + " -> "
 //                + "\t" + pointer.getPointsToSet().size() + "\t"
-                + streamToString(pointer.getPointsToSet().stream()));
+                + streamToString(pointer.getPointsToSet().objects()));
     }
 
     private void printStatistics(PointerAnalysis pta) {

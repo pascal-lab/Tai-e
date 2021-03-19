@@ -14,28 +14,28 @@ package pascal.taie.analysis.pta.core.cs.selector;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.heap.NewObj;
 
 /**
- *
+ * K-limiting context selector.
  * @param <T> type of context elements.
  */
 abstract class KContextSelector<T> extends AbstractContextSelector<T> {
 
     /**
-     * Limit of context depth.
+     * Limit of context length.
      */
     protected final int limit;
 
     /**
-     * Limit of heap context depth.
+     * Limit of heap context length.
      */
     protected final int hlimit;
 
     /**
      *
-     * @param k k-limit for context.
-     * @param hk k-limit for heap context.
+     * @param k k-limit for method contexts.
+     * @param hk k-limit for heap contexts.
      */
     KContextSelector(int k, int hk) {
         this.limit = k;
@@ -43,7 +43,7 @@ abstract class KContextSelector<T> extends AbstractContextSelector<T> {
     }
 
     @Override
-    protected Context doSelectHeapContext(CSMethod method, Obj obj) {
+    protected Context selectNewObjContext(CSMethod method, NewObj obj) {
         return factory.getLastK(method.getContext(), hlimit);
     }
 }

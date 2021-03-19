@@ -11,8 +11,9 @@
  */
 
 /**
- * Provide data structures and algorithms of context-sensitive
- * pointer analysis solver.
- * @see pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl
+ * Provide classes related to intermediate representation of method bodies.
+ * @see pascal.taie.ir.IR
+ * @see pascal.taie.ir.exp.Exp (interface for all expressions)
+ * @see pascal.taie.ir.stmt.Stmt (interface for all statements)
  */
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.ir;

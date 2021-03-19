@@ -19,6 +19,9 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 
+/**
+ * Default implementation of IR.
+ */
 public class DefaultIR implements IR {
 
     private final JMethod method;

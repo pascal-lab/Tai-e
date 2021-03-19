@@ -11,8 +11,8 @@
  */
 
 /**
- * Provide data structures and algorithms of context-sensitive
- * pointer analysis solver.
- * @see pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl
+ * Provide model of Java type system.
+ * @see pascal.taie.language.types.Type (interface for all types)
+ * @see pascal.taie.language.types.TypeManager
  */
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.language.types;

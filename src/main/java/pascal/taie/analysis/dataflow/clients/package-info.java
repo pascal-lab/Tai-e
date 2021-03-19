@@ -12,8 +12,8 @@
 
 /**
  * Provides various client applications of data flow analysis.
- * See {@link pascal.taie.analysis.dataflow.framework.DataFlowAnalysis}
- * See {@link pascal.taie.analysis.dataflow.framework.EdgeTransfer}
- * See {@link pascal.taie.analysis.dataflow.framework.IPDataFlowAnalysis}
+ * @see pascal.taie.analysis.dataflow.framework.DataFlowAnalysis
+ * @see pascal.taie.analysis.dataflow.framework.EdgeTransfer
+ * @see pascal.taie.analysis.dataflow.framework.IPDataFlowAnalysis
  */
 package pascal.taie.analysis.dataflow.clients;

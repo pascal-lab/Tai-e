@@ -12,7 +12,14 @@
 
 package pascal.taie;
 
+/**
+ * Interface for {@link World} builder.
+ */
 public interface WorldBuilder {
 
+    /**
+     * Build a new instance of {@link World} and make it globally accessible
+     * through static methods of {@link World}.
+     */
     void build();
 }
