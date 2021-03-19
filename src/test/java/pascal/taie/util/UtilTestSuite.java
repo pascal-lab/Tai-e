@@ -18,13 +18,17 @@ import pascal.taie.util.collection.ArrayMapTest;
 import pascal.taie.util.collection.ArraySetTest;
 import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
+import pascal.taie.util.graph.GraphTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        // collection
         ArraySetTest.class,
         ArrayMapTest.class,
         HybridArrayHashMapTest.class,
         HybridArrayHashSetTest.class,
+        // graph
+        GraphTest.class,
 })
 public class UtilTestSuite {
 }
