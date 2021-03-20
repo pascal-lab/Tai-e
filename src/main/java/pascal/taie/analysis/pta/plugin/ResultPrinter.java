@@ -22,6 +22,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.graph.GraphDumper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -71,6 +72,9 @@ public enum ResultPrinter implements Plugin {
         printResults(pta);
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(pta);
+        }
+        if (PTAOptions.get().isDumpCallGraph()) {
+            GraphDumper.dumpDotFile(pta.getCallGraph(), "output/callgraph.dot");
         }
     }
 

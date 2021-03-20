@@ -97,6 +97,10 @@ public class PTAOptions {
             description = "Dump classes", defaultValue = "false")
     private boolean dumpClasses;
 
+    @Option(names = "--dump-call-graph",
+            description = "Dump call graph", defaultValue = "false")
+    private boolean dumpCallGraph;
+
     @Option(names = "--test-mode",
             description = "Flag test mode", defaultValue = "false")
     private boolean testMode;
@@ -183,6 +187,10 @@ public class PTAOptions {
 
     public boolean isDumpClasses() {
         return dumpClasses;
+    }
+
+    public boolean isDumpCallGraph() {
+        return dumpCallGraph;
     }
 
     public boolean isTestMode() {
