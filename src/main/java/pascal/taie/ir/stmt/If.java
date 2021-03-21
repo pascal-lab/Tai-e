@@ -14,6 +14,8 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.ConditionExp;
 
+import java.util.stream.Stream;
+
 /**
  * Representation of if statement, e.g., if a == b goto L;
  */
@@ -42,6 +44,11 @@ public class If extends JumpStmt {
     @Override
     public boolean canFallThrough() {
         return true;
+    }
+
+    @Override
+    public Stream<Stmt> targets() {
+        return Stream.of(target);
     }
 
     @Override

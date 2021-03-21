@@ -12,7 +12,14 @@
 
 package pascal.taie.ir.stmt;
 
+import java.util.stream.Stream;
+
 public abstract class JumpStmt extends AbstractStmt {
+
+    /**
+     * @return possible jump targets of this statement.
+     */
+    public abstract Stream<Stmt> targets();
 
     /**
      * Convert a target statement to its String representation.
