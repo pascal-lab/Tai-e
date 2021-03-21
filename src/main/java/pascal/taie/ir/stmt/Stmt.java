@@ -32,5 +32,10 @@ public interface Stmt {
 
     void setLineNumber(int lineNumber);
 
+    /**
+     * @return if execution after this statement can continue at the following statement.
+     */
+    boolean canFallThrough();
+
     void accept(StmtVisitor visitor);
 }

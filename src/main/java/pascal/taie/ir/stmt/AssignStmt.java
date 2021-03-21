@@ -40,6 +40,11 @@ public abstract class AssignStmt<L extends LValue, R extends RValue> extends Abs
     }
 
     @Override
+    public boolean canFallThrough() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return lvalue + " = " + rvalue;
     }

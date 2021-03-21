@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.stmt;
 
-abstract class JumpStmt extends AbstractStmt {
+public abstract class JumpStmt extends AbstractStmt {
 
     /**
      * Convert a target statement to its String representation.

@@ -36,6 +36,11 @@ public class Return extends AbstractStmt {
     }
 
     @Override
+    public boolean canFallThrough() {
+        return false;
+    }
+
+    @Override
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }

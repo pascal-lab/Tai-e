@@ -17,6 +17,10 @@ package pascal.taie.ir.stmt;
  */
 public class Nop extends AbstractStmt {
 
+    @Override
+    public boolean canFallThrough() {
+        return true;
+    }
 
     @Override
     public void accept(StmtVisitor visitor) {

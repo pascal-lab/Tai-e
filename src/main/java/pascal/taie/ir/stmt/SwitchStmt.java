@@ -65,6 +65,11 @@ public abstract class SwitchStmt extends JumpStmt {
     }
 
     @Override
+    public boolean canFallThrough() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getInsnString());
         sb.append('(').append(value).append(')').append(" {\n");
