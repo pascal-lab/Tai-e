@@ -18,6 +18,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.PrimitiveType;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
@@ -128,11 +129,15 @@ class Converter {
                     .map(this::convertType)
                     .collect(Collectors.toList());
             Type returnType = convertType(m.getReturnType());
+            List<ClassType> exceptions = m.getExceptions()
+                    .stream()
+                    .map(SootClass::getType)
+                    .map(t -> (ClassType) convertType(t))
+                    .collect(Collectors.toList());
             // TODO: convert attributes
             return new JMethod(convertClass(m.getDeclaringClass()),
-                    m.getName(),
-                    Modifiers.convert(m.getModifiers()),
-                    paramTypes, returnType, sootMethod);
+                    m.getName(), Modifiers.convert(m.getModifiers()),
+                    paramTypes, returnType, exceptions, sootMethod);
         });
     }
 

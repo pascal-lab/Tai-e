@@ -16,17 +16,21 @@ import pascal.taie.World;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 public class JMethod extends ClassMember {
 
     private final List<Type> paramTypes;
 
     private final Type returnType;
+
+    private final List<ClassType> exceptions;
 
     private final Subsignature subsignature;
 
@@ -42,10 +46,11 @@ public class JMethod extends ClassMember {
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> paramTypes, Type returnType,
-                   Object methodSource) {
+                   List<ClassType> exceptions, Object methodSource) {
         super(declaringClass, name, modifiers);
-        this.paramTypes = Collections.unmodifiableList(paramTypes);
+        this.paramTypes = freeze(paramTypes);
         this.returnType = returnType;
+        this.exceptions = freeze(exceptions);
         this.signature = StringReps.getSignatureOf(this);
         this.subsignature = Subsignature.get(name, paramTypes, returnType);
         this.methodSource = methodSource;
@@ -75,6 +80,10 @@ public class JMethod extends ClassMember {
         return returnType;
     }
 
+    public List<ClassType> getExceptions() {
+        return exceptions;
+    }
+
     public Subsignature getSubsignature() {
         return subsignature;
     }
@@ -83,6 +92,7 @@ public class JMethod extends ClassMember {
         return methodSource;
     }
 
+    @Deprecated
     public PTAIR getPTAIR() {
         assert !isAbstract();
         if (ptair == null) {
