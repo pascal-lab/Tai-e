@@ -33,6 +33,11 @@ public enum NullLiteral implements ReferenceLiteral<Void> {
     }
 
     @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return "null";
     }

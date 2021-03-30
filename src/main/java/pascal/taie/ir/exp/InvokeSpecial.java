@@ -29,4 +29,9 @@ public class InvokeSpecial extends InvokeInstanceExp {
     public String getInvokeString() {
         return "invokespecial";
     }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

@@ -63,4 +63,9 @@ public class BitwiseExp extends AbstractBinaryExp {
     public PrimitiveType getType() {
         return (PrimitiveType) value1.getType();
     }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

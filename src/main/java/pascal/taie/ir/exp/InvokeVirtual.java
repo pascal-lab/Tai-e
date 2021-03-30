@@ -29,4 +29,9 @@ public class InvokeVirtual extends InvokeInstanceExp {
     public String getInvokeString() {
         return "invokevirtual";
     }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

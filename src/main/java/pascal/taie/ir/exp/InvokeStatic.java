@@ -36,4 +36,9 @@ public class InvokeStatic extends InvokeExp {
     public String getInvokeString() {
         return "invokestatic";
     }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

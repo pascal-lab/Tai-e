@@ -50,6 +50,11 @@ public class IntLiteral implements IntegerLiteral {
     }
 
     @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return Integer.toString(value);
     }

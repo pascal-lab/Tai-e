@@ -49,6 +49,11 @@ public class NewMultiArray extends NewExp {
     }
 
     @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("newmultiarray ");
         sb.append('(').append(type.getBaseType()).append(')');

@@ -29,4 +29,9 @@ public class InvokeInterface extends InvokeInstanceExp {
     public String getInvokeString() {
         return "invokeinterface";
     }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

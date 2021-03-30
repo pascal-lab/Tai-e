@@ -48,6 +48,11 @@ public class ArrayAccess implements LValue, RValue {
     }
 
     @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return String.format("%s[%s]", base, index);
     }

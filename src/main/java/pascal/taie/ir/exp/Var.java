@@ -67,6 +67,11 @@ public class Var implements LValue, RValue {
     }
 
     @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return name;
     }

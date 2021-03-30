@@ -23,4 +23,6 @@ public interface Exp {
      * @return type of this expression.
      */
     Type getType();
+
+    <T> T accept(ExpVisitor<T> visitor);
 }
