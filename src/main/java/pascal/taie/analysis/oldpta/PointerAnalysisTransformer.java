@@ -15,6 +15,8 @@ package pascal.taie.analysis.oldpta;
 import pascal.taie.analysis.oldpta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.oldpta.core.solver.PointerAnalysisBuilder;
 import pascal.taie.frontend.soot.JimplePointerAnalysis;
+import pascal.taie.frontend.soot.SootWorldBuilder;
+import soot.Scene;
 import soot.SceneTransformer;
 
 import java.util.Map;
@@ -33,7 +35,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-//        new SootWorldBuilder(Scene.v()).build(PTAOptions.get());
+        new SootWorldBuilder(PTAOptions.get(), Scene.v());
 
         PointerAnalysis pta = new PointerAnalysisBuilder()
                 .build(PTAOptions.get());

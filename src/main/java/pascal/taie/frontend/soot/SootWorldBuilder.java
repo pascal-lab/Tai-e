@@ -56,6 +56,18 @@ public class SootWorldBuilder implements WorldBuilder {
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
     );
 
+    /**
+     * Only used by old pointer analysis. Will be deprecated after
+     * removing old pointer analysis.
+     */
+    @Deprecated
+    public SootWorldBuilder(Options options, Scene scene) {
+        build(options, scene);
+    }
+
+    public SootWorldBuilder() {
+    }
+
     @Override
     public void build(Options options) {
         runSoot(options, this);
