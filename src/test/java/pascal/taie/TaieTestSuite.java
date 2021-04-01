@@ -20,6 +20,7 @@ import pascal.taie.analysis.dataflow.lattice.LatticeTestSuite;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.CSPTATest;
 import pascal.taie.frontend.soot.SootFrontendTest;
+import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.HierarchyTest;
 import pascal.taie.language.TypeTest;
 import pascal.taie.util.UtilTestSuite;
@@ -30,6 +31,7 @@ import pascal.taie.util.UtilTestSuite;
         SootFrontendTest.class,
         TypeTest.class,
         HierarchyTest.class,
+        DefaultMethodTest.class,
         // analysis
         CPTestSuite.class,
         LatticeTestSuite.class,

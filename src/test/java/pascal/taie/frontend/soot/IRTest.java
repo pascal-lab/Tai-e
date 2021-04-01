@@ -33,7 +33,7 @@ public class IRTest {
                         "java-benchmarks/jre1.6.0_24/jce.jar;" +
                         "java-benchmarks/jre1.6.0_24/jsse.jar;" +
                         "test-resources/ir",
-                mainClass
+                "-m", mainClass
         });
     }
 

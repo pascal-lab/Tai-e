@@ -19,13 +19,12 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.FieldResolutionFailedException;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
 
 import java.io.File;
 import java.util.Arrays;
@@ -36,10 +35,6 @@ import static pascal.taie.language.types.PrimitiveType.LONG;
 import static pascal.taie.language.types.VoidType.VOID;
 
 public class HierarchyTest {
-
-    private static ClassHierarchy hierarchy;
-
-    private static TypeManager typeManager;
 
     @BeforeClass
     public static void initTypeManager() {
@@ -52,8 +47,6 @@ public class HierarchyTest {
                         "test-resources/java"),
                 "-m", "Hierarchy"
         });
-        hierarchy = World.getClassHierarchy();
-        typeManager = World.getTypeManager();
     }
 
     // ---------- Test subclass checking Subclass() ----------
@@ -107,15 +100,15 @@ public class HierarchyTest {
     }
 
     private static void expectedSubclass(String sup, String sub) {
-        JClass superclass = hierarchy.getClass(sup);
-        JClass subclass = hierarchy.getClass(sub);
-        Assert.assertTrue(hierarchy.isSubclass(superclass, subclass));
+        JClass superclass = getClass(sup);
+        JClass subclass = getClass(sub);
+        Assert.assertTrue(World.getClassHierarchy().isSubclass(superclass, subclass));
     }
 
     private static void expectedNotSubclass(String sup, String sub) {
-        JClass superclass = hierarchy.getClass(sup);
-        JClass subclass = hierarchy.getClass(sub);
-        Assert.assertFalse(hierarchy.isSubclass(superclass, subclass));
+        JClass superclass = getClass(sup);
+        JClass subclass = getClass(sub);
+        Assert.assertFalse(World.getClassHierarchy().isSubclass(superclass, subclass));
     }
 
     // ---------- Test field resolution resolveField()  ----------
@@ -180,9 +173,9 @@ public class HierarchyTest {
      */
     private static void testResolveField(
             String refClass, String refName, String declaringClass) {
-        JClass refJClass = hierarchy.getClass(refClass);
-        JClass declaringJClass = hierarchy.getClass(declaringClass);
-        Type refType = typeManager.getClassType("java.lang.String");
+        JClass refJClass = getClass(refClass);
+        JClass declaringJClass = getClass(declaringClass);
+        Type refType = getClassType("java.lang.String");
         FieldRef fieldRef = FieldRef.get(refJClass, refName, refType, false);
         JField field = fieldRef.resolve();
         Assert.assertEquals(declaringJClass, field.getDeclaringClass());
@@ -217,10 +210,10 @@ public class HierarchyTest {
      */
     @Test
     public void testResolveMethod3() {
-        testResolveMethod("IIII", "biu", "I", typeManager.getClassType("I"));
+        testResolveMethod("IIII", "biu", "I", getClassType("I"));
         testResolveMethod("G", "biubiu", "IIII",
-                typeManager.getClassType("IIII"));
-        testResolveMethod("G", "biu", "I", typeManager.getClassType("I"));
+                getClassType("IIII"));
+        testResolveMethod("G", "biu", "I", getClassType("I"));
     }
 
     /**
@@ -228,9 +221,17 @@ public class HierarchyTest {
      */
     @Test
     public void testResolveMethod4() {
-        testResolveMethod("H", "biu", "I", typeManager.getClassType("I"));
+        testResolveMethod("H", "biu", "I", getClassType("I"));
     }
 
+    private static ClassType getClassType(String className) {
+        return World.getTypeManager().getClassType(className);
+    }
+    
+    private static JClass getClass(String className) {
+        return World.getClassHierarchy().getClass(className);
+    }
+    
     /**
      * Test resolveMethod() with specified class and name.
      * The declaring class of the resolved method should be the same
@@ -241,18 +242,18 @@ public class HierarchyTest {
      * @param returnType returnType of the reference
      * @param parameterTypes parameter types of the reference
      */
-    private static void testResolveMethod(
+    static void testResolveMethod(
             String refClass, String refName, Type returnType,
             String declaringClass, Type... parameterTypes) {
-        JClass refJClass = hierarchy.getClass(refClass);
-        JClass declaringJClass = hierarchy.getClass(declaringClass);
+        JClass refJClass = getClass(refClass);
+        JClass declaringJClass = getClass(declaringClass);
         MethodRef methodRef = MethodRef.get(refJClass, refName,
                 Arrays.asList(parameterTypes), returnType, false);
         JMethod method = methodRef.resolve();
         Assert.assertEquals(declaringJClass, method.getDeclaringClass());
     }
 
-    private static void testResolveMethod(
+    static void testResolveMethod(
             String refClass, String refName, String declaringClass,
             Type... parameterTypes) {
         testResolveMethod(refClass, refName, VOID,
