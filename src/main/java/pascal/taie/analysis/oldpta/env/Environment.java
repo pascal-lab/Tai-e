@@ -13,10 +13,10 @@
 package pascal.taie.analysis.oldpta.env;
 
 import pascal.taie.World;
+import pascal.taie.analysis.oldpta.PTAOptions;
 import pascal.taie.analysis.oldpta.env.nativemodel.NativeModel;
 import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
 

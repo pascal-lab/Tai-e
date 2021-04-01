@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.oldpta.env.nativemodel;
 
+import pascal.taie.analysis.oldpta.PTAOptions;
 import pascal.taie.analysis.oldpta.ir.ArrayLoad;
 import pascal.taie.analysis.oldpta.ir.ArrayStore;
 import pascal.taie.analysis.oldpta.ir.AssignCast;
@@ -20,7 +21,6 @@ import pascal.taie.analysis.oldpta.ir.CallSite;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.analysis.oldpta.ir.Statement;
 import pascal.taie.analysis.oldpta.ir.Variable;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;

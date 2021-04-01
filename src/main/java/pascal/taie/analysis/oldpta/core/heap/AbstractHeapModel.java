@@ -12,9 +12,9 @@
 
 package pascal.taie.analysis.oldpta.core.heap;
 
+import pascal.taie.analysis.oldpta.PTAOptions;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.Obj;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;

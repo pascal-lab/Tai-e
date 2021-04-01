@@ -13,6 +13,7 @@
 package pascal.taie.analysis.oldpta.core.solver;
 
 import pascal.taie.World;
+import pascal.taie.analysis.oldpta.PTAOptions;
 import pascal.taie.analysis.oldpta.core.context.ContextInsensitiveSelector;
 import pascal.taie.analysis.oldpta.core.context.OneCallSelector;
 import pascal.taie.analysis.oldpta.core.context.OneObjectSelector;
@@ -29,7 +30,6 @@ import pascal.taie.analysis.oldpta.plugin.ResultPrinter;
 import pascal.taie.analysis.oldpta.plugin.ThreadHandler;
 import pascal.taie.analysis.oldpta.set.HybridPointsToSet;
 import pascal.taie.analysis.oldpta.set.PointsToSetFactory;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {
