@@ -32,10 +32,10 @@ import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {
 
-    public PointerAnalysis build(PTAOptions PTAOptions) {
+    public PointerAnalysis build(PTAOptions ptaOptions) {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
         PointerAnalysisImpl pta = new PointerAnalysisImpl();
-        setContextSensitivity(pta, PTAOptions);
+        setContextSensitivity(pta, ptaOptions);
         setPlugin(pta);
         pta.setHeapModel(new AllocationSiteBasedModel(
                 World.getTypeManager()));
@@ -43,8 +43,8 @@ public class PointerAnalysisBuilder {
         return pta;
     }
 
-    private void setContextSensitivity(PointerAnalysisImpl pta, PTAOptions PTAOptions) {
-        switch (PTAOptions.getContextSensitivity()) {
+    private void setContextSensitivity(PointerAnalysisImpl pta, PTAOptions ptaOptions) {
+        switch (ptaOptions.getContextSensitivity()) {
             case "ci":
                 pta.setContextSelector(new ContextInsensitiveSelector());
                 break;
@@ -73,7 +73,7 @@ public class PointerAnalysisBuilder {
             default:
                 throw new AnalysisException(
                         "Unknown context sensitivity variant: "
-                                + PTAOptions.getContextSensitivity());
+                                + ptaOptions.getContextSensitivity());
         }
     }
 

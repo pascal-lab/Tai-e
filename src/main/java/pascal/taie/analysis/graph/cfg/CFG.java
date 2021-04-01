@@ -24,11 +24,11 @@ import java.util.stream.Stream;
  */
 public interface CFG<N> extends Graph<N> {
 
+    IR getIR();
+
     default JMethod getMethod() {
         return getIR().getMethod();
     }
-
-    IR getIR();
 
     N getEntry();
 
