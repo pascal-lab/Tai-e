@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta;
 
+import pascal.taie.Main;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;

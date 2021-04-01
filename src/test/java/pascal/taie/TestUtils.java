@@ -60,7 +60,6 @@ public class TestUtils {
         // ignore implicit entries in test mode
         optList.add("--no-implicit-entries");
         optList.add("--test-mode");
-        optList.add("--"); // used by Tai'e to split Soot arguments
         test(inputClass, "cspta",
                 "pascal.taie.analysis.pta.ResultChecker", optList);
     }
@@ -78,7 +77,11 @@ public class TestUtils {
             cp = "test-resources/";
         }
         List<String> args = new ArrayList<>(opts);
-        Collections.addAll(args, "-cp", cp, inputClass);
+        Collections.addAll(args, "-cp", cp);
+        if (checker.contains(".pta.")) {
+            args.add("-m");
+        }
+        args.add(inputClass);
         try {
             Class<?> c = Class.forName(checker);
             Method check = c.getMethod("check", String[].class, String.class);

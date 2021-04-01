@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.core.heap;
 
-import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.World;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
@@ -65,15 +65,15 @@ abstract class AbstractHeapModel implements HeapModel {
     @Override
     public Obj getObj(NewExp newExp) {
         Type type = newExp.getType();
-        if (PTAOptions.get().isMergeStringObjects() &&
+        if (World.getOptions().isMergeStringObjects() &&
                 type.equals(string)) {
             return getMergedObj(newExp);
         }
-        if (PTAOptions.get().isMergeStringBuilders() &&
+        if (World.getOptions().isMergeStringBuilders() &&
                 (type.equals(stringBuilder) || type.equals(stringBuffer))) {
             return getMergedObj(newExp);
         }
-        if (PTAOptions.get().isMergeExceptionObjects() &&
+        if (World.getOptions().isMergeExceptionObjects() &&
                 typeManager.isSubtype(throwable, type)) {
             return getMergedObj(newExp);
         }
@@ -83,7 +83,7 @@ abstract class AbstractHeapModel implements HeapModel {
     @Override
     public <T> Obj getConstantObj(Type type, T value) {
         Obj obj = doGetConstantObj(type, value);
-        if (PTAOptions.get().isMergeStringConstants() &&
+        if (World.getOptions().isMergeStringConstants() &&
                 type.equals(string)) {
             mergedSC.addRepresentedObj(obj);
             return mergedSC;

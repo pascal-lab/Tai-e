@@ -12,10 +12,10 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.Options;
 import pascal.taie.World;
 import pascal.taie.WorldBuilder;
 import pascal.taie.analysis.oldpta.env.Environment;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.natives.DefaultNativeModel;
@@ -25,10 +25,15 @@ import pascal.taie.language.types.TypeManager;
 import pascal.taie.language.types.TypeManagerImpl;
 import pascal.taie.util.Timer;
 import soot.G;
+import soot.PackManager;
 import soot.Scene;
+import soot.SceneTransformer;
+import soot.Transform;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static soot.SootClass.HIERARCHY;
@@ -51,17 +56,91 @@ public class SootWorldBuilder implements WorldBuilder {
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
     );
 
-    private final Scene scene;
-
-    public SootWorldBuilder(Scene scene) {
-        this.scene = scene;
+    @Override
+    public void build(Options options) {
+        runSoot(options, this);
     }
 
-    @Override
-    public void build() {
+    private static void runSoot(Options options, SootWorldBuilder builder) {
+        initSoot();
+        // Set Soot options
+        soot.options.Options.v().set_output_format(
+                soot.options.Options.output_format_jimple);
+        soot.options.Options.v().set_keep_line_number(true);
+        if (!containsJDK(options.getClassPath())) {
+            soot.options.Options.v().set_prepend_classpath(true);
+        }
+        soot.options.Options.v().set_whole_program(true);
+        soot.options.Options.v().set_no_writeout_body_releasing(true);
+        soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
+        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+
+        // Configure Soot transformer
+        Transform transform = new Transform(
+                "wjtp.tai-e", new SceneTransformer() {
+            @Override
+            protected void internalTransform(String phaseName, Map<String, String> opts) {
+                builder.build(options, Scene.v());
+            }
+        });
+        PackManager.v()
+                .getPack("wjtp")
+                .add(transform);
+
+        // Run main analysis
+        soot.Main.main(new String[]{"-cp", options.getClassPath(),
+                options.getMainClass()});
+    }
+
+    public static void initSoot() {
+        G.reset();
+        Scene scene = G.v().soot_Scene();
+        // The following line is necessary to avoid a runtime exception
+        // when running soot with java 1.8
+        scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);
+        scene.addBasicClass("java.lang.annotation.Inherited", HIERARCHY);
+        scene.addBasicClass("javax.crypto.spec.IvParameterSpec", HIERARCHY);
+        scene.addBasicClass("javax.sound.sampled.Port", HIERARCHY);
+        scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+
+        // TODO: avoid adding non-exist basic classes. This requires to
+        //  check class path before adding these classes.
+        // For simulating the FileSystem class, we need the implementation
+        // of the FileSystem, but the classes are not loaded automatically
+        // due to the indirection via native code.
+        scene.addBasicClass("java.io.UnixFileSystem");
+        scene.addBasicClass("java.io.WinNTFileSystem");
+        scene.addBasicClass("java.io.Win32FileSystem");
+        // java.net.URL loads handlers dynamically
+        scene.addBasicClass("sun.net.www.protocol.file.Handler");
+        scene.addBasicClass("sun.net.www.protocol.ftp.Handler");
+        scene.addBasicClass("sun.net.www.protocol.http.Handler");
+        // The following line caused SootClassNotFoundException
+        // for sun.security.ssl.SSLSocketImpl. TODO: fix this
+        // scene.addBasicClass("sun.net.www.protocol.https.Handler");
+        scene.addBasicClass("sun.net.www.protocol.jar.Handler");
+    }
+
+    /**
+     * Check if Soot arguments contain the class paths for JRE/JDK.
+     */
+    private static boolean containsJDK(String cp) {
+        for (String arg : cp.split(File.pathSeparator)) {
+            if ((arg.toLowerCase().contains("jre")
+                    || arg.toLowerCase().contains("jdk"))
+                    && arg.toLowerCase().contains(".jar")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void build(Options options, Scene scene) {
         World.reset();
         World world = new World();
         World.set(world);
+
+        world.setOptions(options);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         SootClassLoader loader = new SootClassLoader(scene, hierarchy);
@@ -99,7 +178,7 @@ public class SootWorldBuilder implements WorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
         timer.stop();
         System.out.println(timer);
-        if (PTAOptions.get().isDumpClasses()) {
+        if (World.getOptions().isDumpClasses()) {
             ClassDumper dumper = new ClassDumper();
             scene.getClasses().forEach(dumper::dump);
         }
@@ -112,37 +191,8 @@ public class SootWorldBuilder implements WorldBuilder {
 
     private static NativeModel getNativeModel(
             TypeManager typeManager, ClassHierarchy hierarchy) {
-        return PTAOptions.get().enableNativeModel() ?
+        return World.getOptions().enableNativeModel() ?
                 new DefaultNativeModel(typeManager, hierarchy) :
                 new EmptyNativeModel(typeManager, hierarchy);
-    }
-
-    public static void initSoot() {
-        G.reset();
-        Scene scene = G.v().soot_Scene();
-        // The following line is necessary to avoid a runtime exception
-        // when running soot with java 1.8
-        scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);
-        scene.addBasicClass("java.lang.annotation.Inherited", HIERARCHY);
-        scene.addBasicClass("javax.crypto.spec.IvParameterSpec", HIERARCHY);
-        scene.addBasicClass("javax.sound.sampled.Port", HIERARCHY);
-        scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
-
-        // TODO: avoid adding non-exist basic classes. This requires to
-        //  check class path before adding these classes.
-        // For simulating the FileSystem class, we need the implementation
-        // of the FileSystem, but the classes are not loaded automatically
-        // due to the indirection via native code.
-        scene.addBasicClass("java.io.UnixFileSystem");
-        scene.addBasicClass("java.io.WinNTFileSystem");
-        scene.addBasicClass("java.io.Win32FileSystem");
-        // java.net.URL loads handlers dynamically
-        scene.addBasicClass("sun.net.www.protocol.file.Handler");
-        scene.addBasicClass("sun.net.www.protocol.ftp.Handler");
-        scene.addBasicClass("sun.net.www.protocol.http.Handler");
-        // The following line caused SootClassNotFoundException
-        // for sun.security.ssl.SSLSocketImpl. TODO: fix this
-        // scene.addBasicClass("sun.net.www.protocol.https.Handler");
-        scene.addBasicClass("sun.net.www.protocol.jar.Handler");
     }
 }

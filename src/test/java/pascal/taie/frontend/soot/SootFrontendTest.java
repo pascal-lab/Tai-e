@@ -14,6 +14,7 @@ package pascal.taie.frontend.soot;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
@@ -38,9 +39,9 @@ public class SootFrontendTest {
                         "java-benchmarks/jre1.6.0_24/jce.jar",
                         "java-benchmarks/jre1.6.0_24/jsse.jar",
                         "test-resources/cspta"),
-                "Assign"
+                "-m", "Assign"
         };
-        TestUtils.buildWorld(args);
+        Main.buildWorld(args);
         World.getClassHierarchy()
                 .getAllClasses()
                 .stream()

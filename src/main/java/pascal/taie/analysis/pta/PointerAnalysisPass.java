@@ -10,17 +10,19 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta.plugin;
+package pascal.taie.analysis.pta;
 
 import pascal.taie.World;
+import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.PointerAnalysisBuilder;
+import pascal.taie.pass.Pass;
 
-public class Preprocessor implements Plugin {
+public class PointerAnalysisPass implements Pass {
 
     @Override
-    public void preprocess() {
-        if (World.getOptions().isPreBuildIR()) {
-            World.getIRBuilder()
-                    .buildAll(World.getClassHierarchy());
-        }
+    public void run() {
+        PointerAnalysis pta = new PointerAnalysisBuilder()
+                .build(World.getOptions());
+        pta.analyze();
     }
 }

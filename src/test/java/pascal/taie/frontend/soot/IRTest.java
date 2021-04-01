@@ -13,6 +13,7 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.Test;
+import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.JClass;
@@ -26,15 +27,14 @@ public class IRTest {
             = Collections.singletonList("AllInOne");
 
     private static void initWorld(String mainClass) {
-        String[] args = new String[]{
+        Main.buildWorld(new String[]{
                 "-cp",
                 "java-benchmarks/jre1.6.0_24/rt.jar;" +
                         "java-benchmarks/jre1.6.0_24/jce.jar;" +
                         "java-benchmarks/jre1.6.0_24/jsse.jar;" +
                         "test-resources/ir",
                 mainClass
-        };
-        TestUtils.buildWorld(args);
+        });
     }
 
     @Test

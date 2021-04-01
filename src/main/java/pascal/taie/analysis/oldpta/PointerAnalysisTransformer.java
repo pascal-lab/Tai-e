@@ -35,7 +35,7 @@ public class PointerAnalysisTransformer extends SceneTransformer {
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-        new SootWorldBuilder(Scene.v()).build();
+//        new SootWorldBuilder(Scene.v()).build(PTAOptions.get());
 
         PointerAnalysis pta = new PointerAnalysisBuilder()
                 .build(PTAOptions.get());

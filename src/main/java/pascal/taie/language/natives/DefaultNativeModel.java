@@ -14,7 +14,7 @@ package pascal.taie.language.natives;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
@@ -104,7 +104,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
         // invoked. Finalizer uses an indirection via native code to
         // circumvent this. This rule implements this indirection.
         // This API is deprecated since Java 7.
-        if (PTAOptions.get().jdkVersion() <= 6) {
+        if (World.getOptions().jdkVersion() <= 6) {
             register("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", m ->
                     invokeVirtualMethod(m, "<java.lang.Object: void finalize()>",
                             b -> b.getParam(0), b -> null)
@@ -168,7 +168,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
         // Redirect calls to Thread.start() to Thread.run().
         // Before Java 5, Thread.start() itself is native. Since Java 5,
         // start() is written in Java which calls native method start0().
-        final String start = PTAOptions.get().jdkVersion() <= 4
+        final String start = World.getOptions().jdkVersion() <= 4
                 ? "<java.lang.Thread: void start()>"
                 : "<java.lang.Thread: void start0()>";
         register(start, m ->
@@ -195,7 +195,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
             //  multiple invocations. A possible solution is to use a flag
             //  to mark these native-related allocation sites, so that
             //  HeapModel can recognize them and convert them to EnvObj.
-            if (PTAOptions.get().jdkVersion() <= 6) {
+            if (World.getOptions().jdkVersion() <= 6) {
                 register("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", m ->
                         allocateObject(m, "<" + fsName + ": void <init>()>",
                                 b -> Collections.emptyList())

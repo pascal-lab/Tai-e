@@ -15,8 +15,8 @@ package pascal.taie.language;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.frontend.soot.TestUtils;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
 
@@ -32,14 +32,14 @@ public class TypeTest {
 
     @BeforeClass
     public static void initTypeManager() {
-        TestUtils.buildWorld(new String[]{
+        Main.buildWorld(new String[]{
                 "-cp",
                 String.join(File.pathSeparator,
                         "java-benchmarks/jre1.6.0_24/rt.jar",
                         "java-benchmarks/jre1.6.0_24/jce.jar",
                         "java-benchmarks/jre1.6.0_24/jsse.jar",
                         "test-resources/java"),
-                "Types"
+                "-m", "Types"
         });
         typeManager = World.getTypeManager();
     }

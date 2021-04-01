@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.ResultChecker;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -73,16 +73,16 @@ public enum ResultPrinter implements Plugin {
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(pta);
         }
-        if (PTAOptions.get().isDumpCallGraph()) {
+        if (World.getOptions().isDumpCallGraph()) {
             GraphDumper.dumpDotFile(pta.getCallGraph(), "output/callgraph.dot");
         }
     }
 
     private void printResults(PointerAnalysis pta) {
-        if (PTAOptions.get().isTestMode()) {
+        if (World.getOptions().isTestMode()) {
             printPointers(pta);
-        } else if (PTAOptions.get().isOutputResults()) {
-            File output = PTAOptions.get().getOutputFile();
+        } else if (World.getOptions().isOutputResults()) {
+            File output = World.getOptions().getOutputFile();
             if (output != null) {
                 try {
                     out = new PrintStream(new FileOutputStream(output),

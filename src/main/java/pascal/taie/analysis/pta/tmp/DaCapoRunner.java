@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.tmp;
 
-import pascal.taie.analysis.pta.Main;
+import pascal.taie.Main;
 import soot.G;
 
 import java.io.File;
@@ -51,12 +51,14 @@ public class DaCapoRunner {
 
     private String[] compose06Args(String benchmark) {
         return new String[]{
+                "-p", "pascal.taie.analysis.pta.PointerAnalysisPass",
                 "-jdk=6",
                 "--merge-string-constants",
                 "--pre-build-ir",
                 "-cs", "2-obj",
-                "--", "-cp", buildCP(JDK6, PATH06, benchmark),
-                "dacapo." + benchmark + ".Main"};
+                "-cp", buildCP(JDK6, PATH06, benchmark),
+                "-m", "dacapo." + benchmark + ".Main"
+        };
     }
 
     private String buildCP(String jdkPath, String dacapoPath,

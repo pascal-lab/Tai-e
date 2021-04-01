@@ -10,16 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie;
+package pascal.taie.pass;
 
-/**
- * Interface for {@link World} builder.
- */
-public interface WorldBuilder {
+public interface Pass {
 
-    /**
-     * Build a new instance of {@link World} and make it globally accessible
-     * through static methods of {@link World}.
-     */
-    void build(Options options);
+    void run();
 }

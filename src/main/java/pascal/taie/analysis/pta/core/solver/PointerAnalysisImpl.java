@@ -18,7 +18,6 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -225,7 +224,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private Collection<JMethod> computeEntries() {
         List<JMethod> entries = new ArrayList<>();
         entries.add(World.getMainMethod());
-        if (PTAOptions.get().analyzeImplicitEntries()) {
+        if (World.getOptions().analyzeImplicitEntries()) {
             entries.addAll(World.getImplicitEntries());
         }
         return entries;

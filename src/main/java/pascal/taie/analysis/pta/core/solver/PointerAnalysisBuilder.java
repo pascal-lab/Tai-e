@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.PTAOptions;
+import pascal.taie.Options;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;
@@ -32,10 +32,10 @@ import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {
 
-    public PointerAnalysis build(PTAOptions ptaOptions) {
+    public PointerAnalysis build(Options options) {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
         PointerAnalysisImpl pta = new PointerAnalysisImpl();
-        setContextSensitivity(pta, ptaOptions);
+        setContextSensitivity(pta, options);
         setPlugin(pta);
         pta.setHeapModel(new AllocationSiteBasedModel(
                 World.getTypeManager()));
@@ -43,8 +43,8 @@ public class PointerAnalysisBuilder {
         return pta;
     }
 
-    private void setContextSensitivity(PointerAnalysisImpl pta, PTAOptions ptaOptions) {
-        switch (ptaOptions.getContextSensitivity()) {
+    private void setContextSensitivity(PointerAnalysisImpl pta, Options options) {
+        switch (options.getContextSensitivity()) {
             case "ci":
                 pta.setContextSelector(new ContextInsensitiveSelector());
                 break;
@@ -73,7 +73,7 @@ public class PointerAnalysisBuilder {
             default:
                 throw new AnalysisException(
                         "Unknown context sensitivity variant: "
-                                + ptaOptions.getContextSensitivity());
+                                + options.getContextSensitivity());
         }
     }
 

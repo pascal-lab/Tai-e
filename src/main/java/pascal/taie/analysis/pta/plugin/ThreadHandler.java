@@ -13,7 +13,6 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.PTAOptions;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -81,7 +80,7 @@ public class ThreadHandler implements Plugin {
 
     @Override
     public void initialize() {
-        if (!PTAOptions.get().analyzeImplicitEntries()) {
+        if (!World.getOptions().analyzeImplicitEntries()) {
             return;
         }
         NativeModel nativeModel = World.getNativeModel();
