@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.World;
 import pascal.taie.Options;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;

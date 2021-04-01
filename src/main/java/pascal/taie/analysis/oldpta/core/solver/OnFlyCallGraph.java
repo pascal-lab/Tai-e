@@ -24,10 +24,8 @@ import pascal.taie.analysis.oldpta.ir.Statement;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionView;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 

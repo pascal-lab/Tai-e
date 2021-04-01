@@ -15,10 +15,8 @@ package pascal.taie.analysis.graph.callgraph;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.CollectionView;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;

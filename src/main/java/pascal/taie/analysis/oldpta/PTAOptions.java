@@ -15,10 +15,7 @@ package pascal.taie.analysis.oldpta;
 import pascal.taie.Options;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-
-import java.io.File;
 
 @Command(name = "PTAOptions",
         description = "Pointer analysis options",
