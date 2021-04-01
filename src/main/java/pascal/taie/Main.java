@@ -17,19 +17,29 @@ import pascal.taie.pass.Pass;
 public class Main {
 
     public static void main(String[] args) {
-        // parse options
         Options options = Options.parse(args);
-        if (options.shouldShowHelp()) {
-            options.printHelp();
-            return;
-        } else if (options.shouldShowVersion()) {
-            options.printVersion();
-            return;
-        }
+        printInfo(options);
         buildWorld(options);
         runPasses(options);
     }
 
+    /**
+     * If the given options specify to print help or version information,
+     * then print them and exit immediately.
+     */
+    private static void printInfo(Options options) {
+        if (options.isPrintHelp()) {
+            options.printHelp();
+            System.exit(0);
+        } else if (options.isPrintVersion()) {
+            options.printVersion();
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Convenient method for building the world from String arguments.
+     */
     public static void buildWorld(String[] args) {
         buildWorld(Options.parse(args));
     }

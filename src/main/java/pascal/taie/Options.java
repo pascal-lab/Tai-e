@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Command(name = "Options",
-        description = "Pointer analysis options",
+        description = "Tai-e options",
         showEndOfOptionsDelimiterInUsageHelp = true,
         version = "0.1")
 public class Options {
@@ -147,11 +147,11 @@ public class Options {
         new CommandLine(this).printVersionHelp(System.out);
     }
 
-    public boolean shouldShowHelp() {
+    public boolean isPrintHelp() {
         return help;
     }
 
-    public boolean shouldShowVersion() {
+    public boolean isPrintVersion() {
         return version;
     }
 

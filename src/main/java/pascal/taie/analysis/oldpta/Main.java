@@ -21,10 +21,10 @@ public class Main {
     public static void main(String[] args) {
         // Configure Tai-e options
         PTAOptions.parse(args);
-        if (PTAOptions.get().shouldShowHelp()) {
+        if (PTAOptions.get().isPrintHelp()) {
             PTAOptions.get().printHelp();
             return;
-        } else if (PTAOptions.get().shouldShowVersion()) {
+        } else if (PTAOptions.get().isPrintVersion()) {
             PTAOptions.get().printVersion();
             return;
         }

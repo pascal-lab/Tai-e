@@ -22,7 +22,7 @@ public class OptionsTest {
     @Test
     public void testHelp() {
         Options options = Options.parse("--help");
-        if (options.shouldShowHelp()) {
+        if (options.isPrintHelp()) {
             options.printHelp();
         }
     }
@@ -30,7 +30,7 @@ public class OptionsTest {
     @Test
     public void testVersion() {
         Options options = Options.parse("-v");
-        if (options.shouldShowVersion()) {
+        if (options.isPrintVersion()) {
             options.printVersion();
         }
     }
