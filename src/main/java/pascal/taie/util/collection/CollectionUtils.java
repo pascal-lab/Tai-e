@@ -70,6 +70,10 @@ public class CollectionUtils {
         return new HybridArrayHashSet<>();
     }
 
+    public static <E> Set<E> newHybridSet(Collection<E> c) {
+        return new HybridArrayHashSet<>(c);
+    }
+
     public static <E> Set<E> newConcurrentSet() {
         return ConcurrentHashMap.newKeySet();
     }

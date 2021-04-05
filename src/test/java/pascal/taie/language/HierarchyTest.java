@@ -28,6 +28,7 @@ import pascal.taie.language.types.Type;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 
 import static pascal.taie.language.types.PrimitiveType.BOOLEAN;
 import static pascal.taie.language.types.PrimitiveType.INT;
@@ -37,7 +38,7 @@ import static pascal.taie.language.types.VoidType.VOID;
 public class HierarchyTest {
 
     @BeforeClass
-    public static void initTypeManager() {
+    public static void buildWorld() {
         Main.buildWorld(new String[]{
                 "-cp",
                 String.join(File.pathSeparator,
@@ -162,7 +163,6 @@ public class HierarchyTest {
         testResolveField("G", "f", "E");
     }
 
-
     /**
      * Test resolveField() with specified class and field names.
      * The declaring class of the resolved field should be the same
@@ -258,5 +258,42 @@ public class HierarchyTest {
             Type... parameterTypes) {
         testResolveMethod(refClass, refName, VOID,
                 declaringClass, parameterTypes);
+    }
+
+    // ---------- Test subclasses getAllSubclasses()  ----------
+
+    /**
+     * Test subclasses of class.
+     */
+    @Test
+    public void testSubclasses() {
+        Collection<JClass> subclasses;
+        JClass C = getClass("C");
+        subclasses = getAllSubclasses(C, true);
+        Assert.assertTrue(subclasses.contains(C));
+        subclasses = getAllSubclasses(C, false);
+        Assert.assertFalse(subclasses.contains(C));
+    }
+
+    /**
+     * Test subclasses of interface.
+     */
+    @Test
+    public void testInterfaceSubclasses() {
+        JClass I = getClass("I");
+        Collection<JClass> subclasses = getAllSubclasses(I, true);
+
+        Assert.assertTrue(subclasses.contains(getClass("IIII")));
+        Assert.assertTrue(subclasses.contains(getClass("E")));
+        Assert.assertTrue(subclasses.contains(getClass("G")));
+        Assert.assertTrue(subclasses.contains(getClass("H")));
+
+        Assert.assertFalse(subclasses.contains(getClass("II")));
+        Assert.assertFalse(subclasses.contains(getClass("C")));
+    }
+
+    private static Collection<JClass> getAllSubclasses(
+            JClass jclass, boolean selfInclude) {
+        return World.getClassHierarchy().getAllSubclassesOf(jclass, selfInclude);
     }
 }

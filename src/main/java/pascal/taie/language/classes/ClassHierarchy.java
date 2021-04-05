@@ -85,4 +85,14 @@ public interface ClassHierarchy {
     JMethod dispatch(JClass receiverClass, MethodRef methodRef);
 
     boolean isSubclass(JClass superclass, JClass subclass);
+
+    /**
+     * Return all subclasses of the given class.
+     * If the given class is an interface, then return all its
+     * direct/indirect subinterfaces and their all direct/indirect implementors;
+     * otherwise, return all its direct/indirect subclasses.
+     * @param jclass the given class.
+     * @param selfInclude whether the result contains jclass itself
+     */
+    Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude);
 }

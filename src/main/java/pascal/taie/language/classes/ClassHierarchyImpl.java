@@ -19,17 +19,14 @@ import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.ArrayMap;
-import pascal.taie.util.collection.HybridArrayHashSet;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
@@ -47,14 +44,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     /**
      * Map from each interface to its direct subinterfaces.
      */
-    private final ConcurrentMap<JClass, Set<JClass>> directSubinterfaces
-            = newConcurrentMap();
+    private final Map<JClass, Set<JClass>> directSubinterfaces = newMap();
 
     /**
      * Map from each interface to all its subinterfaces.
      */
-    private final ConcurrentMap<JClass, Set<JClass>> allSubinterfaces
-            = newConcurrentMap();
+    private final Map<JClass, Set<JClass>> allSubinterfaces = newMap();
+
+    /**
+     * Map from each interface to its direct implementors.
+     */
+    private final Map<JClass, Set<JClass>> directImplementors = newMap();
+
+    /**
+     * Map from each class to its direct subclasses.
+     */
+    private final Map<JClass, Set<JClass>> directSubclasses = newMap();
 
     /**
      * Cache results of method dispatch.
@@ -99,6 +104,19 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                     directSubinterfaces.computeIfAbsent(iface,
                             i -> newHybridSet())
                             .add(jclass));
+        } else {
+            // add direct implementors
+            jclass.getInterfaces().forEach(iface ->
+                    directImplementors.computeIfAbsent(iface,
+                            i -> newHybridSet())
+                            .add(jclass));
+            // add direct subclasses
+            JClass superClass = jclass.getSuperClass();
+            if (superClass != null) {
+                directSubclasses.computeIfAbsent(superClass,
+                        c -> newHybridSet())
+                        .add(jclass);
+            }
         }
     }
 
@@ -224,7 +242,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.computeIfAbsent(receiverClass,
-                c -> newConcurrentMap()).get(subsignature);
+                c -> newMap()).get(subsignature);
         if (target == null) {
             target = lookupMethod(receiverClass, subsignature, false);
             if (target != null) {
@@ -293,7 +311,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             return true;
         } else if (subclass.isInterface()) {
             return superclass.isInterface() &&
-                    getAllSubinterfaces(superclass).contains(subclass);
+                    getAllSubinterfacesOf(superclass).contains(subclass);
         } else {
             return isSubclass0(superclass, subclass);
         }
@@ -315,7 +333,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return JavaLangObject;
     }
 
-    private Set<JClass> getAllSubinterfaces(JClass iface) {
+    private Set<JClass> getAllSubinterfacesOf(JClass iface) {
         assert iface.isInterface();
         Set<JClass> result = allSubinterfaces.get(iface);
         if (result == null) {
@@ -323,9 +341,9 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             if (directSubs == null) {
                 result = Collections.emptySet();
             } else {
-                result = new HybridArrayHashSet<>(directSubs);
+                result = newHybridSet(directSubs);
                 for (JClass sub : directSubs) {
-                    result.addAll(getAllSubinterfaces(sub));
+                    result.addAll(getAllSubinterfacesOf(sub));
                 }
             }
             allSubinterfaces.put(iface, result);
@@ -356,5 +374,34 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             }
         }
         return false;
+    }
+
+    @Override
+    public Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude) {
+        // TODO: cache results?
+        Set<JClass> subclasses = newHybridSet();
+        if (selfInclude) {
+            subclasses.add(jclass);
+        }
+        if (jclass.isInterface()) {
+            subclasses.addAll(getDirectImplementorsOf(jclass));
+            getAllSubinterfacesOf(jclass).forEach(subiface -> {
+                subclasses.add(subiface);
+                getDirectImplementorsOf(subiface).forEach(impl ->
+                        subclasses.addAll(getAllSubclassesOf(impl, true)));
+            });
+        } else {
+            getDirectSubClassesOf(jclass).forEach(subclass ->
+                    subclasses.addAll(getAllSubclassesOf(subclass, true)));
+        }
+        return subclasses;
+    }
+
+    private Collection<JClass> getDirectImplementorsOf(JClass jclass) {
+        return directImplementors.getOrDefault(jclass, Collections.emptySet());
+    }
+
+    private Collection<JClass> getDirectSubClassesOf(JClass jClass) {
+        return directSubclasses.getOrDefault(jClass, Collections.emptySet());
     }
 }
