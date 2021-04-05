@@ -17,8 +17,7 @@ import pascal.taie.pass.Pass;
 public class Main {
 
     public static void main(String[] args) {
-        Options options = Options.parse(args);
-        printInfo(options);
+        Options options = processArgs(args);
         buildWorld(options);
         runPasses(options);
     }
@@ -27,14 +26,16 @@ public class Main {
      * If the given options specify to print help or version information,
      * then print them and exit immediately.
      */
-    private static void printInfo(Options options) {
-        if (options.isPrintHelp()) {
+    private static Options processArgs(String[] args) {
+        Options options = Options.parse(args);
+        if (options.isPrintHelp() || args.length == 0) {
             options.printHelp();
             System.exit(0);
         } else if (options.isPrintVersion()) {
             options.printVersion();
             System.exit(0);
         }
+        return options;
     }
 
     /**

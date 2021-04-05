@@ -22,23 +22,19 @@ import java.util.List;
 
 @Command(name = "Options",
         description = "Tai-e options",
-        showEndOfOptionsDelimiterInUsageHelp = true,
         version = "0.1")
 public class Options {
-
-    // Default options
-    private static Options options = CommandLine.populateCommand(new Options());
 
     // ---------- information options ----------
     @Option(names = {"-v", "--version"},
             description = "Display version information",
             defaultValue = "false", versionHelp = true)
-    boolean version;
+    private boolean version;
 
     @Option(names = {"-h", "--help"},
             description = "Display this help message",
             defaultValue = "false", usageHelp = true)
-    boolean help;
+    private boolean help;
 
     // ---------- program options ----------
     @Option(names = {"-cp", "--class-path"},
@@ -61,6 +57,7 @@ public class Options {
             defaultValue = "false")
     private boolean preBuildIR;
 
+    @SuppressWarnings("FieldMayBeFinal")
     @Option(names = {"-p", "--passes"},
             description = "Analysis passes to run", split = ",")
     private List<String> passClasses = Collections.emptyList();
