@@ -50,6 +50,57 @@ public class StringReps {
 
     public static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
 
+    // Names of special exceptions
+    public static final String ABSTRACT_METHOD_ERROR = "java.lang.AbstractMethodError";
+
+    public static final String ARITHMETIC_EXCEPTION = "java.lang.ArithmeticException";
+
+    public static final String ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.ArrayIndexOutOfBoundsException";
+
+    public static final String ARRAY_STORE_EXCEPTION = "java.lang.ArrayStoreException";
+
+    public static final String CLASS_CAST_EXCEPTION = "java.lang.ClassCastException";
+
+    public static final String CLASS_NOT_FOUND_EXCEPTION = "java.lang.ClassNotFoundException";
+
+    public static final String EXCEPTION_IN_INITIALIZER_ERROR = "java.lang.ExceptionInInitializerError";
+
+    public static final String ILLEGAL_ACCESS_ERROR = "java.lang.IllegalAccessError";
+
+    public static final String ILLEGAL_MONITOR_STATE_EXCEPTION = "java.lang.IllegalMonitorStateException";
+
+    public static final String INCOMPATIBLE_CLASS_CHANGE_ERROR = "java.lang.IncompatibleClassChangeError";
+
+    public static final String INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.IndexOutOfBoundsException";
+
+    public static final String INSTANTIATION_ERROR = "java.lang.InstantiationError";
+
+    public static final String INTERNAL_ERROR = "java.lang.InternalError";
+
+    public static final String LINKAGE_ERROR = "java.lang.LinkageError";
+
+    public static final String NEGATIVE_ARRAY_SIZE_EXCEPTION = "java.lang.NegativeArraySizeException";
+
+    public static final String NO_CLASS_DEF_FOUND_ERROR = "java.lang.NoClassDefFoundError";
+
+    public static final String NO_SUCH_FIELD_ERROR = "java.lang.NoSuchFieldError";
+
+    public static final String NO_SUCH_METHOD_ERROR = "java.lang.NoSuchMethodError";
+
+    public static final String NULL_POINTER_EXCEPTION = "java.lang.NullPointerException";
+
+    public static final String OUT_OF_MEMORY_ERROR = "java.lang.OutOfMemoryError";
+
+    public static final String RUNTIME_EXCEPTION = "java.lang.RuntimeException";
+
+    public static final String STACK_OVERFLOW_ERROR = "java.lang.StackOverflowError";
+
+    public static final String UNKNOWN_ERROR = "java.lang.UnknownError";
+
+    public static final String UNSATISFIED_LINK_ERROR = "java.lang.UnsatisfiedLinkError";
+
+    public static final String VERIFY_ERROR = "java.lang.VerifyError";
+
     // Subsignatures of special methods
     public static final String CLINIT = "void <clinit>()";
 

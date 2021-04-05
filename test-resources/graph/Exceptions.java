@@ -49,6 +49,7 @@ public class Exceptions {
             if (y > 0) {
                 throw new RuntimeException();
             } else if (y < 0) {
+                throwEx(0);
                 throw new Exception();
             }
         } catch (RuntimeException e) {
