@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
 import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 @InternalCanonicalized
 public class MethodRef extends MemberRef {
@@ -37,7 +36,7 @@ public class MethodRef extends MemberRef {
             newConcurrentMap(4096);
 
     // Method names of polymorphic signature methods.
-    private static final Set<String> METHOD_HANDLE_METHODS = newSet(
+    private static final Set<String> METHOD_HANDLE_METHODS = Set.of(
             "invokeExact",
             "invoke",
             "invokeBasic",
@@ -47,7 +46,7 @@ public class MethodRef extends MemberRef {
             "linkToInterface"
     );
 
-    private static final Set<String> VAR_HANDLE_METHODS = newSet(
+    private static final Set<String> VAR_HANDLE_METHODS = Set.of(
             "get",
             "set",
             "getVolatile",

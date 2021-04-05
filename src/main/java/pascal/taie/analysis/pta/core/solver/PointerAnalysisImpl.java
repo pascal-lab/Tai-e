@@ -272,14 +272,9 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         if (!diff.isEmpty()) {
             pointerFlowGraph.outEdgesOf(pointer).forEach(edge -> {
                 Pointer to = edge.getTo();
-                // TODO: use Optional.ifPresentOrElse() after upgrade to Java 9+
-                if (edge.getType().isPresent()) {
-                    // Checks assignable objects
-                    addPointerEntry(to,
-                            getAssignablePointsToSet(diff, edge.getType().get()));
-                } else {
-                    addPointerEntry(to, diff);
-                }
+                edge.getType().ifPresentOrElse(
+                        type -> addPointerEntry(to, getAssignablePointsToSet(diff, type)),
+                        () -> addPointerEntry(to, diff));
             });
         }
         return diff;

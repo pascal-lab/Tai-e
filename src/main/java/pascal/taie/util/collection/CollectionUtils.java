@@ -57,11 +57,6 @@ public class CollectionUtils {
         }
     }
 
-    // TODO: deprecate this and use Sets.of() after upgrading to Java 9.
-    public static <E> Set<E> newSet(E... elems) {
-        return Arrays.stream(elems).collect(Collectors.toSet());
-    }
-
     public static <E> Set<E> newSmallSet() {
         return new ArraySet<>();
     }
