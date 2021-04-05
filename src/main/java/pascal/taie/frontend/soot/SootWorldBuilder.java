@@ -152,6 +152,8 @@ public class SootWorldBuilder implements WorldBuilder {
         World world = new World();
         World.set(world);
 
+        // options will be used during World building, thus it should be
+        // set at first.
         world.setOptions(options);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
@@ -180,6 +182,7 @@ public class SootWorldBuilder implements WorldBuilder {
         Environment env = new Environment();
         world.setEnvironment(env);
         world.setIRBuilder(new IRBuilder(converter, env));
+        // TODO: handle --pre-build-ir here
     }
 
     private static void buildClasses(ClassHierarchy hierarchy, Scene scene) {

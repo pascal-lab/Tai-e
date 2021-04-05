@@ -12,6 +12,7 @@
 
 package pascal.taie.frontend.soot;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -26,7 +27,7 @@ public class IRTest {
     private static final List<String> targets
             = Collections.singletonList("AllInOne");
 
-    private static void initWorld(String mainClass) {
+    private static void buildWorld(String mainClass) {
         Main.buildWorld(new String[]{
                 "-cp",
                 "java-benchmarks/jre1.6.0_24/rt.jar;" +
@@ -44,11 +45,16 @@ public class IRTest {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
 
         targets.forEach(main -> {
-            initWorld(main);
+            buildWorld(main);
             JClass mainClass = World.getMainMethod().getDeclaringClass();
             mainClass.getDeclaredMethods().forEach(m ->
                     IRPrinter.print(m.getIR(), System.out));
             System.out.println("------------------------------\n");
         });
+    }
+
+    @AfterClass
+    public static void clear() {
+        System.clearProperty("ENABLE_JIMPLE_OPT");
     }
 }

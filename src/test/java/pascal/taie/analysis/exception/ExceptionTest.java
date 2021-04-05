@@ -47,11 +47,13 @@ public class ExceptionTest {
         ThrowAnalysis throwAnalysis = new ThrowAnalysis(true);
         JClass c = World.getClassHierarchy().getClass("Exceptions");
         c.getDeclaredMethods().forEach(m -> {
+            System.out.println(m);
             m.getIR()
                     .getStmts()
                     .forEach(stmt ->
                             System.out.println(stmt + " may throw " +
                                     throwAnalysis.mayThrow(stmt)));
+            System.out.println();
         });
     }
 }
