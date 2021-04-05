@@ -30,4 +30,9 @@ public class Unary extends AssignStmt<Var, UnaryExp> {
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

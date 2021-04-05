@@ -38,4 +38,6 @@ public interface Stmt {
     boolean canFallThrough();
 
     void accept(StmtVisitor visitor);
+
+    <T> T accept(StmtRVisitor<T> visitor);
 }

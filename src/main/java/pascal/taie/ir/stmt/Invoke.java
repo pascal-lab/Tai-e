@@ -72,6 +72,11 @@ public class Invoke extends AbstractStmt {
     }
 
     @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (result != null) {

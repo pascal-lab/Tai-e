@@ -43,6 +43,11 @@ public class Catch extends AbstractStmt {
     }
 
     @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return "catch " + exceptionRef;
     }

@@ -34,4 +34,9 @@ public class LoadArray extends ArrayStmt<Var, ArrayAccess> {
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

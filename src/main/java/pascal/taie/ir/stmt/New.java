@@ -34,4 +34,9 @@ public class New extends AssignStmt<Var, NewExp> {
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

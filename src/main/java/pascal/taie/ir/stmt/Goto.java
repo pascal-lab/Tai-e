@@ -45,6 +45,11 @@ public class Goto extends JumpStmt {
     }
 
     @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return "goto " + toString(target);
     }

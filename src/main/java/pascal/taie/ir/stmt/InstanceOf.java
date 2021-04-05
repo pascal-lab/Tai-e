@@ -28,4 +28,9 @@ public class InstanceOf extends AssignStmt<Var, InstanceOfExp> {
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }

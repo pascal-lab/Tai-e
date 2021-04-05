@@ -40,4 +40,10 @@ public class LoadField extends FieldStmt<Var, FieldAccess> {
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }
+
+
+    @Override
+    public <T> T accept(StmtRVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 }
