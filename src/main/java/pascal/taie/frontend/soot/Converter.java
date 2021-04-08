@@ -43,14 +43,12 @@ import soot.VoidType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.types.VoidType.VOID;
 import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
  * Convert Soot classes to Tai-e's representation.
@@ -61,17 +59,19 @@ class Converter {
 
     private final TypeManager typeManager;
 
-    private final Map<SootField, JField> fieldMap = newMap();
+    private final ConcurrentMap<SootField, JField> fieldMap
+            = newConcurrentMap(4096);
 
-    private final Map<SootMethod, JMethod> methodMap = newMap();
+    private final ConcurrentMap<SootMethod, JMethod> methodMap
+            = newConcurrentMap(4096);
 
     // Following two maps may be concurrently written during IR construction,
     // thus we use concurrent map to ensure their thread-safety.
     private final ConcurrentMap<SootFieldRef, FieldRef> fieldRefMap
-            = newConcurrentMap(1024);
+            = newConcurrentMap(4096);
 
     private final ConcurrentMap<SootMethodRef, MethodRef> methodRefMap
-            = newConcurrentMap(1024);
+            = newConcurrentMap(4096);
 
     Converter(JClassLoader loader, TypeManager typeManager) {
         this.loader = loader;
