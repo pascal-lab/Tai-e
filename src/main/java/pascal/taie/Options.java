@@ -37,6 +37,12 @@ public class Options {
     private boolean help;
 
     // ---------- program options ----------
+    @Option(names = "-java",
+            description = "Java version used by the program being analyzed" +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "6")
+    private int javaVersion;
+
     @Option(names = {"-cp", "--class-path"},
             description = "Class path")
     private String classPath;
@@ -63,12 +69,6 @@ public class Options {
     private List<String> passClasses = Collections.emptyList();
 
     // ---------- pointer analysis options ----------
-    @Option(names = "-jdk",
-            description = "JDK version of the standard library being analyzed" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "0")
-    private int jdkVersion;
-
     @Option(names = "--no-implicit-entries",
             description = "Analyze implicit reachable entry methods" +
                     " (default: ${DEFAULT-VALUE})",
@@ -172,8 +172,8 @@ public class Options {
         return passClasses;
     }
 
-    public int jdkVersion() {
-        return jdkVersion;
+    public int getJavaVersion() {
+        return javaVersion;
     }
 
     public boolean analyzeImplicitEntries() {

@@ -36,9 +36,9 @@ public class OptionsTest {
     }
 
     @Test
-    public void testJDKVersion() {
-        Options options = Options.parse("-jdk=8");
-        Assert.assertEquals(options.jdkVersion(), 8);
+    public void testJavaVersion() {
+        Options options = Options.parse("-java=8");
+        Assert.assertEquals(options.getJavaVersion(), 8);
     }
     @Test
     public void testOptions() {

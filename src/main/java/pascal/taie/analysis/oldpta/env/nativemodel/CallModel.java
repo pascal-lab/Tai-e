@@ -106,7 +106,7 @@ class CallModel {
         // invoked. Finalizer uses an indirection via native code to
         // circumvent this. This rule implements this indirection.
         // This API is deprecated since Java 7.
-        if (PTAOptions.get().jdkVersion() <= 6) {
+        if (PTAOptions.get().getJavaVersion() <= 6) {
             registerHandler("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", (ir, call) -> {
                 Utils.modelStaticToVirtualCall(hierarchy, ir, call,
                         "<java.lang.Object: void finalize()>",

@@ -128,7 +128,7 @@ class MethodModel {
         // Redirect calls to Thread.start() to Thread.run().
         // Before Java 5, Thread.start() itself is native. Since Java 5,
         // start() is written in Java which calls native method start0().
-        final String start = PTAOptions.get().jdkVersion() <= 4
+        final String start = PTAOptions.get().getJavaVersion() <= 4
                 ? "<java.lang.Thread: void start()>"
                 : "<java.lang.Thread: void start0()>";
         registerHandler(start, ir -> {
@@ -151,7 +151,7 @@ class MethodModel {
         );
         // <java.io.FileSystem: java.io.FileSystem getFileSystem()>
         // This API is implemented in Java code since Java 7.
-        if (PTAOptions.get().jdkVersion() <= 6) {
+        if (PTAOptions.get().getJavaVersion() <= 6) {
             registerHandler("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", ir -> {
                 concreteFileSystems.forEach(fsName -> {
                     JClass fs = hierarchy.getJREClass(fsName);
