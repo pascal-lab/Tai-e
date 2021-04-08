@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.pta.plugin;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
@@ -71,7 +73,15 @@ public interface Plugin {
     }
 
     /**
-     * Invoked when new reachable method is discovered.
+     * Invoked when a new call graph edge is discovered.
+     * Not thread-safe, but single-thread on edge.
+     * @param edge new call graph edge
+     */
+    default void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    }
+
+    /**
+     * Invoked when a new reachable method is discovered.
      * Not thread-safe, but single-thread on method.
      * @param method new reachable method
      */
@@ -79,7 +89,7 @@ public interface Plugin {
     }
 
     /**
-     * Invoked when new reachable context-sensitive method is discovered.
+     * Invoked when a new reachable context-sensitive method is discovered.
      * Not thread-safe, but single-thread on csMethod.
      * @param csMethod new reachable context-sensitive method
      */

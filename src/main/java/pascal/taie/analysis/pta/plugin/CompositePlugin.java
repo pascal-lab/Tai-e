@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.pta.plugin;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
@@ -62,6 +64,11 @@ public class CompositePlugin implements Plugin {
     @Override
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
         plugins.forEach(p -> p.handleNewPointsToSet(csVar, pts));
+    }
+
+    @Override
+    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        plugins.forEach(p -> p.handleNewCallEdge(edge));
     }
 
     @Override

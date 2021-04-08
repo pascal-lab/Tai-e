@@ -503,6 +503,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     }
                 }
             }
+            plugin.handleNewCallEdge(edge);
         }
     }
 
