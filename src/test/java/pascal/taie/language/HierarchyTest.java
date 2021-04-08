@@ -26,7 +26,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -40,12 +39,7 @@ public class HierarchyTest {
     @BeforeClass
     public static void buildWorld() {
         Main.buildWorld(new String[]{
-                "-cp",
-                String.join(File.pathSeparator,
-                        "java-benchmarks/jre1.6.0_24/rt.jar",
-                        "java-benchmarks/jre1.6.0_24/jce.jar",
-                        "java-benchmarks/jre1.6.0_24/jsse.jar",
-                        "test-resources/java"),
+                "-cp", "test-resources/java",
                 "-m", "Hierarchy"
         });
     }

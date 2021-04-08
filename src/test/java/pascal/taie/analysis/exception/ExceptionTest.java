@@ -19,20 +19,13 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 
-import java.io.File;
-
 public class ExceptionTest {
 
     @BeforeClass
     public static void buildWorld() {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
         Main.buildWorld(new String[]{
-                "-cp",
-                String.join(File.pathSeparator,
-                        "java-benchmarks/jre1.6.0_24/rt.jar",
-                        "java-benchmarks/jre1.6.0_24/jce.jar",
-                        "java-benchmarks/jre1.6.0_24/jsse.jar",
-                        "test-resources/graph"),
+                "-cp", "test-resources/graph",
                 "-m", "Exceptions"
         });
     }

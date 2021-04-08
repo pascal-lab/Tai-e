@@ -27,7 +27,6 @@ public class DaCapoRunner {
             = Arrays.asList("antlr", /*"bloat",*/ "chart", "eclipse", "fop",
             "hsqldb", /*"jython",*/ "luindex", "lusearch", "pmd", "xalan");
     private static final String PATH06 = "java-benchmarks" + SEP + "dacapo-2006";
-    private static final String JDK6 = "java-benchmarks" + SEP + "jre1.6.0_24";
 
     public static void main(String[] args) {
         DaCapoRunner runner = new DaCapoRunner();
@@ -52,24 +51,19 @@ public class DaCapoRunner {
     private String[] compose06Args(String benchmark) {
         return new String[]{
                 "-p", "pascal.taie.analysis.pta.PointerAnalysisPass",
-                "-jdk=6",
+                "-java=6",
                 "--merge-string-constants",
                 "--pre-build-ir",
                 "-cs", "2-obj",
-                "-cp", buildCP(JDK6, PATH06, benchmark),
+                "-cp", buildCP(benchmark),
                 "-m", "dacapo." + benchmark + ".Main"
         };
     }
 
-    private String buildCP(String jdkPath, String dacapoPath,
-                           String benchmark) {
+    private String buildCP(String benchmark) {
         List<String> cp = new ArrayList<>();
-        // setup JDK path
-        cp.add(jdkPath + SEP + "rt.jar");
-        cp.add(jdkPath + SEP + "jce.jar");
-        cp.add(jdkPath + SEP + "jsse.jar");
-        cp.add(dacapoPath + SEP + benchmark + ".jar");
-        cp.add(dacapoPath + SEP + benchmark + "-deps.jar");
+        cp.add(PATH06 + SEP + benchmark + ".jar");
+        cp.add(PATH06 + SEP + benchmark + "-deps.jar");
         return String.join(File.pathSeparator, cp);
     }
 

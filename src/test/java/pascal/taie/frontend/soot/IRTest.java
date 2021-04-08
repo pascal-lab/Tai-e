@@ -29,11 +29,7 @@ public class IRTest {
 
     private static void buildWorld(String mainClass) {
         Main.buildWorld(new String[]{
-                "-cp",
-                "java-benchmarks/jre1.6.0_24/rt.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jce.jar;" +
-                        "java-benchmarks/jre1.6.0_24/jsse.jar;" +
-                        "test-resources/ir",
+                "-cp", "test-resources/ir",
                 "-m", mainClass
         });
     }

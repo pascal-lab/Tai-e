@@ -20,8 +20,6 @@ import pascal.taie.World;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
 
-import java.io.File;
-
 import static pascal.taie.language.types.NullType.NULL;
 import static pascal.taie.language.types.PrimitiveType.INT;
 import static pascal.taie.language.types.PrimitiveType.LONG;
@@ -33,12 +31,7 @@ public class TypeTest {
     @BeforeClass
     public static void initTypeManager() {
         Main.buildWorld(new String[]{
-                "-cp",
-                String.join(File.pathSeparator,
-                        "java-benchmarks/jre1.6.0_24/rt.jar",
-                        "java-benchmarks/jre1.6.0_24/jce.jar",
-                        "java-benchmarks/jre1.6.0_24/jsse.jar",
-                        "test-resources/java"),
+                "-cp", "test-resources/java",
                 "-m", "Types"
         });
         typeManager = World.getTypeManager();

@@ -25,8 +25,8 @@ public class DaCapoRunner {
     private static final List<String> BENCHMARK06
             = Arrays.asList("antlr", /*"bloat",*/ "chart", "eclipse", "fop",
             "hsqldb", /*"jython",*/ "luindex", "lusearch", "pmd", "xalan");
-    private static final String PATH06 = "java-benchmarks" + SEP + "dacapo-2006";
-    private static final String JDK6 = "java-benchmarks" + SEP + "jre1.6.0_24";
+    private static final String PATH06 = "java-benchmarks/dacapo-2006";
+    private static final String JDK6 = "java-benchmarks/JREs/jre1.6";
 
     public static void main(String[] args) {
         DaCapoRunner runner = new DaCapoRunner();
