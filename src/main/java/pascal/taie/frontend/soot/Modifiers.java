@@ -14,15 +14,17 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.language.classes.Modifier;
 
+import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 class Modifiers {
 
-    private static final Map<Integer, Set<Modifier>> modMap = newMap();
+    private static final ConcurrentMap<Integer, Set<Modifier>> modMap
+            = newConcurrentMap();
 
     private Modifiers() {
     }
@@ -75,7 +77,7 @@ class Modifiers {
             if (soot.Modifier.isSynthetic(m)) {
                 result.add(Modifier.SYNTHETIC);
             }
-            return result;
+            return Collections.unmodifiableSet(result);
         });
     }
 }
