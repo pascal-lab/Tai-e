@@ -31,14 +31,21 @@ import soot.SceneTransformer;
 import soot.Transform;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static soot.SootClass.HIERARCHY;
 
 public class SootWorldBuilder implements WorldBuilder {
+
+    private static final String JREs = "java-benchmarks/JREs";
 
     private static final List<String> implicitEntries = Arrays.asList(
             "<java.lang.System: void initializeSystemClass()>",
@@ -79,9 +86,6 @@ public class SootWorldBuilder implements WorldBuilder {
         soot.options.Options.v().set_output_format(
                 soot.options.Options.output_format_jimple);
         soot.options.Options.v().set_keep_line_number(true);
-        if (!containsJDK(options.getClassPath())) {
-            soot.options.Options.v().set_prepend_classpath(true);
-        }
         soot.options.Options.v().set_whole_program(true);
         soot.options.Options.v().set_no_writeout_body_releasing(true);
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
@@ -100,7 +104,7 @@ public class SootWorldBuilder implements WorldBuilder {
                 .add(transform);
 
         // Run main analysis
-        soot.Main.main(new String[]{"-cp", options.getClassPath(),
+        soot.Main.main(new String[]{"-cp", getClassPath(options),
                 options.getMainClass()});
     }
 
@@ -133,18 +137,18 @@ public class SootWorldBuilder implements WorldBuilder {
         scene.addBasicClass("sun.net.www.protocol.jar.Handler");
     }
 
-    /**
-     * Check if Soot arguments contain the class paths for JRE/JDK.
-     */
-    private static boolean containsJDK(String cp) {
-        for (String arg : cp.split(File.pathSeparator)) {
-            if ((arg.toLowerCase().contains("jre")
-                    || arg.toLowerCase().contains("jdk"))
-                    && arg.toLowerCase().contains(".jar")) {
-                return true;
-            }
+    private static String getClassPath(Options options) {
+        String jrePath = String.format("%s/jre1.%d",
+                JREs, options.getJavaVersion());
+        try (Stream<Path> paths = Files.walk(Paths.get(jrePath))) {
+            return Stream.concat(
+                    paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                    Stream.of(options.getClassPath()))
+                    .collect(Collectors.joining(File.pathSeparator));
+        } catch (IOException e) {
+            throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +
+                    " is not supported yet");
         }
-        return false;
     }
 
     private void build(Options options, Scene scene) {
