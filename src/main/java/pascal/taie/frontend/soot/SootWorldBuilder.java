@@ -90,6 +90,10 @@ public class SootWorldBuilder implements WorldBuilder {
         soot.options.Options.v().set_no_writeout_body_releasing(true);
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+        if (options.isTestMode()) {
+            // TODO: figure out why -prepend-classpath makes Soot faster
+            soot.options.Options.v().set_prepend_classpath(true);
+        }
 
         // Configure Soot transformer
         Transform transform = new Transform(
