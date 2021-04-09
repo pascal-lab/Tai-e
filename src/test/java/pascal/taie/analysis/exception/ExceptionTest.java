@@ -24,10 +24,7 @@ public class ExceptionTest {
     @BeforeClass
     public static void buildWorld() {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
-        Main.buildWorld(new String[]{
-                "-cp", "test-resources/graph",
-                "-m", "Exceptions"
-        });
+        Main.buildWorld("-cp", "test-resources/graph", "-m", "Exceptions");
     }
 
     @AfterClass

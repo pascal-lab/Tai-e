@@ -14,6 +14,9 @@ package pascal.taie;
 
 import pascal.taie.pass.Pass;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -41,16 +44,18 @@ public class Main {
     /**
      * Convenient method for building the world from String arguments.
      */
-    public static void buildWorld(String[] args) {
+    public static void buildWorld(String... args) {
         buildWorld(Options.parse(args));
     }
 
     private static void buildWorld(Options options) {
         Class<? extends WorldBuilder> wbClass = options.getWorldBuilderClass();
         try {
-            WorldBuilder builder = wbClass.newInstance();
+            Constructor<? extends WorldBuilder> ctor = wbClass.getConstructor();
+            WorldBuilder builder = ctor.newInstance();
             builder.build(options);
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException |
+                NoSuchMethodException | InvocationTargetException e) {
             System.err.println("Failed to build world due to " + e);
             System.exit(1);
         }
@@ -60,10 +65,12 @@ public class Main {
         options.getPassClasses().forEach(cname -> {
             try {
                 Class<?> c = Class.forName(cname);
-                Pass pass = (Pass) c.newInstance();
+                Constructor<?> ctor = c.getConstructor();
+                Pass pass = (Pass) ctor.newInstance();
                 pass.run();
-            } catch (ClassNotFoundException |
-                    InstantiationException | IllegalAccessException e) {
+            } catch (ClassNotFoundException | InstantiationException |
+                    IllegalAccessException | NoSuchMethodException |
+                    InvocationTargetException e) {
                 System.err.println("Failed to run " + cname + " due to " + e);
             }
         });

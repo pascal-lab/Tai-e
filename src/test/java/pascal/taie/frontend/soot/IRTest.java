@@ -28,10 +28,7 @@ public class IRTest {
             = Collections.singletonList("AllInOne");
 
     private static void buildWorld(String mainClass) {
-        Main.buildWorld(new String[]{
-                "-cp", "test-resources/ir",
-                "-m", mainClass
-        });
+        Main.buildWorld("-cp", "test-resources/ir", "-m", mainClass);
     }
 
     @Test

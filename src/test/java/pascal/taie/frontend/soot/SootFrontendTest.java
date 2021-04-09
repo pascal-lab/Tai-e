@@ -31,11 +31,7 @@ public class SootFrontendTest {
     
     @Test
     public void testWorldBuilder() {
-        String[] args = new String[] {
-                "-cp", "test-resources/cspta",
-                "-m", "Assign"
-        };
-        Main.buildWorld(args);
+        Main.buildWorld( "-cp", "test-resources/cspta", "-m", "Assign");
         World.getClassHierarchy()
                 .getAllClasses()
                 .stream()

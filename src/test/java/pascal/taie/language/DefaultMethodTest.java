@@ -22,10 +22,7 @@ public class DefaultMethodTest {
 
     @BeforeClass
     public static void initTypeManager() {
-        Main.buildWorld(new String[]{
-                "-cp", "test-resources/java",
-                "-m", "DefaultMethod"
-        });
+        Main.buildWorld("-cp", "test-resources/java", "-m", "DefaultMethod");
     }
 
     @Test
