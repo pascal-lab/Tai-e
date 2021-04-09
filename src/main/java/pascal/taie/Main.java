@@ -49,10 +49,10 @@ public class Main {
     }
 
     private static void buildWorld(Options options) {
-        Class<? extends WorldBuilder> wbClass = options.getWorldBuilderClass();
+        Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
         try {
-            Constructor<? extends WorldBuilder> ctor = wbClass.getConstructor();
-            WorldBuilder builder = ctor.newInstance();
+            Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();
+            WorldBuilder builder = builderCtor.newInstance();
             builder.build(options);
         } catch (InstantiationException | IllegalAccessException |
                 NoSuchMethodException | InvocationTargetException e) {
@@ -62,16 +62,16 @@ public class Main {
     }
 
     private static void runPasses(Options options) {
-        options.getPassClasses().forEach(cname -> {
+        options.getPassClasses().forEach(className -> {
             try {
-                Class<?> c = Class.forName(cname);
+                Class<?> c = Class.forName(className);
                 Constructor<?> ctor = c.getConstructor();
                 Pass pass = (Pass) ctor.newInstance();
                 pass.run();
             } catch (ClassNotFoundException | InstantiationException |
                     IllegalAccessException | NoSuchMethodException |
                     InvocationTargetException e) {
-                System.err.println("Failed to run " + cname + " due to " + e);
+                System.err.println("Failed to run " + className + " due to " + e);
             }
         });
     }

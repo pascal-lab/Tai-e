@@ -15,20 +15,20 @@ package pascal.taie.language.types;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.util.collection.ArrayMap;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newSmallMap;
 
 // TODO: optimize maps (classTypes and arrayTypes)
 public class TypeManagerImpl implements TypeManager {
 
     private final ClassHierarchy hierarchy;
 
-    private final Map<JClassLoader, Map<String, ClassType>> classTypes = new ArrayMap<>();
+    private final Map<JClassLoader, Map<String, ClassType>> classTypes = newSmallMap();
 
     /**
      * This map may be concurrently written during IR construction,
@@ -37,19 +37,19 @@ public class TypeManagerImpl implements TypeManager {
     private final ConcurrentMap<Integer, ConcurrentMap<Type, ArrayType>> arrayTypes
             = newConcurrentMap(8);
 
-    private final ClassType JavaLangObject;
+    private final ClassType OBJECT;
 
-    private final ClassType JavaLangSerializable;
+    private final ClassType SERIALIZABLE;
 
-    private final ClassType JavaLangCloneable;
+    private final ClassType CLONEABLE;
 
     public TypeManagerImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
         // Initialize special types
         JClassLoader loader = hierarchy.getBootstrapClassLoader();
-        JavaLangObject = getClassType(loader, StringReps.OBJECT);
-        JavaLangSerializable = getClassType(loader, StringReps.SERIALIZABLE);
-        JavaLangCloneable = getClassType(loader, StringReps.CLONEABLE);
+        OBJECT = getClassType(loader, StringReps.OBJECT);
+        SERIALIZABLE = getClassType(loader, StringReps.SERIALIZABLE);
+        CLONEABLE = getClassType(loader, StringReps.CLONEABLE);
     }
 
     @Override
@@ -90,9 +90,9 @@ public class TypeManagerImpl implements TypeManager {
         } else if (subtype instanceof ArrayType) {
             if (supertype instanceof ClassType) {
                 // JLS (11 Ed.), Chapter 10, Arrays
-                return supertype == JavaLangObject ||
-                        supertype == JavaLangCloneable ||
-                        supertype == JavaLangSerializable;
+                return supertype == OBJECT ||
+                        supertype == CLONEABLE ||
+                        supertype == SERIALIZABLE;
             } else if (supertype instanceof ArrayType) {
                 ArrayType superArray = (ArrayType) supertype;
                 ArrayType subArray = (ArrayType) subtype;
@@ -108,9 +108,9 @@ public class TypeManagerImpl implements TypeManager {
                                 ((ClassType) subBase).getJClass());
                     }
                 } else if (superArray.getDimensions() < subArray.getDimensions()) {
-                    return superBase == JavaLangObject ||
-                            superBase == JavaLangCloneable ||
-                            superBase == JavaLangSerializable;
+                    return superBase == OBJECT ||
+                            superBase == CLONEABLE ||
+                            superBase == SERIALIZABLE;
                 }
             }
         }
