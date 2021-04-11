@@ -20,104 +20,104 @@ public class CSPTATest {
     // Tests for context insensitivity
     @Test
     public void testNew() {
-        TestUtils.testCSPTA("New");
+        TestUtils.testCSPTA("New", "-pp");
     }
 
     @Test
     public void testAssign() {
-        TestUtils.testCSPTA("Assign");
+        TestUtils.testCSPTA("Assign", "-pp");
     }
 
     @Test
     public void testStoreLoad() {
-        TestUtils.testCSPTA("StoreLoad");
+        TestUtils.testCSPTA("StoreLoad", "-pp");
     }
 
     @Test
     public void testCall() {
-        TestUtils.testCSPTA("Call");
+        TestUtils.testCSPTA("Call", "-pp");
     }
 
     @Test
     public void testAssign2() {
-        TestUtils.testCSPTA("Assign2");
+        TestUtils.testCSPTA("Assign2", "-pp");
     }
 
     @Test
     public void testInstanceField() {
-        TestUtils.testCSPTA("InstanceField");
+        TestUtils.testCSPTA("InstanceField", "-pp");
     }
 
     @Test
     public void testInstanceField2() {
-        TestUtils.testCSPTA("InstanceField2");
+        TestUtils.testCSPTA("InstanceField2", "-pp");
     }
 
     @Test
     public void testCallParamRet() {
-        TestUtils.testCSPTA("CallParamRet");
+        TestUtils.testCSPTA("CallParamRet", "-pp");
     }
 
     @Test
     public void testCallField() {
-        TestUtils.testCSPTA("CallField");
+        TestUtils.testCSPTA("CallField", "-pp");
     }
     
     // Tests for context sensitivity variants
     @Test
     public void testOneCall() {
-        TestUtils.testCSPTA("OneCall", "-cs", "1-call");
+        TestUtils.testCSPTA("OneCall", "-pp", "-cs", "1-call");
     }
 
     @Test
     public void testOneObject() {
-        TestUtils.testCSPTA("OneObject", "-cs", "1-obj");
+        TestUtils.testCSPTA("OneObject", "-pp", "-cs", "1-obj");
     }
 
     @Test
     public void testOneType() {
-        TestUtils.testCSPTA("OneType", "-cs", "1-type");
+        TestUtils.testCSPTA("OneType", "-pp", "-cs", "1-type");
     }
 
     @Test
     public void testTwoCall() {
-        TestUtils.testCSPTA("TwoCall", "-cs", "2-call");
+        TestUtils.testCSPTA("TwoCall", "-pp", "-cs", "2-call");
     }
 
     @Test
     public void testTwoObject() {
-        TestUtils.testCSPTA("TwoObject", "-cs", "2-obj");
+        TestUtils.testCSPTA("TwoObject", "-pp", "-cs", "2-obj");
     }
 
     @Test
     public void testTwoType() {
-        TestUtils.testCSPTA("TwoType", "-cs", "2-type");
+        TestUtils.testCSPTA("TwoType", "-pp", "-cs", "2-type");
     }
 
     // Tests for Java feature supporting
     @Test
     public void testStaticField() {
-        TestUtils.testCSPTA("StaticField");
+        TestUtils.testCSPTA("StaticField", "-pp");
     }
 
     @Test
     public void testArray() {
-        TestUtils.testCSPTA("Array");
+        TestUtils.testCSPTA("Array", "-pp");
     }
 
     @Test
     public void testCast() {
-        TestUtils.testCSPTA("Cast");
+        TestUtils.testCSPTA("Cast", "-pp");
     }
 
     @Test
     public void testNull() {
-        TestUtils.testCSPTA("Null");
+        TestUtils.testCSPTA("Null", "-pp");
     }
 
     @Test
     public void testPrimitive() {
-        TestUtils.testCSPTA("Primitive");
+        TestUtils.testCSPTA("Primitive", "-pp");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class CSPTATest {
 
     @Test
     public void testMultiArray() {
-        TestUtils.testCSPTA("MultiArray");
+        TestUtils.testCSPTA("MultiArray", "-pp");
     }
 
     @Test
@@ -153,6 +153,6 @@ public class CSPTATest {
 
     @Test
     public void testNativeModel() {
-        TestUtils.testCSPTA("NativeModel");
+        TestUtils.testCSPTA("NativeModel", "-pp");
     }
 }
