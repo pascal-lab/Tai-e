@@ -43,7 +43,8 @@ class SootClassLoader implements JClassLoader {
         if (jclass == null) {
             // TODO: confirm if this API is suitable
             SootClass sootClass = scene.getSootClassUnsafe(name, false);
-            if (sootClass != null) {
+            if (sootClass != null && !sootClass.isPhantom()) {
+                // TODO: handle phantom class appropriately
                 jclass = new JClass(this, sootClass.getName(),
                         sootClass.moduleName);
                 // New class must be put into classes map at first,
