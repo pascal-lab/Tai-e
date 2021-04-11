@@ -667,8 +667,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         public void visit(AssignLiteral stmt) {
             Literal literal = stmt.getRValue();
             if (isConcerned(literal)) {
-                Obj obj = heapModel.getConstantObj(literal.getType(),
-                        ((ReferenceLiteral<?>) literal).getValue());
+                Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
                 Context heapContext = contextSelector
                         .selectHeapContext(csMethod, obj);
                 addVarPointsTo(context, stmt.getLValue(), heapContext, obj);

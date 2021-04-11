@@ -14,7 +14,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.types.NullType;
 
-public enum NullLiteral implements ReferenceLiteral<Void> {
+public enum NullLiteral implements ReferenceLiteral {
 
     INSTANCE;
 
@@ -25,11 +25,6 @@ public enum NullLiteral implements ReferenceLiteral<Void> {
     @Override
     public NullType getType() {
         return NullType.NULL;
-    }
-
-    @Override
-    public Void getValue() {
-        return null;
     }
 
     @Override

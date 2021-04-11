@@ -21,6 +21,7 @@ import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -28,7 +29,6 @@ import pascal.taie.language.natives.NativeModel;
 
 import java.util.Set;
 
-import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.util.collection.CollectionUtils.getOne;
 import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
@@ -110,9 +110,7 @@ public class ThreadHandler implements Plugin {
                 context, systemThreadGroup);
         // propagate "main" to param1
         Obj main = pta.getHeapModel()
-                .getConstantObj(World.getTypeManager()
-                        .getClassType(STRING),
-                        "main");
+                .getConstantObj(StringLiteral.get("main"));
         pta.addVarPointsTo(context, threadGroupInitIR.getParam(1), context, main);
 
         // setup main thread

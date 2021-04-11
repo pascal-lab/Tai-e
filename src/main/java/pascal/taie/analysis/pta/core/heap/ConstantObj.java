@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.core.heap;
 
+import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.types.Type;
 
@@ -19,26 +20,22 @@ import java.util.Optional;
 
 /**
  * Objects that represent constants.
- * @param <T> type of the constant.
  */
-public class ConstantObj<T> implements Obj {
+public class ConstantObj implements Obj {
 
-    private final Type type;
+    private final ReferenceLiteral value;
 
-    private final T value;
-
-    public ConstantObj(Type type, T value) {
-        this.type = type;
+    public ConstantObj(ReferenceLiteral value) {
         this.value = value;
     }
 
     @Override
     public Type getType() {
-        return type;
+        return value.getType();
     }
 
     @Override
-    public T getAllocation() {
+    public ReferenceLiteral getAllocation() {
         return value;
     }
 
@@ -49,11 +46,11 @@ public class ConstantObj<T> implements Obj {
 
     @Override
     public Type getContainerType() {
-        return type;
+        return getType();
     }
 
     @Override
     public String toString() {
-        return String.format("ConstantObj{%s: \"%s\"}", type, value);
+        return String.format("ConstantObj{%s: \"%s\"}", getType(), value);
     }
 }

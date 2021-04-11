@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.ir.exp.NewExp;
-import pascal.taie.language.types.Type;
+import pascal.taie.ir.exp.ReferenceLiteral;
 
 /**
  * Model for heap objects.
@@ -28,7 +28,7 @@ public interface HeapModel {
     /**
      * @return the constant object for given value.
      */
-    <T> Obj getConstantObj(Type type, T value);
+    Obj getConstantObj(ReferenceLiteral value);
 
     /**
      * @return the mock object (e.g., taint value) which represents

@@ -17,7 +17,7 @@ import pascal.taie.language.types.ClassType;
 
 import static pascal.taie.language.classes.StringReps.STRING;
 
-public class StringLiteral implements ReferenceLiteral<String> {
+public class StringLiteral implements ReferenceLiteral {
 
     private final String value;
 
@@ -37,7 +37,6 @@ public class StringLiteral implements ReferenceLiteral<String> {
         return World.getTypeManager().getClassType(STRING);
     }
 
-    @Override
     public String getValue() {
         return value;
     }
@@ -45,6 +44,23 @@ public class StringLiteral implements ReferenceLiteral<String> {
     @Override
     public <T> T accept(ExpVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        StringLiteral that = (StringLiteral) o;
+        return value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
     }
 
     @Override

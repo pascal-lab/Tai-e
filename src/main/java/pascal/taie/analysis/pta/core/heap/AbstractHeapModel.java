@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
 import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
 
@@ -44,7 +45,8 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<NewExp, NewObj> objs = newMap();
 
-    private final Map<Type, Map<Object, ConstantObj<?>>> constantObjs = newHybridMap();
+    private final Map<Type, Map<ReferenceLiteral, ConstantObj>> constantObjs
+            = newHybridMap();
 
     /**
      * The merged object representing string constants.
@@ -81,19 +83,19 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     @Override
-    public <T> Obj getConstantObj(Type type, T value) {
-        Obj obj = doGetConstantObj(type, value);
+    public Obj getConstantObj(ReferenceLiteral value) {
+        Obj obj = doGetConstantObj(value);
         if (World.getOptions().isMergeStringConstants() &&
-                type.equals(string)) {
+                value.getType().equals(string)) {
             mergedSC.addRepresentedObj(obj);
             return mergedSC;
         }
         return obj;
     }
 
-    protected <T> Obj doGetConstantObj(Type type, T value) {
-        return constantObjs.computeIfAbsent(type, t -> newMap())
-                .computeIfAbsent(value, v -> new ConstantObj<>(type, v));
+    protected Obj doGetConstantObj(ReferenceLiteral value) {
+        return constantObjs.computeIfAbsent(value.getType(), t -> newMap())
+                .computeIfAbsent(value, v -> new ConstantObj(v));
     }
 
     @Override

@@ -12,11 +12,13 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.types.ReferenceType;
+
 /**
  * Literal of reference type.
- * @param <T> type of the value.
  */
-public interface ReferenceLiteral<T> extends Literal {
+public interface ReferenceLiteral extends Literal {
 
-    T getValue();
+    @Override
+    ReferenceType getType();
 }
