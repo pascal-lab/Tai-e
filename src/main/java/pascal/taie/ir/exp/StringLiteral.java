@@ -37,7 +37,7 @@ public class StringLiteral implements ReferenceLiteral {
         return World.getTypeManager().getClassType(STRING);
     }
 
-    public String getValue() {
+    public String getString() {
         return value;
     }
 

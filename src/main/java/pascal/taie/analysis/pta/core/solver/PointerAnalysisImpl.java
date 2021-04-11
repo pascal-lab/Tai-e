@@ -758,7 +758,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 initializeClass(extractClass(rvalue.getType()));
                 if (rvalue instanceof ClassLiteral) {
                     initializeClass(extractClass(
-                            ((ClassLiteral) rvalue).getValue()));
+                            ((ClassLiteral) rvalue).getTypeValue()));
                 }
             }
         }

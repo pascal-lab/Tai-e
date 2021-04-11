@@ -40,7 +40,7 @@ public class ClassLiteral implements ReferenceLiteral {
         return World.getTypeManager().getClassType(CLASS);
     }
 
-    public Type getValue() {
+    public Type getTypeValue() {
         return value;
     }
 
