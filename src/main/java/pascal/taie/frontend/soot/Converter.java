@@ -59,14 +59,14 @@ class Converter {
 
     private final TypeManager typeManager;
 
+    // Following four maps may be concurrently written during IR construction,
+    // thus we use concurrent map to ensure their thread-safety.
     private final ConcurrentMap<SootField, JField> fieldMap
             = newConcurrentMap(4096);
 
     private final ConcurrentMap<SootMethod, JMethod> methodMap
             = newConcurrentMap(4096);
 
-    // Following two maps may be concurrently written during IR construction,
-    // thus we use concurrent map to ensure their thread-safety.
     private final ConcurrentMap<SootFieldRef, FieldRef> fieldRefMap
             = newConcurrentMap(4096);
 

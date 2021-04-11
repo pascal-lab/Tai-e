@@ -102,6 +102,7 @@ import soot.jimple.ConditionExpr;
 import soot.jimple.Constant;
 import soot.jimple.DivExpr;
 import soot.jimple.DoubleConstant;
+import soot.jimple.DynamicInvokeExpr;
 import soot.jimple.EnterMonitorStmt;
 import soot.jimple.EqExpr;
 import soot.jimple.ExitMonitorStmt;
@@ -140,7 +141,6 @@ import soot.jimple.ShlExpr;
 import soot.jimple.ShrExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
-import soot.jimple.StaticInvokeExpr;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
 import soot.jimple.TableSwitchStmt;
@@ -756,28 +756,30 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * Convert Jimple InvokeExpr to InvokeExp.
      */
     private InvokeExp getInvokeExp(InvokeExpr invokeExpr) {
-        MethodRef methodRef = converter
-                .convertMethodRef(invokeExpr.getMethodRef());
-        List<Var> args = invokeExpr.getArgs()
-                .stream()
-                .map(this::getLocalOrConstant)
-                .collect(Collectors.toList());
-        if (invokeExpr instanceof InstanceInvokeExpr) {
-            Var base = getVar(
-                    (Local) ((InstanceInvokeExpr) invokeExpr).getBase());
-            if (invokeExpr instanceof VirtualInvokeExpr) {
-                return new InvokeVirtual(methodRef, base, args);
-            } else if (invokeExpr instanceof InterfaceInvokeExpr) {
-                return new InvokeInterface(methodRef, base, args);
-            } else if (invokeExpr instanceof SpecialInvokeExpr) {
-                return new InvokeSpecial(methodRef, base, args);
+        if (invokeExpr instanceof DynamicInvokeExpr) {
+            // TODO: handle invokedynamic
+            throw new SootFrontendException(
+                    "Cannot handle InvokeExpr: " + invokeExpr);
+        } else {
+            MethodRef methodRef = converter
+                    .convertMethodRef(invokeExpr.getMethodRef());
+            List<Var> args = invokeExpr.getArgs()
+                    .stream()
+                    .map(this::getLocalOrConstant)
+                    .collect(Collectors.toList());
+            if (invokeExpr instanceof InstanceInvokeExpr) {
+                Var base = getVar(
+                        (Local) ((InstanceInvokeExpr) invokeExpr).getBase());
+                if (invokeExpr instanceof VirtualInvokeExpr) {
+                    return new InvokeVirtual(methodRef, base, args);
+                } else if (invokeExpr instanceof InterfaceInvokeExpr) {
+                    return new InvokeInterface(methodRef, base, args);
+                } else if (invokeExpr instanceof SpecialInvokeExpr) {
+                    return new InvokeSpecial(methodRef, base, args);
+                }
             }
-        } else if (invokeExpr instanceof StaticInvokeExpr) {
             return new InvokeStatic(methodRef, args);
         }
-        // TODO: handle invokedynamic
-        throw new SootFrontendException(
-                "Cannot handle InvokeExpr: " + invokeExpr);
     }
 
     @Override
