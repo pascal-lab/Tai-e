@@ -91,7 +91,8 @@ public class SootWorldBuilder implements WorldBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        if (options.isTestMode()) {
+
+        if (options.isPrependJVM()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
@@ -143,16 +144,20 @@ public class SootWorldBuilder implements WorldBuilder {
     }
 
     private static String getClassPath(Options options) {
-        String jrePath = String.format("%s/jre1.%d",
-                JREs, options.getJavaVersion());
-        try (Stream<Path> paths = Files.walk(Paths.get(jrePath))) {
-            return Stream.concat(
-                    paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                    Stream.of(options.getClassPath()))
-                    .collect(Collectors.joining(File.pathSeparator));
-        } catch (IOException e) {
-            throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +
-                    " is not supported yet");
+        if (options.isPrependJVM()) {
+            return options.getClassPath();
+        } else { // when prependJVM is not set, we manually specify JRE jars
+            String jrePath = String.format("%s/jre1.%d",
+                    JREs, options.getJavaVersion());
+            try (Stream<Path> paths = Files.walk(Paths.get(jrePath))) {
+                return Stream.concat(
+                        paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                        Stream.of(options.getClassPath()))
+                        .collect(Collectors.joining(File.pathSeparator));
+            } catch (IOException e) {
+                throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +
+                        " is not supported yet");
+            }
         }
     }
 

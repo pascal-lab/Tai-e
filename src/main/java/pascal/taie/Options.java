@@ -43,6 +43,12 @@ public class Options {
             defaultValue = "6")
     private int javaVersion;
 
+    @Option(names = {"-pp", "--prepend-JVM"},
+            description = "Prepend class path of current JVM to Tai-e's class path" +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
+    private boolean prependJVM;
+
     @Option(names = {"-cp", "--class-path"},
             description = "Class path")
     private String classPath;
@@ -133,11 +139,27 @@ public class Options {
      * Parse arguments and return new Options object.
      */
     public static Options parse(String... args) {
-        return CommandLine.populateCommand(new Options(), args);
+        Options options = CommandLine.populateCommand(new Options(), args);
+        // post-process options
+        if (options.isPrependJVM()) {
+            options.javaVersion = getCurrentJavaVersion();
+        }
+        return options;
     }
 
-    public void printHelp() {
-        new CommandLine(this).usage(System.out);
+    static int getCurrentJavaVersion() {
+        String version = System.getProperty("java.version");
+        String[] splits = version.split("\\.");
+        int i0 = Integer.parseInt(splits[0]);
+        if (i0 == 1) { // format 1.x.y_z (for Java 1-8)
+            return Integer.parseInt(splits[1]);
+        } else { // format x.y.z (for Java 9+)
+            return i0;
+        }
+    }
+
+    public boolean isPrintVersion() {
+        return version;
     }
 
     public void printVersion() {
@@ -148,8 +170,16 @@ public class Options {
         return help;
     }
 
-    public boolean isPrintVersion() {
-        return version;
+    public void printHelp() {
+        new CommandLine(this).usage(System.out);
+    }
+
+    public int getJavaVersion() {
+        return javaVersion;
+    }
+
+    public boolean isPrependJVM() {
+        return prependJVM;
     }
 
     public String getClassPath() {
@@ -170,10 +200,6 @@ public class Options {
 
     public List<String> getPassClasses() {
         return passClasses;
-    }
-
-    public int getJavaVersion() {
-        return javaVersion;
     }
 
     public boolean analyzeImplicitEntries() {

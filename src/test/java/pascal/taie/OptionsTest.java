@@ -40,6 +40,14 @@ public class OptionsTest {
         Options options = Options.parse("-java=8");
         Assert.assertEquals(options.getJavaVersion(), 8);
     }
+
+    @Test
+    public void testPrependJVM() {
+        Options options = Options.parse("-pp");
+        Assert.assertEquals(Options.getCurrentJavaVersion(),
+                options.getJavaVersion());
+    }
+
     @Test
     public void testOptions() {
         Options options = Options.parse("--no-implicit-entries", "-cs", "2-object");
