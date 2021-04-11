@@ -18,11 +18,11 @@ import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.Type;
 import pascal.taie.util.HashUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 import static pascal.taie.language.classes.StringReps.METHOD_TYPE;
 import static pascal.taie.language.classes.StringReps.toDescriptor;
-import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 /**
  * Representation of java.lang.invoke.MethodType.
@@ -34,7 +34,7 @@ public class MethodType implements ReferenceLiteral {
     private final Type returnType;
 
     private MethodType(List<Type> paramTypes, Type returnType) {
-        this.paramTypes = freeze(paramTypes);
+        this.paramTypes = Collections.unmodifiableList(paramTypes);
         this.returnType = returnType;
     }
 

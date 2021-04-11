@@ -96,6 +96,10 @@ public interface ExpVisitor<T> {
         return visitDefault(invoke);
     }
 
+    default T visit(InvokeDynamic invoke) {
+        return visitDefault(invoke);
+    }
+
     // unary
     default T visit(ArrayLengthExp exp) {
         return visitDefault(exp);
