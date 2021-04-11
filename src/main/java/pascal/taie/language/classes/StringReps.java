@@ -50,6 +50,8 @@ public class StringReps {
 
     public static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
 
+    public static final String METHOD_TYPE = "java.lang.invoke.MethodType";
+
     // Names of special exceptions
     public static final String ABSTRACT_METHOD_ERROR = "java.lang.AbstractMethodError";
 
@@ -178,7 +180,12 @@ public class StringReps {
     }
 
     public static String toDescriptor(List<Type> parameterTypes, Type returnType) {
-        throw new UnsupportedOperationException();
+        return returnType + " " +
+                "(" +
+                parameterTypes.stream()
+                        .map(Type::toString)
+                        .collect(Collectors.joining(",")) +
+                ")";
     }
 
     public static String toSubsignature(String name, List<Type> parameterTypes, Type returnType) {

@@ -48,6 +48,10 @@ public interface ExpVisitor<T> {
         return visitDefault(literal);
     }
 
+    default T visit(MethodType methodType) {
+        return visitDefault(methodType);
+    }
+
     // field access
     default T visit(InstanceFieldAccess fieldAccess) {
         return visitDefault(fieldAccess);
