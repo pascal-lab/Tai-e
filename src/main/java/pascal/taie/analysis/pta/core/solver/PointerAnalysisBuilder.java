@@ -22,7 +22,6 @@ import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.Preprocessor;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
@@ -84,7 +83,6 @@ public class PointerAnalysisBuilder {
         // TODO: remove such order dependency
         plugin.addPlugin(
                 new AnalysisTimer(),
-                new Preprocessor(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
                 ResultPrinter.get()

@@ -195,8 +195,11 @@ public class SootWorldBuilder implements WorldBuilder {
         world.setNativeModel(getNativeModel(typeManager, hierarchy));
         Environment env = new Environment();
         world.setEnvironment(env);
-        world.setIRBuilder(new IRBuilder(converter, env));
-        // TODO: handle --pre-build-ir here
+        IRBuilder irBuilder = new IRBuilder(converter, env);
+        world.setIRBuilder(irBuilder);
+        if (options.isPreBuildIR()) {
+            irBuilder.buildAll(hierarchy);
+        }
     }
 
     private static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
