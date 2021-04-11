@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.plugin;
 
+import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -28,6 +29,7 @@ import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;
  * The ReferenceHandler takes care of enqueueing the references in a
  * reference queue. If we do not model this GC behavior, Reference.pending
  * points to nothing, and finalize() methods won't get invoked.
+ * TODO: update it for Java 9+ (current model doesn't work since Java 9).
  */
 public class ReferenceHandler implements Plugin {
 
@@ -54,9 +56,11 @@ public class ReferenceHandler implements Plugin {
 
     @Override
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        // Let Reference.pending points to every reference.
-        if (csVar.getVar().equals(referenceInitThis)) {
-            pta.addStaticFieldPointsTo(referencePending, pts);
+        if (World.getOptions().getJavaVersion() < 9) {
+            // Let Reference.pending points to every reference.
+            if (csVar.getVar().equals(referenceInitThis)) {
+                pta.addStaticFieldPointsTo(referencePending, pts);
+            }
         }
     }
 }
