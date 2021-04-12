@@ -48,6 +48,10 @@ public interface ExpVisitor<T> {
         return visitDefault(literal);
     }
 
+    default T visit(MethodHandle methodHandle) {
+        return visitDefault(methodHandle);
+    }
+
     default T visit(MethodType methodType) {
         return visitDefault(methodType);
     }
