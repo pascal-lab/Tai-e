@@ -12,8 +12,10 @@
 
 package pascal.taie.ir;
 
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Stmt;
@@ -85,14 +87,28 @@ public class IRPrinter {
         @Override
         public void visit(Invoke stmt) {
             out.printf("%4d@L%-4d: ", stmt.getIndex(), stmt.getLineNumber());
+            if (stmt.getResult() != null) {
+                out.print(stmt.getResult() + " = ");
+            }
             InvokeExp ie = stmt.getInvokeExp();
             out.print(ie.getInvokeString());
             out.print(' ');
-            if (ie instanceof InvokeInstanceExp) {
-                out.print(((InvokeInstanceExp) ie).getBase().getName());
-                out.print('.');
+            if (ie instanceof InvokeDynamic) {
+                InvokeDynamic indy = (InvokeDynamic) ie;
+                out.printf("%s \"%s\" <%s>[%s]%s;%n",
+                        indy.getBootstrapMethodRef(),
+                        indy.getMethodName(), indy.getMethodType(),
+                        indy.getBootstrapArgs().stream()
+                                .map(Literal::toString)
+                                .collect(Collectors.joining(",")),
+                        indy.getArgsString());
+            } else {
+                if (ie instanceof InvokeInstanceExp) {
+                    out.print(((InvokeInstanceExp) ie).getBase().getName());
+                    out.print('.');
+                }
+                out.printf("%s%s;%n", ie.getMethodRef(), ie.getArgsString());
             }
-            out.printf("%s%s;%n", ie.getMethodRef(), ie.getArgsString());
         }
 
         @Override

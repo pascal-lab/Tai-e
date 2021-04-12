@@ -81,7 +81,7 @@ public class InvokeDynamic extends InvokeExp {
 
     @Override
     public String toString() {
-        return String.format("%s %s \"%s\"<%s>[%s]%s",
+        return String.format("%s %s \"%s\" <%s>[%s]%s",
                 getInvokeString(), bootstrapMethodRef,
                 methodName, methodType,
                 bootstrapArgs.stream()
