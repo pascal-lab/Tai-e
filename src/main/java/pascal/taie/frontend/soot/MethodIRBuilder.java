@@ -405,12 +405,9 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         @Override
         public void caseMethodHandle(soot.jimple.MethodHandle v) {
             MethodHandle.Kind kind = MethodHandle.Kind.get(v.getKind());
-            MemberRef memberRef;
-            if (v.isMethodRef()) {
-                memberRef = converter.convertMethodRef(v.getMethodRef());
-            } else {
-                memberRef = converter.convertFieldRef(v.getFieldRef());
-            }
+            MemberRef memberRef = v.isMethodRef() ?
+                    converter.convertMethodRef(v.getMethodRef()) :
+                    converter.convertFieldRef(v.getFieldRef());
             setResult(MethodHandle.get(kind, memberRef));
         }
 

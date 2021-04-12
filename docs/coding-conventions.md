@@ -9,7 +9,7 @@
 
 ## Coding
 ### Minimal Accessibility
-Always use the access modifiers with minimal accessibility for classes/methods/fields, e.g., if an inner-class/method/field is only used by current class, use `private` modifier.
+Always use the access modifiers with minimal accessibility for classes/methods/fields, e.g., if an inner-class/method/field is not used by any other classes, use `private` modifier.
 
 ### Use `final` Field
 When possible, declare `final` fields.

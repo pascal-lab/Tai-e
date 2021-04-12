@@ -21,6 +21,11 @@ import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.CollectionUtils.freeze;
 
+/**
+ * Representation of invokedynamic instructions.
+ * For more details about invokedynamic instructions, please refer to
+ * https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/package-summary.html
+ */
 public class InvokeDynamic extends InvokeExp {
 
     private final MethodRef bootstrapMethodRef;
@@ -31,9 +36,8 @@ public class InvokeDynamic extends InvokeExp {
 
     /**
      * Additional static arguments for bootstrap method.
-     * According to https://docs.oracle.com/javase/7/docs/api/index.html,
-     * all these arguments are taken from the constant pool, thus
-     * we represent them by a list of Literals.
+     * As all these arguments are taken from the constant pool,
+     * we store them as a list of Literals.
      */
     private final List<Literal> bootstrapArgs;
 

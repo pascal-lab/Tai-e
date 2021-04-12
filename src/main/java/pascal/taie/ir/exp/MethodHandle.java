@@ -25,7 +25,7 @@ import java.lang.invoke.MethodHandleInfo;
 import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 
 /**
- * Representation of java.lang.invoke.MethodHandle.
+ * Representation of java.lang.invoke.MethodHandle instances.
  * A method handle is a typed, directly executable reference to an underlying
  * method, constructor, field or similar low-level operation.
  * See https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandle.html

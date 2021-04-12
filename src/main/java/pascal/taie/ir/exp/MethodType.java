@@ -25,7 +25,7 @@ import static pascal.taie.language.classes.StringReps.toDescriptor;
 import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 /**
- * Representation of java.lang.invoke.MethodType.
+ * Representation of java.lang.invoke.MethodType instances.
  */
 public class MethodType implements ReferenceLiteral {
 
