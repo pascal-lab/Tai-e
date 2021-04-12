@@ -21,10 +21,12 @@ import pascal.taie.language.classes.JClass;
 
 public class ExceptionTest {
 
+    private static final String MAIN = "Exceptions";
+
     @BeforeClass
     public static void buildWorld() {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
-        Main.buildWorld("-cp", "test-resources/graph", "-m", "Exceptions");
+        Main.buildWorld("-pp", "-cp", "test-resources/graph", "-m", MAIN);
     }
 
     @AfterClass
@@ -35,7 +37,7 @@ public class ExceptionTest {
     @Test
     public void testThrowAnalysis() {
         ThrowAnalysis throwAnalysis = new ThrowAnalysis(true);
-        JClass c = World.getClassHierarchy().getClass("Exceptions");
+        JClass c = World.getClassHierarchy().getClass(MAIN);
         c.getDeclaredMethods().forEach(m -> {
             System.out.println(m);
             m.getIR()
@@ -43,6 +45,22 @@ public class ExceptionTest {
                     .forEach(stmt ->
                             System.out.println(stmt + " may throw " +
                                     throwAnalysis.mayThrow(stmt)));
+            System.out.println();
+        });
+    }
+
+    @Test
+    public void testCatchAnalysis() {
+        JClass c = World.getClassHierarchy().getClass(MAIN);
+        c.getDeclaredMethods().forEach(m -> {
+            System.out.println(m);
+            CatchAnalysis.Result result = CatchAnalysis.analyze(
+                    m.getIR(), new ThrowAnalysis());
+            m.getIR().getStmts().forEach(stmt -> {
+                System.out.println(stmt);
+                result.caughtExceptionsOf(stmt).forEach(System.out::println);
+                result.uncaughtExceptionsOf(stmt).forEach(System.out::println);
+            });
             System.out.println();
         });
     }
