@@ -51,6 +51,6 @@ public class ConstantObj implements Obj {
 
     @Override
     public String toString() {
-        return String.format("ConstantObj{%s: \"%s\"}", getType(), value);
+        return String.format("ConstantObj{%s: %s}", getType(), value);
     }
 }

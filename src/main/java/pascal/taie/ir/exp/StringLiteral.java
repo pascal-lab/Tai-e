@@ -65,6 +65,6 @@ public class StringLiteral implements ReferenceLiteral {
 
     @Override
     public String toString() {
-        return value;
+        return "\"" + value + "\"";
     }
 }
