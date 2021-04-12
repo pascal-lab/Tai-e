@@ -84,6 +84,11 @@ public class DefaultIR implements IR {
     }
 
     @Override
+    public Stmt getStmt(int index) {
+        return stmts.get(index);
+    }
+
+    @Override
     public List<Stmt> getStmts() {
         return stmts;
     }

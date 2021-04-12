@@ -36,6 +36,8 @@ public interface IR {
 
     List<Var> getVars();
 
+    Stmt getStmt(int index);
+
     List<Stmt> getStmts();
 
     List<ExceptionEntry> getExceptionEntries();
