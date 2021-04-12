@@ -29,6 +29,7 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -36,6 +37,8 @@ import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.MethodHandle;
+import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
@@ -48,6 +51,7 @@ import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
@@ -79,6 +83,7 @@ import pascal.taie.language.types.Type;
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
+import soot.SootMethodRef;
 import soot.Trap;
 import soot.Unit;
 import soot.UnitBox;
@@ -397,6 +402,28 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         public void caseClassConstant(ClassConstant v) {
             Type type = converter.convertType(v.toSootType());
             setResult(ClassLiteral.get(type));
+        }
+
+        @Override
+        public void caseMethodHandle(soot.jimple.MethodHandle v) {
+            MethodHandle.Kind kind = MethodHandle.Kind.get(v.getKind());
+            MemberRef memberRef;
+            if (v.isMethodRef()) {
+                memberRef = converter.convertMethodRef(v.getMethodRef());
+            } else {
+                memberRef = converter.convertFieldRef(v.getFieldRef());
+            }
+            setResult(MethodHandle.get(kind, memberRef));
+        }
+
+        @Override
+        public void caseMethodType(soot.jimple.MethodType v) {
+            List<Type> paramTypes = v.getParameterTypes()
+                    .stream()
+                    .map(converter::convertType)
+                    .collect(Collectors.toList());
+            Type returnType = converter.convertType(v.getReturnType());
+            setResult(MethodType.get(paramTypes, returnType));
         }
 
         @Override
@@ -757,9 +784,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      */
     private InvokeExp getInvokeExp(InvokeExpr invokeExpr) {
         if (invokeExpr instanceof DynamicInvokeExpr) {
-            // TODO: handle invokedynamic
-            throw new SootFrontendException(
-                    "Cannot handle InvokeExpr: " + invokeExpr);
+            return getInvokeDynamic((DynamicInvokeExpr) invokeExpr);
         } else {
             MethodRef methodRef = converter
                     .convertMethodRef(invokeExpr.getMethodRef());
@@ -780,6 +805,32 @@ class MethodIRBuilder extends AbstractStmtSwitch {
             }
             return new InvokeStatic(methodRef, args);
         }
+    }
+
+    private InvokeDynamic getInvokeDynamic(DynamicInvokeExpr invokeExpr) {
+        MethodRef bootstrapMethodRef = converter.convertMethodRef(
+                invokeExpr.getBootstrapMethodRef());
+        SootMethodRef sigInfo = invokeExpr.getMethodRef();
+        String methodName = sigInfo.getName();
+        List<Type> paramTypes = sigInfo.getParameterTypes()
+                .stream()
+                .map(converter::convertType)
+                .collect(Collectors.toList());
+        Type returnType = converter.convertType(sigInfo.getReturnType());
+        MethodType methodType = MethodType.get(paramTypes, returnType);
+        List<Literal> bootstrapArgs = invokeExpr.getBootstrapArgs()
+                .stream()
+                .map(v -> {
+                    v.apply(constantConverter);
+                    return (Literal) constantConverter.getResult();
+                })
+                .collect(Collectors.toList());
+        List<Var> args = invokeExpr.getArgs()
+                .stream()
+                .map(this::getLocalOrConstant)
+                .collect(Collectors.toList());
+        return new InvokeDynamic(bootstrapMethodRef, methodName, methodType,
+                bootstrapArgs, args);
     }
 
     @Override

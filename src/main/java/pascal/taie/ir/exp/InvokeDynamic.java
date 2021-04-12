@@ -17,6 +17,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.types.Type;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InvokeDynamic extends InvokeExp {
 
@@ -26,11 +27,17 @@ public class InvokeDynamic extends InvokeExp {
 
     private final MethodType methodType;
 
-    private final List<Var> bootstrapArgs;
+    /**
+     * Additional static arguments for bootstrap method.
+     * According to https://docs.oracle.com/javase/7/docs/api/index.html,
+     * all these arguments are taken from the constant pool, thus
+     * we represent them by a list of Literals.
+     */
+    private final List<Literal> bootstrapArgs;
 
     public InvokeDynamic(MethodRef bootstrapMethodRef,
                          String methodName, MethodType methodType,
-                         List<Var> bootstrapArgs, List<Var> args) {
+                         List<Literal> bootstrapArgs, List<Var> args) {
         super(null, args);
         this.bootstrapMethodRef = bootstrapMethodRef;
         this.methodName = methodName;
@@ -50,7 +57,7 @@ public class InvokeDynamic extends InvokeExp {
         return methodType;
     }
 
-    public List<Var> getBootstrapArgs() {
+    public List<Literal> getBootstrapArgs() {
         return bootstrapArgs;
     }
 
@@ -72,13 +79,13 @@ public class InvokeDynamic extends InvokeExp {
 
     @Override
     public String toString() {
-        // TODO: finish me
-        return "InvokeDynamic{" +
-                "bootstrapMethodRef=" + bootstrapMethodRef +
-                ", methodName='" + methodName + '\'' +
-                ", methodType=" + methodType +
-                ", bootstrapArgs=" + bootstrapArgs +
-                '}';
+        return String.format("%s %s \"%s\"<%s>[%s]%s",
+                getInvokeString(), bootstrapMethodRef,
+                methodName, methodType,
+                bootstrapArgs.stream()
+                        .map(Literal::toString)
+                        .collect(Collectors.joining(",")),
+                getArgsString());
     }
 
     @Override
