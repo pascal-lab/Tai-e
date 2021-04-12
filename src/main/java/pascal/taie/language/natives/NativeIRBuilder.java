@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 class NativeIRBuilder {
 
@@ -93,9 +93,8 @@ class NativeIRBuilder {
         for (Stmt stmt : stmts) {
             stmt.setIndex(i++);
         }
-        return new DefaultIR(method, thisVar, freeze(params),
-                singletonList(returnVar), freeze(vars),
-                freeze(stmts), Collections.emptyList());
+        return new DefaultIR(method, thisVar, params, singleton(returnVar),
+                vars, stmts, Collections.emptyList());
     }
 
     private void buildVars() {

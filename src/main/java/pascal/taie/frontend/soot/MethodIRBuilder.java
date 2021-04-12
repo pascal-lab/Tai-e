@@ -166,7 +166,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.types.VoidType.VOID;
-import static pascal.taie.util.collection.CollectionUtils.freeze;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 /**
@@ -208,9 +207,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         buildStmts(body);
         buildExceptionEntries(body.getTraps());
         return new DefaultIR(method,
-                varManager.getThis(), freeze(varManager.getParams()),
-                freeze(returnVars), freeze(varManager.getVars()),
-                freeze(stmts), freeze(exceptionEntries));
+                varManager.getThis(), varManager.getParams(), returnVars,
+                varManager.getVars(), stmts, exceptionEntries);
     }
 
     private void buildThis(Local thisLocal) {
@@ -753,7 +751,6 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         LookupSwitch lookupSwitch = new LookupSwitch(var, caseValues);
         jumpMap.put(currentUnit, lookupSwitch);
         addStmt(lookupSwitch);
-
     }
 
     @Override

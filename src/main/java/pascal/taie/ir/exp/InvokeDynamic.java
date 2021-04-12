@@ -19,6 +19,8 @@ import pascal.taie.language.types.Type;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static pascal.taie.util.collection.CollectionUtils.freeze;
+
 public class InvokeDynamic extends InvokeExp {
 
     private final MethodRef bootstrapMethodRef;
@@ -42,7 +44,7 @@ public class InvokeDynamic extends InvokeExp {
         this.bootstrapMethodRef = bootstrapMethodRef;
         this.methodName = methodName;
         this.methodType = methodType;
-        this.bootstrapArgs = bootstrapArgs;
+        this.bootstrapArgs = freeze(bootstrapArgs);
     }
 
     public MethodRef getBootstrapMethodRef() {

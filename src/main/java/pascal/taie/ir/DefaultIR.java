@@ -18,6 +18,9 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
+import java.util.Set;
+
+import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 /**
  * Default implementation of IR.
@@ -40,15 +43,15 @@ public class DefaultIR implements IR {
 
     public DefaultIR(
             JMethod method, Var thisVar,
-            List<Var> params, List<Var> returnVars, List<Var> vars,
+            List<Var> params, Set<Var> returnVars, List<Var> vars,
             List<Stmt> stmts, List<ExceptionEntry> exceptionEntries) {
         this.method = method;
         this.thisVar = thisVar;
-        this.params = params;
-        this.returnVars = returnVars;
-        this.vars = vars;
-        this.stmts = stmts;
-        this.exceptionEntries = exceptionEntries;
+        this.params = freeze(params);
+        this.returnVars = freeze(returnVars);
+        this.vars = freeze(vars);
+        this.stmts = freeze(stmts);
+        this.exceptionEntries = freeze(exceptionEntries);
     }
 
     @Override

@@ -16,9 +16,10 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.proginfo.ProgramPoint;
 import pascal.taie.language.types.Type;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static pascal.taie.util.collection.CollectionUtils.freeze;
 
 /**
  * Representation of method invocation expression.
@@ -33,7 +34,7 @@ public abstract class InvokeExp implements RValue {
 
     protected InvokeExp(MethodRef methodRef, List<Var> args) {
         this.methodRef = methodRef;
-        this.args = Collections.unmodifiableList(args);
+        this.args = freeze(args);
     }
 
     @Override
