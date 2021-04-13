@@ -17,7 +17,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.types.ClassType;
+
+import java.util.Map;
+import java.util.Set;
 
 public class ExceptionTest {
 
@@ -26,7 +32,7 @@ public class ExceptionTest {
     @BeforeClass
     public static void buildWorld() {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
-        Main.buildWorld("-pp", "-cp", "test-resources/graph", "-m", MAIN);
+        Main.buildWorld("-pp", "-cp", "test-resources/java", "-m", MAIN);
     }
 
     @AfterClass
@@ -35,36 +41,46 @@ public class ExceptionTest {
     }
 
     @Test
-    public void testThrowAnalysis() {
-        JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(false);
-        c.getDeclaredMethods().forEach(m -> {
-            System.out.println(m);
-            ThrowAnalysis.Result throwResult = throwAnalysis.analyze(m.getIR());
-            m.getIR()
-                    .getStmts()
-                    .forEach(stmt ->
-                            System.out.println(stmt + " may throw " +
-                                    throwResult.mayThrow(stmt)));
-            System.out.println();
-        });
+    public void testCatchImplicit() {
+        showCatch(true, "implicitCaught", "implicitUncaught");
     }
 
     @Test
-    public void testCatchAnalysis() {
+    public void testCatchThrow() {
+        showCatch(false, "throwCaught", "throwUncaught", "nestedThrowCaught");
+    }
+
+    @Test
+    public void testCatchDeclared() {
+        showCatch(false, "declaredCaught", "declaredUncaught");
+    }
+
+    private static void showCatch(boolean includeImplicit, String... methodNames) {
         JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(false);
-        c.getDeclaredMethods().forEach(m -> {
+        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(includeImplicit);
+        for (String methodName : methodNames) {
+            JMethod m = c.getDeclaredMethod(methodName);
             System.out.println(m);
             ThrowAnalysis.Result throwResult = throwAnalysis.analyze(m.getIR());
             CatchAnalysis.Result result = CatchAnalysis.analyze(
                     m.getIR(), throwResult);
             m.getIR().getStmts().forEach(stmt -> {
-                System.out.println(stmt);
-                result.caughtExceptionsOf(stmt).forEach(System.out::println);
-                result.uncaughtExceptionsOf(stmt).forEach(System.out::println);
+                Map<Stmt, Set<ClassType>> caught = result.getCaughtExceptionsOf(stmt);
+                Set<ClassType> uncaught = result.getUncaughtExceptionsOf(stmt);
+                if (!caught.isEmpty() || !uncaught.isEmpty()) {
+                    System.out.printf("%s(@L%d)%n", stmt, stmt.getLineNumber());
+                    if (!caught.isEmpty()) {
+                        System.out.println("Caught exceptions:");
+                        caught.forEach((s, e) ->
+                                System.out.printf("%s(@L%d): %s%n", s, s.getLineNumber(), e));
+                    }
+                    if (!uncaught.isEmpty()) {
+                        System.out.println("Uncaught exceptions: " + uncaught);
+                    }
+                    System.out.println();
+                }
             });
-            System.out.println();
-        });
+            System.out.println("------------------------------");
+        }
     }
 }
