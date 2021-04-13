@@ -42,7 +42,6 @@ import pascal.taie.language.types.Type;
 import pascal.taie.language.types.TypeManager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -179,7 +178,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
         // --------------------------------------------------------------------
         // java.io.FileSystem
         // --------------------------------------------------------------------
-        final List<String> concreteFileSystems = Arrays.asList(
+        final List<String> concreteFileSystems = List.of(
                 "java.io.UnixFileSystem",
                 "java.io.WinNTFileSystem",
                 "java.io.Win32FileSystem"

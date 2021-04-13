@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class SootWorldBuilder implements WorldBuilder {
 
     private static final String JREs = "java-benchmarks/JREs";
 
-    private static final List<String> implicitEntries = Arrays.asList(
+    private static final List<String> implicitEntries = List.of(
             "<java.lang.System: void initializeSystemClass()>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>",

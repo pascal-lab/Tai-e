@@ -34,14 +34,12 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.TypeManager;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static pascal.taie.util.collection.CollectionUtils.freeze;
 import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 /**
@@ -87,24 +85,24 @@ public class ThrowAnalysis {
         ClassType nullPointerException = tm.getClassType(StringReps.NULL_POINTER_EXCEPTION);
         ClassType outOfMemoryError = tm.getClassType(StringReps.OUT_OF_MEMORY_ERROR);
 
-        ARITHMETIC_EXCEPTION = singletonList(
+        ARITHMETIC_EXCEPTION = List.of(
                 tm.getClassType(StringReps.ARITHMETIC_EXCEPTION));
-        LOAD_ARRAY_EXCEPTIONS = freeze(Arrays.asList(
+        LOAD_ARRAY_EXCEPTIONS = List.of(
                 indexOutOfBoundsException,
-                nullPointerException));
-        STORE_ARRAY_EXCEPTIONS = freeze(Arrays.asList(
+                nullPointerException);
+        STORE_ARRAY_EXCEPTIONS = List.of(
                 arrayStoreException,
                 indexOutOfBoundsException,
-                nullPointerException));
-        INITIALIZER_ERROR = singletonList(
+                nullPointerException);
+        INITIALIZER_ERROR = List.of(
                 tm.getClassType(StringReps.EXCEPTION_IN_INITIALIZER_ERROR));
-        CLASS_CAST_EXCEPTION = singletonList(
+        CLASS_CAST_EXCEPTION = List.of(
                 tm.getClassType(StringReps.CLASS_CAST_EXCEPTION));
-        NEW_ARRAY_EXCEPTIONS = freeze(Arrays.asList(
+        NEW_ARRAY_EXCEPTIONS = List.of(
                 outOfMemoryError,
-                tm.getClassType(StringReps.NEGATIVE_ARRAY_SIZE_EXCEPTION)));
-        NULL_POINTER_EXCEPTION = singletonList(nullPointerException);
-        OUT_OF_MEMORY_ERROR = singletonList(outOfMemoryError);
+                tm.getClassType(StringReps.NEGATIVE_ARRAY_SIZE_EXCEPTION));
+        NULL_POINTER_EXCEPTION = List.of(nullPointerException);
+        OUT_OF_MEMORY_ERROR = List.of(outOfMemoryError);
     }
 
     public ThrowAnalysis() {

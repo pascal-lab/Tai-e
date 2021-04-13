@@ -17,14 +17,13 @@ import soot.G;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DaCapoRunner {
 
     private static final String SEP = File.separator;
     private static final List<String> BENCHMARK06
-            = Arrays.asList("antlr", /*"bloat",*/ "chart", "eclipse", "fop",
+            = List.of("antlr", /*"bloat",*/ "chart", "eclipse", "fop",
             "hsqldb", /*"jython",*/ "luindex", "lusearch", "pmd", "xalan");
     private static final String PATH06 = "java-benchmarks" + SEP + "dacapo-2006";
 
