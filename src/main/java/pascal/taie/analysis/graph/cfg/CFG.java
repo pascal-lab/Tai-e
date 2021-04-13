@@ -32,5 +32,5 @@ public interface CFG<N> extends Graph<N> {
 
     N getEntry();
 
-    Stream<N> getExits();
+    N getExit();
 }
