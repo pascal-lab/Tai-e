@@ -12,18 +12,25 @@
 
 package pascal.taie.analysis.exception;
 
-import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.types.ClassType;
 
 import java.util.Collection;
+import java.util.Map;
 
-public interface ThrowAnalysis {
+import static java.util.Collections.emptySet;
+import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
-    Result analyze(IR ir);
+public class DefaultThrowResult implements ThrowAnalysis.Result {
 
-    interface Result {
+    private final Map<Stmt, Collection<ClassType>> throwMap = newHybridMap();
 
-        Collection<ClassType> mayThrow(Stmt stmt);
+    void add(Stmt stmt, Collection<ClassType> exceptions) {
+        throwMap.put(stmt, exceptions);
+    }
+
+    @Override
+    public Collection<ClassType> mayThrow(Stmt stmt) {
+        return throwMap.getOrDefault(stmt, emptySet());
     }
 }

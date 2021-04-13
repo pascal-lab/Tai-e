@@ -45,12 +45,12 @@ public class CatchAnalysis {
      * Analyze the exceptions thrown by each Stmt in given IR may be caught
      * by which (catch) Stmts, and which exceptions are not caught in the IR.
      */
-    public static Result analyze(IR ir, ThrowAnalysis throwAnalysis) {
+    public static Result analyze(IR ir, ThrowAnalysis.Result throwResult) {
         Map<Stmt, List<ExceptionEntry>> catchers = getPotentialCatchers(ir);
         TypeManager typeManager = World.getTypeManager();
         Result result = new Result();
         ir.getStmts().forEach(stmt -> {
-            Collection<ClassType> exceptionTypes = throwAnalysis.mayThrow(stmt);
+            Collection<ClassType> exceptionTypes = throwResult.mayThrow(stmt);
             for (ExceptionEntry entry : catchers.getOrDefault(stmt, emptyList())) {
                 Set<ClassType> uncaught = newHybridSet();
                 exceptionTypes.forEach(t -> {

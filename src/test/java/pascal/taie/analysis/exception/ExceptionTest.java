@@ -36,15 +36,16 @@ public class ExceptionTest {
 
     @Test
     public void testThrowAnalysis() {
-        ThrowAnalysis throwAnalysis = new ThrowAnalysis(true);
         JClass c = World.getClassHierarchy().getClass(MAIN);
+        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(false);
         c.getDeclaredMethods().forEach(m -> {
             System.out.println(m);
+            ThrowAnalysis.Result throwResult = throwAnalysis.analyze(m.getIR());
             m.getIR()
                     .getStmts()
                     .forEach(stmt ->
                             System.out.println(stmt + " may throw " +
-                                    throwAnalysis.mayThrow(stmt)));
+                                    throwResult.mayThrow(stmt)));
             System.out.println();
         });
     }
@@ -52,10 +53,12 @@ public class ExceptionTest {
     @Test
     public void testCatchAnalysis() {
         JClass c = World.getClassHierarchy().getClass(MAIN);
+        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(false);
         c.getDeclaredMethods().forEach(m -> {
             System.out.println(m);
+            ThrowAnalysis.Result throwResult = throwAnalysis.analyze(m.getIR());
             CatchAnalysis.Result result = CatchAnalysis.analyze(
-                    m.getIR(), new ThrowAnalysis());
+                    m.getIR(), throwResult);
             m.getIR().getStmts().forEach(stmt -> {
                 System.out.println(stmt);
                 result.caughtExceptionsOf(stmt).forEach(System.out::println);
