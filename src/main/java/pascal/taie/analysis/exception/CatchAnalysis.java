@@ -41,6 +41,10 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
  */
 public class CatchAnalysis {
 
+    /**
+     * Analyze the exceptions thrown by each Stmt in given IR may be caught
+     * by which (catch) Stmts, and which exceptions are not caught in the IR.
+     */
     public static Result analyze(IR ir, ThrowAnalysis throwAnalysis) {
         Map<Stmt, List<ExceptionEntry>> catchers = getPotentialCatchers(ir);
         TypeManager typeManager = World.getTypeManager();
@@ -63,6 +67,10 @@ public class CatchAnalysis {
         return result;
     }
 
+    /**
+     * @return a map from each Stmt to a list of exception entries which
+     * may catch the exceptions thrown by the Stmt.
+     */
     public static Map<Stmt, List<ExceptionEntry>> getPotentialCatchers(IR ir) {
         Map<Stmt, List<ExceptionEntry>> catchers = new LinkedHashMap<>();
         ir.getExceptionEntries().forEach(entry -> {
@@ -90,6 +98,10 @@ public class CatchAnalysis {
             addToMapSet(uncaughtExceptions, stmt, exceptionType);
         }
 
+        /**
+         * For given Stmt s, return a stream of (Stmt s', Set<ClassType> ts),
+         * where the s' may catch the exceptions (of the types in ts) thrown by s.
+         */
         public Stream<Pair<Stmt, Set<ClassType>>> caughtExceptionsOf(Stmt stmt) {
             return caughtExceptions.getOrDefault(stmt, Collections.emptyMap())
                     .entrySet()
@@ -97,6 +109,10 @@ public class CatchAnalysis {
                     .map(e -> new Pair<>(e.getKey(), e.getValue()));
         }
 
+        /**
+         * @return the set of exception types that may be thrown by given Stmt
+         * but not caught by its containing method.
+         */
         public Stream<ClassType> uncaughtExceptionsOf(Stmt stmt) {
             return uncaughtExceptions.getOrDefault(
                     stmt, Collections.emptySet()).stream();
