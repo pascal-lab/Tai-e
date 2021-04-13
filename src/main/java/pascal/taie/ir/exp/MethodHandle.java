@@ -117,33 +117,25 @@ public class MethodHandle implements ReferenceLiteral {
 
     public enum Kind {
 
-        REF_getField(MethodHandleInfo.REF_getField, "REF_getField"),
-        REF_getStatic(MethodHandleInfo.REF_getStatic, "REF_getStatic"),
-        REF_putField(MethodHandleInfo.REF_putField, "REF_putField"),
-        REF_putStatic(MethodHandleInfo.REF_putStatic, "REF_putStatic"),
-        REF_invokeVirtual(MethodHandleInfo.REF_invokeVirtual, "REF_invokeVirtual"),
-        REF_invokeStatic(MethodHandleInfo.REF_invokeStatic, "REF_invokeStatic"),
-        REF_invokeSpecial(MethodHandleInfo.REF_invokeSpecial, "REF_invokeSpecial"),
-        REF_newInvokeSpecial(MethodHandleInfo.REF_newInvokeSpecial, "REF_newInvokeSpecial"),
-        REF_invokeInterface(MethodHandleInfo.REF_invokeInterface, "REF_invokeInterface"),
+        REF_getField(MethodHandleInfo.REF_getField),
+        REF_getStatic(MethodHandleInfo.REF_getStatic),
+        REF_putField(MethodHandleInfo.REF_putField),
+        REF_putStatic(MethodHandleInfo.REF_putStatic),
+        REF_invokeVirtual(MethodHandleInfo.REF_invokeVirtual),
+        REF_invokeStatic(MethodHandleInfo.REF_invokeStatic),
+        REF_invokeSpecial(MethodHandleInfo.REF_invokeSpecial),
+        REF_newInvokeSpecial(MethodHandleInfo.REF_newInvokeSpecial),
+        REF_invokeInterface(MethodHandleInfo.REF_invokeInterface),
         ;
 
         private final int value;
 
-        private final String name;
-
-        Kind(int value, String name) {
+        Kind(int value) {
             this.value = value;
-            this.name = name;
         }
 
         public int getValue() {
             return value;
-        }
-
-        @Override
-        public String toString() {
-            return name;
         }
 
         public static Kind get(int kind) {
