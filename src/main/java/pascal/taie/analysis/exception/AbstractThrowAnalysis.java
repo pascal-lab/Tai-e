@@ -164,7 +164,7 @@ public abstract class AbstractThrowAnalysis implements ThrowAnalysis {
     @Override
     public Result analyze(IR ir) {
         Object info = preAnalysis(ir);
-        DefaultThrowResult result = new DefaultThrowResult();
+        DefaultThrowAnalysisResult result = new DefaultThrowAnalysisResult();
         ir.getStmts().forEach(stmt -> {
             Collection<ClassType> exceptions = mayThrow(stmt, info);
             if (!exceptions.isEmpty()) {

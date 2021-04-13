@@ -48,6 +48,7 @@ public class DefaultThrowAnalysis extends AbstractThrowAnalysis {
     /**
      * Perform a simple intra-procedural analysis to find out the
      * throw Stmts which only throws exception of definite type.
+     * TODO: use a systematic approach to compute definite type
      */
     @Override
     protected Map<Throw, ClassType> preAnalysis(IR ir) {

@@ -19,7 +19,6 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.TypeManager;
-import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
@@ -102,20 +100,16 @@ public class CatchAnalysis {
          * For given Stmt s, return a stream of (Stmt s', Set<ClassType> ts),
          * where the s' may catch the exceptions (of the types in ts) thrown by s.
          */
-        public Stream<Pair<Stmt, Set<ClassType>>> caughtExceptionsOf(Stmt stmt) {
-            return caughtExceptions.getOrDefault(stmt, Collections.emptyMap())
-                    .entrySet()
-                    .stream()
-                    .map(e -> new Pair<>(e.getKey(), e.getValue()));
+        public Map<Stmt, Set<ClassType>> getCaughtExceptionsOf(Stmt stmt) {
+            return caughtExceptions.getOrDefault(stmt, Collections.emptyMap());
         }
 
         /**
          * @return the set of exception types that may be thrown by given Stmt
          * but not caught by its containing method.
          */
-        public Stream<ClassType> uncaughtExceptionsOf(Stmt stmt) {
-            return uncaughtExceptions.getOrDefault(
-                    stmt, Collections.emptySet()).stream();
+        public Set<ClassType> getUncaughtExceptionsOf(Stmt stmt) {
+            return uncaughtExceptions.getOrDefault(stmt, Collections.emptySet());
         }
     }
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 import static java.util.Collections.emptySet;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
-public class DefaultThrowResult implements ThrowAnalysis.Result {
+class DefaultThrowAnalysisResult implements ThrowAnalysis.Result {
 
     private final Map<Stmt, Collection<ClassType>> throwMap = newHybridMap();
 
