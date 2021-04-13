@@ -67,10 +67,10 @@ public class JClass {
         superClass = builder.getSuperClass();
         interfaces = builder.getInterfaces();
         declaredFields = builder.getDeclaredFields().stream()
-                .collect(Collectors.toMap(JField::getName,
+                .collect(Collectors.toUnmodifiableMap(JField::getName,
                         Function.identity()));
         declaredMethods = builder.getDeclaredMethods().stream()
-                .collect(Collectors.toMap(JMethod::getSubsignature,
+                .collect(Collectors.toUnmodifiableMap(JMethod::getSubsignature,
                         Function.identity()));
     }
 

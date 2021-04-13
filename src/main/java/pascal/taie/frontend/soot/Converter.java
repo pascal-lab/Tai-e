@@ -169,7 +169,7 @@ class Converter {
         } else {
             return collection.stream()
                     .map(mapper)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toUnmodifiableList());
         }
     }
 }

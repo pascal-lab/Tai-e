@@ -19,13 +19,15 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.collection.CollectionUtils.freeze;
+
 public class LookupSwitch extends SwitchStmt {
 
     private final List<Integer> caseValues;
 
     public LookupSwitch(Var value, List<Integer> caseValues) {
         super(value);
-        this.caseValues = caseValues;
+        this.caseValues = freeze(caseValues);
     }
 
     public int getCaseValue(int index) {
