@@ -12,6 +12,7 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.World;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 class SootClassLoader implements JClassLoader {
+
+    private static final ClassDumper classDumper = new ClassDumper();
 
     private final Scene scene;
 
@@ -55,6 +58,9 @@ class SootClassLoader implements JClassLoader {
                 new SootClassBuilder(converter, sootClass)
                         .build(jclass);
                 hierarchy.addClass(jclass);
+                if (World.getOptions().isDumpClasses()) {
+                    classDumper.dump(sootClass);
+                }
             }
         }
         // TODO: add warning for missing classes

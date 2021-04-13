@@ -12,15 +12,12 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.Options;
 import pascal.taie.World;
-import pascal.taie.WorldBuilder;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
-import pascal.taie.language.natives.DefaultNativeModel;
-import pascal.taie.language.natives.EmptyNativeModel;
-import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.types.TypeManager;
 import pascal.taie.language.types.TypeManagerImpl;
 import pascal.taie.util.Timer;
@@ -30,37 +27,12 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.Transform;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static soot.SootClass.HIERARCHY;
 
-public class SootWorldBuilder implements WorldBuilder {
-
-    private static final String JREs = "java-benchmarks/JREs";
-
-    private static final List<String> implicitEntries = List.of(
-            "<java.lang.System: void initializeSystemClass()>",
-            "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
-            "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>",
-            "<java.lang.ThreadGroup: void <init>()>",
-            "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>",
-            "<java.lang.Thread: void exit()>",
-            "<java.lang.ThreadGroup: void uncaughtException(java.lang.Thread,java.lang.Throwable)>",
-            "<java.lang.ClassLoader: void <init>()>",
-            "<java.lang.ClassLoader: java.lang.Class loadClassInternal(java.lang.String)>",
-            "<java.lang.ClassLoader: void checkPackageAccess(java.lang.Class,java.security.ProtectionDomain)>",
-            "<java.lang.ClassLoader: void addClass(java.lang.Class)>",
-            "<java.lang.ClassLoader: long findNative(java.lang.ClassLoader,java.lang.String)>",
-            "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
-    );
+public class SootWorldBuilder extends AbstractWorldBuilder {
 
     /**
      * Only used by old pointer analysis. Will be deprecated after
@@ -142,24 +114,6 @@ public class SootWorldBuilder implements WorldBuilder {
         scene.addBasicClass("sun.net.www.protocol.jar.Handler");
     }
 
-    private static String getClassPath(Options options) {
-        if (options.isPrependJVM()) {
-            return options.getClassPath();
-        } else { // when prependJVM is not set, we manually specify JRE jars
-            String jrePath = String.format("%s/jre1.%d",
-                    JREs, options.getJavaVersion());
-            try (Stream<Path> paths = Files.walk(Paths.get(jrePath))) {
-                return Stream.concat(
-                        paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                        Stream.of(options.getClassPath()))
-                        .collect(Collectors.joining(File.pathSeparator));
-            } catch (IOException e) {
-                throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +
-                        " is not supported yet");
-            }
-        }
-    }
-
     private void build(Options options, Scene scene) {
         World.reset();
         World world = new World();
@@ -201,7 +155,7 @@ public class SootWorldBuilder implements WorldBuilder {
         }
     }
 
-    private static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
+    protected static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
         // Parallelize?
         Timer timer = new Timer("Build all classes");
         timer.start();
@@ -209,21 +163,10 @@ public class SootWorldBuilder implements WorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
         timer.stop();
         System.out.println(timer);
-        if (World.getOptions().isDumpClasses()) {
-            ClassDumper dumper = new ClassDumper();
-            scene.getClasses().forEach(dumper::dump);
-        }
         System.out.println("#classes: " + hierarchy.getAllClasses().size());
         System.out.println("#methods: " + hierarchy.getAllClasses()
                 .stream()
                 .mapToInt(c -> c.getDeclaredMethods().size())
                 .sum());
-    }
-
-    private static NativeModel getNativeModel(
-            TypeManager typeManager, ClassHierarchy hierarchy) {
-        return World.getOptions().enableNativeModel() ?
-                new DefaultNativeModel(typeManager, hierarchy) :
-                new EmptyNativeModel(typeManager, hierarchy);
     }
 }
