@@ -12,23 +12,18 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import pascal.taie.language.types.ClassType;
+class SwitchCaseEdge<N> extends Edge<N> {
 
-import java.util.Collection;
+    private final int caseValue;
 
-class ExceptionalEdge<N> extends Edge<N> {
-
-    private final Collection<ClassType> exceptions;
-
-    ExceptionalEdge(Edge.Kind kind, N source, N target,
-                           Collection<ClassType> exceptions) {
+    SwitchCaseEdge(Kind kind, N source, N target, int caseValue) {
         super(kind, source, target);
-        this.exceptions = exceptions;
+        this.caseValue = caseValue;
     }
 
     @Override
-    public Collection<ClassType> getExceptions() {
-        return exceptions;
+    public int getCaseValue() {
+        return caseValue;
     }
 
     @Override
@@ -42,19 +37,19 @@ class ExceptionalEdge<N> extends Edge<N> {
         if (!super.equals(o)) {
             return false;
         }
-        ExceptionalEdge<?> that = (ExceptionalEdge<?>) o;
-        return exceptions.equals(that.exceptions);
+        SwitchCaseEdge<?> that = (SwitchCaseEdge<?>) o;
+        return caseValue == that.caseValue;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + exceptions.hashCode();
+        result = 31 * result + caseValue;
         return result;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " with exceptions " + exceptions;
+        return super.toString() + " with case " + caseValue;
     }
 }

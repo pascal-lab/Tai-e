@@ -13,6 +13,7 @@
 package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.language.types.ClassType;
+import pascal.taie.util.HashUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +69,7 @@ public class Edge<N> {
 
     private final N target;
 
-    public Edge(Kind kind, N source, N target) {
+    Edge(Kind kind, N source, N target) {
         this.kind = kind;
         this.source = source;
         this.target = target;
@@ -86,8 +87,47 @@ public class Edge<N> {
         return target;
     }
 
+    /**
+     * @return if this edge is an exceptional edge.
+     */
+    public boolean isExceptional() {
+        return kind == Kind.CAUGHT_EXCEPTION ||
+                kind == Kind.UNCAUGHT_EXCEPTION;
+    }
+
+    /**
+     * If this edge is a switch-case edge, return the case value,
+     * otherwise return -1.
+     */
+    public int getCaseValue() {
+        return -1;
+    }
+
+    /**
+     * If this edge is an exceptional edge, return the exception types along
+     * with this edge, otherwise return an empty collection.
+     */
     public Collection<ClassType> getExceptions() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Edge<?> edge = (Edge<?>) o;
+        return kind == edge.kind &&
+                source.equals(edge.source) &&
+                target.equals(edge.target);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.hash(kind, source, target);
     }
 
     @Override

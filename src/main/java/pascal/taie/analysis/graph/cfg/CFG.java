@@ -26,11 +26,29 @@ public interface CFG<N> extends Graph<N> {
 
     IR getIR();
 
-    default JMethod getMethod() {
-        return getIR().getMethod();
-    }
+    JMethod getMethod();
 
     N getEntry();
 
     N getExit();
+
+//    Stream<N> normalPredsOf(N node);
+//
+//    Stream<N> normalSuccsOf(N node);
+//
+//    Stream<N> exceptionalPredsOf(N node);
+//
+//    Stream<N> exceptionalSuccsOf(N node);
+
+    Stream<Edge<N>> inEdgesOf(N node);
+
+    Stream<Edge<N>> outEdgesOf(N node);
+
+    Stream<N> predsOf(N node, Edge.Kind kind);
+
+    Stream<N> succsOf(N node, Edge.Kind kind);
+
+    Stream<Edge<N>> inEdgesOf(N node, Edge.Kind kind);
+
+    Stream<Edge<N>> outEdgesOf(N node, Edge.Kind kind);
 }
