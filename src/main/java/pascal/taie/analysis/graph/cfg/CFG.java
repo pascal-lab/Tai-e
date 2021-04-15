@@ -32,6 +32,10 @@ public interface CFG<N> extends Graph<N> {
 
     N getExit();
 
+    boolean isEntry(N node);
+
+    boolean isExit(N node);
+
 //    Stream<N> normalPredsOf(N node);
 //
 //    Stream<N> normalSuccsOf(N node);

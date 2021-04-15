@@ -74,6 +74,16 @@ abstract class AbstractCFG<N> implements CFG<N> {
         return exit;
     }
 
+    @Override
+    public boolean isEntry(N node) {
+        return node == entry;
+    }
+
+    @Override
+    public boolean isExit(N node) {
+        return node == exit;
+    }
+
     void addEdge(Edge<N> edge) {
         nodes.add(edge.getSource());
         nodes.add(edge.getTarget());

@@ -16,8 +16,8 @@ class SwitchCaseEdge<N> extends Edge<N> {
 
     private final int caseValue;
 
-    SwitchCaseEdge(Kind kind, N source, N target, int caseValue) {
-        super(kind, source, target);
+    SwitchCaseEdge(N source, N target, int caseValue) {
+        super(Kind.SWITCH_CASE, source, target);
         this.caseValue = caseValue;
     }
 
