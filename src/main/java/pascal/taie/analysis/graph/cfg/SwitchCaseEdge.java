@@ -50,6 +50,6 @@ class SwitchCaseEdge<N> extends Edge<N> {
 
     @Override
     public String toString() {
-        return super.toString() + " with case " + caseValue;
+        return super.toString() + " [" + caseValue + "]";
     }
 }

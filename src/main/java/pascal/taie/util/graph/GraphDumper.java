@@ -23,6 +23,10 @@ public class GraphDumper {
 
     private static final Logger logger = LogManager.getLogger(GraphDumper.class);
 
+    private static final String INDENT = "  ";
+
+    private static final String NODE_ATTR = "[shape=box,style=filled,color=\".3 .3 1.0\"]";
+
     private GraphDumper() {}
 
     public static <N> void dump(Graph<N> graph, PrintStream out) {
@@ -31,12 +35,10 @@ public class GraphDumper {
                         .forEach(t -> out.println(s + " -> " + t)));
     }
 
-    private static final String INDENT = "  ";
-
     private static <N> void dumpDot(Graph<N> graph, PrintStream out) {
         out.println("digraph G {");
         // set node style
-        out.println(INDENT + "node [shape=box,style=filled,color=\".3 .3 1.0\"];");
+        out.printf("%snode %s;%n", INDENT, NODE_ATTR);
         // dump nodes
         graph.nodes().forEach(n -> out.printf("%s\"%s\";%n", INDENT, n));
         // dump edges
