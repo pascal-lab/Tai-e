@@ -72,6 +72,7 @@ public class InvokeDynamicTest {
             Assert.assertEquals("metafactory",
                     bootstrapMethodRef.getName());
         });
+        printIR(mainClass.getDeclaredMethod("getValue").getIR());
     }
 
     @Test
@@ -85,6 +86,14 @@ public class InvokeDynamicTest {
                 Assert.assertEquals("actionPerformed",
                         indy.getMethodName())
         );
+    }
+
+    @Test
+    public void testCapture() {
+        final String main = "Capture";
+        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", main);
+        JClass mainClass = World.getClassHierarchy().getClass(main);
+        mainClass.getDeclaredMethods().forEach(m -> printIR(m.getIR()));
     }
 
     private static Stream<InvokeDynamic> extractInvokeDynamics(IR ir) {
