@@ -12,11 +12,21 @@
 
 package pascal.taie.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.function.Supplier;
+
 public class Timer {
 
+    private static final Logger logger = LogManager.getLogger(Timer.class);
+    
     private final String name;
+
     private long elapsedTime = 0;
+
     private long startTime;
+
     private boolean inCounting = false;
 
     public Timer(String name) {
@@ -50,5 +60,32 @@ public class Timer {
     public String toString() {
         return String.format("(%s) elapsed time: %.2fs",
                 name, inSecond());
+    }
+
+    /**
+     * Execute a task, log the elapsed time, and return the result.
+     * @param message message of the task
+     * @param task task to be executed
+     */
+    public static <T> T executeAndCount(String message, Supplier<T> task) {
+        Timer timer = new Timer(message);
+        timer.start();
+        T result = task.get();
+        timer.stop();
+        logger.info(timer);
+        return result;
+    }
+
+    /**
+     * Execute a task and log the elapsed time.
+     * @param message message of the task
+     * @param task task to be executed
+     */
+    public static void executeAndCount(String message, Runnable task) {
+        Timer timer = new Timer(message);
+        timer.start();
+        task.run();
+        timer.stop();
+        logger.info(timer);
     }
 }
