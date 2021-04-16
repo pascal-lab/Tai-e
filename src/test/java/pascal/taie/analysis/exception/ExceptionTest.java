@@ -32,7 +32,7 @@ public class ExceptionTest {
     @BeforeClass
     public static void buildWorld() {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
-        Main.buildWorld("-pp", "-cp", "test-resources/java", "-m", MAIN);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", MAIN);
     }
 
     @AfterClass

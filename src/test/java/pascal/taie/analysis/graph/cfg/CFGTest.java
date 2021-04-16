@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -23,17 +22,20 @@ import pascal.taie.language.classes.JClass;
 
 public class CFGTest {
 
-    private static final String MAIN = "CFG";
-
-    @BeforeClass
-    public static void buildWorld() {
-        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", MAIN);
+    @Test
+    public void testCFG() {
+        test("CFG", true);
     }
 
     @Test
-    public void testCFG() {
-        JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new IntraproceduralThrowAnalysis(true);
+    public void testException() {
+        test("Exceptions", false);
+    }
+
+    private static void test(String main, boolean ignoreImplicit) {
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
+        JClass c = World.getClassHierarchy().getClass(main);
+        ThrowAnalysis throwAnalysis = new IntraproceduralThrowAnalysis(ignoreImplicit);
         CFGBuilder builder = new CFGBuilder(throwAnalysis);
         c.getDeclaredMethods().forEach(m -> {
             CFG<Stmt> cfg = builder.build(m.getIR());

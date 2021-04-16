@@ -33,7 +33,7 @@ public class InvokeDynamicTest {
     @Test
     public void testFunction() {
         final String main = "Function";
-        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", main);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
         JClass mainClass = World.getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -44,7 +44,7 @@ public class InvokeDynamicTest {
     @Test
     public void testInterface() {
         final String main = "Interface";
-        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", main);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
         JClass mainClass = World.getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -63,7 +63,7 @@ public class InvokeDynamicTest {
     @Test
     public void testMultiStatement() {
         final String main = "MultiStatement";
-        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", main);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
         JClass mainClass = World.getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -78,7 +78,7 @@ public class InvokeDynamicTest {
     @Test
     public void testWithArgs() {
         final String main = "WithArgs";
-        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", main);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
         JClass mainClass = World.getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -91,7 +91,7 @@ public class InvokeDynamicTest {
     @Test
     public void testCapture() {
         final String main = "Capture";
-        Main.buildWorld("-pp", "-cp", "test-resources/ir", "-m", main);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
         JClass mainClass = World.getClassHierarchy().getClass(main);
         mainClass.getDeclaredMethods().forEach(m -> printIR(m.getIR()));
     }
