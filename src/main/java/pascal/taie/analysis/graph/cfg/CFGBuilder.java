@@ -12,14 +12,22 @@
 
 package pascal.taie.analysis.graph.cfg;
 
+import pascal.taie.analysis.exception.CatchAnalysis;
 import pascal.taie.analysis.exception.ThrowAnalysis;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.Throw;
+import pascal.taie.language.types.ClassType;
+
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class CFGBuilder {
 
@@ -71,5 +79,43 @@ public class CFGBuilder {
     }
 
     private static void buildExceptionalEdges(StmtCFG cfg, ThrowAnalysis throwAnalysis) {
+        IR ir = cfg.getIR();
+        ThrowAnalysis.Result throwResult = throwAnalysis.analyze(ir);
+        CatchAnalysis.Result catchResult = CatchAnalysis.analyze(ir, throwResult);
+        ir.getStmts().forEach(stmt -> {
+            // build edges for implicit exceptions
+            catchResult.getCaughtImplicitOf(stmt).forEach((catcher, exceptions) ->
+                    cfg.inEdgesOf(stmt)
+                            .filter(Predicate.not(Edge::isExceptional))
+                            .map(Edge::getSource)
+                            .forEach(pred ->
+                                    cfg.addEdge(new ExceptionalEdge<>(
+                                        Edge.Kind.CAUGHT_EXCEPTION,
+                                        pred, catcher, exceptions))));
+            Set<ClassType> uncaught = catchResult.getUncaughtImplicitOf(stmt);
+            if (!uncaught.isEmpty()) {
+                cfg.inEdgesOf(stmt)
+                        .filter(Predicate.not(Edge::isExceptional))
+                        .map(Edge::getSource)
+                        .forEach(pred -> cfg.addEdge(
+                                new ExceptionalEdge<>(
+                                        Edge.Kind.UNCAUGHT_EXCEPTION,
+                                        pred, cfg.getExit(), uncaught)));
+            }
+            // build edges for explicit exceptions
+            if (stmt instanceof Throw || stmt instanceof Invoke) {
+                catchResult.getCaughtExplicitOf(stmt).forEach((catcher, exceptions) -> {
+                    cfg.addEdge(new ExceptionalEdge<>(Edge.Kind.CAUGHT_EXCEPTION,
+                            stmt, catcher, exceptions));
+                });
+                Set<ClassType> uncaughtEx = catchResult.getUncaughtExplicitOf(stmt);
+                if (!uncaughtEx.isEmpty()) {
+                    cfg.addEdge(new ExceptionalEdge<>(
+                            Edge.Kind.UNCAUGHT_EXCEPTION,
+                            stmt, cfg.getExit(), uncaughtEx));
+                }
+            }
+            // TODO: merge exceptional edges
+        });
     }
 }

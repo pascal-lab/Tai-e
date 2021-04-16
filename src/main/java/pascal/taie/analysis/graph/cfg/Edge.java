@@ -97,10 +97,11 @@ public class Edge<N> {
 
     /**
      * If this edge is a switch-case edge, return the case value,
-     * otherwise return -1.
+     * otherwise return minimal integer value.
      */
     public int getCaseValue() {
-        return -1;
+        assert kind == Kind.SWITCH_CASE : this + " is not a switch-case edge";
+        return Integer.MIN_VALUE;
     }
 
     /**
@@ -108,6 +109,7 @@ public class Edge<N> {
      * with this edge, otherwise return an empty collection.
      */
     public Collection<ClassType> getExceptions() {
+        assert isExceptional() : this + " is not an exceptional edge";
         return Collections.emptyList();
     }
 
