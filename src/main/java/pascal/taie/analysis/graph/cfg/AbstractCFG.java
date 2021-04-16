@@ -34,9 +34,9 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     protected final Set<N> nodes = newSet();
 
-    protected final Map<N, Set<Edge<N>>> inEdges = newMap();
+    private final Map<N, Set<Edge<N>>> inEdges = newMap();
 
-    protected final Map<N, Set<Edge<N>>> outEdges = newMap();
+    private final Map<N, Set<Edge<N>>> outEdges = newMap();
 
     AbstractCFG(IR ir) {
         this.ir = ir;
@@ -101,26 +101,6 @@ abstract class AbstractCFG<N> implements CFG<N> {
     @Override
     public Stream<Edge<N>> outEdgesOf(N node) {
         return outEdges.getOrDefault(node, Collections.emptySet()).stream();
-    }
-
-    @Override
-    public Stream<N> predsOf(N node, Edge.Kind kind) {
-        return inEdgesOf(node, kind).map(Edge::getSource);
-    }
-
-    @Override
-    public Stream<N> succsOf(N node, Edge.Kind kind) {
-        return outEdgesOf(node, kind).map(Edge::getTarget);
-    }
-
-    @Override
-    public Stream<Edge<N>> inEdgesOf(N node, Edge.Kind kind) {
-        return inEdgesOf(node).filter(e -> e.getKind() == kind);
-    }
-
-    @Override
-    public Stream<Edge<N>> outEdgesOf(N node, Edge.Kind kind) {
-        return outEdgesOf(node).filter(e -> e.getKind() == kind);
     }
 
     @Override
