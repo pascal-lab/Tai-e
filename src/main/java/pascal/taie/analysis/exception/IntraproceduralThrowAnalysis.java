@@ -15,6 +15,7 @@ package pascal.taie.analysis.exception;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignStmt;
@@ -26,6 +27,7 @@ import pascal.taie.language.types.ClassType;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -106,7 +108,7 @@ public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
         Map<Throw, ClassType> definiteThrows = newHybridMap();
         throwVars.values().forEach(throwStmt -> {
             List<Exp> rvalues = assigns.get(throwStmt.getExceptionRef());
-            if (rvalues.size() == 1) {
+            if (rvalues != null && rvalues.size() == 1) {
                 Exp rvalue = rvalues.get(0);
                 if (rvalue instanceof NewInstance) {
                     definiteThrows.put(throwStmt, ((NewInstance) rvalue).getType());
@@ -134,6 +136,8 @@ public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
     }
 
     private static Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
-        return invoke.getMethodRef().resolve().getExceptions();
+        return invoke.getInvokeExp() instanceof InvokeDynamic ?
+                Collections.emptyList() : // InvokeDynamic.getMethodRef() is unavailable
+                invoke.getMethodRef().resolve().getExceptions();
     }
 }
