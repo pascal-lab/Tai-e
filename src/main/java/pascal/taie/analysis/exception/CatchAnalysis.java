@@ -16,7 +16,9 @@ import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Catch;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.language.types.TypeManager;
 
@@ -32,6 +34,8 @@ import static java.util.Collections.emptyList;
 import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
  * Intra-procedural catch analysis for computing the exceptions thrown by
@@ -48,19 +52,38 @@ public class CatchAnalysis {
         TypeManager typeManager = World.getTypeManager();
         Result result = new Result();
         ir.getStmts().forEach(stmt -> {
-            Collection<ClassType> exceptionTypes = throwResult.mayThrow(stmt);
+            Collection<ClassType> implicit = throwResult.mayThrowImplicitly(stmt);
+            Collection<ClassType> explicit;
+            if (stmt instanceof Throw) {
+                explicit = throwResult.mayThrowExplicitly((Throw) stmt);
+            } else if (stmt instanceof Invoke) {
+                explicit = throwResult.mayThrowExplicitly((Invoke) stmt);
+            } else {
+                explicit = emptyList();
+            }
             for (ExceptionEntry entry : catchers.getOrDefault(stmt, emptyList())) {
-                Set<ClassType> uncaught = newHybridSet();
-                exceptionTypes.forEach(t -> {
+                Set<ClassType> uncaughtImplicit = newHybridSet();
+                implicit.forEach(t -> {
                     if (typeManager.isSubtype(entry.getCatchType(), t)) {
-                        result.addCaughtException(stmt, entry.getHandler(), t);
+                        result.addCaughtImplicit(stmt, entry.getHandler(), t);
                     } else {
-                        uncaught.add(t);
+                        uncaughtImplicit.add(t);
                     }
                 });
-                exceptionTypes = uncaught;
+                implicit = uncaughtImplicit;
+
+                Set<ClassType> uncaughtExplicit = newHybridSet();
+                explicit.forEach(t -> {
+                    if (typeManager.isSubtype(entry.getCatchType(), t)) {
+                        result.addCaughtExplicit(stmt, entry.getHandler(), t);
+                    } else {
+                        uncaughtExplicit.add(t);
+                    }
+                });
+                explicit = uncaughtExplicit;
             }
-            exceptionTypes.forEach(e -> result.addUncaughtException(stmt, e));
+            implicit.forEach(e -> result.addUncaughtImplicit(stmt, e));
+            explicit.forEach(e -> result.addUncaughtExplicit(stmt, e));
         });
         return result;
     }
@@ -83,33 +106,86 @@ public class CatchAnalysis {
 
     public static class Result {
 
-        private final Map<Stmt, Map<Stmt, Set<ClassType>>> caughtExceptions = newHybridMap();
+        private final Map<Stmt, Map<Stmt, Set<ClassType>>> caughtImplicit = newHybridMap();
 
-        private final Map<Stmt, Set<ClassType>> uncaughtExceptions = newHybridMap();
+        private final Map<Stmt, Set<ClassType>> uncaughtImplicit = newHybridMap();
 
-        private void addCaughtException(Stmt stmt, Catch catcher, ClassType exceptionType) {
-            addToMapSet(caughtExceptions.computeIfAbsent(stmt, s -> newHybridMap()),
+        private final Map<Stmt, Map<Stmt, Set<ClassType>>> caughtExplicit = newHybridMap();
+
+        private final Map<Stmt, Set<ClassType>> uncaughtExplicit = newHybridMap();
+
+        private void addCaughtImplicit(Stmt stmt, Catch catcher, ClassType exceptionType) {
+            addToMapSet(caughtImplicit.computeIfAbsent(stmt, s -> newHybridMap()),
                     catcher, exceptionType);
         }
 
-        private void addUncaughtException(Stmt stmt, ClassType exceptionType) {
-            addToMapSet(uncaughtExceptions, stmt, exceptionType);
+        private void addUncaughtImplicit(Stmt stmt, ClassType exceptionType) {
+            addToMapSet(uncaughtImplicit, stmt, exceptionType);
         }
 
         /**
          * For given Stmt s, return a stream of (Stmt s', Set<ClassType> ts),
-         * where the s' may catch the exceptions (of the types in ts) thrown by s.
+         * where the s' may catch the exceptions (of the types in ts)
+         * thrown by s implicitly.
          */
-        public Map<Stmt, Set<ClassType>> getCaughtExceptionsOf(Stmt stmt) {
-            return caughtExceptions.getOrDefault(stmt, Collections.emptyMap());
+        public Map<Stmt, Set<ClassType>> getCaughtImplicitOf(Stmt stmt) {
+            return caughtImplicit.getOrDefault(stmt, Collections.emptyMap());
         }
 
         /**
-         * @return the set of exception types that may be thrown by given Stmt
-         * but not caught by its containing method.
+         * @return the set of exception types that may be implicitly thrown
+         * by given Stmt but not caught by its containing method.
          */
-        public Set<ClassType> getUncaughtExceptionsOf(Stmt stmt) {
-            return uncaughtExceptions.getOrDefault(stmt, Collections.emptySet());
+        public Set<ClassType> getUncaughtImplicitOf(Stmt stmt) {
+            return uncaughtImplicit.getOrDefault(stmt, Collections.emptySet());
+        }
+
+        private void addCaughtExplicit(Stmt stmt, Catch catcher, ClassType exceptionType) {
+            addToMapSet(caughtExplicit.computeIfAbsent(stmt, s -> newHybridMap()),
+                    catcher, exceptionType);
+        }
+
+        private void addUncaughtExplicit(Stmt stmt, ClassType exceptionType) {
+            addToMapSet(uncaughtExplicit, stmt, exceptionType);
+        }
+
+        /**
+         * For given Stmt s, return a stream of (Stmt s', Set<ClassType> ts),
+         * where the s' may catch the exceptions (of the types in ts)
+         * thrown by s explicitly.
+         */
+        public Map<Stmt, Set<ClassType>> getCaughtExplicitOf(Stmt stmt) {
+            return caughtExplicit.getOrDefault(stmt, Collections.emptyMap());
+        }
+
+        /**
+         * @return the set of exception types that may be explicitly thrown
+         * by given Stmt but not caught by its containing method.
+         */
+        public Set<ClassType> getUncaughtExplicitOf(Stmt stmt) {
+            return uncaughtExplicit.getOrDefault(stmt, Collections.emptySet());
+        }
+
+        /**
+         * @return all caught exceptions of given Stmt, including both
+         * implicit and explicit exceptions.
+         */
+        public Map<Stmt, Set<ClassType>> getCaughtOf(Stmt stmt) {
+            Map<Stmt, Set<ClassType>> caught = newMap();
+            caught.putAll(getCaughtImplicitOf(stmt));
+            caught.putAll(getCaughtExplicitOf(stmt));
+            return caught;
+        }
+
+        /**
+         * @return all uncaught exceptions of given Stmt, including both
+         * implicit and explicit exceptions.
+         */
+        public Set<ClassType> getUncaughtOf(Stmt stmt) {
+            Set<ClassType> uncaught = newSet();
+            uncaught.addAll(getUncaughtImplicitOf(stmt));
+            uncaught.addAll(getUncaughtExplicitOf(stmt));
+            return uncaught;
         }
     }
 }

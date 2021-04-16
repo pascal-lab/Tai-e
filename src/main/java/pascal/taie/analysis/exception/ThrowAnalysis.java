@@ -13,7 +13,9 @@
 package pascal.taie.analysis.exception;
 
 import pascal.taie.ir.IR;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.types.ClassType;
 
 import java.util.Collection;
@@ -24,6 +26,12 @@ public interface ThrowAnalysis {
 
     interface Result {
 
-        Collection<ClassType> mayThrow(Stmt stmt);
+        IR getIR();
+
+        Collection<ClassType> mayThrowImplicitly(Stmt stmt);
+
+        Collection<ClassType> mayThrowExplicitly(Throw throwStmt);
+
+        Collection<ClassType> mayThrowExplicitly(Invoke invoke);
     }
 }

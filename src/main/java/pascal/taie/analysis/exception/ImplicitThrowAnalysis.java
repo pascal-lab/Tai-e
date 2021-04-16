@@ -1,24 +1,12 @@
-/*
- * Tai-e: A Static Analysis Framework for Java
- *
- * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020-- Yue Li <yueli@nju.edu.cn>
- * All rights reserved.
- *
- * Tai-e is only for educational and academic purposes,
- * and any form of commercial use is disallowed.
- * Distribution of Tai-e is disallowed without the approval.
- */
-
 package pascal.taie.analysis.exception;
 
 import pascal.taie.World;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Monitor;
@@ -37,38 +25,35 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-/**
- * Common functionality for {@link ThrowAnalysis} implementations.
- * TODO: the exceptions handling is incomplete yet.
- */
-public abstract class AbstractThrowAnalysis implements ThrowAnalysis {
+enum ImplicitThrowAnalysis {
 
-    /**
-     * Whether include implicit exceptions in the results.
-     */
-    protected final boolean includeImplicit;
+    INSTANCE;
+
+    static ImplicitThrowAnalysis get() {
+        return INSTANCE;
+    }
 
     // Implicit exception groups
-    protected final Collection<ClassType> ARITHMETIC_EXCEPTION;
+    private final Collection<ClassType> ARITHMETIC_EXCEPTION;
 
-    protected final Collection<ClassType> LOAD_ARRAY_EXCEPTIONS;
+    private final Collection<ClassType> LOAD_ARRAY_EXCEPTIONS;
 
-    protected final Collection<ClassType> STORE_ARRAY_EXCEPTIONS;
+    private final Collection<ClassType> STORE_ARRAY_EXCEPTIONS;
 
-    protected final Collection<ClassType> INITIALIZER_ERROR;
+    private final Collection<ClassType> INITIALIZER_ERROR;
 
-    protected final Collection<ClassType> CLASS_CAST_EXCEPTION;
+    private final Collection<ClassType> CLASS_CAST_EXCEPTION;
 
-    protected final Collection<ClassType> NEW_ARRAY_EXCEPTIONS;
+    private final Collection<ClassType> NEW_ARRAY_EXCEPTIONS;
 
-    protected final Collection<ClassType> NULL_POINTER_EXCEPTION;
+    private final Collection<ClassType> NULL_POINTER_EXCEPTION;
 
-    protected final Collection<ClassType> OUT_OF_MEMORY_ERROR;
+    private final Collection<ClassType> OUT_OF_MEMORY_ERROR;
 
     /**
      * Visitor for compute implicit exceptions that may be thrown by each Stmt.
      */
-    protected final StmtRVisitor<Collection<ClassType>> implicitVisitor
+    private final StmtRVisitor<Collection<ClassType>> implicitVisitor
             = new StmtRVisitor<>() {
         @Override
         public Collection<ClassType> visit(New stmt) {
@@ -122,6 +107,12 @@ public abstract class AbstractThrowAnalysis implements ThrowAnalysis {
         }
 
         @Override
+        public Collection<ClassType> visit(Invoke stmt) {
+            return stmt.isStatic() ?
+                    INITIALIZER_ERROR : NULL_POINTER_EXCEPTION;
+        }
+
+        @Override
         public Collection<ClassType> visit(Monitor stmt) {
             return NULL_POINTER_EXCEPTION;
         }
@@ -132,9 +123,7 @@ public abstract class AbstractThrowAnalysis implements ThrowAnalysis {
         }
     };
 
-    protected AbstractThrowAnalysis(boolean includeImplicit) {
-        this.includeImplicit = includeImplicit;
-
+    ImplicitThrowAnalysis() {
         TypeManager tm = World.getTypeManager();
         ClassType arrayStoreException = tm.getClassType(StringReps.ARRAY_STORE_EXCEPTION);
         ClassType indexOutOfBoundsException = tm.getClassType(StringReps.INDEX_OUT_OF_BOUNDS_EXCEPTION);
@@ -161,30 +150,8 @@ public abstract class AbstractThrowAnalysis implements ThrowAnalysis {
         OUT_OF_MEMORY_ERROR = List.of(outOfMemoryError);
     }
 
-    @Override
-    public Result analyze(IR ir) {
-        Object info = preAnalysis(ir);
-        DefaultThrowAnalysisResult result = new DefaultThrowAnalysisResult();
-        ir.getStmts().forEach(stmt -> {
-            Collection<ClassType> exceptions = mayThrow(stmt, info);
-            if (!exceptions.isEmpty()) {
-                result.add(stmt, exceptions);
-            }
-        });
-        return result;
-    }
-
-    protected Collection<ClassType> getImplicitExceptions(Stmt stmt) {
+    Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
         return stmt.accept(implicitVisitor);
     }
 
-    /**
-     * Allow the concrete throw analysis to perform a pre-analysis to obtain
-     * useful information which may be used when analyzing each Stmt.
-     */
-    protected Object preAnalysis(IR ir) {
-        return null;
-    }
-
-    protected abstract Collection<ClassType> mayThrow(Stmt stmt, Object info);
 }

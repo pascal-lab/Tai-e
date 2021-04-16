@@ -12,25 +12,64 @@
 
 package pascal.taie.analysis.exception;
 
+import pascal.taie.ir.IR;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.types.ClassType;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 class DefaultThrowAnalysisResult implements ThrowAnalysis.Result {
 
-    private final Map<Stmt, Collection<ClassType>> throwMap = newHybridMap();
+    private final IR ir;
 
-    void add(Stmt stmt, Collection<ClassType> exceptions) {
-        throwMap.put(stmt, exceptions);
+    /**
+     * If this field is null, then this result returns empty collection
+     * for implicit exceptions.
+     */
+    @Nullable
+    private final ImplicitThrowAnalysis implicit;
+
+    private final Map<Stmt, Collection<ClassType>> explicitExceptions = newHybridMap();
+
+    DefaultThrowAnalysisResult(IR ir, ImplicitThrowAnalysis implicitThrowAnalysis) {
+        this.ir = ir;
+        this.implicit = implicitThrowAnalysis;
+    }
+
+    void addExplicit(Throw throwStmt, Collection<ClassType> exceptions) {
+        explicitExceptions.put(throwStmt, exceptions);
+    }
+
+    void addExplicit(Invoke invoke, Collection<ClassType> exceptions) {
+        explicitExceptions.put(invoke, exceptions);
     }
 
     @Override
-    public Collection<ClassType> mayThrow(Stmt stmt) {
-        return throwMap.getOrDefault(stmt, emptySet());
+    public IR getIR() {
+        return ir;
+    }
+
+    @Override
+    public Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
+        return implicit == null ? emptyList() :
+                implicit.mayThrowImplicitly(stmt);
+    }
+
+    @Override
+    public Collection<ClassType> mayThrowExplicitly(Throw throwStmt) {
+        return explicitExceptions.getOrDefault(throwStmt, emptySet());
+    }
+
+    @Override
+    public Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
+        return explicitExceptions.getOrDefault(invoke, emptySet());
     }
 }

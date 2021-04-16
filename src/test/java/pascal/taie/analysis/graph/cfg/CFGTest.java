@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.exception.DefaultThrowAnalysis;
+import pascal.taie.analysis.exception.IntraproceduralThrowAnalysis;
 import pascal.taie.analysis.exception.ThrowAnalysis;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
@@ -33,7 +33,7 @@ public class CFGTest {
     @Test
     public void testCFG() {
         JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(false);
+        ThrowAnalysis throwAnalysis = new IntraproceduralThrowAnalysis(true);
         CFGBuilder builder = new CFGBuilder(throwAnalysis);
         c.getDeclaredMethods().forEach(m -> {
             CFG<Stmt> cfg = builder.build(m.getIR());

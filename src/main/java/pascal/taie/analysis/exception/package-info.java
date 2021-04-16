@@ -33,7 +33,7 @@
  *
  * (3) Exceptions that are explicitly thrown by throw statements.
  *
- * (4) Exceptions that are explicitly declared by methods.
+ * (4) Exceptions that are explicitly thrown by method invocations.
  *
  * Generally, Tai-e ignores (1), and provides different strategies
  * to handle exceptions in (2)-(4).

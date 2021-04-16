@@ -42,22 +42,22 @@ public class ExceptionTest {
 
     @Test
     public void testCatchImplicit() {
-        showCatch(true, "implicitCaught", "implicitUncaught");
+        showCatch(false, "implicitCaught", "implicitUncaught");
     }
 
     @Test
     public void testCatchThrow() {
-        showCatch(false, "throwCaught", "throwUncaught", "nestedThrowCaught");
+        showCatch(true, "throwCaught", "throwUncaught", "nestedThrowCaught");
     }
 
     @Test
     public void testCatchDeclared() {
-        showCatch(false, "declaredCaught", "declaredUncaught");
+        showCatch(true, "declaredCaught", "declaredUncaught");
     }
 
-    private static void showCatch(boolean includeImplicit, String... methodNames) {
+    private static void showCatch(boolean ignoreImplicit, String... methodNames) {
         JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new DefaultThrowAnalysis(includeImplicit);
+        ThrowAnalysis throwAnalysis = new IntraproceduralThrowAnalysis(ignoreImplicit);
         for (String methodName : methodNames) {
             JMethod m = c.getDeclaredMethod(methodName);
             System.out.println(m);
@@ -65,8 +65,8 @@ public class ExceptionTest {
             CatchAnalysis.Result result = CatchAnalysis.analyze(
                     m.getIR(), throwResult);
             m.getIR().getStmts().forEach(stmt -> {
-                Map<Stmt, Set<ClassType>> caught = result.getCaughtExceptionsOf(stmt);
-                Set<ClassType> uncaught = result.getUncaughtExceptionsOf(stmt);
+                Map<Stmt, Set<ClassType>> caught = result.getCaughtOf(stmt);
+                Set<ClassType> uncaught = result.getUncaughtOf(stmt);
                 if (!caught.isEmpty() || !uncaught.isEmpty()) {
                     System.out.printf("%s(@L%d)%n", stmt, stmt.getLineNumber());
                     if (!caught.isEmpty()) {

@@ -19,30 +19,57 @@ import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignStmt;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.types.ClassType;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
  * An intra-procedural throw analysis for computing the exceptions
  * that may be thrown by each Stmt.
  */
-public class DefaultThrowAnalysis extends AbstractThrowAnalysis {
-    
-    public DefaultThrowAnalysis(boolean includeImplicit) {
-        super(includeImplicit);
+public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
+
+    /**
+     * If this field is null, then this analysis ignores implicit exceptions.
+     */
+    @Nullable
+    private final ImplicitThrowAnalysis implicitThrowAnalysis;
+
+    /**
+     * @param ignoreImplicit whether ignore implicit exceptions in the results.
+     */
+    public IntraproceduralThrowAnalysis(boolean ignoreImplicit) {
+        implicitThrowAnalysis = ignoreImplicit ?
+                null : ImplicitThrowAnalysis.get();
+    }
+
+    @Override
+    public Result analyze(IR ir) {
+        Map<Throw, ClassType> definiteThrows = findDefiniteThrows(ir);
+        DefaultThrowAnalysisResult result = new DefaultThrowAnalysisResult(
+                ir, implicitThrowAnalysis);
+        ir.getStmts().forEach(stmt -> {
+            if (stmt instanceof Throw) {
+                Throw throwStmt = (Throw) stmt;
+                result.addExplicit(throwStmt,
+                        mayThrowExplicitly(throwStmt, definiteThrows));
+            } else if (stmt instanceof Invoke) {
+                Invoke invoke = (Invoke) stmt;
+                result.addExplicit(invoke, mayThrowExplicitly(invoke));
+            }
+        });
+        return result;
     }
 
     /**
@@ -50,8 +77,7 @@ public class DefaultThrowAnalysis extends AbstractThrowAnalysis {
      * throw Stmts which only throws exception of definite type.
      * TODO: use a systematic approach to compute definite type
      */
-    @Override
-    protected Map<Throw, ClassType> preAnalysis(IR ir) {
+    private static Map<Throw, ClassType> findDefiniteThrows(IR ir) {
         Map<Var, Throw> throwVars = newMap();
         Map<Exp, List<Exp>> assigns = newMap();
         ir.getStmts().forEach(s -> {
@@ -90,52 +116,24 @@ public class DefaultThrowAnalysis extends AbstractThrowAnalysis {
         return definiteThrows;
     }
 
-    @Override
-    protected Collection<ClassType> mayThrow(Stmt stmt, Object info) {
-        if (stmt instanceof Throw) {
-            @SuppressWarnings("unchecked")
-            Map<Stmt, ClassType> definiteThrows = (Map<Stmt, ClassType>) info;
-            return mayThrow((Throw) stmt, definiteThrows);
-        } else if (stmt instanceof Invoke) {
-            return mayThrow((Invoke) stmt);
-        } else if (includeImplicit) {
-            return getImplicitExceptions(stmt);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private Collection<ClassType> mayThrow(
-            Throw throwStmt, Map<Stmt, ClassType> definiteThrows) {
-        Set<ClassType> result = newHybridSet();
-        if (includeImplicit) {
-            result.addAll(NULL_POINTER_EXCEPTION);
-        }
+    private static Collection<ClassType> mayThrowExplicitly(
+            Throw throwStmt, Map<Throw, ClassType> definiteThrows) {
         ClassType throwType = definiteThrows.get(throwStmt);
         if (throwType != null) {
-            result.add(throwType);
+            return List.of(throwType);
         } else {
             // add all subtypes of the type of thrown variable
             throwType = (ClassType) throwStmt.getExceptionRef().getType();
-            World.getClassHierarchy()
+            return World.getClassHierarchy()
                     .getAllSubclassesOf(throwType.getJClass(), true)
                     .stream()
+                    .filter(Predicate.not(JClass::isAbstract))
                     .map(JClass::getType)
-                    .forEach(result::add);
+                    .collect(Collectors.toUnmodifiableList());
         }
-        return Collections.unmodifiableSet(result);
     }
 
-    private Collection<ClassType> mayThrow(Invoke invoke) {
-        Set<ClassType> result = newHybridSet();
-        if (includeImplicit) {
-            if (invoke.isStatic()) {
-                result.addAll(INITIALIZER_ERROR);
-            } else {
-                result.addAll(NULL_POINTER_EXCEPTION);
-            }
-        }
-        result.addAll(invoke.getMethodRef().resolve().getExceptions());
-        return Collections.unmodifiableSet(result);
+    private static Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
+        return invoke.getMethodRef().resolve().getExceptions();
     }
 }
