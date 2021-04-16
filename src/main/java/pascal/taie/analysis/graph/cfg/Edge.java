@@ -88,11 +88,10 @@ public class Edge<N> {
     }
 
     /**
-     * @return if this edge is an exceptional edge.
+     * @return if this edge is a switch-case edge.
      */
-    public boolean isExceptional() {
-        return kind == Kind.CAUGHT_EXCEPTION ||
-                kind == Kind.UNCAUGHT_EXCEPTION;
+    public boolean isSwitchCase() {
+        return kind == Kind.SWITCH_CASE;
     }
 
     /**
@@ -100,8 +99,16 @@ public class Edge<N> {
      * otherwise return minimal integer value.
      */
     public int getCaseValue() {
-        assert kind == Kind.SWITCH_CASE : this + " is not a switch-case edge";
+        assert isSwitchCase() : this + " is not a switch-case edge";
         return Integer.MIN_VALUE;
+    }
+
+    /**
+     * @return if this edge is an exceptional edge.
+     */
+    public boolean isExceptional() {
+        return kind == Kind.CAUGHT_EXCEPTION ||
+                kind == Kind.UNCAUGHT_EXCEPTION;
     }
 
     /**

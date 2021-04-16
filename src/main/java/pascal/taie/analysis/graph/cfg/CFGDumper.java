@@ -19,6 +19,7 @@ import pascal.taie.ir.stmt.Stmt;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.stream.Collectors;
 
 public class CFGDumper {
 
@@ -27,6 +28,8 @@ public class CFGDumper {
     private static final String INDENT = "  ";
 
     private static final String NODE_ATTR = "[shape=box,style=filled,color=\".3 .2 1.0\"]";
+
+    private static final String EXCEPTIONAL_EDGE_ATTR = "color=red";
 
     public static void dumpDotFile(CFG<Stmt> cfg, String filePath) {
         try (PrintStream out =
@@ -48,9 +51,7 @@ public class CFGDumper {
         // dump edges
         cfg.nodes().forEach(s ->
                 cfg.outEdgesOf(s).forEach(e ->
-                        out.printf("%s\"%s\" -> \"%s\" [label=\"%s\"];%n",
-                                INDENT, toString(s, cfg),
-                                toString(e.getTarget(), cfg), e.getKind())));
+                        out.printf("%s%s;%n", INDENT, toString(e, cfg))));
         out.println("}");
     }
 
@@ -62,5 +63,27 @@ public class CFGDumper {
         } else {
             return s.getIndex() + ": " + s;
         }
+    }
+
+    private static String toString(Edge<Stmt> e, CFG<Stmt> cfg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('\"').append(toString(e.getSource(), cfg)).append('\"');
+        sb.append(" -> ");
+        sb.append('\"').append(toString(e.getTarget(), cfg)).append('\"');
+        sb.append(" [label=\"").append(e.getKind());
+        if (e.isSwitchCase()) {
+            sb.append("\n[case ").append(e.getCaseValue()).append(']');
+        } else if (e.isExceptional()) {
+            sb.append("\n").append(e.getExceptions()
+                            .stream()
+                            .map(t -> t.getJClass().getSimpleName())
+                            .collect(Collectors.toList()));
+        }
+        sb.append('\"');
+        if (e.isExceptional()) {
+            sb.append(',').append(EXCEPTIONAL_EDGE_ATTR);
+        }
+        sb.append(']');
+        return sb.toString();
     }
 }

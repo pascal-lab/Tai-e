@@ -30,6 +30,8 @@ public class JClass {
 
     private final String moduleName;
 
+    private String simpleName;
+
     private ClassType type;
 
     private Set<Modifier> modifiers;
@@ -62,6 +64,7 @@ public class JClass {
      * This method should be called after creating this instance.
      */
     public void build(JClassBuilder builder) {
+        simpleName = builder.getSimpleName();
         type = builder.getClassType();
         modifiers = builder.getModifiers();
         superClass = builder.getSuperClass();
@@ -84,6 +87,10 @@ public class JClass {
 
     public String getModuleName() {
         return moduleName;
+    }
+
+    public String getSimpleName() {
+        return simpleName;
     }
 
     public ClassType getType() {
