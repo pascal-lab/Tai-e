@@ -39,6 +39,8 @@ import static pascal.taie.util.collection.CollectionUtils.newMap;
 /**
  * An intra-procedural throw analysis for computing the exceptions
  * that may be thrown by each Stmt.
+ * TODO: 1) use a systematic approach to compute throw's definite type
+ *       2) prune infeasible exceptions
  */
 public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
 
@@ -77,7 +79,6 @@ public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
     /**
      * Perform a simple intra-procedural analysis to find out the
      * throw Stmts which only throws exception of definite type.
-     * TODO: use a systematic approach to compute definite type
      */
     private static Map<Throw, ClassType> findDefiniteThrows(IR ir) {
         Map<Var, Throw> throwVars = newMap();

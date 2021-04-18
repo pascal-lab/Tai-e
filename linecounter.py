@@ -3,7 +3,7 @@ import sys
 
 
 def countLine(filePath):
-	f = open(filePath)
+	f = open(filePath, encoding='utf-8')
 	l = len(f.readlines())
 	f.close()
 	return l
@@ -16,7 +16,7 @@ def notExcluded(path, excludes):
 		return True
 
 if __name__ == '__main__':
-	excludes = [ 'test' ] + sys.argv[1:]
+	excludes = [ 'test', 'Test' ] + sys.argv[1:]
 	total = 0
 	nFile = 0
 	for root, dirs, files in os.walk(os.getcwd()):
