@@ -37,6 +37,7 @@ import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -805,7 +806,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
         @Override
         public void visit(Invoke stmt) {
-            processMemberRef(stmt.getMethodRef());
+            if (!(stmt.getInvokeExp() instanceof InvokeDynamic)) {
+                processMemberRef(stmt.getMethodRef());
+            }
+            // TODO: check if the declaring class of bootstrap method
+            //  of invokedynamic instruction needs to be initialized
         }
 
         @Override
