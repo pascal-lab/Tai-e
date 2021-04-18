@@ -105,7 +105,29 @@ public class Exceptions {
         } catch (ArithmeticException e) {
         }
     }
-    
+
+    void duplicateException(ArithmeticException e) throws Exception {
+        throwsAE();
+        throw e;
+    }
+
+    void throwsAE() throws ArithmeticException {
+        throw new ArithmeticException();
+    }
+
+    int nestedCatch(int i) {
+        try {
+            toString();
+        } catch (NullPointerException npe) {
+            try {
+                int x = i / i;
+            } catch (ArithmeticException ae) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     static Object use(Object x) {
         return x;
     }

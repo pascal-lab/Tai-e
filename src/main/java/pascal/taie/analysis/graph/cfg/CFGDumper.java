@@ -74,8 +74,7 @@ public class CFGDumper {
         if (e.isSwitchCase()) {
             sb.append("\n[case ").append(e.getCaseValue()).append(']');
         } else if (e.isExceptional()) {
-            sb.append("\n").append(e.getExceptions()
-                            .stream()
+            sb.append("\n").append(e.exceptions()
                             .map(t -> t.getJClass().getSimpleName())
                             .collect(Collectors.toList()));
         }

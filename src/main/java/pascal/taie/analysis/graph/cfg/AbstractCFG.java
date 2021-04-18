@@ -15,12 +15,13 @@ package pascal.taie.analysis.graph.cfg;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 import static pascal.taie.util.collection.CollectionUtils.newSet;
 
@@ -87,10 +88,32 @@ abstract class AbstractCFG<N> implements CFG<N> {
     void addEdge(Edge<N> edge) {
         nodes.add(edge.getSource());
         nodes.add(edge.getTarget());
-        inEdges.computeIfAbsent(edge.getTarget(), n -> newHybridSet())
-                .add(edge);
-        outEdges.computeIfAbsent(edge.getSource(), n -> newHybridSet())
-                .add(edge);
+        Edge<N> existingEdge;
+        if (edge.isExceptional() &&
+                (existingEdge = getExistingEdge(edge)) != null) {
+            // Merge exceptional edges with the same kind, source, and target
+            ((ExceptionalEdge<N>) existingEdge).addExceptions(
+                    edge.exceptions());
+        } else {
+            addToMapSet(inEdges, edge.getTarget(), edge);
+            addToMapSet(outEdges, edge.getSource(), edge);
+        }
+    }
+
+    /**
+     * @return if the CFG already contains an existing edge with same
+     * kind, source, and target of the given edge, return the existing edge,
+     * otherwise, return null.
+     */
+    private @Nullable Edge<N> getExistingEdge(Edge<N> edge) {
+        for (Edge<N> outEdge : outEdges.getOrDefault(
+                edge.getSource(), Collections.emptySet())) {
+            if (outEdge.getTarget().equals(edge.getTarget()) &&
+                    outEdge.getKind() == edge.getKind()) {
+                return outEdge;
+            }
+        }
+        return null;
     }
 
     @Override

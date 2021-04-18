@@ -25,7 +25,6 @@ import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.types.ClassType;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -104,10 +103,11 @@ public class CFGBuilder {
             }
             // build edges for explicit exceptions
             if (stmt instanceof Throw || stmt instanceof Invoke) {
-                catchResult.getCaughtExplicitOf(stmt).forEach((catcher, exceptions) -> {
-                    cfg.addEdge(new ExceptionalEdge<>(Edge.Kind.CAUGHT_EXCEPTION,
-                            stmt, catcher, exceptions));
-                });
+                catchResult.getCaughtExplicitOf(stmt).forEach((catcher, exceptions) ->
+                        cfg.addEdge(new ExceptionalEdge<>(
+                                Edge.Kind.CAUGHT_EXCEPTION,
+                                stmt, catcher, exceptions))
+                );
                 Set<ClassType> uncaughtEx = catchResult.getUncaughtExplicitOf(stmt);
                 if (!uncaughtEx.isEmpty()) {
                     cfg.addEdge(new ExceptionalEdge<>(
@@ -115,7 +115,6 @@ public class CFGBuilder {
                             stmt, cfg.getExit(), uncaughtEx));
                 }
             }
-            // TODO: merge exceptional edges
         });
     }
 }

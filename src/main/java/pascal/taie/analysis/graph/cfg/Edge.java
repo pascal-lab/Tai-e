@@ -15,8 +15,7 @@ package pascal.taie.analysis.graph.cfg;
 import pascal.taie.language.types.ClassType;
 import pascal.taie.util.HashUtils;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Stream;
 
 public class Edge<N> {
 
@@ -115,9 +114,9 @@ public class Edge<N> {
      * If this edge is an exceptional edge, return the exception types along
      * with this edge, otherwise return an empty collection.
      */
-    public Collection<ClassType> getExceptions() {
+    public Stream<ClassType> exceptions() {
         assert isExceptional() : this + " is not an exceptional edge";
-        return Collections.emptyList();
+        return Stream.empty();
     }
 
     @Override

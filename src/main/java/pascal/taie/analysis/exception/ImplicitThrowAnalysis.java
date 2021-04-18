@@ -15,6 +15,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtRVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.types.ClassType;
@@ -110,6 +111,11 @@ enum ImplicitThrowAnalysis {
         public Collection<ClassType> visit(Invoke stmt) {
             return stmt.isStatic() ?
                     INITIALIZER_ERROR : NULL_POINTER_EXCEPTION;
+        }
+
+        @Override
+        public Collection<ClassType> visit(Throw stmt) {
+            return NULL_POINTER_EXCEPTION;
         }
 
         @Override

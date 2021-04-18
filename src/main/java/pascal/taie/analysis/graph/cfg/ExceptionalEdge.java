@@ -15,6 +15,7 @@ package pascal.taie.analysis.graph.cfg;
 import pascal.taie.language.types.ClassType;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 class ExceptionalEdge<N> extends Edge<N> {
 
@@ -26,9 +27,13 @@ class ExceptionalEdge<N> extends Edge<N> {
         this.exceptions = exceptions;
     }
 
+    void addExceptions(Stream<ClassType> exceptions) {
+        exceptions.forEach(this.exceptions::add);
+    }
+
     @Override
-    public Collection<ClassType> getExceptions() {
-        return exceptions;
+    public Stream<ClassType> exceptions() {
+        return exceptions.stream();
     }
 
     @Override
