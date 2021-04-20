@@ -18,8 +18,8 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.VoidType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 
 import java.util.ArrayList;
 import java.util.Collections;

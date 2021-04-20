@@ -13,7 +13,7 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.ir.proginfo.FieldRef;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 /**
  * Representation of field access expressions.

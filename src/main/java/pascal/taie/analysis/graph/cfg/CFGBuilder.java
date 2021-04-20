@@ -23,7 +23,7 @@ import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Throw;
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 
 import java.util.Set;
 import java.util.function.Predicate;

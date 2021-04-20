@@ -66,12 +66,12 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.natives.NativeModel;
-import pascal.taie.language.types.ArrayType;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.NullType;
-import pascal.taie.language.types.ReferenceType;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;

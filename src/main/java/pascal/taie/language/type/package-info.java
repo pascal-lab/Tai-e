@@ -10,9 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.types;
-
-public interface Type {
-
-    String getName();
-}
+/**
+ * Provide model of Java type system.
+ * @see pascal.taie.language.type.Type (interface for all types)
+ * @see pascal.taie.language.type.TypeManager
+ */
+package pascal.taie.language.type;

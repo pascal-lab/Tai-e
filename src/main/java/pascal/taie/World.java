@@ -20,7 +20,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.natives.NativeModel;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.Collection;
 

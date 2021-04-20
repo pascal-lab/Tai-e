@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 /**
  * Representation of cast expression, e.g., (T) o.

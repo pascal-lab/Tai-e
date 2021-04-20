@@ -15,7 +15,7 @@ package pascal.taie.frontend.soot;
 import pascal.taie.analysis.oldpta.ir.DefaultVariable;
 import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;

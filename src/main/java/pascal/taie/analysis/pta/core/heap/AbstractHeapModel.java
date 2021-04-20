@@ -15,8 +15,8 @@ package pascal.taie.analysis.pta.core.heap;
 import pascal.taie.World;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.ReferenceLiteral;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.Map;
 

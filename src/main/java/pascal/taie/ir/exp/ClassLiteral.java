@@ -13,8 +13,8 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.World;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 
 import static pascal.taie.language.classes.StringReps.CLASS;
 

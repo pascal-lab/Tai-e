@@ -14,7 +14,7 @@ package pascal.taie.analysis.oldpta.core.heap;
 
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.Obj;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.Map;
 

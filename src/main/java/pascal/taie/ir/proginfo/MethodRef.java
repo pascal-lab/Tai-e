@@ -17,7 +17,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 

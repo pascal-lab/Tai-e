@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.util.HashUtils;
 
 import java.util.stream.Stream;

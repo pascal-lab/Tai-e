@@ -16,8 +16,8 @@ import pascal.taie.analysis.oldpta.PTAOptions;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.concurrent.ConcurrentMap;
 

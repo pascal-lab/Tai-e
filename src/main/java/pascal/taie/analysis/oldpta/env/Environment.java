@@ -17,8 +17,8 @@ import pascal.taie.analysis.oldpta.PTAOptions;
 import pascal.taie.analysis.oldpta.env.nativemodel.NativeModel;
 import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 
 import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.language.classes.StringReps.THREAD;

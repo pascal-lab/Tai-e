@@ -16,7 +16,7 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;

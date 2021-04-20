@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 
 import java.util.Objects;

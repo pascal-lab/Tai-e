@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.ArrayType;
+import pascal.taie.language.type.ArrayType;
 
 import java.util.List;
 

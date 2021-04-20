@@ -12,8 +12,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.ArrayType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.Type;
 
 /**
  * Representation of array access expression, e.g., a[i].

@@ -12,8 +12,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.PrimitiveType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
 
 /**
  * Representation of comparison expression, e.g., cmp.

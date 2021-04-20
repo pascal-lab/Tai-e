@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.language.classes.JField;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 public class InstanceField extends AbstractPointer {
 

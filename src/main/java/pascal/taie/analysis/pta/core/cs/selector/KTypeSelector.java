@@ -16,7 +16,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 public class KTypeSelector extends KContextSelector<Type> {
 

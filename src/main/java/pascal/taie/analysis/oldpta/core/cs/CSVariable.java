@@ -14,7 +14,7 @@ package pascal.taie.analysis.oldpta.core.cs;
 
 import pascal.taie.analysis.oldpta.core.context.Context;
 import pascal.taie.analysis.oldpta.ir.Variable;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 public class CSVariable extends AbstractPointer implements CSElement {
 

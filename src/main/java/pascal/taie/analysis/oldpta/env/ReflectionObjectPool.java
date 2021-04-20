@@ -13,8 +13,8 @@
 package pascal.taie.analysis.oldpta.env;
 
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.concurrent.ConcurrentMap;
 

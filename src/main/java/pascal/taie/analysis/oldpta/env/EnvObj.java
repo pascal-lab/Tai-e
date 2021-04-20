@@ -14,7 +14,7 @@ package pascal.taie.analysis.oldpta.env;
 
 import pascal.taie.analysis.oldpta.ir.AbstractObj;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 import java.util.Objects;
 import java.util.Optional;

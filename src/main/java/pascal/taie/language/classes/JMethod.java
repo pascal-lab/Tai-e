@@ -16,8 +16,8 @@ import pascal.taie.World;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 
 import java.util.List;
 import java.util.Set;

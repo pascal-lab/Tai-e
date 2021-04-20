@@ -18,10 +18,10 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.PrimitiveType;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 import soot.ArrayType;
 import soot.BooleanType;
 import soot.ByteType;
@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static pascal.taie.language.types.VoidType.VOID;
+import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 /**

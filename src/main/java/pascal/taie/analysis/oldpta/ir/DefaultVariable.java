@@ -13,7 +13,7 @@
 package pascal.taie.analysis.oldpta.ir;
 
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 
 public class DefaultVariable extends AbstractVariable {

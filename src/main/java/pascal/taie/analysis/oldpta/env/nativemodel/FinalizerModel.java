@@ -22,7 +22,7 @@ import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 import java.util.Collections;
 

@@ -16,7 +16,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.natives.DefaultNativeModel;
 import pascal.taie.language.natives.EmptyNativeModel;
 import pascal.taie.language.natives.NativeModel;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.TypeManager;
 
 import java.io.File;
 import java.io.IOException;

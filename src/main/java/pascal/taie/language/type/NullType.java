@@ -10,28 +10,15 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.types;
+package pascal.taie.language.type;
 
-public enum PrimitiveType implements Type {
+public enum NullType implements ReferenceType {
 
-    BYTE("byte"),
-    SHORT("short"),
-    INT("int"),
-    LONG("long"),
-    FLOAT("float"),
-    DOUBLE("double"),
-    CHAR("char"),
-    BOOLEAN("boolean");
-
-    private final String name;
-
-    PrimitiveType(String name) {
-        this.name = name;
-    }
+    NULL;
 
     @Override
     public String getName() {
-        return name;
+        return "<null type>";
     }
 
     @Override

@@ -12,9 +12,9 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.PrimitiveType;
-import pascal.taie.language.types.ReferenceType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.Type;
 
 /**
  * Representation of instanceof expression, e.g., o instanceof T.

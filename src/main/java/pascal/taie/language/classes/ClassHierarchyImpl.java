@@ -14,9 +14,9 @@ package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.types.ArrayType;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 import javax.annotation.Nullable;

@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.NullType;
+import pascal.taie.language.type.NullType;
 
 public enum NullLiteral implements ReferenceLiteral {
 

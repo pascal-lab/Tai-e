@@ -15,7 +15,7 @@ package pascal.taie.analysis.oldpta.env.nativemodel;
 import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.analysis.oldpta.ir.Statement;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.TypeManager;
 
 /**
  * Default modeling of native code.

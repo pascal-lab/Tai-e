@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.types;
+package pascal.taie.language.type;
 
 import pascal.taie.language.classes.JClassLoader;
 

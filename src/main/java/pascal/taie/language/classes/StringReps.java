@@ -13,7 +13,7 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 import java.util.List;

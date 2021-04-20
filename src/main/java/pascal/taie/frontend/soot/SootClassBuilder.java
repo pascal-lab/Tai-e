@@ -17,7 +17,7 @@ import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 import soot.SootClass;
 
 import java.util.Collection;

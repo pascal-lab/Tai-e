@@ -24,8 +24,8 @@ import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;

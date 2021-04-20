@@ -22,7 +22,7 @@ import pascal.taie.ir.stmt.AssignStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

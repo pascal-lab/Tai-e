@@ -17,12 +17,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.language.types.Type;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 
-import static pascal.taie.language.types.NullType.NULL;
-import static pascal.taie.language.types.PrimitiveType.INT;
-import static pascal.taie.language.types.PrimitiveType.LONG;
+import static pascal.taie.language.type.NullType.NULL;
+import static pascal.taie.language.type.PrimitiveType.INT;
+import static pascal.taie.language.type.PrimitiveType.LONG;
 
 public class TypeTest {
 

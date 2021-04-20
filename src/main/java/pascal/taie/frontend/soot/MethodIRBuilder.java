@@ -77,9 +77,9 @@ import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.ArrayType;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
@@ -165,7 +165,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.language.types.VoidType.VOID;
+import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 /**

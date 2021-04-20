@@ -18,8 +18,8 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.Collection;
 import java.util.List;

@@ -12,7 +12,7 @@
 
 package pascal.taie.language.classes;
 
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 
 import java.util.Collection;
 import java.util.Set;

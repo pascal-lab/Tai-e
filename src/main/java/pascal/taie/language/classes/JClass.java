@@ -12,7 +12,7 @@
 
 package pascal.taie.language.classes;
 
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;

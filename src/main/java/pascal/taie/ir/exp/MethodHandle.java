@@ -16,7 +16,7 @@ import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.HashUtils;
 

@@ -10,9 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-/**
- * Provide model of Java type system.
- * @see pascal.taie.language.types.Type (interface for all types)
- * @see pascal.taie.language.types.TypeManager
- */
-package pascal.taie.language.types;
+package pascal.taie.language.type;
+
+public interface ReferenceType extends Type {
+}

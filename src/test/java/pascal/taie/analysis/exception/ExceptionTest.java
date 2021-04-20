@@ -20,7 +20,7 @@ import pascal.taie.World;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.ClassType;
+import pascal.taie.language.type.ClassType;
 
 import java.util.Map;
 import java.util.Set;

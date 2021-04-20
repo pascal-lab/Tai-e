@@ -19,8 +19,8 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.TypeManager;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;

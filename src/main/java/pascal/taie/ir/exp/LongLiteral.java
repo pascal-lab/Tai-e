@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.PrimitiveType;
+import pascal.taie.language.type.PrimitiveType;
 
 public class LongLiteral implements IntegerLiteral {
 

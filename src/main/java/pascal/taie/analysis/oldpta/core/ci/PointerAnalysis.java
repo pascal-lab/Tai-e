@@ -29,8 +29,8 @@ import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.ReferenceType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 import java.util.stream.Stream;

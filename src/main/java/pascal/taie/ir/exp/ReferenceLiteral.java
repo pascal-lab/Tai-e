@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.types.ReferenceType;
+import pascal.taie.language.type.ReferenceType;
 
 /**
  * Literal of reference type.

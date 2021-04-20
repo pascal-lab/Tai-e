@@ -23,16 +23,16 @@ import pascal.taie.language.classes.FieldResolutionFailedException;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.types.ClassType;
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static pascal.taie.language.types.PrimitiveType.BOOLEAN;
-import static pascal.taie.language.types.PrimitiveType.INT;
-import static pascal.taie.language.types.PrimitiveType.LONG;
-import static pascal.taie.language.types.VoidType.VOID;
+import static pascal.taie.language.type.PrimitiveType.BOOLEAN;
+import static pascal.taie.language.type.PrimitiveType.INT;
+import static pascal.taie.language.type.PrimitiveType.LONG;
+import static pascal.taie.language.type.VoidType.VOID;
 
 public class HierarchyTest {
 

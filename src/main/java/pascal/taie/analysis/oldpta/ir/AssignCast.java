@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.oldpta.ir;
 
-import pascal.taie.language.types.Type;
+import pascal.taie.language.type.Type;
 
 public class AssignCast extends AbstractStatement {
 
