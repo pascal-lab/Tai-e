@@ -1,0 +1,23 @@
+- analysisClass: pascal.taie.analysis.pta.PointerAnalysisPass
+  resultClass: PointerAnalysis
+  shortName: pta
+  options:
+    cs: 2-object
+    plugin:
+      - AnalysisTimer
+      - ReferenceHandler
+    timeout: 3600
+
+- analysisClass: pascal.taie.cfg.CFGBuilder
+  resultClass: CFG
+  shortName: cfg
+  requires:
+    - throw
+  options:
+    exception: false
+
+- analysisClass: DeadCodeDetector
+  resultClass: DeadCode
+  shortName: dc
+  requires:
+    - cfg
