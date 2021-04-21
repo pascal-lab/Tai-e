@@ -18,19 +18,16 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File config = new File(classLoader.getResource("tai-e.yml").getFile());
+        File config = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Config[] configs = mapper.readValue(config, Config[].class);
-        Arrays.stream(configs).forEach(System.out::println);
-    }
-
-    private static class Wrapper {
-        private List<Config> configs;
+        ConfigItem[] items = mapper.readValue(config, ConfigItem[].class);
+        Arrays.stream(items).forEach(System.out::println);
+        AnalysisManager manager = new AnalysisManager(items);
+        manager.analyses().forEach(System.out::println);
     }
 }

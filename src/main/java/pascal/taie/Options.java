@@ -114,6 +114,14 @@ public class Options {
             defaultValue = "true", negatable = true)
     private boolean mergeExceptionObjects;
 
+    @Option(names = {"-o", "--output-results"},
+            description = "Output pointer analysis results",
+            defaultValue = "false")
+    private boolean outputResults;
+
+    @Option(names = {"-f", "--output-file"}, description = "The output file")
+    private File outputFile;
+
     // ---------- debugging options ----------
     @Option(names = "--dump-classes",
             description = "Dump classes", defaultValue = "false")
@@ -126,14 +134,6 @@ public class Options {
     @Option(names = "--test-mode",
             description = "Flag test mode", defaultValue = "false")
     private boolean testMode;
-
-    @Option(names = {"-o", "--output-results"},
-            description = "Output pointer analysis results",
-            defaultValue = "false")
-    private boolean outputResults;
-
-    @Option(names = {"-f", "--output-file"}, description = "The output file")
-    private File outputFile;
 
     /**
      * Parse arguments and return new Options object.
@@ -230,6 +230,14 @@ public class Options {
         return mergeExceptionObjects;
     }
 
+    public boolean isOutputResults() {
+        return outputResults;
+    }
+
+    public File getOutputFile() {
+        return outputFile;
+    }
+
     public boolean isDumpClasses() {
         return dumpClasses;
     }
@@ -240,13 +248,5 @@ public class Options {
 
     public boolean isTestMode() {
         return testMode;
-    }
-
-    public boolean isOutputResults() {
-        return outputResults;
-    }
-
-    public File getOutputFile() {
-        return outputFile;
     }
 }

@@ -1,0 +1,6 @@
+- id: pta
+  options:
+    cs: 2-object
+    merge-string-constants: true
+
+- id: icfg
