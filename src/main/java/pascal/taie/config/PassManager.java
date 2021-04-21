@@ -16,11 +16,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class AnalysisManager {
+public class PassManager {
 
-    private final Map<String, Analysis> analyses = new LinkedHashMap<>();
+    private final Map<String, Pass> passes = new LinkedHashMap<>();
 
-    public AnalysisManager(ConfigItem[] items) {
+    public PassManager(ConfigItem[] items) {
         for (ConfigItem item : items) {
             addAnalysis(item);
         }
@@ -28,12 +28,12 @@ public class AnalysisManager {
     }
 
     private void addAnalysis(ConfigItem item) {
-        if (analyses.containsKey(item.getId())) {
+        if (passes.containsKey(item.getId())) {
             throw new ConfigException(String.format(
                     "Adding analysis %s failed: %s already exists.",
                     item, item.getId()));
         }
-        analyses.put(item.getId(), new Analysis(item));
+        passes.put(item.getId(), new Pass(item));
     }
 
     private void buildRequires(ConfigItem[] items) {
@@ -41,17 +41,17 @@ public class AnalysisManager {
             item.getRequires().forEach(required -> {
                 String id = Utils.extractId(required);
                 String conditions = Utils.extractConditions(required);
-                analyses.get(item.getId())
-                        .addRequire(analyses.get(id), conditions);
+                passes.get(item.getId())
+                        .addRequire(passes.get(id), conditions);
             });
         }
     }
 
-    public Analysis getAnalysis(String id) {
-        return analyses.get(id);
+    public Pass getPass(String id) {
+        return passes.get(id);
     }
 
-    public Stream<Analysis> analyses() {
-        return analyses.values().stream();
+    public Stream<Pass> passes() {
+        return passes.values().stream();
     }
 }

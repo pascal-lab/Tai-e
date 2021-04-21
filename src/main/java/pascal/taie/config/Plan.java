@@ -12,5 +12,5 @@
 
 package pascal.taie.config;
 
-public interface AnalysisPlan {
+public class Plan {
 }

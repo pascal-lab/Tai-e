@@ -27,7 +27,7 @@ public class Main {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         ConfigItem[] items = mapper.readValue(config, ConfigItem[].class);
         Arrays.stream(items).forEach(System.out::println);
-        AnalysisManager manager = new AnalysisManager(items);
-        manager.analyses().forEach(System.out::println);
+        PassManager manager = new PassManager(items);
+        manager.passes().forEach(System.out::println);
     }
 }

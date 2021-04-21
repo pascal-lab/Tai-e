@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
-public class Analysis {
+public class Pass {
 
     private final String description;
 
@@ -33,11 +33,11 @@ public class Analysis {
 
     private Class<?> resultClass;
 
-    private Map<Analysis, String> requires = newHybridMap();
+    private Map<Pass, String> requires = newHybridMap();
 
     private final Map<String, Object> options;
 
-    public Analysis(ConfigItem item) {
+    public Pass(ConfigItem item) {
         this.description = item.getDescription();
         this.analysisName = item.getAnalysisClass();
         this.id = item.getId();
@@ -75,11 +75,11 @@ public class Analysis {
         return resultClass;
     }
 
-    void addRequire(Analysis analysis, String conditions) {
-        requires.put(analysis, conditions);
+    void addRequire(Pass pass, String conditions) {
+        requires.put(pass, conditions);
     }
 
-    public Map<Analysis, String> getRequires() {
+    public Map<Pass, String> getRequires() {
         return Collections.unmodifiableMap(requires);
     }
 
@@ -91,9 +91,9 @@ public class Analysis {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Analysis analysis = (Analysis) o;
-        return id.equals(analysis.id) &&
-                analysisName.equals(analysis.analysisName);
+        Pass pass = (Pass) o;
+        return id.equals(pass.id) &&
+                analysisName.equals(pass.analysisName);
     }
 
     @Override
