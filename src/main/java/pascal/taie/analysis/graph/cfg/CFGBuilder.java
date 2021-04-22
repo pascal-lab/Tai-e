@@ -13,7 +13,9 @@
 package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.analysis.exception.CatchAnalysis;
+import pascal.taie.analysis.exception.CatchResult;
 import pascal.taie.analysis.exception.ThrowAnalysis;
+import pascal.taie.analysis.exception.ThrowResult;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
@@ -79,8 +81,8 @@ public class CFGBuilder {
 
     private static void buildExceptionalEdges(StmtCFG cfg, ThrowAnalysis throwAnalysis) {
         IR ir = cfg.getIR();
-        ThrowAnalysis.Result throwResult = throwAnalysis.analyze(ir);
-        CatchAnalysis.Result catchResult = CatchAnalysis.analyze(ir, throwResult);
+        ThrowResult throwResult = throwAnalysis.analyze(ir);
+        CatchResult catchResult = CatchAnalysis.analyze(ir, throwResult);
         ir.getStmts().forEach(stmt -> {
             // build edges for implicit exceptions
             catchResult.getCaughtImplicitOf(stmt).forEach((catcher, exceptions) ->

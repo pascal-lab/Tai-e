@@ -14,7 +14,8 @@ package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.analysis.IntraproceduralAnalysis;
 import pascal.taie.analysis.exception.CatchAnalysis;
-import pascal.taie.analysis.exception.ThrowAnalysis;
+import pascal.taie.analysis.exception.CatchResult;
+import pascal.taie.analysis.exception.ThrowResult;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Goto;
@@ -87,9 +88,8 @@ public class CFGBuilder2 extends IntraproceduralAnalysis {
 
     private static void buildExceptionalEdges(StmtCFG cfg) {
         IR ir = cfg.getIR();
-        ThrowAnalysis.Result throwResult =
-                (ThrowAnalysis.Result) ir.getResult(THROW_ID);
-        CatchAnalysis.Result catchResult = CatchAnalysis.analyze(ir, throwResult);
+        ThrowResult throwResult = (ThrowResult) ir.getResult(THROW_ID);
+        CatchResult catchResult = CatchAnalysis.analyze(ir, throwResult);
         ir.getStmts().forEach(stmt -> {
             // build edges for implicit exceptions
             catchResult.getCaughtImplicitOf(stmt).forEach((catcher, exceptions) ->

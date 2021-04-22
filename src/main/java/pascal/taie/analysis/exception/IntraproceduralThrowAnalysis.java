@@ -59,9 +59,9 @@ public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
     }
 
     @Override
-    public Result analyze(IR ir) {
+    public ThrowResult analyze(IR ir) {
         Map<Throw, ClassType> definiteThrows = findDefiniteThrows(ir);
-        DefaultThrowAnalysisResult result = new DefaultThrowAnalysisResult(
+        ThrowResult result = new ThrowResult(
                 ir, implicitThrowAnalysis);
         ir.getStmts().forEach(stmt -> {
             if (stmt instanceof Throw) {

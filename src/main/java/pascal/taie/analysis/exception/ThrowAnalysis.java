@@ -22,16 +22,5 @@ import java.util.Collection;
 
 public interface ThrowAnalysis {
 
-    Result analyze(IR ir);
-
-    interface Result {
-
-        IR getIR();
-
-        Collection<ClassType> mayThrowImplicitly(Stmt stmt);
-
-        Collection<ClassType> mayThrowExplicitly(Throw throwStmt);
-
-        Collection<ClassType> mayThrowExplicitly(Invoke invoke);
-    }
+    ThrowResult analyze(IR ir);
 }

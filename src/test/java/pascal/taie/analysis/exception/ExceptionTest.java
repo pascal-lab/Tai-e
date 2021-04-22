@@ -61,8 +61,8 @@ public class ExceptionTest {
         for (String methodName : methodNames) {
             JMethod m = c.getDeclaredMethod(methodName);
             System.out.println(m);
-            ThrowAnalysis.Result throwResult = throwAnalysis.analyze(m.getIR());
-            CatchAnalysis.Result result = CatchAnalysis.analyze(
+            ThrowResult throwResult = throwAnalysis.analyze(m.getIR());
+            CatchResult result = CatchAnalysis.analyze(
                     m.getIR(), throwResult);
             m.getIR().getStmts().forEach(stmt -> {
                 Map<Stmt, Set<ClassType>> caught = result.getCaughtOf(stmt);
