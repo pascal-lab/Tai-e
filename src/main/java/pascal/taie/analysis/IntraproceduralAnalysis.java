@@ -16,6 +16,8 @@ import pascal.taie.ir.IR;
 
 public abstract class IntraproceduralAnalysis extends Analysis {
 
+    // private boolean isParallel;
+
     /**
      * Run this analysis for the given IR.
      * @param ir IR of the method to be analyzed

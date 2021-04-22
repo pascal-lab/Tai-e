@@ -25,6 +25,8 @@ public abstract class Analysis {
 
     private Set<Analysis> requires = newHybridSet();
 
+    // private boolean isStoreResult;
+
     private Map<String, Object> options;
 
 }
