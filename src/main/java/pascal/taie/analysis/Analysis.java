@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis;
 
+import pascal.taie.config.AnalysisConfig;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -19,14 +21,22 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 public abstract class Analysis {
 
-    private String description;
-
-    private String id;
-
-    private Set<Analysis> requires = newHybridSet();
+    private final String id;
 
     // private boolean isStoreResult;
 
-    private Map<String, Object> options;
+    private final AnalysisOptions options;
 
+    protected Analysis(AnalysisConfig config) {
+        this.id = config.getId();
+        this.options = new AnalysisOptions(config.getOptions());
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public AnalysisOptions getOptions() {
+        return options;
+    }
 }

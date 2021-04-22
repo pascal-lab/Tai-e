@@ -23,7 +23,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 /**
  * Configuration for an analysis.
  */
-class AnalysisConfig {
+public class AnalysisConfig {
 
     @JsonProperty
     private String description;
@@ -40,15 +40,27 @@ class AnalysisConfig {
     @JsonProperty
     private Map<String, Object> options = newHybridMap();
 
-    String getDescription() {
+    /**
+     * Used by deserialization from configuration file.
+     */
+    public AnalysisConfig() {
+    }
+
+    public AnalysisConfig(Object... options) {
+        for (int i = 0; i < options.length; i += 2) {
+            this.options.put((String) options[i], options[i + 1]);
+        }
+    }
+
+    public String getDescription() {
         return description;
     }
 
-    String getAnalysisClass() {
+    public String getAnalysisClass() {
         return analysisClass;
     }
 
-    String getId() {
+    public String getId() {
         return id;
     }
 
@@ -56,7 +68,7 @@ class AnalysisConfig {
         return requires;
     }
 
-    Map<String, Object> getOptions() {
+    public Map<String, Object> getOptions() {
         return options;
     }
 

@@ -12,16 +12,23 @@
 
 package pascal.taie.analysis;
 
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 
 public abstract class IntraproceduralAnalysis extends Analysis {
 
     // private boolean isParallel;
 
+    protected IntraproceduralAnalysis(AnalysisConfig config) {
+        super(config);
+    }
+
     /**
      * Run this analysis for the given IR.
      * @param ir IR of the method to be analyzed
-     * @return the analysis results
+     * @return the analysis result. The result will be stored in IR.
+     * If the result is not used by following analyses, then this method
+     * should return null.
      */
     public abstract Object analyze(IR ir);
 }

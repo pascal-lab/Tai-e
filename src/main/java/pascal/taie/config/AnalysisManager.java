@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
@@ -43,9 +44,11 @@ public class AnalysisManager {
 
     private void runAnalysis(AnalysisConfig config) {
         try {
+            // Create analysis instance
             Class<?> clazz = Class.forName(config.getAnalysisClass());
             Constructor<?> ctor = clazz.getConstructor(AnalysisConfig.class);
             Object analysis = ctor.newInstance(config);
+            // Run the analysis
             if (analysis instanceof IntraproceduralAnalysis) {
                 runIntraproceduralAnalysis((IntraproceduralAnalysis) analysis);
             } else if (analysis instanceof InterproceduralAnalysis) {
@@ -69,12 +72,20 @@ public class AnalysisManager {
                 .flatMap(Collection::stream)
                 .filter(m -> !m.isAbstract() && !m.isNative());
         // TODO: 1. parallelize analysis of different methods
-        //       2. store result after analysis
-        //       3. restrict analysis scope
-        methods.forEach(m -> analysis.analyze(m.getIR()));
+        //       2. restrict analysis scope
+        methods.forEach(m -> {
+            IR ir = m.getIR();
+            Object result = analysis.analyze(ir);
+            if (result != null) {
+                ir.storeResult(analysis.getId(), result);
+            }
+        });
     }
 
     private void runInterproceduralAnalysis(InterproceduralAnalysis analysis) {
-        analysis.analyze();
+        Object result = analysis.analyze();
+        if (result != null) {
+            World.storeResult(analysis.getId(), result);
+        }
     }
 }
