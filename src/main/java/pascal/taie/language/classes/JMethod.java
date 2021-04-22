@@ -64,6 +64,14 @@ public class JMethod extends ClassMember {
         return Modifier.hasNative(modifiers);
     }
 
+    public boolean isConstructor() {
+        return name.equals(StringReps.INIT_NAME);
+    }
+
+    public boolean isStaticInitializer() {
+        return name.equals(StringReps.CLINIT_NAME);
+    }
+
     public int getParamCount() {
         return paramTypes.size();
     }
