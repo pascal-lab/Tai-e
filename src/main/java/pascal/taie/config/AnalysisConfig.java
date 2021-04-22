@@ -60,8 +60,7 @@ class AnalysisConfig {
         return options;
     }
 
-    @Override
-    public String toString() {
+    public String toDetailedString() {
         return "AnalysisConfig{" +
                 "description='" + description + '\'' +
                 ", analysisClass='" + analysisClass + '\'' +
@@ -69,5 +68,10 @@ class AnalysisConfig {
                 ", requires=" + requires +
                 ", options=" + options +
                 '}';
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 }

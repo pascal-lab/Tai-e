@@ -3,4 +3,6 @@
     cs: 2-type
     merge-string-constants: true
 
+- id: cfg
+
 - id: cg

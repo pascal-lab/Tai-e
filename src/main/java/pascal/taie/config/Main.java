@@ -30,7 +30,7 @@ public class Main {
         List<AnalysisConfig> analysisConfigs = Arrays.asList(
                 mapper.readValue(config, AnalysisConfig[].class));
         ConfigManager manager = new ConfigManager(analysisConfigs);
-        manager.configs().forEach(System.out::println);
+        manager.configs().forEach(c -> System.out.println(c.toDetailedString()));
 
         File plan = new File(classLoader.getResource("tai-e-plan.yml").getFile());
         List<PlanConfig> planConfigs = Arrays.asList(
@@ -38,7 +38,7 @@ public class Main {
         planConfigs.forEach(System.out::println);
 
         manager.overwriteOptions(planConfigs);
-        manager.configs().forEach(System.out::println);
+        manager.configs().forEach(c -> System.out.println(c.toDetailedString()));
         System.out.println();
         manager.configs().forEach(c -> {
             List<AnalysisConfig> requires = manager.getRequiredConfigs(c);
@@ -49,5 +49,8 @@ public class Main {
                         .collect(Collectors.toList()));
             }
         });
+
+        AnalysisPlanner planner = new AnalysisPlanner(manager, planConfigs);
+        System.out.println(planner.makePlan());
     }
 }

@@ -13,11 +13,15 @@
 package pascal.taie.config;
 
 import pascal.taie.util.graph.Graph;
+import pascal.taie.util.graph.SCC;
 import pascal.taie.util.graph.SimpleGraph;
+import pascal.taie.util.graph.TopoSorter;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Make analysis plan based on given plan configs and analysis configs.
@@ -34,7 +38,9 @@ class AnalysisPlanner {
     }
 
     List<AnalysisConfig> makePlan() {
-        throw new UnsupportedOperationException();
+        Graph<AnalysisConfig> graph = buildRequireGraph();
+        validateRequireGraph(graph);
+        return new TopoSorter<>(graph, true).get();
     }
 
     private Graph<AnalysisConfig> buildRequireGraph() {
@@ -46,9 +52,36 @@ class AnalysisPlanner {
             graph.addNode(config);
             manager.getRequiredConfigs(config).forEach(required -> {
                 graph.addEdge(config, required);
-                workList.add(required);
+                if (!graph.hasNode(required)) {
+                    workList.add(required);
+                }
             });
         }
         return graph;
+    }
+
+    /**
+     * Check if the given require graph is valid.
+     * @throws ConfigException if the given plan is invalid
+     */
+    private void validateRequireGraph(Graph<AnalysisConfig> graph) {
+        // Check if the require graph is self-contained, i.e., every required
+        // analysis is included in the graph
+        graph.nodes().forEach(config -> {
+            List<AnalysisConfig> missing = manager.getRequiredConfigs(config)
+                    .stream()
+                    .filter(Predicate.not(graph::hasNode))
+                    .collect(Collectors.toList());
+            if (!missing.isEmpty()) {
+                throw new ConfigException("Invalid analysis plan: " +
+                        missing + " are missing");
+            }
+        });
+        // Check if the require graph contains cycles
+        SCC<AnalysisConfig> scc = new SCC<>(graph);
+        if (!scc.getTrueComponents().isEmpty()) {
+            throw new ConfigException("Invalid analysis plan: " +
+                    scc.getTrueComponents() + " are mutually dependent");
+        }
     }
 }
