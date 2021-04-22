@@ -15,8 +15,9 @@ package pascal.taie.analysis.graph.cfg;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.exception.IntraproceduralThrowAnalysis;
 import pascal.taie.analysis.exception.ThrowAnalysis;
+import pascal.taie.config.AnalysisConfig;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 
@@ -24,21 +25,25 @@ public class CFGTest {
 
     @Test
     public void testCFG() {
-        test("CFG", true);
+        test("CFG", "explicit");
     }
 
     @Test
     public void testException() {
-        test("Exceptions", false);
+        test("Exceptions", "all");
     }
 
-    private static void test(String main, boolean ignoreImplicit) {
+    private static void test(String main, String exception) {
         Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
         JClass c = World.getClassHierarchy().getClass(main);
-        ThrowAnalysis throwAnalysis = new IntraproceduralThrowAnalysis(ignoreImplicit);
-        CFGBuilder builder = new CFGBuilder(throwAnalysis);
+        ThrowAnalysis throwAnalysis = new ThrowAnalysis(
+                new AnalysisConfig(ThrowAnalysis.ID, "exception", exception));
+        CFGBuilder builder = new CFGBuilder(
+                new AnalysisConfig(CFGBuilder.ID, "exception", exception));
         c.getDeclaredMethods().forEach(m -> {
-            CFG<Stmt> cfg = builder.build(m.getIR());
+            IR ir = m.getIR();
+            ir.storeResult(throwAnalysis.getId(), throwAnalysis.analyze(ir));
+            CFG<Stmt> cfg = builder.analyze(ir);
             CFGDumper.dumpDotFile(cfg, escapeFileName(
                     String.format("output/%s.%s.dot", c, m.getName())));
         });

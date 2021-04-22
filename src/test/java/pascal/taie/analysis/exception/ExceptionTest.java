@@ -17,6 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -42,22 +43,23 @@ public class ExceptionTest {
 
     @Test
     public void testCatchImplicit() {
-        showCatch(false, "implicitCaught", "implicitUncaught");
+        showCatch("explicit", "implicitCaught", "implicitUncaught");
     }
 
     @Test
     public void testCatchThrow() {
-        showCatch(true, "throwCaught", "throwUncaught", "nestedThrowCaught");
+        showCatch("all", "throwCaught", "throwUncaught", "nestedThrowCaught");
     }
 
     @Test
     public void testCatchDeclared() {
-        showCatch(true, "declaredCaught", "declaredUncaught");
+        showCatch("explicit", "declaredCaught", "declaredUncaught");
     }
 
-    private static void showCatch(boolean ignoreImplicit, String... methodNames) {
+    private static void showCatch(String exception, String... methodNames) {
         JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new IntraproceduralThrowAnalysis(ignoreImplicit);
+        ThrowAnalysis throwAnalysis = new ThrowAnalysis(
+                new AnalysisConfig(ThrowAnalysis.ID, "exception", exception));
         for (String methodName : methodNames) {
             JMethod m = c.getDeclaredMethod(methodName);
             System.out.println(m);

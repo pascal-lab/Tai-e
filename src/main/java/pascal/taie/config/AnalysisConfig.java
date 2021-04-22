@@ -46,7 +46,8 @@ public class AnalysisConfig {
     public AnalysisConfig() {
     }
 
-    public AnalysisConfig(Object... options) {
+    public AnalysisConfig(String id, Object... options) {
+        this.id = id;
         for (int i = 0; i < options.length; i += 2) {
             this.options.put((String) options[i], options[i + 1]);
         }

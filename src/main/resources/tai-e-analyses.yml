@@ -30,7 +30,7 @@
   requires: [pta(scope=inter)] # only required by scope: inter
   options:
     scope: intra # | inter
-    exception: explicit # | none | all (includes implicit and explicit exceptions)
+    exception: explicit # | all (includes implicit and explicit exceptions)
 
 - description: intra-procedural dead-code detection
   analysisClass: DeadCodeDetector
