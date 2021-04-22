@@ -32,17 +32,30 @@ class Utils {
     }
 
     /**
+     * Examples of conditions:
+     * - a=b
+     * - a=b,x=y
+     * - a=b|c|d,x=y
      * @return if the given options satisfy the given conditions.
-     * TODO: allow sophisticated conditions? Currently only support
-     *  conjunctions, may support disjunctions?
+     * TODO: comprehensive error handling for invalid conditions
      */
     static boolean satisfyConditions(String conditions, Map<String, Object> options) {
         if (conditions != null) {
+            outer:
             for (String conds : conditions.split(",")) {
                 String[] splits = conds.split("=");
                 String key = splits[0];
                 String value = splits[1];
-                if (!options.get(key).toString().equals(value)) {
+                if (value.contains("|")) { // a=b|c
+                    // Check each individual value, if one match,
+                    // then this condition can be satisfied.
+                    for (String v : value.split("\\|")) {
+                        if (options.get(key).toString().equals(v)) {
+                            continue outer;
+                        }
+                    }
+                    return false;
+                } else if (!options.get(key).toString().equals(value)) { // a=b
                     return false;
                 }
             }
