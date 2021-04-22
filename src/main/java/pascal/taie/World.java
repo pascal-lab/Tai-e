@@ -12,6 +12,8 @@
 
 package pascal.taie;
 
+import pascal.taie.analysis.AbstractHolder;
+import pascal.taie.analysis.AnalysisResultHolder;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -56,6 +58,8 @@ public class World {
     private IRBuilder irBuilder;
 
     private NativeModel nativeModel;
+
+    private final AnalysisResultHolder resultHolder = new AbstractHolder() {};
 
     /**
      * Will be deprecated after removing old PTA.
@@ -131,5 +135,17 @@ public class World {
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
         this.implicitEntries = implicitEntries;
+    }
+
+    public static void storeResult(String id, Object result) {
+        theWorld.resultHolder.storeResult(id, result);
+    }
+
+    public static Object getResult(String id) {
+        return theWorld.resultHolder.getResult(id);
+    }
+
+    public static Object getResult(String id, Object defaultResult) {
+        return theWorld.resultHolder.getResult(id, defaultResult);
     }
 }
