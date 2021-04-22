@@ -33,7 +33,11 @@ public class SimpleGraph<N> implements Graph<N> {
 
     private final Map<N, Set<N>> succMap = newMap();
 
-    void addEdge(N source, N target) {
+    public void addNode(N node) {
+        nodes.add(node);
+    }
+
+    public void addEdge(N source, N target) {
         nodes.add(source);
         nodes.add(target);
         addToMapSet(predMap, target, source);

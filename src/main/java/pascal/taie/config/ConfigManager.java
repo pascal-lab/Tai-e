@@ -26,10 +26,8 @@ public class ConfigManager {
 
     private final Map<AnalysisConfig, List<AnalysisConfig>> requires = newMap();
 
-    ConfigManager(AnalysisConfig[] configs) {
-        for (AnalysisConfig config : configs) {
-            addConfig(config);
-        }
+    ConfigManager(List<AnalysisConfig> configs) {
+        configs.forEach(this::addConfig);
     }
 
     private void addConfig(AnalysisConfig config) {
@@ -52,8 +50,8 @@ public class ConfigManager {
     /**
      * Overwrite the AnalysisConfig.options by corresponding PlanConfig.options.
      */
-    void overwriteOptions(PlanConfig[] planConfigs) {
-        for (PlanConfig pc : planConfigs) {
+    void overwriteOptions(List<PlanConfig> planConfigs) {
+        planConfigs.forEach(pc -> {
             AnalysisConfig ac = getConfig(pc.getId());
             if (ac == null) {
                 throw new ConfigException(pc.getId() +
@@ -62,13 +60,13 @@ public class ConfigManager {
             }
             pc.getOptions().forEach((key, value) ->
                     ac.getOptions().merge(key, value, (v1, v2) -> v2));
-        }
+        });
     }
 
     /**
      * Obtain the required configs of given config. This computation is
      * based on the options in PlanConfig, thus this method should be called
-     * after invoking {@link #overwriteOptions(PlanConfig[])}.
+     * after invoking {@link #overwriteOptions(List<PlanConfig>)}.
      * NOTE: we should obtain required configs by this method, instead of
      * {@link AnalysisConfig#getRequires()}.
      */

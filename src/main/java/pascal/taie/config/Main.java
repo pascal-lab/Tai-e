@@ -27,13 +27,15 @@ public class Main {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         File config = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        AnalysisConfig[] analysisConfigs = mapper.readValue(config, AnalysisConfig[].class);
+        List<AnalysisConfig> analysisConfigs = Arrays.asList(
+                mapper.readValue(config, AnalysisConfig[].class));
         ConfigManager manager = new ConfigManager(analysisConfigs);
         manager.configs().forEach(System.out::println);
 
         File plan = new File(classLoader.getResource("tai-e-plan.yml").getFile());
-        PlanConfig[] planConfigs = mapper.readValue(plan, PlanConfig[].class);
-        Arrays.stream(planConfigs).forEach(System.out::println);
+        List<PlanConfig> planConfigs = Arrays.asList(
+                mapper.readValue(plan, PlanConfig[].class));
+        planConfigs.forEach(System.out::println);
 
         manager.overwriteOptions(planConfigs);
         manager.configs().forEach(System.out::println);
