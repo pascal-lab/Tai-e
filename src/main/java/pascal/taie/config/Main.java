@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+        // TODO: encapsulate Jackson exception to ConfigException
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         File config = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -50,7 +51,8 @@ public class Main {
             }
         });
 
-        AnalysisPlanner planner = new AnalysisPlanner(manager, planConfigs);
-        System.out.println(planner.makePlan());
+        AnalysisPlanner planner = new AnalysisPlanner(manager);
+        System.out.println(planner.expandPlan(planConfigs));
+//        System.out.println(planner.makePlan(planConfigs));
     }
 }

@@ -30,20 +30,64 @@ class AnalysisPlanner {
 
     private final ConfigManager manager;
 
-    private final List<PlanConfig> planConfigs;
-
-    public AnalysisPlanner(ConfigManager manager, List<PlanConfig> planConfigs) {
+    public AnalysisPlanner(ConfigManager manager) {
         this.manager = manager;
-        this.planConfigs = planConfigs;
     }
 
-    List<AnalysisConfig> makePlan() {
-        Graph<AnalysisConfig> graph = buildRequireGraph();
+    /**
+     * This method makes a plan by converting given list of PlanConfig
+     * to AnalysisConfig. It will be used when analysis plan is specified
+     * by configuration file.
+     * @return the analysis plan consists of a list of analysis config.
+     * @throws ConfigException if the given planConfigs is invalid.
+     */
+    List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs) {
+        List<AnalysisConfig> plan = planConfigs.stream()
+                .map(pc -> manager.getConfig(pc.getId()))
+                .collect(Collectors.toUnmodifiableList());
+        validatePlan(plan);
+        return plan;
+    }
+
+    /**
+     * Check if the given analysis plan is valid.
+     * @throws ConfigException if the given plan is invalid
+     */
+    private void validatePlan(List<AnalysisConfig> plan) {
+        for (int i = 0; i < plan.size(); ++i) {
+            AnalysisConfig config = plan.get(i);
+            for (AnalysisConfig required : manager.getRequiredConfigs(config)) {
+                int rindex = plan.indexOf(required);
+                if (rindex == -1) {
+                    // required analysis is missing
+                    throw new ConfigException("Invalid configuration: " +
+                            required + " is required by " + config +
+                            " but missing");
+                } else if (rindex >= i) {
+                    // required analysis runs after current analysis
+                    throw new ConfigException("Invalid configuration: " +
+                            required + " is required by " + config +
+                            " but it runs after " + config);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method makes an analysis plan based on given plan configs,
+     * and it will automatically add required analyses (which are not in
+     * the given plan) to the resulting plan.
+     * It will be used when analysis plan is specified by command line options.
+     * @return the analysis plan consists of a list of analysis config.
+     * @throws ConfigException if the specified planConfigs is invalid.
+     */
+    List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs) {
+        Graph<AnalysisConfig> graph = buildRequireGraph(planConfigs);
         validateRequireGraph(graph);
         return new TopoSorter<>(graph, true).get();
     }
 
-    private Graph<AnalysisConfig> buildRequireGraph() {
+    private Graph<AnalysisConfig> buildRequireGraph(List<PlanConfig> planConfigs) {
         SimpleGraph<AnalysisConfig> graph = new SimpleGraph<>();
         Queue<AnalysisConfig> workList = new LinkedList<>();
         planConfigs.forEach(pc -> workList.add(manager.getConfig(pc.getId())));
