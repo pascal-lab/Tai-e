@@ -1,6 +1,6 @@
 - id: pta
   options:
-    cs: 2-object
+    cs: 2-type
     merge-string-constants: true
 
-- id: icfg
+- id: cg

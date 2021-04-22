@@ -20,7 +20,10 @@ import java.util.Map;
 import static java.util.Collections.emptyList;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
-class ConfigItem {
+/**
+ * Configuration for an analysis.
+ */
+class AnalysisConfig {
 
     @JsonProperty
     private String description;
@@ -30,9 +33,6 @@ class ConfigItem {
 
     @JsonProperty
     private String id;
-
-    @JsonProperty
-    private String resultClass;
 
     @JsonProperty
     private List<String> requires = emptyList();
@@ -46,10 +46,6 @@ class ConfigItem {
 
     String getAnalysisClass() {
         return analysisClass;
-    }
-
-    String getResultClass() {
-        return resultClass;
     }
 
     String getId() {
@@ -66,11 +62,10 @@ class ConfigItem {
 
     @Override
     public String toString() {
-        return "Config{" +
+        return "AnalysisConfig{" +
                 "description='" + description + '\'' +
                 ", analysisClass='" + analysisClass + '\'' +
                 ", id='" + id + '\'' +
-                ", resultClass='" + resultClass + '\'' +
                 ", requires=" + requires +
                 ", options=" + options +
                 '}';

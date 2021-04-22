@@ -18,6 +18,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -25,9 +27,25 @@ public class Main {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         File config = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        ConfigItem[] items = mapper.readValue(config, ConfigItem[].class);
-        Arrays.stream(items).forEach(System.out::println);
-        PassManager manager = new PassManager(items);
-        manager.passes().forEach(System.out::println);
+        AnalysisConfig[] analysisConfigs = mapper.readValue(config, AnalysisConfig[].class);
+        ConfigManager manager = new ConfigManager(analysisConfigs);
+        manager.configs().forEach(System.out::println);
+
+        File plan = new File(classLoader.getResource("tai-e-plan.yml").getFile());
+        PlanConfig[] planConfigs = mapper.readValue(plan, PlanConfig[].class);
+        Arrays.stream(planConfigs).forEach(System.out::println);
+
+        manager.overwriteOptions(planConfigs);
+        manager.configs().forEach(System.out::println);
+        System.out.println();
+        manager.configs().forEach(c -> {
+            List<AnalysisConfig> requires = manager.getRequiredConfigs(c);
+            if (!requires.isEmpty()) {
+                System.out.print(c + " requires ");
+                System.out.println(requires.stream()
+                        .map(AnalysisConfig::getId)
+                        .collect(Collectors.toList()));
+            }
+        });
     }
 }

@@ -1,7 +1,6 @@
 - description: whole-program pointer analysis
   analysisClass: pascal.taie.analysis.pta.PointerAnalysisPass
   id: pta
-  resultClass: pascal.taie.analysis.pta.PointerAnalysis
   options:
     cs: 2-object
     plugin: [AnalysisTimer, ReferenceHandler]
@@ -9,18 +8,25 @@
     merge-string-constants: false
     merge-string-objects: true
 
+- description: call graph construction
+  analysisClass: pascal.taie.graph.cg.CGBuilder
+  id: cg
+  requires: [pta(algorithm=pta)]
+  options:
+    algorithm: pta # | cha | rta
+
 - description: intraprocedural control-flow graph
   analysisClass: pascal.taie.cfg.CFGBuilder
   id: cfg
-  resultClass: CFG
   requires: [throw]
   options:
+    store-result: true
+    is-parallel: true
     exception: explicit # | none | all (includes implicit and explicit exceptions)
 
 - description: intra/inter-procedural throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
   id: throw
-  resultClass: pascal.taie.analysis.exception.ThrowAnalysis.Result
   requires: [pta(scope=inter)] # only required by scope: inter
   options:
     scope: intra # | inter
@@ -29,5 +35,4 @@
 - description: intra-procedural dead-code detection
   analysisClass: DeadCodeDetector
   id: dc
-  resultClass: DeadCode
   requires: [cfg]

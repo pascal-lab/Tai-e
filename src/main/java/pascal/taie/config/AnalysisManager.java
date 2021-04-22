@@ -12,5 +12,11 @@
 
 package pascal.taie.config;
 
-public class PassPlanner {
+// 1. Overwrite AnalysisConfig.options by PlanConfig.options
+// 2. Build require relations
+// 3. Decide which analyses to initialize
+// 4. Initialize analyses
+// 5. Create analysis plan
+public class AnalysisManager {
+
 }
