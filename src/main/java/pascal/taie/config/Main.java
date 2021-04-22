@@ -26,16 +26,16 @@ public class Main {
     public static void main(String[] args) throws IOException {
         // TODO: encapsulate Jackson exception to ConfigException
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File config = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
+        File configFile = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         List<AnalysisConfig> analysisConfigs = Arrays.asList(
-                mapper.readValue(config, AnalysisConfig[].class));
+                mapper.readValue(configFile, AnalysisConfig[].class));
         ConfigManager manager = new ConfigManager(analysisConfigs);
         manager.configs().forEach(c -> System.out.println(c.toDetailedString()));
 
-        File plan = new File(classLoader.getResource("tai-e-plan.yml").getFile());
+        File planFile = new File(classLoader.getResource("tai-e-plan.yml").getFile());
         List<PlanConfig> planConfigs = Arrays.asList(
-                mapper.readValue(plan, PlanConfig[].class));
+                mapper.readValue(planFile, PlanConfig[].class));
         planConfigs.forEach(System.out::println);
 
         manager.overwriteOptions(planConfigs);
@@ -52,7 +52,10 @@ public class Main {
         });
 
         AnalysisPlanner planner = new AnalysisPlanner(manager);
-        System.out.println(planner.expandPlan(planConfigs));
+        List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
+        System.out.println(plan);
 //        System.out.println(planner.makePlan(planConfigs));
+        AnalysisManager analysisManager = new AnalysisManager();
+        analysisManager.execute(plan);
     }
 }
