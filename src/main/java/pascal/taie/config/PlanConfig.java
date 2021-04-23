@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import pascal.taie.Options2;
 
 import java.io.File;
@@ -102,5 +103,17 @@ public class PlanConfig {
                     }
                 })
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    public static void writeToFile(List<PlanConfig> planConfigs, File output) {
+        ObjectMapper mapper = new ObjectMapper(
+                new YAMLFactory()
+                        .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                        .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
+        try {
+            mapper.writeValue(output, planConfigs);
+        } catch (IOException e) {
+            throw new ConfigException("Failed to write plan file " + output, e);
+        }
     }
 }
