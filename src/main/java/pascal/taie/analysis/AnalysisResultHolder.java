@@ -31,7 +31,12 @@ public interface AnalysisResultHolder {
     Object getResult(String id, Object defaultResult);
 
     /**
+     * Clear result of the analysis specified by given ID.
+     */
+    void clearResult(String id);
+
+    /**
      * Clear all cached results.
      */
-    void clearResult();
+    void clearAll();
 }

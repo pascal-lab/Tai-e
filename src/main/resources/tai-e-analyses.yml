@@ -18,7 +18,7 @@
 - description: intraprocedural control-flow graph
   analysisClass: pascal.taie.cfg.CFGBuilder
   id: cfg
-  requires: [throw]
+  requires: [throw(exception=explicit|all)]
   options:
     store-result: true
     is-parallel: true

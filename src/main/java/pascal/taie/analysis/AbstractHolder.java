@@ -26,19 +26,28 @@ public abstract class AbstractHolder implements AnalysisResultHolder {
      */
     private final Map<String, Object> results = newHybridMap();
 
+    @Override
     public void storeResult(String id, Object result) {
         results.put(id, result);
     }
 
+    @Override
     public Object getResult(String id) {
         return results.get(id);
     }
 
+    @Override
     public Object getResult(String id, Object defaultResult) {
         return results.getOrDefault(id, defaultResult);
     }
 
-    public void clearResult() {
+    @Override
+    public void clearResult(String id) {
+        results.remove(id);
+    }
+
+    @Override
+    public void clearAll() {
         results.clear();
     }
 }

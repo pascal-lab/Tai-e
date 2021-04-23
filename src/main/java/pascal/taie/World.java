@@ -148,4 +148,8 @@ public class World {
     public static Object getResult(String id, Object defaultResult) {
         return theWorld.resultHolder.getResult(id, defaultResult);
     }
+
+    public static void clearResult(String id) {
+        theWorld.resultHolder.clearResult(id);
+    }
 }

@@ -32,9 +32,10 @@ public class ConfigManager {
 
     private void addConfig(AnalysisConfig config) {
         if (configs.containsKey(config.getId())) {
-            throw new ConfigException(String.format(
-                    "Adding analysis %s failed: %s already exists.",
-                    config, config.getId()));
+            // TODO: obtain analysis config file path in a better way
+            throw new ConfigException(
+                    "There are multiple analyses for the same id " +
+                            config.getId() + " in tai-e-analyses.yml");
         }
         configs.put(config.getId(), config);
     }
@@ -54,9 +55,9 @@ public class ConfigManager {
         planConfigs.forEach(pc -> {
             AnalysisConfig ac = getConfig(pc.getId());
             if (ac == null) {
+                // TODO: obtain analysis config file path in a better way
                 throw new ConfigException(pc.getId() +
                         " is not configured in tai-e-analyses.yml");
-                // TODO: obtain analysis configuration file in a better way
             }
             pc.getOptions().forEach((key, value) ->
                     ac.getOptions().merge(key, value, (v1, v2) -> v2));
