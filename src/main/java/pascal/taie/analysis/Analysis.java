@@ -14,11 +14,6 @@ package pascal.taie.analysis;
 
 import pascal.taie.config.AnalysisConfig;
 
-import java.util.Map;
-import java.util.Set;
-
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
-
 public abstract class Analysis {
 
     private final String id;

@@ -31,8 +31,3 @@
   options:
     scope: intra # | inter
     exception: explicit # | all (includes implicit and explicit exceptions)
-
-- description: intra-procedural dead-code detection
-  analysisClass: DeadCodeDetector
-  id: dc
-  requires: [cfg]
