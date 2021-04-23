@@ -80,7 +80,8 @@ public class CFGBuilder extends IntraproceduralAnalysis {
                         switchStmt, switchStmt.getDefaultTarget()));
             } else if (curr instanceof Return) {
                 cfg.addEdge(new Edge<>(Edge.Kind.RETURN, curr, cfg.getExit()));
-            } else if (curr.canFallThrough()) {
+            } else if (curr.canFallThrough() &&
+                    i + 1 < ir.getStmts().size()) { // Defensive check
                 cfg.addEdge(new Edge<>(Edge.Kind.FALL_THROUGH,
                         curr, ir.getStmt(i + 1)));
             }
