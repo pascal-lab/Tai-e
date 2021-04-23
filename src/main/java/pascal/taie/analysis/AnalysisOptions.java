@@ -20,7 +20,7 @@ public class AnalysisOptions {
     private final Map<String, Object> options;
 
     public AnalysisOptions(Map<String, Object> options) {
-        this.options = Map.copyOf(options);
+        this.options = options;
     }
 
     public Object get(String key) {

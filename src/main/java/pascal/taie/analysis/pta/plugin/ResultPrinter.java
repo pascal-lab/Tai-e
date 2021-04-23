@@ -78,12 +78,15 @@ public enum ResultPrinter implements Plugin {
         if (World.getOptions().isTestMode()) {
             printPointers(solver);
         } else if (solver.getOptions().getBoolean("output-results")) {
-            File output = new File(solver.getOptions().getString("output-file"));
-            try {
-                out = new PrintStream(new FileOutputStream(output),
-                        false, StandardCharsets.UTF_8);
-            } catch (FileNotFoundException e) {
-                System.err.println("Failed to write output, caused by " + e);
+            String path = solver.getOptions().getString("output-file");
+            if (path != null) {
+                try {
+                    File output = new File(path);
+                    out = new PrintStream(new FileOutputStream(output),
+                            false, StandardCharsets.UTF_8);
+                } catch (FileNotFoundException e) {
+                    System.err.println("Failed to write output, caused by " + e);
+                }
             }
             out.println("---------- Reachable methods: ----------");
             solver.getCallGraph().reachableMethods()
