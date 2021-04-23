@@ -59,7 +59,7 @@ public class AnalysisManager {
         } catch (ClassNotFoundException | NoSuchMethodException |
                 InstantiationException | IllegalAccessException |
                 InvocationTargetException e) {
-            throw new AnalysisException("Fail to initialize " +
+            throw new AnalysisException("Failed to initialize " +
                     config.getAnalysisClass(), e);
         }
     }
