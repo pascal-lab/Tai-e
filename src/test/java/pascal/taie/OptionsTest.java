@@ -12,10 +12,16 @@
 
 package pascal.taie;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Map;
 
 public class OptionsTest {
 
@@ -71,5 +77,19 @@ public class OptionsTest {
     public void testMainClass() {
         Options options = Options.parse("-cp", "path/to/cp", "-m", "Main");
         Assert.assertEquals("Main", options.getMainClass());
+    }
+
+    @Test
+    public void testOptions2() throws JsonProcessingException {
+        Options2 options = Options2.parse(
+                "-a", "cfg=exception:true,scope:inter",
+                "-a", "pta=timeout:1800,merge-string-objects:true,cs:2-obj");
+        System.out.println(options.getAnalyses());
+        String pta = options.getAnalyses().get("pta");
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JavaType type = mapper.getTypeFactory()
+                .constructMapType(Map.class, String.class, Object.class);
+        Map<String, Object> args = mapper.readValue(pta, type);
+        System.out.println(args);
     }
 }

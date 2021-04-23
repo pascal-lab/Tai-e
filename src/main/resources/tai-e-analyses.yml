@@ -1,12 +1,16 @@
 - description: whole-program pointer analysis
-  analysisClass: pascal.taie.analysis.pta.PointerAnalysisPass
+  analysisClass: pascal.taie.analysis.pta.PointerAnalysis
   id: pta
   options:
-    cs: 2-object
-    plugin: [AnalysisTimer, ReferenceHandler]
-    timeout: 3600
+    cs: ci
+    implicit-entries: true # analyze implicit entries
+    native-model: true # enable native model, move to global section?
     merge-string-constants: false
     merge-string-objects: true
+    merge-string-builders: true
+    merge-exception-objects: true
+    output-results: false
+    output-file: null
 
 - description: call graph construction
   analysisClass: pascal.taie.graph.cg.CGBuilder
@@ -14,6 +18,7 @@
   requires: [pta(algorithm=pta)]
   options:
     algorithm: pta # | cha | rta
+    dump: false # dump call graph
 
 - description: intraprocedural control-flow graph
   analysisClass: pascal.taie.cfg.CFGBuilder

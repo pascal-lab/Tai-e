@@ -12,12 +12,12 @@
 
 package pascal.taie.config;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,14 +28,16 @@ public class Main {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         File configFile = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        List<AnalysisConfig> analysisConfigs = Arrays.asList(
-                mapper.readValue(configFile, AnalysisConfig[].class));
+        JavaType acList = mapper.getTypeFactory()
+                .constructCollectionType(List.class, AnalysisConfig.class);
+        List<AnalysisConfig> analysisConfigs = mapper.readValue(configFile, acList);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         manager.configs().forEach(c -> System.out.println(c.toDetailedString()));
 
         File planFile = new File(classLoader.getResource("tai-e-plan.yml").getFile());
-        List<PlanConfig> planConfigs = Arrays.asList(
-                mapper.readValue(planFile, PlanConfig[].class));
+        JavaType pcList = mapper.getTypeFactory()
+                .constructCollectionType(List.class, PlanConfig.class);
+        List<PlanConfig> planConfigs = mapper.readValue(planFile, pcList);
         planConfigs.forEach(System.out::println);
 
         manager.overwriteOptions(planConfigs);
