@@ -60,7 +60,7 @@ public class ConfigManager {
                         " is not configured in tai-e-analyses.yml");
             }
             pc.getOptions().forEach((key, value) ->
-                    ac.getOptions().merge(key, value, (v1, v2) -> v2));
+                    ac.getOptions().put(key, value));
         });
     }
 

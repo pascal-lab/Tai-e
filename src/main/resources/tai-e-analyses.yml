@@ -20,12 +20,10 @@
     dump: false # dump call graph
 
 - description: intraprocedural control-flow graph
-  analysisClass: pascal.taie.cfg.CFGBuilder
+  analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
   id: cfg
   requires: [throw(exception=explicit|all)]
   options:
-    store-result: true
-    is-parallel: true
     exception: explicit # | none | all (includes implicit and explicit exceptions)
 
 - description: intra/inter-procedural throw analysis
