@@ -20,7 +20,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.Options2;
+import pascal.taie.Options;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class PlanConfig {
     /**
      * Read a list of PlanConfig from command-line options.
      */
-    public static List<PlanConfig> readFromOptions(Options2 options) {
+    public static List<PlanConfig> readFromOptions(Options options) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType mapType = mapper.getTypeFactory()
                 .constructMapType(Map.class, String.class, Object.class);

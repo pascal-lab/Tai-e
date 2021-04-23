@@ -22,13 +22,11 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.graph.GraphDumper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Comparator;
@@ -74,23 +72,18 @@ public enum ResultPrinter implements Plugin {
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(solver);
         }
-        if (World.getOptions().isDumpCallGraph()) {
-            GraphDumper.dumpDotFile(solver.getCallGraph(), "output/callgraph.dot");
-        }
     }
 
     private void printResults(Solver solver) {
         if (World.getOptions().isTestMode()) {
             printPointers(solver);
-        } else if (World.getOptions().isOutputResults()) {
-            File output = World.getOptions().getOutputFile();
-            if (output != null) {
-                try {
-                    out = new PrintStream(new FileOutputStream(output),
-                            false, StandardCharsets.UTF_8);
-                } catch (FileNotFoundException e) {
-                    System.err.println("Failed to write output, caused by " + e);
-                }
+        } else if (solver.getOptions().getBoolean("output-results")) {
+            File output = new File(solver.getOptions().getString("output-file"));
+            try {
+                out = new PrintStream(new FileOutputStream(output),
+                        false, StandardCharsets.UTF_8);
+            } catch (FileNotFoundException e) {
+                System.err.println("Failed to write output, caused by " + e);
             }
             out.println("---------- Reachable methods: ----------");
             solver.getCallGraph().reachableMethods()

@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.AnalysisOptions;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -91,6 +92,8 @@ public class SolverImpl implements Solver {
 
     private static final Logger logger = LogManager.getLogger(SolverImpl.class);
 
+    private AnalysisOptions options;
+
     private final ClassHierarchy hierarchy;
 
     private final TypeManager typeManager;
@@ -119,10 +122,14 @@ public class SolverImpl implements Solver {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
     }
-    
+
     @Override
-    public ClassHierarchy getHierarchy() {
-        return hierarchy;
+    public AnalysisOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(AnalysisOptions options) {
+        this.options = options;
     }
 
     @Override
@@ -225,7 +232,7 @@ public class SolverImpl implements Solver {
     private Collection<JMethod> computeEntries() {
         List<JMethod> entries = new ArrayList<>();
         entries.add(World.getMainMethod());
-        if (World.getOptions().analyzeImplicitEntries()) {
+        if (options.getBoolean("implicit-entries")) {
             entries.addAll(World.getImplicitEntries());
         }
         return entries;

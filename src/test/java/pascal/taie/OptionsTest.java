@@ -16,7 +16,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import pascal.taie.config.PlanConfig;
 
-import java.io.File;
 import java.util.List;
 
 public class OptionsTest {
@@ -51,25 +50,6 @@ public class OptionsTest {
     }
 
     @Test
-    public void testOptions() {
-        Options options = Options.parse("--no-implicit-entries", "-cs", "2-object");
-        Assert.assertFalse(options.analyzeImplicitEntries());
-        Assert.assertTrue(options.isMergeStringBuilders());
-        Assert.assertEquals("2-object", options.getContextSensitivity());
-        options = Options.parse("--no-merge-string-builders");
-        Assert.assertFalse(options.isMergeStringBuilders());
-    }
-
-    @Test
-    public void testOutputFile() {
-        // Well, README will never be output file,
-        // this is just for testing ...
-        Options options = Options.parse("-f", "README");
-        Assert.assertEquals(new File("README"),
-                options.getOutputFile());
-    }
-
-    @Test
     public void testMainClass() {
         Options options = Options.parse("-cp", "path/to/cp", "-m", "Main");
         Assert.assertEquals("Main", options.getMainClass());
@@ -77,7 +57,7 @@ public class OptionsTest {
 
     @Test
     public void testOptions2() {
-        Options2 options = Options2.parse(
+        Options options = Options.parse(
                 "-a", "cfg=exception:true,scope:inter",
                 "-a", "pta=timeout:1800,merge-string-objects:false,cs:2-obj",
                 "-a", "throw");

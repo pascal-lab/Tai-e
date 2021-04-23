@@ -1,28 +1,47 @@
 /*
- * Tai-e: A Static Analysis Framework for Java
+ * Tai-e: A Program Analysis Framework for Java
  *
- * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020-- Yue Li <yueli@nju.edu.cn>
+ * Copyright (C) 2020 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2020 Yue Li <yueli@nju.edu.cn>
  * All rights reserved.
  *
- * Tai-e is only for educational and academic purposes,
- * and any form of commercial use is disallowed.
- * Distribution of Tai-e is disallowed without the approval.
+ * This software is designed for the "Static Program Analysis" course at
+ * Nanjing University, and it supports a subset of Java features.
+ * Tai-e is only for educational and academic purposes, and any form of
+ * commercial use is disallowed.
  */
 
 package pascal.taie;
 
-import pascal.taie.pass.Pass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.AnalysisManager;
+import pascal.taie.config.AnalysisPlanner;
+import pascal.taie.config.ConfigManager;
+import pascal.taie.config.ConfigUtils;
+import pascal.taie.config.PlanConfig;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
 
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
     public static void main(String[] args) {
         Options options = processArgs(args);
+        List<AnalysisConfig> plan = processConfigs(options);
+        if (plan.isEmpty()) {
+            logger.info("No analyses are specified");
+            System.exit(0);
+        }
         buildWorld(options);
-        runPasses(options);
+        executePlan(plan);
     }
 
     /**
@@ -39,6 +58,42 @@ public class Main {
             System.exit(0);
         }
         return options;
+    }
+
+    private static List<AnalysisConfig> processConfigs(Options options) {
+        File configFile = ConfigUtils.getDefaultAnalysisConfig();
+        List<AnalysisConfig> analysisConfigs = AnalysisConfig.readFromFile(configFile);
+        ConfigManager manager = new ConfigManager(analysisConfigs);
+        AnalysisPlanner planner = new AnalysisPlanner(manager);
+        if (!options.getAnalyses().isEmpty()) {
+            // Analyses are specified by cmd options
+            List<PlanConfig> planConfigs = PlanConfig.readFromOptions(options);
+            manager.overwriteOptions(planConfigs);
+            List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
+            if (options.getGenPlanFile() != null) {
+                // This run only generates plan file but not executes it
+                // For outputting purpose, we first convert AnalysisConfigs
+                // in the expanded plan to PlanConfigs
+                List<PlanConfig> configs = plan.stream()
+                        .map(ac -> {
+                            PlanConfig pc = new PlanConfig();
+                            pc.setId(ac.getId());
+                            pc.setOptions(ac.getOptions());
+                            return pc;
+                        })
+                        .collect(Collectors.toUnmodifiableList());
+                PlanConfig.writeToFile(configs, options.getGenPlanFile());
+            } else {
+                return plan;
+            }
+        } else if (options.getPlanFile() != null) {
+            // Analyses are specified by file
+            List<PlanConfig> planConfigs = PlanConfig.readFromFile(options.getPlanFile());
+            manager.overwriteOptions(planConfigs);
+            return planner.makePlan(planConfigs);
+        }
+        // No analyses are specified
+        return Collections.emptyList();
     }
 
     /**
@@ -61,18 +116,8 @@ public class Main {
         }
     }
 
-    private static void runPasses(Options options) {
-        options.getPassClasses().forEach(className -> {
-            try {
-                Class<?> c = Class.forName(className);
-                Constructor<?> ctor = c.getConstructor();
-                Pass pass = (Pass) ctor.newInstance();
-                pass.run();
-            } catch (ClassNotFoundException | InstantiationException |
-                    IllegalAccessException | NoSuchMethodException |
-                    InvocationTargetException e) {
-                System.err.println("Failed to run " + className + " due to " + e);
-            }
-        });
+    private static void executePlan(List<AnalysisConfig> plan) {
+        AnalysisManager analysisManager = new AnalysisManager();
+        analysisManager.execute(plan);
     }
 }

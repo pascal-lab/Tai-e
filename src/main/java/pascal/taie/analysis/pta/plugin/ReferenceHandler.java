@@ -17,7 +17,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 
 import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
@@ -48,10 +47,11 @@ public class ReferenceHandler implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        ClassHierarchy hierarchy = solver.getHierarchy();
-        referenceInitThis = hierarchy.getJREMethod(REFERENCE_INIT)
+        referenceInitThis = World.getClassHierarchy()
+                .getJREMethod(REFERENCE_INIT)
                 .getIR().getThis();
-        referencePending = hierarchy.getJREField(REFERENCE_PENDING);
+        referencePending = World.getClassHierarchy()
+                .getJREField(REFERENCE_PENDING);
     }
 
     @Override

@@ -66,7 +66,7 @@ public class ThreadHandler implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        hierarchy = solver.getHierarchy();
+        hierarchy = World.getClassHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                 "<java.lang.Thread: void start()>")
                 .getIR()
@@ -80,7 +80,7 @@ public class ThreadHandler implements Plugin {
 
     @Override
     public void initialize() {
-        if (!World.getOptions().analyzeImplicitEntries()) {
+        if (!solver.getOptions().getBoolean("implicit-entries")) {
             return;
         }
         NativeModel nativeModel = World.getNativeModel();
