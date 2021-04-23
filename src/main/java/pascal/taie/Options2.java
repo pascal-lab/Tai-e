@@ -75,7 +75,8 @@ public class Options2 {
 
     // ---------- specific analysis options ----------
     @Option(names = {"-a", "--analysis"},
-            description = "Analyses to be performed", split = ";")
+            description = "Analyses to be performed", split = ";",
+            mapFallbackValue = "")
     private Map<String, String> analyses = Collections.emptyMap();
     
     // ---------- debugging options ----------

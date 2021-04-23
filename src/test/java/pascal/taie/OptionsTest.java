@@ -12,16 +12,12 @@
 
 package pascal.taie;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.config.PlanConfig;
 
 import java.io.File;
-import java.util.Map;
+import java.util.List;
 
 public class OptionsTest {
 
@@ -80,16 +76,19 @@ public class OptionsTest {
     }
 
     @Test
-    public void testOptions2() throws JsonProcessingException {
+    public void testOptions2() {
         Options2 options = Options2.parse(
                 "-a", "cfg=exception:true,scope:inter",
-                "-a", "pta=timeout:1800,merge-string-objects:true,cs:2-obj");
-        System.out.println(options.getAnalyses());
-        String pta = options.getAnalyses().get("pta");
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        JavaType type = mapper.getTypeFactory()
-                .constructMapType(Map.class, String.class, Object.class);
-        Map<String, Object> args = mapper.readValue(pta, type);
-        System.out.println(args);
+                "-a", "pta=timeout:1800,merge-string-objects:false,cs:2-obj",
+                "-a", "throw");
+        List<PlanConfig> configs = PlanConfig.readFromOptions(options);
+        PlanConfig cfg = configs.get(0);
+        Assert.assertTrue((Boolean) cfg.getOptions().get("exception"));
+        Assert.assertEquals("inter", cfg.getOptions().get("scope"));
+        PlanConfig pta = configs.get(1);
+        Assert.assertEquals(1800, pta.getOptions().get("timeout"));
+        Assert.assertFalse((Boolean) pta.getOptions().get("merge-string-objects"));
+        PlanConfig throwConfig = configs.get(2);
+        Assert.assertTrue(throwConfig.getOptions().isEmpty());
     }
 }

@@ -13,7 +13,12 @@
 package pascal.taie.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -86,5 +91,19 @@ public class AnalysisConfig {
     @Override
     public String toString() {
         return id;
+    }
+
+    /**
+     * Read a list of AnalysisConfig from given file.
+     */
+    public static List<AnalysisConfig> readFromFile(File file) {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, AnalysisConfig.class);
+        try {
+            return mapper.readValue(file, type);
+        } catch (IOException e) {
+            throw new ConfigException("Failed to read analysis config file " + file, e);
+        }
     }
 }
