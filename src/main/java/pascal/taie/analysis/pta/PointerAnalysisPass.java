@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysisBuilder;
 import pascal.taie.pass.Pass;
 
@@ -21,8 +21,8 @@ public class PointerAnalysisPass implements Pass {
 
     @Override
     public void run() {
-        PointerAnalysis pta = new PointerAnalysisBuilder()
+        Solver solver = new PointerAnalysisBuilder()
                 .build(World.getOptions());
-        pta.analyze();
+        solver.solve();
     }
 }

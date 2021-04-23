@@ -31,7 +31,7 @@ import pascal.taie.language.classes.JField;
 
 import java.util.stream.Stream;
 
-public interface PointerAnalysis {
+public interface Solver {
 
     ClassHierarchy getHierarchy();
 
@@ -43,7 +43,7 @@ public interface PointerAnalysis {
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
-    void analyze();
+    void solve();
 
     /**
      * Add a context-sensitive variable points-to relation.

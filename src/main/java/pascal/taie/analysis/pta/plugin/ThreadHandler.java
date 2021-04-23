@@ -17,7 +17,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.IR;
@@ -38,7 +38,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
  */
 public class ThreadHandler implements Plugin {
 
-    private PointerAnalysis pta;
+    private Solver solver;
 
     private ClassHierarchy hierarchy;
 
@@ -64,9 +64,9 @@ public class ThreadHandler implements Plugin {
     private final Set<Context> currentThreadContexts = newHybridSet();
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        this.pta = pta;
-        hierarchy = pta.getHierarchy();
+    public void setSolver(Solver solver) {
+        this.solver = solver;
+        hierarchy = solver.getHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                 "<java.lang.Thread: void start()>")
                 .getIR()
@@ -84,7 +84,7 @@ public class ThreadHandler implements Plugin {
             return;
         }
         NativeModel nativeModel = World.getNativeModel();
-        Context context = pta.getContextSelector().getDefaultContext();
+        Context context = solver.getContextSelector().getDefaultContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
@@ -93,7 +93,7 @@ public class ThreadHandler implements Plugin {
                 "<java.lang.ThreadGroup: void <init>()>")
                 .getIR();
         Var initThis = threadGroupInitIR.getThis();
-        pta.addVarPointsTo(context, initThis, context, systemThreadGroup);
+        solver.addVarPointsTo(context, initThis, context, systemThreadGroup);
 
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
@@ -104,14 +104,14 @@ public class ThreadHandler implements Plugin {
                 .getIR();
 
         initThis = threadGroupInitIR.getThis();
-        pta.addVarPointsTo(context, initThis, context, mainThreadGroup);
+        solver.addVarPointsTo(context, initThis, context, mainThreadGroup);
         // propagate <system-thread-group> to param0
-        pta.addVarPointsTo(context, threadGroupInitIR.getParam(0),
+        solver.addVarPointsTo(context, threadGroupInitIR.getParam(0),
                 context, systemThreadGroup);
         // propagate "main" to param1
-        Obj main = pta.getHeapModel()
+        Obj main = solver.getHeapModel()
                 .getConstantObj(StringLiteral.get("main"));
-        pta.addVarPointsTo(context, threadGroupInitIR.getParam(1), context, main);
+        solver.addVarPointsTo(context, threadGroupInitIR.getParam(1), context, main);
 
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
@@ -121,17 +121,17 @@ public class ThreadHandler implements Plugin {
                 "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
         initThis = threadInitIR.getThis();
-        pta.addVarPointsTo(context, initThis, context, mainThread);
+        solver.addVarPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
-        pta.addVarPointsTo(context, threadInitIR.getParam(0),
+        solver.addVarPointsTo(context, threadInitIR.getParam(0),
                 context, mainThreadGroup);
         // propagate "main" to param1
-        pta.addVarPointsTo(context, threadInitIR.getParam(1), context, main);
+        solver.addVarPointsTo(context, threadInitIR.getParam(1), context, main);
 
         // The main thread is never explicitly started, which would make it a
         // RunningThread. Therefore, we make it a running thread explicitly.
         runningThreads.addObject(
-                pta.getCSManager().getCSObj(context, mainThread));
+                solver.getCSManager().getCSObj(context, mainThread));
     }
 
     @Override
@@ -149,7 +149,7 @@ public class ThreadHandler implements Plugin {
             synchronized (this) {
                 if (runningThreads.addAll(pts)) {
                     currentThreadContexts.forEach(context ->
-                            pta.addVarPointsTo(context, currentThreadReturn, pts));
+                            solver.addVarPointsTo(context, currentThreadReturn, pts));
                 }
             }
         }
@@ -166,7 +166,7 @@ public class ThreadHandler implements Plugin {
             synchronized (this) {
                 Context context = csMethod.getContext();
                 currentThreadContexts.add(context);
-                pta.addVarPointsTo(context, currentThreadReturn, runningThreads);
+                solver.addVarPointsTo(context, currentThreadReturn, runningThreads);
             }
         }
     }

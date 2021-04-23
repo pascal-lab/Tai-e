@@ -31,43 +31,43 @@ import pascal.taie.util.AnalysisException;
 
 public class PointerAnalysisBuilder {
 
-    public PointerAnalysis build(Options options) {
+    public Solver build(Options options) {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
-        PointerAnalysisImpl pta = new PointerAnalysisImpl();
-        setContextSensitivity(pta, options);
-        setPlugin(pta);
-        pta.setHeapModel(new AllocationSiteBasedModel(
+        SolverImpl solver = new SolverImpl();
+        setContextSensitivity(solver, options);
+        setPlugin(solver);
+        solver.setHeapModel(new AllocationSiteBasedModel(
                 World.getTypeManager()));
-        pta.setCSManager(new MapBasedCSManager());
-        return pta;
+        solver.setCSManager(new MapBasedCSManager());
+        return solver;
     }
 
-    private void setContextSensitivity(PointerAnalysisImpl pta, Options options) {
+    private void setContextSensitivity(SolverImpl solver, Options options) {
         switch (options.getContextSensitivity()) {
             case "ci":
-                pta.setContextSelector(new ContextInsensitiveSelector());
+                solver.setContextSelector(new ContextInsensitiveSelector());
                 break;
             case "1-call":
             case "1-cfa":
-                pta.setContextSelector(new KCallSelector(1));
+                solver.setContextSelector(new KCallSelector(1));
                 break;
             case "1-obj":
             case "1-object":
-                pta.setContextSelector(new KObjSelector(1));
+                solver.setContextSelector(new KObjSelector(1));
                 break;
             case "1-type":
-                pta.setContextSelector(new KTypeSelector(1));
+                solver.setContextSelector(new KTypeSelector(1));
                 break;
             case "2-call":
             case "2-cfa":
-                pta.setContextSelector(new KCallSelector(2));
+                solver.setContextSelector(new KCallSelector(2));
                 break;
             case "2-obj":
             case "2-object":
-                pta.setContextSelector(new KObjSelector(2));
+                solver.setContextSelector(new KObjSelector(2));
                 break;
             case "2-type":
-                pta.setContextSelector(new KTypeSelector(2));
+                solver.setContextSelector(new KTypeSelector(2));
                 break;
             default:
                 throw new AnalysisException(
@@ -76,7 +76,7 @@ public class PointerAnalysisBuilder {
         }
     }
 
-    private void setPlugin(PointerAnalysisImpl pta) {
+    private void setPlugin(SolverImpl solver) {
         CompositePlugin plugin = new CompositePlugin();
         // To record elapsed time precisely, AnalysisTimer should be
         // added at first.
@@ -87,7 +87,7 @@ public class PointerAnalysisBuilder {
                 new ReferenceHandler(),
                 ResultPrinter.get()
         );
-        plugin.setPointerAnalysis(pta);
-        pta.setPlugin(plugin);
+        plugin.setSolver(solver);
+        solver.setPlugin(plugin);
     }
 }

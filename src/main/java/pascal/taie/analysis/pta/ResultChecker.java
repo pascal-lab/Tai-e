@@ -17,7 +17,7 @@ import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
@@ -109,7 +109,7 @@ public class ResultChecker {
         return mismatches;
     }
 
-    public void compare(PointerAnalysis pta) {
+    public void compare(Solver solver) {
         if (!Files.exists(filePath) || GENERATE_EXPECTED_RESULTS) {
             try {
                 System.out.println("Generating expected results: " + filePath);
@@ -123,16 +123,16 @@ public class ResultChecker {
         } else {
             readExpectedResult(filePath);
             Set<String> givenPointers = new TreeSet<>();
-            pta.vars()
+            solver.vars()
                     .sorted(Comparator.comparing(CSVar::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
-            pta.instanceFields()
+            solver.instanceFields()
                     .sorted(Comparator.comparing(f -> f.getBase().toString()))
                     .forEach(f -> comparePointer(f, givenPointers));
-            pta.arrayIndexes()
+            solver.arrayIndexes()
                     .sorted(Comparator.comparing(ArrayIndex::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
-            pta.staticFields()
+            solver.staticFields()
                     .sorted(Comparator.comparing(StaticField::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
             expectedResults.forEach((p, pts) -> {
