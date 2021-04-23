@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Make analysis plan based on given plan configs and analysis configs.
  */
-class AnalysisPlanner {
+public class AnalysisPlanner {
 
     private final ConfigManager manager;
 
@@ -41,7 +41,7 @@ class AnalysisPlanner {
      * @return the analysis plan consists of a list of analysis config.
      * @throws ConfigException if the given planConfigs is invalid.
      */
-    List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs) {
+    public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs) {
         List<AnalysisConfig> plan = planConfigs.stream()
                 .map(pc -> manager.getConfig(pc.getId()))
                 .collect(Collectors.toUnmodifiableList());
@@ -81,7 +81,7 @@ class AnalysisPlanner {
      * @return the analysis plan consists of a list of analysis config.
      * @throws ConfigException if the specified planConfigs is invalid.
      */
-    List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs) {
+    public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs) {
         Graph<AnalysisConfig> graph = buildRequireGraph(planConfigs);
         validateRequireGraph(graph);
         return new TopoSorter<>(graph, true).get();

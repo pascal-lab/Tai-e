@@ -26,7 +26,7 @@ public class ConfigManager {
 
     private final Map<AnalysisConfig, List<AnalysisConfig>> requires = newMap();
 
-    ConfigManager(List<AnalysisConfig> configs) {
+    public ConfigManager(List<AnalysisConfig> configs) {
         configs.forEach(this::addConfig);
     }
 
@@ -51,7 +51,7 @@ public class ConfigManager {
     /**
      * Overwrite the AnalysisConfig.options by corresponding PlanConfig.options.
      */
-    void overwriteOptions(List<PlanConfig> planConfigs) {
+    public void overwriteOptions(List<PlanConfig> planConfigs) {
         planConfigs.forEach(pc -> {
             AnalysisConfig ac = getConfig(pc.getId());
             if (ac == null) {
@@ -76,10 +76,10 @@ public class ConfigManager {
                 c.getRequires()
                         .stream()
                         .filter(required -> {
-                            String conditions = Utils.extractConditions(required);
-                            return Utils.satisfyConditions(conditions, c.getOptions());
+                            String conditions = ConfigUtils.extractConditions(required);
+                            return ConfigUtils.satisfyConditions(conditions, c.getOptions());
                         })
-                        .map(required -> getConfig(Utils.extractId(required)))
+                        .map(required -> getConfig(ConfigUtils.extractId(required)))
                         .collect(Collectors.toUnmodifiableList()));
     }
 }

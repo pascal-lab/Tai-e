@@ -21,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File configFile = new File(classLoader.getResource("tai-e-analyses.yml").getFile());
+        File configFile = ConfigUtils.getDefaultAnalysisConfig();
         List<AnalysisConfig> analysisConfigs = AnalysisConfig.readFromFile(configFile);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         manager.configs().forEach(c -> System.out.println(c.toDetailedString()));

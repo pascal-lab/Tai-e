@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.Options2;
 
 import java.io.File;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 public class PlanConfig {
+
+    private static final Logger logger = LogManager.getLogger(PlanConfig.class);
 
     @JsonProperty
     private String id;
@@ -111,6 +115,7 @@ public class PlanConfig {
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         try {
+            logger.info("Writing analysis plan to " + output);
             mapper.writeValue(output, planConfigs);
         } catch (IOException e) {
             throw new ConfigException("Failed to write plan file " + output, e);

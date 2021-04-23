@@ -12,11 +12,25 @@
 
 package pascal.taie.config;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 
-class Utils {
+public class ConfigUtils {
 
-    private Utils() {
+    private ConfigUtils() {
+    }
+
+    /**
+     * Return default analysis configuration file.
+     * TODO: move to World?
+     */
+    public static File getDefaultAnalysisConfig() {
+        URL url = Objects.requireNonNull(ConfigUtils.class
+                .getClassLoader()
+                .getResource("tai-e-analyses.yml"));
+        return new File(url.getFile());
     }
 
     static String extractId(String require) {

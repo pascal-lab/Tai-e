@@ -4,7 +4,6 @@
   options:
     cs: ci
     implicit-entries: true # analyze implicit entries
-    native-model: true # enable native model, move to global section?
     merge-string-constants: false
     merge-string-objects: true
     merge-string-builders: true
