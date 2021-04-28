@@ -47,7 +47,8 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         solver.setHeapModel(new AllocationSiteBasedModel(getOptions()));
         solver.setCSManager(new MapBasedCSManager());
         solver.solve();
-        // TODO:
+        // TODO: add a class to represent pointer analysis results, including
+        //  points-to set, call graph, exception, etc., without contexts
         return solver;
     }
 
