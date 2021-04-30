@@ -14,6 +14,7 @@ package pascal.taie;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
 
 import java.util.List;

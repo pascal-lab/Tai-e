@@ -10,14 +10,22 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie;
+package pascal.taie.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.WorldBuilder;
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,27 +34,30 @@ import java.util.Map;
         version = "0.1")
 public class Options {
 
+    private static final Logger logger = LogManager.getLogger(Options.class);
+
     // ---------- information options ----------
     @Option(names = {"-v", "--version"},
             description = "Display version information",
             defaultValue = "false", versionHelp = true)
-    private boolean version;
+    private boolean printVersion = false;
 
     public boolean isPrintVersion() {
-        return version;
+        return printVersion;
     }
 
     public void printVersion() {
         new CommandLine(this).printVersionHelp(System.out);
     }
 
+    @JsonProperty
     @Option(names = {"-h", "--help"},
             description = "Display this help message",
             defaultValue = "false", usageHelp = true)
-    private boolean help;
+    private boolean printHelp = false;
 
     public boolean isPrintHelp() {
-        return help;
+        return printHelp;
     }
 
     public void printHelp() {
@@ -54,26 +65,29 @@ public class Options {
     }
 
     // ---------- program options ----------
+    @JsonProperty
     @Option(names = "-java",
             description = "Java version used by the program being analyzed" +
                     " (default: ${DEFAULT-VALUE})",
             defaultValue = "6")
-    private int javaVersion;
+    private int javaVersion = 6;
 
     public int getJavaVersion() {
         return javaVersion;
     }
 
+    @JsonProperty
     @Option(names = {"-pp", "--prepend-JVM"},
             description = "Prepend class path of current JVM to Tai-e's class path" +
                     " (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
-    private boolean prependJVM;
+    private boolean prependJVM = false;
 
     public boolean isPrependJVM() {
         return prependJVM;
     }
 
+    @JsonProperty
     @Option(names = {"-cp", "--class-path"},
             description = "Class path")
     private String classPath;
@@ -82,6 +96,7 @@ public class Options {
         return classPath;
     }
 
+    @JsonProperty
     @Option(names = {"-m", "--main-class"},
             description = "Main class")
     private String mainClass;
@@ -91,65 +106,67 @@ public class Options {
     }
 
     // ---------- general analysis options ----------
+    @JsonProperty
     @Option(names = "--world-builder",
             description = "Specify world builder class (default: ${DEFAULT-VALUE})",
             defaultValue = "pascal.taie.frontend.soot.SootWorldBuilder")
-    private Class<? extends WorldBuilder> worldBuilderClass;
+    private Class<? extends WorldBuilder> worldBuilderClass = SootWorldBuilder.class;
 
     public Class<? extends WorldBuilder> getWorldBuilderClass() {
         return worldBuilderClass;
     }
 
+    @JsonProperty
     @Option(names = "--pre-build-ir",
             description = "Build Tai-e IR for all available methods before" +
                     " starting pointer analysis (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
-    private boolean preBuildIR;
+    private boolean preBuildIR = false;
 
     public boolean isPreBuildIR() {
         return preBuildIR;
     }
 
+    @JsonProperty
     @Option(names = "--no-native-model",
             description = "Enable native model (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
-    private boolean nativeModel;
+    private boolean nativeModel = true;
 
     public boolean enableNativeModel() {
         return nativeModel;
     }
 
+    @JsonProperty
     @Option(names = "--dump-classes",
             description = "Dump classes", defaultValue = "false")
-    private boolean dumpClasses;
+    private boolean dumpClasses = false;
 
     public boolean isDumpClasses() {
         return dumpClasses;
     }
 
     // ---------- specific analysis options ----------
-    @ArgGroup
-    private Analyses analyses;
-
-    private static class Analyses {
-        @Option(names = {"-p", "--plan-file"},
-                description = "The analysis plan file")
-        private File planFile;
-
-        @Option(names = {"-a", "--analysis"},
-                description = "Analyses to be performed", split = ";",
-                mapFallbackValue = "")
-        private Map<String, String> analyses = Collections.emptyMap();
-    }
+    @JsonProperty
+    @Option(names = {"-p", "--plan-file"},
+            description = "The analysis plan file")
+    private File planFile;
 
     public File getPlanFile() {
-        return analyses.planFile;
+        return planFile;
     }
+
+    @JsonProperty
+    @Option(names = {"-a", "--analysis"},
+            description = "Analyses to be performed", split = ";",
+            mapFallbackValue = "")
+    private Map<String, String> analyses = Collections.emptyMap();
 
     public Map<String, String> getAnalyses() {
-        return analyses.analyses;
+        return analyses;
     }
 
+    @JsonProperty
     @Option(names = {"-g", "--gen-plan-file"},
             description = "The file of generated analysis plan")
     private File genPlanFile;
@@ -168,15 +185,13 @@ public class Options {
     }
 
     /**
-     * Parse arguments and return new Options object.
+     * @return the Options object itself after post-process.
      */
-    public static Options parse(String... args) {
-        Options options = CommandLine.populateCommand(new Options(), args);
-        // post-process options
-        if (options.isPrependJVM()) {
-            options.javaVersion = getCurrentJavaVersion();
+    private Options postProcess() {
+        if (isPrependJVM()) {
+            javaVersion = getCurrentJavaVersion();
         }
-        return options;
+        return this;
     }
 
     static int getCurrentJavaVersion() {
@@ -188,5 +203,56 @@ public class Options {
         } else { // format x.y.z (for Java 9+)
             return i0;
         }
+    }
+
+    /**
+     * Parse arguments and return new Options object.
+     */
+    public static Options parse(String... args) {
+        Options options = CommandLine.populateCommand(new Options(), args);
+        return options.postProcess();
+    }
+
+    public static Options readFromFile(File file) {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try {
+            Options options = mapper.readValue(file, Options.class);
+            return options.postProcess();
+        } catch (IOException e) {
+            throw new ConfigException("Failed to read options from " + file, e);
+        }
+    }
+
+    public static void writeToFile(Options options, File output) {
+        ObjectMapper mapper = new ObjectMapper(
+                new YAMLFactory()
+                        .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                        .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
+        try {
+            logger.info("Writing options to " + output);
+            mapper.writeValue(output, options);
+        } catch (IOException e) {
+            throw new ConfigException("Failed to write options " + output, e);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Options{" +
+                "version=" + printVersion +
+                ", help=" + printHelp +
+                ", javaVersion=" + javaVersion +
+                ", prependJVM=" + prependJVM +
+                ", classPath='" + classPath + '\'' +
+                ", mainClass='" + mainClass + '\'' +
+                ", worldBuilderClass=" + worldBuilderClass +
+                ", preBuildIR=" + preBuildIR +
+                ", nativeModel=" + nativeModel +
+                ", dumpClasses=" + dumpClasses +
+                ", planFile='" + planFile + '\'' +
+                ", analyses=" + analyses +
+                ", genPlanFile=" + genPlanFile +
+                ", testMode=" + testMode +
+                '}';
     }
 }

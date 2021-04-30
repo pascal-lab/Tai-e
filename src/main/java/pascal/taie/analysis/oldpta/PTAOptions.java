@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.oldpta;
 
-import pascal.taie.Options;
+import pascal.taie.config.Options;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

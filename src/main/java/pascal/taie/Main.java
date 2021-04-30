@@ -20,6 +20,7 @@ import pascal.taie.config.AnalysisManager;
 import pascal.taie.config.AnalysisPlanner;
 import pascal.taie.config.ConfigManager;
 import pascal.taie.config.ConfigUtils;
+import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
 
 import java.io.File;

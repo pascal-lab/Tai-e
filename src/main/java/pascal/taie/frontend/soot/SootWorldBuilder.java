@@ -13,7 +13,7 @@
 package pascal.taie.frontend.soot;
 
 import pascal.taie.AbstractWorldBuilder;
-import pascal.taie.Options;
+import pascal.taie.config.Options;
 import pascal.taie.World;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.language.classes.ClassHierarchy;

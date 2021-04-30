@@ -15,6 +15,7 @@ package pascal.taie;
 import pascal.taie.analysis.AbstractHolder;
 import pascal.taie.analysis.AnalysisResultHolder;
 import pascal.taie.analysis.oldpta.env.Environment;
+import pascal.taie.config.Options;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;

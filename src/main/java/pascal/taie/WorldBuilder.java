@@ -12,6 +12,8 @@
 
 package pascal.taie;
 
+import pascal.taie.config.Options;
+
 /**
  * Interface for {@link World} builder.
  */
