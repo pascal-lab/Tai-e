@@ -71,21 +71,22 @@ public class Main {
             List<PlanConfig> planConfigs = PlanConfig.readFromOptions(options);
             manager.overwriteOptions(planConfigs);
             List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
-            if (options.getGenPlanFile() != null) {
-                // This run only generates plan file but not executes it
-                // For outputting purpose, we first convert AnalysisConfigs
-                // in the expanded plan to PlanConfigs
-                List<PlanConfig> configs = plan.stream()
-                        .map(ac -> {
-                            PlanConfig pc = new PlanConfig();
-                            pc.setId(ac.getId());
-                            pc.setOptions(ac.getOptions());
-                            return pc;
-                        })
-                        .collect(Collectors.toUnmodifiableList());
-                PlanConfig.writeToFile(configs, options.getGenPlanFile());
-            } else {
-                return plan;
+            // Output analysis plan to file.
+            // For outputting purpose, we first convert AnalysisConfigs
+            // in the expanded plan to PlanConfigs
+            List<PlanConfig> configs = plan.stream()
+                    .map(ac -> {
+                        PlanConfig pc = new PlanConfig();
+                        pc.setId(ac.getId());
+                        pc.setOptions(ac.getOptions());
+                        return pc;
+                    })
+                    .collect(Collectors.toUnmodifiableList());
+            // TODO: turn off output in test mode?
+            PlanConfig.writeToFile(configs, ConfigUtils.getDefaultPlan());
+            if (!options.isOnlyGenPlan()) {
+                // This run not only generates plan file but also executes it
+               return plan;
             }
         } else if (options.getPlanFile() != null) {
             // Analyses are specified by file

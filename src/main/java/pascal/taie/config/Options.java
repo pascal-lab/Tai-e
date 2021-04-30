@@ -36,6 +36,15 @@ public class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
 
+    // ---------- file-based options ----------
+    @Option(names = "--options-file",
+            description = "The options file.")
+    private File optionsFile;
+
+    public File getOptionsFile() {
+        return optionsFile;
+    }
+
     // ---------- information options ----------
     @Option(names = {"-v", "--version"},
             description = "Display version information",
@@ -168,11 +177,12 @@ public class Options {
 
     @JsonProperty
     @Option(names = {"-g", "--gen-plan-file"},
-            description = "The file of generated analysis plan")
-    private File genPlanFile;
+            description = "Merely generate analysis plan",
+            defaultValue = "false")
+    private boolean onlyGenPlan = false;
 
-    public File getGenPlanFile() {
-        return genPlanFile;
+    public boolean isOnlyGenPlan() {
+        return onlyGenPlan;
     }
 
     // ---------- debugging options ----------
@@ -185,13 +195,26 @@ public class Options {
     }
 
     /**
+     * Validate input options and do some post-process on it.
      * @return the Options object itself after post-process.
      */
     private Options postProcess() {
+        Options result = optionsFile == null ? this :
+                // If options file is given, we ignore other options,
+                // and instead read options from the file.
+                readRawOptions(optionsFile);
         if (isPrependJVM()) {
             javaVersion = getCurrentJavaVersion();
         }
-        return this;
+        if (!analyses.isEmpty() && planFile != null) {
+            // The user should choose either options or plan file to
+            // specify analyses to be executed.
+            throw new ConfigException("Ambiguous configuration: " +
+                    "--analysis and --plan-file should not be used simultaneously");
+        }
+        // TODO: turn off output in test mode?
+        writeToFile(result, ConfigUtils.getDefaultOptions());
+        return result;
     }
 
     static int getCurrentJavaVersion() {
@@ -213,17 +236,24 @@ public class Options {
         return options.postProcess();
     }
 
-    public static Options readFromFile(File file) {
+    static Options readFromFile(File file) {
+        return readRawOptions(file).postProcess();
+    }
+
+    /**
+     * Read options from file.
+     * The returned options have not been post-processed.
+     */
+    private static Options readRawOptions(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
-            Options options = mapper.readValue(file, Options.class);
-            return options.postProcess();
+            return mapper.readValue(file, Options.class);
         } catch (IOException e) {
             throw new ConfigException("Failed to read options from " + file, e);
         }
     }
 
-    public static void writeToFile(Options options, File output) {
+    static void writeToFile(Options options, File output) {
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
@@ -251,7 +281,7 @@ public class Options {
                 ", dumpClasses=" + dumpClasses +
                 ", planFile='" + planFile + '\'' +
                 ", analyses=" + analyses +
-                ", genPlanFile=" + genPlanFile +
+                ", genPlanFile=" + onlyGenPlan +
                 ", testMode=" + testMode +
                 '}';
     }

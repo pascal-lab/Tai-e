@@ -22,6 +22,11 @@ public class ConfigUtils {
     private ConfigUtils() {
     }
 
+
+    static File getDefaultOptions() {
+        return new File("output/options.yml");
+    }
+
     /**
      * Return default analysis configuration file.
      * TODO: move to World?
@@ -31,6 +36,10 @@ public class ConfigUtils {
                 .getClassLoader()
                 .getResource("tai-e-analyses.yml"));
         return new File(url.getFile());
+    }
+
+    public static File getDefaultPlan() {
+        return new File("output/tai-e-plan.yml");
     }
 
     static String extractId(String require) {

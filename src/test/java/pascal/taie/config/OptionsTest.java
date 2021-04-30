@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie;
+package pascal.taie.config;
 
 import org.junit.Assert;
 import org.junit.Test;
