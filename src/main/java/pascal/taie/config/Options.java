@@ -202,7 +202,7 @@ public class Options {
         Options result = optionsFile == null ? this :
                 // If options file is given, we ignore other options,
                 // and instead read options from the file.
-                readRawOptions(optionsFile);
+                readOptions(optionsFile);
         if (isPrependJVM()) {
             javaVersion = getCurrentJavaVersion();
         }
@@ -213,7 +213,7 @@ public class Options {
                     "--analysis and --plan-file should not be used simultaneously");
         }
         // TODO: turn off output in test mode?
-        writeToFile(result, ConfigUtils.getDefaultOptions());
+        writeOptions(result, ConfigUtils.getDefaultOptions());
         return result;
     }
 
@@ -236,15 +236,11 @@ public class Options {
         return options.postProcess();
     }
 
-    static Options readFromFile(File file) {
-        return readRawOptions(file).postProcess();
-    }
-
     /**
      * Read options from file.
      * The returned options have not been post-processed.
      */
-    private static Options readRawOptions(File file) {
+    private static Options readOptions(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
             return mapper.readValue(file, Options.class);
@@ -253,7 +249,7 @@ public class Options {
         }
     }
 
-    static void writeToFile(Options options, File output) {
+    private static void writeOptions(Options options, File output) {
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)

@@ -63,12 +63,12 @@ public class Main {
 
     private static List<AnalysisConfig> processConfigs(Options options) {
         File configFile = ConfigUtils.getDefaultAnalysisConfig();
-        List<AnalysisConfig> analysisConfigs = AnalysisConfig.readFromFile(configFile);
+        List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);
         if (!options.getAnalyses().isEmpty()) {
             // Analyses are specified by cmd options
-            List<PlanConfig> planConfigs = PlanConfig.readFromOptions(options);
+            List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
             manager.overwriteOptions(planConfigs);
             List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
             // Output analysis plan to file.
@@ -83,14 +83,14 @@ public class Main {
                     })
                     .collect(Collectors.toUnmodifiableList());
             // TODO: turn off output in test mode?
-            PlanConfig.writeToFile(configs, ConfigUtils.getDefaultPlan());
+            PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it
                return plan;
             }
         } else if (options.getPlanFile() != null) {
             // Analyses are specified by file
-            List<PlanConfig> planConfigs = PlanConfig.readFromFile(options.getPlanFile());
+            List<PlanConfig> planConfigs = PlanConfig.readConfigs(options.getPlanFile());
             manager.overwriteOptions(planConfigs);
             return planner.makePlan(planConfigs);
         }

@@ -96,7 +96,7 @@ public class AnalysisConfig {
     /**
      * Read a list of AnalysisConfig from given file.
      */
-    public static List<AnalysisConfig> readFromFile(File file) {
+    public static List<AnalysisConfig> readConfigs(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, AnalysisConfig.class);

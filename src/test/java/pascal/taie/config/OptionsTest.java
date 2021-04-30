@@ -14,8 +14,6 @@ package pascal.taie.config;
 
 import org.junit.Assert;
 import org.junit.Test;
-import pascal.taie.config.Options;
-import pascal.taie.config.PlanConfig;
 
 import java.util.List;
 
@@ -62,7 +60,7 @@ public class OptionsTest {
                 "-a", "cfg=exception:true,scope:inter",
                 "-a", "pta=timeout:1800,merge-string-objects:false,cs:2-obj",
                 "-a", "throw");
-        List<PlanConfig> configs = PlanConfig.readFromOptions(options);
+        List<PlanConfig> configs = PlanConfig.readConfigs(options);
         PlanConfig cfg = configs.get(0);
         Assert.assertTrue((Boolean) cfg.getOptions().get("exception"));
         Assert.assertEquals("inter", cfg.getOptions().get("scope"));

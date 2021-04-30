@@ -66,7 +66,7 @@ public class PlanConfig {
     /**
      * Read a list of PlanConfig from given file.
      */
-    public static List<PlanConfig> readFromFile(File file) {
+    public static List<PlanConfig> readConfigs(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, PlanConfig.class);
@@ -78,9 +78,9 @@ public class PlanConfig {
     }
 
     /**
-     * Read a list of PlanConfig from command-line options.
+     * Read a list of PlanConfig from options.
      */
-    public static List<PlanConfig> readFromOptions(Options options) {
+    public static List<PlanConfig> readConfigs(Options options) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType mapType = mapper.getTypeFactory()
                 .constructMapType(Map.class, String.class, Object.class);
@@ -108,7 +108,10 @@ public class PlanConfig {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public static void writeToFile(List<PlanConfig> planConfigs, File output) {
+    /**
+     * Write a list of PlanConfigs to given file.
+     */
+    public static void writeConfigs(List<PlanConfig> planConfigs, File output) {
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
