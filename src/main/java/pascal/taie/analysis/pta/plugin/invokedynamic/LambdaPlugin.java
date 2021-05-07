@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.plugin.invokedynamic;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -92,5 +93,10 @@ public class LambdaPlugin implements Plugin {
                 pta.addVarPointsTo(context, ret, heapContext, lambdaObj);
             });
         }
+    }
+
+    @Override
+    public void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+        // TODO: model invocation
     }
 }

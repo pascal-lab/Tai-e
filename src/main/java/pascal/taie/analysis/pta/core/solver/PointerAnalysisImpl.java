@@ -467,6 +467,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                     CSVar thisVar = csManager.getCSVar(
                             calleeContext, callee.getIR().getThis());
                     addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
+                } else {
+                    plugin.handleUnresolvedCall(recvObj, context, invoke);
                 }
             }
         }

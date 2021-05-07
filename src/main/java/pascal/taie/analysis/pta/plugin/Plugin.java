@@ -13,11 +13,14 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
 /**
@@ -94,5 +97,16 @@ public interface Plugin {
      * @param csMethod new reachable context-sensitive method
      */
     default void handleNewCSMethod(CSMethod csMethod) {
+    }
+
+    /**
+     * Invoked when pointer analysis failed to resolve callee (i.e., resolve
+     * to null) on a receiver object. Some plugins take over such cases to
+     * do their analysis.
+     * @param recv the receiver object
+     * @param context the context of the invocation
+     * @param invoke the invocation site
+     */
+    default void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
     }
 }

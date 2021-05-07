@@ -13,11 +13,14 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.ArrayList;
@@ -79,5 +82,10 @@ public class CompositePlugin implements Plugin {
     @Override
     public void handleNewCSMethod(CSMethod csMethod) {
         plugins.forEach(p -> p.handleNewCSMethod(csMethod));
+    }
+
+    @Override
+    public void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+        plugins.forEach(p -> p.handleUnresolvedCall(recv, context, invoke));
     }
 }
