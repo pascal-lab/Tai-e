@@ -12,6 +12,8 @@
 
 package pascal.taie.language.classes;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.ArrayType;
@@ -31,6 +33,8 @@ import static pascal.taie.util.collection.CollectionUtils.newMap;
 import static pascal.taie.util.collection.CollectionUtils.newSmallMap;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
+
+    private static final Logger logger = LogManager.getLogger(ClassHierarchyImpl.class);
 
     private JClassLoader defaultLoader;
 
@@ -248,8 +252,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             if (target != null) {
                 dispatchTable.get(receiverClass).put(subsignature, target);
             } else {
-                throw new AnalysisException("Fail to dispatch \"" +
-                        subsignature + "\" on " + receiverClass);
+                logger.warn("Failed to dispatch {} on {}",
+                        subsignature, receiverClass);
+//                throw new AnalysisException("Fail to dispatch \"" +
+//                        subsignature + "\" on " + receiverClass);
             }
         }
         return target;

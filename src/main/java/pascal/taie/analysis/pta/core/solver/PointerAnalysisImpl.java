@@ -454,18 +454,20 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                 // resolve callee
                 JMethod callee = resolveCallee(
                         recvObj.getObject().getType(), callSite);
-                // select context
-                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
-                Context calleeContext = contextSelector.selectContext(
-                        csCallSite, recvObj, callee);
-                // build call edge
-                CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                workList.addCallEdge(new Edge<>(
-                        getCallKind(callSite), csCallSite, csCallee));
-                // pass receiver object to *this* variable
-                CSVar thisVar = csManager.getCSVar(
-                        calleeContext, callee.getIR().getThis());
-                addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
+                if (callee != null) {
+                    // select context
+                    CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+                    Context calleeContext = contextSelector.selectContext(
+                            csCallSite, recvObj, callee);
+                    // build call edge
+                    CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
+                    workList.addCallEdge(new Edge<>(
+                            getCallKind(callSite), csCallSite, csCallee));
+                    // pass receiver object to *this* variable
+                    CSVar thisVar = csManager.getCSVar(
+                            calleeContext, callee.getIR().getThis());
+                    addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
+                }
             }
         }
     }
