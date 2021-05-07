@@ -28,6 +28,7 @@ import soot.SceneTransformer;
 import soot.Transform;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static soot.SootClass.HIERARCHY;
@@ -89,12 +90,15 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         G.reset();
         Scene scene = G.v().soot_Scene();
         // The following line is necessary to avoid a runtime exception
-        // when running soot with java 1.8
+        // when running soot with Java 1.8
         scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);
         scene.addBasicClass("java.lang.annotation.Inherited", HIERARCHY);
         scene.addBasicClass("javax.crypto.spec.IvParameterSpec", HIERARCHY);
         scene.addBasicClass("javax.sound.sampled.Port", HIERARCHY);
         scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
+
+        // Necessary for Java 11
+        scene.addBasicClass("java.lang.invoke.VarHandleGuards", HIERARCHY);
 
         // TODO: avoid adding non-exist basic classes. This requires to
         //  check class path before adding these classes.
@@ -143,6 +147,9 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // set implicit entries
         world.setImplicitEntries(implicitEntries.stream()
                 .map(hierarchy::getJREMethod)
+                // some implicit entries may not exist in certain JDK version,
+                // thus we filter out null
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeManager, hierarchy));
