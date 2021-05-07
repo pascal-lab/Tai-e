@@ -34,5 +34,5 @@ public interface HeapModel {
      * @return the mock object (e.g., taint value) which represents
      * given argument.
      */
-    <T> Obj getMockObj(T value);
+    Obj getMockObj(Obj obj);
 }
