@@ -10,8 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta.core.heap;
+package pascal.taie.analysis.pta.plugin.invokedynamic;
 
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;

@@ -130,7 +130,7 @@ public class CollectionUtils {
         }
     }
 
-    public static boolean isEmptyList(Collection<?> collection) {
+    public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
 }

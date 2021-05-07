@@ -1,13 +1,31 @@
-package pascal.taie.analysis.pta.plugin;
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2020-- Yue Li <yueli@nju.edu.cn>
+ * All rights reserved.
+ *
+ * Tai-e is only for educational and academic purposes,
+ * and any form of commercial use is disallowed.
+ * Distribution of Tai-e is disallowed without the approval.
+ */
+
+package pascal.taie.analysis.pta.plugin.invokedynamic;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.*;
+import pascal.taie.ir.exp.InvokeDynamic;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.MethodHandle;
+import pascal.taie.ir.exp.MethodType;
+import pascal.taie.ir.exp.NewInstance;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
@@ -50,15 +68,10 @@ public class LambdasPlugin implements Plugin {
         this.pta = pta;
         hierarchy = pta.getHierarchy();
         heapModel = pta.getHeapModel();
-        System.out.println("hello setPointerAnalysis");
     }
 
     @Override
     public void handleNewMethod(JMethod method) {
-        System.out.println("hello handleNewMethod");
-        System.out.println("new method:  " + method.getRef().toString());
-        System.out.println("methodCallsiteStmts: " + method.getIR().getStmts().toString());
-
         extractInvokeDynamics(method.getIR()).forEach(invoke -> {
             lambdasInfo = new LambdasInfo();
             lambdasInfo.setIndyObject(invoke.getResult());
@@ -107,11 +120,11 @@ public class LambdasPlugin implements Plugin {
 
     @Override
     public void handleNewCSMethod(CSMethod csMethod) {
-        System.out.println("hello handleNewCSMethod");
-        System.out.println("context: " + csMethod.getContext().toString());
+//        System.out.println("hello handleNewCSMethod");
+//        System.out.println("context: " + csMethod.getContext().toString());
         Context context = csMethod.getContext();
         JMethod method = csMethod.getMethod();
-        if (!CollectionUtils.isEmptyList(lambdasInfos)){
+        if (!CollectionUtils.isEmpty(lambdasInfos)){
             lambdasInfos.stream()
                     .filter(l -> l.getIndyObject() != null)
                     .filter(l -> method.equals(l.getIndyObject().getMethod()))
@@ -121,7 +134,7 @@ public class LambdasPlugin implements Plugin {
                     .filter(l -> method.equals(l.getImplMethodThis().getMethod()))
                     .forEach(l -> l.setImplMethodContext(context));
         }
-        if (!CollectionUtils.isEmptyList(lambdasInvokes)) {
+        if (!CollectionUtils.isEmpty(lambdasInvokes)) {
             lambdasInvokes.stream()
                     .filter(i -> i.getResult() != null)
                     .filter(i -> method.equals(i.getResult().getMethod()))
@@ -193,16 +206,16 @@ public class LambdasPlugin implements Plugin {
 
     @Override
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        System.out.println("hello handleNewPointsToSet");
-        System.out.println("csVar" + csVar.toString());
-        System.out.println("pts: " + pts.toString());
+//        System.out.println("hello handleNewPointsToSet");
+//        System.out.println("csVar" + csVar.toString());
+//        System.out.println("pts: " + pts.toString());
         Var var = csVar.getVar();
 
 //        NewInstance constructedInstance = new NewInstance(implClass.getType());
 //        lambdasInfo.setConstructedObj(heapModel.getObj(constructedInstance));
          // TODO constructor
         int varInReturn = varInImplReturnValues(var);
-        System.out.println("varinreturn: " + varInReturn);
+//        System.out.println("varinreturn: " + varInReturn);
         if (varInReturn!=-1){
             lambdasInvokes.stream()
                     .filter(i -> i.getLambdasIndex() == varInReturn)

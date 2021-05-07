@@ -18,7 +18,7 @@ import pascal.taie.util.HashUtils;
 
 import java.util.Optional;
 
-abstract class MockObj implements Obj {
+public abstract class MockObj implements Obj {
 
     private final Type type;
 
