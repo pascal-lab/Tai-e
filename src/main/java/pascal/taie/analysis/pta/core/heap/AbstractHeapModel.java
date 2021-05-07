@@ -19,6 +19,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.language.classes.StringReps.STRING_BUFFER;
@@ -54,6 +55,8 @@ abstract class AbstractHeapModel implements HeapModel {
     private final MergedObj mergedSC;
 
     private final Map<Type, MergedObj> mergedObjs = newMap();
+
+    private final Map<Obj, Obj> mockObjs = newMap();
 
     protected AbstractHeapModel(TypeManager typeManager) {
         this.typeManager = typeManager;
@@ -95,12 +98,12 @@ abstract class AbstractHeapModel implements HeapModel {
 
     protected Obj doGetConstantObj(ReferenceLiteral value) {
         return constantObjs.computeIfAbsent(value.getType(), t -> newMap())
-                .computeIfAbsent(value, v -> new ConstantObj(v));
+                .computeIfAbsent(value, ConstantObj::new);
     }
 
     @Override
-    public <T> Obj getMockObj(T value) {
-        throw new UnsupportedOperationException();
+    public Obj getMockObj(Obj obj) {
+        return mockObjs.computeIfAbsent(obj, Function.identity());
     }
 
     /**
