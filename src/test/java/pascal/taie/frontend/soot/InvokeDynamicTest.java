@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 public class InvokeDynamicTest {
 
-    private static final boolean isPrintIR = false;
+    private static final boolean isPrintIR = true;
 
     @Test
     public void testFunction() {

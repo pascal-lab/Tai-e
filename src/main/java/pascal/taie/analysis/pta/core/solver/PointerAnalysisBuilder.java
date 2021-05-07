@@ -20,11 +20,7 @@ import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KObjSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
-import pascal.taie.analysis.pta.plugin.AnalysisTimer;
-import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.ReferenceHandler;
-import pascal.taie.analysis.pta.plugin.ResultPrinter;
-import pascal.taie.analysis.pta.plugin.ThreadHandler;
+import pascal.taie.analysis.pta.plugin.*;
 import pascal.taie.analysis.pta.pts.HybridPointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.util.AnalysisException;
@@ -85,6 +81,7 @@ public class PointerAnalysisBuilder {
                 new AnalysisTimer(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
+                new LambdasPlugin(),
                 ResultPrinter.get()
         );
         plugin.setPointerAnalysis(pta);

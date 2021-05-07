@@ -129,4 +129,8 @@ public class CollectionUtils {
                 return Collections.unmodifiableList(new ArrayList<>(elements));
         }
     }
+
+    public static boolean isEmptyList(Collection<?> collection) {
+        return collection == null || collection.isEmpty();
+    }
 }
