@@ -12,7 +12,10 @@
 
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -20,6 +23,7 @@ import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
@@ -31,7 +35,9 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +57,8 @@ public class LambdaPlugin implements Plugin {
 
     private HeapModel heapModel;
 
+    private CSManager csManager;
+
     /**
      * Map from method to the lambda functional objects created in the method.
      */
@@ -67,6 +75,7 @@ public class LambdaPlugin implements Plugin {
         this.selector = pta.getContextSelector();
         this.hierarchy = pta.getHierarchy();
         this.heapModel = pta.getHeapModel();
+        this.csManager = pta.getCSManager();
     }
 
     @Override
@@ -124,39 +133,108 @@ public class LambdaPlugin implements Plugin {
             addToMapSet(invokeParams, lambdaObj, actualParams);
 
             JMethod implMethod =
-                    ((MethodHandle)lambdaObj.getAllocation().getBootstrapArgs().get(1))
+                    ((MethodHandle) lambdaObj.getAllocation().getBootstrapArgs().get(1))
                             .getMethodRef().resolve();
-            // shift flags for passing parameters
-            int shiftFlagK = 0;
-            int shiftFlagN = 0;
-
-            if (!implMethod.isStatic()) {
-                Type receiverType = implMethod.getDeclaringClass().getType();
-                implMethod = hierarchy.dispatch(receiverType, implMethod.getRef());
-                shiftFlagK = implMethod.getParamCount() == 0 ? 0 : 1;
-                shiftFlagN = 1 - shiftFlagK;
-            }
-            // TODO 在这个方法里params和returnValue都获取到的是Var，怎么在这个方法里addVarPointsTo到Obj诶
-            //  -> use recv.getContext() to together with Var to obtain captured values
-            //  如果都要在handleNewPointsToSet里面point，那除了lambda-ActualParam的map，还需要维护实际调用的return值吗
-
-            // pass return values
             if (invokeResult != null) {
                 // special: constructor, mock result
                 if (implMethod.isConstructor()) {
-                    NewInstance constructedInstance = new NewInstance(implMethod.getDeclaringClass().getType());
+                    ClassType type = implMethod.getDeclaringClass().getType();
+                    NewInstance constructedInstance = new NewInstance(type);
                     Obj constructedObj = heapModel.getObj(constructedInstance);
                     pta.addVarPointsTo(context, invokeResult, context, constructedObj);
-                } else {
-//                    implMethod.getIR().getReturnVars()
-//                            .forEach(r -> pta.addVarPointsTo(context, invokeResult, recv.getContext(), r));
+                    // pta.addVarPointsTo(context, implMethod.getIR().getThis(), context, constructedObj);
+                    // TODO here is no implMethod context, implMethod/This -> constructedObj needs to be handled in other methods?
                 }
             }
+
+            LambdaCallEdge callEdge = new LambdaCallEdge(
+                    csManager.getCSCallSite(context, invoke.getInvokeExp()),
+                    csManager.getCSMethod(recv.getContext(), implMethod));
+            callEdge.setLambdaParams(
+                    invoke.getResult(),
+                    lambdaObj.getAllocation().getArgs(),
+                    recv.getContext());
+            pta.addCallEdge(callEdge);
         }
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        if (edge instanceof LambdaCallEdge) {
+            LambdaCallEdge lambdaCallEdge = (LambdaCallEdge) edge;
+            CSCallSite csCallSite = lambdaCallEdge.getCallSite();
+            CSMethod csMethod = lambdaCallEdge.getCallee();
 
+            Var invokeResult = lambdaCallEdge.getInvokeResult();
+            List<Var> actualParams = csCallSite.getCallSite().getArgs();
+            JMethod implMethod = csMethod.getMethod();
+            List<Var> capturedValues = lambdaCallEdge.getCapturedValues();
+
+            Context callerContext = csCallSite.getContext();
+            Context implMethodContext = csMethod.getContext();
+            Context lambdaContext = lambdaCallEdge.getLambdaContext();
+
+            // shift flags for passing parameters
+            int shiftFlagK = 0;
+            int shiftFlagN = 0;
+            int paramCount = implMethod.getParamCount();
+            List<Var> implParams = implMethod.getIR().getParams();
+
+            if (!implMethod.isStatic()) {
+                Type receiverType = implMethod.getDeclaringClass().getType();
+                implMethod = hierarchy.dispatch(receiverType, implMethod.getRef());
+                shiftFlagK = paramCount == 0 ? 0 : 1;
+                shiftFlagN = 1 - shiftFlagK;
+            }
+
+            // pass parameters: from actual parameters & from captured values
+            if (paramCount != 0) {
+                for (int i = 0; i + shiftFlagK <= paramCount
+                                    && i < capturedValues.size()
+                                    && i - shiftFlagK >= 0; i++) {
+                    pta.addPFGEdge(
+                            csManager.getCSVar(lambdaContext, capturedValues.get(i)),
+                            csManager.getCSVar(implMethodContext, implParams.get(i - shiftFlagK)),
+                            PointerFlowEdge.Kind.PARAMETER_PASSING);
+                }
+
+                for (int i = 0; i < actualParams.size(); i++) {
+                    int index = paramCount - (shiftFlagK + shiftFlagN) + i;
+                    if (index >= paramCount) {
+                        break;
+                    }
+                    pta.addPFGEdge(
+                            csManager.getCSVar(callerContext, actualParams.get(i)),
+                            csManager.getCSVar(implMethodContext, implParams.get(index)),
+                            PointerFlowEdge.Kind.PARAMETER_PASSING);
+                }
+            }
+
+            // pass return values
+            List<Var> returnValues = implMethod.getIR().getReturnVars();
+            if (invokeResult != null && !CollectionUtils.isEmpty(returnValues)) {
+                CSVar csInvokeResult = csManager.getCSVar(callerContext, invokeResult);
+                returnValues.stream()
+                        .map(r -> csManager.getCSVar(implMethodContext, r))
+                        .forEach(r ->
+                                pta.addPFGEdge(r, csInvokeResult, PointerFlowEdge.Kind.RETURN));
+            }
+
+            if (shiftFlagK == 1
+                    && !implMethod.isStatic()
+                    && !CollectionUtils.isEmpty(capturedValues)) {
+                pta.addPFGEdge(
+                        csManager.getCSVar(lambdaContext, capturedValues.get(0)),
+                        csManager.getCSVar(implMethodContext, implMethod.getIR().getThis()),
+                        PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
+
+            if (shiftFlagN == 1 && !CollectionUtils.isEmpty(actualParams)) {
+                pta.addPFGEdge(
+                        csManager.getCSVar(callerContext, actualParams.get(0)),
+                        csManager.getCSVar(implMethodContext, implMethod.getIR().getThis()),
+                        PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            }
+        }
     }
 }
