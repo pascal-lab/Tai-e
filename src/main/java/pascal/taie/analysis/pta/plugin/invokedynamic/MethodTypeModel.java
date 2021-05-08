@@ -141,17 +141,19 @@ class MethodTypeModel {
             PointsToSet retObjs = args.get(0);
             PointsToSet paramObjs = args.get(1);
             PointsToSet mtObjs = PointsToSetFactory.make();
-            retObjs.forEach(retObj ->
+            retObjs.forEach(retObj -> {
+                Type retType = toType(retObj);
+                if (retType != null) {
                     paramObjs.forEach(paramObj -> {
-                        Type retType = toType(retObj);
                         Type paramType = toType(paramObj);
-                        if (retType != null && paramType != null) {
+                        if (paramType != null) {
                             MethodType mt = MethodType.get(List.of(paramType), retType);
                             Obj mtObj = heapModel.getConstantObj(mt);
                             mtObjs.addObject(csManager.getCSObj(defaultHctx, mtObj));
                         }
-                    })
-            );
+                    });
+                }
+            });
             if (!mtObjs.isEmpty()) {
                 pta.addVarPointsTo(csVar.getContext(), result, mtObjs);
             }
@@ -165,17 +167,19 @@ class MethodTypeModel {
             PointsToSet retObjs = args.get(0);
             PointsToSet mtObjs = args.get(1);
             PointsToSet resultMTObjs = PointsToSetFactory.make();
-            retObjs.forEach(retObj ->
+            retObjs.forEach(retObj -> {
+                Type retType = toType(retObj);
+                if (retType != null) {
                     mtObjs.forEach(mtObj -> {
-                        Type retType = toType(retObj);
                         MethodType mt = toMethodType(mtObj);
-                        if (retType != null && mt != null) {
+                        if (mt != null) {
                             MethodType resultMT = MethodType.get(mt.getParamTypes(), retType);
                             Obj resultMTObj = heapModel.getConstantObj(resultMT);
                             resultMTObjs.addObject(csManager.getCSObj(defaultHctx, resultMTObj));
                         }
-                    })
-            );
+                    });
+                }
+            });
             if (!resultMTObjs.isEmpty()) {
                 pta.addVarPointsTo(csVar.getContext(), result, resultMTObjs);
             }
@@ -212,12 +216,8 @@ class MethodTypeModel {
      */
     private static @Nullable Type toType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof ClassLiteral) {
-            ClassLiteral klass = (ClassLiteral) alloc;
-            return klass.getTypeValue();
-        } else {
-            return null;
-        }
+        return alloc instanceof ClassLiteral ?
+                ((ClassLiteral) alloc).getTypeValue() : null;
     }
 
     /**

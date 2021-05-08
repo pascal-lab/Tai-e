@@ -16,7 +16,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.ConstantObj;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
@@ -24,12 +23,12 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.InvokeVirtual;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
@@ -41,7 +40,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
@@ -142,7 +140,7 @@ class MemberFactory {
             pts.forEach(obj -> {
                 JClass jclass = toClass(obj);
                 if (jclass != null) {
-                    ReflectionUtils.getPublicConstructors(jclass)
+                    ReflectionUtils.getConstructors(jclass)
                             .map(ctor -> {
                                 Obj ctorObj = getReflectionObj(ctor);
                                 return csManager.getCSObj(defaultHctx, ctorObj);
@@ -163,7 +161,7 @@ class MemberFactory {
             pts.forEach(obj -> {
                 JClass jclass = toClass(obj);
                 if (jclass != null) {
-                    ReflectionUtils.getConstructors(jclass)
+                    ReflectionUtils.getDeclaredConstructors(jclass)
                             .map(ctor -> {
                                 Obj ctorObj = getReflectionObj(ctor);
                                 return csManager.getCSObj(defaultHctx, ctorObj);
@@ -187,7 +185,30 @@ class MemberFactory {
     private void handleGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-
+            List<PointsToSet> args = getArgs(csVar, pts,
+                    (InvokeVirtual) invoke.getInvokeExp());
+            PointsToSet clsObjs = args.get(0);
+            PointsToSet nameObjs = args.get(1);
+            PointsToSet mtdObjs = PointsToSetFactory.make();
+            clsObjs.forEach(clsObj -> {
+                JClass cls = toClass(clsObj);
+                if (cls != null) {
+                    nameObjs.forEach(nameObj -> {
+                        String name = toString(nameObj);
+                        if (name != null) {
+                            ReflectionUtils.getDeclaredMethods(cls, name)
+                                    .map(mtd -> {
+                                        Obj mtdObj = getReflectionObj(mtd);
+                                        return csManager.getCSObj(defaultHctx, mtdObj);
+                                    })
+                                    .forEach(mtdObjs::addObject);
+                        }
+                    });
+                }
+            });
+            if (!mtdObjs.isEmpty()) {
+                pta.addVarPointsTo(csVar.getContext(), result, mtdObjs);
+            }
         }
     }
 
@@ -255,13 +276,8 @@ class MemberFactory {
      * If the object is not a string constant, then return null.
      */
     private static @Nullable String toString(CSObj csObj) {
-        Obj obj = csObj.getObject();
-        if (obj instanceof ConstantObj) {
-            Object alloc = obj.getAllocation();
-            if (alloc instanceof String) {
-                return (String) alloc;
-            }
-        }
-        return null;
+        Object alloc = csObj.getObject().getAllocation();
+        return alloc instanceof StringLiteral ?
+                ((StringLiteral) alloc).getString() : null;
     }
 }

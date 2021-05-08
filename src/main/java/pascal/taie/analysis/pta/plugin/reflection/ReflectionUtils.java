@@ -16,8 +16,6 @@ import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ReflectionUtils {
@@ -25,13 +23,20 @@ public class ReflectionUtils {
     private ReflectionUtils() {
     }
 
-    static Stream<JMethod> getConstructors(JClass jclass) {
+    static Stream<JMethod> getDeclaredConstructors(JClass jclass) {
         return jclass.getDeclaredMethods()
                 .stream()
                 .filter(JMethod::isConstructor);
     }
 
-    static Stream<JMethod> getPublicConstructors(JClass jclass) {
-        return getConstructors(jclass).filter(ClassMember::isPublic);
+    static Stream<JMethod> getConstructors(JClass jclass) {
+        return getDeclaredConstructors(jclass).filter(ClassMember::isPublic);
+    }
+
+    static Stream<JMethod> getDeclaredMethods(JClass jclass, String methodName) {
+        return jclass.getDeclaredMethods()
+                .stream()
+                .filter(m -> !m.isConstructor() &&
+                        m.getName().equals(methodName));
     }
 }
