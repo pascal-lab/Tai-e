@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
@@ -40,8 +40,8 @@ public class CompositePlugin implements Plugin {
     }
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        plugins.forEach(p -> p.setPointerAnalysis(pta));
+    public void setSolver(Solver solver) {
+        plugins.forEach(p -> p.setSolver(solver));
     }
 
     @Override

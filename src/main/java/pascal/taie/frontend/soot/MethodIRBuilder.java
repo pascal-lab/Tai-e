@@ -12,6 +12,8 @@
 
 package pascal.taie.frontend.soot;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -172,6 +174,8 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
  * Convert Jimple to Tai-e IR.
  */
 class MethodIRBuilder extends AbstractStmtSwitch {
+
+    private static final Logger logger = LogManager.getLogger(MethodIRBuilder.class);
 
     private final JMethod method;
 
@@ -879,6 +883,6 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     @Override
     public void defaultCase(Object obj) {
-        System.out.println("Unhandled Stmt: " + obj);
+        logger.error("Unhandled Stmt: " + obj);
     }
 }

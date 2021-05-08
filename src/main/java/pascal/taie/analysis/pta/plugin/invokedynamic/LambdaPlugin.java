@@ -22,10 +22,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
-import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.MethodHandle;
@@ -49,7 +48,7 @@ import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 public class LambdaPlugin implements Plugin {
 
-    private PointerAnalysis pta;
+    private Solver solver;
 
     private ContextSelector selector;
 
@@ -70,12 +69,12 @@ public class LambdaPlugin implements Plugin {
     private final Map<LambdaObj, Set<List<Var>>> invokeParams = newMap();
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        this.pta = pta;
-        this.selector = pta.getContextSelector();
-        this.hierarchy = pta.getHierarchy();
-        this.heapModel = pta.getHeapModel();
-        this.csManager = pta.getCSManager();
+    public void setSolver(Solver solver) {
+        this.solver = solver;
+        this.selector = solver.getContextSelector();
+        this.hierarchy = solver.getHierarchy();
+        this.heapModel = solver.getHeapModel();
+        this.csManager = solver.getCSManager();
     }
 
     @Override
@@ -119,7 +118,7 @@ public class LambdaPlugin implements Plugin {
                 // here we use full method context as the heap context of
                 // lambda object, so that it can be directly used to obtain
                 // captured values.
-                pta.addVarPointsTo(context, ret, context, lambdaObj);
+                solver.addVarPointsTo(context, ret, context, lambdaObj);
             });
         }
     }
@@ -141,7 +140,7 @@ public class LambdaPlugin implements Plugin {
                     ClassType type = implMethod.getDeclaringClass().getType();
                     NewInstance constructedInstance = new NewInstance(type);
                     Obj constructedObj = heapModel.getObj(constructedInstance);
-                    pta.addVarPointsTo(context, invokeResult, context, constructedObj);
+                    solver.addVarPointsTo(context, invokeResult, context, constructedObj);
                     // pta.addVarPointsTo(context, implMethod.getIR().getThis(), context, constructedObj);
                     // TODO here is no implMethod context, implMethod/This -> constructedObj needs to be handled in other methods?
                 }
@@ -154,7 +153,7 @@ public class LambdaPlugin implements Plugin {
                     invoke.getResult(),
                     lambdaObj.getAllocation().getArgs(),
                     recv.getContext());
-            pta.addCallEdge(callEdge);
+            solver.addCallEdge(callEdge);
         }
     }
 
@@ -190,7 +189,7 @@ public class LambdaPlugin implements Plugin {
                 for (int i = 0; i + shiftFlagK <= paramCount
                                     && i < capturedValues.size()
                                     && i - shiftFlagK >= 0; i++) {
-                    pta.addPFGEdge(
+                    solver.addPFGEdge(
                             csManager.getCSVar(lambdaContext, capturedValues.get(i)),
                             csManager.getCSVar(implMethodContext, implParams.get(i - shiftFlagK)),
                             PointerFlowEdge.Kind.PARAMETER_PASSING);
@@ -201,7 +200,7 @@ public class LambdaPlugin implements Plugin {
                     if (index >= paramCount) {
                         break;
                     }
-                    pta.addPFGEdge(
+                    solver.addPFGEdge(
                             csManager.getCSVar(callerContext, actualParams.get(i)),
                             csManager.getCSVar(implMethodContext, implParams.get(index)),
                             PointerFlowEdge.Kind.PARAMETER_PASSING);
@@ -215,20 +214,20 @@ public class LambdaPlugin implements Plugin {
                 returnValues.stream()
                         .map(r -> csManager.getCSVar(implMethodContext, r))
                         .forEach(r ->
-                                pta.addPFGEdge(r, csInvokeResult, PointerFlowEdge.Kind.RETURN));
+                                solver.addPFGEdge(r, csInvokeResult, PointerFlowEdge.Kind.RETURN));
             }
 
             if (shiftFlagK == 1
                     && !implMethod.isStatic()
                     && !CollectionUtils.isEmpty(capturedValues)) {
-                pta.addPFGEdge(
+                solver.addPFGEdge(
                         csManager.getCSVar(lambdaContext, capturedValues.get(0)),
                         csManager.getCSVar(implMethodContext, implMethod.getIR().getThis()),
                         PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
 
             if (shiftFlagN == 1 && !CollectionUtils.isEmpty(actualParams)) {
-                pta.addPFGEdge(
+                solver.addPFGEdge(
                         csManager.getCSVar(callerContext, actualParams.get(0)),
                         csManager.getCSVar(implMethodContext, implMethod.getIR().getThis()),
                         PointerFlowEdge.Kind.LOCAL_ASSIGN);

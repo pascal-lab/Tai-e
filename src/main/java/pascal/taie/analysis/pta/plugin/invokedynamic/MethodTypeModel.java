@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
@@ -48,7 +48,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
  */
 class MethodTypeModel {
 
-    private final PointerAnalysis pta;
+    private final Solver pta;
 
     private final CSManager csManager;
 
@@ -69,13 +69,13 @@ class MethodTypeModel {
 
     private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
 
-    public MethodTypeModel(PointerAnalysis pta) {
-        this.pta = pta;
-        csManager = pta.getCSManager();
-        heapModel = pta.getHeapModel();
-        defaultHctx = pta.getContextSelector().getDefaultContext();
-        ClassHierarchy hierarchy = pta.getHierarchy();
-        TypeManager typeManager = pta.getTypeManager();
+    public MethodTypeModel(Solver solver) {
+        this.pta = solver;
+        csManager = solver.getCSManager();
+        heapModel = solver.getHeapModel();
+        defaultHctx = solver.getContextSelector().getDefaultContext();
+        ClassHierarchy hierarchy = solver.getHierarchy();
+        TypeManager typeManager = solver.getTypeManager();
         JClass methodType = hierarchy.getJREClass(StringReps.METHOD_TYPE);
         Type mt = methodType.getType();
         Type klass = typeManager.getClassType(StringReps.CLASS);

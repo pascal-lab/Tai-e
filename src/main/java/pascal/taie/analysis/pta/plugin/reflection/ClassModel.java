@@ -17,7 +17,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
@@ -49,7 +49,7 @@ import static pascal.taie.util.collection.CollectionUtils.newMap;
  */
 class ClassModel {
 
-    private final PointerAnalysis pta;
+    private final Solver solver;
 
     private final ClassHierarchy hierarchy;
 
@@ -78,12 +78,12 @@ class ClassModel {
 
     private final Map<ClassMember, ReflectionObj> refObjs = newMap();
 
-    public ClassModel(PointerAnalysis pta) {
-        this.pta = pta;
-        hierarchy = pta.getHierarchy();
-        csManager = pta.getCSManager();
-        defaultHctx = pta.getContextSelector().getDefaultContext();
-        TypeManager typeManager = pta.getTypeManager();
+    public ClassModel(Solver solver) {
+        this.solver = solver;
+        hierarchy = solver.getHierarchy();
+        csManager = solver.getCSManager();
+        defaultHctx = solver.getContextSelector().getDefaultContext();
+        TypeManager typeManager = solver.getTypeManager();
         constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
         method = typeManager.getClassType(StringReps.METHOD);
         field = typeManager.getClassType(StringReps.FIELD);
@@ -145,7 +145,7 @@ class ClassModel {
                 }
             });
             if (!ctorObjs.isEmpty()) {
-                pta.addVarPointsTo(csVar.getContext(), result, ctorObjs);
+                solver.addVarPointsTo(csVar.getContext(), result, ctorObjs);
             }
         }
     }
@@ -166,7 +166,7 @@ class ClassModel {
                 }
             });
             if (!ctorObjs.isEmpty()) {
-                pta.addVarPointsTo(csVar.getContext(), result, ctorObjs);
+                solver.addVarPointsTo(csVar.getContext(), result, ctorObjs);
             }
         }
     }
@@ -196,7 +196,7 @@ class ClassModel {
                 }
             });
             if (!mtdObjs.isEmpty()) {
-                pta.addVarPointsTo(csVar.getContext(), result, mtdObjs);
+                solver.addVarPointsTo(csVar.getContext(), result, mtdObjs);
             }
         }
     }
@@ -226,7 +226,7 @@ class ClassModel {
                 }
             });
             if (!mtdObjs.isEmpty()) {
-                pta.addVarPointsTo(csVar.getContext(), result, mtdObjs);
+                solver.addVarPointsTo(csVar.getContext(), result, mtdObjs);
             }
         }
     }
@@ -248,11 +248,11 @@ class ClassModel {
             basePts = pts;
             CSVar arg0 = csManager.getCSVar(csVar.getContext(),
                     invokeExp.getArg(0));
-            arg0Pts = pta.getPointsToSetOf(arg0);
+            arg0Pts = solver.getPointsToSetOf(arg0);
         } else {
             CSVar base = csManager.getCSVar(csVar.getContext(),
                     invokeExp.getBase());
-            basePts = pta.getPointsToSetOf(base);
+            basePts = solver.getPointsToSetOf(base);
             arg0Pts = pts;
         }
         return List.of(basePts, arg0Pts);

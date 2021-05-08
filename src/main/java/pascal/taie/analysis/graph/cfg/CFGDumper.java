@@ -36,7 +36,7 @@ public class CFGDumper {
                      new PrintStream(new FileOutputStream(filePath))) {
             dumpDot(cfg, out);
         } catch (FileNotFoundException e) {
-            logger.warn("Fail to dump graph to " + filePath +
+            logger.warn("Failed to dump graph to " + filePath +
                     ", caused by  " + e);
         }
     }

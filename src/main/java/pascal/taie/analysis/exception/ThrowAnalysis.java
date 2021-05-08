@@ -12,26 +12,43 @@
 
 package pascal.taie.analysis.exception;
 
+import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.Throw;
-import pascal.taie.language.type.ClassType;
 
-import java.util.Collection;
+import javax.annotation.Nullable;
 
-public interface ThrowAnalysis {
+public class ThrowAnalysis extends IntraproceduralAnalysis {
 
-    Result analyze(IR ir);
+    public static final String ID = "throw";
 
-    interface Result {
+    /**
+     * If this field is null, then this analysis ignores implicit exceptions.
+     */
+    @Nullable
+    private final ImplicitThrowAnalysis implicitThrowAnalysis;
 
-        IR getIR();
+    private final ExplicitThrowAnalysis explicitThrowAnalysis;
 
-        Collection<ClassType> mayThrowImplicitly(Stmt stmt);
+    public ThrowAnalysis(AnalysisConfig config) {
+        super(config);
+        if ("all".equals(getOptions().getString("exception"))) {
+            implicitThrowAnalysis = ImplicitThrowAnalysis.get();
+        } else {
+            implicitThrowAnalysis = null;
+        }
+        if ("inter".equals(getOptions().getString("scope"))) {
+            explicitThrowAnalysis = new InterExplicitThrowAnalysis();
+        } else {
+            explicitThrowAnalysis = new IntraExplicitThrowAnalysis();
+        }
+    }
 
-        Collection<ClassType> mayThrowExplicitly(Throw throwStmt);
-
-        Collection<ClassType> mayThrowExplicitly(Invoke invoke);
+    @Override
+    public ThrowResult analyze(IR ir) {
+        ThrowResult result = new ThrowResult(
+                ir, implicitThrowAnalysis);
+        explicitThrowAnalysis.analyze(ir, result);
+        return result;
     }
 }

@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
@@ -33,9 +33,9 @@ import pascal.taie.language.classes.JMethod;
 public interface Plugin {
 
     /**
-     * Set pointer analysis which will be used later by the plugin.
+     * Set pointer analysis solver which will be used later by the plugin.
      */
-    default void setPointerAnalysis(PointerAnalysis pta) {
+    default void setSolver(Solver solver) {
     }
 
     /**

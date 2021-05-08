@@ -20,15 +20,14 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.graph.GraphDumper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.stream.Stream;
@@ -52,7 +51,7 @@ public enum ResultPrinter implements Plugin {
      */
     private PrintStream out = System.out;
 
-    private PointerAnalysis pta;
+    private Solver solver;
 
     public static ResultPrinter get() {
         return INSTANCE;
@@ -63,51 +62,49 @@ public enum ResultPrinter implements Plugin {
     }
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        this.pta = pta;
+    public void setSolver(Solver solver) {
+        this.solver = solver;
     }
 
     @Override
     public void postprocess() {
-        printResults(pta);
+        printResults(solver);
         if (ResultChecker.isAvailable()) {
-            ResultChecker.get().compare(pta);
-        }
-        if (World.getOptions().isDumpCallGraph()) {
-            GraphDumper.dumpDotFile(pta.getCallGraph(), "output/callgraph.dot");
+            ResultChecker.get().compare(solver);
         }
     }
 
-    private void printResults(PointerAnalysis pta) {
+    private void printResults(Solver solver) {
         if (World.getOptions().isTestMode()) {
-            printPointers(pta);
-        } else if (World.getOptions().isOutputResults()) {
-            File output = World.getOptions().getOutputFile();
-            if (output != null) {
+            printPointers(solver);
+        } else if (solver.getOptions().getBoolean("output-results")) {
+            String path = solver.getOptions().getString("output-file");
+            if (path != null) {
                 try {
+                    File output = new File(path);
                     out = new PrintStream(new FileOutputStream(output),
-                            false, "UTF-8");
-                } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                            false, StandardCharsets.UTF_8);
+                } catch (FileNotFoundException e) {
                     System.err.println("Failed to write output, caused by " + e);
                 }
             }
             out.println("---------- Reachable methods: ----------");
-            pta.getCallGraph().reachableMethods()
+            solver.getCallGraph().reachableMethods()
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(out::println);
             out.println("---------- Call graph edges: ----------");
-            pta.getCallGraph().edges().forEach(out::println);
-            printPointers(pta);
+            solver.getCallGraph().edges().forEach(out::println);
+            printPointers(solver);
             out.println("----------------------------------------");
         }
-        printStatistics(pta);
+        printStatistics(solver);
     }
 
-    private void printPointers(PointerAnalysis pta) {
-        printVariables(pta.vars());
-        printInstanceFields(pta.instanceFields());
-        printArrayIndexes(pta.arrayIndexes());
-        printStaticFields(pta.staticFields());
+    private void printPointers(Solver solver) {
+        printVariables(solver.vars());
+        printInstanceFields(solver.instanceFields());
+        printArrayIndexes(solver.arrayIndexes());
+        printStaticFields(solver.staticFields());
     }
 
     private void printVariables(Stream<CSVar> vars) {
@@ -140,39 +137,39 @@ public enum ResultPrinter implements Plugin {
                 + streamToString(pointer.getPointsToSet().objects()));
     }
 
-    private void printStatistics(PointerAnalysis pta) {
-        int varInsens = (int) pta.vars()
+    private void printStatistics(Solver solver) {
+        int varInsens = (int) solver.vars()
                 .map(CSVar::getVar)
                 .distinct()
                 .count();
-        int varSens = (int) pta.vars().count();
-        int vptSizeSens = pta.vars()
+        int varSens = (int) solver.vars().count();
+        int vptSizeSens = solver.vars()
                 .mapToInt(v -> v.getPointsToSet().size())
                 .sum();
-        int ifptSizeSens = pta.instanceFields()
+        int ifptSizeSens = solver.instanceFields()
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
-        int aptSizeSens = pta.arrayIndexes()
+        int aptSizeSens = solver.arrayIndexes()
                 .mapToInt(a -> a.getPointsToSet().size())
                 .sum();
-        int sfptSizeSens = pta.staticFields()
+        int sfptSizeSens = solver.staticFields()
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
-        int reachableInsens = (int) pta.getCallGraph()
+        int reachableInsens = (int) solver.getCallGraph()
                 .reachableMethods()
                 .map(CSMethod::getMethod)
                 .distinct()
                 .count();
-        int reachableSens = (int) pta.getCallGraph()
+        int reachableSens = (int) solver.getCallGraph()
                 .reachableMethods()
                 .count();
-        int callEdgeInsens = (int) pta.getCallGraph()
+        int callEdgeInsens = (int) solver.getCallGraph()
                 .edges()
                 .map(e -> new Pair<>(e.getCallSite().getCallSite(),
                         e.getCallee().getMethod()))
                 .distinct()
                 .count();
-        int callEdgeSens = (int) pta.getCallGraph()
+        int callEdgeSens = (int) solver.getCallGraph()
                 .edges()
                 .count();
         System.out.println("-------------- Pointer analysis statistics: --------------");

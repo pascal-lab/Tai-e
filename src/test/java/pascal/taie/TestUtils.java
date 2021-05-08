@@ -13,7 +13,6 @@
 package pascal.taie;
 
 import org.junit.Assert;
-import pascal.taie.analysis.pta.PointerAnalysisPass;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -57,11 +56,17 @@ public class TestUtils {
 
     public static void testCSPTA(String inputClass, String... opts) {
         List<String> optList = new ArrayList<>();
-        Collections.addAll(optList, opts);
-        optList.add("-p");
-        optList.add(PointerAnalysisPass.class.getName());
         // ignore implicit entries in test mode
-        optList.add("--no-implicit-entries");
+        String ptaArg = "pta=implicit-entries:false";
+        for (String opt : opts) {
+            if (opt.startsWith("pta")) {
+                ptaArg = opt + ",implicit-entries:false";
+            } else {
+                optList.add(opt);
+            }
+        }
+        optList.add("-a");
+        optList.add(ptaArg);
         optList.add("--test-mode");
         test(inputClass, "cspta",
                 "pascal.taie.analysis.pta.ResultChecker", optList);

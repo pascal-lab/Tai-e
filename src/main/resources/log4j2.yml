@@ -14,6 +14,6 @@ Configuration:
         AppenderRef:
           ref: STDOUT
     Root:
-      level: error
+      level: info
       AppenderRef:
         ref: STDOUT

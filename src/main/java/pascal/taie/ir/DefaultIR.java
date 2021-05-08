@@ -12,6 +12,7 @@
 
 package pascal.taie.ir;
 
+import pascal.taie.analysis.AbstractHolder;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
@@ -25,7 +26,7 @@ import static pascal.taie.util.collection.CollectionUtils.freeze;
 /**
  * Default implementation of IR.
  */
-public class DefaultIR implements IR {
+public class DefaultIR extends AbstractHolder implements IR {
 
     private final JMethod method;
 

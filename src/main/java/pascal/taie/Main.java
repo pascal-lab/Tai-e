@@ -12,17 +12,36 @@
 
 package pascal.taie;
 
-import pascal.taie.pass.Pass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.AnalysisManager;
+import pascal.taie.config.AnalysisPlanner;
+import pascal.taie.config.ConfigManager;
+import pascal.taie.config.ConfigUtils;
+import pascal.taie.config.Options;
+import pascal.taie.config.PlanConfig;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
 
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
     public static void main(String[] args) {
         Options options = processArgs(args);
+        List<AnalysisConfig> plan = processConfigs(options);
+        if (plan.isEmpty()) {
+            logger.info("No analyses are specified");
+            System.exit(0);
+        }
         buildWorld(options);
-        runPasses(options);
+        executePlan(plan);
     }
 
     /**
@@ -39,6 +58,43 @@ public class Main {
             System.exit(0);
         }
         return options;
+    }
+
+    private static List<AnalysisConfig> processConfigs(Options options) {
+        File configFile = ConfigUtils.getDefaultAnalysisConfig();
+        List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
+        ConfigManager manager = new ConfigManager(analysisConfigs);
+        AnalysisPlanner planner = new AnalysisPlanner(manager);
+        if (!options.getAnalyses().isEmpty()) {
+            // Analyses are specified by cmd options
+            List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
+            manager.overwriteOptions(planConfigs);
+            List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
+            // Output analysis plan to file.
+            // For outputting purpose, we first convert AnalysisConfigs
+            // in the expanded plan to PlanConfigs
+            List<PlanConfig> configs = plan.stream()
+                    .map(ac -> {
+                        PlanConfig pc = new PlanConfig();
+                        pc.setId(ac.getId());
+                        pc.setOptions(ac.getOptions());
+                        return pc;
+                    })
+                    .collect(Collectors.toUnmodifiableList());
+            // TODO: turn off output in test mode?
+            PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());
+            if (!options.isOnlyGenPlan()) {
+                // This run not only generates plan file but also executes it
+               return plan;
+            }
+        } else if (options.getPlanFile() != null) {
+            // Analyses are specified by file
+            List<PlanConfig> planConfigs = PlanConfig.readConfigs(options.getPlanFile());
+            manager.overwriteOptions(planConfigs);
+            return planner.makePlan(planConfigs);
+        }
+        // No analyses are specified
+        return Collections.emptyList();
     }
 
     /**
@@ -61,18 +117,8 @@ public class Main {
         }
     }
 
-    private static void runPasses(Options options) {
-        options.getPassClasses().forEach(className -> {
-            try {
-                Class<?> c = Class.forName(className);
-                Constructor<?> ctor = c.getConstructor();
-                Pass pass = (Pass) ctor.newInstance();
-                pass.run();
-            } catch (ClassNotFoundException | InstantiationException |
-                    IllegalAccessException | NoSuchMethodException |
-                    InvocationTargetException e) {
-                System.err.println("Failed to run " + className + " due to " + e);
-            }
-        });
+    private static void executePlan(List<AnalysisConfig> plan) {
+        AnalysisManager analysisManager = new AnalysisManager();
+        analysisManager.execute(plan);
     }
 }

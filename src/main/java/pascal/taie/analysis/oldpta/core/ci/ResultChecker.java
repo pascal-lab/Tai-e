@@ -125,8 +125,7 @@ public class ResultChecker {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read " + filePath
-                    + " caused by " + e);
+            throw new RuntimeException("Failed to read " + filePath, e);
         }
     }
 

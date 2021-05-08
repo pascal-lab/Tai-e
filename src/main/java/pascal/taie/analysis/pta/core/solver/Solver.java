@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.AnalysisOptions;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -34,7 +35,9 @@ import pascal.taie.language.type.TypeManager;
 
 import java.util.stream.Stream;
 
-public interface PointerAnalysis {
+public interface Solver {
+
+    AnalysisOptions getOptions();
 
     ClassHierarchy getHierarchy();
 
@@ -48,7 +51,7 @@ public interface PointerAnalysis {
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
-    void analyze();
+    void solve();
 
     PointsToSet getPointsToSetOf(Pointer pointer);
 

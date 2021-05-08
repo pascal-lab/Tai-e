@@ -10,9 +10,21 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.pass;
+package pascal.taie.analysis.dfa;
 
-public interface Pass {
+public interface DataFlowResult<Node, Flow> {
 
-    void run();
+    /**
+     * @return the in-flow of given node.
+     */
+    Flow getInFlow(Node node);
+
+    void setInFlow(Node node, Flow flow);
+
+    /**
+     * @return the out-flow of given node.
+     */
+    Flow getOutFlow(Node node);
+
+    void setOutFlow(Node node, Flow flow);
 }

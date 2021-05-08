@@ -10,8 +10,21 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
+package pascal.taie.config;
+
 /**
- * Implementation of pass framework which manages analysis passes.
- * Note: this package is currently under-developed.
+ * This class represents the exceptions in configuration.
  */
-package pascal.taie.pass;
+public class ConfigException extends RuntimeException {
+
+    public ConfigException(String msg) {
+        super(msg);
+    }
+
+    /**
+     * Constructs a new exception.
+     */
+    public ConfigException(String msg, Throwable t) {
+        super(msg, t);
+    }
+}

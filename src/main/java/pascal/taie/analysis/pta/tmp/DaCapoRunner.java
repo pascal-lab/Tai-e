@@ -49,11 +49,9 @@ public class DaCapoRunner {
 
     private String[] compose06Args(String benchmark) {
         return new String[]{
-                "-p", "pascal.taie.analysis.pta.PointerAnalysisPass",
+                "-a", "pta=merge-string-constants:true,cs:2-obj",
                 "-java=6",
-                "--merge-string-constants",
                 "--pre-build-ir",
-                "-cs", "2-obj",
                 "-cp", buildCP(benchmark),
                 "-m", "dacapo." + benchmark + ".Main"
         };

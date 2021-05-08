@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
@@ -29,8 +29,8 @@ public class InvokedynamicPlugin implements Plugin {
     private MethodTypeModel methodTypeModel;
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        methodTypeModel = new MethodTypeModel(pta);
+    public void setSolver(Solver solver) {
+        methodTypeModel = new MethodTypeModel(solver);
     }
 
     @Override

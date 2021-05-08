@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
@@ -24,8 +24,8 @@ public class ReflectionPlugin implements Plugin {
     private ClassModel classModel;
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        classModel = new ClassModel(pta);
+    public void setSolver(Solver solver) {
+        classModel = new ClassModel(solver);
     }
 
     @Override
