@@ -181,8 +181,6 @@ public class LambdaPlugin implements Plugin {
             List<Var> implParams = implMethod.getIR().getParams();
 
             if (!implMethod.isStatic()) {
-                Type receiverType = implMethod.getDeclaringClass().getType();
-                implMethod = hierarchy.dispatch(receiverType, implMethod.getRef());
                 shiftFlagK = paramCount == 0 ? 0 : 1;
                 shiftFlagN = 1 - shiftFlagK;
             }
