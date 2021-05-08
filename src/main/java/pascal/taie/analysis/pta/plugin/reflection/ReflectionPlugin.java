@@ -21,11 +21,11 @@ import pascal.taie.language.classes.JMethod;
 
 public class ReflectionPlugin implements Plugin {
 
-    private MemberFactory memberFactory;
+    private ClassModel classModel;
 
     @Override
     public void setPointerAnalysis(PointerAnalysis pta) {
-        memberFactory = new MemberFactory(pta);
+        classModel = new ClassModel(pta);
     }
 
     @Override
@@ -33,15 +33,15 @@ public class ReflectionPlugin implements Plugin {
         method.getIR().getStmts().forEach(stmt -> {
             if (stmt instanceof Invoke) {
                 Invoke invoke = (Invoke) stmt;
-                memberFactory.handleNewInvoke(invoke);
+                classModel.handleNewInvoke(invoke);
             }
         });
     }
 
     @Override
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (memberFactory.isRelevantVar(csVar.getVar())) {
-            memberFactory.handleNewPointsToSet(csVar, pts);
+        if (classModel.isRelevantVar(csVar.getVar())) {
+            classModel.handleNewPointsToSet(csVar, pts);
         }
     }
 }

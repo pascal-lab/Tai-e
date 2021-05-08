@@ -16,7 +16,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -46,17 +45,15 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
- * Model member-retrieving methods.
+ * Model APIs of java.lang.Class.
  */
-class MemberFactory {
+class ClassModel {
 
     private final PointerAnalysis pta;
 
     private final ClassHierarchy hierarchy;
 
     private final CSManager csManager;
-
-    private final HeapModel heapModel;
 
     /**
      * Default heap context for MethodType objects.
@@ -81,11 +78,10 @@ class MemberFactory {
 
     private final Map<ClassMember, ReflectionObj> refObjs = newMap();
 
-    public MemberFactory(PointerAnalysis pta) {
+    public ClassModel(PointerAnalysis pta) {
         this.pta = pta;
         hierarchy = pta.getHierarchy();
         csManager = pta.getCSManager();
-        heapModel = pta.getHeapModel();
         defaultHctx = pta.getContextSelector().getDefaultContext();
         TypeManager typeManager = pta.getTypeManager();
         constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
@@ -235,20 +231,6 @@ class MemberFactory {
         }
     }
 
-    private ReflectionObj getReflectionObj(ClassMember member) {
-        return refObjs.computeIfAbsent(member, m -> {
-           if (m instanceof JMethod) {
-               if (((JMethod) m).isConstructor()) {
-                   return new ReflectionObj(constructor, m);
-               } else {
-                   return new ReflectionObj(method, m);
-               }
-           } else {
-               return new ReflectionObj(field, m);
-           }
-        });
-    }
-
     /**
      * For invocation m = c.getMethod(n, ...);
      * when points-to set of c or n changes,
@@ -302,5 +284,19 @@ class MemberFactory {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof StringLiteral ?
                 ((StringLiteral) alloc).getString() : null;
+    }
+
+    private ReflectionObj getReflectionObj(ClassMember member) {
+        return refObjs.computeIfAbsent(member, m -> {
+            if (m instanceof JMethod) {
+                if (((JMethod) m).isConstructor()) {
+                    return new ReflectionObj(constructor, m);
+                } else {
+                    return new ReflectionObj(method, m);
+                }
+            } else {
+                return new ReflectionObj(field, m);
+            }
+        });
     }
 }

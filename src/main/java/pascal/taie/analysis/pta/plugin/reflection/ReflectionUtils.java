@@ -38,8 +38,8 @@ public class ReflectionUtils {
     static Stream<JMethod> getDeclaredMethods(JClass jclass, String methodName) {
         return jclass.getDeclaredMethods()
                 .stream()
-                .filter(m -> !m.isConstructor() &&
-                        m.getName().equals(methodName));
+                .filter(m -> m.getName().equals(methodName) &&
+                        !m.isConstructor());
     }
 
     static Stream<JMethod> getMethods(JClass jclass, String methodName) {
@@ -47,7 +47,8 @@ public class ReflectionUtils {
         while (jclass != null) {
             jclass.getDeclaredMethods()
                     .stream()
-                    .filter(m -> m.getName().equals(methodName) && m.isPublic())
+                    .filter(m -> m.getName().equals(methodName) &&
+                            m.isPublic() && !m.isConstructor())
                     .forEach(m -> {
                         if (methods.stream().noneMatch(mtd ->
                                 mtd.getSubsignature()
