@@ -77,7 +77,7 @@ public class PointerFlowEdge {
         return "[" + kind + "]" + from + " -> " + to;
     }
 
-    enum Kind {
+    public enum Kind {
         LOCAL_ASSIGN,
         CAST,
 
