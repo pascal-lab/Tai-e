@@ -37,10 +37,10 @@ public class PointerAnalysisBuilder {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
         PointerAnalysisImpl pta = new PointerAnalysisImpl();
         setContextSensitivity(pta, options);
-        setPlugin(pta);
         pta.setHeapModel(new AllocationSiteBasedModel(
                 World.getTypeManager()));
         pta.setCSManager(new MapBasedCSManager());
+        setPlugin(pta);
         return pta;
     }
 

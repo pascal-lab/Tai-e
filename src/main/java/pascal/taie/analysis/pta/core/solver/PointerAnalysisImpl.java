@@ -127,6 +127,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     }
 
     @Override
+    public TypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    @Override
     public HeapModel getHeapModel() {
         return heapModel;
     }
@@ -280,6 +285,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             });
         }
         return diff;
+    }
+
+    @Override
+    public PointsToSet getPointsToSetOf(Pointer pointer) {
+        return pointer.getPointsToSet();
     }
 
     @Override

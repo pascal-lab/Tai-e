@@ -30,12 +30,15 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
+import pascal.taie.language.type.TypeManager;
 
 import java.util.stream.Stream;
 
 public interface PointerAnalysis {
 
     ClassHierarchy getHierarchy();
+
+    TypeManager getTypeManager();
 
     HeapModel getHeapModel();
 
@@ -46,6 +49,8 @@ public interface PointerAnalysis {
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
     void analyze();
+
+    PointsToSet getPointsToSetOf(Pointer pointer);
 
     /**
      * Add a context-sensitive variable points-to relation.
@@ -77,15 +82,15 @@ public interface PointerAnalysis {
     void addStaticFieldPointsTo(JField field, PointsToSet pts);
 
     /**
+     * Adds an edge "from -> to" to the PFG.
+     */
+    void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
+
+    /**
      * Add a call edge.
      * @param edge the added edge.
      */
     void addCallEdge(Edge<CSCallSite, CSMethod> edge);
-
-    /**
-     * Adds an edge "from -> to" to the PFG.
-     */
-    void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
 
     /**
      * @return all variables in the (reachable) program.
