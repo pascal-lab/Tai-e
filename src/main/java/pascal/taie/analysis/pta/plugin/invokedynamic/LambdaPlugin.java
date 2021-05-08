@@ -70,7 +70,7 @@ public class LambdaPlugin implements Plugin {
                 .filter(LambdaPlugin::isLambdaMetaFactory);
     }
 
-    private static boolean isLambdaMetaFactory(InvokeDynamic indy) {
+    static boolean isLambdaMetaFactory(InvokeDynamic indy) {
         JMethod bsm = indy.getBootstrapMethodRef().resolve();
         String bsmSig = bsm.getSignature();
         return bsmSig.equals(StringReps.LAMBDA_METAFACTORY) ||
