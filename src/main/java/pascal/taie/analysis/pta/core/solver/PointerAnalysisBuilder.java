@@ -27,6 +27,7 @@ import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokedynamicPlugin;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaPlugin;
+import pascal.taie.analysis.pta.plugin.reflection.ReflectionPlugin;
 import pascal.taie.analysis.pta.pts.HybridPointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.util.AnalysisException;
@@ -73,8 +74,8 @@ public class PointerAnalysisBuilder {
                 break;
             default:
                 throw new AnalysisException(
-                        "Unknown context sensitivity variant: "
-                                + options.getContextSensitivity());
+                        "Unknown context sensitivity variant: " +
+                                options.getContextSensitivity());
         }
     }
 
@@ -87,6 +88,7 @@ public class PointerAnalysisBuilder {
                 new AnalysisTimer(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
+                new ReflectionPlugin(),
                 ResultPrinter.get()
         );
         if (World.getOptions().getJavaVersion() >= 7) {

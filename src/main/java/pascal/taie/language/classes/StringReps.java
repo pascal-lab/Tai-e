@@ -28,11 +28,17 @@ public class StringReps {
     // Names of special important classes
     public static final String OBJECT = "java.lang.Object";
 
-    public static final String CLASS = "java.lang.Class";
-
     public static final String SERIALIZABLE = "java.lang.Serializable";
 
     public static final String CLONEABLE = "java.lang.Cloneable";
+
+    public static final String CLASS = "java.lang.Class";
+
+    public static final String CONSTRUCTOR = "java.lang.reflect.Constructor";
+
+    public static final String METHOD = "java.lang.reflect.Method";
+
+    public static final String FIELD = "java.lang.reflect.Field";
 
     public static final String STRING = "java.lang.String";
 
