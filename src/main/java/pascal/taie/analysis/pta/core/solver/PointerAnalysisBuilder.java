@@ -25,6 +25,7 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
+import pascal.taie.analysis.pta.plugin.invokedynamic.InvokedynamicPlugin;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaPlugin;
 import pascal.taie.analysis.pta.pts.HybridPointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
@@ -86,9 +87,14 @@ public class PointerAnalysisBuilder {
                 new AnalysisTimer(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
-                new LambdaPlugin(),
                 ResultPrinter.get()
         );
+        if (World.getOptions().getJavaVersion() >= 7) {
+            plugin.addPlugin(new InvokedynamicPlugin());
+        }
+        if (World.getOptions().getJavaVersion() >= 8) {
+            plugin.addPlugin(new LambdaPlugin());
+        }
         plugin.setPointerAnalysis(pta);
         pta.setPlugin(plugin);
     }
