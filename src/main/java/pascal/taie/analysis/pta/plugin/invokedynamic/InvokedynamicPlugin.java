@@ -16,7 +16,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.ConstantObj;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
@@ -24,7 +23,6 @@ import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
-import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -41,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
@@ -147,18 +146,9 @@ public class InvokedynamicPlugin implements Plugin {
     private void processMethodType1Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            Var arg0 = invoke.getInvokeExp().getArg(0);
-            Var arg1 = invoke.getInvokeExp().getArg(1);
-            PointsToSet retObjs, paramObjs;
-            if (csVar.getVar().equals(arg0)) {
-                retObjs = pts;
-                paramObjs = pta.getPointsToSetOf(
-                        csManager.getCSVar(csVar.getContext(), arg1));
-            } else {
-                retObjs = pta.getPointsToSetOf(
-                        csManager.getCSVar(csVar.getContext(), arg0));
-                paramObjs = pts;
-            }
+            List<PointsToSet> args = getArgs(csVar, pts, invoke);
+            PointsToSet retObjs = args.get(0);
+            PointsToSet paramObjs = args.get(1);
             PointsToSet mtObjs = PointsToSetFactory.make();
             retObjs.forEach(retObj -> {
                 paramObjs.forEach(paramObj -> {
@@ -180,18 +170,9 @@ public class InvokedynamicPlugin implements Plugin {
     private void processMethodTypeMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            Var arg0 = invoke.getInvokeExp().getArg(0);
-            Var arg1 = invoke.getInvokeExp().getArg(1);
-            PointsToSet retObjs, mtObjs;
-            if (csVar.getVar().equals(arg0)) {
-                retObjs = pts;
-                mtObjs = pta.getPointsToSetOf(
-                        csManager.getCSVar(csVar.getContext(), arg1));
-            } else {
-                retObjs = pta.getPointsToSetOf(
-                        csManager.getCSVar(csVar.getContext(), arg0));
-                mtObjs = pts;
-            }
+            List<PointsToSet> args = getArgs(csVar, pts, invoke);
+            PointsToSet retObjs = args.get(0);
+            PointsToSet mtObjs = args.get(1);
             PointsToSet resultMTObjs = PointsToSetFactory.make();
             retObjs.forEach(retObj -> {
                 mtObjs.forEach(mtObj -> {
@@ -208,6 +189,31 @@ public class InvokedynamicPlugin implements Plugin {
                 pta.addVarPointsTo(csVar.getContext(), result, resultMTObjs);
             }
         }
+    }
+
+    /**
+     * When the points-to set of a variable (say v) changes, this convenient
+     * method returns the points-to sets of all relevant variables,
+     * i.e., v and the variables all are arguments of the given call site.
+     * For v, this method returns the changed part, for other variables,
+     * it just returns their current points-to sets.
+     * @param csVar the variable whose points-to set changes
+     * @param pts the points-to set of csVar containing new discovered objects
+     * @param invoke the call site which contain csVar
+     * @return points-to sets of all arguments of invoke.
+     */
+    private List<PointsToSet> getArgs(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        return invoke.getInvokeExp().getArgs()
+                .stream()
+                .map(arg -> {
+                    if (arg.equals(csVar.getVar())) {
+                        return pts;
+                    } else {
+                        CSVar csArg = csManager.getCSVar(csVar.getContext(), arg);
+                        return pta.getPointsToSetOf(csArg);
+                    }
+                })
+                .collect(Collectors.toUnmodifiableList());
     }
 
     /**
