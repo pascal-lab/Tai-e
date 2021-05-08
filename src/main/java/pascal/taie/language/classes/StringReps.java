@@ -38,7 +38,25 @@ public class StringReps {
 
     public static final String STRING_BUILDER = "java.lang.StringBuilder";
 
-    public static final String STRING_BUFFER ="java.lang.StringBuffer";
+    public static final String STRING_BUFFER = "java.lang.StringBuffer";
+
+    public static final String BOOLEAN = "java.lang.Boolean";
+
+    public static final String BYTE = "java.lang.Byte";
+
+    public static final String SHORT = "java.lang.Short";
+
+    public static final String CHARACTER = "java.lang.Character";
+
+    public static final String INTEGER = "java.lang.Integer";
+
+    public static final String LONG = "java.lang.Long";
+
+    public static final String FLOAT = "java.lang.Float";
+
+    public static final String DOUBLE = "java.lang.Double";
+
+    public static final String VOID = "java.lang.Void";
 
     public static final String THREAD = "java.lang.Thread";
 

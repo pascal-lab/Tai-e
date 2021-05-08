@@ -15,6 +15,7 @@ package pascal.taie.language.type;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.util.AnalysisException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -38,10 +39,19 @@ public class TypeManagerImpl implements TypeManager {
             = newConcurrentMap(8);
 
     private final ClassType OBJECT;
-
     private final ClassType SERIALIZABLE;
-
     private final ClassType CLONEABLE;
+
+    // Boxed types
+    private final ClassType BOOLEAN;
+    private final ClassType BYTE;
+    private final ClassType SHORT;
+    private final ClassType CHARACTER;
+    private final ClassType INTEGER;
+    private final ClassType LONG;
+    private final ClassType FLOAT;
+    private final ClassType DOUBLE;
+    private final ClassType VOID;
 
     public TypeManagerImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
@@ -50,6 +60,15 @@ public class TypeManagerImpl implements TypeManager {
         OBJECT = getClassType(loader, StringReps.OBJECT);
         SERIALIZABLE = getClassType(loader, StringReps.SERIALIZABLE);
         CLONEABLE = getClassType(loader, StringReps.CLONEABLE);
+        BOOLEAN = getClassType(loader, StringReps.BOOLEAN);
+        BYTE = getClassType(loader, StringReps.BYTE);
+        SHORT = getClassType(loader, StringReps.SHORT);
+        CHARACTER = getClassType(loader, StringReps.CHARACTER);
+        INTEGER = getClassType(loader, StringReps.INTEGER);
+        LONG = getClassType(loader, StringReps.LONG);
+        FLOAT = getClassType(loader, StringReps.FLOAT);
+        DOUBLE = getClassType(loader, StringReps.DOUBLE);
+        VOID = getClassType(loader, StringReps.VOID);
     }
 
     @Override
@@ -73,6 +92,49 @@ public class TypeManagerImpl implements TypeManager {
                 .computeIfAbsent(baseType, t ->
                         new ArrayType(t, dim
                                 , dim == 1 ? t : getArrayType(t, dim - 1)));
+    }
+
+    @Override
+    public ClassType getBoxedType(Type type) {
+        if (type instanceof PrimitiveType) {
+            switch ((PrimitiveType) type) {
+                case BOOLEAN: return BOOLEAN;
+                case BYTE: return BYTE;
+                case SHORT: return SHORT;
+                case CHAR: return CHARACTER;
+                case INT: return INTEGER;
+                case LONG: return LONG;
+                case FLOAT: return FLOAT;
+                case DOUBLE: return DOUBLE;
+            }
+        } else if (type instanceof VoidType) {
+            return VOID;
+        }
+        throw new AnalysisException(type + " cannot be boxed");
+    }
+
+    @Override
+    public Type getUnboxedType(ClassType type) {
+        if (type.equals(BOOLEAN)) {
+            return PrimitiveType.BOOLEAN;
+        } else if (type.equals(BYTE)) {
+            return PrimitiveType.BYTE;
+        } else if (type.equals(SHORT)) {
+            return PrimitiveType.SHORT;
+        } else if (type.equals(CHARACTER)) {
+            return PrimitiveType.CHAR;
+        } else if (type.equals(INTEGER)) {
+            return PrimitiveType.INT;
+        } else if (type.equals(LONG)) {
+            return PrimitiveType.LONG;
+        } else if (type.equals(FLOAT)) {
+            return PrimitiveType.FLOAT;
+        } else if (type.equals(DOUBLE)) {
+            return PrimitiveType.DOUBLE;
+        } else if (type.equals(VOID)) {
+            return VoidType.VOID;
+        }
+        throw new AnalysisException(type + " cannot be unboxed");
     }
 
     @Override

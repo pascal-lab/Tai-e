@@ -27,5 +27,9 @@ public interface TypeManager {
 
     ArrayType getArrayType(Type baseType, int dimensions);
 
+    ClassType getBoxedType(Type type);
+
+    Type getUnboxedType(ClassType type);
+
     boolean isSubtype(Type supertype, Type subtype);
 }
