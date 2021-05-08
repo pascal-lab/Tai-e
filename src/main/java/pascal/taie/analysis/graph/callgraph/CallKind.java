@@ -13,9 +13,11 @@
 package pascal.taie.analysis.graph.callgraph;
 
 public enum CallKind {
+    // regular calls
     INTERFACE,
     VIRTUAL,
     SPECIAL,
     STATIC,
+    // non-regular calls, such calls are typically handled by plugins
     OTHER,
 }

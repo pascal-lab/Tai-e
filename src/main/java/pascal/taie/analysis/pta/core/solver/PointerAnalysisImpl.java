@@ -316,6 +316,11 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         workList.addPointerEntry(pointer, pointsToSet);
     }
 
+    @Override
+    public void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        workList.addCallEdge(edge);
+    }
+
     /**
      * Given a points-to set pts and a type t, returns the objects of pts
      * which can be assigned to t.
@@ -344,10 +349,8 @@ public class PointerAnalysisImpl implements PointerAnalysis {
         }
     }
 
-    /**
-     * Adds an edge "from -> to" to the PFG.
-     */
-    private void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+    @Override
+    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         addPFGEdge(from, to, null, kind);
     }
     
@@ -462,8 +465,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
                             csCallSite, recvObj, callee);
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                    workList.addCallEdge(new Edge<>(
-                            getCallKind(callSite), csCallSite, csCallee));
+                    addCallEdge(new Edge<>(getCallKind(callSite), csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     CSVar thisVar = csManager.getCSVar(
                             calleeContext, callee.getIR().getThis());
@@ -483,29 +485,31 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             callGraph.addEdge(edge);
             CSMethod csCallee = edge.getCallee();
             processNewCSMethod(csCallee);
-            Context callerCtx = edge.getCallSite().getContext();
-            InvokeExp callSite = edge.getCallSite().getCallSite();
-            Context calleeCtx = csCallee.getContext();
-            JMethod callee = csCallee.getMethod();
-            // pass arguments to parameters
-            for (int i = 0; i < callSite.getArgCount(); ++i) {
-                Var arg = callSite.getArg(i);
-                if (isConcerned(arg)) {
-                    Var param = callee.getIR().getParam(i);
-                    CSVar argVar = csManager.getCSVar(callerCtx, arg);
-                    CSVar paramVar = csManager.getCSVar(calleeCtx, param);
-                    addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+            if (edge.getKind() != CallKind.OTHER) {
+                Context callerCtx = edge.getCallSite().getContext();
+                InvokeExp callSite = edge.getCallSite().getCallSite();
+                Context calleeCtx = csCallee.getContext();
+                JMethod callee = csCallee.getMethod();
+                // pass arguments to parameters
+                for (int i = 0; i < callSite.getArgCount(); ++i) {
+                    Var arg = callSite.getArg(i);
+                    if (isConcerned(arg)) {
+                        Var param = callee.getIR().getParam(i);
+                        CSVar argVar = csManager.getCSVar(callerCtx, arg);
+                        CSVar paramVar = csManager.getCSVar(calleeCtx, param);
+                        addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+                    }
                 }
-            }
-            // pass results to LHS variable
-            Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
-            Var lhs = invoke.getResult();
-            if (lhs != null && isConcerned(lhs)) {
-                CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
-                for (Var ret : callee.getIR().getReturnVars()) {
-                    if (isConcerned(ret)) {
-                        CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                        addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                // pass results to LHS variable
+                Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
+                Var lhs = invoke.getResult();
+                if (lhs != null && isConcerned(lhs)) {
+                    CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
+                    for (Var ret : callee.getIR().getReturnVars()) {
+                        if (isConcerned(ret)) {
+                            CSVar csRet = csManager.getCSVar(calleeCtx, ret);
+                            addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                        }
                     }
                 }
             }
@@ -666,7 +670,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
             CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
             Edge<CSCallSite, CSMethod> edge =
                     new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-            workList.addCallEdge(edge);
+            addCallEdge(edge);
         }
 
         @Override

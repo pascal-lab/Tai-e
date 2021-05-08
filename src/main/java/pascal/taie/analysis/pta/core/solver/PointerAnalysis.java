@@ -13,6 +13,7 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -20,6 +21,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
@@ -73,6 +75,17 @@ public interface PointerAnalysis {
      * @param pts the objects to be added to the points-to set of the field.
      */
     void addStaticFieldPointsTo(JField field, PointsToSet pts);
+
+    /**
+     * Add a call edge.
+     * @param edge the added edge.
+     */
+    void addCallEdge(Edge<CSCallSite, CSMethod> edge);
+
+    /**
+     * Adds an edge "from -> to" to the PFG.
+     */
+    void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
 
     /**
      * @return all variables in the (reachable) program.
