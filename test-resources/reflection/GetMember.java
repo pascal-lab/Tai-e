@@ -8,14 +8,19 @@ public class GetMember {
         Constructor<A> ctor1 = klass.getConstructor(String.class);
         Constructor<A> ctor2 = klass.getDeclaredConstructor();
         Method foo1 = klass.getDeclaredMethod("foo", int.class);
-        use(ctor1, ctor2, foo1);
+        Method foo2 = klass.getMethod("foo", A.class);
+        use(ctor1, ctor2, foo1, foo2);
     }
 
     static void use(Object... objs) {
     }
 
     static class B {
+        public void foo(A a) {
+        }
 
+        public void foo(B b) {
+        }
     }
 
     static class A extends B {

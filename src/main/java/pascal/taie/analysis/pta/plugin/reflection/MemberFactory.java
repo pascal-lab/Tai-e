@@ -178,7 +178,30 @@ class MemberFactory {
     private void handleGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-
+            List<PointsToSet> args = getArgs(csVar, pts,
+                    (InvokeVirtual) invoke.getInvokeExp());
+            PointsToSet clsObjs = args.get(0);
+            PointsToSet nameObjs = args.get(1);
+            PointsToSet mtdObjs = PointsToSetFactory.make();
+            clsObjs.forEach(clsObj -> {
+                JClass cls = toClass(clsObj);
+                if (cls != null) {
+                    nameObjs.forEach(nameObj -> {
+                        String name = toString(nameObj);
+                        if (name != null) {
+                            ReflectionUtils.getMethods(cls, name)
+                                    .map(mtd -> {
+                                        Obj mtdObj = getReflectionObj(mtd);
+                                        return csManager.getCSObj(defaultHctx, mtdObj);
+                                    })
+                                    .forEach(mtdObjs::addObject);
+                        }
+                    });
+                }
+            });
+            if (!mtdObjs.isEmpty()) {
+                pta.addVarPointsTo(csVar.getContext(), result, mtdObjs);
+            }
         }
     }
 

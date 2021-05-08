@@ -16,6 +16,8 @@ import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ReflectionUtils {
@@ -38,5 +40,23 @@ public class ReflectionUtils {
                 .stream()
                 .filter(m -> !m.isConstructor() &&
                         m.getName().equals(methodName));
+    }
+
+    static Stream<JMethod> getMethods(JClass jclass, String methodName) {
+        List<JMethod> methods = new ArrayList<>();
+        while (jclass != null) {
+            jclass.getDeclaredMethods()
+                    .stream()
+                    .filter(m -> m.getName().equals(methodName) && m.isPublic())
+                    .forEach(m -> {
+                        if (methods.stream().noneMatch(mtd ->
+                                mtd.getSubsignature()
+                                        .equals(m.getSubsignature()))) {
+                            methods.add(m);
+                        }
+                    });
+            jclass = jclass.getSuperClass();
+        }
+        return methods.stream();
     }
 }
