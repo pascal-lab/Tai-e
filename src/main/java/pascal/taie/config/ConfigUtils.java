@@ -19,12 +19,19 @@ import java.util.Objects;
 
 public class ConfigUtils {
 
+    private final static File outputDir = new File("output");
+
+    static {
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+    }
+
     private ConfigUtils() {
     }
 
-
     static File getDefaultOptions() {
-        return new File("output/options.yml");
+        return new File(outputDir, "options.yml");
     }
 
     /**
@@ -39,7 +46,7 @@ public class ConfigUtils {
     }
 
     public static File getDefaultPlan() {
-        return new File("output/tai-e-plan.yml");
+        return new File(outputDir, "tai-e-plan.yml");
     }
 
     static String extractId(String require) {
