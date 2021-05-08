@@ -58,6 +58,11 @@ public class StringReps {
 
     public static final String VOID = "java.lang.Void";
 
+    public static final List<String> BOXED_TYPES = List.of(
+            BOOLEAN, BYTE, SHORT, CHARACTER, INTEGER,
+            LONG, FLOAT, DOUBLE, VOID
+    );
+
     public static final String THREAD = "java.lang.Thread";
 
     public static final String THREAD_GROUP = "java.lang.ThreadGroup";
