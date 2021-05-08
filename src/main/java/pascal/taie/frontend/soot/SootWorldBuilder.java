@@ -27,6 +27,7 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.Transform;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -166,7 +167,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // Parallelize?
         Timer timer = new Timer("Build all classes");
         timer.start();
-        scene.getClasses().forEach(c ->
+        new ArrayList<>(scene.getClasses()).forEach(c ->
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
         timer.stop();
         System.out.println(timer);
