@@ -32,7 +32,6 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
-import soot.Hierarchy;
 
 import java.util.List;
 import java.util.Map;
@@ -108,9 +107,10 @@ public class LambdaPlugin implements Plugin {
                 InvokeDynamic indy = lambdaObj.getAllocation();
                 Invoke invoke = (Invoke) indy.getCallSite().getStmt();
                 Var ret = invoke.getResult();
-                Context heapContext = selector.selectHeapContext(
-                        csMethod, lambdaObj);
-                pta.addVarPointsTo(context, ret, heapContext, lambdaObj);
+                // here we use full method context as the heap context of
+                // lambda object, so that it can be directly used to obtain
+                // captured values.
+                pta.addVarPointsTo(context, ret, context, lambdaObj);
             });
         }
     }
@@ -131,12 +131,13 @@ public class LambdaPlugin implements Plugin {
             int shiftFlagN = 0;
 
             if (!implMethod.isStatic()) {
-                Type receiverType = implMethod.getRef().getDeclaringClass().getType();
+                Type receiverType = implMethod.getDeclaringClass().getType();
                 implMethod = hierarchy.dispatch(receiverType, implMethod.getRef());
                 shiftFlagK = implMethod.getParamCount() == 0 ? 0 : 1;
                 shiftFlagN = 1 - shiftFlagK;
             }
             // TODO 在这个方法里params和returnValue都获取到的是Var，怎么在这个方法里addVarPointsTo到Obj诶
+            //  -> use recv.getContext() to together with Var to obtain captured values
             //  如果都要在handleNewPointsToSet里面point，那除了lambda-ActualParam的map，还需要维护实际调用的return值吗
 
             // pass return values
