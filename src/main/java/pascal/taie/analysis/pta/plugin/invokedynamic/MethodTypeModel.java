@@ -67,7 +67,7 @@ class MethodTypeModel {
 
     private final List<JMethod> methodTypeMethods;
 
-    private final Map<Var, Set<Invoke>> methodTypeVars = newHybridMap();
+    private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
 
     public MethodTypeModel(PointerAnalysis pta) {
         this.pta = pta;
@@ -76,7 +76,7 @@ class MethodTypeModel {
         defaultHctx = pta.getContextSelector().getDefaultContext();
         ClassHierarchy hierarchy = pta.getHierarchy();
         TypeManager typeManager = pta.getTypeManager();
-        JClass methodType = hierarchy.getClass(StringReps.METHOD_TYPE);
+        JClass methodType = hierarchy.getJREClass(StringReps.METHOD_TYPE);
         Type mt = methodType.getType();
         Type klass = typeManager.getClassType(StringReps.CLASS);
         methodType0Arg = methodType.getDeclaredMethod(
@@ -94,34 +94,34 @@ class MethodTypeModel {
             if (methodTypeMethods.contains(target)) {
                 // record MethodType-related variables
                 invoke.getInvokeExp().getArgs().forEach(arg ->
-                        addToMapSet(methodTypeVars, arg, invoke));
+                        addToMapSet(relevantVars, arg, invoke));
             }
         }
     }
 
     boolean isRelevantVar(Var var) {
-        return methodTypeVars.containsKey(var);
+        return relevantVars.containsKey(var);
     }
 
     void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        methodTypeVars.get(csVar.getVar()).forEach(invoke -> {
+        relevantVars.get(csVar.getVar()).forEach(invoke -> {
             JMethod target = invoke.getMethodRef().resolve();
             if (target.equals(methodType0Arg)) {
-                processMethodType0Arg(csVar, pts, invoke);
+                handleMethodType0Arg(csVar, pts, invoke);
             } else if (target.equals(methodType1Arg)) {
-                processMethodType1Arg(csVar, pts, invoke);
+                handleMethodType1Arg(csVar, pts, invoke);
             } else if (target.equals(methodTypeMT)) {
-                processMethodTypeMT(csVar, pts, invoke);
+                handleMethodTypeMT(csVar, pts, invoke);
             }
         });
     }
 
-    private void processMethodType0Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void handleMethodType0Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             PointsToSet mtObjs = PointsToSetFactory.make();
-            pts.forEach(cls -> {
-                Type retType = toType(cls);
+            pts.forEach(obj -> {
+                Type retType = toType(obj);
                 if (retType != null) {
                     MethodType mt = MethodType.get(Collections.emptyList(), retType);
                     Obj mtObj = heapModel.getConstantObj(mt);
@@ -134,7 +134,7 @@ class MethodTypeModel {
         }
     }
 
-    private void processMethodType1Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void handleMethodType1Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke);
@@ -158,7 +158,7 @@ class MethodTypeModel {
         }
     }
 
-    private void processMethodTypeMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void handleMethodTypeMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke);
@@ -183,15 +183,14 @@ class MethodTypeModel {
     }
 
     /**
-     * When the points-to set of a variable (say v) changes, this convenient
-     * method returns the points-to sets of all relevant variables,
-     * i.e., v and the variables all are arguments of the given call site.
-     * For v, this method returns the changed part, for other variables,
-     * it just returns their current points-to sets.
-     * @param csVar the variable whose points-to set changes
-     * @param pts the points-to set of csVar containing new discovered objects
+     * For invocation MethodType.methodType(a0, a1, ...);
+     * when points-to set of a0, a1 or an changes,
+     * this convenient method returns points-to sets of a0, a1, ...
+     * For case ai == csVar.getVar(), this method returns pts,
+     * otherwise, it just returns current points-to set of ai.
+     * @param csVar may be any of ai.
+     * @param pts changed part of csVar
      * @param invoke the call site which contain csVar
-     * @return points-to sets of all arguments of invoke.
      */
     private List<PointsToSet> getArgs(CSVar csVar, PointsToSet pts, Invoke invoke) {
         return invoke.getInvokeExp().getArgs()
@@ -227,10 +226,6 @@ class MethodTypeModel {
      */
     private static @Nullable MethodType toMethodType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof MethodType) {
-            return (MethodType) alloc;
-        } else {
-            return null;
-        }
+        return alloc instanceof MethodType ? (MethodType) alloc : null;
     }
 }

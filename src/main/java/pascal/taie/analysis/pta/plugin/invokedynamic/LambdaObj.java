@@ -12,22 +12,75 @@
 
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
-import pascal.taie.analysis.pta.core.heap.MockObj;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.HashUtils;
+
+import java.util.Optional;
 
 /**
  * Representation of lambda functional objects.
  */
-public class LambdaObj extends MockObj {
+class LambdaObj implements Obj {
 
-    public LambdaObj(Type type, InvokeDynamic invokeDynamic, JMethod container) {
-        super(type, invokeDynamic, container);
+    private final Type type;
+
+    private final InvokeDynamic allocation;
+
+    private final JMethod container;
+
+    LambdaObj(Type type, InvokeDynamic allocation, JMethod container) {
+        this.type = type;
+        this.allocation = allocation;
+        this.container = container;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 
     @Override
     public InvokeDynamic getAllocation() {
-        return (InvokeDynamic) super.getAllocation();
+        return allocation;
+    }
+
+    @Override
+    public Optional<JMethod> getContainerMethod() {
+        return Optional.of(container);
+    }
+
+    @Override
+    public Type getContainerType() {
+        return container.getDeclaringClass().getType();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LambdaObj lambdaObj = (LambdaObj) o;
+        return type.equals(lambdaObj.type) &&
+                allocation.equals(lambdaObj.allocation);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.hash(allocation, type);
+    }
+
+    @Override
+    public String toString() {
+        return "LambdaObj{" +
+                "type=" + type +
+                ", allocation=" + allocation +
+                ", container=" + container +
+                '}';
     }
 }
