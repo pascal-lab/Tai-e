@@ -146,6 +146,21 @@ public class LambdaPlugin implements Plugin {
                 }
             }
 
+            // method dispatch
+            if (!implMethod.isStatic()) {
+                if (implMethod.getParamCount() == 0) {
+                    if (!CollectionUtils.isEmpty(actualParams)) {
+                        implMethod = hierarchy.dispatch(
+                                actualParams.get(0).getType(), implMethod.getRef());
+                    }
+                } else {
+                    List<Var> capturedValues = lambdaObj.getAllocation().getArgs();
+                    if (!CollectionUtils.isEmpty(capturedValues)) {
+                        implMethod = hierarchy.dispatch(
+                                capturedValues.get(0).getType(), implMethod.getRef());
+                    }
+                }
+            }
             LambdaCallEdge callEdge = new LambdaCallEdge(
                     csManager.getCSCallSite(context, invoke.getInvokeExp()),
                     csManager.getCSMethod(recv.getContext(), implMethod));
