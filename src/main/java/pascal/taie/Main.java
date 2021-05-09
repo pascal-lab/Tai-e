@@ -15,8 +15,8 @@ package pascal.taie;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.AnalysisManager;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.AnalysisManager;
 import pascal.taie.config.AnalysisPlanner;
 import pascal.taie.config.ConfigManager;
 import pascal.taie.config.ConfigUtils;
@@ -67,7 +67,7 @@ public class Main {
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);
         if (!options.getAnalyses().isEmpty()) {
-            // Analyses are specified by cmd options
+            // Analyses are specified by options
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
             manager.overwriteOptions(planConfigs);
             List<AnalysisConfig> plan = planner.expandPlan(planConfigs);

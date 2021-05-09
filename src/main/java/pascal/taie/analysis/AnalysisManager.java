@@ -10,13 +10,12 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.config;
+package pascal.taie.analysis;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.InterproceduralAnalysis;
-import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;

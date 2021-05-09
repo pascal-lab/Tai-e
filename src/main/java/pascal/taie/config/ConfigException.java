@@ -21,9 +21,6 @@ public class ConfigException extends RuntimeException {
         super(msg);
     }
 
-    /**
-     * Constructs a new exception.
-     */
     public ConfigException(String msg, Throwable t) {
         super(msg, t);
     }
