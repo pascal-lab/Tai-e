@@ -71,8 +71,8 @@ public class TypeManagerImpl implements TypeManager {
         assert dim >= 1;
         return arrayTypes.computeIfAbsent(dim, d -> newConcurrentMap())
                 .computeIfAbsent(baseType, t ->
-                        new ArrayType(t, dim
-                                , dim == 1 ? t : getArrayType(t, dim - 1)));
+                        new ArrayType(t, dim,
+                                dim == 1 ? t : getArrayType(t, dim - 1)));
     }
 
     @Override

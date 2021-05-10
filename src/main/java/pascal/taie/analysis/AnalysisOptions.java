@@ -15,6 +15,11 @@ package pascal.taie.analysis;
 
 import java.util.Map;
 
+/**
+ * Wrapper class for analysis options.
+ * Each instance wraps the options for an analysis (represented by a Map),
+ * and provides convenient APIs to access various types of option values.
+ */
 public class AnalysisOptions {
 
     private final Map<String, Object> options;

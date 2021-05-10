@@ -33,6 +33,8 @@ import pascal.taie.config.ConfigException;
 
 public class PointerAnalysis extends InterproceduralAnalysis {
 
+    public static final String ID = "pta";
+
     public PointerAnalysis(AnalysisConfig config) {
         super(config);
     }

@@ -12,6 +12,9 @@
 
 package pascal.taie.analysis;
 
+/**
+ *
+ */
 public interface AnalysisResultHolder {
 
     /**

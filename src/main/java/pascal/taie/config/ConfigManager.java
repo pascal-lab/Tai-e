@@ -67,14 +67,8 @@ public class ConfigManager {
      */
     public void overwriteOptions(List<PlanConfig> planConfigs) {
         planConfigs.forEach(pc -> {
-            AnalysisConfig ac = getConfig(pc.getId());
-            if (ac == null) {
-                // TODO: obtain analysis config file path in a better way
-                throw new ConfigException(pc.getId() +
-                        " is not found in tai-e-analyses.yml");
-            }
-            pc.getOptions().forEach((key, value) ->
-                    ac.getOptions().put(key, value));
+            Map<String, Object> acOptions = getConfig(pc.getId()).getOptions();
+            pc.getOptions().forEach(acOptions::put);
         });
     }
 
