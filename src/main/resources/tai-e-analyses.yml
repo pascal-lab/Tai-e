@@ -113,3 +113,21 @@
 - description: dump classes
   analysisClass: pascal.taie.analysis.misc.ClassDumper
   id: class-dumper
+
+- description: null value analysis
+  analysisClass: pascal.taie.analysis.bugfinder.dataflow.IsNullAnalysis
+  id: isnull
+  requires: [ throw,cfg ]
+
+- description: Null pointer and redundant comparison detector
+  analysisClass: pascal.taie.analysis.bugfinder.detector.NullPointerDetection
+  id: nullpointer
+  requires: [ isnull ]
+
+- description: find clone() related problems
+  analysisClass: pascal.taie.analysis.bugfinder.detector.CloneIdiom
+  id: cloneidiom
+
+- description: find the method that may drop or ignore exception
+  analysisClass: pascal.taie.analysis.bugfinder.detector.DroppedException
+  id: dropped-exception

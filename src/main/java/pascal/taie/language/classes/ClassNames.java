@@ -75,6 +75,10 @@ public final class ClassNames {
 
     public static final String THROWABLE = "java.lang.Throwable";
 
+    public static final String ERROR = "java.lang.Error";
+
+    public static final String EXCEPTION = "java.lang.Exception";
+
     // Names of invokedynamic-related classes
     public static final String CALL_SITE = "java.lang.invoke.CallSite";
 
@@ -99,6 +103,8 @@ public final class ClassNames {
 
     public static final String CLASS_NOT_FOUND_EXCEPTION = "java.lang.ClassNotFoundException";
 
+    public static final String CLONE_NOT_SUPPORTED_EXCEPTION = "java.lang.CloneNotSupportedException";
+
     public static final String EXCEPTION_IN_INITIALIZER_ERROR = "java.lang.ExceptionInInitializerError";
 
     public static final String ILLEGAL_ACCESS_ERROR = "java.lang.IllegalAccessError";
@@ -112,6 +118,8 @@ public final class ClassNames {
     public static final String INSTANTIATION_ERROR = "java.lang.InstantiationError";
 
     public static final String INTERNAL_ERROR = "java.lang.InternalError";
+
+    public static final String INTERRUPTED_EXCEPTION = "java.lang.InterruptedException";
 
     public static final String LINKAGE_ERROR = "java.lang.LinkageError";
 
