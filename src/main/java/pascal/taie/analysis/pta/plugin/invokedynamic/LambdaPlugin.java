@@ -25,11 +25,13 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -41,6 +43,7 @@ import pascal.taie.util.collection.CollectionUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
@@ -64,9 +67,12 @@ public class LambdaPlugin implements Plugin {
     private final Map<JMethod, Set<LambdaObj>> lambdaObjs = newMap();
 
     /**
-     * Map from lambda functional objects to the actual params when the objects are invoked..
+     * Map from receiver variable to the delayed call edge information
+     * when pts of receiver variable is not prepared for dispatching abstract method
      */
-    private final Map<LambdaObj, Set<List<Var>>> invokeParams = newMap();
+    private final Map<Var, Set<DelayedCallEdgeInfo>> delayedCallEdge = newMap();
+
+    private final Map<ClassType, NewInstance> newInstanceMap = newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -84,7 +90,7 @@ public class LambdaPlugin implements Plugin {
             JMethod container = indy.getCallSite().getMethod();
             // record lambda meta factories of new discovered methods
             addToMapSet(lambdaObjs, container, new LambdaObj(type, indy, container));
-            System.out.println(lambdaObjs.values());
+            // System.out.println(lambdaObjs.values());
         });
     }
 
@@ -128,47 +134,83 @@ public class LambdaPlugin implements Plugin {
         if (recv.getObject() instanceof LambdaObj) {
             LambdaObj lambdaObj = (LambdaObj) recv.getObject();
             List<Var> actualParams = invoke.getInvokeExp().getArgs();
+            List<Var> capturedValues = lambdaObj.getAllocation().getArgs();
             Var invokeResult = invoke.getResult();
-            addToMapSet(invokeParams, lambdaObj, actualParams);
+            CSCallSite csCallSite = csManager.getCSCallSite(context, invoke.getInvokeExp());
+            int delayCallEdgeFlag = 0;
 
             JMethod implMethod =
                     ((MethodHandle) lambdaObj.getAllocation().getBootstrapArgs().get(1))
                             .getMethodRef().resolve();
-            if (invokeResult != null) {
+
                 // special: constructor, mock result
-                if (implMethod.isConstructor()) {
-                    ClassType type = implMethod.getDeclaringClass().getType();
-                    NewInstance constructedInstance = new NewInstance(type);
+            if (implMethod.isConstructor()) {
+                Context constructorContext = selector.selectContext(csCallSite, implMethod);
+                ClassType type = implMethod.getDeclaringClass().getType();
+                NewInstance constructedInstance = new NewInstance(type);
+                constructedInstance.setAllocationSite(lambdaObj.getAllocation().getCallSite());
+                if (newInstanceMap.get(type) == null) {
+                    newInstanceMap.put(type, constructedInstance);
                     Obj constructedObj = heapModel.getObj(constructedInstance);
-                    solver.addVarPointsTo(context, invokeResult, context, constructedObj);
-                    // pta.addVarPointsTo(context, implMethod.getIR().getThis(), context, constructedObj);
-                    // TODO here is no implMethod context, implMethod/This -> constructedObj needs to be handled in other methods?
-                }
+                    if (invokeResult != null) {
+                        solver.addVarPointsTo(context, invokeResult, context, constructedObj);
+                    }
+                    solver.addVarPointsTo(
+                            constructorContext, implMethod.getIR().getThis(), context, constructedObj); }
             }
 
+            Context implMethodContext;
             // method dispatch
-            if (!implMethod.isStatic()) {
-                if (implMethod.getParamCount() == 0) {
+            if (!implMethod.isStatic() && !implMethod.isConstructor()) {
+                Var receiverVar = null;
+                Context receiverContext = null;
+                if (capturedValues.size() == 0) {
                     if (!CollectionUtils.isEmpty(actualParams)) {
-                        implMethod = hierarchy.dispatch(
-                                actualParams.get(0).getType(), implMethod.getRef());
+                        receiverVar = actualParams.get(0);
+                        receiverContext = context;
                     }
                 } else {
-                    List<Var> capturedValues = lambdaObj.getAllocation().getArgs();
                     if (!CollectionUtils.isEmpty(capturedValues)) {
-                        implMethod = hierarchy.dispatch(
-                                capturedValues.get(0).getType(), implMethod.getRef());
+                        receiverVar = capturedValues.get(0);
+                        receiverContext = recv.getContext();
                     }
                 }
+                if (receiverVar != null) {
+                    CSVar csVar = csManager.getCSVar(receiverContext, receiverVar);
+                    // System.out.println("pts: " + csVar.getPointsToSet());
+                    List<Type> types = csVar.getPointsToSet().objects()
+                            .map(CSObj::getObject).map(Obj::getType)
+                            .collect(Collectors.toList());
+
+                    for (Type t : types) {
+                        JMethod method = hierarchy.dispatch(t, implMethod.getRef());
+                        if (method != null) {
+                            implMethod = method;
+                            break;
+                        }
+                    }
+                    // when pts is not prepared for dispatching, delay dispatch and addCallEdge
+                    if (implMethod.isAbstract()) {
+                        delayCallEdgeFlag = 1;
+                    }
+                }
+                implMethodContext = selector.selectContext(csCallSite, recv, implMethod);
+            } else {
+                // implMethod is static
+                implMethodContext = selector.selectContext(csCallSite, implMethod);
             }
-            LambdaCallEdge callEdge = new LambdaCallEdge(
-                    csManager.getCSCallSite(context, invoke.getInvokeExp()),
-                    csManager.getCSMethod(recv.getContext(), implMethod));
-            callEdge.setLambdaParams(
-                    invoke.getResult(),
-                    lambdaObj.getAllocation().getArgs(),
-                    recv.getContext());
-            solver.addCallEdge(callEdge);
+
+            if (delayCallEdgeFlag == 0) {
+                LambdaCallEdge callEdge = new LambdaCallEdge(
+                        csCallSite, csManager.getCSMethod(implMethodContext, implMethod));
+                callEdge.setLambdaParams(
+                        invoke.getResult(), lambdaObj.getAllocation().getArgs(), recv.getContext());
+                solver.addCallEdge(callEdge);
+            } else {
+                 addToMapSet(delayedCallEdge, actualParams.get(0),
+                         new DelayedCallEdgeInfo(
+                                 csCallSite, implMethod.getRef(), recv, invokeResult, capturedValues));
+            }
         }
     }
 
@@ -191,19 +233,20 @@ public class LambdaPlugin implements Plugin {
             // shift flags for passing parameters
             int shiftFlagK = 0;
             int shiftFlagN = 0;
-            int paramCount = implMethod.getParamCount();
+            int capturedCount = capturedValues.size(); // #i
             List<Var> implParams = implMethod.getIR().getParams();
 
-            if (!implMethod.isStatic()) {
-                shiftFlagK = paramCount == 0 ? 0 : 1;
+            if (!implMethod.isStatic() && !implMethod.isConstructor()) {
+                shiftFlagK = capturedCount == 0 ? 0 : 1;
                 shiftFlagN = 1 - shiftFlagK;
             }
 
             // pass parameters: from actual parameters & from captured values
-            if (paramCount != 0) {
-                for (int i = 0; i + shiftFlagK <= paramCount
-                                    && i < capturedValues.size()
-                                    && i - shiftFlagK >= 0; i++) {
+            if (implParams.size() != 0) {
+                for (int i = 0; i + shiftFlagK <= capturedCount && i < capturedValues.size(); i++) {
+                    if (i - shiftFlagK < 0) {
+                        continue;
+                    }
                     solver.addPFGEdge(
                             csManager.getCSVar(lambdaContext, capturedValues.get(i)),
                             csManager.getCSVar(implMethodContext, implParams.get(i - shiftFlagK)),
@@ -211,8 +254,11 @@ public class LambdaPlugin implements Plugin {
                 }
 
                 for (int i = 0; i < actualParams.size(); i++) {
-                    int index = paramCount - (shiftFlagK + shiftFlagN) + i;
-                    if (index >= paramCount) {
+                    int index = capturedCount - (shiftFlagK + shiftFlagN) + i;
+                    if (index < 0) {
+                        continue;
+                    }
+                    if (index >= implParams.size()) {
                         break;
                     }
                     solver.addPFGEdge(
@@ -232,9 +278,7 @@ public class LambdaPlugin implements Plugin {
                                 solver.addPFGEdge(r, csInvokeResult, PointerFlowEdge.Kind.RETURN));
             }
 
-            if (shiftFlagK == 1
-                    && !implMethod.isStatic()
-                    && !CollectionUtils.isEmpty(capturedValues)) {
+            if (shiftFlagK == 1 && !CollectionUtils.isEmpty(capturedValues)) {
                 solver.addPFGEdge(
                         csManager.getCSVar(lambdaContext, capturedValues.get(0)),
                         csManager.getCSVar(implMethodContext, implMethod.getIR().getThis()),
@@ -247,6 +291,103 @@ public class LambdaPlugin implements Plugin {
                         csManager.getCSVar(implMethodContext, implMethod.getIR().getThis()),
                         PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
+        }
+    }
+
+    @Override
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        Set<DelayedCallEdgeInfo> callEdges = delayedCallEdge.get(csVar.getVar());
+        if (CollectionUtils.isEmpty(callEdges)) {
+            return;
+        }
+        for (DelayedCallEdgeInfo info : callEdges) {
+            CSCallSite csCallSite = info.getCSCallSite();
+            MethodRef implMethodRef = info.getImplMethodRef();
+            JMethod implMethod = null;
+            List<Type> types = pts.objects()
+                    .map(CSObj::getObject).map(Obj::getType)
+                    .collect(Collectors.toList());
+            for (Type t : types) {
+                JMethod method = hierarchy.dispatch(t, implMethodRef);
+                if (method != null) {
+                    implMethod = method;
+                    break;
+                }
+            }
+            if (implMethod == null) {
+                continue;
+            }
+            Context implContext = selector.selectContext(
+                    csCallSite, info.getRecv(), implMethod);
+            LambdaCallEdge trueCallEdge = new LambdaCallEdge(
+                    csCallSite, csManager.getCSMethod(implContext, implMethod));
+            trueCallEdge.setLambdaParams(
+                    info.getInvokeResult(),
+                    info.getCapturedValues(),
+                    info.getRecv().getContext());
+            solver.addCallEdge(trueCallEdge);
+        }
+    }
+
+    private static class DelayedCallEdgeInfo {
+
+         private CSCallSite csCallSite;
+
+         private MethodRef implMethodRef;
+
+         private CSObj recv;
+
+         private Var invokeResult;
+
+         private List<Var> capturedValues;
+
+        public DelayedCallEdgeInfo(CSCallSite csCallSite, MethodRef implMethodRef,
+                                   CSObj recv, Var invokeResult, List<Var> capturedValues) {
+            this.csCallSite = csCallSite;
+            this.implMethodRef = implMethodRef;
+            this.recv = recv;
+            this.invokeResult = invokeResult;
+            this.capturedValues = capturedValues;
+        }
+
+        public CSCallSite getCSCallSite() {
+            return csCallSite;
+        }
+
+        public void setCSCallSite(CSCallSite csCallSite) {
+            this.csCallSite = csCallSite;
+        }
+
+        public MethodRef getImplMethodRef() {
+            return implMethodRef;
+        }
+
+        public void setImplMethodRef(MethodRef implMethodRef) {
+            this.implMethodRef = implMethodRef;
+        }
+
+        public CSObj getRecv() {
+            return recv;
+        }
+
+        public void setRecv(CSObj recv) {
+            this.recv = recv;
+        }
+
+        public Var getInvokeResult() {
+            return invokeResult;
+        }
+
+        public void setInvokeResult(Var invokeResult) {
+            this.invokeResult = invokeResult;
+        }
+
+        public List<Var> getCapturedValues() {
+            return capturedValues;
+        }
+
+        public void setCapturedValues(List<Var> capturedValues) {
+            this.capturedValues = capturedValues;
         }
     }
 }
