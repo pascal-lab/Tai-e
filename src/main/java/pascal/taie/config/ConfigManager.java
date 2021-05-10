@@ -16,14 +16,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
+/**
+ * Manager for a collection of {@link AnalysisConfig}.
+ */
 public class ConfigManager {
 
+    /**
+     * Map from analysis id to corresponding AnalysisConfig.
+     */
     private final Map<String, AnalysisConfig> configs = new LinkedHashMap<>();
 
+    /**
+     * Map from AnalysisConfig to its required AnalysisConfigs.
+     */
     private final Map<AnalysisConfig, List<AnalysisConfig>> requires = newMap();
 
     public ConfigManager(List<AnalysisConfig> configs) {
@@ -40,12 +48,18 @@ public class ConfigManager {
         configs.put(config.getId(), config);
     }
 
+    /**
+     * Given an analysis id, return the corresponding AnalysisConfig.
+     * @throws ConfigException when the manager does not contain
+     *  the AnalysisConfig for the given id.
+     */
     AnalysisConfig getConfig(String id) {
-        return configs.get(id);
-    }
-
-    Stream<AnalysisConfig> configs() {
-        return configs.values().stream();
+        AnalysisConfig config = configs.get(id);
+        if (config == null) {
+            // TODO: obtain analysis config file path in a better way
+            throw new ConfigException(id + " is not found in tai-e-analyses.yml");
+        }
+        return config;
     }
 
     /**
@@ -57,7 +71,7 @@ public class ConfigManager {
             if (ac == null) {
                 // TODO: obtain analysis config file path in a better way
                 throw new ConfigException(pc.getId() +
-                        " is not configured in tai-e-analyses.yml");
+                        " is not found in tai-e-analyses.yml");
             }
             pc.getOptions().forEach((key, value) ->
                     ac.getOptions().put(key, value));
@@ -65,9 +79,9 @@ public class ConfigManager {
     }
 
     /**
-     * Obtain the required configs of given config. This computation is
-     * based on the options in PlanConfig, thus this method should be called
-     * after invoking {@link #overwriteOptions(List<PlanConfig>)}.
+     * Obtain the required analyses of given analysis (represented by AnalysisConfig).
+     * This computation is based on the options given in PlanConfig,
+     * thus this method should be called after invoking {@link #overwriteOptions}.
      * NOTE: we should obtain required configs by this method, instead of
      * {@link AnalysisConfig#getRequires()}.
      */

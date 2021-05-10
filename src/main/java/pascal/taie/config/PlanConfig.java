@@ -29,13 +29,25 @@ import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
+/**
+ * Configuration for an analysis to be executed.
+ *
+ * Different from {@link AnalysisConfig} which is specified by configuration file,
+ * {@link PlanConfig} is specified by either plan file or options.
+ */
 public class PlanConfig {
 
     private static final Logger logger = LogManager.getLogger(PlanConfig.class);
 
+    /**
+     * Unique identifier of the analysis.
+     */
     @JsonProperty
     private String id;
 
+    /**
+     * Options for the analysis.
+     */
     @JsonProperty
     private Map<String, Object> options = newHybridMap();
 

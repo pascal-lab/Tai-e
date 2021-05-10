@@ -167,7 +167,7 @@ public class Options {
 
     @JsonProperty
     @Option(names = {"-a", "--analysis"},
-            description = "Analyses to be performed", split = ";",
+            description = "Analyses to be executed", split = ";",
             mapFallbackValue = "")
     private Map<String, String> analyses = Collections.emptyMap();
 
@@ -195,26 +195,47 @@ public class Options {
     }
 
     /**
+     * Parse arguments and return the parsed and post-processed Options.
+     */
+    public static Options parse(String... args) {
+        Options options = CommandLine.populateCommand(new Options(), args);
+        return options.postProcess();
+    }
+
+    /**
      * Validate input options and do some post-process on it.
-     * @return the Options object itself after post-process.
+     * @return the Options object after post-process.
      */
     private Options postProcess() {
         Options result = optionsFile == null ? this :
                 // If options file is given, we ignore other options,
                 // and instead read options from the file.
-                readOptions(optionsFile);
+                readRawOptions(optionsFile);
         if (isPrependJVM()) {
             javaVersion = getCurrentJavaVersion();
         }
         if (!analyses.isEmpty() && planFile != null) {
             // The user should choose either options or plan file to
             // specify analyses to be executed.
-            throw new ConfigException("Ambiguous configuration: " +
+            throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
         // TODO: turn off output in test mode?
         writeOptions(result, ConfigUtils.getDefaultOptions());
         return result;
+    }
+
+    /**
+     * Read options from file.
+     * Note: the returned options have not been post-processed.
+     */
+    private static Options readRawOptions(File file) {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try {
+            return mapper.readValue(file, Options.class);
+        } catch (IOException e) {
+            throw new ConfigException("Failed to read options from " + file, e);
+        }
     }
 
     static int getCurrentJavaVersion() {
@@ -229,26 +250,8 @@ public class Options {
     }
 
     /**
-     * Parse arguments and return new Options object.
+     * Write options to given file.
      */
-    public static Options parse(String... args) {
-        Options options = CommandLine.populateCommand(new Options(), args);
-        return options.postProcess();
-    }
-
-    /**
-     * Read options from file.
-     * The returned options have not been post-processed.
-     */
-    private static Options readOptions(File file) {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        try {
-            return mapper.readValue(file, Options.class);
-        } catch (IOException e) {
-            throw new ConfigException("Failed to read options from " + file, e);
-        }
-    }
-
     private static void writeOptions(Options options, File output) {
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()
