@@ -20,8 +20,11 @@ import pascal.taie.util.graph.TopoSorter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
  * Make analysis plan based on given plan configs and analysis configs.
@@ -90,13 +93,15 @@ public class AnalysisPlanner {
     private Graph<AnalysisConfig> buildRequireGraph(List<PlanConfig> planConfigs) {
         SimpleGraph<AnalysisConfig> graph = new SimpleGraph<>();
         Queue<AnalysisConfig> workList = new LinkedList<>();
+        Set<AnalysisConfig> visited = newSet();
         planConfigs.forEach(pc -> workList.add(manager.getConfig(pc.getId())));
         while (!workList.isEmpty()) {
             AnalysisConfig config = workList.poll();
             graph.addNode(config);
+            visited.add(config);
             manager.getRequiredConfigs(config).forEach(required -> {
                 graph.addEdge(config, required);
-                if (!graph.hasNode(required)) {
+                if (!visited.contains(required)) {
                     workList.add(required);
                 }
             });

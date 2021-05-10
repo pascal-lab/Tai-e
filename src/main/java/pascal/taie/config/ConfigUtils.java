@@ -64,15 +64,15 @@ public class ConfigUtils {
     /**
      * Examples of conditions:
      * - a=b
-     * - a=b,x=y
-     * - a=b|c|d,x=y
+     * - a=b&x=y
+     * - a=b|c|d&x=y
      * @return if the given options satisfy the given conditions.
      * TODO: comprehensive error handling for invalid conditions
      */
     static boolean satisfyConditions(String conditions, Map<String, Object> options) {
         if (conditions != null) {
             outer:
-            for (String conds : conditions.split(",")) {
+            for (String conds : conditions.split("&")) {
                 String[] splits = conds.split("=");
                 String key = splits[0];
                 String value = splits[1];
