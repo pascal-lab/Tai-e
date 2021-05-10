@@ -66,10 +66,9 @@ public class ConfigManager {
      * Overwrite the AnalysisConfig.options by corresponding PlanConfig.options.
      */
     public void overwriteOptions(List<PlanConfig> planConfigs) {
-        planConfigs.forEach(pc -> {
-            Map<String, Object> acOptions = getConfig(pc.getId()).getOptions();
-            pc.getOptions().forEach(acOptions::put);
-        });
+        planConfigs.forEach(pc ->
+                getConfig(pc.getId()).getOptions()
+                        .update(pc.getOptions()));
     }
 
     /**

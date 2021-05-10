@@ -75,12 +75,7 @@ public class Main {
             // For outputting purpose, we first convert AnalysisConfigs
             // in the expanded plan to PlanConfigs
             List<PlanConfig> configs = plan.stream()
-                    .map(ac -> {
-                        PlanConfig pc = new PlanConfig();
-                        pc.setId(ac.getId());
-                        pc.setOptions(ac.getOptions());
-                        return pc;
-                    })
+                    .map(ac -> new PlanConfig(ac.getId(), ac.getOptions()))
                     .collect(Collectors.toUnmodifiableList());
             // TODO: turn off output in test mode?
             PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());

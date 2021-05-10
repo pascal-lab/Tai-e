@@ -12,6 +12,7 @@
 
 package pascal.taie.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,11 +20,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.emptyList;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import java.util.Objects;
 
 /**
  * Configuration for an analysis.
@@ -37,7 +38,7 @@ public class AnalysisConfig {
      * and not used by Tai-e.
      */
     @JsonProperty
-    private String description;
+    private final String description;
 
     /**
      * Fully-qualified name of the analysis class.
@@ -50,7 +51,7 @@ public class AnalysisConfig {
      * which cost more time than merely loading class names.
      */
     @JsonProperty
-    private String analysisClass;
+    private final String analysisClass;
 
     /**
      * Unique identifier of the analysis.
@@ -60,7 +61,7 @@ public class AnalysisConfig {
      * the configuration system will throw {@link ConfigException}.
      */
     @JsonProperty
-    private String id;
+    private final String id;
 
     /**
      * Require items of the analysis.
@@ -81,18 +82,31 @@ public class AnalysisConfig {
      *  a, b, or c.
      */
     @JsonProperty
-    private List<String> requires = emptyList();
+    private final List<String> requires;
 
     /**
      * Options for the analysis.
      */
     @JsonProperty
-    private Map<String, Object> options = newHybridMap();
+    private final AnalysisOptions options;
 
     /**
      * Used by deserialization from configuration file.
      */
-    public AnalysisConfig() {
+    @JsonCreator
+    public AnalysisConfig(
+            @JsonProperty("description") String description,
+            @JsonProperty("analysisClass") String analysisClass,
+            @JsonProperty("id") String id,
+            @JsonProperty("requires") List<String> requires,
+            @JsonProperty("options") AnalysisOptions options) {
+        this.description = description;
+        this.analysisClass = analysisClass;
+        this.id = id;
+        this.requires = Objects.requireNonNullElse(requires,
+                Collections.emptyList());
+        this.options = Objects.requireNonNullElse(options,
+                AnalysisOptions.emptyOptions());
     }
 
     /**
@@ -102,10 +116,19 @@ public class AnalysisConfig {
      * [k1, v1, k2, v2, ...].
      */
     public AnalysisConfig(String id, Object... options) {
-        this.id = id;
+        this(null, null, id, null, convertOptions(options));
+    }
+
+    /**
+     * Convert an array of key-value pairs (e.g, [k1, v1, k2, v2, ...])
+     * to AnalysisOptions.
+     */
+    private static AnalysisOptions convertOptions(Object[] options) {
+        Map<String, Object> optionsMap = new LinkedHashMap<>();
         for (int i = 0; i < options.length; i += 2) {
-            this.options.put((String) options[i], options[i + 1]);
+            optionsMap.put((String) options[i], options[i + 1]);
         }
+        return new AnalysisOptions(optionsMap);
     }
 
     public String getDescription() {
@@ -131,7 +154,7 @@ public class AnalysisConfig {
         return requires;
     }
 
-    public Map<String, Object> getOptions() {
+    public AnalysisOptions getOptions() {
         return options;
     }
 

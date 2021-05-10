@@ -14,7 +14,6 @@ package pascal.taie.config;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -87,7 +86,7 @@ public class ConfigUtils {
      * a=b|c|d&x=y
      * TODO: comprehensive error handling for invalid conditions
      */
-    static boolean satisfyConditions(String conditions, Map<String, Object> options) {
+    static boolean satisfyConditions(String conditions, AnalysisOptions options) {
         if (conditions != null) {
             outer:
             for (String conds : conditions.split("&")) {

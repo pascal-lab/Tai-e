@@ -13,25 +13,29 @@
 package pascal.taie.analysis;
 
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.AnalysisOptions;
 
+/**
+ * Abstract base class for all analyses.
+ */
 public abstract class Analysis {
 
-    private final String id;
+    /**
+     * Configuration of this analysis.
+     */
+    private final AnalysisConfig config;
 
     // private boolean isStoreResult;
 
-    private final AnalysisOptions options;
-
     protected Analysis(AnalysisConfig config) {
-        this.id = config.getId();
-        this.options = new AnalysisOptions(config.getOptions());
+        this.config = config;
     }
 
     public String getId() {
-        return id;
+        return config.getId();
     }
 
     public AnalysisOptions getOptions() {
-        return options;
+        return config.getOptions();
     }
 }

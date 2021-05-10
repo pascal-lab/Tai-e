@@ -65,7 +65,7 @@ public class AnalysisPlanner {
                     // required analysis is missing
                     throw new ConfigException("Invalid configuration: " +
                             required + " is required by " + config +
-                            " but missing");
+                            " but missing in analysis plan");
                 } else if (rindex >= i) {
                     // invalid analysis order: required analysis runs
                     // after current analysis

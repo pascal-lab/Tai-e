@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
-import pascal.taie.analysis.AnalysisOptions;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.language.type.Type;

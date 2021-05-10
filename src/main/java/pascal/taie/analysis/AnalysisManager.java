@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Initialize analyses based on given analysis plan.
+ * Create and execute analyses based on given analysis plan.
  */
 public class AnalysisManager {
 
@@ -64,6 +64,7 @@ public class AnalysisManager {
     }
 
     private void runIntraproceduralAnalysis(IntraproceduralAnalysis analysis) {
+        // Obtain all non-abstract and non-native methods in class hierarchy
         Stream<JMethod> methods = World.getClassHierarchy()
                 .getAllClasses()
                 .stream()

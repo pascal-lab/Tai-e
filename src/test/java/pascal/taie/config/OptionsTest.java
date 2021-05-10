@@ -67,7 +67,5 @@ public class OptionsTest {
         PlanConfig pta = configs.get(1);
         Assert.assertEquals(1800, pta.getOptions().get("timeout"));
         Assert.assertFalse((Boolean) pta.getOptions().get("merge-string-objects"));
-        PlanConfig throwConfig = configs.get(2);
-        Assert.assertTrue(throwConfig.getOptions().isEmpty());
     }
 }
