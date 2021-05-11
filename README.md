@@ -57,7 +57,7 @@ Specify analyses by file. You can specify the analyses to be executed (called an
 
 Note that options `-a` and `-p` are mutually-exclusive, thus you *cannot* specify them simultaneously.
 
-(*TODO: elaborate analysis system in more detailed level*)
+(*TODO: elaborate more details about analysis system*)
 
 ### Other Options
 #### Help (-h, --help)
