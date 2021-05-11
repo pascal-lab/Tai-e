@@ -40,10 +40,8 @@ public class ConfigManager {
 
     private void addConfig(AnalysisConfig config) {
         if (configs.containsKey(config.getId())) {
-            // TODO: obtain analysis config file path in a better way
-            throw new ConfigException(
-                    "There are multiple analyses for the same id " +
-                            config.getId() + " in tai-e-analyses.yml");
+            throw new ConfigException("There are multiple analyses for the same id " +
+                    config.getId() + " in " + ConfigUtils.getAnalysisConfig());
         }
         configs.put(config.getId(), config);
     }
@@ -56,9 +54,8 @@ public class ConfigManager {
     AnalysisConfig getConfig(String id) {
         AnalysisConfig config = configs.get(id);
         if (config == null) {
-            // TODO: obtain analysis config file path in a better way
-            throw new ConfigException("Analysis " + id +
-                    " is not found in tai-e-analyses.yml");
+            throw new ConfigException("Analysis " + id + " is not found in " +
+                    ConfigUtils.getAnalysisConfig());
         }
         return config;
     }

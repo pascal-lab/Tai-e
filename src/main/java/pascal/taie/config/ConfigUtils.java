@@ -37,20 +37,21 @@ public class ConfigUtils {
     }
 
     /**
-     * @return default file for outputting options.
+     * @return the file for storing analysis configurations.
+     * TODO: the path of configuration file is hardcoded, make it configurable?
      */
-    static File getDefaultOptions() {
-        return new File(outputDir, "options.yml");
-    }
-
-    /**
-     * @return default file for storing analysis configurations.
-     */
-    public static File getDefaultAnalysisConfig() {
+    public static File getAnalysisConfig() {
         URL url = Objects.requireNonNull(ConfigUtils.class
                 .getClassLoader()
                 .getResource("tai-e-analyses.yml"));
         return new File(url.getFile());
+    }
+
+    /**
+     * @return default file for outputting options.
+     */
+    static File getDefaultOptions() {
+        return new File(outputDir, "options.yml");
     }
 
     /**

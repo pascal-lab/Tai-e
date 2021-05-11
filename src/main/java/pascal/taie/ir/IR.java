@@ -12,7 +12,7 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.analysis.AnalysisResultHolder;
+import pascal.taie.analysis.ResultHolder;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Intermediate representation for method body of non-abstract methods.
  */
-public interface IR extends AnalysisResultHolder {
+public interface IR extends ResultHolder {
 
     JMethod getMethod();
 

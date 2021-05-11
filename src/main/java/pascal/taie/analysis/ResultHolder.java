@@ -13,14 +13,14 @@
 package pascal.taie.analysis;
 
 /**
- * The object for managing analysis results.
+ * The holder object of analysis results.
  * The results of each analysis are associated with its id.
  *
  * Currently, this interface is extends by {@link pascal.taie.ir.IR} and
  * held by {@link pascal.taie.World} for storing intra- and inter-procedural
  * analysis results, respectively.
  */
-public interface AnalysisResultHolder {
+public interface ResultHolder {
 
     /**
      * Store the analysis result with the analysis id.

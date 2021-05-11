@@ -62,7 +62,7 @@ public class Main {
     }
 
     private static List<AnalysisConfig> processConfigs(Options options) {
-        File configFile = ConfigUtils.getDefaultAnalysisConfig();
+        File configFile = ConfigUtils.getAnalysisConfig();
         List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);

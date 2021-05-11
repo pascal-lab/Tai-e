@@ -17,9 +17,9 @@ import java.util.Map;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 /**
- * Implementation for {@link AnalysisResultHolder}.
+ * Implementation for {@link ResultHolder}.
  */
-public abstract class AbstractHolder implements AnalysisResultHolder {
+public abstract class AbstractHolder implements ResultHolder {
 
     /**
      * Map from analysis ID to the corresponding analysis result.

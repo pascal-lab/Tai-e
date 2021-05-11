@@ -44,10 +44,13 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
         SolverImpl solver = new SolverImpl();
         setContextSensitivity(solver);
-        setPlugin(solver);
         solver.setOptions(getOptions());
         solver.setHeapModel(new AllocationSiteBasedModel(getOptions()));
         solver.setCSManager(new MapBasedCSManager());
+        // The initialization of some Plugins may read the fields in solver,
+        // e.g., contextSelector or csManager, thus we initialize Plugins
+        // after setting all other fields of solver.
+        setPlugin(solver);
         solver.solve();
         // TODO: add a class to represent pointer analysis results, including
         //  points-to set, call graph, exception, etc., without contexts
