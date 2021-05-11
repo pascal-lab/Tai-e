@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.core.heap;
 
-import pascal.taie.analysis.AnalysisOptions;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.NewExp;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {

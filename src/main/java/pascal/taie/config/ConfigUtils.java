@@ -14,15 +14,21 @@ package pascal.taie.config;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Utility methods for config system.
+ */
 public class ConfigUtils {
 
+    /**
+     * Default directory for Tai-e's output.
+     */
     private final static File outputDir = new File("output");
 
     static {
         if (!outputDir.exists()) {
+            // Ensure the existence of output directory.
             outputDir.mkdirs();
         }
     }
@@ -30,31 +36,43 @@ public class ConfigUtils {
     private ConfigUtils() {
     }
 
-    static File getDefaultOptions() {
-        return new File(outputDir, "options.yml");
-    }
-
     /**
-     * Return default analysis configuration file.
-     * TODO: move to World?
+     * @return the file for storing analysis configurations.
+     * TODO: the path of configuration file is hardcoded, make it configurable?
      */
-    public static File getDefaultAnalysisConfig() {
+    public static File getAnalysisConfig() {
         URL url = Objects.requireNonNull(ConfigUtils.class
                 .getClassLoader()
                 .getResource("tai-e-analyses.yml"));
         return new File(url.getFile());
     }
 
+    /**
+     * @return default file for outputting options.
+     */
+    static File getDefaultOptions() {
+        return new File(outputDir, "options.yml");
+    }
+
+    /**
+     * @return default file for outputting analysis plan.
+     */
     public static File getDefaultPlan() {
         return new File(outputDir, "tai-e-plan.yml");
     }
 
+    /**
+     * Extract analysis id from given require item.
+     */
     static String extractId(String require) {
         int index = require.indexOf('(');
         return index == -1 ? require :
                 require.substring(0, index);
     }
 
+    /**
+     * Extract conditions (represented by a string) from given require item.
+     */
     static String extractConditions(String require) {
         int index = require.indexOf('(');
         return index == -1 ? null :
@@ -62,17 +80,17 @@ public class ConfigUtils {
     }
 
     /**
+     * Check if options satisfy the given conditions.
      * Examples of conditions:
-     * - a=b
-     * - a=b,x=y
-     * - a=b|c|d,x=y
-     * @return if the given options satisfy the given conditions.
+     * a=b
+     * a=b&x=y
+     * a=b|c|d&x=y
      * TODO: comprehensive error handling for invalid conditions
      */
-    static boolean satisfyConditions(String conditions, Map<String, Object> options) {
+    static boolean satisfyConditions(String conditions, AnalysisOptions options) {
         if (conditions != null) {
             outer:
-            for (String conds : conditions.split(",")) {
+            for (String conds : conditions.split("&")) {
                 String[] splits = conds.split("=");
                 String key = splits[0];
                 String value = splits[1];

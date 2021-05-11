@@ -16,14 +16,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
+/**
+ * Manager for a collection of {@link AnalysisConfig}.
+ */
 public class ConfigManager {
 
+    /**
+     * Map from analysis id to corresponding AnalysisConfig.
+     */
     private final Map<String, AnalysisConfig> configs = new LinkedHashMap<>();
 
+    /**
+     * Map from AnalysisConfig to its required AnalysisConfigs.
+     */
     private final Map<AnalysisConfig, List<AnalysisConfig>> requires = newMap();
 
     public ConfigManager(List<AnalysisConfig> configs) {
@@ -32,42 +40,39 @@ public class ConfigManager {
 
     private void addConfig(AnalysisConfig config) {
         if (configs.containsKey(config.getId())) {
-            // TODO: obtain analysis config file path in a better way
-            throw new ConfigException(
-                    "There are multiple analyses for the same id " +
-                            config.getId() + " in tai-e-analyses.yml");
+            throw new ConfigException("There are multiple analyses for the same id " +
+                    config.getId() + " in " + ConfigUtils.getAnalysisConfig());
         }
         configs.put(config.getId(), config);
     }
 
+    /**
+     * Given an analysis id, return the corresponding AnalysisConfig.
+     * @throws ConfigException when the manager does not contain
+     *  the AnalysisConfig for the given id.
+     */
     AnalysisConfig getConfig(String id) {
-        return configs.get(id);
-    }
-
-    Stream<AnalysisConfig> configs() {
-        return configs.values().stream();
+        AnalysisConfig config = configs.get(id);
+        if (config == null) {
+            throw new ConfigException("Analysis " + id + " is not found in " +
+                    ConfigUtils.getAnalysisConfig());
+        }
+        return config;
     }
 
     /**
      * Overwrite the AnalysisConfig.options by corresponding PlanConfig.options.
      */
     public void overwriteOptions(List<PlanConfig> planConfigs) {
-        planConfigs.forEach(pc -> {
-            AnalysisConfig ac = getConfig(pc.getId());
-            if (ac == null) {
-                // TODO: obtain analysis config file path in a better way
-                throw new ConfigException(pc.getId() +
-                        " is not configured in tai-e-analyses.yml");
-            }
-            pc.getOptions().forEach((key, value) ->
-                    ac.getOptions().put(key, value));
-        });
+        planConfigs.forEach(pc ->
+                getConfig(pc.getId()).getOptions()
+                        .update(pc.getOptions()));
     }
 
     /**
-     * Obtain the required configs of given config. This computation is
-     * based on the options in PlanConfig, thus this method should be called
-     * after invoking {@link #overwriteOptions(List<PlanConfig>)}.
+     * Obtain the required analyses of given analysis (represented by AnalysisConfig).
+     * This computation is based on the options given in PlanConfig,
+     * thus this method should be called after invoking {@link #overwriteOptions}.
      * NOTE: we should obtain required configs by this method, instead of
      * {@link AnalysisConfig#getRequires()}.
      */

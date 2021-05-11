@@ -14,8 +14,8 @@ package pascal.taie;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.AnalysisManager;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.AnalysisManager;
 import pascal.taie.config.AnalysisPlanner;
 import pascal.taie.config.ConfigManager;
 import pascal.taie.config.ConfigUtils;
@@ -61,12 +61,12 @@ public class Main {
     }
 
     private static List<AnalysisConfig> processConfigs(Options options) {
-        File configFile = ConfigUtils.getDefaultAnalysisConfig();
+        File configFile = ConfigUtils.getAnalysisConfig();
         List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);
         if (!options.getAnalyses().isEmpty()) {
-            // Analyses are specified by cmd options
+            // Analyses are specified by options
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
             manager.overwriteOptions(planConfigs);
             List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
@@ -74,12 +74,7 @@ public class Main {
             // For outputting purpose, we first convert AnalysisConfigs
             // in the expanded plan to PlanConfigs
             List<PlanConfig> configs = plan.stream()
-                    .map(ac -> {
-                        PlanConfig pc = new PlanConfig();
-                        pc.setId(ac.getId());
-                        pc.setOptions(ac.getOptions());
-                        return pc;
-                    })
+                    .map(ac -> new PlanConfig(ac.getId(), ac.getOptions()))
                     .collect(Collectors.toUnmodifiableList());
             // TODO: turn off output in test mode?
             PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());

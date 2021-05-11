@@ -13,7 +13,7 @@
 package pascal.taie;
 
 import pascal.taie.analysis.AbstractHolder;
-import pascal.taie.analysis.AnalysisResultHolder;
+import pascal.taie.analysis.ResultHolder;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.config.Options;
 import pascal.taie.ir.IRBuilder;
@@ -60,7 +60,7 @@ public class World {
 
     private NativeModel nativeModel;
 
-    private final AnalysisResultHolder resultHolder = new AbstractHolder() {};
+    private final ResultHolder resultHolder = new AbstractHolder() {};
 
     /**
      * Will be deprecated after removing old PTA.

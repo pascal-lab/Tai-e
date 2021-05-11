@@ -20,8 +20,11 @@ import pascal.taie.util.graph.TopoSorter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
  * Make analysis plan based on given plan configs and analysis configs.
@@ -39,7 +42,7 @@ public class AnalysisPlanner {
      * to AnalysisConfig. It will be used when analysis plan is specified
      * by configuration file.
      * @return the analysis plan consists of a list of analysis config.
-     * @throws ConfigException if the given planConfigs is invalid.
+     * @throws ConfigException if the given planConfigs are invalid.
      */
     public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs) {
         List<AnalysisConfig> plan = planConfigs.stream()
@@ -62,9 +65,10 @@ public class AnalysisPlanner {
                     // required analysis is missing
                     throw new ConfigException("Invalid configuration: " +
                             required + " is required by " + config +
-                            " but missing");
+                            " but missing in analysis plan");
                 } else if (rindex >= i) {
-                    // required analysis runs after current analysis
+                    // invalid analysis order: required analysis runs
+                    // after current analysis
                     throw new ConfigException("Invalid configuration: " +
                             required + " is required by " + config +
                             " but it runs after " + config);
@@ -78,7 +82,7 @@ public class AnalysisPlanner {
      * and it will automatically add required analyses (which are not in
      * the given plan) to the resulting plan.
      * It will be used when analysis plan is specified by command line options.
-     * @return the analysis plan consists of a list of analysis config.
+     * @return the analysis plan consisting of a list of analysis config.
      * @throws ConfigException if the specified planConfigs is invalid.
      */
     public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs) {
@@ -87,16 +91,28 @@ public class AnalysisPlanner {
         return new TopoSorter<>(graph, true).get();
     }
 
+    /**
+     * Build a require graph for AnalysisConfigs.
+     * This method traverses relevant AnalysisConfigs starting from the ones
+     * specified by given PlanConfigs. During the traversal, if it finds that
+     * analysis A1 requires A2, then it adds an edge A1 -> A2 and
+     * nodes A1 and A2 to the resulting graph.
+     *
+     * The resulting graph contains the given analyses (planConfigs) and
+     * all their (directly and indirectly) required analyses.
+     */
     private Graph<AnalysisConfig> buildRequireGraph(List<PlanConfig> planConfigs) {
         SimpleGraph<AnalysisConfig> graph = new SimpleGraph<>();
         Queue<AnalysisConfig> workList = new LinkedList<>();
+        Set<AnalysisConfig> visited = newSet();
         planConfigs.forEach(pc -> workList.add(manager.getConfig(pc.getId())));
         while (!workList.isEmpty()) {
             AnalysisConfig config = workList.poll();
             graph.addNode(config);
+            visited.add(config);
             manager.getRequiredConfigs(config).forEach(required -> {
                 graph.addEdge(config, required);
-                if (!graph.hasNode(required)) {
+                if (!visited.contains(required)) {
                     workList.add(required);
                 }
             });
