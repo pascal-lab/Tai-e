@@ -1,15 +1,20 @@
-### Prerequisites
-Before you start develop your analysis on top of Tai-e, please finish following steps:
-- Install Java 11 on your system (Windows/Linux/MacOS)
-- Import to IntelliJ IDEA as a Gradle project
-- Clone submodule `java-benchmarks` (it contains the Java libraries used by the analysis):
-```
-git submodule update --init --recursive
-```
+## Building Tai-e
 
-### How to Develop A New Analysis?
+Before building Tai-e, make sure that your build tool/IDE uses **JDK 11** (*TODO: check higher JDK versions*).
 
-**1. Develop the analysis**
+### Building Tai-e with Gradle
+Tai-e uses Gradle as its build system, thus it can be easily built as follows:
+1. Install Gradle (we use Gradle 5.6.2, *TODO: check other Gradle versions*).
+2. Switch working directory to Tai-e's root directory.
+3. Run command: `gradle compileJava`.
+
+### Building Tai-e with IntelliJ IDEA (Recommended)
+IntelliJ IDEA supports a fully-functional integration with Gradle, thus it is very easy to [import Tai-e into IntelliJ IDEA](https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start).
+
+### Building Tai-e with Eclipse (TODO)
+
+### Building Tai-e with Visual Studio Code (TODO)
+
 
 
 `pascal.taie.analysis.IntraproceduralAnalysis`
