@@ -72,6 +72,9 @@ public class LambdaPlugin implements Plugin {
      */
     private final Map<Var, Set<DelayedCallEdgeInfo>> delayedCallEdge = newMap();
 
+    /**
+     * Map from type to NewInstance to avoid mocking same objects
+     */
     private final Map<ClassType, NewInstance> newInstanceMap = newMap();
 
     @Override
@@ -143,7 +146,7 @@ public class LambdaPlugin implements Plugin {
                     ((MethodHandle) lambdaObj.getAllocation().getBootstrapArgs().get(1))
                             .getMethodRef().resolve();
 
-                // special: constructor, mock result
+            // special: constructor, mock result
             if (implMethod.isConstructor()) {
                 Context constructorContext = selector.selectContext(csCallSite, implMethod);
                 ClassType type = implMethod.getDeclaringClass().getType();
@@ -156,7 +159,8 @@ public class LambdaPlugin implements Plugin {
                         solver.addVarPointsTo(context, invokeResult, context, constructedObj);
                     }
                     solver.addVarPointsTo(
-                            constructorContext, implMethod.getIR().getThis(), context, constructedObj); }
+                            constructorContext, implMethod.getIR().getThis(), context, constructedObj);
+                }
             }
 
             Context implMethodContext;
@@ -189,7 +193,7 @@ public class LambdaPlugin implements Plugin {
                             break;
                         }
                     }
-                    // when pts is not prepared for dispatching, delay dispatch and addCallEdge
+                    // when pts is not prepared for dispatching, delay dispatch & addCallEdge
                     if (implMethod.isAbstract()) {
                         delayCallEdgeFlag = 1;
                     }
@@ -207,9 +211,10 @@ public class LambdaPlugin implements Plugin {
                         invoke.getResult(), lambdaObj.getAllocation().getArgs(), recv.getContext());
                 solver.addCallEdge(callEdge);
             } else {
-                 addToMapSet(delayedCallEdge, actualParams.get(0),
-                         new DelayedCallEdgeInfo(
-                                 csCallSite, implMethod.getRef(), recv, invokeResult, capturedValues));
+                // to be handled in handleNewPointsToSet
+                addToMapSet(delayedCallEdge, actualParams.get(0),
+                        new DelayedCallEdgeInfo(
+                                csCallSite, implMethod.getRef(), recv, invokeResult, capturedValues));
             }
         }
     }
@@ -296,11 +301,11 @@ public class LambdaPlugin implements Plugin {
 
     @Override
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        Set<DelayedCallEdgeInfo> callEdges = delayedCallEdge.get(csVar.getVar());
-        if (CollectionUtils.isEmpty(callEdges)) {
+        Set<DelayedCallEdgeInfo> callEdgeInfos = delayedCallEdge.get(csVar.getVar());
+        if (CollectionUtils.isEmpty(callEdgeInfos)) {
             return;
         }
-        for (DelayedCallEdgeInfo info : callEdges) {
+        for (DelayedCallEdgeInfo info : callEdgeInfos) {
             CSCallSite csCallSite = info.getCSCallSite();
             MethodRef implMethodRef = info.getImplMethodRef();
             JMethod implMethod = null;
@@ -331,15 +336,15 @@ public class LambdaPlugin implements Plugin {
 
     private static class DelayedCallEdgeInfo {
 
-         private CSCallSite csCallSite;
+        private CSCallSite csCallSite;
 
-         private MethodRef implMethodRef;
+        private MethodRef implMethodRef;
 
-         private CSObj recv;
+        private CSObj recv;
 
-         private Var invokeResult;
+        private Var invokeResult;
 
-         private List<Var> capturedValues;
+        private List<Var> capturedValues;
 
         public DelayedCallEdgeInfo(CSCallSite csCallSite, MethodRef implMethodRef,
                                    CSObj recv, Var invokeResult, List<Var> capturedValues) {
