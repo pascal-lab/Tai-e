@@ -14,6 +14,9 @@ package pascal.taie.analysis;
 
 import pascal.taie.config.AnalysisConfig;
 
+/**
+ * Abstract base class for all inter-procedural analyses.
+ */
 public abstract class InterproceduralAnalysis extends Analysis {
 
     protected InterproceduralAnalysis(AnalysisConfig config) {
@@ -22,7 +25,8 @@ public abstract class InterproceduralAnalysis extends Analysis {
 
     /**
      * Run this analysis for the whole program.
-     * @return the analysis result. The result will be stored in World.
+     * @return the analysis result for the whole program.
+     * The result will be stored in {@link pascal.taie.World}.
      * If the result is not used by following analyses, then this method
      * should return null.
      */

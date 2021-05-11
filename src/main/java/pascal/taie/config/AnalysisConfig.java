@@ -45,10 +45,10 @@ public class AnalysisConfig {
      *
      * Here we use String (class name) instead of the Class itself
      * to represent the analysis for fast startup speed. Our configuration
-     * system will load all analyses in the configuration file at each start.
+     * system will load all analysis configs in the file at each startup.
      * If we use Class for this field, then it needs to load all
      * analysis classes, including the ones that may not be used in this run,
-     * which cost more time than merely loading class names.
+     * which cost more time than merely reading class names.
      */
     @JsonProperty
     private final String analysisClass;

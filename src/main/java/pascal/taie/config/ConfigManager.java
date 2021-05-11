@@ -57,7 +57,8 @@ public class ConfigManager {
         AnalysisConfig config = configs.get(id);
         if (config == null) {
             // TODO: obtain analysis config file path in a better way
-            throw new ConfigException(id + " is not found in tai-e-analyses.yml");
+            throw new ConfigException("Analysis " + id +
+                    " is not found in tai-e-analyses.yml");
         }
         return config;
     }
