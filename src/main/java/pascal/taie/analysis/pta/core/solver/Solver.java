@@ -25,15 +25,15 @@ import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 
 import java.util.stream.Stream;
 
-public interface PointerAnalysis {
+public interface Solver {
 
-    ClassHierarchy getHierarchy();
+    AnalysisOptions getOptions();
 
     HeapModel getHeapModel();
 
@@ -43,7 +43,7 @@ public interface PointerAnalysis {
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
-    void analyze();
+    void solve();
 
     /**
      * Add a context-sensitive variable points-to relation.

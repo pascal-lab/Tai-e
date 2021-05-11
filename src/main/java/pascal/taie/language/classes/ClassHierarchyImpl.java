@@ -248,7 +248,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             if (target != null) {
                 dispatchTable.get(receiverClass).put(subsignature, target);
             } else {
-                throw new AnalysisException("Fail to dispatch \"" +
+                throw new AnalysisException("Failed to dispatch \"" +
                         subsignature + "\" on " + receiverClass);
             }
         }

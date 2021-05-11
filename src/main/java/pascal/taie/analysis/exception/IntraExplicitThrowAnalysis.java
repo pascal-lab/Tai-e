@@ -1,15 +1,3 @@
-/*
- * Tai-e: A Static Analysis Framework for Java
- *
- * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
- * Copyright (C) 2020-- Yue Li <yueli@nju.edu.cn>
- * All rights reserved.
- *
- * Tai-e is only for educational and academic purposes,
- * and any form of commercial use is disallowed.
- * Distribution of Tai-e is disallowed without the approval.
- */
-
 package pascal.taie.analysis.exception;
 
 import pascal.taie.World;
@@ -24,7 +12,6 @@ import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.ClassType;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,33 +23,11 @@ import java.util.stream.Collectors;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
-/**
- * An intra-procedural throw analysis for computing the exceptions
- * that may be thrown by each Stmt.
- * TODO: 1) use a systematic approach to compute throw's definite type
- *       2) prune infeasible exceptions
- */
-public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
-
-    /**
-     * If this field is null, then this analysis ignores implicit exceptions.
-     */
-    @Nullable
-    private final ImplicitThrowAnalysis implicitThrowAnalysis;
-
-    /**
-     * @param ignoreImplicit whether ignore implicit exceptions in the results.
-     */
-    public IntraproceduralThrowAnalysis(boolean ignoreImplicit) {
-        implicitThrowAnalysis = ignoreImplicit ?
-                null : ImplicitThrowAnalysis.get();
-    }
+class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
     @Override
-    public Result analyze(IR ir) {
+    public void analyze(IR ir, ThrowResult result) {
         Map<Throw, ClassType> definiteThrows = findDefiniteThrows(ir);
-        DefaultThrowAnalysisResult result = new DefaultThrowAnalysisResult(
-                ir, implicitThrowAnalysis);
         ir.getStmts().forEach(stmt -> {
             if (stmt instanceof Throw) {
                 Throw throwStmt = (Throw) stmt;
@@ -73,7 +38,6 @@ public class IntraproceduralThrowAnalysis implements ThrowAnalysis {
                 result.addExplicit(invoke, mayThrowExplicitly(invoke));
             }
         });
-        return result;
     }
 
     /**

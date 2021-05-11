@@ -13,6 +13,7 @@
 package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.language.type.Type;
@@ -33,6 +34,14 @@ import static pascal.taie.util.collection.CollectionUtils.newMap;
  * some uniform behaviors of heap modeling here.
  */
 abstract class AbstractHeapModel implements HeapModel {
+
+    private final boolean isMergeStringConstants;
+
+    private final boolean isMergeStringObjects;
+
+    private final boolean isMergeStringBuilders;
+
+    private final boolean isMergeExceptionObjects;
 
     private final TypeManager typeManager;
 
@@ -56,10 +65,12 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<Type, MergedObj> mergedObjs = newMap();
 
-    private final Map<Obj, Obj> mockObjs = newMap();
-
-    protected AbstractHeapModel(TypeManager typeManager) {
-        this.typeManager = typeManager;
+    protected AbstractHeapModel(AnalysisOptions options) {
+        isMergeStringConstants = options.getBoolean("merge-string-constants");
+        isMergeStringObjects = options.getBoolean("merge-string-objects");
+        isMergeStringBuilders = options.getBoolean("merge-string-builders");
+        isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
+        typeManager = World.getTypeManager();
         string = typeManager.getClassType(STRING);
         stringBuilder = typeManager.getClassType(STRING_BUILDER);
         stringBuffer = typeManager.getClassType(STRING_BUFFER);
@@ -70,16 +81,14 @@ abstract class AbstractHeapModel implements HeapModel {
     @Override
     public Obj getObj(NewExp newExp) {
         Type type = newExp.getType();
-        if (World.getOptions().isMergeStringObjects() &&
-                type.equals(string)) {
+        if (isMergeStringObjects && type.equals(string)) {
             return getMergedObj(newExp);
         }
-        if (World.getOptions().isMergeStringBuilders() &&
+        if (isMergeStringBuilders &&
                 (type.equals(stringBuilder) || type.equals(stringBuffer))) {
             return getMergedObj(newExp);
         }
-        if (World.getOptions().isMergeExceptionObjects() &&
-                typeManager.isSubtype(throwable, type)) {
+        if (isMergeExceptionObjects && typeManager.isSubtype(throwable, type)) {
             return getMergedObj(newExp);
         }
         return doGetObj(newExp);
@@ -88,8 +97,7 @@ abstract class AbstractHeapModel implements HeapModel {
     @Override
     public Obj getConstantObj(ReferenceLiteral value) {
         Obj obj = doGetConstantObj(value);
-        if (World.getOptions().isMergeStringConstants() &&
-                value.getType().equals(string)) {
+        if (isMergeStringConstants && value.getType().equals(string)) {
             mergedSC.addRepresentedObj(obj);
             return mergedSC;
         }

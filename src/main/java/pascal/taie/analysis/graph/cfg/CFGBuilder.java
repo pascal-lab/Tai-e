@@ -12,8 +12,12 @@
 
 package pascal.taie.analysis.graph.cfg;
 
+import pascal.taie.analysis.IntraproceduralAnalysis;
 import pascal.taie.analysis.exception.CatchAnalysis;
+import pascal.taie.analysis.exception.CatchResult;
 import pascal.taie.analysis.exception.ThrowAnalysis;
+import pascal.taie.analysis.exception.ThrowResult;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
@@ -28,20 +32,26 @@ import pascal.taie.language.type.ClassType;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class CFGBuilder {
+public class CFGBuilder extends IntraproceduralAnalysis {
 
-    private final ThrowAnalysis throwAnalysis;
+    public static final String ID = "cfg";
 
-    public CFGBuilder(ThrowAnalysis throwAnalysis) {
-        this.throwAnalysis = throwAnalysis;
+    private final boolean NO_EXCEPTION;
+
+    public CFGBuilder(AnalysisConfig config) {
+        super(config);
+        NO_EXCEPTION = getOptions().getString("exception").equals("none");
     }
 
-    CFG<Stmt> build(IR ir) {
+    @Override
+    public CFG<Stmt> analyze(IR ir) {
         StmtCFG cfg = new StmtCFG(ir);
         cfg.setEntry(new Nop());
         cfg.setExit(new Nop());
         buildNormalEdges(cfg);
-        buildExceptionalEdges(cfg, throwAnalysis);
+        if (!NO_EXCEPTION) {
+            buildExceptionalEdges(cfg);
+        }
         return cfg;
     }
 
@@ -70,17 +80,18 @@ public class CFGBuilder {
                         switchStmt, switchStmt.getDefaultTarget()));
             } else if (curr instanceof Return) {
                 cfg.addEdge(new Edge<>(Edge.Kind.RETURN, curr, cfg.getExit()));
-            } else if (curr.canFallThrough()) {
+            } else if (curr.canFallThrough() &&
+                    i + 1 < ir.getStmts().size()) { // Defensive check
                 cfg.addEdge(new Edge<>(Edge.Kind.FALL_THROUGH,
                         curr, ir.getStmt(i + 1)));
             }
         }
     }
 
-    private static void buildExceptionalEdges(StmtCFG cfg, ThrowAnalysis throwAnalysis) {
+    private static void buildExceptionalEdges(StmtCFG cfg) {
         IR ir = cfg.getIR();
-        ThrowAnalysis.Result throwResult = throwAnalysis.analyze(ir);
-        CatchAnalysis.Result catchResult = CatchAnalysis.analyze(ir, throwResult);
+        ThrowResult throwResult = (ThrowResult) ir.getResult(ThrowAnalysis.ID);
+        CatchResult catchResult = CatchAnalysis.analyze(ir, throwResult);
         ir.getStmts().forEach(stmt -> {
             // build edges for implicit exceptions
             catchResult.getCaughtImplicitOf(stmt).forEach((catcher, exceptions) ->

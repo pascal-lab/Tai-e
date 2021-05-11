@@ -66,32 +66,32 @@ public class CSPTATest {
     // Tests for context sensitivity variants
     @Test
     public void testOneCall() {
-        TestUtils.testCSPTA("OneCall", "-pp", "-cs", "1-call");
+        TestUtils.testCSPTA("OneCall", "-pp", "pta=cs:1-call");
     }
 
     @Test
     public void testOneObject() {
-        TestUtils.testCSPTA("OneObject", "-pp", "-cs", "1-obj");
+        TestUtils.testCSPTA("OneObject", "-pp", "pta=cs:1-obj");
     }
 
     @Test
     public void testOneType() {
-        TestUtils.testCSPTA("OneType", "-pp", "-cs", "1-type");
+        TestUtils.testCSPTA("OneType", "-pp", "pta=cs:1-type");
     }
 
     @Test
     public void testTwoCall() {
-        TestUtils.testCSPTA("TwoCall", "-pp", "-cs", "2-call");
+        TestUtils.testCSPTA("TwoCall", "-pp", "pta=cs:2-call");
     }
 
     @Test
     public void testTwoObject() {
-        TestUtils.testCSPTA("TwoObject", "-pp", "-cs", "2-obj");
+        TestUtils.testCSPTA("TwoObject", "-pp", "pta=cs:2-obj");
     }
 
     @Test
     public void testTwoType() {
-        TestUtils.testCSPTA("TwoType", "-pp", "-cs", "2-type");
+        TestUtils.testCSPTA("TwoType", "-pp", "pta=cs:2-type");
     }
 
     // Tests for Java feature supporting
@@ -143,12 +143,12 @@ public class CSPTATest {
     // Tests for handling of non-normal objects
     @Test
     public void testTypeSens() {
-        TestUtils.testCSPTA("TypeSens", "-cs", "2-type");
+        TestUtils.testCSPTA("TypeSens", "pta=cs:2-type");
     }
 
     @Test
     public void testSpecialHeapContext() {
-        TestUtils.testCSPTA("SpecialHeapContext", "-cs", "2-object");
+        TestUtils.testCSPTA("SpecialHeapContext", "pta=cs:2-object");
     }
 
     @Test

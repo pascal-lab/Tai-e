@@ -10,16 +10,17 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.analysis.pta;
 
-import pascal.taie.Options;
-import pascal.taie.World;
+import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KObjSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
+import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.core.solver.SolverImpl;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
@@ -27,56 +28,70 @@ import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.pts.HybridPointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
-import pascal.taie.util.AnalysisException;
+import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.ConfigException;
 
-public class PointerAnalysisBuilder {
+public class PointerAnalysis extends InterproceduralAnalysis {
 
-    public PointerAnalysis build(Options options) {
-        PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
-        PointerAnalysisImpl pta = new PointerAnalysisImpl();
-        setContextSensitivity(pta, options);
-        setPlugin(pta);
-        pta.setHeapModel(new AllocationSiteBasedModel(
-                World.getTypeManager()));
-        pta.setCSManager(new MapBasedCSManager());
-        return pta;
+    public static final String ID = "pta";
+
+    public PointerAnalysis(AnalysisConfig config) {
+        super(config);
     }
 
-    private void setContextSensitivity(PointerAnalysisImpl pta, Options options) {
-        switch (options.getContextSensitivity()) {
+    @Override
+    public Solver analyze() {
+        PointsToSetFactory.setFactory(new HybridPointsToSet.Factory());
+        SolverImpl solver = new SolverImpl();
+        setContextSensitivity(solver);
+        solver.setOptions(getOptions());
+        solver.setHeapModel(new AllocationSiteBasedModel(getOptions()));
+        solver.setCSManager(new MapBasedCSManager());
+        // The initialization of some Plugins may read the fields in solver,
+        // e.g., contextSelector or csManager, thus we initialize Plugins
+        // after setting all other fields of solver.
+        setPlugin(solver);
+        solver.solve();
+        // TODO: add a class to represent pointer analysis results, including
+        //  points-to set, call graph, exception, etc., without contexts
+        return solver;
+    }
+
+    private void setContextSensitivity(SolverImpl solver) {
+        switch (getOptions().getString("cs")) {
             case "ci":
-                pta.setContextSelector(new ContextInsensitiveSelector());
+                solver.setContextSelector(new ContextInsensitiveSelector());
                 break;
             case "1-call":
             case "1-cfa":
-                pta.setContextSelector(new KCallSelector(1));
+                solver.setContextSelector(new KCallSelector(1));
                 break;
             case "1-obj":
             case "1-object":
-                pta.setContextSelector(new KObjSelector(1));
+                solver.setContextSelector(new KObjSelector(1));
                 break;
             case "1-type":
-                pta.setContextSelector(new KTypeSelector(1));
+                solver.setContextSelector(new KTypeSelector(1));
                 break;
             case "2-call":
             case "2-cfa":
-                pta.setContextSelector(new KCallSelector(2));
+                solver.setContextSelector(new KCallSelector(2));
                 break;
             case "2-obj":
             case "2-object":
-                pta.setContextSelector(new KObjSelector(2));
+                solver.setContextSelector(new KObjSelector(2));
                 break;
             case "2-type":
-                pta.setContextSelector(new KTypeSelector(2));
+                solver.setContextSelector(new KTypeSelector(2));
                 break;
             default:
-                throw new AnalysisException(
+                throw new ConfigException(
                         "Unknown context sensitivity variant: "
-                                + options.getContextSensitivity());
+                                + getOptions().getString("cs"));
         }
     }
 
-    private void setPlugin(PointerAnalysisImpl pta) {
+    private void setPlugin(SolverImpl solver) {
         CompositePlugin plugin = new CompositePlugin();
         // To record elapsed time precisely, AnalysisTimer should be
         // added at first.
@@ -87,7 +102,7 @@ public class PointerAnalysisBuilder {
                 new ReferenceHandler(),
                 ResultPrinter.get()
         );
-        plugin.setPointerAnalysis(pta);
-        pta.setPlugin(plugin);
+        plugin.setSolver(solver);
+        solver.setPlugin(plugin);
     }
 }

@@ -14,10 +14,9 @@ package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerAnalysis;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 
 import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
@@ -33,7 +32,7 @@ import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;
  */
 public class ReferenceHandler implements Plugin {
 
-    private PointerAnalysis pta;
+    private Solver solver;
 
     /**
      * This variable of Reference.<init>.
@@ -46,12 +45,13 @@ public class ReferenceHandler implements Plugin {
     private JField referencePending;
 
     @Override
-    public void setPointerAnalysis(PointerAnalysis pta) {
-        this.pta = pta;
-        ClassHierarchy hierarchy = pta.getHierarchy();
-        referenceInitThis = hierarchy.getJREMethod(REFERENCE_INIT)
+    public void setSolver(Solver solver) {
+        this.solver = solver;
+        referenceInitThis = World.getClassHierarchy()
+                .getJREMethod(REFERENCE_INIT)
                 .getIR().getThis();
-        referencePending = hierarchy.getJREField(REFERENCE_PENDING);
+        referencePending = World.getClassHierarchy()
+                .getJREField(REFERENCE_PENDING);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ReferenceHandler implements Plugin {
         if (World.getOptions().getJavaVersion() < 9) {
             // Let Reference.pending points to every reference.
             if (csVar.getVar().equals(referenceInitThis)) {
-                pta.addStaticFieldPointsTo(referencePending, pts);
+                solver.addStaticFieldPointsTo(referencePending, pts);
             }
         }
     }

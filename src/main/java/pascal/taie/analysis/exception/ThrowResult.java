@@ -26,7 +26,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
-class DefaultThrowAnalysisResult implements ThrowAnalysis.Result {
+public class ThrowResult {
 
     private final IR ir;
 
@@ -39,7 +39,7 @@ class DefaultThrowAnalysisResult implements ThrowAnalysis.Result {
 
     private final Map<Stmt, Collection<ClassType>> explicitExceptions = newHybridMap();
 
-    DefaultThrowAnalysisResult(IR ir, ImplicitThrowAnalysis implicitThrowAnalysis) {
+    ThrowResult(IR ir, ImplicitThrowAnalysis implicitThrowAnalysis) {
         this.ir = ir;
         this.implicit = implicitThrowAnalysis;
     }
@@ -52,23 +52,19 @@ class DefaultThrowAnalysisResult implements ThrowAnalysis.Result {
         explicitExceptions.put(invoke, exceptions);
     }
 
-    @Override
     public IR getIR() {
         return ir;
     }
 
-    @Override
     public Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
         return implicit == null ? emptyList() :
                 implicit.mayThrowImplicitly(stmt);
     }
 
-    @Override
     public Collection<ClassType> mayThrowExplicitly(Throw throwStmt) {
         return explicitExceptions.getOrDefault(throwStmt, emptySet());
     }
 
-    @Override
     public Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
         return explicitExceptions.getOrDefault(invoke, emptySet());
     }

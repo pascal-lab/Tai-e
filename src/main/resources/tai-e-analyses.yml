@@ -1,0 +1,35 @@
+- description: whole-program pointer analysis
+  analysisClass: pascal.taie.analysis.pta.PointerAnalysis
+  id: pta
+  options:
+    cs: ci
+    implicit-entries: true # analyze implicit entries
+    merge-string-constants: false
+    merge-string-objects: true
+    merge-string-builders: true
+    merge-exception-objects: true
+    output-results: false
+    output-file: null
+
+- description: call graph construction
+  analysisClass: pascal.taie.analysis.graph.cg.CGBuilder
+  id: cg
+  requires: [pta(algorithm=pta)]
+  options:
+    algorithm: pta # | cha | rta
+    dump: false # dump call graph
+
+- description: intraprocedural control-flow graph
+  analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
+  id: cfg
+  requires: [throw(exception=explicit|all)]
+  options:
+    exception: explicit # | none | all (includes implicit and explicit exceptions)
+
+- description: intra/inter-procedural throw analysis
+  analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
+  id: throw
+  requires: [pta(scope=inter)] # only required by scope: inter
+  options:
+    scope: intra # | inter
+    exception: explicit # | all (includes implicit and explicit exceptions)

@@ -34,6 +34,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Exp;
@@ -87,9 +88,11 @@ import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 import static pascal.taie.util.collection.CollectionUtils.newSet;
 
-public class PointerAnalysisImpl implements PointerAnalysis {
+public class SolverImpl implements Solver {
 
-    private static final Logger logger = LogManager.getLogger(PointerAnalysisImpl.class);
+    private static final Logger logger = LogManager.getLogger(SolverImpl.class);
+
+    private AnalysisOptions options;
 
     private final ClassHierarchy hierarchy;
 
@@ -115,14 +118,18 @@ public class PointerAnalysisImpl implements PointerAnalysis {
 
     private ClassInitializer classInitializer;
 
-    public PointerAnalysisImpl() {
+    public SolverImpl() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
     }
-    
+
     @Override
-    public ClassHierarchy getHierarchy() {
-        return hierarchy;
+    public AnalysisOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(AnalysisOptions options) {
+        this.options = options;
     }
 
     @Override
@@ -185,10 +192,10 @@ public class PointerAnalysisImpl implements PointerAnalysis {
      * Run pointer analysis algorithm.
      */
     @Override
-    public void analyze() {
+    public void solve() {
         plugin.preprocess();
         initialize();
-        solve();
+        analyze();
         plugin.postprocess();
     }
 
@@ -225,7 +232,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     private Collection<JMethod> computeEntries() {
         List<JMethod> entries = new ArrayList<>();
         entries.add(World.getMainMethod());
-        if (World.getOptions().analyzeImplicitEntries()) {
+        if (options.getBoolean("implicit-entries")) {
             entries.addAll(World.getImplicitEntries());
         }
         return entries;
@@ -234,7 +241,7 @@ public class PointerAnalysisImpl implements PointerAnalysis {
     /**
      * Processes worklist entries until the worklist is empty.
      */
-    private void solve() {
+    private void analyze() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
                 WorkList.Entry entry = workList.pollPointerEntry();
