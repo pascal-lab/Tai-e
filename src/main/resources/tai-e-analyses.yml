@@ -26,10 +26,10 @@
   options:
     exception: explicit # | none | all (includes implicit and explicit exceptions)
 
-- description: intra/inter-procedural throw analysis
+- description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
   id: throw
-  requires: [pta(scope=inter)] # only required by scope: inter
+  requires: [pta(algorithm=pta)] # only required by pta-based analysis
   options:
-    scope: intra # | inter
     exception: explicit # | all (includes implicit and explicit exceptions)
+    algorithm: intra # | pta

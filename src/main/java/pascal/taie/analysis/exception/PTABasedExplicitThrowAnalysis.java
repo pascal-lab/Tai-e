@@ -15,10 +15,9 @@ package pascal.taie.analysis.exception;
 import pascal.taie.ir.IR;
 
 /**
- * Analysis explicit exceptions based on interprocedural analysis.
- * This analysis requires pointer analysis result.
+ * Analyze explicit exceptions based on pointer analysis.
  */
-class InterExplicitThrowAnalysis implements ExplicitThrowAnalysis {
+class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
     @Override
     public void analyze(IR ir, ThrowResult result) {
