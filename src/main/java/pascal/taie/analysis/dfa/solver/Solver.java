@@ -10,12 +10,14 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.dfa.solver;
 
+import pascal.taie.analysis.dfa.analysis.DataflowAnalysis;
+import pascal.taie.analysis.dfa.fact.DataFlowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
 public interface Solver<Node, Flow> {
 
-    DataFlowResult<Node, Flow> solve(DataFlowAnalysis<Node, Flow> analysis,
-                                     CFG<Node> cfg);
+    DataFlowResult<Node, Flow> solve(
+            DataflowAnalysis<Node, Flow> analysis, CFG<Node> cfg);
 }

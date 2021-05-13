@@ -10,21 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.dfa.fact;
 
-public interface DataFlowResult<Node, Flow> {
-
-    /**
-     * @return the in-flow of given node.
-     */
-    Flow getInFlow(Node node);
-
-    void setInFlow(Node node, Flow flow);
-
-    /**
-     * @return the out-flow of given node.
-     */
-    Flow getOutFlow(Node node);
-
-    void setOutFlow(Node node, Flow flow);
+public class MapFact<K, V> {
 }

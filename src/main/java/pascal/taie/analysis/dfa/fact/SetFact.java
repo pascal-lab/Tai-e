@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.dfa.fact;
 
 import java.util.Collection;
 import java.util.Set;
@@ -22,24 +22,24 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
  * TODO: implement copy-on-write?
  * @param <T> type of elements
  */
-public class SetFlow<T> {
+public class SetFact<T> {
 
     private final Set<T> set;
 
-    private SetFlow() {
+    private SetFact() {
         set = newHybridSet();
     }
 
-    private SetFlow(Collection<T> c) {
+    private SetFact(Collection<T> c) {
         set = newHybridSet(c);
     }
 
-    public static <T> SetFlow<T> make() {
-        return new SetFlow<>();
+    public static <T> SetFact<T> make() {
+        return new SetFact<>();
     }
 
-    public static <T> SetFlow<T> make(Collection<T> c) {
-        return new SetFlow<>(c);
+    public static <T> SetFact<T> make(Collection<T> c) {
+        return new SetFact<>(c);
     }
 
     public Stream<T> stream() {
