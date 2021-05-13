@@ -32,12 +32,12 @@ public interface DataflowAnalysis<Node, Fact> {
     Fact newInitialFact();
 
     /**
-     * Create a copy of given fact.
+     * Creates a copy of given fact.
      */
     Fact copyFact(Fact fact);
 
     /**
-     * Merge a fact to another result fact.
+     * Merges a fact to another result fact.
      * This function is used to handle control-flow confluences.
      */
     void mergeInto(Fact fact, Fact result);
@@ -50,7 +50,7 @@ public interface DataflowAnalysis<Node, Fact> {
     boolean transferNode(Node node, Fact in, Fact out);
 
     /**
-     * Return if this analysis needs to perform edge transfer.
+     * Returns if this analysis needs to perform edge transfer.
      */
     boolean hasEdgeTransfer();
 
