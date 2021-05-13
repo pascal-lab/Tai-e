@@ -32,6 +32,11 @@ public interface DataflowAnalysis<Node, Fact> {
     Fact newInitialFact();
 
     /**
+     * Create a copy of given fact.
+     */
+    Fact copyFact(Fact fact);
+
+    /**
      * Merge a fact to another result fact.
      * This function is used to handle control-flow confluences.
      */

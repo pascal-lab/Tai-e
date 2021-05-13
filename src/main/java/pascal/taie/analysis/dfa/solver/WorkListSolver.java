@@ -27,20 +27,77 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     @Override
     protected void doSolve(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        if (analysis.isForward()) {
+            doSolveForward(cfg, result);
+        } else {
+            doSolveBackward(cfg, result);
+        }
+    }
+
+    private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
         cfg.nodes().forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
-            controller.meetIncomingFacts(result, cfg, node);
+            // meet incoming facts
+            cfg.inEdgesOf(node).forEach(inEdge -> {
+                Fact predOut = analysis.hasEdgeTransfer() ?
+                        result.getEdgeFact(inEdge) :
+                        result.getOutFact(inEdge.getSource());
+                Fact in = result.getInFact(node);
+                if (in == null) {
+                    result.setInFact(node, analysis.copyFact(predOut));
+                }
+                analysis.mergeInto(predOut, in);
+            });
+            // apply node transfer function
             Fact in = result.getInFact(node);
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                if (analysis.hasEdgeTransfer()) {
-                    controller.applyEdgeTransfer(result, cfg, node);
+                cfg.outEdgesOf(node).forEach(outEdge -> {
+                    if (analysis.hasEdgeTransfer()) {
+                        // apply edge transfer if necessary
+                        Fact edgeFact = result.getEdgeFact(outEdge);
+                        analysis.transferEdge(outEdge, out, edgeFact);
+                    }
+                    // prepare to process successors
+                    workList.add(outEdge.getTarget());
+                });
+            }
+        }
+    }
+
+    private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        Queue<Node> workList = new LinkedList<>();
+        cfg.nodes().forEach(workList::add);
+        while (!workList.isEmpty()) {
+            Node node = workList.poll();
+            // meet incoming facts
+            cfg.outEdgesOf(node).forEach(outEdge -> {
+                Fact succIn = analysis.hasEdgeTransfer() ?
+                        result.getEdgeFact(outEdge) :
+                        result.getInFact(outEdge.getTarget());
+                Fact out = result.getOutFact(node);
+                if (out == null) {
+                    result.setOutFact(node, analysis.copyFact(succIn));
                 }
-                controller.getOutgoingNodes(cfg, node)
-                        .forEach(workList::add);
+                analysis.mergeInto(succIn, out);
+            });
+            // apply node transfer function
+            Fact in = result.getInFact(node);
+            Fact out = result.getOutFact(node);
+            boolean changed = analysis.transferNode(node, in, out);
+            if (changed) {
+                cfg.inEdgesOf(node).forEach(inEdge -> {
+                    if (analysis.hasEdgeTransfer()) {
+                        // apply edge transfer if necessary
+                        Fact edgeFact = result.getEdgeFact(inEdge);
+                        analysis.transferEdge(inEdge, in, edgeFact);
+                    }
+                    // prepare to process successors
+                    workList.add(inEdge.getSource());
+                });
             }
         }
     }
