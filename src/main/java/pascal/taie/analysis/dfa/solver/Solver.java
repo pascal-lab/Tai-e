@@ -13,11 +13,40 @@
 package pascal.taie.analysis.dfa.solver;
 
 import pascal.taie.analysis.dfa.analysis.DataflowAnalysis;
-import pascal.taie.analysis.dfa.fact.DataFlowResult;
+import pascal.taie.analysis.dfa.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
-public interface Solver<Node, Flow> {
+public abstract class Solver<Node, Fact> {
 
-    DataFlowResult<Node, Flow> solve(
-            DataflowAnalysis<Node, Flow> analysis, CFG<Node> cfg);
+    protected final DataflowAnalysis<Node, Fact> analysis;
+
+    protected final DirectionController controller;
+
+    protected Solver(DataflowAnalysis<Node, Fact> analysis) {
+        this.analysis = analysis;
+        this.controller = analysis.isForward() ?
+                DirectionController.FORWARD : DirectionController.BACKWARD;
+    }
+
+    public DataflowResult<Node, Fact> solve(CFG<Node> cfg) {
+        DataflowResult<Node, Fact> result = initialize(cfg);
+        doSolve(cfg, result);
+        return result;
+    }
+
+    protected DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
+        DataflowResult<Node, Fact> result = new DataflowResult<>();
+        cfg.nodes().forEach(node -> {
+            result.setInFact(node, analysis.newInitialFact());
+            result.setOutFact(node, analysis.newInitialFact());
+            if (analysis.hasEdgeTransfer()) {
+                cfg.outEdgesOf(node).forEach(edge ->
+                        result.setEdgeFact(edge, analysis.newInitialFact()));
+            }
+        });
+        return result;
+    }
+
+    protected abstract void doSolve(CFG<Node> cfg,
+                                    DataflowResult<Node, Fact> result);
 }
