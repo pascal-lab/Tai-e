@@ -68,11 +68,11 @@ public class AnalysisManager {
         Stream<JMethod> methods = World.getClassHierarchy()
                 .getAllClasses()
                 .stream()
+                .filter(JClass::isApplication)
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
                 .filter(m -> !m.isAbstract() && !m.isNative());
-        // TODO: 1. parallelize analysis of different methods
-        //       2. restrict analysis scope
+        // TODO: parallelize analysis of different methods
         methods.forEach(m -> {
             IR ir = m.getIR();
             Object result = analysis.analyze(ir);
