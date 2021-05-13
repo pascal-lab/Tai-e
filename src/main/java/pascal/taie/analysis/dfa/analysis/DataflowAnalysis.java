@@ -32,10 +32,10 @@ public interface DataflowAnalysis<Node, Fact> {
     Fact newInitialFact();
 
     /**
-     * Meet function for two data-flow facts.
+     * Merge a fact to another result fact.
      * This function is used to handle control-flow confluences.
      */
-    Fact meet(Fact f1, Fact f2);
+    void mergeInto(Fact fact, Fact result);
 
     /**
      * Node Transfer function for the analysis.
@@ -47,16 +47,12 @@ public interface DataflowAnalysis<Node, Fact> {
     /**
      * Return if this analysis needs to perform edge transfer.
      */
-    default boolean hasEdgeTransfer() {
-        return false;
-    }
+    boolean hasEdgeTransfer();
 
     /**
      * Edge Transfer function for the analysis.
      * The function transfer data-flow from in to out, and return whether
      * the out fact has been changed by the transfer.
      */
-    default boolean transferEdge(Edge<Node> edge, Fact in, Fact out) {
-        return false;
-    }
+    void transferEdge(Edge<Node> edge, Fact nodeFact, Fact edgeFact);
 }

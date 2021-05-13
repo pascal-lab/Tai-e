@@ -22,24 +22,24 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
  * TODO: implement copy-on-write?
  * @param <T> type of elements
  */
-public class SetFact<T> {
+public class SetLikeFact<T> {
 
     private final Set<T> set;
 
-    private SetFact() {
+    private SetLikeFact() {
         set = newHybridSet();
     }
 
-    private SetFact(Collection<T> c) {
+    private SetLikeFact(Collection<T> c) {
         set = newHybridSet(c);
     }
 
-    public static <T> SetFact<T> make() {
-        return new SetFact<>();
+    public static <T> SetLikeFact<T> make() {
+        return new SetLikeFact<>();
     }
 
-    public static <T> SetFact<T> make(Collection<T> c) {
-        return new SetFact<>(c);
+    public static <T> SetLikeFact<T> make(Collection<T> c) {
+        return new SetLikeFact<>(c);
     }
 
     public Stream<T> stream() {

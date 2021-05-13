@@ -31,7 +31,17 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
         cfg.nodes().forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
-            // TODO: finish me
+            controller.meetIncomingFacts(result, cfg, node);
+            Fact in = result.getInFact(node);
+            Fact out = result.getOutFact(node);
+            boolean changed = analysis.transferNode(node, in, out);
+            if (changed) {
+                if (analysis.hasEdgeTransfer()) {
+                    controller.applyEdgeTransfer(result, cfg, node);
+                }
+                controller.getOutgoingNodes(cfg, node)
+                        .forEach(workList::add);
+            }
         }
     }
 }

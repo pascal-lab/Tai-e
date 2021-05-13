@@ -90,7 +90,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
 
     private static void buildExceptionalEdges(StmtCFG cfg) {
         IR ir = cfg.getIR();
-        ThrowResult throwResult = (ThrowResult) ir.getResult(ThrowAnalysis.ID);
+        ThrowResult throwResult = ir.getResult(ThrowAnalysis.ID);
         CatchResult catchResult = CatchAnalysis.analyze(ir, throwResult);
         ir.getStmts().forEach(stmt -> {
             // build edges for implicit exceptions
