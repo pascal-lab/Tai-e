@@ -15,7 +15,7 @@ package pascal.taie.analysis.exception;
 import pascal.taie.ir.IR;
 
 /**
- * Analyze explicit exceptions based on pointer analysis.
+ * Analyzes explicit exceptions based on pointer analysis.
  */
 class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 

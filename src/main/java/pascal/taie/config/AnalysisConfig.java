@@ -110,7 +110,7 @@ public class AnalysisConfig {
     }
 
     /**
-     * Constructing an AnalysisConfig by merely specifying id and options.
+     * Constructs an AnalysisConfig by merely specifying id and options.
      * This convenient method eases the creation of AnalysisConfig in testing.
      * The given options should be an array of key-value pairs, e.g.,
      * [k1, v1, k2, v2, ...].
@@ -120,7 +120,7 @@ public class AnalysisConfig {
     }
 
     /**
-     * Convert an array of key-value pairs (e.g, [k1, v1, k2, v2, ...])
+     * Converts an array of key-value pairs (e.g, [k1, v1, k2, v2, ...])
      * to AnalysisOptions.
      */
     private static AnalysisOptions convertOptions(Object[] options) {
@@ -174,7 +174,7 @@ public class AnalysisConfig {
     }
 
     /**
-     * Read a list of AnalysisConfig from given file.
+     * Reads a list of AnalysisConfig from given file.
      */
     public static List<AnalysisConfig> readConfigs(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

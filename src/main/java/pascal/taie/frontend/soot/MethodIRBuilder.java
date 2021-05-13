@@ -171,7 +171,7 @@ import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 
 /**
- * Convert Jimple to Tai-e IR.
+ * Converts Jimple to Tai-e IR.
  */
 class MethodIRBuilder extends AbstractStmtSwitch {
 
@@ -365,7 +365,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple Constants to Literals.
+     * Converts Jimple Constants to Literals.
      */
     private final AbstractConstantSwitch constantConverter
             = new AbstractConstantSwitch() {
@@ -482,21 +482,21 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
+     * Shortcut: obtains Jimple Value's Type and convert to Tai-e Type.
      */
     private Type getTypeOf(Value value) {
         return converter.convertType(value.getType());
     }
 
     /**
-     * Shortcut: convert Jimple Local to Var.
+     * Shortcut: converts Jimple Local to Var.
      */
     private Var getVar(Local local) {
         return varManager.getVar(local);
     }
 
     /**
-     * Convert a Jimple Local or Constant to Var.
+     * Converts a Jimple Local or Constant to Var.
      * If <code>value</code> is Local, then directly return the corresponding Var.
      * If <code>value</code> is Constant, then add a temporary assignment,
      * e.g., x = 10 for constant 10, and return Var x.
@@ -515,7 +515,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple FieldRef to FieldAccess.
+     * Converts Jimple FieldRef to FieldAccess.
      */
     private FieldAccess getFieldAccess(FieldRef fieldRef) {
         pascal.taie.ir.proginfo.FieldRef jfieldRef =
@@ -530,7 +530,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple ArrayRef to ArrayAccess.
+     * Converts Jimple ArrayRef to ArrayAccess.
      */
     private ArrayAccess getArrayAccess(ArrayRef arrayRef) {
         return new ArrayAccess(getVar((Local) arrayRef.getBase()),
@@ -538,7 +538,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple NewExpr to NewExp
+     * Converts Jimple NewExpr to NewExp
      */
     private final AbstractJimpleValueSwitch newExprConverter
             = new AbstractJimpleValueSwitch() {
@@ -572,7 +572,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Extract BinaryExp.Op from Jimple BinopExpr.
+     * Extracts BinaryExp.Op from Jimple BinopExpr.
      */
     private final AbstractJimpleValueSwitch binaryOpExtractor
             = new AbstractJimpleValueSwitch() {
@@ -778,7 +778,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple InvokeExpr to InvokeExp.
+     * Converts Jimple InvokeExpr to InvokeExp.
      */
     private InvokeExp getInvokeExp(InvokeExpr invokeExpr) {
         if (invokeExpr instanceof DynamicInvokeExpr) {

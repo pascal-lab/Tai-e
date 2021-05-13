@@ -20,7 +20,7 @@ import java.util.Set;
 import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
- * Topologically sorting a directed graph using DFS.
+ * Topologically sorts a directed graph using DFS.
  * It is assumed that the given graph is a direct acyclic graph (DAG).
  *
  * @param <N> type of nodes

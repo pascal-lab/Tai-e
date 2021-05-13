@@ -94,7 +94,7 @@ public class PlanConfig {
     }
 
     /**
-     * Read a list of PlanConfig from options.
+     * Reads a list of PlanConfig from options.
      */
     public static List<PlanConfig> readConfigs(Options options) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -123,7 +123,7 @@ public class PlanConfig {
     }
 
     /**
-     * Write a list of PlanConfigs to given file.
+     * Writes a list of PlanConfigs to given file.
      */
     public static void writeConfigs(List<PlanConfig> planConfigs, File output) {
         ObjectMapper mapper = new ObjectMapper(

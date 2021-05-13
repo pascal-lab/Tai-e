@@ -40,7 +40,7 @@ abstract class AbstractContextSelector<T> implements ContextSelector {
     }
 
     /**
-     * This method defines the real heap context selector for NewObj.
+     * Defines the real heap context selector for NewObj.
      */
     protected abstract Context selectNewObjContext(CSMethod method, NewObj obj);
 }

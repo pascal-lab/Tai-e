@@ -28,14 +28,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Create and execute analyses based on given analysis plan.
+ * Creates and executes analyses based on given analysis plan.
  */
 public class AnalysisManager {
 
     private static final Logger logger = LogManager.getLogger(AnalysisManager.class);
 
     /**
-     * Execute the analysis plan.
+     * Executes the analysis plan.
      */
     public void execute(List<AnalysisConfig> analysisPlan) {
         analysisPlan.forEach(this::runAnalysis);

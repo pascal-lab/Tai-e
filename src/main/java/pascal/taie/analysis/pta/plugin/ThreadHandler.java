@@ -33,7 +33,7 @@ import static pascal.taie.util.collection.CollectionUtils.getOne;
 import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 /**
- * Model initialization of main thread, system thread group,
+ * Models initialization of main thread, system thread group,
  * and some Thread APIs.
  */
 public class ThreadHandler implements Plugin {
@@ -79,7 +79,7 @@ public class ThreadHandler implements Plugin {
     }
 
     @Override
-    public void initialize() {
+    public void onInitialize() {
         if (!solver.getOptions().getBoolean("implicit-entries")) {
             return;
         }
@@ -135,7 +135,7 @@ public class ThreadHandler implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         if (csVar.getVar().equals(threadStartThis)) {
             // Add new reachable thread objects to set of running threads,
             // and propagate the thread objects to return variable of
@@ -156,7 +156,7 @@ public class ThreadHandler implements Plugin {
     }
 
     @Override
-    public void handleNewCSMethod(CSMethod csMethod) {
+    public void onNewCSMethod(CSMethod csMethod) {
         if (csMethod.getMethod().equals(currentThread)) {
             // When a new CS Thread.currentThread() is reachable, we propagate
             // all running threads to its return variable.

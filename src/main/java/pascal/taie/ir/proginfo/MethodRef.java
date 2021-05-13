@@ -88,7 +88,7 @@ public class MethodRef extends MemberRef {
     private final Subsignature subsignature;
 
     /**
-     * Cache the resolved method for this reference to avoid redundant
+     * Caches the resolved method for this reference to avoid redundant
      * method resolution.
      */
     private JMethod method;

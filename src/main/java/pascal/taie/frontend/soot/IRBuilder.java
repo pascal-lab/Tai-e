@@ -108,7 +108,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     }
 
     /**
-     * Build IR for all methods in given class hierarchy.
+     * Builds IR for all methods in given class hierarchy.
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {

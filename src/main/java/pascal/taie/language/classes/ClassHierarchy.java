@@ -35,7 +35,7 @@ public interface ClassHierarchy {
     Collection<JClassLoader> getClassLoaders();
 
     /**
-     * Add a JClass into class hierarchy.
+     * Adds a JClass into class hierarchy.
      * This API should be invoked everytime {@link JClassLoader}
      * loads a new JClass.
      */
@@ -48,7 +48,7 @@ public interface ClassHierarchy {
     @Nullable JClass getClass(String name);
 
     /**
-     * Get a JRE class by it name.
+     * Obtains a JRE class by it name.
      *
      * @param name the class name
      * @return the {@link JClass} for name if found;
@@ -57,7 +57,7 @@ public interface ClassHierarchy {
     @Nullable JClass getJREClass(String name);
 
     /**
-     * Get a method declared in a JRE class by its signature.
+     * Obtains a method declared in a JRE class by its signature.
      *
      * @param methodSig of the method
      * @return the {@link JMethod} for signature if found;
@@ -67,7 +67,7 @@ public interface ClassHierarchy {
     @Nullable JMethod getJREMethod(String methodSig);
 
     /**
-     * Get a field declared in a JRE class by its signature.
+     * Obtains a field declared in a JRE class by its signature.
      *
      * @param fieldSig signature of the field
      * @return the {@link JField} for signature if found;
@@ -87,7 +87,7 @@ public interface ClassHierarchy {
     boolean isSubclass(JClass superclass, JClass subclass);
 
     /**
-     * Return all subclasses of the given class.
+     * Returns all subclasses of the given class.
      * If the given class is an interface, then return all its
      * direct/indirect subinterfaces and their all direct/indirect implementors;
      * otherwise, return all its direct/indirect subclasses.

@@ -29,7 +29,7 @@ public abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     /**
-     * Validate type correctness of the two values of this expression.
+     * Validates type correctness of the two values of this expression.
      */
     protected void validate() {
     }

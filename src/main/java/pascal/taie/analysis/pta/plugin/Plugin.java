@@ -33,7 +33,7 @@ import pascal.taie.language.classes.JMethod;
 public interface Plugin {
 
     /**
-     * Set pointer analysis solver which will be used later by the plugin.
+     * Sets pointer analysis solver which will be used later by the plugin.
      */
     default void setSolver(Solver solver) {
     }
@@ -42,28 +42,28 @@ public interface Plugin {
      * Invoked during pre-processing, i.e., before pointer analysis starts.
      * Thread-safe.
      */
-    default void preprocess() {
+    default void onPreprocess() {
     }
 
     /**
      * Invoked when pointer analysis initializes.
      * Thread-safe.
      */
-    default void initialize() {
+    default void onInitialize() {
     }
 
     /**
      * Invoked when pointer analysis finishes.
      * Thread-safe.
      */
-    default void finish() {
+    default void onFinish() {
     }
 
     /**
      * Invoked during post-processing, i.e., after pointer analysis finishes.
      * Thread-safe.
      */
-    default void postprocess() {
+    default void onPostprocess() {
     }
 
     /**
@@ -72,7 +72,7 @@ public interface Plugin {
      * @param csVar variable whose points-to set changes
      * @param pts set of new objects
      */
-    default void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    default void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
     }
 
     /**
@@ -80,7 +80,7 @@ public interface Plugin {
      * Not thread-safe, but single-thread on edge.
      * @param edge new call graph edge
      */
-    default void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    default void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
     }
 
     /**
@@ -88,7 +88,7 @@ public interface Plugin {
      * Not thread-safe, but single-thread on method.
      * @param method new reachable method
      */
-    default void handleNewMethod(JMethod method) {
+    default void onNewMethod(JMethod method) {
     }
 
     /**
@@ -96,7 +96,7 @@ public interface Plugin {
      * Not thread-safe, but single-thread on csMethod.
      * @param csMethod new reachable context-sensitive method
      */
-    default void handleNewCSMethod(CSMethod csMethod) {
+    default void onNewCSMethod(CSMethod csMethod) {
     }
 
     /**
@@ -107,6 +107,6 @@ public interface Plugin {
      * @param context the context of the invocation
      * @param invoke the invocation site
      */
-    default void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+    default void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
     }
 }

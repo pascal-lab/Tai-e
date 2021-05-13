@@ -51,7 +51,7 @@ import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 /**
- * Convert Soot classes to Tai-e's representation.
+ * Converts Soot classes to Tai-e's representation.
  */
 class Converter {
 

@@ -53,7 +53,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     }
 
     /**
-     * Perform a simple intra-procedural analysis to find out the
+     * Performs a simple intra-procedural analysis to find out the
      * throw Stmts which only throws exception of definite type.
      */
     private static Map<Throw, ClassType> findDefiniteThrows(IR ir) {

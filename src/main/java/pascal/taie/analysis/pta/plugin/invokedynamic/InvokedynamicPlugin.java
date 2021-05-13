@@ -34,7 +34,7 @@ public class InvokedynamicPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewMethod(JMethod method) {
+    public void onNewMethod(JMethod method) {
         method.getIR().getStmts().forEach(stmt -> {
             if (stmt instanceof Invoke) {
                 Invoke invoke = (Invoke) stmt;
@@ -44,7 +44,7 @@ public class InvokedynamicPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         if (methodTypeModel.isRelevantVar(csVar.getVar())) {
             methodTypeModel.handleNewPointsToSet(csVar, pts);
         }

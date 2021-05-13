@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Delegate points-to set to a concrete set implementation.
+ * Delegates points-to set to a concrete set implementation.
  */
 abstract class DelegatePointsToSet implements PointsToSet {
 

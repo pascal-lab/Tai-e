@@ -39,7 +39,7 @@ public interface ContextFactory<T> {
     Context getLastK(Context context, int k);
 
     /**
-     * Construct a context by appending an context element to a parent context.
+     * Constructs a context by appending an context element to a parent context.
      * The length of the resulting context will be restricted by given limit.
      * @return the resulting context.
      */
