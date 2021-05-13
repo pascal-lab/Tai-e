@@ -12,17 +12,21 @@
 
 package pascal.taie.util.collection;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Provides convenient utility operations for collections.
@@ -132,5 +136,16 @@ public class CollectionUtils {
 
     public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
+    }
+
+    /**
+     * @return a reversed version of given stream.
+     */
+    public static <T> Stream<T> reverse(Stream<T> stream) {
+        Iterator<T> iterator = stream.collect(
+                Collectors.toCollection(ArrayDeque::new))
+                .descendingIterator();
+        Iterable<T> iterable = () -> iterator;
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 }
