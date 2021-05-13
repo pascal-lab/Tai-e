@@ -33,7 +33,7 @@ public class FieldRef extends MemberRef {
     private final Type type;
 
     /**
-     * Cache the resolved field for this reference to avoid redundant
+     * Caches the resolved field for this reference to avoid redundant
      * field resolution.
      */
     private JField field;

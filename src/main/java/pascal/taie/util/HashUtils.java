@@ -15,7 +15,7 @@ package pascal.taie.util;
 import java.util.Objects;
 
 /**
- * Avoid array creation of Objects.hash().
+ * Avoids array creation of Objects.hash().
  */
 public class HashUtils {
 

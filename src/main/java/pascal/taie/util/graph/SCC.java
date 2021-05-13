@@ -20,8 +20,8 @@ import java.util.Stack;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
- * Finding strongly connected components in a directed graph
- * using Tarjan's algorithm.
+ * Finds strongly connected components in a directed graph using
+ * Tarjan's algorithm.
  *
  * @param <N> type of nodes
  */
@@ -101,7 +101,7 @@ public class SCC<N> {
     }
 
     /**
-     * Validate whether the number of nodes in all SCCs is
+     * Validates whether the number of nodes in all SCCs is
      * equal to the number of nodes in the given graph.
      */
     private void validate(Graph<N> graph, List<List<N>> SCCs) {

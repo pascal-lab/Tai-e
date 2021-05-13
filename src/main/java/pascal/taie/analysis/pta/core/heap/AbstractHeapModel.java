@@ -114,7 +114,7 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     /**
-     * Merge given object given by its type.
+     * Merges given object given by its type.
      * @param newExp the allocation site of the object
      * @return the merged object
      */

@@ -45,7 +45,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
- * Model APIs of java.lang.Class.
+ * Models APIs of java.lang.Class.
  */
 class ClassModel {
 
@@ -259,7 +259,7 @@ class ClassModel {
     }
 
     /**
-     * Convert a CSObj of class to corresponding JClass. If the object is
+     * Converts a CSObj of class to corresponding JClass. If the object is
      * not a class constant, then return null.
      */
     private @Nullable JClass toClass(CSObj csObj) {
@@ -277,7 +277,7 @@ class ClassModel {
     }
 
     /**
-     * Convert a CSObj of string constant to corresponding String.
+     * Converts a CSObj of string constant to corresponding String.
      * If the object is not a string constant, then return null.
      */
     private static @Nullable String toString(CSObj csObj) {

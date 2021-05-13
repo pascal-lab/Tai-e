@@ -23,12 +23,12 @@ package pascal.taie.analysis;
 public interface ResultHolder {
 
     /**
-     * Store the analysis result with the analysis id.
+     * Stores the analysis result with the analysis id.
      */
     <T> void storeResult(String id, T result);
 
     /**
-     * Given an analysis id, return the corresponding results.
+     * Given an analysis id, returns the corresponding results.
      */
     <T> T getResult(String id);
 
@@ -39,12 +39,12 @@ public interface ResultHolder {
     <T> T getResult(String id, T defaultResult);
 
     /**
-     * Clear result of the analysis specified by given id.
+     * Clears result of the analysis specified by given id.
      */
     void clearResult(String id);
 
     /**
-     * Clear all cached results.
+     * Clears all cached results.
      */
     void clearAll();
 }

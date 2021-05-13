@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static pascal.taie.util.collection.CollectionUtils.newSet;
 
 /**
- * Make analysis plan based on given plan configs and analysis configs.
+ * Makes analysis plan based on given plan configs and analysis configs.
  */
 public class AnalysisPlanner {
 
@@ -53,7 +53,7 @@ public class AnalysisPlanner {
     }
 
     /**
-     * Check if the given analysis plan is valid.
+     * Checks if the given analysis plan is valid.
      * @throws ConfigException if the given plan is invalid
      */
     private void validatePlan(List<AnalysisConfig> plan) {
@@ -92,7 +92,7 @@ public class AnalysisPlanner {
     }
 
     /**
-     * Build a require graph for AnalysisConfigs.
+     * Builds a require graph for AnalysisConfigs.
      * This method traverses relevant AnalysisConfigs starting from the ones
      * specified by given PlanConfigs. During the traversal, if it finds that
      * analysis A1 requires A2, then it adds an edge A1 -> A2 and
@@ -121,7 +121,7 @@ public class AnalysisPlanner {
     }
 
     /**
-     * Check if the given require graph is valid.
+     * Checks if the given require graph is valid.
      * @throws ConfigException if the given plan is invalid
      */
     private void validateRequireGraph(Graph<AnalysisConfig> graph) {

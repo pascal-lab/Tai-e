@@ -30,7 +30,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
 import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 /**
- * Managing data by maintaining the data and their context-sensitive
+ * Manages data by maintaining the data and their context-sensitive
  * counterparts by maps.
  */
 public class MapBasedCSManager implements CSManager {

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
 
 /**
- * Manager for new created variables during method creation.
+ * Manages new-created variables during method creation.
  */
 class NewVariableManager {
 

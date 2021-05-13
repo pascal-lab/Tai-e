@@ -324,7 +324,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     /**
-     * Obtain JClass representing java.lang.Object.
+     * Obtains JClass representing java.lang.Object.
      * Since the creation of JClass requires TypeManager, which may
      * not be initialized when class loaders are created,
      * we provide this method to retrieve Object class lazily.
@@ -358,7 +358,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     /**
-     * Traverse class hierarchy to check if subclass is a subclass of superclass.
+     * Traverses class hierarchy to check if subclass is a subclass of superclass.
      * TODO: optimize performance
      */
     private boolean isSubclass0(JClass superclass, JClass subclass) {

@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.plugin;
 import pascal.taie.util.Timer;
 
 /**
- * Record the elapsed time of pointer analysis.
+ * Records the elapsed time of pointer analysis.
  */
 public class AnalysisTimer implements Plugin {
 
@@ -23,19 +23,19 @@ public class AnalysisTimer implements Plugin {
     private Timer solverTimer;
 
     @Override
-    public void preprocess() {
+    public void onPreprocess() {
         ptaTimer = new Timer("Pointer analysis");
         ptaTimer.start();
     }
 
     @Override
-    public void initialize() {
+    public void onInitialize() {
         solverTimer = new Timer("Pointer analysis solver");
         solverTimer.start();
     }
 
     @Override
-    public void finish() {
+    public void onFinish() {
         solverTimer.stop();
         ptaTimer.stop();
         System.out.println(solverTimer);

@@ -82,7 +82,7 @@ class NativeIRBuilder {
     }
 
     /**
-     * Build an IR with empty body which contains only a return statement.
+     * Builds an IR with empty body which contains only a return statement.
      */
     IR buildEmpty() {
         return build(singletonList(newReturn()));

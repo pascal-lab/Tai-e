@@ -23,7 +23,7 @@ import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
 import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;
 
 /**
- * Model GC behavior that it assigns every reference to Reference.pending.
+ * Models GC behavior that it assigns every reference to Reference.pending.
  * As a result, Reference.pending can point to every reference.
  * The ReferenceHandler takes care of enqueueing the references in a
  * reference queue. If we do not model this GC behavior, Reference.pending
@@ -55,7 +55,7 @@ public class ReferenceHandler implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         if (World.getOptions().getJavaVersion() < 9) {
             // Let Reference.pending points to every reference.
             if (csVar.getVar().equals(referenceInitThis)) {

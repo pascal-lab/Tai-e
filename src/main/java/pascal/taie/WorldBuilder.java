@@ -20,7 +20,7 @@ import pascal.taie.config.Options;
 public interface WorldBuilder {
 
     /**
-     * Build a new instance of {@link World} and make it globally accessible
+     * Builds a new instance of {@link World} and make it globally accessible
      * through static methods of {@link World}.
      */
     void build(Options options);

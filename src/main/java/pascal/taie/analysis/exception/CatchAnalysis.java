@@ -38,7 +38,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 public class CatchAnalysis {
 
     /**
-     * Analyze the exceptions thrown by each Stmt in given IR may be caught
+     * Analyzes the exceptions thrown by each Stmt in given IR may be caught
      * by which (catch) Stmts, and which exceptions are not caught in the IR.
      */
     public static CatchResult analyze(IR ir, ThrowResult throwResult) {
