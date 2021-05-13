@@ -38,6 +38,9 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
         return solver.solve(cfg);
     }
 
+    /**
+     * By default, a data-flow analysis does not have edge transfer.
+     */
     @Override
     public boolean hasEdgeTransfer() {
         return false;

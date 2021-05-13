@@ -45,30 +45,56 @@ public class SetLikeFact<E> {
         return new SetLikeFact<>(Collections.emptySet());
     }
 
+    /**
+     * Adds an element to this fact.
+     * @return if this operation changes this fact.
+     */
     public boolean add(E e) {
         return set.add(e);
     }
 
+    /**
+     * Removes an element from this fact (if present).
+     * @return if this operation changes this fact.
+     */
     public boolean remove(E e) {
         return set.remove(e);
     }
 
+    /**
+     * Unions other fact.
+     * @return if this operation changes this fact.
+     */
     public boolean union(SetLikeFact<E> other) {
         return set.addAll(other.set);
     }
 
+    /**
+     * Intersects other fact
+     * @return if this operation changes this fact.
+     */
     public boolean intersect(SetLikeFact<E> other) {
         return set.retainAll(other.set);
     }
 
+    /**
+     * Sets the content of this set to other set.
+     * @return if this operation changes this fact.
+     */
     public boolean setTo(SetLikeFact<E> other) {
         return intersect(other) || union(other);
     }
 
+    /**
+     * Creates a duplication of this fact.
+     */
     public SetLikeFact<E> duplicate() {
         return make(this.set);
     }
 
+    /**
+     * Clears all content in this fact.
+     */
     public void clear() {
         set.clear();
     }
