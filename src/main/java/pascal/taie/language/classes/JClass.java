@@ -50,6 +50,11 @@ public class JClass {
 
     // TODO: annotations
 
+    /**
+     * If this class is application class.
+     */
+    private boolean isApplication;
+
     public JClass(JClassLoader loader, String name) {
         this(loader, name, null);
     }
@@ -75,6 +80,7 @@ public class JClass {
         declaredMethods = builder.getDeclaredMethods().stream()
                 .collect(Collectors.toUnmodifiableMap(JMethod::getSubsignature,
                         Function.identity()));
+        isApplication = builder.isApplication();
     }
 
     public JClassLoader getClassLoader() {
@@ -182,6 +188,10 @@ public class JClass {
 
     public @Nullable JMethod getClinit() {
         return getDeclaredMethod(Subsignature.get(StringReps.CLINIT));
+    }
+
+    public boolean isApplication() {
+        return isApplication;
     }
 
     @Override

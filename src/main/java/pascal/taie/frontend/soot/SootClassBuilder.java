@@ -82,4 +82,9 @@ class SootClassBuilder implements JClassBuilder {
         return converter.convertCollection(sootClass.getMethods(),
                 converter::convertMethod);
     }
+
+    @Override
+    public boolean isApplication() {
+        return sootClass.isApplicationClass();
+    }
 }
