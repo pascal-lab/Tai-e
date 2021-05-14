@@ -104,6 +104,18 @@ public class Value {
         return value;
     }
 
+    Value restrictTo(Value other) {
+        if (Kind.isHigher(kind, other.kind)) {
+            return other;
+        } else if (Kind.isHigher(other.kind, kind)) {
+            return this;
+        } else if (isConstant()) {
+            return value == other.value ? this : UNDEF;
+        } else {
+            return this;
+        }
+    }
+
     @Override
     public int hashCode() {
         return value;
@@ -139,5 +151,13 @@ public class Value {
         NAC, // not a constant
         CONSTANT, // an integer constant
         UNDEF, // undefined value
+        ;
+
+        /**
+         * @return if k1 has higher position than k2 in the lattice.
+         */
+        private static boolean isHigher(Kind k1, Kind k2) {
+            return k1.ordinal() < k2.ordinal();
+        }
     }
 }

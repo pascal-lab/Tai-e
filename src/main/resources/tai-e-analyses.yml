@@ -53,4 +53,4 @@
 - description: dead code detection
   analysisClass: pascal.taie.analysis.dfa.analysis.DeadCodeDetection
   id: deadcode
-  requires: [constprop,livevar]
+  requires: [cfg,constprop,livevar]

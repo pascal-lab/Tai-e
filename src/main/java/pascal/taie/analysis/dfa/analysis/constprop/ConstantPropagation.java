@@ -15,6 +15,7 @@ package pascal.taie.analysis.dfa.analysis.constprop;
 import pascal.taie.analysis.dfa.analysis.AbstractDataflowAnalysis;
 import pascal.taie.analysis.dfa.fact.MapFact;
 import pascal.taie.analysis.graph.cfg.CFG;
+import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.AbstractBinaryExp;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -27,7 +28,9 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.DefinitionStmt;
+import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.util.AnalysisException;
 
 public class ConstantPropagation extends
@@ -202,6 +205,36 @@ public class ConstantPropagation extends
         @Override
         public Value visitDefault(Exp exp) {
             return Value.getNAC();
+        }
+    }
+
+    @Override
+    public boolean hasEdgeTransfer() {
+        return true;
+    }
+
+    @Override
+    public void transferEdge(
+            Edge<Stmt> edge, MapFact<Var, Value> nodeFact, MapFact<Var, Value> edgeFact) {
+        edgeFact.copyFrom(nodeFact);
+        if (edge.getKind() == Edge.Kind.IF_TRUE) {
+            ConditionExp cond = ((If) edge.getSource()).getCondition();
+            if (cond.getOperator() == ConditionExp.Op.EQ) {
+                // if (x == 1) {
+                //   ... <- x must be 1 at this branch
+                Var v1 = cond.getValue1();
+                Value val1 = nodeFact.get(v1);
+                Var v2 = cond.getValue2();
+                Value val2 = nodeFact.get(v2);
+                edgeFact.update(v1, val1.restrictTo(val2));
+                edgeFact.update(v2, val2.restrictTo(val1));
+            }
+        } else if (edge.getKind() == Edge.Kind.SWITCH_CASE) {
+            // switch (x) {
+            //   case 1: ... <- x must be 1 at this branch
+            Var var = ((SwitchStmt) edge.getSource()).getValue();
+            int caseValue = edge.getCaseValue();
+            edgeFact.update(var, Value.makeConstant(caseValue));
         }
     }
 }
