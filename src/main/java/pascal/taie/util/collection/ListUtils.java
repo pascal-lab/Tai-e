@@ -37,6 +37,17 @@ public class ListUtils {
     }
 
     /**
+     * Cons an element to a collection and returns the resulting list.
+     * This API is equivalent to the cons operation in Lisp.
+     */
+    public static <T> List<T> cons(T e, Collection<T> c) {
+        List<T> result = new ArrayList<>(1 + c.size());
+        result.add(e);
+        result.addAll(c);
+        return result;
+    }
+
+    /**
      * Creates a list of given collection, appends a specific element to
      * the list and returns it.
      */

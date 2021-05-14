@@ -16,6 +16,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.proginfo.ProgramPoint;
 import pascal.taie.language.type.Type;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,5 +73,10 @@ public abstract class InvokeExp implements RValue {
         return "(" + args.stream()
                 .map(Var::toString)
                 .collect(Collectors.joining(",")) + ")";
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return Collections.unmodifiableList(args);
     }
 }
