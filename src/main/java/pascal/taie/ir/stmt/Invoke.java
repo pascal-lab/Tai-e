@@ -29,7 +29,7 @@ import java.util.Optional;
 /**
  * Representation of invocation statement, e.g., r = o.m(..).
  */
-public class Invoke extends AbstractStmt {
+public class Invoke extends DefinitionStmt<Var, InvokeExp> {
 
     private final InvokeExp invokeExp;
 
@@ -49,12 +49,22 @@ public class Invoke extends AbstractStmt {
         this(method, invokeExp, null);
     }
 
-    public InvokeExp getInvokeExp() {
-        return invokeExp;
+    @Override
+    public @Nullable Var getLValue() {
+        return result;
     }
 
     public @Nullable Var getResult() {
         return result;
+    }
+
+    @Override
+    public InvokeExp getRValue() {
+        return invokeExp;
+    }
+
+    public InvokeExp getInvokeExp() {
+        return invokeExp;
     }
 
     public MethodRef getMethodRef() {
@@ -73,11 +83,6 @@ public class Invoke extends AbstractStmt {
     @Override
     public List<Exp> getUses() {
         return ListUtils.append(invokeExp.getUses(), invokeExp);
-    }
-
-    @Override
-    public boolean canFallThrough() {
-        return true;
     }
 
     @Override
