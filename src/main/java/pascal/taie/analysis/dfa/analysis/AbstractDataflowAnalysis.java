@@ -35,7 +35,14 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
     @Override
     public DataflowResult<Node, Fact> analyze(IR ir) {
         CFG<Node> cfg = ir.getResult(CFGBuilder.ID);
-        return solver.solve(cfg);
+        DataflowResult<Node, Fact> result = solver.solve(cfg);
+        // Temporarily print results for debugging data-flow analyses
+        System.out.printf("-------------------- %s (%s) --------------------%n",
+                ir.getMethod(), getId());
+        ir.getStmts().forEach(stmt -> System.out.printf("L%-3d[%s]: %s%n",
+                stmt.getLineNumber(), stmt, result.getOutFact((Node) stmt)));
+        System.out.println();
+        return result;
     }
 
     /**

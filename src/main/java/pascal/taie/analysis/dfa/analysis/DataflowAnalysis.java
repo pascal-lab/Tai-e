@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.dfa.analysis;
 
+import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 
 public interface DataflowAnalysis<Node, Fact> {
@@ -24,7 +25,7 @@ public interface DataflowAnalysis<Node, Fact> {
     /**
      * Returns initial flowing-in fact for entry node.
      */
-    Fact getEntryInitialFact();
+    Fact getEntryInitialFact(CFG<Node> cfg);
 
     /**
      * Returns initial flowing-out fact for non-entry nodes.

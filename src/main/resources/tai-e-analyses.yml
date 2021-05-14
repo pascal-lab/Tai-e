@@ -43,3 +43,8 @@
   analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitions
   id: reachdef
   requires: [cfg]
+
+- description: constant propagation
+  analysisClass: pascal.taie.analysis.dfa.analysis.constprop.ConstantPropagation
+  id: constprop
+  requires: [cfg]

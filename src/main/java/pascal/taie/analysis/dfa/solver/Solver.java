@@ -49,7 +49,7 @@ public abstract class Solver<Node, Fact> {
                                    CFG<Node> cfg) {
         cfg.nodes().forEach(node -> {
             Fact initFact = cfg.isEntry(node) ?
-                    analysis.getEntryInitialFact() : analysis.newInitialFact();
+                    analysis.getEntryInitialFact(cfg) : analysis.newInitialFact();
             result.setOutFact(node, initFact);
             cfg.outEdgesOf(node).forEach(edge ->
                     result.setEdgeFact(edge, analysis.newInitialFact()));
@@ -60,7 +60,7 @@ public abstract class Solver<Node, Fact> {
                                    CFG<Node> cfg) {
         cfg.nodes().forEach(node -> {
             Fact initFact = cfg.isExit(node) ?
-                    analysis.getEntryInitialFact() : analysis.newInitialFact();
+                    analysis.getEntryInitialFact(cfg) : analysis.newInitialFact();
             result.setInFact(node, initFact);
             cfg.inEdgesOf(node).forEach(edge ->
                     result.setEdgeFact(edge, analysis.newInitialFact()));

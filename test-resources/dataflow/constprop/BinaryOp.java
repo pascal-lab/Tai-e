@@ -29,4 +29,17 @@ class BinaryOp {
         int a = x + y * z;
         int b = (x - y) * z;
     }
+
+    void shift(int x) {
+        int a = x << 5;
+        int b = 3;
+        int z = b << 5;
+    }
+
+    void bitwise(int x) {
+        int a = 1023;
+        int b = a ^ 8;
+        int c = a | x;
+        int d = 65535 & a;
+    }
 }

@@ -13,6 +13,7 @@
 package pascal.taie.analysis.dfa.analysis;
 
 import pascal.taie.analysis.dfa.fact.SetFact;
+import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -30,13 +31,13 @@ public class LiveVariableAnalysis extends
     }
 
     @Override
-    public SetFact<Var> getEntryInitialFact() {
-        return SetFact.make();
+    public SetFact<Var> getEntryInitialFact(CFG<Stmt> cfg) {
+        return new SetFact<>();
     }
 
     @Override
     public SetFact<Var> newInitialFact() {
-        return SetFact.make();
+        return new SetFact<>();
     }
 
     @Override

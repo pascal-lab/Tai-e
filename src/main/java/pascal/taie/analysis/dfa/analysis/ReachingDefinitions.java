@@ -13,6 +13,7 @@
 package pascal.taie.analysis.dfa.analysis;
 
 import pascal.taie.analysis.dfa.fact.SetFact;
+import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -30,13 +31,13 @@ public class ReachingDefinitions extends
     }
 
     @Override
-    public SetFact<Stmt> getEntryInitialFact() {
-        return SetFact.make();
+    public SetFact<Stmt> getEntryInitialFact(CFG<Stmt> cfg) {
+        return new SetFact<>();
     }
 
     @Override
     public SetFact<Stmt> newInitialFact() {
-        return SetFact.make();
+        return new SetFact<>();
     }
 
     @Override

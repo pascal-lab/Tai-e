@@ -53,6 +53,10 @@ public class MapUtils {
         return new HybridArrayHashMap<>();
     }
 
+    public static <K, V> Map<K, V> newHybridMap(Map<K, V> map) {
+        return new HybridArrayHashMap<>(map);
+    }
+
     public static <K, V> ConcurrentMap<K, V> newConcurrentMap() {
         return new ConcurrentHashMap<>();
     }

@@ -19,8 +19,6 @@ import pascal.taie.analysis.graph.cfg.CFG;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static java.util.function.Predicate.not;
-
 class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     WorkListSolver(DataflowAnalysis<Node, Fact> analysis) {
@@ -38,7 +36,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
-        cfg.nodes().filter(not(cfg::isEntry)).forEach(workList::add);
+        cfg.succsOf(cfg.getEntry()).forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts
@@ -73,7 +71,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
-        cfg.nodes().filter(not(cfg::isExit)).forEach(workList::add);
+        cfg.predsOf(cfg.getExit()).forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts

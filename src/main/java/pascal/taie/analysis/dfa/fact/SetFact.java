@@ -26,24 +26,14 @@ import java.util.stream.Stream;
  */
 public class SetFact<E> {
 
-    private final Set<E> set;
+    protected final Set<E> set;
 
-    private SetFact(Collection<E> c) {
+    public SetFact(Collection<E> c) {
         set = SetUtils.newHybridSet(c);
     }
 
-    /**
-     * Creates a set-like fact containing the elements in the given collection.
-     */
-    public static <T> SetFact<T> make(Collection<T> c) {
-        return new SetFact<>(c);
-    }
-
-    /**
-     * Creates a empty set-like fact.
-     */
-    public static <T> SetFact<T> make() {
-        return new SetFact<>(Collections.emptySet());
+    public SetFact() {
+        this(Collections.emptySet());
     }
 
     /**
@@ -98,7 +88,7 @@ public class SetFact<E> {
      * Creates a duplication of this fact.
      */
     public SetFact<E> duplicate() {
-        return make(this.set);
+        return new SetFact<>(this.set);
     }
 
     /**
@@ -117,7 +107,7 @@ public class SetFact<E> {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof SetFact)) {
             return false;
         }
         SetFact<?> that = (SetFact<?>) o;
