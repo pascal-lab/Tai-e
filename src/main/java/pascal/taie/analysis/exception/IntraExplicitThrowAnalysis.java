@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.AssignStmt;
+import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
@@ -65,16 +65,12 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
                 Throw throwStmt = (Throw) s;
                 throwVars.put(throwStmt.getExceptionRef(), throwStmt);
             }
-            // collect all assignments
+            // collect all definition stmts
             Exp lhs = null, rhs = null;
-            if (s instanceof AssignStmt) {
-                AssignStmt<?, ?> assign = (AssignStmt<?, ?>) s;
-                lhs = assign.getLValue();
-                rhs = assign.getRValue();
-            } else if (s instanceof Invoke) {
-                Invoke invoke = (Invoke) s;
-                lhs = invoke.getResult();
-                rhs = invoke.getInvokeExp();
+            if (s instanceof DefinitionStmt<?, ?>) {
+                DefinitionStmt<?, ?> define = (DefinitionStmt<?, ?>) s;
+                lhs = define.getLValue();
+                rhs = define.getRValue();
             }
             if (lhs != null && rhs != null) {
                 assigns.computeIfAbsent(lhs, e -> new ArrayList<>()).add(rhs);

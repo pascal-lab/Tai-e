@@ -25,7 +25,8 @@ import java.util.Optional;
  * @param <L> type of lvalue.
  * @param <R> type of rvalue.
  */
-public abstract class AssignStmt<L extends LValue, R extends RValue> extends AbstractStmt {
+public abstract class AssignStmt<L extends LValue, R extends RValue>
+        extends DefinitionStmt<L, R> {
 
     private final L lvalue;
 
@@ -36,10 +37,12 @@ public abstract class AssignStmt<L extends LValue, R extends RValue> extends Abs
         this.rvalue = rvalue;
     }
 
+    @Override
     public L getLValue() {
         return lvalue;
     }
 
+    @Override
     public R getRValue() {
         return rvalue;
     }
@@ -53,11 +56,6 @@ public abstract class AssignStmt<L extends LValue, R extends RValue> extends Abs
     public List<Exp> getUses() {
         return ListUtils.concatAndAppend(
                 lvalue.getUses(), rvalue.getUses(), rvalue);
-    }
-
-    @Override
-    public boolean canFallThrough() {
-        return true;
     }
 
     @Override
