@@ -21,6 +21,8 @@ import pascal.taie.ir.stmt.Stmt;
 public class LiveVariableAnalysis extends
         AbstractDataflowAnalysis<Stmt, SetFact<Var>> {
 
+    public static final String ID = "livevar";
+
     public LiveVariableAnalysis(AnalysisConfig config) {
         super(config);
     }

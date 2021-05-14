@@ -33,6 +33,8 @@ import pascal.taie.util.AnalysisException;
 public class ConstantPropagation extends
         AbstractDataflowAnalysis<Stmt, MapFact<Var, Value>> {
 
+    public static final String ID = "constprop";
+
     public ConstantPropagation(AnalysisConfig config) {
         super(config);
     }
@@ -107,7 +109,7 @@ public class ConstantPropagation extends
         return out.copyFrom(in);
     }
 
-    private static Value evaluate(Exp exp, MapFact<Var, Value> env) {
+    public static Value evaluate(Exp exp, MapFact<Var, Value> env) {
         return exp.accept(new Evaluator(env));
     }
 

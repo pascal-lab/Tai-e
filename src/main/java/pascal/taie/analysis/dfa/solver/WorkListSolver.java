@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.dfa.solver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.dfa.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dfa.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
@@ -20,6 +22,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
+
+    private static final Logger logger = LogManager.getLogger(WorkListSolver.class);
 
     WorkListSolver(DataflowAnalysis<Node, Fact> analysis) {
         super(analysis);
@@ -36,7 +40,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
-        cfg.succsOf(cfg.getEntry()).forEach(workList::add);
+        cfg.nodes().forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts
@@ -53,6 +57,12 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
             });
             // apply node transfer function
             Fact in = result.getInFact(node);
+            if (in == null) {
+                // this means that node does not have any predecessors in CFG
+                logger.warn("[forward analysis]: in fact of {} is null," +
+                        " skip its transfer", node);
+                continue;
+            }
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
@@ -71,7 +81,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
-        cfg.predsOf(cfg.getExit()).forEach(workList::add);
+        cfg.nodes().forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts
@@ -89,6 +99,12 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
             // apply node transfer function
             Fact in = result.getInFact(node);
             Fact out = result.getOutFact(node);
+            if (out == null) {
+                // this means that node does not have any successors in CFG
+                logger.warn("[backward analysis]: out fact of {} is null," +
+                        " skip its transfer", node);
+                continue;
+            }
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
                 cfg.inEdgesOf(node).forEach(inEdge -> {

@@ -37,6 +37,14 @@ public class SetFact<E> {
     }
 
     /**
+     * @return true if this set contains the specified element.
+     */
+    public boolean contains(Object e) {
+        //noinspection SuspiciousMethodCalls
+        return set.contains(e);
+    }
+
+    /**
      * Adds an element to this fact.
      * @return if this operation changes this fact.
      */

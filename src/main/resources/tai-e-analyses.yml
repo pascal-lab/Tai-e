@@ -48,3 +48,8 @@
   analysisClass: pascal.taie.analysis.dfa.analysis.constprop.ConstantPropagation
   id: constprop
   requires: [cfg]
+
+- description: dead code detection
+  analysisClass: pascal.taie.analysis.dfa.analysis.DeadCodeDetection
+  id: deadcode
+  requires: [constprop,livevar]
