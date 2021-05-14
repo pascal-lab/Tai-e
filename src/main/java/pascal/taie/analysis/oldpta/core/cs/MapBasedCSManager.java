@@ -19,15 +19,15 @@ import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.analysis.oldpta.set.PointsToSetFactory;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.MapUtils;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
  * Managing data by maintaining the data and their context-sensitive
@@ -90,12 +90,12 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<CSVariable> getCSVariables() {
-        return CollectionUtils.getAllValues(vars);
+        return MapUtils.getAllValues(vars);
     }
 
     @Override
     public Stream<InstanceField> getInstanceFields() {
-        return CollectionUtils.getAllValues(instanceFields);
+        return MapUtils.getAllValues(instanceFields);
     }
 
     @Override

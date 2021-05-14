@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 

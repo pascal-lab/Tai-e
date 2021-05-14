@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.InvokeExp;
 
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 public class CSCallSite extends AbstractCSElement {
 

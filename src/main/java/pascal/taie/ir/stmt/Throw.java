@@ -12,7 +12,10 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
+
+import java.util.List;
 
 /**
  * Representation of throw exception statement, e.g., throw e.
@@ -30,6 +33,11 @@ public class Throw extends AbstractStmt {
 
     public Var getExceptionRef() {
         return exceptionRef;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of(exceptionRef);
     }
 
     @Override

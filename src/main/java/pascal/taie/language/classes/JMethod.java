@@ -22,7 +22,7 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.freeze;
+import static pascal.taie.util.collection.ListUtils.freeze;
 
 public class JMethod extends ClassMember {
 

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
  * Manages a collection of {@link AnalysisConfig}.

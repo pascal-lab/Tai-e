@@ -25,8 +25,8 @@ import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.language.classes.StringReps.STRING_BUFFER;
 import static pascal.taie.language.classes.StringReps.STRING_BUILDER;
 import static pascal.taie.language.classes.StringReps.THROWABLE;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
  * All heap models should inherit this class, and we can define

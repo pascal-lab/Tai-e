@@ -14,6 +14,8 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.ArrayType;
 
+import java.util.List;
+
 /**
  * Representation of new array expression, e.g., new T[..].
  */
@@ -35,6 +37,11 @@ public class NewArray extends NewExp {
 
     public Var getLength() {
         return length;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of(length);
     }
 
     @Override

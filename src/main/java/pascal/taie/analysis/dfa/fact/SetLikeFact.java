@@ -12,12 +12,12 @@
 
 package pascal.taie.analysis.dfa.fact;
 
+import pascal.taie.util.collection.SetUtils;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 
 /**
  * TODO: implement copy-on-write?
@@ -28,7 +28,7 @@ public class SetLikeFact<E> {
     private final Set<E> set;
 
     private SetLikeFact(Collection<E> c) {
-        set = newHybridSet(c);
+        set = SetUtils.newHybridSet(c);
     }
 
     /**

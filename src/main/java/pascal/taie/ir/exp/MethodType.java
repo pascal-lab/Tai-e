@@ -21,7 +21,7 @@ import java.util.List;
 
 import static pascal.taie.language.classes.StringReps.METHOD_TYPE;
 import static pascal.taie.language.classes.StringReps.toDescriptor;
-import static pascal.taie.util.collection.CollectionUtils.freeze;
+import static pascal.taie.util.collection.ListUtils.freeze;
 
 /**
  * Representation of java.lang.invoke.MethodType instances.

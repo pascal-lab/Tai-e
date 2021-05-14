@@ -15,6 +15,8 @@ package pascal.taie.ir.exp;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
 
+import java.util.List;
+
 /**
  * Representation of array access expression, e.g., a[i].
  */
@@ -45,6 +47,11 @@ public class ArrayAccess implements LValue, RValue {
         } else {
             throw new RuntimeException("Invalid base type: " + base.getType());
         }
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of(base, index);
     }
 
     @Override

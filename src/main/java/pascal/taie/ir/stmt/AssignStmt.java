@@ -12,8 +12,13 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
+import pascal.taie.util.collection.ListUtils;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Representation of assign statements.
@@ -37,6 +42,17 @@ public abstract class AssignStmt<L extends LValue, R extends RValue> extends Abs
 
     public R getRValue() {
         return rvalue;
+    }
+
+    @Override
+    public Optional<Exp> getDef() {
+        return Optional.of(lvalue);
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return ListUtils.concatAndAppend(
+                lvalue.getUses(), rvalue.getUses(), rvalue);
     }
 
     @Override

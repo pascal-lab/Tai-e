@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.CollectionView;
+import pascal.taie.util.collection.MapUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
@@ -51,8 +51,8 @@ public abstract class AbstractCallGraph<CallSite, Method>
     public void addEdge(CallSite callSite, Method callee, CallKind kind) {
         addNewMethod(callee);
         Edge<CallSite, Method> edge = new Edge<>(kind, callSite, callee);
-        CollectionUtils.addToMapSet(callSiteToEdges, callSite, edge);
-        CollectionUtils.addToMapSet(calleeToEdges, callee, edge);
+        MapUtils.addToMapSet(callSiteToEdges, callSite, edge);
+        MapUtils.addToMapSet(calleeToEdges, callee, edge);
     }
 
     /**

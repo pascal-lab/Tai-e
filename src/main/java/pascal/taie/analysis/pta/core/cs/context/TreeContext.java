@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.core.cs.context;
 import java.util.Arrays;
 import java.util.Map;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
 
 /**
  * An implementation of {@link Context}, which organizes contexts like a tree.

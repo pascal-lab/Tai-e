@@ -12,7 +12,10 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
+
+import java.util.Optional;
 
 /**
  * Representation of catch exception, e.g., catch (e).
@@ -30,6 +33,11 @@ public class Catch extends AbstractStmt {
 
     public Var getExceptionRef() {
         return exceptionRef;
+    }
+
+    @Override
+    public Optional<Exp> getDef() {
+        return Optional.of(exceptionRef);
     }
 
     @Override

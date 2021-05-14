@@ -12,7 +12,10 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
+
+import java.util.List;
 
 /**
  * Representation of monitorenter/monitorexit instruction.
@@ -60,6 +63,11 @@ public class Monitor extends AbstractStmt {
 
     public Var getObjectRef() {
         return objectRef;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of(objectRef);
     }
 
     @Override

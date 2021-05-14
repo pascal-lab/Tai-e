@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 /**
  * Intra-procedural catch analysis for computing the exceptions thrown by

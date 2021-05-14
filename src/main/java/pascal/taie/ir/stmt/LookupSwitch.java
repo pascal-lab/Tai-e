@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.freeze;
+import static pascal.taie.util.collection.ListUtils.freeze;
 
 public class LookupSwitch extends SwitchStmt {
 

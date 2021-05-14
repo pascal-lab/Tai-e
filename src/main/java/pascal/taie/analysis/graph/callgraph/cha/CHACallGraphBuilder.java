@@ -37,7 +37,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import static pascal.taie.analysis.graph.callgraph.JimpleCallUtils.getCallKind;
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 public class CHACallGraphBuilder extends SceneTransformer {
 

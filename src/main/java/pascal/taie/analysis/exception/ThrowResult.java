@@ -24,7 +24,7 @@ import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
 
 public class ThrowResult {
 
