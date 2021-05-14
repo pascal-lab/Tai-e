@@ -12,5 +12,5 @@
 
 package pascal.taie.analysis.dfa.fact;
 
-public class MapLikeFact<K, V> {
+public class MapFact<K, V> {
 }

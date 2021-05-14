@@ -19,13 +19,6 @@
     algorithm: pta # | cha | rta
     dump: false # dump call graph
 
-- description: intraprocedural control-flow graph
-  analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
-  id: cfg
-  requires: [throw(exception=explicit|all)]
-  options:
-    exception: explicit # | none | all (includes implicit and explicit exceptions)
-
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
   id: throw
@@ -33,3 +26,15 @@
   options:
     exception: explicit # | all (includes implicit and explicit exceptions)
     algorithm: intra # | pta
+
+- description: intraprocedural control-flow graph
+  analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
+  id: cfg
+  requires: [throw(exception=explicit|all)]
+  options:
+    exception: explicit # | none | all (includes implicit and explicit exceptions)
+
+- description: live variable analysis
+  analysisClass: pascal.taie.analysis.dfa.analysis.LiveVariableAnalysis
+  id: livevar
+  requires: [cfg]

@@ -23,26 +23,26 @@ import java.util.stream.Stream;
  * TODO: implement copy-on-write?
  * @param <E> type of elements
  */
-public class SetLikeFact<E> {
+public class SetFact<E> {
 
     private final Set<E> set;
 
-    private SetLikeFact(Collection<E> c) {
+    private SetFact(Collection<E> c) {
         set = SetUtils.newHybridSet(c);
     }
 
     /**
      * Creates a set-like fact containing the elements in the given collection.
      */
-    public static <T> SetLikeFact<T> make(Collection<T> c) {
-        return new SetLikeFact<>(c);
+    public static <T> SetFact<T> make(Collection<T> c) {
+        return new SetFact<>(c);
     }
 
     /**
      * Creates a empty set-like fact.
      */
-    public static <T> SetLikeFact<T> make() {
-        return new SetLikeFact<>(Collections.emptySet());
+    public static <T> SetFact<T> make() {
+        return new SetFact<>(Collections.emptySet());
     }
 
     /**
@@ -65,7 +65,7 @@ public class SetLikeFact<E> {
      * Unions other fact.
      * @return if this operation changes this fact.
      */
-    public boolean union(SetLikeFact<E> other) {
+    public boolean union(SetFact<E> other) {
         return set.addAll(other.set);
     }
 
@@ -73,22 +73,22 @@ public class SetLikeFact<E> {
      * Intersects other fact
      * @return if this operation changes this fact.
      */
-    public boolean intersect(SetLikeFact<E> other) {
+    public boolean intersect(SetFact<E> other) {
         return set.retainAll(other.set);
     }
 
     /**
      * Sets the content of this set to other set.
-     * @return if this operation changes this fact.
      */
-    public boolean setTo(SetLikeFact<E> other) {
-        return intersect(other) || union(other);
+    public void setTo(SetFact<E> other) {
+        clear();
+        union(other);
     }
 
     /**
      * Creates a duplication of this fact.
      */
-    public SetLikeFact<E> duplicate() {
+    public SetFact<E> duplicate() {
         return make(this.set);
     }
 
@@ -111,7 +111,7 @@ public class SetLikeFact<E> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SetLikeFact<?> that = (SetLikeFact<?>) o;
+        SetFact<?> that = (SetFact<?>) o;
         return set.equals(that.set);
     }
 
