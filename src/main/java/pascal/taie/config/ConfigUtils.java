@@ -36,6 +36,10 @@ public class ConfigUtils {
     private ConfigUtils() {
     }
 
+    public static File getOutputDir() {
+        return outputDir;
+    }
+
     /**
      * @return the file for storing analysis configurations.
      * TODO: the path of configuration file is hardcoded, make it configurable?

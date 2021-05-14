@@ -33,6 +33,7 @@
   requires: [throw(exception=explicit|all)]
   options:
     exception: explicit # | none | all (includes implicit and explicit exceptions)
+    dump: false # dump control-flow graph
 
 - description: live variable analysis
   analysisClass: pascal.taie.analysis.dfa.analysis.LiveVariableAnalysis
