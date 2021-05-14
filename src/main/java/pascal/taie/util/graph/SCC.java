@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
  * Finds strongly connected components in a directed graph using

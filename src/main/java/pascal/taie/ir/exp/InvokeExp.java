@@ -19,7 +19,7 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.freeze;
+import static pascal.taie.util.collection.ListUtils.freeze;
 
 /**
  * Representation of method invocation expression.

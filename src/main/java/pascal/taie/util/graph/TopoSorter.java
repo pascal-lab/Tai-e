@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 /**
  * Topologically sorts a directed graph using DFS.

@@ -18,13 +18,13 @@ import pascal.taie.analysis.oldpta.ir.Call;
 import pascal.taie.analysis.oldpta.ir.CallSite;
 import pascal.taie.analysis.oldpta.ir.Statement;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.MapUtils;
 
 class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {
 
     void addEdge(Edge<CallSite, JMethod> edge) {
-        CollectionUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge);
-        CollectionUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
+        MapUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge);
+        MapUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
     }
 
     boolean containsEdge(Edge<CallSite, JMethod> edge) {
@@ -38,7 +38,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CallSite, JMethod> {
                 if (s instanceof Call) {
                     CallSite callSite = ((Call) s).getCallSite();
                     callSiteToContainer.put(callSite, method);
-                    CollectionUtils.addToMapSet(callSitesIn, method, callSite);
+                    MapUtils.addToMapSet(callSitesIn, method, callSite);
                 }
             }
             return true;

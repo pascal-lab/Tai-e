@@ -21,7 +21,7 @@ import pascal.taie.language.classes.JMethod;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.freeze;
+import static pascal.taie.util.collection.ListUtils.freeze;
 
 /**
  * Default implementation of IR.

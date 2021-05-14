@@ -19,7 +19,7 @@ import pascal.taie.util.graph.Graph;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 public class PointerFlowGraph implements Graph<Pointer> {
 

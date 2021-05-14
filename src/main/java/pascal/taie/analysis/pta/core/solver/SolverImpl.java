@@ -86,8 +86,8 @@ import java.util.stream.Stream;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
 import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 public class SolverImpl implements Solver {
 

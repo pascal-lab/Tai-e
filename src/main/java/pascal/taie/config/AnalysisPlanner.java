@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 /**
  * Makes analysis plan based on given plan configs and analysis configs.
