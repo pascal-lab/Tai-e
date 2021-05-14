@@ -19,6 +19,8 @@ import pascal.taie.analysis.graph.cfg.CFG;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import static java.util.function.Predicate.not;
+
 class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     WorkListSolver(DataflowAnalysis<Node, Fact> analysis) {
@@ -36,7 +38,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
-        cfg.nodes().forEach(workList::add);
+        cfg.nodes().filter(not(cfg::isEntry)).forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts
@@ -46,7 +48,8 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
                         result.getOutFact(inEdge.getSource());
                 Fact in = result.getInFact(node);
                 if (in == null) {
-                    result.setInFact(node, analysis.copyFact(predOut));
+                    in = analysis.copyFact(predOut);
+                    result.setInFact(node, in);
                 }
                 analysis.mergeInto(predOut, in);
             });
@@ -70,7 +73,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         Queue<Node> workList = new LinkedList<>();
-        cfg.nodes().forEach(workList::add);
+        cfg.nodes().filter(not(cfg::isExit)).forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts
@@ -80,7 +83,8 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
                         result.getInFact(outEdge.getTarget());
                 Fact out = result.getOutFact(node);
                 if (out == null) {
-                    result.setOutFact(node, analysis.copyFact(succIn));
+                    out = analysis.copyFact(succIn);
+                    result.setOutFact(node, out);
                 }
                 analysis.mergeInto(succIn, out);
             });
