@@ -38,3 +38,8 @@
   analysisClass: pascal.taie.analysis.dfa.analysis.LiveVariableAnalysis
   id: livevar
   requires: [cfg]
+
+- description: reaching definitions
+  analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitions
+  id: reachdef
+  requires: [cfg]

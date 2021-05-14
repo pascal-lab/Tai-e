@@ -17,6 +17,7 @@ import pascal.taie.util.collection.SetUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -59,6 +60,14 @@ public class SetFact<E> {
      */
     public boolean remove(E e) {
         return set.remove(e);
+    }
+
+    /**
+     * Removes all of the elements of this collection that satisfy the given predicate.
+     * @return if this operation changes this fact.
+     */
+    public boolean removeIf(Predicate<E> filter) {
+        return set.removeIf(filter);
     }
 
     /**
