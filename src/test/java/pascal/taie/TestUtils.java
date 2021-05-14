@@ -14,7 +14,6 @@ package pascal.taie;
 
 import org.junit.Assert;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

@@ -17,7 +17,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -67,8 +66,8 @@ public abstract class SwitchStmt extends JumpStmt {
     }
 
     @Override
-    public Optional<Exp> getDef() {
-        return Optional.of(value);
+    public List<Exp> getUses() {
+        return List.of(value);
     }
 
     @Override

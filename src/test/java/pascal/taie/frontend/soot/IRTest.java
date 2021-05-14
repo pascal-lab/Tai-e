@@ -13,6 +13,7 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -28,22 +29,39 @@ public class IRTest {
             = Collections.singletonList("AllInOne");
 
     private static void buildWorld(String mainClass) {
-        Main.buildWorld("-cp", "test-resources/basic", "-m", mainClass);
+        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", mainClass);
     }
 
     @Test
     public void testIRBuilder() {
-        // This will enable PackManager run several BodyTransformers
-        // to optimize Jimple body.
-        System.setProperty("ENABLE_JIMPLE_OPT", "true");
-
         targets.forEach(main -> {
             buildWorld(main);
-            JClass mainClass = World.getMainMethod().getDeclaringClass();
+            JClass mainClass = World.getClassHierarchy().getClass(main);
             mainClass.getDeclaredMethods().forEach(m ->
                     IRPrinter.print(m.getIR(), System.out));
             System.out.println("------------------------------\n");
         });
+    }
+
+    @Test
+    public void testDefUse() {
+        String main = "DefUse";
+        buildWorld(main);
+        JClass mainClass = World.getClassHierarchy().getClass(main);
+        mainClass.getDeclaredMethods().forEach(m -> {
+            System.out.println(m);
+            m.getIR().getStmts().forEach(stmt ->
+                    System.out.printf("%s, def: %s, uses: %s%n",
+                            stmt, stmt.getDef(), stmt.getUses()));
+            System.out.println("--------------------");
+        });
+    }
+
+    @BeforeClass
+    public static void start() {
+        // This will enable PackManager run several BodyTransformers
+        // to optimize Jimple body.
+        System.setProperty("ENABLE_JIMPLE_OPT", "true");
     }
 
     @AfterClass

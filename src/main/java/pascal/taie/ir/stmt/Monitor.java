@@ -16,7 +16,6 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Representation of monitorenter/monitorexit instruction.
