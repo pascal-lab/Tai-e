@@ -12,10 +12,12 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -62,6 +64,11 @@ public abstract class SwitchStmt extends JumpStmt {
 
     public void setDefaultTarget(Stmt defaultTarget) {
         this.defaultTarget = defaultTarget;
+    }
+
+    @Override
+    public Optional<Exp> getDef() {
+        return Optional.of(value);
     }
 
     @Override
