@@ -25,6 +25,7 @@
   requires: [throw(exception=explicit|all)]
   options:
     exception: explicit # | none | all (includes implicit and explicit exceptions)
+    dump: false # dump control-flow graph
 
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis

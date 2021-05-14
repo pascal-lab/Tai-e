@@ -39,17 +39,12 @@ public class CFGTest {
         ThrowAnalysis throwAnalysis = new ThrowAnalysis(
                 new AnalysisConfig(ThrowAnalysis.ID, "exception", exception));
         CFGBuilder builder = new CFGBuilder(
-                new AnalysisConfig(CFGBuilder.ID, "exception", exception));
+                new AnalysisConfig(CFGBuilder.ID,
+                        "exception", exception, "dump", true));
         c.getDeclaredMethods().forEach(m -> {
             IR ir = m.getIR();
             ir.storeResult(throwAnalysis.getId(), throwAnalysis.analyze(ir));
-            CFG<Stmt> cfg = builder.analyze(ir);
-            CFGDumper.dumpDotFile(cfg, escapeFileName(
-                    String.format("output/%s.%s.dot", c, m.getName())));
+            builder.analyze(ir);
         });
-    }
-
-    private static String escapeFileName(String filePath) {
-        return filePath.replaceAll("[\\[\\]<>]", "_");
     }
 }

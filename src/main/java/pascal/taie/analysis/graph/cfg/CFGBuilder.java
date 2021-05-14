@@ -38,9 +38,12 @@ public class CFGBuilder extends IntraproceduralAnalysis {
 
     private final boolean NO_EXCEPTION;
 
+    private final boolean DUMP;
+
     public CFGBuilder(AnalysisConfig config) {
         super(config);
         NO_EXCEPTION = getOptions().getString("exception").equals("none");
+        DUMP = getOptions().getBoolean("dump");
     }
 
     @Override
@@ -51,6 +54,9 @@ public class CFGBuilder extends IntraproceduralAnalysis {
         buildNormalEdges(cfg);
         if (!NO_EXCEPTION) {
             buildExceptionalEdges(cfg);
+        }
+        if (DUMP) {
+            CFGDumper.dumpDotFile(cfg);
         }
         return cfg;
     }

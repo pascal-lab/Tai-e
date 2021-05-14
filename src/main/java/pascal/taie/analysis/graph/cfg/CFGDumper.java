@@ -14,11 +14,16 @@ package pascal.taie.analysis.graph.cfg;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.config.ConfigUtils;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public class CFGDumper {
@@ -31,17 +36,33 @@ public class CFGDumper {
 
     private static final String EXCEPTIONAL_EDGE_ATTR = "color=red";
 
-    public static void dumpDotFile(CFG<Stmt> cfg, String filePath) {
+    static <N> void dumpDotFile(CFG<N> cfg) {
+        // obtain output file
+        File outFile = new File(ConfigUtils.getOutputDir(), toFileName(cfg));
         try (PrintStream out =
-                     new PrintStream(new FileOutputStream(filePath))) {
+                     new PrintStream(new FileOutputStream(outFile))) {
             dumpDot(cfg, out);
         } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump graph to " + filePath +
-                    ", caused by  " + e);
+            logger.warn("Failed to dump graph to " + outFile, e);
         }
     }
 
-    private static <N> void dumpDot(CFG<Stmt> cfg, PrintStream out) {
+    private static String toFileName(CFG<?> cfg) {
+        JMethod m = cfg.getMethod();
+        StringBuilder sb = new StringBuilder();
+        return sb.append(m.getDeclaringClass()).append('.')
+                .append(m.getName()).append('(')
+                .append(m.getParamTypes()
+                        .stream()
+                        .map(Type::toString)
+                        .collect(Collectors.joining(",")))
+                .append(')')
+                .toString()
+                // escape invalid characters in file name
+                .replaceAll("[\\[\\]<>]", "_") + ".dot";
+    }
+
+    private static <N> void dumpDot(CFG<N> cfg, PrintStream out) {
         out.println("digraph G {");
         // set node style
         out.printf("%snode %s;%n", INDENT, NODE_ATTR);
@@ -55,17 +76,18 @@ public class CFGDumper {
         out.println("}");
     }
 
-    private static String toString(Stmt s, CFG<Stmt> cfg) {
-        if (cfg.isEntry(s)) {
+    private static <N> String toString(N node, CFG<N> cfg) {
+        if (cfg.isEntry(node)) {
             return "Entry";
-        } else if (cfg.isExit(s)) {
+        } else if (cfg.isExit(node)) {
             return "Exit";
         } else {
-            return s.getIndex() + ": " + s;
+            return node instanceof Stmt ?
+                    ((Stmt) node).getIndex() + ": " + node : node.toString();
         }
     }
 
-    private static String toString(Edge<Stmt> e, CFG<Stmt> cfg) {
+    private static <N> String toString(Edge<N> e, CFG<N> cfg) {
         StringBuilder sb = new StringBuilder();
         sb.append('\"').append(toString(e.getSource(), cfg)).append('\"');
         sb.append(" -> ");
