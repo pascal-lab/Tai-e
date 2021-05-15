@@ -51,14 +51,16 @@ public abstract class Solver<Node, Fact> {
             Fact initFact = cfg.isEntry(node) ?
                     analysis.getEntryInitialFact(cfg) : analysis.newInitialFact();
             result.setOutFact(node, initFact);
-            cfg.outEdgesOf(node).forEach(edge -> {
-                Fact edgeFact = analysis.newInitialFact();
-                result.setEdgeFact(edge, edgeFact);
-                if (cfg.isEntry(node) && analysis.hasEdgeTransfer()) {
-                    // perform edge transfer for entry node
-                    analysis.transferEdge(edge, initFact, edgeFact);
-                }
-            });
+            if (analysis.hasEdgeTransfer()) {
+                cfg.outEdgesOf(node).forEach(edge -> {
+                    Fact edgeFact = analysis.newInitialFact();
+                    result.setEdgeFact(edge, edgeFact);
+                    if (cfg.isEntry(node)) {
+                        // perform edge transfer for entry node
+                        analysis.transferEdge(edge, initFact, edgeFact);
+                    }
+                });
+            }
         });
     }
 
@@ -68,14 +70,16 @@ public abstract class Solver<Node, Fact> {
             Fact initFact = cfg.isExit(node) ?
                     analysis.getEntryInitialFact(cfg) : analysis.newInitialFact();
             result.setInFact(node, initFact);
-            cfg.inEdgesOf(node).forEach(edge -> {
-                Fact edgeFact = analysis.newInitialFact();
-                result.setEdgeFact(edge, edgeFact);
-                if (cfg.isExit(node) && analysis.hasEdgeTransfer()) {
-                    // perform edge transfer for exit node
-                    analysis.transferEdge(edge, initFact, edgeFact);
-                }
-            });
+            if (analysis.hasEdgeTransfer()) {
+                cfg.inEdgesOf(node).forEach(edge -> {
+                    Fact edgeFact = analysis.newInitialFact();
+                    result.setEdgeFact(edge, edgeFact);
+                    if (cfg.isExit(node)) {
+                        // perform edge transfer for exit node
+                        analysis.transferEdge(edge, initFact, edgeFact);
+                    }
+                });
+            }
         });
     }
 
