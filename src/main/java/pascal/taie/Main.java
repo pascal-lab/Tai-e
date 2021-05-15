@@ -25,7 +25,6 @@ import pascal.taie.config.PlanConfig;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,7 +88,7 @@ public class Main {
             return planner.makePlan(planConfigs);
         }
         // No analyses are specified
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**

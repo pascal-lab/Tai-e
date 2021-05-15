@@ -72,7 +72,7 @@ public class TestUtils {
     }
 
     private static void test(String inputClass, String analysis, String checker) {
-        test(inputClass, analysis, checker, Collections.emptyList());
+        test(inputClass, analysis, checker, List.of());
     }
 
     private static void test(String inputClass, String classPath,

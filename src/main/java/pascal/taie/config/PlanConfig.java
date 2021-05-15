@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,8 +58,7 @@ public class PlanConfig {
             @JsonProperty("id") String id,
             @JsonProperty("options") AnalysisOptions options) {
         this.id = id;
-        this.options = Objects.requireNonNullElse(options,
-                AnalysisOptions.emptyOptions());
+        this.options = Objects.requireNonNullElse(options, AnalysisOptions.of());
     }
 
     public String getId() {
@@ -110,7 +108,7 @@ public class PlanConfig {
                             .replace(":", ": ");
                     try {
                         Map<String, Object> optsMap = opts.isEmpty() ?
-                                Collections.emptyMap() :
+                                Map.of() :
                                 // Leverage Jackson to parse YAML string to Map
                                 mapper.readValue(opts, mapType);
                         return new PlanConfig(id, new AnalysisOptions(optsMap));

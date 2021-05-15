@@ -26,7 +26,6 @@ import pascal.taie.language.type.ClassType;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -110,7 +109,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
     private static Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
         return invoke.getInvokeExp() instanceof InvokeDynamic ?
-                Collections.emptyList() : // InvokeDynamic.getMethodRef() is unavailable
+                List.of() : // InvokeDynamic.getMethodRef() is unavailable
                 invoke.getMethodRef().resolve().getExceptions();
     }
 }

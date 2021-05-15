@@ -16,7 +16,6 @@ import pascal.taie.util.collection.CollectionView;
 import pascal.taie.util.collection.MapUtils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -67,7 +66,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
         if (edges != null) {
             return CollectionView.of(edges, Edge::getCallee);
         } else {
-            return Collections.emptySet();
+            return Set.of();
         }
     }
 
@@ -77,7 +76,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
         if (edges != null) {
             return CollectionView.of(edges, Edge::getCallSite);
         } else {
-            return Collections.emptySet();
+            return Set.of();
         }
     }
 
@@ -88,12 +87,12 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public Collection<CallSite> getCallSitesIn(Method method) {
-        return callSitesIn.getOrDefault(method, Collections.emptySet());
+        return callSitesIn.getOrDefault(method, Set.of());
     }
 
     @Override
     public Collection<Edge<CallSite, Method>> getEdgesOf(CallSite callSite) {
-        return callSiteToEdges.getOrDefault(callSite, Collections.emptySet());
+        return callSiteToEdges.getOrDefault(callSite, Set.of());
     }
 
     @Override

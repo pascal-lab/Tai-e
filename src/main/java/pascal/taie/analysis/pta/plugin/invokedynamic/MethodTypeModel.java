@@ -34,7 +34,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,7 +122,7 @@ class MethodTypeModel {
             pts.forEach(obj -> {
                 Type retType = toType(obj);
                 if (retType != null) {
-                    MethodType mt = MethodType.get(Collections.emptyList(), retType);
+                    MethodType mt = MethodType.get(List.of(), retType);
                     Obj mtObj = heapModel.getConstantObj(mt);
                     mtObjs.addObject(csManager.getCSObj(defaultHctx, mtObj));
                 }

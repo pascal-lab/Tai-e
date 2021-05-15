@@ -41,7 +41,6 @@ import soot.SootMethodRef;
 import soot.VoidType;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -165,7 +164,7 @@ class Converter {
     <S, T> Collection<T> convertCollection(
             Collection<S> collection, Function<S, T> mapper) {
         if (collection.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         } else {
             return collection.stream()
                     .map(mapper)

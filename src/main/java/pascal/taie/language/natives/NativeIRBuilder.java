@@ -22,7 +22,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -96,7 +95,7 @@ class NativeIRBuilder {
             stmt.setIndex(i++);
         }
         return new DefaultIR(method, thisVar, params, returnVars,
-                vars, stmts, Collections.emptyList());
+                vars, stmts, List.of());
     }
 
     private void buildVars() {

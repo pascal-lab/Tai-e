@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -200,7 +199,7 @@ public class ResultChecker {
      * Obtains the var-value map at specific location.
      */
     private Map<String, String> getValuesAt(String method, int lineNumber) {
-        return expectedResult.getOrDefault(method, Collections.emptyMap())
-                .getOrDefault(lineNumber, Collections.emptyMap());
+        return expectedResult.getOrDefault(method, Map.of())
+                .getOrDefault(lineNumber, Map.of());
     }
 }

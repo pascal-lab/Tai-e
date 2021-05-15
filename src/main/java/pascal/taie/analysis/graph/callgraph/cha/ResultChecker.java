@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -87,7 +86,7 @@ public class ResultChecker {
     public void compare(Body body, CallGraph<Unit, SootMethod> callGraph) {
         String method = body.getMethod().getSignature();
         Map<String, String> expectedCallEdges =
-                expectedResults.getOrDefault(method, Collections.emptyMap());
+                expectedResults.getOrDefault(method, Map.of());
         BriefUnitPrinter up = new BriefUnitPrinter(body);
         body.getUnits().forEach(u -> {
             String callUnit = SootUtils.unitToString(up, u);

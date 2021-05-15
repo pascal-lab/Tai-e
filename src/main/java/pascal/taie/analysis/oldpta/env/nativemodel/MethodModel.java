@@ -31,7 +31,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -135,7 +134,7 @@ class MethodModel {
             JMethod run = hierarchy.getJREMethod(
                     "<java.lang.Thread: void run()>");
             MockCallSite runCallSite = new MockCallSite(CallKind.VIRTUAL,
-                    run.getRef(), ir.getThis(), Collections.emptyList(),
+                    run.getRef(), ir.getThis(), List.of(),
                     ir.getMethod(), "thread-run");
             Call runCall = new Call(runCallSite, null);
             ir.addStatement(runCall);

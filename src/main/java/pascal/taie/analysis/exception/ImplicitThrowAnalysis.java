@@ -36,8 +36,6 @@ import pascal.taie.language.type.TypeManager;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-
 enum ImplicitThrowAnalysis {
 
     INSTANCE;
@@ -105,13 +103,13 @@ enum ImplicitThrowAnalysis {
                     return ARITHMETIC_EXCEPTION;
                 }
             }
-            return emptyList();
+            return List.of();
         }
 
         @Override
         public Collection<ClassType> visit(Unary stmt) {
             return stmt.getRValue() instanceof ArrayLengthExp ?
-                    NULL_POINTER_EXCEPTION : emptyList();
+                    NULL_POINTER_EXCEPTION : List.of();
         }
 
         @Override
@@ -137,7 +135,7 @@ enum ImplicitThrowAnalysis {
 
         @Override
         public Collection<ClassType> visitDefault(Stmt stmt) {
-            return emptyList();
+            return List.of();
         }
     };
 

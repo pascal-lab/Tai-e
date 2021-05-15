@@ -24,7 +24,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-import java.util.Collections;
+import java.util.List;
 
 /**
  * Convenient methods for creating native models.
@@ -53,8 +53,7 @@ class Utils {
         JMethod ctor = hierarchy.getJREMethod(ctorSig);
         MockCallSite initCallSite = new MockCallSite(
                 CallKind.SPECIAL, ctor.getRef(),
-                recv, Collections.emptyList(),
-                container, callId);
+                recv, List.of(), container, callId);
         Call initCall = new Call(initCallSite, null);
         containerIR.addStatement(initCall);
     }
@@ -70,7 +69,7 @@ class Utils {
         JMethod callee = hierarchy.getJREMethod(calleeSig);
         MockCallSite callSite = new MockCallSite(CallKind.VIRTUAL,
                 callee.getRef(),
-                origin.getArg(0), Collections.emptyList(),
+                origin.getArg(0), List.of(),
                 containerIR.getMethod(), callId);
         Call mockCall = new Call(callSite, call.getLHS().orElse(null));
         containerIR.addStatement(mockCall);

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.emptyList;
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 /**
@@ -53,9 +52,9 @@ public class CatchAnalysis {
             } else if (stmt instanceof Invoke) {
                 explicit = throwResult.mayThrowExplicitly((Invoke) stmt);
             } else {
-                explicit = emptyList();
+                explicit = List.of();
             }
-            for (ExceptionEntry entry : catchers.getOrDefault(stmt, emptyList())) {
+            for (ExceptionEntry entry : catchers.getOrDefault(stmt, List.of())) {
                 Set<ClassType> uncaughtImplicit = newHybridSet();
                 implicit.forEach(t -> {
                     if (typeManager.isSubtype(entry.getCatchType(), t)) {

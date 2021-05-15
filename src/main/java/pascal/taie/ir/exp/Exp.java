@@ -14,7 +14,6 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.Type;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ public interface Exp {
      * @return a list of expressions which are used by (contained in) this Exp.
      */
     default List<Exp> getUses() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     <T> T accept(ExpVisitor<T> visitor);

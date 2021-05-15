@@ -23,7 +23,6 @@ import pascal.taie.util.AnalysisException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -404,14 +403,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     private Collection<JClass> getDirectSubinterfacesOf(JClass jClass) {
-        return directSubinterfaces.getOrDefault(jClass, Collections.emptySet());
+        return directSubinterfaces.getOrDefault(jClass, Set.of());
     }
 
     private Collection<JClass> getDirectImplementorsOf(JClass jclass) {
-        return directImplementors.getOrDefault(jclass, Collections.emptySet());
+        return directImplementors.getOrDefault(jclass, Set.of());
     }
 
     private Collection<JClass> getDirectSubClassesOf(JClass jClass) {
-        return directSubclasses.getOrDefault(jClass, Collections.emptySet());
+        return directSubclasses.getOrDefault(jClass, Set.of());
     }
 }

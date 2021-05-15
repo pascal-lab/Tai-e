@@ -16,7 +16,6 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -31,11 +30,11 @@ public class DefaultPTAIR implements PTAIR {
 
     private Variable thisVar;
 
-    private List<Variable> params = Collections.emptyList();
+    private List<Variable> params = List.of();
 
-    private Set<Variable> returnVars = Collections.emptySet();
+    private Set<Variable> returnVars = Set.of();
 
-    private List<Statement> ptaStatements = Collections.emptyList();
+    private List<Statement> ptaStatements = List.of();
 
     public DefaultPTAIR(JMethod method) {
         this.method = method;

@@ -16,7 +16,6 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ public class Return extends AbstractStmt {
 
     @Override
     public List<Exp> getUses() {
-        return value != null ? List.of(value) : Collections.emptyList();
+        return value != null ? List.of(value) : List.of();
     }
 
     @Override
