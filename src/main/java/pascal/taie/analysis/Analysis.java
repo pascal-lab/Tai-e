@@ -58,7 +58,6 @@ public abstract class Analysis {
         Class<?> analysisClass = getClass();
         try {
             Field idField = analysisClass.getField("ID");
-            idField.setAccessible(true);
             String id = (String) idField.get(null);
             if (!id.equals(getId())) {
                 throw new ConfigException(String.format(

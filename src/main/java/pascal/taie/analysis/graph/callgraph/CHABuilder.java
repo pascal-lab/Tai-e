@@ -23,14 +23,13 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetUtils;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Builds call graph via class hierarchy analysis.
@@ -89,22 +88,11 @@ class CHABuilder implements CGBuilder<InvokeExp, JMethod> {
                 if (callees != null) {
                     return callees;
                 }
-                callees = SetUtils.newHybridSet();
-                Deque<JClass> workList = new ArrayDeque<>();
-                workList.add(cls);
-                while (!workList.isEmpty()) {
-                    JClass c = workList.poll();
-                    if (!c.isAbstract()) {
-                        JMethod callee = hierarchy.dispatch(c, methodRef);
-                        if (callee != null) {
-                            callees.add(callee);
-                        }
-                    }
-                    hierarchy.getAllSubclassesOf(c, false)
-                            .stream()
-                            .filter(subclass -> !subclass.isAbstract())
-                            .forEach(workList::add);
-                }
+                callees = hierarchy.getAllSubclassesOf(cls, true)
+                        .stream()
+                        .filter(Predicate.not(JClass::isAbstract))
+                        .map(c -> hierarchy.dispatch(c, methodRef))
+                        .collect(Collectors.toUnmodifiableSet());
                 MapUtils.addToMapMap(resolveTable, cls, methodRef, callees);
                 return callees;
             }

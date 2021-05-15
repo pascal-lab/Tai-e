@@ -77,7 +77,7 @@ public enum ResultPrinter implements Plugin {
     private void printResults(Solver solver) {
         if (World.getOptions().isTestMode()) {
             printPointers(solver);
-        } else if (solver.getOptions().getBoolean("output-results")) {
+        } else if (solver.getOptions().getBoolean("dump-results")) {
             String path = solver.getOptions().getString("output-file");
             if (path != null) {
                 try {
