@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
+ * Represents set-like data-flow facts.
  * TODO: implement copy-on-write?
  * @param <E> type of elements
  */
