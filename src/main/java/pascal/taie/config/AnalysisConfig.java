@@ -103,7 +103,8 @@ public class AnalysisConfig {
         this.analysisClass = analysisClass;
         this.id = id;
         this.requires = Objects.requireNonNullElse(requires, List.of());
-        this.options = Objects.requireNonNullElse(options, AnalysisOptions.of());
+        this.options = Objects.requireNonNullElse(options,
+                AnalysisOptions.emptyOptions());
     }
 
     /**
