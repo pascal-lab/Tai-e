@@ -1,3 +1,6 @@
+/**
+ * Test case for live variable analysis.
+ */
 public class LiveVar {
 
     public static void main(String[] args) {

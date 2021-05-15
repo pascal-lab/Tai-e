@@ -54,6 +54,11 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
                     in = analysis.copyFact(predOut);
                     result.setInFact(node, in);
                 }
+                String s = "temp$6 = a + b";
+                if (node.toString().contains(s)) {
+//                    System.out.printf("predOut of [%s]{%s}: %s%n", s, inEdge.getSource(), predOut);
+                    System.out.printf("before in of [%s]: %s%n", s, in);
+                }
                 analysis.mergeInto(predOut, in);
             });
             // apply node transfer function

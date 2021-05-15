@@ -39,8 +39,9 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
         // Temporarily print results for debugging data-flow analyses
         System.out.printf("-------------------- %s (%s) --------------------%n",
                 ir.getMethod(), getId());
-        ir.getStmts().forEach(stmt -> System.out.printf("L%-3d[%s]: %s%n",
-                stmt.getLineNumber(), stmt, result.getOutFact((Node) stmt)));
+        ir.getStmts().forEach(stmt -> System.out.printf("L%-3d[%d:%s]: %s%n",
+                stmt.getLineNumber(), stmt.getIndex(), stmt,
+                result.getOutFact((Node) stmt)));
         System.out.println();
         return result;
     }

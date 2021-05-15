@@ -12,8 +12,6 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.proginfo.MemberRef;
@@ -35,8 +33,6 @@ import java.util.stream.Collectors;
  * Builds call graph via class hierarchy analysis.
  */
 class CHABuilder implements CGBuilder<InvokeExp, JMethod> {
-
-    private static final Logger logger = LogManager.getLogger(CHABuilder.class);
 
     private ClassHierarchy hierarchy;
 

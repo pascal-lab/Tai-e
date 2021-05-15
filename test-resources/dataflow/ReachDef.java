@@ -1,3 +1,6 @@
+/**
+ * Test case for reaching definition analysis.
+ */
 class ReachDef {
 
     int foo(int a, int b, int c) {
