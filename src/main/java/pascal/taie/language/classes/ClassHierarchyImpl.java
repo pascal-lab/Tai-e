@@ -390,12 +390,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             subclasses.add(jclass);
         }
         if (jclass.isInterface()) {
-            subclasses.addAll(getDirectImplementorsOf(jclass));
-            getAllSubinterfacesOf(jclass).forEach(subiface -> {
-                subclasses.add(subiface);
-                getDirectImplementorsOf(subiface).forEach(impl ->
-                        subclasses.addAll(getAllSubclassesOf(impl, true)));
-            });
+            getAllSubinterfacesOf(jclass).forEach(subiface ->
+                    subclasses.addAll(getAllSubclassesOf(subiface, true)));
+            getDirectImplementorsOf(jclass).forEach(subclass ->
+                    subclasses.addAll(getAllSubclassesOf(subclass, true)));
         } else {
             getDirectSubClassesOf(jclass).forEach(subclass ->
                     subclasses.addAll(getAllSubclassesOf(subclass, true)));

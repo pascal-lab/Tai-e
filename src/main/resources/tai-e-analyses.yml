@@ -8,7 +8,7 @@
     merge-string-objects: true
     merge-string-builders: true
     merge-exception-objects: true
-    output-results: false
+    dump-results: false
     output-file: null
 
 - description: call graph construction
