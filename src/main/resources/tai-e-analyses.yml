@@ -41,7 +41,7 @@
   requires: [cfg]
 
 - description: reaching definitions
-  analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitions
+  analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitionAnalysis
   id: reachdef
   requires: [cfg]
 

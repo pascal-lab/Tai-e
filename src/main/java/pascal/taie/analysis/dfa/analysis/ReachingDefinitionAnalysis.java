@@ -18,10 +18,10 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 
-public class ReachingDefinitions extends
+public class ReachingDefinitionAnalysis extends
         AbstractDataflowAnalysis<Stmt, SetFact<Stmt>> {
 
-    public ReachingDefinitions(AnalysisConfig config) {
+    public ReachingDefinitionAnalysis(AnalysisConfig config) {
         super(config);
     }
 
