@@ -24,8 +24,8 @@ import pascal.taie.language.type.VoidType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 
 class NativeIRBuilder {
@@ -50,6 +50,8 @@ class NativeIRBuilder {
     private int tempCounter = 0;
 
     private Var returnVar;
+
+    private Set<Var> returnVars;
 
     private List<Var> vars = new ArrayList<>();
 
@@ -93,7 +95,7 @@ class NativeIRBuilder {
         for (Stmt stmt : stmts) {
             stmt.setIndex(i++);
         }
-        return new DefaultIR(method, thisVar, params, singleton(returnVar),
+        return new DefaultIR(method, thisVar, params, returnVars,
                 vars, stmts, Collections.emptyList());
     }
 
@@ -110,6 +112,10 @@ class NativeIRBuilder {
         Type retType = method.getReturnType();
         if (!retType.equals(VoidType.VOID)) {
             returnVar = newVar(RETURN, retType);
+            returnVars = Set.of(returnVar);
+        } else {
+            returnVar = null;
+            returnVars = Set.of();
         }
     }
 
