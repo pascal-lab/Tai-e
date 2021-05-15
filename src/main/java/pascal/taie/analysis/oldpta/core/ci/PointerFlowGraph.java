@@ -16,7 +16,6 @@ import pascal.taie.analysis.oldpta.ir.Obj;
 import pascal.taie.analysis.oldpta.ir.Variable;
 import pascal.taie.language.classes.JField;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -88,6 +87,6 @@ class PointerFlowGraph {
     }
 
     Set<Pointer> getSuccessorsOf(Pointer pointer) {
-        return successors.getOrDefault(pointer, Collections.emptySet());
+        return successors.getOrDefault(pointer, Set.of());
     }
 }

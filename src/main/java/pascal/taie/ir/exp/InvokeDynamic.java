@@ -18,8 +18,6 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.ListUtils.freeze;
-
 /**
  * Representation of invokedynamic instructions.
  * For more details about invokedynamic instructions, please refer to
@@ -47,7 +45,7 @@ public class InvokeDynamic extends InvokeExp {
         this.bootstrapMethodRef = bootstrapMethodRef;
         this.methodName = methodName;
         this.methodType = methodType;
-        this.bootstrapArgs = freeze(bootstrapArgs);
+        this.bootstrapArgs = List.copyOf(bootstrapArgs);
     }
 
     public MethodRef getBootstrapMethodRef() {

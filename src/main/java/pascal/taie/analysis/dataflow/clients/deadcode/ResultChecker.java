@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -91,7 +90,7 @@ public class ResultChecker {
     public void compare(Body body, Set<Unit> analysisResult) {
         String method = body.getMethod().getSignature();
         Set<String> expectedDeadCode =
-                expectedResult.getOrDefault(method, Collections.emptySet());
+                expectedResult.getOrDefault(method, Set.of());
         BriefUnitPrinter up = new BriefUnitPrinter(body);
         body.getUnits().forEach(u -> {
             String given = SootUtils.unitToString(up, u);

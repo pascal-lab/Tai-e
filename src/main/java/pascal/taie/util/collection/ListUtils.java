@@ -14,26 +14,11 @@ package pascal.taie.util.collection;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class ListUtils {
 
     private ListUtils() {
-    }
-
-    /**
-     * @return an unmodifiable list of the given elements.
-     */
-    public static <T> List<T> freeze(Collection<T> elements) {
-        switch (elements.size()) {
-            case 0:
-                return Collections.emptyList();
-            case 1:
-                return Collections.singletonList(CollectionUtils.getOne(elements));
-            default:
-                return Collections.unmodifiableList(new ArrayList<>(elements));
-        }
     }
 
     /**

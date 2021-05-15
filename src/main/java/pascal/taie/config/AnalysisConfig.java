@@ -20,7 +20,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,10 +102,8 @@ public class AnalysisConfig {
         this.description = description;
         this.analysisClass = analysisClass;
         this.id = id;
-        this.requires = Objects.requireNonNullElse(requires,
-                Collections.emptyList());
-        this.options = Objects.requireNonNullElse(options,
-                AnalysisOptions.emptyOptions());
+        this.requires = Objects.requireNonNullElse(requires, List.of());
+        this.options = Objects.requireNonNullElse(options, AnalysisOptions.of());
     }
 
     /**

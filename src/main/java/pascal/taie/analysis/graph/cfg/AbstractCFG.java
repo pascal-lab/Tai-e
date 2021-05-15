@@ -16,7 +16,6 @@ import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -107,7 +106,7 @@ abstract class AbstractCFG<N> implements CFG<N> {
      */
     private @Nullable Edge<N> getExistingEdge(Edge<N> edge) {
         for (Edge<N> outEdge : outEdges.getOrDefault(
-                edge.getSource(), Collections.emptySet())) {
+                edge.getSource(), Set.of())) {
             if (outEdge.getTarget().equals(edge.getTarget()) &&
                     outEdge.getKind() == edge.getKind()) {
                 return outEdge;
@@ -118,12 +117,12 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     @Override
     public Stream<Edge<N>> inEdgesOf(N node) {
-        return inEdges.getOrDefault(node, Collections.emptySet()).stream();
+        return inEdges.getOrDefault(node, Set.of()).stream();
     }
 
     @Override
     public Stream<Edge<N>> outEdgesOf(N node) {
-        return outEdges.getOrDefault(node, Collections.emptySet()).stream();
+        return outEdges.getOrDefault(node, Set.of()).stream();
     }
 
     @Override

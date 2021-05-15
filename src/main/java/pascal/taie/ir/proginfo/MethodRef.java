@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
-import static pascal.taie.util.collection.ListUtils.freeze;
 import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
 
 @InternalCanonicalized
@@ -112,7 +111,7 @@ public class MethodRef extends MemberRef {
             Key key, String name, List<Type> parameterTypes, Type returnType,
             boolean isStatic) {
         super(key.declaringClass, name, isStatic);
-        this.parameterTypes = freeze(parameterTypes);
+        this.parameterTypes = List.copyOf(parameterTypes);
         this.returnType = returnType;
         this.subsignature = key.subsignature;
     }

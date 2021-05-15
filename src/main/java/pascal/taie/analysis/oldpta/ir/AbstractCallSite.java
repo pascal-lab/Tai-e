@@ -16,7 +16,6 @@ import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public abstract class AbstractCallSite implements CallSite {
     protected Call call;
     protected MethodRef methodRef;
     protected Variable receiver;
-    protected List<Variable> args = Collections.emptyList();
+    protected List<Variable> args = List.of();
     protected JMethod containerMethod;
 
     protected AbstractCallSite(CallKind kind) {

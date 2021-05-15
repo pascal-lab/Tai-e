@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,18 +32,20 @@ import java.util.Objects;
 public class AnalysisOptions {
 
     private static final AnalysisOptions EMPTY_OPTIONS =
-            new AnalysisOptions(Collections.emptyMap());
+            new AnalysisOptions(Map.of());
 
     private final Map<String, Object> options;
 
-    static AnalysisOptions emptyOptions() {
+    /**
+     * @return an unmodifiable AnalysisOptions containing no options.
+     */
+    static AnalysisOptions of() {
         return EMPTY_OPTIONS;
     }
 
     @JsonCreator
     public AnalysisOptions(Map<String, Object> options) {
-        this.options = Objects.requireNonNullElse(options,
-                Collections.emptyMap());
+        this.options = Objects.requireNonNullElse(options, Map.of());
     }
 
     /**

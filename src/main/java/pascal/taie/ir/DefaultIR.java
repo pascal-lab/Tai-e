@@ -21,8 +21,6 @@ import pascal.taie.language.classes.JMethod;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.util.collection.ListUtils.freeze;
-
 /**
  * Default implementation of IR.
  */
@@ -48,11 +46,11 @@ public class DefaultIR extends AbstractHolder implements IR {
             List<Stmt> stmts, List<ExceptionEntry> exceptionEntries) {
         this.method = method;
         this.thisVar = thisVar;
-        this.params = freeze(params);
-        this.returnVars = freeze(returnVars);
-        this.vars = freeze(vars);
-        this.stmts = freeze(stmts);
-        this.exceptionEntries = freeze(exceptionEntries);
+        this.params = List.copyOf(params);
+        this.returnVars = List.copyOf(returnVars);
+        this.vars = List.copyOf(vars);
+        this.stmts = List.copyOf(stmts);
+        this.exceptionEntries = List.copyOf(exceptionEntries);
     }
 
     @Override

@@ -197,7 +197,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
             if (World.getOptions().getJavaVersion() <= 6) {
                 register("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", m ->
                         allocateObject(m, "<" + fsName + ": void <init>()>",
-                                b -> Collections.emptyList())
+                                b -> List.of())
                 );
             }
 
@@ -317,8 +317,8 @@ public class DefaultNativeModel extends AbstractNativeModel {
         NativeIRBuilder builder = new NativeIRBuilder(method);
         JMethod callee = hierarchy.getJREMethod(calleeSig);
         List<Stmt> stmts = new ArrayList<>();
-        InvokeVirtual callSite = new InvokeVirtual(callee.getRef(),
-                getRecv.apply(builder), Collections.emptyList());
+        InvokeVirtual callSite = new InvokeVirtual(
+                callee.getRef(), getRecv.apply(builder), List.of());
         stmts.add(new Invoke(method, callSite, getRet.apply(builder)));
         stmts.add(builder.newReturn());
         return builder.build(stmts);

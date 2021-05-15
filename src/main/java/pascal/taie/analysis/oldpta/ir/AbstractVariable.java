@@ -15,7 +15,6 @@ package pascal.taie.analysis.oldpta.ir;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -30,27 +29,27 @@ public abstract class AbstractVariable implements Variable {
     /**
      * Set of call sites where this variable is the base variable
      */
-    private Set<Call> calls = Collections.emptySet();
+    private Set<Call> calls = Set.of();
 
     /**
      * Set of instance stores where this variable is the base variable
      */
-    private Set<InstanceStore> instStores = Collections.emptySet();
+    private Set<InstanceStore> instStores = Set.of();
 
     /**
      * Set of instance loads where this variable is the base variable
      */
-    private Set<InstanceLoad> instLoads = Collections.emptySet();
+    private Set<InstanceLoad> instLoads = Set.of();
 
     /**
      * Set of array stores where this variable is the base variable
      */
-    private Set<ArrayStore> arrayStores = Collections.emptySet();
+    private Set<ArrayStore> arrayStores = Set.of();
 
     /**
      * Set of array loads where this variable is the base variable
      */
-    private Set<ArrayLoad> arrayLoads = Collections.emptySet();
+    private Set<ArrayLoad> arrayLoads = Set.of();
 
     protected AbstractVariable(Type type, JMethod container) {
         this.type = type;

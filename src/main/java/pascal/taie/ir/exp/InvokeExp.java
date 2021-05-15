@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.ListUtils.freeze;
-
 /**
  * Representation of method invocation expression.
  */
@@ -35,7 +33,7 @@ public abstract class InvokeExp implements RValue {
 
     protected InvokeExp(MethodRef methodRef, List<Var> args) {
         this.methodRef = methodRef;
-        this.args = freeze(args);
+        this.args = List.copyOf(args);
     }
 
     @Override

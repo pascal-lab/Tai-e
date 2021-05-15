@@ -159,7 +159,6 @@ import soot.jimple.XorExpr;
 import soot.util.Chain;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -199,7 +198,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                 .retrieveActiveBody();
         varManager = new VarManager(method, converter);
         if (method.getReturnType().equals(VOID)) {
-            returnVars = Collections.emptySet();
+            returnVars = Set.of();
         } else {
             returnVars = new LinkedHashSet<>();
         }
@@ -264,7 +263,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     private void buildExceptionEntries(Chain<Trap> traps) {
         if (traps.isEmpty()) {
-            exceptionEntries = Collections.emptyList();
+            exceptionEntries = List.of();
         } else {
             exceptionEntries = new ArrayList<>(traps.size());
             for (Trap trap : traps) {
@@ -298,13 +297,13 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * All trap-related units of current Jimple body.
      */
-    private Set<Unit> trapUnits = Collections.emptySet();
+    private Set<Unit> trapUnits = Set.of();
 
     /**
      * Map from trap beginning statements in Jimple to
      * the corresponding Tai-e statements.
      */
-    private Map<Unit, Stmt> trapUnitMap = Collections.emptyMap();
+    private Map<Unit, Stmt> trapUnitMap = Map.of();
 
     /**
      * If {@link #currentUnit} is a jump target (or trap begin unit,

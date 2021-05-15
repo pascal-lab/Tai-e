@@ -18,7 +18,6 @@ import pascal.taie.World;
 import pascal.taie.analysis.exception.ThrowAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 
 public class CFGTest {

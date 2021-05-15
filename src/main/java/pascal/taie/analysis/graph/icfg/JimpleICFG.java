@@ -21,7 +21,6 @@ import soot.toolkits.graph.DirectedGraph;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,12 +50,12 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
     @Override
     public Collection<Edge<Unit>> getInEdgesOf(Unit unit) {
-        return inEdges.getOrDefault(unit, Collections.emptySet());
+        return inEdges.getOrDefault(unit, Set.of());
     }
 
     @Override
     public Collection<Edge<Unit>> getOutEdgesOf(Unit unit) {
-        return outEdges.getOrDefault(unit, Collections.emptySet());
+        return outEdges.getOrDefault(unit, Set.of());
     }
 
     @Override

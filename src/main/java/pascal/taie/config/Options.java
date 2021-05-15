@@ -26,7 +26,6 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 
 @Command(name = "Options",
@@ -169,7 +168,7 @@ public class Options {
     @Option(names = {"-a", "--analysis"},
             description = "Analyses to be executed", split = ";",
             mapFallbackValue = "")
-    private Map<String, String> analyses = Collections.emptyMap();
+    private Map<String, String> analyses = Map.of();
 
     public Map<String, String> getAnalyses() {
         return analyses;
