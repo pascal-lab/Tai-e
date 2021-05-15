@@ -18,8 +18,7 @@ import pascal.taie.analysis.dfa.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dfa.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 
 class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
@@ -40,10 +39,11 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        Queue<Node> workList = new LinkedList<>();
+        TreeSet<Node> workList = new TreeSet<>(
+                new Orderer<>(cfg, analysis.isForward()));
         cfg.nodes().filter(Predicate.not(cfg::isEntry)).forEach(workList::add);
         while (!workList.isEmpty()) {
-            Node node = workList.poll();
+            Node node = workList.pollFirst();
             // meet incoming facts
             cfg.inEdgesOf(node).forEach(inEdge -> {
                 Fact predOut = analysis.hasEdgeTransfer() ?
@@ -53,11 +53,6 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
                 if (in == null) {
                     in = analysis.copyFact(predOut);
                     result.setInFact(node, in);
-                }
-                String s = "temp$6 = a + b";
-                if (node.toString().contains(s)) {
-//                    System.out.printf("predOut of [%s]{%s}: %s%n", s, inEdge.getSource(), predOut);
-                    System.out.printf("before in of [%s]: %s%n", s, in);
                 }
                 analysis.mergeInto(predOut, in);
             });
@@ -86,10 +81,11 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        Queue<Node> workList = new LinkedList<>();
+        TreeSet<Node> workList = new TreeSet<>(
+                new Orderer<>(cfg, analysis.isForward()));
         cfg.nodes().filter(Predicate.not(cfg::isExit)).forEach(workList::add);
         while (!workList.isEmpty()) {
-            Node node = workList.poll();
+            Node node = workList.pollFirst();
             // meet incoming facts
             cfg.outEdgesOf(node).forEach(outEdge -> {
                 Fact succIn = analysis.hasEdgeTransfer() ?

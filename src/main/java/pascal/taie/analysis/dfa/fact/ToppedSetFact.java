@@ -45,7 +45,10 @@ public class ToppedSetFact<E> extends SetFact<E> {
 
     public void setTop(boolean top) {
         isTop = top;
-        set.clear();
+        if (isTop) {
+            // top element is mock and does not need to store any values.
+            set.clear();
+        }
     }
 
     @Override
