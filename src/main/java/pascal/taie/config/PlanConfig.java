@@ -58,7 +58,8 @@ public class PlanConfig {
             @JsonProperty("id") String id,
             @JsonProperty("options") AnalysisOptions options) {
         this.id = id;
-        this.options = Objects.requireNonNullElse(options, AnalysisOptions.of());
+        this.options = Objects.requireNonNullElse(options,
+                AnalysisOptions.emptyOptions());
     }
 
     public String getId() {

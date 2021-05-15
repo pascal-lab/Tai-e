@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,21 +32,27 @@ import java.util.Objects;
 @JsonSerialize(using = AnalysisOptions.Serializer.class)
 public class AnalysisOptions {
 
+    /**
+     * Uses Collections.emptyMap() instead of Map.of() to avoid
+     * UnsupportedOperationException: {@link ConfigManager#overwriteOptions}
+     * unconditionally updates this map, thus we uses emptyMap() here
+     * for empty options to avoid UOE.
+     */
     private static final AnalysisOptions EMPTY_OPTIONS =
-            new AnalysisOptions(Map.of());
+            new AnalysisOptions(Collections.emptyMap());
 
     private final Map<String, Object> options;
 
     /**
-     * @return an unmodifiable AnalysisOptions containing no options.
+     * @return an unmodifiable empty AnalysisOptions containing no options.
      */
-    static AnalysisOptions of() {
+    static AnalysisOptions emptyOptions() {
         return EMPTY_OPTIONS;
     }
 
     @JsonCreator
     public AnalysisOptions(Map<String, Object> options) {
-        this.options = Objects.requireNonNullElse(options, Map.of());
+        this.options = Objects.requireNonNull(options);
     }
 
     /**
