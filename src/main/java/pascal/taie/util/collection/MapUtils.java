@@ -12,6 +12,7 @@
 
 package pascal.taie.util.collection;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,13 @@ public class MapUtils {
     public static <K1, K2, V> void addToMapMap(Map<K1, Map<K2, V>> map,
                                                K1 key1, K2 key2, V value) {
         map.computeIfAbsent(key1, k -> newHybridMap()).put(key2, value);
+    }
+
+    @Nullable
+    public static <K1, K2, V> V getMapMap(
+            Map<K1, Map<K2, V>> map, K1 key1, K2 key2) {
+        Map<K2, V> map2 = map.get(key1);
+        return map2 == null ? null : map2.get(key2);
     }
 
     public static <K, V> Map<K, V> newMap() {

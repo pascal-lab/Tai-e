@@ -104,6 +104,14 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
+    public int getNumberOfEdges() {
+        return callSiteToEdges.values()
+                .stream()
+                .mapToInt(Set::size)
+                .sum();
+    }
+
+    @Override
     public Collection<Method> getEntryMethods() {
         return entryMethods;
     }
@@ -111,6 +119,11 @@ public abstract class AbstractCallGraph<CallSite, Method>
     @Override
     public Stream<Method> reachableMethods() {
         return reachableMethods.stream();
+    }
+
+    @Override
+    public int getNumberOfMethods() {
+        return reachableMethods.size();
     }
 
     @Override

@@ -12,7 +12,7 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.analysis.graph.callgraph.JimpleCallUtils;
+import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.ArrayLoad;
@@ -353,7 +353,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     private CallSite createCallSite(Stmt stmt, JMethod container, DefaultPTAIR ir) {
         InvokeExpr invoke = stmt.getInvokeExpr();
         DefaultCallSite callSite = new DefaultCallSite(
-                JimpleCallUtils.getCallKind(invoke));
+                CGUtils.getCallKind(invoke));
         callSite.setStmt(stmt);
         callSite.setMethodRef(
                 converter.convertMethodRef(invoke.getMethodRef()));
