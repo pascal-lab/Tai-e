@@ -14,8 +14,10 @@
 package pascal.taie.analysis.dfa.solver;
 
 import pascal.taie.analysis.graph.cfg.CFG;
+import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
+import pascal.taie.util.graph.ReverseGraph;
 import pascal.taie.util.graph.TopoSorter;
 
 import java.util.Comparator;
@@ -33,8 +35,9 @@ class Orderer<N> implements Comparator<N> {
     }
 
     private void init(CFG<N> cfg, boolean isForward) {
-        MergedSCCGraph<N> mg = new MergedSCCGraph<>(cfg);
-        List<MergedNode<N>> topoList = new TopoSorter<>(mg, !isForward).get();
+        Graph<N> g = isForward ? cfg : new ReverseGraph<>(cfg);
+        MergedSCCGraph<N> mg = new MergedSCCGraph<>(g);
+        List<MergedNode<N>> topoList = new TopoSorter<>(mg).get();
         int order = 0;
         for (MergedNode<N> mergedNode : topoList) {
             for (N node : mergedNode.getNodes()) {
