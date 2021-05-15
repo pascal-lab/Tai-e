@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
@@ -487,7 +488,8 @@ public class SolverImpl implements Solver {
                             csCallSite, recvObj, callee);
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                    addCallEdge(new Edge<>(getCallKind(callSite), csCallSite, csCallee));
+                    addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
+                            csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     CSVar thisVar = csManager.getCSVar(
                             calleeContext, callee.getIR().getThis());
@@ -575,20 +577,6 @@ public class SolverImpl implements Solver {
             return methodRef.resolve();
         } else {
             throw new AnalysisException("Cannot resolve InvokeExp: " + callSite);
-        }
-    }
-
-    private static CallKind getCallKind(InvokeExp invokeExp) {
-        if (invokeExp instanceof InvokeVirtual) {
-            return CallKind.VIRTUAL;
-        } else if (invokeExp instanceof InvokeInterface) {
-            return CallKind.INTERFACE;
-        } else if (invokeExp instanceof InvokeSpecial) {
-            return CallKind.SPECIAL;
-        } else if (invokeExp instanceof InvokeStatic) {
-            return CallKind.STATIC;
-        } else {
-            throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
         }
     }
 

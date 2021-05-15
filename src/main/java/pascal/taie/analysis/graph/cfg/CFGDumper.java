@@ -43,7 +43,7 @@ public class CFGDumper {
                      new PrintStream(new FileOutputStream(outFile))) {
             dumpDot(cfg, out);
         } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump graph to " + outFile, e);
+            logger.warn("Failed to dump control-flow graph to " + outFile, e);
         }
     }
 

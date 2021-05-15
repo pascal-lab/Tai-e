@@ -12,7 +12,7 @@
     output-file: null
 
 - description: call graph construction
-  analysisClass: pascal.taie.analysis.graph.cg.CGBuilder
+  analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   id: cg
   requires: [pta(algorithm=pta)]
   options:
