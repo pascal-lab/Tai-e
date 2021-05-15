@@ -70,8 +70,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             soot.options.Options.v().set_prepend_classpath(true);
         }
 
-        System.setProperty("ENABLE_JIMPLE_OPT", "true");
-
         // Configure Soot transformer
         Transform transform = new Transform(
                 "wjtp.tai-e", new SceneTransformer() {
