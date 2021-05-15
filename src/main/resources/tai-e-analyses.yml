@@ -40,7 +40,12 @@
   id: livevar
   requires: [cfg]
 
-- description: reaching definitions
+- description: available expression analysis
+  analysisClass: pascal.taie.analysis.dfa.analysis.availexp.AvailableExpressionAnalysis
+  id: availexp
+  requires: [cfg]
+
+- description: reaching definition analysis
   analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitionAnalysis
   id: reachdef
   requires: [cfg]
