@@ -317,7 +317,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             return true;
         } else if (subclass.isInterface()) {
             return superclass.isInterface() &&
-                    getAllSubinterfacesOf(superclass).contains(subclass);
+                    isSubinterface(superclass, subclass);
         } else {
             return isSubclass0(superclass, subclass);
         }
@@ -339,22 +339,20 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return JavaLangObject;
     }
 
-    private Set<JClass> getAllSubinterfacesOf(JClass iface) {
-        assert iface.isInterface();
-        Set<JClass> result = allSubinterfaces.get(iface);
-        if (result == null) {
-            Set<JClass> directSubs = directSubinterfaces.get(iface);
-            if (directSubs == null) {
-                result = Collections.emptySet();
-            } else {
-                result = newHybridSet(directSubs);
-                for (JClass sub : directSubs) {
-                    result.addAll(getAllSubinterfacesOf(sub));
-                }
-            }
-            allSubinterfaces.put(iface, result);
+    /**
+     * Traverses class hierarchy to check if subiface is
+     * a subinterface of superiface.
+     */
+    private boolean isSubinterface(JClass superiface, JClass subiface) {
+        if (subiface.equals(superiface)) {
+            return true;
         }
-        return result;
+        for (JClass iface : subiface.getInterfaces()) {
+            if (isSubinterface(superiface, iface)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -386,19 +384,27 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     public Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude) {
         // TODO: cache results?
         Set<JClass> subclasses = newHybridSet();
+        getAllSubclassesOf0(jclass, subclasses, selfInclude);
+        return subclasses;
+    }
+
+    private void getAllSubclassesOf0(JClass jclass, Set<JClass> result, boolean selfInclude) {
         if (selfInclude) {
-            subclasses.add(jclass);
+            result.add(jclass);
         }
         if (jclass.isInterface()) {
-            getAllSubinterfacesOf(jclass).forEach(subiface ->
-                    subclasses.addAll(getAllSubclassesOf(subiface, true)));
-            getDirectImplementorsOf(jclass).forEach(subclass ->
-                    subclasses.addAll(getAllSubclassesOf(subclass, true)));
+            getDirectSubinterfacesOf(jclass).forEach(subiface ->
+                    getAllSubclassesOf0(subiface, result, true));
+            getDirectImplementorsOf(jclass).forEach(impl ->
+                    getAllSubclassesOf0(impl, result, true));
         } else {
             getDirectSubClassesOf(jclass).forEach(subclass ->
-                    subclasses.addAll(getAllSubclassesOf(subclass, true)));
+                    getAllSubclassesOf0(subclass, result, true));
         }
-        return subclasses;
+    }
+
+    private Collection<JClass> getDirectSubinterfacesOf(JClass jClass) {
+        return directSubinterfaces.getOrDefault(jClass, Collections.emptySet());
     }
 
     private Collection<JClass> getDirectImplementorsOf(JClass jclass) {
