@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.graph.icfg;
+package pascal.taie.analysis.dfa.ipa;
 
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.config.AnalysisConfig;
