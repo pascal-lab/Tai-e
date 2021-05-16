@@ -25,6 +25,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Provides order for processing nodes in data-flow analysis via
+ * topological sorting. CFG may contain cycles, thus we merge SCCs
+ * in the CFG and perform topological sorting on the merged graph.
+ * For backward analysis, we compute topological order on the reverse CFG.
+ *
+ * @param <N> type of nodes to be compared
+ */
 class Orderer<N> implements Comparator<N> {
 
     private final Map<N, Integer> orders;

@@ -17,13 +17,15 @@ import soot.toolkits.graph.DirectedGraph;
 import java.util.Collection;
 
 /**
- * Represents an interprocedural control-flow graph.
+ * Represents an inter-procedural control-flow graph.
+ * TODO: 1. return Stream instead of Collection
+ *       2. return single entry & exit
  */
 public interface ICFG<Method, Node> extends DirectedGraph<Node> {
 
-    Collection<Edge<Node>> getInEdgesOf(Node node);
+    Collection<ICFGEdge<Node>> getInEdgesOf(Node node);
 
-    Collection<Edge<Node>> getOutEdgesOf(Node node);
+    Collection<ICFGEdge<Node>> getOutEdgesOf(Node node);
 
     Collection<Method> getEntryMethods();
 

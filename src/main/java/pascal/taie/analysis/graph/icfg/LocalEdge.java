@@ -13,17 +13,34 @@
 package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
+import pascal.taie.analysis.graph.cfg.Edge;
 
-public class LocalEdge<Node> extends Edge<Node> {
+public class LocalEdge<Node> extends ICFGEdge<Node> {
 
+    /**
+     * The corresponding CFG edge, which brings the information of edge type.
+     */
+    private final Edge<Node> cfgEdge;
+
+    @Deprecated
     public LocalEdge(Node source, Node target) {
         super(Kind.LOCAL, source, target);
+        cfgEdge = null;
+    }
+
+    public LocalEdge(Edge<Node> edge) {
+        super(Kind.LOCAL, edge.getSource(), edge.getTarget());
+        this.cfgEdge = edge;
+    }
+
+    public Edge<Node> getCFGEdge() {
+        return cfgEdge;
     }
 
     @Override
-    public <Domain> void accept(EdgeTransfer<Node, Domain> transfer,
-                                Domain sourceInFlow, Domain sourceOutFlow,
-                                Domain edgeFlow) {
+    public <Fact> void accept(EdgeTransfer<Node, Fact> transfer,
+                              Fact sourceInFlow, Fact sourceOutFlow,
+                              Fact edgeFlow) {
         transfer.transferLocalEdge(this, sourceOutFlow, edgeFlow);
     }
 }

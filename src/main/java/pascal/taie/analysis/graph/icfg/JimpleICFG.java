@@ -32,8 +32,8 @@ import static pascal.taie.util.collection.MapUtils.newMap;
 
 public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
 
-    private final Map<Unit, Set<Edge<Unit>>> inEdges;
-    private final Map<Unit, Set<Edge<Unit>>> outEdges;
+    private final Map<Unit, Set<ICFGEdge<Unit>>> inEdges;
+    private final Map<Unit, Set<ICFGEdge<Unit>>> outEdges;
     private final Map<Unit, SootMethod> unitToMethod;
     private final Map<SootMethod, DirectedGraph<Unit>> methodToCFG;
 
@@ -49,12 +49,12 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     // Implementation of ICFG methods
 
     @Override
-    public Collection<Edge<Unit>> getInEdgesOf(Unit unit) {
+    public Collection<ICFGEdge<Unit>> getInEdgesOf(Unit unit) {
         return inEdges.getOrDefault(unit, Set.of());
     }
 
     @Override
-    public Collection<Edge<Unit>> getOutEdgesOf(Unit unit) {
+    public Collection<ICFGEdge<Unit>> getOutEdgesOf(Unit unit) {
         return outEdges.getOrDefault(unit, Set.of());
     }
 
@@ -111,7 +111,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     public List<Unit> getPredsOf(Unit s) {
         return inEdges.get(s)
                 .stream()
-                .map(Edge::getSource)
+                .map(ICFGEdge::getSource)
                 .collect(Collectors.toList());
     }
 
@@ -119,7 +119,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     public List<Unit> getSuccsOf(Unit s) {
         return outEdges.get(s)
                 .stream()
-                .map(Edge::getTarget)
+                .map(ICFGEdge::getTarget)
                 .collect(Collectors.toList());
     }
 
@@ -142,7 +142,7 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
                 unitToMethod.put(unit, method);
                 // Add local edges
                 for (Unit succ : cfg.getSuccsOf(unit)) {
-                    Edge<Unit> local = new LocalEdge<>(unit, succ);
+                    ICFGEdge<Unit> local = new LocalEdge<>(unit, succ);
                     addToMapSet(outEdges, unit, local);
                     addToMapSet(inEdges, succ, local);
                 }
@@ -150,14 +150,14 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
                     for (SootMethod callee : getCalleesOf(unit)) {
                         // Add call edges
                         getEntriesOf(callee).forEach(entry -> {
-                            Edge<Unit> call = new CallEdge<>(unit, entry);
+                            ICFGEdge<Unit> call = new CallEdge<>(unit, entry);
                             addToMapSet(outEdges, unit, call);
                             addToMapSet(inEdges, entry, call);
                         });
                         // Add return edges
                         for (Unit exit : getExitsOf(callee)) {
                             for (Unit returnSite : getReturnSitesOf(unit)) {
-                                Edge<Unit> ret = new ReturnEdge<>(exit, returnSite, unit);
+                                ICFGEdge<Unit> ret = new ReturnEdge<>(exit, returnSite, unit);
                                 addToMapSet(outEdges, exit, ret);
                                 addToMapSet(inEdges, returnSite, ret);
                             }

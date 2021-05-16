@@ -13,25 +13,60 @@
 package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.util.HashUtils;
 
-public class ReturnEdge<Node> extends Edge<Node> {
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Stream;
+
+public class ReturnEdge<Node> extends ICFGEdge<Node> {
 
     private final Node callSite;
 
+    /**
+     * Variables holding return values.
+     */
+    private final Set<Var> returnVars;
+
+    /**
+     * Exceptions that may be thrown out.
+     */
+    private final Set<ClassType> exceptions;
+
+    @Deprecated
     public ReturnEdge(Node source, Node target, Node callSite) {
         super(Kind.RETURN, source, target);
         this.callSite = callSite;
+        this.returnVars = Set.of();
+        this.exceptions = Set.of();
+    }
+
+    public ReturnEdge(Node exit, Node retSite, Node callSite,
+                      Collection<Var> retVars, Collection<ClassType> exceptions) {
+        super(Kind.RETURN, exit, retSite);
+        this.callSite = callSite;
+        this.returnVars = Set.copyOf(retVars);
+        this.exceptions = Set.copyOf(exceptions);
     }
 
     public Node getCallSite() {
         return callSite;
     }
 
+    public Stream<Var> returnVars() {
+        return returnVars.stream();
+    }
+
+    public Stream<ClassType> exceptions() {
+        return exceptions.stream();
+    }
+
     @Override
-    public <Domain> void accept(EdgeTransfer<Node, Domain> transfer,
-                                Domain sourceInFlow, Domain sourceOutFlow,
-                                Domain edgeFlow) {
+    public <Fact> void accept(EdgeTransfer<Node, Fact> transfer,
+                              Fact sourceInFlow, Fact sourceOutFlow,
+                              Fact edgeFlow) {
         transfer.transferReturnEdge(this, sourceOutFlow, edgeFlow);
     }
 

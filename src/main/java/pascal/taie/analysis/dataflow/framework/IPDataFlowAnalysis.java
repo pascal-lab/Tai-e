@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.framework;
 
-import pascal.taie.analysis.graph.icfg.Edge;
+import pascal.taie.analysis.graph.icfg.ICFGEdge;
 
 /**
  * Inter-procedural data-flow analysis problem.
@@ -26,7 +26,7 @@ public interface IPDataFlowAnalysis<Domain, Method, Node>
 
     boolean transferCallNode(Node callSite, Domain in, Domain out);
 
-    default void transferEdge(Edge<Node> edge,
+    default void transferEdge(ICFGEdge<Node> edge,
                               Domain sourceInFlow, Domain sourceOutFlow,
                               Domain edgeFlow) {
         edge.accept(getEdgeTransfer(), sourceInFlow, sourceOutFlow, edgeFlow);

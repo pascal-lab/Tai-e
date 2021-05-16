@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.framework;
 
-import pascal.taie.analysis.graph.icfg.Edge;
+import pascal.taie.analysis.graph.icfg.ICFGEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public abstract class IPSolver<Domain, Method, Node> {
     /**
      * Flow value for ICFG edges.
      */
-    protected Map<Edge<Node>, Domain> edgeFlow;
+    protected Map<ICFGEdge<Node>, Domain> edgeFlow;
 
     protected IPSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
                        ICFG<Method, Node> icfg) {

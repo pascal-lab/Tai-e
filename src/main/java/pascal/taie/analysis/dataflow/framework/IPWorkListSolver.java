@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.framework;
 
-import pascal.taie.analysis.graph.icfg.Edge;
+import pascal.taie.analysis.graph.icfg.ICFGEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
 
 import java.util.LinkedHashMap;
@@ -59,7 +59,7 @@ public class IPWorkListSolver<Domain, Method, Node>
                 changed |= analysis.transfer(node, in, out);
             }
             if (changed) {
-                for (Edge<Node> edge : icfg.getOutEdgesOf(node)) {
+                for (ICFGEdge<Node> edge : icfg.getOutEdgesOf(node)) {
                     analysis.transferEdge(edge, in, out, edgeFlow.get(edge));
                     workList.add(edge.getTarget());
                 }
