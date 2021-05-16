@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
 /**
@@ -21,10 +21,10 @@ import pascal.taie.language.classes.JMethod;
  * merely converts context-sensitive call graph into the corresponding
  * context-insensitive call graph (by projecting out the contexts).
  */
-class PTABasedBuilder implements CGBuilder<InvokeExp, JMethod> {
+class PTABasedBuilder implements CGBuilder<Invoke, JMethod> {
 
     @Override
-    public CallGraph<InvokeExp, JMethod> build() {
+    public CallGraph<Invoke, JMethod> build() {
         throw new UnsupportedOperationException();
     }
 }

@@ -13,9 +13,9 @@
 package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.World;
-import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  * Builds call graph via class hierarchy analysis.
  */
-class CHABuilder implements CGBuilder<InvokeExp, JMethod> {
+class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
     private ClassHierarchy hierarchy;
 
@@ -42,7 +42,7 @@ class CHABuilder implements CGBuilder<InvokeExp, JMethod> {
     private Map<JClass, Map<MemberRef, Set<JMethod>>> resolveTable;
 
     @Override
-    public CallGraph<InvokeExp, JMethod> build() {
+    public CallGraph<Invoke, JMethod> build() {
         DefaultCallGraph callGraph = new DefaultCallGraph();
         callGraph.addEntryMethod(World.getMainMethod());
         buildCallGraph(callGraph);
@@ -55,14 +55,14 @@ class CHABuilder implements CGBuilder<InvokeExp, JMethod> {
         Queue<JMethod> queue = new LinkedList<>(callGraph.getEntryMethods());
         while (!queue.isEmpty()) {
             JMethod method = queue.remove();
-            for (InvokeExp callSite : callGraph.getCallSitesIn(method)) {
-                Set<JMethod> callees = resolveCalleesOf(callSite);
+            for (Invoke invoke : callGraph.getCallSitesIn(method)) {
+                Set<JMethod> callees = resolveCalleesOf(invoke);
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
                         queue.add(callee);
                     }
-                    callGraph.addEdge(callSite, callee,
-                            CGUtils.getCallKind(callSite));
+                    callGraph.addEdge(invoke, callee,
+                            CGUtils.getCallKind(invoke));
                 });
             }
         }
@@ -73,7 +73,7 @@ class CHABuilder implements CGBuilder<InvokeExp, JMethod> {
     /**
      * Resolves callees of a call site via class hierarchy analysis.
      */
-    private Set<JMethod> resolveCalleesOf(InvokeExp callSite) {
+    private Set<JMethod> resolveCalleesOf(Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         CallKind kind = CGUtils.getCallKind(callSite);
         switch (kind) {

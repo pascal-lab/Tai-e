@@ -15,7 +15,7 @@ package pascal.taie.analysis.graph.callgraph;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
-import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
 public class CallGraphBuilder extends InterproceduralAnalysis {
@@ -33,8 +33,8 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
     }
 
     @Override
-    public CallGraph<InvokeExp, JMethod> analyze() {
-        CGBuilder<InvokeExp, JMethod> builder;
+    public CallGraph<Invoke, JMethod> analyze() {
+        CGBuilder<Invoke, JMethod> builder;
         switch (algorithm) {
             case "cha":
                 builder = new CHABuilder();
@@ -45,7 +45,7 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
             default:
                 throw new ConfigException("Unknown call graph building algorithm: " + algorithm);
         }
-        CallGraph<InvokeExp, JMethod> callGraph = builder.build();
+        CallGraph<Invoke, JMethod> callGraph = builder.build();
         if (isDump) {
             CGUtils.dumpCallGraph(callGraph);
         }
