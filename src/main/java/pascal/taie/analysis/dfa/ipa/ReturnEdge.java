@@ -15,10 +15,8 @@ package pascal.taie.analysis.dfa.ipa;
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.util.HashUtils;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class ReturnEdge<Node> extends ICFGEdge<Node> {
@@ -28,19 +26,19 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
     /**
      * Variables holding return values.
      */
-    private final Set<Var> returnVars;
+    private final Collection<Var> returnVars;
 
     /**
      * Exceptions that may be thrown out.
      */
-    private final Set<ClassType> exceptions;
+    private final Collection<ClassType> exceptions;
 
     ReturnEdge(Node exit, Node retSite, Node callSite,
                       Collection<Var> retVars, Collection<ClassType> exceptions) {
         super(Kind.RETURN, exit, retSite);
         this.callSite = callSite;
-        this.returnVars = Set.copyOf(retVars);
-        this.exceptions = Set.copyOf(exceptions);
+        this.returnVars = retVars;
+        this.exceptions = exceptions;
     }
 
     public Node getCallSite() {
@@ -60,10 +58,5 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
                               Fact sourceInFlow, Fact sourceOutFlow,
                               Fact edgeFlow) {
 //        transfer.transferReturnEdge(this, sourceOutFlow, edgeFlow);
-    }
-
-    @Override
-    protected int computeHashCode() {
-        return HashUtils.hash(kind, source, target, callSite);
     }
 }

@@ -142,7 +142,7 @@ public class World {
         theWorld.resultHolder.storeResult(id, result);
     }
 
-    public static <T> Object getResult(String id) {
+    public static <T> T getResult(String id) {
         return theWorld.resultHolder.getResult(id);
     }
 

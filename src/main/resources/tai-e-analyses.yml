@@ -35,6 +35,13 @@
     exception: explicit # | none | all (includes implicit and explicit exceptions)
     dump: false # dump control-flow graph
 
+- description: interprocedural control-flow graph
+  analysisClass: pascal.taie.analysis.dfa.ipa.ICFGBuilder
+  id: icfg
+  requires: [cfg,cg]
+  options:
+    dump: false # dump inter-procedural control-flow graph
+
 - description: live variable analysis
   analysisClass: pascal.taie.analysis.dfa.analysis.LiveVariableAnalysis
   id: livevar
