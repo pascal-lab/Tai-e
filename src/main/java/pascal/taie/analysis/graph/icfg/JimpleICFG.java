@@ -20,12 +20,12 @@ import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.DirectedGraph;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.MapUtils.addToMapSet;
 import static pascal.taie.util.collection.MapUtils.newMap;
@@ -49,33 +49,34 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     // Implementation of ICFG methods
 
     @Override
-    public Collection<ICFGEdge<Unit>> getInEdgesOf(Unit unit) {
-        return inEdges.getOrDefault(unit, Set.of());
+    public Stream<ICFGEdge<Unit>> inEdgesOf(Unit unit) {
+        return inEdges.getOrDefault(unit, Set.of()).stream();
     }
 
     @Override
-    public Collection<ICFGEdge<Unit>> getOutEdgesOf(Unit unit) {
-        return outEdges.getOrDefault(unit, Set.of());
+    public Stream<ICFGEdge<Unit>> outEdgesOf(Unit unit) {
+        return outEdges.getOrDefault(unit, Set.of()).stream();
     }
 
     @Override
-    public Collection<Unit> getEntriesOf(SootMethod method) {
+    public Stream<Unit> entriesOf(SootMethod method) {
         // TODO - consider multi-head due to unreachable code?
         DirectedGraph<Unit> cfg = getCFGOf(method);
-        return cfg.getHeads();
+        return cfg.getHeads().stream();
     }
 
     @Override
-    public Collection<Unit> getExitsOf(SootMethod method) {
+    public Stream<Unit> exitsOf(SootMethod method) {
         // TODO - do exceptional exits matter?
         DirectedGraph<Unit> cfg = getCFGOf(method);
-        return cfg.getTails();
+        return cfg.getTails().stream();
     }
 
     @Override
-    public Collection<Unit> getReturnSitesOf(Unit callSite) {
+    public Stream<Unit> returnSitesOf(Unit callSite) {
         return getCFGOf(unitToMethod.get(callSite))
-                .getSuccsOf(callSite);
+                .getSuccsOf(callSite)
+                .stream();
     }
 
     @Override
@@ -91,19 +92,15 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
     // Implementation of DirectGraph methods
     @Override
     public List<Unit> getHeads() {
-        return getEntryMethods()
-                .stream()
-                .map(this::getEntriesOf)
-                .flatMap(Collection::stream)
+        return entryMethods()
+                .flatMap(this::entriesOf)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Unit> getTails() {
-        return getEntryMethods()
-                .stream()
-                .map(this::getExitsOf)
-                .flatMap(Collection::stream)
+        return entryMethods()
+                .flatMap(this::exitsOf)
                 .collect(Collectors.toList());
     }
 
@@ -147,22 +144,22 @@ public class JimpleICFG extends AbstractICFG<SootMethod, Unit> {
                     addToMapSet(inEdges, succ, local);
                 }
                 if (isCallSite(unit)) {
-                    for (SootMethod callee : getCalleesOf(unit)) {
+                    calleesOf(unit).forEach(callee -> {
                         // Add call edges
-                        getEntriesOf(callee).forEach(entry -> {
+                        entriesOf(callee).forEach(entry -> {
                             ICFGEdge<Unit> call = new CallEdge<>(unit, entry);
                             addToMapSet(outEdges, unit, call);
                             addToMapSet(inEdges, entry, call);
                         });
                         // Add return edges
-                        for (Unit exit : getExitsOf(callee)) {
-                            for (Unit returnSite : getReturnSitesOf(unit)) {
+                        exitsOf(callee).forEach(exit -> {
+                            returnSitesOf(unit).forEach(returnSite -> {
                                 ICFGEdge<Unit> ret = new ReturnEdge<>(exit, returnSite, unit);
                                 addToMapSet(outEdges, exit, ret);
                                 addToMapSet(inEdges, returnSite, ret);
-                            }
-                        }
-                    }
+                            });
+                        });
+                    });
                 }
             }
         });

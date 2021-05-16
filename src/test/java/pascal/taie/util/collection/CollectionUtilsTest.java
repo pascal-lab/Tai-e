@@ -25,7 +25,7 @@ public class CollectionUtilsTest {
         List<Integer> list = List.of(78, 23, 111, 666);
         Stream<Integer> stream = list.stream();
         Int i = new Int(list.size() - 1);
-        CollectionUtils.reverse(stream).forEach(n -> {
+        StreamUtils.reverse(stream).forEach(n -> {
             Assert.assertEquals(n, list.get(i.value));
             --i.value;
         });

@@ -14,30 +14,30 @@ package pascal.taie.analysis.graph.icfg;
 
 import soot.toolkits.graph.DirectedGraph;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * Represents an inter-procedural control-flow graph.
- * TODO: 1. return Stream instead of Collection
+ * TODO: 1. implements Graph<Node> interface
  *       2. return single entry & exit
  */
 public interface ICFG<Method, Node> extends DirectedGraph<Node> {
 
-    Collection<ICFGEdge<Node>> getInEdgesOf(Node node);
+    Stream<ICFGEdge<Node>> inEdgesOf(Node node);
 
-    Collection<ICFGEdge<Node>> getOutEdgesOf(Node node);
+    Stream<ICFGEdge<Node>> outEdgesOf(Node node);
 
-    Collection<Method> getEntryMethods();
+    Stream<Method> entryMethods();
 
-    Collection<Method> getCalleesOf(Node callSite);
+    Stream<Method> calleesOf(Node callSite);
 
-    Collection<Node> getEntriesOf(Method method);
+    Stream<Node> entriesOf(Method method);
 
-    Collection<Node> getCallersOf(Method method);
+    Stream<Node> callersOf(Method method);
 
-    Collection<Node> getExitsOf(Method method);
+    Stream<Node> exitsOf(Method method);
 
-    Collection<Node> getReturnSitesOf(Node callSite);
+    Stream<Node> returnSitesOf(Node callSite);
 
     Method getContainingMethodOf(Node node);
 

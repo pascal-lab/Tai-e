@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.dataflow.framework;
 
-import pascal.taie.analysis.graph.icfg.ICFGEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
+import pascal.taie.util.collection.StreamUtils;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -37,18 +37,20 @@ public class IPWorkListSolver<Domain, Method, Node>
         while (!workList.isEmpty()) {
             Node node = workList.remove();
             Domain in;
-            if (icfg.getInEdgesOf(node).isEmpty()) { // heads of entry methods
+            if (StreamUtils.isEmpty(icfg.inEdgesOf(node))) { // heads of entry methods
                 in = inFlow.get(node);
             } else { // other nodes
-                in = icfg.getInEdgesOf(node)
-                        .stream()
+                in = icfg.inEdgesOf(node)
                         .map(edgeFlow::get)
                         .reduce(analysis.newInitialFlow(), analysis::meet);
                 inFlow.put(node, in);
             }
             boolean changed = false;
-            Domain out = outFlow.get(node);
-            if (out == null) { // node has not been visited before
+            Domain out;
+            if (outFlow.containsKey(node)) {
+                out = outFlow.get(node);
+            } else {
+                // node has not been visited before
                 out = analysis.newInitialFlow();
                 outFlow.put(node, out);
                 changed = true;
@@ -59,10 +61,10 @@ public class IPWorkListSolver<Domain, Method, Node>
                 changed |= analysis.transfer(node, in, out);
             }
             if (changed) {
-                for (ICFGEdge<Node> edge : icfg.getOutEdgesOf(node)) {
+                icfg.outEdgesOf(node).forEach(edge -> {
                     analysis.transferEdge(edge, in, out, edgeFlow.get(edge));
                     workList.add(edge.getTarget());
-                }
+                });
             }
         }
     }
