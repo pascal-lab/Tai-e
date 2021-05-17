@@ -51,6 +51,7 @@ public class InvokedynamicPlugin implements Plugin {
      * Lambdas are supposed to be processed by LambdaPlugin.
      */
     private static final boolean processLambdas = false;
+    // TODO add log warning when there is Lambdas while LambdaPlugin not in use
 
     private Solver solver;
 
@@ -65,14 +66,14 @@ public class InvokedynamicPlugin implements Plugin {
     private ClassHierarchy hierarchy;
 
     /**
-     * Map from method to the invokedynamic functional objects created in the method.
+     * Map from method to the invokedynamic created in the method.
      */
-    private final Map<JMethod, Set<InvokedynamicObj>> invokedynamicObjs = MapUtils.newMap();
+    private final Map<JMethod, Set<InvokeDynamic>> indyPoints = MapUtils.newMap();
 
     /**
      * Map from method find class variable to the indyCallEdgeInfos
      */
-    private final Map<Var, Set<indyCallEdgeInfo>> indyCallEdgeInfos = MapUtils.newMap();
+    private final Map<Var, Set<IndyCallEdgeInfo>> indyCallEdgeInfos = MapUtils.newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -95,9 +96,8 @@ public class InvokedynamicPlugin implements Plugin {
         extractInvokeDynamics(method.getIR()).forEach(indy -> {
             Type type = indy.getMethodType().getReturnType();
             JMethod container = indy.getCallSite().getMethod();
-            MapUtils.addToMapSet(invokedynamicObjs, container,
-                    new InvokedynamicObj(type, indy, container));
-            System.out.println(invokedynamicObjs.values());
+            MapUtils.addToMapSet(indyPoints, container, indy);
+            System.out.println(indyPoints.values());
         });
     }
 
@@ -113,21 +113,16 @@ public class InvokedynamicPlugin implements Plugin {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
-        Set<InvokedynamicObj> indyObjs = invokedynamicObjs.get(method);
-        if (indyObjs != null) {
+        Set<InvokeDynamic> indys = indyPoints.get(method);
+        if (indys != null) {
             Context context = csMethod.getContext();
-            indyObjs.forEach(indyObj -> {
-                InvokeDynamic indy = indyObj.getAllocation();
-                Invoke invoke = (Invoke) indyObj.getAllocation().getCallSite().getStmt();
+            indys.forEach(indy -> {
+                Invoke invoke = (Invoke) indy.getCallSite().getStmt();
                 Var invokeResult = invoke.getResult();
                 System.out.println("args: " + indy.getArgs());
                 System.out.println("invoke result = " + invokeResult);
-                if (invokeResult != null) {
-                    solver.addVarPointsTo(context, invokeResult, context, indyObj);
-                    // 是不是只有lambdas会出现函数式对象哦，那在这里加到lambdaobj的就可以了？
-                    // 先只管processLambdas == false的情况吧
-                    // 那lambdaobj是否要作为invokedynamicobj的子类
-                }
+                // TODO pass result
+
                 JMethod bsm = indy.getBootstrapMethodRef().resolve();
                 System.out.println(bsm.toString());
                 // TODO bsm context should be invokedynamic call site
@@ -173,20 +168,6 @@ public class InvokedynamicPlugin implements Plugin {
         }
     }
 
-    // TODO if there is invokedynamicObj similar to lambdaObj
-//    @Override
-//    public void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
-//        if (recv.getObject() instanceof InvokedynamicObj) {
-//            InvokedynamicObj indyObj = (InvokedynamicObj) recv.getObject();
-//            Var result = invoke.getResult();
-//            Type resultType = invoke.getMethodRef().getReturnType();
-//            List<Var> actualParams = invoke.getInvokeExp().getArgs();
-//            List<Type> paramTypes = invoke.getMethodRef().getParameterTypes();
-//            MethodType invokeMethodType = MethodType.get(paramTypes, resultType);
-//            JMethod bsm = indyObj.getAllocation().getBootstrapMethodRef().resolve();
-//        }
-//    }
-
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof BSMCallEdge) {
@@ -208,7 +189,7 @@ public class InvokedynamicPlugin implements Plugin {
                     .forEach(invoke ->
                             MapUtils.addToMapSet(indyCallEdgeInfos,
                                     invoke.getMethodRef().resolve().getIR().getParams().get(0),
-                                    new indyCallEdgeInfo(
+                                    new IndyCallEdgeInfo(
                                             isFindMethod(invoke.getMethodRef().resolve().getSignature()),
                                             csCallSite)));
         }
@@ -224,7 +205,7 @@ public class InvokedynamicPlugin implements Plugin {
         if (methodTypeModel.isRelevantVar(var)) {
             methodTypeModel.handleNewPointsToSet(csVar, pts);
         }
-        Set<indyCallEdgeInfo> callEdgeInfos = indyCallEdgeInfos.get(var);
+        Set<IndyCallEdgeInfo> callEdgeInfos = indyCallEdgeInfos.get(var);
         if (callEdgeInfos != null) {
             System.out.println("findargs: " + csVar.getVar() + ": " + csVar.getPointsToSet());
             callEdgeInfos.stream()
@@ -286,15 +267,15 @@ public class InvokedynamicPlugin implements Plugin {
         }
     }
 
-    private static class indyCallEdgeInfo {
-        // type: nvokedynamicPlugin.isFindMethod
+    private static class IndyCallEdgeInfo {
+        // type: InvokedynamicPlugin.isFindMethod
         private int findType;
 
         private CSCallSite indyCallSite;
 
         private boolean findMethod = false;
 
-        public indyCallEdgeInfo(int findType, CSCallSite indyCallSite) {
+        public IndyCallEdgeInfo(int findType, CSCallSite indyCallSite) {
             this.findType = findType;
             this.indyCallSite = indyCallSite;
         }
