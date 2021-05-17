@@ -20,12 +20,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Dump (Jimple) classes via PackManager.writeClass().
+ * Dumps (Jimple) classes via PackManager.writeClass().
  */
 class ClassDumper {
 
     private final PackManager pm;
-    // the method to dump class files
+
+    /**
+     * The dump method.
+     */
     private final Method writeClass;
 
     ClassDumper() {

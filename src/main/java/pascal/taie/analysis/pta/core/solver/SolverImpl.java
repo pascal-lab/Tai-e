@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -86,8 +87,8 @@ import java.util.stream.Stream;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
 import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 public class SolverImpl implements Solver {
 
@@ -200,14 +201,14 @@ public class SolverImpl implements Solver {
     }
 
     /**
-     * Run pointer analysis algorithm.
+     * Runs pointer analysis algorithm.
      */
     @Override
     public void solve() {
-        plugin.preprocess();
+        plugin.onPreprocess();
         initialize();
         analyze();
-        plugin.postprocess();
+        plugin.onPostprocess();
     }
 
      /**
@@ -237,7 +238,7 @@ public class SolverImpl implements Solver {
         addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
-        plugin.initialize();
+        plugin.onInitialize();
     }
 
     private Collection<JMethod> computeEntries() {
@@ -266,14 +267,14 @@ public class SolverImpl implements Solver {
                     processArrayStore(v, diff);
                     processArrayLoad(v, diff);
                     processCall(v, diff);
-                    plugin.handleNewPointsToSet(v, diff);
+                    plugin.onNewPointsToSet(v, diff);
                 }
             }
             while (workList.hasCallEdges()) {
                 processCallEdge(workList.pollCallEdge());
             }
         }
-        plugin.finish();
+        plugin.onFinish();
     }
 
     /**
@@ -332,7 +333,7 @@ public class SolverImpl implements Solver {
     }
 
     /**
-     * Add a <pointer, pointsToSet> entry to work-list.
+     * Adds a <pointer, pointsToSet> entry to work-list.
      */
     private void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
         workList.addPointerEntry(pointer, pointsToSet);
@@ -420,7 +421,7 @@ public class SolverImpl implements Solver {
         }
     }
     
-        /**
+    /**
      * Processes array stores when points-to set of the array variable changes.
      *
      * @param arrayVar the array variable
@@ -487,20 +488,21 @@ public class SolverImpl implements Solver {
                             csCallSite, recvObj, callee);
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                    addCallEdge(new Edge<>(getCallKind(callSite), csCallSite, csCallee));
+                    addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
+                            csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     CSVar thisVar = csManager.getCSVar(
                             calleeContext, callee.getIR().getThis());
                     addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
                 } else {
-                    plugin.handleUnresolvedCall(recvObj, context, invoke);
+                    plugin.onUnresolvedCall(recvObj, context, invoke);
                 }
             }
         }
     }
     
     /**
-     * Process the call edges in work list.
+     * Processes the call edges in work list.
      */
     private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (!callGraph.containsEdge(edge)) {
@@ -535,7 +537,7 @@ public class SolverImpl implements Solver {
                     }
                 }
             }
-            plugin.handleNewCallEdge(edge);
+            plugin.onNewCallEdge(edge);
         }
     }
 
@@ -550,7 +552,7 @@ public class SolverImpl implements Solver {
                     .getIR()
                     .getStmts()
                     .forEach(s -> s.accept(stmtProcessor));
-            plugin.handleNewCSMethod(csMethod);
+            plugin.onNewCSMethod(csMethod);
         }
     }
 
@@ -559,7 +561,7 @@ public class SolverImpl implements Solver {
      */
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
-            plugin.handleNewMethod(method);
+            plugin.onNewMethod(method);
             method.getIR().getStmts()
                     .forEach(s -> s.accept(classInitializer));
         }
@@ -578,20 +580,6 @@ public class SolverImpl implements Solver {
         }
     }
 
-    private static CallKind getCallKind(InvokeExp invokeExp) {
-        if (invokeExp instanceof InvokeVirtual) {
-            return CallKind.VIRTUAL;
-        } else if (invokeExp instanceof InvokeInterface) {
-            return CallKind.INTERFACE;
-        } else if (invokeExp instanceof InvokeSpecial) {
-            return CallKind.SPECIAL;
-        } else if (invokeExp instanceof InvokeStatic) {
-            return CallKind.STATIC;
-        } else {
-            throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
-        }
-    }
-
     /**
      * @return if the type of given expression is concerned in pointer analysis.
      */
@@ -601,7 +589,7 @@ public class SolverImpl implements Solver {
     }
 
     /**
-     * Process the statements in context-sensitive new reachable methods.
+     * Processes the statements in context-sensitive new reachable methods.
      */
     private class StmtProcessor implements StmtVisitor {
 
@@ -727,7 +715,7 @@ public class SolverImpl implements Solver {
         }
 
         /**
-         * Process static load.
+         * Processes static load.
          */
         @Override
         public void visit(LoadField stmt) {
@@ -740,7 +728,7 @@ public class SolverImpl implements Solver {
         }
 
         /**
-         * Process static store.
+         * Processes static store.
          */
         @Override
         public void visit(StoreField stmt) {
@@ -753,7 +741,7 @@ public class SolverImpl implements Solver {
         }
 
         /**
-         * Process static invocation.
+         * Processes static invocation.
          */
         @Override
         public void visit(Invoke stmt) {
@@ -825,7 +813,7 @@ public class SolverImpl implements Solver {
         }
 
         /**
-         * Extract the class to be initialized from given type.
+         * Extracts the class to be initialized from given type.
          */
         private JClass extractClass(Type type) {
             if (type instanceof ClassType) {
@@ -843,7 +831,7 @@ public class SolverImpl implements Solver {
         }
 
         /**
-         * Fill the special "TYPE" field for boxed classes,
+         * Fills the special "TYPE" field for boxed classes,
          * e.g., java.lang.Integer.TYPE, which may be later loaded by
          * c = int.class.
          */

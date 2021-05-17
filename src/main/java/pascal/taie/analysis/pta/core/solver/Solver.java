@@ -56,7 +56,7 @@ public interface Solver {
     PointsToSet getPointsToSetOf(Pointer pointer);
 
     /**
-     * Add a context-sensitive variable points-to relation.
+     * Adds a context-sensitive variable points-to relation.
      * @param context context of the method which contains the variable
      * @param var the variable
      * @param heapContext heap context for the object
@@ -68,7 +68,7 @@ public interface Solver {
     void addVarPointsTo(Context context, Var var, PointsToSet pts);
 
     /**
-     * Add a context-sensitive array index points-to relation.
+     * Adds a context-sensitive array index points-to relation.
      * @param arrayContext heap context of the array object
      * @param array the array object
      * @param heapContext heap context for the element
@@ -78,7 +78,7 @@ public interface Solver {
                           Context heapContext, Obj obj);
 
     /**
-     * Add static field points-to relations.
+     * Adds static field points-to relations.
      * @param field the static field
      * @param pts the objects to be added to the points-to set of the field.
      */
@@ -90,7 +90,7 @@ public interface Solver {
     void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
 
     /**
-     * Add a call edge.
+     * Adds a call edge.
      * @param edge the added edge.
      */
     void addCallEdge(Edge<CSCallSite, CSMethod> edge);

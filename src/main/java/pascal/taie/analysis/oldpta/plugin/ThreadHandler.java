@@ -29,7 +29,7 @@ import pascal.taie.language.classes.JMethod;
 import java.util.Set;
 
 import static pascal.taie.util.collection.CollectionUtils.getOne;
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 /**
  * Model initialization of main thread, system thread group,

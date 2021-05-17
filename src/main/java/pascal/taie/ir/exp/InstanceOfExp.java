@@ -16,6 +16,8 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 
+import java.util.List;
+
 /**
  * Representation of instanceof expression, e.g., o instanceof T.
  */
@@ -45,6 +47,11 @@ public class InstanceOfExp implements RValue {
     @Override
     public PrimitiveType getType() {
         return PrimitiveType.BOOLEAN;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of(value);
     }
 
     @Override

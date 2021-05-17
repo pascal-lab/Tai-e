@@ -159,7 +159,6 @@ import soot.jimple.XorExpr;
 import soot.util.Chain;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -168,10 +167,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
 
 /**
- * Convert Jimple to Tai-e IR.
+ * Converts Jimple to Tai-e IR.
  */
 class MethodIRBuilder extends AbstractStmtSwitch {
 
@@ -199,7 +198,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                 .retrieveActiveBody();
         varManager = new VarManager(method, converter);
         if (method.getReturnType().equals(VOID)) {
-            returnVars = Collections.emptySet();
+            returnVars = Set.of();
         } else {
             returnVars = new LinkedHashSet<>();
         }
@@ -264,7 +263,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
 
     private void buildExceptionEntries(Chain<Trap> traps) {
         if (traps.isEmpty()) {
-            exceptionEntries = Collections.emptyList();
+            exceptionEntries = List.of();
         } else {
             exceptionEntries = new ArrayList<>(traps.size());
             for (Trap trap : traps) {
@@ -298,13 +297,13 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * All trap-related units of current Jimple body.
      */
-    private Set<Unit> trapUnits = Collections.emptySet();
+    private Set<Unit> trapUnits = Set.of();
 
     /**
      * Map from trap beginning statements in Jimple to
      * the corresponding Tai-e statements.
      */
-    private Map<Unit, Stmt> trapUnitMap = Collections.emptyMap();
+    private Map<Unit, Stmt> trapUnitMap = Map.of();
 
     /**
      * If {@link #currentUnit} is a jump target (or trap begin unit,
@@ -365,7 +364,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple Constants to Literals.
+     * Converts Jimple Constants to Literals.
      */
     private final AbstractConstantSwitch constantConverter
             = new AbstractConstantSwitch() {
@@ -482,21 +481,21 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
+     * Shortcut: obtains Jimple Value's Type and convert to Tai-e Type.
      */
     private Type getTypeOf(Value value) {
         return converter.convertType(value.getType());
     }
 
     /**
-     * Shortcut: convert Jimple Local to Var.
+     * Shortcut: converts Jimple Local to Var.
      */
     private Var getVar(Local local) {
         return varManager.getVar(local);
     }
 
     /**
-     * Convert a Jimple Local or Constant to Var.
+     * Converts a Jimple Local or Constant to Var.
      * If <code>value</code> is Local, then directly return the corresponding Var.
      * If <code>value</code> is Constant, then add a temporary assignment,
      * e.g., x = 10 for constant 10, and return Var x.
@@ -515,7 +514,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple FieldRef to FieldAccess.
+     * Converts Jimple FieldRef to FieldAccess.
      */
     private FieldAccess getFieldAccess(FieldRef fieldRef) {
         pascal.taie.ir.proginfo.FieldRef jfieldRef =
@@ -530,7 +529,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple ArrayRef to ArrayAccess.
+     * Converts Jimple ArrayRef to ArrayAccess.
      */
     private ArrayAccess getArrayAccess(ArrayRef arrayRef) {
         return new ArrayAccess(getVar((Local) arrayRef.getBase()),
@@ -538,7 +537,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple NewExpr to NewExp
+     * Converts Jimple NewExpr to NewExp
      */
     private final AbstractJimpleValueSwitch newExprConverter
             = new AbstractJimpleValueSwitch() {
@@ -572,7 +571,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Extract BinaryExp.Op from Jimple BinopExpr.
+     * Extracts BinaryExp.Op from Jimple BinopExpr.
      */
     private final AbstractJimpleValueSwitch binaryOpExtractor
             = new AbstractJimpleValueSwitch() {
@@ -778,7 +777,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
-     * Convert Jimple InvokeExpr to InvokeExp.
+     * Converts Jimple InvokeExpr to InvokeExp.
      */
     private InvokeExp getInvokeExp(InvokeExpr invokeExpr) {
         if (invokeExpr instanceof DynamicInvokeExpr) {

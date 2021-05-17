@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static pascal.taie.util.collection.CollectionUtils.newConcurrentSet;
+import static pascal.taie.util.collection.SetUtils.newConcurrentSet;
 
 /**
  * Represents a set of merged objects.

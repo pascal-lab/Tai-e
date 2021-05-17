@@ -28,14 +28,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Create and execute analyses based on given analysis plan.
+ * Creates and executes analyses based on given analysis plan.
  */
 public class AnalysisManager {
 
     private static final Logger logger = LogManager.getLogger(AnalysisManager.class);
 
     /**
-     * Execute the analysis plan.
+     * Executes the analysis plan.
      */
     public void execute(List<AnalysisConfig> analysisPlan) {
         analysisPlan.forEach(this::runAnalysis);
@@ -68,11 +68,11 @@ public class AnalysisManager {
         Stream<JMethod> methods = World.getClassHierarchy()
                 .getAllClasses()
                 .stream()
+                .filter(JClass::isApplication)
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
                 .filter(m -> !m.isAbstract() && !m.isNative());
-        // TODO: 1. parallelize analysis of different methods
-        //       2. restrict analysis scope
+        // TODO: parallelize analysis of different methods
         methods.forEach(m -> {
             IR ir = m.getIR();
             Object result = analysis.analyze(ir);

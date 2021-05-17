@@ -12,14 +12,13 @@
 
 package pascal.taie.util.graph;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.MapUtils.addToMapSet;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 /**
  * A simple map-based implementation of {@link Graph<N>}.
@@ -51,18 +50,17 @@ public class SimpleGraph<N> implements Graph<N> {
 
     @Override
     public boolean hasEdge(N source, N target) {
-        return succMap.getOrDefault(source, Collections.emptySet())
-                .contains(target);
+        return succMap.getOrDefault(source, Set.of()).contains(target);
     }
 
     @Override
     public Stream<N> predsOf(N node) {
-        return predMap.getOrDefault(node, Collections.emptySet()).stream();
+        return predMap.getOrDefault(node, Set.of()).stream();
     }
 
     @Override
     public Stream<N> succsOf(N node) {
-        return succMap.getOrDefault(node, Collections.emptySet()).stream();
+        return succMap.getOrDefault(node, Set.of()).stream();
     }
 
     @Override

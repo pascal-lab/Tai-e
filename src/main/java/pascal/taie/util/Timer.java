@@ -63,7 +63,7 @@ public class Timer {
     }
 
     /**
-     * Execute a task, log the elapsed time, and return the result.
+     * Executes a task, log the elapsed time, and return the result.
      * @param message message of the task
      * @param task task to be executed
      */
@@ -77,7 +77,7 @@ public class Timer {
     }
 
     /**
-     * Execute a task and log the elapsed time.
+     * Executes a task and log the elapsed time.
      * @param message message of the task
      * @param task task to be executed
      */

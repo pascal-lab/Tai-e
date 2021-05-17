@@ -16,14 +16,13 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.ClassType;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.MapUtils.addToMapSet;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 public class CatchResult {
 
@@ -50,7 +49,7 @@ public class CatchResult {
      * thrown by s implicitly.
      */
     public Map<Stmt, Set<ClassType>> getCaughtImplicitOf(Stmt stmt) {
-        return caughtImplicit.getOrDefault(stmt, Collections.emptyMap());
+        return caughtImplicit.getOrDefault(stmt, Map.of());
     }
 
     /**
@@ -58,7 +57,7 @@ public class CatchResult {
      * by given Stmt but not caught by its containing method.
      */
     public Set<ClassType> getUncaughtImplicitOf(Stmt stmt) {
-        return uncaughtImplicit.getOrDefault(stmt, Collections.emptySet());
+        return uncaughtImplicit.getOrDefault(stmt, Set.of());
     }
 
     void addCaughtExplicit(Stmt stmt, Catch catcher, ClassType exceptionType) {
@@ -76,7 +75,7 @@ public class CatchResult {
      * thrown by s explicitly.
      */
     public Map<Stmt, Set<ClassType>> getCaughtExplicitOf(Stmt stmt) {
-        return caughtExplicit.getOrDefault(stmt, Collections.emptyMap());
+        return caughtExplicit.getOrDefault(stmt, Map.of());
     }
 
     /**
@@ -84,7 +83,7 @@ public class CatchResult {
      * by given Stmt but not caught by its containing method.
      */
     public Set<ClassType> getUncaughtExplicitOf(Stmt stmt) {
-        return uncaughtExplicit.getOrDefault(stmt, Collections.emptySet());
+        return uncaughtExplicit.getOrDefault(stmt, Set.of());
     }
 
     /**

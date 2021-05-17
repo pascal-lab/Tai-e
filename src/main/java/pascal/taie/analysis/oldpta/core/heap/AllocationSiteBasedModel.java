@@ -18,7 +18,7 @@ import pascal.taie.language.type.TypeManager;
 
 import java.util.Map;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {
 

@@ -22,13 +22,13 @@ import java.util.stream.Stream;
 public interface PointsToSet extends Iterable<CSObj> {
 
     /**
-     * Add an object to this set.
+     * Adds an object to this set.
      * @return if the add operation changes this set.
      */
     boolean addObject(CSObj obj);
 
     /**
-     * Add all objects in given pts to this set.
+     * Adds all objects in given pts to this set.
      * @return if the add operation changes this set.
      */
     boolean addAll(PointsToSet pts);

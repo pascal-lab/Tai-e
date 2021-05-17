@@ -20,10 +20,10 @@ import pascal.taie.language.type.Type;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
 
 /**
- * Manager for new created variables during method creation.
+ * Manages new-created variables during method creation.
  */
 class NewVariableManager {
 

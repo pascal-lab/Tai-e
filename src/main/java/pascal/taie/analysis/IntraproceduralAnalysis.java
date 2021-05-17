@@ -27,7 +27,7 @@ public abstract class IntraproceduralAnalysis extends Analysis {
     }
 
     /**
-     * Run this analysis for the given IR.
+     * Runs this analysis for the given IR.
      * @param ir IR of the method to be analyzed
      * @return the analysis result for given ir.
      * The result will be stored in {@link pascal.taie.ir.IR}.

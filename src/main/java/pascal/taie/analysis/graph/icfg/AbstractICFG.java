@@ -14,7 +14,7 @@ package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 public abstract class AbstractICFG<Method, Node> implements ICFG<Method, Node> {
 
@@ -25,17 +25,17 @@ public abstract class AbstractICFG<Method, Node> implements ICFG<Method, Node> {
     }
 
     @Override
-    public Collection<Method> getEntryMethods() {
-        return callGraph.getEntryMethods();
+    public Stream<Method> entryMethods() {
+        return callGraph.getEntryMethods().stream();
     }
 
     @Override
-    public Collection<Method> getCalleesOf(Node callSite) {
-        return callGraph.getCallees(callSite);
+    public Stream<Method> calleesOf(Node callSite) {
+        return callGraph.getCallees(callSite).stream();
     }
 
     @Override
-    public Collection<Node> getCallersOf(Method method) {
-        return callGraph.getCallers(method);
+    public Stream<Node> callersOf(Method method) {
+        return callGraph.getCallers(method).stream();
     }
 }

@@ -22,8 +22,6 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.freeze;
-
 public class JMethod extends ClassMember {
 
     private final List<Type> paramTypes;
@@ -48,9 +46,9 @@ public class JMethod extends ClassMember {
                    List<Type> paramTypes, Type returnType,
                    List<ClassType> exceptions, Object methodSource) {
         super(declaringClass, name, modifiers);
-        this.paramTypes = freeze(paramTypes);
+        this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
-        this.exceptions = freeze(exceptions);
+        this.exceptions = List.copyOf(exceptions);
         this.signature = StringReps.getSignatureOf(this);
         this.subsignature = Subsignature.get(name, paramTypes, returnType);
         this.methodSource = methodSource;

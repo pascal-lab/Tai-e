@@ -12,9 +12,11 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Representation of return statement, e.g., return; or return x.
@@ -33,6 +35,11 @@ public class Return extends AbstractStmt {
 
     public @Nullable Var getValue() {
         return value;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return value != null ? List.of(value) : List.of();
     }
 
     @Override

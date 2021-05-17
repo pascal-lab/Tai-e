@@ -37,8 +37,8 @@ public class ThrowAnalysis extends IntraproceduralAnalysis {
         } else {
             implicitThrowAnalysis = null;
         }
-        if ("inter".equals(getOptions().getString("scope"))) {
-            explicitThrowAnalysis = new InterExplicitThrowAnalysis();
+        if ("pta".equals(getOptions().getString("algorithm"))) {
+            explicitThrowAnalysis = new PTABasedExplicitThrowAnalysis();
         } else {
             explicitThrowAnalysis = new IntraExplicitThrowAnalysis();
         }

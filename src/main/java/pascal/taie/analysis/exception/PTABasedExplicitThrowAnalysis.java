@@ -10,21 +10,17 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.exception;
 
-public interface DataFlowResult<Node, Flow> {
+import pascal.taie.ir.IR;
 
-    /**
-     * @return the in-flow of given node.
-     */
-    Flow getInFlow(Node node);
+/**
+ * Analyzes explicit exceptions based on pointer analysis.
+ */
+class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
-    void setInFlow(Node node, Flow flow);
-
-    /**
-     * @return the out-flow of given node.
-     */
-    Flow getOutFlow(Node node);
-
-    void setOutFlow(Node node, Flow flow);
+    @Override
+    public void analyze(IR ir, ThrowResult result) {
+        throw new UnsupportedOperationException();
+    }
 }

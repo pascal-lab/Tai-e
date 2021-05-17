@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.MapUtils;
 import soot.SootMethod;
 import soot.Unit;
 import soot.jimple.Stmt;
@@ -31,7 +31,7 @@ public class JimpleCallGraph extends AbstractCallGraph<Unit, SootMethod> {
                     Stmt stmt = (Stmt) unit;
                     if (stmt.containsInvokeExpr()) {
                         callSiteToContainer.put(stmt, method);
-                        CollectionUtils.addToMapSet(callSitesIn, method, stmt);
+                        MapUtils.addToMapSet(callSitesIn, method, stmt);
                     }
                 }
             }

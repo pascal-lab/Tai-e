@@ -28,8 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.emptyList;
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 /**
  * Intra-procedural catch analysis for computing the exceptions thrown by
@@ -38,7 +37,7 @@ import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
 public class CatchAnalysis {
 
     /**
-     * Analyze the exceptions thrown by each Stmt in given IR may be caught
+     * Analyzes the exceptions thrown by each Stmt in given IR may be caught
      * by which (catch) Stmts, and which exceptions are not caught in the IR.
      */
     public static CatchResult analyze(IR ir, ThrowResult throwResult) {
@@ -53,9 +52,9 @@ public class CatchAnalysis {
             } else if (stmt instanceof Invoke) {
                 explicit = throwResult.mayThrowExplicitly((Invoke) stmt);
             } else {
-                explicit = emptyList();
+                explicit = List.of();
             }
-            for (ExceptionEntry entry : catchers.getOrDefault(stmt, emptyList())) {
+            for (ExceptionEntry entry : catchers.getOrDefault(stmt, List.of())) {
                 Set<ClassType> uncaughtImplicit = newHybridSet();
                 implicit.forEach(t -> {
                     if (typeManager.isSubtype(entry.getCatchType(), t)) {

@@ -20,11 +20,11 @@ import pascal.taie.language.type.ClassType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
 
 public class ThrowResult {
 
@@ -57,15 +57,15 @@ public class ThrowResult {
     }
 
     public Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
-        return implicit == null ? emptyList() :
+        return implicit == null ? List.of() :
                 implicit.mayThrowImplicitly(stmt);
     }
 
     public Collection<ClassType> mayThrowExplicitly(Throw throwStmt) {
-        return explicitExceptions.getOrDefault(throwStmt, emptySet());
+        return explicitExceptions.getOrDefault(throwStmt, Set.of());
     }
 
     public Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
-        return explicitExceptions.getOrDefault(invoke, emptySet());
+        return explicitExceptions.getOrDefault(invoke, Set.of());
     }
 }

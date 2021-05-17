@@ -38,4 +38,9 @@ public interface JClassBuilder {
     Collection<JField> getDeclaredFields();
 
     Collection<JMethod> getDeclaredMethods();
+
+    /**
+     * @return if the class being built is application class.
+     */
+    boolean isApplication();
 }

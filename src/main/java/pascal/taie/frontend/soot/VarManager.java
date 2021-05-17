@@ -113,7 +113,7 @@ class VarManager {
     }
 
     /**
-     * Shortcut: obtain Jimple Value's Type and convert to Tai-e Type.
+     * Shortcut: obtains Jimple Value's Type and convert to Tai-e Type.
      */
     private Type getTypeOf(Value value) {
         return converter.convertType(value.getType());

@@ -36,11 +36,14 @@ public class CFGBuilder extends IntraproceduralAnalysis {
 
     public static final String ID = "cfg";
 
-    private final boolean NO_EXCEPTION;
+    private final boolean noException;
+
+    private final boolean isDump;
 
     public CFGBuilder(AnalysisConfig config) {
         super(config);
-        NO_EXCEPTION = getOptions().getString("exception").equals("none");
+        noException = getOptions().getString("exception").equals("none");
+        isDump = getOptions().getBoolean("dump");
     }
 
     @Override
@@ -49,8 +52,11 @@ public class CFGBuilder extends IntraproceduralAnalysis {
         cfg.setEntry(new Nop());
         cfg.setExit(new Nop());
         buildNormalEdges(cfg);
-        if (!NO_EXCEPTION) {
+        if (!noException) {
             buildExceptionalEdges(cfg);
+        }
+        if (isDump) {
+            CFGDumper.dumpDotFile(cfg);
         }
         return cfg;
     }
@@ -90,7 +96,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
 
     private static void buildExceptionalEdges(StmtCFG cfg) {
         IR ir = cfg.getIR();
-        ThrowResult throwResult = (ThrowResult) ir.getResult(ThrowAnalysis.ID);
+        ThrowResult throwResult = ir.getResult(ThrowAnalysis.ID);
         CatchResult catchResult = CatchAnalysis.analyze(ir, throwResult);
         ir.getStmts().forEach(stmt -> {
             // build edges for implicit exceptions

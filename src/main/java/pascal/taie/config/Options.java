@@ -26,7 +26,6 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 
 @Command(name = "Options",
@@ -169,7 +168,7 @@ public class Options {
     @Option(names = {"-a", "--analysis"},
             description = "Analyses to be executed", split = ";",
             mapFallbackValue = "")
-    private Map<String, String> analyses = Collections.emptyMap();
+    private Map<String, String> analyses = Map.of();
 
     public Map<String, String> getAnalyses() {
         return analyses;
@@ -195,7 +194,7 @@ public class Options {
     }
 
     /**
-     * Parse arguments and return the parsed and post-processed Options.
+     * Parses arguments and return the parsed and post-processed Options.
      */
     public static Options parse(String... args) {
         Options options = CommandLine.populateCommand(new Options(), args);
@@ -203,7 +202,7 @@ public class Options {
     }
 
     /**
-     * Validate input options and do some post-process on it.
+     * Validates input options and do some post-process on it.
      * @return the Options object after post-process.
      */
     private Options postProcess() {
@@ -226,7 +225,7 @@ public class Options {
     }
 
     /**
-     * Read options from file.
+     * Reads options from file.
      * Note: the returned options have not been post-processed.
      */
     private static Options readRawOptions(File file) {
@@ -250,7 +249,7 @@ public class Options {
     }
 
     /**
-     * Write options to given file.
+     * Writes options to given file.
      */
     private static void writeOptions(Options options, File output) {
         ObjectMapper mapper = new ObjectMapper(

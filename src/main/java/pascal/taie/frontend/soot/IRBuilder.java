@@ -12,7 +12,7 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.analysis.graph.callgraph.JimpleCallUtils;
+import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.analysis.oldpta.ir.Allocation;
 import pascal.taie.analysis.oldpta.ir.ArrayLoad;
@@ -81,7 +81,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
 
 /**
  * Jimple-based pointer analysis IR builder.
@@ -108,7 +108,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     }
 
     /**
-     * Build IR for all methods in given class hierarchy.
+     * Builds IR for all methods in given class hierarchy.
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {
@@ -353,7 +353,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     private CallSite createCallSite(Stmt stmt, JMethod container, DefaultPTAIR ir) {
         InvokeExpr invoke = stmt.getInvokeExpr();
         DefaultCallSite callSite = new DefaultCallSite(
-                JimpleCallUtils.getCallKind(invoke));
+                CGUtils.getCallKind(invoke));
         callSite.setStmt(stmt);
         callSite.setMethodRef(
                 converter.convertMethodRef(invoke.getMethodRef()));

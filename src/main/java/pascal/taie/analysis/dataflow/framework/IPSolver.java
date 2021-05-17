@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.dataflow.framework;
 
-import pascal.taie.analysis.graph.icfg.Edge;
 import pascal.taie.analysis.graph.icfg.ICFG;
+import pascal.taie.analysis.graph.icfg.ICFGEdge;
 
 import java.util.Map;
 
@@ -36,7 +36,7 @@ public abstract class IPSolver<Domain, Method, Node> {
     /**
      * Flow value for ICFG edges.
      */
-    protected Map<Edge<Node>, Domain> edgeFlow;
+    protected Map<ICFGEdge<Node>, Domain> edgeFlow;
 
     protected IPSolver(IPDataFlowAnalysis<Domain, Method, Node> analysis,
                        ICFG<Method, Node> icfg) {
@@ -68,7 +68,7 @@ public abstract class IPSolver<Domain, Method, Node> {
             if (icfg.getHeads().contains(node)) {
                 inFlow.put(node, analysis.getEntryInitialFlow(node));
             }
-            icfg.getOutEdgesOf(node)
+            icfg.outEdgesOf(node)
                     .forEach(edge ->
                             edgeFlow.put(edge, analysis.newInitialFlow()));
         }

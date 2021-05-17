@@ -14,7 +14,7 @@ package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 
-public class CallEdge<Node> extends Edge<Node> {
+public class CallEdge<Node> extends ICFGEdge<Node> {
 
     public CallEdge(Node source, Node target) {
         super(Kind.CALL, source, target);

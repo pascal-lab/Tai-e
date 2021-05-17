@@ -16,8 +16,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import pascal.taie.util.collection.ArrayMapTest;
 import pascal.taie.util.collection.ArraySetTest;
+import pascal.taie.util.collection.CollectionUtilsTest;
 import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
+import pascal.taie.util.collection.SetQueueTest;
 import pascal.taie.util.graph.GraphTest;
 
 @RunWith(Suite.class)
@@ -27,6 +29,8 @@ import pascal.taie.util.graph.GraphTest;
         ArrayMapTest.class,
         HybridArrayHashMapTest.class,
         HybridArrayHashSetTest.class,
+        SetQueueTest.class,
+        CollectionUtilsTest.class,
         // graph
         GraphTest.class,
 })

@@ -11,5 +11,5 @@
 
 <BranchNAC: void nonDistributivity(boolean)>
 27:x=2,y=3
-20:x=3,y=2
+30:x=3,y=2
 32:z=NAC

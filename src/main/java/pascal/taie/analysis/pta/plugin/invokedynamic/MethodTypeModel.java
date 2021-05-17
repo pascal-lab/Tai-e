@@ -34,17 +34,16 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.addToMapSet;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
 
 /**
- * Model invocations to MethodType.methodType(*);
+ * Models invocations to MethodType.methodType(*);
  */
 class MethodTypeModel {
 
@@ -123,7 +122,7 @@ class MethodTypeModel {
             pts.forEach(obj -> {
                 Type retType = toType(obj);
                 if (retType != null) {
-                    MethodType mt = MethodType.get(Collections.emptyList(), retType);
+                    MethodType mt = MethodType.get(List.of(), retType);
                     Obj mtObj = heapModel.getConstantObj(mt);
                     mtObjs.addObject(csManager.getCSObj(defaultHctx, mtObj));
                 }
@@ -211,7 +210,7 @@ class MethodTypeModel {
     }
 
     /**
-     * Convert a CSObj of class to corresponding type. If the object is
+     * Converts a CSObj of class to corresponding type. If the object is
      * not a class constant, then return null.
      */
     private static @Nullable Type toType(CSObj csObj) {
@@ -221,7 +220,7 @@ class MethodTypeModel {
     }
 
     /**
-     * Convert a CSObj of MethodType to corresponding MethodType.
+     * Converts a CSObj of MethodType to corresponding MethodType.
      * If the object is not a MethodType, then return null.
      */
     private static @Nullable MethodType toMethodType(CSObj csObj) {

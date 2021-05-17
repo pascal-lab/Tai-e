@@ -19,18 +19,18 @@ import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.MapUtils;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
- * Managing data by maintaining the data and their context-sensitive
+ * Manages data by maintaining the data and their context-sensitive
  * counterparts by maps.
  */
 public class MapBasedCSManager implements CSManager {
@@ -90,12 +90,12 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<CSVar> csVars() {
-        return CollectionUtils.getAllValues(vars);
+        return MapUtils.getAllValues(vars);
     }
 
     @Override
     public Stream<InstanceField> instanceFields() {
-        return CollectionUtils.getAllValues(instanceFields);
+        return MapUtils.getAllValues(instanceFields);
     }
 
     @Override

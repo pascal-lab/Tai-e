@@ -10,18 +10,22 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.exception;
+package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
 
-/**
- * Analysis explicit exceptions based on interprocedural analysis.
- * This analysis requires pointer analysis result.
- */
-class InterExplicitThrowAnalysis implements ExplicitThrowAnalysis {
+import javax.annotation.Nullable;
+
+public abstract class DefinitionStmt<L extends LValue, R extends RValue>
+        extends AbstractStmt {
+
+    public abstract @Nullable L getLValue();
+
+    public abstract R getRValue();
 
     @Override
-    public void analyze(IR ir, ThrowResult result) {
-        throw new UnsupportedOperationException();
+    public boolean canFallThrough() {
+        return true;
     }
 }

@@ -14,7 +14,7 @@ package pascal.taie.analysis.graph.callgraph.cha;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.frontend.soot.SootUtils;
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.MapUtils;
 import soot.Body;
 import soot.BriefUnitPrinter;
 import soot.G;
@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -87,7 +86,7 @@ public class ResultChecker {
     public void compare(Body body, CallGraph<Unit, SootMethod> callGraph) {
         String method = body.getMethod().getSignature();
         Map<String, String> expectedCallEdges =
-                expectedResults.getOrDefault(method, Collections.emptyMap());
+                expectedResults.getOrDefault(method, Map.of());
         BriefUnitPrinter up = new BriefUnitPrinter(body);
         body.getUnits().forEach(u -> {
             String callUnit = SootUtils.unitToString(up, u);
@@ -122,7 +121,7 @@ public class ResultChecker {
                     String[] splits = line.split(" -> ");
                     String callUnit = splits[0];
                     String callees = splits[1];
-                    CollectionUtils.addToMapMap(expectedResults, currentMethod, callUnit, callees);
+                    MapUtils.addToMapMap(expectedResults, currentMethod, callUnit, callees);
                 }
             }
         } catch (IOException e) {

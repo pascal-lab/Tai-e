@@ -46,8 +46,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.addToMapSet;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 public class LambdaPlugin implements Plugin {
 
@@ -87,7 +87,7 @@ public class LambdaPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewMethod(JMethod method) {
+    public void onNewMethod(JMethod method) {
         extractLambdaMetaFactories(method.getIR()).forEach(indy -> {
             Type type = indy.getMethodType().getReturnType();
             JMethod container = indy.getCallSite().getMethod();
@@ -114,7 +114,7 @@ public class LambdaPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewCSMethod(CSMethod csMethod) {
+    public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         Set<LambdaObj> lambdas = lambdaObjs.get(method);
         if (lambdas != null) {
@@ -133,7 +133,7 @@ public class LambdaPlugin implements Plugin {
     }
 
     @Override
-    public void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+    public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
         if (recv.getObject() instanceof LambdaObj) {
             LambdaObj lambdaObj = (LambdaObj) recv.getObject();
             List<Var> actualParams = invoke.getInvokeExp().getArgs();
@@ -220,7 +220,7 @@ public class LambdaPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof LambdaCallEdge) {
             LambdaCallEdge lambdaCallEdge = (LambdaCallEdge) edge;
             CSCallSite csCallSite = lambdaCallEdge.getCallSite();
@@ -300,7 +300,7 @@ public class LambdaPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Set<DelayedCallEdgeInfo> callEdgeInfos = delayedCallEdge.get(csVar.getVar());
         if (CollectionUtils.isEmpty(callEdgeInfos)) {
             return;

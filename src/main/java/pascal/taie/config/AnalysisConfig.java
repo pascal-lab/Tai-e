@@ -20,7 +20,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,24 +102,22 @@ public class AnalysisConfig {
         this.description = description;
         this.analysisClass = analysisClass;
         this.id = id;
-        this.requires = Objects.requireNonNullElse(requires,
-                Collections.emptyList());
+        this.requires = Objects.requireNonNullElse(requires, List.of());
         this.options = Objects.requireNonNullElse(options,
                 AnalysisOptions.emptyOptions());
     }
 
     /**
-     * Constructing an AnalysisConfig by merely specifying id and options.
-     * This convenient method eases the creation of AnalysisConfig in testing.
-     * The given options should be an array of key-value pairs, e.g.,
-     * [k1, v1, k2, v2, ...].
+     * Convenient constructor for creating an AnalysisConfig by merely
+     * specifying id and options. The given options should be an array
+     * of key-value pairs, e.g., [k1, v1, k2, v2, ...].
      */
     public AnalysisConfig(String id, Object... options) {
         this(null, null, id, null, convertOptions(options));
     }
 
     /**
-     * Convert an array of key-value pairs (e.g, [k1, v1, k2, v2, ...])
+     * Converts an array of key-value pairs (e.g, [k1, v1, k2, v2, ...])
      * to AnalysisOptions.
      */
     private static AnalysisOptions convertOptions(Object[] options) {
@@ -174,7 +171,7 @@ public class AnalysisConfig {
     }
 
     /**
-     * Read a list of AnalysisConfig from given file.
+     * Reads a list of AnalysisConfig from given file.
      */
     public static List<AnalysisConfig> readConfigs(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

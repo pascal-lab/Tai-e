@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
- * Manager for a collection of {@link AnalysisConfig}.
+ * Manages a collection of {@link AnalysisConfig}.
  */
 public class ConfigManager {
 
@@ -47,7 +47,7 @@ public class ConfigManager {
     }
 
     /**
-     * Given an analysis id, return the corresponding AnalysisConfig.
+     * Given an analysis id, returns the corresponding AnalysisConfig.
      * @throws ConfigException when the manager does not contain
      *  the AnalysisConfig for the given id.
      */
@@ -61,7 +61,7 @@ public class ConfigManager {
     }
 
     /**
-     * Overwrite the AnalysisConfig.options by corresponding PlanConfig.options.
+     * Overwrites the AnalysisConfig.options by corresponding PlanConfig.options.
      */
     public void overwriteOptions(List<PlanConfig> planConfigs) {
         planConfigs.forEach(pc ->
@@ -70,7 +70,7 @@ public class ConfigManager {
     }
 
     /**
-     * Obtain the required analyses of given analysis (represented by AnalysisConfig).
+     * Obtains the required analyses of given analysis (represented by AnalysisConfig).
      * This computation is based on the options given in PlanConfig,
      * thus this method should be called after invoking {@link #overwriteOptions}.
      * NOTE: we should obtain required configs by this method, instead of

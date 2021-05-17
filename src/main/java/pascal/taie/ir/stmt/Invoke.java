@@ -12,6 +12,7 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeStatic;
@@ -19,13 +20,16 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.proginfo.ProgramPoint;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.ListUtils;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Representation of invocation statement, e.g., r = o.m(..).
  */
-public class Invoke extends AbstractStmt {
+public class Invoke extends DefinitionStmt<Var, InvokeExp> {
 
     private final InvokeExp invokeExp;
 
@@ -45,12 +49,22 @@ public class Invoke extends AbstractStmt {
         this(method, invokeExp, null);
     }
 
-    public InvokeExp getInvokeExp() {
-        return invokeExp;
+    @Override
+    public @Nullable Var getLValue() {
+        return result;
     }
 
     public @Nullable Var getResult() {
         return result;
+    }
+
+    @Override
+    public InvokeExp getRValue() {
+        return invokeExp;
+    }
+
+    public InvokeExp getInvokeExp() {
+        return invokeExp;
     }
 
     public MethodRef getMethodRef() {
@@ -62,8 +76,13 @@ public class Invoke extends AbstractStmt {
     }
 
     @Override
-    public boolean canFallThrough() {
-        return true;
+    public Optional<Exp> getDef() {
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return ListUtils.append(invokeExp.getUses(), invokeExp);
     }
 
     @Override

@@ -36,6 +36,10 @@ public class ConfigUtils {
     private ConfigUtils() {
     }
 
+    public static File getOutputDir() {
+        return outputDir;
+    }
+
     /**
      * @return the file for storing analysis configurations.
      * TODO: the path of configuration file is hardcoded, make it configurable?
@@ -62,7 +66,7 @@ public class ConfigUtils {
     }
 
     /**
-     * Extract analysis id from given require item.
+     * Extracts analysis id from given require item.
      */
     static String extractId(String require) {
         int index = require.indexOf('(');
@@ -71,7 +75,7 @@ public class ConfigUtils {
     }
 
     /**
-     * Extract conditions (represented by a string) from given require item.
+     * Extracts conditions (represented by a string) from given require item.
      */
     static String extractConditions(String require) {
         int index = require.indexOf('(');
@@ -80,7 +84,7 @@ public class ConfigUtils {
     }
 
     /**
-     * Check if options satisfy the given conditions.
+     * Checks if options satisfy the given conditions.
      * Examples of conditions:
      * a=b
      * a=b&x=y

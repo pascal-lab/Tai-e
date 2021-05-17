@@ -18,7 +18,7 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.AssignStmt;
+import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
@@ -26,14 +26,13 @@ import pascal.taie.language.type.ClassType;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
@@ -53,7 +52,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     }
 
     /**
-     * Perform a simple intra-procedural analysis to find out the
+     * Performs a simple intra-procedural analysis to find out the
      * throw Stmts which only throws exception of definite type.
      */
     private static Map<Throw, ClassType> findDefiniteThrows(IR ir) {
@@ -65,16 +64,12 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
                 Throw throwStmt = (Throw) s;
                 throwVars.put(throwStmt.getExceptionRef(), throwStmt);
             }
-            // collect all assignments
+            // collect all definition stmts
             Exp lhs = null, rhs = null;
-            if (s instanceof AssignStmt) {
-                AssignStmt<?, ?> assign = (AssignStmt<?, ?>) s;
-                lhs = assign.getLValue();
-                rhs = assign.getRValue();
-            } else if (s instanceof Invoke) {
-                Invoke invoke = (Invoke) s;
-                lhs = invoke.getResult();
-                rhs = invoke.getInvokeExp();
+            if (s instanceof DefinitionStmt<?, ?>) {
+                DefinitionStmt<?, ?> define = (DefinitionStmt<?, ?>) s;
+                lhs = define.getLValue();
+                rhs = define.getRValue();
             }
             if (lhs != null && rhs != null) {
                 assigns.computeIfAbsent(lhs, e -> new ArrayList<>()).add(rhs);
@@ -114,7 +109,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
     private static Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
         return invoke.getInvokeExp() instanceof InvokeDynamic ?
-                Collections.emptyList() : // InvokeDynamic.getMethodRef() is unavailable
+                List.of() : // InvokeDynamic.getMethodRef() is unavailable
                 invoke.getMethodRef().resolve().getExceptions();
     }
 }

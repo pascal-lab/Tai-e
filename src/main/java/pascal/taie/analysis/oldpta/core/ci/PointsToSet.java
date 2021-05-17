@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 class PointsToSet implements Iterable<Obj> {
 

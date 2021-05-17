@@ -41,17 +41,16 @@ import soot.SootMethodRef;
 import soot.VoidType;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
-import static pascal.taie.util.collection.CollectionUtils.newConcurrentMap;
+import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
 
 /**
- * Convert Soot classes to Tai-e's representation.
+ * Converts Soot classes to Tai-e's representation.
  */
 class Converter {
 
@@ -165,7 +164,7 @@ class Converter {
     <S, T> Collection<T> convertCollection(
             Collection<S> collection, Function<S, T> mapper) {
         if (collection.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         } else {
             return collection.stream()
                     .map(mapper)

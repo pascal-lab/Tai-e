@@ -20,7 +20,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionUtils;
@@ -38,15 +37,13 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.MapUtils;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
 
 public class InvokedynamicPlugin implements Plugin {
 
@@ -70,12 +67,12 @@ public class InvokedynamicPlugin implements Plugin {
     /**
      * Map from method to the invokedynamic functional objects created in the method.
      */
-    private final Map<JMethod, Set<InvokedynamicObj>> invokedynamicObjs = newMap();
+    private final Map<JMethod, Set<InvokedynamicObj>> invokedynamicObjs = MapUtils.newMap();
 
     /**
      * Map from method find class variable to the indyCallEdgeInfos
      */
-    private final Map<Var, Set<indyCallEdgeInfo>> indyCallEdgeInfos = newMap();
+    private final Map<Var, Set<indyCallEdgeInfo>> indyCallEdgeInfos = MapUtils.newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -88,7 +85,7 @@ public class InvokedynamicPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewMethod(JMethod method) {
+    public void onNewMethod(JMethod method) {
         method.getIR().getStmts().forEach(stmt -> {
             if (stmt instanceof Invoke) {
                 Invoke invoke = (Invoke) stmt;
@@ -98,7 +95,7 @@ public class InvokedynamicPlugin implements Plugin {
         extractInvokeDynamics(method.getIR()).forEach(indy -> {
             Type type = indy.getMethodType().getReturnType();
             JMethod container = indy.getCallSite().getMethod();
-            addToMapSet(invokedynamicObjs, container,
+            MapUtils.addToMapSet(invokedynamicObjs, container,
                     new InvokedynamicObj(type, indy, container));
             System.out.println(invokedynamicObjs.values());
         });
@@ -114,7 +111,7 @@ public class InvokedynamicPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewCSMethod(CSMethod csMethod) {
+    public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         Set<InvokedynamicObj> indyObjs = invokedynamicObjs.get(method);
         if (indyObjs != null) {
@@ -191,7 +188,7 @@ public class InvokedynamicPlugin implements Plugin {
 //    }
 
     @Override
-    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof BSMCallEdge) {
             // 看看这里面能不能有足够信息获取到impl
             BSMCallEdge bsmCallEdge = (BSMCallEdge) edge;
@@ -209,7 +206,7 @@ public class InvokedynamicPlugin implements Plugin {
                     .filter(invoke -> isFindMethod(
                             invoke.getMethodRef().resolve().getSignature()) != 0)
                     .forEach(invoke ->
-                            addToMapSet(indyCallEdgeInfos,
+                            MapUtils.addToMapSet(indyCallEdgeInfos,
                                     invoke.getMethodRef().resolve().getIR().getParams().get(0),
                                     new indyCallEdgeInfo(
                                             isFindMethod(invoke.getMethodRef().resolve().getSignature()),
@@ -222,7 +219,7 @@ public class InvokedynamicPlugin implements Plugin {
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Var var = csVar.getVar();
         if (methodTypeModel.isRelevantVar(var)) {
             methodTypeModel.handleNewPointsToSet(csVar, pts);

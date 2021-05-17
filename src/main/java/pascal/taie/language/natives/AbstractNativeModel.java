@@ -13,7 +13,7 @@
 package pascal.taie.language.natives;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.core.heap.EnvObj;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.type.Type;
@@ -24,6 +24,8 @@ import static pascal.taie.language.classes.StringReps.THREAD;
 import static pascal.taie.language.classes.StringReps.THREAD_GROUP;
 
 abstract class AbstractNativeModel implements NativeModel {
+
+    private static final String OBJ_DESCR = "EnvObj";
 
     private final Obj mainThread;
 
@@ -37,17 +39,17 @@ abstract class AbstractNativeModel implements NativeModel {
 
     AbstractNativeModel(TypeManager typeManager,
                         ClassHierarchy hierarchy) {
-        mainThread = new EnvObj("<main-thread>",
-                typeManager.getClassType(THREAD), null);
-        systemThreadGroup = new EnvObj("<system-thread-group>",
-                typeManager.getClassType(THREAD_GROUP), null);
-        mainThreadGroup = new EnvObj("<main-thread-group>",
-                typeManager.getClassType(THREAD_GROUP), null);
+        mainThread = new MockObj(OBJ_DESCR, "<main-thread>",
+                typeManager.getClassType(THREAD));
+        systemThreadGroup = new MockObj(OBJ_DESCR, "<system-thread-group>",
+                typeManager.getClassType(THREAD_GROUP));
+        mainThreadGroup = new MockObj(OBJ_DESCR, "<main-thread-group>",
+                typeManager.getClassType(THREAD_GROUP));
         Type string = typeManager.getClassType(STRING);
         Type stringArray = typeManager.getArrayType(string, 1);
-        mainArgs = new EnvObj("<main-arguments>",
+        mainArgs = new MockObj(OBJ_DESCR, "<main-arguments>",
                 stringArray, World.getMainMethod());
-        mainArgsElem = new EnvObj("<main-arguments-element>",
+        mainArgsElem = new MockObj(OBJ_DESCR, "<main-arguments-element>",
                 string, World.getMainMethod());
     }
 

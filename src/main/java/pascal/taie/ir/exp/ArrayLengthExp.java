@@ -32,6 +32,11 @@ public class ArrayLengthExp implements UnaryExp {
     }
 
     @Override
+    public Var getOperand() {
+        return base;
+    }
+
+    @Override
     public PrimitiveType getType() {
         return PrimitiveType.INT;
     }

@@ -10,7 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.graph.callgraph;
 
-public class MapFlow<K, V> {
+interface CGBuilder<CallSite, Method> {
+
+    CallGraph<CallSite, Method> build();
 }

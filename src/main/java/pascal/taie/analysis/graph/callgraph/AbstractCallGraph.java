@@ -12,17 +12,16 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.CollectionView;
+import pascal.taie.util.collection.MapUtils;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSet;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.SetUtils.newSet;
 
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
@@ -51,8 +50,8 @@ public abstract class AbstractCallGraph<CallSite, Method>
     public void addEdge(CallSite callSite, Method callee, CallKind kind) {
         addNewMethod(callee);
         Edge<CallSite, Method> edge = new Edge<>(kind, callSite, callee);
-        CollectionUtils.addToMapSet(callSiteToEdges, callSite, edge);
-        CollectionUtils.addToMapSet(calleeToEdges, callee, edge);
+        MapUtils.addToMapSet(callSiteToEdges, callSite, edge);
+        MapUtils.addToMapSet(calleeToEdges, callee, edge);
     }
 
     /**
@@ -67,7 +66,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
         if (edges != null) {
             return CollectionView.of(edges, Edge::getCallee);
         } else {
-            return Collections.emptySet();
+            return Set.of();
         }
     }
 
@@ -77,7 +76,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
         if (edges != null) {
             return CollectionView.of(edges, Edge::getCallSite);
         } else {
-            return Collections.emptySet();
+            return Set.of();
         }
     }
 
@@ -88,12 +87,12 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public Collection<CallSite> getCallSitesIn(Method method) {
-        return callSitesIn.getOrDefault(method, Collections.emptySet());
+        return callSitesIn.getOrDefault(method, Set.of());
     }
 
     @Override
     public Collection<Edge<CallSite, Method>> getEdgesOf(CallSite callSite) {
-        return callSiteToEdges.getOrDefault(callSite, Collections.emptySet());
+        return callSiteToEdges.getOrDefault(callSite, Set.of());
     }
 
     @Override
@@ -104,6 +103,14 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
+    public int getNumberOfEdges() {
+        return callSiteToEdges.values()
+                .stream()
+                .mapToInt(Set::size)
+                .sum();
+    }
+
+    @Override
     public Collection<Method> getEntryMethods() {
         return entryMethods;
     }
@@ -111,6 +118,11 @@ public abstract class AbstractCallGraph<CallSite, Method>
     @Override
     public Stream<Method> reachableMethods() {
         return reachableMethods.stream();
+    }
+
+    @Override
+    public int getNumberOfMethods() {
+        return reachableMethods.size();
     }
 
     @Override

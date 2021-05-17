@@ -23,28 +23,28 @@ package pascal.taie.analysis;
 public interface ResultHolder {
 
     /**
-     * Store the analysis result with the analysis id.
+     * Stores the analysis result with the analysis id.
      */
-    void storeResult(String id, Object result);
+    <T> void storeResult(String id, T result);
 
     /**
-     * Given an analysis id, return the corresponding results.
+     * Given an analysis id, returns the corresponding results.
      */
-    Object getResult(String id);
+    <T> T getResult(String id);
 
     /**
      * If this holder contains the result for given analysis id,
      * then return the result, otherwise, return the given default result.
      */
-    Object getResult(String id, Object defaultResult);
+    <T> T getResult(String id, T defaultResult);
 
     /**
-     * Clear result of the analysis specified by given id.
+     * Clears result of the analysis specified by given id.
      */
     void clearResult(String id);
 
     /**
-     * Clear all cached results.
+     * Clears all cached results.
      */
     void clearAll();
 }

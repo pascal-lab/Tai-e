@@ -14,7 +14,6 @@ package pascal.taie;
 
 import org.junit.Assert;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,22 +23,22 @@ import java.util.Set;
 
 public class TestUtils {
     public static void testCP(String inputClass) {
-        test(inputClass, "constprop",
+        test(inputClass, "test-resources/dataflow/constprop/",
                 "pascal.taie.analysis.dataflow.clients.constprop.ResultChecker");
     }
 
     public static void testDCD(String inputClass) {
-        test(inputClass, "deadcode",
+        test(inputClass, "test-resources/dataflow/deadcode/",
                 "pascal.taie.analysis.dataflow.clients.deadcode.ResultChecker");
     }
 
     public static void testCHA(String inputClass) {
-        test(inputClass, "cha",
+        test(inputClass, "test-resources/cha/",
                 "pascal.taie.analysis.graph.callgraph.cha.ResultChecker");
     }
 
     public static void testOldPTA(String inputClass) {
-        test(inputClass, "pta",
+        test(inputClass, "test-resources/cspta/",
                 "pascal.taie.analysis.oldpta.core.ci.ResultChecker");
     }
 
@@ -50,7 +49,7 @@ public class TestUtils {
         optList.add("--no-implicit-entries");
         optList.add("--test-mode");
         optList.add("--"); // used by Tai'e to split Soot arguments
-        test(inputClass, "cspta",
+        test(inputClass, "test-resources/pta/cspta/",
                 "pascal.taie.analysis.oldpta.ResultChecker", optList);
     }
 
@@ -68,24 +67,18 @@ public class TestUtils {
         optList.add("-a");
         optList.add(ptaArg);
         optList.add("--test-mode");
-        test(inputClass, "cspta",
+        test(inputClass, "test-resources/pta/cspta/",
                 "pascal.taie.analysis.pta.ResultChecker", optList);
     }
 
     private static void test(String inputClass, String analysis, String checker) {
-        test(inputClass, analysis, checker, Collections.emptyList());
+        test(inputClass, analysis, checker, List.of());
     }
 
-    private static void test(String inputClass, String analysis,
+    private static void test(String inputClass, String classPath,
                              String checker, List<String> opts) {
-        String cp;
-        if (new File("test-resources/" + analysis).exists()) {
-            cp = "test-resources/" + analysis + "/";
-        } else {
-            cp = "test-resources/";
-        }
         List<String> args = new ArrayList<>(opts);
-        Collections.addAll(args, "-cp", cp);
+        Collections.addAll(args, "-cp", classPath);
         if (checker.contains(".pta.")) {
             args.add("-m");
         }
@@ -96,7 +89,7 @@ public class TestUtils {
             @SuppressWarnings("unchecked")
             Set<String> mismatches = (Set<String>) check.invoke(null,
                     args.toArray(new String[0]),
-                    cp + inputClass + "-expected.txt");
+                    classPath + inputClass + "-expected.txt");
             Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
         } catch (ClassNotFoundException
                 | NoSuchMethodException

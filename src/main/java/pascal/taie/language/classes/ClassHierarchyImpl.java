@@ -23,14 +23,13 @@ import pascal.taie.util.AnalysisException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridSet;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
-import static pascal.taie.util.collection.CollectionUtils.newSmallMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newSmallMap;
+import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 
@@ -317,14 +316,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             return true;
         } else if (subclass.isInterface()) {
             return superclass.isInterface() &&
-                    getAllSubinterfacesOf(superclass).contains(subclass);
+                    isSubinterface(superclass, subclass);
         } else {
             return isSubclass0(superclass, subclass);
         }
     }
 
     /**
-     * Obtain JClass representing java.lang.Object.
+     * Obtains JClass representing java.lang.Object.
      * Since the creation of JClass requires TypeManager, which may
      * not be initialized when class loaders are created,
      * we provide this method to retrieve Object class lazily.
@@ -339,26 +338,24 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return JavaLangObject;
     }
 
-    private Set<JClass> getAllSubinterfacesOf(JClass iface) {
-        assert iface.isInterface();
-        Set<JClass> result = allSubinterfaces.get(iface);
-        if (result == null) {
-            Set<JClass> directSubs = directSubinterfaces.get(iface);
-            if (directSubs == null) {
-                result = Collections.emptySet();
-            } else {
-                result = newHybridSet(directSubs);
-                for (JClass sub : directSubs) {
-                    result.addAll(getAllSubinterfacesOf(sub));
-                }
-            }
-            allSubinterfaces.put(iface, result);
+    /**
+     * Traverses class hierarchy to check if subiface is
+     * a subinterface of superiface.
+     */
+    private boolean isSubinterface(JClass superiface, JClass subiface) {
+        if (subiface.equals(superiface)) {
+            return true;
         }
-        return result;
+        for (JClass iface : subiface.getInterfaces()) {
+            if (isSubinterface(superiface, iface)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Traverse class hierarchy to check if subclass is a subclass of superclass.
+     * Traverses class hierarchy to check if subclass is a subclass of superclass.
      * TODO: optimize performance
      */
     private boolean isSubclass0(JClass superclass, JClass subclass) {
@@ -386,28 +383,34 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     public Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude) {
         // TODO: cache results?
         Set<JClass> subclasses = newHybridSet();
-        if (selfInclude) {
-            subclasses.add(jclass);
-        }
-        if (jclass.isInterface()) {
-            subclasses.addAll(getDirectImplementorsOf(jclass));
-            getAllSubinterfacesOf(jclass).forEach(subiface -> {
-                subclasses.add(subiface);
-                getDirectImplementorsOf(subiface).forEach(impl ->
-                        subclasses.addAll(getAllSubclassesOf(impl, true)));
-            });
-        } else {
-            getDirectSubClassesOf(jclass).forEach(subclass ->
-                    subclasses.addAll(getAllSubclassesOf(subclass, true)));
-        }
+        getAllSubclassesOf0(jclass, subclasses, selfInclude);
         return subclasses;
     }
 
+    private void getAllSubclassesOf0(JClass jclass, Set<JClass> result, boolean selfInclude) {
+        if (selfInclude) {
+            result.add(jclass);
+        }
+        if (jclass.isInterface()) {
+            getDirectSubinterfacesOf(jclass).forEach(subiface ->
+                    getAllSubclassesOf0(subiface, result, true));
+            getDirectImplementorsOf(jclass).forEach(impl ->
+                    getAllSubclassesOf0(impl, result, true));
+        } else {
+            getDirectSubClassesOf(jclass).forEach(subclass ->
+                    getAllSubclassesOf0(subclass, result, true));
+        }
+    }
+
+    private Collection<JClass> getDirectSubinterfacesOf(JClass jClass) {
+        return directSubinterfaces.getOrDefault(jClass, Set.of());
+    }
+
     private Collection<JClass> getDirectImplementorsOf(JClass jclass) {
-        return directImplementors.getOrDefault(jclass, Collections.emptySet());
+        return directImplementors.getOrDefault(jclass, Set.of());
     }
 
     private Collection<JClass> getDirectSubClassesOf(JClass jClass) {
-        return directSubclasses.getOrDefault(jClass, Collections.emptySet());
+        return directSubclasses.getOrDefault(jClass, Set.of());
     }
 }

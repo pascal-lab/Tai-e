@@ -13,15 +13,16 @@
 package pascal.taie.util.graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
- * Finding strongly connected components in a directed graph
- * using Tarjan's algorithm.
+ * Finds strongly connected components in a directed graph using
+ * Tarjan's algorithm.
  *
  * @param <N> type of nodes
  */
@@ -88,6 +89,9 @@ public class SCC<N> {
                 v2 = stack.pop();
                 scc.add(v2);
             } while (node != v2);
+            // Reverse SCC so that the nodes connected to predecessors
+            // (outside of the SCC) will be listed ahead.
+            Collections.reverse(scc);
             componentList.add(scc);
             if (scc.size() > 1) {
                 trueComponentList.add(scc);
@@ -101,7 +105,7 @@ public class SCC<N> {
     }
 
     /**
-     * Validate whether the number of nodes in all SCCs is
+     * Validates whether the number of nodes in all SCCs is
      * equal to the number of nodes in the given graph.
      */
     private void validate(Graph<N> graph, List<List<N>> SCCs) {

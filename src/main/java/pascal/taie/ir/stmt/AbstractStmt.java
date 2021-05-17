@@ -12,6 +12,11 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.ir.exp.Exp;
+
+import java.util.List;
+import java.util.Optional;
+
 abstract class AbstractStmt implements Stmt {
 
     protected int index = -1;
@@ -36,5 +41,15 @@ abstract class AbstractStmt implements Stmt {
     @Override
     public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
+    }
+
+    @Override
+    public Optional<Exp> getDef() {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of();
     }
 }

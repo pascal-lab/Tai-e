@@ -16,8 +16,6 @@ import pascal.taie.language.type.ArrayType;
 
 import java.util.List;
 
-import static pascal.taie.util.collection.CollectionUtils.freeze;
-
 /**
  * Representation of new multi-array expression, e.g., new T[..][..][..].
  */
@@ -29,7 +27,7 @@ public class NewMultiArray extends NewExp {
 
     public NewMultiArray(ArrayType type, List<Var> lengths) {
         this.type = type;
-        this.lengths = freeze(lengths);
+        this.lengths = List.copyOf(lengths);
     }
 
     @Override
@@ -47,6 +45,11 @@ public class NewMultiArray extends NewExp {
 
     public List<Var> getLengths() {
         return lengths;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.copyOf(lengths);
     }
 
     @Override

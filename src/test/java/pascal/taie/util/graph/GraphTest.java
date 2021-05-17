@@ -55,6 +55,13 @@ public class GraphTest {
         Assert.assertEquals(3, scc.getTrueComponents().size());
     }
 
+    @Test
+    public void testMergedSCC() {
+        Graph<Integer> g = readGraph("test-resources/util/graph-scc.txt");
+        MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(g);
+        Assert.assertEquals(7, mg.getNumberOfNodes());
+    }
+
     private static Graph<Integer> readGraph(String filePath) {
         SimpleGraph<Integer> graph = new SimpleGraph<>();
         try {

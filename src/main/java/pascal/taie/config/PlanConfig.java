@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,7 +93,7 @@ public class PlanConfig {
     }
 
     /**
-     * Read a list of PlanConfig from options.
+     * Reads a list of PlanConfig from options.
      */
     public static List<PlanConfig> readConfigs(Options options) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -110,7 +109,7 @@ public class PlanConfig {
                             .replace(":", ": ");
                     try {
                         Map<String, Object> optsMap = opts.isEmpty() ?
-                                Collections.emptyMap() :
+                                Map.of() :
                                 // Leverage Jackson to parse YAML string to Map
                                 mapper.readValue(opts, mapType);
                         return new PlanConfig(id, new AnalysisOptions(optsMap));
@@ -123,7 +122,7 @@ public class PlanConfig {
     }
 
     /**
-     * Write a list of PlanConfigs to given file.
+     * Writes a list of PlanConfigs to given file.
      */
     public static void writeConfigs(List<PlanConfig> planConfigs, File output) {
         ObjectMapper mapper = new ObjectMapper(

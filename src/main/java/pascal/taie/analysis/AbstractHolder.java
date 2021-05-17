@@ -14,7 +14,7 @@ package pascal.taie.analysis;
 
 import java.util.Map;
 
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
 
 /**
  * Implementation for {@link ResultHolder}.

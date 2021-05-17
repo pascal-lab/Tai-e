@@ -15,7 +15,7 @@ package pascal.taie.util;
 import java.util.Objects;
 
 /**
- * Avoid array creation of Objects.hash().
+ * Avoids array creation of Objects.hash().
  */
 public class HashUtils {
 
@@ -45,6 +45,16 @@ public class HashUtils {
         int result = o1.hashCode();
         result = 31 * result + o2.hashCode();
         result = 31 * result + o3.hashCode();
+        return result;
+    }
+
+    /**
+     * @return hash code of four objects, with null check.
+     */
+    public static int safeHash(Object o1, Object o2, Object o3) {
+        int result = Objects.hashCode(o1);
+        result = 31 * result + Objects.hashCode(o2);
+        result = 31 * result + Objects.hashCode(o3);
         return result;
     }
 

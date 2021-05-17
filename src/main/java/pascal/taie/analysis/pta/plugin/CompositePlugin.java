@@ -45,47 +45,47 @@ public class CompositePlugin implements Plugin {
     }
 
     @Override
-    public void preprocess() {
-        plugins.forEach(Plugin::preprocess);
+    public void onPreprocess() {
+        plugins.forEach(Plugin::onPreprocess);
     }
 
     @Override
-    public void initialize() {
-        plugins.forEach(Plugin::initialize);
+    public void onInitialize() {
+        plugins.forEach(Plugin::onInitialize);
     }
 
     @Override
-    public void finish() {
-        plugins.forEach(Plugin::finish);
+    public void onFinish() {
+        plugins.forEach(Plugin::onFinish);
     }
 
     @Override
-    public void postprocess() {
-        plugins.forEach(Plugin::postprocess);
+    public void onPostprocess() {
+        plugins.forEach(Plugin::onPostprocess);
     }
 
     @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        plugins.forEach(p -> p.handleNewPointsToSet(csVar, pts));
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        plugins.forEach(p -> p.onNewPointsToSet(csVar, pts));
     }
 
     @Override
-    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        plugins.forEach(p -> p.handleNewCallEdge(edge));
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        plugins.forEach(p -> p.onNewCallEdge(edge));
     }
 
     @Override
-    public void handleNewMethod(JMethod method) {
-        plugins.forEach(p -> p.handleNewMethod(method));
+    public void onNewMethod(JMethod method) {
+        plugins.forEach(p -> p.onNewMethod(method));
     }
 
     @Override
-    public void handleNewCSMethod(CSMethod csMethod) {
-        plugins.forEach(p -> p.handleNewCSMethod(csMethod));
+    public void onNewCSMethod(CSMethod csMethod) {
+        plugins.forEach(p -> p.onNewCSMethod(csMethod));
     }
 
     @Override
-    public void handleUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
-        plugins.forEach(p -> p.handleUnresolvedCall(recv, context, invoke));
+    public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+        plugins.forEach(p -> p.onUnresolvedCall(recv, context, invoke));
     }
 }

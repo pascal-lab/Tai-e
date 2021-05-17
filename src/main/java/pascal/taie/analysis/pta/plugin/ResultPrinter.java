@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 import static pascal.taie.util.Strings.streamToString;
 
 /**
- * Print pointer analysis results to specify output stream.
+ * Prints pointer analysis results to specify output stream.
  * This class is also used by ResultChecker. To ease the access from
  * ResultChecker, this class is implemented as singleton.
  */
@@ -67,7 +67,7 @@ public enum ResultPrinter implements Plugin {
     }
 
     @Override
-    public void postprocess() {
+    public void onPostprocess() {
         printResults(solver);
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(solver);
@@ -77,7 +77,7 @@ public enum ResultPrinter implements Plugin {
     private void printResults(Solver solver) {
         if (World.getOptions().isTestMode()) {
             printPointers(solver);
-        } else if (solver.getOptions().getBoolean("output-results")) {
+        } else if (solver.getOptions().getBoolean("dump-results")) {
             String path = solver.getOptions().getString("output-file");
             if (path != null) {
                 try {

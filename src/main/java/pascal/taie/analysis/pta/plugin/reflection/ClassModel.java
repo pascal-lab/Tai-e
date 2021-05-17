@@ -16,6 +16,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -40,14 +41,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.CollectionUtils.addToMapSet;
-import static pascal.taie.util.collection.CollectionUtils.newHybridMap;
-import static pascal.taie.util.collection.CollectionUtils.newMap;
+import static pascal.taie.util.collection.MapUtils.addToMapSet;
+import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
- * Model APIs of java.lang.Class.
+ * Models APIs of java.lang.Class.
  */
 class ClassModel {
+
+    /**
+     * Description for reflection meta objects.
+     */
+    private final String DESCR = "ReflectionMetaObj";
 
     private final Solver solver;
 
@@ -76,7 +82,7 @@ class ClassModel {
 
     private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
 
-    private final Map<ClassMember, ReflectionObj> refObjs = newMap();
+    private final Map<ClassMember, MockObj> refObjs = newMap();
 
     public ClassModel(Solver solver) {
         this.solver = solver;
@@ -259,7 +265,7 @@ class ClassModel {
     }
 
     /**
-     * Convert a CSObj of class to corresponding JClass. If the object is
+     * Converts a CSObj of class to corresponding JClass. If the object is
      * not a class constant, then return null.
      */
     private @Nullable JClass toClass(CSObj csObj) {
@@ -277,7 +283,7 @@ class ClassModel {
     }
 
     /**
-     * Convert a CSObj of string constant to corresponding String.
+     * Converts a CSObj of string constant to corresponding String.
      * If the object is not a string constant, then return null.
      */
     private static @Nullable String toString(CSObj csObj) {
@@ -286,16 +292,16 @@ class ClassModel {
                 ((StringLiteral) alloc).getString() : null;
     }
 
-    private ReflectionObj getReflectionObj(ClassMember member) {
-        return refObjs.computeIfAbsent(member, m -> {
-            if (m instanceof JMethod) {
-                if (((JMethod) m).isConstructor()) {
-                    return new ReflectionObj(constructor, m);
+    private MockObj getReflectionObj(ClassMember member) {
+        return refObjs.computeIfAbsent(member, mbr -> {
+            if (mbr instanceof JMethod) {
+                if (((JMethod) mbr).isConstructor()) {
+                    return new MockObj(DESCR, mbr, constructor);
                 } else {
-                    return new ReflectionObj(method, m);
+                    return new MockObj(DESCR, mbr, method);
                 }
             } else {
-                return new ReflectionObj(field, m);
+                return new MockObj(DESCR, mbr, field);
             }
         });
     }

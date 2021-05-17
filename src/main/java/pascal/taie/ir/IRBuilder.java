@@ -22,7 +22,7 @@ import pascal.taie.language.classes.JMethod;
 public interface IRBuilder {
 
     /**
-     * Build IR for concrete methods.
+     * Builds IR for concrete methods.
      */
     IR buildIR(JMethod method);
 
@@ -30,7 +30,7 @@ public interface IRBuilder {
     PTAIR buildPTAIR(JMethod method);
 
     /**
-     * Build IR for all methods in the given hierarchy.
+     * Builds IR for all methods in the given hierarchy.
      */
     void buildAll(ClassHierarchy hierarchy);
 

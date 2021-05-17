@@ -16,6 +16,8 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 
+import java.util.List;
+
 public abstract class AbstractBinaryExp implements BinaryExp {
 
     protected final Var value1;
@@ -29,7 +31,7 @@ public abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     /**
-     * Validate type correctness of the two values of this expression.
+     * Validates type correctness of the two values of this expression.
      */
     protected void validate() {
     }
@@ -42,6 +44,11 @@ public abstract class AbstractBinaryExp implements BinaryExp {
     @Override
     public Var getValue2() {
         return value2;
+    }
+
+    @Override
+    public List<Exp> getUses() {
+        return List.of(value1, value2);
     }
 
     @Override

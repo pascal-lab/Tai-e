@@ -10,12 +10,11 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.dfa.ipa;
 
-import pascal.taie.analysis.graph.cfg.CFG;
+public class CallEdge<Node> extends ICFGEdge<Node> {
 
-public interface Solver<Node, Flow> {
-
-    DataFlowResult<Node, Flow> solve(DataFlowAnalysis<Node, Flow> analysis,
-                                     CFG<Node> cfg);
+    CallEdge(Node source, Node target) {
+        super(Kind.CALL, source, target);
+    }
 }
