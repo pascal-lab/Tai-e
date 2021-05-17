@@ -17,7 +17,7 @@
 []:<NativeModel: void doPrivileged()>/temp$0 -> {[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}}
 []:<NativeModel: void doPrivileged()>/temp$1 -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
 []:<NativeModel: void doPrivileged()>/temp$2 -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
-[]:<NativeModel: void main(java.lang.String[])>/args -> {[]:EnvObj{<NativeModel: void main(java.lang.String[])>/<main-arguments>}}
+[]:<NativeModel: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}}
 []:<NativeModel: void objectClone()>/a -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
 []:<NativeModel: void objectClone()>/o -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
 []:<NativeModel: void objectClone()>/temp$0 -> {[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}}
@@ -34,7 +34,7 @@
 []:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/%native-ret -> {[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{<NativeModel: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<NativeModel: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <NativeModel: void main(java.lang.String[])>}}
 []:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconstant0]}[*] -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
 []:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconstant1]}[*] -> {[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}}
 ---------- Points-to sets of all static fields: ----------

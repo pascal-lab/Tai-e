@@ -4,7 +4,7 @@
 []:<Array: void arrayStore(java.lang.Object[],java.lang.Object)>/o -> {[]:NewObj{<Array: void main(java.lang.String[])>:18(@L10)/new A}}
 []:<Array: void arrayStore(java.lang.Object[],java.lang.Object)>/temp$0 -> {[]:NewObj{<Array: void main(java.lang.String[])>:17(@L9)/newarray (B)[%intconstant1]}}
 []:<Array: void main(java.lang.String[])>/a -> {[]:NewObj{<Array: void main(java.lang.String[])>:4(@L5)/new A},[]:NewObj{<Array: void main(java.lang.String[])>:9(@L6)/new A}}
-[]:<Array: void main(java.lang.String[])>/args -> {[]:EnvObj{<Array: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Array: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Array: void main(java.lang.String[])>}}
 []:<Array: void main(java.lang.String[])>/arr -> {[]:NewObj{<Array: void main(java.lang.String[])>:1(@L4)/newarray (A)[%intconstant0]}}
 []:<Array: void main(java.lang.String[])>/barr -> {[]:NewObj{<Array: void main(java.lang.String[])>:17(@L9)/newarray (B)[%intconstant1]}}
 []:<Array: void main(java.lang.String[])>/o -> {}
@@ -19,7 +19,7 @@
 []:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Array: void main(java.lang.String[])>:18(@L10)/new A},[]:NewObj{<Array: void main(java.lang.String[])>:4(@L5)/new A},[]:NewObj{<Array: void main(java.lang.String[])>:9(@L6)/new A}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{<Array: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Array: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Array: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Array: void main(java.lang.String[])>}}
 []:NewObj{<Array: void main(java.lang.String[])>:1(@L4)/newarray (A)[%intconstant0]}[*] -> {[]:NewObj{<Array: void main(java.lang.String[])>:4(@L5)/new A},[]:NewObj{<Array: void main(java.lang.String[])>:9(@L6)/new A}}
 []:NewObj{<Array: void main(java.lang.String[])>:17(@L9)/newarray (B)[%intconstant1]}[*] -> {}
 ---------- Points-to sets of all static fields: ----------

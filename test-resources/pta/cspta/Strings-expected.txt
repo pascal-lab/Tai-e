@@ -3,7 +3,7 @@
 []:<Strings: java.lang.String id(java.lang.String)>/s -> {[]:ConstantObj{java.lang.String: "aaa"}}
 []:<Strings: void main(java.lang.String[])>/%stringconstant0 -> {[]:ConstantObj{java.lang.String: "aaa"}}
 []:<Strings: void main(java.lang.String[])>/a -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
-[]:<Strings: void main(java.lang.String[])>/args -> {[]:EnvObj{<Strings: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Strings: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Strings: void main(java.lang.String[])>}}
 []:<Strings: void main(java.lang.String[])>/arr -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
 []:<Strings: void main(java.lang.String[])>/s1 -> {[]:ConstantObj{java.lang.String: "aaa"}}
 []:<Strings: void main(java.lang.String[])>/s2 -> {[]:ConstantObj{java.lang.String: "bbb"}}
@@ -24,7 +24,7 @@
 ---------- Points-to sets of all instance fields: ----------
 []:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}.f -> {[]:ConstantObj{java.lang.String: "bbb"}}
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{<Strings: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Strings: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Strings: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Strings: void main(java.lang.String[])>}}
 []:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}[*] -> {[]:ConstantObj{java.lang.String: "ddd"}}
 ---------- Points-to sets of all static fields: ----------
 <A: java.lang.String sf> -> {[]:ConstantObj{java.lang.String: "ccc"}}

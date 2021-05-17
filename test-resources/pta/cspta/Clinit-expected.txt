@@ -5,7 +5,7 @@
 []:<C: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "C"}}
 []:<C: void <init>()>/%this -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:6(@L13)/new D}}
 []:<Clinit: void <clinit>()>/s -> {[]:ConstantObj{java.lang.String: "Clinit"}}
-[]:<Clinit: void main(java.lang.String[])>/args -> {[]:EnvObj{<Clinit: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Clinit: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}}
 []:<Clinit: void main(java.lang.String[])>/barr -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2]}}
 []:<Clinit: void main(java.lang.String[])>/s -> {}
 []:<Clinit: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:0(@L11)/new A}}
@@ -29,9 +29,9 @@
 []:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{<Clinit: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Clinit: void main(java.lang.String[])>/<main-arguments-element>}}
-[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newarray (B[])[%intconstant1]}[*] -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newarray (B)[%intconstant2]}}
-[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2]}[*] -> {[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newarray (B[])[%intconstant1]}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Clinit: void main(java.lang.String[])>}}
+[]:MultiArrayObj{alloc=barr = newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2], type=B[][] in <Clinit: void main(java.lang.String[])>}[*] -> {[]:MultiArrayObj{alloc=barr = newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2], type=B[] in <Clinit: void main(java.lang.String[])>}}
+[]:NewObj{<Clinit: void main(java.lang.String[])>:5(@L12)/newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2]}[*] -> {[]:MultiArrayObj{alloc=barr = newmultiarray (B)[%intconstant0][%intconstant1][%intconstant2], type=B[][] in <Clinit: void main(java.lang.String[])>}}
 ---------- Points-to sets of all static fields: ----------
 <E: java.lang.String f> -> {[]:ConstantObj{java.lang.String: "x"}}
 <F: java.lang.String f> -> {}

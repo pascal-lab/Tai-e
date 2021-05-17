@@ -48,24 +48,30 @@ public class ResultChecker {
      * If generate expected results.
      */
     private static final boolean GENERATE_EXPECTED_RESULTS = false;
+
     /**
      * The current result checker
      */
     private static ResultChecker checker;
+
     // ---------- instance members ----------
     /**
      * File path of expected results.
      */
     private final Path filePath;
+
     /**
      * Mismatched results.
      */
     private final Set<String> mismatches = new TreeSet<>();
+
     /**
      * The stream used to capture actual outputs.
      */
     private ByteArrayOutputStream outputStream;
+
     private PrintStream printStream;
+
     /**
      * Map from pointer to its points-to set
      */
