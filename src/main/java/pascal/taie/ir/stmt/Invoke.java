@@ -35,6 +35,11 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
 
     private final Var result;
 
+    /**
+     * The method containing this invoke statement.
+     */
+    private final JMethod container;
+
     public Invoke(JMethod method, InvokeExp invokeExp, Var result) {
         this.invokeExp = invokeExp;
         this.result = result;
@@ -42,6 +47,7 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
             Var base = ((InvokeInstanceExp) invokeExp).getBase();
             base.addInvoke(this);
         }
+        this.container = method;
         invokeExp.setCallSite(new ProgramPoint(method, this));
     }
 
@@ -73,6 +79,10 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
 
     public boolean isStatic() {
         return invokeExp instanceof InvokeStatic;
+    }
+
+    public JMethod getContainer() {
+        return container;
     }
 
     @Override

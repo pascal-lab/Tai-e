@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -46,7 +47,6 @@ import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
-import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.ReferenceLiteral;
@@ -93,6 +93,11 @@ import static pascal.taie.util.collection.SetUtils.newSet;
 public class SolverImpl implements Solver {
 
     private static final Logger logger = LogManager.getLogger(SolverImpl.class);
+
+    /**
+     * Description for array objects created implicitly by multiarray instruction.
+     */
+    private static final String MULTI_ARRAY_DESC = "MultiArrayObj";
 
     private AnalysisOptions options;
 
@@ -597,7 +602,7 @@ public class SolverImpl implements Solver {
 
         private Context context;
 
-        private final Map<NewMultiArray, NewArray[]> newArrays = newMap();
+        private final Map<NewMultiArray, MockObj[]> newArrays = newMap();
 
         private final JMethod finalize = hierarchy.getJREMethod(FINALIZE);
 
@@ -617,36 +622,36 @@ public class SolverImpl implements Solver {
         public void visit(New stmt) {
             // obtain context-sensitive heap object
             NewExp rvalue = stmt.getRValue();
-            Obj obj = heapModel.getObj(rvalue);
+            Obj obj = heapModel.getObj(stmt);
             Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
             addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
             if (rvalue instanceof NewMultiArray) {
-                processNewMultiArray((NewMultiArray) rvalue, heapContext, obj);
+                processNewMultiArray(stmt, heapContext, obj);
             }
             if (hasOverriddenFinalize(rvalue)) {
                 processFinalizer(stmt);
             }
         }
 
-        private void processNewMultiArray(NewMultiArray newMultiArray,
-                                          Context arrayContext, Obj array) {
-            NewArray[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
+        private void processNewMultiArray(
+                New allocSite, Context arrayContext, Obj array) {
+            NewMultiArray newMultiArray = (NewMultiArray) allocSite.getRValue();
+            MockObj[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
                 ArrayType type = nma.getType();
-                NewArray[] newArrays = new NewArray[nma.getLengthCount() - 1];
+                MockObj[] newArrays = new MockObj[nma.getLengthCount() - 1];
                 for (int i = 1; i < nma.getLengthCount(); ++i) {
                     type = (ArrayType) type.getElementType();
-                    NewArray newArray = new NewArray(type, nma.getLength(i));
-                    newArray.setAllocationSite(nma.getAllocationSite());
-                    newArrays[i - 1] = newArray;
+                    newArrays[i - 1] = new MockObj(MULTI_ARRAY_DESC,
+                            allocSite, type, allocSite.getContainer());
                 }
                 return newArrays;
             });
-            for (NewArray newArray : arrays) {
-                Obj elem = heapModel.getObj(newArray);
+            for (MockObj newArray : arrays) {
+                // TODO: process the newArray by heapModel?
                 Context elemContext = contextSelector
-                        .selectHeapContext(csMethod, elem);
-                addArrayPointsTo(arrayContext, array, elemContext, elem);
-                array = elem;
+                        .selectHeapContext(csMethod, newArray);
+                addArrayPointsTo(arrayContext, array, elemContext, newArray);
+                array = newArray;
                 arrayContext = elemContext;
             }
         }

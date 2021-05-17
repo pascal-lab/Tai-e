@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Representation of new array expression, e.g., new T[..].
  */
-public class NewArray extends NewExp {
+public class NewArray implements NewExp {
 
     private final ArrayType type;
 
