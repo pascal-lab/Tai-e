@@ -16,6 +16,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -49,6 +50,11 @@ import static pascal.taie.util.collection.MapUtils.newMap;
  */
 class ClassModel {
 
+    /**
+     * Description for reflection meta objects.
+     */
+    private final String DESCR = "ReflectionMetaObj";
+
     private final Solver solver;
 
     private final ClassHierarchy hierarchy;
@@ -76,7 +82,7 @@ class ClassModel {
 
     private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
 
-    private final Map<ClassMember, ReflectionObj> refObjs = newMap();
+    private final Map<ClassMember, MockObj> refObjs = newMap();
 
     public ClassModel(Solver solver) {
         this.solver = solver;
@@ -286,16 +292,16 @@ class ClassModel {
                 ((StringLiteral) alloc).getString() : null;
     }
 
-    private ReflectionObj getReflectionObj(ClassMember member) {
-        return refObjs.computeIfAbsent(member, m -> {
-            if (m instanceof JMethod) {
-                if (((JMethod) m).isConstructor()) {
-                    return new ReflectionObj(constructor, m);
+    private MockObj getReflectionObj(ClassMember member) {
+        return refObjs.computeIfAbsent(member, mbr -> {
+            if (mbr instanceof JMethod) {
+                if (((JMethod) mbr).isConstructor()) {
+                    return new MockObj(DESCR, mbr, constructor);
                 } else {
-                    return new ReflectionObj(method, m);
+                    return new MockObj(DESCR, mbr, method);
                 }
             } else {
-                return new ReflectionObj(field, m);
+                return new MockObj(DESCR, mbr, field);
             }
         });
     }
