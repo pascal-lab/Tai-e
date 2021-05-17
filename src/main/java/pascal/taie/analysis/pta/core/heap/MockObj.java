@@ -44,6 +44,10 @@ public class MockObj implements Obj {
         this(descr, alloc, type, null);
     }
 
+    public MockObj(Object alloc, Type type, JMethod container) {
+        this(null, alloc, type, container);
+    }
+
     public MockObj(Object alloc, Type type) {
         this(null, alloc, type);
     }
@@ -93,13 +97,13 @@ public class MockObj implements Obj {
         StringBuilder sb = new StringBuilder();
         if (descr != null) {
             sb.append(descr).append('{')
-                    .append("alloc=").append(alloc);
+                    .append("alloc=").append(alloc).append(", ");
         } else {
             sb.append(alloc).append('{');
         }
-        sb.append(", type=").append(type);
+        sb.append("type=").append(type);
         if (container != null) {
-            sb.append(", in ").append(container);
+            sb.append(" in ").append(container);
         }
         sb.append("}");
         return sb.toString();

@@ -13,7 +13,7 @@
 package pascal.taie.language.natives;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.core.heap.EnvObj;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.type.Type;
@@ -37,17 +37,17 @@ abstract class AbstractNativeModel implements NativeModel {
 
     AbstractNativeModel(TypeManager typeManager,
                         ClassHierarchy hierarchy) {
-        mainThread = new EnvObj("<main-thread>",
-                typeManager.getClassType(THREAD), null);
-        systemThreadGroup = new EnvObj("<system-thread-group>",
-                typeManager.getClassType(THREAD_GROUP), null);
-        mainThreadGroup = new EnvObj("<main-thread-group>",
-                typeManager.getClassType(THREAD_GROUP), null);
+        mainThread = new MockObj("<main-thread>",
+                typeManager.getClassType(THREAD));
+        systemThreadGroup = new MockObj("<system-thread-group>",
+                typeManager.getClassType(THREAD_GROUP));
+        mainThreadGroup = new MockObj("<main-thread-group>",
+                typeManager.getClassType(THREAD_GROUP));
         Type string = typeManager.getClassType(STRING);
         Type stringArray = typeManager.getArrayType(string, 1);
-        mainArgs = new EnvObj("<main-arguments>",
+        mainArgs = new MockObj("<main-arguments>",
                 stringArray, World.getMainMethod());
-        mainArgsElem = new EnvObj("<main-arguments-element>",
+        mainArgsElem = new MockObj("<main-arguments-element>",
                 string, World.getMainMethod());
     }
 
