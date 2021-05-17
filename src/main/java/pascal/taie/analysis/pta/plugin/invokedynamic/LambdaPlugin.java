@@ -149,7 +149,8 @@ public class LambdaPlugin implements Plugin {
     public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
         if (isLambdaObj(recv.getObject())) {
             MockObj lambdaObj = (MockObj) recv.getObject();
-            InvokeDynamic indy = (InvokeDynamic) lambdaObj.getAllocation();
+            Invoke indyInvoke = (Invoke) lambdaObj.getAllocation();
+            InvokeDynamic indy = (InvokeDynamic) indyInvoke.getInvokeExp();
             List<Var> actualParams = invoke.getInvokeExp().getArgs();
             List<Var> capturedValues = indy.getArgs();
             Var invokeResult = invoke.getResult();
