@@ -96,30 +96,34 @@ public class LambdaPlugin implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        extractLambdaMetaFactories(method.getIR()).forEach(indy -> {
+        extractLambdaMetaFactories(method.getIR()).forEach(invoke -> {
+            InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
             Type type = indy.getMethodType().getReturnType();
-            JMethod container = indy.getCallSite().getMethod();
+            JMethod container = invoke.getContainer();
             // record lambda meta factories of new discovered methods
             addToMapSet(lambdaObjs, container,
-                    new MockObj(LAMBDA_DESC, indy, type, container));
+                    new MockObj(LAMBDA_DESC, invoke, type, container));
             // System.out.println(lambdaObjs.values());
         });
     }
 
-    private static Stream<InvokeDynamic> extractLambdaMetaFactories(IR ir) {
+    private static Stream<Invoke> extractLambdaMetaFactories(IR ir) {
         return ir.getStmts()
                 .stream()
-                .filter(s -> s instanceof Invoke &&
-                        ((Invoke) s).getInvokeExp() instanceof InvokeDynamic)
-                .map(s -> (InvokeDynamic) ((Invoke) s).getInvokeExp())
+                .filter(s -> s instanceof Invoke)
+                .map(s -> (Invoke) s)
                 .filter(LambdaPlugin::isLambdaMetaFactory);
     }
 
-    static boolean isLambdaMetaFactory(InvokeDynamic indy) {
-        JMethod bsm = indy.getBootstrapMethodRef().resolve();
-        String bsmSig = bsm.getSignature();
-        return bsmSig.equals(StringReps.LAMBDA_METAFACTORY) ||
-                bsmSig.equals(StringReps.LAMBDA_ALTMETAFACTORY);
+    static boolean isLambdaMetaFactory(Invoke invoke) {
+        if (invoke.getInvokeExp() instanceof InvokeDynamic) {
+            JMethod bsm = ((InvokeDynamic) invoke.getInvokeExp())
+                    .getBootstrapMethodRef().resolve();
+            String bsmSig = bsm.getSignature();
+            return bsmSig.equals(StringReps.LAMBDA_METAFACTORY) ||
+                    bsmSig.equals(StringReps.LAMBDA_ALTMETAFACTORY);
+        }
+        return false;
     }
 
     @Override
@@ -130,8 +134,8 @@ public class LambdaPlugin implements Plugin {
             Context context = csMethod.getContext();
             lambdas.forEach(lambdaObj -> {
                 // propagate lambda functional objects
-                InvokeDynamic indy = (InvokeDynamic) lambdaObj.getAllocation();
-                Invoke invoke = (Invoke) indy.getCallSite().getStmt();
+                Invoke invoke = (Invoke) lambdaObj.getAllocation();
+                InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
                 Var ret = invoke.getResult();
                 // here we use full method context as the heap context of
                 // lambda object, so that it can be directly used to obtain

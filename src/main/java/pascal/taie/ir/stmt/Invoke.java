@@ -18,7 +18,6 @@ import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.ir.proginfo.ProgramPoint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.ListUtils;
 
@@ -48,7 +47,6 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
             base.addInvoke(this);
         }
         this.container = method;
-        invokeExp.setCallSite(new ProgramPoint(method, this));
     }
 
     public Invoke(JMethod method, InvokeExp invokeExp) {
