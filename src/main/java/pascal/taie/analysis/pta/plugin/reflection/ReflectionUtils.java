@@ -25,24 +25,24 @@ public class ReflectionUtils {
     private ReflectionUtils() {
     }
 
-    static Stream<JMethod> getDeclaredConstructors(JClass jclass) {
+    public static Stream<JMethod> getDeclaredConstructors(JClass jclass) {
         return jclass.getDeclaredMethods()
                 .stream()
                 .filter(JMethod::isConstructor);
     }
 
-    static Stream<JMethod> getConstructors(JClass jclass) {
+    public static Stream<JMethod> getConstructors(JClass jclass) {
         return getDeclaredConstructors(jclass).filter(ClassMember::isPublic);
     }
 
-    static Stream<JMethod> getDeclaredMethods(JClass jclass, String methodName) {
+    public static Stream<JMethod> getDeclaredMethods(JClass jclass, String methodName) {
         return jclass.getDeclaredMethods()
                 .stream()
                 .filter(m -> m.getName().equals(methodName) &&
                         !m.isConstructor());
     }
 
-    static Stream<JMethod> getMethods(JClass jclass, String methodName) {
+    public static Stream<JMethod> getMethods(JClass jclass, String methodName) {
         List<JMethod> methods = new ArrayList<>();
         while (jclass != null) {
             jclass.getDeclaredMethods()
