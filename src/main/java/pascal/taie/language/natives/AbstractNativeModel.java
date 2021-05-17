@@ -25,6 +25,8 @@ import static pascal.taie.language.classes.StringReps.THREAD_GROUP;
 
 abstract class AbstractNativeModel implements NativeModel {
 
+    private static final String OBJ_DESCR = "EnvObj";
+
     private final Obj mainThread;
 
     private final Obj systemThreadGroup;
@@ -37,17 +39,17 @@ abstract class AbstractNativeModel implements NativeModel {
 
     AbstractNativeModel(TypeManager typeManager,
                         ClassHierarchy hierarchy) {
-        mainThread = new MockObj("<main-thread>",
+        mainThread = new MockObj(OBJ_DESCR, "<main-thread>",
                 typeManager.getClassType(THREAD));
-        systemThreadGroup = new MockObj("<system-thread-group>",
+        systemThreadGroup = new MockObj(OBJ_DESCR, "<system-thread-group>",
                 typeManager.getClassType(THREAD_GROUP));
-        mainThreadGroup = new MockObj("<main-thread-group>",
+        mainThreadGroup = new MockObj(OBJ_DESCR, "<main-thread-group>",
                 typeManager.getClassType(THREAD_GROUP));
         Type string = typeManager.getClassType(STRING);
         Type stringArray = typeManager.getArrayType(string, 1);
-        mainArgs = new MockObj("<main-arguments>",
+        mainArgs = new MockObj(OBJ_DESCR, "<main-arguments>",
                 stringArray, World.getMainMethod());
-        mainArgsElem = new MockObj("<main-arguments-element>",
+        mainArgsElem = new MockObj(OBJ_DESCR, "<main-arguments-element>",
                 string, World.getMainMethod());
     }
 

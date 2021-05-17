@@ -44,12 +44,8 @@ public class MockObj implements Obj {
         this(descr, alloc, type, null);
     }
 
-    public MockObj(Object alloc, Type type, JMethod container) {
-        this(null, alloc, type, container);
-    }
-
-    public MockObj(Object alloc, Type type) {
-        this(null, alloc, type);
+    public String getDescription() {
+        return descr;
     }
 
     @Override
@@ -82,7 +78,7 @@ public class MockObj implements Obj {
             return false;
         }
         MockObj that = (MockObj) o;
-        return Objects.equals(descr, that.descr) &&
+        return descr.equals(that.descr) &&
                 alloc.equals(that.alloc) &&
                 type.equals(that.type);
     }
@@ -94,13 +90,8 @@ public class MockObj implements Obj {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (descr != null) {
-            sb.append(descr).append('{')
-                    .append("alloc=").append(alloc).append(", ");
-        } else {
-            sb.append(alloc).append('{');
-        }
+        StringBuilder sb = new StringBuilder(descr).append('{');
+        sb.append("alloc=").append(alloc).append(", ");
         sb.append("type=").append(type);
         if (container != null) {
             sb.append(" in ").append(container);
