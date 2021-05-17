@@ -53,7 +53,7 @@ class ClassModel {
     /**
      * Description for reflection meta objects.
      */
-    private final String DESCR = "ReflectionMetaObj";
+    private final String META_DESC = "ReflectionMetaObj";
 
     private final Solver solver;
 
@@ -296,12 +296,12 @@ class ClassModel {
         return refObjs.computeIfAbsent(member, mbr -> {
             if (mbr instanceof JMethod) {
                 if (((JMethod) mbr).isConstructor()) {
-                    return new MockObj(DESCR, mbr, constructor);
+                    return new MockObj(META_DESC, mbr, constructor);
                 } else {
-                    return new MockObj(DESCR, mbr, method);
+                    return new MockObj(META_DESC, mbr, method);
                 }
             } else {
-                return new MockObj(DESCR, mbr, field);
+                return new MockObj(META_DESC, mbr, field);
             }
         });
     }
