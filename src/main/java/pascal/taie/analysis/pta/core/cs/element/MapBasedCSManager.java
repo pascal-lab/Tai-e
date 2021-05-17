@@ -15,8 +15,8 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
-import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapUtils;
@@ -40,7 +40,7 @@ public class MapBasedCSManager implements CSManager {
     private final Map<CSObj, ArrayIndex> arrayIndexes = newMap();
     private final Map<JField, StaticField> staticFields = newMap();
     private final Map<Obj, Map<Context, CSObj>> objs = newMap();
-    private final Map<InvokeExp, Map<Context, CSCallSite>> callSites = newMap();
+    private final Map<Invoke, Map<Context, CSCallSite>> callSites = newMap();
     private final Map<JMethod, Map<Context, CSMethod>> methods = newMap();
 
     private static <R, Key1, Key2> R getOrCreateCSElement(
@@ -79,7 +79,7 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public CSCallSite getCSCallSite(Context context, InvokeExp callSite) {
+    public CSCallSite getCSCallSite(Context context, Invoke callSite) {
         return getOrCreateCSElement(callSites, callSite, context, CSCallSite::new);
     }
 

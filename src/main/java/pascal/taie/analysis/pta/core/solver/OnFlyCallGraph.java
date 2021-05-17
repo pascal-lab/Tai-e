@@ -18,7 +18,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
@@ -95,9 +94,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         List<CSCallSite> callSites = new ArrayList<>();
         for (Stmt s : method.getIR().getStmts()) {
             if (s instanceof Invoke) {
-                InvokeExp callSite = ((Invoke) s).getInvokeExp();
-                CSCallSite csCallSite = csManager
-                        .getCSCallSite(context, callSite);
+                CSCallSite csCallSite = csManager.getCSCallSite(context, (Invoke) s);
                 callSites.add(csCallSite);
             }
         }

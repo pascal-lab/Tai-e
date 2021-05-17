@@ -14,7 +14,7 @@ package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.stmt.Invoke;
 
 import java.util.Set;
 
@@ -22,7 +22,7 @@ import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 public class CSCallSite extends AbstractCSElement {
 
-    private final InvokeExp callSite;
+    private final Invoke callSite;
     /**
      * Context-sensitive method which contains this CS call site.
      */
@@ -32,12 +32,12 @@ public class CSCallSite extends AbstractCSElement {
      */
     private final Set<Edge<CSCallSite, CSMethod>> edges = newHybridSet();
 
-    CSCallSite(InvokeExp callSite, Context context) {
+    CSCallSite(Invoke callSite, Context context) {
         super(context);
         this.callSite = callSite;
     }
 
-    public InvokeExp getCallSite() {
+    public Invoke getCallSite() {
         return callSite;
     }
 

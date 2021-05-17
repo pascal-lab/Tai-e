@@ -480,8 +480,7 @@ public class SolverImpl implements Solver {
     private void processCall(CSVar recv, PointsToSet pts) {
         Context context = recv.getContext();
         Var var = recv.getVar();
-        for (Invoke invoke : var.getInvokes()) {
-            InvokeExp callSite = invoke.getInvokeExp();
+        for (Invoke callSite : var.getInvokes()) {
             for (CSObj recvObj : pts) {
                 // resolve callee
                 JMethod callee = resolveCallee(
@@ -500,7 +499,7 @@ public class SolverImpl implements Solver {
                             calleeContext, callee.getIR().getThis());
                     addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
                 } else {
-                    plugin.onUnresolvedCall(recvObj, context, invoke);
+                    plugin.onUnresolvedCall(recvObj, context, callSite);
                 }
             }
         }
@@ -516,12 +515,13 @@ public class SolverImpl implements Solver {
             processNewCSMethod(csCallee);
             if (edge.getKind() != CallKind.OTHER) {
                 Context callerCtx = edge.getCallSite().getContext();
-                InvokeExp callSite = edge.getCallSite().getCallSite();
+                Invoke callSite = edge.getCallSite().getCallSite();
                 Context calleeCtx = csCallee.getContext();
                 JMethod callee = csCallee.getMethod();
+                InvokeExp invokeExp = callSite.getInvokeExp();
                 // pass arguments to parameters
-                for (int i = 0; i < callSite.getArgCount(); ++i) {
-                    Var arg = callSite.getArg(i);
+                for (int i = 0; i < invokeExp.getArgCount(); ++i) {
+                    Var arg = invokeExp.getArg(i);
                     if (isConcerned(arg)) {
                         Var param = callee.getIR().getParam(i);
                         CSVar argVar = csManager.getCSVar(callerCtx, arg);
@@ -530,8 +530,7 @@ public class SolverImpl implements Solver {
                     }
                 }
                 // pass results to LHS variable
-                Invoke invoke = (Invoke) callSite.getCallSite().getStmt();
-                Var lhs = invoke.getResult();
+                Var lhs = callSite.getResult();
                 if (lhs != null && isConcerned(lhs)) {
                     CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
                     for (Var ret : callee.getIR().getReturnVars()) {
@@ -572,16 +571,17 @@ public class SolverImpl implements Solver {
         }
     }
 
-    private JMethod resolveCallee(Type type, InvokeExp callSite) {
+    private JMethod resolveCallee(Type type, Invoke callSite) {
+        InvokeExp invokeExp = callSite.getInvokeExp();
         MethodRef methodRef = callSite.getMethodRef();
-        if (callSite instanceof InvokeVirtual ||
-                callSite instanceof InvokeInterface) {
+        if (invokeExp instanceof InvokeVirtual ||
+                invokeExp instanceof InvokeInterface) {
             return hierarchy.dispatch(type, methodRef);
-        } else if (callSite instanceof InvokeSpecial ||
-                callSite instanceof InvokeStatic) {
+        } else if (invokeExp instanceof InvokeSpecial ||
+                invokeExp instanceof InvokeStatic) {
             return methodRef.resolve();
         } else {
-            throw new AnalysisException("Cannot resolve InvokeExp: " + callSite);
+            throw new AnalysisException("Cannot resolve InvokeExp: " + invokeExp);
         }
     }
 
@@ -611,7 +611,7 @@ public class SolverImpl implements Solver {
         private final MethodRef registerRef = hierarchy
                 .getJREMethod(FINALIZER_REGISTER).getRef();
 
-        private final Map<New, InvokeStatic> registerInvokes = newMap();
+        private final Map<New, Invoke> registerInvokes = newMap();
 
         private void setCSMethod(CSMethod csMethod) {
             this.csMethod = csMethod;
@@ -668,17 +668,17 @@ public class SolverImpl implements Solver {
          * eventually be removed.
          */
         private void processFinalizer(New stmt) {
-            InvokeStatic registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
+            Invoke registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
                 InvokeStatic callSite = new InvokeStatic(registerRef,
                         Collections.singletonList(s.getLValue()));
                 Invoke invoke = new Invoke(csMethod.getMethod(), callSite);
                 invoke.setLineNumber(stmt.getLineNumber());
-                return callSite;
+                return invoke;
             });
             processInvokeStatic(registerInvoke);
         }
 
-        private void processInvokeStatic(InvokeStatic callSite) {
+        private void processInvokeStatic(Invoke callSite) {
             JMethod callee = resolveCallee(null, callSite);
             CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
             Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
@@ -751,7 +751,7 @@ public class SolverImpl implements Solver {
         @Override
         public void visit(Invoke stmt) {
             if (stmt.isStatic()) {
-                processInvokeStatic((InvokeStatic) stmt.getInvokeExp());
+                processInvokeStatic(stmt);
             }
         }
     }

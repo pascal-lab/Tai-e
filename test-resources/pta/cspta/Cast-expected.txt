@@ -9,9 +9,9 @@
 []:<Cast: void m()>/temp$0 -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A}}
 []:<Cast: void m()>/temp$1 -> {[]:NewObj{<Cast: void m()>:3(@L8)/new B}}
 []:<Cast: void m()>/temp$2 -> {[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
-[]:<Cast: void main(java.lang.String[])>/args -> {[]:EnvObj{<Cast: void main(java.lang.String[])>/<main-arguments>}}
+[]:<Cast: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Cast: void main(java.lang.String[])>}}
 []:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Cast: void m()>:0(@L7)/new A},[]:NewObj{<Cast: void m()>:3(@L8)/new B},[]:NewObj{<Cast: void m()>:6(@L9)/new C}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{<Cast: void main(java.lang.String[])>/<main-arguments>}[*] -> {[]:EnvObj{<Cast: void main(java.lang.String[])>/<main-arguments-element>}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Cast: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Cast: void main(java.lang.String[])>}}
 ---------- Points-to sets of all static fields: ----------

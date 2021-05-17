@@ -167,7 +167,7 @@ public class InvokedynamicPlugin implements Plugin {
 
                 // add indy -> bsm call edge
                 solver.addCallEdge(new BSMCallEdge(
-                        csManager.getCSCallSite(context, invoke.getInvokeExp()),
+                        csManager.getCSCallSite(context, invoke),
                         csManager.getCSMethod(bsmContext, bsm),
                         method.getDeclaringClass()));
             });
@@ -183,7 +183,8 @@ public class InvokedynamicPlugin implements Plugin {
             CSMethod csMethod = bsmCallEdge.getCallee();
             JClass lookupClass = bsmCallEdge.getLookupClass();
 
-            List<Var> actualParams = csCallSite.getCallSite().getArgs();
+            List<Var> actualParams = csCallSite.getCallSite()
+                    .getInvokeExp().getArgs();
             JMethod bsm = csMethod.getMethod();
             Context bsmContext = csMethod.getContext();
 
@@ -218,7 +219,8 @@ public class InvokedynamicPlugin implements Plugin {
                     .filter(info -> !info.hadFindMethod())
                     .forEach(info -> {
                         CSCallSite csCallSite = info.getIndyCallSite();
-                        InvokeDynamic indy = (InvokeDynamic) csCallSite.getCallSite();
+                        InvokeDynamic indy = (InvokeDynamic) csCallSite
+                                .getCallSite().getInvokeExp();
 
                         int findType = info.getFindType();
                         String methodName = indy.getMethodName();
