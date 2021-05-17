@@ -76,7 +76,7 @@ public class ExceptionHandler implements Plugin {
             throwStmtSet.forEach(throwStmt -> {
                 System.out.println("throwStmt:" + throwStmt);
                 workList.addExceptionEntry(currentCSMethod, throwStmt, exceptions);
-                exceptionPropergate();
+                exceptionPropagate();
             });
         }
     }
@@ -93,7 +93,7 @@ public class ExceptionHandler implements Plugin {
         Collection<CSObj> exceptions = methodExceptionResult.
                 getThrownExplicitExceptions();
         workList.addExceptionEntry(calleeCSMethod, invoke, exceptions);
-        exceptionPropergate();
+        exceptionPropagate();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ExceptionHandler implements Plugin {
         });
     }
 
-    private void exceptionPropergate() {
+    private void exceptionPropagate() {
         while (!workList.isEmpty()) {
             ExceptionWorkList.Entry entry = workList.pollPointerEntry();
             CSMethod csMethod = entry.csMethod;
