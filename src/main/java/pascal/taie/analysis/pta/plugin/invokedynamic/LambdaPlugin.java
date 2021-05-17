@@ -149,7 +149,7 @@ public class LambdaPlugin implements Plugin {
             List<Var> actualParams = invoke.getInvokeExp().getArgs();
             List<Var> capturedValues = indy.getArgs();
             Var invokeResult = invoke.getResult();
-            CSCallSite csCallSite = csManager.getCSCallSite(context, invoke.getInvokeExp());
+            CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
             int delayCallEdgeFlag = 0;
 
             JMethod implMethod =
@@ -243,7 +243,7 @@ public class LambdaPlugin implements Plugin {
             CSMethod csMethod = lambdaCallEdge.getCallee();
 
             Var invokeResult = lambdaCallEdge.getInvokeResult();
-            List<Var> actualParams = csCallSite.getCallSite().getArgs();
+            List<Var> actualParams = csCallSite.getCallSite().getInvokeExp().getArgs();
             JMethod implMethod = csMethod.getMethod();
             List<Var> capturedValues = lambdaCallEdge.getCapturedValues();
 

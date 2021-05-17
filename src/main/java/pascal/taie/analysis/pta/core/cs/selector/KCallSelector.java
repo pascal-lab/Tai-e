@@ -15,10 +15,10 @@ package pascal.taie.analysis.pta.core.cs.selector;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-public class KCallSelector extends KContextSelector<InvokeExp> {
+public class KCallSelector extends KContextSelector<Invoke> {
 
     public KCallSelector(int k, int hk) {
         super(k, hk);

@@ -14,8 +14,8 @@ package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
@@ -36,7 +36,7 @@ public interface CSManager {
 
     CSObj getCSObj(Context heapContext, Obj obj);
 
-    CSCallSite getCSCallSite(Context context, InvokeExp callSite);
+    CSCallSite getCSCallSite(Context context, Invoke callSite);
 
     CSMethod getCSMethod(Context context, JMethod method);
 
