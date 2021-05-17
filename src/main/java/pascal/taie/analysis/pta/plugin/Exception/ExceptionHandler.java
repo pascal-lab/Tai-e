@@ -136,9 +136,7 @@ public class ExceptionHandler implements Plugin {
                     CallGraph<CSCallSite, CSMethod> callGraph = pta.getCallGraph();
                     Collection<CSCallSite> callers = callGraph.getCallers(csMethod);
                     callers.forEach(csCallSite -> {
-                        Stmt invoke = csCallSite.getCallSite()
-                                .getCallSite()
-                                .getStmt();
+                        Stmt invoke = csCallSite.getCallSite();
                         CSMethod callerMethod = csCallSite.getContainer();
                         workList.addExceptionEntry(
                                 callerMethod,
