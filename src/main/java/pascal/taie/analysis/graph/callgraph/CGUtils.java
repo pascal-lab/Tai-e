@@ -20,6 +20,7 @@ import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.util.AnalysisException;
 import soot.Unit;
 import soot.jimple.InterfaceInvokeExpr;
@@ -73,6 +74,10 @@ public class CGUtils {
         } else {
             throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
         }
+    }
+
+    public static CallKind getCallKind(Invoke invoke) {
+        return getCallKind(invoke.getInvokeExp());
     }
 
     static <CallSite, Method> void dumpCallGraph(CallGraph<CallSite, Method> callGraph) {

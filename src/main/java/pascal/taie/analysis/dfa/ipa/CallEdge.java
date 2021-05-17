@@ -10,21 +10,11 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.dfa.ipa;
 
-public interface DataFlowResult<Node, Flow> {
+public class CallEdge<Node> extends ICFGEdge<Node> {
 
-    /**
-     * @return the in-flow of given node.
-     */
-    Flow getInFlow(Node node);
-
-    void setInFlow(Node node, Flow flow);
-
-    /**
-     * @return the out-flow of given node.
-     */
-    Flow getOutFlow(Node node);
-
-    void setOutFlow(Node node, Flow flow);
+    CallEdge(Node source, Node target) {
+        super(Kind.CALL, source, target);
+    }
 }

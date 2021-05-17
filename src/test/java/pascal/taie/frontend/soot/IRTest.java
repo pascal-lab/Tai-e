@@ -32,6 +32,18 @@ public class IRTest {
         Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", mainClass);
     }
 
+    @BeforeClass
+    public static void start() {
+        // This will enable PackManager run several BodyTransformers
+        // to optimize Jimple body.
+        System.setProperty("ENABLE_JIMPLE_OPT", "true");
+    }
+
+    @AfterClass
+    public static void clear() {
+        System.clearProperty("ENABLE_JIMPLE_OPT");
+    }
+
     @Test
     public void testIRBuilder() {
         targets.forEach(main -> {
@@ -55,17 +67,5 @@ public class IRTest {
                             stmt, stmt.getDef(), stmt.getUses()));
             System.out.println("--------------------");
         });
-    }
-
-    @BeforeClass
-    public static void start() {
-        // This will enable PackManager run several BodyTransformers
-        // to optimize Jimple body.
-        System.setProperty("ENABLE_JIMPLE_OPT", "true");
-    }
-
-    @AfterClass
-    public static void clear() {
-        System.clearProperty("ENABLE_JIMPLE_OPT");
     }
 }

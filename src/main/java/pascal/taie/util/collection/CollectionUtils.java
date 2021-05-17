@@ -12,12 +12,7 @@
 
 package pascal.taie.util.collection;
 
-import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Provides convenient utility operations for collections.
@@ -38,14 +33,4 @@ public class CollectionUtils {
         return collection == null || collection.isEmpty();
     }
 
-    /**
-     * @return a reversed version of given stream.
-     */
-    public static <T> Stream<T> reverse(Stream<T> stream) {
-        Iterator<T> iterator = stream.collect(
-                Collectors.toCollection(ArrayDeque::new))
-                .descendingIterator();
-        Iterable<T> iterable = () -> iterator;
-        return StreamSupport.stream(iterable.spliterator(), false);
-    }
 }

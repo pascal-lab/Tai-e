@@ -17,6 +17,7 @@ import org.junit.runners.Suite;
 import pascal.taie.analysis.dataflow.DataFlowTestSuite;
 import pascal.taie.analysis.dataflow.clients.constprop.CPTestSuite;
 import pascal.taie.analysis.dataflow.lattice.LatticeTestSuite;
+import pascal.taie.analysis.dfa.DFATestSuite;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.CSPTATest;
 import pascal.taie.config.OptionsTest;
@@ -39,6 +40,7 @@ import pascal.taie.util.UtilTestSuite;
         CPTestSuite.class,
         LatticeTestSuite.class,
         DataFlowTestSuite.class,
+        DFATestSuite.class,
         CHATestFull.class,
         CSPTATest.class,
         // util

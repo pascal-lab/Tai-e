@@ -108,10 +108,9 @@ public class AnalysisConfig {
     }
 
     /**
-     * Constructs an AnalysisConfig by merely specifying id and options.
-     * This convenient method eases the creation of AnalysisConfig in testing.
-     * The given options should be an array of key-value pairs, e.g.,
-     * [k1, v1, k2, v2, ...].
+     * Convenient constructor for creating an AnalysisConfig by merely
+     * specifying id and options. The given options should be an array
+     * of key-value pairs, e.g., [k1, v1, k2, v2, ...].
      */
     public AnalysisConfig(String id, Object... options) {
         this(null, null, id, null, convertOptions(options));

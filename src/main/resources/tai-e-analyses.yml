@@ -19,6 +19,14 @@
     algorithm: pta # | cha | rta
     dump: false # dump call graph
 
+- description: throw analysis
+  analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
+  id: throw
+  requires: [pta(algorithm=pta)] # only required by pta-based analysis
+  options:
+    exception: explicit # | all (includes implicit and explicit exceptions)
+    algorithm: intra # | pta
+
 - description: intraprocedural control-flow graph
   analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
   id: cfg
@@ -27,10 +35,39 @@
     exception: explicit # | none | all (includes implicit and explicit exceptions)
     dump: false # dump control-flow graph
 
-- description: throw analysis
-  analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
-  id: throw
-  requires: [pta(algorithm=pta)] # only required by pta-based analysis
+- description: interprocedural control-flow graph
+  analysisClass: pascal.taie.analysis.dfa.ipa.ICFGBuilder
+  id: icfg
+  requires: [cfg,cg]
   options:
-    exception: explicit # | all (includes implicit and explicit exceptions)
-    algorithm: intra # | pta
+    dump: false # dump inter-procedural control-flow graph
+
+- description: live variable analysis
+  analysisClass: pascal.taie.analysis.dfa.analysis.LiveVariableAnalysis
+  id: livevar
+  requires: [cfg]
+
+- description: available expression analysis
+  analysisClass: pascal.taie.analysis.dfa.analysis.availexp.AvailableExpressionAnalysis
+  id: availexp
+  requires: [cfg]
+
+- description: reaching definition analysis
+  analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitionAnalysis
+  id: reachdef
+  requires: [cfg]
+
+- description: constant propagation
+  analysisClass: pascal.taie.analysis.dfa.analysis.constprop.ConstantPropagation
+  id: constprop
+  requires: [cfg]
+
+- description: inter-procedural constant propagation
+  analysisClass: pascal.taie.analysis.dfa.ipa.IPConstantPropagation
+  id: ip-constprop
+  requires: [icfg]
+
+- description: dead code detection
+  analysisClass: pascal.taie.analysis.dfa.analysis.DeadCodeDetection
+  id: deadcode
+  requires: [cfg,constprop,livevar]

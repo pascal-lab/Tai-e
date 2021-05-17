@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapUtils;
@@ -20,7 +19,7 @@ import pascal.taie.util.collection.MapUtils;
 /**
  * Default implementation of call graph.
  */
-public class DefaultCallGraph extends AbstractCallGraph<InvokeExp, JMethod> {
+public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
 
     @Override
     protected boolean addNewMethod(JMethod method) {
@@ -28,9 +27,9 @@ public class DefaultCallGraph extends AbstractCallGraph<InvokeExp, JMethod> {
             if (!method.isAbstract()) {
                 method.getIR().getStmts().forEach(stmt -> {
                     if (stmt instanceof Invoke) {
-                        InvokeExp invokeExp = ((Invoke) stmt).getInvokeExp();
-                        callSiteToContainer.put(invokeExp, method);
-                        MapUtils.addToMapSet(callSitesIn, method, invokeExp);
+                        Invoke invoke = (Invoke) stmt;
+                        callSiteToContainer.put(invoke, method);
+                        MapUtils.addToMapSet(callSitesIn, method, invoke);
                     }
                 });
             }

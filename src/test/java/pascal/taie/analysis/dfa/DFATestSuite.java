@@ -12,10 +12,12 @@
 
 package pascal.taie.analysis.dfa;
 
-import pascal.taie.analysis.graph.cfg.CFG;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public interface Solver<Node, Flow> {
-
-    DataFlowResult<Node, Flow> solve(DataFlowAnalysis<Node, Flow> analysis,
-                                     CFG<Node> cfg);
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+        FactTest.class,
+})
+public class DFATestSuite {
 }

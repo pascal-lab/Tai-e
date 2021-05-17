@@ -32,6 +32,11 @@ public class NegExp implements UnaryExp {
     }
 
     @Override
+    public Var getOperand() {
+        return value;
+    }
+
+    @Override
     public PrimitiveType getType() {
         switch ((PrimitiveType) value.getType()) {
             case INT:
