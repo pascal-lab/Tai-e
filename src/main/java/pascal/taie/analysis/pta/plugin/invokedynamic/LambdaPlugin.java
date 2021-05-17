@@ -82,9 +82,9 @@ public class LambdaPlugin implements Plugin {
     private final Map<Var, Set<DelayedCallEdgeInfo>> delayedCallEdge = newMap();
 
     /**
-     * Map from invokedynamic and type to mock obj to avoid mocking same objects
+     * Map from Invoke (of invokedynamic) and type to mock obj to avoid mocking same objects
      */
-    private final Map<InvokeDynamic, Map<ClassType, MockObj>> newObjs = newMap();
+    private final Map<Invoke, Map<ClassType, MockObj>> newObjs = newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -165,12 +165,12 @@ public class LambdaPlugin implements Plugin {
             if (implMethod.isConstructor()) {
                 Context constructorContext = selector.selectContext(csCallSite, implMethod);
                 ClassType type = implMethod.getDeclaringClass().getType();
-                MockObj newObj = getMapMap(newObjs, indy, type);
+                MockObj newObj = getMapMap(newObjs, indyInvoke, type);
                 if (newObj == null) {
-                    // TODO: change container method to indy's container?
                     // TODO: use heapModel to process mock obj?
-                    newObj = new MockObj(LAMBDA_NEW_DESC, indy, type, invoke.getContainer());
-                    addToMapMap(newObjs, indy, type, newObj);
+                    newObj = new MockObj(LAMBDA_NEW_DESC, indyInvoke, type,
+                            indyInvoke.getContainer());
+                    addToMapMap(newObjs, indyInvoke, type, newObj);
                 }
                 if (invokeResult != null) {
                     solver.addVarPointsTo(context, invokeResult, context, newObj);
