@@ -20,7 +20,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
@@ -30,7 +29,6 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.MethodHandle;
-import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
@@ -47,7 +45,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.collection.MapUtils.addToMapMap;
 import static pascal.taie.util.collection.MapUtils.addToMapSet;
+import static pascal.taie.util.collection.MapUtils.getMapMap;
 import static pascal.taie.util.collection.MapUtils.newMap;
 
 public class LambdaPlugin implements Plugin {
@@ -57,13 +57,16 @@ public class LambdaPlugin implements Plugin {
      */
     public static final String LAMBDA_DESC = "LambdaObj";
 
+    /**
+     * Description for objects created by lambda constructor.
+     */
+    public static final String LAMBDA_NEW_DESC = "LambdaConstructedObj";
+
     private Solver solver;
 
     private ContextSelector selector;
 
     private ClassHierarchy hierarchy;
-
-    private HeapModel heapModel;
 
     private CSManager csManager;
 
@@ -79,16 +82,15 @@ public class LambdaPlugin implements Plugin {
     private final Map<Var, Set<DelayedCallEdgeInfo>> delayedCallEdge = newMap();
 
     /**
-     * Map from type to NewInstance to avoid mocking same objects
+     * Map from invokedynamic and type to mock obj to avoid mocking same objects
      */
-    private final Map<ClassType, NewInstance> newInstanceMap = newMap();
+    private final Map<InvokeDynamic, Map<ClassType, MockObj>> newObjs = newMap();
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         this.selector = solver.getContextSelector();
         this.hierarchy = solver.getHierarchy();
-        this.heapModel = solver.getHeapModel();
         this.csManager = solver.getCSManager();
     }
 
@@ -158,17 +160,18 @@ public class LambdaPlugin implements Plugin {
             if (implMethod.isConstructor()) {
                 Context constructorContext = selector.selectContext(csCallSite, implMethod);
                 ClassType type = implMethod.getDeclaringClass().getType();
-                NewInstance constructedInstance = new NewInstance(type);
-                constructedInstance.setAllocationSite(indy.getCallSite());
-                if (newInstanceMap.get(type) == null) {
-                    newInstanceMap.put(type, constructedInstance);
-                    Obj constructedObj = heapModel.getObj(constructedInstance);
-                    if (invokeResult != null) {
-                        solver.addVarPointsTo(context, invokeResult, context, constructedObj);
-                    }
-                    solver.addVarPointsTo(
-                            constructorContext, implMethod.getIR().getThis(), context, constructedObj);
+                MockObj newObj = getMapMap(newObjs, indy, type);
+                if (newObj == null) {
+                    // TODO: change container method to indy's container?
+                    // TODO: use heapModel to process mock obj?
+                    newObj = new MockObj(LAMBDA_NEW_DESC, indy, type, invoke.getContainer());
+                    addToMapMap(newObjs, indy, type, newObj);
                 }
+                if (invokeResult != null) {
+                    solver.addVarPointsTo(context, invokeResult, context, newObj);
+                }
+                solver.addVarPointsTo(constructorContext,
+                        implMethod.getIR().getThis(), context, newObj);
             }
 
             Context implMethodContext;

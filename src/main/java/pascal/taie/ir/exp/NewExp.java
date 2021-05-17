@@ -12,20 +12,8 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.ir.proginfo.ProgramPoint;
-
 /**
  * Representation of new expressions.
  */
-public abstract class NewExp implements RValue {
-
-    private ProgramPoint allocationSite;
-
-    public ProgramPoint getAllocationSite() {
-        return allocationSite;
-    }
-
-    public void setAllocationSite(ProgramPoint allocationSite) {
-        this.allocationSite = allocationSite;
-    }
+public interface NewExp extends RValue {
 }

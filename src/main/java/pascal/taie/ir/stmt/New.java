@@ -14,7 +14,6 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.ProgramPoint;
 import pascal.taie.language.classes.JMethod;
 
 /**
@@ -25,9 +24,18 @@ import pascal.taie.language.classes.JMethod;
  */
 public class New extends AssignStmt<Var, NewExp> {
 
+    /**
+     * The method containing this new statement.
+     */
+    private final JMethod container;
+
     public New(JMethod method, Var lvalue, NewExp rvalue) {
         super(lvalue, rvalue);
-        rvalue.setAllocationSite(new ProgramPoint(method, this));
+        this.container = method;
+    }
+
+    public JMethod getContainer() {
+        return container;
     }
 
     @Override

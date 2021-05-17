@@ -14,8 +14,8 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
-import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.ReferenceLiteral;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
@@ -52,7 +52,7 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final Type throwable;
 
-    private final Map<NewExp, NewObj> objs = newMap();
+    private final Map<New, NewObj> objs = newMap();
 
     private final Map<Type, Map<ReferenceLiteral, ConstantObj>> constantObjs
             = newHybridMap();
@@ -78,19 +78,19 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     @Override
-    public Obj getObj(NewExp newExp) {
-        Type type = newExp.getType();
+    public Obj getObj(New allocSite) {
+        Type type = allocSite.getRValue().getType();
         if (isMergeStringObjects && type.equals(string)) {
-            return getMergedObj(newExp);
+            return getMergedObj(allocSite);
         }
         if (isMergeStringBuilders &&
                 (type.equals(stringBuilder) || type.equals(stringBuffer))) {
-            return getMergedObj(newExp);
+            return getMergedObj(allocSite);
         }
         if (isMergeExceptionObjects && typeManager.isSubtype(throwable, type)) {
-            return getMergedObj(newExp);
+            return getMergedObj(allocSite);
         }
-        return doGetObj(newExp);
+        return doGetObj(allocSite);
     }
 
     @Override
@@ -115,22 +115,23 @@ abstract class AbstractHeapModel implements HeapModel {
 
     /**
      * Merges given object given by its type.
-     * @param newExp the allocation site of the object
+     * @param allocSite the allocation site of the object
      * @return the merged object
      */
-    protected MergedObj getMergedObj(NewExp newExp) {
-        MergedObj mergedObj = mergedObjs.computeIfAbsent(newExp.getType(),
+    protected MergedObj getMergedObj(New allocSite) {
+        MergedObj mergedObj = mergedObjs.computeIfAbsent(
+                allocSite.getRValue().getType(),
                 t -> new MergedObj(t, "<Merged " + t + ">"));
-        mergedObj.addRepresentedObj(getNewObj(newExp));
+        mergedObj.addRepresentedObj(getNewObj(allocSite));
         return mergedObj;
     }
 
-    protected NewObj getNewObj(NewExp newExp) {
-        return objs.computeIfAbsent(newExp, NewObj::new);
+    protected NewObj getNewObj(New allocSite) {
+        return objs.computeIfAbsent(allocSite, NewObj::new);
     }
 
     /**
      * The method which controls the heap modeling for normal objects.
      */
-    protected abstract Obj doGetObj(NewExp newExp);
+    protected abstract Obj doGetObj(New allocSite);
 }

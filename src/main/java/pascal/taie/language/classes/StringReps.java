@@ -77,6 +77,8 @@ public class StringReps {
 
     public static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";
 
+    public static final String LOOKUP = "java.lang.invoke.MethodHandles$Lookup";
+
     public static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
 
     public static final String METHOD_TYPE = "java.lang.invoke.MethodType";

@@ -17,7 +17,7 @@ import pascal.taie.language.type.ClassType;
 /**
  * Representation of new instance expression, e.g., new T.
  */
-public class NewInstance extends NewExp {
+public class NewInstance implements NewExp {
 
     private final ClassType type;
 

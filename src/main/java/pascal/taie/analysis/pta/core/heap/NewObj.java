@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.core.heap;
 
-import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
@@ -23,37 +23,38 @@ import java.util.Optional;
  */
 public class NewObj implements Obj {
 
-    private final NewExp newExp;
+    private final New allocSite;
 
-    public NewObj(NewExp newExp) {
-        this.newExp = newExp;
+    public NewObj(New allocSite) {
+        this.allocSite = allocSite;
     }
 
     @Override
     public Type getType() {
-        return newExp.getType();
+        return allocSite.getRValue().getType();
     }
 
     @Override
-    public NewExp getAllocation() {
-        return newExp;
+    public New getAllocation() {
+        return allocSite;
     }
 
     @Override
     public Optional<JMethod> getContainerMethod() {
-        return Optional.of(newExp.getAllocationSite().getMethod());
+        return Optional.of(allocSite.getContainer());
     }
 
     @Override
     public Type getContainerType() {
-        return newExp.getAllocationSite()
-                .getMethod()
+        return allocSite.getContainer()
                 .getDeclaringClass()
                 .getType();
     }
 
     @Override
     public String toString() {
-        return "NewObj{" + newExp.getAllocationSite() + "/" + newExp + "}";
+        return String.format("NewObj{%s:%d(@L%d)/%s}",
+                allocSite.getContainer(), allocSite.getIndex(),
+                allocSite.getLineNumber(), allocSite.getRValue());
     }
 }

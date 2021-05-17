@@ -20,6 +20,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionUtils;
@@ -28,7 +29,6 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.MethodType;
-import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -36,10 +36,10 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.MapUtils;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +74,13 @@ public class InvokedynamicPlugin implements Plugin {
      * Map from method find class variable to the indyCallEdgeInfos
      */
     private final Map<Var, Set<IndyCallEdgeInfo>> indyCallEdgeInfos = MapUtils.newMap();
+
+    public static final String LOOKUP_DESC = "MethodLookupObj";
+
+    /**
+     * Map from class type to corresponding Method.Lookup object.
+     */
+    private final Map<ClassType, MockObj> lookupObjs = MapUtils.newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -134,17 +141,16 @@ public class InvokedynamicPlugin implements Plugin {
                 // pass parameters to bootstrap method
                 List<Var> bsmParams = bsm.getIR().getParams();
 
-                JClass lookupClass = hierarchy.getJREClass(MethodHandles.Lookup.class.getName());
-                NewInstance constructedLookup = new NewInstance(lookupClass.getType());
-                constructedLookup.setAllocationSite(indy.getCallSite());
-                solver.addVarPointsTo(bsmContext, bsmParams.get(0), context,
-                        heapModel.getObj(constructedLookup));
+                ClassType callerType = invoke.getContainer().getDeclaringClass().getType();
+                MockObj lookup = lookupObjs.computeIfAbsent(callerType, type -> {
+                    Type lookupType = hierarchy.getJREClass(StringReps.LOOKUP).getType();
+                    return new MockObj(LOOKUP_DESC, type, lookupType);
+                });
+                solver.addVarPointsTo(bsmContext, bsmParams.get(0), context, lookup);
                 solver.addVarPointsTo(bsmContext, bsmParams.get(1), context,
                         heapModel.getConstantObj(StringLiteral.get(indy.getMethodName())));
-                NewInstance constructedInstance = new NewInstance(indy.getMethodType().getType());
-                constructedInstance.setAllocationSite(indy.getCallSite());
                 solver.addVarPointsTo(bsmContext, bsmParams.get(2), context,
-                        heapModel.getObj(constructedInstance));
+                        heapModel.getConstantObj(indy.getMethodType()));
 
                 if (bsm.getParamCount() > 3) {
                     List<Literal> args = indy.getBootstrapArgs();

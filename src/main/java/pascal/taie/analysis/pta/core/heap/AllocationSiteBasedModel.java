@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.config.AnalysisOptions;
-import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.stmt.New;
 
 public class AllocationSiteBasedModel extends AbstractHeapModel {
 
@@ -22,7 +22,7 @@ public class AllocationSiteBasedModel extends AbstractHeapModel {
     }
 
     @Override
-    protected Obj doGetObj(NewExp newExp) {
-        return getNewObj(newExp);
+    protected Obj doGetObj(New allocSite) {
+        return getNewObj(allocSite);
     }
 }
