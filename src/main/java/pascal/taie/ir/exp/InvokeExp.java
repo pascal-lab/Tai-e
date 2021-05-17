@@ -13,7 +13,6 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.ir.proginfo.ProgramPoint;
 import pascal.taie.language.type.Type;
 
 import java.util.List;
@@ -27,8 +26,6 @@ public abstract class InvokeExp implements RValue {
     protected final MethodRef methodRef;
 
     protected final List<Var> args;
-
-    private ProgramPoint callSite;
 
     protected InvokeExp(MethodRef methodRef, List<Var> args) {
         this.methodRef = methodRef;
@@ -54,14 +51,6 @@ public abstract class InvokeExp implements RValue {
 
     public List<Var> getArgs() {
         return args;
-    }
-
-    public ProgramPoint getCallSite() {
-        return callSite;
-    }
-
-    public void setCallSite(ProgramPoint callSite) {
-        this.callSite = callSite;
     }
 
     public abstract String getInvokeString();

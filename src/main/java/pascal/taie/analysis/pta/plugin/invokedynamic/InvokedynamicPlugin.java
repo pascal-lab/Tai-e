@@ -68,7 +68,7 @@ public class InvokedynamicPlugin implements Plugin {
     /**
      * Map from method to the invokedynamic created in the method.
      */
-    private final Map<JMethod, Set<InvokeDynamic>> indyPoints = MapUtils.newMap();
+    private final Map<JMethod, Set<Invoke>> indyPoints = MapUtils.newMap();
 
     /**
      * Map from method find class variable to the indyCallEdgeInfos
@@ -100,31 +100,31 @@ public class InvokedynamicPlugin implements Plugin {
                 methodTypeModel.handleNewInvoke(invoke);
             }
         });
-        extractInvokeDynamics(method.getIR()).forEach(indy -> {
-            Type type = indy.getMethodType().getReturnType();
-            JMethod container = indy.getCallSite().getMethod();
-            MapUtils.addToMapSet(indyPoints, container, indy);
+        extractInvokeDynamics(method.getIR()).forEach(invoke -> {
+            JMethod container = invoke.getContainer();
+            MapUtils.addToMapSet(indyPoints, container, invoke);
             System.out.println(indyPoints.values());
         });
     }
 
-    private static Stream<InvokeDynamic> extractInvokeDynamics(IR ir) {
+    private static Stream<Invoke> extractInvokeDynamics(IR ir) {
         return ir.getStmts()
                 .stream()
-                .filter(s -> s instanceof Invoke &&
-                        ((Invoke) s).getInvokeExp() instanceof InvokeDynamic)
-                .map(s -> (InvokeDynamic) ((Invoke) s).getInvokeExp())
-                .filter(indy -> processLambdas || !LambdaPlugin.isLambdaMetaFactory(indy));
+                .filter(s -> s instanceof Invoke)
+                .map(s -> (Invoke) s)
+                .filter(invoke -> invoke.getInvokeExp() instanceof InvokeDynamic)
+                .filter(invoke -> processLambdas ||
+                        !LambdaPlugin.isLambdaMetaFactory(invoke));
     }
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
-        Set<InvokeDynamic> indys = indyPoints.get(method);
-        if (indys != null) {
+        Set<Invoke> invokes = indyPoints.get(method);
+        if (invokes != null) {
             Context context = csMethod.getContext();
-            indys.forEach(indy -> {
-                Invoke invoke = (Invoke) indy.getCallSite().getStmt();
+            invokes.forEach(invoke -> {
+                InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
                 Var invokeResult = invoke.getResult();
                 System.out.println("args: " + indy.getArgs());
                 System.out.println("invoke result = " + invokeResult);

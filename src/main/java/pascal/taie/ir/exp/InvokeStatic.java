@@ -27,7 +27,7 @@ public class InvokeStatic extends InvokeExp {
 
     @Override
     public String toString() {
-        return String.format("%s %s/%s.%s%s", getInvokeString(), getCallSite(),
+        return String.format("%s %s.%s%s", getInvokeString(),
                 methodRef.getDeclaringClass(), methodRef.getName(),
                 getArgsString());
     }
