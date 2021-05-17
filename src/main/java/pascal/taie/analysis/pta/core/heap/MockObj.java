@@ -16,7 +16,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -25,7 +24,7 @@ import java.util.Optional;
  */
 public class MockObj implements Obj {
 
-    private final String descr;
+    private final String desc;
 
     private final Object alloc;
 
@@ -33,19 +32,19 @@ public class MockObj implements Obj {
 
     private final JMethod container;
 
-    public MockObj(String descr, Object alloc, Type type, JMethod container) {
-        this.descr = descr;
+    public MockObj(String desc, Object alloc, Type type, JMethod container) {
+        this.desc = desc;
         this.alloc = alloc;
         this.type = type;
         this.container = container;
     }
 
-    public MockObj(String descr, Object alloc, Type type) {
-        this(descr, alloc, type, null);
+    public MockObj(String desc, Object alloc, Type type) {
+        this(desc, alloc, type, null);
     }
 
     public String getDescription() {
-        return descr;
+        return desc;
     }
 
     @Override
@@ -78,19 +77,19 @@ public class MockObj implements Obj {
             return false;
         }
         MockObj that = (MockObj) o;
-        return descr.equals(that.descr) &&
+        return desc.equals(that.desc) &&
                 alloc.equals(that.alloc) &&
                 type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
-        return HashUtils.safeHash(descr, alloc, type);
+        return HashUtils.safeHash(desc, alloc, type);
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(descr).append('{');
+        StringBuilder sb = new StringBuilder(desc).append('{');
         sb.append("alloc=").append(alloc).append(", ");
         sb.append("type=").append(type);
         if (container != null) {
