@@ -109,7 +109,7 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     @Override
-    public Obj getMockObj(Obj obj) {
+    public Obj getMockObj(MockObj obj) {
         throw new UnsupportedOperationException();
     }
 

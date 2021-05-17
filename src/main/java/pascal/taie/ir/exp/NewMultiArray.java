@@ -14,7 +14,6 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.ArrayType;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class NewMultiArray extends NewExp {
 
     @Override
     public List<Exp> getUses() {
-        return Collections.unmodifiableList(lengths);
+        return List.copyOf(lengths);
     }
 
     @Override

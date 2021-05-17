@@ -49,6 +49,16 @@ public class HashUtils {
     }
 
     /**
+     * @return hash code of four objects, with null check.
+     */
+    public static int safeHash(Object o1, Object o2, Object o3) {
+        int result = Objects.hashCode(o1);
+        result = 31 * result + Objects.hashCode(o2);
+        result = 31 * result + Objects.hashCode(o3);
+        return result;
+    }
+
+    /**
      * @return hash code of four objects.
      * @throws NullPointerException if any parameter is null
      */

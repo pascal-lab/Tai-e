@@ -21,7 +21,7 @@ import pascal.taie.ir.exp.ReferenceLiteral;
 public interface HeapModel {
 
     /**
-     * @return the abstract object for given object expression.
+     * @return the abstract object for given new statement.
      */
     Obj getObj(NewExp newExp);
 
@@ -31,8 +31,7 @@ public interface HeapModel {
     Obj getConstantObj(ReferenceLiteral value);
 
     /**
-     * @return the mock object (e.g., taint value) which represents
-     * given argument.
+     * @return the abstract object for given mock object.
      */
-    Obj getMockObj(Obj obj);
+    Obj getMockObj(MockObj obj);
 }
