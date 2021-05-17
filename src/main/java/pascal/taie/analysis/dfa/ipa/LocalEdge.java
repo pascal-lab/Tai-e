@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.dfa.ipa;
 
-import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 import pascal.taie.analysis.graph.cfg.Edge;
 
 public class LocalEdge<Node> extends ICFGEdge<Node> {
@@ -29,12 +28,5 @@ public class LocalEdge<Node> extends ICFGEdge<Node> {
 
     public Edge<Node> getCFGEdge() {
         return cfgEdge;
-    }
-
-    @Override
-    public <Fact> void accept(EdgeTransfer<Node, Fact> transfer,
-                              Fact sourceInFlow, Fact sourceOutFlow,
-                              Fact edgeFlow) {
-//        transfer.transferLocalEdge(this, sourceOutFlow, edgeFlow);
     }
 }

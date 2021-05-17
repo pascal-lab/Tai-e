@@ -37,7 +37,7 @@ public abstract class IPSolver<Method, Node, Fact> {
         result = new IPDataflowResult<>();
         icfg.entryMethods().forEach(entryMethod -> {
             Node entry = icfg.getEntryOf(entryMethod);
-            Fact entryIn = analysis.getEntryInitialFact(icfg);
+            Fact entryIn = analysis.getEntryInitialFact(entry);
             result.setInFact(entry, entryIn);
         });
     }

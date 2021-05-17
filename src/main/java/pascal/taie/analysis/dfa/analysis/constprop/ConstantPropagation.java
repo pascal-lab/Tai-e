@@ -31,6 +31,7 @@ import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
 
 public class ConstantPropagation extends
@@ -49,11 +50,15 @@ public class ConstantPropagation extends
 
     @Override
     public MapFact<Var, Value> getEntryInitialFact(CFG<Stmt> cfg) {
+        return getEntryInitialFact(cfg.getMethod());
+    }
+
+    public MapFact<Var, Value> getEntryInitialFact(JMethod method) {
         // Make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
-        cfg.getIR().getParams().forEach(p ->
+        method.getIR().getParams().forEach(p ->
                 entryFact.update(p, Value.getNAC()));
-        Var thisVar = cfg.getIR().getThis();
+        Var thisVar = method.getIR().getThis();
         if (thisVar != null) {
             entryFact.update(thisVar, Value.getNAC());
         }
@@ -79,7 +84,7 @@ public class ConstantPropagation extends
     /**
      * Meets two Values.
      */
-    private static Value meetValue(Value v1, Value v2) {
+    public Value meetValue(Value v1, Value v2) {
         if (v1.isUndef() && v2.isConstant()) {
             return v2;
         } else if (v1.isConstant() && v2.isUndef()) {

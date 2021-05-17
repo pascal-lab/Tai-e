@@ -12,18 +12,9 @@
 
 package pascal.taie.analysis.dfa.ipa;
 
-import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
-
 public class CallEdge<Node> extends ICFGEdge<Node> {
 
     CallEdge(Node source, Node target) {
         super(Kind.CALL, source, target);
-    }
-
-    @Override
-    public <Domain> void accept(EdgeTransfer<Node, Domain> transfer,
-                                Domain sourceInFlow, Domain sourceOutFlow,
-                                Domain edgeFlow) {
-//        transfer.transferCallEdge(this, sourceInFlow, edgeFlow);
     }
 }

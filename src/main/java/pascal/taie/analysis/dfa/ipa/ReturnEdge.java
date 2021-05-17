@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.dfa.ipa;
 
-import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.ClassType;
 
@@ -51,12 +50,5 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
 
     public Stream<ClassType> exceptions() {
         return exceptions.stream();
-    }
-
-    @Override
-    public <Fact> void accept(EdgeTransfer<Node, Fact> transfer,
-                              Fact sourceInFlow, Fact sourceOutFlow,
-                              Fact edgeFlow) {
-//        transfer.transferReturnEdge(this, sourceOutFlow, edgeFlow);
     }
 }

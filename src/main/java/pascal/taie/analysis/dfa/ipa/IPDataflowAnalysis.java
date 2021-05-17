@@ -25,7 +25,7 @@ public interface IPDataflowAnalysis<Method, Node, Fact> {
     /**
      * Returns initial flowing-in fact for entry node.
      */
-    Fact getEntryInitialFact(ICFG<Method, Node> icfg);
+    Fact getEntryInitialFact(Node entry);
 
     /**
      * Returns initial flowing-out fact for non-entry nodes.
