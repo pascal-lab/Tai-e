@@ -21,6 +21,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -51,6 +52,11 @@ import static pascal.taie.util.collection.MapUtils.newMap;
 
 public class LambdaPlugin implements Plugin {
 
+    /**
+     * Description for lambda functional objects.
+     */
+    public static final String LAMBDA_DESC = "LambdaObj";
+
     private Solver solver;
 
     private ContextSelector selector;
@@ -64,7 +70,7 @@ public class LambdaPlugin implements Plugin {
     /**
      * Map from method to the lambda functional objects created in the method.
      */
-    private final Map<JMethod, Set<LambdaObj>> lambdaObjs = newMap();
+    private final Map<JMethod, Set<MockObj>> lambdaObjs = newMap();
 
     /**
      * Map from receiver variable to the delayed call edge information
@@ -92,7 +98,8 @@ public class LambdaPlugin implements Plugin {
             Type type = indy.getMethodType().getReturnType();
             JMethod container = indy.getCallSite().getMethod();
             // record lambda meta factories of new discovered methods
-            addToMapSet(lambdaObjs, container, new LambdaObj(type, indy, container));
+            addToMapSet(lambdaObjs, container,
+                    new MockObj(LAMBDA_DESC, indy, type, container));
             // System.out.println(lambdaObjs.values());
         });
     }
@@ -116,12 +123,12 @@ public class LambdaPlugin implements Plugin {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
-        Set<LambdaObj> lambdas = lambdaObjs.get(method);
+        Set<MockObj> lambdas = lambdaObjs.get(method);
         if (lambdas != null) {
             Context context = csMethod.getContext();
             lambdas.forEach(lambdaObj -> {
                 // propagate lambda functional objects
-                InvokeDynamic indy = lambdaObj.getAllocation();
+                InvokeDynamic indy = (InvokeDynamic) lambdaObj.getAllocation();
                 Invoke invoke = (Invoke) indy.getCallSite().getStmt();
                 Var ret = invoke.getResult();
                 // here we use full method context as the heap context of
@@ -134,16 +141,17 @@ public class LambdaPlugin implements Plugin {
 
     @Override
     public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
-        if (recv.getObject() instanceof LambdaObj) {
-            LambdaObj lambdaObj = (LambdaObj) recv.getObject();
+        if (isLambdaObj(recv.getObject())) {
+            MockObj lambdaObj = (MockObj) recv.getObject();
+            InvokeDynamic indy = (InvokeDynamic) lambdaObj.getAllocation();
             List<Var> actualParams = invoke.getInvokeExp().getArgs();
-            List<Var> capturedValues = lambdaObj.getAllocation().getArgs();
+            List<Var> capturedValues = indy.getArgs();
             Var invokeResult = invoke.getResult();
             CSCallSite csCallSite = csManager.getCSCallSite(context, invoke.getInvokeExp());
             int delayCallEdgeFlag = 0;
 
             JMethod implMethod =
-                    ((MethodHandle) lambdaObj.getAllocation().getBootstrapArgs().get(1))
+                    ((MethodHandle) indy.getBootstrapArgs().get(1))
                             .getMethodRef().resolve();
 
             // special: constructor, mock result
@@ -151,7 +159,7 @@ public class LambdaPlugin implements Plugin {
                 Context constructorContext = selector.selectContext(csCallSite, implMethod);
                 ClassType type = implMethod.getDeclaringClass().getType();
                 NewInstance constructedInstance = new NewInstance(type);
-                constructedInstance.setAllocationSite(lambdaObj.getAllocation().getCallSite());
+                constructedInstance.setAllocationSite(indy.getCallSite());
                 if (newInstanceMap.get(type) == null) {
                     newInstanceMap.put(type, constructedInstance);
                     Obj constructedObj = heapModel.getObj(constructedInstance);
@@ -208,7 +216,7 @@ public class LambdaPlugin implements Plugin {
                 LambdaCallEdge callEdge = new LambdaCallEdge(
                         csCallSite, csManager.getCSMethod(implMethodContext, implMethod));
                 callEdge.setLambdaParams(
-                        invoke.getResult(), lambdaObj.getAllocation().getArgs(), recv.getContext());
+                        invoke.getResult(), indy.getArgs(), recv.getContext());
                 solver.addCallEdge(callEdge);
             } else {
                 // to be handled in handleNewPointsToSet
@@ -217,6 +225,11 @@ public class LambdaPlugin implements Plugin {
                                 csCallSite, implMethod.getRef(), recv, invokeResult, capturedValues));
             }
         }
+    }
+
+    private static boolean isLambdaObj(Obj obj) {
+        return obj instanceof MockObj &&
+                ((MockObj) obj).getDescription().equals(LAMBDA_DESC);
     }
 
     @Override
