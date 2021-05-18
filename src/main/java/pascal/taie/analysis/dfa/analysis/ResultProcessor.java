@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.dfa.analysis;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.dfa.fact.NodeResult;
@@ -40,6 +42,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.collection.CollectionUtils.getOne;
+
 /**
  * Special class for process the results of other analyses after they finishes.
  * This analysis should be placed after the other analyses.
@@ -47,6 +51,8 @@ import java.util.stream.Stream;
 public class ResultProcessor extends InterproceduralAnalysis {
 
     public static final String ID = "process-result";
+
+    private static final Logger logger = LogManager.getLogger(ResultProcessor.class);
 
     private final String action;
 
@@ -109,7 +115,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
     private static Pair<String, String> extractKey(String line) {
         if (line.startsWith("----------") && line.endsWith("----------")) {
             int ms = line.indexOf('<'); // method start
-            int me = line.indexOf('>'); // method end
+            int me = line.indexOf("> "); // method end
             String method = line.substring(ms, me + 1);
             int as = line.lastIndexOf('('); // analysis start
             int ae = line.lastIndexOf(')'); // analysis end
@@ -159,8 +165,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
         } else if (result instanceof NodeResult) {
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
             ir.getStmts().forEach(stmt ->
-                    out.println(toString(stmt) + " " +
-                            toString(nodeResult.getOutFact(stmt))));
+                    out.println(toString(stmt, nodeResult)));
         } else {
             out.println(toString(result));
         }
@@ -177,6 +182,14 @@ public class ResultProcessor extends InterproceduralAnalysis {
         } else {
             return Objects.toString(o);
         }
+    }
+
+    /**
+     * Converts a stmt and its analysis result (flowing-out fact)
+     * to the corresponding string representation.
+     */
+    private static String toString(Stmt stmt, NodeResult<Stmt, ?> result) {
+        return toString(stmt) + " " + toString(result.getOutFact(stmt));
     }
 
     private void compareResult(IR ir, String id) {
@@ -202,9 +215,29 @@ public class ResultProcessor extends InterproceduralAnalysis {
                 }
             });
         } else if (result instanceof NodeResult) {
-
+            Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
+            NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
+            ir.getStmts().forEach(stmt -> {
+                String stmtStr = toString(stmt);
+                String given = toString(stmt, nodeResult);
+                for (String line : lines) {
+                    if (line.startsWith(stmtStr) && !line.equals(given)) {
+                        int idx = stmtStr.length();
+                        mismatches.add(String.format("%s %s expected: %s, given: %s",
+                                method, stmtStr, given.substring(idx + 1),
+                                line.substring(idx + 1)));
+                    }
+                }
+            });
+        } else if (inputResult.size() == 1) {
+            if (!toString(result).equals(getOne(inputResult))) {
+                mismatches.add(String.format("%s expected: %s, given: %s",
+                        method, toString(result), getOne(inputResult)));
+            }
         } else {
-
+            logger.warn("Cannot compare result of analysis {} for {}," +
+                            " expected: {}, given: {}",
+                    id, method, inputResult, result);
         }
     }
 }
