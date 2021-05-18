@@ -97,17 +97,17 @@ public class ToppedSetFact<E> extends SetFact<E> {
             return false;
         }
         if (isTop) {
-            setTo(other);
+            set(other);
             return true;
         }
         return super.intersect(other);
     }
 
     @Override
-    public void setTo(SetFact<E> other) {
+    public void set(SetFact<E> other) {
         ToppedSetFact<E> fact = (ToppedSetFact<E>) other;
         isTop = fact.isTop;
-        super.setTo(other);
+        super.set(other);
     }
 
     @Override
@@ -124,11 +124,24 @@ public class ToppedSetFact<E> extends SetFact<E> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return !isTop && super.isEmpty();
+    }
+
+    @Override
     public Stream<E> stream() {
         if (isTop) {
             throw new UnsupportedOperationException();
         }
         return super.stream();
+    }
+
+    @Override
+    public int size() {
+        if (isTop) {
+            throw new UnsupportedOperationException();
+        }
+        return super.size();
     }
 
     @Override

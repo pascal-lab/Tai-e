@@ -53,7 +53,7 @@ public class ReachingDefinitionAnalysis extends
     @Override
     public boolean transferNode(Stmt stmt, SetFact<Stmt> in, SetFact<Stmt> out) {
         SetFact<Stmt> oldOut = out.duplicate();
-        out.setTo(in);
+        out.set(in);
         stmt.getDef().ifPresent(def -> {
             if (def instanceof Var) {
                 Var defVar = (Var) def;

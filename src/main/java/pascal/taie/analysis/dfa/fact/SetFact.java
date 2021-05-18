@@ -79,6 +79,15 @@ public class SetFact<E> {
     }
 
     /**
+     * @return a new fact which is the union of given f1 and f2.
+     */
+    public SetFact<E> unionWith(SetFact<E> other) {
+        SetFact<E> result = duplicate();
+        result.union(other);
+        return result;
+    }
+
+    /**
      * Intersects other fact
      * @return if this operation changes this fact.
      */
@@ -87,9 +96,18 @@ public class SetFact<E> {
     }
 
     /**
+     * @return a new fact which is the intersection of this and other.
+     */
+    public SetFact<E> intersectWith(SetFact<E> other) {
+        SetFact<E> result = duplicate();
+        result.intersect(other);
+        return result;
+    }
+
+    /**
      * Sets the content of this set to other set.
      */
-    public void setTo(SetFact<E> other) {
+    public void set(SetFact<E> other) {
         clear();
         union(other);
     }
@@ -108,8 +126,16 @@ public class SetFact<E> {
         set.clear();
     }
 
+    public boolean isEmpty() {
+        return set.isEmpty();
+    }
+
     public Stream<E> stream() {
         return set.stream();
+    }
+
+    public int size() {
+        return set.size();
     }
 
     @Override

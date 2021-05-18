@@ -55,7 +55,7 @@ public class LiveVariableAnalysis extends
     @Override
     public boolean transferNode(Stmt stmt, SetFact<Var> in, SetFact<Var> out) {
         SetFact<Var> oldIn = in.duplicate();
-        in.setTo(out);
+        in.set(out);
         // kill definition in stmt
         stmt.getDef().ifPresent(def -> {
             if (def instanceof Var) {
