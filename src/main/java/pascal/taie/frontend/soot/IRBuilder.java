@@ -80,6 +80,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
 
@@ -129,7 +130,8 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
         for (int i = 0; i < nThreads; ++i) {
             groups.add(new ArrayList<>());
         }
-        List<JClass> classes = new ArrayList<>(hierarchy.getAllClasses());
+        List<JClass> classes = hierarchy.allClasses()
+                .collect(Collectors.toList());
         int i = 0;
         for (JClass c : classes) {
             for (JMethod m : c.getDeclaredMethods()) {

@@ -66,9 +66,7 @@ public class AnalysisManager {
     private void runIntraproceduralAnalysis(IntraproceduralAnalysis analysis) {
         // Obtain all non-abstract and non-native methods in class hierarchy
         Stream<JMethod> methods = World.getClassHierarchy()
-                .getAllClasses()
-                .stream()
-                .filter(JClass::isApplication)
+                .applicationClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
                 .filter(m -> !m.isAbstract() && !m.isNative());

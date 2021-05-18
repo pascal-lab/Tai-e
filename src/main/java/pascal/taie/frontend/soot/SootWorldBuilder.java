@@ -171,9 +171,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
         timer.stop();
         System.out.println(timer);
-        System.out.println("#classes: " + hierarchy.getAllClasses().size());
-        System.out.println("#methods: " + hierarchy.getAllClasses()
-                .stream()
+        System.out.println("#classes: " + hierarchy.allClasses().count());
+        System.out.println("#methods: " + hierarchy.allClasses()
                 .mapToInt(c -> c.getDeclaredMethods().size())
                 .sum());
     }
