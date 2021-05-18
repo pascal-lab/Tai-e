@@ -14,7 +14,6 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
-import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
@@ -154,9 +153,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 .collect(Collectors.toList()));
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeManager, hierarchy));
-        Environment env = new Environment();
-        world.setEnvironment(env);
-        IRBuilder irBuilder = new IRBuilder(converter, env);
+        IRBuilder irBuilder = new IRBuilder(converter);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);

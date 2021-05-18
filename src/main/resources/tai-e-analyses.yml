@@ -36,44 +36,44 @@
     dump: false # dump control-flow graph
 
 - description: interprocedural control-flow graph
-  analysisClass: pascal.taie.analysis.dfa.ipa.ICFGBuilder
+  analysisClass: pascal.taie.analysis.dataflow.ipa.ICFGBuilder
   id: icfg
   requires: [cfg,cg]
   options:
     dump: false # dump inter-procedural control-flow graph
 
 - description: live variable analysis
-  analysisClass: pascal.taie.analysis.dfa.analysis.LiveVariableAnalysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariableAnalysis
   id: livevar
   requires: [cfg]
 
 - description: available expression analysis
-  analysisClass: pascal.taie.analysis.dfa.analysis.availexp.AvailableExpressionAnalysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpressionAnalysis
   id: availexp
   requires: [cfg]
 
 - description: reaching definition analysis
-  analysisClass: pascal.taie.analysis.dfa.analysis.ReachingDefinitionAnalysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.ReachingDefinitionAnalysis
   id: reachdef
   requires: [cfg]
 
 - description: constant propagation
-  analysisClass: pascal.taie.analysis.dfa.analysis.constprop.ConstantPropagation
+  analysisClass: pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
   id: constprop
   requires: [cfg]
 
 - description: inter-procedural constant propagation
-  analysisClass: pascal.taie.analysis.dfa.ipa.IPConstantPropagation
+  analysisClass: pascal.taie.analysis.dataflow.ipa.IPConstantPropagation
   id: ip-constprop
   requires: [icfg]
 
 - description: dead code detection
-  analysisClass: pascal.taie.analysis.dfa.analysis.DeadCodeDetection
+  analysisClass: pascal.taie.analysis.dataflow.analysis.DeadCodeDetection
   id: deadcode
   requires: [cfg,constprop,livevar]
 
 - description: process results of previously-run analyses
-  analysisClass: pascal.taie.analysis.dfa.analysis.ResultProcessor
+  analysisClass: pascal.taie.analysis.dataflow.analysis.ResultProcessor
   id: process-result
   options:
     analyses: []

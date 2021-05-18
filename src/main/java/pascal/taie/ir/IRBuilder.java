@@ -12,7 +12,6 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 
@@ -26,14 +25,8 @@ public interface IRBuilder {
      */
     IR buildIR(JMethod method);
 
-    @Deprecated
-    PTAIR buildPTAIR(JMethod method);
-
     /**
      * Builds IR for all methods in the given hierarchy.
      */
     void buildAll(ClassHierarchy hierarchy);
-
-    @Deprecated
-    void buildAllPTA(ClassHierarchy hierarchy);
 }
