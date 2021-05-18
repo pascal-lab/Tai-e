@@ -15,12 +15,14 @@ package pascal.taie.analysis.dfa;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import pascal.taie.analysis.dfa.analysis.constprop.CPTestSuite;
+import pascal.taie.analysis.dfa.analysis.deadcode.DCDTestFull;
 import pascal.taie.analysis.dfa.fact.FactTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         CPTestSuite.class,
+        DCDTestFull.class,
         FactTest.class,
 })
-public class DFATestSuite {
+public class DataflowTestSuite {
 }

@@ -1,2 +1,7 @@
-<ControlFlowUnreachable: int foo()>
-L6{staticinvoke <ControlFlowUnreachable: void dead()>()}
+-------------------- <ControlFlowUnreachable: void <init>()> (deadcode) --------------------
+
+-------------------- <ControlFlowUnreachable: int foo()> (deadcode) --------------------
+[2@L6] invokestatic <ControlFlowUnreachable: void dead()>();
+
+-------------------- <ControlFlowUnreachable: void dead()> (deadcode) --------------------
+

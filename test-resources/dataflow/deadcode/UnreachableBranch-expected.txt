@@ -1,5 +1,8 @@
-<UnreachableBranch: int foo()>
-L7{goto label2}
-L7{label2: nop}
-L10{temp$1 = 200}
-L10{z = temp$1}
+-------------------- <UnreachableBranch: void <init>()> (deadcode) --------------------
+
+-------------------- <UnreachableBranch: int foo()> (deadcode) --------------------
+[3@L7] goto 8;
+[8@L7] nop;
+[9@L10] temp$1 = 200;
+[10@L10] z = temp$1;
+
