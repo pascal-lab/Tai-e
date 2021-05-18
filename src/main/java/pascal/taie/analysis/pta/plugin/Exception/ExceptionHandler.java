@@ -69,22 +69,21 @@ public class ExceptionHandler implements Plugin {
 
             Stream<CSObj> allObjs = pts.objects();
             Collection<CSObj> exceptions = newHybridSet();
-            allObjs.forEach(csObj -> {
-                exceptions.add(csObj);
-            });
+            allObjs.forEach(exceptions::add);
 
             throwStmtSet.forEach(throwStmt -> {
                 System.out.println("throwStmt:" + throwStmt);
                 workList.addExceptionEntry(currentCSMethod, throwStmt, exceptions);
-                exceptionPropagate();
+                exceptionPropergate();
             });
         }
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        Invoke invoke =edge.getCallSite().getCallSite();
-        CSMethod currentCSMethod = edge.getCallSite().getContainer();
+        Invoke invoke = edge.getCallSite()
+                .getCallSite();
+        CSMethod callerCSMethod = edge.getCallSite().getContainer();
         CSMethod calleeCSMethod = edge.getCallee();
         MethodExceptionResult methodExceptionResult =
                 csMethodResultMap.getOrDefault(calleeCSMethod,
@@ -92,8 +91,10 @@ public class ExceptionHandler implements Plugin {
         csMethodResultMap.put(calleeCSMethod, methodExceptionResult);
         Collection<CSObj> exceptions = methodExceptionResult.
                 getThrownExplicitExceptions();
-        workList.addExceptionEntry(calleeCSMethod, invoke, exceptions);
-        exceptionPropagate();
+        if(exceptions.size()>0) {
+            workList.addExceptionEntry(callerCSMethod, invoke, exceptions);
+            exceptionPropergate();
+        }
     }
 
     @Override
@@ -114,7 +115,7 @@ public class ExceptionHandler implements Plugin {
         });
     }
 
-    private void exceptionPropagate() {
+    private void exceptionPropergate() {
         while (!workList.isEmpty()) {
             ExceptionWorkList.Entry entry = workList.pollPointerEntry();
             CSMethod csMethod = entry.csMethod;
@@ -123,9 +124,13 @@ public class ExceptionHandler implements Plugin {
             MethodExceptionResult methodExceptionResult
                     = csMethodResultMap.getOrDefault(csMethod,
                     new MethodExceptionResult());
+            csMethodResultMap.put(csMethod,methodExceptionResult);
             exceptions = methodExceptionResult.
                     getDifferentExceptions(stmt, exceptions);
             if (exceptions.size() > 0) {
+                System.out.println("csMethod "+csMethod);
+                System.out.println("stmt "+stmt);
+                System.out.println("exceptions "+exceptions);
                 Collection<CSObj> uncaughtExceptions = IntraprocedualExceptionCaught(
                         methodExceptionResult,
                         stmt,

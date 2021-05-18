@@ -17,7 +17,9 @@ public class MethodExceptionResult {
     private final Collection<CSObj> thrownExplicitExceptions = newHybridSet();
 
     void addExplicit(Stmt stmt, Collection<CSObj> exceptions) {
-        explicitExceptions.put(stmt, exceptions);
+        Collection<CSObj> originExceptions=explicitExceptions.getOrDefault(stmt,newHybridSet());
+        originExceptions.addAll(exceptions);
+        explicitExceptions.put(stmt, originExceptions);
     }
 
     void addUncaughtExceptions(Collection<CSObj> exceptions) {

@@ -45,5 +45,14 @@ public class ExceptionWorkList {
             this.stmt = stmt;
             this.exceptions = exceptions;
         }
+
+        @Override
+        public String toString() {
+            return "Entry{" +
+                    "csMethod=" + csMethod +
+                    ", stmt=" + stmt +
+                    ", exceptions=" + exceptions +
+                    '}';
+        }
     }
 }
