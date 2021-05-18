@@ -12,12 +12,13 @@
 
 package pascal.taie.util.graph;
 
+import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.StreamUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import static pascal.taie.util.collection.SetUtils.newSet;
 
 /**
  * Topologically sorts a directed graph using DFS.
@@ -36,9 +37,26 @@ public class TopoSorter<N> {
     }
 
     public TopoSorter(Graph<N> graph, boolean reverse) {
+        this(graph, reverse, List.of());
+    }
+
+    /**
+     * Computes a topological soring of a graph, while the client code
+     * wishes to preserve some ordering in the sorting result.
+     * If preserved order conflicts the topological order, the latter is respected.
+     * @param graph          the graph
+     * @param preservedOrder the order of the nodes that the client code
+     *                       wishes to preserve
+     */
+    public TopoSorter(Graph<N> graph, List<N> preservedOrder) {
+        this(graph, false, preservedOrder);
+    }
+
+    private TopoSorter(Graph<N> graph, boolean reverse, List<N> preservedOrder) {
         initialize(graph);
+        preservedOrder.forEach(this::visit);
         graph.nodes()
-                .filter(n -> graph.succsOf(n).findAny().isEmpty())
+                .filter(n -> StreamUtils.isEmpty(graph.succsOf(n)))
                 .forEach(this::visit);
         if (reverse) {
             Collections.reverse(sortedList);
@@ -56,7 +74,7 @@ public class TopoSorter<N> {
     private void initialize(Graph<N> graph) {
         this.graph = graph;
         this.sortedList = new ArrayList<>(graph.getNumberOfNodes());
-        this.visited = newSet();
+        this.visited = SetUtils.newSet(graph.getNumberOfNodes());
     }
 
     private void visit(N node) {
