@@ -10,16 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.clients.constprop;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        CPTestFull.class,
-        MeetValueTest.class,
-        ValueTest.class,
-})
-public class CPTestSuite {
-}
+/**
+ * Provides various client applications of data flow analysis.
+ * @see pascal.taie.analysis.dfa.analysis.DataflowAnalysis
+ * @see pascal.taie.analysis.dfa.ipa.IPDataflowAnalysis
+ */
+package pascal.taie.analysis.dfa;

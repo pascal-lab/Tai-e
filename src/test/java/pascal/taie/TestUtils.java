@@ -22,15 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 public class TestUtils {
-    public static void testCP(String inputClass) {
-        test(inputClass, "test-resources/dataflow/constprop/",
-                "pascal.taie.analysis.dataflow.clients.constprop.ResultChecker");
-    }
-
-    public static void testDCD(String inputClass) {
-        test(inputClass, "test-resources/dataflow/deadcode/",
-                "pascal.taie.analysis.dataflow.clients.deadcode.ResultChecker");
-    }
 
     public static void testCHA(String inputClass) {
         test(inputClass, "test-resources/cha/",

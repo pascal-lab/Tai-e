@@ -20,19 +20,19 @@ public class ValueTest {
 
     @Test
     public void testInt() {
-        pascal.taie.analysis.dataflow.clients.constprop.Value v1 = pascal.taie.analysis.dataflow.clients.constprop.Value.makeConstant(10);
+        Value v1 = Value.makeConstant(10);
         Assert.assertTrue(v1.isConstant());
         Assert.assertFalse(v1.isNAC() || v1.isUndef());
         Assert.assertEquals(v1.getConstant(), 10);
-        pascal.taie.analysis.dataflow.clients.constprop.Value v2 = pascal.taie.analysis.dataflow.clients.constprop.Value.makeConstant(1);
-        pascal.taie.analysis.dataflow.clients.constprop.Value v3 = pascal.taie.analysis.dataflow.clients.constprop.Value.makeConstant(10);
+        Value v2 = Value.makeConstant(1);
+        Value v3 = Value.makeConstant(10);
         Assert.assertNotEquals(v1, v2);
         Assert.assertEquals(v1, v3);
     }
 
     @Test(expected = AnalysisException.class)
     public void testGetIntOnNAC() {
-        pascal.taie.analysis.dataflow.clients.constprop.Value.getNAC().getConstant();
+        Value.getNAC().getConstant();
     }
 
     @Test(expected = AnalysisException.class)
