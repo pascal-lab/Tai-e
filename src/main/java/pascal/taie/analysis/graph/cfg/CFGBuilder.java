@@ -76,7 +76,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
                         curr, ir.getStmt(i + 1)));
             } else if (curr instanceof SwitchStmt) {
                 SwitchStmt switchStmt = (SwitchStmt) curr;
-                switchStmt.getCaseTargets().forEach(pair -> {
+                switchStmt.caseTargets().forEach(pair -> {
                     int caseValue = pair.getFirst();
                     Stmt target = pair.getSecond();
                     cfg.addEdge(new SwitchCaseEdge<>(

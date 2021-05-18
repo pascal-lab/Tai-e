@@ -18,7 +18,6 @@ import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.SwitchStmt;
 
 import java.io.PrintStream;
 import java.util.Formatter;
@@ -51,27 +50,9 @@ public class IRPrinter {
     public static String toString(Stmt stmt) {
         if (stmt instanceof Invoke) {
             return toString((Invoke) stmt);
-        } else if (stmt instanceof SwitchStmt) {
-            return toString((SwitchStmt) stmt);
         } else {
             return String.format("%s %s;", position(stmt), stmt);
         }
-    }
-
-    private static String toString(SwitchStmt switchStmt) {
-        Formatter formatter = new Formatter();
-        formatter.format("%s %s (%s) {%n", position(switchStmt),
-                switchStmt.getInsnString(), switchStmt.getValue());
-        switchStmt.getCaseTargets().forEach(caseTarget -> {
-            int caseValue = caseTarget.getFirst();
-            Stmt target = caseTarget.getSecond();
-            formatter.format("  case %d: goto %s;%n",
-                    caseValue, switchStmt.toString(target));
-        });
-        formatter.format("  default: goto %s;%n",
-                switchStmt.toString(switchStmt.getDefaultTarget()));
-        formatter.format("};");
-        return formatter.toString();
     }
 
     public static String toString(Invoke invoke) {

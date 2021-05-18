@@ -55,7 +55,7 @@ public abstract class SwitchStmt extends JumpStmt {
         this.targets = targets;
     }
 
-    public abstract Stream<Pair<Integer, Stmt>> getCaseTargets();
+    public abstract Stream<Pair<Integer, Stmt>> caseTargets();
 
     public Stmt getDefaultTarget() {
         return defaultTarget;
@@ -83,18 +83,13 @@ public abstract class SwitchStmt extends JumpStmt {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getInsnString());
-        sb.append('(').append(value).append(')').append(" {\n");
-        getCaseTargets().forEach(caseTarget -> {
+        sb.append(" (").append(value).append(") {");
+        caseTargets().forEach(caseTarget -> {
             int caseValue = caseTarget.getFirst();
             Stmt target = caseTarget.getSecond();
-            sb.append("  ").append("case ").append(caseValue)
-                    .append(": goto ")
-                    .append(toString(target))
-                    .append(";\n");
+            sb.append(caseValue).append("->").append(toString(target)).append(", ");
         });
-        sb.append("  default: goto ")
-                .append(toString(defaultTarget))
-                .append(";\n}");
+        sb.append("default->").append(toString(defaultTarget)).append('}');
         return sb.toString();
     }
 
