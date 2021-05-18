@@ -35,7 +35,6 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.SetUtils;
 
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -44,25 +43,21 @@ import java.util.stream.Collectors;
 
 public class DeadCodeDetection extends IntraproceduralAnalysis {
 
+    public static final String ID = "deadcode";
+
     public DeadCodeDetection(AnalysisConfig config) {
         super(config);
     }
 
     @Override
     public Set<Stmt> analyze(IR ir) {
-        Set<Stmt> deadCode = new LinkedHashSet<>();
+        Set<Stmt> deadCode = SetUtils.newHybridSet();
         // 1. unreachable branches
         Set<Edge<Stmt>> unreachableBranches = findUnreachableBranches(ir);
         // 2. unreachable code
         deadCode.addAll(findUnreachableCode(ir, unreachableBranches));
         // 3. dead assignment
         deadCode.addAll(findDeadAssignments(ir));
-        // Temporarily print dead code for debugging
-        System.out.printf("-------------------- %s (%s) --------------------%n",
-                ir.getMethod(), getId());
-        deadCode.forEach(stmt -> System.out.printf("L%-3d[%s]%n",
-                stmt.getLineNumber(), stmt));
-        System.out.println();
         return deadCode;
     }
 

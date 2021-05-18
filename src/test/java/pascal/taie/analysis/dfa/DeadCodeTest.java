@@ -27,7 +27,7 @@ public class DeadCodeTest {
                 "ControlFlowUnreachable",
                 "ControlFlowUnreachable2", // may trigger NPE before
                 "DeadAssignment",
-                 "Loops",
+                "Loops",
                 "MixedDeadCode", // may trigger NPE before
                 "NotDead",
                 "UnreachableBranch",

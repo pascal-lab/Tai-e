@@ -27,7 +27,7 @@ public class StreamUtils {
      * @return if the given stream is empty.
      */
     public static <T> boolean isEmpty(Stream<T> stream) {
-        return stream.findAny().isPresent();
+        return stream.findAny().isEmpty();
     }
 
     /**

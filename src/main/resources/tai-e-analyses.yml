@@ -71,3 +71,9 @@
   analysisClass: pascal.taie.analysis.dfa.analysis.DeadCodeDetection
   id: deadcode
   requires: [cfg,constprop,livevar]
+
+- description: print results of intra-procedural analyses
+  analysisClass: pascal.taie.analysis.dfa.analysis.ResultPrinter
+  id: print-result
+  options:
+    analyses: []
