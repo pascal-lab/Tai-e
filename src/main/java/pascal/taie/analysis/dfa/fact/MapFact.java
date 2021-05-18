@@ -15,10 +15,12 @@ package pascal.taie.analysis.dfa.fact;
 import pascal.taie.util.collection.MapUtils;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MapFact<K, V> {
@@ -107,6 +109,13 @@ public class MapFact<K, V> {
 
     @Override
     public String toString() {
-        return map.toString();
+        // Sort key-value pairs by key's string representation, so that the
+        // fact representation is stable across executions. This is useful
+        // for comparing expected results and the ones given by the analysis.
+        return "{" + map.entrySet()
+                .stream()
+                .sorted(Comparator.comparing(e -> e.getKey().toString()))
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining(", ")) + "}";
     }
 }
