@@ -57,8 +57,8 @@ public class OptionsTest {
     @Test
     public void testOptions2() {
         Options options = Options.parse(
-                "-a", "cfg=exception:true,scope:inter",
-                "-a", "pta=timeout:1800,merge-string-objects:false,cs:2-obj",
+                "-a", "cfg=exception:true;scope:inter",
+                "-a", "pta=timeout:1800;merge-string-objects:false;cs:2-obj",
                 "-a", "throw");
         List<PlanConfig> configs = PlanConfig.readConfigs(options);
         PlanConfig cfg = configs.get(0);

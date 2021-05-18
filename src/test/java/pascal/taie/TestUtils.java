@@ -59,7 +59,7 @@ public class TestUtils {
         String ptaArg = "pta=implicit-entries:false";
         for (String opt : opts) {
             if (opt.startsWith("pta")) {
-                ptaArg = opt + ",implicit-entries:false";
+                ptaArg = opt + ";implicit-entries:false";
             } else {
                 optList.add(opt);
             }

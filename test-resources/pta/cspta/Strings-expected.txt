@@ -1,10 +1,10 @@
 ---------- Points-to sets of all variables: ----------
 []:<A: void <init>()>/%this -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
 []:<Strings: java.lang.String id(java.lang.String)>/s -> {[]:ConstantObj{java.lang.String: "aaa"}}
-[]:<Strings: void main(java.lang.String[])>/%stringconstant0 -> {[]:ConstantObj{java.lang.String: "aaa"}}
+[]:<Strings: void main(java.lang.String[])>/%stringconst0 -> {[]:ConstantObj{java.lang.String: "aaa"}}
 []:<Strings: void main(java.lang.String[])>/a -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
 []:<Strings: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Strings: void main(java.lang.String[])>}}
-[]:<Strings: void main(java.lang.String[])>/arr -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
+[]:<Strings: void main(java.lang.String[])>/arr -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconst1]}}
 []:<Strings: void main(java.lang.String[])>/s1 -> {[]:ConstantObj{java.lang.String: "aaa"}}
 []:<Strings: void main(java.lang.String[])>/s2 -> {[]:ConstantObj{java.lang.String: "bbb"}}
 []:<Strings: void main(java.lang.String[])>/s3 -> {[]:ConstantObj{java.lang.String: "ccc"}}
@@ -13,20 +13,20 @@
 []:<Strings: void main(java.lang.String[])>/temp$1 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}}
 []:<Strings: void main(java.lang.String[])>/temp$2 -> {[]:ConstantObj{java.lang.String: "bbb"}}
 []:<Strings: void main(java.lang.String[])>/temp$3 -> {[]:ConstantObj{java.lang.String: "ccc"}}
-[]:<Strings: void main(java.lang.String[])>/temp$4 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
+[]:<Strings: void main(java.lang.String[])>/temp$4 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconst1]}}
 []:<Strings: void main(java.lang.String[])>/temp$6 -> {[]:ConstantObj{java.lang.String: "ddd"}}
-[]:<Strings: void main(java.lang.String[])>/temp$7 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}}
+[]:<Strings: void main(java.lang.String[])>/temp$7 -> {[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconst1]}}
 []:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A},[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
 []:<java.lang.String$CaseInsensitiveComparator: void <init>()>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
 []:<java.lang.String$CaseInsensitiveComparator: void <init>(java.lang.String$1)>/%this -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
-[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconst0]}}
 []:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
 ---------- Points-to sets of all instance fields: ----------
 []:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}.f -> {[]:ConstantObj{java.lang.String: "bbb"}}
 ---------- Points-to sets of all array indexes: ----------
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Strings: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Strings: void main(java.lang.String[])>}}
-[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconstant1]}[*] -> {[]:ConstantObj{java.lang.String: "ddd"}}
+[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconst1]}[*] -> {[]:ConstantObj{java.lang.String: "ddd"}}
 ---------- Points-to sets of all static fields: ----------
 <A: java.lang.String sf> -> {[]:ConstantObj{java.lang.String: "ccc"}}
-<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconst0]}}
 <java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}

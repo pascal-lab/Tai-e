@@ -2,8 +2,8 @@
 []:<TypeSens: void main(java.lang.String[])>/r0 -> {[]:ConstantObj{java.lang.String: "xxx"}}
 []:<TypeSens: void main(java.lang.String[])>/r1 -> {[]:ConstantObj{java.lang.Class: TypeSens.class}}
 []:<TypeSens: void main(java.lang.String[])>/r3 -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <TypeSens: void main(java.lang.String[])>}}
-[]:<java.lang.Class: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.Class: void <clinit>()>:4(@L2803)/newarray (java.io.ObjectStreamField)[%intconstant1]}}
-[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+[]:<java.lang.Class: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.Class: void <clinit>()>:4(@L2803)/newarray (java.io.ObjectStreamField)[%intconst1]}}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconst0]}}
 []:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
 [java.lang.Class]:<java.lang.Class: java.lang.String getName()>/$r1 -> {}
 [java.lang.Class]:<java.lang.Class: java.lang.String getName()>/$r2 -> {}
@@ -22,6 +22,6 @@
 ---------- Points-to sets of all array indexes: ----------
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <TypeSens: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <TypeSens: void main(java.lang.String[])>}}
 ---------- Points-to sets of all static fields: ----------
-<java.lang.Class: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.Class: void <clinit>()>:4(@L2803)/newarray (java.io.ObjectStreamField)[%intconstant1]}}
-<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+<java.lang.Class: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.Class: void <clinit>()>:4(@L2803)/newarray (java.io.ObjectStreamField)[%intconst1]}}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconst0]}}
 <java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}

@@ -19,11 +19,11 @@
 []:<SpecialHeapContext: void main(java.lang.String[])>/temp$1 -> {[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}}
 []:<SpecialHeapContext: void main(java.lang.String[])>/temp$2 -> {[]:ConstantObj{java.lang.String: "string"}}
 []:<SpecialHeapContext: void main(java.lang.String[])>/temp$3 -> {[]:ConstantObj{java.lang.String: "string"}}
-[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+[]:<java.lang.String: void <clinit>()>/$r0 -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconst0]}}
 []:<java.lang.String: void <clinit>()>/$r1 -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <SpecialHeapContext: void main(java.lang.String[])>}}
 ---------- Points-to sets of all static fields: ----------
-<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconstant0]}}
+<java.lang.String: java.io.ObjectStreamField[] serialPersistentFields> -> {[]:NewObj{<java.lang.String: void <clinit>()>:1(@L122)/newarray (java.io.ObjectStreamField)[%intconst0]}}
 <java.lang.String: java.util.Comparator CASE_INSENSITIVE_ORDER> -> {[]:NewObj{<java.lang.String: void <clinit>()>:3(@L1209)/new java.lang.String$CaseInsensitiveComparator}}
