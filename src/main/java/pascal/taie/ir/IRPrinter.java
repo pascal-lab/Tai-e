@@ -17,20 +17,18 @@ import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.SwitchStmt;
-import pascal.taie.ir.stmt.TableSwitch;
 
 import java.io.PrintStream;
+import java.util.Formatter;
 import java.util.stream.Collectors;
 
 public class IRPrinter {
 
     public static void print(IR ir, PrintStream out) {
         // print method signature
-        out.println(ir.getMethod());
+        out.println("---------- " + ir.getMethod() + " ----------");
         // print parameters
         out.print("Parameters: ");
         out.println(ir.getParams()
@@ -42,8 +40,7 @@ public class IRPrinter {
         ir.getVars().forEach(v -> out.println(v.getType() + " " + v));
         // print all statements
         out.println("Statements:");
-        StmtVisitor stmtPrinter = new StmtPrinter(out);
-        ir.getStmts().forEach(s -> s.accept(stmtPrinter));
+        ir.getStmts().forEach(s -> out.println(toString(s)));
         // print all try-catch blocks
         if (!ir.getExceptionEntries().isEmpty()) {
             out.println("Exception entries:");
@@ -51,70 +48,62 @@ public class IRPrinter {
         }
     }
 
-    private static class StmtPrinter implements StmtVisitor {
-
-        private final PrintStream out;
-
-        private StmtPrinter(PrintStream out) {
-            this.out = out;
+    public static String toString(Stmt stmt) {
+        if (stmt instanceof Invoke) {
+            return toString((Invoke) stmt);
+        } else if (stmt instanceof SwitchStmt) {
+            return toString((SwitchStmt) stmt);
+        } else {
+            return String.format("%s %s;", position(stmt), stmt);
         }
+    }
 
-        @Override
-        public void visit(TableSwitch stmt) {
-            printSwitch(stmt);
+    private static String toString(SwitchStmt switchStmt) {
+        Formatter formatter = new Formatter();
+        formatter.format("%s %s (%s) {%n", position(switchStmt),
+                switchStmt.getInsnString(), switchStmt.getValue());
+        switchStmt.getCaseTargets().forEach(caseTarget -> {
+            int caseValue = caseTarget.getFirst();
+            Stmt target = caseTarget.getSecond();
+            formatter.format("  case %d: goto %s;%n",
+                    caseValue, switchStmt.toString(target));
+        });
+        formatter.format("  default: goto %s;%n",
+                switchStmt.toString(switchStmt.getDefaultTarget()));
+        formatter.format("};");
+        return formatter.toString();
+    }
+
+    public static String toString(Invoke invoke) {
+        Formatter formatter = new Formatter();
+        formatter.format("%s ", position(invoke));
+        if (invoke.getResult() != null) {
+            formatter.format(invoke.getResult() + " = ");
         }
-
-        @Override
-        public void visit(LookupSwitch stmt) {
-            printSwitch(stmt);
-        }
-
-        private void printSwitch(SwitchStmt switchStmt) {
-            out.printf("%4d@L%-4d: %s(%s){%n",
-                    switchStmt.getIndex(), switchStmt.getLineNumber(),
-                    switchStmt.getInsnString(), switchStmt.getValue());
-            switchStmt.getCaseTargets().forEach(caseTarget -> {
-                int caseValue = caseTarget.getFirst();
-                Stmt target = caseTarget.getSecond();
-                out.printf("              case %d: goto %s;%n",
-                        caseValue, switchStmt.toString(target));
-            });
-            out.printf("              default: goto %s;%n",
-                    switchStmt.toString(switchStmt.getDefaultTarget()));
-            out.println("            };");
-        }
-
-        @Override
-        public void visit(Invoke stmt) {
-            out.printf("%4d@L%-4d: ", stmt.getIndex(), stmt.getLineNumber());
-            if (stmt.getResult() != null) {
-                out.print(stmt.getResult() + " = ");
+        InvokeExp ie = invoke.getInvokeExp();
+        formatter.format("%s ", ie.getInvokeString());
+        if (ie instanceof InvokeDynamic) {
+            InvokeDynamic indy = (InvokeDynamic) ie;
+            formatter.format("%s \"%s\" <%s>[%s]%s;",
+                    indy.getBootstrapMethodRef(),
+                    indy.getMethodName(), indy.getMethodType(),
+                    indy.getBootstrapArgs().stream()
+                            .map(Literal::toString)
+                            .collect(Collectors.joining(",")),
+                    indy.getArgsString());
+        } else {
+            if (ie instanceof InvokeInstanceExp) {
+                formatter.format("%s.", ((InvokeInstanceExp) ie).getBase().getName());
             }
-            InvokeExp ie = stmt.getInvokeExp();
-            out.print(ie.getInvokeString());
-            out.print(' ');
-            if (ie instanceof InvokeDynamic) {
-                InvokeDynamic indy = (InvokeDynamic) ie;
-                out.printf("%s \"%s\" <%s>[%s]%s;%n",
-                        indy.getBootstrapMethodRef(),
-                        indy.getMethodName(), indy.getMethodType(),
-                        indy.getBootstrapArgs().stream()
-                                .map(Literal::toString)
-                                .collect(Collectors.joining(",")),
-                        indy.getArgsString());
-            } else {
-                if (ie instanceof InvokeInstanceExp) {
-                    out.print(((InvokeInstanceExp) ie).getBase().getName());
-                    out.print('.');
-                }
-                out.printf("%s%s;%n", ie.getMethodRef(), ie.getArgsString());
-            }
+            formatter.format("%s%s;", ie.getMethodRef(), ie.getArgsString());
         }
+        return formatter.toString();
+    }
 
-        @Override
-        public void visitDefault(Stmt stmt) {
-            out.printf("%4d@L%-4d: %s;%n",
-                    stmt.getIndex(), stmt.getLineNumber(), stmt);
-        }
+    private static String position(Stmt stmt) {
+        return "[" +
+                stmt.getIndex() +
+                "@L" + stmt.getLineNumber() +
+                ']';
     }
 }
