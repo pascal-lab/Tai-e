@@ -220,7 +220,10 @@ public class Options {
                     "--analysis and --plan-file should not be used simultaneously");
         }
         // TODO: turn off output in test mode?
-        writeOptions(result, ConfigUtils.getDefaultOptions());
+        if (optionsFile == null) {
+            // write options to file only when it is not given
+            writeOptions(result, ConfigUtils.getDefaultOptions());
+        }
         return result;
     }
 

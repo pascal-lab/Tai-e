@@ -35,9 +35,11 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.SetUtils;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -51,7 +53,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     @Override
     public Set<Stmt> analyze(IR ir) {
-        Set<Stmt> deadCode = SetUtils.newHybridSet();
+        Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
         // 1. unreachable branches
         Set<Edge<Stmt>> unreachableBranches = findUnreachableBranches(ir);
         // 2. unreachable code
