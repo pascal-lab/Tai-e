@@ -43,10 +43,10 @@ These options specify the analyses to be executed by Tai-e. To execute an analys
 
 There are two mutually-exclusive approaches to specify the analyses, by options or by file, as described below.
 
-#### Analyses (-a, --analysis): `-a <id>[=<key>:<value>,...]`
-Specify analyses by options. If you need to run an analysis `A`, just use `-a A`. If you need to specify some analysis options for `A`, just append them to analysis id (connected by `=`), and separate them by `,`, for example:
+#### Analyses (-a, --analysis): `-a <id>[=<key>:<value>;...]`
+Specify analyses by options. If you need to run an analysis `A`, just use `-a A`. If you need to specify some analysis options for `A`, just append them to analysis id (connected by `=`), and separate them by `;`, for example:
 ```
--a A=enableX:true,threshold:100,log-level:info
+-a A=enableX:true;threshold:100;log-level:info
 ```
 The option system is flexible, and it supports various types of option values, such as boolean, integer, and string.
 
@@ -77,7 +77,7 @@ We give an example of how to analyze a program by Tai-e. Suppose we want to anal
 
 Then the options would be:
 ```
-java pascal.taie.Main -cp foo.jar;bar.jar -m baz.Main -java 8 -a pta=cs:2-obj,merge-string-constants:true
+java pascal.taie.Main -cp foo.jar;bar.jar -m baz.Main -java 8 -a pta=cs:2-obj;merge-string-constants:true
 ```
 (for simplicity, we omit the Java options for Tai-e)
 

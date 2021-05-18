@@ -166,7 +166,7 @@ public class Options {
 
     @JsonProperty
     @Option(names = {"-a", "--analysis"},
-            description = "Analyses to be executed", split = ";",
+            description = "Analyses to be executed",
             mapFallbackValue = "")
     private Map<String, String> analyses = Map.of();
 
