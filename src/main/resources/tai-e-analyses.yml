@@ -72,11 +72,10 @@
   id: deadcode
   requires: [cfg,constprop,livevar]
 
-- description: process the results of intra-procedural analyses
+- description: process results of previously-run analyses
   analysisClass: pascal.taie.analysis.dfa.analysis.ResultProcessor
   id: process-result
   options:
     analyses: []
     action: dump # | compare
-    input-file: null
-    output-file: null
+    file: null

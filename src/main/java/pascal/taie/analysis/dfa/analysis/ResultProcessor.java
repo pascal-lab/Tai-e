@@ -12,12 +12,15 @@
 
 package pascal.taie.analysis.dfa.analysis;
 
-import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.World;
+import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.dfa.fact.NodeResult;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.Pair;
 
@@ -28,39 +31,62 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Special class for process the results of other analyses after they finishes.
  * This analysis should be placed after the other analyses.
  */
-public class ResultProcessor extends IntraproceduralAnalysis {
+public class ResultProcessor extends InterproceduralAnalysis {
 
     public static final String ID = "process-result";
 
-    private Map<Pair<String, String>, Set<String>> inputs;
+    private final String action;
 
     private PrintStream out;
 
-    private final boolean isDump;
+    private Map<Pair<String, String>, Set<String>> inputs;
+
+    private Set<String> mismatches;
     
     public ResultProcessor(AnalysisConfig config) {
         super(config);
-        readInputs();
-        isDump = getOptions().getString("action").equals("dump");
-        if (isDump) {
-            setupOut();
+        action = getOptions().getString("action");
+        switch (action) {
+            case "dump":
+                setupOut();
+                break;
+            case "compare":
+                readInputs();
+                break;
+        }
+    }
+
+    private void setupOut() {
+        String output = getOptions().getString("file");
+        if (output != null) {
+            try {
+                out = new PrintStream(output);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open output file", e);
+            }
+        } else {
+            out = System.out;
         }
     }
 
     private void readInputs() {
         String action = getOptions().getString("action");
         if (action.equals("compare")) {
-            String inputFile = getOptions().getString("input-file");
-            Path path = Paths.get(inputFile);
+            String input = getOptions().getString("file");
+            Path path = Paths.get(input);
             try {
                 inputs = MapUtils.newMap();
                 BufferedReader reader = Files.newBufferedReader(path);
@@ -94,26 +120,34 @@ public class ResultProcessor extends IntraproceduralAnalysis {
         }
     }
 
-    private void setupOut() {
-        String output = getOptions().getString("output-file");
-        if (output != null) {
-            try {
-                out = new PrintStream(output);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Failed to open output file", e);
-            }
-        } else {
-            out = System.out;
-        }
+    @Override
+    public Object analyze() {
+        mismatches = new LinkedHashSet<>();
+        processIntraResults();
+        mismatches.forEach(System.out::println);
+        return mismatches;
     }
 
-    @Override
-    public Object analyze(IR ir) {
-        if (isDump) {
-            ((List<String>) getOptions().get("analyses")).forEach(id ->
-                    dumpResult(ir, id));
-        }
-        return null;
+    private void processIntraResults() {
+        // process intra-procedural analysis results
+        Stream<JMethod> methods = World.getClassHierarchy()
+                .applicationClasses()
+                .map(JClass::getDeclaredMethods)
+                .flatMap(Collection::stream)
+                .filter(m -> !m.isAbstract() && !m.isNative());
+        methods.forEach(m -> {
+            IR ir = m.getIR();
+            ((List<String>) getOptions().get("analyses")).forEach(id -> {
+                switch (action) {
+                    case "dump":
+                        dumpResult(ir, id);
+                        break;
+                    case "compare":
+                        compareResult(ir, id);
+                        break;
+                }
+            });
+        });
     }
 
     private void dumpResult(IR ir, String id) {
@@ -122,9 +156,6 @@ public class ResultProcessor extends IntraproceduralAnalysis {
         Object result = ir.getResult(id);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
-        } else if (result instanceof Map) {
-            ((Map<?,?>) result).forEach((k, v) ->
-                    out.println(toString(k) + "=" + toString(v)));
         } else if (result instanceof NodeResult) {
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
             ir.getStmts().forEach(stmt ->
@@ -145,6 +176,35 @@ public class ResultProcessor extends IntraproceduralAnalysis {
             return IRPrinter.toString((Stmt) o);
         } else {
             return Objects.toString(o);
+        }
+    }
+
+    private void compareResult(IR ir, String id) {
+        JMethod method = ir.getMethod();
+        Set<String> inputResult = inputs.getOrDefault(
+                new Pair<>(ir.getMethod().toString(), id), Set.of());
+        Object result = ir.getResult(id);
+        if (result instanceof Set) {
+            Set<String> given = ((Set<?>) result)
+                    .stream()
+                    .map(ResultProcessor::toString)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            given.forEach(s -> {
+                if (!inputResult.contains(s)) {
+                    mismatches.add(method + " " + s  +
+                            " should NOT be included");
+                }
+            });
+            inputResult.forEach(s -> {
+                if (!given.contains(s)) {
+                    mismatches.add(method + " " + s +
+                            " should be included");
+                }
+            });
+        } else if (result instanceof NodeResult) {
+
+        } else {
+
         }
     }
 }
