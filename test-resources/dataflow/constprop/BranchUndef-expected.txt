@@ -1,9 +1,25 @@
-<BranchUndef: void undefined1(boolean)>
-6:x=UNDEF
-8:x=10
-10:x=10,y=10
+-------------------- <BranchUndef: void <init>()> (constprop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
+[1@L1] return; {%this=NAC}
 
-<BranchUndef: void undefined2(boolean)>
-15:x=UNDEF
-16:x=20
-17:a=20
+-------------------- <BranchUndef: void undefined1(boolean)> (constprop) --------------------
+[0@L5] %intconst0 = 0; {%intconst0=0, %this=NAC, b=NAC}
+[1@L5] if (b == %intconst0) goto 6; {%intconst0=0, %this=NAC, b=NAC}
+[2@L5] goto 3; {%intconst0=0, %this=NAC, b=NAC}
+[3@L5] nop; {%intconst0=0, %this=NAC, b=NAC}
+[4@L6] x = undef; {%intconst0=0, %this=NAC, b=NAC, x=UNDEF}
+[5@L5] goto 9; {%intconst0=0, %this=NAC, b=NAC, x=UNDEF}
+[6@L5] nop; {%intconst0=0, %this=NAC, b=0}
+[7@L8] temp$0 = 10; {%intconst0=0, %this=NAC, b=0, temp$0=10}
+[8@L8] x = temp$0; {%intconst0=0, %this=NAC, b=0, temp$0=10, x=10}
+[9@L8] nop; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10}
+[10@L10] y = x; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10, y=10}
+[11@L10] return; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10, y=10}
+
+-------------------- <BranchUndef: void undefined2(boolean)> (constprop) --------------------
+[0@L15] x = undef; {%this=NAC, b=NAC, x=UNDEF}
+[1@L16] temp$0 = 20; {%this=NAC, b=NAC, temp$0=20, x=UNDEF}
+[2@L16] x = temp$0; {%this=NAC, b=NAC, temp$0=20, x=20}
+[3@L17] a = x; {%this=NAC, a=20, b=NAC, temp$0=20, x=20}
+[4@L17] return; {%this=NAC, a=20, b=NAC, temp$0=20, x=20}
+

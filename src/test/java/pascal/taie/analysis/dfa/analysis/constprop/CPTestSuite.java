@@ -10,17 +10,16 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dfa;
+package pascal.taie.analysis.dfa.analysis.constprop;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import pascal.taie.analysis.dfa.analysis.constprop.CPTestSuite;
-import pascal.taie.analysis.dfa.fact.FactTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        CPTestSuite.class,
-        FactTest.class,
+        CPTestFull.class,
+        MeetValueTest.class,
+        ValueTest.class,
 })
-public class DFATestSuite {
+public class CPTestSuite {
 }

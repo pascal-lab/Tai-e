@@ -17,6 +17,7 @@ import pascal.taie.analysis.dfa.fact.MapFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.AbstractBinaryExp;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
@@ -56,12 +57,18 @@ public class ConstantPropagation extends
     public MapFact<Var, Value> getEntryInitialFact(JMethod method) {
         // Make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
-        method.getIR().getParams().forEach(p ->
+        IR ir = method.getIR();
+        ir.getParams().forEach(p ->
                 entryFact.update(p, Value.getNAC()));
-        Var thisVar = method.getIR().getThis();
+        Var thisVar = ir.getThis();
         if (thisVar != null) {
             entryFact.update(thisVar, Value.getNAC());
         }
+        // TODO: explicitly initialize all non-param variables as UNDEF?
+//        ir.getVars()
+//                .stream()
+//                .filter(v -> !v.equals(thisVar) && !ir.getParams().contains(v))
+//                .forEach(v -> entryFact.update(v, Value.getUndef()));
         return entryFact;
     }
 

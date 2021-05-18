@@ -1,14 +1,108 @@
-<VariousBinaryOp: void intArith()>
-8:a=1,b=-1,c=0,d=0
+-------------------- <VariousBinaryOp: void <init>()> (constprop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
+[1@L1] return; {%this=NAC}
 
-<VariousBinaryOp: void intEqNeq()>
-14:b1=0,b2=1
+-------------------- <VariousBinaryOp: void intArith()> (constprop) --------------------
+[0@L4] i0 = 0; {%this=NAC, i0=0}
+[1@L4] i1 = 1; {%this=NAC, i0=0, i1=1}
+[2@L5] temp$0 = i0; {%this=NAC, i0=0, i1=1, temp$0=0}
+[3@L5] a = temp$0 + i1; {%this=NAC, a=1, i0=0, i1=1, temp$0=0}
+[4@L6] temp$1 = i0 - i1; {%this=NAC, a=1, i0=0, i1=1, temp$0=0, temp$1=-1}
+[5@L6] b = temp$1; {%this=NAC, a=1, b=-1, i0=0, i1=1, temp$0=0, temp$1=-1}
+[6@L7] temp$2 = i0 * i1; {%this=NAC, a=1, b=-1, i0=0, i1=1, temp$0=0, temp$1=-1, temp$2=0}
+[7@L7] c = temp$2; {%this=NAC, a=1, b=-1, c=0, i0=0, i1=1, temp$0=0, temp$1=-1, temp$2=0}
+[8@L8] temp$3 = i0 / i1; {%this=NAC, a=1, b=-1, c=0, i0=0, i1=1, temp$0=0, temp$1=-1, temp$2=0, temp$3=0}
+[9@L8] d = temp$3; {%this=NAC, a=1, b=-1, c=0, d=0, i0=0, i1=1, temp$0=0, temp$1=-1, temp$2=0, temp$3=0}
+[10@L8] return; {%this=NAC, a=1, b=-1, c=0, d=0, i0=0, i1=1, temp$0=0, temp$1=-1, temp$2=0, temp$3=0}
 
-<VariousBinaryOp: void booleanEqNeq()>
-20:b1=0,b2=1
+-------------------- <VariousBinaryOp: void intEqNeq()> (constprop) --------------------
+[0@L12] i0 = 0; {%this=NAC, i0=0}
+[1@L12] i1 = 1; {%this=NAC, i0=0, i1=1}
+[2@L13] if (i0 == i1) goto 7; {%this=NAC, i0=0, i1=1}
+[3@L13] goto 4; {%this=NAC, i0=0, i1=1}
+[4@L13] nop; {%this=NAC, i0=0, i1=1}
+[5@L13] temp$0 = 0; {%this=NAC, i0=0, i1=1, temp$0=0}
+[6@L13] goto 9; {%this=NAC, i0=0, i1=1, temp$0=0}
+[7@L13] nop; {%this=NAC, i0=UNDEF, i1=UNDEF}
+[8@L13] temp$0 = 1; {%this=NAC, i0=UNDEF, i1=UNDEF, temp$0=1}
+[9@L13] nop; {%this=NAC, i0=0, i1=1, temp$0=NAC}
+[10@L13] b1 = temp$0; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[11@L14] if (i0 != i1) goto 16; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[12@L14] goto 13; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[13@L14] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[14@L14] temp$1 = 0; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=0}
+[15@L14] goto 18; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=0}
+[16@L14] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[17@L14] temp$1 = 1; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=1}
+[18@L14] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+[19@L14] b2 = temp$1; {%this=NAC, b1=0, b2=1, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+[20@L14] return; {%this=NAC, b1=NAC, b2=NAC, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
 
-<VariousBinaryOp: void intGeGt()>
-26:b1=0,b2=0
+-------------------- <VariousBinaryOp: void booleanEqNeq()> (constprop) --------------------
+[0@L18] t = 1; {%this=NAC, t=1}
+[1@L18] f = 0; {%this=NAC, f=0, t=1}
+[2@L19] if (t == f) goto 7; {%this=NAC, f=0, t=1}
+[3@L19] goto 4; {%this=NAC, f=0, t=1}
+[4@L19] nop; {%this=NAC, f=0, t=1}
+[5@L19] temp$0 = 0; {%this=NAC, f=0, t=1, temp$0=0}
+[6@L19] goto 9; {%this=NAC, f=0, t=1, temp$0=0}
+[7@L19] nop; {%this=NAC, f=UNDEF, t=UNDEF}
+[8@L19] temp$0 = 1; {%this=NAC, f=UNDEF, t=UNDEF, temp$0=1}
+[9@L19] nop; {%this=NAC, f=0, t=1, temp$0=NAC}
+[10@L19] b1 = temp$0; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC}
+[11@L20] if (t != f) goto 16; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC}
+[12@L20] goto 13; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC}
+[13@L20] nop; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC}
+[14@L20] temp$1 = 0; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC, temp$1=0}
+[15@L20] goto 18; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC, temp$1=0}
+[16@L20] nop; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC}
+[17@L20] temp$1 = 1; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC, temp$1=1}
+[18@L20] nop; {%this=NAC, b1=NAC, f=0, t=1, temp$0=NAC, temp$1=NAC}
+[19@L20] b2 = temp$1; {%this=NAC, b1=0, b2=1, f=0, t=1, temp$0=NAC, temp$1=NAC}
+[20@L20] return; {%this=NAC, b1=NAC, b2=NAC, f=0, t=1, temp$0=NAC, temp$1=NAC}
 
-<VariousBinaryOp: void intLeLt()>
-32:b1=1,b2=1
+-------------------- <VariousBinaryOp: void intGeGt()> (constprop) --------------------
+[0@L24] i0 = 0; {%this=NAC, i0=0}
+[1@L24] i1 = 1; {%this=NAC, i0=0, i1=1}
+[2@L25] if (i0 >= i1) goto 7; {%this=NAC, i0=0, i1=1}
+[3@L25] goto 4; {%this=NAC, i0=0, i1=1}
+[4@L25] nop; {%this=NAC, i0=0, i1=1}
+[5@L25] temp$0 = 0; {%this=NAC, i0=0, i1=1, temp$0=0}
+[6@L25] goto 9; {%this=NAC, i0=0, i1=1, temp$0=0}
+[7@L25] nop; {%this=NAC, i0=0, i1=1}
+[8@L25] temp$0 = 1; {%this=NAC, i0=0, i1=1, temp$0=1}
+[9@L25] nop; {%this=NAC, i0=0, i1=1, temp$0=NAC}
+[10@L25] b1 = temp$0; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[11@L26] if (i0 > i1) goto 16; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[12@L26] goto 13; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[13@L26] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[14@L26] temp$1 = 0; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=0}
+[15@L26] goto 18; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=0}
+[16@L26] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[17@L26] temp$1 = 1; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=1}
+[18@L26] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+[19@L26] b2 = temp$1; {%this=NAC, b1=0, b2=0, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+[20@L26] return; {%this=NAC, b1=NAC, b2=NAC, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+
+-------------------- <VariousBinaryOp: void intLeLt()> (constprop) --------------------
+[0@L30] i0 = 0; {%this=NAC, i0=0}
+[1@L30] i1 = 1; {%this=NAC, i0=0, i1=1}
+[2@L31] if (i0 <= i1) goto 7; {%this=NAC, i0=0, i1=1}
+[3@L31] goto 4; {%this=NAC, i0=0, i1=1}
+[4@L31] nop; {%this=NAC, i0=0, i1=1}
+[5@L31] temp$0 = 0; {%this=NAC, i0=0, i1=1, temp$0=0}
+[6@L31] goto 9; {%this=NAC, i0=0, i1=1, temp$0=0}
+[7@L31] nop; {%this=NAC, i0=0, i1=1}
+[8@L31] temp$0 = 1; {%this=NAC, i0=0, i1=1, temp$0=1}
+[9@L31] nop; {%this=NAC, i0=0, i1=1, temp$0=NAC}
+[10@L31] b1 = temp$0; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[11@L32] if (i0 < i1) goto 16; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[12@L32] goto 13; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[13@L32] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[14@L32] temp$1 = 0; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=0}
+[15@L32] goto 18; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=0}
+[16@L32] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC}
+[17@L32] temp$1 = 1; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=1}
+[18@L32] nop; {%this=NAC, b1=NAC, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+[19@L32] b2 = temp$1; {%this=NAC, b1=1, b2=1, i0=0, i1=1, temp$0=NAC, temp$1=NAC}
+[20@L32] return; {%this=NAC, b1=NAC, b2=NAC, i0=0, i1=1, temp$0=NAC, temp$1=NAC}

@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +141,9 @@ public class ResultProcessor extends InterproceduralAnalysis {
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
-                .filter(m -> !m.isAbstract() && !m.isNative());
+                .filter(m -> !m.isAbstract() && !m.isNative())
+                .sorted(Comparator.comparing(m ->
+                        m.getIR().getStmt(0).getLineNumber()));
         methods.forEach(m -> {
             IR ir = m.getIR();
             ((List<String>) getOptions().get("analyses")).forEach(id -> {
