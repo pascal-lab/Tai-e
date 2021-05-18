@@ -19,13 +19,15 @@ import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class NewTestUtils {
+public class TestUtils {
 
     /**
      * If generate expected results.
@@ -64,6 +66,54 @@ public class NewTestUtils {
             Assert.assertTrue("Mismatches of analysis \"" + id + "\":\n" +
                             String.join("\n", mismatches),
                     mismatches.isEmpty());
+        }
+    }
+
+    public static void testCHA(String inputClass) {
+        testByChecker(inputClass, "test-resources/cha/",
+                "pascal.taie.analysis.graph.callgraph.cha.ResultChecker",
+                List.of());
+    }
+
+    public static void testCSPTA(String inputClass, String... opts) {
+        List<String> optList = new ArrayList<>();
+        // ignore implicit entries in test mode
+        String ptaArg = "pta=implicit-entries:false";
+        for (String opt : opts) {
+            if (opt.startsWith("pta")) {
+                ptaArg = opt + ";implicit-entries:false";
+            } else {
+                optList.add(opt);
+            }
+        }
+        optList.add("-a");
+        optList.add(ptaArg);
+        optList.add("--test-mode");
+        testByChecker(inputClass, "test-resources/pta/cspta/",
+                "pascal.taie.analysis.pta.ResultChecker", optList);
+    }
+
+    private static void testByChecker(String inputClass, String classPath,
+                                      String checker, List<String> opts) {
+        List<String> args = new ArrayList<>(opts);
+        Collections.addAll(args, "-cp", classPath);
+        if (checker.contains(".pta.")) {
+            args.add("-m");
+        }
+        args.add(inputClass);
+        try {
+            Class<?> c = Class.forName(checker);
+            Method check = c.getMethod("check", String[].class, String.class);
+            @SuppressWarnings("unchecked")
+            Set<String> mismatches = (Set<String>) check.invoke(null,
+                    args.toArray(new String[0]),
+                    classPath + inputClass + "-expected.txt");
+            Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+        } catch (ClassNotFoundException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
     }
 }

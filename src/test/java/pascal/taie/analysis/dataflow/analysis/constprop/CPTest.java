@@ -13,22 +13,22 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
-import pascal.taie.analysis.NewTestUtils;
+import pascal.taie.analysis.TestUtils;
 
 public class CPTest {
 
     @Test
     public void testSimpleConstant() {
-        NewTestUtils.testCP("SimpleConstant");
+        TestUtils.testCP("SimpleConstant");
     }
 
     @Test
     public void testSimpleBinary() {
-        NewTestUtils.testCP("SimpleBinary");
+        TestUtils.testCP("SimpleBinary");
     }
 
     @Test
     public void testSimpleBranch() {
-        NewTestUtils.testCP("SimpleBranch");
+        TestUtils.testCP("SimpleBranch");
     }
 }

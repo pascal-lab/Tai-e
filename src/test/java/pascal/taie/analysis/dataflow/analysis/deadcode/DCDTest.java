@@ -13,22 +13,22 @@
 package pascal.taie.analysis.dataflow.analysis.deadcode;
 
 import org.junit.Test;
-import pascal.taie.analysis.NewTestUtils;
+import pascal.taie.analysis.TestUtils;
 
 public class DCDTest {
 
     @Test
     public void testControlFlowUnreachable() {
-        NewTestUtils.testDCD("ControlFlowUnreachable");
+        TestUtils.testDCD("ControlFlowUnreachable");
     }
 
     @Test
     public void testUnreachableBranch() {
-        NewTestUtils.testDCD("UnreachableBranch");
+        TestUtils.testDCD("UnreachableBranch");
     }
 
     @Test
     public void testDeadAssignment() {
-        NewTestUtils.testDCD("DeadAssignment");
+        TestUtils.testDCD("DeadAssignment");
     }
 }

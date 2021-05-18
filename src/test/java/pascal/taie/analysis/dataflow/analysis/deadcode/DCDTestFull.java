@@ -13,52 +13,52 @@
 package pascal.taie.analysis.dataflow.analysis.deadcode;
 
 import org.junit.Test;
-import pascal.taie.analysis.NewTestUtils;
+import pascal.taie.analysis.TestUtils;
 
 public class DCDTestFull {
 
     @Test
     public void testControlFlowUnreachable() {
-        NewTestUtils.testDCD("ControlFlowUnreachable");
+        TestUtils.testDCD("ControlFlowUnreachable");
     }
 
     @Test
     public void testUnreachableBranch() {
-        NewTestUtils.testDCD("UnreachableBranch");
+        TestUtils.testDCD("UnreachableBranch");
     }
 
     @Test
     public void testDeadAssignment() {
-        NewTestUtils.testDCD("DeadAssignment");
+        TestUtils.testDCD("DeadAssignment");
     }
 
     @Test
     public void testControlFlowUnreachable2() {
-        NewTestUtils.testDCD("ControlFlowUnreachable2");
+        TestUtils.testDCD("ControlFlowUnreachable2");
     }
 
     @Test
     public void testUnreachableBranch2() {
-        NewTestUtils.testDCD("UnreachableBranch2");
+        TestUtils.testDCD("UnreachableBranch2");
     }
 
     @Test
     public void testDeadAssignment2() {
-        NewTestUtils.testDCD("DeadAssignment2");
+        TestUtils.testDCD("DeadAssignment2");
     }
 
     @Test
     public void testMixedDeadCode() {
-        NewTestUtils.testDCD("MixedDeadCode");
+        TestUtils.testDCD("MixedDeadCode");
     }
 
     @Test
     public void testLoops() {
-        NewTestUtils.testDCD("Loops");
+        TestUtils.testDCD("Loops");
     }
 
     @Test
     public void testNotDead() {
-        NewTestUtils.testDCD("NotDead");
+        TestUtils.testDCD("NotDead");
     }
 }

@@ -13,72 +13,72 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
-import pascal.taie.analysis.NewTestUtils;
+import pascal.taie.analysis.TestUtils;
 
 public class CPTestFull {
 
     @Test
     public void testSimpleConstant() {
-        NewTestUtils.testCP("SimpleConstant");
+        TestUtils.testCP("SimpleConstant");
     }
 
     @Test
     public void testSimpleBinary() {
-        NewTestUtils.testCP("SimpleBinary");
+        TestUtils.testCP("SimpleBinary");
     }
 
     @Test
     public void testSimpleBranch() {
-        NewTestUtils.testCP("SimpleBranch");
+        TestUtils.testCP("SimpleBranch");
     }
 
     @Test
     public void testSimpleBoolean() {
-        NewTestUtils.testCP("SimpleBoolean");
+        TestUtils.testCP("SimpleBoolean");
     }
 
     @Test
     public void testAssign() {
-        NewTestUtils.testCP("Assign");
+        TestUtils.testCP("Assign");
     }
 
     @Test
     public void testBinaryOp() {
-        NewTestUtils.testCP("BinaryOp");
+        TestUtils.testCP("BinaryOp");
     }
 
     @Test
     public void testBranchConstant() {
-        NewTestUtils.testCP("BranchConstant");
+        TestUtils.testCP("BranchConstant");
     }
 
     @Test
     public void testBranchNAC() {
-        NewTestUtils.testCP("BranchNAC");
+        TestUtils.testCP("BranchNAC");
     }
 
     @Test
     public void testBranchUndef() {
-        NewTestUtils.testCP("BranchUndef");
+        TestUtils.testCP("BranchUndef");
     }
 
     @Test
     public void testLoop() {
-        NewTestUtils.testCP("Loop");
+        TestUtils.testCP("Loop");
     }
 
     @Test
     public void testInterprocedural() {
-        NewTestUtils.testCP("Interprocedural");
+        TestUtils.testCP("Interprocedural");
     }
 
     @Test(expected = AssertionError.class)
     public void testBoolean() {
-        NewTestUtils.testCP("Boolean");
+        TestUtils.testCP("Boolean");
     }
 
     @Test(expected = AssertionError.class)
     public void testVariousBinaryOp() {
-        NewTestUtils.testCP("VariousBinaryOp");
+        TestUtils.testCP("VariousBinaryOp");
     }
 }
