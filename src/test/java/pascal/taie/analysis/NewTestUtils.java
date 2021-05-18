@@ -15,9 +15,9 @@ package pascal.taie.analysis;
 import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.dfa.analysis.DeadCodeDetection;
-import pascal.taie.analysis.dfa.analysis.ResultProcessor;
-import pascal.taie.analysis.dfa.analysis.constprop.ConstantPropagation;
+import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
+import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
+import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class NewTestUtils {
         Main.main(args.toArray(new String[0]));
         if (action.equals("compare")) {
             Set<String> mismatches = World.getResult(ResultProcessor.ID);
-            Assert.assertTrue("Mismatches of analysis " + id + ":\n" +
+            Assert.assertTrue("Mismatches of analysis \"" + id + "\":\n" +
                             String.join("\n", mismatches),
                     mismatches.isEmpty());
         }
