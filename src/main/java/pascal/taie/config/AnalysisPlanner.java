@@ -45,11 +45,18 @@ public class AnalysisPlanner {
      * @throws ConfigException if the given planConfigs are invalid.
      */
     public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs) {
-        List<AnalysisConfig> plan = planConfigs.stream()
-                .map(pc -> manager.getConfig(pc.getId()))
-                .collect(Collectors.toUnmodifiableList());
+        List<AnalysisConfig> plan = covertConfigs(planConfigs);
         validatePlan(plan);
         return plan;
+    }
+
+    /**
+     * Converts a list of PlanConfigs to the list of corresponding AnalysisConfigs.
+     */
+    private List<AnalysisConfig> covertConfigs(List<PlanConfig> planConfigs) {
+        return planConfigs.stream()
+                .map(pc -> manager.getConfig(pc.getId()))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     /**
@@ -88,14 +95,14 @@ public class AnalysisPlanner {
     public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs) {
         Graph<AnalysisConfig> graph = buildRequireGraph(planConfigs);
         validateRequireGraph(graph);
-        return new TopoSorter<>(graph, true).get();
+        return new TopoSorter<>(graph, covertConfigs(planConfigs)).get();
     }
 
     /**
      * Builds a require graph for AnalysisConfigs.
      * This method traverses relevant AnalysisConfigs starting from the ones
      * specified by given PlanConfigs. During the traversal, if it finds that
-     * analysis A1 requires A2, then it adds an edge A1 -> A2 and
+     * analysis A1 is required by A2, then it adds an edge A1 -> A2 and
      * nodes A1 and A2 to the resulting graph.
      *
      * The resulting graph contains the given analyses (planConfigs) and
@@ -111,7 +118,7 @@ public class AnalysisPlanner {
             graph.addNode(config);
             visited.add(config);
             manager.getRequiredConfigs(config).forEach(required -> {
-                graph.addEdge(config, required);
+                graph.addEdge(required, config);
                 if (!visited.contains(required)) {
                     workList.add(required);
                 }
