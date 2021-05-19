@@ -47,7 +47,7 @@ public class ResultChecker {
     /**
      * If generate expected results.
      */
-    private static final boolean GENERATE_EXPECTED_RESULTS = false;
+    private static boolean GENERATE_EXPECTED_RESULTS = false;
 
     /**
      * The current result checker
@@ -94,6 +94,10 @@ public class ResultChecker {
 
     public static ResultChecker get() {
         return checker;
+    }
+
+    public static void setGenerate(boolean isGenerate) {
+        GENERATE_EXPECTED_RESULTS = isGenerate;
     }
 
     /**

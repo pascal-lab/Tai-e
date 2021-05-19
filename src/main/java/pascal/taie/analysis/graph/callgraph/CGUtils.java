@@ -23,13 +23,6 @@ import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
-import soot.Unit;
-import soot.jimple.InterfaceInvokeExpr;
-import soot.jimple.InvokeExpr;
-import soot.jimple.SpecialInvokeExpr;
-import soot.jimple.StaticInvokeExpr;
-import soot.jimple.Stmt;
-import soot.jimple.VirtualInvokeExpr;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -60,25 +53,6 @@ public class CGUtils {
      * Separator between call site and callees.
      */
     private static final String SEP = " -> ";
-
-    public static CallKind getCallKind(Unit callSite) {
-        InvokeExpr invoke = ((Stmt) callSite).getInvokeExpr();
-        return CGUtils.getCallKind(invoke);
-    }
-
-    public static CallKind getCallKind(InvokeExpr invoke) {
-        if (invoke instanceof InterfaceInvokeExpr) {
-            return CallKind.INTERFACE;
-        } else if (invoke instanceof VirtualInvokeExpr) {
-            return CallKind.VIRTUAL;
-        } else if (invoke instanceof SpecialInvokeExpr) {
-            return CallKind.SPECIAL;
-        } else if (invoke instanceof StaticInvokeExpr) {
-            return CallKind.STATIC;
-        } else {
-            return CallKind.OTHER;
-        }
-    }
 
     public static CallKind getCallKind(InvokeExp invokeExp) {
         if (invokeExp instanceof InvokeVirtual) {
