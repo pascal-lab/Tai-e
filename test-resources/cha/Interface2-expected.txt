@@ -1,12 +1,22 @@
-<Interface2: void main(java.lang.String[])>
-L14{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
-L15{interfaceinvoke i.<I: void foo()>()} -> [<A: void foo()>, <B: void foo()>, <C: void foo()>, <D: void foo()>, <E: void foo()>]
-L16{specialinvoke temp$1.<E: void <init>()>()} -> [<E: void <init>()>]
-L17{interfaceinvoke ii.<II: void foo()>()} -> [<E: void foo()>]
-L18{interfaceinvoke ii.<II: void bar()>()} -> [<E: void bar()>]
-
+#reachable methods: 10
+---------- Reachable methods: ----------
 <A: void <init>()>
-L22{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
-
+<A: void foo()>
+<B: void foo()>
+<C: void foo()>
+<D: void foo()>
 <E: void <init>()>
-L42{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+<E: void bar()>
+<E: void foo()>
+<Interface2: void main(java.lang.String[])>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 11
+---------- Call graph edges: ----------
+<A: void <init>()>[0@L22] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<E: void <init>()>[0@L42] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<Interface2: void main(java.lang.String[])>[1@L14] invokespecial temp$0.<A: void <init>()>(); -> [<A: void <init>()>]
+<Interface2: void main(java.lang.String[])>[3@L15] invokeinterface i.<I: void foo()>(); -> [<A: void foo()>, <B: void foo()>, <C: void foo()>, <D: void foo()>, <E: void foo()>]
+<Interface2: void main(java.lang.String[])>[5@L16] invokespecial temp$1.<E: void <init>()>(); -> [<E: void <init>()>]
+<Interface2: void main(java.lang.String[])>[7@L17] invokeinterface ii.<II: void foo()>(); -> [<E: void foo()>]
+<Interface2: void main(java.lang.String[])>[8@L18] invokeinterface ii.<II: void bar()>(); -> [<E: void bar()>]

@@ -14,6 +14,7 @@ package pascal.taie.analysis.graph.callgraph;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -22,7 +23,6 @@ import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.collection.MapUtils;
 import soot.Unit;
 import soot.jimple.InterfaceInvokeExpr;
 import soot.jimple.InvokeExpr;
@@ -112,28 +112,14 @@ public class CGUtils {
             out.printf("%n#call graph edges: %d%n", callGraph.getNumberOfEdges());
             out.println("---------- Call graph edges: ----------");
             callGraph.reachableMethods()
-                    .sorted(cmp)
-                    .forEach(caller -> {
-                        Map<Invoke, Set<JMethod>> callees  = MapUtils.newHybridMap();
-                        callGraph.getCallSitesIn(caller)
-                                .stream()
-                                .map(callGraph::getEdgesOf)
-                                .flatMap(Collection::stream)
-                                .forEach(edge ->
-                                        MapUtils.addToMapSet(callees,
-                                                edge.getCallSite(), edge.getCallee()));
-                        if (!callees.isEmpty()) {
-                            out.println(caller);
-                            callees.keySet()
+                    .sorted(cmp) // sort reachable methods
+                    .forEach(caller ->
+                            callGraph.getCallSitesIn(caller)
                                     .stream()
                                     .sorted(Comparator.comparing(Invoke::getIndex))
                                     .forEach(callSite ->
-                                            out.println(callSite + SEP +
-                                                    toString(callees.get(callSite))));
-                            out.println();
-                        }
-                    });
-            out.println("----------------------------------------");
+                                            out.println(toString(callSite) + SEP +
+                                                    toString(callGraph.getCallees(callSite)))));
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump call graph to " + outFile, e);
         }
@@ -153,7 +139,7 @@ public class CGUtils {
                 .map(callGraph::getCallSitesIn)
                 .flatMap(callSites -> callSites.stream().sorted(
                         Comparator.comparing(Invoke::getIndex)))
-                .forEach(callSite -> invokes.put(callSite.toString(), callSite));
+                .forEach(callSite -> invokes.put(toString(callSite), callSite));
         Map<String, String> inputs = readCallEdges(input);
         List<String> mismatches = new ArrayList<>();
         invokes.forEach((invokeStr, invoke) -> {
@@ -202,6 +188,10 @@ public class CGUtils {
             throw new AnalysisException(
                     "Failed to read call graph from file " + input, e);
         }
+    }
+
+    private static String toString(Invoke invoke) {
+        return invoke.getContainer() + IRPrinter.toString(invoke);
     }
 
     private static String toString(Collection<JMethod> methods) {

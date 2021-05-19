@@ -18,6 +18,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
+import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,22 +36,17 @@ public class TestUtils {
     private static final boolean GENERATE_EXPECTED_RESULTS = false;
 
     public static void testCP(String inputClass) {
-        test(inputClass, "test-resources/dataflow/constprop/",
+        testIntra(inputClass, "test-resources/dataflow/constprop/",
                 ConstantPropagation.ID);
     }
 
     public static void testDCD(String inputClass) {
-        test(inputClass, "test-resources/dataflow/deadcode/",
+        testIntra(inputClass, "test-resources/dataflow/deadcode/",
                 DeadCodeDetection.ID);
     }
 
-    private static void test(String main, String classPath, String id) {
-        test(main, classPath, id, List.of());
-    }
-
-    private static void test(String main, String classPath,
-                             String id, List<String> opts) {
-        List<String> args = new ArrayList<>(opts);
+    private static void testIntra(String main, String classPath, String id) {
+        List<String> args = new ArrayList<>();
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
@@ -69,10 +65,18 @@ public class TestUtils {
         }
     }
 
-    public static void testCHA(String inputClass) {
-        testByChecker(inputClass, "test-resources/cha/",
-                "pascal.taie.analysis.graph.callgraph.cha.ResultChecker",
-                List.of());
+    public static void testCHA(String main) {
+        List<String> args = new ArrayList<>();
+        args.add("-pp");
+        String classPath = "test-resources/cha/";
+        Collections.addAll(args, "-cp", classPath);
+        Collections.addAll(args, "-m", main);
+        String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
+        String file = Paths.get(classPath, main + "-expected.txt").toString();
+        String chaArg = String.format("%s=algorithm:cha;action:%s;file:%s",
+                CallGraphBuilder.ID, action, file);
+        Collections.addAll(args, "-a", chaArg);
+        Main.main(args.toArray(new String[0]));
     }
 
     public static void testCSPTA(String inputClass, String... opts) {
