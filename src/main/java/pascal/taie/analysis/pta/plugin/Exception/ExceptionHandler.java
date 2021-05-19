@@ -38,22 +38,36 @@ public class ExceptionHandler implements Plugin {
 
     private Solver pta;
 
+    private final Map<JMethod, Collection<CSMethod>> methodCollectionMap;
+
     private final Map<CSMethod, MethodExceptionResult> csMethodResultMap;
 
     private final Map<Var, Collection<Throw>> varToStmt;
 
     private final ExceptionWorkList workList;
 
-
     public ExceptionHandler() {
         csMethodResultMap = newHybridMap();
         varToStmt = newHybridMap();
         workList = new ExceptionWorkList();
+        methodCollectionMap = newHybridMap();
     }
 
     @Override
     public void setSolver(Solver pta) {
         this.pta = pta;
+    }
+
+    @Override
+    public void onPostprocess() {
+        csMethodResultMap.forEach((csMethod, methodExceptionResult) -> {
+            JMethod method = csMethod.getMethod();
+            Collection<CSMethod> csMethodCollection =
+                    methodCollectionMap.getOrDefault(method, newHybridSet());
+            csMethodCollection.add(csMethod);
+            methodCollectionMap.put(method, csMethodCollection);
+        });
+        System.out.println(methodCollectionMap);
     }
 
     @Override
@@ -74,7 +88,7 @@ public class ExceptionHandler implements Plugin {
             throwStmtSet.forEach(throwStmt -> {
                 System.out.println("throwStmt:" + throwStmt);
                 workList.addExceptionEntry(currentCSMethod, throwStmt, exceptions);
-                exceptionPropergate();
+                exceptionPropagate();
             });
         }
     }
@@ -91,9 +105,9 @@ public class ExceptionHandler implements Plugin {
         csMethodResultMap.put(calleeCSMethod, methodExceptionResult);
         Collection<CSObj> exceptions = methodExceptionResult.
                 getThrownExplicitExceptions();
-        if(exceptions.size()>0) {
+        if (exceptions.size() > 0) {
             workList.addExceptionEntry(callerCSMethod, invoke, exceptions);
-            exceptionPropergate();
+            exceptionPropagate();
         }
     }
 
@@ -115,7 +129,7 @@ public class ExceptionHandler implements Plugin {
         });
     }
 
-    private void exceptionPropergate() {
+    private void exceptionPropagate() {
         while (!workList.isEmpty()) {
             ExceptionWorkList.Entry entry = workList.pollPointerEntry();
             CSMethod csMethod = entry.csMethod;
@@ -124,13 +138,13 @@ public class ExceptionHandler implements Plugin {
             MethodExceptionResult methodExceptionResult
                     = csMethodResultMap.getOrDefault(csMethod,
                     new MethodExceptionResult());
-            csMethodResultMap.put(csMethod,methodExceptionResult);
+            csMethodResultMap.put(csMethod, methodExceptionResult);
             exceptions = methodExceptionResult.
                     getDifferentExceptions(stmt, exceptions);
             if (exceptions.size() > 0) {
-                System.out.println("csMethod "+csMethod);
-                System.out.println("stmt "+stmt);
-                System.out.println("exceptions "+exceptions);
+                System.out.println("workList process " + csMethod);
+                System.out.println("-------stmt " + stmt);
+                System.out.println("-------exceptions" + exceptions);
                 Collection<CSObj> uncaughtExceptions = IntraprocedualExceptionCaught(
                         methodExceptionResult,
                         stmt,
@@ -175,6 +189,10 @@ public class ExceptionHandler implements Plugin {
                     if (typeManager.isSubtype(exceptionEntry.getCatchType(), t)) {
                         Catch catchStmt = exceptionEntry.getHandler();
                         Var exceptionRef = catchStmt.getExceptionRef();
+                        System.out.print("context: " + ctx);
+                        System.out.println("exceptionRef:" + exceptionRef);
+                        System.out.println("--------exception:" + exceptionObj);
+                        System.out.println("--------stmt:" + catchStmt);
                         pta.addVarPointsTo(ctx, exceptionRef, heapCtx, exceptionObj);
                     } else {
                         uncaughtExceptions.add(newException);

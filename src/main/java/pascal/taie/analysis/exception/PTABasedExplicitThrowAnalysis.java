@@ -12,15 +12,24 @@
 
 package pascal.taie.analysis.exception;
 
+import pascal.taie.analysis.pta.plugin.Exception.ExceptionHandler;
 import pascal.taie.ir.IR;
+import pascal.taie.language.classes.JMethod;
 
 /**
  * Analyzes explicit exceptions based on pointer analysis.
  */
 class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
+    private ExceptionHandler exceptionHandler;
+
     @Override
     public void analyze(IR ir, ThrowResult result) {
         throw new UnsupportedOperationException();
+    }
+
+    public static void mayThrowExplicitly(IR ir){
+        JMethod jMethod=ir.getMethod();
+
     }
 }
