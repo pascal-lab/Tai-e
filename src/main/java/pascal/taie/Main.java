@@ -75,7 +75,7 @@ public class Main {
             List<PlanConfig> configs = plan.stream()
                     .map(ac -> new PlanConfig(ac.getId(), ac.getOptions()))
                     .collect(Collectors.toUnmodifiableList());
-            // TODO: turn off output in test mode?
+            // TODO: turn off output in testing?
             PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it

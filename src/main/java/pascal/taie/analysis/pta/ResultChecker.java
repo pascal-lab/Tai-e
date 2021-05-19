@@ -19,13 +19,12 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
-import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -171,11 +170,7 @@ public class ResultChecker {
      */
     private void setupStream() {
         outputStream = new ByteArrayOutputStream();
-        try {
-            printStream = new PrintStream(outputStream, false, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new AnalysisException(e);
-        }
+        printStream = new PrintStream(outputStream, false, StandardCharsets.UTF_8);
         ResultPrinter.get().setOut(printStream);
     }
 

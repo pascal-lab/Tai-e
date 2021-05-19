@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import pascal.taie.World;
 import pascal.taie.analysis.pta.ResultChecker;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -75,9 +74,10 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printResults(Solver solver) {
-        if (World.getOptions().isTestMode()) {
+        if (solver.getOptions().getBoolean("print-pointers")) {
             printPointers(solver);
-        } else if (solver.getOptions().getBoolean("dump-results")) {
+        }
+        if (solver.getOptions().getBoolean("dump-results")) {
             String path = solver.getOptions().getString("output-file");
             if (path != null) {
                 try {

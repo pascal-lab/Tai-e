@@ -184,15 +184,6 @@ public class Options {
         return onlyGenPlan;
     }
 
-    // ---------- debugging options ----------
-    @Option(names = "--test-mode",
-            description = "Flag test mode", defaultValue = "false")
-    private boolean testMode;
-
-    public boolean isTestMode() {
-        return testMode;
-    }
-
     /**
      * Parses arguments and return the parsed and post-processed Options.
      */
@@ -219,7 +210,7 @@ public class Options {
             throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
-        // TODO: turn off output in test mode?
+        // TODO: turn off output in testing?
         if (optionsFile == null) {
             // write options to file only when it is not given
             writeOptions(result, ConfigUtils.getDefaultOptions());
@@ -283,7 +274,6 @@ public class Options {
                 ", planFile='" + planFile + '\'' +
                 ", analyses=" + analyses +
                 ", genPlanFile=" + onlyGenPlan +
-                ", testMode=" + testMode +
                 '}';
     }
 }

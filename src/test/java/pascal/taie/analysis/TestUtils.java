@@ -81,10 +81,10 @@ public class TestUtils {
     public static void testCSPTA(String main, String... opts) {
         List<String> args = new ArrayList<>();
         // ignore implicit entries in test mode
-        String ptaArg = "pta=implicit-entries:false";
+        String ptaArg = "pta=implicit-entries:false;print-pointers:true";
         for (String opt : opts) {
             if (opt.startsWith("pta")) {
-                ptaArg = opt + ";implicit-entries:false";
+                ptaArg = opt + ";implicit-entries:false;print-pointers:true";
             } else {
                 args.add(opt);
             }
@@ -93,7 +93,6 @@ public class TestUtils {
         String classPath = "test-resources/pta/cspta/";
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
-        args.add("--test-mode");
         ResultChecker.setGenerate(GENERATE_EXPECTED_RESULTS);
         Set<String> mismatches = ResultChecker.check(args.toArray(new String[0]),
                 Paths.get(classPath, main + "-expected.txt").toString());
