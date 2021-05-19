@@ -26,16 +26,16 @@ abstract class AbstractICFG<Method, Node> implements ICFG<Method, Node> {
 
     @Override
     public Stream<Method> entryMethods() {
-        return callGraph.getEntryMethods().stream();
+        return callGraph.entryMethods();
     }
 
     @Override
     public Stream<Method> calleesOf(Node callSite) {
-        return callGraph.getCallees(callSite).stream();
+        return callGraph.calleesOf(callSite);
     }
 
     @Override
     public Stream<Node> callersOf(Method method) {
-        return callGraph.getCallers(method).stream();
+        return callGraph.callersOf(method);
     }
 }

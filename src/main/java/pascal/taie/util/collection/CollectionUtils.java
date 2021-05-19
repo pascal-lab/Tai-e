@@ -13,6 +13,7 @@
 package pascal.taie.util.collection;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * Provides convenient utility operations for collections.
@@ -25,7 +26,7 @@ public class CollectionUtils {
     /**
      * @return an arbitrary element of the given collection.
      */
-    public static <T> T getOne(Collection<T> collection) {
+    public static <T> T getOne(Collection<? extends T> collection) {
         return collection.iterator().next();
     }
 
@@ -33,4 +34,10 @@ public class CollectionUtils {
         return collection == null || collection.isEmpty();
     }
 
+    /**
+     * Adds a stream of elements to specific collection.
+     */
+    public static <T> void addAll(Collection<? super T> coll, Stream<? extends T> s) {
+        s.forEach(coll::add);
+    }
 }

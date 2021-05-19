@@ -22,6 +22,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.MapUtils;
 
 import java.util.LinkedList;
@@ -57,10 +58,11 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     private void buildCallGraph(DefaultCallGraph callGraph) {
         hierarchy = World.getClassHierarchy();
         resolveTable = MapUtils.newMap();
-        Queue<JMethod> queue = new LinkedList<>(callGraph.getEntryMethods());
+        Queue<JMethod> queue = new LinkedList<>();
+        CollectionUtils.addAll(queue, callGraph.entryMethods());
         while (!queue.isEmpty()) {
             JMethod method = queue.remove();
-            for (Invoke invoke : callGraph.getCallSitesIn(method)) {
+            callGraph.callSitesIn(method).forEach(invoke -> {
                 Set<JMethod> callees = resolveCalleesOf(invoke);
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
@@ -69,7 +71,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                     callGraph.addEdge(invoke, callee,
                             CGUtils.getCallKind(invoke));
                 });
-            }
+            });
         }
         hierarchy = null;
         resolveTable = null;

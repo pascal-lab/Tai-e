@@ -33,7 +33,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -41,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility methods about call graph.
@@ -90,12 +90,11 @@ public class CGUtils {
             callGraph.reachableMethods()
                     .sorted(cmp) // sort reachable methods
                     .forEach(caller ->
-                            callGraph.getCallSitesIn(caller)
-                                    .stream()
+                            callGraph.callSitesIn(caller)
                                     .sorted(Comparator.comparing(Invoke::getIndex))
                                     .forEach(callSite ->
                                             out.println(toString(callSite) + SEP +
-                                                    toString(callGraph.getCallees(callSite)))));
+                                                    toString(callGraph.calleesOf(callSite)))));
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump call graph to " + outFile, e);
         }
@@ -112,14 +111,14 @@ public class CGUtils {
         // Obtain map from Invoke.toString() to Invoke
         Map<String, Invoke> invokes = new LinkedHashMap<>();
         callGraph.reachableMethods()
-                .map(callGraph::getCallSitesIn)
-                .flatMap(callSites -> callSites.stream().sorted(
+                .map(callGraph::callSitesIn)
+                .flatMap(callSites -> callSites.sorted(
                         Comparator.comparing(Invoke::getIndex)))
                 .forEach(callSite -> invokes.put(toString(callSite), callSite));
         Map<String, String> inputs = readCallEdges(input);
         List<String> mismatches = new ArrayList<>();
         invokes.forEach((invokeStr, invoke) -> {
-            String given = toString(callGraph.getCallees(invoke));
+            String given = toString(callGraph.calleesOf(invoke));
             String expected = inputs.get(invokeStr);
             if (!given.equals(expected)) {
                 mismatches.add(String.format("%s, expected: %s, given: %s",
@@ -158,8 +157,8 @@ public class CGUtils {
         return invoke.getContainer() + IRPrinter.toString(invoke);
     }
 
-    private static String toString(Collection<JMethod> methods) {
-        return methods.stream()
+    private static String toString(Stream<JMethod> methods) {
+        return methods
                 .sorted(Comparator.comparing(JMethod::toString))
                 .collect(Collectors.toCollection(LinkedHashSet::new))
                 .toString();

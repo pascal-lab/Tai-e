@@ -14,20 +14,19 @@ package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.util.graph.Graph;
 
-import java.util.Collection;
 import java.util.stream.Stream;
 
 public interface CallGraph<CallSite, Method> extends Graph<Method> {
 
     /**
-     * @return the set of methods that are called by the given call site.
+     * @return the methods that are called by the given call site.
      */
-    Collection<Method> getCallees(CallSite callSite);
+    Stream<Method> calleesOf(CallSite callSite);
 
     /**
-     * @return the set of call sites that can call the given method.
+     * @return the call sites that can call the given method.
      */
-    Collection<CallSite> getCallers(Method callee);
+    Stream<CallSite> callersOf(Method callee);
 
     /**
      * @return the method that contains the given call site.
@@ -35,14 +34,14 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
     Method getContainerMethodOf(CallSite callSite);
 
     /**
-     * @return the set of call sites within the given method.
+     * @return the call sites within the given method.
      */
-    Collection<CallSite> getCallSitesIn(Method method);
+    Stream<CallSite> callSitesIn(Method method);
 
     /**
      * @return the call edges out of the given call site.
      */
-    Collection<Edge<CallSite, Method>> getEdgesOf(CallSite callSite);
+    Stream<Edge<CallSite, Method>> edgesOf(CallSite callSite);
 
     /**
      * @return all call edges in this call graph.
@@ -57,7 +56,7 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
     /**
      * @return the entry methods of this call graph.
      */
-    Collection<Method> getEntryMethods();
+    Stream<Method> entryMethods();
 
     /**
      * @return stream of all reachable methods in this call graph.
