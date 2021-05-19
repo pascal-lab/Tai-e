@@ -52,9 +52,6 @@ public class Main {
         if (options.isPrintHelp() || args.length == 0) {
             options.printHelp();
             System.exit(0);
-        } else if (options.isPrintVersion()) {
-            options.printVersion();
-            System.exit(0);
         }
         return options;
     }

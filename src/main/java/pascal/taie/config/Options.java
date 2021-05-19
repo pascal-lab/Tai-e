@@ -29,15 +29,18 @@ import java.io.IOException;
 import java.util.Map;
 
 @Command(name = "Options",
+        // to reduce #options, we show version info in the footer of help
+        footer = "--------------------\nVersion 0.1\n--------------------",
         description = "Tai-e options",
-        version = "0.1")
+        usageHelpWidth = 120
+)
 public class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
 
     // ---------- file-based options ----------
     @Option(names = "--options-file",
-            description = "The options file.")
+            description = "The options file")
     private File optionsFile;
 
     public File getOptionsFile() {
@@ -45,19 +48,6 @@ public class Options {
     }
 
     // ---------- information options ----------
-    @Option(names = {"-v", "--version"},
-            description = "Display version information",
-            defaultValue = "false", versionHelp = true)
-    private boolean printVersion = false;
-
-    public boolean isPrintVersion() {
-        return printVersion;
-    }
-
-    public void printVersion() {
-        new CommandLine(this).printVersionHelp(System.out);
-    }
-
     @JsonProperty
     @Option(names = {"-h", "--help"},
             description = "Display this help message",
@@ -69,7 +59,9 @@ public class Options {
     }
 
     public void printHelp() {
-        new CommandLine(this).usage(System.out);
+        CommandLine cmd = new CommandLine(this);
+        cmd.setUsageHelpLongOptionsMaxWidth(30);
+        cmd.usage(System.out);
     }
 
     // ---------- program options ----------
@@ -147,7 +139,8 @@ public class Options {
 
     @JsonProperty
     @Option(names = "--dump-classes",
-            description = "Dump classes", defaultValue = "false")
+            description = "Dump classes  (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
     private boolean dumpClasses = false;
 
     public boolean isDumpClasses() {
@@ -261,8 +254,7 @@ public class Options {
     @Override
     public String toString() {
         return "Options{" +
-                "version=" + printVersion +
-                ", help=" + printHelp +
+                "help=" + printHelp +
                 ", javaVersion=" + javaVersion +
                 ", prependJVM=" + prependJVM +
                 ", classPath='" + classPath + '\'' +

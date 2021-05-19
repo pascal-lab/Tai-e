@@ -28,14 +28,6 @@ public class OptionsTest {
     }
 
     @Test
-    public void testVersion() {
-        Options options = Options.parse("-v");
-        if (options.isPrintVersion()) {
-            options.printVersion();
-        }
-    }
-
-    @Test
     public void testJavaVersion() {
         Options options = Options.parse("-java=8");
         Assert.assertEquals(options.getJavaVersion(), 8);
