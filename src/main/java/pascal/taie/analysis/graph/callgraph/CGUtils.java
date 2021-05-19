@@ -15,6 +15,7 @@ package pascal.taie.analysis.graph.callgraph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.IRPrinter;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -38,7 +39,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -63,6 +63,8 @@ public class CGUtils {
             return CallKind.SPECIAL;
         } else if (invokeExp instanceof InvokeStatic) {
             return CallKind.STATIC;
+        } else if (invokeExp instanceof InvokeDynamic) {
+            return CallKind.DYNAMIC;
         } else {
             throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
         }
@@ -135,18 +137,6 @@ public class CGUtils {
         if (!mismatches.isEmpty()) {
             throw new AnalysisException("Mismatches of call graph\n" +
                     String.join("\n", mismatches));
-        }
-    }
-
-    private static Set<String> readReachable(String input) {
-        try {
-            return Files.lines(Paths.get(input))
-                    .takeWhile(Predicate.not(String::isBlank))
-                    .filter(line -> line.startsWith("<")) // is method signature
-                    .collect(Collectors.toSet());
-        } catch (IOException e) {
-            throw new AnalysisException(
-                    "Failed to read reachable methods from file " + input, e);
         }
     }
 
