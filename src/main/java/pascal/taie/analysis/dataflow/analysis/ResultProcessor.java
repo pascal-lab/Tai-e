@@ -47,7 +47,9 @@ import static pascal.taie.util.collection.CollectionUtils.getOne;
 
 /**
  * Special class for process the results of other analyses after they finishes.
- * This analysis should be placed after the other analyses.
+ * This class is designed mainly for testing purpose. Currently is supports
+ * input/output analysis results from/to file, and compare analysis results
+ * with input results. This analysis should be placed after the other analyses.
  */
 public class ResultProcessor extends InterproceduralAnalysis {
 
@@ -103,7 +105,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
                     Pair<String, String> key = extractKey(line);
                     if (key != null) {
                         currentKey = key;
-                    } else if (!line.isEmpty()){
+                    } else if (!line.isBlank()){
                         MapUtils.addToMapSet(inputs, currentKey, line);
                     }
                 }
