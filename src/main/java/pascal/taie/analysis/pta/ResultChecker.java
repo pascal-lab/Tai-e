@@ -17,7 +17,6 @@ import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
-import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.ResultPrinter;
 import pascal.taie.util.Strings;
 
@@ -118,7 +117,7 @@ public class ResultChecker {
         return mismatches;
     }
 
-    public void compare(Solver solver) {
+    public void compare(PointerAnalysisResult result) {
         if (!Files.exists(filePath) || GENERATE_EXPECTED_RESULTS) {
             try {
                 System.out.println("Generating expected results: " + filePath);
@@ -132,16 +131,16 @@ public class ResultChecker {
         } else {
             readExpectedResult(filePath);
             Set<String> givenPointers = new TreeSet<>();
-            solver.vars()
+            result.csVars()
                     .sorted(Comparator.comparing(CSVar::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
-            solver.instanceFields()
+            result.instanceFields()
                     .sorted(Comparator.comparing(f -> f.getBase().toString()))
                     .forEach(f -> comparePointer(f, givenPointers));
-            solver.arrayIndexes()
+            result.arrayIndexes()
                     .sorted(Comparator.comparing(ArrayIndex::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
-            solver.staticFields()
+            result.staticFields()
                     .sorted(Comparator.comparing(StaticField::toString))
                     .forEach(p -> comparePointer(p, givenPointers));
             expectedResults.forEach((p, pts) -> {
@@ -155,7 +154,7 @@ public class ResultChecker {
 
     private void comparePointer(Pointer p, Set<String> givenPointers) {
         String ptr = p.toString();
-        String given = Strings.streamToString(p.getPointsToSet().objects());
+        String given = Strings.toString(p.getPointsToSet().objects());
         String expected = expectedResults.get(ptr);
         if (!Objects.equals(given, expected)) {
             mismatches.add(String.format(

@@ -90,12 +90,17 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<CSVar> csVars() {
-        return MapUtils.getAllValues(vars);
+        return MapUtils.mapMapValues(vars);
+    }
+
+    @Override
+    public Stream<CSVar> csVarsOf(Var var) {
+        return vars.getOrDefault(var, Map.of()).values().stream();
     }
 
     @Override
     public Stream<InstanceField> instanceFields() {
-        return MapUtils.getAllValues(instanceFields);
+        return MapUtils.mapMapValues(instanceFields);
     }
 
     @Override
@@ -106,6 +111,11 @@ public class MapBasedCSManager implements CSManager {
     @Override
     public Stream<StaticField> staticFields() {
         return staticFields.values().stream();
+    }
+
+    @Override
+    public Stream<CSObj> objects() {
+        return MapUtils.mapMapValues(objs);
     }
 
     private <P extends Pointer> P initializePointsToSet(P pointer) {

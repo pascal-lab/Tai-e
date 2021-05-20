@@ -19,6 +19,7 @@ import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -83,7 +84,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
 import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
@@ -186,23 +186,8 @@ public class SolverImpl implements Solver {
     }
 
     @Override
-    public Stream<CSVar> vars() {
-        return csManager.csVars();
-    }
-
-    @Override
-    public Stream<InstanceField> instanceFields() {
-        return csManager.instanceFields();
-    }
-
-    @Override
-    public Stream<ArrayIndex> arrayIndexes() {
-        return csManager.arrayIndexes();
-    }
-
-    @Override
-    public Stream<StaticField> staticFields() {
-        return csManager.staticFields();
+    public PointerAnalysisResult getResult() {
+        return new PointerAnalysisResultImpl(csManager, callGraph);
     }
 
     /**
@@ -210,10 +195,8 @@ public class SolverImpl implements Solver {
      */
     @Override
     public void solve() {
-        plugin.onStart();
         initialize();
         analyze();
-        plugin.onFinish();
     }
 
      /**
@@ -243,6 +226,8 @@ public class SolverImpl implements Solver {
         addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
+
+        plugin.onStart();
     }
 
     private Collection<JMethod> computeEntries() {
@@ -278,6 +263,7 @@ public class SolverImpl implements Solver {
                 processCallEdge(workList.pollCallEdge());
             }
         }
+        plugin.onFinish();
     }
 
     /**

@@ -14,15 +14,12 @@ package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -32,8 +29,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.TypeManager;
-
-import java.util.stream.Stream;
 
 public interface Solver {
 
@@ -95,23 +90,5 @@ public interface Solver {
      */
     void addCallEdge(Edge<CSCallSite, CSMethod> edge);
 
-    /**
-     * @return all variables in the (reachable) program.
-     */
-    Stream<CSVar> vars();
-
-    /**
-     * @return all instance fields in the (reachable) program.
-     */
-    Stream<InstanceField> instanceFields();
-
-    /**
-     * @return all array indexes in the (reachable) program.
-     */
-    Stream<ArrayIndex> arrayIndexes();
-
-    /**
-     * @return all static fields in the (reachable) program.
-     */
-    Stream<StaticField> staticFields();
+    PointerAnalysisResult getResult();
 }

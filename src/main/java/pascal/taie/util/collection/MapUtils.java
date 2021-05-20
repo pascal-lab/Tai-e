@@ -76,7 +76,7 @@ public class MapUtils {
     /**
      * @return a stream of all values of a map of map.
      */
-    public static <K1, K2, V> Stream<V> getAllValues(Map<K1, Map<K2, V>> map) {
+    public static <K1, K2, V> Stream<V> mapMapValues(Map<K1, Map<K2, V>> map) {
         return map.values()
                 .stream()
                 .flatMap(m -> m.entrySet().stream())

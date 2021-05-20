@@ -15,10 +15,15 @@ package pascal.taie.analysis.pta.pts;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.collection.SetUtils;
 
-public abstract class PointsToSetFactory {
+import java.util.Set;
+import java.util.function.Supplier;
+
+public class PointsToSetFactory {
+
+    private static final Supplier<Set<CSObj>> setFactory = SetUtils::newHybridSet;
 
     public static PointsToSet make() {
-        return new DelegatePointsToSet(SetUtils.newHybridSet());
+        return new DelegatePointsToSet(setFactory.get());
     }
 
     /**

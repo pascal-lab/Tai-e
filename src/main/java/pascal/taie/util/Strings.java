@@ -23,7 +23,7 @@ public class Strings {
     /**
      * Converts a stream to a string.
      */
-    public static <T> String streamToString(Stream<T> stream) {
+    public static <T> String toString(Stream<T> stream) {
         Iterable<String> elems = () -> stream.map(T::toString)
                 .sorted()
                 .iterator();

@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.plugin;
 
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.ResultChecker;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -20,7 +21,7 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.util.collection.Pair;
+import pascal.taie.util.Strings;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,8 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.Strings.streamToString;
 
 /**
  * Prints pointer analysis results to specify output stream.
@@ -67,15 +66,16 @@ public enum ResultPrinter implements Plugin {
 
     @Override
     public void onFinish() {
-        printResults(solver);
+        PointerAnalysisResult result = solver.getResult();
+        printResults(result);
         if (ResultChecker.isAvailable()) {
-            ResultChecker.get().compare(solver);
+            ResultChecker.get().compare(result);
         }
     }
 
-    private void printResults(Solver solver) {
+    private void printResults(PointerAnalysisResult result) {
         if (solver.getOptions().getBoolean("print-pointers")) {
-            printPointers(solver);
+            printPointers(result);
         }
         if (solver.getOptions().getBoolean("dump-results")) {
             String path = solver.getOptions().getString("output-file");
@@ -89,22 +89,22 @@ public enum ResultPrinter implements Plugin {
                 }
             }
             out.println("---------- Reachable methods: ----------");
-            solver.getCallGraph().reachableMethods()
+            result.getCSCallGraph().reachableMethods()
                     .sorted(Comparator.comparing(CSMethod::toString))
                     .forEach(out::println);
             out.println("---------- Call graph edges: ----------");
-            solver.getCallGraph().edges().forEach(out::println);
-            printPointers(solver);
+            result.getCSCallGraph().edges().forEach(out::println);
+            printPointers(result);
             out.println("----------------------------------------");
         }
-        printStatistics(solver);
+        printStatistics(result);
     }
 
-    private void printPointers(Solver solver) {
-        printVariables(solver.vars());
-        printInstanceFields(solver.instanceFields());
-        printArrayIndexes(solver.arrayIndexes());
-        printStaticFields(solver.staticFields());
+    private void printPointers(PointerAnalysisResult result) {
+        printVariables(result.csVars());
+        printInstanceFields(result.instanceFields());
+        printArrayIndexes(result.arrayIndexes());
+        printStaticFields(result.staticFields());
     }
 
     private void printVariables(Stream<CSVar> vars) {
@@ -132,46 +132,32 @@ public enum ResultPrinter implements Plugin {
     }
 
     private void printPointsToSet(Pointer pointer) {
-        out.println(pointer + " -> "
-//                + "\t" + pointer.getPointsToSet().size() + "\t"
-                + streamToString(pointer.getPointsToSet().objects()));
+        out.println(pointer + " -> " +
+//                "\t" + pointer.getPointsToSet().size() + "\t"
+                Strings.toString(pointer.getPointsToSet().objects()));
     }
 
-    private void printStatistics(Solver solver) {
-        int varInsens = (int) solver.vars()
-                .map(CSVar::getVar)
-                .distinct()
-                .count();
-        int varSens = (int) solver.vars().count();
-        int vptSizeSens = solver.vars()
+    private void printStatistics(PointerAnalysisResult result) {
+        int varInsens = (int) result.vars().count();
+        int varSens = (int) result.csVars().count();
+        int vptSizeSens = result.csVars()
                 .mapToInt(v -> v.getPointsToSet().size())
                 .sum();
-        int ifptSizeSens = solver.instanceFields()
+        int ifptSizeSens = result.instanceFields()
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
-        int aptSizeSens = solver.arrayIndexes()
+        int aptSizeSens = result.arrayIndexes()
                 .mapToInt(a -> a.getPointsToSet().size())
                 .sum();
-        int sfptSizeSens = solver.staticFields()
+        int sfptSizeSens = result.staticFields()
                 .mapToInt(f -> f.getPointsToSet().size())
                 .sum();
-        int reachableInsens = (int) solver.getCallGraph()
-                .reachableMethods()
-                .map(CSMethod::getMethod)
-                .distinct()
-                .count();
-        int reachableSens = (int) solver.getCallGraph()
-                .reachableMethods()
-                .count();
-        int callEdgeInsens = (int) solver.getCallGraph()
-                .edges()
-                .map(e -> new Pair<>(e.getCallSite().getCallSite(),
-                        e.getCallee().getMethod()))
-                .distinct()
-                .count();
-        int callEdgeSens = (int) solver.getCallGraph()
-                .edges()
-                .count();
+        int reachableInsens = result.getCallGraph().getNumberOfMethods();
+        int reachableSens = result.getCSCallGraph().getNumberOfMethods();
+        int callEdgeInsens = (int) result.getCallGraph()
+                .edges().count();
+        int callEdgeSens = (int) result.getCSCallGraph()
+                .edges().count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",
                 format(varInsens), format(varSens));
