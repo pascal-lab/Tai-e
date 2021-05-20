@@ -13,10 +13,8 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.util.MutableBoolean;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -40,11 +38,9 @@ abstract class DelegatePointsToSet implements PointsToSet {
 
     @Override
     public boolean addAll(PointsToSet pts) {
-        boolean changed = false;
-        for (CSObj o : pts) {
-            changed |= addObject(o);
-        }
-        return changed;
+        MutableBoolean changed = new MutableBoolean(false);
+        pts.forEach(o -> changed.or(addObject(o)));
+        return changed.get();
     }
 
     @Override
@@ -60,12 +56,6 @@ abstract class DelegatePointsToSet implements PointsToSet {
     @Override
     public Stream<CSObj> objects() {
         return set.stream();
-    }
-
-    @Nonnull
-    @Override
-    public Iterator<CSObj> iterator() {
-        return Collections.unmodifiableSet(set).iterator();
     }
 
     @Override

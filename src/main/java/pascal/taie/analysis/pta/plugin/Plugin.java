@@ -47,6 +47,8 @@ public interface Plugin {
 
     /**
      * Invoked when pointer analysis finishes (i.e., after pointer analysis).
+     * Pointer analysis is supposed to have been finished at this stage,
+     * thus this call back should NOT modify pointer analysis results.
      * Thread-safe.
      */
     default void onFinish() {

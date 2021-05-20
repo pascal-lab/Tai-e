@@ -12,6 +12,8 @@
 
 package pascal.taie.frontend.soot;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -23,13 +25,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * Jimple-based pointer analysis IR builder.
  */
 class IRBuilder implements pascal.taie.ir.IRBuilder {
+
+    private static final Logger logger = LogManager.getLogger(IRBuilder.class);
 
     private final Converter converter;
 
@@ -47,10 +50,6 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {
-        buildAll(hierarchy, JMethod::getIR);
-    }
-
-    private void buildAll(ClassHierarchy hierarchy, Consumer<JMethod> builder) {
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
         int nThreads = Runtime.getRuntime().availableProcessors();
@@ -72,7 +71,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
         // Build IR for all methods in parallel
         ExecutorService service = Executors.newFixedThreadPool(nThreads);
         for (List<JMethod> group : groups) {
-            service.execute(() -> group.forEach(builder));
+            service.execute(() -> group.forEach(JMethod::getIR));
         }
         service.shutdown();
         try {
@@ -81,6 +80,6 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
             throw new RuntimeException(e);
         }
         timer.stop();
-        System.out.println(timer);
+        logger.info(timer);
     }
 }

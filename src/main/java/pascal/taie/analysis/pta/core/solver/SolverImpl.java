@@ -287,11 +287,11 @@ public class SolverImpl implements Solver {
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         logger.trace("Propagate {} to {}", pointsToSet, pointer);
         final PointsToSet diff = PointsToSetFactory.make();
-        for (CSObj obj : pointsToSet) {
+        pointsToSet.forEach(obj -> {
             if (pointer.getPointsToSet().addObject(obj)) {
                 diff.addObject(obj);
             }
-        }
+        });
         if (!diff.isEmpty()) {
             pointerFlowGraph.outEdgesOf(pointer).forEach(edge -> {
                 Pointer to = edge.getTo();
@@ -393,11 +393,11 @@ public class SolverImpl implements Solver {
             Var fromVar = store.getRValue();
             if (isConcerned(fromVar)) {
                 CSVar from = csManager.getCSVar(context, fromVar);
-                for (CSObj baseObj : pts) {
+                pts.forEach(baseObj -> {
                     InstanceField instField = csManager.getInstanceField(
                             baseObj, store.getFieldRef().resolve());
                     addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
-                }
+                });
             }
         }
     }
@@ -415,11 +415,11 @@ public class SolverImpl implements Solver {
             Var toVar = load.getLValue();
             if (isConcerned(toVar)) {
                 CSVar to = csManager.getCSVar(context, toVar);
-                for (CSObj baseObj : pts) {
+                pts.forEach(baseObj -> {
                     InstanceField instField = csManager.getInstanceField(
                             baseObj, load.getFieldRef().resolve());
                     addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
-                }
+                });
             }
         }
     }
@@ -437,13 +437,13 @@ public class SolverImpl implements Solver {
             Var rvalue = store.getRValue();
             if (isConcerned(rvalue)) {
                 CSVar from = csManager.getCSVar(context, rvalue);
-                for (CSObj array : pts) {
+                pts.forEach(array -> {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
                     // we need type guard for array stores as Java arrays
                     // are covariant
                     addPFGEdge(from, arrayIndex, arrayIndex.getType(),
                             PointerFlowEdge.Kind.ARRAY_STORE);
-                }
+                });
             }
         }
     }
@@ -461,10 +461,10 @@ public class SolverImpl implements Solver {
             Var lvalue = load.getLValue();
             if (isConcerned(lvalue)) {
                 CSVar to = csManager.getCSVar(context, lvalue);
-                for (CSObj array : pts) {
+                pts.forEach(array -> {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
                     addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
-                }
+                });
             }
         }
     }
@@ -479,7 +479,7 @@ public class SolverImpl implements Solver {
         Context context = recv.getContext();
         Var var = recv.getVar();
         for (Invoke callSite : var.getInvokes()) {
-            for (CSObj recvObj : pts) {
+            pts.forEach(recvObj -> {
                 // resolve callee
                 JMethod callee = resolveCallee(
                         recvObj.getObject().getType(), callSite);
@@ -499,7 +499,7 @@ public class SolverImpl implements Solver {
                 } else {
                     plugin.onUnresolvedCall(recvObj, context, callSite);
                 }
-            }
+            });
         }
     }
     
