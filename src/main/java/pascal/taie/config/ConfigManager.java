@@ -54,7 +54,7 @@ public class ConfigManager {
     AnalysisConfig getConfig(String id) {
         AnalysisConfig config = configs.get(id);
         if (config == null) {
-            throw new ConfigException("Analysis " + id + " is not found in " +
+            throw new ConfigException("Analysis \"" + id + "\" is not found in " +
                     ConfigUtils.getAnalysisConfig());
         }
         return config;

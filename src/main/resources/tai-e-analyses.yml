@@ -38,7 +38,7 @@
     dump: false # dump control-flow graph
 
 - description: interprocedural control-flow graph
-  analysisClass: pascal.taie.analysis.dataflow.ipa.ICFGBuilder
+  analysisClass: pascal.taie.analysis.graph.icfg.ICFGBuilder
   id: icfg
   requires: [cfg,cg]
   options:

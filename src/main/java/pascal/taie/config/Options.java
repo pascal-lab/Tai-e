@@ -182,33 +182,35 @@ public class Options {
      */
     public static Options parse(String... args) {
         Options options = CommandLine.populateCommand(new Options(), args);
-        return options.postProcess();
+        return postProcess(options);
     }
 
     /**
      * Validates input options and do some post-process on it.
      * @return the Options object after post-process.
      */
-    private Options postProcess() {
-        Options result = optionsFile == null ? this :
-                // If options file is given, we ignore other options,
-                // and instead read options from the file.
-                readRawOptions(optionsFile);
-        if (isPrependJVM()) {
-            javaVersion = getCurrentJavaVersion();
+    private static Options postProcess(Options options) {
+        if (options.optionsFile == null) {
+            return options;
         }
-        if (!analyses.isEmpty() && planFile != null) {
+        // If options file is given, we ignore other options,
+        // and instead read options from the file.
+        options = readRawOptions(options.optionsFile);
+        if (options.prependJVM) {
+            options.javaVersion = getCurrentJavaVersion();
+        }
+        if (!options.analyses.isEmpty() && options.planFile != null) {
             // The user should choose either options or plan file to
             // specify analyses to be executed.
             throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
         // TODO: turn off output in testing?
-        if (optionsFile == null) {
+        if (options.optionsFile == null) {
             // write options to file only when it is not given
-            writeOptions(result, ConfigUtils.getDefaultOptions());
+            writeOptions(options, ConfigUtils.getDefaultOptions());
         }
-        return result;
+        return options;
     }
 
     /**
