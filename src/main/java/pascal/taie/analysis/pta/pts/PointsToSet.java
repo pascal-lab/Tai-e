@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.pts;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -49,6 +50,8 @@ public interface PointsToSet {
      * @return the number of objects in this set.
      */
     int size();
+
+    Set<CSObj> getObjects();
 
     /**
      * @return a stream of all objects in this set.

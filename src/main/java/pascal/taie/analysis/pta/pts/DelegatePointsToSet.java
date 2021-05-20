@@ -15,21 +15,20 @@ package pascal.taie.analysis.pta.pts;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.MutableBoolean;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
 /**
  * Delegates points-to set to a concrete set implementation.
  */
-abstract class DelegatePointsToSet implements PointsToSet {
+class DelegatePointsToSet implements PointsToSet {
 
-    protected Set<CSObj> set;
+    private final Set<CSObj> set;
 
-    protected DelegatePointsToSet() {
-        initializePointsToSet();
+    DelegatePointsToSet(Set<CSObj> set) {
+        this.set = set;
     }
-
-    protected abstract void initializePointsToSet();
 
     @Override
     public boolean addObject(CSObj obj) {
@@ -51,6 +50,11 @@ abstract class DelegatePointsToSet implements PointsToSet {
     @Override
     public boolean isEmpty() {
         return set.isEmpty();
+    }
+
+    @Override
+    public Set<CSObj> getObjects() {
+        return Collections.unmodifiableSet(set);
     }
 
     @Override
