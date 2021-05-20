@@ -12,6 +12,8 @@
 
 package pascal.taie.util;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Strings {
@@ -22,11 +24,25 @@ public class Strings {
 
     /**
      * Converts a stream to a string.
+     * The the elements in the collection are sorted by their
+     * string representation (in alphabet order) in the resulting string.
+     * This is particularly useful for comparing expected results with the ones
+     * given by the analysis.
      */
     public static <T> String toString(Stream<T> stream) {
-        Iterable<String> elems = () -> stream.map(T::toString)
+        return "[" + stream.map(T::toString)
                 .sorted()
-                .iterator();
-        return "{" + String.join(",", elems) + "}";
+                .collect(Collectors.joining(", ")) + "]";
+    }
+
+    /**
+     * Converts a collection to a string.
+     * The the elements in the collection are sorted by their
+     * string representation (in alphabet order) in the resulting string.
+     * This is particularly useful for comparing expected results with the ones
+     * given by the analysis.
+     */
+    public static <T> String toString(Collection<? extends T> coll) {
+        return toString(coll.stream());
     }
 }

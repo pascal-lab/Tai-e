@@ -12,13 +12,13 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
+import pascal.taie.util.Strings;
 import pascal.taie.util.collection.SetUtils;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -157,12 +157,6 @@ public class SetFact<E> {
 
     @Override
     public String toString() {
-        // Sort elements by their string representation, so that the fact
-        // representation is stable across executions. This is useful for
-        // comparing expected results and the ones given by the analysis.
-        return "[" + set.stream()
-                .map(Object::toString)
-                .sorted()
-                .collect(Collectors.joining(", ")) + "]";
+        return Strings.toString(set);
     }
 }

@@ -1,12 +1,12 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: void <init>()>/%this -> {[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}}
-[]:<Primitive: void in(A,int,A)>/a1 -> {[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}}
-[]:<Primitive: void in(A,int,A)>/a2 -> {[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}}
-[]:<Primitive: void main(java.lang.String[])>/a -> {[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}}
-[]:<Primitive: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}}
-[]:<Primitive: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}}
-[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}}
+[]:<A: void <init>()>/%this -> [[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}]
+[]:<Primitive: void in(A,int,A)>/a1 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}]
+[]:<Primitive: void in(A,int,A)>/a2 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}]
+[]:<Primitive: void main(java.lang.String[])>/a -> [[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}]
+[]:<Primitive: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}]
+[]:<Primitive: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Primitive: void main(java.lang.String[])>:1(@L5)/new A}]
 ---------- Points-to sets of all instance fields: ----------
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Primitive: void main(java.lang.String[])>}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <Primitive: void main(java.lang.String[])>}]
 ---------- Points-to sets of all static fields: ----------

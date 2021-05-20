@@ -1,33 +1,33 @@
 ---------- Points-to sets of all variables: ----------
-[]:<A: void <init>()>/%this -> {[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}}
-[]:<A: void modifyParam()>/%this -> {[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}}
-[]:<A: void modifyParam()>/b1 -> {[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}}
-[]:<A: void modifyParam()>/b2 -> {[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}}
-[]:<A: void modifyParam()>/c -> {[]:NewObj{<B: void setC(B)>:0(@L40)/new C}}
-[]:<A: void modifyParam()>/temp$0 -> {[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}}
-[]:<A: void modifyParam()>/temp$1 -> {[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}}
-[]:<A: void setget()>/%this -> {[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}}
-[]:<A: void setget()>/b -> {[]:NewObj{<A: void setget()>:0(@L14)/new B}}
-[]:<A: void setget()>/c -> {[]:NewObj{<A: void setget()>:3(@L15)/new C}}
-[]:<A: void setget()>/temp$0 -> {[]:NewObj{<A: void setget()>:0(@L14)/new B}}
-[]:<A: void setget()>/temp$1 -> {[]:NewObj{<A: void setget()>:3(@L15)/new C}}
-[]:<A: void setget()>/temp$2 -> {[]:NewObj{<A: void setget()>:3(@L15)/new C}}
-[]:<B: C get()>/%this -> {[]:NewObj{<A: void setget()>:0(@L14)/new B}}
-[]:<B: C get()>/temp$0 -> {[]:NewObj{<A: void setget()>:3(@L15)/new C}}
-[]:<B: void <init>()>/%this -> {[]:NewObj{<A: void modifyParam()>:0(@L20)/new B},[]:NewObj{<A: void modifyParam()>:3(@L21)/new B},[]:NewObj{<A: void setget()>:0(@L14)/new B}}
-[]:<B: void set(C)>/%this -> {[]:NewObj{<A: void setget()>:0(@L14)/new B}}
-[]:<B: void set(C)>/c -> {[]:NewObj{<A: void setget()>:3(@L15)/new C}}
-[]:<B: void setC(B)>/%this -> {[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}}
-[]:<B: void setC(B)>/b -> {[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}}
-[]:<B: void setC(B)>/temp$0 -> {[]:NewObj{<B: void setC(B)>:0(@L40)/new C}}
-[]:<C: void <init>()>/%this -> {[]:NewObj{<A: void setget()>:3(@L15)/new C},[]:NewObj{<B: void setC(B)>:0(@L40)/new C}}
-[]:<CallField: void main(java.lang.String[])>/a -> {[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}}
-[]:<CallField: void main(java.lang.String[])>/args -> {[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <CallField: void main(java.lang.String[])>}}
-[]:<CallField: void main(java.lang.String[])>/temp$0 -> {[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}}
-[]:<java.lang.Object: void <init>()>/%this -> {[]:NewObj{<A: void modifyParam()>:0(@L20)/new B},[]:NewObj{<A: void modifyParam()>:3(@L21)/new B},[]:NewObj{<A: void setget()>:0(@L14)/new B},[]:NewObj{<A: void setget()>:3(@L15)/new C},[]:NewObj{<B: void setC(B)>:0(@L40)/new C},[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}}
+[]:<A: void <init>()>/%this -> [[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<A: void modifyParam()>/%this -> [[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<A: void modifyParam()>/b1 -> [[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}]
+[]:<A: void modifyParam()>/b2 -> [[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}]
+[]:<A: void modifyParam()>/c -> [[]:NewObj{<B: void setC(B)>:0(@L40)/new C}]
+[]:<A: void modifyParam()>/temp$0 -> [[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}]
+[]:<A: void modifyParam()>/temp$1 -> [[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}]
+[]:<A: void setget()>/%this -> [[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<A: void setget()>/b -> [[]:NewObj{<A: void setget()>:0(@L14)/new B}]
+[]:<A: void setget()>/c -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}]
+[]:<A: void setget()>/temp$0 -> [[]:NewObj{<A: void setget()>:0(@L14)/new B}]
+[]:<A: void setget()>/temp$1 -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}]
+[]:<A: void setget()>/temp$2 -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}]
+[]:<B: C get()>/%this -> [[]:NewObj{<A: void setget()>:0(@L14)/new B}]
+[]:<B: C get()>/temp$0 -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}]
+[]:<B: void <init>()>/%this -> [[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}, []:NewObj{<A: void modifyParam()>:3(@L21)/new B}, []:NewObj{<A: void setget()>:0(@L14)/new B}]
+[]:<B: void set(C)>/%this -> [[]:NewObj{<A: void setget()>:0(@L14)/new B}]
+[]:<B: void set(C)>/c -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}]
+[]:<B: void setC(B)>/%this -> [[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}]
+[]:<B: void setC(B)>/b -> [[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}]
+[]:<B: void setC(B)>/temp$0 -> [[]:NewObj{<B: void setC(B)>:0(@L40)/new C}]
+[]:<C: void <init>()>/%this -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}, []:NewObj{<B: void setC(B)>:0(@L40)/new C}]
+[]:<CallField: void main(java.lang.String[])>/a -> [[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<CallField: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <CallField: void main(java.lang.String[])>}]
+[]:<CallField: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<A: void modifyParam()>:0(@L20)/new B}, []:NewObj{<A: void modifyParam()>:3(@L21)/new B}, []:NewObj{<A: void setget()>:0(@L14)/new B}, []:NewObj{<A: void setget()>:3(@L15)/new C}, []:NewObj{<B: void setC(B)>:0(@L40)/new C}, []:NewObj{<CallField: void main(java.lang.String[])>:0(@L4)/new A}]
 ---------- Points-to sets of all instance fields: ----------
-[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}.c -> {[]:NewObj{<B: void setC(B)>:0(@L40)/new C}}
-[]:NewObj{<A: void setget()>:0(@L14)/new B}.c -> {[]:NewObj{<A: void setget()>:3(@L15)/new C}}
+[]:NewObj{<A: void modifyParam()>:3(@L21)/new B}.c -> [[]:NewObj{<B: void setC(B)>:0(@L40)/new C}]
+[]:NewObj{<A: void setget()>:0(@L14)/new B}.c -> [[]:NewObj{<A: void setget()>:3(@L15)/new C}]
 ---------- Points-to sets of all array indexes: ----------
-[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <CallField: void main(java.lang.String[])>}[*] -> {[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <CallField: void main(java.lang.String[])>}}
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <CallField: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <CallField: void main(java.lang.String[])>}]
 ---------- Points-to sets of all static fields: ----------
