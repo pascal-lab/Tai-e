@@ -20,25 +20,16 @@ import pascal.taie.util.Timer;
 public class AnalysisTimer implements Plugin {
 
     private Timer ptaTimer;
-    private Timer solverTimer;
 
     @Override
-    public void onPreprocess() {
+    public void onStart() {
         ptaTimer = new Timer("Pointer analysis");
         ptaTimer.start();
     }
 
     @Override
-    public void onInitialize() {
-        solverTimer = new Timer("Pointer analysis solver");
-        solverTimer.start();
-    }
-
-    @Override
     public void onFinish() {
-        solverTimer.stop();
         ptaTimer.stop();
-        System.out.println(solverTimer);
         System.out.println(ptaTimer);
     }
 }

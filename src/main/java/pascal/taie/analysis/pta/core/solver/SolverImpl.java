@@ -210,10 +210,10 @@ public class SolverImpl implements Solver {
      */
     @Override
     public void solve() {
-        plugin.onPreprocess();
+        plugin.onStart();
         initialize();
         analyze();
-        plugin.onPostprocess();
+        plugin.onFinish();
     }
 
      /**
@@ -243,7 +243,6 @@ public class SolverImpl implements Solver {
         addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
-        plugin.onInitialize();
     }
 
     private Collection<JMethod> computeEntries() {
@@ -279,7 +278,6 @@ public class SolverImpl implements Solver {
                 processCallEdge(workList.pollCallEdge());
             }
         }
-        plugin.onFinish();
     }
 
     /**

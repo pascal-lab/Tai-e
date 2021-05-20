@@ -66,7 +66,7 @@ public enum ResultPrinter implements Plugin {
     }
 
     @Override
-    public void onPostprocess() {
+    public void onFinish() {
         printResults(solver);
         if (ResultChecker.isAvailable()) {
             ResultChecker.get().compare(solver);

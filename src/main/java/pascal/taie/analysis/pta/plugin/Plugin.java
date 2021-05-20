@@ -39,31 +39,17 @@ public interface Plugin {
     }
 
     /**
-     * Invoked during pre-processing, i.e., before pointer analysis starts.
+     * Invoked when pointer analysis starts (i.e., before pointer analysis).
      * Thread-safe.
      */
-    default void onPreprocess() {
+    default void onStart() {
     }
 
     /**
-     * Invoked when pointer analysis initializes.
-     * Thread-safe.
-     */
-    default void onInitialize() {
-    }
-
-    /**
-     * Invoked when pointer analysis finishes.
+     * Invoked when pointer analysis finishes (i.e., after pointer analysis).
      * Thread-safe.
      */
     default void onFinish() {
-    }
-
-    /**
-     * Invoked during post-processing, i.e., after pointer analysis finishes.
-     * Thread-safe.
-     */
-    default void onPostprocess() {
     }
 
     /**

@@ -79,7 +79,7 @@ public class ThreadHandler implements Plugin {
     }
 
     @Override
-    public void onInitialize() {
+    public void onStart() {
         if (!solver.getOptions().getBoolean("implicit-entries")) {
             return;
         }
