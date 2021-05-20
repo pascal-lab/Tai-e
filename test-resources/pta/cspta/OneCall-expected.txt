@@ -1,4 +1,4 @@
----------- Points-to sets of all variables: ----------
+Points-to sets of all variables
 []:<OneCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}]
 []:<OneCall: void main(java.lang.String[])>/c -> [[]:NewObj{<OneCall: void main(java.lang.String[])>:0(@L7)/new C}]
 []:<OneCall: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<OneCall: void main(java.lang.String[])>:0(@L7)/new C}]
@@ -22,7 +22,11 @@
 [temp$3 = invokevirtual %this.id(n2)@<C: void m()>:8(@L19)]:<C: Number id(Number)>/%this -> [[]:NewObj{<OneCall: void main(java.lang.String[])>:0(@L7)/new C}]
 [temp$3 = invokevirtual %this.id(n2)@<C: void m()>:8(@L19)]:<C: Number id(Number)>/n -> [[]:NewObj{<C: void m()>:3(@L17)/new Two}]
 [temp$4 = invokeinterface x.get()@<C: void m()>:10(@L20)]:<One: int get()>/%this -> [[]:NewObj{<C: void m()>:0(@L16)/new One}]
----------- Points-to sets of all instance fields: ----------
----------- Points-to sets of all array indexes: ----------
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <OneCall: void main(java.lang.String[])>}]
----------- Points-to sets of all static fields: ----------
+
+Points-to sets of all static fields
+

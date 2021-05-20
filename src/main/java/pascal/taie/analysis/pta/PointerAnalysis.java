@@ -24,7 +24,7 @@ import pascal.taie.analysis.pta.core.solver.SolverImpl;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
-import pascal.taie.analysis.pta.plugin.ResultPrinter;
+import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokedynamicPlugin;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaPlugin;
@@ -99,7 +99,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 new ThreadHandler(),
                 new ReferenceHandler(),
                 new ReflectionPlugin(),
-                ResultPrinter.get()
+                new ResultProcessor()
         );
         if (World.getOptions().getJavaVersion() >= 7) {
             plugin.addPlugin(new InvokedynamicPlugin());

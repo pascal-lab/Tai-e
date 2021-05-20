@@ -1,4 +1,4 @@
----------- Points-to sets of all variables: ----------
+Points-to sets of all variables
 []:<A: java.lang.Object callClone()>/%this -> [[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}]
 []:<A: java.lang.Object callClone()>/temp$0 -> [[]:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}]
 []:<A: void <init>()>/%this -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}, []:NewObj{<NativeModel: void objectClone()>:0(@L13)/new A}]
@@ -32,9 +32,13 @@
 []:<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>/%native-temp2 -> [[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}]
 []:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/%native-param0 -> [[]:NewObj{<NativeModel: void doPrivileged()>:0(@L26)/new NativeModel$1Anonymous0}]
 []:<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>/%native-ret -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>:0(@L27)/new A}]
----------- Points-to sets of all instance fields: ----------
----------- Points-to sets of all array indexes: ----------
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <NativeModel: void main(java.lang.String[])>}]
 []:NewObj{<NativeModel: void arraycopy()>:1(@L18)/newarray (java.lang.Object)[%intconst0]}[*] -> [[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}]
 []:NewObj{<NativeModel: void arraycopy()>:8(@L20)/newarray (java.lang.Object)[%intconst1]}[*] -> [[]:NewObj{<NativeModel: void arraycopy()>:4(@L19)/new java.lang.Object}]
----------- Points-to sets of all static fields: ----------
+
+Points-to sets of all static fields
+

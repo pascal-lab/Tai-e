@@ -31,7 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -50,7 +50,7 @@ public class CGUtils {
     private static final Logger logger = LogManager.getLogger(CGUtils.class);
 
     /**
-     * Separator between call site and callees.
+     * Separator between call site and its callees.
      */
     private static final String SEP = " -> ";
 
@@ -108,6 +108,7 @@ public class CGUtils {
      */
     static void compareCallGraph(CallGraph<Invoke, JMethod> callGraph, String input) {
         logger.info("Comparing call graph with {} ...", input);
+        Map<String, String> inputs = readCallEdges(input);
         // Obtain map from Invoke.toString() to Invoke
         Map<String, Invoke> invokes = new LinkedHashMap<>();
         callGraph.reachableMethods()
@@ -115,7 +116,6 @@ public class CGUtils {
                 .flatMap(callSites -> callSites.sorted(
                         Comparator.comparing(Invoke::getIndex)))
                 .forEach(callSite -> invokes.put(toString(callSite), callSite));
-        Map<String, String> inputs = readCallEdges(input);
         List<String> mismatches = new ArrayList<>();
         invokes.forEach((invokeStr, invoke) -> {
             String given = toString(callGraph.calleesOf(invoke));
@@ -142,7 +142,7 @@ public class CGUtils {
     private static Map<String, String> readCallEdges(String input) {
         try {
             Map<String, String> edges = new LinkedHashMap<>();
-            Files.lines(Paths.get(input))
+            Files.lines(Path.of(input))
                     .filter(line -> line.contains(SEP))
                     .map(line -> line.split(SEP))
                     .forEach(s -> edges.put(s[0], s[1]));

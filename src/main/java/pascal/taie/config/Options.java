@@ -190,12 +190,11 @@ public class Options {
      * @return the Options object after post-process.
      */
     private static Options postProcess(Options options) {
-        if (options.optionsFile == null) {
-            return options;
+        if (options.optionsFile != null) {
+            // If options file is given, we ignore other options,
+            // and instead read options from the file.
+            options = readRawOptions(options.optionsFile);
         }
-        // If options file is given, we ignore other options,
-        // and instead read options from the file.
-        options = readRawOptions(options.optionsFile);
         if (options.prependJVM) {
             options.javaVersion = getCurrentJavaVersion();
         }

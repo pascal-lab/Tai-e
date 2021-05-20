@@ -8,9 +8,8 @@
     merge-string-objects: true
     merge-string-builders: true
     merge-exception-objects: true
-    print-pointers: false # print points-to sets of all pointers
-    dump-results: false
-    output-file: null
+    action: none # | dump | compare
+    file: null # path to input/output file
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder

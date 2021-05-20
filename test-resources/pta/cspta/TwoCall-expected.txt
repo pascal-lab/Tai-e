@@ -1,4 +1,4 @@
----------- Points-to sets of all variables: ----------
+Points-to sets of all variables
 []:<TwoCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}]
 [invokespecial %this.<init>()@<C: void <init>()>:0(@L26), invokespecial %this.<init>()@<B: void <init>()>:0(@L23)]:<java.lang.Object: void <init>()>/%this -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:7(@L9)/new C}]
 [invokespecial temp$0.<init>()@<TwoCall: void m()>:1(@L7), invokespecial %this.<init>()@<A: void <init>()>:0(@L13)]:<java.lang.Object: void <init>()>/%this -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:0(@L7)/new A}]
@@ -25,7 +25,11 @@
 [temp$2 = invokevirtual a.id(temp$1)@<TwoCall: void m()>:5(@L8), temp$0 = invokevirtual %this._id(b)@<A: B id(B)>:0(@L15)]:<A: B _id(B)>/p -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:3(@L8)/new B}]
 [temp$4 = invokevirtual a.id(temp$3)@<TwoCall: void m()>:9(@L9), temp$0 = invokevirtual %this._id(b)@<A: B id(B)>:0(@L15)]:<A: B _id(B)>/%this -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:0(@L7)/new A}]
 [temp$4 = invokevirtual a.id(temp$3)@<TwoCall: void m()>:9(@L9), temp$0 = invokevirtual %this._id(b)@<A: B id(B)>:0(@L15)]:<A: B _id(B)>/p -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:7(@L9)/new C}]
----------- Points-to sets of all instance fields: ----------
----------- Points-to sets of all array indexes: ----------
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <TwoCall: void main(java.lang.String[])>}]
----------- Points-to sets of all static fields: ----------
+
+Points-to sets of all static fields
+

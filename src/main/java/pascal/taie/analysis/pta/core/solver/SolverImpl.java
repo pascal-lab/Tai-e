@@ -125,6 +125,8 @@ public class SolverImpl implements Solver {
 
     private ClassInitializer classInitializer;
 
+    private PointerAnalysisResult result;
+
     public SolverImpl() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
@@ -187,7 +189,10 @@ public class SolverImpl implements Solver {
 
     @Override
     public PointerAnalysisResult getResult() {
-        return new PointerAnalysisResultImpl(csManager, callGraph);
+        if (result == null) {
+            result = new PointerAnalysisResultImpl(csManager, callGraph);
+        }
+        return result;
     }
 
     /**

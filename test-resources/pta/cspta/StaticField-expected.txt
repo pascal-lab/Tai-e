@@ -1,11 +1,15 @@
----------- Points-to sets of all variables: ----------
+Points-to sets of all variables
 []:<B: void <init>()>/%this -> [[]:NewObj{<StaticField: void main(java.lang.String[])>:0(@L4)/new B}]
 []:<StaticField: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <StaticField: void main(java.lang.String[])>}]
 []:<StaticField: void main(java.lang.String[])>/b -> [[]:NewObj{<StaticField: void main(java.lang.String[])>:0(@L4)/new B}]
 []:<StaticField: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<StaticField: void main(java.lang.String[])>:0(@L4)/new B}]
 []:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<StaticField: void main(java.lang.String[])>:0(@L4)/new B}]
----------- Points-to sets of all instance fields: ----------
----------- Points-to sets of all array indexes: ----------
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <StaticField: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <StaticField: void main(java.lang.String[])>}]
----------- Points-to sets of all static fields: ----------
+
+Points-to sets of all static fields
 <A: B b> -> [[]:NewObj{<StaticField: void main(java.lang.String[])>:0(@L4)/new B}]
+

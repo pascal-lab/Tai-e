@@ -1,4 +1,4 @@
----------- Points-to sets of all variables: ----------
+Points-to sets of all variables
 []:<ClassObj$A: void <clinit>()>/$r0 -> [[]:NewObj{<ClassObj$A: void <clinit>()>:0(@L16)/new java.lang.Object}]
 []:<ClassObj$A: void <clinit>()>/r1 -> [[]:NewObj{<ClassObj$A: void <clinit>()>:0(@L16)/new java.lang.Object}]
 []:<ClassObj: void main(java.lang.String[])>/%classconst0 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
@@ -8,9 +8,13 @@
 []:<java.lang.Class: void <clinit>()>/$r0 -> [[]:NewObj{<java.lang.Class: void <clinit>()>:4(@L2803)/newarray (java.io.ObjectStreamField)[%intconst1]}]
 []:<java.lang.Object: int hashCode()>/%native-this -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
 []:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<ClassObj$A: void <clinit>()>:0(@L16)/new java.lang.Object}]
----------- Points-to sets of all instance fields: ----------
----------- Points-to sets of all array indexes: ----------
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <ClassObj: void main(java.lang.String[])>}]
----------- Points-to sets of all static fields: ----------
+
+Points-to sets of all static fields
 <ClassObj: java.lang.Class klass> -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
 <java.lang.Class: java.io.ObjectStreamField[] serialPersistentFields> -> [[]:NewObj{<java.lang.Class: void <clinit>()>:4(@L2803)/newarray (java.io.ObjectStreamField)[%intconst1]}]
+

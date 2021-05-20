@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -95,7 +94,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
         String action = getOptions().getString("action");
         if (action.equals("compare")) {
             String input = getOptions().getString("file");
-            Path path = Paths.get(input);
+            Path path = Path.of(input);
             try {
                 inputs = MapUtils.newMap();
                 BufferedReader reader = Files.newBufferedReader(path);

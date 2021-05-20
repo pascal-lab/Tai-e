@@ -19,7 +19,6 @@ import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
-import pascal.taie.analysis.pta.ResultChecker;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -80,22 +79,23 @@ public class TestUtils {
 
     public static void testCSPTA(String main, String... opts) {
         List<String> args = new ArrayList<>();
+        String classPath = "test-resources/pta/cspta/";
+        Collections.addAll(args, "-cp", classPath);
+        Collections.addAll(args, "-m", main);
+        String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
+        String file = Paths.get(classPath, main + "-expected.txt").toString();
         // ignore implicit entries in test mode
-        String ptaArg = "pta=implicit-entries:false;print-pointers:true";
+        String suffix = String.format("implicit-entries:false;action:%s;file:%s",
+                action, file);
+        String ptaArg = "pta=" + suffix;
         for (String opt : opts) {
             if (opt.startsWith("pta")) {
-                ptaArg = opt + ";implicit-entries:false;print-pointers:true";
+                ptaArg = opt + ";" + suffix;
             } else {
                 args.add(opt);
             }
         }
         Collections.addAll(args, "-a", ptaArg);
-        String classPath = "test-resources/pta/cspta/";
-        Collections.addAll(args, "-cp", classPath);
-        Collections.addAll(args, "-m", main);
-        ResultChecker.setGenerate(GENERATE_EXPECTED_RESULTS);
-        Set<String> mismatches = ResultChecker.check(args.toArray(new String[0]),
-                Paths.get(classPath, main + "-expected.txt").toString());
-        Assert.assertTrue(String.join("", mismatches), mismatches.isEmpty());
+        Main.main(args.toArray(new String[0]));
     }
 }

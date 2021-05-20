@@ -138,7 +138,8 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
     }
 
     /**
-     * Removes contexts of a context-sensitive points-to set.
+     * Removes contexts of a context-sensitive points-to set and
+     * returns a new resulting set.
      */
     private static Set<Obj> removeContexts(PointsToSet pts) {
         return pts.objects().map(CSObj::getObject)
@@ -159,7 +160,8 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
     }
 
     /**
-     * Removes contexts in a context-sensitive call graph.
+     * Removes contexts in a context-sensitive call graph and
+     * returns a new resulting call graph.
      */
     private static CallGraph<Invoke, JMethod> removeContexts(
             CallGraph<CSCallSite, CSMethod> csCallGraph) {

@@ -1,4 +1,4 @@
----------- Points-to sets of all variables: ----------
+Points-to sets of all variables
 []:<A: void <init>()>/%this -> [[]:NewObj{<New: void main(java.lang.String[])>:0(@L4)/new A}]
 []:<B: void <init>()>/%this -> [[]:NewObj{<New: void main(java.lang.String[])>:3(@L5)/new B}, []:NewObj{<New: void main(java.lang.String[])>:6(@L6)/new C}, []:NewObj{<New: void main(java.lang.String[])>:9(@L7)/new C}]
 []:<C: void <init>()>/%this -> [[]:NewObj{<New: void main(java.lang.String[])>:6(@L6)/new C}, []:NewObj{<New: void main(java.lang.String[])>:9(@L7)/new C}]
@@ -12,7 +12,11 @@
 []:<New: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<New: void main(java.lang.String[])>:6(@L6)/new C}]
 []:<New: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<New: void main(java.lang.String[])>:9(@L7)/new C}]
 []:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<New: void main(java.lang.String[])>:0(@L4)/new A}, []:NewObj{<New: void main(java.lang.String[])>:3(@L5)/new B}, []:NewObj{<New: void main(java.lang.String[])>:6(@L6)/new C}, []:NewObj{<New: void main(java.lang.String[])>:9(@L7)/new C}]
----------- Points-to sets of all instance fields: ----------
----------- Points-to sets of all array indexes: ----------
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <New: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <New: void main(java.lang.String[])>}]
----------- Points-to sets of all static fields: ----------
+
+Points-to sets of all static fields
+
