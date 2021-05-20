@@ -33,8 +33,7 @@ public class SootFrontendTest {
     public void testWorldBuilder() {
         Main.buildWorld( "-pp", "-cp", "test-resources/pta/cspta", "-m", "Assign");
         World.getClassHierarchy()
-                .getAllClasses()
-                .stream()
+                .allClasses()
                 .sorted(Comparator.comparing(JClass::getName))
                 .forEach(jclass -> {
                     SootClass sootClass =

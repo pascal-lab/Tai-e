@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
@@ -20,10 +22,12 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.MapUtils;
 
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -33,6 +37,8 @@ import java.util.stream.Collectors;
  * Builds call graph via class hierarchy analysis.
  */
 class CHABuilder implements CGBuilder<Invoke, JMethod> {
+
+    private static final Logger logger = LogManager.getLogger(CHABuilder.class);
 
     private ClassHierarchy hierarchy;
 
@@ -52,10 +58,11 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     private void buildCallGraph(DefaultCallGraph callGraph) {
         hierarchy = World.getClassHierarchy();
         resolveTable = MapUtils.newMap();
-        Queue<JMethod> queue = new LinkedList<>(callGraph.getEntryMethods());
+        Queue<JMethod> queue = new LinkedList<>();
+        CollectionUtils.addAll(queue, callGraph.entryMethods());
         while (!queue.isEmpty()) {
             JMethod method = queue.remove();
-            for (Invoke invoke : callGraph.getCallSitesIn(method)) {
+            callGraph.callSitesIn(method).forEach(invoke -> {
                 Set<JMethod> callees = resolveCalleesOf(invoke);
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
@@ -64,7 +71,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                     callGraph.addEdge(invoke, callee,
                             CGUtils.getCallKind(invoke));
                 });
-            }
+            });
         }
         hierarchy = null;
         resolveTable = null;
@@ -74,11 +81,11 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
      * Resolves callees of a call site via class hierarchy analysis.
      */
     private Set<JMethod> resolveCalleesOf(Invoke callSite) {
-        MethodRef methodRef = callSite.getMethodRef();
         CallKind kind = CGUtils.getCallKind(callSite);
         switch (kind) {
             case INTERFACE:
             case VIRTUAL: {
+                MethodRef methodRef = callSite.getMethodRef();
                 JClass cls = methodRef.getDeclaringClass();
                 Set<JMethod> callees = MapUtils.getMapMap(resolveTable, cls, methodRef);
                 if (callees != null) {
@@ -88,13 +95,18 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                         .stream()
                         .filter(Predicate.not(JClass::isAbstract))
                         .map(c -> hierarchy.dispatch(c, methodRef))
+                        .filter(Objects::nonNull) // filter out null callees
                         .collect(Collectors.toUnmodifiableSet());
                 MapUtils.addToMapMap(resolveTable, cls, methodRef, callees);
                 return callees;
             }
             case SPECIAL:
             case STATIC: {
-                return Set.of(methodRef.resolve());
+                return Set.of(callSite.getMethodRef().resolve());
+            }
+            case DYNAMIC: {
+                logger.debug("CHA cannot resolve invokedynamic " + callSite);
+                return Set.of();
             }
             default:
                 throw new AnalysisException("Failed to resolve call site: " + callSite);

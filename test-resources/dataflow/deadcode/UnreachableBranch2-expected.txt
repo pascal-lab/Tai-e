@@ -1,9 +1,14 @@
-<UnreachableBranch2: void foo()>
-L7{goto label2}
-L10{label2: nop}
-L12{temp$1 = 200}
-L12{z = temp$1}
-L14{a = x}
-L15{virtualinvoke this.<UnreachableBranch2: void use(int)>(a)}
-L16{virtualinvoke this.<UnreachableBranch2: void use(int)>(z)}
-L16{return}
+-------------------- <UnreachableBranch2: void <init>()> (deadcode) --------------------
+
+-------------------- <UnreachableBranch2: void foo()> (deadcode) --------------------
+[3@L7] goto 9;
+[9@L10] nop;
+[10@L12] temp$1 = 200;
+[11@L12] z = temp$1;
+[12@L14] a = x;
+[13@L15] invokevirtual %this.<UnreachableBranch2: void use(int)>(a);
+[14@L16] invokevirtual %this.<UnreachableBranch2: void use(int)>(z);
+[15@L16] return;
+
+-------------------- <UnreachableBranch2: void use(int)> (deadcode) --------------------
+

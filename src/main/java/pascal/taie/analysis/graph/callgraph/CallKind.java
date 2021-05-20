@@ -18,6 +18,7 @@ public enum CallKind {
     VIRTUAL,
     SPECIAL,
     STATIC,
+    DYNAMIC,
     // non-regular calls, such calls are typically handled by plugins
     OTHER,
 }

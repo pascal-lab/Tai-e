@@ -12,121 +12,166 @@
 
 package pascal.taie.analysis.graph.icfg;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.cfg.CFG;
+import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.SetUtils;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.stream.Stream;
 
-public abstract class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
+import static pascal.taie.analysis.graph.icfg.ICFGBuilder.getCFGOf;
 
-    private final Map<Stmt, Set<ICFGEdge<Stmt>>> inEdges;
+class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
-    private final Map<Stmt, Set<ICFGEdge<Stmt>>> outEdges;
+    private static final Logger logger = LogManager.getLogger(DefaultICFG.class);
 
-    private final Map<Stmt, JMethod> stmtToMethod;
+    private final Map<Stmt, Set<ICFGEdge<Stmt>>> inEdges = MapUtils.newMap();
 
-    /**
-     * Obtains the CFG of given method.
-     */
-    private final Function<JMethod, CFG<Stmt>> cfgGetter;
+    private final Map<Stmt, Set<ICFGEdge<Stmt>>> outEdges = MapUtils.newMap();
 
-    DefaultICFG(CallGraph<Stmt, JMethod> callGraph,
-                Function<JMethod, CFG<Stmt>> cfgGetter) {
+    private final Map<Stmt, CFG<Stmt>> stmtToCFG = MapUtils.newMap();
+
+    DefaultICFG(CallGraph<Stmt, JMethod> callGraph) {
         super(callGraph);
-        inEdges = MapUtils.newMap();
-        outEdges = MapUtils.newMap();
-        stmtToMethod = MapUtils.newMap();
-        this.cfgGetter = cfgGetter;
+        build(callGraph);
     }
-//
-//    @Override
-//    public Collection<ICFGEdge<Stmt>> inEdesOf(Stmt stmt) {
-//        return inEdges.getOrDefault(stmt, Set.of());
-//    }
-//
-//    @Override
-//    public Collection<ICFGEdge<Stmt>> getOutEdgesOf(Stmt stmt) {
-//        return outEdges.getOrDefault(stmt, Set.of());
-//    }
-//
-//    @Override
-//    public Collection<Stmt> getEntriesOf(JMethod method) {
-//        CFG<Stmt> cfg = cfgGetter.apply(method);
-//        return List.of(cfg.getEntry());
-//    }
-//
-//    @Override
-//    public Collection<Stmt> getExitsOf(JMethod method) {
-//        // TODO - do exceptional exits matter?
-//        CFG<Stmt> cfg = cfgGetter.apply(method);
-//        return List.of(cfg.getExit());
-//    }
-//
-//    @Override
-//    public Collection<Stmt> getReturnSitesOf(Stmt callSite) {
-//        return cfgGetter.apply(stmtToMethod.get(callSite))
-//                .succsOf(callSite)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public JMethod getContainingMethodOf(Stmt stmt) {
-//        return stmtToMethod.get(stmt);
-//    }
-//
-//    @Override
-//    public boolean isCallSite(Stmt stmt) {
-//        return stmt instanceof Invoke;
-//    }
-//
-//    // Implementation of DirectGraph methods
-//    @Override
-//    public List<Stmt> getHeads() {
-//        return getEntryMethods()
-//                .stream()
-//                .map(this::getEntriesOf)
-//                .flatMap(Collection::stream)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<Stmt> getTails() {
-//        return getEntryMethods()
-//                .stream()
-//                .map(this::getExitsOf)
-//                .flatMap(Collection::stream)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<Stmt> getPredsOf(Stmt s) {
-//        return inEdges.get(s)
-//                .stream()
-//                .map(ICFGEdge::getSource)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<Stmt> getSuccsOf(Stmt s) {
-//        return outEdges.get(s)
-//                .stream()
-//                .map(ICFGEdge::getTarget)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public int size() {
-//        return stmtToMethod.size();
-//    }
-//
-//    @Nonnull
-//    @Override
-//    public Iterator<Stmt> iterator() {
-//        return stmtToMethod.keySet().iterator();
-//    }
+
+    private void build(CallGraph<Stmt, JMethod> callGraph) {
+        callGraph.reachableMethods().forEach(method -> {
+            CFG<Stmt> cfg = getCFGOf(method);
+            if (cfg == null) {
+                // Since the scope of CFGBuilder only covers application
+                // classes for now, while CallGraphBuilder also discovers
+                // library classes, the CFG of these library classes
+                // are currently absent.
+                // FIXME: let CFGBuilder covers the classes analyzed by other analyses.
+                logger.warn("CFG of {} is absent", method);
+                return;
+            }
+            cfg.nodes().forEach(stmt -> {
+                stmtToCFG.put(stmt, cfg);
+                cfg.outEdgesOf(stmt).forEach(edge -> {
+                    LocalEdge<Stmt> local = new LocalEdge<>(edge);
+                    MapUtils.addToMapSet(outEdges, stmt, local);
+                    MapUtils.addToMapSet(inEdges, edge.getTarget(), local);
+                });
+                if (isCallSite(stmt)) {
+                    calleesOf(stmt).forEach(callee -> {
+                        if (getCFGOf(callee) == null) { // FIXME: same issues as above
+                            return;
+                        }
+                        // Add call edges
+                        Stmt entry = getEntryOf(callee);
+                        CallEdge<Stmt> call = new CallEdge<>(stmt, entry);
+                        MapUtils.addToMapSet(outEdges, stmt, call);
+                        MapUtils.addToMapSet(inEdges, entry, call);
+                        // Add return edges
+                        Stmt exit = getExitOf(callee);
+                        Set<Var> retVars = SetUtils.newHybridSet();
+                        Set<ClassType> exceptions = SetUtils.newHybridSet();
+                        // The exit node of CFG is mock, thus it is not
+                        // a real return or excepting Stmt. We need to
+                        // collect return and exception information from
+                        // the real return and excepting Stmts, and attach
+                        // them to the ReturnEdge.
+                        getCFGOf(callee).inEdgesOf(exit).forEach(retEdge -> {
+                            if (retEdge.getKind() == Edge.Kind.RETURN) {
+                                Return ret = (Return) retEdge.getSource();
+                                if (ret.getValue() != null) {
+                                    retVars.add(ret.getValue());
+                                }
+                            }
+                            if (retEdge.isExceptional()) {
+                                retEdge.exceptions().forEach(exceptions::add);
+                            }
+                        });
+                        returnSitesOf(stmt).forEach(retSite -> {
+                            ReturnEdge<Stmt> ret = new ReturnEdge<>(
+                                    exit, retSite, stmt, retVars, exceptions);
+                            MapUtils.addToMapSet(outEdges, exit, ret);
+                            MapUtils.addToMapSet(inEdges, retSite, ret);
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    @Override
+    public Stream<ICFGEdge<Stmt>> inEdgesOf(Stmt stmt) {
+        return inEdges.getOrDefault(stmt, Set.of()).stream();
+    }
+
+    @Override
+    public Stream<ICFGEdge<Stmt>> outEdgesOf(Stmt stmt) {
+        return outEdges.getOrDefault(stmt, Set.of()).stream();
+    }
+
+    @Override
+    public Stmt getEntryOf(JMethod method) {
+        return getCFGOf(method).getEntry();
+    }
+
+    @Override
+    public Stmt getExitOf(JMethod method) {
+        return getCFGOf(method).getExit();
+    }
+
+    @Override
+    public Stream<Stmt> returnSitesOf(Stmt callSite) {
+        assert isCallSite(callSite);
+        return stmtToCFG.get(callSite).succsOf(callSite);
+    }
+
+    @Override
+    public JMethod getContainingMethodOf(Stmt stmt) {
+        return stmtToCFG.get(stmt).getMethod();
+    }
+
+    @Override
+    public boolean isCallSite(Stmt stmt) {
+        return stmt instanceof Invoke;
+    }
+
+    @Override
+    public boolean hasNode(Stmt stmt) {
+        return stmtToCFG.containsKey(stmt);
+    }
+
+    @Override
+    public boolean hasEdge(Stmt source, Stmt target) {
+        return outEdgesOf(source)
+                .anyMatch(edge -> edge.getTarget().equals(target));
+    }
+
+    @Override
+    public Stream<Stmt> predsOf(Stmt stmt) {
+        return inEdgesOf(stmt).map(ICFGEdge::getSource);
+    }
+
+    @Override
+    public Stream<Stmt> succsOf(Stmt stmt) {
+        return outEdgesOf(stmt).map(ICFGEdge::getTarget);
+    }
+
+    @Override
+    public Stream<Stmt> nodes() {
+        return stmtToCFG.keySet().stream();
+    }
+
+    @Override
+    public int getNumberOfNodes() {
+        return stmtToCFG.size();
+    }
 }

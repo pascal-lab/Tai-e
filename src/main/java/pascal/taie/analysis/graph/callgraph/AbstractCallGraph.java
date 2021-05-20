@@ -12,10 +12,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.collection.CollectionView;
 import pascal.taie.util.collection.MapUtils;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -61,23 +59,17 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected abstract boolean addNewMethod(Method method);
 
     @Override
-    public Collection<Method> getCallees(CallSite callSite) {
+    public Stream<Method> calleesOf(CallSite callSite) {
         Set<Edge<CallSite, Method>> edges = callSiteToEdges.get(callSite);
-        if (edges != null) {
-            return CollectionView.of(edges, Edge::getCallee);
-        } else {
-            return Set.of();
-        }
+        return edges != null ?
+                edges.stream().map(Edge::getCallee) : Stream.of();
     }
 
     @Override
-    public Collection<CallSite> getCallers(Method callee) {
+    public Stream<CallSite> callersOf(Method callee) {
         Set<Edge<CallSite, Method>> edges = calleeToEdges.get(callee);
-        if (edges != null) {
-            return CollectionView.of(edges, Edge::getCallSite);
-        } else {
-            return Set.of();
-        }
+        return edges != null ?
+                edges.stream().map(Edge::getCallSite) : Stream.of();
     }
 
     @Override
@@ -86,13 +78,13 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Collection<CallSite> getCallSitesIn(Method method) {
-        return callSitesIn.getOrDefault(method, Set.of());
+    public Stream<CallSite> callSitesIn(Method method) {
+        return callSitesIn.getOrDefault(method, Set.of()).stream();
     }
 
     @Override
-    public Collection<Edge<CallSite, Method>> getEdgesOf(CallSite callSite) {
-        return callSiteToEdges.getOrDefault(callSite, Set.of());
+    public Stream<Edge<CallSite, Method>> edgesOf(CallSite callSite) {
+        return callSiteToEdges.getOrDefault(callSite, Set.of()).stream();
     }
 
     @Override
@@ -111,8 +103,8 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Collection<Method> getEntryMethods() {
-        return entryMethods;
+    public Stream<Method> entryMethods() {
+        return entryMethods.stream();
     }
 
     @Override
@@ -144,18 +136,15 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public Stream<Method> predsOf(Method node) {
-        return getCallers(node)
-                .stream()
+        return callersOf(node)
                 .map(this::getContainerMethodOf)
                 .distinct();
     }
 
     @Override
     public Stream<Method> succsOf(Method node) {
-        return getCallSitesIn(node)
-                .stream()
-                .map(this::getCallees)
-                .flatMap(Collection::stream)
+        return callSitesIn(node)
+                .flatMap(this::calleesOf)
                 .distinct();
     }
 

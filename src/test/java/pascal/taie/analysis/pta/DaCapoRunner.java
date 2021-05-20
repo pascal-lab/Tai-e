@@ -13,7 +13,6 @@
 package pascal.taie.analysis.pta;
 
 import pascal.taie.Main;
-import soot.G;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,14 +41,13 @@ public class DaCapoRunner {
     }
 
     private void run06(String benchmark) {
-        G.reset();
         System.out.println("\nAnalyzing " + benchmark);
         Main.main(compose06Args(benchmark));
     }
 
     private String[] compose06Args(String benchmark) {
         return new String[]{
-                "-a", "pta=merge-string-constants:true,cs:2-obj",
+                "-a", "pta=merge-string-constants:true;cs:2-obj",
                 "-java=6",
                 "--pre-build-ir",
                 "-cp", buildCP(benchmark),

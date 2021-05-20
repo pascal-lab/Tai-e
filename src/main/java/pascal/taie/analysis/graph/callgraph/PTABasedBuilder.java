@@ -12,19 +12,23 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
+import pascal.taie.World;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
 /**
  * Builds call graph based on pointer analysis results.
- * This builder supposes that pointer analysis have been done, and it
- * merely converts context-sensitive call graph into the corresponding
- * context-insensitive call graph (by projecting out the contexts).
+ * This builder supposes that pointer analysis have been done,
+ * and it merely returns the (context-insensitive) call graph
+ * obtained from pointer analysis result.
  */
 class PTABasedBuilder implements CGBuilder<Invoke, JMethod> {
 
     @Override
     public CallGraph<Invoke, JMethod> build() {
-        throw new UnsupportedOperationException();
+        PointerAnalysisResult result = World.getResult(PointerAnalysis.ID);
+        return result.getCallGraph();
     }
 }

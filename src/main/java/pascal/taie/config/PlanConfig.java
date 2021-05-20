@@ -105,7 +105,7 @@ public class PlanConfig {
                     String id = entry.getKey();
                     // Convert option string to a valid YAML string
                     String opts = entry.getValue()
-                            .replace(',', '\n')
+                            .replace(';', '\n')
                             .replace(":", ": ");
                     try {
                         Map<String, Object> optsMap = opts.isEmpty() ?

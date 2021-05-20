@@ -52,9 +52,6 @@ public class Main {
         if (options.isPrintHelp() || args.length == 0) {
             options.printHelp();
             System.exit(0);
-        } else if (options.isPrintVersion()) {
-            options.printVersion();
-            System.exit(0);
         }
         return options;
     }
@@ -75,7 +72,7 @@ public class Main {
             List<PlanConfig> configs = plan.stream()
                     .map(ac -> new PlanConfig(ac.getId(), ac.getOptions()))
                     .collect(Collectors.toUnmodifiableList());
-            // TODO: turn off output in test mode?
+            // TODO: turn off output in testing?
             PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it

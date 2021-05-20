@@ -1,2 +1,19 @@
-<SimpleBranch: void NAC(int)>
-10:y=NAC
+-------------------- <SimpleBranch: void <init>()> (constprop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
+[1@L1] return; {%this=NAC}
+
+-------------------- <SimpleBranch: void NAC(int)> (constprop) --------------------
+[0@L5] %intconst0 = 0; {%intconst0=0, p=NAC}
+[1@L5] if (p > %intconst0) goto 3; {%intconst0=0, p=NAC}
+[2@L5] goto 7; {%intconst0=0, p=NAC}
+[3@L5] nop; {%intconst0=0, p=NAC}
+[4@L6] temp$0 = 1; {%intconst0=0, p=NAC, temp$0=1}
+[5@L6] x = temp$0; {%intconst0=0, p=NAC, temp$0=1, x=1}
+[6@L5] goto 10; {%intconst0=0, p=NAC, temp$0=1, x=1}
+[7@L5] nop; {%intconst0=0, p=NAC}
+[8@L8] temp$1 = 2; {%intconst0=0, p=NAC, temp$1=2}
+[9@L8] x = temp$1; {%intconst0=0, p=NAC, temp$1=2, x=2}
+[10@L8] nop; {%intconst0=0, p=NAC, temp$0=1, temp$1=2, x=NAC}
+[11@L10] y = x; {%intconst0=0, p=NAC, temp$0=1, temp$1=2, x=NAC, y=NAC}
+[12@L10] return; {%intconst0=0, p=NAC, temp$0=1, temp$1=2, x=NAC, y=NAC}
+

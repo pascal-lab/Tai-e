@@ -1,9 +1,40 @@
-<Interprocedural: void param(int,boolean)>
-4:x=NAC
-5:y=NAC
-6:p=NAC
-7:q=NAC
+-------------------- <Interprocedural: void <init>()> (constprop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
+[1@L1] return; {%this=NAC}
 
-<Interprocedural: void invoke()>
-11:x=NAC
-12:y=NAC
+-------------------- <Interprocedural: void param(int,boolean)> (constprop) --------------------
+[0@L4] x = i; {%this=NAC, b=NAC, i=NAC, x=NAC}
+[1@L5] temp$0 = i; {%this=NAC, b=NAC, i=NAC, temp$0=NAC, x=NAC}
+[2@L5] %intconst0 = 10; {%intconst0=10, %this=NAC, b=NAC, i=NAC, temp$0=NAC, x=NAC}
+[3@L5] y = temp$0 + %intconst0; {%intconst0=10, %this=NAC, b=NAC, i=NAC, temp$0=NAC, x=NAC, y=NAC}
+[4@L6] p = b; {%intconst0=10, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[5@L7] %intconst1 = 0; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[6@L7] if (b == %intconst1) goto 8; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[7@L7] goto 14; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[8@L7] nop; {%intconst0=10, %intconst1=0, %this=NAC, b=0, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[9@L7] goto 11; {%intconst0=10, %intconst1=0, %this=NAC, b=0, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[10@L7] goto 11; {}
+[11@L7] nop; {%intconst0=10, %intconst1=0, %this=NAC, b=0, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[12@L7] temp$1 = 0; {%intconst0=10, %intconst1=0, %this=NAC, b=0, i=NAC, p=NAC, temp$0=NAC, temp$1=0, x=NAC, y=NAC}
+[13@L7] goto 16; {%intconst0=10, %intconst1=0, %this=NAC, b=0, i=NAC, p=NAC, temp$0=NAC, temp$1=0, x=NAC, y=NAC}
+[14@L7] nop; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
+[15@L7] temp$1 = 1; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, temp$1=1, x=NAC, y=NAC}
+[16@L7] nop; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+[17@L7] q = temp$1; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, q=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+[18@L7] return; {%intconst0=10, %intconst1=0, %this=NAC, b=NAC, i=NAC, p=NAC, q=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+
+-------------------- <Interprocedural: void invoke()> (constprop) --------------------
+[0@L11] temp$0 = invokevirtual %this.<Interprocedural: int ten()>(); {%this=NAC, temp$0=NAC}
+[1@L11] x = temp$0; {%this=NAC, temp$0=NAC, x=NAC}
+[2@L12] %intconst0 = 10; {%intconst0=10, %this=NAC, temp$0=NAC, x=NAC}
+[3@L12] temp$1 = invokevirtual %this.<Interprocedural: int id(int)>(%intconst0); {%intconst0=10, %this=NAC, temp$0=NAC, temp$1=NAC, x=NAC}
+[4@L12] y = temp$1; {%intconst0=10, %this=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+[5@L12] return; {%intconst0=10, %this=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+
+-------------------- <Interprocedural: int ten()> (constprop) --------------------
+[0@L15] temp$0 = 10; {%this=NAC, temp$0=10}
+[1@L16] return temp$0; {%this=NAC, temp$0=10}
+
+-------------------- <Interprocedural: int id(int)> (constprop) --------------------
+[0@L20] return x; {%this=NAC, x=NAC}
+

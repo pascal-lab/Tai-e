@@ -13,7 +13,7 @@
 package pascal.taie.analysis.graph.callgraph.cha;
 
 import org.junit.Test;
-import pascal.taie.TestUtils;
+import pascal.taie.analysis.TestUtils;
 
 public class CHATest {
 

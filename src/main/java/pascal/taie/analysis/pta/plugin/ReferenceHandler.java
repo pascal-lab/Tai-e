@@ -19,6 +19,8 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 
+import javax.annotation.Nullable;
+
 import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
 import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;
 
@@ -41,7 +43,9 @@ public class ReferenceHandler implements Plugin {
 
     /**
      * The static field Reference.pending.
+     * If Java version >= 9, this field is null.
      */
+    @Nullable
     private JField referencePending;
 
     @Override
@@ -56,7 +60,7 @@ public class ReferenceHandler implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (World.getOptions().getJavaVersion() < 9) {
+        if (referencePending != null) {
             // Let Reference.pending points to every reference.
             if (csVar.getVar().equals(referenceInitThis)) {
                 solver.addStaticFieldPointsTo(referencePending, pts);

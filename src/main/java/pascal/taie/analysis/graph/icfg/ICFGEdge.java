@@ -12,17 +12,16 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 import pascal.taie.util.HashUtils;
 
 public abstract class ICFGEdge<Node> {
 
-    protected final Kind kind;
-    protected final Node source;
-    protected final Node target;
+    private final Kind kind;
+    private final Node source;
+    private final Node target;
     private int hashCode = 0;
 
-    public ICFGEdge(Kind kind, Node source, Node target) {
+    ICFGEdge(Kind kind, Node source, Node target) {
         this.kind = kind;
         this.source = source;
         this.target = target;
@@ -39,10 +38,6 @@ public abstract class ICFGEdge<Node> {
     public Node getTarget() {
         return target;
     }
-
-    public abstract <Domain> void accept(EdgeTransfer<Node, Domain> transfer,
-                                         Domain sourceInFlow, Domain sourceOutFlow,
-                                         Domain edgeFlow);
 
     protected int computeHashCode() {
         return HashUtils.hash(kind, source, target);

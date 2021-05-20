@@ -14,11 +14,7 @@ package pascal.taie.analysis.graph.cfg;
 
 import org.junit.Test;
 import pascal.taie.Main;
-import pascal.taie.World;
 import pascal.taie.analysis.exception.ThrowAnalysis;
-import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.IR;
-import pascal.taie.language.classes.JClass;
 
 public class CFGTest {
 
@@ -33,17 +29,11 @@ public class CFGTest {
     }
 
     private static void test(String main, String exception) {
-        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", main);
-        JClass c = World.getClassHierarchy().getClass(main);
-        ThrowAnalysis throwAnalysis = new ThrowAnalysis(
-                new AnalysisConfig(ThrowAnalysis.ID, "exception", exception));
-        CFGBuilder builder = new CFGBuilder(
-                new AnalysisConfig(CFGBuilder.ID,
-                        "exception", exception, "dump", true));
-        c.getDeclaredMethods().forEach(m -> {
-            IR ir = m.getIR();
-            ir.storeResult(throwAnalysis.getId(), throwAnalysis.analyze(ir));
-            builder.analyze(ir);
-        });
+        String[] args = new String[] {
+                "-pp", "-cp", "test-resources/basic", "-m", main,
+                "-a", ThrowAnalysis.ID + "=exception:" + exception,
+                "-a", CFGBuilder.ID + "=exception:" + exception + ";dump:true"
+        };
+        Main.main(args);
     }
 }

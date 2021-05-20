@@ -24,12 +24,9 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
 
     private final String algorithm;
 
-    private final boolean isDump;
-
     public CallGraphBuilder(AnalysisConfig config) {
         super(config);
         algorithm = config.getOptions().getString("algorithm");
-        isDump = config.getOptions().getBoolean("dump");
     }
 
     @Override
@@ -46,9 +43,20 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
                 throw new ConfigException("Unknown call graph building algorithm: " + algorithm);
         }
         CallGraph<Invoke, JMethod> callGraph = builder.build();
-        if (isDump) {
-            CGUtils.dumpCallGraph(callGraph);
+        takeAction(callGraph);
+        return callGraph;
+    }
+
+    private void takeAction(CallGraph<Invoke, JMethod> callGraph) {
+        String action = getOptions().getString("action");
+        String file = getOptions().getString("file");
+        switch (action) {
+            case "dump":
+                CGUtils.dumpCallGraph(callGraph, file);
+                break;
+            case "compare":
+                CGUtils.compareCallGraph(callGraph, file);
+                break;
         }
-        return builder.build();
     }
 }

@@ -1,6 +1,14 @@
+#reachable methods: 6
+---------- Reachable methods: ----------
 <Interface: void main(java.lang.String[])>
-L8{specialinvoke temp$0.<One: void <init>()>()} -> [<One: void <init>()>]
-L9{temp$1 = interfaceinvoke n.<Number: int get()>()} -> [<One: int get()>, <Two: int get()>, <Zero: int get()>]
-
+<One: int get()>
 <One: void <init>()>
-L20{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
+<Two: int get()>
+<Zero: int get()>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 5
+---------- Call graph edges: ----------
+<Interface: void main(java.lang.String[])>[1@L8] invokespecial temp$0.<One: void <init>()>(); -> [<One: void <init>()>]
+<Interface: void main(java.lang.String[])>[3@L9] temp$1 = invokeinterface n.<Number: int get()>(); -> [<One: int get()>, <Two: int get()>, <Zero: int get()>]
+<One: void <init>()>[0@L20] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]

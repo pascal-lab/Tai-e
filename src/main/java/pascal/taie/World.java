@@ -14,7 +14,6 @@ package pascal.taie;
 
 import pascal.taie.analysis.AbstractHolder;
 import pascal.taie.analysis.ResultHolder;
-import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.config.Options;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -62,12 +61,6 @@ public class World {
 
     private final ResultHolder resultHolder = new AbstractHolder() {};
 
-    /**
-     * Will be deprecated after removing old PTA.
-     */
-    @Deprecated
-    private Environment environment;
-
     private JMethod mainMethod;
 
     private Collection<JMethod> implicitEntries;
@@ -110,16 +103,6 @@ public class World {
 
     public void setNativeModel(NativeModel nativeModel) {
         this.nativeModel = nativeModel;
-    }
-
-    @Deprecated
-    public static Environment getEnvironment() {
-        return theWorld.environment;
-    }
-
-    @Deprecated
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     public static JMethod getMainMethod() {

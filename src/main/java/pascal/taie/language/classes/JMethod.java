@@ -13,7 +13,6 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.World;
-import pascal.taie.analysis.oldpta.ir.PTAIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.ClassType;
@@ -37,8 +36,6 @@ public class JMethod extends ClassMember {
      * IRBuilder can use this to build method IR.
      */
     private final Object methodSource;
-
-    private PTAIR ptair;
 
     private IR ir;
 
@@ -96,15 +93,6 @@ public class JMethod extends ClassMember {
 
     public Object getMethodSource() {
         return methodSource;
-    }
-
-    @Deprecated
-    public PTAIR getPTAIR() {
-        assert !isAbstract();
-        if (ptair == null) {
-            ptair = World.getIRBuilder().buildPTAIR(this);
-        }
-        return ptair;
     }
 
     public IR getIR() {

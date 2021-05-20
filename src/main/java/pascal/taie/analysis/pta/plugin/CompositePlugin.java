@@ -45,23 +45,13 @@ public class CompositePlugin implements Plugin {
     }
 
     @Override
-    public void onPreprocess() {
-        plugins.forEach(Plugin::onPreprocess);
-    }
-
-    @Override
-    public void onInitialize() {
-        plugins.forEach(Plugin::onInitialize);
+    public void onStart() {
+        plugins.forEach(Plugin::onStart);
     }
 
     @Override
     public void onFinish() {
         plugins.forEach(Plugin::onFinish);
-    }
-
-    @Override
-    public void onPostprocess() {
-        plugins.forEach(Plugin::onPostprocess);
     }
 
     @Override

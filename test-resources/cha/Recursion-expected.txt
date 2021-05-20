@@ -1,23 +1,23 @@
-<Recursion: void main(java.lang.String[])>
-L4{specialinvoke temp$0.<A: void <init>()>()} -> [<A: void <init>()>]
-L5{virtualinvoke a.<A: void foo()>()} -> [<A: void foo()>]
-
+#reachable methods: 8
+---------- Reachable methods: ----------
 <A: void <init>()>
-L9{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
-
 <A: void foo()>
-L11{specialinvoke temp$0.<B: void <init>()>()} -> [<B: void <init>()>]
-L12{virtualinvoke b.<B: void bar()>()} -> [<B: void bar()>]
-
 <B: void <init>()>
-L16{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
-
 <B: void bar()>
-L18{specialinvoke temp$0.<C: void <init>()>()} -> [<C: void <init>()>]
-L19{virtualinvoke c.<C: void baz()>()} -> [<C: void baz()>]
-
 <C: void <init>()>
-L23{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
-
 <C: void baz()>
-L25{staticinvoke <Recursion: void main(java.lang.String[])>(null)} -> [<Recursion: void main(java.lang.String[])>]
+<Recursion: void main(java.lang.String[])>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 10
+---------- Call graph edges: ----------
+<A: void <init>()>[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<A: void foo()>[1@L11] invokespecial temp$0.<B: void <init>()>(); -> [<B: void <init>()>]
+<A: void foo()>[3@L12] invokevirtual b.<B: void bar()>(); -> [<B: void bar()>]
+<B: void <init>()>[0@L16] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<B: void bar()>[1@L18] invokespecial temp$0.<C: void <init>()>(); -> [<C: void <init>()>]
+<B: void bar()>[3@L19] invokevirtual c.<C: void baz()>(); -> [<C: void baz()>]
+<C: void <init>()>[0@L23] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<C: void baz()>[1@L25] invokestatic <Recursion: void main(java.lang.String[])>(%nullconst0); -> [<Recursion: void main(java.lang.String[])>]
+<Recursion: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<A: void <init>()>(); -> [<A: void <init>()>]
+<Recursion: void main(java.lang.String[])>[3@L5] invokevirtual a.<A: void foo()>(); -> [<A: void foo()>]
