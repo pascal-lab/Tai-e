@@ -156,9 +156,12 @@ public class InvokedynamicPlugin implements Plugin {
                     List<Literal> args = indy.getBootstrapArgs();
                     if (args.size() <= 3) {
                         for (int i = 0; i < args.size() && i + 3 < bsm.getParamCount() && i < 3; i++) {
-                            // TODO Literal类型的处理
-//                        solver.addVarPointsTo(bsmContext, bsmParams.get(i +3), context,
-//                                heapModel.getObj());
+                            // Literal -> param type
+                            Var var = bsmParams.get(i + 3);
+                            Type type = bsm.getParamType(i + 3);
+                            // TODO 通过bsmParam的type转换literal
+//                            solver.addVarPointsTo(bsmContext, bsmParams.get(i + 3),
+//                                    context, heapModel.getObj());
                         }
                     } else {
                         // TODO mock array for varargs
@@ -168,8 +171,7 @@ public class InvokedynamicPlugin implements Plugin {
                 // add indy -> bsm call edge
                 solver.addCallEdge(new BSMCallEdge(
                         csManager.getCSCallSite(context, invoke),
-                        csManager.getCSMethod(bsmContext, bsm),
-                        method.getDeclaringClass()));
+                        csManager.getCSMethod(bsmContext, bsm)));
             });
         }
     }
@@ -181,7 +183,6 @@ public class InvokedynamicPlugin implements Plugin {
             BSMCallEdge bsmCallEdge = (BSMCallEdge) edge;
             CSCallSite csCallSite = bsmCallEdge.getCallSite();
             CSMethod csMethod = bsmCallEdge.getCallee();
-            JClass lookupClass = bsmCallEdge.getLookupClass();
 
             List<Var> actualParams = csCallSite.getCallSite()
                     .getInvokeExp().getArgs();
@@ -202,7 +203,28 @@ public class InvokedynamicPlugin implements Plugin {
         }
 
         if (edge instanceof InvokedynamicCallEdge) {
+            InvokedynamicCallEdge callEdge = (InvokedynamicCallEdge) edge;
+            Invoke callSite = callEdge.getCallSite().getCallSite();
+            JMethod method = callEdge.getCallee().getMethod();
+            Context callSiteContext = callEdge.getCallSite().getContext();
+            Context implContext = callEdge.getCallSite().getContext();
 
+            List<Var> actualParams = callSite.getInvokeExp().getArgs();
+            List<Var> implParams = method.getIR().getParams();
+
+            for (int i = 0; i < actualParams.size() && i < implParams.size();i ++) {
+                solver.addVarPointsTo(implContext, implParams.get(i),
+                        csManager.getCSVar(callSiteContext, actualParams.get(i)).getPointsToSet());
+            }
+
+            Var callSIteResult = callSite.getResult();
+            List<Var> methodReturn = method.getIR().getReturnVars();
+
+            if (callSIteResult != null && methodReturn.size() > 0) {
+                methodReturn.forEach(ret ->
+                        solver.addVarPointsTo(callSiteContext, callSIteResult,
+                                csManager.getCSVar(implContext, ret).getPointsToSet()));
+            }
         }
     }
 
