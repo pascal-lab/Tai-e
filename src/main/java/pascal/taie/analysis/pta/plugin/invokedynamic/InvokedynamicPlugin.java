@@ -125,11 +125,6 @@ public class InvokedynamicPlugin implements Plugin {
             Context context = csMethod.getContext();
             invokes.forEach(invoke -> {
                 InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
-                Var invokeResult = invoke.getResult();
-                System.out.println("args: " + indy.getArgs());
-                System.out.println("invoke result = " + invokeResult);
-                // TODO pass result
-
                 JMethod bsm = indy.getBootstrapMethodRef().resolve();
                 System.out.println(bsm.toString());
                 // TODO bsm context should be invokedynamic call site
@@ -179,15 +174,10 @@ public class InvokedynamicPlugin implements Plugin {
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof BSMCallEdge) {
-            // 看看这里面能不能有足够信息获取到impl
             BSMCallEdge bsmCallEdge = (BSMCallEdge) edge;
             CSCallSite csCallSite = bsmCallEdge.getCallSite();
             CSMethod csMethod = bsmCallEdge.getCallee();
-
-            List<Var> actualParams = csCallSite.getCallSite()
-                    .getInvokeExp().getArgs();
             JMethod bsm = csMethod.getMethod();
-            Context bsmContext = csMethod.getContext();
 
             bsm.getIR().getStmts().stream()
                     .filter(stmt -> stmt instanceof Invoke)
