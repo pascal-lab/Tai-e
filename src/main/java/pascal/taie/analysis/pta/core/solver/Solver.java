@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -50,6 +51,8 @@ public interface Solver {
     ContextSelector getContextSelector();
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
+
+    PTABasedThrowResult getPTABasedThrowResult();
 
     void solve();
 

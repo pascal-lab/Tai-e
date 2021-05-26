@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
@@ -125,9 +126,15 @@ public class SolverImpl implements Solver {
 
     private ClassInitializer classInitializer;
 
+    private PTABasedThrowResult ptaBasedThrowResult=new PTABasedThrowResult();
+
     public SolverImpl() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
+    }
+
+    public PTABasedThrowResult getPTABasedThrowResult(){
+        return this.ptaBasedThrowResult;
     }
 
     @Override

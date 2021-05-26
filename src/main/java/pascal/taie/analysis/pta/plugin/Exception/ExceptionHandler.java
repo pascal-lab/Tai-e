@@ -2,6 +2,7 @@ package pascal.taie.analysis.pta.plugin.Exception;
 
 import pascal.taie.World;
 import pascal.taie.analysis.exception.CatchAnalysis;
+import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -38,11 +39,13 @@ public class ExceptionHandler implements Plugin {
 
     private Solver pta;
 
-    private final Map<JMethod, Collection<CSMethod>> methodCollectionMap;
+    private final Map<CSMethod, CSMethodExceptionResult> csMethodResultMap;
 
-    private final Map<CSMethod, MethodExceptionResult> csMethodResultMap;
+    private final Map<Stmt, Collection<ExceptionEntry>> stmtToExceptionEntries;
 
     private final Map<Var, Collection<Throw>> varToStmt;
+
+    private PTABasedThrowResult ptaBasedThrowResult;
 
     private final ExceptionWorkList workList;
 
@@ -50,24 +53,37 @@ public class ExceptionHandler implements Plugin {
         csMethodResultMap = newHybridMap();
         varToStmt = newHybridMap();
         workList = new ExceptionWorkList();
-        methodCollectionMap = newHybridMap();
+        stmtToExceptionEntries = newHybridMap();
+    }
+
+    public Map<CSMethod, CSMethodExceptionResult> getCSMethodResultMap() {
+        return csMethodResultMap;
+    }
+
+
+    public Map<Var, Collection<Throw>> getVarToStmt() {
+        return varToStmt;
     }
 
     @Override
     public void setSolver(Solver pta) {
         this.pta = pta;
+        this.ptaBasedThrowResult = pta.getPTABasedThrowResult();
     }
 
     @Override
     public void onPostprocess() {
-        csMethodResultMap.forEach((csMethod, methodExceptionResult) -> {
+        csMethodResultMap.forEach((csMethod, csMethodExceptionResult) -> {
             JMethod method = csMethod.getMethod();
-            Collection<CSMethod> csMethodCollection =
-                    methodCollectionMap.getOrDefault(method, newHybridSet());
-            csMethodCollection.add(csMethod);
-            methodCollectionMap.put(method, csMethodCollection);
+            JMethodExceptionResult jMethodExceptionResult =
+                    ptaBasedThrowResult.getExceptionResult(method);
+            jMethodExceptionResult.
+                    addCSMethodExceptionResult(csMethodExceptionResult);
+
+            if (method.getDeclaringClass().isApplication()) {
+                System.out.println(jMethodExceptionResult);
+            }
         });
-        System.out.println(methodCollectionMap);
     }
 
     @Override
@@ -86,7 +102,6 @@ public class ExceptionHandler implements Plugin {
             allObjs.forEach(exceptions::add);
 
             throwStmtSet.forEach(throwStmt -> {
-                System.out.println("throwStmt:" + throwStmt);
                 workList.addExceptionEntry(currentCSMethod, throwStmt, exceptions);
                 exceptionPropagate();
             });
@@ -99,11 +114,10 @@ public class ExceptionHandler implements Plugin {
                 .getCallSite();
         CSMethod callerCSMethod = edge.getCallSite().getContainer();
         CSMethod calleeCSMethod = edge.getCallee();
-        MethodExceptionResult methodExceptionResult =
-                csMethodResultMap.getOrDefault(calleeCSMethod,
-                        new MethodExceptionResult());
-        csMethodResultMap.put(calleeCSMethod, methodExceptionResult);
-        Collection<CSObj> exceptions = methodExceptionResult.
+        CSMethodExceptionResult CSMethodExceptionResult =
+                csMethodResultMap.computeIfAbsent(calleeCSMethod,
+                        (key) -> new CSMethodExceptionResult());
+        Collection<CSObj> exceptions = CSMethodExceptionResult.
                 getThrownExplicitExceptions();
         if (exceptions.size() > 0) {
             workList.addExceptionEntry(callerCSMethod, invoke, exceptions);
@@ -113,7 +127,9 @@ public class ExceptionHandler implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        System.out.println(method.toString());
+        if (method.getDeclaringClass().isApplication()) {
+            System.out.println(method.toString());
+        }
         IR ir = method.getIR();
         ir.getStmts().forEach(stmt -> {
             if (stmt instanceof Throw) {
@@ -122,9 +138,12 @@ public class ExceptionHandler implements Plugin {
                 Collection<Throw> throwStmtSet = varToStmt.
                         getOrDefault(exceptionRef, newHybridSet());
                 throwStmtSet.add(throwStmt);
-                varToStmt.put(exceptionRef, throwStmtSet);
-                System.out.print("exceptionRef:" + exceptionRef + "    ");
-                System.out.println("throwStmtSet:" + throwStmtSet);
+                varToStmt.putIfAbsent(exceptionRef, throwStmtSet);
+
+                if (method.getDeclaringClass().isApplication()) {
+                    System.out.print("exceptionRef:" + exceptionRef + "    ");
+                    System.out.println("throwStmtSet:" + throwStmtSet);
+                }
             }
         });
     }
@@ -135,18 +154,19 @@ public class ExceptionHandler implements Plugin {
             CSMethod csMethod = entry.csMethod;
             Stmt stmt = entry.stmt;
             Collection<CSObj> exceptions = entry.exceptions;
-            MethodExceptionResult methodExceptionResult
-                    = csMethodResultMap.getOrDefault(csMethod,
-                    new MethodExceptionResult());
-            csMethodResultMap.put(csMethod, methodExceptionResult);
-            exceptions = methodExceptionResult.
+            CSMethodExceptionResult CSMethodExceptionResult
+                    = csMethodResultMap.computeIfAbsent(csMethod,
+                    (key) -> new CSMethodExceptionResult());
+            exceptions = CSMethodExceptionResult.
                     getDifferentExceptions(stmt, exceptions);
             if (exceptions.size() > 0) {
-                System.out.println("workList process " + csMethod);
-                System.out.println("-------stmt " + stmt);
-                System.out.println("-------exceptions" + exceptions);
+                if (csMethod.getMethod().getDeclaringClass().isApplication()) {
+                    System.out.println("workList process " + csMethod);
+                    System.out.println("-------stmt " + stmt);
+                    System.out.println("-------exceptions" + exceptions);
+                }
                 Collection<CSObj> uncaughtExceptions = IntraprocedualExceptionCaught(
-                        methodExceptionResult,
+                        CSMethodExceptionResult,
                         stmt,
                         exceptions,
                         csMethod
@@ -168,16 +188,18 @@ public class ExceptionHandler implements Plugin {
     }
 
     private Collection<CSObj> IntraprocedualExceptionCaught(
-            MethodExceptionResult methodExceptionResult,
+            CSMethodExceptionResult CSMethodExceptionResult,
             Stmt currentStmt,
             Collection<CSObj> newExceptions,
             CSMethod csMethod) {
-        methodExceptionResult.addExplicit(currentStmt, newExceptions);
+        CSMethodExceptionResult.addExplicit(currentStmt, newExceptions);
         JMethod method = csMethod.getMethod();
         Context ctx = csMethod.getContext();
         IR ir = method.getIR();
-        List<ExceptionEntry> exceptionEntries = CatchAnalysis.
-                getPotentialCatchers(ir).get(currentStmt);
+        List<ExceptionEntry> exceptionEntries = (List<ExceptionEntry>)
+                stmtToExceptionEntries.computeIfAbsent(currentStmt, (key) ->
+                        CatchAnalysis.getPotentialCatchers(ir).get(currentStmt)
+                );
         TypeManager typeManager = World.getTypeManager();
         if (exceptionEntries != null) {
             for (ExceptionEntry exceptionEntry : exceptionEntries) {
@@ -189,10 +211,13 @@ public class ExceptionHandler implements Plugin {
                     if (typeManager.isSubtype(exceptionEntry.getCatchType(), t)) {
                         Catch catchStmt = exceptionEntry.getHandler();
                         Var exceptionRef = catchStmt.getExceptionRef();
-                        System.out.print("context: " + ctx);
-                        System.out.println("exceptionRef:" + exceptionRef);
-                        System.out.println("--------exception:" + exceptionObj);
-                        System.out.println("--------stmt:" + catchStmt);
+
+                        if (method.getDeclaringClass().isApplication()) {
+                            System.out.print("context: " + ctx);
+                            System.out.println("exceptionRef:" + exceptionRef);
+                            System.out.println("--------exception:" + exceptionObj);
+                            System.out.println("--------stmt:" + catchStmt);
+                        }
                         pta.addVarPointsTo(ctx, exceptionRef, heapCtx, exceptionObj);
                     } else {
                         uncaughtExceptions.add(newException);
@@ -201,7 +226,7 @@ public class ExceptionHandler implements Plugin {
                 newExceptions = uncaughtExceptions;
             }
         }
-        methodExceptionResult.addUncaughtExceptions(newExceptions);
+        CSMethodExceptionResult.addUncaughtExceptions(newExceptions);
         return newExceptions;
     }
 }

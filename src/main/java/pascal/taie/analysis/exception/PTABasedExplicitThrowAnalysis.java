@@ -12,24 +12,37 @@
 
 package pascal.taie.analysis.exception;
 
-import pascal.taie.analysis.pta.plugin.Exception.ExceptionHandler;
+import pascal.taie.World;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.IR;
-import pascal.taie.language.classes.JMethod;
+import pascal.taie.ir.stmt.Stmt;
+
+import java.util.Collection;
 
 /**
  * Analyzes explicit exceptions based on pointer analysis.
  */
 class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
-    private ExceptionHandler exceptionHandler;
+    private PTABasedThrowResult ptaBasedThrowResult;
+
+    PTABasedExplicitThrowAnalysis(){
+        Solver solver= World.getResult(PointerAnalysis.ID);
+        this.ptaBasedThrowResult= solver.getPTABasedThrowResult();
+    }
 
     @Override
     public void analyze(IR ir, ThrowResult result) {
         throw new UnsupportedOperationException();
     }
 
-    public static void mayThrowExplicitly(IR ir){
-        JMethod jMethod=ir.getMethod();
+    public Collection<Obj> mayThrowExplicitly(IR ir){
+        return ptaBasedThrowResult.mayThrowExplicitly(ir);
+    }
 
+    public Collection<Obj> mayThrowExplicitly(IR ir, Stmt stmt){
+        return ptaBasedThrowResult.mayThrowExplicitly(ir,stmt);
     }
 }

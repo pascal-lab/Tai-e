@@ -11,7 +11,7 @@ import static pascal.taie.util.collection.MapUtils.newHybridMap;
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 
-public class MethodExceptionResult {
+public class CSMethodExceptionResult {
     private final Map<Stmt, Collection<CSObj>> explicitExceptions = newHybridMap();
 
     private final Collection<CSObj> thrownExplicitExceptions = newHybridSet();
