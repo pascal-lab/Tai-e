@@ -18,6 +18,7 @@ import pascal.taie.language.type.Type;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * Manages the classes and class-related resolution of the program being analyzed.
@@ -41,7 +42,9 @@ public interface ClassHierarchy {
      */
     void addClass(JClass jclass);
 
-    Collection<JClass> getAllClasses();
+    Stream<JClass> allClasses();
+
+    Stream<JClass> applicationClasses();
 
     @Nullable JClass getClass(JClassLoader loader, String name);
 

@@ -1,9 +1,16 @@
-<VirtualCall: void main(java.lang.String[])>
-L4{specialinvoke temp$0.<B: void <init>()>()} -> [<B: void <init>()>]
-L5{virtualinvoke b.<B: void foo()>()} -> [<A: void foo()>, <C: void foo()>, <D: void foo()>]
-
+#reachable methods: 7
+---------- Reachable methods: ----------
 <A: void <init>()>
-L9{specialinvoke this.<java.lang.Object: void <init>()>()} -> [<java.lang.Object: void <init>()>]
-
+<A: void foo()>
 <B: void <init>()>
-L14{specialinvoke this.<A: void <init>()>()} -> [<A: void <init>()>]
+<C: void foo()>
+<D: void foo()>
+<VirtualCall: void main(java.lang.String[])>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 6
+---------- Call graph edges: ----------
+<A: void <init>()>[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<B: void <init>()>[0@L14] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
+<VirtualCall: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<B: void <init>()>(); -> [<B: void <init>()>]
+<VirtualCall: void main(java.lang.String[])>[3@L5] invokevirtual b.<B: void foo()>(); -> [<A: void foo()>, <C: void foo()>, <D: void foo()>]

@@ -39,7 +39,7 @@ public class TableSwitch extends SwitchStmt {
     }
 
     @Override
-    public Stream<Pair<Integer, Stmt>> getCaseTargets() {
+    public Stream<Pair<Integer, Stmt>> caseTargets() {
         return IntStream.range(lowIndex, highIndex +  1)
                 .mapToObj(i -> new Pair<>(i,
                         targets == null ? null : targets.get(i - lowIndex)));

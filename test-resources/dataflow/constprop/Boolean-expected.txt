@@ -1,6 +1,50 @@
-<Boolean: void boolOp()>
-4:bTrue=true
-5:bFalse=false
-6:b1=true
-7:b2=false
-10:b3=false
+-------------------- <Boolean: void <init>()> (constprop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
+[1@L1] return; {%this=NAC}
+
+-------------------- <Boolean: void boolOp()> (constprop) --------------------
+[0@L4] bTrue = 1; {%this=NAC, bTrue=1}
+[1@L5] bFalse = 0; {%this=NAC, bFalse=0, bTrue=1}
+[2@L6] %intconst0 = 0; {%intconst0=0, %this=NAC, bFalse=0, bTrue=1}
+[3@L6] if (bTrue == %intconst0) goto 5; {%intconst0=0, %this=NAC, bFalse=0, bTrue=1}
+[4@L6] goto 13; {%intconst0=0, %this=NAC, bFalse=0, bTrue=1}
+[5@L6] nop; {%intconst0=UNDEF, %this=NAC, bFalse=0, bTrue=UNDEF}
+[6@L6] %intconst1 = 0; {%intconst0=UNDEF, %intconst1=0, %this=NAC, bFalse=0, bTrue=UNDEF}
+[7@L6] if (bFalse == %intconst1) goto 10; {%intconst0=UNDEF, %intconst1=0, %this=NAC, bFalse=0, bTrue=UNDEF}
+[8@L6] goto 13; {%intconst0=UNDEF, %intconst1=0, %this=NAC, bFalse=0, bTrue=UNDEF}
+[9@L6] goto 10; {}
+[10@L6] nop; {%intconst0=UNDEF, %intconst1=0, %this=NAC, bFalse=0, bTrue=UNDEF}
+[11@L6] temp$0 = 0; {%intconst0=UNDEF, %intconst1=0, %this=NAC, bFalse=0, bTrue=UNDEF, temp$0=0}
+[12@L6] goto 15; {%intconst0=UNDEF, %intconst1=0, %this=NAC, bFalse=0, bTrue=UNDEF, temp$0=0}
+[13@L6] nop; {%intconst0=0, %intconst1=0, %this=NAC, bFalse=0, bTrue=1}
+[14@L6] temp$0 = 1; {%intconst0=0, %intconst1=0, %this=NAC, bFalse=0, bTrue=1, temp$0=1}
+[15@L6] nop; {%intconst0=0, %intconst1=0, %this=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[16@L6] b1 = temp$0; {%intconst0=0, %intconst1=0, %this=NAC, b1=1, bFalse=0, bTrue=1, temp$0=NAC}
+[17@L7] %intconst2 = 0; {%intconst0=0, %intconst1=0, %intconst2=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[18@L7] if (bTrue == %intconst2) goto 25; {%intconst0=0, %intconst1=0, %intconst2=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[19@L7] goto 20; {%intconst0=0, %intconst1=0, %intconst2=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[20@L7] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[21@L7] %intconst3 = 0; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[22@L7] if (bFalse == %intconst3) goto 25; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[23@L7] goto 28; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[24@L7] goto 28; {}
+[25@L7] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[26@L7] temp$1 = 0; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=0}
+[27@L7] goto 30; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=0}
+[28@L7] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[29@L7] temp$1 = 1; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=1}
+[30@L7] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
+[31@L7] b2 = temp$1; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=0, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
+[32@L8] x = 10; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10}
+[33@L9] y = 20; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
+[34@L10] if (x > y) goto 39; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
+[35@L10] goto 36; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
+[36@L10] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
+[37@L10] temp$2 = 0; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=0, x=10, y=20}
+[38@L10] goto 41; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=0, x=10, y=20}
+[39@L10] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
+[40@L10] temp$2 = 1; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=1, x=10, y=20}
+[41@L10] nop; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, x=10, y=20}
+[42@L10] b3 = temp$2; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, b3=, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, x=10, y=20}
+[43@L10] return; {%intconst0=0, %intconst1=0, %intconst2=0, %intconst3=0, %this=NAC, b1=NAC, b2=NAC, b3=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, x=10, y=20}
+

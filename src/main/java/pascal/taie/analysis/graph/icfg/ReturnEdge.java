@@ -12,13 +12,10 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.analysis.dataflow.framework.EdgeTransfer;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.util.HashUtils;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class ReturnEdge<Node> extends ICFGEdge<Node> {
@@ -28,27 +25,19 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
     /**
      * Variables holding return values.
      */
-    private final Set<Var> returnVars;
+    private final Collection<Var> returnVars;
 
     /**
      * Exceptions that may be thrown out.
      */
-    private final Set<ClassType> exceptions;
+    private final Collection<ClassType> exceptions;
 
-    @Deprecated
-    public ReturnEdge(Node source, Node target, Node callSite) {
-        super(Kind.RETURN, source, target);
-        this.callSite = callSite;
-        this.returnVars = Set.of();
-        this.exceptions = Set.of();
-    }
-
-    public ReturnEdge(Node exit, Node retSite, Node callSite,
+    ReturnEdge(Node exit, Node retSite, Node callSite,
                       Collection<Var> retVars, Collection<ClassType> exceptions) {
         super(Kind.RETURN, exit, retSite);
         this.callSite = callSite;
-        this.returnVars = Set.copyOf(retVars);
-        this.exceptions = Set.copyOf(exceptions);
+        this.returnVars = retVars;
+        this.exceptions = exceptions;
     }
 
     public Node getCallSite() {
@@ -61,17 +50,5 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
 
     public Stream<ClassType> exceptions() {
         return exceptions.stream();
-    }
-
-    @Override
-    public <Fact> void accept(EdgeTransfer<Node, Fact> transfer,
-                              Fact sourceInFlow, Fact sourceOutFlow,
-                              Fact edgeFlow) {
-        transfer.transferReturnEdge(this, sourceOutFlow, edgeFlow);
-    }
-
-    @Override
-    protected int computeHashCode() {
-        return HashUtils.hash(kind, source, target, callSite);
     }
 }

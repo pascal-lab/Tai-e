@@ -12,9 +12,10 @@
 
 package pascal.taie.frontend.soot;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
-import pascal.taie.analysis.oldpta.env.Environment;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
@@ -36,17 +37,7 @@ import static soot.SootClass.HIERARCHY;
 
 public class SootWorldBuilder extends AbstractWorldBuilder {
 
-    /**
-     * Only used by old pointer analysis. Will be deprecated after
-     * removing old pointer analysis.
-     */
-    @Deprecated
-    public SootWorldBuilder(Options options, Scene scene) {
-        build(options, scene);
-    }
-
-    public SootWorldBuilder() {
-    }
+    private static final Logger logger = LogManager.getLogger(SootWorldBuilder.class);
 
     @Override
     public void build(Options options) {
@@ -154,9 +145,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 .collect(Collectors.toList()));
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeManager, hierarchy));
-        Environment env = new Environment();
-        world.setEnvironment(env);
-        IRBuilder irBuilder = new IRBuilder(converter, env);
+        IRBuilder irBuilder = new IRBuilder(converter);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);
@@ -164,17 +153,15 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     }
 
     protected static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
-        // Parallelize?
+        // TODO: parallelize?
         Timer timer = new Timer("Build all classes");
         timer.start();
         new ArrayList<>(scene.getClasses()).forEach(c ->
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
         timer.stop();
-        System.out.println(timer);
-        System.out.println("#classes: " + hierarchy.getAllClasses().size());
-        System.out.println("#methods: " + hierarchy.getAllClasses()
-                .stream()
-                .mapToInt(c -> c.getDeclaredMethods().size())
-                .sum());
+        logger.info(timer);
+        logger.info("#classes: {}", () -> hierarchy.allClasses().count());
+        logger.info("#methods: {}", () -> hierarchy.allClasses()
+                .mapToInt(c -> c.getDeclaredMethods().size()).sum());
     }
 }

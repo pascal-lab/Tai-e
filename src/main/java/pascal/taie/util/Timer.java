@@ -15,6 +15,13 @@ package pascal.taie.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 public class Timer {
@@ -63,11 +70,11 @@ public class Timer {
     }
 
     /**
-     * Executes a task, log the elapsed time, and return the result.
-     * @param message message of the task
+     * Runs a task, log the elapsed time, and return the result.
      * @param task task to be executed
+     * @param message message of the task
      */
-    public static <T> T executeAndCount(String message, Supplier<T> task) {
+    public static <T> T runAndCount(Supplier<T> task, String message) {
         Timer timer = new Timer(message);
         timer.start();
         T result = task.get();
@@ -77,15 +84,34 @@ public class Timer {
     }
 
     /**
-     * Executes a task and log the elapsed time.
-     * @param message message of the task
+     * Runs a task and log the elapsed time.
      * @param task task to be executed
+     * @param message message of the task
      */
-    public static void executeAndCount(String message, Runnable task) {
+    public static void runAndCount(Runnable task, String message) {
         Timer timer = new Timer(message);
         timer.start();
         task.run();
         timer.stop();
         logger.info(timer);
+    }
+
+    /**
+     * Runs a task with given time budget.
+     */
+    public static void runWithTimeout(Runnable task, long seconds) {
+        Duration timeout = Duration.ofSeconds(seconds);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<?> handler = executor.submit(task);
+        try {
+            handler.get(timeout.getSeconds(), TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+            System.exit(1);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
     }
 }

@@ -21,10 +21,8 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.CollectionView;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -48,8 +46,8 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Collection<CSMethod> getEntryMethods() {
-        return entryMethods;
+    public Stream<CSMethod> entryMethods() {
+        return entryMethods.stream();
     }
 
     void addEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -58,13 +56,13 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
-        return getEdgesOf(edge.getCallSite()).contains(edge);
+        return edge.getCallSite().getEdges().contains(edge);
     }
 
     @Override
     public boolean addNewMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
-            getCallSitesIn(csMethod).forEach(csCallSite ->
+            callSitesIn(csMethod).forEach(csCallSite ->
                     csCallSite.setContainer(csMethod));
             return true;
         } else {
@@ -73,13 +71,13 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Collection<CSMethod> getCallees(CSCallSite csCallSite) {
-        return CollectionView.of(csCallSite.getEdges(), Edge::getCallee);
+    public Stream<CSMethod> calleesOf(CSCallSite csCallSite) {
+        return csCallSite.getEdges().stream().map(Edge::getCallee);
     }
 
     @Override
-    public Collection<CSCallSite> getCallers(CSMethod callee) {
-        return callee.getCallers();
+    public Stream<CSCallSite> callersOf(CSMethod callee) {
+        return callee.getCallers().stream();
     }
 
     @Override
@@ -88,7 +86,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Collection<CSCallSite> getCallSitesIn(CSMethod csMethod) {
+    public Stream<CSCallSite> callSitesIn(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
         List<CSCallSite> callSites = new ArrayList<>();
@@ -98,20 +96,18 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
                 callSites.add(csCallSite);
             }
         }
-        return callSites;
+        return callSites.stream();
     }
 
     @Override
-    public Collection<Edge<CSCallSite, CSMethod>> getEdgesOf(CSCallSite csCallSite) {
-        return csCallSite.getEdges();
+    public Stream<Edge<CSCallSite, CSMethod>> edgesOf(CSCallSite csCallSite) {
+        return csCallSite.getEdges().stream();
     }
 
     @Override
     public Stream<Edge<CSCallSite, CSMethod>> edges() {
         return reachableMethods.stream()
-                .map(this::getCallSitesIn)
-                .flatMap(Collection::stream)
-                .map(this::getEdgesOf)
-                .flatMap(Collection::stream);
+                .flatMap(this::callSitesIn)
+                .flatMap(this::edgesOf);
     }
 }

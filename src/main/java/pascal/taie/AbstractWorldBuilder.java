@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,7 +56,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
         } else { // when prependJVM is not set, we manually specify JRE jars
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());
-            try (Stream<Path> paths = Files.walk(Paths.get(jrePath))) {
+            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Stream.concat(
                         paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
                         Stream.of(options.getClassPath()))

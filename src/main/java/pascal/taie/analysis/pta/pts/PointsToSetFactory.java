@@ -13,17 +13,17 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.util.collection.SetUtils;
 
-public abstract class PointsToSetFactory {
+import java.util.Set;
+import java.util.function.Supplier;
 
-    private static PointsToSetFactory factory;
+public class PointsToSetFactory {
 
-    public static void setFactory(PointsToSetFactory factory) {
-        PointsToSetFactory.factory = factory;
-    }
+    private static final Supplier<Set<CSObj>> setFactory = SetUtils::newHybridSet;
 
     public static PointsToSet make() {
-        return factory.makePointsToSet();
+        return new DelegatePointsToSet(setFactory.get());
     }
 
     /**
@@ -34,6 +34,4 @@ public abstract class PointsToSetFactory {
         set.addObject(obj);
         return set;
     }
-
-    protected abstract PointsToSet makePointsToSet();
 }

@@ -17,7 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.config.AnalysisConfig;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -28,12 +28,13 @@ import java.util.Set;
 
 public class ExceptionTest {
 
+    private static final String CP = "test-resources/basic";
+
     private static final String MAIN = "Exceptions";
 
     @BeforeClass
     public static void buildWorld() {
         System.setProperty("ENABLE_JIMPLE_OPT", "true");
-        Main.buildWorld("-pp", "-cp", "test-resources/basic", "-m", MAIN);
     }
 
     @AfterClass
@@ -43,30 +44,33 @@ public class ExceptionTest {
 
     @Test
     public void testCatchImplicit() {
-        showCatch("explicit", "implicitCaught", "implicitUncaught");
+        test("explicit", "implicitCaught", "implicitUncaught");
     }
 
     @Test
-    public void testCatchThrow() {
-        showCatch("all", "throwCaught", "throwUncaught", "nestedThrowCaught");
+    public void testCatchThrowx() {
+        test("all", "throwCaught", "throwUncaught", "nestedThrowCaught");
     }
 
     @Test
     public void testCatchDeclared() {
-        showCatch("explicit", "declaredCaught", "declaredUncaught");
+        test("explicit", "declaredCaught", "declaredUncaught");
     }
 
-    private static void showCatch(String exception, String... methodNames) {
+    private static void test(String exception, String... methodNames) {
+        String[] args = new String[] {
+                "-pp", "-cp", CP, "-m", MAIN,
+                "-a", ThrowAnalysis.ID + "=exception:" + exception
+        };
+        Main.main(args);
         JClass c = World.getClassHierarchy().getClass(MAIN);
-        ThrowAnalysis throwAnalysis = new ThrowAnalysis(
-                new AnalysisConfig(ThrowAnalysis.ID, "exception", exception));
         for (String methodName : methodNames) {
             JMethod m = c.getDeclaredMethod(methodName);
             System.out.println(m);
-            ThrowResult throwResult = throwAnalysis.analyze(m.getIR());
-            CatchResult result = CatchAnalysis.analyze(
-                    m.getIR(), throwResult);
-            m.getIR().getStmts().forEach(stmt -> {
+            IR ir = m.getIR();
+            ThrowResult throwResult = ir.getResult(ThrowAnalysis.ID);
+            CatchResult result = CatchAnalysis.analyze(ir, throwResult);
+            ir.getStmts().forEach(stmt -> {
                 Map<Stmt, Set<ClassType>> caught = result.getCaughtOf(stmt);
                 Set<ClassType> uncaught = result.getUncaughtOf(stmt);
                 if (!caught.isEmpty() || !uncaught.isEmpty()) {

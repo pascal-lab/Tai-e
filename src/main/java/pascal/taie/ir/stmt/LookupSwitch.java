@@ -37,7 +37,7 @@ public class LookupSwitch extends SwitchStmt {
     }
 
     @Override
-    public Stream<Pair<Integer, Stmt>> getCaseTargets() {
+    public Stream<Pair<Integer, Stmt>> caseTargets() {
         return IntStream.range(0, caseValues.size())
                 .mapToObj(i -> new Pair<>(caseValues.get(i),
                         targets == null ? null : targets.get(i)));

@@ -19,8 +19,10 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class IRTest {
@@ -49,8 +51,11 @@ public class IRTest {
         targets.forEach(main -> {
             buildWorld(main);
             JClass mainClass = World.getClassHierarchy().getClass(main);
-            mainClass.getDeclaredMethods().forEach(m ->
-                    IRPrinter.print(m.getIR(), System.out));
+            mainClass.getDeclaredMethods()
+                    .stream()
+                    .sorted(Comparator.comparing(JMethod::toString))
+                    .forEach(m ->
+                            IRPrinter.print(m.getIR(), System.out));
             System.out.println("------------------------------\n");
         });
     }

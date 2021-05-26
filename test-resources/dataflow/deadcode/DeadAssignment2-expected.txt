@@ -1,15 +1,22 @@
-<DeadAssignment2: void deadAssign1()>
-L7{o = temp$0}
-L8{b = temp$1}
+-------------------- <DeadAssignment2: void <init>()> (deadcode) --------------------
 
-<DeadAssignment2: void deadAssign2()>
-L13{y = temp$0 + 2}
-L16{a = x}
+-------------------- <DeadAssignment2: void use(int)> (deadcode) --------------------
 
-<DeadAssignment2: void deadAssign3(int,int)>
-L23{y = temp$1}
-L27{y = temp$3}
+-------------------- <DeadAssignment2: void deadAssign1()> (deadcode) --------------------
+[2@L7] o = temp$0;
+[4@L8] b = temp$1;
 
-<DeadAssignment2: int deadAssign4()>
-L33{x = temp$0}
-L34{x = temp$1}
+-------------------- <DeadAssignment2: void deadAssign2()> (deadcode) --------------------
+[3@L13] y = temp$0 + %intconst0;
+[8@L16] a = x;
+
+-------------------- <DeadAssignment2: void deadAssign3(int,int)> (deadcode) --------------------
+[6@L23] y = temp$1;
+[13@L27] y = temp$3;
+
+-------------------- <DeadAssignment2: int deadAssign4()> (deadcode) --------------------
+[1@L33] x = temp$0;
+[3@L34] x = temp$1;
+
+-------------------- <DeadAssignment2: int ten()> (deadcode) --------------------
+

@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.MapUtils.newMap;
 import static pascal.taie.util.collection.MapUtils.newSmallMap;
@@ -124,13 +125,17 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public Collection<JClass> getAllClasses() {
+    public Stream<JClass> allClasses() {
         return loaders.values()
                 .stream()
                 .distinct()
                 .map(JClassLoader::getLoadedClasses)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .flatMap(Collection::stream);
+    }
+
+    @Override
+    public Stream<JClass> applicationClasses() {
+        return allClasses().filter(JClass::isApplication);
     }
 
     @Override
@@ -251,7 +256,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             if (target != null) {
                 dispatchTable.get(receiverClass).put(subsignature, target);
             } else {
-                logger.warn("Failed to dispatch {} on {}",
+                logger.debug("Failed to dispatch {} on {}",
                         subsignature, receiverClass);
 //                throw new AnalysisException("Fail to dispatch \"" +
 //                        subsignature + "\" on " + receiverClass);

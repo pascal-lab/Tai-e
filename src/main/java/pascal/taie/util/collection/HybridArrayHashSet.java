@@ -14,6 +14,7 @@ package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
+import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +30,7 @@ import java.util.Set;
  * Moreover, empty sets and singleton sets are represented with just a reference.
  * Elements cannot be null.
  */
-public final class HybridArrayHashSet<E> implements Set<E> {
+public final class HybridArrayHashSet<E> extends AbstractSet<E> {
 
     // invariant: at most one of singleton, array and hashset is non-null
 
@@ -212,7 +213,7 @@ public final class HybridArrayHashSet<E> implements Set<E> {
     @Override
     public Iterator<E> iterator() {
         if (singleton != null) {
-            return new Iterator<E>() {
+            return new Iterator<>() {
 
                 boolean done;
 
@@ -288,6 +289,7 @@ public final class HybridArrayHashSet<E> implements Set<E> {
         return changed;
     }
 
+    @Nonnull
     @Override
     public Object[] toArray() {
         if (singleton != null) {
@@ -357,19 +359,5 @@ public final class HybridArrayHashSet<E> implements Set<E> {
             return false;
         }
         return containsAll(s);
-    }
-
-    @Override
-    public String toString() {
-        if (singleton != null) {
-            return "[" + singleton + ']';
-        }
-        if (arraySet != null) {
-            return arraySet.toString();
-        }
-        if (hashSet != null) {
-            return hashSet.toString();
-        }
-        return "[]";
     }
 }

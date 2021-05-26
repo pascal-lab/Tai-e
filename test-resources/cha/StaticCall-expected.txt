@@ -1,12 +1,15 @@
-<StaticCall: void main(java.lang.String[])>
-L4{staticinvoke <StaticCall: void foo()>()} -> [<StaticCall: void foo()>]
-L5{staticinvoke <A: void baz()>()} -> [<A: void baz()>]
-
-<StaticCall: void foo()>
-L9{staticinvoke <StaticCall: void bar()>()} -> [<StaticCall: void bar()>]
-
+#reachable methods: 5
+---------- Reachable methods: ----------
 <A: void baz()>
-L18{staticinvoke <B: void qux()>()} -> [<B: void qux()>]
-
 <B: void qux()>
-L24{staticinvoke <A: void baz()>()} -> [<A: void baz()>]
+<StaticCall: void bar()>
+<StaticCall: void foo()>
+<StaticCall: void main(java.lang.String[])>
+
+#call graph edges: 5
+---------- Call graph edges: ----------
+<A: void baz()>[0@L18] invokestatic <B: void qux()>(); -> [<B: void qux()>]
+<B: void qux()>[0@L24] invokestatic <A: void baz()>(); -> [<A: void baz()>]
+<StaticCall: void foo()>[0@L9] invokestatic <StaticCall: void bar()>(); -> [<StaticCall: void bar()>]
+<StaticCall: void main(java.lang.String[])>[0@L4] invokestatic <StaticCall: void foo()>(); -> [<StaticCall: void foo()>]
+<StaticCall: void main(java.lang.String[])>[1@L5] invokestatic <A: void baz()>(); -> [<A: void baz()>]

@@ -12,6 +12,9 @@
 
 package pascal.taie.analysis.pta.plugin;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.Analysis;
 import pascal.taie.util.Timer;
 
 /**
@@ -19,26 +22,19 @@ import pascal.taie.util.Timer;
  */
 public class AnalysisTimer implements Plugin {
 
+    private static final Logger logger = LogManager.getLogger(Analysis.class);
+
     private Timer ptaTimer;
-    private Timer solverTimer;
 
     @Override
-    public void onPreprocess() {
+    public void onStart() {
         ptaTimer = new Timer("Pointer analysis");
         ptaTimer.start();
     }
 
     @Override
-    public void onInitialize() {
-        solverTimer = new Timer("Pointer analysis solver");
-        solverTimer.start();
-    }
-
-    @Override
     public void onFinish() {
-        solverTimer.stop();
         ptaTimer.stop();
-        System.out.println(solverTimer);
-        System.out.println(ptaTimer);
+        logger.info(ptaTimer);
     }
 }

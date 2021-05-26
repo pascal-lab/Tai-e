@@ -40,6 +40,8 @@ public interface CSManager {
 
     CSMethod getCSMethod(Context context, JMethod method);
 
+    Stream<CSVar> csVarsOf(Var var);
+
     Stream<CSVar> csVars();
 
     Stream<InstanceField> instanceFields();
@@ -47,4 +49,6 @@ public interface CSManager {
     Stream<ArrayIndex> arrayIndexes();
 
     Stream<StaticField> staticFields();
+
+    Stream<CSObj> objects();
 }

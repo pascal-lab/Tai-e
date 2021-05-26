@@ -1,5 +1,12 @@
-<Loops: void deadLoop()>
-L7{goto label3}
-L7{label3: nop}
-L10{virtualinvoke this.<Loops: void dead()>()}
-L10{return}
+-------------------- <Loops: void <init>()> (deadcode) --------------------
+
+-------------------- <Loops: void deadLoop()> (deadcode) --------------------
+[5@L7] goto 9;
+[9@L7] nop;
+[10@L10] invokevirtual %this.<Loops: void dead()>();
+[11@L10] return;
+
+-------------------- <Loops: void dead()> (deadcode) --------------------
+
+-------------------- <Loops: void use(int)> (deadcode) --------------------
+
