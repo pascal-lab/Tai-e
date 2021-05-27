@@ -1,4 +1,4 @@
-package pascal.taie.analysis.pta.plugin.Exception;
+package pascal.taie.analysis.pta.plugin.exception;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.ir.stmt.Stmt;

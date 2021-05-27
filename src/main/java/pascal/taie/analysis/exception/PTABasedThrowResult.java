@@ -1,7 +1,7 @@
 package pascal.taie.analysis.exception;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.Exception.JMethodExceptionResult;
+import pascal.taie.analysis.pta.plugin.exception.JMethodExceptionResult;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;

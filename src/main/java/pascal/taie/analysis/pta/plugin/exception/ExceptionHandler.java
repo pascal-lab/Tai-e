@@ -1,4 +1,4 @@
-package pascal.taie.analysis.pta.plugin.Exception;
+package pascal.taie.analysis.pta.plugin.exception;
 
 import pascal.taie.World;
 import pascal.taie.analysis.exception.CatchAnalysis;
@@ -72,7 +72,7 @@ public class ExceptionHandler implements Plugin {
     }
 
     @Override
-    public void onPostprocess() {
+    public void onFinish() {
         csMethodResultMap.forEach((csMethod, csMethodExceptionResult) -> {
             JMethod method = csMethod.getMethod();
             JMethodExceptionResult jMethodExceptionResult =
@@ -173,7 +173,7 @@ public class ExceptionHandler implements Plugin {
                 );
                 if (uncaughtExceptions.size() > 0) {
                     CallGraph<CSCallSite, CSMethod> callGraph = pta.getCallGraph();
-                    Collection<CSCallSite> callers = callGraph.getCallers(csMethod);
+                    Stream<CSCallSite> callers = callGraph.callersOf(csMethod);
                     callers.forEach(csCallSite -> {
                         Stmt invoke = csCallSite.getCallSite();
                         CSMethod callerMethod = csCallSite.getContainer();

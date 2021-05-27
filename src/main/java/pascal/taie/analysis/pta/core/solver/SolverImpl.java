@@ -127,7 +127,7 @@ public class SolverImpl implements Solver {
     private ClassInitializer classInitializer;
 
     private PTABasedThrowResult ptaBasedThrowResult=new PTABasedThrowResult();
-    
+
     private PointerAnalysisResult result;
 
     public SolverImpl() {
