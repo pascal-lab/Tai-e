@@ -19,23 +19,24 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.util.HashUtils;
 
 import java.util.List;
 
-class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
+class LambdaEdge extends Edge<CSCallSite, CSMethod> {
 
     private final InvokeDynamic lambdaIndy;
 
     private final Context lambdaContext;
 
-    LambdaCallEdge(CSCallSite csCallSite, CSMethod callee,
-                   InvokeDynamic lambdaIndy, Context lambdaContext) {
+    LambdaEdge(CSCallSite csCallSite, CSMethod callee,
+               InvokeDynamic lambdaIndy, Context lambdaContext) {
         super(CallKind.OTHER, csCallSite, callee);
         this.lambdaIndy = lambdaIndy;
         this.lambdaContext = lambdaContext;
     }
 
-    List<Var> getLambdaArgs() {
+    List<Var> getCapturedArgs() {
         return lambdaIndy.getArgs();
     }
 
@@ -43,5 +44,22 @@ class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
         return lambdaContext;
     }
 
-    // TODO: override hashCode() and equals()?
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) return false;
+        LambdaEdge that = (LambdaEdge) o;
+        return lambdaIndy.equals(that.lambdaIndy) &&
+                lambdaContext.equals(that.lambdaContext);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.hash(super.hashCode(), lambdaIndy, lambdaContext);
+    }
 }

@@ -156,8 +156,8 @@ public class LambdaPlugin implements Plugin {
         InvokeDynamic indy = (InvokeDynamic) indyInvoke.getInvokeExp();
         Context indyCtx = recv.getContext();
         CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
-        MethodHandle mh = (MethodHandle) indy.getBootstrapArgs().get(1);
-        final JMethod target = mh.getMethodRef().resolve();
+        MethodHandle mh = getMethodHandle(indy);
+        final JMethod target = getMethodHandle(indy).getMethodRef().resolve();
 
         switch (mh.getKind()) {
             case REF_newInvokeSpecial: { // target is constructor
@@ -177,29 +177,25 @@ public class LambdaPlugin implements Plugin {
                 if (result != null) {
                     solver.addVarPointsTo(context, result, context, newObj);
                 }
-                //  Pass the mock object to 'this' variable of the constructor
                 CSObj csNewObj = csManager.getCSObj(context, newObj);
-                Context ctorCtx = selector.selectContext(csCallSite, csNewObj, target);
-                solver.addVarPointsTo(ctorCtx, target.getIR().getThis(),
-                        context, newObj);
                 // Add call edge to constructor
-                addLambdaCallEdge(csCallSite, csNewObj, target, indy, indyCtx);
+                addLambdaEdge(csCallSite, csNewObj, target, indy, indyCtx);
                 break;
             }
             case REF_invokeInterface:
             case REF_invokeVirtual:
             case REF_invokeSpecial: { // target is instance methods
+                List<Var> capturedArgs = indy.getArgs();
                 List<Var> actualArgs = invoke.getInvokeExp().getArgs();
-                List<Var> lambdaArgs = indy.getArgs();
                 // Obtain receiver variable and context
                 Var recvVar;
                 Context recvCtx;
-                if (lambdaArgs.isEmpty()) {
+                if (!capturedArgs.isEmpty()) {
+                    recvVar = capturedArgs.get(0);
+                    recvCtx = indyCtx;
+                } else {
                     recvVar = actualArgs.get(0);
                     recvCtx = context;
-                } else {
-                    recvVar = lambdaArgs.get(0);
-                    recvCtx = recv.getContext();
                 }
                 CSVar csRecvVar = csManager.getCSVar(recvCtx, recvVar);
                 solver.getPointsToSetOf(csRecvVar).forEach(recvObj -> {
@@ -207,7 +203,7 @@ public class LambdaPlugin implements Plugin {
                     Type rectType = recvObj.getObject().getType();
                     JMethod callee = hierarchy.dispatch(rectType, target.getRef());
                     if (callee != null) {
-                        addLambdaCallEdge(csCallSite, recvObj, callee, indy, indyCtx);
+                        addLambdaEdge(csCallSite, recvObj, callee, indy, indyCtx);
                     }
                 });
                 // New objects may reach csRecvVar later, thus we store it
@@ -216,8 +212,8 @@ public class LambdaPlugin implements Plugin {
                         new InstanceInvoInfo(csCallSite, indy, indyCtx));
                 break;
             }
-            case REF_invokeStatic: {
-                addLambdaCallEdge(csCallSite, null, target, indy, indyCtx);
+            case REF_invokeStatic: { // target is static method
+                addLambdaEdge(csCallSite, null, target, indy, indyCtx);
                 break;
             }
             default:
@@ -230,42 +226,86 @@ public class LambdaPlugin implements Plugin {
                 ((MockObj) obj).getDescription().equals(LAMBDA_DESC);
     }
 
-    private void addLambdaCallEdge(
-            CSCallSite csCallSite, @Nullable CSObj recv, JMethod callee,
+    static MethodHandle getMethodHandle(InvokeDynamic indy) {
+        return (MethodHandle) indy.getBootstrapArgs().get(1);
+    }
+
+    private void addLambdaEdge(
+            CSCallSite csCallSite, @Nullable CSObj recvObj, JMethod callee,
             InvokeDynamic indy, Context indyCtx) {
         Context calleeCtx;
-        if (recv != null) {
-            calleeCtx = selector.selectContext(csCallSite, recv, callee);
+        if (recvObj != null) {
+            calleeCtx = selector.selectContext(csCallSite, recvObj, callee);
+            // Pass receiver object to 'this' variable of callee
+            solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recvObj);
         } else {
             calleeCtx = selector.selectContext(csCallSite, callee);
         }
-        LambdaCallEdge callEdge = new LambdaCallEdge(csCallSite,
+        LambdaEdge callEdge = new LambdaEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), indy, indyCtx);
         solver.addCallEdge(callEdge);
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (edge instanceof LambdaCallEdge) {
-            LambdaCallEdge lambdaCallEdge = (LambdaCallEdge) edge;
-            CSCallSite csCallSite = lambdaCallEdge.getCallSite();
-            CSMethod csCallee = lambdaCallEdge.getCallee();
-
-            Invoke invoke = csCallSite.getCallSite();
-            Var invokeResult = invoke.getResult();
-            List<Var> actualArgs = invoke.getInvokeExp().getArgs();
-            JMethod target = csCallee.getMethod();
-            List<Var> lambdaArgs = lambdaCallEdge.getLambdaArgs();
-
-            Context callerContext = csCallSite.getContext();
+        if (edge instanceof LambdaEdge) {
+            LambdaEdge lambdaEdge = (LambdaEdge) edge;
+            CSCallSite csCallSite = lambdaEdge.getCallSite();
+            CSMethod csCallee = lambdaEdge.getCallee();
+            List<Var> capturedArgs = lambdaEdge.getCapturedArgs();
             Context calleeContext = csCallee.getContext();
-            Context lambdaContext = lambdaCallEdge.getLambdaContext();
+            Context lambdaContext = lambdaEdge.getLambdaContext();
+
+            JMethod target = csCallee.getMethod();
+            // Pass arguments captured at invokedynamic
+            int shiftC;
+            if (capturedArgs.isEmpty()) {
+                shiftC = 0;
+            } else if (target.isStatic() || target.isConstructor()) {
+                shiftC = 0;
+            } else {
+                shiftC = 1;
+            }
+            List<Var> targetParams = target.getIR().getParams();
+            int j = 0;
+            for (int i = shiftC; i < capturedArgs.size(); ++i, ++j) {
+//                solver.addPFGEdge(
+//                        csManager.getCSVar(lambdaContext, capturedArgs.get(i)),
+//                        csManager.getCSVar(calleeContext, targetParams.get(j)),
+//                        PointerFlowEdge.Kind.PARAMETER_PASSING);
+            }
+            // Pass arguments from actual invocation site
+            int shiftA;
+            if (capturedArgs.isEmpty() &&
+                    !target.isStatic() && !target.isConstructor()) {
+                shiftA = 1;
+            } else {
+                shiftA = 0;
+            }
+            Invoke invoke = csCallSite.getCallSite();
+            List<Var> actualArgs = invoke.getInvokeExp().getArgs();
+            Context callerContext = csCallSite.getContext();
+            for (int i = shiftA; i < actualArgs.size(); ++i, ++j) {
+//                solver.addPFGEdge(
+//                        csManager.getCSVar(callerContext, actualArgs.get(i)),
+//                        csManager.getCSVar(calleeContext, targetParams.get(j)),
+//                        PointerFlowEdge.Kind.PARAMETER_PASSING);
+            }
+            // Pass return value
+            Var result = invoke.getResult();
+            if (result != null && !target.isConstructor()) {
+                CSVar csResult = csManager.getCSVar(callerContext, result);
+//                target.getIR().getReturnVars().forEach(ret -> {
+//                    CSVar csRet = csManager.getCSVar(calleeContext, ret);
+//                    solver.addPFGEdge(csRet, csResult, PointerFlowEdge.Kind.RETURN);
+//                });
+            }
 
             // shift flags for passing parameters
             int shiftFlagK = 0;
             int shiftFlagN = 0;
-            int capturedCount = lambdaArgs.size(); // #i
-            List<Var> implParams = target.getIR().getParams();
+            int capturedCount = capturedArgs.size(); // #i
+
 
             if (!target.isStatic() && !target.isConstructor()) {
                 shiftFlagK = capturedCount == 0 ? 0 : 1;
@@ -273,14 +313,14 @@ public class LambdaPlugin implements Plugin {
             }
 
             // pass parameters: from actual parameters & from captured values
-            if (implParams.size() != 0) {
-                for (int i = 0; i + shiftFlagK <= capturedCount && i < lambdaArgs.size(); i++) {
+            if (!targetParams.isEmpty()) {
+                for (int i = 0; i + shiftFlagK <= capturedCount && i < capturedArgs.size(); i++) {
                     if (i - shiftFlagK < 0) {
                         continue;
                     }
                     solver.addPFGEdge(
-                            csManager.getCSVar(lambdaContext, lambdaArgs.get(i)),
-                            csManager.getCSVar(calleeContext, implParams.get(i - shiftFlagK)),
+                            csManager.getCSVar(lambdaContext, capturedArgs.get(i)),
+                            csManager.getCSVar(calleeContext, targetParams.get(i - shiftFlagK)),
                             PointerFlowEdge.Kind.PARAMETER_PASSING);
                 }
 
@@ -289,17 +329,18 @@ public class LambdaPlugin implements Plugin {
                     if (index < 0) {
                         continue;
                     }
-                    if (index >= implParams.size()) {
+                    if (index >= targetParams.size()) {
                         break;
                     }
                     solver.addPFGEdge(
                             csManager.getCSVar(callerContext, actualArgs.get(i)),
-                            csManager.getCSVar(calleeContext, implParams.get(index)),
+                            csManager.getCSVar(calleeContext, targetParams.get(index)),
                             PointerFlowEdge.Kind.PARAMETER_PASSING);
                 }
             }
 
             // pass return values
+            Var invokeResult = invoke.getResult();
             List<Var> returnValues = target.getIR().getReturnVars();
             if (invokeResult != null && !CollectionUtils.isEmpty(returnValues)) {
                 CSVar csInvokeResult = csManager.getCSVar(callerContext, invokeResult);
@@ -309,9 +350,9 @@ public class LambdaPlugin implements Plugin {
                                 solver.addPFGEdge(r, csInvokeResult, PointerFlowEdge.Kind.RETURN));
             }
 
-            if (shiftFlagK == 1 && !CollectionUtils.isEmpty(lambdaArgs)) {
+            if (shiftFlagK == 1 && !CollectionUtils.isEmpty(capturedArgs)) {
                 solver.addPFGEdge(
-                        csManager.getCSVar(lambdaContext, lambdaArgs.get(0)),
+                        csManager.getCSVar(lambdaContext, capturedArgs.get(0)),
                         csManager.getCSVar(calleeContext, target.getIR().getThis()),
                         PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
@@ -333,13 +374,12 @@ public class LambdaPlugin implements Plugin {
         }
         infos.forEach(info -> {
             InvokeDynamic indy = info.getLambdaIndy();
-            MethodHandle mh = (MethodHandle) indy.getBootstrapArgs().get(1);
-            MethodRef targetRef = mh.getMethodRef();
+            MethodRef targetRef = getMethodHandle(indy).getMethodRef();
             pts.forEach(recvObj -> {
                 Type recvType = recvObj.getObject().getType();
                 JMethod callee = hierarchy.dispatch(recvType, targetRef);
                 if (callee != null) {
-                    addLambdaCallEdge(info.getCSCallSite(), recvObj,
+                    addLambdaEdge(info.getCSCallSite(), recvObj,
                             callee, indy, info.getLambdaContext());
                 }
             });

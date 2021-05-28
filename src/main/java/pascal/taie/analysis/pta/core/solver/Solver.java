@@ -19,6 +19,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
@@ -59,6 +60,8 @@ public interface Solver {
      */
     void addVarPointsTo(Context context, Var var,
                         Context heapContext, Obj obj);
+
+    void addVarPointsTo(Context context, Var var, CSObj csObj);
 
     void addVarPointsTo(Context context, Var var, PointsToSet pts);
 

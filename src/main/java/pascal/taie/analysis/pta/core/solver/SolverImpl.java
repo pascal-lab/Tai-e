@@ -302,6 +302,11 @@ public class SolverImpl implements Solver {
     @Override
     public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
         CSObj csObj = csManager.getCSObj(heapContext, obj);
+        addVarPointsTo(context, var, csObj);
+    }
+
+    @Override
+    public void addVarPointsTo(Context context, Var var, CSObj csObj) {
         addVarPointsTo(context, var, PointsToSetFactory.make(csObj));
     }
 
