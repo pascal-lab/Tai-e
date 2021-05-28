@@ -69,7 +69,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
             if (curr instanceof Goto) {
                 cfg.addEdge(new Edge<>(Edge.Kind.GOTO,
                         curr, ((Goto) curr).getTarget()));
-            } if (curr instanceof If) {
+            } else if (curr instanceof If) {
                 cfg.addEdge(new Edge<>(Edge.Kind.IF_TRUE,
                         curr, ((If) curr).getTarget()));
                 cfg.addEdge(new Edge<>(Edge.Kind.IF_FALSE,
