@@ -7,6 +7,10 @@ public class TestConstructor {
 
     private String arg;
 
+    TestConstructor(String arg) {
+        this.arg = arg;
+    }
+
     public static void main(String[] args) {
         List<String> argList = Arrays.asList(args);
         List<TestConstructor> list = argList.stream()
@@ -14,8 +18,5 @@ public class TestConstructor {
                 .collect(Collectors.toList());
         TestConstructor tc = list.get(0);
         String s = tc.arg;
-    }
-    TestConstructor(String arg) {
-        this.arg = arg;
     }
 }

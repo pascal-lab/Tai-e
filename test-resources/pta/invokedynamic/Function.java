@@ -11,5 +11,4 @@ public class Function {
         Long result2 = function.apply(1L, 2L);
         System.out.println(result2);
     }
-
 }
