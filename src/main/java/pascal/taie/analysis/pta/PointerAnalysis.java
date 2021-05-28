@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta;
 
+import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
@@ -25,6 +26,7 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
+import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaPlugin;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionPlugin;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
@@ -101,9 +103,9 @@ public class PointerAnalysis extends InterproceduralAnalysis {
 //        if (World.getOptions().getJavaVersion() >= 7) {
 //            plugin.addPlugin(new InvokedynamicPlugin());
 //        }
-//        if (World.getOptions().getJavaVersion() >= 8) {
-//            plugin.addPlugin(new LambdaPlugin());
-//        }
+        if (World.getOptions().getJavaVersion() >= 8) {
+            plugin.addPlugin(new LambdaPlugin());
+        }
         plugin.setSolver(solver);
         solver.setPlugin(plugin);
     }

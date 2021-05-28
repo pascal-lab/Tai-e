@@ -37,8 +37,10 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.CollectionUtils;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,7 +105,6 @@ public class LambdaPlugin implements Plugin {
             // record lambda meta factories of new discovered methods
             addToMapSet(lambdaObjs, container,
                     new MockObj(LAMBDA_DESC, invoke, type, container));
-            // System.out.println(lambdaObjs.values());
         });
     }
 
@@ -135,8 +136,8 @@ public class LambdaPlugin implements Plugin {
             lambdas.forEach(lambdaObj -> {
                 // propagate lambda functional objects
                 Invoke invoke = (Invoke) lambdaObj.getAllocation();
-                InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
                 Var ret = invoke.getResult();
+                assert ret != null;
                 // here we use full method context as the heap context of
                 // lambda object, so that it can be directly used to obtain
                 // captured values.
@@ -147,24 +148,27 @@ public class LambdaPlugin implements Plugin {
 
     @Override
     public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
-        if (isLambdaObj(recv.getObject())) {
-            MockObj lambdaObj = (MockObj) recv.getObject();
-            Invoke indyInvoke = (Invoke) lambdaObj.getAllocation();
-            InvokeDynamic indy = (InvokeDynamic) indyInvoke.getInvokeExp();
-            List<Var> actualParams = invoke.getInvokeExp().getArgs();
-            List<Var> capturedValues = indy.getArgs();
-            Var invokeResult = invoke.getResult();
-            CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
-            int delayCallEdgeFlag = 0;
+        if (!isLambdaObj(recv.getObject())) {
+            return;
+        }
+        MockObj lambdaObj = (MockObj) recv.getObject();
+        Invoke indyInvoke = (Invoke) lambdaObj.getAllocation();
+        InvokeDynamic indy = (InvokeDynamic) indyInvoke.getInvokeExp();
+        Context indyCtx = recv.getContext();
 
-            JMethod implMethod =
-                    ((MethodHandle) indy.getBootstrapArgs().get(1))
-                            .getMethodRef().resolve();
+        List<Var> actualParams = invoke.getInvokeExp().getArgs();
+        List<Var> capturedValues = indy.getArgs();
+        Var invokeResult = invoke.getResult();
+        CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
+        MethodHandle mh = (MethodHandle) indy.getBootstrapArgs().get(1);
+        final JMethod target = mh.getMethodRef().resolve();
 
-            // special: constructor, mock result
-            if (implMethod.isConstructor()) {
-                Context constructorContext = selector.selectContext(csCallSite, implMethod);
-                ClassType type = implMethod.getDeclaringClass().getType();
+        switch (mh.getKind()) {
+            case REF_newInvokeSpecial: { // constructor
+                JMethod ctor = mh.getMethodRef().resolve();
+                ClassType type = ctor.getDeclaringClass().getType();
+                // Create mock object (if absent) which represents
+                // the newly-allocated object
                 MockObj newObj = getMapMap(newObjs, indyInvoke, type);
                 if (newObj == null) {
                     // TODO: use heapModel to process mock obj?
@@ -172,72 +176,75 @@ public class LambdaPlugin implements Plugin {
                             indyInvoke.getContainer());
                     addToMapMap(newObjs, indyInvoke, type, newObj);
                 }
+                // Pass the mock object to LHS variable (if present)
+                // TODO: double-check if the hctx is proper
+                Context hctx = context;
                 if (invokeResult != null) {
-                    solver.addVarPointsTo(context, invokeResult, context, newObj);
+                    solver.addVarPointsTo(context, invokeResult, hctx, newObj);
                 }
-                solver.addVarPointsTo(constructorContext,
-                        implMethod.getIR().getThis(), context, newObj);
+                //  Pass the mock object to 'this' variable of the constructor
+                CSObj csNewObj = csManager.getCSObj(hctx, newObj);
+                Context ctorCtx = selector.selectContext(csCallSite, csNewObj, ctor);
+                solver.addVarPointsTo(ctorCtx, ctor.getIR().getThis(),
+                        hctx, newObj);
+                // Add call edge to constructor
+                addLambdaCallEdge(csCallSite, csNewObj, ctor, indy, indyCtx);
+                break;
             }
-
-            Context implMethodContext;
-            // method dispatch
-            if (!implMethod.isStatic() && !implMethod.isConstructor()) {
-                Var receiverVar = null;
-                Context receiverContext = null;
-                if (capturedValues.size() == 0) {
-                    if (!CollectionUtils.isEmpty(actualParams)) {
-                        receiverVar = actualParams.get(0);
-                        receiverContext = context;
-                    }
+            case REF_invokeInterface:
+            case REF_invokeVirtual:
+            case REF_invokeSpecial: {
+                Var recvVar;
+                Context recvCtx;
+                if (capturedValues.isEmpty()) {
+                    recvVar = actualParams.get(0);
+                    recvCtx = context;
                 } else {
-                    if (!CollectionUtils.isEmpty(capturedValues)) {
-                        receiverVar = capturedValues.get(0);
-                        receiverContext = recv.getContext();
-                    }
+                    recvVar = capturedValues.get(0);
+                    recvCtx = recv.getContext();
                 }
-                if (receiverVar != null) {
-                    CSVar csVar = csManager.getCSVar(receiverContext, receiverVar);
-                    // System.out.println("pts: " + csVar.getPointsToSet());
-                    List<Type> types = csVar.getPointsToSet().objects()
-                            .map(CSObj::getObject).map(Obj::getType)
-                            .collect(Collectors.toList());
+                CSVar csRecvVar = csManager.getCSVar(recvCtx, recvVar);
+                solver.getPointsToSetOf(csRecvVar).forEach(recvObj -> {
+                    Type rectType = recvObj.getObject().getType();
+                    JMethod trueTarget = hierarchy.dispatch(rectType, target.getRef());
+                    if (trueTarget != null) {
+                        addToMapSet(delayedCallEdge, recvVar,
+                                new DelayedCallEdgeInfo(csCallSite, target.getRef(),
+                                        recvObj, invokeResult, capturedValues));
 
-                    for (Type t : types) {
-                        JMethod method = hierarchy.dispatch(t, implMethod.getRef());
-                        if (method != null) {
-                            implMethod = method;
-                            break;
-                        }
+                        addLambdaCallEdge(csCallSite, recvObj, trueTarget, indy, indyCtx);
                     }
-                    // when pts is not prepared for dispatching, delay dispatch & addCallEdge
-                    if (implMethod.isAbstract()) {
-                        delayCallEdgeFlag = 1;
-                    }
-                }
-                implMethodContext = selector.selectContext(csCallSite, recv, implMethod);
-            } else {
-                // implMethod is static
-                implMethodContext = selector.selectContext(csCallSite, implMethod);
+                });
+                break;
             }
-
-            if (delayCallEdgeFlag == 0) {
-                LambdaCallEdge callEdge = new LambdaCallEdge(
-                        csCallSite, csManager.getCSMethod(implMethodContext, implMethod));
-                callEdge.setLambdaParams(
-                        invoke.getResult(), indy.getArgs(), recv.getContext());
-                solver.addCallEdge(callEdge);
-            } else {
-                // to be handled in handleNewPointsToSet
-                addToMapSet(delayedCallEdge, actualParams.get(0),
-                        new DelayedCallEdgeInfo(
-                                csCallSite, implMethod.getRef(), recv, invokeResult, capturedValues));
+            case REF_invokeStatic: {
+                addLambdaCallEdge(csCallSite, null, target, indy, indyCtx);
+                break;
             }
+            default:
+                throw new AnalysisException(mh.getKind() + " is not supported");
         }
     }
 
     private static boolean isLambdaObj(Obj obj) {
         return obj instanceof MockObj &&
                 ((MockObj) obj).getDescription().equals(LAMBDA_DESC);
+    }
+
+    private void addLambdaCallEdge(
+            CSCallSite csCallSite, @Nullable CSObj recv, JMethod callee,
+            InvokeDynamic indy, Context indyCtx) {
+        Context calleeCtx;
+        if (recv != null) {
+            calleeCtx = selector.selectContext(csCallSite, recv, callee);
+        } else {
+            calleeCtx = selector.selectContext(csCallSite, callee);
+        }
+        LambdaCallEdge callEdge = new LambdaCallEdge(csCallSite,
+                csManager.getCSMethod(calleeCtx, callee));
+        callEdge.setLambdaParams(csCallSite.getCallSite().getResult(),
+                indy.getArgs(), indyCtx);
+        solver.addCallEdge(callEdge);
     }
 
     @Override
