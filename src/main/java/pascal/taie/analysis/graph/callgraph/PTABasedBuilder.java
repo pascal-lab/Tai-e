@@ -20,7 +20,7 @@ import pascal.taie.language.classes.JMethod;
 
 /**
  * Builds call graph based on pointer analysis results.
- * This builder supposes that pointer analysis have been done,
+ * This builder assumes that pointer analysis have been done,
  * and it merely returns the (context-insensitive) call graph
  * obtained from pointer analysis result.
  */

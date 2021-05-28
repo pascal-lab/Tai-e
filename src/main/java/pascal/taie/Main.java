@@ -44,8 +44,8 @@ public class Main {
     }
 
     /**
-     * If the given options specify to print help or version information,
-     * then print them and exit immediately.
+     * If the given options is empty or specify to print help information,
+     * then print help and exit immediately.
      */
     private static Options processArgs(String[] args) {
         Options options = Options.parse(args);
