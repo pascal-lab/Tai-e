@@ -168,7 +168,9 @@ public class LambdaPlugin implements Plugin {
             case REF_newInvokeSpecial: { // target is constructor
                 ClassType type = target.getDeclaringClass().getType();
                 // Create mock object (if absent) which represents
-                // the newly-allocated object
+                // the newly-allocated object. Note that here we use the
+                // *invokedynamic* to represent the *allocation site*,
+                // instead of the actual invocation site of the constructor.
                 MockObj newObj = getMapMap(newObjs, indyInvoke, type);
                 if (newObj == null) {
                     // TODO: use heapModel to process mock obj?
@@ -178,11 +180,11 @@ public class LambdaPlugin implements Plugin {
                 }
                 // Pass the mock object to result variable (if present)
                 // TODO: double-check if the heap context is proper
+                CSObj csNewObj = csManager.getCSObj(context, newObj);
                 Var result = invoke.getResult();
                 if (result != null) {
-                    solver.addVarPointsTo(context, result, context, newObj);
+                    solver.addVarPointsTo(context, result, csNewObj);
                 }
-                CSObj csNewObj = csManager.getCSObj(context, newObj);
                 // Add call edge to constructor
                 addLambdaCallEdge(csCallSite, csNewObj, target, indy, indyCtx);
                 break;

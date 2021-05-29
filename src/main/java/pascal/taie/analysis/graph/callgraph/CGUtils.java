@@ -24,6 +24,7 @@ import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.StreamUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -92,6 +93,8 @@ public class CGUtils {
                     .forEach(caller ->
                             callGraph.callSitesIn(caller)
                                     .sorted(Comparator.comparing(Invoke::getIndex))
+                                    .filter(callSite ->
+                                            !StreamUtils.isEmpty(callGraph.calleesOf(callSite)))
                                     .forEach(callSite ->
                                             out.println(toString(callSite) + SEP +
                                                     toString(callGraph.calleesOf(callSite)))));
