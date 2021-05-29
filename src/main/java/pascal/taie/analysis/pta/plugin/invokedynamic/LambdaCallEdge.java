@@ -23,14 +23,14 @@ import pascal.taie.util.HashUtils;
 
 import java.util.List;
 
-class LambdaEdge extends Edge<CSCallSite, CSMethod> {
+class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
 
     private final InvokeDynamic lambdaIndy;
 
     private final Context lambdaContext;
 
-    LambdaEdge(CSCallSite csCallSite, CSMethod callee,
-               InvokeDynamic lambdaIndy, Context lambdaContext) {
+    LambdaCallEdge(CSCallSite csCallSite, CSMethod callee,
+                   InvokeDynamic lambdaIndy, Context lambdaContext) {
         super(CallKind.OTHER, csCallSite, callee);
         this.lambdaIndy = lambdaIndy;
         this.lambdaContext = lambdaContext;
@@ -53,7 +53,7 @@ class LambdaEdge extends Edge<CSCallSite, CSMethod> {
             return false;
         }
         if (!super.equals(o)) return false;
-        LambdaEdge that = (LambdaEdge) o;
+        LambdaCallEdge that = (LambdaCallEdge) o;
         return lambdaIndy.equals(that.lambdaIndy) &&
                 lambdaContext.equals(that.lambdaContext);
     }
