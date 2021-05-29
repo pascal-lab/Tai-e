@@ -1,6 +1,6 @@
 import java.lang.invoke.MethodType;
 
-public class MethodTypeTest {
+public class MethodTypes {
 
     public static void main(String[] args) {
         MethodType mt0arg = MethodType.methodType(String.class);

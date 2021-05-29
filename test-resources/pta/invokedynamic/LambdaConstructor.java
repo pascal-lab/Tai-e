@@ -1,3 +1,4 @@
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -13,6 +14,11 @@ public class LambdaConstructor {
         A a2 = oneArg.apply("Yeah");
         String s2 = a2.name;
         use(s2);
+
+        BiFunction<String, String, A> twoArgs = A::new;
+        A a3 = twoArgs.apply("N1", "N2");
+        String s3 = a3.name;
+        use(s3);
     }
 
     static void use(Object o) {}
@@ -27,6 +33,14 @@ public class LambdaConstructor {
 
         A(String name) {
             this.name = name;
+        }
+
+        A(String name1, String name2) {
+            if (hashCode() > 0) {
+                name = name1;
+            } else {
+                name = name2;
+            }
         }
     }
 }

@@ -6,6 +6,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+/**
+ * Test various functional interfaces.
+ */
 public class Interface {
 
     public static void main(String[] args) {
