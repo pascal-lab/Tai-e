@@ -22,7 +22,7 @@ import pascal.taie.util.collection.MapUtils;
 public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
 
     @Override
-    protected boolean addNewMethod(JMethod method) {
+    public boolean addNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             if (!method.isAbstract()) {
                 method.getIR().getStmts().forEach(stmt -> {
