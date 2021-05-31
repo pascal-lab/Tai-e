@@ -23,7 +23,7 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
-import pascal.taie.analysis.pta.plugin.reflection.ReflectionUtils;
+import pascal.taie.analysis.pta.plugin.util.ReflectionUtils;
 import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;

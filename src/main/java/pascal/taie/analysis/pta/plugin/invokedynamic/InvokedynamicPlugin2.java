@@ -18,11 +18,15 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
+import pascal.taie.analysis.pta.plugin.util.Model;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
@@ -42,7 +46,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InvokedynamicPlugin2 implements Plugin {
 
@@ -53,8 +57,6 @@ public class InvokedynamicPlugin2 implements Plugin {
     // TODO add log warning when there is Lambdas while LambdaPlugin not in use
 
     private Solver solver;
-
-    private MethodTypeModel methodTypeModel;
 
     private CSManager csManager;
 
@@ -80,6 +82,10 @@ public class InvokedynamicPlugin2 implements Plugin {
      * Method java.lang.invoke.ConstantCallSite.<init>(MethodHandle)
      */
     private JMethod constCallSiteCtor;
+
+    private Model methodTypeModel;
+
+    private Model lookupModel;
 
     /**
      * Map from method to the invokedynamic invocations included in the method.
@@ -111,17 +117,19 @@ public class InvokedynamicPlugin2 implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        this.methodTypeModel = new MethodTypeModel(solver);
-        this.csManager = solver.getCSManager();
-        this.selector = solver.getContextSelector();
-        this.heapModel = solver.getHeapModel();
-        this.hierarchy = solver.getHierarchy();
+        csManager = solver.getCSManager();
+        selector = solver.getContextSelector();
+        heapModel = solver.getHeapModel();
+        hierarchy = solver.getHierarchy();
 
         defContext = selector.getDefaultContext();
         lookup = hierarchy.getJREClass(StringReps.LOOKUP).getType();
+
         methodHandle = hierarchy.getJREClass(StringReps.METHOD_HANDLE).getType();
         constCallSiteCtor = hierarchy.getJREMethod(
                 "<java.lang.invoke.ConstantCallSite: void <init>(java.lang.invoke.MethodHandle)>");
+        methodTypeModel = new MethodTypeModel(solver);
+        lookupModel = new LookupModel(solver);
     }
 
     @Override
@@ -129,14 +137,17 @@ public class InvokedynamicPlugin2 implements Plugin {
         method.getIR().getStmts().forEach(stmt -> {
             if (stmt instanceof Invoke) {
                 Invoke invoke = (Invoke) stmt;
+                if (!invoke.isDynamic()) {
+                    methodTypeModel.handleNewInvoke(invoke);
+                    lookupModel.handleNewInvoke(invoke);
+                }
                 InvokeDynamic indy = getInvokeDynamic(invoke);
                 if (indy != null) {
                     MapUtils.addToMapSet(method2indys, method, invoke);
                     // add BSM call edge
                     JMethod bsm = indy.getBootstrapMethodRef().resolve();
-                    Set<Var> mhVars = extractMHVars(bsm);
-                    System.out.println(bsm);
-                    System.out.println(mhVars);
+                    extractMHVars(bsm).forEach(mhVar ->
+                            MapUtils.addToMapSet(mhVar2indys, mhVar, invoke));
                     addBSMCallEdge(invoke, bsm);
                 }
             }
@@ -153,7 +164,7 @@ public class InvokedynamicPlugin2 implements Plugin {
         return null;
     }
 
-    private Set<Var> extractMHVars(JMethod bsm) {
+    private Stream<Var> extractMHVars(JMethod bsm) {
         return bsm.getIR().getStmts()
                 .stream()
                 .filter(s -> s instanceof Invoke)
@@ -171,8 +182,7 @@ public class InvokedynamicPlugin2 implements Plugin {
                     }
                     return null;
                 })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .filter(Objects::nonNull);
     }
 
     private void addBSMCallEdge(Invoke invoke, JMethod bsm) {
@@ -219,6 +229,22 @@ public class InvokedynamicPlugin2 implements Plugin {
     private MockObj getLookupObj(Invoke invoke) {
         ClassType type = invoke.getContainer().getDeclaringClass().getType();
         return lookupObjs.computeIfAbsent(type,
-                t -> new MockObj(LOOKUP_DESC, type, lookup));
+                t -> new MockObj(LOOKUP_DESC, t, lookup));
+    }
+
+    @Override
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        if (lookupModel.isRelevantVar(csVar.getVar())) {
+            lookupModel.handleNewPointsToSet(csVar, pts);
+        }
+        if (methodTypeModel.isRelevantVar(csVar.getVar())) {
+            methodTypeModel.handleNewPointsToSet(csVar, pts);
+        }
+        if (mhVar2indys.containsKey(csVar.getVar())) {
+            pts.forEach(csObj -> {
+                MethodHandle mh = CSObjUtils.toMethodHandle(csObj);
+                System.out.println(mh);
+            });
+        }
     }
 }
