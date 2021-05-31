@@ -298,7 +298,7 @@ public class LambdaPlugin implements Plugin {
             }
             // Pass return value
             Var result = invoke.getResult();
-            if (result != null && !target.isConstructor()) {
+            if (result != null) {
                 CSVar csResult = csManager.getCSVar(callerContext, result);
                 target.getIR().getReturnVars().forEach(ret -> {
                     CSVar csRet = csManager.getCSVar(calleeContext, ret);

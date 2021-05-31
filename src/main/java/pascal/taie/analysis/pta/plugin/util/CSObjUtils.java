@@ -31,8 +31,7 @@ public class CSObjUtils {
      * Converts a CSObj of string constant to corresponding String.
      * If the object is not a string constant, then return null.
      */
-    @Nullable
-    public static String toString(CSObj csObj) {
+    public static @Nullable String toString(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof StringLiteral ?
                 ((StringLiteral) alloc).getString() : null;
@@ -42,8 +41,7 @@ public class CSObjUtils {
      * Converts a CSObj of class to corresponding JClass. If the object is
      * not a class constant, then return null.
      */
-    @Nullable
-    public static JClass toClass(CSObj csObj) {
+    public static @Nullable JClass toClass(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         if (alloc instanceof ClassLiteral) {
             ClassLiteral klass = (ClassLiteral) alloc;
@@ -61,8 +59,7 @@ public class CSObjUtils {
      * Converts a CSObj of class to corresponding type. If the object is
      * not a class constant, then return null.
      */
-    public @Nullable
-    static Type toType(CSObj csObj) {
+    public static @Nullable Type toType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof ClassLiteral ?
                 ((ClassLiteral) alloc).getTypeValue() : null;
@@ -72,8 +69,7 @@ public class CSObjUtils {
      * Converts a CSObj of MethodType to corresponding MethodType.
      * If the object is not a MethodType, then return null.
      */
-    @Nullable
-    public static MethodType toMethodType(CSObj csObj) {
+    public static @Nullable MethodType toMethodType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodType ? (MethodType) alloc : null;
     }
@@ -82,8 +78,7 @@ public class CSObjUtils {
      * Converts a CSObj of MethodHandle constant to corresponding MethodHandle.
      * If the object is not a MethodHandle constant, then return null.
      */
-    public static @Nullable
-    MethodHandle toMethodHandle(CSObj csObj) {
+    public static @Nullable MethodHandle toMethodHandle(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodHandle ? (MethodHandle) alloc : null;
     }

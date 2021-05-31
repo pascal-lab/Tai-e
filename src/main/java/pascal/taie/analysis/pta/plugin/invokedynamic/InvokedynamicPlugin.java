@@ -193,8 +193,8 @@ public class InvokedynamicPlugin implements Plugin {
                                             csCallSite)));
         }
 
-        if (edge instanceof InvokedynamicCallEdge) {
-            InvokedynamicCallEdge callEdge = (InvokedynamicCallEdge) edge;
+        if (edge instanceof InvokeDynamicCallEdge) {
+            InvokeDynamicCallEdge callEdge = (InvokeDynamicCallEdge) edge;
             Invoke callSite = callEdge.getCallSite().getCallSite();
             JMethod method = callEdge.getCallee().getMethod();
             Context callSiteContext = callEdge.getCallSite().getContext();
@@ -251,7 +251,7 @@ public class InvokedynamicPlugin implements Plugin {
                                             .filter(m -> m.getParamTypes().equals(mt.getParamTypes()))
                                             .forEach(m -> {
                                                 System.out.println("find method!: " + m);
-                                                solver.addCallEdge(new InvokedynamicCallEdge(
+                                                solver.addCallEdge(new InvokeDynamicCallEdge(
                                                         csCallSite, csManager.getCSMethod(selector.getDefaultContext(), m)));
                                                 info.setFindMethod(true);
                                             });
@@ -262,7 +262,7 @@ public class InvokedynamicPlugin implements Plugin {
                                                     && m.getReturnType().equals(mt.getReturnType()))
                                             .forEach(m -> {
                                                 System.out.println("find method!: " + m);
-                                                solver.addCallEdge(new InvokedynamicCallEdge(
+                                                solver.addCallEdge(new InvokeDynamicCallEdge(
                                                         csCallSite, csManager.getCSMethod(selector.getDefaultContext(), m)));
                                                 info.setFindMethod(true);
                                             });
