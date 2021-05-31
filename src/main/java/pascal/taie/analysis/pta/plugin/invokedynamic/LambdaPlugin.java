@@ -55,12 +55,12 @@ public class LambdaPlugin implements Plugin {
     /**
      * Description for lambda functional objects.
      */
-    public static final String LAMBDA_DESC = "LambdaObj";
+    private static final String LAMBDA_DESC = "LambdaObj";
 
     /**
      * Description for objects created by lambda constructor.
      */
-    public static final String LAMBDA_NEW_DESC = "LambdaConstructedObj";
+    private static final String LAMBDA_NEW_DESC = "LambdaConstructedObj";
 
     private Solver solver;
 
@@ -233,7 +233,7 @@ public class LambdaPlugin implements Plugin {
                 ((MockObj) obj).getDescription().equals(LAMBDA_DESC);
     }
 
-    static MethodHandle getMethodHandle(InvokeDynamic indy) {
+    private static MethodHandle getMethodHandle(InvokeDynamic indy) {
         return (MethodHandle) indy.getBootstrapArgs().get(1);
     }
 

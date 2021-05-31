@@ -68,7 +68,7 @@ class MethodTypeModel {
 
     private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
 
-    public MethodTypeModel(Solver solver) {
+    MethodTypeModel(Solver solver) {
         this.pta = solver;
         csManager = solver.getCSManager();
         heapModel = solver.getHeapModel();
