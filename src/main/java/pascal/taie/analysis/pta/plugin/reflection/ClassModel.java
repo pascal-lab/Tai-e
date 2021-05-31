@@ -25,6 +25,7 @@ import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassMember;
@@ -50,6 +51,14 @@ import static pascal.taie.util.collection.MapUtils.newMap;
  */
 class ClassModel {
 
+    private final static String GET_CONSTRUCTOR = "getConstructor";
+
+    private final static String GET_DECLARED_CONSTRUCTOR = "getDeclaredConstructor";
+
+    private final static String GET_METHOD = "getMethod";
+
+    private final static String GET_DECLARED_METHOD = "getDeclaredMethod";
+
     /**
      * Description for reflection meta objects.
      */
@@ -66,52 +75,47 @@ class ClassModel {
      */
     private final Context defaultHctx;
 
-    private final Type constructor;
+    private final JClass klass;
 
-    private final Type method;
+    private final ClassType constructor;
 
-    private final Type field;
+    private final ClassType method;
 
-    private final JMethod getConstructor;
-
-    private final JMethod getDeclaredConstructor;
-
-    private final JMethod getMethod;
-
-    private final JMethod getDeclaredMethod;
+    private final ClassType field;
 
     private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
 
     private final Map<ClassMember, MockObj> refObjs = newMap();
 
-    public ClassModel(Solver solver) {
+    ClassModel(Solver solver) {
         this.solver = solver;
         hierarchy = solver.getHierarchy();
         csManager = solver.getCSManager();
         defaultHctx = solver.getContextSelector().getDefaultContext();
         TypeManager typeManager = solver.getTypeManager();
+        klass = hierarchy.getJREClass(StringReps.CLASS);
         constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
         method = typeManager.getClassType(StringReps.METHOD);
         field = typeManager.getClassType(StringReps.FIELD);
-        JClass klass = hierarchy.getJREClass(StringReps.CLASS);
-        getConstructor = klass.getDeclaredMethod("getConstructor");
-        getDeclaredConstructor = klass.getDeclaredMethod("getDeclaredConstructor");
-        getMethod = klass.getDeclaredMethod("getMethod");
-        getDeclaredMethod = klass.getDeclaredMethod("getDeclaredMethod");
     }
 
     void handleNewInvoke(Invoke invoke) {
-        if (invoke.getInvokeExp() instanceof InvokeVirtual) {
-            JMethod target = invoke.getMethodRef().resolve();
-            if (target.equals(getConstructor) ||
-                    target.equals(getDeclaredConstructor)) {
-                InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
-                addToMapSet(relevantVars, invokeExp.getBase(), invoke);
-            } else if (target.equals(getMethod) ||
-                    target.equals(getDeclaredMethod)) {
-                InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
-                addToMapSet(relevantVars, invokeExp.getBase(), invoke);
-                addToMapSet(relevantVars, invokeExp.getArg(0), invoke);
+        MethodRef ref = invoke.getMethodRef();
+        if (ref.getDeclaringClass().equals(klass)) {
+            switch (ref.getName()) {
+                case GET_CONSTRUCTOR:
+                case GET_DECLARED_CONSTRUCTOR: {
+                    InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
+                    addToMapSet(relevantVars, invokeExp.getBase(), invoke);
+                    break;
+                }
+                case GET_METHOD:
+                case GET_DECLARED_METHOD: {
+                    InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
+                    addToMapSet(relevantVars, invokeExp.getBase(), invoke);
+                    addToMapSet(relevantVars, invokeExp.getArg(0), invoke);
+                    break;
+                }
             }
         }
     }
@@ -122,15 +126,23 @@ class ClassModel {
 
     void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
         relevantVars.get(csVar.getVar()).forEach(invoke -> {
-            JMethod target = invoke.getMethodRef().resolve();
-            if (target.equals(getConstructor)) {
-                handleGetConstructor(csVar, pts, invoke);
-            } else if (target.equals(getDeclaredConstructor)) {
-                handleGetDeclaredConstructor(csVar, pts, invoke);
-            } else if (target.equals(getMethod)) {
-                handleGetMethod(csVar, pts, invoke);
-            } else if (target.equals(getDeclaredMethod)) {
-                handleGetDeclaredMethod(csVar, pts, invoke);
+            switch (invoke.getMethodRef().getName()) {
+                case GET_CONSTRUCTOR: {
+                    handleGetConstructor(csVar, pts, invoke);
+                    break;
+                }
+                case GET_DECLARED_CONSTRUCTOR: {
+                    handleGetDeclaredConstructor(csVar, pts, invoke);
+                    break;
+                }
+                case GET_METHOD: {
+                    handleGetMethod(csVar, pts, invoke);
+                    break;
+                }
+                case GET_DECLARED_METHOD: {
+                    handleGetDeclaredMethod(csVar, pts, invoke);
+                    break;
+                }
             }
         });
     }
