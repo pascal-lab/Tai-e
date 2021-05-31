@@ -24,6 +24,7 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionUtils;
+import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -55,7 +56,7 @@ public class InvokedynamicPlugin implements Plugin {
 
     private Solver solver;
 
-    private MethodTypeModel methodTypeModel;
+    private Model methodTypeModel;
 
     private CSManager csManager;
 

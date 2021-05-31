@@ -12,47 +12,38 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.CSManager;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.plugin.util.ReflectionUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.InvokeVirtual;
-import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.language.type.VoidType;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static pascal.taie.util.collection.MapUtils.addToMapSet;
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
 import static pascal.taie.util.collection.MapUtils.newMap;
 
 /**
  * Models APIs of java.lang.Class.
  */
-class ClassModel {
+class ClassModel extends AbstractModel {
 
     private final static String GET_CONSTRUCTOR = "getConstructor";
 
@@ -69,19 +60,6 @@ class ClassModel {
      */
     private final String META_DESC = "ReflectionMetaObj";
 
-    private final Solver solver;
-
-    private final ClassHierarchy hierarchy;
-
-    private final CSManager csManager;
-
-    private final HeapModel heapModel;
-
-    /**
-     * Default heap context for MethodType objects.
-     */
-    private final Context defaultHctx;
-
     private final JClass klass;
 
     private final ClassType constructor;
@@ -90,16 +68,10 @@ class ClassModel {
 
     private final ClassType field;
 
-    private final Map<Var, Set<Invoke>> relevantVars = newHybridMap();
-
     private final Map<ClassMember, MockObj> refObjs = newMap();
 
     ClassModel(Solver solver) {
-        this.solver = solver;
-        hierarchy = solver.getHierarchy();
-        csManager = solver.getCSManager();
-        heapModel = solver.getHeapModel();
-        defaultHctx = solver.getContextSelector().getDefaultContext();
+        super(solver);
         TypeManager typeManager = solver.getTypeManager();
         klass = hierarchy.getJREClass(StringReps.CLASS);
         constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
@@ -107,7 +79,8 @@ class ClassModel {
         field = typeManager.getClassType(StringReps.FIELD);
     }
 
-    void handleNewInvoke(Invoke invoke) {
+    @Override
+    public void handleNewInvoke(Invoke invoke) {
         MethodRef ref = invoke.getMethodRef();
         if (ref.getDeclaringClass().equals(klass)) {
             switch (ref.getName()) {
@@ -130,20 +103,8 @@ class ClassModel {
         }
     }
 
-    private void addRelevantBase(Invoke invoke) {
-        InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
-        addToMapSet(relevantVars, invokeExp.getBase(), invoke);
-    }
-
-    private void addRelevantArg(Invoke invoke, int i) {
-        addToMapSet(relevantVars, invoke.getInvokeExp().getArg(i), invoke);
-    }
-
-    boolean isRelevantVar(Var var) {
-        return relevantVars.containsKey(var);
-    }
-
-    void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    @Override
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
         relevantVars.get(csVar.getVar()).forEach(invoke -> {
             switch (invoke.getMethodRef().getName()) {
                 case GET_CONSTRUCTOR: {
@@ -215,7 +176,7 @@ class ClassModel {
     private void handleGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts,
+            List<PointsToSet> args = getBaseArg0(csVar, pts,
                     (InvokeVirtual) invoke.getInvokeExp());
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
@@ -245,7 +206,7 @@ class ClassModel {
     private void handleGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts,
+            List<PointsToSet> args = getBaseArg0(csVar, pts,
                     (InvokeVirtual) invoke.getInvokeExp());
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
@@ -285,61 +246,6 @@ class ClassModel {
                 }
             });
         }
-    }
-
-    /**
-     * For invocation m = c.getMethod(n, ...);
-     * when points-to set of c or n changes,
-     * this convenient method returns points-to sets of c and n.
-     * For variable csVar.getVar(), this method returns pts,
-     * otherwise, it just returns current points-to set of the variable.
-     * @param csVar may be c or n.
-     * @param pts changed part of csVar
-     * @param invokeExp the call site which contain csVar
-     */
-    private List<PointsToSet> getArgs(CSVar csVar, PointsToSet pts,
-                                      InvokeVirtual invokeExp) {
-        PointsToSet basePts, arg0Pts;
-        if (csVar.getVar().equals(invokeExp.getBase())) {
-            basePts = pts;
-            CSVar arg0 = csManager.getCSVar(csVar.getContext(),
-                    invokeExp.getArg(0));
-            arg0Pts = solver.getPointsToSetOf(arg0);
-        } else {
-            CSVar base = csManager.getCSVar(csVar.getContext(),
-                    invokeExp.getBase());
-            basePts = solver.getPointsToSetOf(base);
-            arg0Pts = pts;
-        }
-        return List.of(basePts, arg0Pts);
-    }
-
-    /**
-     * Converts a CSObj of class to corresponding JClass. If the object is
-     * not a class constant, then return null.
-     */
-    private @Nullable JClass toClass(CSObj csObj) {
-        Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof ClassLiteral) {
-            ClassLiteral klass = (ClassLiteral) alloc;
-            Type type = klass.getTypeValue();
-            if (type instanceof ClassType) {
-                return ((ClassType) type).getJClass();
-            } else if (type instanceof ArrayType) {
-                return hierarchy.getJREClass(StringReps.OBJECT);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Converts a CSObj of string constant to corresponding String.
-     * If the object is not a string constant, then return null.
-     */
-    private static @Nullable String toString(CSObj csObj) {
-        Object alloc = csObj.getObject().getAllocation();
-        return alloc instanceof StringLiteral ?
-                ((StringLiteral) alloc).getString() : null;
     }
 
     private MockObj getReflectionObj(ClassMember member) {

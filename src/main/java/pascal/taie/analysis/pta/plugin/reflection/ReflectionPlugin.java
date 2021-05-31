@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.plugin.reflection;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
@@ -23,7 +24,7 @@ import java.util.function.Predicate;
 
 public class ReflectionPlugin implements Plugin {
 
-    private ClassModel classModel;
+    private Model classModel;
 
     @Override
     public void setSolver(Solver solver) {

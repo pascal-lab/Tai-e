@@ -4,7 +4,6 @@ import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.language.classes.JClass;
 
 public class BSMCallEdge  extends Edge<CSCallSite, CSMethod> {
 

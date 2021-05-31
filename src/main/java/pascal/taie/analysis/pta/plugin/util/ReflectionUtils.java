@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta.plugin.reflection;
+package pascal.taie.analysis.pta.plugin.util;
 
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
