@@ -19,6 +19,8 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.function.Predicate;
+
 public class ReflectionPlugin implements Plugin {
 
     private ClassModel classModel;
@@ -30,12 +32,12 @@ public class ReflectionPlugin implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR().getStmts().forEach(stmt -> {
-            if (stmt instanceof Invoke) {
-                Invoke invoke = (Invoke) stmt;
-                classModel.handleNewInvoke(invoke);
-            }
-        });
+        method.getIR().getStmts()
+                .stream()
+                .filter(s -> s instanceof Invoke)
+                .map(s -> (Invoke) s)
+                .filter(Predicate.not(Invoke::isDynamic))
+                .forEach(classModel::handleNewInvoke);
     }
 
     @Override

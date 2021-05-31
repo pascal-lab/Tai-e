@@ -112,7 +112,7 @@ public class InvokedynamicPlugin implements Plugin {
                 .stream()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
-                .filter(invoke -> invoke.getInvokeExp() instanceof InvokeDynamic)
+                .filter(Invoke::isDynamic)
                 .filter(invoke -> processLambdas ||
                         !LambdaPlugin.isLambdaMetaFactory(invoke));
     }

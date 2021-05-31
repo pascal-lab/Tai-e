@@ -14,7 +14,6 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.Exp;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,11 +51,5 @@ abstract class AbstractStmt implements Stmt {
     @Override
     public List<Exp> getUses() {
         return List.of();
-    }
-
-    @Nullable
-    @Override
-    public Invoke toInvoke() {
-        return null;
     }
 }

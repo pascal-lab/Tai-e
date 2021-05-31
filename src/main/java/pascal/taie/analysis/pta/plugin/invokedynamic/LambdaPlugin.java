@@ -112,18 +112,16 @@ public class LambdaPlugin implements Plugin {
                 .stream()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
+                .filter(Invoke::isDynamic)
                 .filter(LambdaPlugin::isLambdaMetaFactory);
     }
 
     static boolean isLambdaMetaFactory(Invoke invoke) {
-        if (invoke.getInvokeExp() instanceof InvokeDynamic) {
-            JMethod bsm = ((InvokeDynamic) invoke.getInvokeExp())
-                    .getBootstrapMethodRef().resolve();
-            String bsmSig = bsm.getSignature();
-            return bsmSig.equals(StringReps.LAMBDA_METAFACTORY) ||
-                    bsmSig.equals(StringReps.LAMBDA_ALTMETAFACTORY);
-        }
-        return false;
+        JMethod bsm = ((InvokeDynamic) invoke.getInvokeExp())
+                .getBootstrapMethodRef().resolve();
+        String bsmSig = bsm.getSignature();
+        return bsmSig.equals(StringReps.LAMBDA_METAFACTORY) ||
+                bsmSig.equals(StringReps.LAMBDA_ALTMETAFACTORY);
     }
 
     @Override
@@ -259,8 +257,8 @@ public class LambdaPlugin implements Plugin {
             LambdaCallEdge lambdaCallEdge = (LambdaCallEdge) edge;
             CSCallSite csCallSite = lambdaCallEdge.getCallSite();
             CSMethod csCallee = lambdaCallEdge.getCallee();
-            List<Var> capturedArgs = lambdaCallEdge.getCapturedArgs();
             Context calleeContext = csCallee.getContext();
+            List<Var> capturedArgs = lambdaCallEdge.getCapturedArgs();
             Context lambdaContext = lambdaCallEdge.getLambdaContext();
 
             JMethod target = csCallee.getMethod();

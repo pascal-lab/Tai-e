@@ -113,12 +113,6 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
         return ListUtils.append(invokeExp.getUses(), invokeExp);
     }
 
-    @Nullable
-    @Override
-    public Invoke toInvoke() {
-        return this;
-    }
-
     @Override
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
