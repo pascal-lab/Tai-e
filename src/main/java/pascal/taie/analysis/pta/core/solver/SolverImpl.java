@@ -41,12 +41,8 @@ import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
-import pascal.taie.ir.exp.InvokeInterface;
-import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
-import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewMultiArray;
@@ -565,16 +561,13 @@ public class SolverImpl implements Solver {
     }
 
     private JMethod resolveCallee(Type type, Invoke callSite) {
-        InvokeExp invokeExp = callSite.getInvokeExp();
         MethodRef methodRef = callSite.getMethodRef();
-        if (invokeExp instanceof InvokeVirtual ||
-                invokeExp instanceof InvokeInterface) {
+        if (callSite.isInterface() || callSite.isVirtual()) {
             return hierarchy.dispatch(type, methodRef);
-        } else if (invokeExp instanceof InvokeSpecial ||
-                invokeExp instanceof InvokeStatic) {
+        } else if (callSite.isSpecial() || callSite.isStatic()) {
             return methodRef.resolve();
         } else {
-            throw new AnalysisException("Cannot resolve InvokeExp: " + invokeExp);
+            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
         }
     }
 
@@ -823,7 +816,7 @@ public class SolverImpl implements Solver {
 
         @Override
         public void visit(Invoke stmt) {
-            if (!(stmt.getInvokeExp() instanceof InvokeDynamic)) {
+            if (!stmt.isDynamic()) {
                 processMemberRef(stmt.getMethodRef());
             }
             // TODO: check if the declaring class of bootstrap method
