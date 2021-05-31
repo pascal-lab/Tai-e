@@ -17,6 +17,7 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
 import pascal.taie.analysis.pta.plugin.util.ReflectionUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
@@ -136,7 +137,7 @@ class ClassModel extends AbstractModel {
         if (result != null) {
             PointsToSet ctorObjs = PointsToSetFactory.make();
             pts.forEach(obj -> {
-                JClass jclass = toClass(obj);
+                JClass jclass = CSObjUtils.toClass(obj);
                 if (jclass != null) {
                     ReflectionUtils.getConstructors(jclass)
                             .map(ctor -> {
@@ -157,7 +158,7 @@ class ClassModel extends AbstractModel {
         if (result != null) {
             PointsToSet ctorObjs = PointsToSetFactory.make();
             pts.forEach(obj -> {
-                JClass jclass = toClass(obj);
+                JClass jclass = CSObjUtils.toClass(obj);
                 if (jclass != null) {
                     ReflectionUtils.getDeclaredConstructors(jclass)
                             .map(ctor -> {
@@ -182,10 +183,10 @@ class ClassModel extends AbstractModel {
             PointsToSet nameObjs = args.get(1);
             PointsToSet mtdObjs = PointsToSetFactory.make();
             clsObjs.forEach(clsObj -> {
-                JClass cls = toClass(clsObj);
+                JClass cls = CSObjUtils.toClass(clsObj);
                 if (cls != null) {
                     nameObjs.forEach(nameObj -> {
-                        String name = toString(nameObj);
+                        String name = CSObjUtils.toString(nameObj);
                         if (name != null) {
                             ReflectionUtils.getMethods(cls, name)
                                     .map(mtd -> {
@@ -212,10 +213,10 @@ class ClassModel extends AbstractModel {
             PointsToSet nameObjs = args.get(1);
             PointsToSet mtdObjs = PointsToSetFactory.make();
             clsObjs.forEach(clsObj -> {
-                JClass cls = toClass(clsObj);
+                JClass cls = CSObjUtils.toClass(clsObj);
                 if (cls != null) {
                     nameObjs.forEach(nameObj -> {
-                        String name = toString(nameObj);
+                        String name = CSObjUtils.toString(nameObj);
                         if (name != null) {
                             ReflectionUtils.getDeclaredMethods(cls, name)
                                     .map(mtd -> {
@@ -237,7 +238,7 @@ class ClassModel extends AbstractModel {
         Var result = invoke.getResult();
         if (result != null) {
             pts.forEach(nameObj -> {
-                String name = toString(nameObj);
+                String name = CSObjUtils.toString(nameObj);
                 if (name != null) {
                     Type type = name.equals("void") ?
                             VoidType.VOID : PrimitiveType.get(name);

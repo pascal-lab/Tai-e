@@ -14,27 +14,17 @@ package pascal.taie.analysis.pta.plugin.util;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
-import pascal.taie.ir.exp.MethodType;
-import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.MapUtils;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -126,52 +116,5 @@ public abstract class AbstractModel implements Model {
             arg1Pts = pts;
         }
         return List.of(arg0Pts, arg1Pts);
-    }
-
-    /**
-     * Converts a CSObj of string constant to corresponding String.
-     * If the object is not a string constant, then return null.
-     */
-    protected @Nullable String toString(CSObj csObj) {
-        Object alloc = csObj.getObject().getAllocation();
-        return alloc instanceof StringLiteral ?
-                ((StringLiteral) alloc).getString() : null;
-    }
-
-    /**
-     * Converts a CSObj of class to corresponding JClass. If the object is
-     * not a class constant, then return null.
-     */
-    protected @Nullable JClass toClass(CSObj csObj) {
-        Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof ClassLiteral) {
-            ClassLiteral klass = (ClassLiteral) alloc;
-            Type type = klass.getTypeValue();
-            if (type instanceof ClassType) {
-                return ((ClassType) type).getJClass();
-            } else if (type instanceof ArrayType) {
-                return hierarchy.getJREClass(StringReps.OBJECT);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Converts a CSObj of class to corresponding type. If the object is
-     * not a class constant, then return null.
-     */
-    protected @Nullable Type toType(CSObj csObj) {
-        Object alloc = csObj.getObject().getAllocation();
-        return alloc instanceof ClassLiteral ?
-                ((ClassLiteral) alloc).getTypeValue() : null;
-    }
-
-    /**
-     * Converts a CSObj of MethodType to corresponding MethodType.
-     * If the object is not a MethodType, then return null.
-     */
-    protected @Nullable MethodType toMethodType(CSObj csObj) {
-        Object alloc = csObj.getObject().getAllocation();
-        return alloc instanceof MethodType ? (MethodType) alloc : null;
     }
 }
