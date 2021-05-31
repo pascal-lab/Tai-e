@@ -23,7 +23,6 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
-import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
@@ -281,9 +280,8 @@ class ClassModel {
                 if (name != null) {
                     Type type = name.equals("void") ?
                             VoidType.VOID : PrimitiveType.get(name);
-                    Obj obj = heapModel.getConstantObj(ClassLiteral.get(type));
-                    CSObj csObj = csManager.getCSObj(defaultHctx, obj);
-                    solver.addVarPointsTo(csVar.getContext(), result, csObj);
+                    solver.addVarPointsTo(csVar.getContext(), result, defaultHctx,
+                            heapModel.getConstantObj(ClassLiteral.get(type)));
                 }
             });
         }
