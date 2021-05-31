@@ -36,6 +36,7 @@ import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -99,7 +100,7 @@ public class InvokeDynamicPlugin2 implements Plugin {
      * Map from method (containing invokedynamic) to its context-sensitive methods.
      * Updated in {@link #onNewCSMethod}.
      */
-    private final Map<JMethod, Set<CSMethod>> method2csMethod = MapUtils.newMap();
+    private final Map<JMethod, Set<Context>> method2ctxs = MapUtils.newMap();
 
     /**
      * Map from variable that holds the MethodHandle to the corresponding
@@ -142,7 +143,6 @@ public class InvokeDynamicPlugin2 implements Plugin {
 
         defContext = selector.getDefaultContext();
         lookup = hierarchy.getJREClass(StringReps.LOOKUP).getType();
-
         methodHandle = hierarchy.getJREClass(StringReps.METHOD_HANDLE).getType();
         constCallSiteCtor = hierarchy.getJREMethod(
                 "<java.lang.invoke.ConstantCallSite: void <init>(java.lang.invoke.MethodHandle)>");
@@ -292,51 +292,98 @@ public class InvokeDynamicPlugin2 implements Plugin {
         if (methodTypeModel.isRelevantVar(var)) {
             methodTypeModel.handleNewPointsToSet(csVar, pts);
         }
-        if (mhVar2indys.containsKey(var)) {
+        Set<Invoke> indys = mhVar2indys.get(var);
+        if (indys != null) {
             pts.forEach(csObj -> {
                 MethodHandle mh = CSObjUtils.toMethodHandle(csObj);
                 if (mh != null) {
-                    mhVar2indys.get(var).forEach(invoke ->
-                            handleNewMethodHandle(invoke, mh));
+                    indys.forEach(invoke -> handleNewMethodHandle(invoke, mh));
                 }
             });
         }
-        if (base2Indys.containsKey(var)) {
-            // TODO: dispatch and add invokedynamic call edge
+        Set<Invoke> instanceIndys = base2Indys.get(var);
+        if (instanceIndys != null) {
+            Context context = csVar.getContext();
+            instanceIndys.forEach(invoke -> {
+                Set<MethodHandle> mhs = indy2mhs.get(invoke);
+                if (mhs != null) {
+                    mhs.forEach(mh -> pts.forEach(recv ->
+                            addInvokeDynamicCallEdge(context, invoke, recv, mh)));
+                }
+            });
         }
     }
 
     private void handleNewMethodHandle(Invoke invoke, MethodHandle mh) {
-        if (MapUtils.addToMapSet(indy2mhs, invoke, mh)) {
-            System.out.println(mh);
-            switch (mh.getKind()) {
-                case REF_invokeVirtual: { // record
-                    Var base = invoke.getInvokeExp().getArg(0);
-                    MapUtils.addToMapSet(base2Indys, base, invoke);
-                    // TODO: consider outer class, where arg1 is
-                    //  the enclosing object
-                    break;
+        if (!MapUtils.addToMapSet(indy2mhs, invoke, mh)) {
+            return;
+        }
+        switch (mh.getKind()) {
+            case REF_invokeVirtual: { // record base
+                Var base = invoke.getInvokeExp().getArg(0);
+                MapUtils.addToMapSet(base2Indys, base, invoke);
+                Set<Context> contexts = method2ctxs.get(invoke.getContainer());
+                if (contexts != null) {
+                    contexts.forEach(ctx -> {
+                        PointsToSet recvObjs = solver.getPointsToSetOf(
+                                csManager.getCSVar(ctx, base));
+                        recvObjs.forEach(recv ->
+                                addInvokeDynamicCallEdge(ctx, invoke, recv, mh));
+                    });
                 }
-                case REF_invokeStatic: { // add invokedynamic call edge
-                    break;
+                break;
+            }
+            case REF_invokeStatic: { // add invokedynamic call edge
+                Set<Context> contexts = method2ctxs.get(invoke.getContainer());
+                if (contexts != null) {
+                    contexts.forEach(ctx ->
+                            addInvokeDynamicCallEdge(ctx, invoke, null, mh));
                 }
+                break;
             }
         }
     }
 
-    private void handleInvokeDynamic(Context context, Invoke invoke, MethodHandle mh) {
-
+    private void addInvokeDynamicCallEdge(
+            Context callerCtx, Invoke caller, CSObj recv, MethodHandle mh) {
+        CSCallSite csCallSite = csManager.getCSCallSite(callerCtx, caller);
+        MethodRef ref = mh.getMethodRef();
+        JMethod callee;
+        Context calleeCtx;
+        switch (mh.getKind()) {
+            case REF_invokeVirtual: {
+                callee = hierarchy.dispatch(recv.getObject().getType(), ref);
+                calleeCtx = selector.selectContext(csCallSite, recv, callee);
+                // pass receiver object
+                solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recv);
+                break;
+            }
+            case REF_invokeStatic: {
+                callee = ref.resolve();
+                calleeCtx = selector.selectContext(csCallSite, callee);
+                break;
+            }
+            default: throw new UnsupportedOperationException(
+                    mh.getKind() + " is currently not supported");
+        }
+        solver.addCallEdge(new InvokeDynamicCallEdge(
+                csCallSite, csManager.getCSMethod(calleeCtx, callee)));
     }
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
-        if (method2indys.containsKey(method)) {
-            MapUtils.addToMapSet(method2csMethod, method, csMethod);
+        Set<Invoke> indys = method2indys.get(method);
+        if (indys != null) {
             Context context = csMethod.getContext();
-            method2indys.get(method).forEach(invoke ->
-                    indy2mhs.get(invoke).forEach(mh ->
-                            handleInvokeDynamic(context, invoke, mh)));
+            MapUtils.addToMapSet(method2ctxs, method, context);
+            indys.forEach(invoke -> {
+                Set<MethodHandle> mhs = indy2mhs.get(invoke);
+                if (mhs != null) {
+                    mhs.forEach(mh ->
+                            addInvokeDynamicCallEdge(context, invoke, null, mh));
+                }
+            });
         }
     }
 }
