@@ -68,7 +68,6 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -806,9 +805,6 @@ public class SolverImpl implements Solver {
                         contextSelector.getDefaultContext(), clinit);
                 processNewCSMethod(csMethod);
             }
-            if (isBoxedClass(cls)) {
-                fillBoxedType(cls);
-            }
         }
 
         /**
@@ -823,25 +819,6 @@ public class SolverImpl implements Solver {
             // Some types do not contain class to be initialized,
             // e.g., int[], then return null for such cases.
             return null;
-        }
-
-        private boolean isBoxedClass(JClass cls) {
-            return StringReps.BOXED_TYPES.contains(cls.getType().getName());
-        }
-
-        /**
-         * Fills the special "TYPE" field for boxed classes,
-         * e.g., java.lang.Integer.TYPE, which may be later loaded by
-         * c = int.class.
-         */
-        private void fillBoxedType(JClass cls) {
-            JField typeField = cls.getDeclaredField("TYPE");
-            StaticField f = csManager.getStaticField(typeField);
-            Type unboxed = typeManager.getUnboxedType(cls.getType());
-            Obj obj = heapModel.getConstantObj(ClassLiteral.get(unboxed));
-            CSObj csObj = csManager.getCSObj(
-                    contextSelector.getDefaultContext(), obj);
-            addPointerEntry(f, PointsToSetFactory.make(csObj));
         }
 
         @Override

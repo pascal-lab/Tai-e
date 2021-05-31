@@ -16,12 +16,14 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
@@ -34,8 +36,10 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.VoidType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -59,6 +63,8 @@ class ClassModel {
 
     private final static String GET_DECLARED_METHOD = "getDeclaredMethod";
 
+    private final static String GET_PRIMITIVE_CLASS = "getPrimitiveClass";
+
     /**
      * Description for reflection meta objects.
      */
@@ -69,6 +75,8 @@ class ClassModel {
     private final ClassHierarchy hierarchy;
 
     private final CSManager csManager;
+
+    private final HeapModel heapModel;
 
     /**
      * Default heap context for MethodType objects.
@@ -91,6 +99,7 @@ class ClassModel {
         this.solver = solver;
         hierarchy = solver.getHierarchy();
         csManager = solver.getCSManager();
+        heapModel = solver.getHeapModel();
         defaultHctx = solver.getContextSelector().getDefaultContext();
         TypeManager typeManager = solver.getTypeManager();
         klass = hierarchy.getJREClass(StringReps.CLASS);
@@ -105,19 +114,30 @@ class ClassModel {
             switch (ref.getName()) {
                 case GET_CONSTRUCTOR:
                 case GET_DECLARED_CONSTRUCTOR: {
-                    InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
-                    addToMapSet(relevantVars, invokeExp.getBase(), invoke);
+                    addRelevantBase(invoke);
                     break;
                 }
                 case GET_METHOD:
                 case GET_DECLARED_METHOD: {
-                    InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
-                    addToMapSet(relevantVars, invokeExp.getBase(), invoke);
-                    addToMapSet(relevantVars, invokeExp.getArg(0), invoke);
+                    addRelevantBase(invoke);
+                    addRelevantArg(invoke, 0);
+                    break;
+                }
+                case GET_PRIMITIVE_CLASS: {
+                    addRelevantArg(invoke, 0);
                     break;
                 }
             }
         }
+    }
+
+    private void addRelevantBase(Invoke invoke) {
+        InvokeVirtual invokeExp = (InvokeVirtual) invoke.getInvokeExp();
+        addToMapSet(relevantVars, invokeExp.getBase(), invoke);
+    }
+
+    private void addRelevantArg(Invoke invoke, int i) {
+        addToMapSet(relevantVars, invoke.getInvokeExp().getArg(i), invoke);
     }
 
     boolean isRelevantVar(Var var) {
@@ -141,6 +161,10 @@ class ClassModel {
                 }
                 case GET_DECLARED_METHOD: {
                     handleGetDeclaredMethod(csVar, pts, invoke);
+                    break;
+                }
+                case GET_PRIMITIVE_CLASS: {
+                    handleGetPrimitiveClass(csVar, pts, invoke);
                     break;
                 }
             }
@@ -246,6 +270,22 @@ class ClassModel {
             if (!mtdObjs.isEmpty()) {
                 solver.addVarPointsTo(csVar.getContext(), result, mtdObjs);
             }
+        }
+    }
+
+    private void handleGetPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Var result = invoke.getResult();
+        if (result != null) {
+            pts.forEach(nameObj -> {
+                String name = toString(nameObj);
+                if (name != null) {
+                    Type type = name.equals("void") ?
+                            VoidType.VOID : PrimitiveType.get(name);
+                    Obj obj = heapModel.getConstantObj(ClassLiteral.get(type));
+                    CSObj csObj = csManager.getCSObj(defaultHctx, obj);
+                    solver.addVarPointsTo(csVar.getContext(), result, csObj);
+                }
+            });
         }
     }
 
