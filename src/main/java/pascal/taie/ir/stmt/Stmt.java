@@ -55,7 +55,7 @@ public interface Stmt {
     boolean canFallThrough();
 
     /**
-     * Convenient API for converting a Stmt to Invoke. If this Stmt is Invoke,
+     * Convenient API for converting this Stmt to Invoke. If this is Invoke,
      * then casts this Stmt to Invoke and returns it; otherwise, returns null.
      */
     @Nullable Invoke toInvoke();
