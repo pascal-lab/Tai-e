@@ -14,6 +14,7 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.Exp;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +53,12 @@ public interface Stmt {
      * @return if execution after this statement can continue at the following statement.
      */
     boolean canFallThrough();
+
+    /**
+     * Convenient API for converting a Stmt to Invoke. If this Stmt is Invoke,
+     * then casts this Stmt to Invoke and returns it; otherwise, returns null.
+     */
+    @Nullable Invoke toInvoke();
 
     void accept(StmtVisitor visitor);
 
