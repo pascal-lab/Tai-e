@@ -77,9 +77,9 @@ public class TestUtils {
         Main.main(args.toArray(new String[0]));
     }
 
-    public static void testCSPTA(String main, String... opts) {
+    public static void testPTA(String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
-        String classPath = "src/test/resources/pta/cspta/";
+        String classPath = "src/test/resources/pta/" + dir;
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";

@@ -7,13 +7,19 @@ public class LambdaStaticMethod {
     }
 
     static Object test() {
-        Function<Object, String> fun = (o) -> {
+        Function<Object, Op> fun = (o) -> {
             if (o.hashCode() > 0) {
-                return "> 0";
+                return new GT();
             } else {
-                return "<= 0";
+                return new LE();
             }
         };
         return fun.apply(new Object());
     }
+
+    static abstract class Op {}
+
+    static class GT extends Op {}
+
+    static class LE extends Op {}
 }

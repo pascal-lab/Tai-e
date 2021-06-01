@@ -1,0 +1,21 @@
+Points-to sets of all variables
+[]:<LambdaStaticMethod$GT: void <init>()>/%this -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:3(@L12)/new LambdaStaticMethod$GT}]
+[]:<LambdaStaticMethod$LE: void <init>()>/%this -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:6(@L14)/new LambdaStaticMethod$LE}]
+[]:<LambdaStaticMethod$Op: void <init>()>/%this -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:3(@L12)/new LambdaStaticMethod$GT}, []:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:6(@L14)/new LambdaStaticMethod$LE}]
+[]:<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>/$r1 -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:6(@L14)/new LambdaStaticMethod$LE}]
+[]:<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>/$r2 -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:3(@L12)/new LambdaStaticMethod$GT}]
+[]:<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>/r0 -> [[]:NewObj{<LambdaStaticMethod: java.lang.Object test()>:1(@L17)/new java.lang.Object}]
+[]:<LambdaStaticMethod: java.lang.Object test()>/$r1 -> [[]:NewObj{<LambdaStaticMethod: java.lang.Object test()>:1(@L17)/new java.lang.Object}]
+[]:<LambdaStaticMethod: java.lang.Object test()>/$r2 -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:3(@L12)/new LambdaStaticMethod$GT}, []:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:6(@L14)/new LambdaStaticMethod$LE}]
+[]:<LambdaStaticMethod: java.lang.Object test()>/r0 -> [[]:LambdaObj{alloc=r0 = invokedynamic <java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)> "apply" <MethodType: java.util.function.Function ()>[MethodType: java.lang.Object (java.lang.Object),MethodHandle[REF_invokeStatic]: <LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>,MethodType: LambdaStaticMethod$Op (java.lang.Object)]()@<LambdaStaticMethod: java.lang.Object test()>:0(@L10), type=java.util.function.Function in <LambdaStaticMethod: java.lang.Object test()>}]
+[]:<LambdaStaticMethod: void main(java.lang.String[])>/r1 -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <LambdaStaticMethod: void main(java.lang.String[])>}]
+[]:<java.lang.Object: int hashCode()>/%native-this -> [[]:NewObj{<LambdaStaticMethod: java.lang.Object test()>:1(@L17)/new java.lang.Object}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:3(@L12)/new LambdaStaticMethod$GT}, []:NewObj{<LambdaStaticMethod: LambdaStaticMethod$Op lambda$test$0(java.lang.Object)>:6(@L14)/new LambdaStaticMethod$LE}, []:NewObj{<LambdaStaticMethod: java.lang.Object test()>:1(@L17)/new java.lang.Object}]
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <LambdaStaticMethod: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <LambdaStaticMethod: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
+

@@ -7,39 +7,51 @@ public class LambdaConstructor {
     public static void main(String[] args) {
         Supplier<A> noArg = A::new;
         A a1 = noArg.get();
-        String s1 = a1.name;
-        use(s1);
+        B b1 = a1.b;
+        use(b1);
 
-        Function<String, A> oneArg = A::new;
-        A a2 = oneArg.apply("Yeah");
-        String s2 = a2.name;
-        use(s2);
+        Function<B, A> oneArg = A::new;
+        A a2 = oneArg.apply(b1());
+        B b2 = a2.b;
+        use(b2);
 
-        BiFunction<String, String, A> twoArgs = A::new;
-        A a3 = twoArgs.apply("N1", "N2");
-        String s3 = a3.name;
-        use(s3);
+        BiFunction<B, B, A> twoArgs = A::new;
+        A a3 = twoArgs.apply(b2(), b3());
+        B b3 = a3.b;
+        use(b3);
+    }
+    
+    static B b1() {
+        return new B();
+    }
+    
+    static B b2() {
+        return new B();
+    }
+    
+    static B b3() {
+        return new B();
     }
 
     static void use(Object o) {}
 
     static class A {
 
-        String name;
+        B b;
 
         A() {
-            this.name = "Unknown";
+            this.b = new B();
         }
 
-        A(String name) {
-            this.name = name;
+        A(B b) {
+            this.b = b;
         }
 
-        A(String name1, String name2) {
+        A(B b1, B b2) {
             if (hashCode() > 0) {
-                name = name1;
+                b = b1;
             } else {
-                name = name2;
+                b = b2;
             }
         }
     }

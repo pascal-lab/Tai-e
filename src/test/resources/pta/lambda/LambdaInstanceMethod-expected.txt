@@ -1,0 +1,33 @@
+Points-to sets of all variables
+[]:<LambdaInstanceMethod$A: void <init>()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+[]:<LambdaInstanceMethod$B: void <init>()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+[]:<LambdaInstanceMethod$B: void bar()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+[]:<LambdaInstanceMethod$C: LambdaInstanceMethod$C addOne(int)>/$r2 -> [[]:NewObj{<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>:0(@L40)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: LambdaInstanceMethod$C addOne(int)>/$r3 -> [[]:NewObj{<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>:0(@L40)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: LambdaInstanceMethod$C addOne(int)>/%this -> [[]:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: LambdaInstanceMethod$C addOne(int)>/r1 -> [[]:LambdaObj{alloc=r1 = invokedynamic <java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)> "get" <MethodType: java.util.function.Supplier (LambdaInstanceMethod$C)>[MethodType: java.lang.Object (),MethodHandle[REF_invokeSpecial]: <LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>,MethodType: LambdaInstanceMethod$C ()](%this)@<LambdaInstanceMethod$C: LambdaInstanceMethod$C addOne(int)>:0(@L40), type=java.util.function.Supplier in <LambdaInstanceMethod$C: LambdaInstanceMethod$C addOne(int)>}]
+[]:<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>:0(@L40)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: int one()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: void <init>()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>:0(@L12)/new LambdaInstanceMethod$C}, []:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: void <init>(int)>/%this -> [[]:NewObj{<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>:0(@L40)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod$C: void foo()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>:0(@L12)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod: void interfaze()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>:0(@L12)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod: void interfaze()>/r1 -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>:0(@L12)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod: void interfaze()>/r3 -> [[]:LambdaObj{alloc=r3 = invokedynamic <java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)> "run" <MethodType: java.lang.Runnable (LambdaInstanceMethod$I)>[MethodType: void (),MethodHandle[REF_invokeInterface]: <LambdaInstanceMethod$I: void foo()>,MethodType: void ()](r1)@<LambdaInstanceMethod: void interfaze()>:4(@L13), type=java.lang.Runnable in <LambdaInstanceMethod: void interfaze()>}]
+[]:<LambdaInstanceMethod: void main(java.lang.String[])>/r0 -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <LambdaInstanceMethod: void main(java.lang.String[])>}]
+[]:<LambdaInstanceMethod: void special()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod: void special()>/r1 -> [[]:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}]
+[]:<LambdaInstanceMethod: void virtual()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+[]:<LambdaInstanceMethod: void virtual()>/r1 -> [[]:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+[]:<LambdaInstanceMethod: void virtual()>/r3 -> [[]:LambdaObj{alloc=r3 = invokedynamic <java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)> "run" <MethodType: java.lang.Runnable (LambdaInstanceMethod$A)>[MethodType: void (),MethodHandle[REF_invokeVirtual]: <LambdaInstanceMethod$A: void bar()>,MethodType: void ()](r1)@<LambdaInstanceMethod: void virtual()>:4(@L19), type=java.lang.Runnable in <LambdaInstanceMethod: void virtual()>}]
+[]:<java.lang.Object: java.lang.Class getClass()>/%native-this -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>:0(@L12)/new LambdaInstanceMethod$C}, []:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<LambdaInstanceMethod$C: LambdaInstanceMethod$C lambda$addOne$0()>:0(@L40)/new LambdaInstanceMethod$C}, []:NewObj{<LambdaInstanceMethod: void interfaze()>:0(@L12)/new LambdaInstanceMethod$C}, []:NewObj{<LambdaInstanceMethod: void special()>:0(@L24)/new LambdaInstanceMethod$C}, []:NewObj{<LambdaInstanceMethod: void virtual()>:0(@L18)/new LambdaInstanceMethod$B}]
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <LambdaInstanceMethod: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <LambdaInstanceMethod: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
+

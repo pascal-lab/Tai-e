@@ -24,27 +24,27 @@ public class Args {
 
         // lambda expression
         Args args = new Args();
-        args.callOnThis("captureRecv");
+        args.callOnThis(new B());
     }
 
-    void callOnThis(String s) {
-        Runnable r = () -> consume(s);
+    void callOnThis(B b) {
+        Runnable r = () -> consume(b);
         r.run();
     }
 
-    void consume(String s) {}
+    void consume(B b) {}
 
     static void captureNoRecv() {
-        String s = "captureNoRecv";
+        B b = new B();
         Object o = new Object();
         A a = new A();
-        Runnable r = () -> a.threeArgs(s, o, a);
+        Runnable r = () -> a.threeArgs(b, o, a);
         r.run();
     }
 
     static void actualRecv() {
-        BiConsumer<A, String> bc = A::oneArg;
-        bc.accept(new A(), "actualRecv");
+        BiConsumer<A, B> bc = A::oneArg;
+        bc.accept(new A(), new B());
     }
 
     static void actualNoRecv() {
@@ -54,21 +54,21 @@ public class Args {
 
     static void captureWithActualRecv() {
         Args args = new Args();
-        args.callOnThis2("captureWithActualRecv");
+        args.callOnThis2(new B());
     }
 
-    void callOnThis2(String s) {
-        // capture receiver and s
-        Consumer<String> c = (str) -> consume2(s, str);
-        c.accept("callOnThis2");
+    void callOnThis2(B b) {
+        // capture receiver and b
+        Consumer<B> c = (bb) -> consume2(b, bb);
+        c.accept(new B());
     }
 
-    void consume2(String s1, String s2) {}
+    void consume2(B b1, B b2) {}
 
     static void captureWithActualNoRecv() {
-        String s = "captureWithActualNoRecv";
+        B b = new B();
         A a = new A();
-        Consumer<Object> c = o -> a.twoArgs(s, o);
+        Consumer<Object> c = o -> a.twoArgs(b, o);
         c.accept(new Object());
     }
 
@@ -76,10 +76,10 @@ public class Args {
 
         void noArg() {}
 
-        void oneArg(String s) {}
+        void oneArg(B b) {}
 
-        void twoArgs(String s, Object o) {}
+        void twoArgs(B b, Object o) {}
 
-        void threeArgs(String s, Object o, A a) {}
+        void threeArgs(B b, Object o, A a) {}
     }
 }
