@@ -4,15 +4,15 @@ interface K {
 
 class Clinit {
     static {
-        String s = "Clinit";
+        new Object();
     }
 
     public static void main(String[] args) {
         new A();
         B[][][] barr = new B[1][1][1];
         new D();
-        E.f = "x";
-        String s = F.f;
+        E.f = new Object();
+        Object o = F.f;
         G g;
         H.foo();
         new I();
@@ -25,19 +25,19 @@ class Clinit {
 
 class A {
     static {
-        String s = "A";
+        new Object();
     }
 }
 
 class B {
     static {
-        String s = "B";
+        new Object();
     }
 }
 
 abstract class C {
     static {
-        String s = "C";
+        new Object();
     }
 }
 
@@ -45,30 +45,30 @@ class D extends C {
 }
 
 class E {
-    static String f;
+    static Object f;
 
     static {
-        String s = "E";
+        new Object();
     }
 }
 
 class F {
-    static String f;
+    static Object f;
 
     static {
-        String s = "F";
+        new Object();
     }
 }
 
 class G {
     static {
-        String s = "G";
+        new Object();
     }
 }
 
 class H {
     static {
-        String s = "H";
+        new Object();
     }
 
     static void foo() {

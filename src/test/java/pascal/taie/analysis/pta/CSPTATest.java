@@ -134,7 +134,7 @@ public class CSPTATest {
 
     @Test
     public void testClinit() {
-        TestUtils.testPTA(DIR, "Clinit");
+        TestUtils.testPTA(DIR, "Clinit", "-pp");
     }
 
     @Test
@@ -150,7 +150,7 @@ public class CSPTATest {
 
     @Test
     public void testSpecialHeapContext() {
-        TestUtils.testPTA(DIR, "SpecialHeapContext", "pta=cs:2-object");
+        TestUtils.testPTA(DIR, "SpecialHeapContext", "-pp", "pta=cs:2-object");
     }
 
     @Test

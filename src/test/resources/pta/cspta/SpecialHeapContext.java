@@ -3,14 +3,14 @@ class SpecialHeapContext {
     public static void main(String[] args) {
         A a1 = new A();
         A a2 = new A();
-        String s1 = a1.getMyString();
-        String s2 = a2.getMyString();
+        Object o1 = a1.getMyObject();
+        Object o2 = a2.getMyObject();
     }
 }
 
 class A {
 
-    String getMyString() {
-        return "string";
+    Object getMyObject() {
+        return new Object();
     }
 }
