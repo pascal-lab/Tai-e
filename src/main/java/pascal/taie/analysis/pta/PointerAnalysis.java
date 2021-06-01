@@ -92,17 +92,19 @@ public class PointerAnalysis extends InterproceduralAnalysis {
 
     private void setPlugin(SolverImpl solver) {
         CompositePlugin plugin = new CompositePlugin();
-        // To record elapsed time precisely, AnalysisTimer should be
-        // added at first.
+        // To record elapsed time precisely, AnalysisTimer should be added at first.
         // TODO: remove such order dependency
         plugin.addPlugin(
                 new AnalysisTimer(),
                 new ClassInitializer(),
                 new ThreadHandler(),
-                new ReferenceHandler(),
                 new ReflectionPlugin(),
                 new ResultProcessor()
         );
+        if (World.getOptions().getJavaVersion() < 9) {
+            // current reference model doesn't support Java 9+
+            plugin.addPlugin(new ReferenceHandler());
+        }
         if (World.getOptions().getJavaVersion() >= 7) {
             plugin.addPlugin(new InvokeDynamicPlugin());
         }
