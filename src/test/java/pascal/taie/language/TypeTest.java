@@ -30,7 +30,7 @@ public class TypeTest {
 
     @BeforeClass
     public static void initTypeManager() {
-        Main.buildWorld("-cp", "test-resources/basic", "-m", "Types");
+        Main.buildWorld("-cp", "src/test/resources/basic", "-m", "Types");
         typeManager = World.getTypeManager();
     }
 

@@ -34,12 +34,12 @@ public class TestUtils {
     private static final boolean GENERATE_EXPECTED_RESULTS = false;
 
     public static void testCP(String inputClass) {
-        testIntra(inputClass, "test-resources/dataflow/constprop/",
+        testIntra(inputClass, "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID);
     }
 
     public static void testDCD(String inputClass) {
-        testIntra(inputClass, "test-resources/dataflow/deadcode/",
+        testIntra(inputClass, "src/test/resources/dataflow/deadcode/",
                 DeadCodeDetection.ID);
     }
 
@@ -66,7 +66,7 @@ public class TestUtils {
     public static void testCHA(String main) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
-        String classPath = "test-resources/cha/";
+        String classPath = "src/test/resources/cha/";
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
@@ -79,7 +79,7 @@ public class TestUtils {
 
     public static void testCSPTA(String main, String... opts) {
         List<String> args = new ArrayList<>();
-        String classPath = "test-resources/pta/cspta/";
+        String classPath = "src/test/resources/pta/cspta/";
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";

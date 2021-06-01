@@ -18,7 +18,6 @@ import pascal.taie.analysis.dataflow.DataflowTestSuite;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.CSPTATest;
 import pascal.taie.config.OptionsTest;
-import pascal.taie.frontend.soot.InvokeDynamicTest;
 import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.HierarchyTest;
@@ -32,7 +31,6 @@ import pascal.taie.util.UtilTestSuite;
         TypeTest.class,
         HierarchyTest.class,
         DefaultMethodTest.class,
-        InvokeDynamicTest.class,
         // analysis
         DataflowTestSuite.class,
         CHATestFull.class,
