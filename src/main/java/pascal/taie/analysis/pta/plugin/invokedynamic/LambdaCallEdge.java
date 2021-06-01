@@ -23,6 +23,11 @@ import pascal.taie.util.HashUtils;
 
 import java.util.List;
 
+/**
+ * Represents call edge on lambda functional object.
+ * The edge carries the information about invokedynamic invocation site
+ * where the lambda functional object was created.
+ */
 class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
 
     private final InvokeDynamic lambdaIndy;

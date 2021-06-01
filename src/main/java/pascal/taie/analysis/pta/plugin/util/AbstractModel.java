@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Provides common functionalities for implementing API models.
+ */
 public abstract class AbstractModel implements Model {
 
     protected final Solver solver;

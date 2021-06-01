@@ -17,6 +17,9 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 
+/**
+ * Model for special APIs.
+ */
 public interface Model {
 
     boolean isRelevantVar(Var var);

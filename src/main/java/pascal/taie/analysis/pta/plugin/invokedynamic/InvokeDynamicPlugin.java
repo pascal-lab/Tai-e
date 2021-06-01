@@ -42,6 +42,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.MapUtils;
 
 import javax.annotation.Nullable;
@@ -51,10 +52,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class InvokeDynamicPlugin2 implements Plugin {
+public class InvokeDynamicPlugin implements Plugin {
 
     /**
-     * Lambdas are supposed to be processed by LambdaPlugin.
+     * Lambdas are supposed to be processed by {@link LambdaPlugin}.
      */
     private static final boolean processLambdas = false;
     // TODO add log warning when there is Lambdas while LambdaPlugin not in use
@@ -69,6 +70,8 @@ public class InvokeDynamicPlugin2 implements Plugin {
 
     private ClassHierarchy hierarchy;
 
+    private TypeManager typeManager;
+
     private Context defContext;
 
     /**
@@ -82,9 +85,9 @@ public class InvokeDynamicPlugin2 implements Plugin {
     private ClassType methodHandle;
 
     /**
-     * Method java.lang.invoke.ConstantCallSite.<init>(MethodHandle)
+     * Class type java.lang.invoke.CallSite
      */
-    private JMethod constCallSiteCtor;
+    private ClassType callSite;
 
     private Model methodTypeModel;
 
@@ -140,12 +143,12 @@ public class InvokeDynamicPlugin2 implements Plugin {
         selector = solver.getContextSelector();
         heapModel = solver.getHeapModel();
         hierarchy = solver.getHierarchy();
+        typeManager = solver.getTypeManager();
 
         defContext = selector.getDefaultContext();
         lookup = hierarchy.getJREClass(StringReps.LOOKUP).getType();
         methodHandle = hierarchy.getJREClass(StringReps.METHOD_HANDLE).getType();
-        constCallSiteCtor = hierarchy.getJREMethod(
-                "<java.lang.invoke.ConstantCallSite: void <init>(java.lang.invoke.MethodHandle)>");
+        callSite = hierarchy.getJREClass(StringReps.CALL_SITE).getType();
         methodTypeModel = new MethodTypeModel(solver);
         lookupModel = new LookupModel(solver);
     }
@@ -161,11 +164,18 @@ public class InvokeDynamicPlugin2 implements Plugin {
                 }
                 InvokeDynamic indy = getInvokeDynamic(invoke);
                 if (indy != null) {
+                    // if new reachable method contains invokedynamic,
+                    // then we record necessary information
                     MapUtils.addToMapSet(method2indys, method, invoke);
-                    // add BSM call edge
                     JMethod bsm = indy.getBootstrapMethodRef().resolve();
+                    // we associate the variables in bootstrap method to
+                    // the invokedynamic, where the variables may point to
+                    // the MethodHandle for the invokedynamic,
+                    // so that when MethodHandle objects reach these variables,
+                    // we can associate them to the invokedynamic.
                     extractMHVars(bsm).forEach(mhVar ->
                             MapUtils.addToMapSet(mhVar2indys, mhVar, invoke));
+                    // add call edge to BSM
                     addBSMCallEdge(invoke, bsm);
                 }
             }
@@ -182,20 +192,33 @@ public class InvokeDynamicPlugin2 implements Plugin {
         return null;
     }
 
+    /**
+     * Extracts the variables that may point to MethodHandle objects for
+     * the invokedynamic. We identify variables which are the first arguments
+     * of new *CallSite(target) or callSite.setTarget(target).
+     * Note that this is expedient (and unsound) solution. Ideally,
+     * we should associate instance field CallSite.target to the invokedynamic,
+     * but currently the pointer analysis does not support handling
+     * on new points-to set of field (only support variable),
+     * thus we connect variables to invokedynamic.
+     */
     private Stream<Var> extractMHVars(JMethod bsm) {
         return bsm.getIR().getStmts()
                 .stream()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> ((Invoke) s).getInvokeExp())
                 .map(i -> {
-                    JMethod target = i.getMethodRef().resolve();
-                    if (target.equals(constCallSiteCtor)) {
-                        return i.getArg(0);
-                    }
-                    if (target.getName().equals("setTarget")) {
-                        Var tg = i.getArg(0);
-                        if (tg.getType().equals(methodHandle)) {
-                            return tg;
+                    MethodRef ref = i.getMethodRef();
+                    ClassType declType = ref.getDeclaringClass().getType();
+                    if (typeManager.isSubtype(callSite, declType)) {
+                        // new [Constant|Mutable|Volatile]CallSite(target);
+                        if (ref.getName().equals(StringReps.INIT_NAME) ||
+                                // callSite.setTarget(target);
+                                ref.getName().equals("setTarget")) {
+                            Var tgt = i.getArg(0);
+                            if (tgt.getType().equals(methodHandle)) {
+                                return tgt;
+                            }
                         }
                     }
                     return null;
@@ -204,6 +227,8 @@ public class InvokeDynamicPlugin2 implements Plugin {
     }
 
     private void addBSMCallEdge(Invoke invoke, JMethod bsm) {
+        // each invokedynamic call site will invoke BSM at most once,
+        // thus ideally we should use 1-call-site sensitivity for BSM.
         // TODO: use 1-call-site sensitivity for BSM
         BSMCallEdge edge = new BSMCallEdge(
                 csManager.getCSCallSite(defContext, invoke),
@@ -214,7 +239,7 @@ public class InvokeDynamicPlugin2 implements Plugin {
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof BSMCallEdge) {
-            // pass arguments of boostrap method, for details, please refer to
+            // pass arguments to boostrap method, for details, please refer to
             // https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/package-summary.html
             Invoke invoke = edge.getCallSite().getCallSite();
             InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
@@ -230,7 +255,7 @@ public class InvokeDynamicPlugin2 implements Plugin {
             solver.addVarPointsTo(context, ir.getParam(2), defContext,
                     heapModel.getConstantObj(indy.getMethodType()));
             // arg 3+: optionally, additional static arguments
-            for (int i = 0, j = 2;
+            for (int i = 0, j = 3;
                  i < indy.getBootstrapArgs().size() && j < ir.getParams().size();
                  ++i, ++j) {
                 Literal arg = indy.getBootstrapArgs().get(i);
@@ -248,9 +273,11 @@ public class InvokeDynamicPlugin2 implements Plugin {
             int shift;
             if (callee.isStatic() || callee.isConstructor()) {
                 shift = 0;
-            } else {
+            } else { // if callee is instance method, then the first argument
+                // is the receiver object, which has been passed to callee's
+                // this variable when adding this call edge.
                 shift = 1;
-                // TODO: consider case of outer class, where shift = 2
+                // TODO: consider case of inner class, where shift = 2
             }
             Context callerCtx = edge.getCallSite().getContext();
             Invoke caller = edge.getCallSite().getCallSite();
@@ -277,6 +304,11 @@ public class InvokeDynamicPlugin2 implements Plugin {
         }
     }
 
+    /**
+     * @return the MethodHandles.Lookup object for given invokedynamic.
+     * Each Lookup object is associate with a lookup class which contains the
+     * invokedynamic invocation site, and will be used for access checking.
+     */
     private MockObj getLookupObj(Invoke invoke) {
         ClassType type = invoke.getContainer().getDeclaringClass().getType();
         return lookupObjs.computeIfAbsent(type,
@@ -294,6 +326,9 @@ public class InvokeDynamicPlugin2 implements Plugin {
         }
         Set<Invoke> indys = mhVar2indys.get(var);
         if (indys != null) {
+            // if var is MethodHandle variable which was associated to
+            // some invokedynamic sites, then we process new-reach
+            // MethodHandle objects.
             pts.forEach(csObj -> {
                 MethodHandle mh = CSObjUtils.toMethodHandle(csObj);
                 if (mh != null) {
@@ -303,6 +338,8 @@ public class InvokeDynamicPlugin2 implements Plugin {
         }
         Set<Invoke> instanceIndys = base2Indys.get(var);
         if (instanceIndys != null) {
+            // if var is base variable of some invokedynamic that invokes
+            // instance method, then we process new-reach receiver objects.
             Context context = csVar.getContext();
             instanceIndys.forEach(invoke -> {
                 Set<MethodHandle> mhs = indy2mhs.get(invoke);
@@ -314,15 +351,21 @@ public class InvokeDynamicPlugin2 implements Plugin {
         }
     }
 
+    /**
+     * Invoked when the analysis discovers that a new MethodHandle may be
+     * associated to an invokedynamic invocation site.
+     */
     private void handleNewMethodHandle(Invoke invoke, MethodHandle mh) {
         if (!MapUtils.addToMapSet(indy2mhs, invoke, mh)) {
             return;
         }
+        Set<Context> contexts = method2ctxs.get(invoke.getContainer());
         switch (mh.getKind()) {
-            case REF_invokeVirtual: { // record base
+            case REF_invokeVirtual: {
+                // for virtual invocation, record base variable and
+                // add invokedynamic call edge
                 Var base = invoke.getInvokeExp().getArg(0);
                 MapUtils.addToMapSet(base2Indys, base, invoke);
-                Set<Context> contexts = method2ctxs.get(invoke.getContainer());
                 if (contexts != null) {
                     contexts.forEach(ctx -> {
                         PointsToSet recvObjs = solver.getPointsToSetOf(
@@ -333,17 +376,22 @@ public class InvokeDynamicPlugin2 implements Plugin {
                 }
                 break;
             }
-            case REF_invokeStatic: { // add invokedynamic call edge
-                Set<Context> contexts = method2ctxs.get(invoke.getContainer());
+            case REF_invokeStatic: {
+                // for static invocation, just add invokedynamic call edge
                 if (contexts != null) {
                     contexts.forEach(ctx ->
                             addInvokeDynamicCallEdge(ctx, invoke, null, mh));
                 }
                 break;
             }
+            // TODO: handle other MethodHandle operations
         }
     }
 
+    /**
+     * Adds new invokedynamic call edge. The callee is decided
+     * by given receiver object (may be null) and MethodHandle.
+     */
     private void addInvokeDynamicCallEdge(
             Context callerCtx, Invoke caller, CSObj recv, MethodHandle mh) {
         CSCallSite csCallSite = csManager.getCSCallSite(callerCtx, caller);
@@ -353,6 +401,9 @@ public class InvokeDynamicPlugin2 implements Plugin {
         switch (mh.getKind()) {
             case REF_invokeVirtual: {
                 callee = hierarchy.dispatch(recv.getObject().getType(), ref);
+                if (callee == null) {
+                    return;
+                }
                 calleeCtx = selector.selectContext(csCallSite, recv, callee);
                 // pass receiver object
                 solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recv);
@@ -363,8 +414,10 @@ public class InvokeDynamicPlugin2 implements Plugin {
                 calleeCtx = selector.selectContext(csCallSite, callee);
                 break;
             }
-            default: throw new UnsupportedOperationException(
-                    mh.getKind() + " is currently not supported");
+            // TODO: handle other MethodHandle operations
+            default:
+                throw new UnsupportedOperationException(
+                        mh.getKind() + " is currently not supported");
         }
         solver.addCallEdge(new InvokeDynamicCallEdge(
                 csCallSite, csManager.getCSMethod(calleeCtx, callee)));
@@ -379,7 +432,8 @@ public class InvokeDynamicPlugin2 implements Plugin {
             MapUtils.addToMapSet(method2ctxs, method, context);
             indys.forEach(invoke -> {
                 Set<MethodHandle> mhs = indy2mhs.get(invoke);
-                if (mhs != null) {
+                if (mhs != null) { // add new invokedynamic call edges
+                    // for already-discovered MethodHandles
                     mhs.forEach(mh ->
                             addInvokeDynamicCallEdge(context, invoke, null, mh));
                 }

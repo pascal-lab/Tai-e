@@ -101,7 +101,7 @@ public class LambdaPlugin implements Plugin {
             InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
             Type type = indy.getMethodType().getReturnType();
             JMethod container = invoke.getContainer();
-            // record lambda meta factories of new discovered methods
+            // record lambda meta factories of new reachable methods
             addToMapSet(lambdaObjs, container,
                     new MockObj(LAMBDA_DESC, invoke, type, container));
         });
@@ -137,7 +137,7 @@ public class LambdaPlugin implements Plugin {
                 assert ret != null;
                 // here we use full method context as the heap context of
                 // lambda object, so that it can be directly used to obtain
-                // captured values.
+                // context-sensitive captured values later.
                 solver.addVarPointsTo(context, ret, context, lambdaObj);
             });
         }
@@ -160,11 +160,11 @@ public class LambdaPlugin implements Plugin {
         Context indyCtx = recv.getContext();
         CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
         MethodHandle mh = getMethodHandle(indy);
-        final JMethod target = getMethodHandle(indy).getMethodRef().resolve();
+        final MethodRef targetRef = getMethodHandle(indy).getMethodRef();
 
         switch (mh.getKind()) {
-            case REF_newInvokeSpecial: { // target is constructor
-                ClassType type = target.getDeclaringClass().getType();
+            case REF_newInvokeSpecial: { // targetRef is constructor
+                ClassType type = targetRef.getDeclaringClass().getType();
                 // Create mock object (if absent) which represents
                 // the newly-allocated object. Note that here we use the
                 // *invokedynamic* to represent the *allocation site*,
@@ -176,49 +176,47 @@ public class LambdaPlugin implements Plugin {
                             indyInvoke.getContainer());
                     addToMapMap(newObjs, indyInvoke, type, newObj);
                 }
-                // Pass the mock object to result variable (if present)
+                // pass the mock object to result variable (if present)
                 // TODO: double-check if the heap context is proper
                 CSObj csNewObj = csManager.getCSObj(context, newObj);
                 Var result = invoke.getResult();
                 if (result != null) {
                     solver.addVarPointsTo(context, result, csNewObj);
                 }
-                // Add call edge to constructor
-                addLambdaCallEdge(csCallSite, csNewObj, target, indy, indyCtx);
+                // add call edge to constructor
+                addLambdaCallEdge(csCallSite, csNewObj, targetRef, indy, indyCtx);
                 break;
             }
             case REF_invokeInterface:
             case REF_invokeVirtual:
-            case REF_invokeSpecial: { // target is instance method
+            case REF_invokeSpecial: { // targetRef is instance method
                 List<Var> capturedArgs = indy.getArgs();
                 List<Var> actualArgs = invoke.getInvokeExp().getArgs();
                 // Obtain receiver variable and context
                 Var recvVar;
                 Context recvCtx;
                 if (!capturedArgs.isEmpty()) {
+                    // if captured arguments are not empty, then the first one
+                    // must be the receiver object for targetRef
                     recvVar = capturedArgs.get(0);
                     recvCtx = indyCtx;
                 } else {
+                    // otherwise, the first actual argument is the receiver
                     recvVar = actualArgs.get(0);
                     recvCtx = context;
                 }
                 CSVar csRecvVar = csManager.getCSVar(recvCtx, recvVar);
-                solver.getPointsToSetOf(csRecvVar).forEach(recvObj -> {
-                    // Handle receiver objects
-                    Type rectType = recvObj.getObject().getType();
-                    JMethod callee = hierarchy.dispatch(rectType, target.getRef());
-                    if (callee != null) {
-                        addLambdaCallEdge(csCallSite, recvObj, callee, indy, indyCtx);
-                    }
-                });
+                solver.getPointsToSetOf(csRecvVar).forEach(recvObj ->
+                        addLambdaCallEdge(csCallSite, recvObj, targetRef,
+                                indy, indyCtx));
                 // New objects may reach csRecvVar later, thus we store it
                 // together with information about the related Lambda invocation.
                 addToMapSet(invoInfos, csRecvVar,
                         new InstanceInvoInfo(csCallSite, indy, indyCtx));
                 break;
             }
-            case REF_invokeStatic: { // target is static method
-                addLambdaCallEdge(csCallSite, null, target, indy, indyCtx);
+            case REF_invokeStatic: { // targetRef is static method
+                addLambdaCallEdge(csCallSite, null, targetRef, indy, indyCtx);
                 break;
             }
             default:
@@ -231,19 +229,29 @@ public class LambdaPlugin implements Plugin {
                 ((MockObj) obj).getDescription().equals(LAMBDA_DESC);
     }
 
+    /**
+     * @return the MethodHandle to the target method from invokedynamic.
+     */
     private static MethodHandle getMethodHandle(InvokeDynamic indy) {
         return (MethodHandle) indy.getBootstrapArgs().get(1);
     }
 
     private void addLambdaCallEdge(
-            CSCallSite csCallSite, @Nullable CSObj recvObj, JMethod callee,
+            CSCallSite csCallSite, @Nullable CSObj recvObj, MethodRef targetRef,
             InvokeDynamic indy, Context indyCtx) {
+        JMethod callee;
         Context calleeCtx;
         if (recvObj != null) {
+            // recvObj is not null, meaning that callee is instance method
+            callee = hierarchy.dispatch(recvObj.getObject().getType(), targetRef);
+            if (callee == null) {
+                return;
+            }
             calleeCtx = selector.selectContext(csCallSite, recvObj, callee);
-            // Pass receiver object to 'this' variable of callee
+            // pass receiver object to 'this' variable of callee
             solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recvObj);
-        } else {
+        } else { // otherwise, callee is static method
+            callee = targetRef.resolve();
             calleeCtx = selector.selectContext(csCallSite, callee);
         }
         LambdaCallEdge callEdge = new LambdaCallEdge(csCallSite,
@@ -262,13 +270,17 @@ public class LambdaPlugin implements Plugin {
             Context lambdaContext = lambdaCallEdge.getLambdaContext();
 
             JMethod target = csCallee.getMethod();
-            // Pass arguments captured at invokedynamic
+            // pass arguments captured at invokedynamic
             int shiftC; // shift of captured arguments
             if (capturedArgs.isEmpty()) {
                 shiftC = 0;
             } else if (target.isStatic() || target.isConstructor()) {
                 shiftC = 0;
-            } else {
+            } else { // target is instance method and there is at least
+                // one capture argument, then it must be the receiver object,
+                // which has been passed to target's this variable when
+                // adding call edge. Thus, we skip it and don't pass it
+                // to target's parameters.
                 shiftC = 1;
             }
             List<Var> targetParams = target.getIR().getParams();
@@ -279,10 +291,14 @@ public class LambdaPlugin implements Plugin {
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
                         PointerFlowEdge.Kind.PARAMETER_PASSING);
             }
-            // Pass arguments from actual invocation site
+            // pass arguments from actual invocation site
             int shiftA; // shift of actual arguments
             if (capturedArgs.isEmpty() &&
                     !target.isStatic() && !target.isConstructor()) {
+                // target is instance method and there is no any captured arguments,
+                // then the first argument at actual invocation site must be
+                // the receiver object, which has been passed to target's
+                // this variable when adding call edge. So we can also skip it.
                 shiftA = 1;
             } else {
                 shiftA = 0;
@@ -296,7 +312,7 @@ public class LambdaPlugin implements Plugin {
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
                         PointerFlowEdge.Kind.PARAMETER_PASSING);
             }
-            // Pass return value
+            // pass return value
             Var result = invoke.getResult();
             if (result != null) {
                 CSVar csResult = csManager.getCSVar(callerContext, result);
@@ -315,16 +331,13 @@ public class LambdaPlugin implements Plugin {
             return;
         }
         infos.forEach(info -> {
+            // handle the case of that new objects reach base variable
+            // of lambda invocation
             InvokeDynamic indy = info.getLambdaIndy();
             MethodRef targetRef = getMethodHandle(indy).getMethodRef();
-            pts.forEach(recvObj -> {
-                Type recvType = recvObj.getObject().getType();
-                JMethod callee = hierarchy.dispatch(recvType, targetRef);
-                if (callee != null) {
+            pts.forEach(recvObj ->
                     addLambdaCallEdge(info.getCSCallSite(), recvObj,
-                            callee, indy, info.getLambdaContext());
-                }
-            });
+                            targetRef, indy, info.getLambdaContext()));
         });
     }
 }

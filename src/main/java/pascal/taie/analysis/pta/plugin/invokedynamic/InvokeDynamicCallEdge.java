@@ -5,10 +5,12 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 
-public class InvokeDynamicCallEdge extends Edge<CSCallSite, CSMethod> {
+/**
+ * Represents call edge from invokedynamic to actual target method.
+ */
+class InvokeDynamicCallEdge extends Edge<CSCallSite, CSMethod> {
 
     public InvokeDynamicCallEdge(CSCallSite csCallSite, CSMethod callee) {
         super(CallKind.OTHER, csCallSite, callee);
     }
-
 }

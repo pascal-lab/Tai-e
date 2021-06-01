@@ -75,6 +75,8 @@ public class StringReps {
 
     public static final String THROWABLE = "java.lang.Throwable";
 
+    public static final String CALL_SITE = "java.lang.invoke.CallSite";
+
     public static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";
 
     public static final String LOOKUP = "java.lang.invoke.MethodHandles$Lookup";

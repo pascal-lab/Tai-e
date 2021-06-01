@@ -34,8 +34,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
- * Models APIs of java.lang.invoke.MethodHandles.Lookup.
- * TODO: take Lookup.lookupClass into account
+ * Models java.lang.invoke.MethodHandles.Lookup.find*(...).
+ * For details, please refer to
+ * https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/MethodHandles.Lookup.html
+ * TODO: take Lookup.lookupClass's visibility into account
  * TODO: take MethodType into account
  */
 class LookupModel extends AbstractModel {
