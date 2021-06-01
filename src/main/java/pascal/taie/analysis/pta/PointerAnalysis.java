@@ -22,6 +22,7 @@ import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.solver.SolverImpl;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
+import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
@@ -96,6 +97,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         // TODO: remove such order dependency
         plugin.addPlugin(
                 new AnalysisTimer(),
+                new ClassInitializer(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
                 new ReflectionPlugin(),

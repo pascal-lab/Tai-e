@@ -93,5 +93,11 @@ public interface Solver {
      */
     void addCallEdge(Edge<CSCallSite, CSMethod> edge);
 
+    /**
+     * Adds a context-sensitive method.
+     * @param csMethod the added contxt-sensitive method.
+     */
+    void addCSMethod(CSMethod csMethod);
+
     PointerAnalysisResult getResult();
 }

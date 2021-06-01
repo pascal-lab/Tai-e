@@ -39,7 +39,6 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.CastExp;
-import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeStatic;
@@ -48,7 +47,6 @@ import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Cast;
@@ -61,12 +59,10 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -117,8 +113,6 @@ public class SolverImpl implements Solver {
     private Set<JMethod> reachableMethods;
 
     private StmtProcessor stmtProcessor;
-
-    private ClassInitializer classInitializer;
 
     private PointerAnalysisResult result;
 
@@ -208,13 +202,11 @@ public class SolverImpl implements Solver {
         workList = new WorkList();
         reachableMethods = newSet();
         stmtProcessor = new StmtProcessor();
-        classInitializer = new ClassInitializer();
 
         // process program entries (including implicit entries)
         Context defContext = contextSelector.getDefaultContext();
         for (JMethod entry : computeEntries()) {
             // initialize class type of entry methods
-            classInitializer.initializeClass(entry.getDeclaringClass());
             CSMethod csMethod = csManager.getCSMethod(defContext, entry);
             callGraph.addEntryMethod(csMethod);
             processNewCSMethod(csMethod);
@@ -338,6 +330,11 @@ public class SolverImpl implements Solver {
         workList.addCallEdge(edge);
     }
 
+    @Override
+    public void addCSMethod(CSMethod csMethod) {
+        processNewCSMethod(csMethod);
+    }
+
     /**
      * Given a points-to set pts and a type t, returns the objects of pts
      * which can be assigned to t.
@@ -370,7 +367,7 @@ public class SolverImpl implements Solver {
     public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         addPFGEdge(from, to, null, kind);
     }
-    
+
     /**
      * Processes instance stores when points-to set of the base variable changes.
      *
@@ -539,11 +536,10 @@ public class SolverImpl implements Solver {
      */
     private void processNewCSMethod(CSMethod csMethod) {
         if (callGraph.addNewMethod(csMethod)) {
-            processNewMethod(csMethod.getMethod());
+            JMethod method = csMethod.getMethod();
+            processNewMethod(method);
             stmtProcessor.setCSMethod(csMethod);
-            csMethod.getMethod()
-                    .getIR()
-                    .getStmts()
+            method.getIR().getStmts()
                     .forEach(s -> s.accept(stmtProcessor));
             plugin.onNewCSMethod(csMethod);
         }
@@ -555,8 +551,6 @@ public class SolverImpl implements Solver {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.onNewMethod(method);
-            method.getIR().getStmts()
-                    .forEach(s -> s.accept(classInitializer));
         }
     }
 
@@ -738,104 +732,6 @@ public class SolverImpl implements Solver {
         public void visit(Invoke stmt) {
             if (stmt.isStatic()) {
                 processInvokeStatic(stmt);
-            }
-        }
-    }
-
-    /**
-     * Triggers the analysis of class initializers.
-     * Well, the description of "when initialization occurs" of
-     * JLS (11 Ed., 12.4.1) and JVM Spec. (11 Ed., 5.5) looks not
-     * very consistent.
-     * TODO: handles class initialization triggered by reflection,
-     *  MethodHandle, and superinterfaces (that declare default methods).
-     */
-    private class ClassInitializer implements StmtVisitor {
-
-        /**
-         * Set of classes that have been initialized.
-         */
-        private final Set<JClass> initializedClasses = newSet();
-
-        @Override
-        public void visit(New stmt) {
-            initializeClass(extractClass(stmt.getRValue().getType()));
-        }
-
-        @Override
-        public void visit(AssignLiteral stmt) {
-            Literal rvalue = stmt.getRValue();
-            if (isConcerned(rvalue)) {
-                initializeClass(extractClass(rvalue.getType()));
-                if (rvalue instanceof ClassLiteral) {
-                    initializeClass(extractClass(
-                            ((ClassLiteral) rvalue).getTypeValue()));
-                }
-            }
-        }
-
-        /**
-         * Analyzes the initializer of given class.
-         */
-        private void initializeClass(JClass cls) {
-            if (cls == null || initializedClasses.contains(cls)) {
-                return;
-            }
-            // initialize super class
-            JClass superclass = cls.getSuperClass();
-            if (superclass != null) {
-                initializeClass(superclass);
-            }
-            // TODO: initialize the superinterfaces which
-            //  declare default methods
-            JMethod clinit = cls.getClinit();
-            if (clinit != null) {
-                // processNewCSMethod() may trigger initialization of more
-                // classes. So cls must be added before processNewCSMethod(),
-                // otherwise, infinite recursion may occur.
-                initializedClasses.add(cls);
-                CSMethod csMethod = csManager.getCSMethod(
-                        contextSelector.getDefaultContext(), clinit);
-                processNewCSMethod(csMethod);
-            }
-        }
-
-        /**
-         * Extracts the class to be initialized from given type.
-         */
-        private JClass extractClass(Type type) {
-            if (type instanceof ClassType) {
-                return ((ClassType) type).getJClass();
-            } else if (type instanceof ArrayType) {
-                return extractClass(((ArrayType) type).getBaseType());
-            }
-            // Some types do not contain class to be initialized,
-            // e.g., int[], then return null for such cases.
-            return null;
-        }
-
-        @Override
-        public void visit(Invoke stmt) {
-            if (!stmt.isDynamic()) {
-                processMemberRef(stmt.getMethodRef());
-            }
-            // TODO: check if the declaring class of bootstrap method
-            //  of invokedynamic instruction needs to be initialized
-        }
-
-        @Override
-        public void visit(LoadField stmt) {
-            processMemberRef(stmt.getFieldRef());
-        }
-
-        @Override
-        public void visit(StoreField stmt) {
-            processMemberRef(stmt.getFieldRef());
-        }
-
-        private void processMemberRef(MemberRef memberRef) {
-            if (memberRef.isStatic()) {
-                initializeClass(memberRef.resolve().getDeclaringClass());
             }
         }
     }
