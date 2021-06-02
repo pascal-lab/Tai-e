@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
@@ -60,10 +61,14 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
      */
     private CallGraph<Invoke, JMethod> callGraph;
 
+    private PTABasedThrowResult ptaBasedThrowResult;
+
     PointerAnalysisResultImpl(CSManager csManager,
-                              CallGraph<CSCallSite, CSMethod> csCallGraph) {
+                              CallGraph<CSCallSite, CSMethod> csCallGraph,
+                              PTABasedThrowResult ptaBasedThrowResult) {
         this.csManager = csManager;
         this.csCallGraph = csCallGraph;
+        this.ptaBasedThrowResult=ptaBasedThrowResult;
     }
 
     @Override
@@ -157,6 +162,11 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
             callGraph = removeContexts(csCallGraph);
         }
         return callGraph;
+    }
+
+    @Override
+    public PTABasedThrowResult getPTABasedThrowResult(){
+        return this.ptaBasedThrowResult;
     }
 
     /**

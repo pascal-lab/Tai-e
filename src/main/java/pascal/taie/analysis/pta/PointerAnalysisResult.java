@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta;
 
+import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -64,6 +65,8 @@ public interface PointerAnalysisResult {
     Set<Obj> getPointsToSet(Var base, JField field);
 
     Set<Obj> getPointsToSet(JField field);
+
+    PTABasedThrowResult getPTABasedThrowResult();
 
     CallGraph<CSCallSite, CSMethod> getCSCallGraph();
 

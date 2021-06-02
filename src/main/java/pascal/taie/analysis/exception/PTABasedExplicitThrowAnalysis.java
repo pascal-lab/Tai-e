@@ -14,6 +14,7 @@ package pascal.taie.analysis.exception;
 
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.IR;
@@ -29,7 +30,7 @@ class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     private PTABasedThrowResult ptaBasedThrowResult;
 
     PTABasedExplicitThrowAnalysis(){
-        Solver solver= World.getResult(PointerAnalysis.ID);
+        PointerAnalysisResult solver= World.getResult(PointerAnalysis.ID);
         this.ptaBasedThrowResult= solver.getPTABasedThrowResult();
     }
 

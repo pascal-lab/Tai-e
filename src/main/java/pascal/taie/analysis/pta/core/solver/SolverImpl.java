@@ -197,7 +197,7 @@ public class SolverImpl implements Solver {
     @Override
     public PointerAnalysisResult getResult() {
         if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, callGraph);
+            result = new PointerAnalysisResultImpl(csManager, callGraph,ptaBasedThrowResult);
         }
         return result;
     }
