@@ -52,13 +52,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class InvokeDynamicPlugin implements Plugin {
+public class InvokeDynamicAnalysis implements Plugin {
 
     /**
-     * Lambdas are supposed to be processed by {@link LambdaPlugin}.
+     * Lambdas are supposed to be processed by {@link LambdaAnalysis}.
+     * TODO add log warning when there is Lambdas while {@link LambdaAnalysis}
+     *  is not in use
      */
     private static final boolean processLambdas = false;
-    // TODO add log warning when there is Lambdas while LambdaPlugin not in use
 
     private Solver solver;
 
@@ -185,7 +186,7 @@ public class InvokeDynamicPlugin implements Plugin {
     private static @Nullable InvokeDynamic getInvokeDynamic(Invoke invoke) {
         InvokeExp invokeExp = invoke.getInvokeExp();
         if (invokeExp instanceof InvokeDynamic) {
-            if (processLambdas || !LambdaPlugin.isLambdaMetaFactory(invoke)) {
+            if (processLambdas || !LambdaAnalysis.isLambdaMetaFactory(invoke)) {
                 return (InvokeDynamic) invokeExp;
             }
         }

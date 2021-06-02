@@ -22,7 +22,7 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.function.Predicate;
 
-public class ReflectionPlugin implements Plugin {
+public class ReflectionAnalysis implements Plugin {
 
     private Model classModel;
 

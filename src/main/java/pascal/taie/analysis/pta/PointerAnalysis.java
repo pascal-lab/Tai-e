@@ -27,9 +27,9 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
-import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicPlugin;
-import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaPlugin;
-import pascal.taie.analysis.pta.plugin.reflection.ReflectionPlugin;
+import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
+import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
+import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
 
@@ -98,18 +98,18 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 new AnalysisTimer(),
                 new ClassInitializer(),
                 new ThreadHandler(),
-                new ReflectionPlugin(),
+                new ReflectionAnalysis(),
                 new ResultProcessor()
         );
         if (World.getOptions().getJavaVersion() < 9) {
-            // current reference model doesn't support Java 9+
+            // current reference handler doesn't support Java 9+
             plugin.addPlugin(new ReferenceHandler());
         }
         if (World.getOptions().getJavaVersion() >= 7) {
-            plugin.addPlugin(new InvokeDynamicPlugin());
+            plugin.addPlugin(new InvokeDynamicAnalysis());
         }
         if (World.getOptions().getJavaVersion() >= 8) {
-            plugin.addPlugin(new LambdaPlugin());
+            plugin.addPlugin(new LambdaAnalysis());
         }
         plugin.setSolver(solver);
         solver.setPlugin(plugin);

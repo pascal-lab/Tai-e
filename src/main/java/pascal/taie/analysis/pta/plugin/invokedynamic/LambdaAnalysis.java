@@ -50,7 +50,7 @@ import static pascal.taie.util.collection.MapUtils.addToMapSet;
 import static pascal.taie.util.collection.MapUtils.getMapMap;
 import static pascal.taie.util.collection.MapUtils.newMap;
 
-public class LambdaPlugin implements Plugin {
+public class LambdaAnalysis implements Plugin {
 
     /**
      * Description for lambda functional objects.
@@ -113,7 +113,7 @@ public class LambdaPlugin implements Plugin {
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
                 .filter(Invoke::isDynamic)
-                .filter(LambdaPlugin::isLambdaMetaFactory);
+                .filter(LambdaAnalysis::isLambdaMetaFactory);
     }
 
     static boolean isLambdaMetaFactory(Invoke invoke) {
