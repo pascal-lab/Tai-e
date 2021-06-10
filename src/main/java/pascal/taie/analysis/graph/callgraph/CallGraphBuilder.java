@@ -18,6 +18,8 @@ import pascal.taie.config.ConfigException;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.List;
+
 public class CallGraphBuilder extends InterproceduralAnalysis {
 
     public static final String ID = "cg";
@@ -49,14 +51,23 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
 
     private void takeAction(CallGraph<Invoke, JMethod> callGraph) {
         String action = getOptions().getString("action");
-        String file = getOptions().getString("file");
         switch (action) {
-            case "dump":
+            case "dump": {
+                String file = getOptions().getString("file");
                 CGUtils.dumpCallGraph(callGraph, file);
                 break;
-            case "compare":
+            }
+            case "dump-recall": {
+                List<String> files = (List<String>) getOptions().get("file");
+                CGUtils.dumpMethods(callGraph, files.get(0));
+                CGUtils.dumpCallEdges(callGraph, files.get(1));
+                break;
+            }
+            case "compare": {
+                String file = getOptions().getString("file");
                 CGUtils.compareCallGraph(callGraph, file);
                 break;
+            }
         }
     }
 }

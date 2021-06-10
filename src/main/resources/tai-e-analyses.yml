@@ -17,8 +17,8 @@
   requires: [pta(algorithm=pta)]
   options:
     algorithm: pta # | cha | rta
-    action: none # | dump | compare
-    file: null # path to input/output file
+    action: none # | dump | dump-recall | compare
+    file: null # path to input/output files
 
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
