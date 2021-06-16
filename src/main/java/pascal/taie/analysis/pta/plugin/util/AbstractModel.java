@@ -21,13 +21,17 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.TriConsumer;
 import pascal.taie.util.collection.MapUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Provides common functionalities for implementing API models.
@@ -49,6 +53,12 @@ public abstract class AbstractModel implements Model {
 
     protected final Map<Var, Set<Invoke>> relevantVars = MapUtils.newHybridMap();
 
+    protected final Map<JMethod, Consumer<Invoke>> varRegisters
+            = MapUtils.newHybridMap();
+
+    protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
+            = MapUtils.newHybridMap();
+
     protected AbstractModel(Solver solver) {
         this.solver = solver;
         hierarchy = solver.getHierarchy();
@@ -69,6 +79,45 @@ public abstract class AbstractModel implements Model {
     protected void addRelevantArg(Invoke invoke, int i) {
         MapUtils.addToMapSet(relevantVars,
                 invoke.getInvokeExp().getArg(i), invoke);
+    }
+
+    protected void addVarRegister(JMethod api, Consumer<Invoke> register) {
+        varRegisters.put(api, register);
+    }
+
+    /**
+     * Matches an invocation and API by their declaring class and method name.
+     * TODO: resolve invoke's method reference?
+     */
+    protected boolean matchAPI(Invoke invoke, JMethod api) {
+        MethodRef ref = invoke.getMethodRef();
+        return ref.getDeclaringClass().equals(api.getDeclaringClass()) &&
+                ref.getName().equals(api.getName());
+    }
+
+    @Override
+    public void handleNewInvoke(Invoke invoke) {
+        varRegisters.forEach((api, action) -> {
+            if (matchAPI(invoke, api)) {
+                action.accept(invoke);
+            }
+        });
+    }
+
+    protected void addAPIHandler(
+            JMethod api, TriConsumer<CSVar, PointsToSet, Invoke> handler) {
+        handlers.put(api, handler);
+    }
+
+    @Override
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        relevantVars.get(csVar.getVar()).forEach(invoke ->
+                handlers.forEach((api, handler) -> {
+                    if (matchAPI(invoke, api)) {
+                        handler.accept(csVar, pts, invoke);
+                    }
+                })
+        );
     }
 
     /**
