@@ -15,35 +15,7 @@ public class GetMember {
     static void use(Object... objs) {
     }
 
-    static class B {
-        public void foo(A a) {
-        }
-
-        public void foo(B b) {
-        }
-    }
-
-    static class A extends B {
-
-        public A(String s) {
-        }
-
-        A() {
-        }
-
-        private A(Object o) {
-        }
-
-        void foo() {
-        }
-
-        public void foo(A a) {
-        }
-
-        private void foo(int i) {
-        }
-
-        void bar() {
-        }
-    }
+    // We need to trigger the reference analysis for A, otherwise
+    // A may not be resolved by frontend.
+    void refA(A a) {}
 }
