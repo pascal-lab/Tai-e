@@ -59,7 +59,7 @@ class ClassModel extends AbstractModel {
     /**
      * Description for reflection meta objects.
      */
-    private final String META_DESC = "ReflectionMetaObj";
+    private final static String META_DESC = "ReflectionMetaObj";
 
     private final JClass klass;
 

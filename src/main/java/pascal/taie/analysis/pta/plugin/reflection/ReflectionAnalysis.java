@@ -26,9 +26,12 @@ public class ReflectionAnalysis implements Plugin {
 
     private Model classModel;
 
+    private Model sideEffectModel;
+
     @Override
     public void setSolver(Solver solver) {
         classModel = new ClassModel(solver);
+        sideEffectModel = new SideEffectModel(solver);
     }
 
     @Override
@@ -38,7 +41,10 @@ public class ReflectionAnalysis implements Plugin {
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
                 .filter(Predicate.not(Invoke::isDynamic))
-                .forEach(classModel::handleNewInvoke);
+                .forEach(invoke -> {
+                    classModel.handleNewInvoke(invoke);
+                    sideEffectModel.handleNewInvoke(invoke);
+                });
     }
 
     @Override
