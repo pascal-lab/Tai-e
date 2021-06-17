@@ -45,7 +45,6 @@ import static pascal.taie.util.collection.MapUtils.getMapMap;
  * - Method.invoke(Object,Object[])
  * TODO:
  *  - pass reflective arguments and return values
- *  - trigger class initializer
  *  - check accessibility
  */
 class ReflectiveActionModel extends AbstractModel {
@@ -123,15 +122,15 @@ class ReflectiveActionModel extends AbstractModel {
         PointsToSet recvObjs = args.get(1);
         Var argsVar = invoke.getInvokeExp().getArg(1);
         mtdObjs.forEach(mtdObj -> {
-            JMethod method = CSObjUtils.toMethod(mtdObj);
-            if (method == null) {
+            JMethod target = CSObjUtils.toMethod(mtdObj);
+            if (target == null) {
                 return;
             }
-            if (method.isStatic()) {
-                addReflectiveCallEdge(context, invoke, null, method, argsVar);
+            if (target.isStatic()) {
+                addReflectiveCallEdge(context, invoke, null, target, argsVar);
             } else {
                 recvObjs.forEach(recvObj ->
-                        addReflectiveCallEdge(context, invoke, recvObj, method, argsVar)
+                        addReflectiveCallEdge(context, invoke, recvObj, target, argsVar)
                 );
             }
         });

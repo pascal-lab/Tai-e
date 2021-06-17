@@ -59,6 +59,7 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.natives.NativeModel;
@@ -111,6 +112,11 @@ public class SolverImpl implements Solver {
     private WorkList workList;
 
     private Set<JMethod> reachableMethods;
+
+    /**
+     * Set of classes that have been initialized.
+     */
+    private Set<JClass> initializedClasses;
 
     private StmtProcessor stmtProcessor;
 
@@ -201,6 +207,7 @@ public class SolverImpl implements Solver {
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         reachableMethods = newSet();
+        initializedClasses = newSet();
         stmtProcessor = new StmtProcessor();
 
         // process program entries (including implicit entries)
@@ -333,6 +340,30 @@ public class SolverImpl implements Solver {
     @Override
     public void addCSMethod(CSMethod csMethod) {
         processNewCSMethod(csMethod);
+    }
+
+    @Override
+    public void initializeClass(JClass cls) {
+        if (cls == null || initializedClasses.contains(cls)) {
+            return;
+        }
+        // initialize super class
+        JClass superclass = cls.getSuperClass();
+        if (superclass != null) {
+            initializeClass(superclass);
+        }
+        // TODO: initialize the superinterfaces which
+        //  declare default methods
+        JMethod clinit = cls.getClinit();
+        if (clinit != null) {
+            // processNewCSMethod() may trigger initialization of more
+            // classes. So cls must be added before processNewCSMethod(),
+            // otherwise, infinite recursion may occur.
+            initializedClasses.add(cls);
+            CSMethod csMethod = csManager.getCSMethod(
+                    contextSelector.getDefaultContext(), clinit);
+            addCSMethod(csMethod);
+        }
     }
 
     /**

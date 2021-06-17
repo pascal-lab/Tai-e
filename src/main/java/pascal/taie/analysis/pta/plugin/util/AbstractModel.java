@@ -78,11 +78,6 @@ public abstract class AbstractModel implements Model {
     }
 
     @Override
-    public boolean isRelevantVar(Var var) {
-        return relevantVars.containsKey(var);
-    }
-
-    @Override
     public void handleNewInvoke(Invoke invoke) {
         JMethod target = invoke.getMethodRef().resolve();
         int[] indexes = relevantVarIndexes.get(target);
@@ -91,6 +86,11 @@ public abstract class AbstractModel implements Model {
                 MapUtils.addToMapSet(relevantVars, getArg(invoke, i), invoke);
             }
         }
+    }
+
+    @Override
+    public boolean isRelevantVar(Var var) {
+        return relevantVars.containsKey(var);
     }
 
     protected void registerAPIHandler(

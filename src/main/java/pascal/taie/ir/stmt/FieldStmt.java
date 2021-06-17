@@ -20,7 +20,7 @@ import pascal.taie.ir.proginfo.FieldRef;
 /**
  * Load/Store field statements.
  */
-abstract class FieldStmt<L extends LValue, R extends RValue> extends AssignStmt<L, R> {
+public abstract class FieldStmt<L extends LValue, R extends RValue> extends AssignStmt<L, R> {
 
     FieldStmt(L lvalue, R rvalue) {
         super(lvalue, rvalue);

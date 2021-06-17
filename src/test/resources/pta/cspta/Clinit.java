@@ -9,7 +9,7 @@ class Clinit {
 
     public static void main(String[] args) {
         new A();
-        B[][][] barr = new B[1][1][1];
+        B[][][] barr = new B[1][1][1]; // newarray doesn't trigger <clinit>
         new D();
         E.f = new Object();
         Object o = F.f;

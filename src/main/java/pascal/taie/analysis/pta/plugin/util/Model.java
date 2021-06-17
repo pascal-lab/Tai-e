@@ -22,9 +22,9 @@ import pascal.taie.ir.stmt.Invoke;
  */
 public interface Model {
 
-    boolean isRelevantVar(Var var);
-
     void handleNewInvoke(Invoke invoke);
+
+    boolean isRelevantVar(Var var);
 
     void handleNewPointsToSet(CSVar csVar, PointsToSet pts);
 }

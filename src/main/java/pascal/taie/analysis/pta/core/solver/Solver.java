@@ -28,6 +28,7 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.TypeManager;
 
@@ -51,6 +52,7 @@ public interface Solver {
 
     PointsToSet getPointsToSetOf(Pointer pointer);
 
+    // ---------- side-effect APIs (begin) ----------
     /**
      * Adds a context-sensitive variable points-to relation.
      * @param context context of the method which contains the variable
@@ -95,9 +97,17 @@ public interface Solver {
 
     /**
      * Adds a context-sensitive method.
-     * @param csMethod the added contxt-sensitive method.
+     * @param csMethod the added context-sensitive method.
      */
     void addCSMethod(CSMethod csMethod);
+
+    /**
+     * Analyzes the initializer of given class.
+     * @param cls the class to be initialized.
+     */
+    void initializeClass(JClass cls);
+
+    // ---------- side-effect APIs (end) ----------
 
     PointerAnalysisResult getResult();
 }
