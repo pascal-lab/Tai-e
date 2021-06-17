@@ -72,6 +72,21 @@ public class CSObjUtils {
     }
 
     /**
+     * Converts a CSObj of java.lang.reflect.Method to corresponding JMethod.
+     * If the object does not represent a Method, then return null.
+     */
+    public static @Nullable JMethod toMethod(CSObj csObj) {
+        Object alloc = csObj.getObject().getAllocation();
+        if (alloc instanceof JMethod) {
+            JMethod method = (JMethod) alloc;
+            if (!method.isConstructor()) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Converts a CSObj of class to corresponding type. If the object is
      * not a class constant, then return null.
      */

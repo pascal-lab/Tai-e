@@ -12,6 +12,7 @@ class A extends B {
     void foo() {
     }
 
+    @Override
     public void foo(A a) {
     }
 
@@ -20,4 +21,10 @@ class A extends B {
 
     void bar() {
     }
+
+    @Override
+    public void baz(B b) {
+    }
+
+    public static void staticFoo(Object o) {}
 }

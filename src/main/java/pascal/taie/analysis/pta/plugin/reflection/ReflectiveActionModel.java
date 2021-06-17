@@ -32,6 +32,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.MapUtils;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 import static pascal.taie.util.collection.MapUtils.addToMapMap;
@@ -79,7 +80,9 @@ class ReflectiveActionModel extends AbstractModel {
         registerRelevantVarIndexes(constructorNewInstance, BASE);
         registerAPIHandler(constructorNewInstance, this::constructorNewInstance);
 
-        // method.invoke(o, args): BASE, 0
+        JMethod methodInvoke = hierarchy.getJREMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>");
+        registerRelevantVarIndexes(methodInvoke, BASE, 0);
+        registerAPIHandler(methodInvoke, this::methodInvoke);
     }
 
     private void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
@@ -110,6 +113,27 @@ class ReflectiveActionModel extends AbstractModel {
             CSObj csNewObj = newReflectiveObj(context, invoke, type);
             addReflectiveCallEdge(context, invoke, csNewObj,
                     constructor, invoke.getInvokeExp().getArg(0));
+        });
+    }
+
+    private void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Context context = csVar.getContext();
+        List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
+        PointsToSet mtdObjs = args.get(0);
+        PointsToSet recvObjs = args.get(1);
+        Var argsVar = invoke.getInvokeExp().getArg(1);
+        mtdObjs.forEach(mtdObj -> {
+            JMethod method = CSObjUtils.toMethod(mtdObj);
+            if (method == null) {
+                return;
+            }
+            if (method.isStatic()) {
+                addReflectiveCallEdge(context, invoke, null, method, argsVar);
+            } else {
+                recvObjs.forEach(recvObj ->
+                        addReflectiveCallEdge(context, invoke, recvObj, method, argsVar)
+                );
+            }
         });
     }
 
