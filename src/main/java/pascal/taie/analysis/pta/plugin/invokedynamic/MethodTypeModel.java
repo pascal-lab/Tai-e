@@ -37,7 +37,7 @@ class MethodTypeModel extends AbstractModel {
     }
 
     @Override
-    protected void initialize() {
+    protected void registerVarAndHandler() {
         JMethod mt1Class = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class)>");
         registerRelevantVarIndexes(mt1Class, 0);
         registerAPIHandler(mt1Class, this::handle1Class);

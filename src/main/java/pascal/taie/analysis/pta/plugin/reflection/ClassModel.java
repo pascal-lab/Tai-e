@@ -22,9 +22,7 @@ import pascal.taie.analysis.pta.plugin.util.ReflectionUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.ClassLiteral;
-import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
@@ -46,22 +44,10 @@ import static pascal.taie.util.collection.MapUtils.newMap;
  */
 class ClassModel extends AbstractModel {
 
-    private final static String GET_CONSTRUCTOR = "getConstructor";
-
-    private final static String GET_DECLARED_CONSTRUCTOR = "getDeclaredConstructor";
-
-    private final static String GET_METHOD = "getMethod";
-
-    private final static String GET_DECLARED_METHOD = "getDeclaredMethod";
-
-    private final static String GET_PRIMITIVE_CLASS = "getPrimitiveClass";
-
     /**
      * Description for reflection meta objects.
      */
     private final static String META_DESC = "ReflectionMetaObj";
-
-    private final JClass klass;
 
     private final ClassType constructor;
 
@@ -74,62 +60,32 @@ class ClassModel extends AbstractModel {
     ClassModel(Solver solver) {
         super(solver);
         TypeManager typeManager = solver.getTypeManager();
-        klass = hierarchy.getJREClass(StringReps.CLASS);
         constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
         method = typeManager.getClassType(StringReps.METHOD);
         field = typeManager.getClassType(StringReps.FIELD);
     }
 
     @Override
-    public void handleNewInvoke(Invoke invoke) {
-        MethodRef ref = invoke.getMethodRef();
-        if (ref.getDeclaringClass().equals(klass)) {
-            switch (ref.getName()) {
-                case GET_CONSTRUCTOR:
-                case GET_DECLARED_CONSTRUCTOR: {
-                    addRelevantBase(invoke);
-                    break;
-                }
-                case GET_METHOD:
-                case GET_DECLARED_METHOD: {
-                    addRelevantBase(invoke);
-                    addRelevantArg(invoke, 0);
-                    break;
-                }
-                case GET_PRIMITIVE_CLASS: {
-                    addRelevantArg(invoke, 0);
-                    break;
-                }
-            }
-        }
-    }
+    protected void registerVarAndHandler() {
+        JMethod getConstructor = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>");
+        registerRelevantVarIndexes(getConstructor, BASE);
+        registerAPIHandler(getConstructor, this::handleGetConstructor);
 
-    @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        relevantVars.get(csVar.getVar()).forEach(invoke -> {
-            switch (invoke.getMethodRef().getName()) {
-                case GET_CONSTRUCTOR: {
-                    handleGetConstructor(csVar, pts, invoke);
-                    break;
-                }
-                case GET_DECLARED_CONSTRUCTOR: {
-                    handleGetDeclaredConstructor(csVar, pts, invoke);
-                    break;
-                }
-                case GET_METHOD: {
-                    handleGetMethod(csVar, pts, invoke);
-                    break;
-                }
-                case GET_DECLARED_METHOD: {
-                    handleGetDeclaredMethod(csVar, pts, invoke);
-                    break;
-                }
-                case GET_PRIMITIVE_CLASS: {
-                    handleGetPrimitiveClass(csVar, pts, invoke);
-                    break;
-                }
-            }
-        });
+        JMethod getDeclaredConstructor = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>");
+        registerRelevantVarIndexes(getDeclaredConstructor, BASE);
+        registerAPIHandler(getDeclaredConstructor, this::handleGetDeclaredConstructor);
+
+        JMethod getMethod = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>");
+        registerRelevantVarIndexes(getMethod, BASE, 0);
+        registerAPIHandler(getMethod, this::handleGetMethod);
+
+        JMethod getDeclaredMethod = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>");
+        registerRelevantVarIndexes(getDeclaredMethod, BASE, 0);
+        registerAPIHandler(getDeclaredMethod, this::handleGetDeclaredMethod);
+
+        JMethod getPrimitiveClass = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>");
+        registerRelevantVarIndexes(getPrimitiveClass, 0);
+        registerAPIHandler(getPrimitiveClass, this::handleGetPrimitiveClass);
     }
 
     private void handleGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
@@ -177,8 +133,7 @@ class ClassModel extends AbstractModel {
     private void handleGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getBaseArg0(csVar, pts,
-                    (InvokeVirtual) invoke.getInvokeExp());
+            List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
             PointsToSet mtdObjs = PointsToSetFactory.make();
@@ -207,8 +162,7 @@ class ClassModel extends AbstractModel {
     private void handleGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getBaseArg0(csVar, pts,
-                    (InvokeVirtual) invoke.getInvokeExp());
+            List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
             PointsToSet mtdObjs = PointsToSetFactory.make();

@@ -45,7 +45,7 @@ class LookupModel extends AbstractModel {
     }
 
     @Override
-    protected void initialize() {
+    protected void registerVarAndHandler() {
         JMethod findConstructor = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>");
         registerRelevantVarIndexes(findConstructor, 0);
         registerAPIHandler(findConstructor, this::handleFindConstructor);

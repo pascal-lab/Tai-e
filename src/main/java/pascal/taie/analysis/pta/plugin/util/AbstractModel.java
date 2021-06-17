@@ -68,26 +68,16 @@ public abstract class AbstractModel implements Model {
         csManager = solver.getCSManager();
         heapModel = solver.getHeapModel();
         defaultHctx = solver.getContextSelector().getDefaultContext();
-        initialize();
+        registerVarAndHandler();
     }
 
-    protected void initialize() {
-    }
-
-    protected void addRelevantBase(Invoke invoke) {
-        InvokeInstanceExp ie = (InvokeInstanceExp) invoke.getInvokeExp();
-        MapUtils.addToMapSet(relevantVars, ie.getBase(), invoke);
-    }
-
-    protected void addRelevantArg(Invoke invoke, int i) {
-        MapUtils.addToMapSet(relevantVars,
-                invoke.getInvokeExp().getArg(i), invoke);
-    }
+    protected abstract void registerVarAndHandler();
 
     protected void registerRelevantVarIndexes(JMethod api, int... indexes) {
         relevantVarIndexes.put(api, indexes);
     }
 
+    @Override
     public boolean isRelevantVar(Var var) {
         return relevantVars.containsKey(var);
     }
@@ -97,10 +87,8 @@ public abstract class AbstractModel implements Model {
         JMethod target = invoke.getMethodRef().resolve();
         int[] indexes = relevantVarIndexes.get(target);
         if (indexes != null) {
-            InvokeExp invokeExp = invoke.getInvokeExp();
             for (int i : indexes) {
-                Var var = i == BASE ? getBase(invoke) : invokeExp.getArg(i);
-                MapUtils.addToMapSet(relevantVars, var, invoke);
+                MapUtils.addToMapSet(relevantVars, getArg(invoke, i), invoke);
             }
         }
     }
@@ -122,31 +110,6 @@ public abstract class AbstractModel implements Model {
     }
 
     /**
-     * For invocation r = v.foo(a0, ...);
-     * when points-to set of v or a0 changes,
-     * this convenient method returns points-to sets of v and a0.
-     * For variable csVar.getVar(), this method returns pts,
-     * otherwise, it just returns current points-to set of the variable.
-     * @param csVar may be v or a0.
-     * @param pts changed part of csVar
-     * @param ie the call site which contain csVar
-     */
-    protected List<PointsToSet> getBaseArg0(
-            CSVar csVar, PointsToSet pts, InvokeInstanceExp ie) {
-        PointsToSet basePts, arg0Pts;
-        if (csVar.getVar().equals(ie.getBase())) {
-            basePts = pts;
-            arg0Pts = solver.getPointsToSetOf(
-                    csManager.getCSVar(csVar.getContext(), ie.getArg(0)));
-        } else {
-            basePts = solver.getPointsToSetOf(
-                    csManager.getCSVar(csVar.getContext(), ie.getBase()));
-            arg0Pts = pts;
-        }
-        return List.of(basePts, arg0Pts);
-    }
-
-    /**
      * For invocation r = v.foo(a0, a1, ..., an);
      * when points-to set of v or any ai (0 <= i <= n) changes,
      * this convenient method returns points-to sets relevant arguments.
@@ -160,9 +123,8 @@ public abstract class AbstractModel implements Model {
     protected List<PointsToSet> getArgs(
             CSVar csVar, PointsToSet pts, Invoke invoke, int... indexes) {
         List<PointsToSet> args = new ArrayList<>(indexes.length);
-        InvokeExp invokeExp = invoke.getInvokeExp();
         for (int i : indexes) {
-            Var arg = i == BASE ? getBase(invoke) : invokeExp.getArg(i);
+            Var arg = getArg(invoke, i);
             if (arg.equals(csVar.getVar())) {
                 args.add(pts);
             } else {
@@ -173,7 +135,10 @@ public abstract class AbstractModel implements Model {
         return args;
     }
 
-    private static Var getBase(Invoke invoke) {
-        return ((InvokeInstanceExp) invoke.getInvokeExp()).getBase();
+    private static Var getArg(Invoke invoke, int i) {
+        InvokeExp invokeExp = invoke.getInvokeExp();
+        return i == BASE ?
+                ((InvokeInstanceExp) invokeExp).getBase() :
+                invokeExp.getArg(i);
     }
 }
