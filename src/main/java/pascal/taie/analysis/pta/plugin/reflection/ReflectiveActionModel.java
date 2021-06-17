@@ -40,8 +40,8 @@ import static pascal.taie.util.collection.MapUtils.getMapMap;
 /**
  * Models reflective-action methods, currently supports
  * - Class.newInstance()
- * - Constructor.newInstance()
- * - Method.invoke()
+ * - Constructor.newInstance(Object[])
+ * - Method.invoke(Object,Object[])
  * TODO:
  *  - pass reflective arguments and return values
  *  - trigger class initializer
@@ -73,39 +73,60 @@ class ReflectiveActionModel extends AbstractModel {
     protected void registerVarAndHandler() {
         JMethod classNewInstance = hierarchy.getJREMethod("<java.lang.Class: java.lang.Object newInstance()>");
         registerRelevantVarIndexes(classNewInstance, BASE);
-        registerAPIHandler(classNewInstance, this::handleClassNewInstance);
+        registerAPIHandler(classNewInstance, this::classNewInstance);
 
-        // constructor.newInstance(args): BASE
+        JMethod constructorNewInstance = hierarchy.getJREMethod("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>");
+        registerRelevantVarIndexes(constructorNewInstance, BASE);
+        registerAPIHandler(constructorNewInstance, this::constructorNewInstance);
 
         // method.invoke(o, args): BASE, 0
     }
 
-    private void handleClassNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        System.out.println(pts);
+    private void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             JClass klass = CSObjUtils.toClass(obj);
-            if (klass != null) {
-                JMethod init = klass.getDeclaredMethod(initNoArg);
-                if (init == null) {
-                    return;
-                }
-                ClassType type = klass.getType();
-                MockObj newObj = getMapMap(newObjs, invoke, type);
-                if (newObj == null) {
-                    newObj = new MockObj(REF_OBJ_DESC, invoke, type,
-                            invoke.getContainer());
-                    // TODO: process newObj by heapModel?
-                    addToMapMap(newObjs, invoke, type, newObj);
-                }
-                CSObj csNewObj = csManager.getCSObj(context, newObj);
-                Var result = invoke.getResult();
-                if (result != null) {
-                    solver.addVarPointsTo(context, result, csNewObj);
-                }
-                addReflectiveCallEdge(context, invoke, csNewObj, init, null);
+            if (klass == null) {
+                return;
             }
+            JMethod init = klass.getDeclaredMethod(initNoArg);
+            if (init == null) {
+                return;
+            }
+            ClassType type = klass.getType();
+            CSObj csNewObj = newReflectiveObj(context, invoke, type);
+            addReflectiveCallEdge(context, invoke, csNewObj, init, null);
         });
+    }
+
+    private void constructorNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Context context = csVar.getContext();
+        pts.forEach(obj -> {
+            JMethod constructor = CSObjUtils.toConstructor(obj);
+            if (constructor == null) {
+                return;
+            }
+            ClassType type = constructor.getDeclaringClass().getType();
+            CSObj csNewObj = newReflectiveObj(context, invoke, type);
+            addReflectiveCallEdge(context, invoke, csNewObj,
+                    constructor, invoke.getInvokeExp().getArg(0));
+        });
+    }
+
+    private CSObj newReflectiveObj(Context context, Invoke invoke, ClassType type) {
+        MockObj newObj = getMapMap(newObjs, invoke, type);
+        if (newObj == null) {
+            newObj = new MockObj(REF_OBJ_DESC, invoke, type,
+                    invoke.getContainer());
+            // TODO: process newObj by heapModel?
+            addToMapMap(newObjs, invoke, type, newObj);
+        }
+        CSObj csNewObj = csManager.getCSObj(context, newObj);
+        Var result = invoke.getResult();
+        if (result != null) {
+            solver.addVarPointsTo(context, result, csNewObj);
+        }
+        return csNewObj;
     }
 
     private void addReflectiveCallEdge(

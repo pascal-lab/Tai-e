@@ -1,3 +1,5 @@
+import java.lang.reflect.Constructor;
+
 public class ReflectiveAction {
     public static void main(String[] args) throws Exception {
         cnew();
@@ -11,7 +13,11 @@ public class ReflectiveAction {
         a.foo();
     }
 
-    static void ctornew() {
+    static void ctornew() throws Exception {
+        Class<A> klass = A.class;
+        Constructor<A> ctor = klass.getConstructor(B.class);
+        A a = ctor.newInstance(new B());
+        a.foo(null);
     }
 
     static void invoke() {

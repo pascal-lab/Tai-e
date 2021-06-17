@@ -19,6 +19,7 @@ import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -50,6 +51,21 @@ public class CSObjUtils {
                 return ((ClassType) type).getJClass();
             } else if (type instanceof ArrayType) {
                 return World.getClassHierarchy().getJREClass(StringReps.OBJECT);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Converts a CSObj of java.lang.reflect.Constructor to corresponding JMethod.
+     * If the object does not represent a Constructor, then return null.
+     */
+    public static @Nullable JMethod toConstructor(CSObj csObj) {
+        Object alloc = csObj.getObject().getAllocation();
+        if (alloc instanceof JMethod) {
+            JMethod method = (JMethod) alloc;
+            if (method.isConstructor()) {
+                return method;
             }
         }
         return null;

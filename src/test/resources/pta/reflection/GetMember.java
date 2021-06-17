@@ -5,7 +5,7 @@ public class GetMember {
 
     public static void main(String[] args) throws Exception {
         Class<A> klass = A.class;
-        Constructor<A> ctor1 = klass.getConstructor(String.class);
+        Constructor<A> ctor1 = klass.getConstructor(B.class);
         Constructor<A> ctor2 = klass.getDeclaredConstructor();
         Method foo1 = klass.getDeclaredMethod("foo", int.class);
         Method foo2 = klass.getMethod("foo", A.class);

@@ -1,6 +1,6 @@
 class A extends B {
 
-    public A(String s) {
+    public A(B b) {
     }
 
     A() {
