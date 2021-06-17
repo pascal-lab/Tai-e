@@ -22,11 +22,9 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -42,56 +40,23 @@ import java.util.stream.Stream;
  */
 class LookupModel extends AbstractModel {
 
-    private static final String FIND_CONSTRUCTOR = "findConstructor";
-
-    private static final String FIND_VIRTUAL = "findVirtual";
-
-    private static final String FIND_STATIC = "findStatic";
-
-    private final JClass lookup;
-
     LookupModel(Solver solver) {
         super(solver);
-        lookup = hierarchy.getJREClass(StringReps.LOOKUP);
     }
 
     @Override
-    public void handleNewInvoke(Invoke invoke) {
-        MethodRef ref = invoke.getMethodRef();
-        if (ref.getDeclaringClass().equals(lookup)) {
-            switch (ref.getName()) {
-                case FIND_CONSTRUCTOR: {
-                    addRelevantArg(invoke, 0);
-                    break;
-                }
-                case FIND_VIRTUAL:
-                case FIND_STATIC: {
-                    addRelevantArg(invoke, 0);
-                    addRelevantArg(invoke, 1);
-                    break;
-                }
-            }
-        }
-    }
+    protected void initialize() {
+        JMethod findConstructor = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>");
+        registerRelevantVarIndexes(findConstructor, 0);
+        registerAPIHandler(findConstructor, this::handleFindConstructor);
 
-    @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        relevantVars.get(csVar.getVar()).forEach(invoke -> {
-            switch (invoke.getMethodRef().getName()) {
-                case FIND_CONSTRUCTOR: {
-                    handleFindConstructor(csVar, pts, invoke);
-                    break;
-                }
-                case FIND_VIRTUAL: {
-                    handleFindVirtual(csVar, pts, invoke);
-                    break;
-                }
-                case FIND_STATIC: {
-                    handleFindStatic(csVar, pts, invoke);
-                    break;
-                }
-            }
-        });
+        JMethod findVirtual = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>");
+        registerRelevantVarIndexes(findVirtual, 0, 1);
+        registerAPIHandler(findVirtual, this::handleFindVirtual);
+
+        JMethod findStatic = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>");
+        registerRelevantVarIndexes(findStatic, 0, 1);
+        registerAPIHandler(findStatic, this::handleFindStatic);
     }
 
     private void handleFindConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
