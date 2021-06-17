@@ -48,18 +48,18 @@ class LookupModel extends AbstractModel {
     protected void registerVarAndHandler() {
         JMethod findConstructor = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>");
         registerRelevantVarIndexes(findConstructor, 0);
-        registerAPIHandler(findConstructor, this::handleFindConstructor);
+        registerAPIHandler(findConstructor, this::findConstructor);
 
         JMethod findVirtual = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>");
         registerRelevantVarIndexes(findVirtual, 0, 1);
-        registerAPIHandler(findVirtual, this::handleFindVirtual);
+        registerAPIHandler(findVirtual, this::findVirtual);
 
         JMethod findStatic = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>");
         registerRelevantVarIndexes(findStatic, 0, 1);
-        registerAPIHandler(findStatic, this::handleFindStatic);
+        registerAPIHandler(findStatic, this::findStatic);
     }
 
-    private void handleFindConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void findConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             PointsToSet mhObjs = PointsToSetFactory.make();
@@ -83,23 +83,23 @@ class LookupModel extends AbstractModel {
         }
     }
 
-    private void handleFindVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find private methods in (direct/indirect) super class.
-        handleFindMethod(csVar, pts, invoke, (cls, name) ->
+        findMethod(csVar, pts, invoke, (cls, name) ->
                 ReflectionUtils.getDeclaredMethods(cls, name)
                         .filter(Predicate.not(JMethod::isStatic)),
                 MethodHandle.Kind.REF_invokeVirtual);
     }
 
-    private void handleFindStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find static methods in (direct/indirect) super class.
-        handleFindMethod(csVar, pts, invoke, (cls, name) ->
+        findMethod(csVar, pts, invoke, (cls, name) ->
                 ReflectionUtils.getDeclaredMethods(cls, name)
                         .filter(JMethod::isStatic),
                 MethodHandle.Kind.REF_invokeStatic);
     }
 
-    private void handleFindMethod(
+    private void findMethod(
             CSVar csVar, PointsToSet pts, Invoke invoke,
             BiFunction<JClass, String, Stream<JMethod>> getter,
             MethodHandle.Kind kind) {

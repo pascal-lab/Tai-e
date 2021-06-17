@@ -40,21 +40,21 @@ class MethodTypeModel extends AbstractModel {
     protected void registerVarAndHandler() {
         JMethod mt1Class = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class)>");
         registerRelevantVarIndexes(mt1Class, 0);
-        registerAPIHandler(mt1Class, this::handle1Class);
+        registerAPIHandler(mt1Class, this::methodType1Class);
 
         JMethod mt2Classes = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.Class)>");
         registerRelevantVarIndexes(mt2Classes, 0, 1);
-        registerAPIHandler(mt2Classes, this::handle2Classes);
+        registerAPIHandler(mt2Classes, this::methodType2Classes);
 
-        JMethod mtClassMt = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.invoke.MethodType)>");
-        registerRelevantVarIndexes(mtClassMt, 0, 1);
-        registerAPIHandler(mtClassMt, this::handleClassMt);
+        JMethod mtClassMT = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.invoke.MethodType)>");
+        registerRelevantVarIndexes(mtClassMT, 0, 1);
+        registerAPIHandler(mtClassMT, this::methodTypeClassMT);
     }
 
     /**
      * Handles MethodType.methodType(java.lang.Class)
      */
-    private void handle1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void methodType1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             PointsToSet mtObjs = PointsToSetFactory.make();
@@ -75,7 +75,7 @@ class MethodTypeModel extends AbstractModel {
     /**
      * Handles MethodType.methodType(java.lang.Class,java.lang.Class)
      */
-    private void handle2Classes(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void methodType2Classes(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
@@ -104,7 +104,7 @@ class MethodTypeModel extends AbstractModel {
     /**
      * Handles MethodType.methodType(java.lang.Class,java.lang.invoke.MethodType)
      */
-    private void handleClassMt(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void methodTypeClassMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);

@@ -69,26 +69,26 @@ class ClassModel extends AbstractModel {
     protected void registerVarAndHandler() {
         JMethod getConstructor = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>");
         registerRelevantVarIndexes(getConstructor, BASE);
-        registerAPIHandler(getConstructor, this::handleGetConstructor);
+        registerAPIHandler(getConstructor, this::getConstructor);
 
         JMethod getDeclaredConstructor = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>");
         registerRelevantVarIndexes(getDeclaredConstructor, BASE);
-        registerAPIHandler(getDeclaredConstructor, this::handleGetDeclaredConstructor);
+        registerAPIHandler(getDeclaredConstructor, this::getDeclaredConstructor);
 
         JMethod getMethod = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>");
         registerRelevantVarIndexes(getMethod, BASE, 0);
-        registerAPIHandler(getMethod, this::handleGetMethod);
+        registerAPIHandler(getMethod, this::getMethod);
 
         JMethod getDeclaredMethod = hierarchy.getJREMethod("<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>");
         registerRelevantVarIndexes(getDeclaredMethod, BASE, 0);
-        registerAPIHandler(getDeclaredMethod, this::handleGetDeclaredMethod);
+        registerAPIHandler(getDeclaredMethod, this::getDeclaredMethod);
 
         JMethod getPrimitiveClass = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>");
         registerRelevantVarIndexes(getPrimitiveClass, 0);
-        registerAPIHandler(getPrimitiveClass, this::handleGetPrimitiveClass);
+        registerAPIHandler(getPrimitiveClass, this::getPrimitiveClass);
     }
 
-    private void handleGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             PointsToSet ctorObjs = PointsToSetFactory.make();
@@ -109,7 +109,7 @@ class ClassModel extends AbstractModel {
         }
     }
 
-    private void handleGetDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             PointsToSet ctorObjs = PointsToSetFactory.make();
@@ -130,7 +130,7 @@ class ClassModel extends AbstractModel {
         }
     }
 
-    private void handleGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -159,7 +159,7 @@ class ClassModel extends AbstractModel {
         }
     }
 
-    private void handleGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -188,7 +188,7 @@ class ClassModel extends AbstractModel {
         }
     }
 
-    private void handleGetPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    private void getPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             pts.forEach(nameObj -> {
