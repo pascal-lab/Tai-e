@@ -140,7 +140,7 @@ class LookupModel extends AbstractModel {
             MethodHandle.Kind kind) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArg01(csVar, pts, invoke.getInvokeExp());
+            List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
             PointsToSet mhObjs = PointsToSetFactory.make();

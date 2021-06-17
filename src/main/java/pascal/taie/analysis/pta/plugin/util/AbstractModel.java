@@ -21,22 +21,26 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.TriConsumer;
 import pascal.taie.util.collection.MapUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Provides common functionalities for implementing API models.
  */
 public abstract class AbstractModel implements Model {
+
+    /**
+     * Special index representing the base variable of an invocation site.
+     */
+    protected static final int BASE = -1;
 
     protected final Solver solver;
 
@@ -51,10 +55,9 @@ public abstract class AbstractModel implements Model {
      */
     protected final Context defaultHctx;
 
-    protected final Map<Var, Set<Invoke>> relevantVars = MapUtils.newHybridMap();
+    protected final Map<JMethod, int[]> relevantVarIndexes = MapUtils.newHybridMap();
 
-    protected final Map<JMethod, Consumer<Invoke>> varRegisters
-            = MapUtils.newHybridMap();
+    protected final Map<Var, Set<Invoke>> relevantVars = MapUtils.newHybridMap();
 
     protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
             = MapUtils.newHybridMap();
@@ -65,10 +68,10 @@ public abstract class AbstractModel implements Model {
         csManager = solver.getCSManager();
         heapModel = solver.getHeapModel();
         defaultHctx = solver.getContextSelector().getDefaultContext();
+        initialize();
     }
 
-    public boolean isRelevantVar(Var var) {
-        return relevantVars.containsKey(var);
+    protected void initialize() {
     }
 
     protected void addRelevantBase(Invoke invoke) {
@@ -81,43 +84,41 @@ public abstract class AbstractModel implements Model {
                 invoke.getInvokeExp().getArg(i), invoke);
     }
 
-    protected void addVarRegister(JMethod api, Consumer<Invoke> register) {
-        varRegisters.put(api, register);
+    protected void registerRelevantVarIndexes(JMethod api, int... indexes) {
+        relevantVarIndexes.put(api, indexes);
     }
 
-    /**
-     * Matches an invocation and API by their declaring class and method name.
-     * TODO: resolve invoke's method reference?
-     */
-    protected boolean matchAPI(Invoke invoke, JMethod api) {
-        MethodRef ref = invoke.getMethodRef();
-        return ref.getDeclaringClass().equals(api.getDeclaringClass()) &&
-                ref.getName().equals(api.getName());
+    public boolean isRelevantVar(Var var) {
+        return relevantVars.containsKey(var);
     }
 
     @Override
     public void handleNewInvoke(Invoke invoke) {
-        varRegisters.forEach((api, action) -> {
-            if (matchAPI(invoke, api)) {
-                action.accept(invoke);
+        JMethod target = invoke.getMethodRef().resolve();
+        int[] indexes = relevantVarIndexes.get(target);
+        if (indexes != null) {
+            InvokeExp invokeExp = invoke.getInvokeExp();
+            for (int i : indexes) {
+                Var var = i == BASE ? getBase(invoke) : invokeExp.getArg(i);
+                MapUtils.addToMapSet(relevantVars, var, invoke);
             }
-        });
+        }
     }
 
-    protected void addAPIHandler(
+    protected void registerAPIHandler(
             JMethod api, TriConsumer<CSVar, PointsToSet, Invoke> handler) {
         handlers.put(api, handler);
     }
 
     @Override
     public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        relevantVars.get(csVar.getVar()).forEach(invoke ->
-                handlers.forEach((api, handler) -> {
-                    if (matchAPI(invoke, api)) {
-                        handler.accept(csVar, pts, invoke);
-                    }
-                })
-        );
+        relevantVars.get(csVar.getVar()).forEach(invoke -> {
+            JMethod target = invoke.getMethodRef().resolve();
+            var handler = handlers.get(target);
+            if (handler != null) {
+                handler.accept(csVar, pts, invoke);
+            }
+        });
     }
 
     /**
@@ -146,27 +147,33 @@ public abstract class AbstractModel implements Model {
     }
 
     /**
-     * For invocation r = foo(a0, a1, ...);
-     * when points-to set of a0 or a1 changes,
-     * this convenient method returns points-to sets of a0 and a1.
-     * For variable csVar.getVar(), this method returns pts,
-     * otherwise, it just returns current points-to set of the variable.
-     * @param csVar may be a0 or a1.
+     * For invocation r = v.foo(a0, a1, ..., an);
+     * when points-to set of v or any ai (0 <= i <= n) changes,
+     * this convenient method returns points-to sets relevant arguments.
+     * For case v/ai == csVar.getVar(), this method returns pts,
+     * otherwise, it just returns current points-to set of v/ai.
+     * @param csVar may be v or any ai.
      * @param pts changed part of csVar
-     * @param ie the call site which contain csVar
+     * @param invoke the call site which contain csVar
+     * @param indexes indexes of the relevant arguments
      */
-    protected List<PointsToSet> getArg01(
-            CSVar csVar, PointsToSet pts, InvokeExp ie) {
-        PointsToSet arg0Pts, arg1Pts;
-        if (csVar.getVar().equals(ie.getArg(0))) {
-            arg0Pts = pts;
-            arg1Pts = solver.getPointsToSetOf(
-                    csManager.getCSVar(csVar.getContext(), ie.getArg(1)));
-        } else {
-            arg0Pts = solver.getPointsToSetOf(
-                    csManager.getCSVar(csVar.getContext(), ie.getArg(0)));
-            arg1Pts = pts;
+    protected List<PointsToSet> getArgs(
+            CSVar csVar, PointsToSet pts, Invoke invoke, int... indexes) {
+        List<PointsToSet> args = new ArrayList<>(indexes.length);
+        InvokeExp invokeExp = invoke.getInvokeExp();
+        for (int i : indexes) {
+            Var arg = i == BASE ? getBase(invoke) : invokeExp.getArg(i);
+            if (arg.equals(csVar.getVar())) {
+                args.add(pts);
+            } else {
+                CSVar csArg = csManager.getCSVar(csVar.getContext(), arg);
+                args.add(solver.getPointsToSetOf(csArg));
+            }
         }
-        return List.of(arg0Pts, arg1Pts);
+        return args;
+    }
+
+    private static Var getBase(Invoke invoke) {
+        return ((InvokeInstanceExp) invoke.getInvokeExp()).getBase();
     }
 }

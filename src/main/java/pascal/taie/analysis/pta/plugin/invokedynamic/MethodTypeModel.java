@@ -22,70 +22,39 @@ import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Models invocations to MethodType.methodType(*);
  */
 class MethodTypeModel extends AbstractModel {
 
-    private final JMethod methodType0Arg;
-
-    private final JMethod methodType1Arg;
-
-    private final JMethod methodTypeMT;
-
-    private final List<JMethod> methodTypeMethods;
-
     MethodTypeModel(Solver solver) {
         super(solver);
-        TypeManager typeManager = solver.getTypeManager();
-        JClass methodType = hierarchy.getJREClass(StringReps.METHOD_TYPE);
-        Type mt = methodType.getType();
-        Type klass = typeManager.getClassType(StringReps.CLASS);
-        methodType0Arg = methodType.getDeclaredMethod(
-                Subsignature.get("methodType", List.of(klass), mt));
-        methodType1Arg = methodType.getDeclaredMethod(
-                Subsignature.get("methodType", List.of(klass, klass), mt));
-        methodTypeMT = methodType.getDeclaredMethod(
-                Subsignature.get("methodType", List.of(klass, mt), mt));
-        methodTypeMethods = List.of(methodType0Arg, methodType1Arg, methodTypeMT);
     }
 
     @Override
-    public void handleNewInvoke(Invoke invoke) {
-        JMethod target = invoke.getMethodRef().resolve();
-        if (methodTypeMethods.contains(target)) {
-            // record MethodType-related variables
-            for (int i = 0; i < invoke.getInvokeExp().getArgCount(); ++i) {
-                addRelevantArg(invoke, i);
-            }
-        }
+    protected void initialize() {
+        JMethod mt1Class = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class)>");
+        registerRelevantVarIndexes(mt1Class, 0);
+        registerAPIHandler(mt1Class, this::handle1Class);
+
+        JMethod mt2Classes = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.Class)>");
+        registerRelevantVarIndexes(mt2Classes, 0, 1);
+        registerAPIHandler(mt2Classes, this::handle2Classes);
+
+        JMethod mtClassMt = hierarchy.getJREMethod("<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.invoke.MethodType)>");
+        registerRelevantVarIndexes(mtClassMt, 0, 1);
+        registerAPIHandler(mtClassMt, this::handleClassMt);
     }
 
-    @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        relevantVars.get(csVar.getVar()).forEach(invoke -> {
-            JMethod target = invoke.getMethodRef().resolve();
-            if (target.equals(methodType0Arg)) {
-                handleMethodType0Arg(csVar, pts, invoke);
-            } else if (target.equals(methodType1Arg)) {
-                handleMethodType1Arg(csVar, pts, invoke);
-            } else if (target.equals(methodTypeMT)) {
-                handleMethodTypeMT(csVar, pts, invoke);
-            }
-        });
-    }
-
-    private void handleMethodType0Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    /**
+     * Handles MethodType.methodType(java.lang.Class)
+     */
+    private void handle1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             PointsToSet mtObjs = PointsToSetFactory.make();
@@ -103,10 +72,13 @@ class MethodTypeModel extends AbstractModel {
         }
     }
 
-    private void handleMethodType1Arg(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    /**
+     * Handles MethodType.methodType(java.lang.Class,java.lang.Class)
+     */
+    private void handle2Classes(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts, invoke);
+            List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet retObjs = args.get(0);
             PointsToSet paramObjs = args.get(1);
             PointsToSet mtObjs = PointsToSetFactory.make();
@@ -129,10 +101,13 @@ class MethodTypeModel extends AbstractModel {
         }
     }
 
-    private void handleMethodTypeMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    /**
+     * Handles MethodType.methodType(java.lang.Class,java.lang.invoke.MethodType)
+     */
+    private void handleClassMt(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts, invoke);
+            List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet retObjs = args.get(0);
             PointsToSet mtObjs = args.get(1);
             PointsToSet resultMTObjs = PointsToSetFactory.make();
@@ -153,29 +128,5 @@ class MethodTypeModel extends AbstractModel {
                 solver.addVarPointsTo(csVar.getContext(), result, resultMTObjs);
             }
         }
-    }
-
-    /**
-     * For invocation MethodType.methodType(a0, a1, ...);
-     * when points-to set of a0, a1 or an changes,
-     * this convenient method returns points-to sets of a0, a1, ...
-     * For case ai == csVar.getVar(), this method returns pts,
-     * otherwise, it just returns current points-to set of ai.
-     * @param csVar may be any of ai.
-     * @param pts changed part of csVar
-     * @param invoke the call site which contain csVar
-     */
-    private List<PointsToSet> getArgs(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        return invoke.getInvokeExp().getArgs()
-                .stream()
-                .map(arg -> {
-                    if (arg.equals(csVar.getVar())) {
-                        return pts;
-                    } else {
-                        CSVar csArg = csManager.getCSVar(csVar.getContext(), arg);
-                        return solver.getPointsToSetOf(csArg);
-                    }
-                })
-                .collect(Collectors.toUnmodifiableList());
     }
 }
