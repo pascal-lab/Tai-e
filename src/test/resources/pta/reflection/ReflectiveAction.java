@@ -1,4 +1,4 @@
-public class SideEffect {
+public class ReflectiveAction {
     public static void main(String[] args) throws Exception {
         cnew();
         ctornew();

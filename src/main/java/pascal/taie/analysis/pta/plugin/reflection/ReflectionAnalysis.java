@@ -12,6 +12,9 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -26,12 +29,12 @@ public class ReflectionAnalysis implements Plugin {
 
     private Model classModel;
 
-    private Model sideEffectModel;
+    private Model reflectiveActionModel;
 
     @Override
     public void setSolver(Solver solver) {
         classModel = new ClassModel(solver);
-        sideEffectModel = new SideEffectModel(solver);
+        reflectiveActionModel = new ReflectiveActionModel(solver);
     }
 
     @Override
@@ -43,7 +46,7 @@ public class ReflectionAnalysis implements Plugin {
                 .filter(Predicate.not(Invoke::isDynamic))
                 .forEach(invoke -> {
                     classModel.handleNewInvoke(invoke);
-                    sideEffectModel.handleNewInvoke(invoke);
+                    reflectiveActionModel.handleNewInvoke(invoke);
                 });
     }
 
@@ -51,6 +54,16 @@ public class ReflectionAnalysis implements Plugin {
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         if (classModel.isRelevantVar(csVar.getVar())) {
             classModel.handleNewPointsToSet(csVar, pts);
+        }
+        if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {
+            reflectiveActionModel.handleNewPointsToSet(csVar, pts);
+        }
+    }
+
+    @Override
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        if (edge instanceof ReflectiveCallEdge) {
+            System.out.println(edge);
         }
     }
 }

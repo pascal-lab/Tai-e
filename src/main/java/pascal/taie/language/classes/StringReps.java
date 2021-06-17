@@ -144,6 +144,8 @@ public class StringReps {
     // Subsignatures of special methods
     public static final String CLINIT = "void <clinit>()";
 
+    public static final String INIT_NO_ARG = "void <init>()";
+
     // Signatures of special methods
     public static final String FINALIZE = "<java.lang.Object: void finalize()>";
 
