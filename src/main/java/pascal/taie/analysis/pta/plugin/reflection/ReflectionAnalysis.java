@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -76,17 +77,29 @@ public class ReflectionAnalysis implements Plugin {
         if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {
             reflectiveActionModel.handleNewPointsToSet(csVar, pts);
         }
+        Set<ReflectiveCallEdge> edges = reflectiveArgs.get(csVar.getVar());
+        if (edges != null) {
+            edges.forEach(edge -> passReflectiveArgs(edge, pts));
+        }
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof ReflectiveCallEdge) {
-            System.out.println(edge);
+            ReflectiveCallEdge refEdge = (ReflectiveCallEdge) edge;
+            Context callerCtx = refEdge.getCallSite().getContext();
+            // pass argument
+            Var args = refEdge.getArgs();
+            if (args != null) {
+                CSVar csArgs = csManager.getCSVar(callerCtx, args);
+                passReflectiveArgs(refEdge, solver.getPointsToSetOf(csArgs));
+                // record args for later-arrive array objects
+                MapUtils.addToMapSet(reflectiveArgs, args, refEdge);
+            }
             // pass return value
-            Context callerCtx = edge.getCallSite().getContext();
-            Invoke invoke = edge.getCallSite().getCallSite();
-            Context calleeCtx = edge.getCallee().getContext();
-            JMethod callee = edge.getCallee().getMethod();
+            Invoke invoke = refEdge.getCallSite().getCallSite();
+            Context calleeCtx = refEdge.getCallee().getContext();
+            JMethod callee = refEdge.getCallee().getMethod();
             Var result = invoke.getResult();
             if (result != null && isConcerned(callee.getReturnType())) {
                 CSVar csResult = csManager.getCSVar(callerCtx, result);
@@ -98,8 +111,24 @@ public class ReflectionAnalysis implements Plugin {
         }
     }
 
+    private void passReflectiveArgs(ReflectiveCallEdge edge, PointsToSet arrays) {
+        Context calleeCtx = edge.getCallee().getContext();
+        JMethod callee = edge.getCallee().getMethod();
+        arrays.forEach(array -> {
+            ArrayIndex elems = csManager.getArrayIndex(array);
+            callee.getIR().getParams().forEach(param -> {
+                Type paramType = param.getType();
+                if (isConcerned(paramType)) {
+                    CSVar csParam = csManager.getCSVar(calleeCtx, param);
+                    solver.addPFGEdge(elems, csParam, paramType,
+                            PointerFlowEdge.Kind.PARAMETER_PASSING);
+                }
+            });
+        });
+    }
+
     /**
-     * TODO: merge with {@link pascal.taie.analysis.pta.core.solver.SolverImpl#isConcerned}
+     * TODO: merge with SolverImpl.isConcerned(Exp)
      */
     private static boolean isConcerned(Type type) {
         return type instanceof ClassType || type instanceof ArrayType;

@@ -43,9 +43,7 @@ import static pascal.taie.util.collection.MapUtils.getMapMap;
  * - Class.newInstance()
  * - Constructor.newInstance(Object[])
  * - Method.invoke(Object,Object[])
- * TODO:
- *  - pass reflective arguments and return values
- *  - check accessibility
+ * TODO: check accessibility
  */
 class ReflectiveActionModel extends AbstractModel {
 

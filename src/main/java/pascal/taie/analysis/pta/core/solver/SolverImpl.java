@@ -378,12 +378,13 @@ public class SolverImpl implements Solver {
         return result;
     }
 
-    /**
-     * Adds an edge "from -> to" to the PFG.
-     * If type is not null, then we need to filter out assignable objects
-     * in from points-to set.
-     */
-    private void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
+    @Override
+    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+        addPFGEdge(from, to, null, kind);
+    }
+
+    @Override
+    public void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
         if (pointerFlowGraph.addEdge(from, to, type, kind)) {
             PointsToSet fromSet = type == null ?
                     from.getPointsToSet() :
@@ -392,11 +393,6 @@ public class SolverImpl implements Solver {
                 addPointerEntry(to, fromSet);
             }
         }
-    }
-
-    @Override
-    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        addPFGEdge(from, to, null, kind);
     }
 
     /**

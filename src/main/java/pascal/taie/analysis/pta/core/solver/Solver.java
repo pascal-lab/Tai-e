@@ -30,6 +30,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
+import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
 public interface Solver {
@@ -88,6 +89,13 @@ public interface Solver {
      * Adds an edge "from -> to" to the PFG.
      */
     void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
+
+    /**
+     * Adds an edge "from -> to" to the PFG.
+     * If type is not null, then we need to filter out assignable objects
+     * in from points-to set.
+     */
+    void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind);
 
     /**
      * Adds a call edge.
