@@ -27,8 +27,8 @@ public class ReflectiveAction {
         staticFoo.invoke(null);
 
         // invoke instance method
-        Method baz = B.class.getMethod("baz", B.class);
-        Object o = baz.invoke(new A(), new B());
+        Method baz = B.class.getMethod("baz", B.class, String.class);
+        Object o = baz.invoke(new A(), new B(), "arg");
         use(o);
     }
 

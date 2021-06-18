@@ -4,6 +4,7 @@
   options:
     cs: ci
     implicit-entries: true # analyze implicit entries
+    only-app: false # only analyze application code
     merge-string-constants: false
     merge-string-objects: true
     merge-string-builders: true

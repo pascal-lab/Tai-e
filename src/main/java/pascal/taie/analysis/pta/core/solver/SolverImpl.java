@@ -93,6 +93,11 @@ public class SolverImpl implements Solver {
 
     private AnalysisOptions options;
 
+    /**
+     * Only analyzes application code.
+     */
+    private boolean onlyApp;
+
     private final ClassHierarchy hierarchy;
 
     private final TypeManager typeManager;
@@ -203,6 +208,7 @@ public class SolverImpl implements Solver {
      * Initializes pointer analysis.
      */
     private void initialize() {
+        onlyApp = options.getBoolean("only-app");
         callGraph = new OnFlyCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
@@ -250,6 +256,10 @@ public class SolverImpl implements Solver {
                 PointsToSet diff = propagate(p, pts);
                 if (p instanceof CSVar) {
                     CSVar v = (CSVar) p;
+                    if (onlyApp && !v.getVar().getMethod()
+                            .getDeclaringClass().isApplication()) {
+                        continue;
+                    }
                     processInstanceStore(v, diff);
                     processInstanceLoad(v, diff);
                     processArrayStore(v, diff);
@@ -564,6 +574,9 @@ public class SolverImpl implements Solver {
     private void processNewCSMethod(CSMethod csMethod) {
         if (callGraph.addNewMethod(csMethod)) {
             JMethod method = csMethod.getMethod();
+            if (onlyApp && !method.getDeclaringClass().isApplication()) {
+                return;
+            }
             processNewMethod(method);
             stmtProcessor.setCSMethod(csMethod);
             method.getIR().getStmts()
