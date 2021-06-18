@@ -50,7 +50,8 @@ public class CSObjUtils {
             if (type instanceof ClassType) {
                 return ((ClassType) type).getJClass();
             } else if (type instanceof ArrayType) {
-                return World.getClassHierarchy().getJREClass(StringReps.OBJECT);
+                return World.getClassHierarchy()
+                        .getJREClass(StringReps.OBJECT);
             }
         }
         return null;

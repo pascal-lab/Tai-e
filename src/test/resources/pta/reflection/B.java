@@ -6,6 +6,7 @@ class B {
     public void foo(B b) {
     }
 
-    public void baz(B b) {
+    public Object baz(B b) {
+        return new Object();
     }
 }

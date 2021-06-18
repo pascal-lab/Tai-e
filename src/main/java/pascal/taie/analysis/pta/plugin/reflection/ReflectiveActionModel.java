@@ -144,6 +144,7 @@ class ReflectiveActionModel extends AbstractModel {
             // TODO: process newObj by heapModel?
             addToMapMap(newObjs, invoke, type, newObj);
         }
+        // TODO: double-check if the heap context is proper
         CSObj csNewObj = csManager.getCSObj(context, newObj);
         Var result = invoke.getResult();
         if (result != null) {
