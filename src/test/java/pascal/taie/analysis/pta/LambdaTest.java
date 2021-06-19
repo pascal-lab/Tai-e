@@ -21,21 +21,21 @@ public class LambdaTest {
 
     @Test
     public void testArgs() {
-        TestUtils.testPTA(DIR, "Args", "-pp");
+        TestUtils.testPTA(DIR, "Args");
     }
 
     @Test
     public void testConstructor() {
-        TestUtils.testPTA(DIR, "LambdaConstructor", "-pp");
+        TestUtils.testPTA(DIR, "LambdaConstructor");
     }
 
     @Test
     public void testInstanceMethod() {
-        TestUtils.testPTA(DIR, "LambdaInstanceMethod", "-pp");
+        TestUtils.testPTA(DIR, "LambdaInstanceMethod");
     }
 
     @Test
     public void testStaticMethod() {
-        TestUtils.testPTA(DIR, "LambdaStaticMethod", "-pp");
+        TestUtils.testPTA(DIR, "LambdaStaticMethod");
     }
 }

@@ -22,104 +22,104 @@ public class CSPTATest {
     // Tests for context insensitivity
     @Test
     public void testNew() {
-        TestUtils.testPTA(DIR, "New", "-pp");
+        TestUtils.testPTA(DIR, "New");
     }
 
     @Test
     public void testAssign() {
-        TestUtils.testPTA(DIR, "Assign", "-pp");
+        TestUtils.testPTA(DIR, "Assign");
     }
 
     @Test
     public void testStoreLoad() {
-        TestUtils.testPTA(DIR, "StoreLoad", "-pp");
+        TestUtils.testPTA(DIR, "StoreLoad");
     }
 
     @Test
     public void testCall() {
-        TestUtils.testPTA(DIR, "Call", "-pp");
+        TestUtils.testPTA(DIR, "Call");
     }
 
     @Test
     public void testAssign2() {
-        TestUtils.testPTA(DIR, "Assign2", "-pp");
+        TestUtils.testPTA(DIR, "Assign2");
     }
 
     @Test
     public void testInstanceField() {
-        TestUtils.testPTA(DIR, "InstanceField", "-pp");
+        TestUtils.testPTA(DIR, "InstanceField");
     }
 
     @Test
     public void testInstanceField2() {
-        TestUtils.testPTA(DIR, "InstanceField2", "-pp");
+        TestUtils.testPTA(DIR, "InstanceField2");
     }
 
     @Test
     public void testCallParamRet() {
-        TestUtils.testPTA(DIR, "CallParamRet", "-pp");
+        TestUtils.testPTA(DIR, "CallParamRet");
     }
 
     @Test
     public void testCallField() {
-        TestUtils.testPTA(DIR, "CallField", "-pp");
+        TestUtils.testPTA(DIR, "CallField");
     }
     
     // Tests for context sensitivity variants
     @Test
     public void testOneCall() {
-        TestUtils.testPTA(DIR, "OneCall", "-pp", "pta=cs:1-call");
+        TestUtils.testPTA(DIR, "OneCall", "cs:1-call");
     }
 
     @Test
     public void testOneObject() {
-        TestUtils.testPTA(DIR, "OneObject", "-pp", "pta=cs:1-obj");
+        TestUtils.testPTA(DIR, "OneObject", "cs:1-obj");
     }
 
     @Test
     public void testOneType() {
-        TestUtils.testPTA(DIR, "OneType", "-pp", "pta=cs:1-type");
+        TestUtils.testPTA(DIR, "OneType", "cs:1-type");
     }
 
     @Test
     public void testTwoCall() {
-        TestUtils.testPTA(DIR, "TwoCall", "-pp", "pta=cs:2-call");
+        TestUtils.testPTA(DIR, "TwoCall", "cs:2-call");
     }
 
     @Test
     public void testTwoObject() {
-        TestUtils.testPTA(DIR, "TwoObject", "-pp", "pta=cs:2-obj");
+        TestUtils.testPTA(DIR, "TwoObject", "cs:2-obj");
     }
 
     @Test
     public void testTwoType() {
-        TestUtils.testPTA(DIR, "TwoType", "-pp", "pta=cs:2-type");
+        TestUtils.testPTA(DIR, "TwoType", "cs:2-type");
     }
 
     // Tests for Java feature supporting
     @Test
     public void testStaticField() {
-        TestUtils.testPTA(DIR, "StaticField", "-pp");
+        TestUtils.testPTA(DIR, "StaticField");
     }
 
     @Test
     public void testArray() {
-        TestUtils.testPTA(DIR, "Array", "-pp");
+        TestUtils.testPTA(DIR, "Array");
     }
 
     @Test
     public void testCast() {
-        TestUtils.testPTA(DIR, "Cast", "-pp");
+        TestUtils.testPTA(DIR, "Cast");
     }
 
     @Test
     public void testNull() {
-        TestUtils.testPTA(DIR, "Null", "-pp");
+        TestUtils.testPTA(DIR, "Null");
     }
 
     @Test
     public void testPrimitive() {
-        TestUtils.testPTA(DIR, "Primitive", "-pp");
+        TestUtils.testPTA(DIR, "Primitive");
     }
 
     @Test
@@ -129,12 +129,12 @@ public class CSPTATest {
 
     @Test
     public void testMultiArray() {
-        TestUtils.testPTA(DIR, "MultiArray", "-pp");
+        TestUtils.testPTA(DIR, "MultiArray");
     }
 
     @Test
     public void testClinit() {
-        TestUtils.testPTA(DIR, "Clinit", "-pp");
+        TestUtils.testPTA(DIR, "Clinit");
     }
 
     @Test
@@ -145,16 +145,16 @@ public class CSPTATest {
     // Tests for handling of non-normal objects
     @Test
     public void testTypeSens() {
-        TestUtils.testPTA(DIR, "TypeSens", "pta=cs:2-type");
+        TestUtils.testPTA(DIR, "TypeSens", "cs:2-type");
     }
 
     @Test
     public void testSpecialHeapContext() {
-        TestUtils.testPTA(DIR, "SpecialHeapContext", "-pp", "pta=cs:2-object");
+        TestUtils.testPTA(DIR, "SpecialHeapContext", "cs:2-object");
     }
 
     @Test
     public void testNativeModel() {
-        TestUtils.testPTA(DIR, "NativeModel", "-pp");
+        TestUtils.testPTA(DIR, "NativeModel", "only-app:false");
     }
 }
