@@ -29,6 +29,7 @@ import soot.SceneTransformer;
 import soot.Transform;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,23 +46,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     }
 
     private static void runSoot(Options options, SootWorldBuilder builder) {
-        initSoot();
-        // Set Soot options
-        soot.options.Options.v().set_output_format(
-                soot.options.Options.output_format_jimple);
-        soot.options.Options.v().set_keep_line_number(true);
-        soot.options.Options.v().set_app(true);
-        soot.options.Options.v().set_whole_program(true);
-        soot.options.Options.v().set_no_writeout_body_releasing(true);
-        soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
-        soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
-        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-
-        if (options.isPrependJVM()) {
-            // TODO: figure out why -prepend-classpath makes Soot faster
-            soot.options.Options.v().set_prepend_classpath(true);
-        }
-
+        initSoot(options);
         // Configure Soot transformer
         Transform transform = new Transform(
                 "wjtp.tai-e", new SceneTransformer() {
@@ -79,8 +64,26 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 options.getMainClass()});
     }
 
-    public static void initSoot() {
+    public static void initSoot(Options options) {
         G.reset();
+
+        // set Soot options
+        soot.options.Options.v().set_output_format(
+                soot.options.Options.output_format_jimple);
+        soot.options.Options.v().set_keep_line_number(true);
+        soot.options.Options.v().set_app(true);
+        // exclude jdk.* from application classes
+        soot.options.Options.v().set_exclude(List.of("jdk.*"));
+        soot.options.Options.v().set_whole_program(true);
+        soot.options.Options.v().set_no_writeout_body_releasing(true);
+        soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
+        soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
+        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+        if (options.isPrependJVM()) {
+            // TODO: figure out why -prepend-classpath makes Soot faster
+            soot.options.Options.v().set_prepend_classpath(true);
+        }
+
         Scene scene = G.v().soot_Scene();
         // The following line is necessary to avoid a runtime exception
         // when running soot with Java 1.8
