@@ -16,9 +16,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.language.type.TypeManagerImpl;
 import pascal.taie.util.Timer;
@@ -41,12 +45,13 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     private static final Logger logger = LogManager.getLogger(SootWorldBuilder.class);
 
     @Override
-    public void build(Options options) {
-        runSoot(options, this);
+    public void build(Options options, List<AnalysisConfig> plan) {
+        runSoot(options, plan, this);
     }
 
-    private static void runSoot(Options options, SootWorldBuilder builder) {
-        initSoot(options);
+    private static void runSoot(Options options, List<AnalysisConfig> plan,
+                                SootWorldBuilder builder) {
+        initSoot(options, plan);
         // Configure Soot transformer
         Transform transform = new Transform(
                 "wjtp.tai-e", new SceneTransformer() {
@@ -64,7 +69,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 options.getMainClass()});
     }
 
-    public static void initSoot(Options options) {
+    public static void initSoot(Options options, List<AnalysisConfig> plan) {
         G.reset();
 
         // set Soot options
@@ -112,6 +117,39 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // for sun.security.ssl.SSLSocketImpl. TODO: fix this
         // scene.addBasicClass("sun.net.www.protocol.https.Handler");
         scene.addBasicClass("sun.net.www.protocol.jar.Handler");
+
+        addReflectionLogClasses(plan, scene);
+    }
+
+    /**
+     * Add classes in reflection log to the scene.
+     * Tai-e's ClassHierarchy depends on Soot's Scene, which does not change
+     * after hierarchy's construction, thus we need to add the classes
+     * in the reflection log before starting Soot.
+     */
+    private static void addReflectionLogClasses(List<AnalysisConfig> plan, Scene scene) {
+        plan.forEach(config -> {
+            if (config.getId().equals(PointerAnalysis.ID)) {
+                String path = config.getOptions().getString("reflection-log");
+                if (path != null) {
+                    LogItem.load(path).forEach(item -> {
+                        // add caller class
+                        String caller = item.caller;
+                        String callerClass = caller.substring(0, caller.lastIndexOf('.'));
+                        scene.addBasicClass(callerClass);
+                        // add target class
+                        String target = item.target;
+                        String targetClass;
+                        if (target.startsWith("<")) {
+                            targetClass = StringReps.getClassNameOf(target);
+                        } else {
+                            targetClass = target;
+                        }
+                        scene.addBasicClass(targetClass);
+                    });
+                }
+            }
+        });
     }
 
     private void build(Options options, Scene scene) {

@@ -34,14 +34,10 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.SetUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 class LogBasedModel extends MetaObjModel {
 
@@ -71,36 +67,12 @@ class LogBasedModel extends MetaObjModel {
     LogBasedModel(Solver solver) {
         super(solver);
         selector = solver.getContextSelector();
-        loadReflectionLog(solver.getOptions().getString("reflection-log"));
-    }
-
-    private void loadReflectionLog(String path) {
+        String path = solver.getOptions().getString("reflection-log");
         logger.info("Using reflection log from {}", path);
-        readItems(path).forEach(this::addItem);
+        LogItem.load(path).forEach(this::addItem);
     }
 
-    private List<Item> readItems(String path) {
-        try {
-            return Files.readAllLines(Path.of(path))
-                    .stream()
-                    .map(line -> {
-                        String[] split = line.split(";");
-                        String api = split[0];
-                        String target = split[1];
-                        String caller = split[2];
-                        String s3 = split[3];
-                        int lineNumber = s3.isBlank() ?
-                                Item.UNKNOWN : Integer.parseInt(s3);
-                        return new Item(api, target, caller, lineNumber);
-                    })
-                    .collect(Collectors.toUnmodifiableList());
-        } catch (IOException e) {
-            logger.error("Failed to load reflection log from {}", path);
-            return List.of();
-        }
-    }
-
-    private void addItem(Item item) {
+    private void addItem(LogItem item) {
         if (!supportedApis.contains(item.api)) {
             return;
         }
@@ -137,7 +109,7 @@ class LogBasedModel extends MetaObjModel {
         }
     }
 
-    private List<Invoke> getMatchedInvokes(Item item) {
+    private List<Invoke> getMatchedInvokes(LogItem item) {
         int lastDot = item.caller.lastIndexOf('.');
         String callerClass = item.caller.substring(0, lastDot);
         String callerMethod = item.caller.substring(lastDot + 1);
@@ -168,7 +140,7 @@ class LogBasedModel extends MetaObjModel {
         return invokes;
     }
     
-    private boolean isMatched(Item item, Invoke invoke) {
+    private boolean isMatched(LogItem item, Invoke invoke) {
         if (invoke.isDynamic()) {
             return false;
         }
@@ -178,31 +150,8 @@ class LogBasedModel extends MetaObjModel {
         JMethod callee = invoke.getMethodRef().resolve();
         return callee.getDeclaringClass().getName().equals(apiClass) &&
                 callee.getName().equals(apiMethod) &&
-                (item.lineNumber == Item.UNKNOWN ||
+                (item.lineNumber == LogItem.UNKNOWN ||
                         item.lineNumber == invoke.getLineNumber());
-    }
-
-    /**
-     * Represents log items.
-     */
-    private static class Item {
-
-        private final String api;
-
-        private final String target;
-
-        private final String caller;
-
-        private final int lineNumber;
-
-        private static final int UNKNOWN = -1;
-
-        private Item(String api, String target, String caller, int lineNumber) {
-            this.api = api;
-            this.target = target;
-            this.caller = caller;
-            this.lineNumber = lineNumber;
-        }
     }
 
     @Override

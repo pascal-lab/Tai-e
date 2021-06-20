@@ -232,6 +232,4 @@ public class CGUtils {
                 .collect(Collectors.toCollection(LinkedHashSet::new))
                 .toString();
     }
-
-
 }

@@ -51,6 +51,9 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
 
     private void takeAction(CallGraph<Invoke, JMethod> callGraph) {
         String action = getOptions().getString("action");
+        if (action == null) {
+            return;
+        }
         switch (action) {
             case "dump": {
                 String file = getOptions().getString("file");

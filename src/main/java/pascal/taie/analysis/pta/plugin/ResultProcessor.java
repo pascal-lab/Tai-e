@@ -68,6 +68,9 @@ public class ResultProcessor implements Plugin {
         PointerAnalysisResult result = solver.getResult();
         printStatistics(result);
         String action = solver.getOptions().getString("action");
+        if (action == null) {
+            return;
+        }
         String file = solver.getOptions().getString("file");
         switch (action) {
             case "dump":
