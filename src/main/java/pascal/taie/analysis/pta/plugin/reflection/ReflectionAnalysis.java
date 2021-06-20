@@ -53,7 +53,11 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         classModel = new ClassModel(solver);
-        metaObjModel = new StringBasedModel(solver);
+        if (solver.getOptions().getString("reflection-log") != null) {
+            metaObjModel = new LogBasedModel(solver);
+        } else {
+            metaObjModel = new StringBasedModel(solver);
+        }
         reflectiveActionModel = new ReflectiveActionModel(solver);
         this.solver = solver;
         csManager = solver.getCSManager();

@@ -150,6 +150,20 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
+    public @Nullable JMethod getMethod(String methodSig) {
+        // TODO: add warning for ambiguous methods (due to classes
+        //  with the same name)
+        String className = StringReps.getClassNameOf(methodSig);
+        JClass jclass = getClass(className);
+        if (jclass != null) {
+            Subsignature subsig = Subsignature.get(
+                    StringReps.getSubsignatureOf(methodSig));
+            return jclass.getDeclaredMethod(subsig);
+        }
+        return null;
+    }
+
+    @Override
     public @Nullable JClass getJREClass(String name) {
         return getClass(getBootstrapClassLoader(), name);
     }

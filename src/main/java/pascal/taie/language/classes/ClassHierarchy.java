@@ -51,6 +51,17 @@ public interface ClassHierarchy {
     @Nullable JClass getClass(String name);
 
     /**
+     * Obtains a method class by its signature.
+     *
+     * @param methodSig of the method
+     * @return the {@link JMethod} for signature if found;
+     *  null if can't find the method.
+     *  TODO: return Optional<JMethod>?
+     * @throws pascal.taie.util.AnalysisException if signature is invalid.
+     */
+    @Nullable JMethod getMethod(String methodSig);
+
+    /**
      * Obtains a JRE class by it name.
      *
      * @param name the class name

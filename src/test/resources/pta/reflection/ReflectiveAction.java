@@ -24,7 +24,7 @@ public class ReflectiveAction {
     static void invoke() throws Exception {
         // invoke static method
         Method staticFoo = A.class.getMethod("staticFoo", Object.class);
-        staticFoo.invoke(null);
+        staticFoo.invoke(null, new Object[]{ null });
 
         // invoke instance method
         Method baz = B.class.getMethod("baz", B.class, String.class);
