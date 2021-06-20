@@ -50,7 +50,7 @@ public class LogItem {
             return Files.readAllLines(Path.of(path))
                     .stream()
                     .map(line -> {
-                        String[] split = line.split(";");
+                        String[] split = line.split(";", -1);
                         String api = split[0];
                         String target = split[1];
                         String caller = split[2];
