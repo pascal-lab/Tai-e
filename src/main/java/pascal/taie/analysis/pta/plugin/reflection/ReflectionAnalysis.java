@@ -40,7 +40,7 @@ public class ReflectionAnalysis implements Plugin {
 
     private Model classModel;
 
-    private MemberRetrievingModel memberRetrievingModel;
+    private MetaObjModel metaObjModel;
 
     private Model reflectiveActionModel;
 
@@ -53,7 +53,7 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         classModel = new ClassModel(solver);
-        memberRetrievingModel = new StringBasedModel(solver);
+        metaObjModel = new StringBasedModel(solver);
         reflectiveActionModel = new ReflectiveActionModel(solver);
         this.solver = solver;
         csManager = solver.getCSManager();
@@ -68,7 +68,7 @@ public class ReflectionAnalysis implements Plugin {
                 .filter(Predicate.not(Invoke::isDynamic))
                 .forEach(invoke -> {
                     classModel.handleNewInvoke(invoke);
-                    memberRetrievingModel.handleNewInvoke(invoke);
+                    metaObjModel.handleNewInvoke(invoke);
                     reflectiveActionModel.handleNewInvoke(invoke);
                 });
     }
@@ -78,8 +78,8 @@ public class ReflectionAnalysis implements Plugin {
         if (classModel.isRelevantVar(csVar.getVar())) {
             classModel.handleNewPointsToSet(csVar, pts);
         }
-        if (memberRetrievingModel.isRelevantVar(csVar.getVar())) {
-            memberRetrievingModel.handleNewPointsToSet(csVar, pts);
+        if (metaObjModel.isRelevantVar(csVar.getVar())) {
+            metaObjModel.handleNewPointsToSet(csVar, pts);
         }
         if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {
             reflectiveActionModel.handleNewPointsToSet(csVar, pts);
@@ -92,7 +92,7 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
-        memberRetrievingModel.handleNewCSMethod(csMethod);
+        metaObjModel.handleNewCSMethod(csMethod);
     }
 
     @Override

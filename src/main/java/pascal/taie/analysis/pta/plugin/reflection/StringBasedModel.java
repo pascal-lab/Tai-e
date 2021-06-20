@@ -26,7 +26,7 @@ import pascal.taie.language.classes.JClass;
 
 import java.util.List;
 
-class StringBasedModel extends MemberRetrievingModel {
+class StringBasedModel extends MetaObjModel {
 
     StringBasedModel(Solver solver) {
         super(solver);

@@ -11,6 +11,7 @@
     merge-exception-objects: true
     action: none # | dump | compare
     file: null # path to input/output file
+    reflection-log: null
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder

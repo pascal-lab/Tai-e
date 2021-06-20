@@ -28,7 +28,7 @@ import java.util.Set;
 
 import static pascal.taie.util.collection.MapUtils.newMap;
 
-abstract class MemberRetrievingModel extends AbstractModel {
+abstract class MetaObjModel extends AbstractModel {
 
     /**
      * Description for reflection meta objects.
@@ -54,7 +54,7 @@ abstract class MemberRetrievingModel extends AbstractModel {
             "getFields", "getDeclaredFields"
     );
 
-    MemberRetrievingModel(Solver solver) {
+    MetaObjModel(Solver solver) {
         super(solver);
         TypeManager typeManager = solver.getTypeManager();
         constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
