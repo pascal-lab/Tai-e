@@ -1,4 +1,5 @@
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class ReflectiveAction {
@@ -7,6 +8,8 @@ public class ReflectiveAction {
         cnew();
         ctornew();
         invoke();
+        get();
+        set();
     }
 
     static void forname(C c) throws Exception {
@@ -47,6 +50,28 @@ public class ReflectiveAction {
         Method baz = B.class.getMethod("baz", B.class, String.class);
         Object o = baz.invoke(new A(), new B(), "arg");
         use(o);
+    }
+
+    static void get() throws Exception {
+        // get static field
+        Field stat = A.class.getField("stat");
+        Object o1 = stat.get(null);
+        use(o1);
+
+        // get instance field
+        Field inst = A.class.getField("inst");
+        Object o2 = inst.get(new A());
+        use(o2);
+    }
+
+    static void set() throws Exception {
+        // set static field
+        Field stat = A.class.getField("stat");
+        stat.set(null, new Object());
+
+        // set instance field
+        Field inst = A.class.getField("inst");
+        inst.set(new A(), new B());
     }
 
     static void use(Object o) {}

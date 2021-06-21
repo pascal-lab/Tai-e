@@ -1,5 +1,9 @@
 class A extends B {
 
+    public static Object stat = new Object();
+
+    public Object inst = new C();
+
     public A(B b) {
     }
 
