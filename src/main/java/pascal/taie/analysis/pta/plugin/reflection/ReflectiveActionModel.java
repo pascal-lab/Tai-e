@@ -16,9 +16,12 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
@@ -27,10 +30,13 @@ import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.MapUtils;
 
 import javax.annotation.Nullable;
@@ -47,6 +53,8 @@ import static pascal.taie.util.collection.MapUtils.getMapMap;
  * - Class.newInstance()
  * - Constructor.newInstance(Object[])
  * - Method.invoke(Object,Object[])
+ * - Field.get(Object)
+ * - Field.set(Object,Object)
  * TODO: check accessibility
  */
 class ReflectiveActionModel extends AbstractModel {
@@ -60,6 +68,8 @@ class ReflectiveActionModel extends AbstractModel {
 
     private final ContextSelector selector;
 
+    private final TypeManager typeManager;
+
     /**
      * Map from Invoke (of newInstance()) and type to reflectively-created objects.
      */
@@ -69,6 +79,7 @@ class ReflectiveActionModel extends AbstractModel {
         super(solver);
         initNoArg = Subsignature.get(StringReps.INIT_NO_ARG);
         selector = solver.getContextSelector();
+        typeManager = solver.getTypeManager();
     }
 
     @Override
@@ -93,6 +104,14 @@ class ReflectiveActionModel extends AbstractModel {
         JMethod methodInvoke = hierarchy.getJREMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>");
         registerRelevantVarIndexes(methodInvoke, BASE, 0);
         registerAPIHandler(methodInvoke, this::methodInvoke);
+
+        JMethod fieldGet = hierarchy.getJREMethod("<java.lang.reflect.Field: java.lang.Object get(java.lang.Object)>");
+        registerRelevantVarIndexes(fieldGet, BASE, 0);
+        registerAPIHandler(fieldGet, this::fieldGet);
+
+        JMethod fieldSet = hierarchy.getJREMethod("<java.lang.reflect.Field: void set(java.lang.Object,java.lang.Object)>");
+        registerRelevantVarIndexes(fieldSet, BASE, 0);
+        registerAPIHandler(fieldSet, this::fieldSet);
     }
 
     private void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
@@ -148,6 +167,23 @@ class ReflectiveActionModel extends AbstractModel {
         });
     }
 
+    private CSObj newReflectiveObj(Context context, Invoke invoke, ClassType type) {
+        MockObj newObj = getMapMap(newObjs, invoke, type);
+        if (newObj == null) {
+            newObj = new MockObj(REF_OBJ_DESC, invoke, type,
+                    invoke.getContainer());
+            // TODO: process newObj by heapModel?
+            addToMapMap(newObjs, invoke, type, newObj);
+        }
+        // TODO: double-check if the heap context is proper
+        CSObj csNewObj = csManager.getCSObj(context, newObj);
+        Var result = invoke.getResult();
+        if (result != null) {
+            solver.addVarPointsTo(context, result, csNewObj);
+        }
+        return csNewObj;
+    }
+
     private void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -167,23 +203,6 @@ class ReflectiveActionModel extends AbstractModel {
                 );
             }
         });
-    }
-
-    private CSObj newReflectiveObj(Context context, Invoke invoke, ClassType type) {
-        MockObj newObj = getMapMap(newObjs, invoke, type);
-        if (newObj == null) {
-            newObj = new MockObj(REF_OBJ_DESC, invoke, type,
-                    invoke.getContainer());
-            // TODO: process newObj by heapModel?
-            addToMapMap(newObjs, invoke, type, newObj);
-        }
-        // TODO: double-check if the heap context is proper
-        CSObj csNewObj = csManager.getCSObj(context, newObj);
-        Var result = invoke.getResult();
-        if (result != null) {
-            solver.addVarPointsTo(context, result, csNewObj);
-        }
-        return csNewObj;
     }
 
     private void addReflectiveCallEdge(
@@ -210,5 +229,63 @@ class ReflectiveActionModel extends AbstractModel {
         ReflectiveCallEdge callEdge = new ReflectiveCallEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), args);
         solver.addCallEdge(callEdge);
+    }
+
+    private void fieldGet(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Var result = invoke.getResult();
+        if (result == null) {
+            return;
+        }
+        Context context = csVar.getContext();
+        CSVar to = csManager.getCSVar(context, result);
+        List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
+        PointsToSet fldObjs = args.get(0);
+        PointsToSet baseObjs = args.get(1);
+        fldObjs.forEach(fldObj -> {
+            JField field = CSObjUtils.toField(fldObj);
+            if (field == null) {
+                return;
+            }
+            if (field.isStatic()) {
+                StaticField sfield = csManager.getStaticField(field);
+                solver.addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+            } else {
+                Type declType = field.getDeclaringClass().getType();
+                baseObjs.forEach(baseObj -> {
+                    Type objType = baseObj.getObject().getType();
+                    if (typeManager.isSubtype(declType, objType)) {
+                        InstanceField ifield = csManager.getInstanceField(baseObj, field);
+                        solver.addPFGEdge(ifield, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                    }
+                });
+            }
+        });
+    }
+
+    private void fieldSet(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Context context = csVar.getContext();
+        CSVar from = csManager.getCSVar(context, invoke.getInvokeExp().getArg(1));
+        List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
+        PointsToSet fldObjs = args.get(0);
+        PointsToSet baseObjs = args.get(1);
+        fldObjs.forEach(fldObj -> {
+            JField field = CSObjUtils.toField(fldObj);
+            if (field == null) {
+                return;
+            }
+            if (field.isStatic()) {
+                StaticField sfield = csManager.getStaticField(field);
+                solver.addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+            } else {
+                Type declType = field.getDeclaringClass().getType();
+                baseObjs.forEach(baseObj -> {
+                    Type objType = baseObj.getObject().getType();
+                    if (typeManager.isSubtype(declType, objType)) {
+                        InstanceField ifield = csManager.getInstanceField(baseObj, field);
+                        solver.addPFGEdge(from, ifield, PointerFlowEdge.Kind.INSTANCE_STORE);
+                    }
+                });
+            }
+        });
     }
 }

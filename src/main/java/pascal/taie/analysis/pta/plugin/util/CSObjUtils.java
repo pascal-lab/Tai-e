@@ -19,6 +19,7 @@ import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
@@ -85,6 +86,15 @@ public class CSObjUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Converts a CSObj of java.lang.reflect.Method to corresponding JMethod.
+     * If the object does not represent a Method, then return null.
+     */
+    public static @Nullable JField toField(CSObj csObj) {
+        Object alloc = csObj.getObject().getAllocation();
+        return alloc instanceof JField ? (JField) alloc : null;
     }
 
     /**
