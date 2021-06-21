@@ -52,6 +52,10 @@ public class LogItem {
                     .map(line -> {
                         String[] split = line.split(";", -1);
                         String api = split[0];
+                        if (api.startsWith("Field")) {
+                            api = api.replace("get*", "get")
+                                    .replace("set*", "set");
+                        }
                         String target = split[1];
                         String caller = split[2];
                         String s3 = split[3];

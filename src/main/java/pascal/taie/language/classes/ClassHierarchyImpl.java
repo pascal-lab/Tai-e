@@ -164,6 +164,19 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
+    public JField getField(String fieldSig) {
+        // TODO: add warning for ambiguous fields (due to classes
+        //  with the same name)
+        String className = StringReps.getClassNameOf(fieldSig);
+        JClass jclass = getClass(className);
+        if (jclass != null) {
+            String fieldName = StringReps.getFieldNameOf(fieldSig);
+            return jclass.getDeclaredField(fieldName);
+        }
+        return null;
+    }
+
+    @Override
     public @Nullable JClass getJREClass(String name) {
         return getClass(getBootstrapClassLoader(), name);
     }

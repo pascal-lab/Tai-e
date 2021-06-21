@@ -47,7 +47,9 @@ class LogBasedModel extends MetaObjModel {
             "Class.forName",
             "Class.newInstance",
             "Constructor.newInstance",
-            "Method.invoke"
+            "Method.invoke",
+            "Field.get",
+            "Field.set"
     );
 
     private final Map<String, String> fullNames = Map.of(
@@ -92,6 +94,11 @@ class LogBasedModel extends MetaObjModel {
                 target = hierarchy.getMethod(item.target);
                 break;
             }
+            case "Field.get":
+            case "Field.set": {
+                target = hierarchy.getField(item.target);
+                break;
+            }
         }
         // add target specified in the item
         if (target != null) {
@@ -106,9 +113,9 @@ class LogBasedModel extends MetaObjModel {
                         MapUtils.addToMapSet(classTargets, invoke, (JClass) target);
                     }
                 }
-            } else if (target instanceof JMethod) {
+            } else {
                 for (Invoke invoke : invokes) {
-                    MapUtils.addToMapSet(memberTargets, invoke, (JMethod) target);
+                    MapUtils.addToMapSet(memberTargets, invoke, (ClassMember) target);
                 }
             }
             invokes.stream()
@@ -132,7 +139,7 @@ class LogBasedModel extends MetaObjModel {
         klass.getDeclaredMethods()
                 .stream()
                 .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
-                .forEach(caller -> {
+                .forEach(caller ->
                     caller.getIR().getStmts()
                             .stream()
                             .filter(s -> s instanceof Invoke)
@@ -141,8 +148,8 @@ class LogBasedModel extends MetaObjModel {
                                 if (isMatched(item, invoke)) {
                                     invokes.add(invoke);
                                 }
-                            });
-                });
+                            })
+                );
         if (invokes.isEmpty()) {
             logger.warn("No matched invokes found for {}/{}",
                     item.caller, item.lineNumber);

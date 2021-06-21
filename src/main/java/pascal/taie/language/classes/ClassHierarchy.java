@@ -62,6 +62,16 @@ public interface ClassHierarchy {
     @Nullable JMethod getMethod(String methodSig);
 
     /**
+     * Obtains a field by its signature.
+     *
+     * @param fieldSig signature of the field
+     * @return the {@link JField} for signature if found;
+     * null if can't find the field. TODO: return Optional<JField>?
+     * @throws pascal.taie.util.AnalysisException if signature is invalid.
+     */
+    @Nullable JField getField(String fieldSig);
+
+    /**
      * Obtains a JRE class by it name.
      *
      * @param name the class name

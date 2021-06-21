@@ -282,7 +282,8 @@ class ReflectiveActionModel extends AbstractModel {
                     Type objType = baseObj.getObject().getType();
                     if (typeManager.isSubtype(declType, objType)) {
                         InstanceField ifield = csManager.getInstanceField(baseObj, field);
-                        solver.addPFGEdge(from, ifield, PointerFlowEdge.Kind.INSTANCE_STORE);
+                        solver.addPFGEdge(from, ifield, ifield.getType(),
+                                PointerFlowEdge.Kind.INSTANCE_STORE);
                     }
                 });
             }
