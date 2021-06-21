@@ -18,10 +18,12 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.MockObj;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
@@ -40,6 +42,8 @@ import static pascal.taie.util.collection.MapUtils.getMapMap;
 
 /**
  * Models reflective-action methods, currently supports
+ * - Class.forName(String)
+ * - Class.forName(String,boolean,ClassLoader)
  * - Class.newInstance()
  * - Constructor.newInstance(Object[])
  * - Method.invoke(Object,Object[])
@@ -69,6 +73,15 @@ class ReflectiveActionModel extends AbstractModel {
 
     @Override
     protected void registerVarAndHandler() {
+        JMethod classForName = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class forName(java.lang.String)>");
+        registerRelevantVarIndexes(classForName, 0);
+        registerAPIHandler(classForName, this::classForName);
+
+        JMethod classForName2 = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>");
+        // TODO: take class loader into account
+        registerRelevantVarIndexes(classForName2, 0);
+        registerAPIHandler(classForName2, this::classForName);
+
         JMethod classNewInstance = hierarchy.getJREMethod("<java.lang.Class: java.lang.Object newInstance()>");
         registerRelevantVarIndexes(classNewInstance, BASE);
         registerAPIHandler(classNewInstance, this::classNewInstance);
@@ -80,6 +93,28 @@ class ReflectiveActionModel extends AbstractModel {
         JMethod methodInvoke = hierarchy.getJREMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>");
         registerRelevantVarIndexes(methodInvoke, BASE, 0);
         registerAPIHandler(methodInvoke, this::methodInvoke);
+    }
+
+    private void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Context context = csVar.getContext();
+        pts.forEach(obj -> {
+            String className = CSObjUtils.toString(obj);
+            if (className == null) {
+                return;
+            }
+            JClass klass = hierarchy.getClass(className);
+            if (klass == null) {
+                return;
+            }
+            solver.initializeClass(klass);
+            Var result = invoke.getResult();
+            if (result != null) {
+                Obj clsObj = heapModel.getConstantObj(
+                        ClassLiteral.get(klass.getType()));
+                CSObj csObj = csManager.getCSObj(defaultHctx, clsObj);
+                solver.addVarPointsTo(context, result, csObj);
+            }
+        });
     }
 
     private void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {

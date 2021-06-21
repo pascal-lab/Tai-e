@@ -3,9 +3,22 @@ import java.lang.reflect.Method;
 
 public class ReflectiveAction {
     public static void main(String[] args) throws Exception {
+        forname(null);
         cnew();
         ctornew();
         invoke();
+    }
+
+    static void forname(C c) throws Exception {
+        Class<?> aClass = Class.forName("A");
+        Object a = aClass.newInstance();
+        a.hashCode();
+
+        Class<?> bClass = Class.forName("B", true, aClass.getClassLoader());
+        Object b = bClass.newInstance();
+        b.hashCode();
+
+        Class<?> cClass = Class.forName("C");
     }
 
     static void cnew() throws Exception {
