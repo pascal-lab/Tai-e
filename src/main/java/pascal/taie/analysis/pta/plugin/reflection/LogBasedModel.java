@@ -44,6 +44,7 @@ class LogBasedModel extends MetaObjModel {
     private static final Logger logger = LogManager.getLogger(LogBasedModel.class);
 
     private final Set<String> supportedApis = Set.of(
+            "Class.forName",
             "Class.newInstance",
             "Constructor.newInstance",
             "Method.invoke"
@@ -57,6 +58,8 @@ class LogBasedModel extends MetaObjModel {
     );
 
     private final Set<JMethod> relevantMethods = SetUtils.newSet();
+
+    private final Map<Invoke, Set<JClass>> forNameTargets = MapUtils.newMap();
 
     private final Map<Invoke, Set<JClass>> classTargets = MapUtils.newMap();
 
@@ -79,6 +82,7 @@ class LogBasedModel extends MetaObjModel {
         Object target = null;
         // obtain reflective target
         switch (item.api) {
+            case "Class.forName":
             case "Class.newInstance": {
                 target = hierarchy.getClass(item.target);
                 break;
@@ -93,8 +97,14 @@ class LogBasedModel extends MetaObjModel {
         if (target != null) {
             List<Invoke> invokes = getMatchedInvokes(item);
             if (target instanceof JClass) {
-                for (Invoke invoke : invokes) {
-                    MapUtils.addToMapSet(classTargets, invoke, (JClass) target);
+                if (item.api.equals("Class.forName")) {
+                    for (Invoke invoke : invokes) {
+                        MapUtils.addToMapSet(forNameTargets, invoke, (JClass) target);
+                    }
+                } else {
+                    for (Invoke invoke : invokes) {
+                        MapUtils.addToMapSet(classTargets, invoke, (JClass) target);
+                    }
                 }
             } else if (target instanceof JMethod) {
                 for (Invoke invoke : invokes) {
@@ -163,9 +173,24 @@ class LogBasedModel extends MetaObjModel {
                     .filter(s -> s instanceof Invoke)
                     .map(s -> (Invoke) s)
                     .forEach(invoke -> {
+                        handleForName(csMethod, invoke);
                         passTargetToBase(classTargets, csMethod, invoke);
                         passTargetToBase(memberTargets, csMethod, invoke);
                     });
+        }
+    }
+
+    private void handleForName(CSMethod csMethod, Invoke invoke) {
+        if (forNameTargets.containsKey(invoke)) {
+            Context context = csMethod.getContext();
+            Var result = invoke.getResult();
+            forNameTargets.get(invoke).forEach(target -> {
+                solver.initializeClass(target);
+                if (result != null) {
+                    solver.addVarPointsTo(context, result,
+                            toCSObj(csMethod, target));
+                }
+            });
         }
     }
 

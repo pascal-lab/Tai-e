@@ -18,7 +18,11 @@ public class ReflectiveAction {
         Object b = bClass.newInstance();
         b.hashCode();
 
-        Class<?> cClass = Class.forName("C");
+        Class<?> cClass1 = Class.forName("C");
+        use(cClass1);
+
+        Class<?> cClass2 = Class.forName("C", true, aClass.getClassLoader());
+        use(cClass2);
     }
 
     static void cnew() throws Exception {
