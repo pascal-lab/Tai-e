@@ -113,10 +113,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         scene.addBasicClass("sun.net.www.protocol.file.Handler");
         scene.addBasicClass("sun.net.www.protocol.ftp.Handler");
         scene.addBasicClass("sun.net.www.protocol.http.Handler");
+        scene.addBasicClass("sun.net.www.protocol.jar.Handler");
         // The following line caused SootClassNotFoundException
         // for sun.security.ssl.SSLSocketImpl. TODO: fix this
         // scene.addBasicClass("sun.net.www.protocol.https.Handler");
-        scene.addBasicClass("sun.net.www.protocol.jar.Handler");
 
         addReflectionLogClasses(plan, scene);
     }
@@ -133,10 +133,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 String path = config.getOptions().getString("reflection-log");
                 if (path != null) {
                     LogItem.load(path).forEach(item -> {
-                        // add caller class
-                        String caller = item.caller;
-                        String callerClass = caller.substring(0, caller.lastIndexOf('.'));
-                        scene.addBasicClass(callerClass);
                         // add target class
                         String target = item.target;
                         String targetClass;
