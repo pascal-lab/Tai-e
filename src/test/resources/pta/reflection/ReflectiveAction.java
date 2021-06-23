@@ -1,3 +1,16 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2020-- Yue Li <yueli@nju.edu.cn>
+ * All rights reserved.
+ *
+ * Tai-e is only for educational and academic purposes,
+ * and any form of commercial use is disallowed.
+ * Distribution of Tai-e is disallowed without the approval.
+ */
+
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -7,71 +20,78 @@ public class ReflectiveAction {
         forname(null);
         cnew();
         ctornew();
+        arraynew();
         invoke();
         get();
         set();
     }
 
-    static void forname(C c) throws Exception {
-        Class<?> aClass = Class.forName("A");
-        Object a = aClass.newInstance();
+    static void forname(W w) throws Exception {
+        Class<?> uClass = Class.forName("U");
+        Object a = uClass.newInstance();
         a.hashCode();
 
-        Class<?> bClass = Class.forName("B", true, aClass.getClassLoader());
-        Object b = bClass.newInstance();
+        Class<?> vClass = Class.forName("V", true, uClass.getClassLoader());
+        Object b = vClass.newInstance();
         b.hashCode();
 
-        Class<?> cClass1 = Class.forName("C");
-        use(cClass1);
+        Class<?> wClass1 = Class.forName("W");
+        use(wClass1);
 
-        Class<?> cClass2 = Class.forName("C", true, aClass.getClassLoader());
-        use(cClass2);
+        Class<?> wClass2 = Class.forName("W", true, uClass.getClassLoader());
+        use(wClass2);
     }
 
     static void cnew() throws Exception {
-        Class<A> klass = A.class;
-        A a = klass.newInstance();
-        a.foo();
+        Class<U> klass = U.class;
+        U u = klass.newInstance();
+        u.foo();
     }
 
     static void ctornew() throws Exception {
-        Class<A> klass = A.class;
-        Constructor<A> ctor = klass.getConstructor(B.class);
-        A a = ctor.newInstance(new B());
-        a.foo(null);
+        Class<U> klass = U.class;
+        Constructor<U> ctor = klass.getConstructor(V.class);
+        U u = ctor.newInstance(new V());
+        u.foo(null);
+    }
+
+    static void arraynew() throws Exception {
+        Class<?> uClass = Class.forName("U");
+        U[] arr = (U[]) Array.newInstance(uClass, 10);
+        arr[0] = new U();
     }
 
     static void invoke() throws Exception {
         // invoke static method
-        Method staticFoo = A.class.getMethod("staticFoo", Object.class);
+        Method staticFoo = U.class.getMethod("staticFoo", Object.class);
         staticFoo.invoke(null, new Object[]{ null });
 
         // invoke instance method
-        Method baz = B.class.getMethod("baz", B.class, String.class);
-        Object o = baz.invoke(new A(), new B(), "arg");
+        Method baz = V.class.getMethod("baz", V.class, String.class);
+        Object o = baz.invoke(new U(), new V(), "arg");
         use(o);
     }
 
     static void get() throws Exception {
         // get static field
-        Field stat = A.class.getField("stat");
+        Field stat = U.class.getField("stat");
         Object o1 = stat.get(null);
         use(o1);
 
         // get instance field
-        Field inst = A.class.getField("inst");
-        Object o2 = inst.get(new A());
+        Field inst = U.class.getField("inst");
+        Object o2 = inst.get(new U());
         use(o2);
     }
 
     static void set() throws Exception {
         // set static field
-        Field stat = A.class.getField("stat");
+        Field stat = U.class.getField("stat");
         stat.set(null, new Object());
 
         // set instance field
-        Field inst = A.class.getField("inst");
-        inst.set(new A(), new B());
+        Field inst = U.class.getField("inst");
+        inst.set(new U(), new V());
     }
 
     static void use(Object o) {}
