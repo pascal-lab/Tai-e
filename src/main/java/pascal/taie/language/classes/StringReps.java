@@ -34,6 +34,8 @@ public class StringReps {
 
     public static final String CLASS = "java.lang.Class";
 
+    public static final String ARRAY = "java.lang.reflect.Array";
+
     public static final String CONSTRUCTOR = "java.lang.reflect.Constructor";
 
     public static final String METHOD = "java.lang.reflect.Method";
@@ -259,5 +261,9 @@ public class StringReps {
         if (index < 0) {
             throw new AnalysisException(signature + " is not valid signature");
         }
+    }
+
+    public static String getBaseTypeNameOf(String arrayTypeName) {
+        return arrayTypeName.replace("[]", "");
     }
 }

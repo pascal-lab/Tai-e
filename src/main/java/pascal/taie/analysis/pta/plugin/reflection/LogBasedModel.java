@@ -31,6 +31,8 @@ import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.SetUtils;
 
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 class LogBasedModel extends MetaObjModel {
 
@@ -49,28 +52,35 @@ class LogBasedModel extends MetaObjModel {
             "Constructor.newInstance",
             "Method.invoke",
             "Field.get",
-            "Field.set"
+            "Field.set",
+            "Array.newInstance"
     );
 
     private final Map<String, String> fullNames = Map.of(
             "Class", StringReps.CLASS,
             "Constructor", StringReps.CONSTRUCTOR,
             "Method", StringReps.METHOD,
-            "Field", StringReps.FIELD
+            "Field", StringReps.FIELD,
+            "Array", StringReps.ARRAY
     );
 
     private final Set<JMethod> relevantMethods = SetUtils.newSet();
 
     private final Map<Invoke, Set<JClass>> forNameTargets = MapUtils.newMap();
 
+    private final Map<Invoke, Set<ClassType>> arrayTypeTargets = MapUtils.newMap();
+
     private final Map<Invoke, Set<JClass>> classTargets = MapUtils.newMap();
 
     private final Map<Invoke, Set<ClassMember>> memberTargets = MapUtils.newMap();
+
+    private final TypeManager typeManager;
 
     private final ContextSelector selector;
 
     LogBasedModel(Solver solver) {
         super(solver);
+        typeManager = solver.getTypeManager();
         selector = solver.getContextSelector();
         String path = solver.getOptions().getString("reflection-log");
         logger.info("Using reflection log from {}", path);
@@ -99,6 +109,12 @@ class LogBasedModel extends MetaObjModel {
                 target = hierarchy.getField(item.target);
                 break;
             }
+            case "Array.newInstance": {
+                // Note that currently we only support log for
+                // Array.newInstance(Class,int).
+                String typeName = StringReps.getBaseTypeNameOf(item.target);
+                target = typeManager.getClassType(typeName);
+            }
         }
         // add target specified in the item
         if (target != null) {
@@ -113,9 +129,13 @@ class LogBasedModel extends MetaObjModel {
                         MapUtils.addToMapSet(classTargets, invoke, (JClass) target);
                     }
                 }
-            } else {
+            } else if (target instanceof ClassMember){
                 for (Invoke invoke : invokes) {
                     MapUtils.addToMapSet(memberTargets, invoke, (ClassMember) target);
+                }
+            } else {
+                for (Invoke invoke : invokes) {
+                    MapUtils.addToMapSet(arrayTypeTargets, invoke, (ClassType) target);
                 }
             }
             invokes.stream()
@@ -183,6 +203,7 @@ class LogBasedModel extends MetaObjModel {
                         handleForName(csMethod, invoke);
                         passTargetToBase(classTargets, csMethod, invoke);
                         passTargetToBase(memberTargets, csMethod, invoke);
+                        passTargetToArg0(arrayTypeTargets, csMethod, invoke);
                     });
         }
     }
@@ -203,12 +224,24 @@ class LogBasedModel extends MetaObjModel {
 
     private <T> void passTargetToBase(Map<Invoke, Set<T>> targetMap,
                                   CSMethod csMethod, Invoke invoke) {
+        passTarget(targetMap, csMethod, invoke,
+                i -> ((InvokeInstanceExp) i.getInvokeExp()).getBase());
+    }
+
+    private <T> void passTargetToArg0(Map<Invoke, Set<T>> targetMap,
+                                      CSMethod csMethod, Invoke invoke) {
+        passTarget(targetMap, csMethod, invoke,
+                i -> i.getInvokeExp().getArg(0));
+    }
+
+    private <T> void passTarget(
+            Map<Invoke, Set<T>> targetMap, CSMethod csMethod,
+            Invoke invoke, Function<Invoke, Var> varGetter) {
         if (targetMap.containsKey(invoke)) {
             Context context = csMethod.getContext();
-            Var base = ((InvokeInstanceExp) invoke.getInvokeExp()).getBase();
+            Var var = varGetter.apply(invoke);
             targetMap.get(invoke).forEach(target ->
-                    solver.addVarPointsTo(context, base,
-                            toCSObj(csMethod, target)));
+                    solver.addVarPointsTo(context, var, toCSObj(csMethod, target)));
         }
     }
 
@@ -217,8 +250,11 @@ class LogBasedModel extends MetaObjModel {
         if (target instanceof JClass) {
             obj = heapModel.getConstantObj(
                     ClassLiteral.get(((JClass) target).getType()));
-        } else {
+        } else if (target instanceof ClassMember) {
             obj = getReflectionObj((ClassMember) target);
+        } else {
+            obj = heapModel.getConstantObj(
+                    ClassLiteral.get((ClassType) target));
         }
         Context hctx = selector.selectHeapContext(csMethod, obj);
         return csManager.getCSObj(hctx, obj);

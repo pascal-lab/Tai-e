@@ -305,12 +305,11 @@ class ReflectiveActionModel extends AbstractModel {
         }
         Context context = csVar.getContext();
         pts.forEach(obj -> {
-            JClass klass = CSObjUtils.toClass(obj);
-            if (klass == null) {
+            Type baseType = CSObjUtils.toType(obj);
+            if (baseType == null) {
                 return;
             }
-            Type elemType = klass.getType();
-            ArrayType arrayType = typeManager.getArrayType(elemType, 1);
+            ArrayType arrayType = typeManager.getArrayType(baseType, 1);
             CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
             solver.addVarPointsTo(context, result, csNewArray);
         });

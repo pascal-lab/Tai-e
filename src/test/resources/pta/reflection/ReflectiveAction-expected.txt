@@ -1,10 +1,10 @@
 Points-to sets of all variables
-[]:<ReflectiveAction: void arraynew()>/$r1 -> []
-[]:<ReflectiveAction: void arraynew()>/$r2 -> []
+[]:<ReflectiveAction: void arraynew()>/$r1 -> [[]:ReflectiveObj{alloc=$r1 = invokestatic java.lang.reflect.Array.newInstance(r0,%intconst1)@<ReflectiveAction: void arraynew()>:3(@L60), type=U[] in <ReflectiveAction: void arraynew()>}]
+[]:<ReflectiveAction: void arraynew()>/$r2 -> [[]:ReflectiveObj{alloc=$r1 = invokestatic java.lang.reflect.Array.newInstance(r0,%intconst1)@<ReflectiveAction: void arraynew()>:3(@L60), type=U[] in <ReflectiveAction: void arraynew()>}]
 []:<ReflectiveAction: void arraynew()>/$r4 -> [[]:NewObj{<ReflectiveAction: void arraynew()>:6(@L61)/new U}]
 []:<ReflectiveAction: void arraynew()>/%stringconst0 -> [[]:ConstantObj{java.lang.String: "U"}]
 []:<ReflectiveAction: void arraynew()>/r0 -> [[]:ConstantObj{java.lang.Class: U.class}]
-[]:<ReflectiveAction: void arraynew()>/r3 -> []
+[]:<ReflectiveAction: void arraynew()>/r3 -> [[]:ReflectiveObj{alloc=$r1 = invokestatic java.lang.reflect.Array.newInstance(r0,%intconst1)@<ReflectiveAction: void arraynew()>:3(@L60), type=U[] in <ReflectiveAction: void arraynew()>}]
 []:<ReflectiveAction: void cnew()>/$r1 -> [[]:ReflectiveObj{alloc=$r1 = invokevirtual r0.newInstance()@<ReflectiveAction: void cnew()>:1(@L47), type=U in <ReflectiveAction: void cnew()>}]
 []:<ReflectiveAction: void cnew()>/r0 -> [[]:ConstantObj{java.lang.Class: U.class}]
 []:<ReflectiveAction: void cnew()>/r2 -> [[]:ReflectiveObj{alloc=$r1 = invokevirtual r0.newInstance()@<ReflectiveAction: void cnew()>:1(@L47), type=U in <ReflectiveAction: void cnew()>}]
@@ -138,6 +138,7 @@ Points-to sets of all array indexes
 []:NewObj{<ReflectiveAction: void invoke()>:2(@L66)/newarray (java.lang.Class)[%intconst0]}[*] -> [[]:ConstantObj{java.lang.Class: java.lang.Object.class}]
 []:NewObj{<ReflectiveAction: void invoke()>:29(@L71)/newarray (java.lang.Object)[%intconst14]}[*] -> [[]:ConstantObj{java.lang.String: "arg"}, []:NewObj{<ReflectiveAction: void invoke()>:30(@L71)/new V}]
 []:NewObj{<ReflectiveAction: void invoke()>:9(@L67)/newarray (java.lang.Object)[%intconst4]}[*] -> []
+[]:ReflectiveObj{alloc=$r1 = invokestatic java.lang.reflect.Array.newInstance(r0,%intconst1)@<ReflectiveAction: void arraynew()>:3(@L60), type=U[] in <ReflectiveAction: void arraynew()>}[*] -> [[]:NewObj{<ReflectiveAction: void arraynew()>:6(@L61)/new U}]
 
 Points-to sets of all static fields
 <U: java.lang.Object stat> -> [[]:NewObj{<ReflectiveAction: void set()>:3(@L90)/new java.lang.Object}, []:NewObj{<U: void <clinit>()>:0(@L15)/new java.lang.Object}]

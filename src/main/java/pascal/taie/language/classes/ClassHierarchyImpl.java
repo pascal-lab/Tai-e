@@ -51,11 +51,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     private final Map<JClass, Set<JClass>> directSubinterfaces = newMap();
 
     /**
-     * Map from each interface to all its subinterfaces.
-     */
-    private final Map<JClass, Set<JClass>> allSubinterfaces = newMap();
-
-    /**
      * Map from each interface to its direct implementors.
      */
     private final Map<JClass, Set<JClass>> directImplementors = newMap();
