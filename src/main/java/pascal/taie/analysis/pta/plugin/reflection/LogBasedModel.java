@@ -32,7 +32,6 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.SetUtils;
 
@@ -74,13 +73,10 @@ class LogBasedModel extends MetaObjModel {
 
     private final Map<Invoke, Set<ClassMember>> memberTargets = MapUtils.newMap();
 
-    private final TypeManager typeManager;
-
     private final ContextSelector selector;
 
     LogBasedModel(Solver solver) {
         super(solver);
-        typeManager = solver.getTypeManager();
         selector = solver.getContextSelector();
         String path = solver.getOptions().getString("reflection-log");
         logger.info("Using reflection log from {}", path);
@@ -110,10 +106,13 @@ class LogBasedModel extends MetaObjModel {
                 break;
             }
             case "Array.newInstance": {
-                // Note that currently we only support log for
-                // Array.newInstance(Class,int).
-                String typeName = StringReps.getBaseTypeNameOf(item.target);
-                target = typeManager.getClassType(typeName);
+                // Note that currently we only support Array.newInstance(Class,int),
+                // and ignore primitive arrays.
+                String baseName = StringReps.getBaseTypeNameOf(item.target);
+                JClass baseClass = hierarchy.getClass(baseName);
+                if (baseClass != null) {
+                    target = baseClass.getType();
+                }
             }
         }
         // add target specified in the item

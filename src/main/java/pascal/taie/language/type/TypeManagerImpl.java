@@ -73,6 +73,8 @@ public class TypeManagerImpl implements TypeManager {
 
     @Override
     public ClassType getClassType(JClassLoader loader, String className) {
+        // FIXME: given a non-exist class name, this method will still return
+        //  a ClassType with null JClass. This case should return null.
         return classTypes.computeIfAbsent(loader, l -> newMap())
                 .computeIfAbsent(className, name -> new ClassType(loader, name));
     }
