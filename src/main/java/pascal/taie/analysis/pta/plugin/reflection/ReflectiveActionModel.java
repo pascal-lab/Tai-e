@@ -34,7 +34,9 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.MapUtils;
@@ -55,6 +57,7 @@ import static pascal.taie.util.collection.MapUtils.getMapMap;
  * - Method.invoke(Object,Object[])
  * - Field.get(Object)
  * - Field.set(Object,Object)
+ * - Array.newInstance(Class,int)
  * TODO: check accessibility
  */
 class ReflectiveActionModel extends AbstractModel {
@@ -71,9 +74,10 @@ class ReflectiveActionModel extends AbstractModel {
     private final TypeManager typeManager;
 
     /**
-     * Map from Invoke (of newInstance()) and type to reflectively-created objects.
+     * Map from Invoke (of Class/Constructor/Array.newInstance()) and type
+     * to the reflectively-created objects.
      */
-    private final Map<Invoke, Map<ClassType, MockObj>> newObjs = MapUtils.newMap();
+    private final Map<Invoke, Map<ReferenceType, MockObj>> newObjs = MapUtils.newMap();
 
     ReflectiveActionModel(Solver solver) {
         super(solver);
@@ -112,6 +116,10 @@ class ReflectiveActionModel extends AbstractModel {
         JMethod fieldSet = hierarchy.getJREMethod("<java.lang.reflect.Field: void set(java.lang.Object,java.lang.Object)>");
         registerRelevantVarIndexes(fieldSet, BASE, 0);
         registerAPIHandler(fieldSet, this::fieldSet);
+
+        JMethod arrayNewInstance = hierarchy.getJREMethod("<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>");
+        registerRelevantVarIndexes(arrayNewInstance, 0);
+        registerAPIHandler(arrayNewInstance, this::arrayNewInstance);
     }
 
     private void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
@@ -167,7 +175,7 @@ class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    private CSObj newReflectiveObj(Context context, Invoke invoke, ClassType type) {
+    private CSObj newReflectiveObj(Context context, Invoke invoke, ReferenceType type) {
         MockObj newObj = getMapMap(newObjs, invoke, type);
         if (newObj == null) {
             newObj = new MockObj(REF_OBJ_DESC, invoke, type,
@@ -287,6 +295,24 @@ class ReflectiveActionModel extends AbstractModel {
                     }
                 });
             }
+        });
+    }
+
+    private void arrayNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Var result = invoke.getResult();
+        if (result == null) {
+            return;
+        }
+        Context context = csVar.getContext();
+        pts.forEach(obj -> {
+            JClass klass = CSObjUtils.toClass(obj);
+            if (klass == null) {
+                return;
+            }
+            Type elemType = klass.getType();
+            ArrayType arrayType = typeManager.getArrayType(elemType, 1);
+            CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
+            solver.addVarPointsTo(context, result, csNewArray);
         });
     }
 }
