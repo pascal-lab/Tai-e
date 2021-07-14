@@ -35,6 +35,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
@@ -77,6 +78,32 @@ public class DefaultNativeModel extends AbstractNativeModel {
     }
 
     private void initModels() {
+        // --------------------------------------------------------------------
+        // java.lang.Class
+        // --------------------------------------------------------------------
+        // Models Class.getDeclared*s0() methods.
+        // Note that these modelling just return place holder objects,
+        // which are not related to the receiver Class object.
+        // <java.lang.Class: java.lang.reflect.Field[] getDeclaredFields0(boolean)>
+        register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredFields0(boolean)>", m ->
+                allocateArray(m, typeManager.getClassType(StringReps.FIELD))
+        );
+
+        // <java.lang.Class: java.lang.reflect.Method[] getDeclaredMethods0(boolean)>
+        register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredMethods0(boolean)>", m ->
+                allocateArray(m, typeManager.getClassType(StringReps.METHOD))
+        );
+
+        // <java.lang.Class: java.lang.reflect.Constructor[] getDeclaredConstructors0(boolean)>
+        register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredConstructors0(boolean)>", m ->
+                allocateArray(m, typeManager.getClassType(StringReps.CONSTRUCTOR))
+        );
+
+        // <java.lang.Class: java.lang.Class[] getDeclaredClasses0()>
+        register("<java.lang.Class: java.lang.Class[] getDeclaredClasses0()>", m ->
+                allocateArray(m, typeManager.getClassType(StringReps.CLASS))
+        );
+
         // --------------------------------------------------------------------
         // java.lang.Object
         // --------------------------------------------------------------------
@@ -294,7 +321,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     // Convenient methods for helping create native model.
     // --------------------------------------------------------------------
     /**
-     * Register models for specific native methods.
+     * Registers models for specific native methods.
      */
     private void register(String methodSig, Function<JMethod, IR> model) {
         JMethod method = hierarchy.getJREMethod(methodSig);
@@ -302,7 +329,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     }
 
     /**
-     * Create an IR which contains a store statement to the specified static field.
+     * Creates an IR which contains a store statement to the specified static field.
      */
     private IR storeStaticField(
             JMethod method, String fieldSig,
@@ -317,7 +344,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     }
 
     /**
-     * Create an IR which contains a invoke statement to the specific virtual method.
+     * Creates an IR which contains a invoke statement to the specific virtual method.
      */
     private IR invokeVirtualMethod(
             JMethod method, String calleeSig,
@@ -334,7 +361,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     }
 
     /**
-     * Create an IR which allocates a new object, invokes its specified
+     * Creates an IR which allocates a new object, invokes its specified
      * constructor, and returns it.
      */
     private IR allocateObject(
@@ -349,6 +376,30 @@ public class DefaultNativeModel extends AbstractNativeModel {
         stmts.add(new Invoke(method,
                 new InvokeSpecial(ctor.getRef(), base, getArgs.apply(builder))));
         stmts.add(new Copy(builder.getReturnVar(), base));
+        stmts.add(builder.newReturn());
+        return builder.build(stmts);
+    }
+
+    /**
+     * Creates an IR which allocates a new array object, fills the array by a
+     * new-created (but uninitialized) object as content, and returns the array.
+     */
+    private IR allocateArray(JMethod method, Type elemType) {
+        NativeIRBuilder builder = new NativeIRBuilder(method);
+        List<Stmt> stmts = new ArrayList<>();
+        Var len = builder.newTempVar(PrimitiveType.INT);
+        ArrayType arrayType = typeManager.getArrayType(elemType, 1);
+        Var array = builder.getReturnVar();
+        stmts.add(new New(method, array, new NewArray(arrayType, len)));
+        if (elemType instanceof ClassType) {
+            // if the element type is of class type, then we create an
+            // uninitialized object as array content (can be seen as
+            // a place holder object).
+            Var elem = builder.newTempVar(elemType);
+            stmts.add(new New(method, elem,
+                    new NewInstance((ClassType) elemType)));
+            stmts.add(new StoreArray(new ArrayAccess(array, len), elem));
+        }
         stmts.add(builder.newReturn());
         return builder.build(stmts);
     }
