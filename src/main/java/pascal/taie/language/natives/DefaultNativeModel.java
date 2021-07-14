@@ -271,6 +271,15 @@ public class DefaultNativeModel extends AbstractNativeModel {
                         b -> b.getParam(0), NativeIRBuilder::getReturnVar)
         );
 
+        // <java.security.AccessController: java.security.AccessControlContext getStackAccessControlContext()>
+        register("<java.security.AccessController: java.security.AccessControlContext getStackAccessControlContext()>", m ->
+                allocateObject(m, "<java.security.AccessControlContext: void <init>(java.security.ProtectionDomain[],boolean)>", b -> {
+                    Var context = b.newTempVar(typeManager.getArrayType(
+                            typeManager.getClassType("java.security.ProtectionDomain"), 1));
+                    Var isPrivileged = b.newTempVar(PrimitiveType.BOOLEAN);
+                    return List.of(context, isPrivileged);
+                }));
+
         // --------------------------------------------------------------------
         // sun.misc.Perf
         // --------------------------------------------------------------------
