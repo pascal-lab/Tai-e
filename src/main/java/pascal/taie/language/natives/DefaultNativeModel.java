@@ -315,6 +315,71 @@ public class DefaultNativeModel extends AbstractNativeModel {
                 allocateObject(m, "<java.nio.DirectByteBuffer: void <init>(int)>",
                         b -> Collections.singletonList(b.getParam(2)))
         );
+
+        // --------------------------------------------------------------------
+        // sun.misc.Unsafe
+        // --------------------------------------------------------------------
+        // Currently, we only model Unsafe operations on arrays.
+        // Generic model for Unsafe.put/get is impossible here due to
+        // strong typing of ArrayAccess. It can be modeled in Plugin system.
+        Type objArrayType = typeManager.getArrayType(
+                typeManager.getClassType(OBJECT), 1);
+        // <sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>
+        register("<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>", m -> {
+            NativeIRBuilder builder = new NativeIRBuilder(m);
+            Var array = builder.newTempVar(objArrayType);
+            Var i = builder.newTempVar(PrimitiveType.INT);
+            List<Stmt> stmts = List.of(
+                    new Cast(array, new CastExp(builder.getParam(0), objArrayType)),
+                    new StoreArray(new ArrayAccess(array, i), builder.getParam(3)),
+                    builder.newReturn()
+            );
+            return builder.build(stmts);
+        });
+
+        Function<JMethod, IR> unsafePut = m -> {
+            NativeIRBuilder builder = new NativeIRBuilder(m);
+            Var array = builder.newTempVar(objArrayType);
+            Var i = builder.newTempVar(PrimitiveType.INT);
+            List<Stmt> stmts = List.of(
+                    new Cast(array, new CastExp(builder.getParam(0), objArrayType)),
+                    new StoreArray(new ArrayAccess(array, i), builder.getParam(2)),
+                    builder.newReturn()
+            );
+            return builder.build(stmts);
+        };
+        // <sun.misc.Unsafe: void putObject(java.lang.Object,long,java.lang.Object)>
+        register("<sun.misc.Unsafe: void putObject(java.lang.Object,long,java.lang.Object)>", unsafePut);
+
+        // <sun.misc.Unsafe: void putObject(java.lang.Object,int,java.lang.Object)>
+        register("<sun.misc.Unsafe: void putObject(java.lang.Object,int,java.lang.Object)>", unsafePut);
+
+        // <sun.misc.Unsafe: void putObjectVolatile(java.lang.Object,long,java.lang.Object)>
+        register("<sun.misc.Unsafe: void putObjectVolatile(java.lang.Object,long,java.lang.Object)>", unsafePut);
+
+        // <sun.misc.Unsafe: void putOrderedObject(java.lang.Object,long,java.lang.Object)>
+        register("<sun.misc.Unsafe: void putOrderedObject(java.lang.Object,long,java.lang.Object)>", unsafePut);
+
+        Function<JMethod, IR> unsafeGet = m -> {
+            NativeIRBuilder builder = new NativeIRBuilder(m);
+            Var array = builder.newTempVar(objArrayType);
+            Var i = builder.newTempVar(PrimitiveType.INT);
+            List<Stmt> stmts = List.of(
+                    new Cast(array, new CastExp(builder.getParam(0), objArrayType)),
+                    new LoadArray(builder.getReturnVar(), new ArrayAccess(array, i)),
+                    builder.newReturn()
+            );
+            return builder.build(stmts);
+        };
+
+        // <sun.misc.Unsafe: java.lang.Object getObjectVolatile(java.lang.Object,long)>
+        register("<sun.misc.Unsafe: java.lang.Object getObjectVolatile(java.lang.Object,long)>", unsafeGet);
+
+        // <sun.misc.Unsafe: java.lang.Object getObject(java.lang.Object,long)>
+        register("<sun.misc.Unsafe: java.lang.Object getObject(java.lang.Object,long)>", unsafeGet);
+
+        // <sun.misc.Unsafe: java.lang.Object getObject(java.lang.Object,int)>
+        register("<sun.misc.Unsafe: java.lang.Object getObject(java.lang.Object,int)>", unsafeGet);
     }
 
     // --------------------------------------------------------------------
