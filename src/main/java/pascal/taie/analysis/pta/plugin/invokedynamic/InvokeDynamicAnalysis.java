@@ -55,11 +55,9 @@ import java.util.stream.Stream;
 public class InvokeDynamicAnalysis implements Plugin {
 
     /**
-     * Lambdas are supposed to be processed by {@link LambdaAnalysis}.
-     * TODO add log warning when there is Lambdas while {@link LambdaAnalysis}
-     *  is not in use
+     * Whether analyzes lambda-related invokedynamic
      */
-    private static final boolean processLambdas = false;
+    private static final boolean processLambdas = true;
 
     private Solver solver;
 
