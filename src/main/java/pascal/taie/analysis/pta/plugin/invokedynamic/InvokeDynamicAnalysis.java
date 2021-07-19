@@ -26,6 +26,7 @@ import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
+import pascal.taie.analysis.pta.plugin.util.DummyModel;
 import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
@@ -148,7 +149,8 @@ public class InvokeDynamicAnalysis implements Plugin {
         lookup = hierarchy.getJREClass(StringReps.LOOKUP).getType();
         methodHandle = hierarchy.getJREClass(StringReps.METHOD_HANDLE).getType();
         callSite = hierarchy.getJREClass(StringReps.CALL_SITE).getType();
-        methodTypeModel = new MethodTypeModel(solver);
+        // TODO: add option to enable MethodTypeModel
+        methodTypeModel = DummyModel.get();
         lookupModel = new LookupModel(solver);
     }
 
