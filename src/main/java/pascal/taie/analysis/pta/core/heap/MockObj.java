@@ -90,7 +90,7 @@ public class MockObj implements Obj {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(desc).append('{');
-        sb.append("alloc=").append(alloc).append(", ");
+        sb.append("alloc=").append(alloc).append(",");
         sb.append("type=").append(type);
         if (container != null) {
             sb.append(" in ").append(container);

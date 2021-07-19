@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<TwoCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}]
+[]:<TwoCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}]
 [invokespecial %this.<init>()@<C: void <init>()>:0(@L26), invokespecial %this.<init>()@<B: void <init>()>:0(@L23)]:<java.lang.Object: void <init>()>/%this -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:7(@L9)/new C}]
 [invokespecial temp$0.<init>()@<TwoCall: void m()>:1(@L7), invokespecial %this.<init>()@<A: void <init>()>:0(@L13)]:<java.lang.Object: void <init>()>/%this -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:0(@L7)/new A}]
 [invokespecial temp$1.<init>()@<TwoCall: void m()>:4(@L8), invokespecial %this.<init>()@<B: void <init>()>:0(@L23)]:<java.lang.Object: void <init>()>/%this -> [[invokestatic TwoCall.m()@<TwoCall: void main(java.lang.String[])>:0(@L3)]:NewObj{<TwoCall: void m()>:3(@L8)/new B}]
@@ -29,7 +29,7 @@ Points-to sets of all variables
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <TwoCall: void main(java.lang.String[])>}]
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoCall: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 

@@ -10,11 +10,11 @@ Points-to sets of all variables
 []:<GetMember: void main(java.lang.String[])>/%stringconst10 -> [[]:ConstantObj{java.lang.String: "foo"}]
 []:<GetMember: void main(java.lang.String[])>/%stringconst6 -> [[]:ConstantObj{java.lang.String: "foo"}]
 []:<GetMember: void main(java.lang.String[])>/r0 -> [[]:ConstantObj{java.lang.Class: U.class}]
-[]:<GetMember: void main(java.lang.String[])>/r11 -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}]
-[]:<GetMember: void main(java.lang.String[])>/r2 -> [[]:ReflectionMetaObj{alloc=<U: void <init>(V)>, type=java.lang.reflect.Constructor}]
-[]:<GetMember: void main(java.lang.String[])>/r4 -> [[]:ReflectionMetaObj{alloc=<U: void <init>()>, type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(V)>, type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(java.lang.Object)>, type=java.lang.reflect.Constructor}]
-[]:<GetMember: void main(java.lang.String[])>/r7 -> [[]:ReflectionMetaObj{alloc=<U: void foo()>, type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(U)>, type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(int)>, type=java.lang.reflect.Method}]
-[]:<GetMember: void main(java.lang.String[])>/r9 -> [[]:ReflectionMetaObj{alloc=<U: void foo(U)>, type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<V: void foo(V)>, type=java.lang.reflect.Method}]
+[]:<GetMember: void main(java.lang.String[])>/r11 -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}]
+[]:<GetMember: void main(java.lang.String[])>/r2 -> [[]:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}]
+[]:<GetMember: void main(java.lang.String[])>/r4 -> [[]:ReflectionMetaObj{alloc=<U: void <init>()>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(java.lang.Object)>,type=java.lang.reflect.Constructor}]
+[]:<GetMember: void main(java.lang.String[])>/r7 -> [[]:ReflectionMetaObj{alloc=<U: void foo()>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(U)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(int)>,type=java.lang.reflect.Method}]
+[]:<GetMember: void main(java.lang.String[])>/r9 -> [[]:ReflectionMetaObj{alloc=<U: void foo(U)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<V: void foo(V)>,type=java.lang.reflect.Method}]
 []:<GetMember: void use(java.lang.Object[])>/r0 -> [[]:NewObj{<GetMember: void main(java.lang.String[])>:25(@L24)/newarray (java.lang.Object)[%intconst11]}]
 []:<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>/$r5 -> []
 []:<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>/%this -> [[]:ConstantObj{java.lang.Class: U.class}]
@@ -34,11 +34,11 @@ Points-to sets of all variables
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <GetMember: void main(java.lang.String[])>}]
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <GetMember: void main(java.lang.String[])>}]
 []:NewObj{<GetMember: void main(java.lang.String[])>:11(@L22)/newarray (java.lang.Class)[%intconst4]}[*] -> []
 []:NewObj{<GetMember: void main(java.lang.String[])>:18(@L23)/newarray (java.lang.Class)[%intconst7]}[*] -> [[]:ConstantObj{java.lang.Class: U.class}]
 []:NewObj{<GetMember: void main(java.lang.String[])>:2(@L20)/newarray (java.lang.Class)[%intconst0]}[*] -> [[]:ConstantObj{java.lang.Class: V.class}]
-[]:NewObj{<GetMember: void main(java.lang.String[])>:25(@L24)/newarray (java.lang.Object)[%intconst11]}[*] -> [[]:ReflectionMetaObj{alloc=<U: void <init>()>, type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(V)>, type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(java.lang.Object)>, type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void foo()>, type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(U)>, type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(int)>, type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<V: void foo(V)>, type=java.lang.reflect.Method}]
+[]:NewObj{<GetMember: void main(java.lang.String[])>:25(@L24)/newarray (java.lang.Object)[%intconst11]}[*] -> [[]:ReflectionMetaObj{alloc=<U: void <init>()>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(java.lang.Object)>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void foo()>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(U)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<U: void foo(int)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<V: void foo(V)>,type=java.lang.reflect.Method}]
 
 Points-to sets of all static fields
 <java.lang.Integer: java.lang.Class TYPE> -> []

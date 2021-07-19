@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<OneCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}]
+[]:<OneCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}]
 []:<OneCall: void main(java.lang.String[])>/c -> [[]:NewObj{<OneCall: void main(java.lang.String[])>:0(@L7)/new C}]
 []:<OneCall: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<OneCall: void main(java.lang.String[])>:0(@L7)/new C}]
 [invokespecial %this.<init>()@<C: void <init>()>:0(@L12)]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<OneCall: void main(java.lang.String[])>:0(@L7)/new C}]
@@ -26,7 +26,7 @@ Points-to sets of all variables
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>, type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>, type=java.lang.String in <OneCall: void main(java.lang.String[])>}]
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <OneCall: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
