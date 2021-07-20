@@ -439,11 +439,12 @@ public class SolverImpl implements Solver {
         Var var = baseVar.getVar();
         for (LoadField load : var.getLoadFields()) {
             Var toVar = load.getLValue();
-            if (isConcerned(toVar)) {
+            JField field = load.getFieldRef().resolveNullable();
+            if (isConcerned(toVar) && field != null) {
                 CSVar to = csManager.getCSVar(context, toVar);
                 pts.forEach(baseObj -> {
                     InstanceField instField = csManager.getInstanceField(
-                            baseObj, load.getFieldRef().resolve());
+                            baseObj, field);
                     addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
                 });
             }
@@ -600,7 +601,7 @@ public class SolverImpl implements Solver {
         if (callSite.isInterface() || callSite.isVirtual()) {
             return hierarchy.dispatch(type, methodRef);
         } else if (callSite.isSpecial() || callSite.isStatic()) {
-            return methodRef.resolve();
+            return methodRef.resolveNullable();
         } else {
             throw new AnalysisException("Cannot resolve Invoke: " + callSite);
         }
@@ -703,12 +704,14 @@ public class SolverImpl implements Solver {
 
         private void processInvokeStatic(Invoke callSite) {
             JMethod callee = resolveCallee(null, callSite);
-            CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
-            Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
-            CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-            Edge<CSCallSite, CSMethod> edge =
-                    new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-            addCallEdge(edge);
+            if (callee != null) {
+                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+                CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
+                Edge<CSCallSite, CSMethod> edge =
+                        new Edge<>(CallKind.STATIC, csCallSite, csCallee);
+                addCallEdge(edge);
+            }
         }
 
         @Override

@@ -79,11 +79,13 @@ public abstract class AbstractModel implements Model {
 
     @Override
     public void handleNewInvoke(Invoke invoke) {
-        JMethod target = invoke.getMethodRef().resolve();
-        int[] indexes = relevantVarIndexes.get(target);
-        if (indexes != null) {
-            for (int i : indexes) {
-                MapUtils.addToMapSet(relevantVars, getArg(invoke, i), invoke);
+        JMethod target = invoke.getMethodRef().resolveNullable();
+        if (target != null) {
+            int[] indexes = relevantVarIndexes.get(target);
+            if (indexes != null) {
+                for (int i : indexes) {
+                    MapUtils.addToMapSet(relevantVars, getArg(invoke, i), invoke);
+                }
             }
         }
     }
