@@ -75,6 +75,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
@@ -624,14 +625,16 @@ public class SolverImpl implements Solver {
 
         private final Map<NewMultiArray, MockObj[]> newArrays = newMap();
 
-        private final JMethod finalize = hierarchy.getJREMethod(FINALIZE);
+        private final Map<New, Invoke> registerInvokes = newMap();
+
+        private final JMethod finalize = Objects.requireNonNull(
+                hierarchy.getJREMethod(FINALIZE));
 
         private final MethodRef finalizeRef = finalize.getRef();
 
-        private final MethodRef registerRef = hierarchy
-                .getJREMethod(FINALIZER_REGISTER).getRef();
-
-        private final Map<New, Invoke> registerInvokes = newMap();
+        private final MethodRef registerRef = Objects.requireNonNull(
+                hierarchy.getJREMethod(FINALIZER_REGISTER))
+                .getRef();
 
         private void setCSMethod(CSMethod csMethod) {
             this.csMethod = csMethod;
@@ -677,8 +680,8 @@ public class SolverImpl implements Solver {
         }
 
         private boolean hasOverriddenFinalize(NewExp newExp) {
-            return !hierarchy.dispatch(newExp.getType(), finalizeRef)
-                    .equals(finalize);
+            return !finalize.equals(
+                    hierarchy.dispatch(newExp.getType(), finalizeRef));
         }
 
         /**

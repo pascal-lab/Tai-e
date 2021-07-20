@@ -17,6 +17,7 @@ import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.util.collection.ListUtils;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
     }
 
     @Override
-    public L getLValue() {
+    public @Nonnull L getLValue() {
         return lvalue;
     }
 
