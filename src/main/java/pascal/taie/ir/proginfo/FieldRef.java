@@ -13,6 +13,7 @@
 package pascal.taie.ir.proginfo;
 
 import pascal.taie.World;
+import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.StringReps;
@@ -20,6 +21,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
@@ -59,6 +61,19 @@ public class FieldRef extends MemberRef {
 
     @Override
     public JField resolve() {
+        if (field == null) {
+            field = World.getClassHierarchy()
+                    .resolveField(this);
+            if (field == null) {
+                throw new FieldResolutionFailedException(
+                        "Cannot resolve " + this);
+            }
+        }
+        return field;
+    }
+
+    @Override
+    public @Nullable ClassMember resolveNullable() {
         if (field == null) {
             field = World.getClassHierarchy()
                     .resolveField(this);

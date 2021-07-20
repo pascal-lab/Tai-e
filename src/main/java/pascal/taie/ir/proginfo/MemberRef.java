@@ -15,6 +15,8 @@ package pascal.taie.ir.proginfo;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 
+import javax.annotation.Nullable;
+
 public abstract class MemberRef {
 
     private final JClass declaringClass;
@@ -41,5 +43,18 @@ public abstract class MemberRef {
         return isStatic;
     }
 
+    /**
+     *
+     * @return the concrete class member pointed by this reference.
+     * @throws ResolutionFailedException if the class member
+     *  cannot be resolved.
+     */
     public abstract ClassMember resolve();
+
+    /**
+     *
+     * @return the concrete class member pointed by this reference,
+     *  or null if the member cannot be resolved.
+     */
+    public abstract @Nullable ClassMember resolveNullable();
 }

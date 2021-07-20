@@ -98,15 +98,37 @@ public interface ClassHierarchy {
      * null if can't find the field. TODO: return Optional<JField>?
      * @throws pascal.taie.util.AnalysisException if signature is invalid.
      */
-    JField getJREField(String fieldSig);
+    @Nullable JField getJREField(String fieldSig);
 
-    JMethod resolveMethod(MethodRef methodRef);
+    /**
+     * Resolves a method reference.
+     *
+     * @return the concrete method pointed by the method reference,
+     *  or null if the concrete method cannot be found in the class hierarchy.
+     */
+    @Nullable JMethod resolveMethod(MethodRef methodRef);
 
-    JField resolveField(FieldRef fieldRef);
+    /**
+     * Resolves a field reference.
+     *
+     * @return the concrete field pointed by the field reference,
+     *  or null if the concrete field cannot be found in the class hierarchy.
+     */
+    @Nullable JField resolveField(FieldRef fieldRef);
 
-    JMethod dispatch(Type receiverType, MethodRef methodRef);
+    /**
+     * Dispatches a method reference on a receiver type.
+     * @return the target method. If the target cannot be found, returns null.
+     * @throws pascal.taie.util.AnalysisException if given receiver type
+     *  cannot be dispatched (e.g., given a primitive type).
+     */
+    @Nullable JMethod dispatch(Type receiverType, MethodRef methodRef);
 
-    JMethod dispatch(JClass receiverClass, MethodRef methodRef);
+    /**
+     * Dispatches a method reference on a receiver class.
+     * @return the target method. If the target cannot be found, returns null.
+     */
+    @Nullable JMethod dispatch(JClass receiverClass, MethodRef methodRef);
 
     boolean isSubclass(JClass superclass, JClass subclass);
 

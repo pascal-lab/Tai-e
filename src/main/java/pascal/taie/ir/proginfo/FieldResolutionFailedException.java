@@ -10,9 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.classes;
+package pascal.taie.ir.proginfo;
 
-public class FieldResolutionFailedException extends RuntimeException {
+public class FieldResolutionFailedException extends ResolutionFailedException {
 
     public FieldResolutionFailedException(String msg) {
         super(msg);

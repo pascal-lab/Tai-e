@@ -13,6 +13,7 @@
 package pascal.taie.ir.proginfo;
 
 import pascal.taie.World;
+import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
@@ -21,6 +22,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -144,6 +146,19 @@ public class MethodRef extends MemberRef {
 
     @Override
     public JMethod resolve() {
+        if (method == null) {
+            method = World.getClassHierarchy()
+                    .resolveMethod(this);
+            if (method == null) {
+                throw new MethodResolutionFailedException(
+                        "Cannot resolve " + this);
+            }
+        }
+        return method;
+    }
+
+    @Override
+    public @Nullable ClassMember resolveNullable() {
         if (method == null) {
             method = World.getClassHierarchy()
                     .resolveMethod(this);

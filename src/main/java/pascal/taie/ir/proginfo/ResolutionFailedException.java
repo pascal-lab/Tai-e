@@ -10,11 +10,11 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.classes;
+package pascal.taie.ir.proginfo;
 
-public class MethodResolutionFailedException extends RuntimeException {
+public abstract class ResolutionFailedException extends RuntimeException {
 
-    public MethodResolutionFailedException(String msg) {
+    public ResolutionFailedException(String msg) {
         super(msg);
     }
 }
