@@ -24,7 +24,7 @@ import pascal.taie.analysis.pta.core.solver.SolverImpl;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.exception.ExceptionHandler;
+import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
@@ -100,7 +100,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 new ClassInitializer(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
-                new ExceptionHandler(),
+                new ExceptionAnalysis(),
                 new ReflectionAnalysis(),
                 new ResultProcessor()
         );

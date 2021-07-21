@@ -12,17 +12,18 @@ import static pascal.taie.util.collection.MapUtils.newHybridMap;
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 
-public class JMethodExceptionResult {
+public class MethodExceptionResult {
+
     private final Map<Stmt, Collection<Obj>> explicitExceptions = newHybridMap();
 
     private final Collection<Obj> thrownExplicitExceptions = newHybridSet();
 
-    private final JMethod jMethod;
+    private final JMethod method;
 
-    JMethodExceptionResult(JMethod jMethod,
-                           CSMethodExceptionResult csMethodExceptionResult) {
-        this.jMethod = jMethod;
-        jMethod.getIR().getStmts().forEach(stmt -> {
+    MethodExceptionResult(JMethod method,
+                          CSMethodExceptionResult csMethodExceptionResult) {
+        this.method = method;
+        method.getIR().getStmts().forEach(stmt -> {
             Collection<CSObj> csExceptions =
                     csMethodExceptionResult.mayThrow(stmt);
             Collection<Obj> exceptions = newHybridSet();
@@ -37,8 +38,8 @@ public class JMethodExceptionResult {
         });
     }
 
-    public JMethodExceptionResult(JMethod jMethod) {
-        this.jMethod = jMethod;
+    public MethodExceptionResult(JMethod method) {
+        this.method = method;
     }
 
     void addExplicit(Stmt stmt, Collection<Obj> exceptions) {
@@ -61,7 +62,7 @@ public class JMethodExceptionResult {
     }
 
     void addCSMethodExceptionResult(CSMethodExceptionResult csMethodExceptionResult) {
-        jMethod.getIR().getStmts().forEach(stmt -> {
+        method.getIR().getStmts().forEach(stmt -> {
             Collection<CSObj> csExceptions = csMethodExceptionResult.mayThrow(stmt);
             if (csExceptions.size() > 0) {
                 Collection<Obj> exceptions = explicitExceptions.
@@ -80,8 +81,8 @@ public class JMethodExceptionResult {
 
     @Override
     public String toString() {
-        return "JMethodExceptionResult{" +
-                "jMethod=" + jMethod +
+        return "MethodExceptionResult{" +
+                "method=" + method +
                 ", explicitExceptions=" + explicitExceptions +
                 ", thrownExplicitExceptions=" + thrownExplicitExceptions +
                 '}';

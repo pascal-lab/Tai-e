@@ -66,9 +66,9 @@ public interface PointerAnalysisResult {
 
     Set<Obj> getPointsToSet(JField field);
 
-    PTABasedThrowResult getPTABasedThrowResult();
-
     CallGraph<CSCallSite, CSMethod> getCSCallGraph();
 
     CallGraph<Invoke, JMethod> getCallGraph();
+
+    PTABasedThrowResult getPTABasedThrowResult();
 }

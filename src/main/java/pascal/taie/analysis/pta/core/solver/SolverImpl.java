@@ -127,7 +127,7 @@ public class SolverImpl implements Solver {
 
     private StmtProcessor stmtProcessor;
 
-    private PTABasedThrowResult ptaBasedThrowResult=new PTABasedThrowResult();
+    private final PTABasedThrowResult ptaBasedThrowResult=new PTABasedThrowResult();
 
     private PointerAnalysisResult result;
 
@@ -198,7 +198,7 @@ public class SolverImpl implements Solver {
     @Override
     public PointerAnalysisResult getResult() {
         if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, callGraph,ptaBasedThrowResult);
+            result = new PointerAnalysisResultImpl(csManager, callGraph, ptaBasedThrowResult);
         }
         return result;
     }

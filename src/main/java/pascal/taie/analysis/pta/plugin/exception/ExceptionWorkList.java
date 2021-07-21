@@ -8,26 +8,21 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class ExceptionWorkList {
+class ExceptionWorkList {
 
-    private final Queue<ExceptionWorkList.Entry> exceptionEntries = new LinkedList<>();
+    private final Queue<Entry> exceptionEntries = new LinkedList<>();
+
+    void addEntry(CSMethod csMethod, Stmt stmt,
+                  Collection<CSObj> exceptions) {
+        exceptionEntries.add(new Entry(csMethod, stmt, exceptions));
+    }
+
+    Entry pollEntry() {
+        return exceptionEntries.poll();
+    }
 
     boolean isEmpty() {
         return exceptionEntries.isEmpty();
-    }
-
-    void addExceptionEntry(CSMethod csMethod,
-                           Stmt stmt,
-                           Collection<CSObj> exceptions) {
-        addPointerEntry(new ExceptionWorkList.Entry(csMethod, stmt, exceptions));
-    }
-
-    void addPointerEntry(ExceptionWorkList.Entry entry) {
-        exceptionEntries.add(entry);
-    }
-
-    ExceptionWorkList.Entry pollPointerEntry() {
-        return exceptionEntries.poll();
     }
 
     static class Entry {
@@ -38,8 +33,7 @@ public class ExceptionWorkList {
 
         final Collection<CSObj> exceptions;
 
-        public Entry(CSMethod csMethod,
-                     Stmt stmt,
+        public Entry(CSMethod csMethod, Stmt stmt,
                      Collection<CSObj> exceptions) {
             this.csMethod = csMethod;
             this.stmt = stmt;
