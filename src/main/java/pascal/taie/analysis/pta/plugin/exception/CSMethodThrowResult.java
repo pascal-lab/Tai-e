@@ -11,18 +11,18 @@ import static pascal.taie.util.collection.MapUtils.newHybridMap;
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 
-class CSMethodThrowResult {
+public class CSMethodThrowResult {
 
     private final Map<Stmt, Collection<CSObj>> explicitExceptions = newHybridMap();
 
     private final Collection<CSObj> uncaughtExceptions = newHybridSet();
 
-    Collection<CSObj> propagateExplicit(Stmt stmt, Collection<CSObj> exceptions) {
+    Collection<CSObj> propagate(Stmt stmt, Collection<CSObj> exceptions) {
         Collection<CSObj> diff = newHybridSet();
-        Collection<CSObj> origin = explicitExceptions.computeIfAbsent(
+        Collection<CSObj> exist = explicitExceptions.computeIfAbsent(
                 stmt, k -> newHybridSet());
         exceptions.forEach(exception -> {
-            if (origin.add(exception)) {
+            if (exist.add(exception)) {
                 diff.add(exception);
             }
         });
@@ -33,7 +33,7 @@ class CSMethodThrowResult {
         uncaughtExceptions.addAll(exceptions);
     }
 
-    Collection<CSObj> mayThrow(Stmt stmt) {
+    Collection<CSObj> mayThrowExplicitly(Stmt stmt) {
         return explicitExceptions.getOrDefault(stmt, Set.of());
     }
 

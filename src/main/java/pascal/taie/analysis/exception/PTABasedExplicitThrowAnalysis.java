@@ -41,7 +41,8 @@ class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
         ptaBasedThrowResult.getResult(ir.getMethod())
                 .ifPresent(ptaResult ->
                         ir.getStmts().forEach(stmt -> {
-                            Collection<ClassType> exceptions = ptaResult.mayThrow(stmt)
+                            Collection<ClassType> exceptions = ptaResult
+                                    .mayThrowExplicitly(stmt)
                                     .stream()
                                     .map(o -> (ClassType) o.getType())
                                     .collect(Collectors.toUnmodifiableSet());

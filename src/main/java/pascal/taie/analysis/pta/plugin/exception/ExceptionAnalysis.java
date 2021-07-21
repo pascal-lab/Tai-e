@@ -40,10 +40,11 @@ public class ExceptionAnalysis implements Plugin {
      */
     private final Map<Var, Set<Throw>> var2Throws = MapUtils.newMap();
 
+    /**
+     * Map from each method to the result of catch analysis on it.
+     */
     private final Map<JMethod, Map<Stmt, List<ExceptionEntry>>> catchers =
             MapUtils.newMap(1024);
-
-    private final Map<CSMethod, CSMethodThrowResult> csMethodResultMap = MapUtils.newMap();
 
     private final ExceptionWorkList workList = new ExceptionWorkList();
 
@@ -92,14 +93,13 @@ public class ExceptionAnalysis implements Plugin {
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         CSMethod callee = edge.getCallee();
-        CSMethodThrowResult result = csMethodResultMap.get(callee);
-        if (result != null) {
+        callee.getThrowResult().ifPresent(result -> {
             CSMethod caller = edge.getCallSite().getContainer();
             Invoke invoke = edge.getCallSite().getCallSite();
             Collection<CSObj> exceptions = result.mayThrowUncaught();
             workList.addEntry(caller, invoke, exceptions);
             propagateExceptions();
-        }
+        });
     }
 
     private void propagateExceptions() {
@@ -108,8 +108,8 @@ public class ExceptionAnalysis implements Plugin {
             CSMethod csMethod = entry.csMethod;
             Stmt stmt = entry.stmt;
             Collection<CSObj> exceptions = entry.exceptions;
-            CSMethodThrowResult result = getOrCreateResult(csMethod);
-            Collection<CSObj> diff = result.propagateExplicit(stmt, exceptions);
+            CSMethodThrowResult result = csMethod.getOrCreateThrowResult();
+            Collection<CSObj> diff = result.propagate(stmt, exceptions);
             if (!diff.isEmpty()) {
                 Collection<CSObj> uncaught = analyzeIntraUncaught(
                         stmt, diff, csMethod);
@@ -125,11 +125,6 @@ public class ExceptionAnalysis implements Plugin {
                 }
             }
         }
-    }
-
-    private CSMethodThrowResult getOrCreateResult(CSMethod csMethod) {
-        return csMethodResultMap.computeIfAbsent(csMethod,
-                k -> new CSMethodThrowResult());
     }
 
     /**
@@ -169,10 +164,14 @@ public class ExceptionAnalysis implements Plugin {
 
     @Override
     public void onFinish() {
-        csMethodResultMap.forEach((csMethod, csMethodThrowResult) -> {
-            JMethod method = csMethod.getMethod();
-            MethodThrowResult result = throwResult.getOrCreateResult(method);
-            result.addCSMethodThrowResult(csMethodThrowResult);
-        });
+        // Collects context-sensitive throw results and stores them in
+        // a context-insensitive manner.
+        solver.getCallGraph()
+                .reachableMethods()
+                .forEach(csMethod -> {
+                    JMethod method = csMethod.getMethod();
+                    MethodThrowResult result = throwResult.getOrCreateResult(method);
+                    csMethod.getThrowResult().ifPresent(result::addCSMethodThrowResult);
+                });
     }
 }

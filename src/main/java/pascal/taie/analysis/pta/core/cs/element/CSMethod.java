@@ -13,8 +13,10 @@
 package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.plugin.exception.CSMethodThrowResult;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
@@ -26,6 +28,8 @@ public class CSMethod extends AbstractCSElement {
      * Callers of this CS method.
      */
     private final Set<CSCallSite> callers = newHybridSet();
+
+    private CSMethodThrowResult throwResult;
 
     CSMethod(JMethod method, Context context) {
         super(context);
@@ -42,6 +46,17 @@ public class CSMethod extends AbstractCSElement {
 
     public Set<CSCallSite> getCallers() {
         return callers;
+    }
+
+    public CSMethodThrowResult getOrCreateThrowResult() {
+        if (throwResult == null) {
+            throwResult = new CSMethodThrowResult();
+        }
+        return throwResult;
+    }
+
+    public Optional<CSMethodThrowResult> getThrowResult() {
+        return Optional.ofNullable(throwResult);
     }
 
     @Override

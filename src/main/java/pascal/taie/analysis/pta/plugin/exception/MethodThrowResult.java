@@ -25,7 +25,7 @@ public class MethodThrowResult {
         this.method = method;
     }
 
-    public Collection<Obj> mayThrow(Stmt stmt) {
+    public Collection<Obj> mayThrowExplicitly(Stmt stmt) {
         return explicitExceptions.getOrDefault(stmt, newHybridSet());
     }
 
@@ -35,7 +35,7 @@ public class MethodThrowResult {
 
     void addCSMethodThrowResult(CSMethodThrowResult csMethodThrowResult) {
         method.getIR().getStmts().forEach(stmt ->
-                csMethodThrowResult.mayThrow(stmt)
+                csMethodThrowResult.mayThrowExplicitly(stmt)
                         .stream()
                         .map(CSObj::getObject)
                         .forEach(exception ->
