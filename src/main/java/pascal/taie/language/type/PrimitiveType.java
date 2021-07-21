@@ -12,6 +12,8 @@
 
 package pascal.taie.language.type;
 
+import pascal.taie.util.AnalysisException;
+
 public enum PrimitiveType implements Type {
 
     BYTE("byte"),
@@ -27,6 +29,19 @@ public enum PrimitiveType implements Type {
 
     PrimitiveType(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the primitive type specified by specific name.
+     * @throws AnalysisException if given name is irrelevant to any primitive type.
+     */
+    public static PrimitiveType get(String name) {
+        for (PrimitiveType t : values()) {
+            if (t.name.equals(name)) {
+                return t;
+            }
+        }
+        throw new AnalysisException(name + " is not primitive type");
     }
 
     @Override

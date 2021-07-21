@@ -39,7 +39,7 @@ public class Main {
             logger.info("No analyses are specified");
             System.exit(0);
         }
-        buildWorld(options);
+        buildWorld(options, plan);
         executePlan(plan);
     }
 
@@ -92,15 +92,17 @@ public class Main {
      * Convenient method for building the world from String arguments.
      */
     public static void buildWorld(String... args) {
-        buildWorld(Options.parse(args));
+        Options options = Options.parse(args);
+        List<AnalysisConfig> plan = processConfigs(options);
+        buildWorld(options, plan);
     }
 
-    private static void buildWorld(Options options) {
+    private static void buildWorld(Options options, List<AnalysisConfig> plan) {
         Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
         try {
             Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();
             WorldBuilder builder = builderCtor.newInstance();
-            builder.build(options);
+            builder.build(options, plan);
         } catch (InstantiationException | IllegalAccessException |
                 NoSuchMethodException | InvocationTargetException e) {
             System.err.println("Failed to build world due to " + e);

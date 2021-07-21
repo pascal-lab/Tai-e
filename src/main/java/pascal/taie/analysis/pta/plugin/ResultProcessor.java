@@ -68,6 +68,9 @@ public class ResultProcessor implements Plugin {
         PointerAnalysisResult result = solver.getResult();
         printStatistics(result);
         String action = solver.getOptions().getString("action");
+        if (action == null) {
+            return;
+        }
         String file = solver.getOptions().getString("file");
         switch (action) {
             case "dump":
@@ -82,6 +85,8 @@ public class ResultProcessor implements Plugin {
     private static void printStatistics(PointerAnalysisResult result) {
         int varInsens = (int) result.vars().count();
         int varSens = (int) result.csVars().count();
+        int vptSizeInsens = result.vars()
+                .mapToInt(v -> result.getPointsToSet(v).size()).sum();
         int vptSizeSens = result.csVars()
                 .mapToInt(v -> v.getPointsToSet().size()).sum();
         int ifptSizeSens = result.instanceFields()
@@ -99,8 +104,8 @@ public class ResultProcessor implements Plugin {
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",
                 format(varInsens), format(varSens));
-        System.out.printf("%-30s%s (sens)%n", "#var points-to:",
-                format(vptSizeSens));
+        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var points-to:",
+                format(vptSizeInsens), format(vptSizeSens));
         System.out.printf("%-30s%s (sens)%n", "#instance field points-to:",
                 format(ifptSizeSens));
         System.out.printf("%-30s%s (sens)%n", "#array points-to:",

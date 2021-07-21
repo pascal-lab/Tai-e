@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class ExceptionTest {
 
-    private static final String CP = "test-resources/basic";
+    private static final String CP = "src/test/resources/basic";
 
     private static final String MAIN = "Exceptions";
 

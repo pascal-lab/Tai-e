@@ -178,6 +178,9 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
         DefaultCallGraph callGraph = new DefaultCallGraph();
         csCallGraph.entryMethods().map(CSMethod::getMethod).
                 forEach(callGraph::addEntryMethod);
+        csCallGraph.reachableMethods()
+                .map(CSMethod::getMethod)
+                .forEach(callGraph::addNewMethod);
         csCallGraph.edges().forEach(edge -> {
             Invoke callSite = edge.getCallSite().getCallSite();
             JMethod callee = edge.getCallee().getMethod();

@@ -24,7 +24,7 @@ public class GraphTest {
 
     @Test
     public void testSimpleGraph() {
-        Graph<Integer> g = readGraph("test-resources/util/graph-simple.txt");
+        Graph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
         Assert.assertEquals(6, g.getNumberOfNodes());
         Assert.assertTrue(g.hasNode(1));
         Assert.assertFalse(g.hasNode(10));
@@ -33,7 +33,7 @@ public class GraphTest {
 
     @Test
     public void testTopsort() {
-        Graph<Integer> g = readGraph("test-resources/util/graph-topsort.txt");
+        Graph<Integer> g = readGraph("src/test/resources/util/graph-topsort.txt");
         List<Integer> l = new TopoSorter<>(g).get();
         Assert.assertTrue(l.indexOf(1) < l.indexOf(4));
         Assert.assertTrue(l.indexOf(5) < l.indexOf(3));
@@ -49,7 +49,7 @@ public class GraphTest {
 
     @Test
     public void testSCC() {
-        Graph<Integer> g = readGraph("test-resources/util/graph-scc.txt");
+        Graph<Integer> g = readGraph("src/test/resources/util/graph-scc.txt");
         SCC<Integer> scc = new SCC<>(g);
         Assert.assertEquals(7, scc.getComponents().size());
         Assert.assertEquals(3, scc.getTrueComponents().size());
@@ -57,7 +57,7 @@ public class GraphTest {
 
     @Test
     public void testMergedSCC() {
-        Graph<Integer> g = readGraph("test-resources/util/graph-scc.txt");
+        Graph<Integer> g = readGraph("src/test/resources/util/graph-scc.txt");
         MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(g);
         Assert.assertEquals(7, mg.getNumberOfNodes());
     }

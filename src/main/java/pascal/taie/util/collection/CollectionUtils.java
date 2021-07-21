@@ -30,10 +30,6 @@ public class CollectionUtils {
         return collection.iterator().next();
     }
 
-    public static boolean isEmpty(Collection<?> collection) {
-        return collection == null || collection.isEmpty();
-    }
-
     /**
      * Adds a stream of elements to specific collection.
      */

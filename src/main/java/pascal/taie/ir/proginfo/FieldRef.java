@@ -12,6 +12,8 @@
 
 package pascal.taie.ir.proginfo;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
@@ -20,12 +22,15 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.HashUtils;
 import pascal.taie.util.InternalCanonicalized;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
 
 @InternalCanonicalized
 public class FieldRef extends MemberRef {
+
+    private static final Logger logger = LogManager.getLogger(FieldRef.class);
 
     private static final ConcurrentMap<Key, FieldRef> map =
             newConcurrentMap(4096);
@@ -62,6 +67,22 @@ public class FieldRef extends MemberRef {
         if (field == null) {
             field = World.getClassHierarchy()
                     .resolveField(this);
+            if (field == null) {
+                throw new FieldResolutionFailedException(
+                        "Cannot resolve " + this);
+            }
+        }
+        return field;
+    }
+
+    @Override
+    public @Nullable JField resolveNullable() {
+        if (field == null) {
+            field = World.getClassHierarchy()
+                    .resolveField(this);
+            if (field == null) {
+                logger.warn("Failed to resolve {}", this);
+            }
         }
         return field;
     }

@@ -51,11 +51,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     private final Map<JClass, Set<JClass>> directSubinterfaces = newMap();
 
     /**
-     * Map from each interface to all its subinterfaces.
-     */
-    private final Map<JClass, Set<JClass>> allSubinterfaces = newMap();
-
-    /**
      * Map from each interface to its direct implementors.
      */
     private final Map<JClass, Set<JClass>> directImplementors = newMap();
@@ -150,6 +145,33 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
+    public @Nullable JMethod getMethod(String methodSig) {
+        // TODO: add warning for ambiguous methods (due to classes
+        //  with the same name)
+        String className = StringReps.getClassNameOf(methodSig);
+        JClass jclass = getClass(className);
+        if (jclass != null) {
+            Subsignature subsig = Subsignature.get(
+                    StringReps.getSubsignatureOf(methodSig));
+            return jclass.getDeclaredMethod(subsig);
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable JField getField(String fieldSig) {
+        // TODO: add warning for ambiguous fields (due to classes
+        //  with the same name)
+        String className = StringReps.getClassNameOf(fieldSig);
+        JClass jclass = getClass(className);
+        if (jclass != null) {
+            String fieldName = StringReps.getFieldNameOf(fieldSig);
+            return jclass.getDeclaredField(fieldName);
+        }
+        return null;
+    }
+
+    @Override
     public @Nullable JClass getJREClass(String name) {
         return getClass(getBootstrapClassLoader(), name);
     }
@@ -167,7 +189,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JField getJREField(String fieldSig) {
+    public @Nullable JField getJREField(String fieldSig) {
         String className = StringReps.getClassNameOf(fieldSig);
         JClass jclass = getJREClass(className);
         if (jclass != null) {
@@ -178,7 +200,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod resolveMethod(MethodRef methodRef) {
+    public @Nullable JMethod resolveMethod(MethodRef methodRef) {
         JClass declaringClass = methodRef.getDeclaringClass();
         JMethod method = lookupMethod(declaringClass,
                 methodRef.getSubsignature(), true);
@@ -189,18 +211,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             // method with the same name that is declared in declaringClass.
             return declaringClass.getDeclaredMethod(methodRef.getName());
         }
-        throw new MethodResolutionFailedException("Cannot resolve " + methodRef);
+        return null;
     }
 
     @Override
-    public JField resolveField(FieldRef fieldRef) {
-        JField field = resolveField(fieldRef.getDeclaringClass(),
+    public @Nullable JField resolveField(FieldRef fieldRef) {
+        return resolveField(fieldRef.getDeclaringClass(),
                 fieldRef.getName(), fieldRef.getType());
-        if (field != null) {
-            return field;
-        } else {
-            throw new FieldResolutionFailedException("Cannot resolve " + fieldRef);
-        }
     }
 
     private JField resolveField(JClass jclass, String name, Type type) {
@@ -234,7 +251,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod dispatch(Type receiverType, MethodRef methodRef) {
+    public @Nullable JMethod dispatch(Type receiverType, MethodRef methodRef) {
         JClass cls;
         if (receiverType instanceof ClassType) {
             cls = ((ClassType) receiverType).getJClass();
@@ -247,7 +264,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
+    public @Nullable JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.computeIfAbsent(receiverClass,
                 c -> newMap()).get(subsignature);

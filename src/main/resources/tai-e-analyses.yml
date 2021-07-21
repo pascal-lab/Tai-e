@@ -4,12 +4,14 @@
   options:
     cs: ci
     implicit-entries: true # analyze implicit entries
+    only-app: false # only analyze application code
     merge-string-constants: false
     merge-string-objects: true
     merge-string-builders: true
     merge-exception-objects: true
-    action: none # | dump | compare
+    action: null # | dump | compare
     file: null # path to input/output file
+    reflection-log: null
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
@@ -17,8 +19,8 @@
   requires: [pta(algorithm=pta)]
   options:
     algorithm: pta # | cha | rta
-    action: none # | dump | compare
-    file: null # path to input/output file
+    action: null # | dump | dump-recall | compare
+    file: null # path to input/output files
 
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis

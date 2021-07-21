@@ -20,6 +20,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
@@ -28,7 +29,9 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
+import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
 public interface Solver {
@@ -53,6 +56,7 @@ public interface Solver {
 
     PointsToSet getPointsToSetOf(Pointer pointer);
 
+    // ---------- side-effect APIs (begin) ----------
     /**
      * Adds a context-sensitive variable points-to relation.
      * @param context context of the method which contains the variable
@@ -62,6 +66,8 @@ public interface Solver {
      */
     void addVarPointsTo(Context context, Var var,
                         Context heapContext, Obj obj);
+
+    void addVarPointsTo(Context context, Var var, CSObj csObj);
 
     void addVarPointsTo(Context context, Var var, PointsToSet pts);
 
@@ -88,10 +94,31 @@ public interface Solver {
     void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
 
     /**
+     * Adds an edge "from -> to" to the PFG.
+     * If type is not null, then we need to filter out assignable objects
+     * in from points-to set.
+     */
+    void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind);
+
+    /**
      * Adds a call edge.
      * @param edge the added edge.
      */
     void addCallEdge(Edge<CSCallSite, CSMethod> edge);
+
+    /**
+     * Adds a context-sensitive method.
+     * @param csMethod the added context-sensitive method.
+     */
+    void addCSMethod(CSMethod csMethod);
+
+    /**
+     * Analyzes the initializer of given class.
+     * @param cls the class to be initialized.
+     */
+    void initializeClass(JClass cls);
+
+    // ---------- side-effect APIs (end) ----------
 
     PointerAnalysisResult getResult();
 }

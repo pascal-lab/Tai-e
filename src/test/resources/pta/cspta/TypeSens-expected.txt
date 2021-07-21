@@ -1,0 +1,14 @@
+Points-to sets of all variables
+[]:<TypeSens: void main(java.lang.String[])>/r0 -> [[]:ConstantObj{java.lang.String: "xxx"}]
+[]:<TypeSens: void main(java.lang.String[])>/r1 -> [[]:ConstantObj{java.lang.Class: TypeSens.class}]
+[]:<TypeSens: void main(java.lang.String[])>/r3 -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TypeSens: void main(java.lang.String[])>}]
+[java.lang.Class]:<java.lang.Class: java.lang.String getName()>/%this -> [[]:ConstantObj{java.lang.Class: TypeSens.class}]
+[java.lang.String]:<java.lang.String: int hashCode()>/%this -> [[]:ConstantObj{java.lang.String: "xxx"}]
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TypeSens: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <TypeSens: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
+

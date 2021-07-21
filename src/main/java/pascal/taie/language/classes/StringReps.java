@@ -34,6 +34,8 @@ public class StringReps {
 
     public static final String CLASS = "java.lang.Class";
 
+    public static final String ARRAY = "java.lang.reflect.Array";
+
     public static final String CONSTRUCTOR = "java.lang.reflect.Constructor";
 
     public static final String METHOD = "java.lang.reflect.Method";
@@ -75,7 +77,11 @@ public class StringReps {
 
     public static final String THROWABLE = "java.lang.Throwable";
 
+    public static final String CALL_SITE = "java.lang.invoke.CallSite";
+
     public static final String METHOD_HANDLE = "java.lang.invoke.MethodHandle";
+
+    public static final String LOOKUP = "java.lang.invoke.MethodHandles$Lookup";
 
     public static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
 
@@ -140,6 +146,8 @@ public class StringReps {
     // Subsignatures of special methods
     public static final String CLINIT = "void <clinit>()";
 
+    public static final String INIT_NO_ARG = "void <init>()";
+
     // Signatures of special methods
     public static final String FINALIZE = "<java.lang.Object: void finalize()>";
 
@@ -150,6 +158,14 @@ public class StringReps {
     public static final String LAMBDA_METAFACTORY = "<java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)>";
 
     public static final String LAMBDA_ALTMETAFACTORY = "<java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite altMetafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.Object[])>";
+
+    public static final String INVOKEDYNAMIC_FINDVIRTUAL = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>";
+
+    public static final String INVOKEDYNAMIC_FINDSTATIC = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>";
+
+    public static final String INVOKEDYNAMIC_FINDSPECIAL = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findSpecial(java.lang.Class,java.lang.String,java.lang.invoke.MethodType,java.lang.Class)>";
+
+    public static final String INVOKEDYNAMIC_FINDCONSTRUCTOR = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>";
 
     // Signatures of special fields
     public static final String REFERENCE_PENDING = "<java.lang.ref.Reference: java.lang.ref.Reference pending>";
@@ -245,5 +261,9 @@ public class StringReps {
         if (index < 0) {
             throw new AnalysisException(signature + " is not valid signature");
         }
+    }
+
+    public static String getBaseTypeNameOf(String arrayTypeName) {
+        return arrayTypeName.replace("[]", "");
     }
 }

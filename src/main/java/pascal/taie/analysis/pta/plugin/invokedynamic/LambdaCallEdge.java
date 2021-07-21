@@ -17,49 +17,54 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.util.HashUtils;
 
 import java.util.List;
 
+/**
+ * Represents call edge on lambda functional object.
+ * The edge carries the information about invokedynamic invocation site
+ * where the lambda functional object was created.
+ */
 class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
 
-    private Var invokeResult;
+    private final InvokeDynamic lambdaIndy;
 
-    private List<Var> capturedValues;
+    private final Context lambdaContext;
 
-    private Context lambdaContext;
-
-    public LambdaCallEdge(CSCallSite csCallSite, CSMethod callee) {
+    LambdaCallEdge(CSCallSite csCallSite, CSMethod callee,
+                   InvokeDynamic lambdaIndy, Context lambdaContext) {
         super(CallKind.OTHER, csCallSite, callee);
-    }
-
-    public void setLambdaParams(Var invokeResult, List<Var> capturedValues, Context lambdaContext) {
-        this.invokeResult = invokeResult;
-        this.capturedValues = capturedValues;
+        this.lambdaIndy = lambdaIndy;
         this.lambdaContext = lambdaContext;
     }
 
-    public Var getInvokeResult() {
-        return invokeResult;
+    List<Var> getCapturedArgs() {
+        return lambdaIndy.getArgs();
     }
 
-    public void setInvokeResult(Var invokeResult) {
-        this.invokeResult = invokeResult;
-    }
-
-    public List<Var> getCapturedValues() {
-        return capturedValues;
-    }
-
-    public void setCapturedValues(List<Var> capturedValues) {
-        this.capturedValues = capturedValues;
-    }
-
-    public Context getLambdaContext() {
+    Context getLambdaContext() {
         return lambdaContext;
     }
 
-    public void setLambdaContext(Context lambdaContext) {
-        this.lambdaContext = lambdaContext;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) return false;
+        LambdaCallEdge that = (LambdaCallEdge) o;
+        return lambdaIndy.equals(that.lambdaIndy) &&
+                lambdaContext.equals(that.lambdaContext);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.hash(super.hashCode(), lambdaIndy, lambdaContext);
     }
 }

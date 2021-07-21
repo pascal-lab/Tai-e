@@ -13,9 +13,13 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.InvokeInterface;
+import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
+import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
@@ -75,8 +79,24 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
         return invokeExp.getMethodRef();
     }
 
+    public boolean isVirtual() {
+        return invokeExp instanceof InvokeVirtual;
+    }
+
+    public boolean isInterface() {
+        return invokeExp instanceof InvokeInterface;
+    }
+
+    public boolean isSpecial() {
+        return invokeExp instanceof InvokeSpecial;
+    }
+
     public boolean isStatic() {
         return invokeExp instanceof InvokeStatic;
+    }
+
+    public boolean isDynamic() {
+        return invokeExp instanceof InvokeDynamic;
     }
 
     public JMethod getContainer() {

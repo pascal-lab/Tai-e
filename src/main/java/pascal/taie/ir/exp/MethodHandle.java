@@ -49,6 +49,10 @@ public class MethodHandle implements ReferenceLiteral {
         return new MethodHandle(kind, memberRef);
     }
 
+    public Kind getKind() {
+        return kind;
+    }
+
     public boolean isMethodRef() {
         switch (kind) {
             case REF_invokeStatic:

@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta;
 
+import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
@@ -21,12 +22,15 @@ import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.solver.SolverImpl;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
+import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionHandler;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
-import pascal.taie.analysis.pta.plugin.reflection.ReflectionPlugin;
+import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
+import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
+import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
 
@@ -89,23 +93,27 @@ public class PointerAnalysis extends InterproceduralAnalysis {
 
     private void setPlugin(SolverImpl solver) {
         CompositePlugin plugin = new CompositePlugin();
-        // To record elapsed time precisely, AnalysisTimer should be
-        // added at first.
+        // To record elapsed time precisely, AnalysisTimer should be added at first.
         // TODO: remove such order dependency
         plugin.addPlugin(
                 new AnalysisTimer(),
+                new ClassInitializer(),
                 new ThreadHandler(),
                 new ReferenceHandler(),
-                new ReflectionPlugin(),
                 new ExceptionHandler(),
+                new ReflectionAnalysis(),
                 new ResultProcessor()
         );
-//        if (World.getOptions().getJavaVersion() >= 7) {
-//            plugin.addPlugin(new InvokedynamicPlugin());
-//        }
-//        if (World.getOptions().getJavaVersion() >= 8) {
-//            plugin.addPlugin(new LambdaPlugin());
-//        }
+        if (World.getOptions().getJavaVersion() < 9) {
+            // current reference handler doesn't support Java 9+
+            plugin.addPlugin(new ReferenceHandler());
+        }
+        if (World.getOptions().getJavaVersion() >= 7) {
+            plugin.addPlugin(new InvokeDynamicAnalysis());
+        }
+        if (World.getOptions().getJavaVersion() >= 8) {
+            plugin.addPlugin(new LambdaAnalysis());
+        }
         plugin.setSolver(solver);
         solver.setPlugin(plugin);
     }

@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 public class InvokeDynamicTest {
 
-    private static final String CP = "test-resources/pta/invokedynamic";
+    private static final String CP = "src/test/resources/pta/invokedynamic";
 
     private static final boolean isPrintIR = true;
 

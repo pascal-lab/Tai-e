@@ -15,7 +15,6 @@ package pascal.taie.analysis.exception;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.DefinitionStmt;
@@ -108,7 +107,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     }
 
     private static Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
-        return invoke.getInvokeExp() instanceof InvokeDynamic ?
+        return invoke.isDynamic() ?
                 List.of() : // InvokeDynamic.getMethodRef() is unavailable
                 invoke.getMethodRef().resolve().getExceptions();
     }

@@ -230,4 +230,3 @@ public class ExceptionHandler implements Plugin {
         return newExceptions;
     }
 }
-

@@ -30,7 +30,7 @@ public class CFGTest {
 
     private static void test(String main, String exception) {
         String[] args = new String[] {
-                "-pp", "-cp", "test-resources/basic", "-m", main,
+                "-pp", "-cp", "src/test/resources/basic", "-m", main,
                 "-a", ThrowAnalysis.ID + "=exception:" + exception,
                 "-a", CFGBuilder.ID + "=exception:" + exception + ";dump:true"
         };

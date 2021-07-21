@@ -1,0 +1,18 @@
+Array.newInstance;U[];ReflectiveAction.arraynew;60;;
+Class.forName;U;ReflectiveAction.arraynew;59;;
+Class.forName;U;ReflectiveAction.forname;30;;
+Class.forName;W;ReflectiveAction.forname;38;;
+Class.forName;W;ReflectiveAction.forname;41;;
+Class.forName;void;ReflectiveAction.forname;34;;
+Class.newInstance;U;ReflectiveAction.cnew;47;;
+Class.newInstance;U;ReflectiveAction.forname;31;;
+Class.newInstance;V;ReflectiveAction.forname;35;;
+Constructor.newInstance;<U: void <init>()>;java.lang.Class.newInstance;;isAccessible=true;
+Constructor.newInstance;<U: void <init>(V)>;ReflectiveAction.ctornew;54;isAccessible=false;
+Constructor.newInstance;<V: void <init>()>;java.lang.Class.newInstance;;isAccessible=true;
+Field.get*;<U: java.lang.Object inst>;ReflectiveAction.get;83;isAccessible=false;
+Field.get*;<U: java.lang.Object stat>;ReflectiveAction.get;78;isAccessible=false;
+Field.set*;<U: java.lang.Object inst>;ReflectiveAction.set;94;isAccessible=false;
+Field.set*;<U: java.lang.Object stat>;ReflectiveAction.set;90;isAccessible=false;
+Method.invoke;<U: java.lang.Object baz(V,java.lang.String)>;ReflectiveAction.invoke;71;isAccessible=false;
+Method.invoke;<U: void staticFoo(java.lang.Object)>;ReflectiveAction.invoke;67;isAccessible=false;

@@ -1,0 +1,28 @@
+Points-to sets of all variables
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}, NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]:<java.lang.Object: void <init>()>/%this -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<A: java.lang.Object getMyObject()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<A: java.lang.Object getMyObject()>/temp$0 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<A: void <init>()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}, NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]:<java.lang.Object: void <init>()>/%this -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<A: java.lang.Object getMyObject()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<A: java.lang.Object getMyObject()>/temp$0 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<A: void <init>()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]
+[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/a1 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/a2 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/o1 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/o2 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$2 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:0(@L4)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/temp$3 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>:3(@L5)/new A}]:NewObj{<A: java.lang.Object getMyObject()>:0(@L13)/new java.lang.Object}]
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <SpecialHeapContext: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
+

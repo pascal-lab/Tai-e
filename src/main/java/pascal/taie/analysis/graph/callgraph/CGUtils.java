@@ -21,9 +21,12 @@ import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.StreamUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,12 +96,77 @@ public class CGUtils {
                     .forEach(caller ->
                             callGraph.callSitesIn(caller)
                                     .sorted(Comparator.comparing(Invoke::getIndex))
+                                    .filter(callSite ->
+                                            !StreamUtils.isEmpty(callGraph.calleesOf(callSite)))
                                     .forEach(callSite ->
                                             out.println(toString(callSite) + SEP +
                                                     toString(callGraph.calleesOf(callSite)))));
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump call graph to " + outFile, e);
         }
+    }
+
+    static void dumpMethods(CallGraph<Invoke, JMethod> callGraph, String output) {
+        File outFile = new File(output);
+        try (PrintStream out =
+                     new PrintStream(new FileOutputStream(outFile))) {
+            logger.info("Dumping reachable methods to {} ...", outFile);
+            callGraph.reachableMethods()
+                    .map(JMethod::getSignature)
+                    .sorted()
+                    .forEach(out::println);
+        } catch (FileNotFoundException e) {
+            logger.warn("Failed to dump reachable methods to " + outFile, e);
+        }
+    }
+
+    static void dumpCallEdges(CallGraph<Invoke, JMethod> callGraph, String output) {
+        File outFile = new File(output);
+        try (PrintStream out =
+                     new PrintStream(new FileOutputStream(outFile))) {
+            logger.info("Dumping call edges to {} ...", outFile);
+            callGraph.reachableMethods()
+                    // sort callers
+                    .sorted(Comparator.comparing(JMethod::getSignature))
+                    .forEach(m -> getInvokeReps(m).forEach((invoke, rep) ->
+                            callGraph.calleesOf(invoke)
+                                    .sorted(Comparator.comparing(JMethod::getSignature))
+                                    .forEach(callee -> out.println(rep + "\t" + callee))));
+        } catch (FileNotFoundException e) {
+            logger.warn("Failed to dump call graph edges to " + outFile, e);
+        }
+    }
+
+    /**
+     * @return a map from Invoke to its string representation in given method.
+     */
+    private static Map<Invoke, String> getInvokeReps(JMethod caller) {
+        Map<String, Integer> counter = MapUtils.newMap();
+        Map<Invoke, String> invokeReps =
+                new TreeMap<>(Comparator.comparing(Invoke::getIndex));
+        caller.getIR().getStmts().forEach(s -> {
+            if (s instanceof Invoke) {
+                Invoke invoke = (Invoke) s;
+                if (invoke.isDynamic()) { // skip invokedynamic
+                    return;
+                }
+                MethodRef ref = invoke.getMethodRef();
+                String target = ref.getDeclaringClass().getName() + "." + ref.getName();
+                int n = getInvokeNumber(target, counter);
+                String rep = caller + "/" + target + "/" + n;
+                invokeReps.put(invoke, rep);
+            }
+        });
+        return invokeReps;
+    }
+
+    private static int getInvokeNumber(String target, Map<String, Integer> counter) {
+        Integer n = counter.get(target);
+        if (n == null) {
+            n = 0;
+        }
+        counter.put(target, n + 1);
+        return n;
     }
 
     /**

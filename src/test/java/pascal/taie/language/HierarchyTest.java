@@ -18,8 +18,8 @@ import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.ir.proginfo.FieldResolutionFailedException;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.classes.FieldResolutionFailedException;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -38,7 +38,7 @@ public class HierarchyTest {
 
     @BeforeClass
     public static void buildWorld() {
-        Main.buildWorld("-cp", "test-resources/basic", "-m", "Hierarchy");
+        Main.buildWorld("-cp", "src/test/resources/basic", "-m", "Hierarchy");
     }
 
     // ---------- Test subclass checking Subclass() ----------

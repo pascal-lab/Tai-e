@@ -34,12 +34,12 @@ public class TestUtils {
     private static final boolean GENERATE_EXPECTED_RESULTS = false;
 
     public static void testCP(String inputClass) {
-        testIntra(inputClass, "test-resources/dataflow/constprop/",
+        testIntra(inputClass, "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID);
     }
 
     public static void testDCD(String inputClass) {
-        testIntra(inputClass, "test-resources/dataflow/deadcode/",
+        testIntra(inputClass, "src/test/resources/dataflow/deadcode/",
                 DeadCodeDetection.ID);
     }
 
@@ -66,7 +66,7 @@ public class TestUtils {
     public static void testCHA(String main) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
-        String classPath = "test-resources/cha/";
+        String classPath = "src/test/resources/cha/";
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
@@ -77,25 +77,30 @@ public class TestUtils {
         Main.main(args.toArray(new String[0]));
     }
 
-    public static void testCSPTA(String main, String... opts) {
+    public static void testPTA(String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
-        String classPath = "test-resources/pta/cspta/";
+        args.add("-pp");
+        String classPath = "src/test/resources/pta/" + dir;
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
+        List<String> ptaArgs = new ArrayList<>();
+        ptaArgs.add("implicit-entries:false");
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
+        ptaArgs.add("action:" + action);
         String file = Paths.get(classPath, main + "-expected.txt").toString();
-        // ignore implicit entries in test mode
-        String suffix = String.format("implicit-entries:false;action:%s;file:%s",
-                action, file);
-        String ptaArg = "pta=" + suffix;
+        ptaArgs.add("file:" + file);
+        boolean specifyOnlyApp = false;
         for (String opt : opts) {
-            if (opt.startsWith("pta")) {
-                ptaArg = opt + ";" + suffix;
-            } else {
-                args.add(opt);
+            ptaArgs.add(opt);
+            if (opt.contains("only-app")) {
+                specifyOnlyApp = true;
             }
         }
-        Collections.addAll(args, "-a", ptaArg);
+        if (!specifyOnlyApp) {
+            // if given options do not specify only-app, then set it true
+            ptaArgs.add("only-app:true");
+        }
+        Collections.addAll(args, "-a", "pta=" + String.join(";", ptaArgs));
         Main.main(args.toArray(new String[0]));
     }
 }
