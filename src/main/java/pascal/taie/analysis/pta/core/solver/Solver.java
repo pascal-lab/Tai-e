@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
@@ -25,6 +24,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
@@ -50,7 +50,7 @@ public interface Solver {
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
-    PTABasedThrowResult getPTABasedThrowResult();
+    PTAThrowResult getThrowResult();
 
     void solve();
 

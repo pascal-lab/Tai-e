@@ -15,35 +15,44 @@ package pascal.taie.analysis.exception;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Throw;
+import pascal.taie.language.type.ClassType;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Analyzes explicit exceptions based on pointer analysis.
  */
 class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
-    private PTABasedThrowResult ptaBasedThrowResult;
+    private final PTAThrowResult ptaBasedThrowResult;
 
-    PTABasedExplicitThrowAnalysis(){
-        PointerAnalysisResult solver= World.getResult(PointerAnalysis.ID);
-        this.ptaBasedThrowResult= solver.getPTABasedThrowResult();
+    PTABasedExplicitThrowAnalysis() {
+        PointerAnalysisResult solver = World.getResult(PointerAnalysis.ID);
+        this.ptaBasedThrowResult = solver.getThrowResult();
     }
 
     @Override
     public void analyze(IR ir, ThrowResult result) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Collection<Obj> mayThrowExplicitly(IR ir){
-        return ptaBasedThrowResult.mayThrowExplicitly(ir);
-    }
-
-    public Collection<Obj> mayThrowExplicitly(IR ir, Stmt stmt){
-        return ptaBasedThrowResult.mayThrowExplicitly(ir,stmt);
+        ptaBasedThrowResult.getResult(ir.getMethod())
+                .ifPresent(ptaResult ->
+                        ir.getStmts().forEach(stmt -> {
+                            Collection<ClassType> exceptions = ptaResult.mayThrow(stmt)
+                                    .stream()
+                                    .map(o -> (ClassType) o.getType())
+                                    .collect(Collectors.toUnmodifiableSet());
+                            if (!exceptions.isEmpty()) {
+                                if (stmt instanceof Throw) {
+                                    result.addExplicit((Throw) stmt, exceptions);
+                                } else if (stmt instanceof Invoke) {
+                                    result.addExplicit((Invoke) stmt, exceptions);
+                                }
+                            }
+                        })
+                );
     }
 }

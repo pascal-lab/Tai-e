@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
@@ -25,6 +24,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -57,18 +57,21 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
     private final CallGraph<CSCallSite, CSMethod> csCallGraph;
 
     /**
+     * PTA-based throw analysis result.
+     */
+    private final PTAThrowResult throwResult;
+
+    /**
      * Call graph (context projected out).
      */
     private CallGraph<Invoke, JMethod> callGraph;
 
-    private PTABasedThrowResult ptaBasedThrowResult;
-
     PointerAnalysisResultImpl(CSManager csManager,
                               CallGraph<CSCallSite, CSMethod> csCallGraph,
-                              PTABasedThrowResult ptaBasedThrowResult) {
+                              PTAThrowResult throwResult) {
         this.csManager = csManager;
         this.csCallGraph = csCallGraph;
-        this.ptaBasedThrowResult=ptaBasedThrowResult;
+        this.throwResult = throwResult;
     }
 
     @Override
@@ -165,8 +168,8 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
     }
 
     @Override
-    public PTABasedThrowResult getPTABasedThrowResult(){
-        return this.ptaBasedThrowResult;
+    public PTAThrowResult getThrowResult(){
+        return this.throwResult;
     }
 
     /**

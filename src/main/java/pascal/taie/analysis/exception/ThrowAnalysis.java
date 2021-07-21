@@ -16,8 +16,6 @@ import pascal.taie.analysis.IntraproceduralAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 
-import javax.annotation.Nullable;
-
 public class ThrowAnalysis extends IntraproceduralAnalysis {
 
     public static final String ID = "throw";
@@ -25,7 +23,6 @@ public class ThrowAnalysis extends IntraproceduralAnalysis {
     /**
      * If this field is null, then this analysis ignores implicit exceptions.
      */
-    @Nullable
     private final ImplicitThrowAnalysis implicitThrowAnalysis;
 
     private final ExplicitThrowAnalysis explicitThrowAnalysis;

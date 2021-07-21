@@ -18,7 +18,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ public class ThrowResult {
      * If this field is null, then this result returns empty collection
      * for implicit exceptions.
      */
-    @Nullable
     private final ImplicitThrowAnalysis implicit;
 
     private final Map<Stmt, Collection<ClassType>> explicitExceptions = newHybridMap();

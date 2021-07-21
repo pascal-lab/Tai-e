@@ -5,17 +5,17 @@ import pascal.taie.ir.stmt.Stmt;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
-import static java.util.Collections.emptySet;
 import static pascal.taie.util.collection.MapUtils.newHybridMap;
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
 
-class CSMethodExceptionResult {
+class CSMethodThrowResult {
 
     private final Map<Stmt, Collection<CSObj>> explicitExceptions = newHybridMap();
 
-    private final Collection<CSObj> thrownExplicitExceptions = newHybridSet();
+    private final Collection<CSObj> uncaughtExceptions = newHybridSet();
 
     Collection<CSObj> propagateExplicit(Stmt stmt, Collection<CSObj> exceptions) {
         Collection<CSObj> diff = newHybridSet();
@@ -30,14 +30,14 @@ class CSMethodExceptionResult {
     }
 
     void addUncaughtExceptions(Collection<CSObj> exceptions) {
-        thrownExplicitExceptions.addAll(exceptions);
+        uncaughtExceptions.addAll(exceptions);
     }
 
     Collection<CSObj> mayThrow(Stmt stmt) {
-        return explicitExceptions.getOrDefault(stmt, emptySet());
+        return explicitExceptions.getOrDefault(stmt, Set.of());
     }
 
-    Collection<CSObj> getThrownExplicitExceptions() {
-        return this.thrownExplicitExceptions;
+    Collection<CSObj> mayThrowUncaught() {
+        return this.uncaughtExceptions;
     }
 }

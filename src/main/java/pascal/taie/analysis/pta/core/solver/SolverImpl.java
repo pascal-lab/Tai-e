@@ -15,7 +15,6 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
@@ -36,6 +35,7 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
@@ -127,7 +127,7 @@ public class SolverImpl implements Solver {
 
     private StmtProcessor stmtProcessor;
 
-    private final PTABasedThrowResult ptaBasedThrowResult=new PTABasedThrowResult();
+    private final PTAThrowResult throwResult = new PTAThrowResult();
 
     private PointerAnalysisResult result;
 
@@ -136,8 +136,8 @@ public class SolverImpl implements Solver {
         this.hierarchy = World.getClassHierarchy();
     }
 
-    public PTABasedThrowResult getPTABasedThrowResult(){
-        return this.ptaBasedThrowResult;
+    public PTAThrowResult getThrowResult(){
+        return this.throwResult;
     }
 
     @Override
@@ -198,7 +198,7 @@ public class SolverImpl implements Solver {
     @Override
     public PointerAnalysisResult getResult() {
         if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, callGraph, ptaBasedThrowResult);
+            result = new PointerAnalysisResultImpl(csManager, callGraph, throwResult);
         }
         return result;
     }

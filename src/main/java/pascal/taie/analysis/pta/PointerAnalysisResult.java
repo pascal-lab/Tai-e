@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.pta;
 
-import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -22,6 +21,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
@@ -70,5 +70,5 @@ public interface PointerAnalysisResult {
 
     CallGraph<Invoke, JMethod> getCallGraph();
 
-    PTABasedThrowResult getPTABasedThrowResult();
+    PTAThrowResult getThrowResult();
 }

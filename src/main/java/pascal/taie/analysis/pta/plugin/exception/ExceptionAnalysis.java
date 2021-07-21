@@ -1,7 +1,6 @@
 package pascal.taie.analysis.pta.plugin.exception;
 
 import pascal.taie.analysis.exception.CatchAnalysis;
-import pascal.taie.analysis.exception.PTABasedThrowResult;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -21,7 +20,6 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.MapUtils;
 
@@ -32,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
-
 
 public class ExceptionAnalysis implements Plugin {
 
@@ -46,7 +43,7 @@ public class ExceptionAnalysis implements Plugin {
     private final Map<JMethod, Map<Stmt, List<ExceptionEntry>>> catchers =
             MapUtils.newMap(1024);
 
-    private final Map<CSMethod, CSMethodExceptionResult> csMethodResultMap = MapUtils.newMap();
+    private final Map<CSMethod, CSMethodThrowResult> csMethodResultMap = MapUtils.newMap();
 
     private final ExceptionWorkList workList = new ExceptionWorkList();
 
@@ -54,14 +51,14 @@ public class ExceptionAnalysis implements Plugin {
 
     private TypeManager typeManager;
 
-    private PTABasedThrowResult ptaBasedThrowResult;
+    private PTAThrowResult throwResult;
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         this.csManager = solver.getCSManager();
         this.typeManager = solver.getTypeManager();
-        this.ptaBasedThrowResult = solver.getPTABasedThrowResult();
+        this.throwResult = solver.getThrowResult();
     }
 
     @Override
@@ -95,11 +92,11 @@ public class ExceptionAnalysis implements Plugin {
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         CSMethod callee = edge.getCallee();
-        CSMethodExceptionResult result = csMethodResultMap.get(callee);
+        CSMethodThrowResult result = csMethodResultMap.get(callee);
         if (result != null) {
             CSMethod caller = edge.getCallSite().getContainer();
             Invoke invoke = edge.getCallSite().getCallSite();
-            Collection<CSObj> exceptions = result.getThrownExplicitExceptions();
+            Collection<CSObj> exceptions = result.mayThrowUncaught();
             workList.addEntry(caller, invoke, exceptions);
             propagateExceptions();
         }
@@ -111,7 +108,7 @@ public class ExceptionAnalysis implements Plugin {
             CSMethod csMethod = entry.csMethod;
             Stmt stmt = entry.stmt;
             Collection<CSObj> exceptions = entry.exceptions;
-            CSMethodExceptionResult result = getOrCreateResult(csMethod);
+            CSMethodThrowResult result = getOrCreateResult(csMethod);
             Collection<CSObj> diff = result.propagateExplicit(stmt, exceptions);
             if (!diff.isEmpty()) {
                 Collection<CSObj> uncaught = analyzeIntraUncaught(
@@ -130,9 +127,9 @@ public class ExceptionAnalysis implements Plugin {
         }
     }
 
-    private CSMethodExceptionResult getOrCreateResult(CSMethod csMethod) {
+    private CSMethodThrowResult getOrCreateResult(CSMethod csMethod) {
         return csMethodResultMap.computeIfAbsent(csMethod,
-                k -> new CSMethodExceptionResult());
+                k -> new CSMethodThrowResult());
     }
 
     /**
@@ -148,20 +145,18 @@ public class ExceptionAnalysis implements Plugin {
             Stmt currentStmt,
             Collection<CSObj> newExceptions,
             CSMethod csMethod) {
-        List<ExceptionEntry> exceptionEntries =
-                catchers.get(csMethod.getMethod()).get(currentStmt);
-        if (exceptionEntries != null) {
+        List<ExceptionEntry> entries = catchers.get(csMethod.getMethod())
+                .get(currentStmt);
+        if (entries != null) {
             Context ctx = csMethod.getContext();
-            for (ExceptionEntry exceptionEntry : exceptionEntries) {
+            for (ExceptionEntry entry : entries) {
                 Collection<CSObj> uncaughtExceptions = newHybridSet();
                 newExceptions.forEach(newException -> {
-                    Context heapCtx = newException.getContext();
-                    Obj exceptionObj = newException.getObject();
-                    Type t = exceptionObj.getType();
-                    if (typeManager.isSubtype(exceptionEntry.getCatchType(), t)) {
-                        Catch catchStmt = exceptionEntry.getHandler();
+                    Obj exObj = newException.getObject();
+                    if (typeManager.isSubtype(entry.getCatchType(), exObj.getType())) {
+                        Catch catchStmt = entry.getHandler();
                         Var exceptionRef = catchStmt.getExceptionRef();
-                        solver.addVarPointsTo(ctx, exceptionRef, heapCtx, exceptionObj);
+                        solver.addVarPointsTo(ctx, exceptionRef, newException);
                     } else {
                         uncaughtExceptions.add(newException);
                     }
@@ -174,12 +169,10 @@ public class ExceptionAnalysis implements Plugin {
 
     @Override
     public void onFinish() {
-        csMethodResultMap.forEach((csMethod, csMethodExceptionResult) -> {
+        csMethodResultMap.forEach((csMethod, csMethodThrowResult) -> {
             JMethod method = csMethod.getMethod();
-            MethodExceptionResult methodExceptionResult =
-                    ptaBasedThrowResult.getExceptionResult(method);
-            methodExceptionResult.
-                    addCSMethodExceptionResult(csMethodExceptionResult);
+            MethodThrowResult result = throwResult.getOrCreateResult(method);
+            result.addCSMethodThrowResult(csMethodThrowResult);
         });
     }
 }

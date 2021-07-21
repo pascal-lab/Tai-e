@@ -33,7 +33,7 @@ class ExceptionWorkList {
 
         final Collection<CSObj> exceptions;
 
-        public Entry(CSMethod csMethod, Stmt stmt,
+        Entry(CSMethod csMethod, Stmt stmt,
                      Collection<CSObj> exceptions) {
             this.csMethod = csMethod;
             this.stmt = stmt;
