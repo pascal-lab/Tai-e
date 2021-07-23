@@ -46,6 +46,9 @@ public class ExceptionAnalysis implements Plugin {
     private final Map<JMethod, Map<Stmt, List<ExceptionEntry>>> catchers =
             MapUtils.newMap(1024);
 
+    /**
+     * List of exception entries for solving exception propagation
+     */
     private final ExceptionWorkList workList = new ExceptionWorkList();
 
     private CSManager csManager;
@@ -62,6 +65,14 @@ public class ExceptionAnalysis implements Plugin {
         this.throwResult = solver.getThrowResult();
     }
 
+    /**
+     * Establish the map from all exception references to related throw
+     * statements in the new method, and as for the throw statements in
+     * the new method, analyze all the exception entries that handle the
+     * exceptions thrown by the statements according to the processing order.
+     *
+     * @param method the method that the solver meet now
+     */
     @Override
     public void onNewMethod(JMethod method) {
         IR ir = method.getIR();
@@ -75,6 +86,13 @@ public class ExceptionAnalysis implements Plugin {
         catchers.put(method, CatchAnalysis.getPotentialCatchers(ir));
     }
 
+    /**
+     * If the csVar is an exception reference, propagate all the exception
+     * it newly throws.
+     *
+     * @param csVar variable pointer
+     * @param pts objects added to the csVar points to set
+     */
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Set<Throw> throwStmts = var2Throws.get(csVar.getVar());
@@ -90,6 +108,13 @@ public class ExceptionAnalysis implements Plugin {
         }
     }
 
+    /**
+     * For a new call edge, the exception thrown by the callee method flow
+     * into the invoker, and thrown by the invoke statement, then we propagate
+     * the thrown exceptions.
+     *
+     * @param edge the newly established call edge
+     */
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         CSMethod callee = edge.getCallee();
@@ -102,6 +127,12 @@ public class ExceptionAnalysis implements Plugin {
         });
     }
 
+    /**
+     * When a statements throws new exceptions, call analyzeIntraUncaught to
+     * catch these thrown exceptions. If there are uncaught exceptions in the
+     * method, they will flow to other instructions calling the method.
+     * Perform an analysis for the flowing process of exception objects.
+     */
     private void propagateExceptions() {
         while (!workList.isEmpty()) {
             ExceptionWorkList.Entry entry = workList.pollEntry();
