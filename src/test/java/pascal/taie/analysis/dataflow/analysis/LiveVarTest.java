@@ -18,7 +18,7 @@ import pascal.taie.analysis.TestUtils;
 public class LiveVarTest {
 
     @Test
-    public void testLiveVar() {
+    public void test() {
         TestUtils.testIntra("LiveVar", "src/test/resources/dataflow/",
                 LiveVariableAnalysis.ID);
     }

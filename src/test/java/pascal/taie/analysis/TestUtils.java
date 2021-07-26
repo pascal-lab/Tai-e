@@ -15,10 +15,7 @@ package pascal.taie.analysis;
 import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
-import pascal.taie.analysis.dataflow.analysis.LiveVariableAnalysis;
 import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
-import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 
@@ -39,16 +36,6 @@ public class TestUtils {
      * Whether dump control-flow graphs or not.
      */
     private static final boolean DUMP_CFG = false;
-
-    public static void testCP(String inputClass) {
-        testIntra(inputClass, "src/test/resources/dataflow/constprop/",
-                ConstantPropagation.ID);
-    }
-
-    public static void testDCD(String inputClass) {
-        testIntra(inputClass, "src/test/resources/dataflow/deadcode/",
-                DeadCodeDetection.ID);
-    }
 
     public static void testIntra(String main, String classPath, String id) {
         List<String> args = new ArrayList<>();

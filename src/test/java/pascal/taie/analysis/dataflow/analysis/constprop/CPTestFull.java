@@ -13,72 +13,71 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
 
 public class CPTestFull {
 
     @Test
     public void testSimpleConstant() {
-        TestUtils.testCP("SimpleConstant");
+        CPTest.testCP("SimpleConstant");
     }
 
     @Test
     public void testSimpleBinary() {
-        TestUtils.testCP("SimpleBinary");
+        CPTest.testCP("SimpleBinary");
     }
 
     @Test
     public void testSimpleBranch() {
-        TestUtils.testCP("SimpleBranch");
+        CPTest.testCP("SimpleBranch");
     }
 
     @Test
     public void testSimpleBoolean() {
-        TestUtils.testCP("SimpleBoolean");
+        CPTest.testCP("SimpleBoolean");
     }
 
     @Test
     public void testAssign() {
-        TestUtils.testCP("Assign");
+        CPTest.testCP("Assign");
     }
 
     @Test
     public void testBinaryOp() {
-        TestUtils.testCP("BinaryOp");
+        CPTest.testCP("BinaryOp");
     }
 
     @Test
     public void testBranchConstant() {
-        TestUtils.testCP("BranchConstant");
+        CPTest.testCP("BranchConstant");
     }
 
     @Test
     public void testBranchNAC() {
-        TestUtils.testCP("BranchNAC");
+        CPTest.testCP("BranchNAC");
     }
 
     @Test
     public void testBranchUndef() {
-        TestUtils.testCP("BranchUndef");
+        CPTest.testCP("BranchUndef");
     }
 
     @Test
     public void testLoop() {
-        TestUtils.testCP("Loop");
+        CPTest.testCP("Loop");
     }
 
     @Test
     public void testInterprocedural() {
-        TestUtils.testCP("Interprocedural");
+        CPTest.testCP("Interprocedural");
     }
 
     @Test(expected = AssertionError.class)
     public void testBoolean() {
-        TestUtils.testCP("Boolean");
+        CPTest.testCP("Boolean");
     }
 
     @Test(expected = AssertionError.class)
     public void testVariousBinaryOp() {
-        TestUtils.testCP("VariousBinaryOp");
+        CPTest.testCP("VariousBinaryOp");
     }
 }

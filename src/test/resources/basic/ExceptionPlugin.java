@@ -1,8 +1,4 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.rmi.RemoteException;
-
-public class ExceptionPlugin{
+public class ExceptionPlugin {
     public static void main(String[] args) {
         try {
             m();
