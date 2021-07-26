@@ -15,11 +15,11 @@ package pascal.taie.analysis.dataflow.analysis;
 import org.junit.Test;
 import pascal.taie.analysis.TestUtils;
 
-public class LiveVarTest {
+public class ReachDefTest {
 
     @Test
-    public void testLiveVar() {
-        TestUtils.testIntra("LiveVar", "src/test/resources/dataflow/",
-                LiveVariableAnalysis.ID);
+    public void test() {
+        TestUtils.testIntra("ReachDef", "src/test/resources/dataflow/",
+                ReachingDefinitionAnalysis.ID);
     }
 }

@@ -40,11 +40,6 @@ public class TestUtils {
      */
     private static final boolean DUMP_CFG = false;
 
-    public static void testLV(String inputClass) {
-        testIntra(inputClass, "src/test/resources/dataflow/",
-                LiveVariableAnalysis.ID);
-    }
-
     public static void testCP(String inputClass) {
         testIntra(inputClass, "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID);
@@ -55,7 +50,7 @@ public class TestUtils {
                 DeadCodeDetection.ID);
     }
 
-    private static void testIntra(String main, String classPath, String id) {
+    public static void testIntra(String main, String classPath, String id) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);

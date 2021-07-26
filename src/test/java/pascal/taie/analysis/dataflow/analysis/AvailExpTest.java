@@ -14,12 +14,13 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
 import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpressionAnalysis;
 
-public class LiveVarTest {
+public class AvailExpTest {
 
     @Test
-    public void testLiveVar() {
-        TestUtils.testIntra("LiveVar", "src/test/resources/dataflow/",
-                LiveVariableAnalysis.ID);
+    public void test() {
+        TestUtils.testIntra("AvailExp", "src/test/resources/dataflow/",
+                AvailableExpressionAnalysis.ID);
     }
 }
