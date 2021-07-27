@@ -222,7 +222,7 @@ public class CGUtils {
         }
     }
 
-    private static String toString(Invoke invoke) {
+    public static String toString(Invoke invoke) {
         return invoke.getContainer() + IRPrinter.toString(invoke);
     }
 

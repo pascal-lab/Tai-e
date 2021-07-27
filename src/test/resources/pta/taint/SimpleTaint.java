@@ -1,14 +1,13 @@
 class SimpleTaint {
 
     public static void main(String[] args) {
-        String s = source();
-        sink(s);
-    }
+        String s1 = SourceSink.source();
+        SourceSink.sink(s1);
 
-    static String source() {
-        return new String();
-    }
+        String s2 = SourceSink.source();
+        SourceSink.sink(s2);
 
-    static void sink(String s) {
+        String s3 = args == null ? s1 : s2;
+        SourceSink.sink(s3,0);
     }
 }

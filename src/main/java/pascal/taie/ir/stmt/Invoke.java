@@ -32,7 +32,8 @@ import java.util.Optional;
 /**
  * Representation of invocation statement, e.g., r = o.m(..).
  */
-public class Invoke extends DefinitionStmt<Var, InvokeExp> {
+public class Invoke extends DefinitionStmt<Var, InvokeExp>
+        implements Comparable<Invoke> {
 
     private final InvokeExp invokeExp;
 
@@ -121,6 +122,16 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp> {
     @Override
     public <T> T accept(StmtRVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public int compareTo(Invoke other) {
+        // first compare container methods in alphabet order
+        int container = this.container.toString()
+                .compareTo(other.container.toString());
+        // if both invokes are in the same container method,
+        // then compare their indexes
+        return container != 0 ? container : index - other.index;
     }
 
     @Override
