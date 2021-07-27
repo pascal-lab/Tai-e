@@ -52,6 +52,7 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void setSolver(Solver solver) {
+        this.solver = solver;
         classModel = new ClassModel(solver);
         if (solver.getOptions().getString("reflection-log") != null) {
             metaObjModel = new LogBasedModel(solver);
@@ -59,7 +60,6 @@ public class ReflectionAnalysis implements Plugin {
             metaObjModel = new StringBasedModel(solver);
         }
         reflectiveActionModel = new ReflectiveActionModel(solver);
-        this.solver = solver;
         csManager = solver.getCSManager();
     }
 

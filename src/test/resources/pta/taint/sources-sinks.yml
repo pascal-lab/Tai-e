@@ -1,0 +1,5 @@
+sources:
+  - "<SimpleTaint: java.lang.String source()>"
+
+sinks:
+  - "<SimpleTaint: void sink(java.lang.String)>"
