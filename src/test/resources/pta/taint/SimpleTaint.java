@@ -8,6 +8,6 @@ class SimpleTaint {
         SourceSink.sink(s2);
 
         String s3 = args == null ? s1 : s2;
-        SourceSink.sink(s3,0);
+        SourceSink.sink(s3, 0);
     }
 }
