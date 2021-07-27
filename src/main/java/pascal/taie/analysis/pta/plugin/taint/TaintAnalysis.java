@@ -103,24 +103,19 @@ public class TaintAnalysis implements Plugin {
         // collect taint flows
         PointerAnalysisResult result = solver.getResult();
         List<TaintFlow> taintFlows = new ArrayList<>();
-        result.getCallGraph()
-                .edges()
-                .forEach(edge -> {
-                    JMethod target = edge.getCallee();
-                    if (sinks.contains(target)) {
-                        Invoke sinkCall = edge.getCallSite();
-                        sinkCall.getInvokeExp().getArgs()
-                                .stream()
-                                .map(result::getPointsToSet)
-                                .flatMap(Set::stream)
-                                .forEach(obj -> {
-                                    if (TaintManager.isTaint(obj)) {
-                                        Invoke sourceCall = TaintManager.getSourceCall(obj);
-                                        taintFlows.add(new TaintFlow(sourceCall, sinkCall));
-                                    }
-                                });
-                    }
-                });
+        for (JMethod sink : sinks) {
+            result.getCallGraph().callersOf(sink).forEach(sinkCall ->
+                    sinkCall.getInvokeExp()
+                            .getArgs()
+                            .stream()
+                            .map(result::getPointsToSet)
+                            .flatMap(Set::stream)
+                            .filter(TaintManager::isTaint)
+                            .map(TaintManager::getSourceCall)
+                            .map(sourceCall -> new TaintFlow(sourceCall, sinkCall))
+                            .forEach(taintFlows::add)
+            );
+        }
         // report taint flows
         taintFlows.stream()
                 .distinct()
