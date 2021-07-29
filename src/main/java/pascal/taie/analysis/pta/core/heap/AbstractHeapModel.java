@@ -108,11 +108,6 @@ abstract class AbstractHeapModel implements HeapModel {
                 .computeIfAbsent(value, ConstantObj::new);
     }
 
-    @Override
-    public Obj getMockObj(MockObj obj) {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Merges given object given by its type.
      * @param allocSite the allocation site of the object

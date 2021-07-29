@@ -29,9 +29,4 @@ public interface HeapModel {
      * @return the constant object for given value.
      */
     Obj getConstantObj(ReferenceLiteral value);
-
-    /**
-     * @return the abstract object for given mock object.
-     */
-    Obj getMockObj(MockObj obj);
 }
