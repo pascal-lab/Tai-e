@@ -1,0 +1,20 @@
+Points-to sets of all variables
+[]:<ExceptionTreeAndRecursion: void m()>/$r0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionTreeAndRecursion: void m1()>/$r0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionTreeAndRecursion: void m1()>/$r1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionTreeAndRecursion: void m1()>/r2 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/$r0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/$r1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/r2 -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
+[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/r3 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/r4 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<java.lang.ArithmeticException: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<java.lang.IllegalStateException: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
+

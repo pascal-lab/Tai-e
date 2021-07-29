@@ -31,7 +31,7 @@ public class TestUtils {
     /**
      * If generate expected results.
      */
-    private static final boolean GENERATE_EXPECTED_RESULTS = false;
+    private static final boolean GENERATE_EXPECTED_RESULTS = true;
 
     public static void testCP(String inputClass) {
         testIntra(inputClass, "src/test/resources/dataflow/constprop/",
