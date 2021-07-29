@@ -15,10 +15,9 @@ package pascal.taie.analysis;
 import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
-import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
+import pascal.taie.analysis.graph.cfg.CFGBuilder;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -29,28 +28,30 @@ import java.util.Set;
 public class TestUtils {
 
     /**
-     * If generate expected results.
+     * Whether generate expected results or not.
      */
     private static final boolean GENERATE_EXPECTED_RESULTS = true;
 
-    public static void testCP(String inputClass) {
-        testIntra(inputClass, "src/test/resources/dataflow/constprop/",
-                ConstantPropagation.ID);
-    }
+    /**
+     * Whether dump control-flow graphs or not.
+     */
+    private static final boolean DUMP_CFG = false;
 
-    public static void testDCD(String inputClass) {
-        testIntra(inputClass, "src/test/resources/dataflow/deadcode/",
-                DeadCodeDetection.ID);
-    }
-
-    private static void testIntra(String main, String classPath, String id) {
+    public static void testIntra(String main, String classPath, String id) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
+        if (DUMP_CFG) {
+            // dump control-flow graphs
+            Collections.addAll(args, "-a",
+                    String.format("%s=dump:true", CFGBuilder.ID));
+        }
+        // set up the analysis
         Collections.addAll(args, "-a", id);
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
         String file = Paths.get(classPath, main + "-expected.txt").toString();
+        // set up result processor
         String processArg = String.format("%s=analyses:[%s];action:%s;file:%s",
                 ResultProcessor.ID, id, action, file);
         Collections.addAll(args, "-a", processArg);

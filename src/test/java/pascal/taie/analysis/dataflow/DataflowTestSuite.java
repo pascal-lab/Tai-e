@@ -14,15 +14,21 @@ package pascal.taie.analysis.dataflow;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import pascal.taie.analysis.dataflow.analysis.AvailExpTest;
+import pascal.taie.analysis.dataflow.analysis.LiveVarTest;
+import pascal.taie.analysis.dataflow.analysis.ReachDefTest;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPTestSuite;
 import pascal.taie.analysis.dataflow.analysis.deadcode.DCDTestFull;
 import pascal.taie.analysis.dataflow.fact.FactTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        FactTest.class,
         CPTestSuite.class,
         DCDTestFull.class,
-        FactTest.class,
+        LiveVarTest.class,
+        ReachDefTest.class,
+        AvailExpTest.class,
 })
 public class DataflowTestSuite {
 }

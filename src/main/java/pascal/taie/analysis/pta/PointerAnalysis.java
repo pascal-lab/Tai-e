@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
+import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
 
@@ -113,6 +114,9 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         }
         if (World.getOptions().getJavaVersion() >= 8) {
             plugin.addPlugin(new LambdaAnalysis());
+        }
+        if (getOptions().getBoolean("taint")) {
+            plugin.addPlugin(new TaintAnalysis());
         }
         plugin.setSolver(solver);
         solver.setPlugin(plugin);

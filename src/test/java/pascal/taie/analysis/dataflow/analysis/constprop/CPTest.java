@@ -17,18 +17,23 @@ import pascal.taie.analysis.TestUtils;
 
 public class CPTest {
 
+    static void testCP(String inputClass) {
+        TestUtils.testIntra(inputClass, "src/test/resources/dataflow/constprop/",
+                ConstantPropagation.ID);
+    }
+
     @Test
     public void testSimpleConstant() {
-        TestUtils.testCP("SimpleConstant");
+        testCP("SimpleConstant");
     }
 
     @Test
     public void testSimpleBinary() {
-        TestUtils.testCP("SimpleBinary");
+        testCP("SimpleBinary");
     }
 
     @Test
     public void testSimpleBranch() {
-        TestUtils.testCP("SimpleBranch");
+        testCP("SimpleBranch");
     }
 }

@@ -1,0 +1,31 @@
+-------------------- <ReachDef: void <init>()> (reachdef) --------------------
+[0@L4] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L4] return; []
+
+-------------------- <ReachDef: int foo(int,int,int)> (reachdef) --------------------
+[0@L8] %intconst0 = 0; [%intconst0 = 0]
+[1@L8] if (a > %intconst0) goto 3; [%intconst0 = 0]
+[2@L8] goto 6; [%intconst0 = 0]
+[3@L8] nop; [%intconst0 = 0]
+[4@L9] x = a; [%intconst0 = 0, x = a]
+[5@L8] goto 8; [%intconst0 = 0, x = a]
+[6@L8] nop; [%intconst0 = 0]
+[7@L11] x = b; [%intconst0 = 0, x = b]
+[8@L11] nop; [%intconst0 = 0, x = a, x = b]
+[9@L13] y = x; [%intconst0 = 0, x = a, x = b, y = x]
+[10@L14] x = c; [%intconst0 = 0, x = c, y = x]
+[11@L15] return x; [%intconst0 = 0, x = c, y = x]
+
+-------------------- <ReachDef: int loop(int,int)> (reachdef) --------------------
+[0@L19] nop; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[1@L20] if (a > b) goto 3; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[2@L20] goto 9; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[3@L20] nop; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[4@L21] c = b; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[5@L22] %intconst0 = -1; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[6@L22] temp$0 = a + %intconst0; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[7@L22] a = temp$0; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[8@L20] goto 0; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[9@L20] nop; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+[10@L24] return c; [%intconst0 = -1, a = temp$0, c = b, temp$0 = a + %intconst0]
+

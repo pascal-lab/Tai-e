@@ -12,6 +12,9 @@
     action: null # | dump | compare
     file: null # path to input/output file
     reflection-log: null
+    taint: false # whether enable taint analysis or not
+    taint.sources-sinks: null # path to config file that specifies
+                            # sources and sinks for taint analysis
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
