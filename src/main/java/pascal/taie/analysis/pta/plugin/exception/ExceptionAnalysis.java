@@ -47,7 +47,7 @@ public class ExceptionAnalysis implements Plugin {
             MapUtils.newMap(1024);
 
     /**
-     * List of exception entries for solving exception propagation
+     * Work-list of exception entries to be propagated.
      */
     private final ExceptionWorkList workList = new ExceptionWorkList();
 
@@ -66,10 +66,10 @@ public class ExceptionAnalysis implements Plugin {
     }
 
     /**
-     * Establish the map from all exception references to related throw
-     * statements in the new method, and as for the throw statements in
-     * the new method, analyze all the exception entries that handle the
-     * exceptions thrown by the statements according to the processing order.
+     * Establishes the map from all exception references to related throw
+     * statements in the new-reached method, and as for the throw statements in
+     * the method, analyzes and records all the exception entries that handle
+     * the exceptions thrown by the statements.
      *
      * @param method the method that the solver meet now
      */
@@ -109,9 +109,9 @@ public class ExceptionAnalysis implements Plugin {
     }
 
     /**
-     * For a new call edge, the exception thrown by the callee method flow
-     * into the invoker, and thrown by the invoke statement, then we propagate
-     * the thrown exceptions.
+     * For a new call edge, the exception thrown by the callee method should be
+     * propagated to its callers, and thrown by the invoke statement,
+     * then we propagate the thrown exceptions accordingly.
      *
      * @param edge the newly established call edge
      */
@@ -128,10 +128,11 @@ public class ExceptionAnalysis implements Plugin {
     }
 
     /**
-     * When a statements throws new exceptions, call analyzeIntraUncaught to
-     * catch these thrown exceptions. If there are uncaught exceptions in the
-     * method, they will flow to other instructions calling the method.
-     * Perform an analysis for the flowing process of exception objects.
+     * Propagates exceptions from callees to callers (and callers' caller).
+     * When a statement throws new exceptions, call {@link #analyzeIntraUncaught}
+     * to handle the exceptions that can be caught by the containing method.
+     * If there are uncaught exceptions in the method, they will be propagated
+     * to call site (invoke) of the method.
      */
     private void propagateExceptions() {
         while (!workList.isEmpty()) {

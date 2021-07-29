@@ -20,6 +20,7 @@ import pascal.taie.analysis.pta.core.cs.context.ContextTest;
 @Suite.SuiteClasses({
         ContextTest.class,
         CSPTATest.class,
+        ExceptionTest.class,
         LambdaTest.class,
         ReflectionTest.class,
         TaintTest.class,

@@ -30,7 +30,7 @@ public class TestUtils {
     /**
      * Whether generate expected results or not.
      */
-    private static final boolean GENERATE_EXPECTED_RESULTS = true;
+    private static final boolean GENERATE_EXPECTED_RESULTS = false;
 
     /**
      * Whether dump control-flow graphs or not.
