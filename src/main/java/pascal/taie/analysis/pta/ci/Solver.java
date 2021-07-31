@@ -17,6 +17,7 @@ import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.InvokeExp;
@@ -259,5 +260,9 @@ class Solver {
                 }
             }
         }
+    }
+
+    PointerAnalysisResult getResult() {
+        return new CIPTAResult(pointerFlowGraph, callGraph);
     }
 }

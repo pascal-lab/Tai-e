@@ -16,6 +16,16 @@
     taint.sources-sinks: null # path to config file that specifies
                             # sources and sinks for taint analysis
 
+- description: context-insensitive pointer analysis
+  analysisClass: pascal.taie.analysis.pta.ci.CIPTA
+  id: cipta
+  options:
+    merge-string-constants: false
+    merge-string-objects: false
+    merge-string-builders: false
+    merge-exception-objects: true
+    only-app: false # only analyze application code
+
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   id: cg

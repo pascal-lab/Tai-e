@@ -17,6 +17,7 @@ import pascal.taie.util.collection.SetUtils;
 
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 class PointsToSet {
 
@@ -38,6 +39,10 @@ class PointsToSet {
 
     void forEach(Consumer<Obj> action) {
         set.forEach(action);
+    }
+
+    Stream<Obj> objects() {
+        return set.stream();
     }
 
     @Override

@@ -50,8 +50,8 @@ class PointerFlowGraph {
     /**
      * Returns all pointers in this PFG.
      */
-    Set<Pointer> getPointers() {
-        return pointers;
+    Stream<Pointer> pointers() {
+        return pointers.stream();
     }
 
     /**

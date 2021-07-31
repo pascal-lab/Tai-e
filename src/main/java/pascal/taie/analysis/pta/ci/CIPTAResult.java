@@ -27,24 +27,59 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Pair;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class CIPTAResult implements PointerAnalysisResult {
 
+    private final PointerFlowGraph pointerFlowGraph;
+
+    private final CallGraph<Invoke, JMethod> callGraph;
+
+    /**
+     * Points-to sets of variables.
+     */
+    private final Map<Var, Set<Obj>> varPointsTo = MapUtils.newMap();
+
+    /**
+     * Points-to sets of field expressions, e.g., v.f.
+     */
+    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = MapUtils.newMap();
+
+    private Set<Obj> objects;
+
+    CIPTAResult(PointerFlowGraph pointerFlowGraph,
+                CallGraph<Invoke, JMethod> callGraph) {
+        this.pointerFlowGraph = pointerFlowGraph;
+        this.callGraph = callGraph;
+    }
+
     @Override
     public Stream<Var> vars() {
-        throw new UnsupportedOperationException();
+        return pointerFlowGraph.pointers()
+                .filter(p -> p instanceof VarPtr)
+                .map(p -> ((VarPtr) p).getVar());
     }
 
     @Override
     public Stream<Obj> objects() {
-        throw new UnsupportedOperationException();
+        if (objects == null) {
+            pointerFlowGraph.pointers()
+                    .map(Pointer::getPointsToSet)
+                    .flatMap(PointsToSet::objects)
+                    .collect(Collectors.toUnmodifiableSet());
+        }
+        return objects.stream();
     }
 
     @Override
     public Set<Obj> getPointsToSet(Var var) {
+
         throw new UnsupportedOperationException();
     }
 
@@ -60,7 +95,7 @@ class CIPTAResult implements PointerAnalysisResult {
 
     @Override
     public CallGraph<Invoke, JMethod> getCallGraph() {
-        throw new UnsupportedOperationException();
+        return callGraph;
     }
 
     // ------------------------------------------

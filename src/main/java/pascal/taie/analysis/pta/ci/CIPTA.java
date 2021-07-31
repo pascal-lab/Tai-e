@@ -13,6 +13,7 @@
 package pascal.taie.analysis.pta.ci;
 
 import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.config.AnalysisConfig;
@@ -33,6 +34,8 @@ public class CIPTA extends InterproceduralAnalysis {
         HeapModel heapModel = new AllocationSiteBasedModel(getOptions());
         Solver solver = new Solver(heapModel);
         solver.solve();
-        return null;
+        PointerAnalysisResult result = solver.getResult();
+        new ResultProcessor().process(result);
+        return result;
     }
 }
