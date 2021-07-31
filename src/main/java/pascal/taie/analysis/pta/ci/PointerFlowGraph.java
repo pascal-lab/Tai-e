@@ -18,6 +18,7 @@ import pascal.taie.language.classes.JField;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.MapUtils.newHybridMap;
 import static pascal.taie.util.collection.MapUtils.newMap;
@@ -87,7 +88,7 @@ class PointerFlowGraph {
                 .add(to);
     }
 
-    Set<Pointer> getSuccessorsOf(Pointer pointer) {
-        return successors.getOrDefault(pointer, Set.of());
+    Stream<Pointer> successorsOf(Pointer pointer) {
+        return successors.getOrDefault(pointer, Set.of()).stream();
     }
 }
