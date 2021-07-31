@@ -21,8 +21,18 @@ import pascal.taie.util.collection.MapUtils;
  */
 public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
 
-    @Override
-    public boolean addNewMethod(JMethod method) {
+    /**
+     * Adds an entry method to this call graph.
+     */
+    public void addEntryMethod(JMethod entryMethod) {
+        entryMethods.add(entryMethod);
+        addNewMethod(entryMethod);
+    }
+
+    /**
+     * Adds a new method to this call graph.
+     */
+    public void addNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             if (!method.isAbstract()) {
                 method.getIR().getStmts().forEach(stmt -> {
@@ -33,8 +43,22 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
                     }
                 });
             }
-            return true;
         }
-        return false;
+    }
+
+    /**
+     * Adds a new call graph edge to this call graph.
+     *
+     * @param edge the call edge to be added
+     * @return true if the new-added edge is absent in this call graph before
+     */
+    public boolean addEdge(Edge<Invoke, JMethod> edge) {
+        if (MapUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge)) {
+            MapUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
+            addNewMethod(edge.getCallee());
+            return true;
+        } else {
+            return false;
+        }
     }
 }

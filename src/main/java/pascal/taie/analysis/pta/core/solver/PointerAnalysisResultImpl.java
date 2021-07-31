@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -187,7 +188,8 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
         csCallGraph.edges().forEach(edge -> {
             Invoke callSite = edge.getCallSite().getCallSite();
             JMethod callee = edge.getCallee().getMethod();
-            callGraph.addEdge(callSite, callee, edge.getKind());
+            callGraph.addEdge(new Edge<>(edge.getKind(),
+                    callSite, callee));
         });
         return callGraph;
     }
