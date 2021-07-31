@@ -32,11 +32,7 @@ class WorkList {
     }
 
     void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        addPointerEntry(new Entry(pointer, pointsToSet));
-    }
-
-    void addPointerEntry(Entry entry) {
-        pointerEntries.add(entry);
+        pointerEntries.add(new Entry(pointer, pointsToSet));
     }
 
     Entry pollPointerEntry() {
