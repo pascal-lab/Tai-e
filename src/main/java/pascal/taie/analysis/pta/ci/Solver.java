@@ -14,30 +14,44 @@ package pascal.taie.analysis.pta.ci;
 
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CGUtils;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
+import java.util.List;
+
 class Solver {
+
+    private final HeapModel heapModel;
 
     private DefaultCallGraph callGraph;
 
     private PointerFlowGraph pointerFlowGraph;
 
-    private HeapModel heapModel;
-
     private WorkList workList;
 
+    private StmtProcessor stmtProcessor;
+
     private ClassHierarchy hierarchy;
+
+    Solver(HeapModel heapModel) {
+        this.heapModel = heapModel;
+    }
 
     /**
      * Runs pointer analysis algorithm.
@@ -54,15 +68,53 @@ class Solver {
         workList = new WorkList();
         pointerFlowGraph = new PointerFlowGraph();
         callGraph = new DefaultCallGraph();
+        stmtProcessor = new StmtProcessor();
         hierarchy = World.getClassHierarchy();
         JMethod main = World.getMainMethod();
-//        addReachable(main);
+        addReachable(main);
         // must be called after addReachable()
         callGraph.addEntryMethod(main);
     }
 
     /**
-     * Processes worklist entries until the worklist is empty.
+     * Processes new reachable method.
+     */
+    private void addReachable(JMethod method) {
+        if (!callGraph.contains(method)) {
+            callGraph.addNewMethod(method);
+            method.getIR().getStmts()
+                    .forEach(s -> s.accept(stmtProcessor));
+        }
+    }
+
+    private class StmtProcessor implements StmtVisitor {
+
+        @Override
+        public void visit(New stmt) {
+            VarPtr lhs = pointerFlowGraph.getVarPtr(stmt.getLValue());
+            Obj obj = heapModel.getObj(stmt);
+            workList.addPointerEntry(lhs, new PointsToSet(obj));
+        }
+
+        @Override
+        public void visit(Copy stmt) {
+            VarPtr lhs = pointerFlowGraph.getVarPtr(stmt.getLValue());
+            VarPtr rhs = pointerFlowGraph.getVarPtr(stmt.getRValue());
+            addPFGEdge(rhs, lhs);
+        }
+
+        @Override
+        public void visit(Invoke stmt) {
+            if (stmt.isStatic()) {
+                JMethod callee = resolveCallee(null, stmt);
+                workList.addCallEdge(
+                        new Edge<>(CallKind.STATIC, stmt, callee));
+            }
+        }
+    }
+
+    /**
+     * Processes work-list entries until the work-list is empty.
      */
     private void analyze() {
         while (!workList.isEmpty()) {
@@ -80,7 +132,7 @@ class Solver {
                 }
             }
             while (workList.hasCallEdges()) {
-//                processCallEdge(workList.pollCallEdge());
+                processCallEdge(workList.pollCallEdge());
             }
         }
     }
@@ -162,7 +214,7 @@ class Solver {
                 JMethod callee = resolveCallee(recvObj.getType(), callSite);
                 workList.addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
                         callSite, callee));
-                // papss receiver object to this variable
+                // pass receiver object to this variable
                 VarPtr thisPtr = pointerFlowGraph.getVarPtr(callee.getIR().getThis());
                 PointsToSet recvPts = new PointsToSet(recvObj);
                 workList.addPointerEntry(thisPtr, recvPts);
@@ -178,6 +230,34 @@ class Solver {
             return methodRef.resolveNullable();
         } else {
             throw new AnalysisException("Cannot resolve Invoke: " + callSite);
+        }
+    }
+
+    /**
+     * Process the call edges in work list.
+     */
+    private void processCallEdge(Edge<Invoke, JMethod> edge) {
+        if (callGraph.addEdge(edge)) {
+            JMethod callee = edge.getCallee();
+            addReachable(callee);
+            Invoke callSite = edge.getCallSite();
+            InvokeExp invokeExp = callSite.getInvokeExp();
+            // pass arguments to parameters
+            List<Var> args = invokeExp.getArgs();
+            List<Var> params = callee.getIR().getParams();
+            for (int i = 0; i < args.size(); ++i) {
+                VarPtr arg = pointerFlowGraph.getVarPtr(args.get(i));
+                VarPtr param = pointerFlowGraph.getVarPtr(params.get(i));
+                addPFGEdge(arg, param);
+            }
+            // pass results to LHS variable
+            if (callSite.getLValue() != null) {
+                VarPtr lhsPtr = pointerFlowGraph.getVarPtr(callSite.getLValue());
+                for (Var ret : callee.getIR().getReturnVars()) {
+                    VarPtr retPtr = pointerFlowGraph.getVarPtr(ret);
+                    addPFGEdge(retPtr, lhsPtr);
+                }
+            }
         }
     }
 }
