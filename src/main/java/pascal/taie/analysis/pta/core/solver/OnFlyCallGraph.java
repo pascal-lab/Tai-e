@@ -26,28 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
-import static pascal.taie.util.collection.SetUtils.newSet;
-
 class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
 
     OnFlyCallGraph(CSManager csManager) {
         this.csManager = csManager;
-        this.entryMethods = newHybridSet();
-        this.reachableMethods = newSet();
     }
 
-    @Override
-    public void addEntryMethod(CSMethod entryMethod) {
+    void addEntryMethod(CSMethod entryMethod) {
         entryMethods.add(entryMethod);
-        // Let pointer analysis explicitly call addNewMethod() of this class
-    }
-
-    @Override
-    public Stream<CSMethod> entryMethods() {
-        return entryMethods.stream();
+        // Let pointer analysis explicitly call addNewMethod()
     }
 
     void addEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -59,8 +48,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         return edge.getCallSite().getEdges().contains(edge);
     }
 
-    @Override
-    public boolean addNewMethod(CSMethod csMethod) {
+    boolean addNewMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
             callSitesIn(csMethod).forEach(csCallSite ->
                     csCallSite.setContainer(csMethod));

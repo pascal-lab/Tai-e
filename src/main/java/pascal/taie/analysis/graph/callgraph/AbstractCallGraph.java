@@ -13,50 +13,30 @@
 package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.SetUtils;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.SetUtils.newSet;
-
+/**
+ * Common functionality for {@link CallGraph} implementations.
+ * This class contains the data structures and methods for storing and
+ * accessing information of a call graph. The logic of modifying
+ * (adding new call edges and methods) is left to its subclasses.
+ *
+ * @param <CallSite> type of call sites
+ * @param <Method> type of methods
+ */
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
 
-    protected final Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges;
-    protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges;
-    protected final Map<CallSite, Method> callSiteToContainer;
-    protected final Map<Method, Set<CallSite>> callSitesIn;
-    protected Set<Method> entryMethods;
-    protected Set<Method> reachableMethods;
-
-    protected AbstractCallGraph() {
-        callSiteToEdges = newMap();
-        calleeToEdges = newMap();
-        callSiteToContainer = newMap();
-        callSitesIn = newMap();
-        entryMethods = newSet();
-        reachableMethods = newSet();
-    }
-
-    public void addEntryMethod(Method entryMethod) {
-        entryMethods.add(entryMethod);
-        addNewMethod(entryMethod);
-    }
-
-    public void addEdge(CallSite callSite, Method callee, CallKind kind) {
-        addNewMethod(callee);
-        Edge<CallSite, Method> edge = new Edge<>(kind, callSite, callee);
-        MapUtils.addToMapSet(callSiteToEdges, callSite, edge);
-        MapUtils.addToMapSet(calleeToEdges, callee, edge);
-    }
-
-    /**
-     * Adds a new method to this call graph.
-     * Returns true if the method was not in this call graph.
-     */
-    protected abstract boolean addNewMethod(Method method);
+    protected final Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges = MapUtils.newMap();
+    protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges = MapUtils.newMap();
+    protected final Map<CallSite, Method> callSiteToContainer = MapUtils.newMap();
+    protected final Map<Method, Set<CallSite>> callSitesIn = MapUtils.newMap();
+    protected final Set<Method> entryMethods = SetUtils.newSet();
+    protected final Set<Method> reachableMethods = SetUtils.newSet();
 
     @Override
     public Stream<Method> calleesOf(CallSite callSite) {

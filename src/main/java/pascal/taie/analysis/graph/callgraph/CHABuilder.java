@@ -68,8 +68,8 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                     if (!callGraph.contains(callee)) {
                         queue.add(callee);
                     }
-                    callGraph.addEdge(invoke, callee,
-                            CGUtils.getCallKind(invoke));
+                    callGraph.addEdge(new Edge<>(
+                            CGUtils.getCallKind(invoke), invoke, callee));
                 });
             });
         }
