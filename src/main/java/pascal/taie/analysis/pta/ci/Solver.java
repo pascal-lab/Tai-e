@@ -262,7 +262,7 @@ class Solver {
         }
     }
 
-    PointerAnalysisResult getResult() {
+    CIPTAResult getResult() {
         return new CIPTAResult(pointerFlowGraph, callGraph);
     }
 }

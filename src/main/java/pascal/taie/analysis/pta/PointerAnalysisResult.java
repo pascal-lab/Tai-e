@@ -33,42 +33,72 @@ import java.util.stream.Stream;
 public interface PointerAnalysisResult {
 
     /**
-     * @return all variables in the (reachable) program.
+     * @return all reachable context-sensitive variables in the program.
      */
     Stream<CSVar> csVars();
 
+    /**
+     * @return all reachable variables in the program.
+     */
     Stream<Var> vars();
 
     /**
-     * @return all instance fields in the (reachable) program.
+     * @return all reachable instance fields in the program.
      */
     Stream<InstanceField> instanceFields();
 
     /**
-     * @return all array indexes in the (reachable) program.
+     * @return all reachable array indexes in the program.
      */
     Stream<ArrayIndex> arrayIndexes();
 
     /**
-     * @return all static fields in the (reachable) program.
+     * @return all reachable static fields in the program.
      */
     Stream<StaticField> staticFields();
 
+    /**
+     * @return all reachable context-sensitive objects in the program.
+     */
     Stream<CSObj> csObjects();
 
+    /**
+     * @return all reachable objects in the program.
+     */
     Stream<Obj> objects();
 
+    /**
+     * @return context-sensitive points-to set of context-sensitive variable var.
+     */
     Set<CSObj> getPointsToSet(CSVar var);
 
+    /**
+     * @return set of Obj pointed to by var.
+     */
     Set<Obj> getPointsToSet(Var var);
 
+    /**
+     * @return set of Obj pointed to by base.field.
+     */
     Set<Obj> getPointsToSet(Var base, JField field);
 
+    /**
+     * @return points-to set of given field. The field is supposed to be static.
+     */
     Set<Obj> getPointsToSet(JField field);
 
+    /**
+     * @return the resulting context-sensitive call graph.
+     */
     CallGraph<CSCallSite, CSMethod> getCSCallGraph();
 
+    /**
+     * @return the resulting call graph (without contexts).
+     */
     CallGraph<Invoke, JMethod> getCallGraph();
 
+    /**
+     * @return the result of pointer analysis based throw analysis.
+     */
     PTAThrowResult getThrowResult();
 }

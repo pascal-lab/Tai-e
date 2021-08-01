@@ -48,6 +48,6 @@ class VarPtr extends Pointer {
 
     @Override
     public String toString() {
-        return var.toString();
+        return var.getMethod() + "/" + var.getName();
     }
 }

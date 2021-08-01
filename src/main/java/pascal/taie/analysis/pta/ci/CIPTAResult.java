@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.pta.ci;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
@@ -29,6 +31,7 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.SetUtils;
 
 import java.util.Map;
 import java.util.Set;
@@ -37,14 +40,11 @@ import java.util.stream.Stream;
 
 class CIPTAResult implements PointerAnalysisResult {
 
+    private static final Logger logger = LogManager.getLogger(CIPTAResult.class);
+
     private final PointerFlowGraph pointerFlowGraph;
 
     private final CallGraph<Invoke, JMethod> callGraph;
-
-    /**
-     * Points-to sets of variables.
-     */
-    private final Map<Var, Set<Obj>> varPointsTo = MapUtils.newMap();
 
     /**
      * Points-to sets of field expressions, e.g., v.f.
@@ -69,7 +69,7 @@ class CIPTAResult implements PointerAnalysisResult {
     @Override
     public Stream<Obj> objects() {
         if (objects == null) {
-            pointerFlowGraph.pointers()
+            objects = pointerFlowGraph.pointers()
                     .map(Pointer::getPointsToSet)
                     .flatMap(PointsToSet::objects)
                     .collect(Collectors.toUnmodifiableSet());
@@ -79,18 +79,25 @@ class CIPTAResult implements PointerAnalysisResult {
 
     @Override
     public Set<Obj> getPointsToSet(Var var) {
-
-        throw new UnsupportedOperationException();
+        return pointerFlowGraph.getVarPtr(var)
+                .getPointsToSet()
+                .getSet();
     }
 
     @Override
     public Set<Obj> getPointsToSet(Var base, JField field) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<Obj> getPointsToSet(JField field) {
-        throw new UnsupportedOperationException();
+        if (field.isStatic()) {
+            logger.warn("{} is not instance field", field);
+        }
+        return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
+            Set<Obj> pts = SetUtils.newHybridSet();
+            getPointsToSet(base).forEach(o -> {
+                InstanceFieldPtr fieldPtr = pointerFlowGraph
+                        .getInstanceFieldPtr(o, field);
+                pts.addAll(fieldPtr.getPointsToSet().getSet());
+            });
+            return pts;
+        });
     }
 
     @Override
@@ -98,8 +105,12 @@ class CIPTAResult implements PointerAnalysisResult {
         return callGraph;
     }
 
+    PointerFlowGraph getPointerFlowGraph() {
+        return pointerFlowGraph;
+    }
+
     // ------------------------------------------
-    // Below methods are only for context-sensitive pointer analysis,
+    // Below methods are mainly for context-sensitive pointer analysis,
     // thus not supported in context-insensitive analysis.
     // ------------------------------------------
 
@@ -135,6 +146,11 @@ class CIPTAResult implements PointerAnalysisResult {
 
     @Override
     public CallGraph<CSCallSite, CSMethod> getCSCallGraph() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<Obj> getPointsToSet(JField field) {
         throw new UnsupportedOperationException();
     }
 

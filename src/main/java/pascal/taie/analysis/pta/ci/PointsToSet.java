@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.ci;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.util.collection.SetUtils;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -37,12 +38,20 @@ class PointsToSet {
         return set.isEmpty();
     }
 
+    int size() {
+        return set.size();
+    }
+
     void forEach(Consumer<Obj> action) {
         set.forEach(action);
     }
 
     Stream<Obj> objects() {
         return set.stream();
+    }
+
+    Set<Obj> getSet() {
+        return Collections.unmodifiableSet(set);
     }
 
     @Override

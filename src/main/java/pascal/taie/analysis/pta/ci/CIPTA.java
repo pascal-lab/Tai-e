@@ -34,8 +34,8 @@ public class CIPTA extends InterproceduralAnalysis {
         HeapModel heapModel = new AllocationSiteBasedModel(getOptions());
         Solver solver = new Solver(heapModel);
         solver.solve();
-        PointerAnalysisResult result = solver.getResult();
-        new ResultProcessor().process(result);
+        CIPTAResult result = solver.getResult();
+        new ResultProcessor(getOptions()).process(result);
         return result;
     }
 }

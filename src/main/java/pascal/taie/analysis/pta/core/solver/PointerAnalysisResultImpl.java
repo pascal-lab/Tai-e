@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -42,6 +44,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class PointerAnalysisResultImpl implements PointerAnalysisResult {
+
+    private static final Logger logger = LogManager.getLogger(PointerAnalysisResultImpl.class);
 
     private final CSManager csManager;
 
@@ -126,6 +130,9 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
 
     @Override
     public Set<Obj> getPointsToSet(Var base, JField field) {
+        if (field.isStatic()) {
+            logger.warn("{} is not instance field", field);
+        }
         return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
             Set<Obj> pts = SetUtils.newHybridSet();
             csManager.csVarsOf(base)
@@ -142,6 +149,9 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
 
     @Override
     public Set<Obj> getPointsToSet(JField field) {
+        if (!field.isStatic()) {
+            logger.warn("{} is not static field", field);
+        }
         return removeContexts(
                 csManager.getStaticField(field).getPointsToSet());
     }
