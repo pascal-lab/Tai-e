@@ -15,14 +15,23 @@ package pascal.taie.analysis.pta.ci;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.config.AnalysisOptions;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 class ResultProcessor {
@@ -65,9 +74,7 @@ class ResultProcessor {
         int vars = (int) result.vars().count();
         int vptSize = result.vars()
                 .mapToInt(v -> result.getPointsToSet(v).size()).sum();
-        int ifptSize = result.getPointerFlowGraph()
-                .pointers()
-                .filter(p -> p instanceof InstanceFieldPtr)
+        int ifptSize = getPointers(result, InstanceFieldPtr.class)
                 .mapToInt(p -> p.getPointsToSet().size())
                 .sum();
         int reachable = result.getCallGraph().getNumberOfMethods();
@@ -91,17 +98,18 @@ class ResultProcessor {
         try (PrintStream out =
                      new PrintStream(new FileOutputStream(outFile))) {
             logger.info("Dumping points-to set to {} ...", outFile);
-            dumpPointers(out, result.getPointerFlowGraph()
-                            .pointers()
-                            .filter(p -> p instanceof VarPtr),
-                    "variables");
-            dumpPointers(out, result.getPointerFlowGraph()
-                            .pointers()
-                            .filter(p -> p instanceof InstanceFieldPtr),
-                    "instance fields");
+            dumpPointers(out, getPointers(result, VarPtr.class), "variables");
+            dumpPointers(out, getPointers(result, InstanceFieldPtr.class), "instance fields");
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump points-to set to " + outFile, e);
         }
+    }
+
+    private static Stream<Pointer> getPointers(
+            CIPTAResult result, Class<? extends Pointer> klass) {
+        return result.getPointerFlowGraph()
+                .pointers()
+                .filter(klass::isInstance);
     }
 
     private static void dumpPointers(PrintStream out, Stream<? extends Pointer> pointers, String desc) {
@@ -115,6 +123,52 @@ class ResultProcessor {
         return Strings.toString(pts.objects());
     }
 
-    private void comparePointsToSet(CIPTAResult result, String file) {
+    private void comparePointsToSet(CIPTAResult result, String input) {
+        logger.info("Comparing points-to set with {} ...", input);
+        var inputs = readPointsToSets(input);
+        Map<String, Pointer> pointers = new LinkedHashMap<>();
+        addPointers(pointers, getPointers(result, VarPtr.class));
+        addPointers(pointers, getPointers(result, InstanceFieldPtr.class));
+        List<String> mismatches = new ArrayList<>();
+        pointers.forEach((pointerStr, pointer) -> {
+            String given = toString(pointer.getPointsToSet());
+            String expected = inputs.get(pointerStr);
+            if (!given.equals(expected)) {
+                mismatches.add(String.format("%s, expected: %s, given: %s",
+                        pointerStr, expected, given));
+            }
+        });
+        inputs.keySet()
+                .stream()
+                .filter(Predicate.not(pointers::containsKey))
+                .forEach(pointerStr -> {
+                    String expected = inputs.get(pointerStr);
+                    mismatches.add(String.format("%s, expected: %s, given: null",
+                            pointerStr, expected));
+                });
+        if (!mismatches.isEmpty()) {
+            throw new AnalysisException("Mismatches of points-to set\n" +
+                    String.join("\n", mismatches));
+        }
+    }
+
+    private static Map<String, String> readPointsToSets(String input) {
+        try {
+            Map<String, String> result = new LinkedHashMap<>();
+            Files.lines(Path.of(input))
+                    .filter(line -> line.contains(SEP))
+                    .map(line -> line.split(SEP))
+                    .forEach(s -> result.put(s[0], s[1]));
+            return result;
+        } catch (IOException e) {
+            throw new AnalysisException(
+                    "Failed to read points-to set from " + input, e);
+        }
+    }
+
+    private static void addPointers(Map<String, Pointer> map,
+                                    Stream<? extends Pointer> pointers) {
+        pointers.sorted(Comparator.comparing(Pointer::toString))
+                .forEach(p -> map.put(p.toString(), p));
     }
 }
