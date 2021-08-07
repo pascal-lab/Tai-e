@@ -17,7 +17,6 @@ import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.InvokeExp;
@@ -72,17 +71,15 @@ class Solver {
         stmtProcessor = new StmtProcessor();
         hierarchy = World.getClassHierarchy();
         JMethod main = World.getMainMethod();
-        addReachable(main);
-        // must be called after addReachable()
         callGraph.addEntryMethod(main);
+        addReachable(main);
     }
 
     /**
      * Processes new reachable method.
      */
     private void addReachable(JMethod method) {
-        if (!callGraph.contains(method)) {
-            callGraph.addNewMethod(method);
+        if (callGraph.addReachableMethod(method)) {
             method.getIR().getStmts()
                     .forEach(s -> s.accept(stmtProcessor));
         }

@@ -26,13 +26,13 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
      */
     public void addEntryMethod(JMethod entryMethod) {
         entryMethods.add(entryMethod);
-        addNewMethod(entryMethod);
     }
 
     /**
-     * Adds a new method to this call graph.
+     * Adds a reachable method to this call graph.
+     * @return true if the given method was not in this call graph before.
      */
-    public void addNewMethod(JMethod method) {
+    public boolean addReachableMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             if (!method.isAbstract()) {
                 method.getIR().getStmts().forEach(stmt -> {
@@ -43,7 +43,9 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
                     }
                 });
             }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -55,7 +57,6 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
     public boolean addEdge(Edge<Invoke, JMethod> edge) {
         if (MapUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge)) {
             MapUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
-            addNewMethod(edge.getCallee());
             return true;
         } else {
             return false;

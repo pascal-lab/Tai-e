@@ -62,6 +62,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
         CollectionUtils.addAll(queue, callGraph.entryMethods());
         while (!queue.isEmpty()) {
             JMethod method = queue.remove();
+            callGraph.addReachableMethod(method);
             callGraph.callSitesIn(method).forEach(invoke -> {
                 Set<JMethod> callees = resolveCalleesOf(invoke);
                 callees.forEach(callee -> {
@@ -73,8 +74,6 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                 });
             });
         }
-        hierarchy = null;
-        resolveTable = null;
     }
 
     /**
