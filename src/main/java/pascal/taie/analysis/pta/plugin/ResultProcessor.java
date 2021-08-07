@@ -41,7 +41,7 @@ import java.util.stream.Stream;
  * Dump points-to set to file or compare the analysis result with
  * the ones read from input file.
  * Currently, the compare functionality is mainly for testing purpose.
- * It is not efficient and not recommended to apply on large program.
+ * It is not efficient and not recommended applying on large program.
  */
 public class ResultProcessor implements Plugin {
 

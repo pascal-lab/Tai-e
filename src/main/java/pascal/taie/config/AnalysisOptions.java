@@ -56,7 +56,7 @@ public class AnalysisOptions {
     }
 
     /**
-     * Copies all of the options from the specified AnalysisOptions
+     * Copies all the options from the specified AnalysisOptions
      * to this AnalysisOptions.
      */
     void update(AnalysisOptions options) {

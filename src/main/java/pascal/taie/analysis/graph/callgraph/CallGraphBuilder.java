@@ -35,11 +35,14 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
     public CallGraph<Invoke, JMethod> analyze() {
         CGBuilder<Invoke, JMethod> builder;
         switch (algorithm) {
-            case "cha":
-                builder = new CHABuilder();
-                break;
             case "pta":
                 builder = new PTABasedBuilder();
+                break;
+            case "cipta":
+                builder = new CIPTABasedBuilder();
+                break;
+            case "cha":
+                builder = new CHABuilder();
                 break;
             default:
                 throw new ConfigException("Unknown call graph building algorithm: " + algorithm);

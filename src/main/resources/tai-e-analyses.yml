@@ -31,9 +31,9 @@
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   id: cg
-  requires: [pta(algorithm=pta)]
+  requires: [pta(algorithm=pta),cipta(algorithm=cipta)]
   options:
-    algorithm: pta # | cha | rta
+    algorithm: pta # | cipta | cha
     action: null # | dump | dump-recall | compare
     file: null # path to input/output files
 
