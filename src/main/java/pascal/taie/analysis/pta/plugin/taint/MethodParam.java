@@ -27,19 +27,19 @@ class MethodParam {
     /**
      * Index of the parameter.
      */
-    private final int param;
+    private final int index;
 
-    MethodParam(JMethod method, int param) {
+    MethodParam(JMethod method, int index) {
         this.method = method;
-        this.param = param;
+        this.index = index;
     }
 
     JMethod getMethod() {
         return method;
     }
 
-    int getParam() {
-        return param;
+    int getIndex() {
+        return index;
     }
 
     @Override
@@ -51,16 +51,16 @@ class MethodParam {
             return false;
         }
         MethodParam that = (MethodParam) o;
-        return method.equals(that.method) && param == that.param;
+        return method.equals(that.method) && index == that.index;
     }
 
     @Override
     public int hashCode() {
-        return method.hashCode() * 31 + param;
+        return method.hashCode() * 31 + index;
     }
 
     @Override
     public String toString() {
-        return method + ":" + param;
+        return method + ":" + index;
     }
 }

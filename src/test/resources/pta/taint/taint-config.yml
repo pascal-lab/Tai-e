@@ -3,6 +3,6 @@ sources:
 
 sinks:
   - method: "<SourceSink: void sink(java.lang.String)>"
-    param: 0
+    index: 0
   - method: "<SourceSink: void sink(java.lang.String,int)>"
-    param: 0
+    index: 0

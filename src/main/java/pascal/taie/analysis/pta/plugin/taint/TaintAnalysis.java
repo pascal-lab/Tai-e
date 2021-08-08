@@ -27,7 +27,6 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class TaintAnalysis implements Plugin {
 
@@ -66,19 +65,20 @@ public class TaintAnalysis implements Plugin {
         // collect taint flows
         PointerAnalysisResult result = solver.getResult();
         List<TaintFlow> taintFlows = new ArrayList<>();
-        for (MethodParam sink : taintConfig.getSinks()) {
-            result.getCallGraph().callersOf(sink.getMethod()).forEach(sinkCall ->
-                    sinkCall.getInvokeExp()
-                            .getArgs()
-                            .stream()
-                            .map(result::getPointsToSet)
-                            .flatMap(Set::stream)
-                            .filter(TaintManager::isTaint)
-                            .map(TaintManager::getSourceCall)
-                            .map(sourceCall -> new TaintFlow(sourceCall, sinkCall))
-                            .forEach(taintFlows::add)
-            );
-        }
+        taintConfig.getSinks().forEach(sink -> {
+            int i = sink.getIndex();
+            result.getCallGraph()
+                    .callersOf(sink.getMethod())
+                    .forEach(sinkCall -> {
+                        Var arg = sinkCall.getInvokeExp().getArg(i);
+                        result.getPointsToSet(arg)
+                                .stream()
+                                .filter(TaintManager::isTaint)
+                                .map(TaintManager::getSourceCall)
+                                .map(sourceCall -> new TaintFlow(sourceCall, sinkCall, i))
+                                .forEach(taintFlows::add);
+                    });
+        });
         // report taint flows
         taintFlows.stream()
                 .distinct()

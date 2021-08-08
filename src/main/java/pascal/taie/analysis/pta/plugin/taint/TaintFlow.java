@@ -21,19 +21,35 @@ import pascal.taie.util.HashUtils;
  */
 class TaintFlow implements Comparable<TaintFlow> {
 
+    /**
+     * Invocation of the source method.
+     */
     private final Invoke sourceCall;
 
+    /**
+     * Invocation of the sink method.
+     */
     private final Invoke sinkCall;
 
-    TaintFlow(Invoke sourceCall, Invoke sinkCall) {
+    /**
+     * Index of the sink argument.
+     */
+    private final int index;
+
+    TaintFlow(Invoke sourceCall, Invoke sinkCall, int index) {
         this.sourceCall = sourceCall;
         this.sinkCall = sinkCall;
+        this.index = index;
     }
 
     @Override
     public int compareTo(TaintFlow other) {
         int source = sourceCall.compareTo(other.sourceCall);
-        return source != 0 ? source : sinkCall.compareTo(other.sinkCall);
+        if (source != 0) {
+            return source;
+        }
+        int sink = sinkCall.compareTo(other.sinkCall);
+        return sink != 0 ? sink : index - other.index;
     }
 
     @Override
@@ -46,18 +62,19 @@ class TaintFlow implements Comparable<TaintFlow> {
         }
         TaintFlow taintFlow = (TaintFlow) o;
         return sourceCall.equals(taintFlow.sourceCall) &&
-                sinkCall.equals(taintFlow.sinkCall);
+                sinkCall.equals(taintFlow.sinkCall) &&
+                index == taintFlow.index;
     }
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(sourceCall, sinkCall);
+        return HashUtils.hash(sourceCall, sinkCall, index);
     }
 
     @Override
     public String toString() {
-        return String.format("TaintFlow{%s -> %s}",
+        return String.format("TaintFlow{%s -> %s/%d}",
                 CGUtils.toString(sourceCall),
-                CGUtils.toString(sinkCall));
+                CGUtils.toString(sinkCall), index);
     }
 }

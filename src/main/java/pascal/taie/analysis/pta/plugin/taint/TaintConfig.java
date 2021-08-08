@@ -188,8 +188,8 @@ class TaintConfig {
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int param = elem.get("param").asInt();
-                        methodParams.add(new MethodParam(method, param));
+                        int index = elem.get("index").asInt();
+                        methodParams.add(new MethodParam(method, index));
                     }
                 }
                 return Collections.unmodifiableSet(methodParams);
