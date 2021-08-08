@@ -1,6 +1,0 @@
-sources:
-  - "<SourceSink: java.lang.String source()>"
-
-sinks:
-  - "<SourceSink: void sink(java.lang.String)>"
-  - "<SourceSink: void sink(java.lang.String,int)>"

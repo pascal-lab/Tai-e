@@ -13,8 +13,7 @@
     file: null # path to input/output file
     reflection-log: null
     taint: false # whether enable taint analysis or not
-    taint.sources-sinks: null # path to config file that specifies
-                            # sources and sinks for taint analysis
+    taint.config: null # path to config file of taint analysis
 
 - description: context-insensitive pointer analysis
   analysisClass: pascal.taie.analysis.pta.ci.CIPTA

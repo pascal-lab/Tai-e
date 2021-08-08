@@ -22,18 +22,18 @@ public class TaintTest {
     @Test
     public void testSimpleTaint() {
         TestUtils.testPTA(DIR, "SimpleTaint",
-                "taint:true;taint.sources-sinks:src/test/resources/pta/taint/sources-sinks.yml");
+                "taint:true;taint.config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
     public void testFieldTaint() {
         TestUtils.testPTA(DIR, "FieldTaint",
-                "taint:true;taint.sources-sinks:src/test/resources/pta/taint/sources-sinks.yml");
+                "taint:true;taint.config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
     public void testCSTaint() {
         TestUtils.testPTA(DIR, "CSTaint",
-                "cs:1-obj;taint:true;taint.sources-sinks:src/test/resources/pta/taint/sources-sinks.yml");
+                "cs:1-obj;taint:true;taint.config:src/test/resources/pta/taint/taint-config.yml");
     }
 }

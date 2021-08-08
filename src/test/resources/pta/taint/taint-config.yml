@@ -1,0 +1,8 @@
+sources:
+  - "<SourceSink: java.lang.String source()>"
+
+sinks:
+  - method: "<SourceSink: void sink(java.lang.String)>"
+    param: 0
+  - method: "<SourceSink: void sink(java.lang.String,int)>"
+    param: 0
