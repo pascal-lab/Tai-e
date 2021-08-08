@@ -47,28 +47,15 @@ class TaintConfig {
     private final Set<MethodParam> sinks;
 
     /**
-     * Set of methods that could transfer taint from base object to return value.
+     * Set of taint transfers;
      */
-    private final Set<JMethod> baseToRet;
-
-    /**
-     * Set of methods that could transfer taint from parameter to return value.
-     */
-    private final Set<MethodParam> paramToRet;
-
-    /**
-     * Set of methods that could transfer taint from parameter to base object.
-     */
-    private final Set<MethodParam> paramToBase;
+    private final Set<TaintTransfer> transfers;
 
     private TaintConfig(Set<JMethod> sources, Set<MethodParam> sinks,
-                       Set<JMethod> baseToRet, Set<MethodParam> paramToRet,
-                       Set<MethodParam> paramToBase) {
+                       Set<TaintTransfer> transfers) {
         this.sources = sources;
         this.sinks = sinks;
-        this.baseToRet = baseToRet;
-        this.paramToRet = paramToRet;
-        this.paramToBase = paramToBase;
+        this.transfers = transfers;
     }
 
     Set<JMethod> getSources() {
@@ -79,27 +66,29 @@ class TaintConfig {
         return sinks;
     }
 
-    Set<JMethod> getBaseToRet() {
-        return baseToRet;
-    }
-
-    Set<MethodParam> getParamToRet() {
-        return paramToRet;
-    }
-
-    Set<MethodParam> getParamToBase() {
-        return paramToBase;
+    Set<TaintTransfer> getTransfers() {
+        return transfers;
     }
 
     @Override
     public String toString() {
-        return "TaintConfig{" +
-                "sources=" + sources +
-                ", sinks=" + sinks +
-                ", baseToRet=" + baseToRet +
-                ", paramToRet=" + paramToRet +
-                ", paramToBase=" + paramToBase +
-                '}';
+        StringBuilder sb = new StringBuilder("TaintConfig:");
+        if (!sources.isEmpty()) {
+            sb.append("\nsources:\n");
+            sources.forEach(source ->
+                    sb.append("  ").append(source).append("\n"));
+        }
+        if (!sinks.isEmpty()) {
+            sb.append("\nsinks:\n");
+            sinks.forEach(sink ->
+                    sb.append("  ").append(sink).append("\n"));
+        }
+        if (!transfers.isEmpty()) {
+            sb.append("\ntransfers:\n");
+            transfers.forEach(transfer ->
+                    sb.append("  ").append(transfer).append("\n"));
+        }
+        return sb.toString();
     }
 
     /**
@@ -140,10 +129,8 @@ class TaintConfig {
             JsonNode node = oc.readTree(p);
             Set<JMethod> sources = deserializeMethods(node.get("sources"));
             Set<MethodParam> sinks = deserializeMethodParams(node.get("sinks"));
-            Set<JMethod> baseToRet = deserializeMethods(node.get("baseToRet"));
-            Set<MethodParam> paramToRet = deserializeMethodParams(node.get("paramToRet"));
-            Set<MethodParam> paramToBase = deserializeMethodParams(node.get("paramToBase"));
-            return new TaintConfig(sources, sinks, baseToRet, paramToRet, paramToBase);
+            Set<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
+            return new TaintConfig(sources, sinks, transfers);
         }
 
         /**
@@ -196,6 +183,45 @@ class TaintConfig {
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return Set.of();
+            }
+        }
+
+        /**
+         * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
+         * to a set of {@link TaintTransfer}.
+         * @param node the node to be deserialized
+         * @return set of deserialized {@link TaintTransfer}
+         */
+        private Set<TaintTransfer> deserializeTransfers(JsonNode node) {
+            if (node instanceof ArrayNode) {
+                ArrayNode arrayNode = (ArrayNode) node;
+                Set<TaintTransfer> transfers = SetUtils.newSet(arrayNode.size());
+                for (JsonNode elem : arrayNode) {
+                    String methodSig = elem.get("method").asText();
+                    JMethod method = hierarchy.getMethod(methodSig);
+                    if (method != null) {
+                        // if the method (given in config file) is absent in
+                        // the class hierarchy, just ignore it.
+                        int from = toInt(elem.get("from").asText());
+                        int to = toInt(elem.get("to").asText());
+                        transfers.add(new TaintTransfer(method, from, to));
+                    }
+                }
+                return Collections.unmodifiableSet(transfers);
+            } else {
+                // if node is not an instance of ArrayNode, just return an empty set.
+                return Set.of();
+            }
+        }
+
+        /**
+         * Coverts from/to string to number.
+         */
+        private static int toInt(String s) {
+            switch (s.toLowerCase()) {
+                case "base": return TaintTransfer.BASE;
+                case "return": return TaintTransfer.RETURN;
+                default: return Integer.parseInt(s);
             }
         }
     }

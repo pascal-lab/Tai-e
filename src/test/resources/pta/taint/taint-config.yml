@@ -2,7 +2,10 @@ sources:
   - "<SourceSink: java.lang.String source()>"
 
 sinks:
-  - method: "<SourceSink: void sink(java.lang.String)>"
-    index: 0
-  - method: "<SourceSink: void sink(java.lang.String,int)>"
-    index: 0
+  - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }
+  - { method: "<SourceSink: void sink(java.lang.String,int)>", index: 0 }
+
+transfers:
+  - { method: "<java.lang.String: byte[] getBytes(java.lang.String)>", from: base, to: return }
+  - { method: "<java.lang.String: java.lang.String concat(java.lang.String)>", from: 0, to: return }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>", from: 0, to: base }

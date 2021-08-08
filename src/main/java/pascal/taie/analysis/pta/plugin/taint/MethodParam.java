@@ -61,6 +61,6 @@ class MethodParam {
 
     @Override
     public String toString() {
-        return method + ":" + index;
+        return method + "/" + index;
     }
 }
