@@ -115,7 +115,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         if (World.getOptions().getJavaVersion() >= 8) {
             plugin.addPlugin(new LambdaAnalysis());
         }
-        if (getOptions().getBoolean("taint")) {
+        if (getOptions().getString("taint-config") != null) {
             plugin.addPlugin(new TaintAnalysis());
         }
         plugin.setSolver(solver);

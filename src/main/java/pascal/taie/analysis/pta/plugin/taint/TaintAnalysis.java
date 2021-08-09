@@ -76,7 +76,7 @@ public class TaintAnalysis implements Plugin {
         csManager = solver.getCSManager();
         defaultCtx = solver.getContextSelector().getDefaultContext();
         config = TaintConfig.readConfig(
-                solver.getOptions().getString("taint.config"),
+                solver.getOptions().getString("taint-config"),
                 solver.getHierarchy());
         config.getTransfers().forEach(t ->
                 MapUtils.addToMapSet(transfers, t.getMethod(), t));

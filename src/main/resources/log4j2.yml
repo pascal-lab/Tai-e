@@ -8,7 +8,7 @@ Configuration:
         Pattern: "%m%n"
   Loggers:
     logger:
-      - name: pascal.taie.analysis.pta.core.solver.PointerAnalysisImpl
+      - name: pascal.taie.analysis.pta.core.solver.SolverImpl
         level: error
         additivity: false
         AppenderRef:

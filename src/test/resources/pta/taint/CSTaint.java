@@ -9,7 +9,7 @@ class CSTaint {
         A a2 = new A();
         String s2 = SourceSink.source();
         a2.set(s2);
-        SourceSink.sink(a2.get());
+        SourceSink.sink(a2.get()); // taint
     }
 
     static class A {

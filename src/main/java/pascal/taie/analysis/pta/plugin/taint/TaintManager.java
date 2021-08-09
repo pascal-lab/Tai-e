@@ -22,11 +22,11 @@ import pascal.taie.util.collection.MapUtils;
 import java.util.Map;
 
 /**
- * Manages tainted values.
+ * Manages taint objects.
  */
 class TaintManager {
 
-    private static final String TAINT_DESC = "TaintedValue";
+    private static final String TAINT_DESC = "TaintObj";
 
     private final Map<Invoke, Map<Type, Obj>> taints = MapUtils.newHybridMap();
 
@@ -44,7 +44,7 @@ class TaintManager {
     }
 
     /**
-     * @return if an obj represents tainted values.
+     * @return if an obj represents taint objects.
      */
     boolean isTaint(Obj obj) {
         return obj instanceof MockObj &&

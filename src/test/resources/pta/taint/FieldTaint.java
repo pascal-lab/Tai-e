@@ -9,7 +9,7 @@ class FieldTaint {
     }
 
     static void foo(B b) {
-        SourceSink.sink(b.g.f);
+        SourceSink.sink(b.g.f); // taint
     }
 
     static class A {

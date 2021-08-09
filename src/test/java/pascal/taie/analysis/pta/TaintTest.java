@@ -22,18 +22,36 @@ public class TaintTest {
     @Test
     public void testSimpleTaint() {
         TestUtils.testPTA(DIR, "SimpleTaint",
-                "taint:true;taint.config:src/test/resources/pta/taint/taint-config.yml");
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
     public void testFieldTaint() {
         TestUtils.testPTA(DIR, "FieldTaint",
-                "taint:true;taint.config:src/test/resources/pta/taint/taint-config.yml");
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
     public void testCSTaint() {
         TestUtils.testPTA(DIR, "CSTaint",
-                "cs:1-obj;taint:true;taint.config:src/test/resources/pta/taint/taint-config.yml");
+                "cs:1-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testArgToBase() {
+        TestUtils.testPTA(DIR, "ArgToBase",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testArgToResult() {
+        TestUtils.testPTA(DIR, "ArgToResult",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testBaseToResult() {
+        TestUtils.testPTA(DIR, "BaseToResult",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 }
