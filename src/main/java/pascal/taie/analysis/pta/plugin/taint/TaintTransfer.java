@@ -26,10 +26,20 @@ class TaintTransfer {
     static final int BASE = -1;
 
     /**
-     * Special number representing the variable that receivers
-     * the return value of the invocation.
+     * String representation of base variable.
      */
-    static final int RETURN = -2;
+    private static final String BASE_STR = "base";
+
+    /**
+     * Special number representing the variable that receivers
+     * the result of the invocation.
+     */
+    static final int RESULT = -2;
+
+    /**
+     * String representation of result variable
+     */
+    private static final String RESULT_STR = "result";
 
     /**
      * The method causing taint transfer.
@@ -90,11 +100,28 @@ class TaintTransfer {
         return method + ": " + toString(from) + " -> " + toString(to);
     }
 
+    /**
+     * Coverts index string to number.
+     */
+    static int toInt(String s) {
+        switch (s.toLowerCase()) {
+            case BASE_STR:
+                return BASE;
+            case RESULT_STR:
+                return RESULT;
+            default:
+                return Integer.parseInt(s);
+        }
+    }
+
     private static String toString(int index) {
         switch (index) {
-            case BASE: return "base";
-            case RETURN: return "return";
-            default: return Integer.toString(index);
+            case BASE:
+                return BASE_STR;
+            case RESULT:
+                return RESULT_STR;
+            default:
+                return Integer.toString(index);
         }
     }
 }

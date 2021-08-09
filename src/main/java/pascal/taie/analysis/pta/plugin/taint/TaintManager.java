@@ -46,12 +46,12 @@ class TaintManager {
     /**
      * @return if an obj represents tainted values.
      */
-    static boolean isTaint(Obj obj) {
+    boolean isTaint(Obj obj) {
         return obj instanceof MockObj &&
                 ((MockObj) obj).getDescription().equals(TAINT_DESC);
     }
 
-    static Invoke getSourceCall(Obj taint) {
+    Invoke getSourceCall(Obj taint) {
         return (Invoke) taint.getAllocation();
     }
 }

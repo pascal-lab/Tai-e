@@ -52,10 +52,31 @@ class TaintConfig {
     private final Set<TaintTransfer> transfers;
 
     private TaintConfig(Set<JMethod> sources, Set<MethodParam> sinks,
-                       Set<TaintTransfer> transfers) {
+                        Set<TaintTransfer> transfers) {
         this.sources = sources;
         this.sinks = sinks;
         this.transfers = transfers;
+    }
+
+    /**
+     * Reads a taint analysis configuration from file
+     *
+     * @param path      the path to the config file
+     * @param hierarchy the class hierarchy
+     * @return the TaintConfig object
+     * @throws ConfigException if failed to load the config file
+     */
+    static TaintConfig readConfig(String path, ClassHierarchy hierarchy) {
+        File file = new File(path);
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(TaintConfig.class, new Deserializer(hierarchy));
+        mapper.registerModule(module);
+        try {
+            return mapper.readValue(file, TaintConfig.class);
+        } catch (IOException e) {
+            throw new ConfigException("Failed to read taint analysis config file " + file, e);
+        }
     }
 
     Set<JMethod> getSources() {
@@ -92,26 +113,6 @@ class TaintConfig {
     }
 
     /**
-     * Reads a taint analysis configuration from file
-     * @param path the path to the config file
-     * @param hierarchy the class hierarchy
-     * @return the TaintConfig object
-     * @throws ConfigException if failed to load the config file
-     */
-    static TaintConfig readConfig(String path, ClassHierarchy hierarchy) {
-        File file = new File(path);
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(TaintConfig.class, new Deserializer(hierarchy));
-        mapper.registerModule(module);
-        try {
-            return mapper.readValue(file, TaintConfig.class);
-        } catch (IOException e) {
-            throw new ConfigException("Failed to read taint analysis config file " + file, e);
-        }
-    }
-
-    /**
      * Deserializer for {@link TaintConfig}.
      */
     private static class Deserializer extends JsonDeserializer<TaintConfig> {
@@ -136,6 +137,7 @@ class TaintConfig {
         /**
          * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
          * to a set of {@link JMethod}.
+         *
          * @param node the node to be deserialized
          * @return set of deserialized {@link JMethod}
          */
@@ -162,6 +164,7 @@ class TaintConfig {
         /**
          * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
          * to a set of {@link MethodParam}.
+         *
          * @param node the node to be deserialized
          * @return set of deserialized {@link MethodParam}
          */
@@ -189,6 +192,7 @@ class TaintConfig {
         /**
          * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
          * to a set of {@link TaintTransfer}.
+         *
          * @param node the node to be deserialized
          * @return set of deserialized {@link TaintTransfer}
          */
@@ -202,8 +206,8 @@ class TaintConfig {
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int from = toInt(elem.get("from").asText());
-                        int to = toInt(elem.get("to").asText());
+                        int from = TaintTransfer.toInt(elem.get("from").asText());
+                        int to = TaintTransfer.toInt(elem.get("to").asText());
                         transfers.add(new TaintTransfer(method, from, to));
                     }
                 }
@@ -211,17 +215,6 @@ class TaintConfig {
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return Set.of();
-            }
-        }
-
-        /**
-         * Coverts from/to string to number.
-         */
-        private static int toInt(String s) {
-            switch (s.toLowerCase()) {
-                case "base": return TaintTransfer.BASE;
-                case "return": return TaintTransfer.RETURN;
-                default: return Integer.parseInt(s);
             }
         }
     }
