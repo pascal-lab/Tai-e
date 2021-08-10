@@ -35,7 +35,6 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
-import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
@@ -127,17 +126,11 @@ public class SolverImpl implements Solver {
 
     private StmtProcessor stmtProcessor;
 
-    private final PTAThrowResult throwResult = new PTAThrowResult();
-
     private PointerAnalysisResult result;
 
     public SolverImpl() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
-    }
-
-    public PTAThrowResult getThrowResult(){
-        return this.throwResult;
     }
 
     @Override
@@ -198,7 +191,7 @@ public class SolverImpl implements Solver {
     @Override
     public PointerAnalysisResult getResult() {
         if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, callGraph, throwResult);
+            result = new PointerAnalysisResultImpl(csManager, callGraph);
         }
         return result;
     }

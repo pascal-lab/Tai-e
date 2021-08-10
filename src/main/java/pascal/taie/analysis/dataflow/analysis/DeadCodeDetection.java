@@ -116,7 +116,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     /**
      * For assignment x = expr, if x is not live after the assignment and
-     * expr has no side-effect, then the assignment is dead and can be eliminated.
+     * expr has no side effect, then the assignment is dead and can be eliminated.
      */
     private Set<Stmt> findDeadAssignments(IR ir) {
         // Obtain the live variable analysis results for this method

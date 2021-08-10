@@ -55,14 +55,11 @@ public class ExceptionAnalysis implements Plugin {
 
     private TypeManager typeManager;
 
-    private PTAThrowResult throwResult;
-
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         this.csManager = solver.getCSManager();
         this.typeManager = solver.getTypeManager();
-        this.throwResult = solver.getThrowResult();
     }
 
     /**
@@ -198,6 +195,7 @@ public class ExceptionAnalysis implements Plugin {
     public void onFinish() {
         // Collects context-sensitive throw results and stores them in
         // a context-insensitive manner.
+        PTAThrowResult throwResult = new PTAThrowResult();
         solver.getCallGraph()
                 .reachableMethods()
                 .forEach(csMethod -> {
@@ -205,5 +203,7 @@ public class ExceptionAnalysis implements Plugin {
                     MethodThrowResult result = throwResult.getOrCreateResult(method);
                     csMethod.getThrowResult().ifPresent(result::addCSMethodThrowResult);
                 });
+        solver.getResult()
+                .storePluginResult(getClass(), throwResult);
     }
 }

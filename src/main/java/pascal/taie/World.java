@@ -125,11 +125,11 @@ public class World {
         theWorld.resultHolder.storeResult(id, result);
     }
 
-    public static <T> T getResult(String id) {
+    public static <R> R getResult(String id) {
         return theWorld.resultHolder.getResult(id);
     }
 
-    public static <T> T getResult(String id, T defaultResult) {
+    public static <R> R getResult(String id, R defaultResult) {
         return theWorld.resultHolder.getResult(id, defaultResult);
     }
 

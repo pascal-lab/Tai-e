@@ -24,7 +24,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
@@ -155,7 +155,12 @@ class CIPTAResult implements PointerAnalysisResult {
     }
 
     @Override
-    public PTAThrowResult getThrowResult() {
+    public <R> void storePluginResult(Class<? extends Plugin> pluginClass, R result) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <R> R getPluginResult(Class<? extends Plugin> pluginClass) {
         throw new UnsupportedOperationException();
     }
 }

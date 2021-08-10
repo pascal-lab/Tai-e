@@ -27,7 +27,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -62,21 +62,16 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
     private final CallGraph<CSCallSite, CSMethod> csCallGraph;
 
     /**
-     * PTA-based throw analysis result.
-     */
-    private final PTAThrowResult throwResult;
-
-    /**
      * Call graph (context projected out).
      */
     private CallGraph<Invoke, JMethod> callGraph;
 
+    private final Map<Class<? extends Plugin>, Object> pluginResults = MapUtils.newMap();
+
     PointerAnalysisResultImpl(CSManager csManager,
-                              CallGraph<CSCallSite, CSMethod> csCallGraph,
-                              PTAThrowResult throwResult) {
+                              CallGraph<CSCallSite, CSMethod> csCallGraph) {
         this.csManager = csManager;
         this.csCallGraph = csCallGraph;
-        this.throwResult = throwResult;
     }
 
     @Override
@@ -178,11 +173,6 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
         return callGraph;
     }
 
-    @Override
-    public PTAThrowResult getThrowResult(){
-        return this.throwResult;
-    }
-
     /**
      * Removes contexts in a context-sensitive call graph and
      * returns a new resulting call graph.
@@ -202,5 +192,15 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
                     callSite, callee));
         });
         return callGraph;
+    }
+
+    @Override
+    public <R> void storePluginResult(Class<? extends Plugin> pluginClass, R result) {
+        pluginResults.put(pluginClass, result);
+    }
+
+    @Override
+    public <R> R getPluginResult(Class<? extends Plugin> pluginClass) {
+        return (R) pluginResults.get(pluginClass);
     }
 }

@@ -15,6 +15,7 @@ package pascal.taie.analysis.exception;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.exception.PTAThrowResult;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Invoke;
@@ -29,16 +30,16 @@ import java.util.stream.Collectors;
  */
 class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
-    private final PTAThrowResult ptaBasedThrowResult;
+    private final PTAThrowResult ptaThrowResult;
 
     PTABasedExplicitThrowAnalysis() {
-        PointerAnalysisResult solver = World.getResult(PointerAnalysis.ID);
-        this.ptaBasedThrowResult = solver.getThrowResult();
+        PointerAnalysisResult result = World.getResult(PointerAnalysis.ID);
+        this.ptaThrowResult = result.getPluginResult(ExceptionAnalysis.class);
     }
 
     @Override
     public void analyze(IR ir, ThrowResult result) {
-        ptaBasedThrowResult.getResult(ir.getMethod())
+        ptaThrowResult.getResult(ir.getMethod())
                 .ifPresent(ptaResult ->
                         ir.getStmts().forEach(stmt -> {
                             Collection<ClassType> exceptions = ptaResult

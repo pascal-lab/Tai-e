@@ -25,18 +25,18 @@ public interface ResultHolder {
     /**
      * Stores the analysis result with the analysis id.
      */
-    <T> void storeResult(String id, T result);
+    <R> void storeResult(String id, R result);
 
     /**
      * Given an analysis id, returns the corresponding results.
      */
-    <T> T getResult(String id);
+    <R> R getResult(String id);
 
     /**
      * If this holder contains the result for given analysis id,
      * then return the result, otherwise, return the given default result.
      */
-    <T> T getResult(String id, T defaultResult);
+    <R> R getResult(String id, R defaultResult);
 
     /**
      * Clears result of the analysis specified by given id.
