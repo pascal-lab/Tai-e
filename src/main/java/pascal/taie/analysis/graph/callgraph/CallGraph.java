@@ -44,6 +44,11 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
     Stream<Edge<CallSite, Method>> edgesOf(CallSite callSite);
 
     /**
+     * @return the call edges targeting to the given method.
+     */
+    Stream<Edge<CallSite, Method>> edgesTo(Method method);
+
+    /**
      * @return all call edges in this call graph.
      */
     Stream<Edge<CallSite, Method>> edges();

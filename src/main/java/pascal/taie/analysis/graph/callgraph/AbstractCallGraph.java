@@ -68,6 +68,11 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
+    public Stream<Edge<CallSite, Method>> edgesTo(Method method) {
+        return calleeToEdges.getOrDefault(method, Set.of()).stream();
+    }
+
+    @Override
     public Stream<Edge<CallSite, Method>> edges() {
         return callSiteToEdges.values()
                 .stream()

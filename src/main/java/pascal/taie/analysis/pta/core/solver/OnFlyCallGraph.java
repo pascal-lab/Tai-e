@@ -41,7 +41,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     void addEdge(Edge<CSCallSite, CSMethod> edge) {
         edge.getCallSite().addEdge(edge);
-        edge.getCallee().addCaller(edge.getCallSite());
+        edge.getCallee().addEdge(edge);
     }
 
     boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -60,12 +60,12 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     @Override
     public Stream<CSMethod> calleesOf(CSCallSite csCallSite) {
-        return csCallSite.getEdges().stream().map(Edge::getCallee);
+        return csCallSite.edges().map(Edge::getCallee);
     }
 
     @Override
     public Stream<CSCallSite> callersOf(CSMethod callee) {
-        return callee.getCallers().stream();
+        return callee.edges().map(Edge::getCallSite);
     }
 
     @Override
@@ -89,7 +89,12 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     @Override
     public Stream<Edge<CSCallSite, CSMethod>> edgesOf(CSCallSite csCallSite) {
-        return csCallSite.getEdges().stream();
+        return csCallSite.edges();
+    }
+
+    @Override
+    public Stream<Edge<CSCallSite, CSMethod>> edgesTo(CSMethod csMethod) {
+        return csMethod.edges();
     }
 
     @Override

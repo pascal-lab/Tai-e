@@ -17,6 +17,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.ir.stmt.Invoke;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
@@ -56,6 +57,10 @@ public class CSCallSite extends AbstractCSElement {
 
     public Set<Edge<CSCallSite, CSMethod>> getEdges() {
         return edges;
+    }
+
+    public Stream<Edge<CSCallSite, CSMethod>> edges() {
+        return edges.stream();
     }
 
     @Override

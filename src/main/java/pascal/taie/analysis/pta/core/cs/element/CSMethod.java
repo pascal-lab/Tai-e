@@ -12,12 +12,14 @@
 
 package pascal.taie.analysis.pta.core.cs.element;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.plugin.exception.CSMethodThrowResult;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.SetUtils.newHybridSet;
 
@@ -27,7 +29,7 @@ public class CSMethod extends AbstractCSElement {
     /**
      * Callers of this CS method.
      */
-    private final Set<CSCallSite> callers = newHybridSet();
+    private final Set<Edge<CSCallSite, CSMethod>> edges = newHybridSet();
 
     private CSMethodThrowResult throwResult;
 
@@ -40,12 +42,12 @@ public class CSMethod extends AbstractCSElement {
         return method;
     }
 
-    public void addCaller(CSCallSite caller) {
-        callers.add(caller);
+    public void addEdge(Edge<CSCallSite, CSMethod> edge) {
+        edges.add(edge);
     }
 
-    public Set<CSCallSite> getCallers() {
-        return callers;
+    public Stream<Edge<CSCallSite, CSMethod>> edges() {
+        return edges.stream();
     }
 
     public CSMethodThrowResult getOrCreateThrowResult() {
