@@ -39,6 +39,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.MapUtils;
 
 import javax.annotation.Nullable;
@@ -306,7 +307,7 @@ class ReflectiveActionModel extends AbstractModel {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             Type baseType = CSObjUtils.toType(obj);
-            if (baseType == null) {
+            if (baseType == null || baseType instanceof VoidType) {
                 return;
             }
             ArrayType arrayType = typeManager.getArrayType(baseType, 1);

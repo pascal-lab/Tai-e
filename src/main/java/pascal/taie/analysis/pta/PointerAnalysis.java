@@ -100,7 +100,6 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 new AnalysisTimer(),
                 new ClassInitializer(),
                 new ThreadHandler(),
-                new ReferenceHandler(),
                 new ExceptionAnalysis(),
                 new ReflectionAnalysis(),
                 new ResultProcessor()
