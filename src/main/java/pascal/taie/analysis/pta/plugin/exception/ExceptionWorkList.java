@@ -12,8 +12,7 @@ class ExceptionWorkList {
 
     private final Queue<Entry> exceptionEntries = new LinkedList<>();
 
-    void addEntry(CSMethod csMethod, Stmt stmt,
-                  Collection<CSObj> exceptions) {
+    void addEntry(CSMethod csMethod, Stmt stmt, Collection<CSObj> exceptions) {
         exceptionEntries.add(new Entry(csMethod, stmt, exceptions));
     }
 
@@ -33,8 +32,7 @@ class ExceptionWorkList {
 
         final Collection<CSObj> exceptions;
 
-        Entry(CSMethod csMethod, Stmt stmt,
-                     Collection<CSObj> exceptions) {
+        Entry(CSMethod csMethod, Stmt stmt, Collection<CSObj> exceptions) {
             this.csMethod = csMethod;
             this.stmt = stmt;
             this.exceptions = exceptions;

@@ -1,6 +1,7 @@
 package pascal.taie.analysis.pta.plugin.exception;
 
 import pascal.taie.analysis.exception.CatchAnalysis;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -114,14 +115,17 @@ public class ExceptionAnalysis implements Plugin {
      */
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        CSMethod callee = edge.getCallee();
-        callee.getThrowResult().ifPresent(result -> {
-            CSMethod caller = edge.getCallSite().getContainer();
-            Invoke invoke = edge.getCallSite().getCallSite();
-            Collection<CSObj> exceptions = result.mayThrowUncaught();
-            workList.addEntry(caller, invoke, exceptions);
-            propagateExceptions();
-        });
+        if (edge.getKind() != CallKind.OTHER) {
+            // currently, don't propagate exceptions along OTHER edges
+            CSMethod callee = edge.getCallee();
+            callee.getThrowResult().ifPresent(result -> {
+                CSMethod caller = edge.getCallSite().getContainer();
+                Invoke invoke = edge.getCallSite().getCallSite();
+                Collection<CSObj> exceptions = result.mayThrowUncaught();
+                workList.addEntry(caller, invoke, exceptions);
+                propagateExceptions();
+            });
+        }
     }
 
     /**
@@ -145,10 +149,13 @@ public class ExceptionAnalysis implements Plugin {
                 if (!uncaught.isEmpty()) {
                     result.addUncaughtExceptions(uncaught);
                     solver.getCallGraph()
-                            .callersOf(csMethod)
-                            .forEach(csCallSite -> {
-                                Stmt invoke = csCallSite.getCallSite();
-                                CSMethod caller = csCallSite.getContainer();
+                            .edgesTo(csMethod)
+                            // currently, don't propagate exceptions along OTHER edges
+                            .filter(edge -> edge.getKind() != CallKind.OTHER)
+                            .forEach(edge -> {
+                                CSCallSite callSite = edge.getCallSite();
+                                CSMethod caller = callSite.getContainer();
+                                Invoke invoke = callSite.getCallSite();
                                 workList.addEntry(caller, invoke, uncaught);
                     });
                 }
