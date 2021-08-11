@@ -38,4 +38,9 @@ public class LambdaTest {
     public void testStaticMethod() {
         TestUtils.testPTA(DIR, "LambdaStaticMethod");
     }
+
+    @Test
+    public void testImpreciseLambdas() {
+        TestUtils.testPTA(DIR, "ImpreciseLambdas");
+    }
 }

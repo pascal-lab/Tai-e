@@ -83,7 +83,7 @@ public class LambdaAnalysis implements Plugin {
     /**
      * Map from receiver variable to the information about the related
      * instance invocation sites. When new objects reach the receiver variable,
-     * these information will be used to build lambda call edges.
+     * this information will be used to build lambda call edges.
      */
     private final Map<CSVar, Set<InstanceInvoInfo>> invoInfos = newMap();
 
@@ -289,6 +289,8 @@ public class LambdaAnalysis implements Plugin {
                 solver.addPFGEdge(
                         csManager.getCSVar(lambdaContext, capturedArgs.get(i)),
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
+                        // filter spurious objects caused by imprecise lambda objects
+                        targetParams.get(j).getType(),
                         PointerFlowEdge.Kind.PARAMETER_PASSING);
             }
             // pass arguments from actual invocation site
@@ -310,6 +312,8 @@ public class LambdaAnalysis implements Plugin {
                 solver.addPFGEdge(
                         csManager.getCSVar(callerContext, actualArgs.get(i)),
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
+                        // filter spurious objects caused by imprecise lambda objects
+                        targetParams.get(j).getType(),
                         PointerFlowEdge.Kind.PARAMETER_PASSING);
             }
             // pass return value
@@ -318,7 +322,9 @@ public class LambdaAnalysis implements Plugin {
                 CSVar csResult = csManager.getCSVar(callerContext, result);
                 target.getIR().getReturnVars().forEach(ret -> {
                     CSVar csRet = csManager.getCSVar(calleeContext, ret);
-                    solver.addPFGEdge(csRet, csResult, PointerFlowEdge.Kind.RETURN);
+                    solver.addPFGEdge(csRet, csResult,
+                            // filter spurious objects caused by imprecise lambda objects
+                            result.getType(), PointerFlowEdge.Kind.RETURN);
                 });
             }
         }
