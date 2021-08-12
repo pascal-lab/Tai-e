@@ -107,7 +107,7 @@ public class ConfigUtils {
                         }
                     }
                     return false;
-                } else if (!options.get(key).toString().equals(value)) { // a=b
+                } else if (!Objects.toString(options.get(key)).equals(value)) { // a=b
                     return false;
                 }
             }

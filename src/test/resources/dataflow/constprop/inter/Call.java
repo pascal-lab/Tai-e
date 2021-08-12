@@ -1,4 +1,4 @@
-public class TestIPConstantPropagation {
+public class Call {
 
     public static void main(String[] args) {
         A a = new A();

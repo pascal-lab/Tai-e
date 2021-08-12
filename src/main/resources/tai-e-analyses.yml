@@ -84,7 +84,10 @@
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.ipa.IPConstantPropagation
   id: ip-constprop
-  requires: [icfg]
+  requires: [icfg,cipta(pta=cipta),pta(pta=pta)]
+  options:
+    alias-aware: false
+    pta: null
 
 - description: dead code detection
   analysisClass: pascal.taie.analysis.dataflow.analysis.DeadCodeDetection
