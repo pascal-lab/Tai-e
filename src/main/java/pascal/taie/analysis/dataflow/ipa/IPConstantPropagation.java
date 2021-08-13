@@ -19,7 +19,6 @@ import pascal.taie.analysis.dataflow.fact.MapFact;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.LocalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
-import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisConfig;
@@ -60,14 +59,12 @@ public class IPConstantPropagation extends
         cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
         aliasAware = getOptions().getBoolean("alias-aware");
         if (aliasAware) {
-            preAnalysis();
+            storeToLoads = computeStoreToLoads();
+            // TODO: compute uninitialized fields
         }
     }
 
-    /**
-     * Pre-analysis for alias-aware analysis.
-     */
-    private void preAnalysis() {
+    private Map<StoreField, Set<LoadField>> computeStoreToLoads() {
         String ptaId = getOptions().getString("pta");
         PointerAnalysisResult result = World.getResult(ptaId);
         // compute storeToLoads via alias information
@@ -76,7 +73,7 @@ public class IPConstantPropagation extends
         result.vars().forEach(var ->
                 result.getPointsToSet(var).forEach(obj ->
                         MapUtils.addToMapSet(pointedBy, obj, var)));
-        storeToLoads = MapUtils.newMap();
+        Map<StoreField, Set<LoadField>> storeToLoads = MapUtils.newMap();
         pointedBy.values().forEach(aliases -> {
             for (Var v : aliases) {
                 v.getStoreFields()
@@ -96,7 +93,7 @@ public class IPConstantPropagation extends
                         });
             }
         });
-        // TODO: compute uninitialized fields
+        return storeToLoads;
     }
 
     @Override
@@ -125,13 +122,30 @@ public class IPConstantPropagation extends
     }
 
     @Override
-    public boolean transferNonCall(Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
+    protected boolean transferCall(Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
+        Invoke call = (Invoke) stmt;
+        boolean changed = false;
+        Var lhs = call.getResult();
+        if (lhs != null) {
+            for (Var inVar : in.keySet()) {
+                if (!inVar.equals(lhs)) {
+                    changed |= out.update(inVar, in.get(inVar));
+                }
+            }
+            return changed;
+        } else {
+            return out.copyFrom(in);
+        }
+    }
+
+    @Override
+    protected boolean transferNonCall(Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
         return aliasAware ?
-                transferNonCallAliasAware(stmt, in, out) :
+                transferAliasAware(stmt, in, out) :
                 cp.transferNode(stmt, in, out);
     }
 
-    private boolean transferNonCallAliasAware(
+    private boolean transferAliasAware(
             Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
         if (isAliasRelevant(stmt)) {
             if (stmt instanceof LoadField) { // x = o.f
@@ -160,22 +174,6 @@ public class IPConstantPropagation extends
                     fs.getRValue().getType().equals(PrimitiveType.INT);
         }
         return false;
-    }
-
-    @Override
-    public boolean transferCall(Stmt callSite, MapFact<Var, Value> in, MapFact<Var, Value> out) {
-        boolean changed = false;
-        Var lhs = ((Invoke) callSite).getResult();
-        if (lhs != null) {
-            for (Var inVar : in.keySet()) {
-                if (!inVar.equals(lhs)) {
-                    changed |= out.update(inVar, in.get(inVar));
-                }
-            }
-            return changed;
-        } else {
-            return out.copyFrom(in);
-        }
     }
 
     @Override

@@ -12,10 +12,7 @@
 
 package pascal.taie.analysis.dataflow.ipa;
 
-import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.ICFGEdge;
-import pascal.taie.analysis.graph.icfg.LocalEdge;
-import pascal.taie.analysis.graph.icfg.ReturnEdge;
 
 /**
  * Inter-procedural data-flow analysis.
@@ -28,12 +25,12 @@ public interface IPDataflowAnalysis<Method, Node, Fact> {
     boolean isForward();
 
     /**
-     * Returns initial flowing-in fact for entry node.
+     * Returns initial fact for entry node.
      */
     Fact getEntryInitialFact(Node entry);
 
     /**
-     * Returns initial flowing-out fact for non-entry nodes.
+     * Returns initial fact for non-entry nodes.
      */
     Fact newInitialFact();
 
@@ -48,30 +45,7 @@ public interface IPDataflowAnalysis<Method, Node, Fact> {
      */
     void mergeInto(Fact fact, Fact result);
 
-    /**
-     * Node transfer function for non-call nodes.
-     */
-    boolean transferNonCall(Node node, Fact in, Fact out);
+    boolean transferNode(Node node, Fact in, Fact out);
 
-    /**
-     * Node transfer function for call nodes.
-     */
-    boolean transferCall(Node callSite, Fact in, Fact out);
-
-    default void transferEdge(
-            ICFGEdge<Node> edge, Fact in, Fact out, Fact edgeFact) {
-        if (edge instanceof LocalEdge) {
-            transferLocalEdge((LocalEdge<Node>) edge, out, edgeFact);
-        } else if (edge instanceof CallEdge) {
-            transferCallEdge((CallEdge<Node>) edge, in, edgeFact);
-        } else {
-            transferReturnEdge((ReturnEdge<Node>) edge, out, edgeFact);
-        }
-    }
-
-    void transferLocalEdge(LocalEdge<Node> edge, Fact out, Fact edgeFact);
-
-    void transferCallEdge(CallEdge<Node> edge, Fact callSiteIn, Fact edgeFact);
-
-    void transferReturnEdge(ReturnEdge<Node> edge, Fact returnOut, Fact edgeFact);
+    void transferEdge(ICFGEdge<Node> edge, Fact in, Fact out, Fact edgeFact);
 }
