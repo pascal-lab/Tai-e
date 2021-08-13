@@ -26,6 +26,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.SetUtils;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -40,7 +41,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
     private final Map<Stmt, Set<ICFGEdge<Stmt>>> outEdges = MapUtils.newMap();
 
-    private final Map<Stmt, CFG<Stmt>> stmtToCFG = MapUtils.newMap();
+    private final Map<Stmt, CFG<Stmt>> stmtToCFG = new LinkedHashMap<>();
 
     DefaultICFG(CallGraph<Stmt, JMethod> callGraph) {
         super(callGraph);
