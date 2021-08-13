@@ -23,12 +23,12 @@ public interface DataflowAnalysis<Node, Fact> {
     boolean isForward();
 
     /**
-     * Returns initial flowing-in fact for entry node.
+     * Returns initial fact for entry node.
      */
     Fact getEntryInitialFact(CFG<Node> cfg);
 
     /**
-     * Returns initial flowing-out fact for non-entry nodes.
+     * Returns initial fact for non-entry nodes.
      */
     Fact newInitialFact();
 

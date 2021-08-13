@@ -12,8 +12,6 @@
 
 package pascal.taie.analysis.dataflow.solver;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
@@ -22,8 +20,6 @@ import pascal.taie.util.MutableBoolean;
 import java.util.function.Predicate;
 
 class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
-
-    private static final Logger logger = LogManager.getLogger(IterativeSolver.class);
 
     public IterativeSolver(DataflowAnalysis<Node, Fact> analysis) {
         super(analysis);
@@ -46,25 +42,14 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
                     .filter(Predicate.not(cfg::isEntry))
                     .forEach(node -> {
                         // meet incoming facts from preds to node
+                        Fact in = result.getInFact(node);
                         cfg.inEdgesOf(node).forEach(inEdge -> {
                             Fact predOut = analysis.hasEdgeTransfer() ?
                                     result.getEdgeFact(inEdge) :
                                     result.getOutFact(inEdge.getSource());
-                            Fact in = result.getInFact(node);
-                            if (in == null) {
-                                in = analysis.copyFact(predOut);
-                                result.setInFact(node, in);
-                            }
                             analysis.mergeInto(predOut, in);
                         });
                         // apply node transfer function
-                        Fact in = result.getInFact(node);
-                        if (in == null) {
-                            // this means that node does not have any predecessors in CFG
-                            logger.warn("[forward analysis]: in fact of {} is null," +
-                                    " skip its transfer", node);
-                            return;
-                        }
                         Fact out = result.getOutFact(node);
                         boolean c = analysis.transferNode(node, in, out);
                         if (c) {

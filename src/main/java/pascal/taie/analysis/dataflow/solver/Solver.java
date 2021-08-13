@@ -48,16 +48,27 @@ public abstract class Solver<Node, Fact> {
     private void initializeForward(DataflowResult<Node, Fact> result,
                                    CFG<Node> cfg) {
         cfg.nodes().forEach(node -> {
-            Fact initFact = cfg.isEntry(node) ?
-                    analysis.getEntryInitialFact(cfg) : analysis.newInitialFact();
-            result.setOutFact(node, initFact);
+            Fact initIn, initOut;
+            // initialize in fact
+            if (cfg.isEntry(node)) {
+                initIn = analysis.getEntryInitialFact(cfg);
+                initOut = analysis.getEntryInitialFact(cfg);
+            } else {
+                initIn = analysis.newInitialFact();
+                initOut = analysis.newInitialFact();
+            }
+            // initialize in & out fact
+            result.setInFact(node, initIn);
+            result.setOutFact(node, initOut);
             if (analysis.hasEdgeTransfer()) {
                 cfg.outEdgesOf(node).forEach(edge -> {
                     Fact edgeFact = analysis.newInitialFact();
+                    // initialize edge fact
                     result.setEdgeFact(edge, edgeFact);
                     if (cfg.isEntry(node)) {
-                        // perform edge transfer for entry node
-                        analysis.transferEdge(edge, initFact, edgeFact);
+                        // entry node may not be transferred by the solver,
+                        // thus we apply edge transfer for it in advance
+                        analysis.transferEdge(edge, initOut, edgeFact);
                     }
                 });
             }
@@ -67,22 +78,34 @@ public abstract class Solver<Node, Fact> {
     private void initializeBackward(DataflowResult<Node, Fact> result,
                                    CFG<Node> cfg) {
         cfg.nodes().forEach(node -> {
-            Fact initFact = cfg.isExit(node) ?
-                    analysis.getEntryInitialFact(cfg) : analysis.newInitialFact();
-            result.setInFact(node, initFact);
+            Fact initIn, initOut;
+            // initialize in fact
+            if (cfg.isExit(node)) {
+                initIn = analysis.getEntryInitialFact(cfg);
+                initOut = analysis.getEntryInitialFact(cfg);
+            } else {
+                initIn = analysis.newInitialFact();
+                initOut = analysis.newInitialFact();
+            }
+            // initialize in & out fact
+            result.setInFact(node, initIn);
+            result.setOutFact(node, initOut);
             if (analysis.hasEdgeTransfer()) {
+                // apply edge transfer for exit node
                 cfg.inEdgesOf(node).forEach(edge -> {
                     Fact edgeFact = analysis.newInitialFact();
+                    // initialize edge fact
                     result.setEdgeFact(edge, edgeFact);
                     if (cfg.isExit(node)) {
-                        // perform edge transfer for exit node
-                        analysis.transferEdge(edge, initFact, edgeFact);
+                        // exit node may not be transferred by the solver,
+                        // thus we apply edge transfer for it in advance
+                        analysis.transferEdge(edge, initIn, edgeFact);
                     }
                 });
             }
         });
     }
 
-    protected abstract void doSolve(CFG<Node> cfg,
-                                    DataflowResult<Node, Fact> result);
+    protected abstract void doSolve(
+            CFG<Node> cfg, DataflowResult<Node, Fact> result);
 }
