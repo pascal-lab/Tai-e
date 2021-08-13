@@ -4,7 +4,8 @@ class SimpleField {
         A a = new A();
         int x = a.f;
         int y = a.g;
-        String s = a.h;
+        int z = a.h;
+        String s = a.s;
     }
 
     static class A {
@@ -13,6 +14,8 @@ class SimpleField {
 
         int g = 20;
 
-        String h = "xxx";
+        int h;
+
+        String s = "xxx";
     }
 }

@@ -45,8 +45,8 @@ import java.util.stream.Stream;
 import static pascal.taie.util.collection.CollectionUtils.getOne;
 
 /**
- * Special class for process the results of other analyses after they finishes.
- * This class is designed mainly for testing purpose. Currently is supports
+ * Special class for process the results of other analyses after they finish.
+ * This class is designed mainly for testing purpose. Currently, it supports
  * input/output analysis results from/to file, and compare analysis results
  * with input results. This analysis should be placed after the other analyses.
  */
