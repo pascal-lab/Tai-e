@@ -152,19 +152,32 @@ public class IPConstantPropagation extends
                 LoadField load = (LoadField) stmt;
                 // if o has not been initialized, set x to 0
                 // otherwise, kill x
+                boolean changed = false;
+                Var lhs = load.getLValue();
+                for (Var inVar : in.keySet()) {
+                    if (!inVar.equals(lhs)) {
+                        changed |= out.update(inVar, in.get(inVar));
+                    }
+                }
+                return changed;
             } else { // o.f = x
                 StoreField store = (StoreField) stmt;
                 Var var = store.getRValue();
                 Value value = in.get(var);
-                MapFact<Var, Value> temp = newInitialFact();
-                temp.update(var, value);
-
-                // propagate value of x to loads of o
-                // put affected load statements to work-list
-                // propagate in to out
+                storeToLoads.get(store).forEach(load -> {
+                    Var lhs = load.getLValue();
+                    MapFact<Var, Value> loadOut = solver.getOutFact(load);
+                    Value oldV = loadOut.get(lhs);
+                    Value newV = cp.meetValue(oldV, value);
+                    if (loadOut.update(lhs, newV)) {
+                        solver.propagate(load);
+                    }
+                });
+                return cp.transferNode(stmt, in, out);
             }
+        } else {
+            return cp.transferNode(stmt, in, out);
         }
-        return cp.transferNode(stmt, in, out);
     }
 
     private static boolean isAliasRelevant(Stmt stmt) {
