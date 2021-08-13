@@ -14,38 +14,40 @@ package pascal.taie.analysis.dataflow.ipa;
 
 import pascal.taie.analysis.dataflow.fact.IPDataflowResult;
 import pascal.taie.analysis.graph.icfg.ICFG;
+import pascal.taie.util.collection.SetQueue;
 
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class IPSolver<Method, Node, Fact> {
+/**
+ * Solver for interprocedural data-flow analysis.
+ * The workload of interprocedural analysis is heavy, thus we always
+ * adopt work-list algorithm for efficiency.
+ */
+class IPSolver<Method, Node, Fact> {
 
-    protected final IPDataflowAnalysis<Method, Node, Fact> analysis;
+    private final IPDataflowAnalysis<Method, Node, Fact> analysis;
 
-    protected final ICFG<Method, Node> icfg;
+    private final ICFG<Method, Node> icfg;
 
-    protected IPDataflowResult<Node, Fact> result;
+    private IPDataflowResult<Node, Fact> result;
 
-    protected IPSolver(IPDataflowAnalysis<Method, Node, Fact> analysis,
-                       ICFG<Method, Node> icfg) {
+    private Queue<Node> workList;
+
+    IPSolver(IPDataflowAnalysis<Method, Node, Fact> analysis,
+             ICFG<Method, Node> icfg) {
         this.analysis = analysis;
         this.icfg = icfg;
     }
 
-    public static <Method, Node, Fact>
-    IPSolver<Method, Node, Fact> makeSolver(
-            IPDataflowAnalysis<Method, Node, Fact> analysis,
-            ICFG<Method, Node> icfg) {
-        return new IPWorkListSolver<>(analysis, icfg);
-    }
-
-    public IPDataflowResult<Node, Fact> solve() {
+    IPDataflowResult<Node, Fact> solve() {
         initialize();
         doSolve();
         return result;
     }
 
-    protected void initialize() {
+    private void initialize() {
         result = new IPDataflowResult<>();
         Set<Node> entryNodes = icfg.entryMethods()
                 .map(icfg::getEntryOf)
@@ -71,5 +73,36 @@ public abstract class IPSolver<Method, Node, Fact> {
         });
     }
 
-    protected abstract void doSolve();
+    private void doSolve() {
+        workList = new SetQueue<>();
+        icfg.nodes().forEach(workList::add);
+        while (!workList.isEmpty()) {
+            Node node = workList.poll();
+            // meet incoming facts
+            Fact in = result.getInFact(node);
+            icfg.inEdgesOf(node).forEach(inEdge -> {
+                Fact edgeFact = result.getEdgeFact(inEdge);
+                analysis.mergeInto(edgeFact, in);
+            });
+            Fact out = result.getOutFact(node);
+            boolean changed = analysis.transferNode(node, in, out);
+            if (changed) {
+                propagate(node);
+            }
+        }
+    }
+
+    void propagate(Node node) {
+        Fact in = result.getInFact(node);
+        Fact out = result.getOutFact(node);
+        icfg.outEdgesOf(node).forEach(edge -> {
+            // apply edge transfer
+            analysis.transferEdge(edge, in, out, result.getEdgeFact(edge));
+            workList.add(edge.getTarget());
+        });
+    }
+
+    Fact getOutFact(Node node) {
+        return result.getOutFact(node);
+    }
 }
