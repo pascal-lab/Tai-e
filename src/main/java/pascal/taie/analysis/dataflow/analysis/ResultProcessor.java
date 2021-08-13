@@ -228,15 +228,15 @@ public class ResultProcessor extends InterproceduralAnalysis {
                     if (line.startsWith(stmtStr) && !line.equals(given)) {
                         int idx = stmtStr.length();
                         mismatches.add(String.format("%s %s expected: %s, given: %s",
-                                method, stmtStr, given.substring(idx + 1),
-                                line.substring(idx + 1)));
+                                method, stmtStr, line.substring(idx + 1),
+                                given.substring(idx + 1)));
                     }
                 }
             });
         } else if (inputResult.size() == 1) {
             if (!toString(result).equals(getOne(inputResult))) {
                 mismatches.add(String.format("%s expected: %s, given: %s",
-                        method, toString(result), getOne(inputResult)));
+                        method, getOne(inputResult), toString(result)));
             }
         } else {
             logger.warn("Cannot compare result of analysis {} for {}," +
