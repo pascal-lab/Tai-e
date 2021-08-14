@@ -1,6 +1,6 @@
 -------------------- <SimpleBranch: void <init>()> (constprop) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
-[1@L1] return; {%this=NAC}
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
 
 -------------------- <SimpleBranch: void NAC(int)> (constprop) --------------------
 [0@L5] %intconst0 = 0; {%intconst0=0, p=NAC}

@@ -1,6 +1,6 @@
 -------------------- <Loop: void <init>()> (constprop) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
-[1@L1] return; {%this=NAC}
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
 
 -------------------- <Loop: void whileConstant()> (constprop) --------------------
 [0@L3] b = 1; {b=1}

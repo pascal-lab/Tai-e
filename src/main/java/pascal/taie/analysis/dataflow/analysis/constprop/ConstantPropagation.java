@@ -33,6 +33,7 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.AnalysisException;
 
 public class ConstantPropagation extends
@@ -58,12 +59,10 @@ public class ConstantPropagation extends
         // Make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
         IR ir = method.getIR();
-        ir.getParams().forEach(p ->
-                entryFact.update(p, Value.getNAC()));
-        Var thisVar = ir.getThis();
-        if (thisVar != null) {
-            entryFact.update(thisVar, Value.getNAC());
-        }
+        ir.getParams()
+                .stream()
+                .filter(this::isInt)
+                .forEach(p -> entryFact.update(p, Value.getNAC()));
         // TODO: explicitly initialize all non-param variables as UNDEF?
 //        ir.getVars()
 //                .stream()
@@ -118,10 +117,19 @@ public class ConstantPropagation extends
                         changed |= out.update(inVar, in.get(inVar));
                     }
                 }
-                return out.update(lhs, evaluate(rhs, in)) || changed;
+                return isInt(rhs) ?
+                        out.update(lhs, evaluate(rhs, in)) || changed :
+                        changed;
             }
         }
         return out.copyFrom(in);
+    }
+
+    /**
+     * @return if given expression is of integer type.
+     */
+    public boolean isInt(Exp exp) {
+        return exp.getType().equals(PrimitiveType.INT);
     }
 
     public static Value evaluate(Exp exp, MapFact<Var, Value> env) {

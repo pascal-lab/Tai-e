@@ -1,33 +1,33 @@
 -------------------- <BranchConstant: void <init>()> (constprop) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
-[1@L1] return; {%this=NAC}
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
 
 -------------------- <BranchConstant: void constant1(boolean)> (constprop) --------------------
-[0@L4] x = 2; {%this=NAC, b=NAC, x=2}
-[1@L5] y = 2; {%this=NAC, b=NAC, x=2, y=2}
-[2@L7] %intconst0 = 0; {%intconst0=0, %this=NAC, b=NAC, x=2, y=2}
-[3@L7] if (b == %intconst0) goto 10; {%intconst0=0, %this=NAC, b=NAC, x=2, y=2}
-[4@L7] goto 5; {%intconst0=0, %this=NAC, b=NAC, x=2, y=2}
-[5@L7] nop; {%intconst0=0, %this=NAC, b=NAC, x=2, y=2}
-[6@L8] temp$0 = x; {%intconst0=0, %this=NAC, b=NAC, temp$0=2, x=2, y=2}
-[7@L8] temp$1 = temp$0 + y; {%intconst0=0, %this=NAC, b=NAC, temp$0=2, temp$1=4, x=2, y=2}
-[8@L8] z = temp$1; {%intconst0=0, %this=NAC, b=NAC, temp$0=2, temp$1=4, x=2, y=2, z=4}
-[9@L7] goto 13; {%intconst0=0, %this=NAC, b=NAC, temp$0=2, temp$1=4, x=2, y=2, z=4}
-[10@L7] nop; {%intconst0=0, %this=NAC, b=0, x=2, y=2}
-[11@L10] temp$2 = x * y; {%intconst0=0, %this=NAC, b=0, temp$2=4, x=2, y=2}
-[12@L10] z = temp$2; {%intconst0=0, %this=NAC, b=0, temp$2=4, x=2, y=2, z=4}
-[13@L10] nop; {%intconst0=0, %this=NAC, b=NAC, temp$0=2, temp$1=4, temp$2=4, x=2, y=2, z=4}
-[14@L12] n = z; {%intconst0=0, %this=NAC, b=NAC, n=4, temp$0=2, temp$1=4, temp$2=4, x=2, y=2, z=4}
-[15@L12] return; {%intconst0=0, %this=NAC, b=NAC, n=4, temp$0=2, temp$1=4, temp$2=4, x=2, y=2, z=4}
+[0@L4] x = 2; {x=2}
+[1@L5] y = 2; {x=2, y=2}
+[2@L7] %intconst0 = 0; {%intconst0=0, x=2, y=2}
+[3@L7] if (b == %intconst0) goto 10; {%intconst0=0, x=2, y=2}
+[4@L7] goto 5; {%intconst0=0, x=2, y=2}
+[5@L7] nop; {%intconst0=0, x=2, y=2}
+[6@L8] temp$0 = x; {%intconst0=0, temp$0=2, x=2, y=2}
+[7@L8] temp$1 = temp$0 + y; {%intconst0=0, temp$0=2, temp$1=4, x=2, y=2}
+[8@L8] z = temp$1; {%intconst0=0, temp$0=2, temp$1=4, x=2, y=2, z=4}
+[9@L7] goto 13; {%intconst0=0, temp$0=2, temp$1=4, x=2, y=2, z=4}
+[10@L7] nop; {%intconst0=UNDEF, b=UNDEF, x=2, y=2}
+[11@L10] temp$2 = x * y; {%intconst0=UNDEF, b=UNDEF, temp$2=4, x=2, y=2}
+[12@L10] z = temp$2; {%intconst0=UNDEF, b=UNDEF, temp$2=4, x=2, y=2, z=4}
+[13@L10] nop; {%intconst0=0, b=UNDEF, temp$0=2, temp$1=4, temp$2=4, x=2, y=2, z=4}
+[14@L12] n = z; {%intconst0=0, b=UNDEF, n=4, temp$0=2, temp$1=4, temp$2=4, x=2, y=2, z=4}
+[15@L12] return; {%intconst0=0, b=UNDEF, n=4, temp$0=2, temp$1=4, temp$2=4, x=2, y=2, z=4}
 
 -------------------- <BranchConstant: void constant2(boolean)> (constprop) --------------------
-[0@L17] %intconst0 = 0; {%intconst0=0, %this=NAC, b=NAC}
-[1@L17] if (b == %intconst0) goto 6; {%intconst0=0, %this=NAC, b=NAC}
-[2@L17] goto 3; {%intconst0=0, %this=NAC, b=NAC}
-[3@L17] nop; {%intconst0=0, %this=NAC, b=NAC}
-[4@L18] temp$0 = 10; {%intconst0=0, %this=NAC, b=NAC, temp$0=10}
-[5@L18] x = temp$0; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10}
-[6@L18] nop; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10}
-[7@L20] y = x; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10, y=10}
-[8@L20] return; {%intconst0=0, %this=NAC, b=NAC, temp$0=10, x=10, y=10}
+[0@L17] %intconst0 = 0; {%intconst0=0}
+[1@L17] if (b == %intconst0) goto 6; {%intconst0=0}
+[2@L17] goto 3; {%intconst0=0}
+[3@L17] nop; {%intconst0=0}
+[4@L18] temp$0 = 10; {%intconst0=0, temp$0=10}
+[5@L18] x = temp$0; {%intconst0=0, temp$0=10, x=10}
+[6@L18] nop; {%intconst0=0, b=UNDEF, temp$0=10, x=10}
+[7@L20] y = x; {%intconst0=0, b=UNDEF, temp$0=10, x=10, y=10}
+[8@L20] return; {%intconst0=0, b=UNDEF, temp$0=10, x=10, y=10}
 

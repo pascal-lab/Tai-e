@@ -31,7 +31,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.collection.MapUtils;
 
 import java.util.List;
@@ -77,7 +76,7 @@ public class IPConstantPropagation extends
             for (Var v : aliases) {
                 v.getStoreFields()
                         .stream()
-                        .filter(IPConstantPropagation::isAliasRelevant)
+                        .filter(this::isAliasRelevant)
                         .forEach(store -> {
                             JField storedField = store.getFieldRef().resolve();
                             aliases.forEach(u ->
@@ -179,11 +178,10 @@ public class IPConstantPropagation extends
         }
     }
 
-    private static boolean isAliasRelevant(Stmt stmt) {
+    private boolean isAliasRelevant(Stmt stmt) {
         if (stmt instanceof FieldStmt) {
             FieldStmt<?,?> fs = (FieldStmt<?, ?>) stmt;
-            return !fs.isStatic() &&
-                    fs.getRValue().getType().equals(PrimitiveType.INT);
+            return !fs.isStatic() && cp.isInt(fs.getRValue());
         }
         return false;
     }
@@ -206,10 +204,6 @@ public class IPConstantPropagation extends
             Var param = params.get(i);
             Value argValue = callSiteIn.get(arg);
             edgeFact.update(param, argValue);
-        }
-        // Set NAC to this variable of callee
-        if (!callee.isStatic()) {
-            edgeFact.update(callee.getIR().getThis(), Value.getNAC());
         }
     }
 

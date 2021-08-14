@@ -1,6 +1,6 @@
 -------------------- <SimpleBinary: void <init>()> (constprop) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NAC}
-[1@L1] return; {%this=NAC}
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
 
 -------------------- <SimpleBinary: void constant()> (constprop) --------------------
 [0@L4] x = 1; {x=1}
