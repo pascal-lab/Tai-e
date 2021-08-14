@@ -18,6 +18,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         CPTestFull.class,
+        IPCPAliasTest.class,
         MeetValueTest.class,
         ValueTest.class,
 })
