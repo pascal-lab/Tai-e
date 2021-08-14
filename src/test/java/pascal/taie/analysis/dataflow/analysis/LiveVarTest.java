@@ -19,7 +19,7 @@ public class LiveVarTest {
 
     @Test
     public void test() {
-        TestUtils.testIntra("LiveVar", "src/test/resources/dataflow/",
+        TestUtils.testDFA("LiveVar", "src/test/resources/dataflow/",
                 LiveVariableAnalysis.ID);
     }
 }

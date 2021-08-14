@@ -37,7 +37,15 @@ public class TestUtils {
      */
     private static final boolean DUMP_CFG = false;
 
-    public static void testIntra(String main, String classPath, String id) {
+    /**
+     * Tests data-flow analysis.
+     *
+     * @param main the main class to be analyzed
+     * @param classPath where the main class is located
+     * @param id ID of the analysis to be executed
+     * @param opts options for the analysis
+     */
+    public static void testDFA(String main, String classPath, String id, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);
@@ -48,10 +56,20 @@ public class TestUtils {
                     String.format("%s=dump:true", CFGBuilder.ID));
         }
         // set up the analysis
-        Collections.addAll(args, "-a", id);
+        if (opts.length > 0 && !opts[0].equals("-a")) {
+            // if the opts is not empty, and the opts[0] is not "-a",
+            // then this option is given to analysis *id*.
+            Collections.addAll(args, "-a", id + "=" + opts[0]);
+            for (int i = 1; i < opts.length; ++i) {
+                args.add(opts[i]);
+            }
+        } else {
+            Collections.addAll(args, "-a", id);
+            Collections.addAll(args, opts);
+        }
+        // set up result processor
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
         String file = Paths.get(classPath, main + "-expected.txt").toString();
-        // set up result processor
         String processArg = String.format("%s=analyses:[%s];action:%s;file:%s",
                 ResultProcessor.ID, id, action, file);
         Collections.addAll(args, "-a", processArg);

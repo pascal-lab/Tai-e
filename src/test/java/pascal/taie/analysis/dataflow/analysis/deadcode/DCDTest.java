@@ -19,7 +19,7 @@ import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 public class DCDTest {
 
     static void testDCD(String inputClass) {
-        TestUtils.testIntra(inputClass, "src/test/resources/dataflow/deadcode/",
+        TestUtils.testDFA(inputClass, "src/test/resources/dataflow/deadcode/",
                 DeadCodeDetection.ID);
     }
 
