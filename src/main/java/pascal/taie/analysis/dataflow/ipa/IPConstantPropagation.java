@@ -187,12 +187,14 @@ public class IPConstantPropagation extends
     }
 
     @Override
-    public void transferLocalEdge(LocalEdge<Stmt> edge, MapFact<Var, Value> out, MapFact<Var, Value> edgeFact) {
+    public void transferLocalEdge(LocalEdge<Stmt> edge, MapFact<Var, Value> out,
+                                  MapFact<Var, Value> edgeFact) {
         cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
     }
 
     @Override
-    public void transferCallEdge(CallEdge<Stmt> edge, MapFact<Var, Value> callSiteIn, MapFact<Var, Value> edgeFact) {
+    public void transferCallEdge(CallEdge<Stmt> edge, MapFact<Var, Value> callSiteIn,
+                                 MapFact<Var, Value> edgeFact) {
         // Passing arguments at call site to parameters of the callee
         InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
         Stmt entry = edge.getTarget();
@@ -202,17 +204,21 @@ public class IPConstantPropagation extends
         for (int i = 0; i < args.size(); ++i) {
             Var arg = args.get(i);
             Var param = params.get(i);
-            Value argValue = callSiteIn.get(arg);
-            edgeFact.update(param, argValue);
+            if (cp.isInt(param)) {
+                Value argValue = callSiteIn.get(arg);
+                edgeFact.update(param, argValue);
+            }
         }
     }
 
     @Override
-    public void transferReturnEdge(ReturnEdge<Stmt> edge, MapFact<Var, Value> returnOut, MapFact<Var, Value> edgeFact) {
+    public void transferReturnEdge(ReturnEdge<Stmt> edge, MapFact<Var, Value> returnOut,
+                                   MapFact<Var, Value> edgeFact) {
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
         if (lhs != null) {
             Value retValue = edge.returnVars()
+                    .filter(cp::isInt)
                     .map(returnOut::get)
                     .reduce(Value.getUndef(), cp::meetValue);
             edgeFact.update(lhs, retValue);
