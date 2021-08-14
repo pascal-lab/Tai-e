@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -131,13 +132,24 @@ public class ResultProcessor extends InterproceduralAnalysis {
     @Override
     public Object analyze() {
         mismatches = new LinkedHashSet<>();
-        processIntraResults();
+        // Classify given analysis IDs into two groups, one for inter-procedural
+        // and the another one for intra-procedural analysis.
+        // If an ID has result in World, then it is classified as
+        // inter-procedural analysis, and others are intra-procedural analyses.
+        Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
+                .stream()
+                .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
+        processInterResults(groups.get(true));
+        processIntraResults(groups.get(false));
         mismatches.forEach(System.out::println);
         return mismatches;
     }
 
-    private void processIntraResults() {
-        // process intra-procedural analysis results
+    private void processInterResults(List<String> analyses) {
+        // TODO: finish me
+    }
+
+    private void processIntraResults(List<String> analyses) {
         Stream<JMethod> methods = World.getClassHierarchy()
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
@@ -145,29 +157,31 @@ public class ResultProcessor extends InterproceduralAnalysis {
                 .filter(m -> !m.isAbstract() && !m.isNative())
                 .sorted(Comparator.comparing(m ->
                         m.getIR().getStmt(0).getLineNumber()));
-        methods.forEach(m -> {
-            IR ir = m.getIR();
-            ((List<String>) getOptions().get("analyses")).forEach(id -> {
-                switch (action) {
-                    case "dump":
-                        dumpResult(ir, id);
-                        break;
-                    case "compare":
-                        compareResult(ir, id);
-                        break;
-                }
-            });
-        });
+        methods.forEach(method ->
+                analyses.forEach(id -> {
+                    switch (action) {
+                        case "dump":
+                            dumpResult(method, id,
+                                    m -> m.getIR().getResult(id));
+                            break;
+                        case "compare":
+                            compareResult(method, id,
+                                    m -> m.getIR().getResult(id));
+                            break;
+                    }
+                })
+        );
     }
 
-    private void dumpResult(IR ir, String id) {
-        out.printf("-------------------- %s (%s) --------------------%n",
-                ir.getMethod(), id);
-        Object result = ir.getResult(id);
+    private void dumpResult(JMethod method, String id,
+                            Function<JMethod, ?> resultGetter) {
+        out.printf("-------------------- %s (%s) --------------------%n", method, id);
+        Object result = resultGetter.apply(method);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
         } else if (result instanceof NodeResult) {
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
+            IR ir = method.getIR();
             ir.getStmts().forEach(stmt ->
                     out.println(toString(stmt, nodeResult)));
         } else {
@@ -196,11 +210,11 @@ public class ResultProcessor extends InterproceduralAnalysis {
         return toString(stmt) + " " + toString(result.getOutFact(stmt));
     }
 
-    private void compareResult(IR ir, String id) {
-        JMethod method = ir.getMethod();
+    private void compareResult(JMethod method, String id,
+                               Function<JMethod, ?> resultGetter) {
         Set<String> inputResult = inputs.getOrDefault(
-                new Pair<>(ir.getMethod().toString(), id), Set.of());
-        Object result = ir.getResult(id);
+                new Pair<>(method.toString(), id), Set.of());
+        Object result = resultGetter.apply(method);
         if (result instanceof Set) {
             Set<String> given = ((Set<?>) result)
                     .stream()
@@ -221,6 +235,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
         } else if (result instanceof NodeResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
+            IR ir = method.getIR();
             ir.getStmts().forEach(stmt -> {
                 String stmtStr = toString(stmt);
                 String given = toString(stmt, nodeResult);
