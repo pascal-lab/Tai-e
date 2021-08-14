@@ -14,9 +14,6 @@ package pascal.taie.analysis.dataflow.ipa;
 
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
-import pascal.taie.analysis.dataflow.fact.IPDataflowResult;
-import pascal.taie.analysis.graph.callgraph.CallGraph;
-import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
 import pascal.taie.analysis.graph.icfg.ICFGBuilder;
@@ -24,7 +21,6 @@ import pascal.taie.analysis.graph.icfg.ICFGEdge;
 import pascal.taie.analysis.graph.icfg.LocalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.language.classes.JMethod;
 
 public abstract class AbstractIPDataflowAnalysis<Method, Node, Fact>
         extends InterproceduralAnalysis
@@ -73,20 +69,6 @@ public abstract class AbstractIPDataflowAnalysis<Method, Node, Fact>
     public Object analyze() {
         icfg = World.getResult(ICFGBuilder.ID);
         solver = new IPSolver<>(this, icfg);
-        IPDataflowResult<Node, Fact> result = solver.solve();
-        // Temporarily print results for debugging data-flow analyses
-        // TODO: replace this by proper inspection approach
-        CallGraph<?, JMethod> cg = World.getResult(CallGraphBuilder.ID);
-        cg.reachableMethods()
-                .filter(m -> m.getDeclaringClass().isApplication())
-                .forEach(m -> {
-                    System.out.printf("-------------------- %s (%s) --------------------%n",
-                            m, getId());
-                    m.getIR().getStmts().forEach(stmt -> System.out.printf("L%-3d[%d:%s]: %s%n",
-                            stmt.getLineNumber(), stmt.getIndex(), stmt,
-                            result.getOutFact((Node) stmt)));
-                    System.out.println();
-                });
-        return result;
+        return solver.solve();
     }
 }

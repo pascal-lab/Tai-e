@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.dataflow.fact.NodeResult;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
@@ -39,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -139,14 +141,31 @@ public class ResultProcessor extends InterproceduralAnalysis {
         Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
                 .stream()
                 .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
-        processInterResults(groups.get(true));
-        processIntraResults(groups.get(false));
+        if (groups.containsKey(true)) {
+            processInterResults(groups.get(true));
+        }
+        if (groups.containsKey(false)) {
+            processIntraResults(groups.get(false));
+        }
         mismatches.forEach(System.out::println);
         return mismatches;
     }
 
     private void processInterResults(List<String> analyses) {
-        // TODO: finish me
+        Comparator<JMethod> comp = (m1, m2) -> {
+            if (m1.getDeclaringClass().equals(m2.getDeclaringClass())) {
+                return m1.getIR().getStmt(0).getLineNumber() -
+                        m2.getIR().getStmt(0).getLineNumber();
+            } else {
+                return m1.getDeclaringClass().toString()
+                        .compareTo(m2.getDeclaringClass().toString());
+            }
+        };
+        CallGraph<?, JMethod> cg = World.getResult(CallGraphBuilder.ID);
+        Stream<JMethod> methods = cg.reachableMethods()
+                .filter(m -> m.getDeclaringClass().isApplication())
+                .sorted(comp);
+        processResults(methods, analyses, (m, id) -> World.getResult(id));
     }
 
     private void processIntraResults(List<String> analyses) {
@@ -157,16 +176,19 @@ public class ResultProcessor extends InterproceduralAnalysis {
                 .filter(m -> !m.isAbstract() && !m.isNative())
                 .sorted(Comparator.comparing(m ->
                         m.getIR().getStmt(0).getLineNumber()));
+        processResults(methods, analyses, (m, id) -> m.getIR().getResult(id));
+    }
+
+    private void processResults(Stream<JMethod> methods, List<String> analyses,
+                                BiFunction<JMethod, String, ?> resultGetter) {
         methods.forEach(method ->
                 analyses.forEach(id -> {
                     switch (action) {
                         case "dump":
-                            dumpResult(method, id,
-                                    m -> m.getIR().getResult(id));
+                            dumpResult(method, id, resultGetter);
                             break;
                         case "compare":
-                            compareResult(method, id,
-                                    m -> m.getIR().getResult(id));
+                            compareResult(method, id, resultGetter);
                             break;
                     }
                 })
@@ -174,9 +196,9 @@ public class ResultProcessor extends InterproceduralAnalysis {
     }
 
     private void dumpResult(JMethod method, String id,
-                            Function<JMethod, ?> resultGetter) {
+                            BiFunction<JMethod, String, ?> resultGetter) {
         out.printf("-------------------- %s (%s) --------------------%n", method, id);
-        Object result = resultGetter.apply(method);
+        Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
         } else if (result instanceof NodeResult) {
@@ -211,10 +233,10 @@ public class ResultProcessor extends InterproceduralAnalysis {
     }
 
     private void compareResult(JMethod method, String id,
-                               Function<JMethod, ?> resultGetter) {
+                               BiFunction<JMethod, String, ?> resultGetter) {
         Set<String> inputResult = inputs.getOrDefault(
                 new Pair<>(method.toString(), id), Set.of());
-        Object result = resultGetter.apply(method);
+        Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             Set<String> given = ((Set<?>) result)
                     .stream()
