@@ -90,7 +90,7 @@ public class TestUtils {
         Collections.addAll(args, "-m", main);
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
         String file = Paths.get(classPath, main + "-expected.txt").toString();
-        String chaArg = String.format("%s=algorithm:cha;action:%s;file:%s",
+        String chaArg = String.format("%s=algorithm:cha;pta:null;action:%s;file:%s",
                 CallGraphBuilder.ID, action, file);
         Collections.addAll(args, "-a", chaArg);
         Main.main(args.toArray(new String[0]));
