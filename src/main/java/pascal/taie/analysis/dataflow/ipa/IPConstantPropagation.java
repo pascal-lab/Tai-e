@@ -22,7 +22,6 @@ import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.FieldStmt;
@@ -30,21 +29,14 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreField;
-import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetQueue;
-import pascal.taie.util.collection.SetUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public class IPConstantPropagation extends
         AbstractIPDataflowAnalysis<JMethod, Stmt, MapFact<Var, Value>> {
@@ -55,8 +47,6 @@ public class IPConstantPropagation extends
 
     private final boolean aliasAware;
 
-    private PointerAnalysisResult pta;
-
     /**
      * Map from store statements to the corresponding load statements, where
      * the base variables of both store and load statements may be aliases,
@@ -64,27 +54,20 @@ public class IPConstantPropagation extends
      */
     private Map<StoreField, Set<LoadField>> storeToLoads;
 
-    /**
-     * Map from objects to set of its fields which have not been initialized
-     * in constructors.
-     */
-    private Map<Obj, Set<JField>> uninitializedFields;
-
     public IPConstantPropagation(AnalysisConfig config) {
         super(config);
         cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
         aliasAware = getOptions().getBoolean("alias-aware");
         if (aliasAware) {
-            String ptaId = getOptions().getString("pta");
-            pta = World.getResult(ptaId);
             storeToLoads = computeStoreToLoads();
-            uninitializedFields = computeUninitializedFields();
         }
     }
 
     private Map<StoreField, Set<LoadField>> computeStoreToLoads() {
         // compute storeToLoads via alias information
         // derived from pointer analysis
+        String ptaId = getOptions().getString("pta");
+        PointerAnalysisResult pta = World.getResult(ptaId);
         Map<Obj, Set<Var>> pointedBy = MapUtils.newMap();
         pta.vars().forEach(var ->
                 pta.getPointsToSet(var).forEach(obj ->
@@ -110,71 +93,6 @@ public class IPConstantPropagation extends
             }
         });
         return storeToLoads;
-    }
-
-    private Map<Obj, Set<JField>> computeUninitializedFields() {
-        // compute uninitialized fields based on pointer analysis result
-        Map<Obj, Set<JField>> uninitFields = MapUtils.newMap();
-        Map<Obj, Set<Var>> pointedBy = MapUtils.newMap();
-        pta.vars().forEach(var ->
-                pta.getPointsToSet(var).forEach(obj ->
-                        MapUtils.addToMapSet(pointedBy, obj, var)));
-        pointedBy.keySet().forEach(obj -> {
-            Set<JField> allFields = getAllFieldsOf(obj.getType());
-            pointedBy.get(obj).forEach(var -> {
-                if (var.getMethod().isConstructor() &&
-                        var.getType().equals(obj.getType())) {
-                    JMethod constructor = var.getMethod();
-                    Set<JField> initFields =
-                            computeInitializedFields(constructor, obj);
-                    allFields.stream()
-                            .filter(Predicate.not(initFields::contains))
-                            .forEach(field -> MapUtils.addToMapSet(uninitFields, obj, field));
-                }
-            });
-        });
-        return uninitFields;
-    }
-
-    private Set<JField> getAllFieldsOf(Type type) {
-        Set<JField> fields = SetUtils.newHybridSet();
-        if (type instanceof ClassType) {
-            JClass klass = ((ClassType) type).getJClass();
-            while (klass != null) {
-                fields.addAll(klass.getDeclaredFields());
-                klass = klass.getSuperClass();
-            }
-        }
-        return fields;
-    }
-
-    private Set<JField> computeInitializedFields(JMethod constructor, Obj baseObj) {
-        Set<JField> fields = SetUtils.newHybridSet();
-        Set<JMethod> methods = SetUtils.newHybridSet();
-        Queue<JMethod> workList = new SetQueue<>();
-        workList.add(constructor);
-        while (!workList.isEmpty()) {
-            JMethod m = workList.poll();
-            if (methods.add(m)) {
-                m.getIR().getStmts()
-                        .stream()
-                        .filter(s -> s instanceof StoreField)
-                        .map(s -> (StoreField) s)
-                        .filter(Predicate.not(StoreField::isStatic))
-                        .forEach(store -> {
-                            InstanceFieldAccess fa =
-                                    (InstanceFieldAccess) store.getFieldAccess();
-                            Var base = fa.getBase();
-                            if (pta.getPointsToSet(base).contains(baseObj)) {
-                                fields.add(fa.getFieldRef().resolve());
-                            }
-                        });
-                pta.getCallGraph()
-                        .succsOf(m)
-                        .forEach(workList::add);
-            }
-        }
-        return fields;
     }
 
     @Override
@@ -239,24 +157,13 @@ public class IPConstantPropagation extends
                         changed |= out.update(inVar, in.get(inVar));
                     }
                 }
-                // if o.f may be uninitialized, update x to 0
-                Var base = ((InstanceFieldAccess) load.getFieldAccess()).getBase();
-                JField field = load.getFieldRef().resolve();
-                for (Obj obj : pta.getPointsToSet(base)) {
-                    Set<JField> uninitFields = uninitializedFields.get(obj);
-                    if (uninitFields != null && uninitFields.contains(field)) {
-                        Value oldV = out.get(lhs);
-                        Value newV = cp.meetValue(oldV, Value.makeConstant(0));
-                        changed |= out.update(lhs, newV);
-                        break;
-                    }
-                }
                 return changed;
             } else { // o.f = x
                 StoreField store = (StoreField) stmt;
                 Var var = store.getRValue();
                 Value value = in.get(var);
                 storeToLoads.get(store).forEach(load -> {
+                    // propagate stored value to aliased loads
                     Var lhs = load.getLValue();
                     MapFact<Var, Value> loadOut = solver.getOutFact(load);
                     Value oldV = loadOut.get(lhs);
