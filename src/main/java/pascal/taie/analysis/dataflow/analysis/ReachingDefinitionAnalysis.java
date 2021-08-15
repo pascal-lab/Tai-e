@@ -43,11 +43,6 @@ public class ReachingDefinitionAnalysis extends
     }
 
     @Override
-    public SetFact<Stmt> copyFact(SetFact<Stmt> fact) {
-        return fact.duplicate();
-    }
-
-    @Override
     public void mergeInto(SetFact<Stmt> fact, SetFact<Stmt> result) {
         result.union(fact);
     }

@@ -110,11 +110,6 @@ public class IPConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> copyFact(MapFact<Var, Value> fact) {
-        return cp.copyFact(fact);
-    }
-
-    @Override
     public void mergeInto(MapFact<Var, Value> fact, MapFact<Var, Value> result) {
         cp.mergeInto(fact, result);
     }

@@ -43,11 +43,6 @@ public class LiveVariableAnalysis extends
     }
 
     @Override
-    public SetFact<Var> copyFact(SetFact<Var> fact) {
-        return fact.duplicate();
-    }
-
-    @Override
     public void mergeInto(SetFact<Var> fact, SetFact<Var> result) {
         result.union(fact);
     }

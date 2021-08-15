@@ -59,11 +59,6 @@ public class AvailableExpressionAnalysis extends
     }
 
     @Override
-    public SetFact<ExpWrapper> copyFact(SetFact<ExpWrapper> fact) {
-        return fact.duplicate();
-    }
-
-    @Override
     public void mergeInto(SetFact<ExpWrapper> fact, SetFact<ExpWrapper> result) {
         result.intersect(fact);
     }

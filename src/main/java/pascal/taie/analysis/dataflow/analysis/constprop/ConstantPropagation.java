@@ -77,11 +77,6 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> copyFact(MapFact<Var, Value> fact) {
-        return fact.duplicate();
-    }
-
-    @Override
     public void mergeInto(MapFact<Var, Value> fact, MapFact<Var, Value> result) {
         fact.forEach((var, value) ->
                 result.update(var, meetValue(value, result.get(var))));

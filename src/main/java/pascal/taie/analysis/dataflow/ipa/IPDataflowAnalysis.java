@@ -35,11 +35,6 @@ public interface IPDataflowAnalysis<Method, Node, Fact> {
     Fact newInitialFact();
 
     /**
-     * Creates a copy of given fact.
-     */
-    Fact copyFact(Fact fact);
-
-    /**
      * Merges a fact to another result fact.
      * This function is used to handle control-flow confluences.
      */
