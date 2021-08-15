@@ -12,13 +12,14 @@
 
 package pascal.taie.util.graph;
 
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 /**
  * Representation of a directed graph.
  * @param <N> type of nodes
  */
-public interface Graph<N> {
+public interface Graph<N> extends Iterable<N> {
 
     /**
      * @return if this graph has given node.
@@ -46,4 +47,9 @@ public interface Graph<N> {
     Stream<N> nodes();
 
     int getNumberOfNodes();
+
+    @Override
+    default Iterator<N> iterator() {
+        return nodes().iterator();
+    }
 }

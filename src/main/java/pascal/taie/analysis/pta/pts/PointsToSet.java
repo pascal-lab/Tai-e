@@ -14,15 +14,14 @@ package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 
-import java.util.Objects;
+import java.util.Iterator;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
  * Representation of points-to sets that consist of {@link CSObj}.
  */
-public interface PointsToSet {
+public interface PointsToSet extends Iterable<CSObj> {
 
     /**
      * Adds an object to this set.
@@ -58,8 +57,8 @@ public interface PointsToSet {
      */
     Stream<CSObj> objects();
 
-    default void forEach(Consumer<CSObj> action) {
-        Objects.requireNonNull(action);
-        objects().forEach(action);
+    @Override
+    default Iterator<CSObj> iterator() {
+        return objects().iterator();
     }
 }
