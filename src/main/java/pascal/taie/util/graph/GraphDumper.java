@@ -31,9 +31,8 @@ public class GraphDumper {
     private GraphDumper() {}
 
     public static <N> void dump(Graph<N> graph, PrintStream out) {
-        graph.nodes()
-                .forEach(s -> graph.succsOf(s)
-                        .forEach(t -> out.println(s + " -> " + t)));
+        graph.forEach(s -> graph.succsOf(s)
+                .forEach(t -> out.println(s + " -> " + t)));
     }
 
     public static <N> void dumpDotFile(Graph<N> graph, String filePath) {
@@ -64,10 +63,10 @@ public class GraphDumper {
         // set node style
         out.printf("%snode %s;%n", INDENT, NODE_ATTR);
         // dump nodes
-        graph.nodes().forEach(n ->
+        graph.forEach(n ->
                 out.printf("%s\"%s\";%n", INDENT, f.apply(n)));
         // dump edges
-        graph.nodes().forEach(s -> graph.succsOf(s).forEach(t ->
+        graph.forEach(s -> graph.succsOf(s).forEach(t ->
                 out.printf("%s\"%s\" -> \"%s\";%n",
                         INDENT, f.apply(s), f.apply(t))));
         out.println("}");

@@ -13,7 +13,6 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.util.MutableBoolean;
 
 import java.util.Collections;
 import java.util.Set;
@@ -37,9 +36,11 @@ class DelegatePointsToSet implements PointsToSet {
 
     @Override
     public boolean addAll(PointsToSet pts) {
-        MutableBoolean changed = new MutableBoolean(false);
-        pts.forEach(o -> changed.or(addObject(o)));
-        return changed.get();
+        boolean changed = false;
+        for (CSObj o : pts) {
+            changed |= addObject(o);
+        }
+        return changed;
     }
 
     @Override

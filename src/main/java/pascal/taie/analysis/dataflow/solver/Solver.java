@@ -47,7 +47,7 @@ public abstract class Solver<Node, Fact> {
 
     private void initializeForward(DataflowResult<Node, Fact> result,
                                    CFG<Node> cfg) {
-        cfg.nodes().forEach(node -> {
+        cfg.forEach(node -> {
             Fact initIn, initOut;
             // initialize in fact
             if (cfg.isEntry(node)) {
@@ -77,7 +77,7 @@ public abstract class Solver<Node, Fact> {
 
     private void initializeBackward(DataflowResult<Node, Fact> result,
                                    CFG<Node> cfg) {
-        cfg.nodes().forEach(node -> {
+        cfg.forEach(node -> {
             Fact initIn, initOut;
             // initialize in fact
             if (cfg.isExit(node)) {

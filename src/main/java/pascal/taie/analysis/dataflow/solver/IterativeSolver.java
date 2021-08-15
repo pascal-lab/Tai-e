@@ -15,9 +15,6 @@ package pascal.taie.analysis.dataflow.solver;
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.util.MutableBoolean;
-
-import java.util.function.Predicate;
 
 class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
 
@@ -35,62 +32,57 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        MutableBoolean changed = new MutableBoolean(false);
+        boolean changed;
         do {
-            changed.set(false);
-            cfg.nodes()
-                    .filter(Predicate.not(cfg::isEntry))
-                    .forEach(node -> {
-                        // meet incoming facts from preds to node
-                        Fact in = result.getInFact(node);
-                        cfg.inEdgesOf(node).forEach(inEdge -> {
-                            Fact predOut = analysis.hasEdgeTransfer() ?
-                                    result.getEdgeFact(inEdge) :
-                                    result.getOutFact(inEdge.getSource());
-                            analysis.mergeInto(predOut, in);
-                        });
-                        // apply node transfer function
-                        Fact out = result.getOutFact(node);
-                        boolean c = analysis.transferNode(node, in, out);
-                        if (c) {
-                            cfg.outEdgesOf(node).forEach(outEdge -> {
-                                if (analysis.hasEdgeTransfer()) {
-                                    // apply edge transfer if necessary
-                                    Fact edgeFact = result.getEdgeFact(outEdge);
-                                    analysis.transferEdge(outEdge, out, edgeFact);
-                                }
-                                changed.set(true);
-                            });
-                        }
+            changed = false;
+            for (Node node : cfg) {
+                if (!cfg.isEntry(node)) {
+                    // meet incoming facts from preds to node
+                    Fact in = result.getInFact(node);
+                    cfg.inEdgesOf(node).forEach(inEdge -> {
+                        Fact predOut = analysis.hasEdgeTransfer() ?
+                                result.getEdgeFact(inEdge) :
+                                result.getOutFact(inEdge.getSource());
+                        analysis.mergeInto(predOut, in);
                     });
-        } while (changed.get());
+                    // apply node transfer function
+                    Fact out = result.getOutFact(node);
+                    boolean c = analysis.transferNode(node, in, out);
+                    if (c) {
+                        changed = true;
+                        cfg.outEdgesOf(node).forEach(outEdge -> {
+                            if (analysis.hasEdgeTransfer()) {
+                                // apply edge transfer if necessary
+                                Fact edgeFact = result.getEdgeFact(outEdge);
+                                analysis.transferEdge(outEdge, out, edgeFact);
+                            }
+                        });
+                    }
+                }
+            }
+        } while (changed);
     }
 
     /**
      * No edge transfer.
      */
     private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        MutableBoolean changed = new MutableBoolean(false);
+        boolean changed;
         do {
-            changed.set(false);
-            cfg.nodes()
-                    .filter(Predicate.not(cfg::isExit))
-                    .forEach(node -> {
-                        // meet incoming facts from succ to node
-                        cfg.succsOf(node).forEach(succ -> {
-                            Fact succIn = result.getInFact(succ);
-                            Fact out = result.getOutFact(node);
-                            if (out == null) {
-                                out = analysis.copyFact(succIn);
-                                result.setOutFact(node, out);
-                            }
-                            analysis.mergeInto(succIn, out);
-                        });
-                        // apply node transfer function
-                        Fact in = result.getInFact(node);
-                        Fact out = result.getOutFact(node);
-                        changed.or(analysis.transferNode(node, in, out));
+            changed = false;
+            for (Node node : cfg) {
+                if (!cfg.isExit(node)) {
+                    Fact out = result.getOutFact(node);
+                    // meet incoming facts from succ to node
+                    cfg.succsOf(node).forEach(succ -> {
+                        Fact succIn = result.getInFact(succ);
+                        analysis.mergeInto(succIn, out);
                     });
-        } while (changed.get());
+                    // apply node transfer function
+                    Fact in = result.getInFact(node);
+                    changed |= analysis.transferNode(node, in, out);
+                }
+            }
+        } while (changed);
     }
 }

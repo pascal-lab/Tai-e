@@ -17,7 +17,6 @@ import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
 import java.util.TreeSet;
-import java.util.function.Predicate;
 
 class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
@@ -37,7 +36,11 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
     private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         TreeSet<Node> workList = new TreeSet<>(
                 new Orderer<>(cfg, analysis.isForward()));
-        cfg.nodes().filter(Predicate.not(cfg::isEntry)).forEach(workList::add);
+        cfg.forEach(node -> {
+            if (!cfg.isEntry(node)) {
+                workList.add(node);
+            }
+        });
         while (!workList.isEmpty()) {
             Node node = workList.pollFirst();
             // meet incoming facts
@@ -68,7 +71,11 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
     private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         TreeSet<Node> workList = new TreeSet<>(
                 new Orderer<>(cfg, analysis.isForward()));
-        cfg.nodes().filter(Predicate.not(cfg::isExit)).forEach(workList::add);
+        cfg.forEach(node -> {
+            if (!cfg.isExit(node)) {
+                workList.add(node);
+            }
+        });
         while (!workList.isEmpty()) {
             Node node = workList.pollFirst();
             // meet incoming facts

@@ -41,7 +41,7 @@ public class SCC<N> {
 
     public SCC(Graph<N> graph) {
         this.graph = graph;
-        graph.nodes().forEach(node -> {
+        graph.forEach(node -> {
             if (!indexForNode.containsKey(node)) {
                 recurse(node);
             }

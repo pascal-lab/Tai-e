@@ -60,7 +60,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                 logger.warn("CFG of {} is absent", method);
                 return;
             }
-            cfg.nodes().forEach(stmt -> {
+            cfg.forEach(stmt -> {
                 stmtToCFG.put(stmt, cfg);
                 cfg.outEdgesOf(stmt).forEach(edge -> {
                     LocalEdge<Stmt> local = new LocalEdge<>(edge);

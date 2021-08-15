@@ -66,10 +66,10 @@ public class CFGDumper {
         // set node style
         out.printf("%snode %s;%n", INDENT, NODE_ATTR);
         // dump nodes
-        cfg.nodes().forEach(s ->
+        cfg.forEach(s ->
                 out.printf("%s\"%s\";%n", INDENT, toString(s, cfg)));
         // dump edges
-        cfg.nodes().forEach(s ->
+        cfg.forEach(s ->
                 cfg.outEdgesOf(s).forEach(e ->
                         out.printf("%s%s;%n", INDENT, toString(e, cfg))));
         out.println("}");

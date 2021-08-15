@@ -134,7 +134,7 @@ public class AnalysisPlanner {
     private void validateRequireGraph(Graph<AnalysisConfig> graph) {
         // Check if the require graph is self-contained, i.e., every required
         // analysis is included in the graph
-        graph.nodes().forEach(config -> {
+        graph.forEach(config -> {
             List<AnalysisConfig> missing = manager.getRequiredConfigs(config)
                     .stream()
                     .filter(Predicate.not(graph::hasNode))

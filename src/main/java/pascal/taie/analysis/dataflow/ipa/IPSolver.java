@@ -52,7 +52,7 @@ class IPSolver<Method, Node, Fact> {
         Set<Node> entryNodes = icfg.entryMethods()
                 .map(icfg::getEntryOf)
                 .collect(Collectors.toUnmodifiableSet());
-        icfg.nodes().forEach(node -> {
+        icfg.forEach(node -> {
             Fact initIn, initOut;
             if (entryNodes.contains(node)) {
                 initIn =  analysis.getEntryInitialFact(node);
@@ -75,7 +75,7 @@ class IPSolver<Method, Node, Fact> {
 
     private void doSolve() {
         workList = new SetQueue<>();
-        icfg.nodes().forEach(workList::add);
+        icfg.forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             // meet incoming facts
