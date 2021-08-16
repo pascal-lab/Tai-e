@@ -12,10 +12,12 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -24,7 +26,9 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -33,27 +37,106 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
-public interface Solver {
+/**
+ * Common functionalities for implementing context-sensitive
+ * pointer analysis solver.
+ */
+public abstract class Solver {
 
-    AnalysisOptions getOptions();
+    protected AnalysisOptions options;
 
-    ClassHierarchy getHierarchy();
+    /**
+     * Only analyzes application code.
+     */
+    protected boolean onlyApp;
 
-    TypeManager getTypeManager();
+    protected final ClassHierarchy hierarchy;
 
-    HeapModel getHeapModel();
+    protected final TypeManager typeManager;
 
-    CSManager getCSManager();
+    protected CSManager csManager;
 
-    ContextSelector getContextSelector();
+    protected Plugin plugin;
 
-    CallGraph<CSCallSite, CSMethod> getCallGraph();
+    protected OnFlyCallGraph callGraph;
 
-    void solve();
+    protected PointerFlowGraph pointerFlowGraph;
 
-    PointsToSet getPointsToSetOf(Pointer pointer);
+    protected HeapModel heapModel;
+
+    protected ContextSelector contextSelector;
+
+    protected PointerAnalysisResult result;
+
+    protected Solver() {
+        this.typeManager = World.getTypeManager();
+        this.hierarchy = World.getClassHierarchy();
+    }
+
+    public AnalysisOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(AnalysisOptions options) {
+        this.options = options;
+    }
+
+    public ClassHierarchy getHierarchy() {
+        return hierarchy;
+    }
+
+    public TypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    public CSManager getCSManager() {
+        return csManager;
+    }
+
+    public void setCSManager(CSManager csManager) {
+        this.csManager = csManager;
+    }
+
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public HeapModel getHeapModel() {
+        return heapModel;
+    }
+
+    public void setHeapModel(HeapModel heapModel) {
+        this.heapModel = heapModel;
+    }
+
+    public ContextSelector getContextSelector() {
+        return contextSelector;
+    }
+
+    public void setContextSelector(ContextSelector contextSelector) {
+        this.contextSelector = contextSelector;
+    }
+
+    public CallGraph<CSCallSite, CSMethod> getCallGraph() {
+        return callGraph;
+    }
+
+    /**
+     * Starts this solver.
+     */
+    public abstract void solve();
+
+    public PointsToSet getPointsToSetOf(Pointer pointer) {
+        return pointer.getPointsToSet();
+    }
 
     // ---------- side-effect APIs (begin) ----------
+    public abstract void addPointsTo(Pointer pointer, PointsToSet pts);
+
+    public void addPointsTo(Pointer pointer, CSObj csObj) {
+        addPointsTo(pointer, PointsToSetFactory.make(csObj));
+    }
+
     /**
      * Adds a context-sensitive variable points-to relation.
      * @param context context of the method which contains the variable
@@ -61,12 +144,19 @@ public interface Solver {
      * @param heapContext heap context for the object
      * @param obj the object to be added
      */
-    void addVarPointsTo(Context context, Var var,
-                        Context heapContext, Obj obj);
+    public void addVarPointsTo(Context context, Var var,
+                               Context heapContext, Obj obj) {
+        addVarPointsTo(context, var,
+                csManager.getCSObj(heapContext, obj));
+    }
 
-    void addVarPointsTo(Context context, Var var, CSObj csObj);
+    public void addVarPointsTo(Context context, Var var, CSObj csObj) {
+        addPointsTo(csManager.getCSVar(context, var), csObj);
+    }
 
-    void addVarPointsTo(Context context, Var var, PointsToSet pts);
+    public void addVarPointsTo(Context context, Var var, PointsToSet pts) {
+        addPointsTo(csManager.getCSVar(context, var), pts);
+    }
 
     /**
      * Adds a context-sensitive array index points-to relation.
@@ -75,47 +165,63 @@ public interface Solver {
      * @param heapContext heap context for the element
      * @param obj the element to be stored into the array
      */
-    void addArrayPointsTo(Context arrayContext, Obj array,
-                          Context heapContext, Obj obj);
+    public void addArrayPointsTo(Context arrayContext, Obj array,
+                          Context heapContext, Obj obj) {
+        CSObj csArray = csManager.getCSObj(arrayContext, array);
+        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
+        CSObj elem = csManager.getCSObj(heapContext, obj);
+        addPointsTo(arrayIndex, elem);
+    }
 
     /**
      * Adds static field points-to relations.
      * @param field the static field
      * @param pts the objects to be added to the points-to set of the field.
      */
-    void addStaticFieldPointsTo(JField field, PointsToSet pts);
+    public void addStaticFieldPointsTo(JField field, PointsToSet pts) {
+        assert field.isStatic();
+        addPointsTo(csManager.getStaticField(field), pts);
+    }
 
     /**
      * Adds an edge "from -> to" to the PFG.
      */
-    void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind);
+    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
+        addPFGEdge(from, to, null, kind);
+    }
 
     /**
      * Adds an edge "from -> to" to the PFG.
      * If type is not null, then we need to filter out assignable objects
      * in from points-to set.
      */
-    void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind);
+    public abstract void addPFGEdge(Pointer from, Pointer to, Type type,
+                                    PointerFlowEdge.Kind kind);
 
     /**
      * Adds a call edge.
      * @param edge the added edge.
      */
-    void addCallEdge(Edge<CSCallSite, CSMethod> edge);
+    public abstract void addCallEdge(Edge<CSCallSite, CSMethod> edge);
 
     /**
      * Adds a context-sensitive method.
      * @param csMethod the added context-sensitive method.
      */
-    void addCSMethod(CSMethod csMethod);
+    public abstract void addCSMethod(CSMethod csMethod);
 
     /**
      * Analyzes the initializer of given class.
      * @param cls the class to be initialized.
      */
-    void initializeClass(JClass cls);
+    public abstract void initializeClass(JClass cls);
 
     // ---------- side-effect APIs (end) ----------
 
-    PointerAnalysisResult getResult();
+    public PointerAnalysisResult getResult() {
+        if (result == null) {
+            result = new PointerAnalysisResultImpl(csManager, callGraph);
+        }
+        return result;
+    }
 }

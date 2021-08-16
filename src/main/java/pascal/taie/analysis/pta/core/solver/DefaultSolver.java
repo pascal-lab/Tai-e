@@ -19,25 +19,18 @@ import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
-import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
-import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
-import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeExp;
@@ -58,7 +51,6 @@ import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -67,7 +59,6 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,7 +73,7 @@ import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
 import static pascal.taie.util.collection.MapUtils.newMap;
 import static pascal.taie.util.collection.SetUtils.newSet;
 
-public class DefaultSolver implements Solver {
+public class DefaultSolver extends Solver {
 
     private static final Logger logger = LogManager.getLogger(DefaultSolver.class);
 
@@ -90,29 +81,6 @@ public class DefaultSolver implements Solver {
      * Description for array objects created implicitly by multiarray instruction.
      */
     private static final String MULTI_ARRAY_DESC = "MultiArrayObj";
-
-    private AnalysisOptions options;
-
-    /**
-     * Only analyzes application code.
-     */
-    private boolean onlyApp;
-
-    private final ClassHierarchy hierarchy;
-
-    private final TypeManager typeManager;
-
-    private CSManager csManager;
-
-    private Plugin plugin;
-
-    private OnFlyCallGraph callGraph;
-
-    private PointerFlowGraph pointerFlowGraph;
-
-    private HeapModel heapModel;
-
-    private ContextSelector contextSelector;
 
     private WorkList workList;
 
@@ -125,74 +93,9 @@ public class DefaultSolver implements Solver {
 
     private StmtProcessor stmtProcessor;
 
-    private PointerAnalysisResult result;
-
-    public DefaultSolver() {
-        this.typeManager = World.getTypeManager();
-        this.hierarchy = World.getClassHierarchy();
-    }
-
-    @Override
-    public AnalysisOptions getOptions() {
-        return options;
-    }
-
-    public void setOptions(AnalysisOptions options) {
-        this.options = options;
-    }
-
-    @Override
-    public ClassHierarchy getHierarchy() {
-        return hierarchy;
-    }
-
-    @Override
-    public TypeManager getTypeManager() {
-        return typeManager;
-    }
-
-    @Override
-    public HeapModel getHeapModel() {
-        return heapModel;
-    }
-
-    public void setHeapModel(HeapModel heapModel) {
-        this.heapModel = heapModel;
-    }
-
-    @Override
-    public CSManager getCSManager() {
-        return csManager;
-    }
-
-    public void setCSManager(CSManager csManager) {
-        this.csManager = csManager;
-    }
-
-    @Override
-    public ContextSelector getContextSelector() {
-        return contextSelector;
-    }
-
-    public void setContextSelector(ContextSelector contextSelector) {
-        this.contextSelector = contextSelector;
-    }
-
-    public void setPlugin(Plugin plugin) {
-        this.plugin = plugin;
-    }
-
     @Override
     public CallGraph<CSCallSite, CSMethod> getCallGraph() {
         return callGraph;
-    }
-
-    @Override
-    public PointerAnalysisResult getResult() {
-        if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, callGraph);
-        }
-        return result;
     }
 
     /**
@@ -201,7 +104,7 @@ public class DefaultSolver implements Solver {
     @Override
     public void solve() {
         initialize();
-        analyze();
+        doSolve();
     }
 
      /**
@@ -215,6 +118,7 @@ public class DefaultSolver implements Solver {
         reachableMethods = newSet();
         initializedClasses = newSet();
         stmtProcessor = new StmtProcessor();
+        plugin.onStart();
 
         // process program entries (including implicit entries)
         Context defContext = contextSelector.getDefaultContext();
@@ -231,8 +135,6 @@ public class DefaultSolver implements Solver {
         addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
-
-        plugin.onStart();
     }
 
     private Collection<JMethod> computeEntries() {
@@ -247,7 +149,7 @@ public class DefaultSolver implements Solver {
     /**
      * Processes worklist entries until the worklist is empty.
      */
-    private void analyze() {
+    private void doSolve() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
                 WorkList.Entry entry = workList.pollPointerEntry();
@@ -291,55 +193,24 @@ public class DefaultSolver implements Solver {
             pointerFlowGraph.outEdgesOf(pointer).forEach(edge -> {
                 Pointer to = edge.getTo();
                 edge.getType().ifPresentOrElse(
-                        type -> addPointerEntry(to, getAssignablePointsToSet(diff, type)),
-                        () -> addPointerEntry(to, diff));
+                        type -> workList.addPointerEntry(to,
+                                getAssignablePointsToSet(diff, type)),
+                        () -> workList.addPointerEntry(to, diff));
             });
         }
         return diff;
     }
 
-    @Override
-    public PointsToSet getPointsToSetOf(Pointer pointer) {
-        return pointer.getPointsToSet();
-    }
-
-    @Override
-    public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
-        CSObj csObj = csManager.getCSObj(heapContext, obj);
-        addVarPointsTo(context, var, csObj);
-    }
-
-    @Override
-    public void addVarPointsTo(Context context, Var var, CSObj csObj) {
-        addVarPointsTo(context, var, PointsToSetFactory.make(csObj));
-    }
-
-    @Override
-    public void addVarPointsTo(Context context, Var var, PointsToSet pts) {
-        CSVar csVar = csManager.getCSVar(context, var);
-        addPointerEntry(csVar, pts);
-    }
-
-    @Override
-    public void addArrayPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj) {
-        CSObj csArray = csManager.getCSObj(arrayContext, array);
-        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
-        CSObj elem = csManager.getCSObj(heapContext, obj);
-        addPointerEntry(arrayIndex, PointsToSetFactory.make(elem));
-    }
-
-    @Override
-    public void addStaticFieldPointsTo(JField field, PointsToSet pts) {
-        assert field.isStatic();
-        StaticField sfield = csManager.getStaticField(field);
-        addPointerEntry(sfield, pts);
-    }
-
     /**
-     * Adds a <pointer, pointsToSet> entry to work-list.
+     * Given a points-to set pts and a type t, returns the objects of pts
+     * which can be assigned to t.
      */
-    private void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        workList.addPointerEntry(pointer, pointsToSet);
+    private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
+        PointsToSet result = PointsToSetFactory.make();
+        pts.objects()
+                .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
+                .forEach(result::addObject);
+        return result;
     }
 
     @Override
@@ -376,21 +247,9 @@ public class DefaultSolver implements Solver {
         }
     }
 
-    /**
-     * Given a points-to set pts and a type t, returns the objects of pts
-     * which can be assigned to t.
-     */
-    private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
-        PointsToSet result = PointsToSetFactory.make();
-        pts.objects()
-                .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
-                .forEach(result::addObject);
-        return result;
-    }
-
     @Override
-    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        addPFGEdge(from, to, null, kind);
+    public void addPointsTo(Pointer pointer, PointsToSet pts) {
+        workList.addPointerEntry(pointer, pts);
     }
 
     @Override
@@ -400,7 +259,7 @@ public class DefaultSolver implements Solver {
                     from.getPointsToSet() :
                     getAssignablePointsToSet(from.getPointsToSet(), type);
             if (!fromSet.isEmpty()) {
-                addPointerEntry(to, fromSet);
+                workList.addPointerEntry(to, fromSet);
             }
         }
     }
@@ -516,7 +375,7 @@ public class DefaultSolver implements Solver {
                             csCallSite, recvObj, callee);
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                    addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
+                    workList.addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
                             csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     addVarPointsTo(calleeContext, callee.getIR().getThis(),
@@ -697,7 +556,7 @@ public class DefaultSolver implements Solver {
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
                 Edge<CSCallSite, CSMethod> edge =
                         new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                addCallEdge(edge);
+                workList.addCallEdge(edge);
             }
         }
 
