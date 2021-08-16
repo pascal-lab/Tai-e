@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis.pta.ci;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallKind;
@@ -36,6 +38,8 @@ import pascal.taie.util.AnalysisException;
 import java.util.List;
 
 class Solver {
+
+    private static final Logger logger = LogManager.getLogger(Solver.class);
 
     private final HeapModel heapModel;
 
@@ -140,9 +144,7 @@ class Solver {
      * returns the difference set of pointsToSet and pt(pointer).
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-//         System.out.println("Propagate "
-//                 + Stringify.pointsToSetToString(pointsToSet)
-//                 + " to " + Stringify.pointerToString(pointer));
+        logger.trace("Propagate {} to {}", pointsToSet, pointer);
         PointsToSet diff = new PointsToSet();
         pointsToSet.forEach(obj -> {
             if (pointer.getPointsToSet().addObject(obj)) {
@@ -150,9 +152,8 @@ class Solver {
             }
         });
         if (!diff.isEmpty()) {
-            pointerFlowGraph.successorsOf(pointer)
-                    .forEach(succ ->
-                            workList.addPointerEntry(succ, diff));
+            pointerFlowGraph.succsOf(pointer)
+                    .forEach(succ ->workList.addPointerEntry(succ, diff));
         }
         return diff;
     }

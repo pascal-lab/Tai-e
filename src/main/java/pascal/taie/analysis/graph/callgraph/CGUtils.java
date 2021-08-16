@@ -14,6 +14,7 @@ package pascal.taie.analysis.graph.callgraph;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
@@ -24,10 +25,12 @@ import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.MapUtils;
 import pascal.taie.util.collection.StreamUtils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -76,6 +79,18 @@ public class CGUtils {
 
     public static CallKind getCallKind(Invoke invoke) {
         return getCallKind(invoke.getInvokeExp());
+    }
+
+    public static @Nullable JMethod resolveCallee(Type type, Invoke callSite) {
+        MethodRef methodRef = callSite.getMethodRef();
+        if (callSite.isInterface() || callSite.isVirtual()) {
+            return World.getClassHierarchy()
+                    .dispatch(type, methodRef);
+        } else if (callSite.isSpecial() || callSite.isStatic()) {
+            return methodRef.resolveNullable();
+        } else {
+            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
+        }
     }
 
     static void dumpCallGraph(CallGraph<Invoke, JMethod> callGraph, String output) {

@@ -68,7 +68,6 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
-import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,9 +82,9 @@ import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
 import static pascal.taie.util.collection.MapUtils.newMap;
 import static pascal.taie.util.collection.SetUtils.newSet;
 
-public class SolverImpl implements Solver {
+public class DefaultSolver implements Solver {
 
-    private static final Logger logger = LogManager.getLogger(SolverImpl.class);
+    private static final Logger logger = LogManager.getLogger(DefaultSolver.class);
 
     /**
      * Description for array objects created implicitly by multiarray instruction.
@@ -128,7 +127,7 @@ public class SolverImpl implements Solver {
 
     private PointerAnalysisResult result;
 
-    public SolverImpl() {
+    public DefaultSolver() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
     }
@@ -508,7 +507,7 @@ public class SolverImpl implements Solver {
         for (Invoke callSite : var.getInvokes()) {
             pts.forEach(recvObj -> {
                 // resolve callee
-                JMethod callee = resolveCallee(
+                JMethod callee = CGUtils.resolveCallee(
                         recvObj.getObject().getType(), callSite);
                 if (callee != null) {
                     // select context
@@ -520,9 +519,8 @@ public class SolverImpl implements Solver {
                     addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
                             csCallSite, csCallee));
                     // pass receiver object to *this* variable
-                    CSVar thisVar = csManager.getCSVar(
-                            calleeContext, callee.getIR().getThis());
-                    addPointerEntry(thisVar, PointsToSetFactory.make(recvObj));
+                    addVarPointsTo(calleeContext, callee.getIR().getThis(),
+                            recvObj);
                 } else {
                     plugin.onUnresolvedCall(recvObj, context, callSite);
                 }
@@ -593,17 +591,6 @@ public class SolverImpl implements Solver {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.onNewMethod(method);
-        }
-    }
-
-    private JMethod resolveCallee(Type type, Invoke callSite) {
-        MethodRef methodRef = callSite.getMethodRef();
-        if (callSite.isInterface() || callSite.isVirtual()) {
-            return hierarchy.dispatch(type, methodRef);
-        } else if (callSite.isSpecial() || callSite.isStatic()) {
-            return methodRef.resolveNullable();
-        } else {
-            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
         }
     }
 
@@ -703,7 +690,7 @@ public class SolverImpl implements Solver {
         }
 
         private void processInvokeStatic(Invoke callSite) {
-            JMethod callee = resolveCallee(null, callSite);
+            JMethod callee = CGUtils.resolveCallee(null, callSite);
             if (callee != null) {
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);

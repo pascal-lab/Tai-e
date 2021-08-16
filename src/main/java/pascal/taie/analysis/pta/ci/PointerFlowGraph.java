@@ -88,7 +88,7 @@ class PointerFlowGraph {
                 .add(to);
     }
 
-    Stream<Pointer> successorsOf(Pointer pointer) {
+    Stream<Pointer> succsOf(Pointer pointer) {
         return successors.getOrDefault(pointer, Set.of()).stream();
     }
 }

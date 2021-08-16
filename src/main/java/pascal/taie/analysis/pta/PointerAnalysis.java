@@ -20,7 +20,7 @@ import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KObjSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
-import pascal.taie.analysis.pta.core.solver.SolverImpl;
+import pascal.taie.analysis.pta.core.solver.DefaultSolver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
@@ -45,7 +45,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
 
     @Override
     public PointerAnalysisResult analyze() {
-        SolverImpl solver = new SolverImpl();
+        DefaultSolver solver = new DefaultSolver();
         setContextSensitivity(solver);
         solver.setOptions(getOptions());
         solver.setHeapModel(new AllocationSiteBasedModel(getOptions()));
@@ -58,7 +58,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         return solver.getResult();
     }
 
-    private void setContextSensitivity(SolverImpl solver) {
+    private void setContextSensitivity(DefaultSolver solver) {
         switch (getOptions().getString("cs")) {
             case "ci":
                 solver.setContextSelector(new ContextInsensitiveSelector());
@@ -92,7 +92,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         }
     }
 
-    private void setPlugin(SolverImpl solver) {
+    private void setPlugin(DefaultSolver solver) {
         CompositePlugin plugin = new CompositePlugin();
         // To record elapsed time precisely, AnalysisTimer should be added at first.
         // TODO: remove such order dependency
