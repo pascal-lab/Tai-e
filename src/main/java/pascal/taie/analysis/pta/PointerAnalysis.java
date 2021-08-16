@@ -21,6 +21,7 @@ import pascal.taie.analysis.pta.core.cs.selector.KObjSelector;
 import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.solver.DefaultSolver;
+import pascal.taie.analysis.pta.core.solver.SimpleSolver;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
@@ -46,7 +47,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
 
     @Override
     public PointerAnalysisResult analyze() {
-        DefaultSolver solver = new DefaultSolver();
+        Solver solver = newSolver();
         setContextSensitivity(solver);
         solver.setOptions(getOptions());
         solver.setHeapModel(new AllocationSiteBasedModel(getOptions()));
@@ -57,6 +58,15 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         setPlugin(solver);
         solver.solve();
         return solver.getResult();
+    }
+
+    private Solver newSolver() {
+        switch (getOptions().getString("solver")) {
+            case "default": return new DefaultSolver();
+            case "simple": return new SimpleSolver();
+            default: throw new ConfigException("Unknown solver: " +
+                    getOptions().getString("solver"));
+        }
     }
 
     private void setContextSensitivity(Solver solver) {
