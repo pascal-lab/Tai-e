@@ -35,24 +35,23 @@ public abstract class Solver<Node, Fact> {
         return result;
     }
 
-    protected DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
+    private DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
         DataflowResult<Node, Fact> result = new DataflowResult<>();
         if (analysis.isForward()) {
-            initializeForward(result, cfg);
+            initializeForward(cfg, result);
         } else {
-            initializeBackward(result, cfg);
+            initializeBackward(cfg, result);
         }
         return result;
     }
 
-    private void initializeForward(DataflowResult<Node, Fact> result,
-                                   CFG<Node> cfg) {
+    private void initializeForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         cfg.forEach(node -> {
             Fact initIn, initOut;
             // initialize in fact
             if (cfg.isEntry(node)) {
-                initIn = analysis.getEntryInitialFact(cfg);
-                initOut = analysis.getEntryInitialFact(cfg);
+                initIn = analysis.newBoundaryFact(cfg);
+                initOut = analysis.newBoundaryFact(cfg);
             } else {
                 initIn = analysis.newInitialFact();
                 initOut = analysis.newInitialFact();
@@ -75,14 +74,13 @@ public abstract class Solver<Node, Fact> {
         });
     }
 
-    private void initializeBackward(DataflowResult<Node, Fact> result,
-                                   CFG<Node> cfg) {
+    private void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         cfg.forEach(node -> {
             Fact initIn, initOut;
             // initialize in fact
             if (cfg.isExit(node)) {
-                initIn = analysis.getEntryInitialFact(cfg);
-                initOut = analysis.getEntryInitialFact(cfg);
+                initIn = analysis.newBoundaryFact(cfg);
+                initOut = analysis.newBoundaryFact(cfg);
             } else {
                 initIn = analysis.newInitialFact();
                 initOut = analysis.newInitialFact();
@@ -106,6 +104,15 @@ public abstract class Solver<Node, Fact> {
         });
     }
 
-    protected abstract void doSolve(
-            CFG<Node> cfg, DataflowResult<Node, Fact> result);
+    private void doSolve(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        if (analysis.isForward()) {
+            doSolveForward(cfg, result);
+        } else {
+            doSolveBackward(cfg, result);
+        }
+    }
+
+    protected abstract void doSolveForward(CFG<Node> cfg, DataflowResult<Node,Fact> result);
+
+    protected abstract void doSolveBackward(CFG<Node> cfg, DataflowResult<Node,Fact> result);
 }

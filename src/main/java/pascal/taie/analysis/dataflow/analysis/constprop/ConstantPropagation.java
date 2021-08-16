@@ -51,11 +51,11 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> getEntryInitialFact(CFG<Stmt> cfg) {
-        return getEntryInitialFact(cfg.getMethod());
+    public MapFact<Var, Value> newBoundaryFact(CFG<Stmt> cfg) {
+        return newBoundaryFact(cfg.getMethod());
     }
 
-    public MapFact<Var, Value> getEntryInitialFact(JMethod method) {
+    public MapFact<Var, Value> newBoundaryFact(JMethod method) {
         // Make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
         IR ir = method.getIR();
@@ -149,41 +149,17 @@ public class ConstantPropagation extends
             return Value.makeConstant(literal.getValue());
         }
 
+        /**
+         * Evaluator for binary expressions with constant operands.
+         */
+        @FunctionalInterface
+        private interface ConstantEval {
+            int eval(BinaryExp.Op op, int i1, int i2);
+        }
+
         @Override
         public Value visit(ArithmeticExp exp) {
-            return evaluateBinary(exp);
-        }
-
-        @Override
-        public Value visit(BitwiseExp exp) {
-            return evaluateBinary(exp);
-        }
-
-        @Override
-        public Value visit(ConditionExp exp) {
-            return evaluateBinary(exp);
-        }
-
-        @Override
-        public Value visit(ShiftExp exp) {
-            return evaluateBinary(exp);
-        }
-
-        private Value evaluateBinary(AbstractBinaryExp binary) {
-            Value v1 = binary.getValue1().accept(this);
-            Value v2 = binary.getValue2().accept(this);
-            if (v1.isConstant() && v2.isConstant()) {
-                int i1 = v1.getConstant();
-                int i2 = v2.getConstant();
-                return Value.makeConstant(evaluate(binary.getOperator(), i1, i2));
-            } else if (v1.isNAC() || v2.isNAC()) {
-                return Value.getNAC();
-            }
-            return Value.getUndef();
-        }
-
-        private int evaluate(BinaryExp.Op op, int i1, int i2) {
-            if (op instanceof ArithmeticExp.Op) {
+            return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ArithmeticExp.Op) op) {
                     case ADD: return i1 + i2;
                     case SUB: return i1 - i2;
@@ -191,7 +167,25 @@ public class ConstantPropagation extends
                     case DIV: return i1 / i2;
                     case REM: return i1 % i2;
                 }
-            } else if (op instanceof ConditionExp.Op) {
+                throw new AnalysisException("Unexpected op: " + op);
+            });
+        }
+
+        @Override
+        public Value visit(BitwiseExp exp) {
+            return evaluateBinary(exp, (op, i1, i2) -> {
+                switch ((BitwiseExp.Op) op) {
+                    case OR: return i1 | i2;
+                    case AND: return i1 & i2;
+                    case XOR: return i1 ^ i2;
+                }
+                throw new AnalysisException("Unexpected op: " + op);
+            });
+        }
+
+        @Override
+        public Value visit(ConditionExp exp) {
+            return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ConditionExp.Op) op) {
                     case EQ: return  i1 == i2 ? 1 : 0;
                     case NE: return  i1 != i2 ? 1 : 0;
@@ -200,21 +194,35 @@ public class ConstantPropagation extends
                     case LE: return  i1 <= i2 ? 1 : 0;
                     case GE: return  i1 >= i2 ? 1 : 0;
                 }
-            }
-            else if (op instanceof ShiftExp.Op) {
+                throw new AnalysisException("Unexpected op: " + op);
+            });
+        }
+
+        @Override
+        public Value visit(ShiftExp exp) {
+            return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ShiftExp.Op) op) {
                     case SHL: return i1 << i2;
                     case SHR: return i2 >> i2;
                     case USHR: return i1 >>> i2;
                 }
-            } else if (op instanceof BitwiseExp.Op) {
-                switch ((BitwiseExp.Op) op) {
-                    case OR: return i1 | i2;
-                    case AND: return i1 & i2;
-                    case XOR: return i1 ^ i2;
-                }
+                throw new AnalysisException("Unexpected op: " + op);
+            });
+        }
+
+        private Value evaluateBinary(AbstractBinaryExp binary,
+                                     ConstantEval constantEval) {
+            Value v1 = binary.getValue1().accept(this);
+            Value v2 = binary.getValue2().accept(this);
+            if (v1.isConstant() && v2.isConstant()) {
+                int i1 = v1.getConstant();
+                int i2 = v2.getConstant();
+                return Value.makeConstant(
+                        constantEval.eval(binary.getOperator(), i1, i2));
+            } else if (v1.isNAC() || v2.isNAC()) {
+                return Value.getNAC();
             }
-            throw new AnalysisException("Unexpected binary operator: " + op);
+            return Value.getUndef();
         }
 
         @Override

@@ -100,8 +100,8 @@ public class IPConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> getEntryInitialFact(Stmt entry) {
-        return cp.getEntryInitialFact(icfg.getContainingMethodOf(entry));
+    public MapFact<Var, Value> newBoundaryFact(Stmt boundary) {
+        return cp.newBoundaryFact(icfg.getContainingMethodOf(boundary));
     }
 
     @Override

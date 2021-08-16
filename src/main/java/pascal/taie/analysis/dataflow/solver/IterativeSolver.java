@@ -23,15 +23,7 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     @Override
-    protected void doSolve(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        if (analysis.isForward()) {
-            doSolveForward(cfg, result);
-        } else {
-            doSolveBackward(cfg, result);
-        }
-    }
-
-    private void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         boolean changed;
         do {
             changed = false;
@@ -66,7 +58,8 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
     /**
      * No edge transfer.
      */
-    private void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    @Override
+    protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         boolean changed;
         do {
             changed = false;

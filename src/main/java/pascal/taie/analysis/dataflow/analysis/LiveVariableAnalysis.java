@@ -33,7 +33,7 @@ public class LiveVariableAnalysis extends
     }
 
     @Override
-    public SetFact<Var> getEntryInitialFact(CFG<Stmt> cfg) {
+    public SetFact<Var> newBoundaryFact(CFG<Stmt> cfg) {
         return new SetFact<>();
     }
 

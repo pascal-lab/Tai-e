@@ -23,12 +23,13 @@ public interface DataflowAnalysis<Node, Fact> {
     boolean isForward();
 
     /**
-     * Returns initial fact for entry node.
+     * Returns new fact in boundary conditions, i.e., the fact for entry node
+     * in forward analysis or exit node in backward analysis.
      */
-    Fact getEntryInitialFact(CFG<Node> cfg);
+    Fact newBoundaryFact(CFG<Node> cfg);
 
     /**
-     * Returns initial fact for non-entry nodes.
+     * Returns new initial fact for non-boundary nodes.
      */
     Fact newInitialFact();
 

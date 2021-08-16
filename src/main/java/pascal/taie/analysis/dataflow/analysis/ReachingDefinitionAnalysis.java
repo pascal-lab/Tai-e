@@ -33,7 +33,7 @@ public class ReachingDefinitionAnalysis extends
     }
 
     @Override
-    public SetFact<Stmt> getEntryInitialFact(CFG<Stmt> cfg) {
+    public SetFact<Stmt> newBoundaryFact(CFG<Stmt> cfg) {
         return new SetFact<>();
     }
 

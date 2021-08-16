@@ -42,21 +42,21 @@ class IPSolver<Method, Node, Fact> {
     }
 
     IPDataflowResult<Node, Fact> solve() {
+        result = new IPDataflowResult<>();
         initialize();
         doSolve();
         return result;
     }
 
     private void initialize() {
-        result = new IPDataflowResult<>();
         Set<Node> entryNodes = icfg.entryMethods()
                 .map(icfg::getEntryOf)
                 .collect(Collectors.toUnmodifiableSet());
         icfg.forEach(node -> {
             Fact initIn, initOut;
             if (entryNodes.contains(node)) {
-                initIn =  analysis.getEntryInitialFact(node);
-                initOut = analysis.getEntryInitialFact(node);
+                initIn =  analysis.newBoundaryFact(node);
+                initOut = analysis.newBoundaryFact(node);
             } else {
                 initIn = analysis.newInitialFact();
                 initOut = analysis.newInitialFact();

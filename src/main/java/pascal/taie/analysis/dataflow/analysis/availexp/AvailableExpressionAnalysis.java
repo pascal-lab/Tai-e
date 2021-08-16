@@ -49,7 +49,7 @@ public class AvailableExpressionAnalysis extends
     }
 
     @Override
-    public SetFact<ExpWrapper> getEntryInitialFact(CFG<Stmt> cfg) {
+    public SetFact<ExpWrapper> newBoundaryFact(CFG<Stmt> cfg) {
         return new ToppedSetFact<>(false);
     }
 

@@ -25,12 +25,13 @@ public interface IPDataflowAnalysis<Method, Node, Fact> {
     boolean isForward();
 
     /**
-     * Returns initial fact for entry node.
+     * Returns new fact in boundary conditions, i.e., the fact for entry node
+     * in forward analysis or exit node in backward analysis.
      */
-    Fact getEntryInitialFact(Node entry);
+    Fact newBoundaryFact(Node boundary);
 
     /**
-     * Returns initial fact for non-entry nodes.
+     * Returns new initial fact for non-boundary nodes.
      */
     Fact newInitialFact();
 
