@@ -431,7 +431,7 @@ public class DefaultSolver extends Solver {
      * Processes new reachable context-sensitive method.
      */
     private void processNewCSMethod(CSMethod csMethod) {
-        if (callGraph.addNewMethod(csMethod)) {
+        if (callGraph.addReachableMethod(csMethod)) {
             JMethod method = csMethod.getMethod();
             if (onlyApp && !method.getDeclaringClass().isApplication()) {
                 return;

@@ -3,7 +3,7 @@
   id: pta
   options:
     solver: default # | simple
-    cs: ci
+    cs: ci # | k-[obj/type/call]
     implicit-entries: true # analyze implicit entries
     only-app: false # only analyze application code
     merge-string-constants: false

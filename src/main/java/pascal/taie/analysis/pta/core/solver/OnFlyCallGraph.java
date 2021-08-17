@@ -48,7 +48,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         return edge.getCallSite().getEdges().contains(edge);
     }
 
-    boolean addNewMethod(CSMethod csMethod) {
+    boolean addReachableMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
             callSitesIn(csMethod).forEach(csCallSite ->
                     csCallSite.setContainer(csMethod));

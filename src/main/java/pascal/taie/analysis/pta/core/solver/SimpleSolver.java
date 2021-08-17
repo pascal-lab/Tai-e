@@ -82,7 +82,7 @@ public class SimpleSolver extends Solver {
      * Processes new reachable context-sensitive method.
      */
     private void addReachable(CSMethod csMethod) {
-        if (callGraph.addNewMethod(csMethod)) {
+        if (callGraph.addReachableMethod(csMethod)) {
             JMethod method = csMethod.getMethod();
             StmtProcessor stmtProcessor = new StmtProcessor(csMethod);
             method.getIR().getStmts()
@@ -165,7 +165,9 @@ public class SimpleSolver extends Solver {
     @Override
     public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
         if (pointerFlowGraph.addEdge(from, to, kind)) {
-            workList.addPointerEntry(to, from.getPointsToSet());
+            if (!from.getPointsToSet().isEmpty()) {
+                workList.addPointerEntry(to, from.getPointsToSet());
+            }
         }
     }
 

@@ -16,9 +16,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
-import pascal.taie.analysis.pta.core.cs.selector.KCallSelector;
-import pascal.taie.analysis.pta.core.cs.selector.KObjSelector;
-import pascal.taie.analysis.pta.core.cs.selector.KTypeSelector;
+import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.solver.DefaultSolver;
 import pascal.taie.analysis.pta.core.solver.SimpleSolver;
@@ -36,6 +34,9 @@ import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class PointerAnalysis extends InterproceduralAnalysis {
 
@@ -70,36 +71,31 @@ public class PointerAnalysis extends InterproceduralAnalysis {
     }
 
     private void setContextSensitivity(Solver solver) {
-        switch (getOptions().getString("cs")) {
-            case "ci":
-                solver.setContextSelector(new ContextInsensitiveSelector());
-                break;
-            case "1-call":
-            case "1-cfa":
-                solver.setContextSelector(new KCallSelector(1));
-                break;
-            case "1-obj":
-            case "1-object":
-                solver.setContextSelector(new KObjSelector(1));
-                break;
-            case "1-type":
-                solver.setContextSelector(new KTypeSelector(1));
-                break;
-            case "2-call":
-            case "2-cfa":
-                solver.setContextSelector(new KCallSelector(2));
-                break;
-            case "2-obj":
-            case "2-object":
-                solver.setContextSelector(new KObjSelector(2));
-                break;
-            case "2-type":
-                solver.setContextSelector(new KTypeSelector(2));
-                break;
-            default:
-                throw new ConfigException(
-                        "Unknown context sensitivity variant: "
-                                + getOptions().getString("cs"));
+        String cs = getOptions().getString("cs");
+        if (cs.equals("ci")) {
+            solver.setContextSelector(new ContextInsensitiveSelector());
+        } else {
+            try {
+                // we expect that the argument of context-sensitivity variant
+                // is of pattern k-kind, where k is limit of context length
+                // and kind represents kind of context element (obj, type, etc.).
+                String[] splits = cs.split("-");
+                int k = Integer.parseInt(splits[0]);
+                String kind = splits[1].substring(0, 1).toUpperCase() +
+                        splits[1].substring(1).toLowerCase();
+                String selectorName = "pascal.taie.analysis.pta.core.cs.selector." +
+                        "K" + kind + "Selector";
+                Class<?> c = Class.forName(selectorName);
+                Constructor<?> ctor = c.getConstructor(int.class);
+                ContextSelector selector = (ContextSelector) ctor.newInstance(k);
+                solver.setContextSelector(selector);
+            } catch (RuntimeException e) {
+                throw new ConfigException("Unexpected context-sensitivity variants: " + cs, e);
+            } catch (ClassNotFoundException | NoSuchMethodException |
+                    InvocationTargetException | InstantiationException |
+                    IllegalAccessException e) {
+                throw new ConfigException("Failed to initialize context selector: " + cs, e);
+            }
         }
     }
 

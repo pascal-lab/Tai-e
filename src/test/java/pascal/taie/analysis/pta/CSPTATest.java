@@ -150,7 +150,7 @@ public class CSPTATest {
 
     @Test
     public void testSpecialHeapContext() {
-        TestUtils.testPTA(DIR, "SpecialHeapContext", "cs:2-object");
+        TestUtils.testPTA(DIR, "SpecialHeapContext", "cs:2-obj");
     }
 
     @Test
