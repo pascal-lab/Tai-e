@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta;
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
+import pascal.taie.analysis.pta.core.cs.selector.CISelector;
 import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
@@ -34,6 +35,7 @@ import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
+import pascal.taie.util.Strings;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -49,7 +51,6 @@ public class PointerAnalysis extends InterproceduralAnalysis {
     @Override
     public PointerAnalysisResult analyze() {
         Solver solver = newSolver();
-        setContextSensitivity(solver);
         solver.setOptions(getOptions());
         solver.setHeapModel(new AllocationSiteBasedModel(getOptions()));
         solver.setCSManager(new MapBasedCSManager());
@@ -63,17 +64,28 @@ public class PointerAnalysis extends InterproceduralAnalysis {
 
     private Solver newSolver() {
         switch (getOptions().getString("solver")) {
-            case "default": return new DefaultSolver();
-            case "simple": return new SimpleSolver();
+            case "default": {
+                Solver solver = new DefaultSolver();
+                solver.setContextSelector(getDefaultSelector());
+                return solver;
+            }
+            case "simple": {
+                Solver solver = new SimpleSolver();
+                solver.setContextSelector(getSimpleSelector());
+                return solver;
+            }
             default: throw new ConfigException("Unknown solver: " +
                     getOptions().getString("solver"));
         }
     }
 
-    private void setContextSensitivity(Solver solver) {
+    /**
+     * @return context selector for {@link DefaultSolver}.
+     */
+    private ContextSelector getDefaultSelector() {
         String cs = getOptions().getString("cs");
         if (cs.equals("ci")) {
-            solver.setContextSelector(new ContextInsensitiveSelector());
+            return new ContextInsensitiveSelector();
         } else {
             try {
                 // we expect that the argument of context-sensitivity variant
@@ -81,14 +93,42 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 // and kind represents kind of context element (obj, type, etc.).
                 String[] splits = cs.split("-");
                 int k = Integer.parseInt(splits[0]);
-                String kind = splits[1].substring(0, 1).toUpperCase() +
-                        splits[1].substring(1).toLowerCase();
+                String kind = Strings.capitalize(splits[1]);
                 String selectorName = "pascal.taie.analysis.pta.core.cs.selector." +
                         "K" + kind + "Selector";
                 Class<?> c = Class.forName(selectorName);
                 Constructor<?> ctor = c.getConstructor(int.class);
-                ContextSelector selector = (ContextSelector) ctor.newInstance(k);
-                solver.setContextSelector(selector);
+                return (ContextSelector) ctor.newInstance(k);
+            } catch (RuntimeException e) {
+                throw new ConfigException("Unexpected context-sensitivity variants: " + cs, e);
+            } catch (ClassNotFoundException | NoSuchMethodException |
+                    InvocationTargetException | InstantiationException |
+                    IllegalAccessException e) {
+                throw new ConfigException("Failed to initialize context selector: " + cs, e);
+            }
+        }
+    }
+
+    /**
+     * @return context selector for {@link SimpleSolver}.
+     */
+    private ContextSelector getSimpleSelector() {
+        String cs = getOptions().getString("cs");
+        if (cs.equals("ci")) {
+            return new CISelector();
+        } else {
+            try {
+                // we expect that the argument of context-sensitivity variant
+                // is of pattern k-kind, where k is limit of context length
+                // and kind represents kind of context element (obj, type, etc.).
+                String[] splits = cs.split("-");
+                String k = splits[0];
+                String kind = Strings.capitalize(splits[1]);
+                String selectorName = "pascal.taie.analysis.pta.core.cs.selector." +
+                        "_" + k + kind + "Selector";
+                Class<?> c = Class.forName(selectorName);
+                Constructor<?> ctor = c.getConstructor();
+                return (ContextSelector) ctor.newInstance();
             } catch (RuntimeException e) {
                 throw new ConfigException("Unexpected context-sensitivity variants: " + cs, e);
             } catch (ClassNotFoundException | NoSuchMethodException |
@@ -108,8 +148,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 new ClassInitializer(),
                 new ThreadHandler(),
                 new ExceptionAnalysis(),
-                new ReflectionAnalysis(),
-                new ResultProcessor()
+                new ReflectionAnalysis()
         );
         if (World.getOptions().getJavaVersion() < 9) {
             // current reference handler doesn't support Java 9+
@@ -124,6 +163,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         if (getOptions().getString("taint-config") != null) {
             plugin.addPlugin(new TaintAnalysis());
         }
+        plugin.addPlugin(new ResultProcessor());
         plugin.setSolver(solver);
         solver.setPlugin(plugin);
     }
