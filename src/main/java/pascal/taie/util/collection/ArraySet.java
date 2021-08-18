@@ -76,8 +76,13 @@ public class ArraySet<E> extends AbstractSet<E> {
     @Override
     public boolean add(E e) {
         Objects.requireNonNull(e, NULL_MESSAGE);
-        ensureCapacity(size() + 1);
-        return !elements.contains(e) && elements.add(e);
+        if (!elements.contains(e)) {
+            ensureCapacity(size() + 1);
+            elements.add(e);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

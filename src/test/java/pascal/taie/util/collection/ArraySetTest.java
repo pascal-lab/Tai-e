@@ -31,4 +31,14 @@ public class ArraySetTest extends AbstractSetTest {
     public void testNonFixedCapacity() {
         testAddNElements(new ArraySet<>(4, false), 5);
     }
+
+    @Test
+    public void testBoundaryAdd() {
+        Set<Integer> s = new ArraySet<>(4);
+        s.add(1);
+        s.add(2);
+        s.add(3);
+        s.add(4);
+        s.add(1);
+    }
 }
