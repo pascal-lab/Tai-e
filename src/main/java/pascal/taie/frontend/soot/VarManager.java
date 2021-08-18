@@ -86,7 +86,9 @@ class VarManager {
         } else if (literal instanceof ClassLiteral) {
             varName = CLASS_CONSTANT + counter++;
         } else if (literal instanceof NullLiteral) {
-            varName = NULL_CONSTANT + counter++;
+            // each method has at most one variable for null constant,
+            // thus we don't need to count for null constant.
+            varName = NULL_CONSTANT;
         } else {
             varName = "%" + literal.getType().getName() +
                     "const" + counter++;

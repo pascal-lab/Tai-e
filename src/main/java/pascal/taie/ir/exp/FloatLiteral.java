@@ -46,6 +46,23 @@ public class FloatLiteral implements FloatingPointLiteral {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        FloatLiteral that = (FloatLiteral) o;
+        return Float.compare(that.value, value) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return (value != +0.0f ? Float.floatToIntBits(value) : 0);
+    }
+
+    @Override
     public String toString() {
         return value + "F";
     }

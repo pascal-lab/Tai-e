@@ -82,6 +82,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.MapUtils;
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
@@ -495,6 +496,13 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     /**
+     * Caches variables that hold constant values, so that we don't need to
+     * create multiple temp variables and assignments for the same constants
+     * in the same method.
+     */
+    private final Map<Literal, Var> constantVars = MapUtils.newHybridMap();
+
+    /**
      * Converts a Jimple Local or Constant to Var.
      * If <code>value</code> is Local, then directly return the corresponding Var.
      * If <code>value</code> is Constant, then add a temporary assignment,
@@ -506,9 +514,11 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         } else if (value instanceof Constant) {
             value.apply(constantConverter);
             Literal rvalue = (Literal) constantConverter.getResult();
-            Var lvalue = varManager.newConstantVar(rvalue);
-            addTempStmt(new AssignLiteral(lvalue, rvalue));
-            return lvalue;
+            return constantVars.computeIfAbsent(rvalue, v -> {
+                Var lvalue = varManager.newConstantVar(v);
+                addTempStmt(new AssignLiteral(lvalue, v));
+                return lvalue;
+            });
         }
         throw new SootFrontendException("Expected Local or Constant, given " + value);
     }
