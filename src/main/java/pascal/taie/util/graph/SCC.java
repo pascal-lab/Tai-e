@@ -12,13 +12,17 @@
 
 package pascal.taie.util.graph;
 
+import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.SetUtils;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
-
-import static pascal.taie.util.collection.MapUtils.newMap;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Finds strongly connected components in a directed graph using
@@ -31,23 +35,9 @@ public class SCC<N> {
     private final List<List<N>> componentList = new ArrayList<>();
     private final List<List<N>> trueComponentList = new ArrayList<>();
 
-    private Map<N, Integer> indexForNode = newMap();
-    private Map<N, Integer> lowlinkForNode = newMap();
-    private Stack<N> stack = new Stack<>();
-
-    private int index = 0;
-
-    private Graph<N> graph;
-
     public SCC(Graph<N> graph) {
-        this.graph = graph;
-        graph.forEach(node -> {
-            if (!indexForNode.containsKey(node)) {
-                recurse(node);
-            }
-        });
+        compute(graph);
         validate(graph, componentList);
-        clear();
     }
 
     /**
@@ -66,58 +56,81 @@ public class SCC<N> {
         return trueComponentList;
     }
 
-    private void recurse(N node) {
-        indexForNode.put(node, index);
-        lowlinkForNode.put(node, index);
-        ++index;
-        stack.push(node);
-        graph.succsOf(node).forEach(succ -> {
-            if (!indexForNode.containsKey(succ)) {
-                recurse(succ);
-                lowlinkForNode.put(node, Math.min(lowlinkForNode.get(node),
-                        lowlinkForNode.get(succ)));
-            } else if (stack.contains(succ)) {
-                lowlinkForNode.put(node, Math.min(lowlinkForNode.get(node),
-                        indexForNode.get(succ)));
+    private void compute(Graph<N> graph) {
+        // use iterative (non-recursive) algorithm to avoid stack overflow
+        // for large graph
+        int index = 0;
+        Map<N, Integer> indexes = MapUtils.newMap();
+        Map<N, Integer> lows = MapUtils.newMap();
+        Deque<N> stack = new ArrayDeque<>();
+        Set<N> inStack = SetUtils.newSet();
+        for (N curr : graph) {
+            if (indexes.containsKey(curr)) {
+                continue;
             }
-        });
-        if (lowlinkForNode.get(node).intValue() ==
-                indexForNode.get(node).intValue()) {
-            List<N> scc = new ArrayList<>();
-            N v2;
-            do {
-                v2 = stack.pop();
-                scc.add(v2);
-            } while (node != v2);
-            // Reverse SCC so that the nodes connected to predecessors
-            // (outside of the SCC) will be listed ahead.
-            Collections.reverse(scc);
-            componentList.add(scc);
-            if (scc.size() > 1) {
-                trueComponentList.add(scc);
-            } else {
-                N n = scc.get(0);
-                if (graph.hasEdge(n, n)) {
-                    trueComponentList.add(scc);
+            Deque<N> workStack = new ArrayDeque<>();
+            workStack.push(curr);
+            while (!workStack.isEmpty()) {
+                N node = workStack.peek();
+                if (!indexes.containsKey(node)) {
+                    indexes.put(node, index);
+                    lows.put(node, index);
+                    ++index;
+                    stack.push(node);
+                    inStack.add(node);
+                }
+                boolean hasUnvisitedSucc = false;
+                for (N succ : graph.succsOf(node)
+                        .collect(Collectors.toList())) {
+                    if (!indexes.containsKey(succ)) {
+                        workStack.push(succ);
+                        hasUnvisitedSucc = true;
+                        break;
+                    } else if (indexes.get(node) < indexes.get(succ)) {
+                        // node->succ is a forward edge
+                        lows.put(node, Math.min(lows.get(node), lows.get(succ)));
+                    } else if (inStack.contains(succ)) {
+                        lows.put(node, Math.min(lows.get(node), indexes.get(succ)));
+                    }
+                }
+                if (!hasUnvisitedSucc) {
+                    if (lows.get(node).equals(indexes.get(node))) {
+                        collectSCC(node, stack, inStack, graph);
+                    }
+                    workStack.pop();
                 }
             }
         }
     }
 
-    /**
-     * Validates whether the number of nodes in all SCCs is
-     * equal to the number of nodes in the given graph.
-     */
-    private void validate(Graph<N> graph, List<List<N>> SCCs) {
-        assert graph.getNumberOfNodes() ==
-                SCCs.stream().mapToInt(List::size).sum();
+    private void collectSCC(N node, Deque<N> stack, Set<N> inStack, Graph<N> graph) {
+        List<N> scc = new ArrayList<>();
+        N v2;
+        do {
+            v2 = stack.pop();
+            inStack.remove(v2);
+            scc.add(v2);
+        } while (node != v2);
+        // Reverse SCC so that the nodes connected to predecessors
+        // (outside of the SCC) will be listed ahead.
+        Collections.reverse(scc);
+        componentList.add(scc);
+        if (scc.size() > 1) {
+            trueComponentList.add(scc);
+        } else {
+            N n = scc.get(0);
+            if (graph.hasEdge(n, n)) {
+                trueComponentList.add(scc);
+            }
+        }
     }
 
-    private void clear() {
-        // release memory
-        indexForNode = null;
-        lowlinkForNode = null;
-        stack = null;
-        this.graph = null;
+    /**
+     * Validates whether the number of nodes in all components is
+     * equal to the number of nodes in the given graph.
+     */
+    private void validate(Graph<N> graph, List<List<N>> components) {
+        assert graph.getNumberOfNodes() ==
+                components.stream().mapToInt(List::size).sum();
     }
 }

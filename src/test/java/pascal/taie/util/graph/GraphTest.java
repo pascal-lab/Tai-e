@@ -19,8 +19,33 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Random;
 
 public class GraphTest {
+
+    private static Graph<Integer> genRandomGraph(int n) {
+        SimpleGraph<Integer> graph = new SimpleGraph<>();
+        Random random = new Random(System.currentTimeMillis());
+        for (int i = 0; i < n; ++i) {
+            graph.addNode(i);
+        }
+        for (int i = 0; i < 2 * n; ++i) {
+            graph.addEdge(random.nextInt(n), random.nextInt(n));
+        }
+        return graph;
+    }
+
+    private static <N> void printGraph(Graph<N> graph) {
+        System.out.print("Nodes: ");
+        for (N node : graph) {
+            System.out.print(node + ",");
+        }
+        System.out.println();
+        graph.forEach(node ->
+                graph.succsOf(node).forEach(succ ->
+                        System.out.printf("%s -> %s\n", node, succ)));
+        System.out.println();
+    }
 
     @Test
     public void testSimpleGraph() {

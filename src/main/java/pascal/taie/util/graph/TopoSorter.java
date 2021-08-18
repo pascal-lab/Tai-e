@@ -15,10 +15,13 @@ package pascal.taie.util.graph;
 import pascal.taie.util.collection.SetUtils;
 import pascal.taie.util.collection.StreamUtils;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Topologically sorts a directed graph using DFS.
@@ -78,10 +81,28 @@ public class TopoSorter<N> {
     }
 
     private void visit(N node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            graph.predsOf(node).forEach(this::visit);
-            sortedList.add(node);
+        // use iterative (non-recursive) algorithm to avoid stack overflow
+        // for large graph
+        if (visited.contains(node)) {
+            return;
+        }
+        Deque<N> stack = new ArrayDeque<>();
+        stack.push(node);
+        while (!stack.isEmpty()) {
+            N curr = stack.peek();
+            visited.add(curr);
+            boolean hasUnvisitedPred = false;
+            for (N pred : graph.predsOf(curr).collect(Collectors.toList())) {
+                if (!visited.contains(pred)) {
+                    stack.push(pred);
+                    hasUnvisitedPred = true;
+                    break;
+                }
+            }
+            if (!hasUnvisitedPred) {
+                sortedList.add(curr);
+                stack.pop();
+            }
         }
     }
 
