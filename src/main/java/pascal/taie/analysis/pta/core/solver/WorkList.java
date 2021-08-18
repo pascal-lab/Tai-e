@@ -18,14 +18,14 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Queue;
 
 class WorkList {
 
-    private final Queue<Entry> pointerEntries = new LinkedList<>();
+    private final Queue<Entry> pointerEntries = new ArrayDeque<>();
 
-    private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new LinkedList<>();
+    private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new ArrayDeque<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();

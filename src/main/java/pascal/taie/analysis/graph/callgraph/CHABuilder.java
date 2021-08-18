@@ -25,7 +25,7 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.MapUtils;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
@@ -58,7 +58,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     private void buildCallGraph(DefaultCallGraph callGraph) {
         hierarchy = World.getClassHierarchy();
         resolveTable = MapUtils.newMap();
-        Queue<JMethod> queue = new LinkedList<>();
+        Queue<JMethod> queue = new ArrayDeque<>();
         CollectionUtils.addAll(queue, callGraph.entryMethods());
         while (!queue.isEmpty()) {
             JMethod method = queue.remove();

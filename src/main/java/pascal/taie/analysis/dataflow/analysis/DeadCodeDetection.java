@@ -35,8 +35,8 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.SetUtils;
 
+import java.util.ArrayDeque;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -92,7 +92,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         // Initialize graph traversal
         Stmt entry = cfg.getEntry();
         Set<Stmt> reachable = SetUtils.newSet();
-        Queue<Stmt> queue = new LinkedList<>();
+        Queue<Stmt> queue = new ArrayDeque<>();
         queue.add(entry);
         // Traverse the CFG to find reachable code
         while (!queue.isEmpty()) {

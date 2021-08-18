@@ -17,7 +17,7 @@ import pascal.taie.util.graph.SCC;
 import pascal.taie.util.graph.SimpleGraph;
 import pascal.taie.util.graph.TopoSorter;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -110,7 +110,7 @@ public class AnalysisPlanner {
      */
     private Graph<AnalysisConfig> buildRequireGraph(List<PlanConfig> planConfigs) {
         SimpleGraph<AnalysisConfig> graph = new SimpleGraph<>();
-        Queue<AnalysisConfig> workList = new LinkedList<>();
+        Queue<AnalysisConfig> workList = new ArrayDeque<>();
         Set<AnalysisConfig> visited = newSet();
         planConfigs.forEach(pc -> workList.add(manager.getConfig(pc.getId())));
         while (!workList.isEmpty()) {

@@ -4,13 +4,13 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.ir.stmt.Stmt;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Queue;
 
 class ExceptionWorkList {
 
-    private final Queue<Entry> exceptionEntries = new LinkedList<>();
+    private final Queue<Entry> exceptionEntries = new ArrayDeque<>();
 
     void addEntry(CSMethod csMethod, Stmt stmt, Collection<CSObj> exceptions) {
         exceptionEntries.add(new Entry(csMethod, stmt, exceptions));

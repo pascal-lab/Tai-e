@@ -16,14 +16,14 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Queue;
 
 class WorkList {
 
-    private final Queue<Entry> pointerEntries = new LinkedList<>();
+    private final Queue<Entry> pointerEntries = new ArrayDeque<>();
 
-    private final Queue<Edge<Invoke, JMethod>> callEdges = new LinkedList<>();
+    private final Queue<Edge<Invoke, JMethod>> callEdges = new ArrayDeque<>();
 
     boolean hasPointerEntries() {
         return !pointerEntries.isEmpty();
