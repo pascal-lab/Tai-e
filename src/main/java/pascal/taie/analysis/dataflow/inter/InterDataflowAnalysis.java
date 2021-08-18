@@ -10,14 +10,14 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.ipa;
+package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.analysis.graph.icfg.ICFGEdge;
 
 /**
  * Inter-procedural data-flow analysis.
  */
-public interface IPDataflowAnalysis<Method, Node, Fact> {
+public interface InterDataflowAnalysis<Method, Node, Fact> {
 
     /**
      * Returns whether the analysis is forward.

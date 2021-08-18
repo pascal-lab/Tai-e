@@ -10,9 +10,8 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.ipa;
+package pascal.taie.analysis.dataflow.inter;
 
-import pascal.taie.analysis.dataflow.fact.IPDataflowResult;
 import pascal.taie.analysis.graph.icfg.ICFG;
 import pascal.taie.util.collection.SetQueue;
 
@@ -25,24 +24,24 @@ import java.util.stream.Collectors;
  * The workload of interprocedural analysis is heavy, thus we always
  * adopt work-list algorithm for efficiency.
  */
-class IPSolver<Method, Node, Fact> {
+class InterSolver<Method, Node, Fact> {
 
-    private final IPDataflowAnalysis<Method, Node, Fact> analysis;
+    private final InterDataflowAnalysis<Method, Node, Fact> analysis;
 
     private final ICFG<Method, Node> icfg;
 
-    private IPDataflowResult<Node, Fact> result;
+    private InterDataflowResult<Node, Fact> result;
 
     private Queue<Node> workList;
 
-    IPSolver(IPDataflowAnalysis<Method, Node, Fact> analysis,
-             ICFG<Method, Node> icfg) {
+    InterSolver(InterDataflowAnalysis<Method, Node, Fact> analysis,
+                ICFG<Method, Node> icfg) {
         this.analysis = analysis;
         this.icfg = icfg;
     }
 
-    IPDataflowResult<Node, Fact> solve() {
-        result = new IPDataflowResult<>();
+    InterDataflowResult<Node, Fact> solve() {
+        result = new InterDataflowResult<>();
         initialize();
         doSolve();
         return result;

@@ -83,8 +83,8 @@
   requires: [cfg]
 
 - description: inter-procedural constant propagation
-  analysisClass: pascal.taie.analysis.dataflow.ipa.IPConstantPropagation
-  id: ip-constprop
+  analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
+  id: inter-constprop
   requires: [icfg,cipta(pta=cipta),pta(pta=pta)]
   options:
     alias-aware: false

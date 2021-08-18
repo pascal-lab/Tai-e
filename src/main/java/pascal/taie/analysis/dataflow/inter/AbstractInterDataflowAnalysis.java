@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.ipa;
+package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
@@ -22,15 +22,15 @@ import pascal.taie.analysis.graph.icfg.LocalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.config.AnalysisConfig;
 
-public abstract class AbstractIPDataflowAnalysis<Method, Node, Fact>
+public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         extends InterproceduralAnalysis
-        implements IPDataflowAnalysis<Method, Node, Fact> {
+        implements InterDataflowAnalysis<Method, Node, Fact> {
 
     protected ICFG<Method, Node> icfg;
 
-    protected IPSolver<Method, Node, Fact> solver;
+    protected InterSolver<Method, Node, Fact> solver;
 
-    public AbstractIPDataflowAnalysis(AnalysisConfig config) {
+    public AbstractInterDataflowAnalysis(AnalysisConfig config) {
         super(config);
     }
 
@@ -68,7 +68,7 @@ public abstract class AbstractIPDataflowAnalysis<Method, Node, Fact>
     @Override
     public Object analyze() {
         icfg = World.getResult(ICFGBuilder.ID);
-        solver = new IPSolver<>(this, icfg);
+        solver = new InterSolver<>(this, icfg);
         return solver.solve();
     }
 }

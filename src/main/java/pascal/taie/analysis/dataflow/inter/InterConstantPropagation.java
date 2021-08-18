@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.ipa;
+package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.World;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
@@ -37,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class IPConstantPropagation extends
-        AbstractIPDataflowAnalysis<JMethod, Stmt, MapFact<Var, Value>> {
+public class InterConstantPropagation extends
+        AbstractInterDataflowAnalysis<JMethod, Stmt, MapFact<Var, Value>> {
 
-    public static final String ID = "ip-constprop";
+    public static final String ID = "inter-constprop";
 
     private final ConstantPropagation cp;
 
@@ -53,7 +53,7 @@ public class IPConstantPropagation extends
      */
     private Map<StoreField, Set<LoadField>> storeToLoads;
 
-    public IPConstantPropagation(AnalysisConfig config) {
+    public InterConstantPropagation(AnalysisConfig config) {
         super(config);
         cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
         aliasAware = getOptions().getBoolean("alias-aware");

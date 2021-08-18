@@ -10,8 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.fact;
+package pascal.taie.analysis.dataflow.inter;
 
+import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.graph.icfg.ICFGEdge;
 
 import java.util.LinkedHashMap;
@@ -21,7 +22,7 @@ import java.util.Map;
  * TODO: merge with {@link pascal.taie.analysis.dataflow.fact.DataflowResult}
  *  by parameterize edge type?
  */
-public class IPDataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
+public class InterDataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
 
     private final Map<ICFGEdge<Node>, Fact> edgeFacts = new LinkedHashMap<>();
 

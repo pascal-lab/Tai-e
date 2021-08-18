@@ -1,8 +1,8 @@
--------------------- <A: void <init>()> (ip-constprop) --------------------
+-------------------- <A: void <init>()> (inter-constprop) --------------------
 [0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
 
--------------------- <Interprocedural: void main(java.lang.String[])> (ip-constprop) --------------------
+-------------------- <Interprocedural: void main(java.lang.String[])> (inter-constprop) --------------------
 [0@L3] temp$0 = new A; {}
 [1@L3] invokespecial temp$0.<A: void <init>()>(); {}
 [2@L3] a = temp$0; {}
@@ -12,7 +12,7 @@
 [6@L5] x = temp$2; {temp$1=555, temp$2=555, x=555}
 [7@L5] return; {temp$1=555, temp$2=555, x=555}
 
--------------------- <Interprocedural: int getF(A)> (ip-constprop) --------------------
+-------------------- <Interprocedural: int getF(A)> (inter-constprop) --------------------
 [0@L8] temp$0 = a.<A: int f>; {temp$0=555}
 [1@L9] return temp$0; {temp$0=555}
 

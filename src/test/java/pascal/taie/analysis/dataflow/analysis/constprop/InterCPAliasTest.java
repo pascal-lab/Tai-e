@@ -2,44 +2,44 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
 import pascal.taie.analysis.TestUtils;
-import pascal.taie.analysis.dataflow.ipa.IPConstantPropagation;
+import pascal.taie.analysis.dataflow.inter.InterConstantPropagation;
 
-public class IPCPAliasTest {
+public class InterCPAliasTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/alias";
 
-    static void testIPCP(String inputClass) {
-        TestUtils.testDFA(inputClass, CLASS_PATH, IPConstantPropagation.ID,
+    static void testInterCP(String inputClass) {
+        TestUtils.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "alias-aware:true;pta:cipta", "-a", "cipta", "-a", "cg=pta:cipta");
     }
 
     @Test
     public void testSimpleField() {
-        testIPCP("SimpleField");
+        testInterCP("SimpleField");
     }
 
     @Test
     public void testMultiLoads() {
-        testIPCP("MultiLoads");
+        testInterCP("MultiLoads");
     }
 
     @Test
     public void testMultiStores() {
-        testIPCP("MultiStores");
+        testInterCP("MultiStores");
     }
 
     @Test
     public void testMultiObjs() {
-        testIPCP("MultiObjs");
+        testInterCP("MultiObjs");
     }
 
     @Test
     public void testInterprocedural() {
-        testIPCP("Interprocedural");
+        testInterCP("Interprocedural");
     }
 
     @Test
     public void testInterprocedural2() {
-        testIPCP("Interprocedural2");
+        testInterCP("Interprocedural2");
     }
 }
