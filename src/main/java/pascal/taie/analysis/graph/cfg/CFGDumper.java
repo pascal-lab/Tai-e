@@ -29,6 +29,12 @@ public class CFGDumper {
 
     private static final Logger logger = LogManager.getLogger(CFGDumper.class);
 
+    /**
+     * Limits length of file name, otherwise it may exceed the max file name
+     * length of the underlying file system.
+     */
+    private static final int FILENAME_LIMIT = 200;
+
     private static final String INDENT = "  ";
 
     private static final String NODE_ATTR = "[shape=box,style=filled,color=\".3 .2 1.0\"]";
@@ -48,17 +54,18 @@ public class CFGDumper {
 
     private static String toFileName(CFG<?> cfg) {
         JMethod m = cfg.getMethod();
-        StringBuilder sb = new StringBuilder();
-        return sb.append(m.getDeclaringClass()).append('.')
-                .append(m.getName()).append('(')
-                .append(m.getParamTypes()
+        String fileName = String.valueOf(m.getDeclaringClass()) + '.' +
+                m.getName() + '(' +
+                m.getParamTypes()
                         .stream()
                         .map(Type::toString)
-                        .collect(Collectors.joining(",")))
-                .append(')')
-                .toString()
-                // escape invalid characters in file name
-                .replaceAll("[\\[\\]<>]", "_") + ".dot";
+                        .collect(Collectors.joining(",")) +
+                ')';
+        if (fileName.length() > FILENAME_LIMIT) {
+            fileName = fileName.substring(0, FILENAME_LIMIT) + "...";
+        }
+        // escape invalid characters in file name
+        return fileName.replaceAll("[\\[\\]<>]", "_") + ".dot";
     }
 
     private static <N> void dumpDot(CFG<N> cfg, PrintStream out) {
