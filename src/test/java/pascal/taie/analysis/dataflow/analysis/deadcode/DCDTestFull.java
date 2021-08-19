@@ -60,4 +60,9 @@ public class DCDTestFull {
     public void testNotDead() {
         DCDTest.testDCD("NotDead");
     }
+
+    @Test
+    public void testLiveAssignments() {
+        DCDTest.testDCD("LiveAssignments");
+    }
 }

@@ -126,7 +126,8 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         ir.getStmts().forEach(stmt -> {
             if (stmt instanceof AssignStmt<?, ?>) {
                 AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
-                if (!liveVars.getOutFact(assign).contains(assign.getLValue()) &&
+                if (assign.getLValue() instanceof Var &&
+                        !liveVars.getOutFact(assign).contains(assign.getLValue()) &&
                         !mayHaveSideEffect(assign.getRValue())) {
                     deadAssigns.add(assign);
                 }
