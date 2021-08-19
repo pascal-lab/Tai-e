@@ -12,6 +12,7 @@
 
 package pascal.taie.util;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -89,11 +90,15 @@ public class Timer {
      * @param message message of the task
      */
     public static void runAndCount(Runnable task, String message) {
+        runAndCount(task, message, Level.INFO);
+    }
+
+    public static void runAndCount(Runnable task, String message, Level level) {
         Timer timer = new Timer(message);
         timer.start();
         task.run();
         timer.stop();
-        logger.info(timer);
+        logger.log(level, timer);
     }
 
     /**

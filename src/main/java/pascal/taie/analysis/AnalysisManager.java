@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
@@ -20,6 +21,7 @@ import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.Timer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +40,9 @@ public class AnalysisManager {
      * Executes the analysis plan.
      */
     public void execute(List<AnalysisConfig> analysisPlan) {
-        analysisPlan.forEach(this::runAnalysis);
+        analysisPlan.forEach(config -> Timer.runAndCount(
+                () -> runAnalysis(config), "Running " + config.getId(),
+                Level.DEBUG));
     }
 
     private void runAnalysis(AnalysisConfig config) {
