@@ -89,7 +89,8 @@ public class CFGDumper {
             return "Exit";
         } else {
             return node instanceof Stmt ?
-                    ((Stmt) node).getIndex() + ": " + node : node.toString();
+                    ((Stmt) node).getIndex() + ": " + node.toString().replace("\"", "\\\"") :
+                    node.toString();
         }
     }
 
