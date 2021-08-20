@@ -19,4 +19,6 @@ public class Scope {
     public static final String APP = "app";
 
     public static final String REACHABLE = "reachable";
+
+    public static final String ALL = "all";
 }

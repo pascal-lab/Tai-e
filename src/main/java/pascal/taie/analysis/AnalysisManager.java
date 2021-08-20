@@ -12,11 +12,14 @@
 
 package pascal.taie.analysis;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.ConfigException;
+import pascal.taie.config.Scope;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -27,7 +30,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Creates and executes analyses based on given analysis plan.
@@ -36,13 +39,14 @@ public class AnalysisManager {
 
     private static final Logger logger = LogManager.getLogger(AnalysisManager.class);
 
+    private List<JMethod> scope;
+
     /**
      * Executes the analysis plan.
      */
     public void execute(List<AnalysisConfig> analysisPlan) {
         analysisPlan.forEach(config -> Timer.runAndCount(
-                () -> runAnalysis(config), "Running " + config.getId(),
-                Level.DEBUG));
+                () -> runAnalysis(config), "Run " + config.getId()));
     }
 
     private void runAnalysis(AnalysisConfig config) {
@@ -68,20 +72,51 @@ public class AnalysisManager {
     }
 
     private void runIntraproceduralAnalysis(IntraproceduralAnalysis analysis) {
-        // Obtain all non-abstract and non-native methods in class hierarchy
-        Stream<JMethod> methods = World.getClassHierarchy()
-                .applicationClasses()
-                .map(JClass::getDeclaredMethods)
-                .flatMap(Collection::stream)
-                .filter(m -> !m.isAbstract() && !m.isNative());
-        // TODO: parallelize analysis of different methods
-        methods.forEach(m -> {
-            IR ir = m.getIR();
-            Object result = analysis.analyze(ir);
-            if (result != null) {
-                ir.storeResult(analysis.getId(), result);
+        getScope().parallelStream()
+                .forEach(m -> {
+                    IR ir = m.getIR();
+                    Object result = analysis.analyze(ir);
+                    if (result != null) {
+                        ir.storeResult(analysis.getId(), result);
+                    }
+                });
+    }
+
+    private List<JMethod> getScope() {
+        if (scope == null) {
+            switch (World.getOptions().getScope()) {
+                case Scope.APP: {
+                    scope = World.getClassHierarchy()
+                            .applicationClasses()
+                            .map(JClass::getDeclaredMethods)
+                            .flatMap(Collection::stream)
+                            .filter(m -> !m.isAbstract() && !m.isNative())
+                            .collect(Collectors.toUnmodifiableList());
+                    break;
+                }
+                case Scope.REACHABLE: {
+                    CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
+                    scope = callGraph.reachableMethods()
+                            .collect(Collectors.toUnmodifiableList());
+                    break;
+                }
+                case Scope.ALL: {
+                    scope = World.getClassHierarchy()
+                            .allClasses()
+                            .map(JClass::getDeclaredMethods)
+                            .flatMap(Collection::stream)
+                            .filter(m -> !m.isAbstract() && !m.isNative())
+                            .collect(Collectors.toUnmodifiableList());
+                    break;
+                }
+                default: {
+                    throw new ConfigException("Unexpected scope option: " +
+                            World.getOptions().getScope());
+                }
             }
-        });
+            logger.info("{} methods in the scope", scope.size());
+        }
+        return scope;
     }
 
     private void runInterproceduralAnalysis(InterproceduralAnalysis analysis) {

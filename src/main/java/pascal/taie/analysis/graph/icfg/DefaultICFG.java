@@ -52,12 +52,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
         callGraph.reachableMethods().forEach(method -> {
             CFG<Stmt> cfg = getCFGOf(method);
             if (cfg == null) {
-                // Since the scope of CFGBuilder only covers application
-                // classes for now, while CallGraphBuilder also discovers
-                // library classes, the CFG of these library classes
-                // are currently absent.
-                // FIXME: let CFGBuilder covers the classes analyzed by other analyses.
-                logger.warn("CFG of {} is absent", method);
+                logger.warn("CFG of {} is absent, try to fix this" +
+                        " by adding option -scope=reachable", method);
                 return;
             }
             cfg.forEach(stmt -> {
