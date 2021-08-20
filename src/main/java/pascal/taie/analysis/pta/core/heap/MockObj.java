@@ -14,7 +14,7 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.util.Optional;
 
@@ -84,7 +84,7 @@ public class MockObj implements Obj {
 
     @Override
     public int hashCode() {
-        return HashUtils.safeHash(desc, alloc, type);
+        return Hashes.safeHash(desc, alloc, type);
     }
 
     @Override

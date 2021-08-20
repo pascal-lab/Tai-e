@@ -15,11 +15,12 @@ package pascal.taie.util;
 import java.util.Objects;
 
 /**
+ * Static utility methods for computing hash code.
  * Avoids array creation of Objects.hash().
  */
-public class HashUtils {
+public final class Hashes {
 
-    private HashUtils() {
+    private Hashes() {
     }
 
     /**

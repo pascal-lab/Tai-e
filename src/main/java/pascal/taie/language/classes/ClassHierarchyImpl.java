@@ -28,9 +28,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.MapUtils.newSmallMap;
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Maps.newMap;
+import static pascal.taie.util.collection.Maps.newSmallMap;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 

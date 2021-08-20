@@ -19,7 +19,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
+import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 class Modifiers {
 

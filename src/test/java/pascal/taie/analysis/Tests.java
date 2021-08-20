@@ -25,7 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class TestUtils {
+/**
+ * Static utility methods for testing.
+ */
+public final class Tests {
+
+    private Tests() {
+    }
 
     /**
      * Whether generate expected results or not.

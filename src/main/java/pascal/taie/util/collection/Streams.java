@@ -18,9 +18,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class StreamUtils {
+/**
+ * Static utility methods for {@link Stream}.
+ */
+public final class Streams {
 
-    private StreamUtils() {
+    private Streams() {
     }
 
     /**

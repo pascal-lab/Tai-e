@@ -14,7 +14,7 @@ package pascal.taie.language.type;
 
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 public class ClassType implements ReferenceType {
 
@@ -56,7 +56,7 @@ public class ClassType implements ReferenceType {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(loader, name);
+        return Hashes.hash(loader, name);
     }
 
     @Override

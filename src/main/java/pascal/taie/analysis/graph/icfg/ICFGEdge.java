@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 public abstract class ICFGEdge<Node> {
 
@@ -40,7 +40,7 @@ public abstract class ICFGEdge<Node> {
     }
 
     protected int computeHashCode() {
-        return HashUtils.hash(kind, source, target);
+        return Hashes.hash(kind, source, target);
     }
 
     @Override

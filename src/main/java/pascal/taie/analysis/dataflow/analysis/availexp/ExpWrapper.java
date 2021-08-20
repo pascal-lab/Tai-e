@@ -19,7 +19,7 @@ import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 /**
  * Expression wrapper, which tests equality and computes hashcode by Exp contents.
@@ -115,21 +115,21 @@ public class ExpWrapper {
     }
 
     private static int hashCode(BinaryExp binary) {
-        return HashUtils.hash(binary.getOperator(),
+        return Hashes.hash(binary.getOperator(),
                 binary.getValue1(), binary.getValue2());
     }
 
     private static int hashCode(CastExp cast) {
-        return HashUtils.hash(cast.getCastType(), cast.getValue());
+        return Hashes.hash(cast.getCastType(), cast.getValue());
     }
 
     private static int hashCode(InstanceOfExp instanceOf) {
-        return HashUtils.hash(instanceOf.getCheckedType(),
+        return Hashes.hash(instanceOf.getCheckedType(),
                 instanceOf.getValue());
     }
 
     private static int hashCode(UnaryExp unary) {
-        return HashUtils.hash(unary.getClass(), unary.getOperand());
+        return Hashes.hash(unary.getClass(), unary.getOperand());
     }
 
     @Override

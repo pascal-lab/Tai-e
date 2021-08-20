@@ -24,7 +24,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.io.File;
 import java.io.IOException;
@@ -144,7 +144,7 @@ class TaintConfig {
         private Set<JMethod> deserializeMethods(JsonNode node) {
             if (node instanceof ArrayNode) {
                 ArrayNode arrayNode = (ArrayNode) node;
-                Set<JMethod> methods = SetUtils.newSet(arrayNode.size());
+                Set<JMethod> methods = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.asText();
                     JMethod method = hierarchy.getMethod(methodSig);
@@ -171,7 +171,7 @@ class TaintConfig {
         private Set<MethodParam> deserializeMethodParams(JsonNode node) {
             if (node instanceof ArrayNode) {
                 ArrayNode arrayNode = (ArrayNode) node;
-                Set<MethodParam> methodParams = SetUtils.newSet(arrayNode.size());
+                Set<MethodParam> methodParams = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
                     JMethod method = hierarchy.getMethod(methodSig);
@@ -199,7 +199,7 @@ class TaintConfig {
         private Set<TaintTransfer> deserializeTransfers(JsonNode node) {
             if (node instanceof ArrayNode) {
                 ArrayNode arrayNode = (ArrayNode) node;
-                Set<TaintTransfer> transfers = SetUtils.newSet(arrayNode.size());
+                Set<TaintTransfer> transfers = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
                     JMethod method = hierarchy.getMethod(methodSig);

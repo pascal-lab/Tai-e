@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 abstract class AbstractPointer implements Pointer {
 

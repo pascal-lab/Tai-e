@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
-import static pascal.taie.util.collection.SetUtils.newSet;
+import static pascal.taie.util.collection.Maps.newHybridMap;
+import static pascal.taie.util.collection.Maps.newMap;
+import static pascal.taie.util.collection.Sets.newHybridSet;
+import static pascal.taie.util.collection.Sets.newSet;
 
 class PointerFlowGraph {
 

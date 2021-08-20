@@ -13,8 +13,8 @@
 
 package pascal.taie.util.graph;
 
-import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
 import java.util.Set;
@@ -34,9 +34,9 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     }
 
     private void init(Graph<N> graph) {
-        nodes = SetUtils.newSet();
+        nodes = Sets.newSet();
         // Map from original node to the corresponding merged node.
-        Map<N, MergedNode<N>> nodeMap = MapUtils.newMap();
+        Map<N, MergedNode<N>> nodeMap = Maps.newMap();
         SCC<N> scc = new SCC<>(graph);
         scc.getComponents().forEach(component -> {
             MergedNode<N> node = new MergedNode<>(component);

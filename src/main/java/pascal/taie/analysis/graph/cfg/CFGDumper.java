@@ -14,7 +14,7 @@ package pascal.taie.analysis.graph.cfg;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.config.ConfigUtils;
+import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -43,7 +43,7 @@ public class CFGDumper {
 
     static <N> void dumpDotFile(CFG<N> cfg) {
         // obtain output file
-        File outFile = new File(ConfigUtils.getOutputDir(), toFileName(cfg));
+        File outFile = new File(Configs.getOutputDir(), toFileName(cfg));
         try (PrintStream out =
                      new PrintStream(new FileOutputStream(outFile))) {
             dumpDot(cfg, out);

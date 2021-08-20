@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class ReflectionTest {
 
@@ -21,12 +21,12 @@ public class ReflectionTest {
 
     @Test
     public void testStringConstant() {
-        TestUtils.testPTA(DIR, "GetMember");
+        Tests.testPTA(DIR, "GetMember");
     }
 
     @Test
     public void testReflectionLog() {
-        TestUtils.testPTA(DIR, "ReflectiveAction",
+        Tests.testPTA(DIR, "ReflectiveAction",
                 "reflection-log:src/test/resources/pta/reflection/ReflectiveAction.log");
     }
 }

@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 public class Edge<CallSite, Method> {
 
@@ -28,7 +28,7 @@ public class Edge<CallSite, Method> {
         this.kind = kind;
         this.callSite = callSite;
         this.callee = callee;
-        hashCode = HashUtils.hash(kind, callSite, callee);
+        hashCode = Hashes.hash(kind, callSite, callee);
     }
 
     public CallKind getKind() {

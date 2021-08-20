@@ -23,8 +23,8 @@ import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,9 +37,9 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
     private static final Logger logger = LogManager.getLogger(DefaultICFG.class);
 
-    private final Map<Stmt, Set<ICFGEdge<Stmt>>> inEdges = MapUtils.newMap();
+    private final Map<Stmt, Set<ICFGEdge<Stmt>>> inEdges = Maps.newMap();
 
-    private final Map<Stmt, Set<ICFGEdge<Stmt>>> outEdges = MapUtils.newMap();
+    private final Map<Stmt, Set<ICFGEdge<Stmt>>> outEdges = Maps.newMap();
 
     private final Map<Stmt, CFG<Stmt>> stmtToCFG = new LinkedHashMap<>();
 
@@ -64,8 +64,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                 stmtToCFG.put(stmt, cfg);
                 cfg.outEdgesOf(stmt).forEach(edge -> {
                     LocalEdge<Stmt> local = new LocalEdge<>(edge);
-                    MapUtils.addToMapSet(outEdges, stmt, local);
-                    MapUtils.addToMapSet(inEdges, edge.getTarget(), local);
+                    Maps.addToMapSet(outEdges, stmt, local);
+                    Maps.addToMapSet(inEdges, edge.getTarget(), local);
                 });
                 if (isCallSite(stmt)) {
                     calleesOf(stmt).forEach(callee -> {
@@ -75,12 +75,12 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         // Add call edges
                         Stmt entry = getEntryOf(callee);
                         CallEdge<Stmt> call = new CallEdge<>(stmt, entry);
-                        MapUtils.addToMapSet(outEdges, stmt, call);
-                        MapUtils.addToMapSet(inEdges, entry, call);
+                        Maps.addToMapSet(outEdges, stmt, call);
+                        Maps.addToMapSet(inEdges, entry, call);
                         // Add return edges
                         Stmt exit = getExitOf(callee);
-                        Set<Var> retVars = SetUtils.newHybridSet();
-                        Set<ClassType> exceptions = SetUtils.newHybridSet();
+                        Set<Var> retVars = Sets.newHybridSet();
+                        Set<ClassType> exceptions = Sets.newHybridSet();
                         // The exit node of CFG is mock, thus it is not
                         // a real return or excepting Stmt. We need to
                         // collect return and exception information from
@@ -100,8 +100,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         returnSitesOf(stmt).forEach(retSite -> {
                             ReturnEdge<Stmt> ret = new ReturnEdge<>(
                                     exit, retSite, stmt, retVars, exceptions);
-                            MapUtils.addToMapSet(outEdges, exit, ret);
-                            MapUtils.addToMapSet(inEdges, retSite, ret);
+                            Maps.addToMapSet(outEdges, exit, ret);
+                            Maps.addToMapSet(inEdges, retSite, ret);
                         });
                     });
                 }

@@ -13,13 +13,13 @@
 package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class ReachDefTest {
 
     @Test
     public void test() {
-        TestUtils.testDFA("ReachDef", "src/test/resources/dataflow/",
+        Tests.testDFA("ReachDef", "src/test/resources/dataflow/",
                 ReachingDefinitionAnalysis.ID);
     }
 }

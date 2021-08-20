@@ -18,7 +18,7 @@ import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.lang.invoke.MethodHandleInfo;
 
@@ -106,7 +106,7 @@ public class MethodHandle implements ReferenceLiteral {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(kind, memberRef);
+        return Hashes.hash(kind, memberRef);
     }
 
     @Override

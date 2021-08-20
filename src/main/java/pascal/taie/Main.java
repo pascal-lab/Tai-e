@@ -18,7 +18,7 @@ import pascal.taie.analysis.AnalysisManager;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisPlanner;
 import pascal.taie.config.ConfigManager;
-import pascal.taie.config.ConfigUtils;
+import pascal.taie.config.Configs;
 import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
@@ -58,7 +58,7 @@ public class Main {
     }
 
     private static List<AnalysisConfig> processConfigs(Options options) {
-        File configFile = ConfigUtils.getAnalysisConfig();
+        File configFile = Configs.getAnalysisConfig();
         List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);
@@ -76,7 +76,7 @@ public class Main {
                     .map(ac -> new PlanConfig(ac.getId(), ac.getOptions()))
                     .collect(Collectors.toUnmodifiableList());
             // TODO: turn off output in testing?
-            PlanConfig.writeConfigs(configs, ConfigUtils.getDefaultPlan());
+            PlanConfig.writeConfigs(configs, Configs.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it
                return plan;

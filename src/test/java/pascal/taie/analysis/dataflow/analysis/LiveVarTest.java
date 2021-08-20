@@ -13,13 +13,13 @@
 package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class LiveVarTest {
 
     @Test
     public void test() {
-        TestUtils.testDFA("LiveVar", "src/test/resources/dataflow/",
+        Tests.testDFA("LiveVar", "src/test/resources/dataflow/",
                 LiveVariableAnalysis.ID);
     }
 }

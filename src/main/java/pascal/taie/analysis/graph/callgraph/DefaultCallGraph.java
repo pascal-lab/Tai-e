@@ -14,7 +14,7 @@ package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 /**
  * Default implementation of call graph.
@@ -39,7 +39,7 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
                     if (stmt instanceof Invoke) {
                         Invoke invoke = (Invoke) stmt;
                         callSiteToContainer.put(invoke, method);
-                        MapUtils.addToMapSet(callSitesIn, method, invoke);
+                        Maps.addToMapSet(callSitesIn, method, invoke);
                     }
                 });
             }
@@ -55,8 +55,8 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
      * @return true if the new-added edge is absent in this call graph before
      */
     public boolean addEdge(Edge<Invoke, JMethod> edge) {
-        if (MapUtils.addToMapSet(callSiteToEdges, edge.getCallSite(), edge)) {
-            MapUtils.addToMapSet(calleeToEdges, edge.getCallee(), edge);
+        if (Maps.addToMapSet(callSiteToEdges, edge.getCallSite(), edge)) {
+            Maps.addToMapSet(calleeToEdges, edge.getCallee(), edge);
             return true;
         } else {
             return false;

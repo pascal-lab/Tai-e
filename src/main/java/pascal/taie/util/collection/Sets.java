@@ -17,9 +17,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SetUtils {
+/**
+ * Static utility methods for {@link Set}.
+ */
+public final class Sets {
 
-    private SetUtils() {
+    private Sets() {
     }
 
     // Factory methods for sets and maps

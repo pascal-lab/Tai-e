@@ -29,9 +29,9 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +49,7 @@ class CIPTAResult implements PointerAnalysisResult {
     /**
      * Points-to sets of field expressions, e.g., v.f.
      */
-    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = MapUtils.newMap();
+    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = Maps.newMap();
 
     private Set<Obj> objects;
 
@@ -90,7 +90,7 @@ class CIPTAResult implements PointerAnalysisResult {
             logger.warn("{} is not instance field", field);
         }
         return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
-            Set<Obj> pts = SetUtils.newHybridSet();
+            Set<Obj> pts = Sets.newHybridSet();
             getPointsToSet(base).forEach(o -> {
                 InstanceFieldPtr fieldPtr = pointerFlowGraph
                         .getInstanceFieldPtr(o, field);

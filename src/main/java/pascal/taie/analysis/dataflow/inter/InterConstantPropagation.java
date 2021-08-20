@@ -31,7 +31,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.List;
 import java.util.Map;
@@ -67,11 +67,11 @@ public class InterConstantPropagation extends
         // derived from pointer analysis
         String ptaId = getOptions().getString("pta");
         PointerAnalysisResult pta = World.getResult(ptaId);
-        Map<Obj, Set<Var>> pointedBy = MapUtils.newMap();
+        Map<Obj, Set<Var>> pointedBy = Maps.newMap();
         pta.vars().forEach(var ->
                 pta.getPointsToSet(var).forEach(obj ->
-                        MapUtils.addToMapSet(pointedBy, obj, var)));
-        Map<StoreField, Set<LoadField>> storeToLoads = MapUtils.newMap();
+                        Maps.addToMapSet(pointedBy, obj, var)));
+        Map<StoreField, Set<LoadField>> storeToLoads = Maps.newMap();
         pointedBy.values().forEach(aliases -> {
             for (Var v : aliases) {
                 v.getStoreFields()
@@ -84,7 +84,7 @@ public class InterConstantPropagation extends
                                     JField loadedField = load
                                             .getFieldRef().resolve();
                                     if (storedField.equals(loadedField)) {
-                                        MapUtils.addToMapSet(storeToLoads, store, load);
+                                        Maps.addToMapSet(storeToLoads, store, load);
                                     }
                                 })
                             );

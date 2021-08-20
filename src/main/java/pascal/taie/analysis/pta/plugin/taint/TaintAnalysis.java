@@ -34,7 +34,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
@@ -53,14 +53,14 @@ public class TaintAnalysis implements Plugin {
      * Map from method (which causes taint transfer) to set of relevant
      * {@link TaintTransfer}.
      */
-    private final Map<JMethod, Set<TaintTransfer>> transfers = MapUtils.newMap();
+    private final Map<JMethod, Set<TaintTransfer>> transfers = Maps.newMap();
 
     /**
      * Map from variable to taint transfer information.
      * The taint objects pointed to by the "key" variable are supposed
      * to be transferred to "value" variable with specified type.
      */
-    private final Map<Var, Set<Pair<Var, Type>>> varTransfers = MapUtils.newMap();
+    private final Map<Var, Set<Pair<Var, Type>>> varTransfers = Maps.newMap();
 
     private TaintConfig config;
 
@@ -79,7 +79,7 @@ public class TaintAnalysis implements Plugin {
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy());
         config.getTransfers().forEach(t ->
-                MapUtils.addToMapSet(transfers, t.getMethod(), t));
+                Maps.addToMapSet(transfers, t.getMethod(), t));
         logger.info(config);
     }
 
@@ -104,7 +104,7 @@ public class TaintAnalysis implements Plugin {
                 // does not have result variable, then "to" is null.
                 if (to != null) {
                     Type type = target.getReturnType();
-                    MapUtils.addToMapSet(varTransfers, from, new Pair<>(to, type));
+                    Maps.addToMapSet(varTransfers, from, new Pair<>(to, type));
                     Context ctx = edge.getCallSite().getContext();
                     CSVar csFrom = csManager.getCSVar(ctx, from);
                     transferTaint(solver.getPointsToSetOf(csFrom), ctx, to, type);

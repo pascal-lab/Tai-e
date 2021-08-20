@@ -57,18 +57,18 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
         switch (action) {
             case "dump": {
                 String file = getOptions().getString("file");
-                CGUtils.dumpCallGraph(callGraph, file);
+                CallGraphs.dumpCallGraph(callGraph, file);
                 break;
             }
             case "dump-recall": {
                 List<String> files = (List<String>) getOptions().get("file");
-                CGUtils.dumpMethods(callGraph, files.get(0));
-                CGUtils.dumpCallEdges(callGraph, files.get(1));
+                CallGraphs.dumpMethods(callGraph, files.get(0));
+                CallGraphs.dumpCallEdges(callGraph, files.get(1));
                 break;
             }
             case "compare": {
                 String file = getOptions().getString("file");
-                CGUtils.compareCallGraph(callGraph, file);
+                CallGraphs.compareCallGraph(callGraph, file);
                 break;
             }
         }

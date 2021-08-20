@@ -28,7 +28,14 @@ import pascal.taie.language.type.Type;
 
 import javax.annotation.Nullable;
 
-public class CSObjUtils {
+/**
+ * Static utility methods for {@link CSObjs}.
+ */
+public final class CSObjs {
+
+    private CSObjs() {
+    }
+
     /**
      * Converts a CSObj of string constant to corresponding String.
      * If the object is not a string constant, then return null.

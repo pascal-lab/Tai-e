@@ -19,15 +19,15 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
-import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.Maps.newHybridMap;
+import static pascal.taie.util.collection.Maps.newMap;
 
 /**
  * Manages data by maintaining the data and their context-sensitive
@@ -90,7 +90,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<CSVar> csVars() {
-        return MapUtils.mapMapValues(vars);
+        return Maps.mapMapValues(vars);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<InstanceField> instanceFields() {
-        return MapUtils.mapMapValues(instanceFields);
+        return Maps.mapMapValues(instanceFields);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<CSObj> objects() {
-        return MapUtils.mapMapValues(objs);
+        return Maps.mapMapValues(objs);
     }
 
     private <P extends Pointer> P initializePointsToSet(P pointer) {

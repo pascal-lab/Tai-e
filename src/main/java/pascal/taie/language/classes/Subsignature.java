@@ -18,7 +18,7 @@ import pascal.taie.util.InternalCanonicalized;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
+import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 /**
  * Method name and descriptor.

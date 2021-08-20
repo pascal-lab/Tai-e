@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class ExceptionTest {
 
@@ -21,21 +21,21 @@ public class ExceptionTest {
 
     @Test
     public void testExceptionCircle() {
-        TestUtils.testPTA(DIR, "ExceptionCircle");
+        Tests.testPTA(DIR, "ExceptionCircle");
     }
 
     @Test
     public void testExceptionCircleAndRecursion() {
-        TestUtils.testPTA(DIR, "ExceptionCircleAndRecursion");
+        Tests.testPTA(DIR, "ExceptionCircleAndRecursion");
     }
 
     @Test
     public void testExceptionNoneCaught() {
-        TestUtils.testPTA(DIR, "ExceptionNoneCaught");
+        Tests.testPTA(DIR, "ExceptionNoneCaught");
     }
 
     @Test
     public void testExceptionTreeAndRecursion() {
-        TestUtils.testPTA(DIR, "ExceptionTreeAndRecursion");
+        Tests.testPTA(DIR, "ExceptionTreeAndRecursion");
     }
 }

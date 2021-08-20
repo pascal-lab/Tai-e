@@ -19,7 +19,7 @@ import pascal.taie.ir.stmt.Invoke;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 public class CSCallSite extends AbstractCSElement {
 

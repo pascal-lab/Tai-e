@@ -13,8 +13,8 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.util.collection.ListUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +36,10 @@ public abstract class InvokeInstanceExp extends InvokeExp {
 
     @Override
     public List<Exp> getUses() {
-        return ListUtils.cons(base, List.copyOf(args));
+        List<Exp> uses = new ArrayList<>(args.size() + 1);
+        uses.add(base);
+        uses.addAll(args);
+        return uses;
     }
 
     @Override

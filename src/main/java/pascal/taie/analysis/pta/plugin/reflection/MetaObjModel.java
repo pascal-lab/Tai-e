@@ -26,7 +26,7 @@ import pascal.taie.language.type.TypeManager;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.Maps.newMap;
 
 abstract class MetaObjModel extends AbstractModel {
 

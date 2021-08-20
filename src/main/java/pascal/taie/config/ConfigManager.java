@@ -12,7 +12,7 @@
 
 package pascal.taie.config;
 
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.Maps.newMap;
 
 /**
  * Manages a collection of {@link AnalysisConfig}.
@@ -47,7 +47,7 @@ public class ConfigManager {
     private void addConfig(AnalysisConfig config) {
         if (configs.containsKey(config.getId())) {
             throw new ConfigException("There are multiple analyses for the same id " +
-                    config.getId() + " in " + ConfigUtils.getAnalysisConfig());
+                    config.getId() + " in " + Configs.getAnalysisConfig());
         }
         configs.put(config.getId(), config);
     }
@@ -61,7 +61,7 @@ public class ConfigManager {
         AnalysisConfig config = configs.get(id);
         if (config == null) {
             throw new ConfigException("Analysis \"" + id + "\" is not found in " +
-                    ConfigUtils.getAnalysisConfig());
+                    Configs.getAnalysisConfig());
         }
         return config;
     }
@@ -87,10 +87,10 @@ public class ConfigManager {
                 c.getRequires()
                         .stream()
                         .filter(required -> {
-                            String conditions = ConfigUtils.extractConditions(required);
-                            return ConfigUtils.satisfyConditions(conditions, c.getOptions());
+                            String conditions = Configs.extractConditions(required);
+                            return Configs.satisfyConditions(conditions, c.getOptions());
                         })
-                        .map(required -> getConfig(ConfigUtils.extractId(required)))
+                        .map(required -> getConfig(Configs.extractId(required)))
                         .collect(Collectors.toUnmodifiableList()));
     }
 
@@ -98,7 +98,7 @@ public class ConfigManager {
      * @return all configs (directly and indirectly) required by the given config
      */
     Set<AnalysisConfig> getAllRequiredConfigs(AnalysisConfig config) {
-        Set<AnalysisConfig> visited = SetUtils.newHybridSet();
+        Set<AnalysisConfig> visited = Sets.newHybridSet();
         Deque<AnalysisConfig> queue = new ArrayDeque<>();
         queue.add(config);
         while (!queue.isEmpty()) {

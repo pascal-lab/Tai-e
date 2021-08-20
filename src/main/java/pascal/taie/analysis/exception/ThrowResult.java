@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.Maps.newHybridMap;
 
 public class ThrowResult {
 

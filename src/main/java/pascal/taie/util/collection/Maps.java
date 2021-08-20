@@ -20,13 +20,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
-public class MapUtils {
+/**
+ * Static utility methods for {@link Map}.
+ */
+public final class Maps {
 
-    private MapUtils() {
+    private Maps() {
     }
 
     public static <K, E> boolean addToMapSet(Map<K, Set<E>> map, K key, E element) {
-        return map.computeIfAbsent(key, k -> SetUtils.newHybridSet()).add(element);
+        return map.computeIfAbsent(key, k -> Sets.newHybridSet()).add(element);
     }
 
     public static <K1, K2, V> void addToMapMap(Map<K1, Map<K2, V>> map,

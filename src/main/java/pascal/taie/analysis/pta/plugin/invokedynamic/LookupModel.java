@@ -16,8 +16,8 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
-import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
-import pascal.taie.analysis.pta.plugin.util.ReflectionUtils;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
+import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.MethodHandle;
@@ -64,9 +64,9 @@ class LookupModel extends AbstractModel {
         if (result != null) {
             PointsToSet mhObjs = PointsToSetFactory.make();
             pts.forEach(clsObj -> {
-                JClass cls = CSObjUtils.toClass(clsObj);
+                JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
-                    ReflectionUtils.getDeclaredConstructors(cls)
+                    Reflections.getDeclaredConstructors(cls)
                             .map(ctor -> {
                                 MethodHandle mh = MethodHandle.get(
                                         MethodHandle.Kind.REF_newInvokeSpecial,
@@ -86,7 +86,7 @@ class LookupModel extends AbstractModel {
     private void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find private methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
-                ReflectionUtils.getDeclaredMethods(cls, name)
+                Reflections.getDeclaredMethods(cls, name)
                         .filter(Predicate.not(JMethod::isStatic)),
                 MethodHandle.Kind.REF_invokeVirtual);
     }
@@ -94,7 +94,7 @@ class LookupModel extends AbstractModel {
     private void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find static methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
-                ReflectionUtils.getDeclaredMethods(cls, name)
+                Reflections.getDeclaredMethods(cls, name)
                         .filter(JMethod::isStatic),
                 MethodHandle.Kind.REF_invokeStatic);
     }
@@ -110,10 +110,10 @@ class LookupModel extends AbstractModel {
             PointsToSet nameObjs = args.get(1);
             PointsToSet mhObjs = PointsToSetFactory.make();
             clsObjs.forEach(clsObj -> {
-                JClass cls = CSObjUtils.toClass(clsObj);
+                JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
                     nameObjs.forEach(nameObj -> {
-                        String name = CSObjUtils.toString(nameObj);
+                        String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             getter.apply(cls, name)
                                     .map(mtd -> {

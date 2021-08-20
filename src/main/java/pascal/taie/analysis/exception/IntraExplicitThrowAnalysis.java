@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
-import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.Maps.newHybridMap;
+import static pascal.taie.util.collection.Maps.newMap;
 
 class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 

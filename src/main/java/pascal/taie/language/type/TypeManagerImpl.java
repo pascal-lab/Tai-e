@@ -20,9 +20,9 @@ import pascal.taie.util.AnalysisException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.MapUtils.newSmallMap;
+import static pascal.taie.util.collection.Maps.newConcurrentMap;
+import static pascal.taie.util.collection.Maps.newMap;
+import static pascal.taie.util.collection.Maps.newSmallMap;
 
 // TODO: optimize maps (classTypes and arrayTypes)
 public class TypeManagerImpl implements TypeManager {

@@ -23,7 +23,7 @@ import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.ListUtils;
+import pascal.taie.util.collection.CollectionUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -111,7 +111,7 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
 
     @Override
     public List<Exp> getUses() {
-        return ListUtils.append(invokeExp.getUses(), invokeExp);
+        return CollectionUtils.append(invokeExp.getUses(), invokeExp);
     }
 
     @Override

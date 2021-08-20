@@ -14,7 +14,7 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
-import pascal.taie.util.collection.ListUtils;
+import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,7 +46,7 @@ public class If extends JumpStmt {
 
     @Override
     public List<Exp> getUses() {
-        return ListUtils.append(condition.getUses(), condition);
+        return CollectionUtils.append(condition.getUses(), condition);
     }
 
     @Override

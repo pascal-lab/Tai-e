@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.graph.callgraph.CGUtils;
+import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -151,7 +151,7 @@ public class SimpleSolver extends Solver {
         @Override
         public void visit(Invoke stmt) {
             if (stmt.isStatic()) {
-                JMethod callee = CGUtils.resolveCallee(null, stmt);
+                JMethod callee = CallGraphs.resolveCallee(null, stmt);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, stmt);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
@@ -272,7 +272,7 @@ public class SimpleSolver extends Solver {
         for (Invoke callSite : var.getInvokes()) {
             pts.forEach(recvObj -> {
                 // resolve callee
-                JMethod callee = CGUtils.resolveCallee(
+                JMethod callee = CallGraphs.resolveCallee(
                         recvObj.getObject().getType(), callSite);
                 // select context
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
@@ -280,7 +280,7 @@ public class SimpleSolver extends Solver {
                         csCallSite, recvObj, callee);
                 // build call edge
                 CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                workList.addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
+                workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
                         csCallSite, csCallee));
                 // pass receiver object to *this* variable
                 CSVar thisVar = csManager.getCSVar(

@@ -15,8 +15,8 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.graph.callgraph.CGUtils;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -70,8 +70,8 @@ import java.util.Set;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
 import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.SetUtils.newSet;
+import static pascal.taie.util.collection.Maps.newMap;
+import static pascal.taie.util.collection.Sets.newSet;
 
 public class DefaultSolver extends Solver {
 
@@ -366,7 +366,7 @@ public class DefaultSolver extends Solver {
         for (Invoke callSite : var.getInvokes()) {
             pts.forEach(recvObj -> {
                 // resolve callee
-                JMethod callee = CGUtils.resolveCallee(
+                JMethod callee = CallGraphs.resolveCallee(
                         recvObj.getObject().getType(), callSite);
                 if (callee != null) {
                     // select context
@@ -375,7 +375,7 @@ public class DefaultSolver extends Solver {
                             csCallSite, recvObj, callee);
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                    workList.addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
+                    workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
                             csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     addVarPointsTo(calleeContext, callee.getIR().getThis(),
@@ -549,7 +549,7 @@ public class DefaultSolver extends Solver {
         }
 
         private void processInvokeStatic(Invoke callSite) {
-            JMethod callee = CGUtils.resolveCallee(null, callSite);
+            JMethod callee = CallGraphs.resolveCallee(null, callSite);
             if (callee != null) {
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);

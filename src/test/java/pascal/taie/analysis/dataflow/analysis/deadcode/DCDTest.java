@@ -13,13 +13,13 @@
 package pascal.taie.analysis.dataflow.analysis.deadcode;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 
 public class DCDTest {
 
     static void testDCD(String inputClass) {
-        TestUtils.testDFA(inputClass, "src/test/resources/dataflow/deadcode/",
+        Tests.testDFA(inputClass, "src/test/resources/dataflow/deadcode/",
                 DeadCodeDetection.ID);
     }
 

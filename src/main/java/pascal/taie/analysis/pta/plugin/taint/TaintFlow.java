@@ -12,9 +12,9 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.analysis.graph.callgraph.CGUtils;
+import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 /**
  * Each instance represents a taint flow from source to sink.
@@ -68,13 +68,13 @@ class TaintFlow implements Comparable<TaintFlow> {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(sourceCall, sinkCall, index);
+        return Hashes.hash(sourceCall, sinkCall, index);
     }
 
     @Override
     public String toString() {
         return String.format("TaintFlow{%s -> %s/%d}",
-                CGUtils.toString(sourceCall),
-                CGUtils.toString(sinkCall), index);
+                CallGraphs.toString(sourceCall),
+                CallGraphs.toString(sinkCall), index);
     }
 }

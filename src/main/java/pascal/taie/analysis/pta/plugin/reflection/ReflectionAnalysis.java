@@ -30,7 +30,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +48,7 @@ public class ReflectionAnalysis implements Plugin {
 
     private CSManager csManager;
 
-    private final Map<Var, Set<ReflectiveCallEdge>> reflectiveArgs = MapUtils.newMap();
+    private final Map<Var, Set<ReflectiveCallEdge>> reflectiveArgs = Maps.newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -110,7 +110,7 @@ public class ReflectionAnalysis implements Plugin {
                 CSVar csArgs = csManager.getCSVar(callerCtx, args);
                 passReflectiveArgs(refEdge, solver.getPointsToSetOf(csArgs));
                 // record args for later-arrive array objects
-                MapUtils.addToMapSet(reflectiveArgs, args, refEdge);
+                Maps.addToMapSet(reflectiveArgs, args, refEdge);
             }
             // pass return value
             Invoke invoke = refEdge.getCallSite().getCallSite();

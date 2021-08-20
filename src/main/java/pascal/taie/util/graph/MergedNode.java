@@ -13,7 +13,7 @@
 
 package pascal.taie.util.graph;
 
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,9 +28,9 @@ public class MergedNode<N> {
 
     private final List<N> nodes;
 
-    private final Set<MergedNode<N>> preds = SetUtils.newHybridSet();
+    private final Set<MergedNode<N>> preds = Sets.newHybridSet();
 
-    private final Set<MergedNode<N>> succs = SetUtils.newHybridSet();
+    private final Set<MergedNode<N>> succs = Sets.newHybridSet();
 
     MergedNode(Collection<N> nodes) {
         assert !nodes.isEmpty();

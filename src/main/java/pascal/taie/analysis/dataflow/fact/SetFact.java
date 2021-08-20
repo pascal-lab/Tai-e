@@ -13,7 +13,7 @@
 package pascal.taie.analysis.dataflow.fact;
 
 import pascal.taie.util.Strings;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class SetFact<E> {
     protected final Set<E> set;
 
     public SetFact(Collection<E> c) {
-        set = SetUtils.newHybridSet(c);
+        set = Sets.newHybridSet(c);
     }
 
     public SetFact() {

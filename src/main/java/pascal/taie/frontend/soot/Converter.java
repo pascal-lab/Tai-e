@@ -47,7 +47,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
-import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
+import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 /**
  * Converts Soot classes to Tai-e's representation.

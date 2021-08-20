@@ -24,7 +24,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
-import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
@@ -40,14 +40,14 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.language.type.VoidType;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-import static pascal.taie.util.collection.MapUtils.addToMapMap;
-import static pascal.taie.util.collection.MapUtils.getMapMap;
+import static pascal.taie.util.collection.Maps.addToMapMap;
+import static pascal.taie.util.collection.Maps.getMapMap;
 
 /**
  * Models reflective-action methods, currently supports
@@ -78,7 +78,7 @@ class ReflectiveActionModel extends AbstractModel {
      * Map from Invoke (of Class/Constructor/Array.newInstance()) and type
      * to the reflectively-created objects.
      */
-    private final Map<Invoke, Map<ReferenceType, MockObj>> newObjs = MapUtils.newMap();
+    private final Map<Invoke, Map<ReferenceType, MockObj>> newObjs = Maps.newMap();
 
     ReflectiveActionModel(Solver solver) {
         super(solver);
@@ -126,7 +126,7 @@ class ReflectiveActionModel extends AbstractModel {
     private void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
-            String className = CSObjUtils.toString(obj);
+            String className = CSObjs.toString(obj);
             if (className == null) {
                 return;
             }
@@ -148,7 +148,7 @@ class ReflectiveActionModel extends AbstractModel {
     private void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
-            JClass klass = CSObjUtils.toClass(obj);
+            JClass klass = CSObjs.toClass(obj);
             if (klass == null) {
                 return;
             }
@@ -165,7 +165,7 @@ class ReflectiveActionModel extends AbstractModel {
     private void constructorNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
-            JMethod constructor = CSObjUtils.toConstructor(obj);
+            JMethod constructor = CSObjs.toConstructor(obj);
             if (constructor == null) {
                 return;
             }
@@ -200,7 +200,7 @@ class ReflectiveActionModel extends AbstractModel {
         PointsToSet recvObjs = args.get(1);
         Var argsVar = invoke.getInvokeExp().getArg(1);
         mtdObjs.forEach(mtdObj -> {
-            JMethod target = CSObjUtils.toMethod(mtdObj);
+            JMethod target = CSObjs.toMethod(mtdObj);
             if (target == null) {
                 return;
             }
@@ -251,7 +251,7 @@ class ReflectiveActionModel extends AbstractModel {
         PointsToSet fldObjs = args.get(0);
         PointsToSet baseObjs = args.get(1);
         fldObjs.forEach(fldObj -> {
-            JField field = CSObjUtils.toField(fldObj);
+            JField field = CSObjs.toField(fldObj);
             if (field == null) {
                 return;
             }
@@ -278,7 +278,7 @@ class ReflectiveActionModel extends AbstractModel {
         PointsToSet fldObjs = args.get(0);
         PointsToSet baseObjs = args.get(1);
         fldObjs.forEach(fldObj -> {
-            JField field = CSObjUtils.toField(fldObj);
+            JField field = CSObjs.toField(fldObj);
             if (field == null) {
                 return;
             }
@@ -306,7 +306,7 @@ class ReflectiveActionModel extends AbstractModel {
         }
         Context context = csVar.getContext();
         pts.forEach(obj -> {
-            Type baseType = CSObjUtils.toType(obj);
+            Type baseType = CSObjs.toType(obj);
             if (baseType == null || baseType instanceof VoidType) {
                 return;
             }

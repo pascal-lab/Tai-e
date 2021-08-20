@@ -33,9 +33,9 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collections;
 import java.util.Map;
@@ -49,12 +49,12 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
 
     private final CSManager csManager;
 
-    private final Map<Var, Set<Obj>> varPointsTo = MapUtils.newMap();
+    private final Map<Var, Set<Obj>> varPointsTo = Maps.newMap();
 
     /**
      * Points-to sets of field expressions, e.g., v.f.
      */
-    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = MapUtils.newMap();
+    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = Maps.newMap();
 
     /**
      * Context-sensitive call graph.
@@ -66,7 +66,7 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
      */
     private CallGraph<Invoke, JMethod> callGraph;
 
-    private final Map<Class<? extends Plugin>, Object> pluginResults = MapUtils.newMap();
+    private final Map<Class<? extends Plugin>, Object> pluginResults = Maps.newMap();
 
     PointerAnalysisResultImpl(CSManager csManager,
                               CallGraph<CSCallSite, CSMethod> csCallGraph) {
@@ -129,7 +129,7 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
             logger.warn("{} is not instance field", field);
         }
         return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
-            Set<Obj> pts = SetUtils.newHybridSet();
+            Set<Obj> pts = Sets.newHybridSet();
             csManager.csVarsOf(base)
                     .flatMap(csVar -> csVar.getPointsToSet().objects())
                     .forEach(o -> {

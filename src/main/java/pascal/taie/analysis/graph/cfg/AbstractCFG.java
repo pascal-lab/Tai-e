@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.MapUtils.addToMapSet;
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.SetUtils.newSet;
+import static pascal.taie.util.collection.Maps.addToMapSet;
+import static pascal.taie.util.collection.Maps.newMap;
+import static pascal.taie.util.collection.Sets.newSet;
 
 abstract class AbstractCFG<N> implements CFG<N> {
 

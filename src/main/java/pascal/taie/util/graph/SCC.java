@@ -12,8 +12,8 @@
 
 package pascal.taie.util.graph;
 
-import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -60,10 +60,10 @@ public class SCC<N> {
         // use iterative (non-recursive) algorithm to avoid stack overflow
         // for large graph
         int index = 0;
-        Map<N, Integer> indexes = MapUtils.newMap();
-        Map<N, Integer> lows = MapUtils.newMap();
+        Map<N, Integer> indexes = Maps.newMap();
+        Map<N, Integer> lows = Maps.newMap();
         Deque<N> stack = new ArrayDeque<>();
-        Set<N> inStack = SetUtils.newSet();
+        Set<N> inStack = Sets.newSet();
         for (N curr : graph) {
             if (indexes.containsKey(curr)) {
                 continue;

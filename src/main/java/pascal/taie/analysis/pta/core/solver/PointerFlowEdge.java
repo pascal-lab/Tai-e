@@ -14,7 +14,7 @@ package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -69,7 +69,7 @@ public class PointerFlowEdge {
 
     @Override
     public int hashCode() {
-        return HashUtils.safeHash(kind, from, to, type);
+        return Hashes.safeHash(kind, from, to, type);
     }
 
     @Override

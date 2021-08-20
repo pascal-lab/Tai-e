@@ -22,7 +22,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeManager;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 public class ExceptionAnalysis implements Plugin {
 
@@ -39,13 +39,13 @@ public class ExceptionAnalysis implements Plugin {
     /**
      * Map from thrown variables to the corresponding throw statements.
      */
-    private final Map<Var, Set<Throw>> var2Throws = MapUtils.newMap();
+    private final Map<Var, Set<Throw>> var2Throws = Maps.newMap();
 
     /**
      * Map from each method to the result of catch analysis on it.
      */
     private final Map<JMethod, Map<Stmt, List<ExceptionEntry>>> catchers =
-            MapUtils.newMap(1024);
+            Maps.newMap(1024);
 
     /**
      * Work-list of exception entries to be propagated.
@@ -78,7 +78,7 @@ public class ExceptionAnalysis implements Plugin {
             if (stmt instanceof Throw) {
                 Throw throwStmt = (Throw) stmt;
                 Var exceptionRef = throwStmt.getExceptionRef();
-                MapUtils.addToMapSet(var2Throws, exceptionRef, throwStmt);
+                Maps.addToMapSet(var2Throws, exceptionRef, throwStmt);
             }
         });
         catchers.put(method, CatchAnalysis.getPotentialCatchers(ir));

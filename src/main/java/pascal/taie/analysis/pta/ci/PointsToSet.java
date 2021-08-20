@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta.ci;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collections;
 import java.util.Set;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 class PointsToSet {
 
-    private final Set<Obj> set = SetUtils.newHybridSet();
+    private final Set<Obj> set = Sets.newHybridSet();
 
     PointsToSet() {}
 

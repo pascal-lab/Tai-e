@@ -17,7 +17,7 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 
@@ -28,13 +28,13 @@ class TaintManager {
 
     private static final String TAINT_DESC = "TaintObj";
 
-    private final Map<Invoke, Map<Type, Obj>> taints = MapUtils.newHybridMap();
+    private final Map<Invoke, Map<Type, Obj>> taints = Maps.newHybridMap();
 
     Obj getTaint(Invoke source, Type type) {
-        Obj taint = MapUtils.getMapMap(taints, source, type);
+        Obj taint = Maps.getMapMap(taints, source, type);
         if (taint == null) {
             taint = newTaint(source, type);
-            MapUtils.addToMapMap(taints, source, type, taint);
+            Maps.addToMapMap(taints, source, type, taint);
         }
         return taint;
     }

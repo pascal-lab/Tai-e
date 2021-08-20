@@ -32,8 +32,8 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,15 +63,15 @@ class LogBasedModel extends MetaObjModel {
             "Array", StringReps.ARRAY
     );
 
-    private final Set<JMethod> relevantMethods = SetUtils.newSet();
+    private final Set<JMethod> relevantMethods = Sets.newSet();
 
-    private final Map<Invoke, Set<JClass>> forNameTargets = MapUtils.newMap();
+    private final Map<Invoke, Set<JClass>> forNameTargets = Maps.newMap();
 
-    private final Map<Invoke, Set<ClassType>> arrayTypeTargets = MapUtils.newMap();
+    private final Map<Invoke, Set<ClassType>> arrayTypeTargets = Maps.newMap();
 
-    private final Map<Invoke, Set<JClass>> classTargets = MapUtils.newMap();
+    private final Map<Invoke, Set<JClass>> classTargets = Maps.newMap();
 
-    private final Map<Invoke, Set<ClassMember>> memberTargets = MapUtils.newMap();
+    private final Map<Invoke, Set<ClassMember>> memberTargets = Maps.newMap();
 
     private final ContextSelector selector;
 
@@ -121,20 +121,20 @@ class LogBasedModel extends MetaObjModel {
             if (target instanceof JClass) {
                 if (item.api.equals("Class.forName")) {
                     for (Invoke invoke : invokes) {
-                        MapUtils.addToMapSet(forNameTargets, invoke, (JClass) target);
+                        Maps.addToMapSet(forNameTargets, invoke, (JClass) target);
                     }
                 } else {
                     for (Invoke invoke : invokes) {
-                        MapUtils.addToMapSet(classTargets, invoke, (JClass) target);
+                        Maps.addToMapSet(classTargets, invoke, (JClass) target);
                     }
                 }
             } else if (target instanceof ClassMember){
                 for (Invoke invoke : invokes) {
-                    MapUtils.addToMapSet(memberTargets, invoke, (ClassMember) target);
+                    Maps.addToMapSet(memberTargets, invoke, (ClassMember) target);
                 }
             } else {
                 for (Invoke invoke : invokes) {
-                    MapUtils.addToMapSet(arrayTypeTargets, invoke, (ClassType) target);
+                    Maps.addToMapSet(arrayTypeTargets, invoke, (ClassType) target);
                 }
             }
             invokes.stream()

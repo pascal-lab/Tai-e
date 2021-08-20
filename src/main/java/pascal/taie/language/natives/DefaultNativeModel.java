@@ -50,7 +50,7 @@ import java.util.function.Function;
 
 import static pascal.taie.language.classes.StringReps.OBJECT;
 import static pascal.taie.language.classes.StringReps.STRING;
-import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.Maps.newMap;
 
 public class DefaultNativeModel extends AbstractNativeModel {
 

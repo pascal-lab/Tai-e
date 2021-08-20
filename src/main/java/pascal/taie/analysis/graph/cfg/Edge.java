@@ -13,7 +13,7 @@
 package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.language.type.ClassType;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.util.stream.Stream;
 
@@ -135,7 +135,7 @@ public class Edge<N> {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(kind, source, target);
+        return Hashes.hash(kind, source, target);
     }
 
     @Override

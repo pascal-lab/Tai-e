@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.plugin.reflection;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
-import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
@@ -45,7 +45,7 @@ class ClassModel extends AbstractModel {
         Var result = invoke.getResult();
         if (result != null) {
             pts.forEach(nameObj -> {
-                String name = CSObjUtils.toString(nameObj);
+                String name = CSObjs.toString(nameObj);
                 if (name != null) {
                     Type type = name.equals("void") ?
                             VoidType.VOID : PrimitiveType.get(name);

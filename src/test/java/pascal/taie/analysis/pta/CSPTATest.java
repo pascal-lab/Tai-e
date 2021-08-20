@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class CSPTATest {
     
@@ -22,139 +22,139 @@ public class CSPTATest {
     // Tests for context insensitivity
     @Test
     public void testNew() {
-        TestUtils.testPTA(DIR, "New");
+        Tests.testPTA(DIR, "New");
     }
 
     @Test
     public void testAssign() {
-        TestUtils.testPTA(DIR, "Assign");
+        Tests.testPTA(DIR, "Assign");
     }
 
     @Test
     public void testStoreLoad() {
-        TestUtils.testPTA(DIR, "StoreLoad");
+        Tests.testPTA(DIR, "StoreLoad");
     }
 
     @Test
     public void testCall() {
-        TestUtils.testPTA(DIR, "Call");
+        Tests.testPTA(DIR, "Call");
     }
 
     @Test
     public void testAssign2() {
-        TestUtils.testPTA(DIR, "Assign2");
+        Tests.testPTA(DIR, "Assign2");
     }
 
     @Test
     public void testInstanceField() {
-        TestUtils.testPTA(DIR, "InstanceField");
+        Tests.testPTA(DIR, "InstanceField");
     }
 
     @Test
     public void testInstanceField2() {
-        TestUtils.testPTA(DIR, "InstanceField2");
+        Tests.testPTA(DIR, "InstanceField2");
     }
 
     @Test
     public void testCallParamRet() {
-        TestUtils.testPTA(DIR, "CallParamRet");
+        Tests.testPTA(DIR, "CallParamRet");
     }
 
     @Test
     public void testCallField() {
-        TestUtils.testPTA(DIR, "CallField");
+        Tests.testPTA(DIR, "CallField");
     }
     
     // Tests for context sensitivity variants
     @Test
     public void testOneCall() {
-        TestUtils.testPTA(DIR, "OneCall", "cs:1-call");
+        Tests.testPTA(DIR, "OneCall", "cs:1-call");
     }
 
     @Test
     public void testOneObject() {
-        TestUtils.testPTA(DIR, "OneObject", "cs:1-obj");
+        Tests.testPTA(DIR, "OneObject", "cs:1-obj");
     }
 
     @Test
     public void testOneType() {
-        TestUtils.testPTA(DIR, "OneType", "cs:1-type");
+        Tests.testPTA(DIR, "OneType", "cs:1-type");
     }
 
     @Test
     public void testTwoCall() {
-        TestUtils.testPTA(DIR, "TwoCall", "cs:2-call");
+        Tests.testPTA(DIR, "TwoCall", "cs:2-call");
     }
 
     @Test
     public void testTwoObject() {
-        TestUtils.testPTA(DIR, "TwoObject", "cs:2-obj");
+        Tests.testPTA(DIR, "TwoObject", "cs:2-obj");
     }
 
     @Test
     public void testTwoType() {
-        TestUtils.testPTA(DIR, "TwoType", "cs:2-type");
+        Tests.testPTA(DIR, "TwoType", "cs:2-type");
     }
 
     // Tests for Java feature supporting
     @Test
     public void testStaticField() {
-        TestUtils.testPTA(DIR, "StaticField");
+        Tests.testPTA(DIR, "StaticField");
     }
 
     @Test
     public void testArray() {
-        TestUtils.testPTA(DIR, "Array");
+        Tests.testPTA(DIR, "Array");
     }
 
     @Test
     public void testCast() {
-        TestUtils.testPTA(DIR, "Cast");
+        Tests.testPTA(DIR, "Cast");
     }
 
     @Test
     public void testNull() {
-        TestUtils.testPTA(DIR, "Null");
+        Tests.testPTA(DIR, "Null");
     }
 
     @Test
     public void testPrimitive() {
-        TestUtils.testPTA(DIR, "Primitive");
+        Tests.testPTA(DIR, "Primitive");
     }
 
     @Test
     public void testStrings() {
-        TestUtils.testPTA(DIR, "Strings");
+        Tests.testPTA(DIR, "Strings");
     }
 
     @Test
     public void testMultiArray() {
-        TestUtils.testPTA(DIR, "MultiArray");
+        Tests.testPTA(DIR, "MultiArray");
     }
 
     @Test
     public void testClinit() {
-        TestUtils.testPTA(DIR, "Clinit");
+        Tests.testPTA(DIR, "Clinit");
     }
 
     @Test
     public void testClassObj() {
-        TestUtils.testPTA(DIR, "ClassObj");
+        Tests.testPTA(DIR, "ClassObj");
     }
 
     // Tests for handling of non-normal objects
     @Test
     public void testTypeSens() {
-        TestUtils.testPTA(DIR, "TypeSens", "cs:2-type");
+        Tests.testPTA(DIR, "TypeSens", "cs:2-type");
     }
 
     @Test
     public void testSpecialHeapContext() {
-        TestUtils.testPTA(DIR, "SpecialHeapContext", "cs:2-obj");
+        Tests.testPTA(DIR, "SpecialHeapContext", "cs:2-obj");
     }
 
     @Test
     public void testNativeModel() {
-        TestUtils.testPTA(DIR, "NativeModel", "only-app:false");
+        Tests.testPTA(DIR, "NativeModel", "only-app:false");
     }
 }

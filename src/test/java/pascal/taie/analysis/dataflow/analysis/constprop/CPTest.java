@@ -13,12 +13,12 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class CPTest {
 
     static void testCP(String inputClass) {
-        TestUtils.testDFA(inputClass, "src/test/resources/dataflow/constprop/",
+        Tests.testDFA(inputClass, "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID);
     }
 

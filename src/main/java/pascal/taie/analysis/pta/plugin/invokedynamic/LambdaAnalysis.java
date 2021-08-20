@@ -45,10 +45,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.MapUtils.addToMapMap;
-import static pascal.taie.util.collection.MapUtils.addToMapSet;
-import static pascal.taie.util.collection.MapUtils.getMapMap;
-import static pascal.taie.util.collection.MapUtils.newMap;
+import static pascal.taie.util.collection.Maps.addToMapMap;
+import static pascal.taie.util.collection.Maps.addToMapSet;
+import static pascal.taie.util.collection.Maps.getMapMap;
+import static pascal.taie.util.collection.Maps.newMap;
 
 public class LambdaAnalysis implements Plugin {
 

@@ -27,8 +27,8 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.StreamUtils;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Streams;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -50,11 +50,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Utility methods about call graph.
+ * Static utility methods about call graph.
  */
-public class CGUtils {
+public final class CallGraphs {
 
-    private static final Logger logger = LogManager.getLogger(CGUtils.class);
+    private CallGraphs() {
+    }
+
+    private static final Logger logger = LogManager.getLogger(CallGraphs.class);
 
     /**
      * Separator between call site and its callees.
@@ -112,7 +115,7 @@ public class CGUtils {
                             callGraph.callSitesIn(caller)
                                     .sorted(Comparator.comparing(Invoke::getIndex))
                                     .filter(callSite ->
-                                            !StreamUtils.isEmpty(callGraph.calleesOf(callSite)))
+                                            !Streams.isEmpty(callGraph.calleesOf(callSite)))
                                     .forEach(callSite ->
                                             out.println(toString(callSite) + SEP +
                                                     toString(callGraph.calleesOf(callSite)))));
@@ -156,7 +159,7 @@ public class CGUtils {
      * @return a map from Invoke to its string representation in given method.
      */
     private static Map<Invoke, String> getInvokeReps(JMethod caller) {
-        Map<String, Integer> counter = MapUtils.newMap();
+        Map<String, Integer> counter = Maps.newMap();
         Map<Invoke, String> invokeReps =
                 new TreeMap<>(Comparator.comparing(Invoke::getIndex));
         caller.getIR().forEach(s -> {

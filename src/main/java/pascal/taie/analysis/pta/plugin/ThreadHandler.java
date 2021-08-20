@@ -30,7 +30,7 @@ import pascal.taie.language.natives.NativeModel;
 import java.util.Set;
 
 import static pascal.taie.util.collection.CollectionUtils.getOne;
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 /**
  * Models initialization of main thread, system thread group,

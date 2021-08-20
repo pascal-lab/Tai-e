@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,7 +28,7 @@ public class MapFact<K, V> {
     protected final Map<K, V> map;
 
     public MapFact(Map<K, V> map) {
-        this.map = MapUtils.newHybridMap(map);
+        this.map = Maps.newHybridMap(map);
     }
 
     public MapFact() {

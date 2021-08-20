@@ -12,11 +12,14 @@
 
 package pascal.taie.util.collection;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
- * Provides convenient utility operations for collections.
+ * Utility methods for {@link Collection}.
+ * We name it CollectionUtils instead of Collections to avoid name collision
+ * with {@link java.util.Collections}.
  */
 public class CollectionUtils {
 
@@ -31,9 +34,13 @@ public class CollectionUtils {
     }
 
     /**
-     * Adds a stream of elements to specific collection.
+     * Creates a list of given collection, appends a specific element to
+     * the list and returns it.
      */
-    public static <T> void addAll(Collection<? super T> coll, Stream<? extends T> s) {
-        s.forEach(coll::add);
+    public static <T> List<T> append(Collection<T> c, T e) {
+        List<T> result = new ArrayList<>(c.size() +  1);
+        result.addAll(c);
+        result.add(e);
+        return result;
     }
 }

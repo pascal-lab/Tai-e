@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.plugin.invokedynamic;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.ir.exp.InvokeDynamic;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 class InstanceInvoInfo {
 
@@ -61,6 +61,6 @@ class InstanceInvoInfo {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(csCallSite, lambdaIndy, lambdaContext);
+        return Hashes.hash(csCallSite, lambdaIndy, lambdaContext);
     }
 }

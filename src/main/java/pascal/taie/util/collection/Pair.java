@@ -12,7 +12,7 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.util.Objects;
 
@@ -36,7 +36,7 @@ public class Pair<T1, T2> {
 
     @Override
     public int hashCode() {
-        return HashUtils.safeHash(first, second);
+        return Hashes.safeHash(first, second);
     }
 
     @Override

@@ -20,9 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ReflectionUtils {
+/**
+ * Static utility methods for reflection analysis.
+ */
+public final class Reflections {
 
-    private ReflectionUtils() {
+    private Reflections() {
     }
 
     public static Stream<JMethod> getDeclaredConstructors(JClass jclass) {

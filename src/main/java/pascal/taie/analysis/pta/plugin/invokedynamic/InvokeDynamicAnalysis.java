@@ -25,7 +25,7 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
-import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.DummyModel;
 import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -44,7 +44,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeManager;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -97,34 +97,34 @@ public class InvokeDynamicAnalysis implements Plugin {
      * Map from method to the invokedynamic invocations included in the method.
      * Updated in {@link #onNewMethod}.
      */
-    private final Map<JMethod, Set<Invoke>> method2indys = MapUtils.newMap();
+    private final Map<JMethod, Set<Invoke>> method2indys = Maps.newMap();
 
     /**
      * Map from method (containing invokedynamic) to its context-sensitive methods.
      * Updated in {@link #onNewCSMethod}.
      */
-    private final Map<JMethod, Set<Context>> method2ctxs = MapUtils.newMap();
+    private final Map<JMethod, Set<Context>> method2ctxs = Maps.newMap();
 
     /**
      * Map from variable that holds the MethodHandle to the corresponding
      * invokedynamic invocation site.
      * Updated in {@link #onNewMethod}.
      */
-    private final Map<Var, Set<Invoke>> mhVar2indys = MapUtils.newMap();
+    private final Map<Var, Set<Invoke>> mhVar2indys = Maps.newMap();
 
     /**
      * Map from invokedynamic invocation site to the corresponding
      * MethodHandle bound to it.
      * Updated in {@link #onNewPointsToSet}.
      */
-    private final Map<Invoke, Set<MethodHandle>> indy2mhs = MapUtils.newMap();
+    private final Map<Invoke, Set<MethodHandle>> indy2mhs = Maps.newMap();
 
     /**
      * Map from base variable (arg0) to the corresponding invokedynamic
      * invocation sites.
      * Updated in {@link #onNewPointsToSet}
      */
-    private final Map<Var, Set<Invoke>> base2Indys = MapUtils.newMap();
+    private final Map<Var, Set<Invoke>> base2Indys = Maps.newMap();
 
     /**
      * Description for MethodHandles.Lookup objects.
@@ -134,7 +134,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     /**
      * Map from class type to corresponding Method.Lookup object.
      */
-    private final Map<ClassType, MockObj> lookupObjs = MapUtils.newMap();
+    private final Map<ClassType, MockObj> lookupObjs = Maps.newMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -167,7 +167,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 if (indy != null) {
                     // if new reachable method contains invokedynamic,
                     // then we record necessary information
-                    MapUtils.addToMapSet(method2indys, method, invoke);
+                    Maps.addToMapSet(method2indys, method, invoke);
                     JMethod bsm = indy.getBootstrapMethodRef().resolve();
                     // we associate the variables in bootstrap method to
                     // the invokedynamic, where the variables may point to
@@ -175,7 +175,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                     // so that when MethodHandle objects reach these variables,
                     // we can associate them to the invokedynamic.
                     extractMHVars(bsm).forEach(mhVar ->
-                            MapUtils.addToMapSet(mhVar2indys, mhVar, invoke));
+                            Maps.addToMapSet(mhVar2indys, mhVar, invoke));
                     // add call edge to BSM
                     addBSMCallEdge(invoke, bsm);
                 }
@@ -331,7 +331,7 @@ public class InvokeDynamicAnalysis implements Plugin {
             // some invokedynamic sites, then we process new-reach
             // MethodHandle objects.
             pts.forEach(csObj -> {
-                MethodHandle mh = CSObjUtils.toMethodHandle(csObj);
+                MethodHandle mh = CSObjs.toMethodHandle(csObj);
                 if (mh != null) {
                     indys.forEach(invoke -> handleNewMethodHandle(invoke, mh));
                 }
@@ -357,7 +357,7 @@ public class InvokeDynamicAnalysis implements Plugin {
      * associated to an invokedynamic invocation site.
      */
     private void handleNewMethodHandle(Invoke invoke, MethodHandle mh) {
-        if (!MapUtils.addToMapSet(indy2mhs, invoke, mh)) {
+        if (!Maps.addToMapSet(indy2mhs, invoke, mh)) {
             return;
         }
         Set<Context> contexts = method2ctxs.get(invoke.getContainer());
@@ -366,7 +366,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 // for virtual invocation, record base variable and
                 // add invokedynamic call edge
                 Var base = invoke.getInvokeExp().getArg(0);
-                MapUtils.addToMapSet(base2Indys, base, invoke);
+                Maps.addToMapSet(base2Indys, base, invoke);
                 if (contexts != null) {
                     contexts.forEach(ctx -> {
                         PointsToSet recvObjs = solver.getPointsToSetOf(
@@ -430,7 +430,7 @@ public class InvokeDynamicAnalysis implements Plugin {
         Set<Invoke> indys = method2indys.get(method);
         if (indys != null) {
             Context context = csMethod.getContext();
-            MapUtils.addToMapSet(method2ctxs, method, context);
+            Maps.addToMapSet(method2ctxs, method, context);
             indys.forEach(invoke -> {
                 Set<MethodHandle> mhs = indy2mhs.get(invoke);
                 if (mhs != null) { // add new invokedynamic call edges

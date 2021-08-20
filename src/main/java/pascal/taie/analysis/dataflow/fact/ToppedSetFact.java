@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.util.Collection;
 import java.util.function.Predicate;
@@ -158,7 +158,7 @@ public class ToppedSetFact<E> extends SetFact<E> {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(isTop, super.hashCode());
+        return Hashes.hash(isTop, super.hashCode());
     }
 
     @Override

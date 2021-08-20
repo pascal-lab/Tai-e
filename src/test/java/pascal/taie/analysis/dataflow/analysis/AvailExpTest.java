@@ -13,14 +13,14 @@
 package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpressionAnalysis;
 
 public class AvailExpTest {
 
     @Test
     public void test() {
-        TestUtils.testDFA("AvailExp", "src/test/resources/dataflow/",
+        Tests.testDFA("AvailExp", "src/test/resources/dataflow/",
                 AvailableExpressionAnalysis.ID);
     }
 }

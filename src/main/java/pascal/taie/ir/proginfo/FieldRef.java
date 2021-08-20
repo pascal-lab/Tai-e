@@ -19,13 +19,13 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 import pascal.taie.util.InternalCanonicalized;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
+import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 @InternalCanonicalized
 public class FieldRef extends MemberRef {
@@ -109,7 +109,7 @@ public class FieldRef extends MemberRef {
 
         @Override
         public int hashCode() {
-            return HashUtils.hash(declaringClass, name, type);
+            return Hashes.hash(declaringClass, name, type);
         }
 
         @Override

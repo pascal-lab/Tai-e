@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Maps.newHybridMap;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 
 public class CSMethodThrowResult {

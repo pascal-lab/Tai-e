@@ -25,7 +25,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.TriConsumer;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +55,12 @@ public abstract class AbstractModel implements Model {
      */
     protected final Context defaultHctx;
 
-    protected final Map<JMethod, int[]> relevantVarIndexes = MapUtils.newHybridMap();
+    protected final Map<JMethod, int[]> relevantVarIndexes = Maps.newHybridMap();
 
-    protected final Map<Var, Set<Invoke>> relevantVars = MapUtils.newHybridMap();
+    protected final Map<Var, Set<Invoke>> relevantVars = Maps.newHybridMap();
 
     protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
-            = MapUtils.newHybridMap();
+            = Maps.newHybridMap();
 
     protected AbstractModel(Solver solver) {
         this.solver = solver;
@@ -84,7 +84,7 @@ public abstract class AbstractModel implements Model {
             int[] indexes = relevantVarIndexes.get(target);
             if (indexes != null) {
                 for (int i : indexes) {
-                    MapUtils.addToMapSet(relevantVars, getArg(invoke, i), invoke);
+                    Maps.addToMapSet(relevantVars, getArg(invoke, i), invoke);
                 }
             }
         }

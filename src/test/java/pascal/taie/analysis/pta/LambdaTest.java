@@ -13,7 +13,7 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.Test;
-import pascal.taie.analysis.TestUtils;
+import pascal.taie.analysis.Tests;
 
 public class LambdaTest {
 
@@ -21,26 +21,26 @@ public class LambdaTest {
 
     @Test
     public void testArgs() {
-        TestUtils.testPTA(DIR, "Args");
+        Tests.testPTA(DIR, "Args");
     }
 
     @Test
     public void testConstructor() {
-        TestUtils.testPTA(DIR, "LambdaConstructor");
+        Tests.testPTA(DIR, "LambdaConstructor");
     }
 
     @Test
     public void testInstanceMethod() {
-        TestUtils.testPTA(DIR, "LambdaInstanceMethod");
+        Tests.testPTA(DIR, "LambdaInstanceMethod");
     }
 
     @Test
     public void testStaticMethod() {
-        TestUtils.testPTA(DIR, "LambdaStaticMethod");
+        Tests.testPTA(DIR, "LambdaStaticMethod");
     }
 
     @Test
     public void testImpreciseLambdas() {
-        TestUtils.testPTA(DIR, "ImpreciseLambdas");
+        Tests.testPTA(DIR, "ImpreciseLambdas");
     }
 }

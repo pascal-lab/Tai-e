@@ -22,8 +22,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.collection.CollectionUtils;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayDeque;
 import java.util.Map;
@@ -57,11 +56,12 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
     private void buildCallGraph(DefaultCallGraph callGraph) {
         hierarchy = World.getClassHierarchy();
-        resolveTable = MapUtils.newMap();
+        resolveTable = Maps.newMap();
         Queue<JMethod> queue = new ArrayDeque<>();
-        CollectionUtils.addAll(queue, callGraph.entryMethods());
+        callGraph.entryMethods()
+                .forEach(queue::add);
         while (!queue.isEmpty()) {
-            JMethod method = queue.remove();
+            JMethod method = queue.poll();
             callGraph.addReachableMethod(method);
             callGraph.callSitesIn(method).forEach(invoke -> {
                 Set<JMethod> callees = resolveCalleesOf(invoke);
@@ -70,7 +70,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                         queue.add(callee);
                     }
                     callGraph.addEdge(new Edge<>(
-                            CGUtils.getCallKind(invoke), invoke, callee));
+                            CallGraphs.getCallKind(invoke), invoke, callee));
                 });
             });
         }
@@ -80,13 +80,13 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
      * Resolves callees of a call site via class hierarchy analysis.
      */
     private Set<JMethod> resolveCalleesOf(Invoke callSite) {
-        CallKind kind = CGUtils.getCallKind(callSite);
+        CallKind kind = CallGraphs.getCallKind(callSite);
         switch (kind) {
             case INTERFACE:
             case VIRTUAL: {
                 MethodRef methodRef = callSite.getMethodRef();
                 JClass cls = methodRef.getDeclaringClass();
-                Set<JMethod> callees = MapUtils.getMapMap(resolveTable, cls, methodRef);
+                Set<JMethod> callees = Maps.getMapMap(resolveTable, cls, methodRef);
                 if (callees != null) {
                     return callees;
                 }
@@ -96,7 +96,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                         .map(c -> hierarchy.dispatch(c, methodRef))
                         .filter(Objects::nonNull) // filter out null callees
                         .collect(Collectors.toUnmodifiableSet());
-                MapUtils.addToMapMap(resolveTable, cls, methodRef, callees);
+                Maps.addToMapMap(resolveTable, cls, methodRef, callees);
                 return callees;
             }
             case SPECIAL:

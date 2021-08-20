@@ -16,7 +16,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
-import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.MethodType;
@@ -59,7 +59,7 @@ class MethodTypeModel extends AbstractModel {
         if (result != null) {
             PointsToSet mtObjs = PointsToSetFactory.make();
             pts.forEach(obj -> {
-                Type retType = CSObjUtils.toType(obj);
+                Type retType = CSObjs.toType(obj);
                 if (retType != null) {
                     MethodType mt = MethodType.get(List.of(), retType);
                     Obj mtObj = heapModel.getConstantObj(mt);
@@ -83,10 +83,10 @@ class MethodTypeModel extends AbstractModel {
             PointsToSet paramObjs = args.get(1);
             PointsToSet mtObjs = PointsToSetFactory.make();
             retObjs.forEach(retObj -> {
-                Type retType = CSObjUtils.toType(retObj);
+                Type retType = CSObjs.toType(retObj);
                 if (retType != null) {
                     paramObjs.forEach(paramObj -> {
-                        Type paramType = CSObjUtils.toType(paramObj);
+                        Type paramType = CSObjs.toType(paramObj);
                         if (paramType != null) {
                             MethodType mt = MethodType.get(List.of(paramType), retType);
                             Obj mtObj = heapModel.getConstantObj(mt);
@@ -112,10 +112,10 @@ class MethodTypeModel extends AbstractModel {
             PointsToSet mtObjs = args.get(1);
             PointsToSet resultMTObjs = PointsToSetFactory.make();
             retObjs.forEach(retObj -> {
-                Type retType = CSObjUtils.toType(retObj);
+                Type retType = CSObjs.toType(retObj);
                 if (retType != null) {
                     mtObjs.forEach(mtObj -> {
-                        MethodType mt = CSObjUtils.toMethodType(mtObj);
+                        MethodType mt = CSObjs.toMethodType(mtObj);
                         if (mt != null) {
                             MethodType resultMT = MethodType.get(mt.getParamTypes(), retType);
                             Obj resultMTObj = heapModel.getConstantObj(resultMT);

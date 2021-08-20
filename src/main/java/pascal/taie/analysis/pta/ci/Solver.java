@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.ci;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.graph.callgraph.CGUtils;
+import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -211,7 +211,7 @@ class Solver {
             pts.forEach(recvObj -> {
                 // build call edge
                 JMethod callee = resolveCallee(recvObj.getType(), callSite);
-                workList.addCallEdge(new Edge<>(CGUtils.getCallKind(callSite),
+                workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
                         callSite, callee));
                 // pass receiver object to this variable
                 VarPtr thisPtr = pointerFlowGraph.getVarPtr(callee.getIR().getThis());

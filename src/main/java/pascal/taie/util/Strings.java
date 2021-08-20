@@ -17,14 +17,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * String utilities.
+ * Static utility methods for {@link String}.
  */
-public class Strings {
+public final class Strings {
 
-    // Suppresses default constructor, ensuring non-instantiability.
     private Strings() {
     }
 
+    /**
+     * @return the capitalized string
+     */
     public static String capitalize(String s) {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }

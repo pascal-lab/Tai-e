@@ -19,10 +19,10 @@ import pascal.taie.language.type.ClassType;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.MapUtils.addToMapSet;
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
-import static pascal.taie.util.collection.MapUtils.newMap;
-import static pascal.taie.util.collection.SetUtils.newSet;
+import static pascal.taie.util.collection.Maps.addToMapSet;
+import static pascal.taie.util.collection.Maps.newHybridMap;
+import static pascal.taie.util.collection.Maps.newMap;
+import static pascal.taie.util.collection.Sets.newSet;
 
 public class CatchResult {
 

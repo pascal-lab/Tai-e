@@ -12,7 +12,7 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -67,6 +67,6 @@ class MapEntry<K, V> implements Entry<K, V>, Serializable {
 
     @Override
     public int hashCode() {
-        return HashUtils.safeHash(key, value);
+        return Hashes.safeHash(key, value);
     }
 }

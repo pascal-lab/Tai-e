@@ -16,8 +16,8 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.CSObjUtils;
-import pascal.taie.analysis.pta.plugin.util.ReflectionUtils;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
+import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.Var;
@@ -52,9 +52,9 @@ class StringBasedModel extends MetaObjModel {
         if (result != null) {
             PointsToSet ctorObjs = PointsToSetFactory.make();
             pts.forEach(obj -> {
-                JClass jclass = CSObjUtils.toClass(obj);
+                JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
-                    ReflectionUtils.getConstructors(jclass)
+                    Reflections.getConstructors(jclass)
                             .map(ctor -> {
                                 Obj ctorObj = getReflectionObj(ctor);
                                 return csManager.getCSObj(defaultHctx, ctorObj);
@@ -73,9 +73,9 @@ class StringBasedModel extends MetaObjModel {
         if (result != null) {
             PointsToSet ctorObjs = PointsToSetFactory.make();
             pts.forEach(obj -> {
-                JClass jclass = CSObjUtils.toClass(obj);
+                JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
-                    ReflectionUtils.getDeclaredConstructors(jclass)
+                    Reflections.getDeclaredConstructors(jclass)
                             .map(ctor -> {
                                 Obj ctorObj = getReflectionObj(ctor);
                                 return csManager.getCSObj(defaultHctx, ctorObj);
@@ -97,12 +97,12 @@ class StringBasedModel extends MetaObjModel {
             PointsToSet nameObjs = args.get(1);
             PointsToSet mtdObjs = PointsToSetFactory.make();
             clsObjs.forEach(clsObj -> {
-                JClass cls = CSObjUtils.toClass(clsObj);
+                JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
                     nameObjs.forEach(nameObj -> {
-                        String name = CSObjUtils.toString(nameObj);
+                        String name = CSObjs.toString(nameObj);
                         if (name != null) {
-                            ReflectionUtils.getMethods(cls, name)
+                            Reflections.getMethods(cls, name)
                                     .map(mtd -> {
                                         Obj mtdObj = getReflectionObj(mtd);
                                         return csManager.getCSObj(defaultHctx, mtdObj);
@@ -126,12 +126,12 @@ class StringBasedModel extends MetaObjModel {
             PointsToSet nameObjs = args.get(1);
             PointsToSet mtdObjs = PointsToSetFactory.make();
             clsObjs.forEach(clsObj -> {
-                JClass cls = CSObjUtils.toClass(clsObj);
+                JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
                     nameObjs.forEach(nameObj -> {
-                        String name = CSObjUtils.toString(nameObj);
+                        String name = CSObjs.toString(nameObj);
                         if (name != null) {
-                            ReflectionUtils.getDeclaredMethods(cls, name)
+                            Reflections.getDeclaredMethods(cls, name)
                                     .map(mtd -> {
                                         Obj mtdObj = getReflectionObj(mtd);
                                         return csManager.getCSObj(defaultHctx, mtdObj);

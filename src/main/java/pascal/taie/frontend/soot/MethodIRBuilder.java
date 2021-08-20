@@ -82,7 +82,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
@@ -168,7 +168,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
+import static pascal.taie.util.collection.Maps.newHybridMap;
 
 /**
  * Converts Jimple to Tai-e IR.
@@ -500,7 +500,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * create multiple temp variables and assignments for the same constants
      * in the same method.
      */
-    private final Map<Literal, Var> constantVars = MapUtils.newHybridMap();
+    private final Map<Literal, Var> constantVars = Maps.newHybridMap();
 
     /**
      * Converts a Jimple Local or Constant to Var.

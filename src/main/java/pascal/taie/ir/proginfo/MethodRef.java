@@ -20,7 +20,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 import pascal.taie.util.InternalCanonicalized;
 
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
-import static pascal.taie.util.collection.MapUtils.newConcurrentMap;
+import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 @InternalCanonicalized
 public class MethodRef extends MemberRef {
@@ -191,7 +191,7 @@ public class MethodRef extends MemberRef {
 
         @Override
         public int hashCode() {
-            return HashUtils.hash(declaringClass, subsignature);
+            return Hashes.hash(declaringClass, subsignature);
         }
 
         @Override

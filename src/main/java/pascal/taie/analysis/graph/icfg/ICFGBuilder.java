@@ -21,7 +21,7 @@ import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.ConfigUtils;
+import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.graph.GraphDumper;
@@ -46,7 +46,7 @@ public class ICFGBuilder extends InterproceduralAnalysis {
         CallGraph<Stmt, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
         ICFG<JMethod, Stmt> icfg = new DefaultICFG(callGraph);
         if (isDump) {
-            File outFile = new File(ConfigUtils.getOutputDir(), "icfg.dot");
+            File outFile = new File(Configs.getOutputDir(), "icfg.dot");
             logger.info("Dumping call graph to {} ...", outFile);
             GraphDumper.dumpDotFile(icfg, outFile.getPath(),
                     stmt -> toString(stmt, icfg));

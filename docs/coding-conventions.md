@@ -34,10 +34,10 @@ Always add `@Override` annotation for overridden methods.
 For the methods that may return `null`, add `@Nullable` annotation to their return values. For example, `public @Nullable X getX()`.
 
 ### Use Tai-e Library
-- Use `SetUtils`/`MapUtils` to Create Sets/Maps.
-When creating Set/Map, use proper `SetUtils.newSet`/`MapUtils.newMap()` factory methods instead of `new HashSet/Map<>()`.
+- Use `Sets`/`Maps` to Create Sets/Maps.
+When creating Set/Map, use proper `Sets.newSet`/`Maps.newMap()` factory methods instead of `new HashSet/Map<>()`.
 
-- Use `HashUtils.hash()` to Compute Hash Value of Multiple Objects. If the arguments may be `null`, use `HashUtils.safeHash()`.
+- Use `Hashes.hash()` to Compute Hash Value of Multiple Objects. If the arguments may be `null`, use `Hashes.safeHash()`.
 
 - Obtain String Constants from `StringReps`.
 When using JDK class names, method subsignatures or signaturess, refer to corresponding fields of `StringReps`.

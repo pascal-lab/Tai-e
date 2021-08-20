@@ -15,9 +15,9 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
-import pascal.taie.util.collection.ListUtils;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,8 +55,13 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
 
     @Override
     public List<Exp> getUses() {
-        return ListUtils.concatAndAppend(
-                lvalue.getUses(), rvalue.getUses(), rvalue);
+        List<Exp> luses = lvalue.getUses();
+        List<Exp> ruses = rvalue.getUses();
+        List<Exp> uses = new ArrayList<>(luses.size() + ruses.size() + 1);
+        uses.addAll(luses);
+        uses.addAll(ruses);
+        uses.add(rvalue);
+        return uses;
     }
 
     @Override

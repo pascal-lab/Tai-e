@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.util.collection.MapUtils;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +31,12 @@ import java.util.stream.Stream;
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
 
-    protected final Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges = MapUtils.newMap();
-    protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges = MapUtils.newMap();
-    protected final Map<CallSite, Method> callSiteToContainer = MapUtils.newMap();
-    protected final Map<Method, Set<CallSite>> callSitesIn = MapUtils.newMap();
-    protected final Set<Method> entryMethods = SetUtils.newSet();
-    protected final Set<Method> reachableMethods = SetUtils.newSet();
+    protected final Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges = Maps.newMap();
+    protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges = Maps.newMap();
+    protected final Map<CallSite, Method> callSiteToContainer = Maps.newMap();
+    protected final Map<Method, Set<CallSite>> callSitesIn = Maps.newMap();
+    protected final Set<Method> entryMethods = Sets.newSet();
+    protected final Set<Method> reachableMethods = Sets.newSet();
 
     @Override
     public Stream<Method> calleesOf(CallSite callSite) {

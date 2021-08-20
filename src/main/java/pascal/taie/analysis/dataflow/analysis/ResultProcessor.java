@@ -25,7 +25,7 @@ import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.io.BufferedReader;
@@ -99,7 +99,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
             String input = getOptions().getString("file");
             Path path = Path.of(input);
             try {
-                inputs = MapUtils.newMap();
+                inputs = Maps.newMap();
                 BufferedReader reader = Files.newBufferedReader(path);
                 String line;
                 Pair<String, String> currentKey = null;
@@ -108,7 +108,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
                     if (key != null) {
                         currentKey = key;
                     } else if (!line.isBlank()){
-                        MapUtils.addToMapSet(inputs, currentKey, line);
+                        Maps.addToMapSet(inputs, currentKey, line);
                     }
                 }
             } catch (IOException e) {

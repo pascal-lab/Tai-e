@@ -33,7 +33,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignStmt;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.util.collection.SetUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
@@ -67,7 +67,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
         DataflowResult<Stmt, MapFact<Var, Value>> constants =
                 ir.getResult(ConstantPropagation.ID);
-        Set<Edge<Stmt>> unreachableBranches = SetUtils.newHybridSet();
+        Set<Edge<Stmt>> unreachableBranches = Sets.newHybridSet();
         ir.forEach(stmt -> {
             if (stmt instanceof If) {
                 If ifStmt = (If) stmt;
@@ -91,7 +91,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
         // Initialize graph traversal
         Stmt entry = cfg.getEntry();
-        Set<Stmt> reachable = SetUtils.newSet();
+        Set<Stmt> reachable = Sets.newSet();
         Queue<Stmt> queue = new ArrayDeque<>();
         queue.add(entry);
         // Traverse the CFG to find reachable code
@@ -121,7 +121,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         // Obtain the live variable analysis results for this method
         DataflowResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariableAnalysis.ID);
-        Set<Stmt> deadAssigns = SetUtils.newSet();
+        Set<Stmt> deadAssigns = Sets.newSet();
         ir.forEach(stmt -> {
             if (stmt instanceof AssignStmt<?, ?>) {
                 AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;

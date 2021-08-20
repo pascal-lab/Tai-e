@@ -28,6 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Option class for Tai-e.
+ * We name this class in the plural to avoid name collision with {@link Option}.
+ */
 @Command(name = "Options",
         // to reduce #options, we show version info in the footer of help
         footer = "--------------------\nVersion 0.1\n--------------------",
@@ -217,7 +221,7 @@ public class Options {
         // TODO: turn off output in testing?
         if (options.optionsFile == null) {
             // write options to file only when it is not given
-            writeOptions(options, ConfigUtils.getDefaultOptions());
+            writeOptions(options, Configs.getDefaultOptions());
         }
         return options;
     }

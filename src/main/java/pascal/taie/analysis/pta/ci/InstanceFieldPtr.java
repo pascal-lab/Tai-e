@@ -14,7 +14,7 @@ package pascal.taie.analysis.pta.ci;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JField;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 /**
  * Represents instance field pointers in PFG.
@@ -52,7 +52,7 @@ class InstanceFieldPtr extends Pointer {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(base, field);
+        return Hashes.hash(base, field);
     }
 
     @Override

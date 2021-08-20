@@ -15,7 +15,7 @@ package pascal.taie.ir.exp;
 import pascal.taie.World;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.HashUtils;
+import pascal.taie.util.Hashes;
 
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class MethodType implements ReferenceLiteral {
 
     @Override
     public int hashCode() {
-        return HashUtils.hash(paramTypes, returnType);
+        return Hashes.hash(paramTypes, returnType);
     }
 
     @Override

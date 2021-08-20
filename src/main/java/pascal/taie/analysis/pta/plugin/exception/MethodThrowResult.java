@@ -4,14 +4,14 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.MapUtils;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.MapUtils.newHybridMap;
-import static pascal.taie.util.collection.SetUtils.newHybridSet;
+import static pascal.taie.util.collection.Maps.newHybridMap;
+import static pascal.taie.util.collection.Sets.newHybridSet;
 
 public class MethodThrowResult {
 
@@ -39,7 +39,7 @@ public class MethodThrowResult {
                         .stream()
                         .map(CSObj::getObject)
                         .forEach(exception ->
-                                MapUtils.addToMapSet(explicitExceptions, stmt, exception))
+                                Maps.addToMapSet(explicitExceptions, stmt, exception))
         );
         csMethodThrowResult.mayThrowUncaught()
                 .stream()

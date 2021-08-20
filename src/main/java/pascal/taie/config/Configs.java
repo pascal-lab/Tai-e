@@ -17,9 +17,12 @@ import java.net.URL;
 import java.util.Objects;
 
 /**
- * Utility methods for config system.
+ * Static utility methods for config system.
  */
-public class ConfigUtils {
+public final class Configs {
+
+    private Configs() {
+    }
 
     /**
      * Default directory for Tai-e's output.
@@ -33,9 +36,6 @@ public class ConfigUtils {
         }
     }
 
-    private ConfigUtils() {
-    }
-
     public static File getOutputDir() {
         return outputDir;
     }
@@ -45,7 +45,7 @@ public class ConfigUtils {
      * TODO: the path of configuration file is hardcoded, make it configurable?
      */
     public static File getAnalysisConfig() {
-        URL url = Objects.requireNonNull(ConfigUtils.class
+        URL url = Objects.requireNonNull(Configs.class
                 .getClassLoader()
                 .getResource("tai-e-analyses.yml"));
         return new File(url.getFile());
