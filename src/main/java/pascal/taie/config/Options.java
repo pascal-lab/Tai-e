@@ -128,6 +128,16 @@ public class Options {
     }
 
     @JsonProperty
+    @Option(names = "-scope",
+            description = "Scope for intra-procedural analyses (default: ${DEFAULT-VALUE})",
+            defaultValue = Scope.APP)
+    private String scope;
+
+    public String getScope() {
+        return scope;
+    }
+
+    @JsonProperty
     @Option(names = "--no-native-model",
             description = "Enable native model (default: ${DEFAULT-VALUE})",
             defaultValue = "true", negatable = true)
