@@ -12,9 +12,15 @@
 
 package pascal.taie.config;
 
+import pascal.taie.util.collection.SetUtils;
+
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.MapUtils.newMap;
@@ -86,5 +92,23 @@ public class ConfigManager {
                         })
                         .map(required -> getConfig(ConfigUtils.extractId(required)))
                         .collect(Collectors.toUnmodifiableList()));
+    }
+
+    /**
+     * @return all configs (directly and indirectly) required by the given config
+     */
+    Set<AnalysisConfig> getAllRequiredConfigs(AnalysisConfig config) {
+        Set<AnalysisConfig> visited = SetUtils.newHybridSet();
+        Deque<AnalysisConfig> queue = new ArrayDeque<>();
+        queue.add(config);
+        while (!queue.isEmpty()) {
+            AnalysisConfig curr = queue.pop();
+            visited.add(curr);
+            getRequiredConfigs(curr)
+                    .stream()
+                    .filter(c -> !visited.contains(c))
+                    .forEach(queue::add);
+        }
+        return Collections.unmodifiableSet(visited);
     }
 }

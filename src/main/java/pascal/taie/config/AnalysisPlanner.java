@@ -12,6 +12,7 @@
 
 package pascal.taie.config;
 
+import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.SCC;
 import pascal.taie.util.graph.SimpleGraph;
@@ -44,9 +45,9 @@ public class AnalysisPlanner {
      * @return the analysis plan consists of a list of analysis config.
      * @throws ConfigException if the given planConfigs are invalid.
      */
-    public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs) {
+    public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs, boolean reachableScope) {
         List<AnalysisConfig> plan = covertConfigs(planConfigs);
-        validatePlan(plan);
+        validatePlan(plan, reachableScope);
         return plan;
     }
 
@@ -61,24 +62,57 @@ public class AnalysisPlanner {
 
     /**
      * Checks if the given analysis plan is valid.
+     *
+     * @param plan the given analysis plan
+     * @param reachableScope whether the analysis scope is set to reachable
      * @throws ConfigException if the given plan is invalid
      */
-    private void validatePlan(List<AnalysisConfig> plan) {
+    private void validatePlan(List<AnalysisConfig> plan, boolean reachableScope) {
+        // check if all required analyses are placed in front of
+        // their requiring analyses
         for (int i = 0; i < plan.size(); ++i) {
             AnalysisConfig config = plan.get(i);
             for (AnalysisConfig required : manager.getRequiredConfigs(config)) {
                 int rindex = plan.indexOf(required);
                 if (rindex == -1) {
                     // required analysis is missing
-                    throw new ConfigException("Invalid configuration: " +
-                            required + " is required by " + config +
-                            " but missing in analysis plan");
+                    throw new ConfigException(String.format(
+                            "'%s' is required by '%s' but missing in analysis plan",
+                            required, config));
                 } else if (rindex >= i) {
                     // invalid analysis order: required analysis runs
                     // after current analysis
-                    throw new ConfigException("Invalid configuration: " +
-                            required + " is required by " + config +
-                            " but it runs after " + config);
+                    throw new ConfigException(String.format(
+                            "'%s' is required by '%s' but it runs after '%s'",
+                            required, config, config));
+                }
+            }
+        }
+        if (reachableScope) { // analysis scope is set to reachable
+            // check if given analyses include call graph construction
+            int cgIndex = -1;
+            for (int i = 0; i < plan.size(); ++i) {
+                AnalysisConfig config = plan.get(i);
+                if (config.getId().equals(CallGraphBuilder.ID)) {
+                    cgIndex = i;
+                    break;
+                }
+            }
+            if (cgIndex == -1) { // call graph construction is not found
+                throw new ConfigException(String.format(
+                        "Scope is reachable but call graph construction (%s) is not given",
+                        CallGraphBuilder.ID));
+            }
+            // check if call graph construction is executed as early as possible
+            AnalysisConfig cg = plan.get(cgIndex);
+            Set<AnalysisConfig> cgRequired = manager.getAllRequiredConfigs(cg);
+            for (int i = 0; i < cgIndex; ++i) {
+                AnalysisConfig config = plan.get(i);
+                if (!cgRequired.contains(config)) {
+                    throw new ConfigException(String.format(
+                            "Scope is reachable, thus '%s' " +
+                            "should be placed after call graph construction (%s)",
+                            config, CallGraphBuilder.ID));
                 }
             }
         }
@@ -92,7 +126,8 @@ public class AnalysisPlanner {
      * @return the analysis plan consisting of a list of analysis config.
      * @throws ConfigException if the specified planConfigs is invalid.
      */
-    public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs) {
+    public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs,
+                                           boolean reachableScope) {
         Graph<AnalysisConfig> graph = buildRequireGraph(planConfigs);
         validateRequireGraph(graph);
         return new TopoSorter<>(graph, covertConfigs(planConfigs)).get();

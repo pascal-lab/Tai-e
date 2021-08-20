@@ -21,6 +21,7 @@ import pascal.taie.config.ConfigManager;
 import pascal.taie.config.ConfigUtils;
 import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
+import pascal.taie.config.Scope;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -61,11 +62,13 @@ public class Main {
         List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);
+        boolean reachableScope = options.getScope().equals(Scope.REACHABLE);
         if (!options.getAnalyses().isEmpty()) {
             // Analyses are specified by options
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
             manager.overwriteOptions(planConfigs);
-            List<AnalysisConfig> plan = planner.expandPlan(planConfigs);
+            List<AnalysisConfig> plan = planner.expandPlan(
+                    planConfigs, reachableScope);
             // Output analysis plan to file.
             // For outputting purpose, we first convert AnalysisConfigs
             // in the expanded plan to PlanConfigs
@@ -82,7 +85,7 @@ public class Main {
             // Analyses are specified by file
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options.getPlanFile());
             manager.overwriteOptions(planConfigs);
-            return planner.makePlan(planConfigs);
+            return planner.makePlan(planConfigs, reachableScope);
         }
         // No analyses are specified
         return List.of();
