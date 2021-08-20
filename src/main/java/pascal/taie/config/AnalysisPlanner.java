@@ -13,19 +13,21 @@
 package pascal.taie.config;
 
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
+import pascal.taie.util.collection.Lists;
 import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.SCC;
 import pascal.taie.util.graph.SimpleGraph;
 import pascal.taie.util.graph.TopoSorter;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.SetUtils.newSet;
+import static pascal.taie.util.collection.Sets.newSet;
 
 /**
  * Makes analysis plan based on given plan configs and analysis configs.
@@ -45,7 +47,8 @@ public class AnalysisPlanner {
      * @return the analysis plan consists of a list of analysis config.
      * @throws ConfigException if the given planConfigs are invalid.
      */
-    public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs, boolean reachableScope) {
+    public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs,
+                                         boolean reachableScope) {
         List<AnalysisConfig> plan = covertConfigs(planConfigs);
         validatePlan(plan, reachableScope);
         return plan;
@@ -57,7 +60,7 @@ public class AnalysisPlanner {
     private List<AnalysisConfig> covertConfigs(List<PlanConfig> planConfigs) {
         return planConfigs.stream()
                 .map(pc -> manager.getConfig(pc.getId()))
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
     }
 
     /**
@@ -89,33 +92,31 @@ public class AnalysisPlanner {
             }
         }
         if (reachableScope) { // analysis scope is set to reachable
-            // check if given analyses include call graph construction
-            int cgIndex = -1;
-            for (int i = 0; i < plan.size(); ++i) {
-                AnalysisConfig config = plan.get(i);
-                if (config.getId().equals(CallGraphBuilder.ID)) {
-                    cgIndex = i;
-                    break;
-                }
-            }
-            if (cgIndex == -1) { // call graph construction is not found
-                throw new ConfigException(String.format(
-                        "Scope is reachable but call graph construction (%s) is not given",
+            // check if given analyses include call graph builder
+            AnalysisConfig cg = Lists.findFirst(plan, AnalysisPlanner::isCG);
+            if (cg == null) {
+                throw new ConfigException(String.format("Scope is reachable" +
+                        " but call graph builder (%s) is not given in plan",
                         CallGraphBuilder.ID));
             }
-            // check if call graph construction is executed as early as possible
-            AnalysisConfig cg = plan.get(cgIndex);
+            // check if call graph builder is executed as early as possible
             Set<AnalysisConfig> cgRequired = manager.getAllRequiredConfigs(cg);
-            for (int i = 0; i < cgIndex; ++i) {
-                AnalysisConfig config = plan.get(i);
+            for (AnalysisConfig config : plan) {
+                if (config.equals(cg)) {
+                    break;
+                }
                 if (!cgRequired.contains(config)) {
                     throw new ConfigException(String.format(
                             "Scope is reachable, thus '%s' " +
-                            "should be placed after call graph construction (%s)",
+                                    "should be placed after call graph builder (%s)",
                             config, CallGraphBuilder.ID));
                 }
             }
         }
+    }
+
+    private static boolean isCG(AnalysisConfig config) {
+        return config.getId().equals(CallGraphBuilder.ID);
     }
 
     /**
@@ -128,26 +129,73 @@ public class AnalysisPlanner {
      */
     public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs,
                                            boolean reachableScope) {
-        Graph<AnalysisConfig> graph = buildRequireGraph(planConfigs);
+        List<AnalysisConfig> configs = covertConfigs(planConfigs);
+        if (reachableScope) { // complete call graph builder
+            AnalysisConfig cg = Lists.findFirst(configs, AnalysisPlanner::isCG);
+            if (cg == null) {
+                // if analysis scope is reachable and call graph builder is
+                // not given, then we automatically add it
+                configs.add(manager.getConfig(CallGraphBuilder.ID));
+            }
+        }
+        Graph<AnalysisConfig> graph = buildRequireGraph(configs);
         validateRequireGraph(graph);
-        return new TopoSorter<>(graph, covertConfigs(planConfigs)).get();
+        List<AnalysisConfig> plan = new TopoSorter<>(graph, configs).get();
+        return reachableScope ? shiftCG(plan) : plan;
+    }
+
+    /**
+     * Shifts call graph builder (cg) in given plan to ensure that
+     * it will run before all the analyses that it does not require.
+     */
+    private List<AnalysisConfig> shiftCG(List<AnalysisConfig> plan) {
+        AnalysisConfig cg = Lists.findFirst(plan, AnalysisPlanner::isCG);
+        Set<AnalysisConfig> required = manager.getAllRequiredConfigs(cg);
+        List<AnalysisConfig> notRequired = new ArrayList<>();
+        // obtain the analyses that run before cg but not required by cg
+        for (AnalysisConfig c : plan) {
+            if (c.equals(cg)) {
+                break;
+            }
+            if (!required.contains(c)) {
+                notRequired.add(c);
+            }
+        }
+        List<AnalysisConfig> result = new ArrayList<>(plan.size());
+        // add analyses that are required by cg
+        for (AnalysisConfig c : plan) {
+            if (required.contains(c)) {
+                result.add(c);
+            }
+            if (c.equals(cg)) { // found cg, break
+                break;
+            }
+        }
+        result.add(cg); // add cg
+        // add analyses that are not required by cg but placed before cg
+        // in the original plan
+        result.addAll(notRequired);
+        // add remaining analyses
+        for (int i = plan.indexOf(cg) + 1; i < plan.size(); ++i) {
+            result.add(plan.get(i));
+        }
+        return result;
     }
 
     /**
      * Builds a require graph for AnalysisConfigs.
      * This method traverses relevant AnalysisConfigs starting from the ones
-     * specified by given PlanConfigs. During the traversal, if it finds that
+     * specified by given configs. During the traversal, if it finds that
      * analysis A1 is required by A2, then it adds an edge A1 -> A2 and
      * nodes A1 and A2 to the resulting graph.
      *
      * The resulting graph contains the given analyses (planConfigs) and
      * all their (directly and indirectly) required analyses.
      */
-    private Graph<AnalysisConfig> buildRequireGraph(List<PlanConfig> planConfigs) {
+    private Graph<AnalysisConfig> buildRequireGraph(List<AnalysisConfig> configs) {
         SimpleGraph<AnalysisConfig> graph = new SimpleGraph<>();
-        Queue<AnalysisConfig> workList = new ArrayDeque<>();
         Set<AnalysisConfig> visited = newSet();
-        planConfigs.forEach(pc -> workList.add(manager.getConfig(pc.getId())));
+        Queue<AnalysisConfig> workList = new ArrayDeque<>(configs);
         while (!workList.isEmpty()) {
             AnalysisConfig config = workList.poll();
             graph.addNode(config);

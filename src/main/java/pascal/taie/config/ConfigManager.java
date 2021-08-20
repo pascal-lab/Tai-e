@@ -99,8 +99,8 @@ public class ConfigManager {
      */
     Set<AnalysisConfig> getAllRequiredConfigs(AnalysisConfig config) {
         Set<AnalysisConfig> visited = Sets.newHybridSet();
-        Deque<AnalysisConfig> queue = new ArrayDeque<>();
-        queue.add(config);
+        Deque<AnalysisConfig> queue = new ArrayDeque<>(
+                getRequiredConfigs(config));
         while (!queue.isEmpty()) {
             AnalysisConfig curr = queue.pop();
             visited.add(curr);
