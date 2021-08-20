@@ -159,8 +159,8 @@ class LogBasedModel extends MetaObjModel {
                 .stream()
                 .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
                 .forEach(caller ->
-                    caller.getIR().getStmts()
-                            .stream()
+                    caller.getIR()
+                            .stmts()
                             .filter(s -> s instanceof Invoke)
                             .forEach(s -> {
                                 Invoke invoke = (Invoke) s;
@@ -194,8 +194,8 @@ class LogBasedModel extends MetaObjModel {
     void handleNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         if (relevantMethods.contains(method)) {
-            method.getIR().getStmts()
-                    .stream()
+            method.getIR()
+                    .stmts()
                     .filter(s -> s instanceof Invoke)
                     .map(s -> (Invoke) s)
                     .forEach(invoke -> {

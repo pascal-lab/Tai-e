@@ -39,7 +39,7 @@ public class IRPrinter {
         ir.getVars().forEach(v -> out.println(v.getType() + " " + v));
         // print all statements
         out.println("Statements:");
-        ir.getStmts().forEach(s -> out.println(toString(s)));
+        ir.forEach(s -> out.println(toString(s)));
         // print all try-catch blocks
         if (!ir.getExceptionEntries().isEmpty()) {
             out.println("Exception entries:");

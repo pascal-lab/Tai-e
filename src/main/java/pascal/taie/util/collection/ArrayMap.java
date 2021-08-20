@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Map implementation based on ArrayList. This class should only be
  * used for small set. Keys cannot be null.
- * Note that remove(Object) will shift the rest elements to the end.
+ * Note that remove(Object) will shift the elements after the removed one.
  * TODO: if necessary, optimize remove(Object) and let add(Object) add
  *  element to empty hole of the array.
  */
@@ -89,7 +89,13 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     public V put(K key, V value) {
         Objects.requireNonNull(key, NULL_KEY);
         ensureCapacity(size() + 1);
-        return putValue(key, value);
+        Entry<K, V> e = getEntry(key);
+        if (e == null) {
+            entries.add(new MapEntry<>(key, value));
+            return null;
+        } else {
+            return e.setValue(value);
+        }
     }
 
     @Override
@@ -122,18 +128,6 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     private void ensureCapacity(int minCapacity) {
         if (fixedCapacity && minCapacity > initialCapacity) {
             throw new TooManyElementsException(EXCEED_CAPACITY);
-        }
-    }
-
-    private V putValue(K key, V value) {
-        Entry<K, V> e = getEntry(key);
-        if (e == null) {
-            entries.add(new MapEntry<>(key, value));
-            return null;
-        } else {
-            V oldValue = e.getValue();
-            e.setValue(value);
-            return oldValue;
         }
     }
 

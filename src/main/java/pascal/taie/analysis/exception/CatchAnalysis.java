@@ -44,7 +44,7 @@ public class CatchAnalysis {
         Map<Stmt, List<ExceptionEntry>> catchers = getPotentialCatchers(ir);
         TypeManager typeManager = World.getTypeManager();
         CatchResult result = new CatchResult();
-        ir.getStmts().forEach(stmt -> {
+        ir.forEach(stmt -> {
             Collection<ClassType> implicit = throwResult.mayThrowImplicitly(stmt);
             Collection<ClassType> explicit;
             if (stmt instanceof Throw) {

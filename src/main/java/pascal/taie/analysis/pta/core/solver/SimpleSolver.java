@@ -85,7 +85,7 @@ public class SimpleSolver extends Solver {
         if (callGraph.addReachableMethod(csMethod)) {
             JMethod method = csMethod.getMethod();
             StmtProcessor stmtProcessor = new StmtProcessor(csMethod);
-            method.getIR().getStmts()
+            method.getIR()
                     .forEach(s -> s.accept(stmtProcessor));
         }
     }

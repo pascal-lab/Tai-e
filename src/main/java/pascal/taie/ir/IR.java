@@ -18,12 +18,14 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Intermediate representation for method body of non-abstract methods.
  */
-public interface IR extends ResultHolder {
+public interface IR extends Iterable<Stmt>, ResultHolder {
 
     JMethod getMethod();
 
@@ -40,6 +42,15 @@ public interface IR extends ResultHolder {
     Stmt getStmt(int index);
 
     List<Stmt> getStmts();
+
+    default Stream<Stmt> stmts() {
+        return getStmts().stream();
+    }
+
+    @Override
+    default Iterator<Stmt> iterator() {
+        return getStmts().iterator();
+    }
 
     List<ExceptionEntry> getExceptionEntries();
 }

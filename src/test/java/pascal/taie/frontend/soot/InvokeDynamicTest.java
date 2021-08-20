@@ -99,8 +99,7 @@ public class InvokeDynamicTest {
     }
 
     private static Stream<InvokeDynamic> extractInvokeDynamics(IR ir) {
-        return ir.getStmts()
-                .stream()
+        return ir.stmts()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
                 .filter(s -> s.getInvokeExp() instanceof InvokeDynamic)

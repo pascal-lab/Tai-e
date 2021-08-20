@@ -34,7 +34,7 @@ public class MethodThrowResult {
     }
 
     void addCSMethodThrowResult(CSMethodThrowResult csMethodThrowResult) {
-        method.getIR().getStmts().forEach(stmt ->
+        method.getIR().forEach(stmt ->
                 csMethodThrowResult.mayThrowExplicitly(stmt)
                         .stream()
                         .map(CSObj::getObject)

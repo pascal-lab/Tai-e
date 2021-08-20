@@ -70,7 +70,7 @@ public class ExceptionTest {
             IR ir = m.getIR();
             ThrowResult throwResult = ir.getResult(ThrowAnalysis.ID);
             CatchResult result = CatchAnalysis.analyze(ir, throwResult);
-            ir.getStmts().forEach(stmt -> {
+            ir.forEach(stmt -> {
                 Map<Stmt, Set<ClassType>> caught = result.getCaughtOf(stmt);
                 Set<ClassType> uncaught = result.getUncaughtOf(stmt);
                 if (!caught.isEmpty() || !uncaught.isEmpty()) {

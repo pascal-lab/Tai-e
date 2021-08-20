@@ -204,8 +204,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
         } else if (result instanceof NodeResult) {
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
             IR ir = method.getIR();
-            ir.getStmts().forEach(stmt ->
-                    out.println(toString(stmt, nodeResult)));
+            ir.forEach(stmt -> out.println(toString(stmt, nodeResult)));
         } else {
             out.println(toString(result));
         }
@@ -258,7 +257,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
             IR ir = method.getIR();
-            ir.getStmts().forEach(stmt -> {
+            ir.forEach(stmt -> {
                 String stmtStr = toString(stmt);
                 String given = toString(stmt, nodeResult);
                 for (String line : lines) {

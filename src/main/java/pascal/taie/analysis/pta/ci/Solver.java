@@ -84,7 +84,7 @@ class Solver {
      */
     private void addReachable(JMethod method) {
         if (callGraph.addReachableMethod(method)) {
-            method.getIR().getStmts()
+            method.getIR()
                     .forEach(s -> s.accept(stmtProcessor));
         }
     }

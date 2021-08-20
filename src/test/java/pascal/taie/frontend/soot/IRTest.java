@@ -67,7 +67,7 @@ public class IRTest {
         JClass mainClass = World.getClassHierarchy().getClass(main);
         mainClass.getDeclaredMethods().forEach(m -> {
             System.out.println(m);
-            m.getIR().getStmts().forEach(stmt ->
+            m.getIR().forEach(stmt ->
                     System.out.printf("%s, def: %s, uses: %s%n",
                             stmt, stmt.getDef(), stmt.getUses()));
             System.out.println("--------------------");

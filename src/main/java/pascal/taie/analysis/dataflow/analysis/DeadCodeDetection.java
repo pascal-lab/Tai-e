@@ -68,7 +68,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         DataflowResult<Stmt, MapFact<Var, Value>> constants =
                 ir.getResult(ConstantPropagation.ID);
         Set<Edge<Stmt>> unreachableBranches = SetUtils.newHybridSet();
-        ir.getStmts().forEach(stmt -> {
+        ir.forEach(stmt -> {
             if (stmt instanceof If) {
                 If ifStmt = (If) stmt;
                 Value cond = ConstantPropagation.evaluate(
@@ -108,8 +108,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         // Return unreachable code
         // Some unreachable code is naturally absent in cfg, thus here
         // we need to iterative ir to collect all unreachable code.
-        return ir.getStmts()
-                .stream()
+        return ir.stmts()
                 .filter(Predicate.not(reachable::contains))
                 .collect(Collectors.toUnmodifiableSet());
     }
@@ -123,7 +122,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         DataflowResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariableAnalysis.ID);
         Set<Stmt> deadAssigns = SetUtils.newSet();
-        ir.getStmts().forEach(stmt -> {
+        ir.forEach(stmt -> {
             if (stmt instanceof AssignStmt<?, ?>) {
                 AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
                 if (assign.getLValue() instanceof Var &&

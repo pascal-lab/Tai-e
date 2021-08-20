@@ -74,7 +74,7 @@ public class ExceptionAnalysis implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         IR ir = method.getIR();
-        ir.getStmts().forEach(stmt -> {
+        ir.forEach(stmt -> {
             if (stmt instanceof Throw) {
                 Throw throwStmt = (Throw) stmt;
                 Var exceptionRef = throwStmt.getExceptionRef();

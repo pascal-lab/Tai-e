@@ -156,7 +156,7 @@ public class InvokeDynamicAnalysis implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR().getStmts().forEach(stmt -> {
+        method.getIR().forEach(stmt -> {
             if (stmt instanceof Invoke) {
                 Invoke invoke = (Invoke) stmt;
                 if (!invoke.isDynamic()) {
@@ -204,8 +204,8 @@ public class InvokeDynamicAnalysis implements Plugin {
      * thus we connect variables to invokedynamic.
      */
     private Stream<Var> extractMHVars(JMethod bsm) {
-        return bsm.getIR().getStmts()
-                .stream()
+        return bsm.getIR()
+                .stmts()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> ((Invoke) s).getInvokeExp())
                 .map(i -> {

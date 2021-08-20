@@ -38,7 +38,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     @Override
     public void analyze(IR ir, ThrowResult result) {
         Map<Throw, ClassType> definiteThrows = findDefiniteThrows(ir);
-        ir.getStmts().forEach(stmt -> {
+        ir.forEach(stmt -> {
             if (stmt instanceof Throw) {
                 Throw throwStmt = (Throw) stmt;
                 result.addExplicit(throwStmt,
@@ -57,7 +57,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     private static Map<Throw, ClassType> findDefiniteThrows(IR ir) {
         Map<Var, Throw> throwVars = newMap();
         Map<Exp, List<Exp>> assigns = newMap();
-        ir.getStmts().forEach(s -> {
+        ir.forEach(s -> {
             // collect all throw Stmts and corresponding thrown Vars
             if (s instanceof Throw) {
                 Throw throwStmt = (Throw) s;

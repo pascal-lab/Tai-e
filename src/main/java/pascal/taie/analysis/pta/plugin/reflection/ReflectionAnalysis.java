@@ -65,8 +65,8 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR().getStmts()
-                .stream()
+        method.getIR()
+                .stmts()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
                 .filter(Predicate.not(Invoke::isDynamic))

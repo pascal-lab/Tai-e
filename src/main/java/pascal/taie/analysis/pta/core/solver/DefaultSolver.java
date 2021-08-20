@@ -438,7 +438,7 @@ public class DefaultSolver extends Solver {
             }
             processNewMethod(method);
             stmtProcessor.setCSMethod(csMethod);
-            method.getIR().getStmts()
+            method.getIR()
                     .forEach(s -> s.accept(stmtProcessor));
             plugin.onNewCSMethod(csMethod);
         }

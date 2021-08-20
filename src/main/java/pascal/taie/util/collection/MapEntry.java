@@ -12,9 +12,12 @@
 
 package pascal.taie.util.collection;
 
+import pascal.taie.util.HashUtils;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * Map entry.
@@ -58,12 +61,12 @@ class MapEntry<K, V> implements Entry<K, V>, Serializable {
         if (!(obj instanceof Map.Entry<?, ?>))
             return false;
         Entry<?, ?> e = (Entry<?, ?>) obj;
-        return (key == null ? e.getKey() == null : key.equals(e.getKey()))
-                && (value == null ? e.getValue() == null : value.equals(e.getValue()));
+        return Objects.equals(key, e.getKey()) &&
+                Objects.equals(value, e.getValue());
     }
 
     @Override
     public int hashCode() {
-        return (key == null ? 0 : key.hashCode()) ^ (value == null ? 0 : value.hashCode());
+        return HashUtils.safeHash(key, value);
     }
 }

@@ -159,7 +159,7 @@ public class CGUtils {
         Map<String, Integer> counter = MapUtils.newMap();
         Map<Invoke, String> invokeReps =
                 new TreeMap<>(Comparator.comparing(Invoke::getIndex));
-        caller.getIR().getStmts().forEach(s -> {
+        caller.getIR().forEach(s -> {
             if (s instanceof Invoke) {
                 Invoke invoke = (Invoke) s;
                 if (invoke.isDynamic()) { // skip invokedynamic

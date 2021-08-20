@@ -108,8 +108,7 @@ public class LambdaAnalysis implements Plugin {
     }
 
     private static Stream<Invoke> extractLambdaMetaFactories(IR ir) {
-        return ir.getStmts()
-                .stream()
+        return ir.stmts()
                 .filter(s -> s instanceof Invoke)
                 .map(s -> (Invoke) s)
                 .filter(Invoke::isDynamic)

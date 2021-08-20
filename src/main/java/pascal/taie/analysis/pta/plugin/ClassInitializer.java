@@ -41,7 +41,7 @@ public class ClassInitializer implements Plugin {
         if (method.isStatic() || method.isConstructor()) {
             solver.initializeClass(method.getDeclaringClass());
         }
-        method.getIR().getStmts().forEach(s -> {
+        method.getIR().forEach(s -> {
             if (s instanceof AssignLiteral) {
                 Type type = ((AssignLiteral) s).getRValue().getType();
                 if (type instanceof ClassType) {

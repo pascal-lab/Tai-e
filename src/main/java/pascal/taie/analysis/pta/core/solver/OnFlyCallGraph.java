@@ -78,7 +78,7 @@ class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
         List<CSCallSite> callSites = new ArrayList<>();
-        for (Stmt s : method.getIR().getStmts()) {
+        for (Stmt s : method.getIR()) {
             if (s instanceof Invoke) {
                 CSCallSite csCallSite = csManager.getCSCallSite(context, (Invoke) s);
                 callSites.add(csCallSite);
