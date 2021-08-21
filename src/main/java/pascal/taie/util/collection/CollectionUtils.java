@@ -21,7 +21,7 @@ import java.util.List;
  * We name it CollectionUtils instead of Collections to avoid name collision
  * with {@link java.util.Collections}.
  */
-public class CollectionUtils {
+public final class CollectionUtils {
 
     private CollectionUtils() {
     }

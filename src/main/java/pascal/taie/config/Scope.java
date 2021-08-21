@@ -12,7 +12,7 @@
 
 package pascal.taie.config;
 
-public class Scope {
+public final class Scope {
 
     private Scope() {}
 

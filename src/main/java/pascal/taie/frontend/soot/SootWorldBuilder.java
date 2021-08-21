@@ -171,8 +171,17 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // build classes in hierarchy
         buildClasses(hierarchy, scene);
         // set main method
-        if (scene.hasMainClass()) {
-            world.setMainMethod(converter.convertMethod(scene.getMainMethod()));
+        if (options.getMainClass() != null) {
+            if (scene.hasMainClass()) {
+                world.setMainMethod(
+                        converter.convertMethod(scene.getMainMethod()));
+            } else {
+                logger.warn("Warning: main class '{}'" +
+                                " does not have main(String[]) method!",
+                        options.getMainClass());
+            }
+        } else {
+            logger.warn("Warning: main class was not given!");
         }
         // set implicit entries
         world.setImplicitEntries(implicitEntries.stream()

@@ -29,12 +29,12 @@ import java.util.Collection;
 /**
  * Manages the whole-program information of the program being analyzed.
  */
-public class World {
+public final class World {
 
     /**
      * To store whole-program information, we maintain an instance,
      * (i.e., theWorld, with its instance fields pointing to the information),
-     * instead of using static fields, to ease the reset of ZA WARUDO.
+     * instead of using static fields, to ease the resetting of ZA WARUDO.
      */
     private static World theWorld;
 
