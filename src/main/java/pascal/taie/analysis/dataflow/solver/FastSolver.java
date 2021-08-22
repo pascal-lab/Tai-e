@@ -18,6 +18,8 @@ import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 
+import java.util.TreeSet;
+
 /**
  * Work-list solver with optimization.
  */
@@ -153,11 +155,79 @@ class FastSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
 
     @Override
     protected void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-
+        TreeSet<Node> workList = new TreeSet<>(
+                new Orderer<>(cfg, analysis.isForward()));
+        cfg.forEach(node -> {
+            if (!cfg.isEntry(node)) {
+                workList.add(node);
+            }
+        });
+        while (!workList.isEmpty()) {
+            Node node = workList.pollFirst();
+            // meet incoming facts
+            Fact in = result.getInFact(node);
+            if (cfg.inEdgesOf(node).count() > 1) {
+                cfg.inEdgesOf(node).forEach(inEdge -> {
+                    Fact predOut = analysis.hasEdgeTransfer() ?
+                            result.getEdgeFact(inEdge) :
+                            result.getOutFact(inEdge.getSource());
+                    analysis.mergeInto(predOut, in);
+                });
+            }
+            // apply node transfer function
+            Fact out = result.getOutFact(node);
+            boolean changed = analysis.transferNode(node, in, out);
+            if (changed) {
+                cfg.outEdgesOf(node).forEach(outEdge -> {
+                    if (analysis.hasEdgeTransfer() &&
+                            analysis.needTransfer(outEdge)) {
+                        // apply edge transfer if necessary
+                        Fact edgeFact = result.getEdgeFact(outEdge);
+                        analysis.transferEdge(outEdge, out, edgeFact);
+                    }
+                    // prepare to process successors
+                    workList.add(outEdge.getTarget());
+                });
+            }
+        }
     }
 
     @Override
     protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-
+        TreeSet<Node> workList = new TreeSet<>(
+                new Orderer<>(cfg, analysis.isForward()));
+        cfg.forEach(node -> {
+            if (!cfg.isExit(node)) {
+                workList.add(node);
+            }
+        });
+        while (!workList.isEmpty()) {
+            Node node = workList.pollFirst();
+            // meet incoming facts
+            Fact out = result.getOutFact(node);
+            if (cfg.outEdgesOf(node).count() > 1) {
+                cfg.outEdgesOf(node).forEach(outEdge -> {
+                    Fact succIn = analysis.hasEdgeTransfer() ?
+                            result.getEdgeFact(outEdge) :
+                            result.getInFact(outEdge.getTarget());
+                    analysis.mergeInto(succIn, out);
+                });
+            }
+            // apply node transfer function
+            Fact in = result.getInFact(node);
+            boolean changed = analysis.transferNode(node, in, out);
+            if (changed) {
+                cfg.inEdgesOf(node).forEach(inEdge -> {
+                    if (analysis.hasEdgeTransfer() &&
+                            analysis.needTransfer(inEdge)) {
+                        // apply edge transfer if necessary
+                        Fact edgeFact = result.getEdgeFact(inEdge);
+                        analysis.transferEdge(inEdge, in, edgeFact);
+                    }
+                    // prepare to process successors
+                    workList.add(inEdge.getSource());
+                });
+            }
+        }
     }
 }
