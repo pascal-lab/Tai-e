@@ -16,12 +16,19 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
-public interface Solver<Node, Fact> {
+/**
+ * Work-list solver with optimization.
+ */
+class FastSolver<Node, Fact> implements Solver<Node, Fact> {
 
-    static <Node, Fact> Solver<Node, Fact> makeSolver(
-            DataflowAnalysis<Node, Fact> analysis) {
-        return new WorkListSolver<>(analysis);
+    private final DataflowAnalysis<Node, Fact> analysis;
+
+    FastSolver(DataflowAnalysis<Node, Fact> analysis) {
+        this.analysis = analysis;
     }
 
-    DataflowResult<Node, Fact> solve(CFG<Node> cfg);
+    @Override
+    public DataflowResult<Node, Fact> solve(CFG<Node> cfg) {
+        throw new UnsupportedOperationException();
+    }
 }

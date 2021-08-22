@@ -16,7 +16,7 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
-class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
+class IterativeSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
 
     public IterativeSolver(DataflowAnalysis<Node, Fact> analysis) {
         super(analysis);
