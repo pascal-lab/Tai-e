@@ -195,8 +195,9 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     }
 
     IR build() {
-        Body body = ((SootMethod) method.getMethodSource())
-                .retrieveActiveBody();
+        SootMethod m = (SootMethod) method.getMethodSource();
+        Body body = m.retrieveActiveBody();
+        m.releaseActiveBody(); // release body to save memory
         varManager = new VarManager(method, converter);
         if (method.getReturnType().equals(VOID)) {
             returnVars = Set.of();
