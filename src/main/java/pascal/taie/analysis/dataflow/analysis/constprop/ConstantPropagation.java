@@ -112,7 +112,7 @@ public class ConstantPropagation extends
                         changed |= out.update(inVar, in.get(inVar));
                     }
                 }
-                return isInt(rhs) ?
+                return isInt(lhs) ?
                         out.update(lhs, evaluate(rhs, in)) || changed :
                         changed;
             }
@@ -121,10 +121,10 @@ public class ConstantPropagation extends
     }
 
     /**
-     * @return if given expression is of integer type.
+     * @return if given variable is of integer type.
      */
-    public boolean isInt(Exp exp) {
-        return exp.getType().equals(PrimitiveType.INT);
+    public boolean isInt(Var var) {
+        return var.getType().equals(PrimitiveType.INT);
     }
 
     public static Value evaluate(Exp exp, MapFact<Var, Value> env) {

@@ -15,13 +15,13 @@
 [9@L7] goto 11; {%intconst0=10, %intconst1=UNDEF, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
 [10@L7] goto 11; {}
 [11@L7] nop; {%intconst0=10, %intconst1=UNDEF, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
-[12@L7] temp$1 = 0; {%intconst0=10, %intconst1=UNDEF, b=UNDEF, i=NAC, temp$0=NAC, temp$1=0, x=NAC, y=NAC}
-[13@L7] goto 16; {%intconst0=10, %intconst1=UNDEF, b=UNDEF, i=NAC, temp$0=NAC, temp$1=0, x=NAC, y=NAC}
+[12@L7] temp$1 = 0; {%intconst0=10, %intconst1=UNDEF, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
+[13@L7] goto 16; {%intconst0=10, %intconst1=UNDEF, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
 [14@L7] nop; {%intconst0=10, %intconst1=0, i=NAC, temp$0=NAC, x=NAC, y=NAC}
-[15@L7] temp$1 = 1; {%intconst0=10, %intconst1=0, i=NAC, temp$0=NAC, temp$1=1, x=NAC, y=NAC}
-[16@L7] nop; {%intconst0=10, %intconst1=0, b=UNDEF, i=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
-[17@L7] q = temp$1; {%intconst0=10, %intconst1=0, b=UNDEF, i=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
-[18@L7] return; {%intconst0=10, %intconst1=0, b=UNDEF, i=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+[15@L7] temp$1 = 1; {%intconst0=10, %intconst1=0, i=NAC, temp$0=NAC, x=NAC, y=NAC}
+[16@L7] nop; {%intconst0=10, %intconst1=0, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
+[17@L7] q = temp$1; {%intconst0=10, %intconst1=0, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
+[18@L7] return; {%intconst0=10, %intconst1=0, b=UNDEF, i=NAC, temp$0=NAC, x=NAC, y=NAC}
 
 -------------------- <Interprocedural: void invoke()> (constprop) --------------------
 [0@L11] temp$0 = invokevirtual %this.<Interprocedural: int ten()>(); {temp$0=NAC}

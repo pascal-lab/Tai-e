@@ -24,7 +24,6 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.FieldStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Stmt;
@@ -174,9 +173,12 @@ public class InterConstantPropagation extends
     }
 
     private boolean isAliasRelevant(Stmt stmt) {
-        if (stmt instanceof FieldStmt) {
-            FieldStmt<?,?> fs = (FieldStmt<?, ?>) stmt;
-            return !fs.isStatic() && cp.isInt(fs.getRValue());
+        if (stmt instanceof LoadField) {
+            LoadField load = (LoadField) stmt;
+            return !load.isStatic() && cp.isInt(load.getLValue());
+        } else if (stmt instanceof StoreField) {
+            StoreField store = (StoreField) stmt;
+            return !store.isStatic() && cp.isInt(store.getRValue());
         }
         return false;
     }
@@ -211,9 +213,8 @@ public class InterConstantPropagation extends
                                    MapFact<Var, Value> edgeFact) {
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
-        if (lhs != null) {
+        if (lhs != null && cp.isInt(lhs)) {
             Value retValue = edge.returnVars()
-                    .filter(cp::isInt)
                     .map(returnOut::get)
                     .reduce(Value.getUndef(), cp::meetValue);
             edgeFact.update(lhs, retValue);
