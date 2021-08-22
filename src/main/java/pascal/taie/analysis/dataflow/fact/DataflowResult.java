@@ -24,7 +24,11 @@ import java.util.Map;
  */
 public class DataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
 
-    private final Map<Edge<Node>, Fact> edgeFacts = new LinkedHashMap<>();
+    private final Map<Edge<Node>, Fact> edgeFacts;
+
+    public DataflowResult(boolean hasEdgeFacts) {
+        edgeFacts = hasEdgeFacts ? new LinkedHashMap<>() : null;
+    }
 
     /**
      * @return the fact of given edge.

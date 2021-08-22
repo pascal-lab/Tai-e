@@ -52,6 +52,11 @@ public interface DataflowAnalysis<Node, Fact> {
     boolean hasEdgeTransfer();
 
     /**
+     * @return if given edge needs to be applied transfer function.
+     */
+    boolean needTransfer(Edge<Node> edge);
+
+    /**
      * Edge Transfer function for the analysis.
      * The function transfer data-flow from in to out, and return whether
      * the out fact has been changed by the transfer.

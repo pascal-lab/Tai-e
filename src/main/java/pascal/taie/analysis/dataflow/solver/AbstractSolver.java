@@ -32,7 +32,8 @@ abstract class AbstractSolver<Node, Fact> implements Solver<Node, Fact> {
     }
 
     private DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
-        DataflowResult<Node, Fact> result = new DataflowResult<>();
+        DataflowResult<Node, Fact> result =
+                new DataflowResult<>(analysis.hasEdgeTransfer());
         if (analysis.isForward()) {
             initializeForward(cfg, result);
         } else {
@@ -41,7 +42,7 @@ abstract class AbstractSolver<Node, Fact> implements Solver<Node, Fact> {
         return result;
     }
 
-    private void initializeForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void initializeForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         cfg.forEach(node -> {
             Fact initIn, initOut;
             // initialize in fact
@@ -70,7 +71,7 @@ abstract class AbstractSolver<Node, Fact> implements Solver<Node, Fact> {
         });
     }
 
-    private void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         cfg.forEach(node -> {
             Fact initIn, initOut;
             // initialize in fact
