@@ -34,6 +34,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 public class ConstantPropagation extends
@@ -61,7 +62,7 @@ public class ConstantPropagation extends
         IR ir = method.getIR();
         ir.getParams()
                 .stream()
-                .filter(this::isInt)
+                .filter(this::canHoldInt)
                 .forEach(p -> entryFact.update(p, Value.getNAC()));
         // TODO: explicitly initialize all non-param variables as UNDEF?
 //        ir.getVars()
@@ -112,7 +113,7 @@ public class ConstantPropagation extends
                         changed |= out.update(inVar, in.get(inVar));
                     }
                 }
-                return isInt(lhs) ?
+                return canHoldInt(lhs) ?
                         out.update(lhs, evaluate(rhs, in)) || changed :
                         changed;
             }
@@ -121,10 +122,21 @@ public class ConstantPropagation extends
     }
 
     /**
-     * @return if given variable is of integer type.
+     * @return if the given variable can hold integer value.
      */
-    public boolean isInt(Var var) {
-        return var.getType().equals(PrimitiveType.INT);
+    public boolean canHoldInt(Var var) {
+        Type type = var.getType();
+        if (type instanceof PrimitiveType) {
+            switch ((PrimitiveType) type) {
+                case BYTE:
+                case SHORT:
+                case INT:
+                case CHAR:
+                case BOOLEAN:
+                    return true;
+            }
+        }
+        return false;
     }
 
     public static Value evaluate(Exp exp, MapFact<Var, Value> env) {
@@ -187,12 +199,12 @@ public class ConstantPropagation extends
         public Value visit(ConditionExp exp) {
             return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ConditionExp.Op) op) {
-                    case EQ: return  i1 == i2 ? 1 : 0;
-                    case NE: return  i1 != i2 ? 1 : 0;
-                    case LT: return  i1 < i2 ? 1 : 0;
-                    case GT: return  i1 > i2 ? 1 : 0;
-                    case LE: return  i1 <= i2 ? 1 : 0;
-                    case GE: return  i1 >= i2 ? 1 : 0;
+                    case EQ: return i1 == i2 ? 1 : 0;
+                    case NE: return i1 != i2 ? 1 : 0;
+                    case LT: return i1 < i2 ? 1 : 0;
+                    case GT: return i1 > i2 ? 1 : 0;
+                    case LE: return i1 <= i2 ? 1 : 0;
+                    case GE: return i1 >= i2 ? 1 : 0;
                 }
                 throw new AnalysisException("Unexpected op: " + op);
             });

@@ -37,6 +37,11 @@ public class CPTestFull {
     }
 
     @Test
+    public void testSimpleChar() {
+        CPTest.testCP("SimpleChar");
+    }
+
+    @Test
     public void testAssign() {
         CPTest.testCP("Assign");
     }

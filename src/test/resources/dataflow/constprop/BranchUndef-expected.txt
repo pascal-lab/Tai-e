@@ -3,23 +3,23 @@
 [1@L1] return; {}
 
 -------------------- <BranchUndef: void undefined1(boolean)> (constprop) --------------------
-[0@L5] %intconst0 = 0; {%intconst0=0}
-[1@L5] if (b == %intconst0) goto 6; {%intconst0=0}
-[2@L5] goto 3; {%intconst0=0}
-[3@L5] nop; {%intconst0=0}
-[4@L6] x = undef; {%intconst0=0, x=UNDEF}
-[5@L5] goto 9; {%intconst0=0, x=UNDEF}
-[6@L5] nop; {%intconst0=UNDEF, b=UNDEF}
-[7@L8] temp$0 = 10; {%intconst0=UNDEF, b=UNDEF, temp$0=10}
-[8@L8] x = temp$0; {%intconst0=UNDEF, b=UNDEF, temp$0=10, x=10}
-[9@L8] nop; {%intconst0=0, b=UNDEF, temp$0=10, x=10}
-[10@L10] y = x; {%intconst0=0, b=UNDEF, temp$0=10, x=10, y=10}
-[11@L10] return; {%intconst0=0, b=UNDEF, temp$0=10, x=10, y=10}
+[0@L5] %intconst0 = 0; {%intconst0=0, b=NAC}
+[1@L5] if (b == %intconst0) goto 6; {%intconst0=0, b=NAC}
+[2@L5] goto 3; {%intconst0=0, b=NAC}
+[3@L5] nop; {%intconst0=0, b=NAC}
+[4@L6] x = undef; {%intconst0=0, b=NAC, x=UNDEF}
+[5@L5] goto 9; {%intconst0=0, b=NAC, x=UNDEF}
+[6@L5] nop; {%intconst0=0, b=0}
+[7@L8] temp$0 = 10; {%intconst0=0, b=0, temp$0=10}
+[8@L8] x = temp$0; {%intconst0=0, b=0, temp$0=10, x=10}
+[9@L8] nop; {%intconst0=0, b=NAC, temp$0=10, x=10}
+[10@L10] y = x; {%intconst0=0, b=NAC, temp$0=10, x=10, y=10}
+[11@L10] return; {%intconst0=0, b=NAC, temp$0=10, x=10, y=10}
 
 -------------------- <BranchUndef: void undefined2(boolean)> (constprop) --------------------
-[0@L15] x = undef; {x=UNDEF}
-[1@L16] temp$0 = 20; {temp$0=20, x=UNDEF}
-[2@L16] x = temp$0; {temp$0=20, x=20}
-[3@L17] a = x; {a=20, temp$0=20, x=20}
-[4@L17] return; {a=20, temp$0=20, x=20}
+[0@L15] x = undef; {b=NAC, x=UNDEF}
+[1@L16] temp$0 = 20; {b=NAC, temp$0=20, x=UNDEF}
+[2@L16] x = temp$0; {b=NAC, temp$0=20, x=20}
+[3@L17] a = x; {a=20, b=NAC, temp$0=20, x=20}
+[4@L17] return; {a=20, b=NAC, temp$0=20, x=20}
 
