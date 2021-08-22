@@ -1,0 +1,60 @@
+-------------------- <UnreachableCase: void <init>()> (deadcode) --------------------
+
+-------------------- <UnreachableCase: void tableSwitch()> (deadcode) --------------------
+[5@L6] nop;
+[6@L8] %intconst1 = 1;
+[7@L8] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
+[8@L8] goto 24;
+[9@L8] nop;
+[10@L10] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst0);
+[11@L10] goto 24;
+[12@L10] nop;
+[13@L12] %intconst2 = 3;
+[14@L12] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
+[15@L12] goto 24;
+[20@L6] goto 24;
+
+-------------------- <UnreachableCase: void lookupSwitch()> (deadcode) --------------------
+[5@L21] nop;
+[6@L23] %intconst1 = 2;
+[7@L23] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
+[8@L23] goto 25;
+[9@L23] nop;
+[10@L25] %intconst2 = 4;
+[11@L25] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
+[12@L25] goto 25;
+[17@L27] nop;
+[18@L29] %intconst4 = 666;
+[19@L29] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst4);
+[20@L29] goto 25;
+[21@L21] goto 25;
+
+-------------------- <UnreachableCase: void noBreak()> (deadcode) --------------------
+[5@L36] nop;
+[6@L38] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst0);
+[14@L42] nop;
+[15@L44] %intconst3 = 666;
+[16@L44] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst3);
+[17@L44] goto 22;
+[18@L36] goto 22;
+
+-------------------- <UnreachableCase: void defaultCase()> (deadcode) --------------------
+[5@L51] nop;
+[6@L53] %intconst1 = 2;
+[7@L53] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
+[8@L53] goto 25;
+[9@L53] nop;
+[10@L55] %intconst2 = 4;
+[11@L55] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
+[12@L55] goto 25;
+[13@L55] nop;
+[14@L57] %intconst3 = 8;
+[15@L57] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst3);
+[16@L57] goto 25;
+[21@L51] goto 25;
+
+-------------------- <UnreachableCase: void allReach(int)> (deadcode) --------------------
+[17@L64] goto 21;
+
+-------------------- <UnreachableCase: void use(int)> (deadcode) --------------------
+

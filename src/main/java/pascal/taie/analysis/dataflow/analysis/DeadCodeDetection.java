@@ -33,6 +33,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignStmt;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
@@ -103,14 +104,30 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     private boolean isDeadBranch(
             Edge<Stmt> edge, NodeResult<Stmt, MapFact<Var, Value>> constants) {
-        if (edge.getSource() instanceof If) {
-            If ifStmt = (If) edge.getSource();
+        Stmt src = edge.getSource();
+        if (src instanceof If) {
+            If ifStmt = (If) src;
             Value cond = ConstantPropagation.evaluate(
                     ifStmt.getCondition(), constants.getInFact(ifStmt));
             if (cond.isConstant()) {
                 int v = cond.getConstant();
                 return v == 1 && edge.getKind() == Edge.Kind.IF_FALSE ||
                         v == 0 && edge.getKind() == Edge.Kind.IF_TRUE;
+            }
+        } else if (src instanceof SwitchStmt) {
+            SwitchStmt switchStmt = (SwitchStmt) src;
+            Value caseValue = ConstantPropagation.evaluate(
+                    switchStmt.getValue(), constants.getInFact(switchStmt));
+            if (caseValue.isConstant()) {
+                int v = caseValue.getConstant();
+                if (edge.getKind() == Edge.Kind.SWITCH_CASE) {
+                    return v != edge.getCaseValue();
+                } else { // default case
+                    // if any other case matches the case value, then
+                    // default case is unreachable (dead)
+                    return switchStmt.caseTargets()
+                            .anyMatch(p -> p.getFirst() == v);
+                }
             }
         }
         return false;

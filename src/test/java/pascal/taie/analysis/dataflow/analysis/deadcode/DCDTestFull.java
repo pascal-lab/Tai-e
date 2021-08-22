@@ -27,6 +27,11 @@ public class DCDTestFull {
     }
 
     @Test
+    public void testUnreachableCase() {
+        DCDTest.testDCD("UnreachableCase");
+    }
+
+    @Test
     public void testDeadAssignment() {
         DCDTest.testDCD("DeadAssignment");
     }
