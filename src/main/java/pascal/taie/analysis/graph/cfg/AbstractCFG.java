@@ -84,9 +84,11 @@ abstract class AbstractCFG<N> implements CFG<N> {
         return node == exit;
     }
 
+    void addNode(N node) {
+        nodes.add(node);
+    }
+
     void addEdge(Edge<N> edge) {
-        nodes.add(edge.getSource());
-        nodes.add(edge.getTarget());
         Edge<N> existingEdge;
         if (edge.isExceptional() &&
                 (existingEdge = getExistingEdge(edge)) != null) {

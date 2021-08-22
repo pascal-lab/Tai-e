@@ -66,6 +66,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
         cfg.addEdge(new Edge<>(Edge.Kind.ENTRY, cfg.getEntry(), ir.getStmt(0)));
         for (int i = 0; i < ir.getStmts().size(); ++i) {
             Stmt curr = ir.getStmt(i);
+            cfg.addNode(curr);
             if (curr instanceof Goto) {
                 cfg.addEdge(new Edge<>(Edge.Kind.GOTO,
                         curr, ((Goto) curr).getTarget()));

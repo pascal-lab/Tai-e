@@ -15,8 +15,8 @@ package pascal.taie.analysis.dataflow.analysis;
 import pascal.taie.analysis.IntraproceduralAnalysis;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
-import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.MapFact;
+import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
@@ -36,12 +36,11 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class DeadCodeDetection extends IntraproceduralAnalysis {
 
@@ -53,89 +52,71 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     @Override
     public Set<Stmt> analyze(IR ir) {
-        Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
-        // 1. unreachable branches
-        Set<Edge<Stmt>> unreachableBranches = findUnreachableBranches(ir);
-        // 2. unreachable code
-        deadCode.addAll(findUnreachableCode(ir, unreachableBranches));
-        // 3. dead assignment
-        deadCode.addAll(findDeadAssignments(ir));
-        return deadCode;
-    }
-
-    private Set<Edge<Stmt>> findUnreachableBranches(IR ir) {
+        // obtain pre-analyses results
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
-        DataflowResult<Stmt, MapFact<Var, Value>> constants =
+        NodeResult<Stmt, MapFact<Var, Value>> constants =
                 ir.getResult(ConstantPropagation.ID);
-        Set<Edge<Stmt>> unreachableBranches = Sets.newHybridSet();
-        ir.forEach(stmt -> {
-            if (stmt instanceof If) {
-                If ifStmt = (If) stmt;
-                Value cond = ConstantPropagation.evaluate(
-                        ifStmt.getCondition(), constants.getInFact(ifStmt));
-                if (cond.isConstant()) {
-                    int v = cond.getConstant();
-                    cfg.outEdgesOf(ifStmt).forEach(edge -> {
-                        if (v == 1 && edge.getKind() == Edge.Kind.IF_FALSE ||
-                                v == 0 && edge.getKind() == Edge.Kind.IF_TRUE) {
-                            unreachableBranches.add(edge);
-                        }
-                    });
-                }
-            }
-        });
-        return unreachableBranches;
-    }
-
-    private Set<Stmt> findUnreachableCode(IR ir, Set<Edge<Stmt>> filteredEdges) {
-        CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
-        // Initialize graph traversal
-        Stmt entry = cfg.getEntry();
-        Set<Stmt> reachable = Sets.newSet();
+        NodeResult<Stmt, SetFact<Var>> liveVars =
+                ir.getResult(LiveVariableAnalysis.ID);
+        Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
+        // initialize graph traversal
+        Set<Stmt> visited = Sets.newSet(cfg.getNumberOfNodes());
         Queue<Stmt> queue = new ArrayDeque<>();
-        queue.add(entry);
-        // Traverse the CFG to find reachable code
+        queue.add(cfg.getEntry());
         while (!queue.isEmpty()) {
             Stmt stmt = queue.remove();
-            reachable.add(stmt);
-            cfg.outEdgesOf(stmt).forEach(outEdge -> {
-                if (!reachable.contains(outEdge.getTarget()) &&
-                        !filteredEdges.contains(outEdge)) {
-                    queue.add(outEdge.getTarget());
-                }
-            });
+            visited.add(stmt);
+            if (isDeadAssignment(stmt, liveVars)) {
+                // record dead assignment
+                deadCode.add(stmt);
+            }
+            cfg.outEdgesOf(stmt)
+                    .filter(edge -> !isDeadBranch(edge, constants))
+                    .map(Edge::getTarget)
+                    .forEach(succ -> {
+                        if (!visited.contains(succ)) {
+                            queue.add(succ);
+                        }
+                    });
         }
-        // Return unreachable code
-        // Some unreachable code is naturally absent in cfg, thus here
-        // we need to iterative ir to collect all unreachable code.
-        return ir.stmts()
-                .filter(Predicate.not(reachable::contains))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    /**
-     * For assignment x = expr, if x is not live after the assignment and
-     * expr has no side effect, then the assignment is dead and can be eliminated.
-     */
-    private Set<Stmt> findDeadAssignments(IR ir) {
-        // Obtain the live variable analysis results for this method
-        DataflowResult<Stmt, SetFact<Var>> liveVars =
-                ir.getResult(LiveVariableAnalysis.ID);
-        Set<Stmt> deadAssigns = Sets.newSet();
-        ir.forEach(stmt -> {
-            if (stmt instanceof AssignStmt<?, ?>) {
-                AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
-                if (assign.getLValue() instanceof Var &&
-                        !liveVars.getOutFact(assign).contains(assign.getLValue()) &&
-                        !mayHaveSideEffect(assign.getRValue())) {
-                    deadAssigns.add(assign);
+        if (visited.size() < cfg.getNumberOfNodes()) {
+            // this means that some nodes are not reachable during traversal
+            for (Stmt s : ir) {
+                if (!visited.contains(s)) {
+                    deadCode.add(s);
                 }
             }
-        });
-        return deadAssigns;
+        }
+        return deadCode.isEmpty() ? Collections.emptySet() : deadCode;
     }
 
-    private boolean mayHaveSideEffect(RValue rvalue) {
+    private boolean isDeadAssignment(
+            Stmt stmt, NodeResult<Stmt, SetFact<Var>> liveVars) {
+        if (stmt instanceof AssignStmt<?, ?>) {
+            AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
+            return assign.getLValue() instanceof Var &&
+                    !liveVars.getOutFact(assign).contains(assign.getLValue()) &&
+                    hasNoSideEffect(assign.getRValue());
+        }
+        return false;
+    }
+
+    private boolean isDeadBranch(
+            Edge<Stmt> edge, NodeResult<Stmt, MapFact<Var, Value>> constants) {
+        if (edge.getSource() instanceof If) {
+            If ifStmt = (If) edge.getSource();
+            Value cond = ConstantPropagation.evaluate(
+                    ifStmt.getCondition(), constants.getInFact(ifStmt));
+            if (cond.isConstant()) {
+                int v = cond.getConstant();
+                return v == 1 && edge.getKind() == Edge.Kind.IF_FALSE ||
+                        v == 0 && edge.getKind() == Edge.Kind.IF_TRUE;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasNoSideEffect(RValue rvalue) {
         // new expression modifies the heap
         if (rvalue instanceof NewExp ||
                 // cast may trigger ClassCastException
@@ -145,13 +126,13 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
                 rvalue instanceof FieldAccess ||
                 // array access may trigger NPE
                 rvalue instanceof ArrayAccess) {
-            return true;
+            return false;
         }
         if (rvalue instanceof ArithmeticExp) {
             ArithmeticExp.Op op = ((ArithmeticExp) rvalue).getOperator();
             // may trigger DivideByZeroException
-            return op == ArithmeticExp.Op.DIV || op == ArithmeticExp.Op.REM;
+            return op != ArithmeticExp.Op.DIV && op != ArithmeticExp.Op.REM;
         }
-        return false;
+        return true;
     }
 }
