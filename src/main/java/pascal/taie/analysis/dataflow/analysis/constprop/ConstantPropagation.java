@@ -249,14 +249,20 @@ public class ConstantPropagation extends
     }
 
     @Override
+    public boolean needTransfer(Edge<Stmt> edge) {
+        return edge.getKind() == Edge.Kind.IF_TRUE ||
+                edge.getKind() == Edge.Kind.SWITCH_CASE;
+    }
+
+    @Override
     public void transferEdge(
             Edge<Stmt> edge, MapFact<Var, Value> nodeFact, MapFact<Var, Value> edgeFact) {
         edgeFact.copyFrom(nodeFact);
         if (edge.getKind() == Edge.Kind.IF_TRUE) {
             ConditionExp cond = ((If) edge.getSource()).getCondition();
             if (cond.getOperator() == ConditionExp.Op.EQ) {
-                // if (x == 1) {
-                //   ... <- x must be 1 at this branch
+                // if (v1 == v2) {
+                //   ... <- v1 must equal to v2 at this branch
                 Var v1 = cond.getValue1();
                 Value val1 = nodeFact.get(v1);
                 Var v2 = cond.getValue2();
