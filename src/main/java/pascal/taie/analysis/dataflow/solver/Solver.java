@@ -16,12 +16,95 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
-public interface Solver<Node, Fact> {
+public abstract class Solver<Node, Fact> {
 
-    static <Node, Fact> Solver<Node, Fact> makeSolver(
+    protected final DataflowAnalysis<Node, Fact> analysis;
+
+    protected Solver(DataflowAnalysis<Node, Fact> analysis) {
+        this.analysis = analysis;
+    }
+
+    public static <Node, Fact> Solver<Node, Fact> makeSolver(
             DataflowAnalysis<Node, Fact> analysis) {
         return new WorkListSolver<>(analysis);
     }
 
-    DataflowResult<Node, Fact> solve(CFG<Node> cfg);
+    public DataflowResult<Node, Fact> solve(CFG<Node> cfg) {
+        DataflowResult<Node, Fact> result = initialize(cfg);
+        doSolve(cfg, result);
+        return result;
+    }
+
+    private DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
+        DataflowResult<Node, Fact> result =
+                new DataflowResult<>(analysis.hasEdgeTransfer());
+        if (analysis.isForward()) {
+            initializeForward(cfg, result);
+        } else {
+            initializeBackward(cfg, result);
+        }
+        return result;
+    }
+
+    protected void initializeForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        // initialize entry
+        Node entry = cfg.getEntry();
+        result.setInFact(entry, analysis.newBoundaryFact(cfg));
+        result.setOutFact(entry, analysis.newBoundaryFact(cfg));
+        if (analysis.hasEdgeTransfer()) {
+            cfg.outEdgesOf(entry).forEach(edge ->
+                    result.setEdgeFact(edge, analysis.newBoundaryFact(cfg)));
+        }
+        cfg.forEach(node -> {
+            // skip entry which has been initialized
+            if (cfg.isEntry(node)) {
+                return;
+            }
+            // initialize in & out fact
+            result.setInFact(node, analysis.newInitialFact());
+            result.setOutFact(node, analysis.newInitialFact());
+            // initialize edge fact
+            if (analysis.hasEdgeTransfer()) {
+                cfg.outEdgesOf(node).forEach(edge ->
+                        result.setEdgeFact(edge, analysis.newInitialFact()));
+            }
+        });
+    }
+
+    protected void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        // initialize exit
+        Node exit = cfg.getExit();
+        result.setInFact(exit, analysis.newBoundaryFact(cfg));
+        result.setOutFact(exit, analysis.newBoundaryFact(cfg));
+        if (analysis.hasEdgeTransfer()) {
+            cfg.inEdgesOf(exit).forEach(edge ->
+                    result.setEdgeFact(edge, analysis.newBoundaryFact(cfg)));
+        }
+        cfg.forEach(node -> {
+            // skip exit which has been initialized
+            if (cfg.isExit(node)) {
+                return;
+            }
+            // initialize in fact
+            result.setInFact(node, analysis.newInitialFact());
+            result.setOutFact(node, analysis.newInitialFact());
+            // initialize edge fact
+            if (analysis.hasEdgeTransfer()) {
+                cfg.inEdgesOf(node).forEach(edge ->
+                        result.setEdgeFact(edge, analysis.newInitialFact()));
+            }
+        });
+    }
+
+    private void doSolve(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        if (analysis.isForward()) {
+            doSolveForward(cfg, result);
+        } else {
+            doSolveBackward(cfg, result);
+        }
+    }
+
+    protected abstract void doSolveForward(CFG<Node> cfg, DataflowResult<Node,Fact> result);
+
+    protected abstract void doSolveBackward(CFG<Node> cfg, DataflowResult<Node,Fact> result);
 }

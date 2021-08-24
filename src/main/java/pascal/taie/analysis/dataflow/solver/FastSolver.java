@@ -23,7 +23,7 @@ import java.util.TreeSet;
 /**
  * Work-list solver with optimization.
  */
-class FastSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
+class FastSolver<Node, Fact> extends Solver<Node, Fact> {
 
     FastSolver(DataflowAnalysis<Node, Fact> analysis) {
         super(analysis);

@@ -18,7 +18,7 @@ import pascal.taie.analysis.graph.cfg.CFG;
 
 import java.util.TreeSet;
 
-class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
+class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
 
     WorkListSolver(DataflowAnalysis<Node, Fact> analysis) {
         super(analysis);
