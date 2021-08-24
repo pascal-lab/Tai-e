@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 public class Timer {
 
     private static final Logger logger = LogManager.getLogger(Timer.class);
-    
+
     private final String name;
 
     private long elapsedTime = 0;
@@ -72,7 +72,8 @@ public class Timer {
 
     /**
      * Runs a task, log the elapsed time, and return the result.
-     * @param task task to be executed
+     *
+     * @param task    task to be executed
      * @param message message of the task
      */
     public static <T> T runAndCount(Supplier<T> task, String message) {
@@ -86,7 +87,8 @@ public class Timer {
 
     /**
      * Runs a task and log the elapsed time.
-     * @param task task to be executed
+     *
+     * @param task    task to be executed
      * @param message message of the task
      */
     public static void runAndCount(Runnable task, String message) {

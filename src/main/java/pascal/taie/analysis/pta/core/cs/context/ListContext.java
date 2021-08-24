@@ -18,9 +18,8 @@ import java.util.List;
 
 /**
  * List-based contexts. Each context is represented by a list of context elements.
- *
  */
-public class ListContext<T> implements  Context {
+public class ListContext<T> implements Context {
 
     private final List<T> elements;
 

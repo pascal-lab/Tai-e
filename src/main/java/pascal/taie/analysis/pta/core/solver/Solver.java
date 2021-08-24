@@ -139,10 +139,11 @@ public abstract class Solver {
 
     /**
      * Adds a context-sensitive variable points-to relation.
-     * @param context context of the method which contains the variable
-     * @param var the variable
+     *
+     * @param context     context of the method which contains the variable
+     * @param var         the variable
      * @param heapContext heap context for the object
-     * @param obj the object to be added
+     * @param obj         the object to be added
      */
     public void addVarPointsTo(Context context, Var var,
                                Context heapContext, Obj obj) {
@@ -160,13 +161,14 @@ public abstract class Solver {
 
     /**
      * Adds a context-sensitive array index points-to relation.
+     *
      * @param arrayContext heap context of the array object
-     * @param array the array object
-     * @param heapContext heap context for the element
-     * @param obj the element to be stored into the array
+     * @param array        the array object
+     * @param heapContext  heap context for the element
+     * @param obj          the element to be stored into the array
      */
     public void addArrayPointsTo(Context arrayContext, Obj array,
-                          Context heapContext, Obj obj) {
+                                 Context heapContext, Obj obj) {
         CSObj csArray = csManager.getCSObj(arrayContext, array);
         ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
         CSObj elem = csManager.getCSObj(heapContext, obj);
@@ -175,8 +177,9 @@ public abstract class Solver {
 
     /**
      * Adds static field points-to relations.
+     *
      * @param field the static field
-     * @param pts the objects to be added to the points-to set of the field.
+     * @param pts   the objects to be added to the points-to set of the field.
      */
     public void addStaticFieldPointsTo(JField field, PointsToSet pts) {
         assert field.isStatic();
@@ -200,18 +203,21 @@ public abstract class Solver {
 
     /**
      * Adds a call edge.
+     *
      * @param edge the added edge.
      */
     public abstract void addCallEdge(Edge<CSCallSite, CSMethod> edge);
 
     /**
      * Adds a context-sensitive method.
+     *
      * @param csMethod the added context-sensitive method.
      */
     public abstract void addCSMethod(CSMethod csMethod);
 
     /**
      * Analyzes the initializer of given class.
+     *
      * @param cls the class to be initialized.
      */
     public abstract void initializeClass(JClass cls);

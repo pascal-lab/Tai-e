@@ -47,6 +47,7 @@ public class TopoSorter<N> {
      * Computes a topological soring of a graph, while the client code
      * wishes to preserve some ordering in the sorting result.
      * If preserved order conflicts the topological order, the latter is respected.
+     *
      * @param graph          the graph
      * @param preservedOrder the order of the nodes that the client code
      *                       wishes to preserve

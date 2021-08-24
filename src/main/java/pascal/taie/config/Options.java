@@ -201,6 +201,7 @@ public class Options {
 
     /**
      * Validates input options and do some post-process on it.
+     *
      * @return the Options object after post-process.
      */
     private static Options postProcess(Options options) {

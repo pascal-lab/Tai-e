@@ -30,7 +30,9 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
 
     /**
      * Adds a reachable method to this call graph.
-     * @return true if the given method was not in this call graph before.
+     *
+     * @return true if this call graph changed as a result of the call,
+     * otherwise false.
      */
     public boolean addReachableMethod(JMethod method) {
         if (reachableMethods.add(method)) {
@@ -52,7 +54,8 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
      * Adds a new call graph edge to this call graph.
      *
      * @param edge the call edge to be added
-     * @return true if the new-added edge is absent in this call graph before
+     * @return true if the call graph changed as a result of the call,
+     * otherwise false.
      */
     public boolean addEdge(Edge<Invoke, JMethod> edge) {
         if (Maps.addToMapSet(callSiteToEdges, edge.getCallSite(), edge)) {

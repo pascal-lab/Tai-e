@@ -19,10 +19,10 @@ import pascal.taie.language.type.ClassType;
 /**
  * Representation of exception entries. Each entry consists of four items:
  * start, end: the ranges in the Stmt array at which the exception
- *   handler is active.
+ * handler is active.
  * handler: start of exception handler.
  * catchType: the class of exceptions that this exception handler
- *   is designated to catch.
+ * is designated to catch.
  */
 public class ExceptionEntry {
 

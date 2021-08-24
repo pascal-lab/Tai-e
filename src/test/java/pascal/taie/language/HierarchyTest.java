@@ -158,8 +158,9 @@ public class HierarchyTest {
      * Test resolveField() with specified class and field names.
      * The declaring class of the resolved field should be the same
      * as the given expected class.
-     * @param refClass declaring class of the reference
-     * @param refName field name of the reference
+     *
+     * @param refClass       declaring class of the reference
+     * @param refName        field name of the reference
      * @param declaringClass expected declaring class of the resolved field
      */
     private static void testResolveField(
@@ -218,19 +219,20 @@ public class HierarchyTest {
     private static ClassType getClassType(String className) {
         return World.getTypeManager().getClassType(className);
     }
-    
+
     private static JClass getClass(String className) {
         return World.getClassHierarchy().getClass(className);
     }
-    
+
     /**
      * Test resolveMethod() with specified class and name.
      * The declaring class of the resolved method should be the same
      * as the given expected class.
-     * @param refClass declaring class of the reference
-     * @param refName method name of the reference
+     *
+     * @param refClass       declaring class of the reference
+     * @param refName        method name of the reference
      * @param declaringClass expected declaring class of the resolved method
-     * @param returnType returnType of the reference
+     * @param returnType     returnType of the reference
      * @param parameterTypes parameter types of the reference
      */
     static void testResolveMethod(

@@ -59,7 +59,8 @@ public final class World {
 
     private NativeModel nativeModel;
 
-    private final ResultHolder resultHolder = new AbstractHolder() {};
+    private final ResultHolder resultHolder = new AbstractHolder() {
+    };
 
     private JMethod mainMethod;
 

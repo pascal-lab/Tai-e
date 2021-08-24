@@ -128,7 +128,7 @@ class LogBasedModel extends MetaObjModel {
                         Maps.addToMapSet(classTargets, invoke, (JClass) target);
                     }
                 }
-            } else if (target instanceof ClassMember){
+            } else if (target instanceof ClassMember) {
                 for (Invoke invoke : invokes) {
                     Maps.addToMapSet(memberTargets, invoke, (ClassMember) target);
                 }
@@ -159,15 +159,15 @@ class LogBasedModel extends MetaObjModel {
                 .stream()
                 .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
                 .forEach(caller ->
-                    caller.getIR()
-                            .stmts()
-                            .filter(s -> s instanceof Invoke)
-                            .forEach(s -> {
-                                Invoke invoke = (Invoke) s;
-                                if (isMatched(item, invoke)) {
-                                    invokes.add(invoke);
-                                }
-                            })
+                        caller.getIR()
+                                .stmts()
+                                .filter(s -> s instanceof Invoke)
+                                .forEach(s -> {
+                                    Invoke invoke = (Invoke) s;
+                                    if (isMatched(item, invoke)) {
+                                        invokes.add(invoke);
+                                    }
+                                })
                 );
         if (invokes.isEmpty()) {
             logger.warn("No matched invokes found for {}/{}",
@@ -175,7 +175,7 @@ class LogBasedModel extends MetaObjModel {
         }
         return invokes;
     }
-    
+
     private boolean isMatched(LogItem item, Invoke invoke) {
         if (invoke.isDynamic()) {
             return false;
@@ -222,7 +222,7 @@ class LogBasedModel extends MetaObjModel {
     }
 
     private <T> void passTargetToBase(Map<Invoke, Set<T>> targetMap,
-                                  CSMethod csMethod, Invoke invoke) {
+                                      CSMethod csMethod, Invoke invoke) {
         passTarget(targetMap, csMethod, invoke,
                 i -> ((InvokeInstanceExp) i.getInvokeExp()).getBase());
     }

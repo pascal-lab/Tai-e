@@ -43,5 +43,6 @@ class U extends V {
         return new Object();
     }
 
-    public static void staticFoo(Object o) {}
+    public static void staticFoo(Object o) {
+    }
 }

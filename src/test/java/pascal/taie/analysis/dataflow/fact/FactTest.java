@@ -62,7 +62,7 @@ public class FactTest {
         f3 = f1.unionWith(f2);
         Assert.assertEquals(f3.size(), 2);
     }
-    
+
     @Test
     public void testIntersectNormal() {
         // Intersect overlapped sets

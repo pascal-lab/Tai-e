@@ -133,11 +133,11 @@ public class Var implements LValue, RValue {
 
     /**
      * Relevant statements of a variable, say v, which include:
-     *  load field: x = v.f;
-     *  store field: v.f = x;
-     *  load array: x = v[i];
-     *  store array: v[i] = x;
-     *  invocation: v.f();
+     * load field: x = v.f;
+     * store field: v.f = x;
+     * load array: x = v[i];
+     * store array: v[i] = x;
+     * invocation: v.f();
      * We use a separate class to store these relevant statements
      * (instead of directly storing them in {@link Var}) for saving space.
      * Most variables do not have any relevant statements, so these variables

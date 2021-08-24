@@ -24,7 +24,7 @@ import static pascal.taie.util.collection.Sets.newSet;
  * Represents a set of merged objects.
  */
 public class MergedObj implements Obj {
-    
+
     private final String name;
 
     private final Type type;

@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 /**
  * Represents set-like data-flow facts.
  * TODO: implement copy-on-write?
+ *
  * @param <E> type of elements
  */
 public class SetFact<E> {
@@ -39,7 +40,7 @@ public class SetFact<E> {
     }
 
     /**
-     * @return true if this set contains the specified element.
+     * @return true if this set contains the specified element, otherwise false.
      */
     public boolean contains(Object e) {
         //noinspection SuspiciousMethodCalls
@@ -48,7 +49,8 @@ public class SetFact<E> {
 
     /**
      * Adds an element to this fact.
-     * @return if this operation changes this fact.
+     *
+     * @return true if this fact changed as a result of the call, otherwise false.
      */
     public boolean add(E e) {
         return set.add(e);
@@ -56,15 +58,18 @@ public class SetFact<E> {
 
     /**
      * Removes an element from this fact (if present).
-     * @return if this operation changes this fact.
+     *
+     * @return true if an element was removed as a result of the call, otherwise false.
      */
     public boolean remove(E e) {
         return set.remove(e);
     }
 
     /**
-     * Removes all of the elements of this collection that satisfy the given predicate.
-     * @return if this operation changes this fact.
+     * Removes all the elements of this collection that satisfy the given predicate.
+     *
+     * @return true if any elements were removed as a result of the call,
+     * otherwise false.
      */
     public boolean removeIf(Predicate<E> filter) {
         return set.removeIf(filter);
@@ -72,7 +77,8 @@ public class SetFact<E> {
 
     /**
      * Unions other fact.
-     * @return if this operation changes this fact.
+     *
+     * @return true if this fact changed as a result of the call, otherwise false.
      */
     public boolean union(SetFact<E> other) {
         return set.addAll(other.set);
@@ -89,7 +95,8 @@ public class SetFact<E> {
 
     /**
      * Intersects other fact
-     * @return if this operation changes this fact.
+     *
+     * @return true if this fact changed as a result of the call, otherwise false.
      */
     public boolean intersect(SetFact<E> other) {
         return set.retainAll(other.set);

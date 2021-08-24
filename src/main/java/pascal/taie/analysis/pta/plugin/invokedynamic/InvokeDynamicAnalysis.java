@@ -183,7 +183,8 @@ public class InvokeDynamicAnalysis implements Plugin {
         });
     }
 
-    private static @Nullable InvokeDynamic getInvokeDynamic(Invoke invoke) {
+    private static @Nullable
+    InvokeDynamic getInvokeDynamic(Invoke invoke) {
         InvokeExp invokeExp = invoke.getInvokeExp();
         if (invokeExp instanceof InvokeDynamic) {
             if (processLambdas || !LambdaAnalysis.isLambdaMetaFactory(invoke)) {

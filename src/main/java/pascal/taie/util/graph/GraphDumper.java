@@ -28,7 +28,8 @@ public class GraphDumper {
 
     private static final String NODE_ATTR = "[shape=box,style=filled,color=\".3 .3 1.0\"]";
 
-    private GraphDumper() {}
+    private GraphDumper() {
+    }
 
     public static <N> void dump(Graph<N> graph, PrintStream out) {
         graph.forEach(s -> graph.succsOf(s)
@@ -40,11 +41,10 @@ public class GraphDumper {
     }
 
     /**
-     *
      * @param graph    the graph to be dumped
      * @param filePath the path of output file
      * @param f        function converting graph node to string representation
-     * @param <N> type of graph node
+     * @param <N>      type of graph node
      */
     public static <N> void dumpDotFile(Graph<N> graph, String filePath,
                                        Function<N, String> f) {

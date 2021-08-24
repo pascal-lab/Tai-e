@@ -22,8 +22,9 @@ public class IntLiteral implements IntegerLiteral {
     private static final IntLiteral[] cache = new IntLiteral[-(-128) + 127 + 1];
 
     static {
-        for(int i = 0; i < cache.length; i++)
+        for (int i = 0; i < cache.length; i++) {
             cache[i] = new IntLiteral(i - 128);
+        }
     }
 
     private final int value;

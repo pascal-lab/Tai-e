@@ -18,7 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Object for managing the data-flow facts associated with nodes and edges of a CFG.
+ * An object which manages the data-flow facts associated with nodes and edges of a CFG.
+ *
  * @param <Node> type of CFG nodes
  * @param <Fact> type of data-flow facts
  */
@@ -37,6 +38,9 @@ public class DataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
         return edgeFacts.get(edge);
     }
 
+    /**
+     * Associates a data-flow fact with a CFG edge.
+     */
     public void setEdgeFact(Edge<Node> edge, Fact fact) {
         edgeFacts.put(edge, fact);
     }

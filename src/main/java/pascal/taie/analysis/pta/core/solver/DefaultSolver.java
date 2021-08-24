@@ -107,7 +107,7 @@ public class DefaultSolver extends Solver {
         doSolve();
     }
 
-     /**
+    /**
      * Initializes pointer analysis.
      */
     private void initialize() {
@@ -308,7 +308,7 @@ public class DefaultSolver extends Solver {
             }
         }
     }
-    
+
     /**
      * Processes array stores when points-to set of the array variable changes.
      *
@@ -353,7 +353,7 @@ public class DefaultSolver extends Solver {
             }
         }
     }
-    
+
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
      *
@@ -386,7 +386,7 @@ public class DefaultSolver extends Solver {
             });
         }
     }
-    
+
     /**
      * Processes the call edges in work list.
      */
@@ -454,7 +454,8 @@ public class DefaultSolver extends Solver {
     }
 
     /**
-     * @return if the type of given expression is concerned in pointer analysis.
+     * @return true if the type of given expression is concerned in
+     * pointer analysis, otherwise false.
      */
     private static boolean isConcerned(Exp exp) {
         Type type = exp.getType();
@@ -480,7 +481,7 @@ public class DefaultSolver extends Solver {
         private final MethodRef finalizeRef = finalize.getRef();
 
         private final MethodRef registerRef = Objects.requireNonNull(
-                hierarchy.getJREMethod(FINALIZER_REGISTER))
+                        hierarchy.getJREMethod(FINALIZER_REGISTER))
                 .getRef();
 
         private void setCSMethod(CSMethod csMethod) {

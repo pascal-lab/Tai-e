@@ -58,7 +58,7 @@ public class ExceptionTest {
     }
 
     private static void test(String exception, String... methodNames) {
-        String[] args = new String[] {
+        String[] args = new String[]{
                 "-pp", "-cp", CP, "-m", MAIN,
                 "-a", ThrowAnalysis.ID + "=exception:" + exception
         };

@@ -57,14 +57,14 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
      * @return the number of call graph edges in this call graph.
      */
     int getNumberOfEdges();
-    
+
     /**
      * @return the entry methods of this call graph.
      */
     Stream<Method> entryMethods();
 
     /**
-     * @return stream of all reachable methods in this call graph.
+     * @return all reachable methods in this call graph.
      */
     Stream<Method> reachableMethods();
 
@@ -74,7 +74,7 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
     int getNumberOfMethods();
 
     /**
-     * @return if this call graph contains the given method.
+     * @return true if this call graph contains the given method, otherwise false.
      */
     boolean contains(Method method);
 }

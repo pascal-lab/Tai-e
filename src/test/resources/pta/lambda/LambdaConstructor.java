@@ -20,20 +20,21 @@ public class LambdaConstructor {
         B b3 = a3.b;
         use(b3);
     }
-    
+
     static B b1() {
         return new B();
     }
-    
+
     static B b2() {
         return new B();
     }
-    
+
     static B b3() {
         return new B();
     }
 
-    static void use(Object o) {}
+    static void use(Object o) {
+    }
 
     static class A {
 

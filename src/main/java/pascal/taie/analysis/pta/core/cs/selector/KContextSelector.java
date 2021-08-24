@@ -18,6 +18,7 @@ import pascal.taie.analysis.pta.core.heap.NewObj;
 
 /**
  * K-limiting context selector.
+ *
  * @param <T> type of context elements.
  */
 abstract class KContextSelector<T> extends AbstractContextSelector<T> {
@@ -33,8 +34,7 @@ abstract class KContextSelector<T> extends AbstractContextSelector<T> {
     protected final int hlimit;
 
     /**
-     *
-     * @param k k-limit for method contexts.
+     * @param k  k-limit for method contexts.
      * @param hk k-limit for heap contexts.
      */
     KContextSelector(int k, int hk) {

@@ -73,7 +73,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     @Override
     public IR buildNativeIR(JMethod method) {
         return models.getOrDefault(method,
-                m -> new NativeIRBuilder(method).buildEmpty())
+                        m -> new NativeIRBuilder(method).buildEmpty())
                 .apply(method);
     }
 
@@ -385,6 +385,7 @@ public class DefaultNativeModel extends AbstractNativeModel {
     // --------------------------------------------------------------------
     // Convenient methods for helping create native model.
     // --------------------------------------------------------------------
+
     /**
      * Registers models for specific native methods.
      */

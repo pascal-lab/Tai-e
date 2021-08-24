@@ -112,7 +112,7 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     @Nonnull
     @Override
     public Set<Entry<K, V>> entrySet() {
-        Set<Map.Entry<K,V>> es;
+        Set<Map.Entry<K, V>> es;
         return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
     }
 

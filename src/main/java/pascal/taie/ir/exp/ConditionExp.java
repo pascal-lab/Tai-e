@@ -21,17 +21,29 @@ public class ConditionExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /** == */
+        /**
+         * ==
+         */
         EQ("=="),
-        /** != */
+        /**
+         * !=
+         */
         NE("!="),
-        /** < */
+        /**
+         * <
+         */
         LT("<"),
-        /** > */
+        /**
+         * >
+         */
         GT(">"),
-        /** <= */
+        /**
+         * <=
+         */
         LE("<="),
-        /** >= */
+        /**
+         * >=
+         */
         GE(">="),
         ;
 

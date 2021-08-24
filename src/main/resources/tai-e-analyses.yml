@@ -14,7 +14,7 @@
     file: null # path to input/output file
     reflection-log: null # path to reflection log
     taint-config: null # path to config file of taint analysis, when this file
-                       # is given, taint analysis will be enabled
+    # is given, taint analysis will be enabled
 
 - description: a functional context-insensitive pointer analysis, only for education purpose
   analysisClass: pascal.taie.analysis.pta.ci.CIPTA
@@ -31,18 +31,18 @@
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   id: cg
-  requires: [pta(pta=pta),cipta(pta=cipta)]
+  requires: [ pta(pta=pta),cipta(pta=cipta) ]
   options:
     algorithm: pta # | cha
     pta: pta # | cipta | null # specify pointer analysis
-             # for pta-based call graph construction
+    # for pta-based call graph construction
     action: null # | dump | dump-recall | compare
     file: null # path to input/output files
 
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
   id: throw
-  requires: [pta(algorithm=pta)] # only required by pta-based analysis
+  requires: [ pta(algorithm=pta) ] # only required by pta-based analysis
   options:
     exception: explicit # | all (includes implicit and explicit exceptions)
     algorithm: intra # | pta
@@ -50,7 +50,7 @@
 - description: intraprocedural control-flow graph
   analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
   id: cfg
-  requires: [throw(exception=explicit|all)]
+  requires: [ throw(exception=explicit|all) ]
   options:
     exception: explicit # | none | all (includes implicit and explicit exceptions)
     dump: false # dump control-flow graph
@@ -58,34 +58,34 @@
 - description: interprocedural control-flow graph
   analysisClass: pascal.taie.analysis.graph.icfg.ICFGBuilder
   id: icfg
-  requires: [cfg,cg]
+  requires: [ cfg,cg ]
   options:
     dump: false # dump inter-procedural control-flow graph
 
 - description: live variable analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariableAnalysis
   id: livevar
-  requires: [cfg]
+  requires: [ cfg ]
 
 - description: available expression analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpressionAnalysis
   id: availexp
-  requires: [cfg]
+  requires: [ cfg ]
 
 - description: reaching definition analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.ReachingDefinitionAnalysis
   id: reachdef
-  requires: [cfg]
+  requires: [ cfg ]
 
 - description: constant propagation
   analysisClass: pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
   id: constprop
-  requires: [cfg]
+  requires: [ cfg ]
 
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
   id: inter-constprop
-  requires: [icfg,cipta(pta=cipta),pta(pta=pta)]
+  requires: [ icfg,cipta(pta=cipta),pta(pta=pta) ]
   options:
     alias-aware: false
     pta: null
@@ -93,12 +93,12 @@
 - description: dead code detection
   analysisClass: pascal.taie.analysis.dataflow.analysis.DeadCodeDetection
   id: deadcode
-  requires: [cfg,constprop,livevar]
+  requires: [ cfg,constprop,livevar ]
 
 - description: process results of previously-run analyses
   analysisClass: pascal.taie.analysis.dataflow.analysis.ResultProcessor
   id: process-result
   options:
-    analyses: []
+    analyses: [ ]
     action: dump # | compare
     file: null

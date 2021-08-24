@@ -46,7 +46,8 @@ public class MapFact<K, V> {
 
     /**
      * Updates the key-value mapping in this fact.
-     * @return  if the update changes this fact.
+     *
+     * @return if the update changes this fact.
      */
     public boolean update(K key, V value) {
         return !Objects.equals(map.put(key, value), value);
@@ -54,7 +55,8 @@ public class MapFact<K, V> {
 
     /**
      * Copies the content from given fact to this fact.
-     * @return if the copy changes this fact.
+     *
+     * @return true if this fact changed as a result of the call, otherwise false.
      */
     public boolean copyFrom(MapFact<K, V> fact) {
         boolean changed = false;

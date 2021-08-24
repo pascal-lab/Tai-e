@@ -32,7 +32,8 @@ public class Args {
         r.run();
     }
 
-    void consume(B b) {}
+    void consume(B b) {
+    }
 
     static void captureNoRecv() {
         B b = new B();
@@ -48,7 +49,10 @@ public class Args {
     }
 
     static void actualNoRecv() {
-        BiConsumer<A, Object> bc = (a, o) -> { a.hashCode(); o.hashCode(); };
+        BiConsumer<A, Object> bc = (a, o) -> {
+            a.hashCode();
+            o.hashCode();
+        };
         bc.accept(new A(), new Object());
     }
 
@@ -63,7 +67,8 @@ public class Args {
         c.accept(new B());
     }
 
-    void consume2(B b1, B b2) {}
+    void consume2(B b1, B b2) {
+    }
 
     static void captureWithActualNoRecv() {
         B b = new B();
@@ -74,12 +79,16 @@ public class Args {
 
     static class A {
 
-        void noArg() {}
+        void noArg() {
+        }
 
-        void oneArg(B b) {}
+        void oneArg(B b) {
+        }
 
-        void twoArgs(B b, Object o) {}
+        void twoArgs(B b, Object o) {
+        }
 
-        void threeArgs(B b, Object o, A a) {}
+        void threeArgs(B b, Object o, A a) {
+        }
     }
 }

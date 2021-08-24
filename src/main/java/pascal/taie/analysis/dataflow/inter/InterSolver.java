@@ -54,7 +54,7 @@ class InterSolver<Method, Node, Fact> {
         icfg.forEach(node -> {
             Fact initIn, initOut;
             if (entryNodes.contains(node)) {
-                initIn =  analysis.newBoundaryFact(node);
+                initIn = analysis.newBoundaryFact(node);
                 initOut = analysis.newBoundaryFact(node);
             } else {
                 initIn = analysis.newInitialFact();

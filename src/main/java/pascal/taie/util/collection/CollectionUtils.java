@@ -38,7 +38,7 @@ public final class CollectionUtils {
      * the list and returns it.
      */
     public static <T> List<T> append(Collection<T> c, T e) {
-        List<T> result = new ArrayList<>(c.size() +  1);
+        List<T> result = new ArrayList<>(c.size() + 1);
         result.addAll(c);
         result.add(e);
         return result;

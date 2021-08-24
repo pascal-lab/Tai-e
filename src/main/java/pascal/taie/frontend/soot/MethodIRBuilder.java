@@ -314,18 +314,18 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * This field is useful when converting the Jimple statements that
      * contain constant values, as Tai-e IR will emit {@link AssignLiteral}
      * for constant values before the actual corresponding {@link Stmt}.
-     *
+     * <p>
      * For example, consider following Jimple code:
      * if a > b goto label1;
      * label1:
-     *     x = 1 + y;
-     *
+     * x = 1 + y;
+     * <p>
      * In Tai-e IR, above code will be converted to this:
      * if a > b goto label1;
      * label1:
-     *     #intconstant0 = 1; // <-- tempJumpTarget
-     *     x = #intconstant0 + y;
-     *
+     * #intconstant0 = 1; // <-- tempJumpTarget
+     * x = #intconstant0 + y;
+     * <p>
      * Tai-e adds an {@link AssignLiteral} statement before the
      * corresponding addition, so we need to set the target
      * of {@link If} to the tempTarget instead of the addition.

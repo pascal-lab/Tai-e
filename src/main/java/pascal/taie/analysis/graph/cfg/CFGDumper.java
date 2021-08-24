@@ -104,8 +104,8 @@ public class CFGDumper {
             sb.append("\n[case ").append(e.getCaseValue()).append(']');
         } else if (e.isExceptional()) {
             sb.append("\n").append(e.exceptions()
-                            .map(t -> t.getJClass().getSimpleName())
-                            .collect(Collectors.toList()));
+                    .map(t -> t.getJClass().getSimpleName())
+                    .collect(Collectors.toList()));
         }
         sb.append('\"');
         if (e.isExceptional()) {

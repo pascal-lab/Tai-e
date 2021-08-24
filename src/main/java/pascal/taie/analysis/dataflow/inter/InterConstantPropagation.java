@@ -79,13 +79,13 @@ public class InterConstantPropagation extends
                         .forEach(store -> {
                             JField storedField = store.getFieldRef().resolve();
                             aliases.forEach(u ->
-                                u.getLoadFields().forEach(load -> {
-                                    JField loadedField = load
-                                            .getFieldRef().resolve();
-                                    if (storedField.equals(loadedField)) {
-                                        Maps.addToMapSet(storeToLoads, store, load);
-                                    }
-                                })
+                                    u.getLoadFields().forEach(load -> {
+                                        JField loadedField = load
+                                                .getFieldRef().resolve();
+                                        if (storedField.equals(loadedField)) {
+                                            Maps.addToMapSet(storeToLoads, store, load);
+                                        }
+                                    })
                             );
                         });
             }

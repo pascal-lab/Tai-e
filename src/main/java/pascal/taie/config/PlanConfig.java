@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 /**
  * Configuration for an analysis to be executed.
- *
+ * <p>
  * Different from {@link AnalysisConfig} which is specified by configuration file,
  * {@link PlanConfig} is specified by either plan file or options.
  *

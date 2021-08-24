@@ -74,8 +74,9 @@ public class PointerAnalysis extends InterproceduralAnalysis {
                 solver.setContextSelector(getSimpleSelector());
                 return solver;
             }
-            default: throw new ConfigException("Unknown solver: " +
-                    getOptions().getString("solver"));
+            default:
+                throw new ConfigException("Unknown solver: " +
+                        getOptions().getString("solver"));
         }
     }
 

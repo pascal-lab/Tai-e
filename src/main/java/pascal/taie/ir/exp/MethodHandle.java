@@ -82,6 +82,7 @@ public class MethodHandle implements ReferenceLiteral {
                 return false;
         }
     }
+
     public FieldRef getFieldRef() {
         assert isFieldRef() : "This method handle is not field reference";
         return (FieldRef) memberRef;

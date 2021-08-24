@@ -1,6 +1,8 @@
 public class Types {
 }
 
-class A {}
+class A {
+}
 
-class B extends A {}
+class B extends A {
+}

@@ -11,9 +11,9 @@ public class AllInOne {
         int[][] a1 = new int[10][];
         int[][][] a2 = new int[5][][];
         int[][][] a3 = new int[6][66][];
-        int c [] = { 2, 8 };
+        int c[] = {2, 8};
 
-        boolean [][] my_array = {
+        boolean[][] my_array = {
                 {true, false, true},
                 {},
                 {false, false, true}
@@ -179,10 +179,12 @@ public class AllInOne {
     void emptyExceptionHandler() {
         try {
             throw new Exception();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         foo(0);
         try {
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     void monitor(Object o) {
@@ -194,7 +196,8 @@ public class AllInOne {
         }
     }
 
-    static void bar(int x, Object o) {}
+    static void bar(int x, Object o) {
+    }
 
     int foo(int x) {
         return 20;
@@ -204,7 +207,8 @@ public class AllInOne {
         return 30;
     }
 
-    private void hidden() {}
+    private void hidden() {
+    }
 
 //    @MyAnno
 //    void testAnno() {}

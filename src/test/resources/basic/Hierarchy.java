@@ -9,7 +9,8 @@ interface II {
     String fii = "fii";
 }
 
-interface III extends I, II {}
+interface III extends I, II {
+}
 
 interface IIII extends III {
     void baz(boolean b);
@@ -22,25 +23,33 @@ class C {
 
     String f;
 
-    void foo(long l) {}
+    void foo(long l) {
+    }
 
-    void bar() {}
+    void bar() {
+    }
 
-    public void baz(boolean b) {}
+    public void baz(boolean b) {
+    }
 }
 
-class D extends C {}
+class D extends C {
+}
 
 abstract class E extends C implements I, II {
     String fe;
 
     String f;
 
-    void foo(int i) {}
+    void foo(int i) {
+    }
 }
 
-abstract class F implements III {}
+abstract class F implements III {
+}
 
-abstract class G extends E implements IIII {}
+abstract class G extends E implements IIII {
+}
 
-abstract class H extends F {}
+abstract class H extends F {
+}

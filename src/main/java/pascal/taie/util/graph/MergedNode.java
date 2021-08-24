@@ -22,6 +22,7 @@ import java.util.Set;
 /**
  * Represents a node in {@link MergedSCCGraph}, where each node
  * corresponds to a SCC.
+ *
  * @param <N> type of nodes
  */
 public class MergedNode<N> {

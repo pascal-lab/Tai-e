@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 /**
  * A reverse view of given graph.
+ *
  * @param <N> type of nodes.
  */
 public class ReverseGraph<N> implements Graph<N> {

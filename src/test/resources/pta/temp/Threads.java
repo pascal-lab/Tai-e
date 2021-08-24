@@ -4,7 +4,7 @@ class Threads {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-               foo();
+                foo();
             }
         });
         t.start();

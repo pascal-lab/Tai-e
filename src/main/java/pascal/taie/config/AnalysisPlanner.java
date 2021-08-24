@@ -44,6 +44,7 @@ public class AnalysisPlanner {
      * This method makes a plan by converting given list of PlanConfig
      * to AnalysisConfig. It will be used when analysis plan is specified
      * by configuration file.
+     *
      * @return the analysis plan consists of a list of analysis config.
      * @throws ConfigException if the given planConfigs are invalid.
      */
@@ -66,7 +67,7 @@ public class AnalysisPlanner {
     /**
      * Checks if the given analysis plan is valid.
      *
-     * @param plan the given analysis plan
+     * @param plan           the given analysis plan
      * @param reachableScope whether the analysis scope is set to reachable
      * @throws ConfigException if the given plan is invalid
      */
@@ -96,7 +97,7 @@ public class AnalysisPlanner {
             AnalysisConfig cg = Lists.findFirst(plan, AnalysisPlanner::isCG);
             if (cg == null) {
                 throw new ConfigException(String.format("Scope is reachable" +
-                        " but call graph builder (%s) is not given in plan",
+                                " but call graph builder (%s) is not given in plan",
                         CallGraphBuilder.ID));
             }
             // check if call graph builder is executed as early as possible
@@ -124,6 +125,7 @@ public class AnalysisPlanner {
      * and it will automatically add required analyses (which are not in
      * the given plan) to the resulting plan.
      * It will be used when analysis plan is specified by command line options.
+     *
      * @return the analysis plan consisting of a list of analysis config.
      * @throws ConfigException if the specified planConfigs is invalid.
      */
@@ -188,7 +190,7 @@ public class AnalysisPlanner {
      * specified by given configs. During the traversal, if it finds that
      * analysis A1 is required by A2, then it adds an edge A1 -> A2 and
      * nodes A1 and A2 to the resulting graph.
-     *
+     * <p>
      * The resulting graph contains the given analyses (planConfigs) and
      * all their (directly and indirectly) required analyses.
      */
@@ -212,6 +214,7 @@ public class AnalysisPlanner {
 
     /**
      * Checks if the given require graph is valid.
+     *
      * @throws ConfigException if the given plan is invalid
      */
     private void validateRequireGraph(Graph<AnalysisConfig> graph) {

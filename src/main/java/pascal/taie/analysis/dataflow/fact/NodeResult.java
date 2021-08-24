@@ -15,6 +15,13 @@ package pascal.taie.analysis.dataflow.fact;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * An object which manages the data-flow facts associates with
+ * the nodes of a graph.
+ *
+ * @param <Node> type of graph nodes
+ * @param <Fact> type of data-flow facts
+ */
 public class NodeResult<Node, Fact> {
 
     private final Map<Node, Fact> inFacts = new LinkedHashMap<>();
@@ -28,6 +35,9 @@ public class NodeResult<Node, Fact> {
         return inFacts.get(node);
     }
 
+    /**
+     * Associates a data-flow fact with a node as its flowing-in fact.
+     */
     public void setInFact(Node node, Fact fact) {
         inFacts.put(node, fact);
     }
@@ -39,6 +49,9 @@ public class NodeResult<Node, Fact> {
         return outFacts.get(node);
     }
 
+    /**
+     * Associates a data-flow fact with a node as its flowing-out fact.
+     */
     public void setOutFact(Node node, Fact fact) {
         outFacts.put(node, fact);
     }

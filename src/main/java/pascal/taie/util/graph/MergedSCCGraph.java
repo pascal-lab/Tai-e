@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 /**
  * Represents a merged graph of a directed graph G.
  * Each SCC of G is represented by a merged node of this graph.
+ *
  * @see MergedNode
  */
 public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {

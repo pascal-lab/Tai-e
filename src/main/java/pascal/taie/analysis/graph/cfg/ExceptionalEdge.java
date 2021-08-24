@@ -22,7 +22,7 @@ class ExceptionalEdge<N> extends Edge<N> {
     private final Collection<ClassType> exceptions;
 
     ExceptionalEdge(Edge.Kind kind, N source, N target,
-                           Collection<ClassType> exceptions) {
+                    Collection<ClassType> exceptions) {
         super(kind, source, target);
         this.exceptions = exceptions;
     }

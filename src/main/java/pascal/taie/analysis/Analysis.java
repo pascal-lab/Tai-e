@@ -50,7 +50,7 @@ public abstract class Analysis {
     /**
      * Checks if the ID in the config file and the ID in the program
      * of an analysis are consistent.
-     *
+     * <p>
      * We assume that each analysis class has a static field named "ID",
      * which is its analysis id used in Tai-e.
      */

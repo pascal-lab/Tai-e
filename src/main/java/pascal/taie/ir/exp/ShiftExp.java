@@ -21,11 +21,17 @@ public class ShiftExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /** << */
+        /**
+         * <<
+         */
         SHL("<<"),
-        /** >> */
+        /**
+         * >>
+         */
         SHR(">>"),
-        /** >>> */
+        /**
+         * >>>
+         */
         USHR(">>>"),
         ;
 

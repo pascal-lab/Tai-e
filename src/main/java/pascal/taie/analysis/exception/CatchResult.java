@@ -44,9 +44,10 @@ public class CatchResult {
     }
 
     /**
-     * For given Stmt s, return a stream of (Stmt s', Set<ClassType> ts),
-     * where the s' may catch the exceptions (of the types in ts)
-     * thrown by s implicitly.
+     * @return all exception types that may be implicitly thrown by given Stmt
+     * and caught by its containing method. The result of the call is a map
+     * from Catch statements to set of exception types that are caught
+     * by the Catches.
      */
     public Map<Stmt, Set<ClassType>> getCaughtImplicitOf(Stmt stmt) {
         return caughtImplicit.getOrDefault(stmt, Map.of());
@@ -70,9 +71,10 @@ public class CatchResult {
     }
 
     /**
-     * For given Stmt s, return a stream of (Stmt s', Set<ClassType> ts),
-     * where the s' may catch the exceptions (of the types in ts)
-     * thrown by s explicitly.
+     * @return all exception types that may be explicitly thrown by given Stmt
+     * and caught by its containing method. The result of the call is a map
+     * from Catch statements to set of exception types that are caught
+     * by the Catches.
      */
     public Map<Stmt, Set<ClassType>> getCaughtExplicitOf(Stmt stmt) {
         return caughtExplicit.getOrDefault(stmt, Map.of());
@@ -87,8 +89,10 @@ public class CatchResult {
     }
 
     /**
-     * @return all caught exceptions of given Stmt, including both
-     * implicit and explicit exceptions.
+     * @return all exception types that may be implicitly or explicitly
+     * thrown by given Stmt and caught by its containing method.
+     * The result of the call is a map from Catch statements to set of
+     * exception types that are caught by the Catches.
      */
     public Map<Stmt, Set<ClassType>> getCaughtOf(Stmt stmt) {
         Map<Stmt, Set<ClassType>> caught = newMap();
@@ -98,8 +102,8 @@ public class CatchResult {
     }
 
     /**
-     * @return all uncaught exceptions of given Stmt, including both
-     * implicit and explicit exceptions.
+     * @return all exception types that may be implicitly or explicitly
+     * thrown by given Stmt and cannot be caught by its containing method.
      */
     public Set<ClassType> getUncaughtOf(Stmt stmt) {
         Set<ClassType> uncaught = newSet();

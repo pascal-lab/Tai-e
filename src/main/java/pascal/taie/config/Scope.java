@@ -14,7 +14,8 @@ package pascal.taie.config;
 
 public final class Scope {
 
-    private Scope() {}
+    private Scope() {
+    }
 
     public static final String APP = "app";
 

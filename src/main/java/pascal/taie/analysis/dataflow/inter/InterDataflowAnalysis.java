@@ -20,7 +20,7 @@ import pascal.taie.analysis.graph.icfg.ICFGEdge;
 public interface InterDataflowAnalysis<Method, Node, Fact> {
 
     /**
-     * Returns whether the analysis is forward.
+     * @return true if this analysis is forward, otherwise false.
      */
     boolean isForward();
 

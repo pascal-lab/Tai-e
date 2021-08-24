@@ -324,7 +324,7 @@ public class SimpleSolver extends Solver {
 
             plugin.onNewCallEdge(edge);
         }
-   }
+    }
 
     // ---------- unused APIs ----------
     @Override

@@ -22,6 +22,7 @@ import static pascal.taie.util.collection.Sets.newSet;
 
 /**
  * A simple map-based implementation of {@link Graph<N>}.
+ *
  * @param <N> type of nodes
  */
 public class SimpleGraph<N> implements Graph<N> {

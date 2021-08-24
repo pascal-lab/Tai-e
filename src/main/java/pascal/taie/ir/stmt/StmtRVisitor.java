@@ -14,6 +14,7 @@ package pascal.taie.ir.stmt;
 
 /**
  * Stmt visitor which returns a result after the visit.
+ *
  * @param <T> type of the return value
  */
 public interface StmtRVisitor<T> {

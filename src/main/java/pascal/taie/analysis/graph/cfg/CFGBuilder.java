@@ -107,8 +107,8 @@ public class CFGBuilder extends IntraproceduralAnalysis {
                             .map(Edge::getSource)
                             .forEach(pred ->
                                     cfg.addEdge(new ExceptionalEdge<>(
-                                        Edge.Kind.CAUGHT_EXCEPTION,
-                                        pred, catcher, exceptions))));
+                                            Edge.Kind.CAUGHT_EXCEPTION,
+                                            pred, catcher, exceptions))));
             Set<ClassType> uncaught = catchResult.getUncaughtImplicitOf(stmt);
             if (!uncaught.isEmpty()) {
                 cfg.inEdgesOf(stmt)

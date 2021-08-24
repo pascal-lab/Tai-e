@@ -15,6 +15,7 @@ package pascal.taie.util.collection;
 /**
  * Thrown when the index returned by an indexer exceeds the bound of
  * the related index map.
+ *
  * @see IndexMap
  * @see Indexer
  */

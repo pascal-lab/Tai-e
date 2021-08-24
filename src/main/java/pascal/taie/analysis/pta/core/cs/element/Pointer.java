@@ -29,7 +29,8 @@ public interface Pointer {
 
     /**
      * @param edge an out edge of this pointer
-     * @return if the given edge is an new edge for this pointer.
+     * @return true if new out edge was added to this pointer as a result
+     * of the call, otherwise false.
      */
     boolean addOutEdge(PointerFlowEdge edge);
 

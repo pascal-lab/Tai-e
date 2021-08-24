@@ -20,7 +20,8 @@ import javax.annotation.Nullable;
 public abstract class DefinitionStmt<L extends LValue, R extends RValue>
         extends AbstractStmt {
 
-    public abstract @Nullable L getLValue();
+    public abstract @Nullable
+    L getLValue();
 
     public abstract R getRValue();
 

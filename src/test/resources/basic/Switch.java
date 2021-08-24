@@ -35,7 +35,8 @@ public class Switch {
         return 0;
     }
 
-    static void bar(int x, Object o) {}
+    static void bar(int x, Object o) {
+    }
 
     int foo(int x) {
         return 20;

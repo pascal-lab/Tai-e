@@ -18,7 +18,7 @@ import pascal.taie.language.type.Type;
 
 import java.util.List;
 
-public abstract class AbstractBinaryExp implements BinaryExp {
+abstract class AbstractBinaryExp implements BinaryExp {
 
     protected final Var value1;
 
@@ -57,6 +57,7 @@ public abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     // Convenient methods for subclasses to validate value types.
+
     /**
      * Obtain the computational type of given variable.
      * JVM Spec. (11 Ed., 2.11.1): most operations on values of actual types
@@ -80,7 +81,8 @@ public abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     /**
-     * @return if the type of given variable is computed as int.
+     * @return true if the type of given variable is computed as int, otherwise false.
+     * @see #getComputationalTypeOf(Var)
      */
     protected boolean isIntLike(Var var) {
         return getComputationalTypeOf(var).equals(PrimitiveType.INT);

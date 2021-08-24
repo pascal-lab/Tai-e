@@ -32,7 +32,7 @@ public class AnalysisConfig {
 
     /**
      * Description of the analysis.
-     *
+     * <p>
      * This information is only an explanation of the analysis,
      * and not used by Tai-e.
      */
@@ -41,7 +41,7 @@ public class AnalysisConfig {
 
     /**
      * Fully-qualified name of the analysis class.
-     *
+     * <p>
      * Here we use String (class name) instead of the Class itself
      * to represent the analysis for fast startup speed. Our configuration
      * system will load all analysis configs in the file at each startup.
@@ -54,7 +54,7 @@ public class AnalysisConfig {
 
     /**
      * Unique identifier of the analysis.
-     *
+     * <p>
      * Tai-e relies on analysis id to identify each analysis, so the id of
      * each analysis must be unique. If an id is assigned to multiple analyses,
      * the configuration system will throw {@link ConfigException}.
@@ -64,21 +64,21 @@ public class AnalysisConfig {
 
     /**
      * Require items of the analysis.
-     *
+     * <p>
      * Each require item contains two part:
      * 1. analysis id (say A), whose result is required by this analysis.
      * 2. require conditions, which are relevant to the options of this analysis.
      * If the conditions are given, then this analysis requires A
      * only when all conditions are satisfied.
-     *
+     * <p>
      * We support simple compositions of conditions, and we give some examples
      * to illustrate require items.
      * requires: [A1,A2] # requires analyses A1 and A2
      * requires: [A(x=y)] # requires A when value of option x is y
      * requires: [A(x=y&a=b)] # requires A when value of option x is y
-     *   and value of option a is b
+     * and value of option a is b
      * requires: [A(x=a|b|c)] # requires A when value of option x is
-     *  a, b, or c.
+     * a, b, or c.
      */
     @JsonProperty
     private final List<String> requires;

@@ -57,8 +57,9 @@ public interface Plugin {
     /**
      * Invoked when set of new objects flow to a context-sensitive variable.
      * Not thread-safe, but single-thread on csVar.
+     *
      * @param csVar variable whose points-to set changes
-     * @param pts set of new objects
+     * @param pts   set of new objects
      */
     default void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
     }
@@ -66,6 +67,7 @@ public interface Plugin {
     /**
      * Invoked when a new call graph edge is discovered.
      * Not thread-safe, but single-thread on edge.
+     *
      * @param edge new call graph edge
      */
     default void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -74,6 +76,7 @@ public interface Plugin {
     /**
      * Invoked when a new reachable method is discovered.
      * Not thread-safe, but single-thread on method.
+     *
      * @param method new reachable method
      */
     default void onNewMethod(JMethod method) {
@@ -82,6 +85,7 @@ public interface Plugin {
     /**
      * Invoked when a new reachable context-sensitive method is discovered.
      * Not thread-safe, but single-thread on csMethod.
+     *
      * @param csMethod new reachable context-sensitive method
      */
     default void onNewCSMethod(CSMethod csMethod) {
@@ -91,9 +95,10 @@ public interface Plugin {
      * Invoked when pointer analysis failed to resolve callee (i.e., resolve
      * to null) on a receiver object. Some plugins take over such cases to
      * do their analysis.
-     * @param recv the receiver object
+     *
+     * @param recv    the receiver object
      * @param context the context of the invocation
-     * @param invoke the invocation site
+     * @param invoke  the invocation site
      */
     default void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
     }

@@ -16,7 +16,7 @@ import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
 public class CSPTATest {
-    
+
     private static final String DIR = "cspta";
 
     // Tests for context insensitivity
@@ -64,7 +64,7 @@ public class CSPTATest {
     public void testCallField() {
         Tests.testPTA(DIR, "CallField");
     }
-    
+
     // Tests for context sensitivity variants
     @Test
     public void testOneCall() {

@@ -66,7 +66,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
     private Map<Pair<String, String>, Set<String>> inputs;
 
     private Set<String> mismatches;
-    
+
     public ResultProcessor(AnalysisConfig config) {
         super(config);
         action = getOptions().getString("action");
@@ -107,7 +107,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
                     Pair<String, String> key = extractKey(line);
                     if (key != null) {
                         currentKey = key;
-                    } else if (!line.isBlank()){
+                    } else if (!line.isBlank()) {
                         Maps.addToMapSet(inputs, currentKey, line);
                     }
                 }
@@ -243,7 +243,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             given.forEach(s -> {
                 if (!inputResult.contains(s)) {
-                    mismatches.add(method + " " + s  +
+                    mismatches.add(method + " " + s +
                             " should NOT be included");
                 }
             });

@@ -33,7 +33,7 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
     private final Collection<ClassType> exceptions;
 
     ReturnEdge(Node exit, Node retSite, Node callSite,
-                      Collection<Var> retVars, Collection<ClassType> exceptions) {
+               Collection<Var> retVars, Collection<ClassType> exceptions) {
         super(Kind.RETURN, exit, retSite);
         this.callSite = callSite;
         this.returnVars = retVars;

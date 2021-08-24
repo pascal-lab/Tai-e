@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.core.cs.context;
 
 /**
  * Factory of contexts, which provides convenient APIs to create contexts.
+ *
  * @param <T> type of elements of created contexts.
  */
 public interface ContextFactory<T> {
@@ -41,6 +42,7 @@ public interface ContextFactory<T> {
     /**
      * Constructs a context by appending an context element to a parent context.
      * The length of the resulting context will be restricted by given limit.
+     *
      * @return the resulting context.
      */
     Context append(Context parent, T elem, int limit);

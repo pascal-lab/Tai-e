@@ -30,11 +30,14 @@ public class LambdaInstanceMethod {
     }
 
     static class C implements I {
-        public void foo() {}
+        public void foo() {
+        }
 
-        C() {}
+        C() {
+        }
 
-        C(int n) {}
+        C(int n) {
+        }
 
         C addOne(int x) {
             Supplier<C> addOne = () -> new C(x + one());
@@ -47,10 +50,12 @@ public class LambdaInstanceMethod {
     }
 
     static abstract class A {
-        void bar() {}
+        void bar() {
+        }
     }
 
     static class B extends A {
-        void bar() {}
+        void bar() {
+        }
     }
 }

@@ -104,7 +104,7 @@ public abstract class Solver<Node, Fact> {
         }
     }
 
-    protected abstract void doSolveForward(CFG<Node> cfg, DataflowResult<Node,Fact> result);
+    protected abstract void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result);
 
-    protected abstract void doSolveBackward(CFG<Node> cfg, DataflowResult<Node,Fact> result);
+    protected abstract void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result);
 }

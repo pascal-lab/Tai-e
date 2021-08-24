@@ -25,18 +25,22 @@ public interface PointsToSet extends Iterable<CSObj> {
 
     /**
      * Adds an object to this set.
-     * @return if the add operation changes this set.
+     *
+     * @return true if this points-to set changed as a result of the call,
+     * otherwise false.
      */
     boolean addObject(CSObj obj);
 
     /**
      * Adds all objects in given pts to this set.
-     * @return if the add operation changes this set.
+     *
+     * @return true if this points-to set changed as a result of the call,
+     * otherwise false.
      */
     boolean addAll(PointsToSet pts);
 
     /**
-     * @return if this set contains given object.
+     * @return true if this set contains given object, otherwise false.
      */
     boolean contains(CSObj obj);
 
@@ -53,7 +57,7 @@ public interface PointsToSet extends Iterable<CSObj> {
     Set<CSObj> getObjects();
 
     /**
-     * @return a stream of all objects in this set.
+     * @return all objects in this set.
      */
     Stream<CSObj> objects();
 

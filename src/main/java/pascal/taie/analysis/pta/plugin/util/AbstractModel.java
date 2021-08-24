@@ -117,9 +117,10 @@ public abstract class AbstractModel implements Model {
      * this convenient method returns points-to sets relevant arguments.
      * For case v/ai == csVar.getVar(), this method returns pts,
      * otherwise, it just returns current points-to set of v/ai.
-     * @param csVar may be v or any ai.
-     * @param pts changed part of csVar
-     * @param invoke the call site which contain csVar
+     *
+     * @param csVar   may be v or any ai.
+     * @param pts     changed part of csVar
+     * @param invoke  the call site which contain csVar
      * @param indexes indexes of the relevant arguments
      */
     protected List<PointsToSet> getArgs(

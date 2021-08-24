@@ -17,9 +17,12 @@ public class LambdaStaticMethod {
         return fun.apply(new Object());
     }
 
-    static abstract class Op {}
+    static abstract class Op {
+    }
 
-    static class GT extends Op {}
+    static class GT extends Op {
+    }
 
-    static class LE extends Op {}
+    static class LE extends Op {
+    }
 }

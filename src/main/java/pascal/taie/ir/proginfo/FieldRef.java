@@ -76,7 +76,8 @@ public class FieldRef extends MemberRef {
     }
 
     @Override
-    public @Nullable JField resolveNullable() {
+    public @Nullable
+    JField resolveNullable() {
         if (field == null) {
             field = World.getClassHierarchy()
                     .resolveField(this);

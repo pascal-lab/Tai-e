@@ -84,7 +84,8 @@ public final class CallGraphs {
         return getCallKind(invoke.getInvokeExp());
     }
 
-    public static @Nullable JMethod resolveCallee(Type type, Invoke callSite) {
+    public static @Nullable
+    JMethod resolveCallee(Type type, Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         if (callSite.isInterface() || callSite.isVirtual()) {
             return World.getClassHierarchy()
@@ -190,8 +191,9 @@ public final class CallGraphs {
     /**
      * Compare a call graph with input file.
      * Current implementation is not efficient, and is mainly for testing purpose.
+     *
      * @throws AnalysisException if there are mismatches between given call graph
-     *  and the one read from input file.
+     *                           and the one read from input file.
      */
     static void compareCallGraph(CallGraph<Invoke, JMethod> callGraph, String input) {
         logger.info("Comparing call graph with {} ...", input);

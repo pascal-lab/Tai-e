@@ -46,10 +46,10 @@ public final class Tests {
     /**
      * Tests data-flow analysis.
      *
-     * @param main the main class to be analyzed
+     * @param main      the main class to be analyzed
      * @param classPath where the main class is located
-     * @param id ID of the analysis to be executed
-     * @param opts options for the analysis
+     * @param id        ID of the analysis to be executed
+     * @param opts      options for the analysis
      */
     public static void testDFA(String main, String classPath, String id, String... opts) {
         List<String> args = new ArrayList<>();

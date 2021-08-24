@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * (adding new call edges and methods) is left to its subclasses.
  *
  * @param <CallSite> type of call sites
- * @param <Method> type of methods
+ * @param <Method>   type of methods
  */
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
@@ -108,7 +108,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     // Implementation for Graph interface.
-    
+
     @Override
     public boolean hasNode(Method node) {
         return contains(node);

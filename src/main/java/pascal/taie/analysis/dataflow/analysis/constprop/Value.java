@@ -30,8 +30,9 @@ public class Value {
     private static final Value[] cache = new Value[-(-128) + 127 + 1];
 
     static {
-        for(int i = 0; i < cache.length; i++)
+        for (int i = 0; i < cache.length; i++) {
             cache[i] = new Value(Kind.CONSTANT, i - 128);
+        }
     }
 
     private final Kind kind;
@@ -154,7 +155,8 @@ public class Value {
         ;
 
         /**
-         * @return if k1 has higher position than k2 in the lattice.
+         * @return true if k1 has higher position than k2 in the lattice,
+         * otherwise false.
          */
         private static boolean isHigher(Kind k1, Kind k2) {
             return k1.ordinal() < k2.ordinal();

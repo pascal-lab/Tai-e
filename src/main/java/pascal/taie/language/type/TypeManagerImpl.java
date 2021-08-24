@@ -100,14 +100,22 @@ public class TypeManagerImpl implements TypeManager {
     public ClassType getBoxedType(Type type) {
         if (type instanceof PrimitiveType) {
             switch ((PrimitiveType) type) {
-                case BOOLEAN: return BOOLEAN;
-                case BYTE: return BYTE;
-                case SHORT: return SHORT;
-                case CHAR: return CHARACTER;
-                case INT: return INTEGER;
-                case LONG: return LONG;
-                case FLOAT: return FLOAT;
-                case DOUBLE: return DOUBLE;
+                case BOOLEAN:
+                    return BOOLEAN;
+                case BYTE:
+                    return BYTE;
+                case SHORT:
+                    return SHORT;
+                case CHAR:
+                    return CHARACTER;
+                case INT:
+                    return INTEGER;
+                case LONG:
+                    return LONG;
+                case FLOAT:
+                    return FLOAT;
+                case DOUBLE:
+                    return DOUBLE;
             }
         } else if (type instanceof VoidType) {
             return VOID;
@@ -146,7 +154,7 @@ public class TypeManagerImpl implements TypeManager {
         } else if (subtype instanceof NullType) {
             return supertype instanceof ReferenceType;
         } else if (subtype instanceof ClassType) {
-           if (supertype instanceof ClassType) {
+            if (supertype instanceof ClassType) {
                 return hierarchy.isSubclass(
                         ((ClassType) supertype).getJClass(),
                         ((ClassType) subtype).getJClass());

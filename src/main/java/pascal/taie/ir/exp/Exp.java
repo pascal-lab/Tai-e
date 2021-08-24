@@ -17,7 +17,7 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 
 /**
- * Representation of expressions appear in Tai-e IR.
+ * Representation of expressions in Tai-e IR.
  */
 public interface Exp {
 

@@ -54,8 +54,9 @@ public class ConfigManager {
 
     /**
      * Given an analysis id, returns the corresponding AnalysisConfig.
+     *
      * @throws ConfigException when the manager does not contain
-     *  the AnalysisConfig for the given id.
+     *                         the AnalysisConfig for the given id.
      */
     AnalysisConfig getConfig(String id) {
         AnalysisConfig config = configs.get(id);

@@ -18,7 +18,6 @@ import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.AbstractBinaryExp;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
@@ -57,18 +56,13 @@ public class ConstantPropagation extends
     }
 
     public MapFact<Var, Value> newBoundaryFact(JMethod method) {
-        // Make conservative assumption about parameters: assign NAC to them
+        // make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
         IR ir = method.getIR();
         ir.getParams()
                 .stream()
                 .filter(this::canHoldInt)
                 .forEach(p -> entryFact.update(p, Value.getNAC()));
-        // TODO: explicitly initialize all non-param variables as UNDEF?
-//        ir.getVars()
-//                .stream()
-//                .filter(v -> !v.equals(thisVar) && !ir.getParams().contains(v))
-//                .forEach(v -> entryFact.update(v, Value.getUndef()));
         return entryFact;
     }
 
@@ -122,7 +116,7 @@ public class ConstantPropagation extends
     }
 
     /**
-     * @return if the given variable can hold integer value.
+     * @return true if the given variable can hold integer value, otherwise false.
      */
     public boolean canHoldInt(Var var) {
         Type type = var.getType();
@@ -173,11 +167,16 @@ public class ConstantPropagation extends
         public Value visit(ArithmeticExp exp) {
             return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ArithmeticExp.Op) op) {
-                    case ADD: return i1 + i2;
-                    case SUB: return i1 - i2;
-                    case MUL: return i1 * i2;
-                    case DIV: return i1 / i2;
-                    case REM: return i1 % i2;
+                    case ADD:
+                        return i1 + i2;
+                    case SUB:
+                        return i1 - i2;
+                    case MUL:
+                        return i1 * i2;
+                    case DIV:
+                        return i1 / i2;
+                    case REM:
+                        return i1 % i2;
                 }
                 throw new AnalysisException("Unexpected op: " + op);
             });
@@ -187,9 +186,12 @@ public class ConstantPropagation extends
         public Value visit(BitwiseExp exp) {
             return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((BitwiseExp.Op) op) {
-                    case OR: return i1 | i2;
-                    case AND: return i1 & i2;
-                    case XOR: return i1 ^ i2;
+                    case OR:
+                        return i1 | i2;
+                    case AND:
+                        return i1 & i2;
+                    case XOR:
+                        return i1 ^ i2;
                 }
                 throw new AnalysisException("Unexpected op: " + op);
             });
@@ -199,12 +201,18 @@ public class ConstantPropagation extends
         public Value visit(ConditionExp exp) {
             return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ConditionExp.Op) op) {
-                    case EQ: return i1 == i2 ? 1 : 0;
-                    case NE: return i1 != i2 ? 1 : 0;
-                    case LT: return i1 < i2 ? 1 : 0;
-                    case GT: return i1 > i2 ? 1 : 0;
-                    case LE: return i1 <= i2 ? 1 : 0;
-                    case GE: return i1 >= i2 ? 1 : 0;
+                    case EQ:
+                        return i1 == i2 ? 1 : 0;
+                    case NE:
+                        return i1 != i2 ? 1 : 0;
+                    case LT:
+                        return i1 < i2 ? 1 : 0;
+                    case GT:
+                        return i1 > i2 ? 1 : 0;
+                    case LE:
+                        return i1 <= i2 ? 1 : 0;
+                    case GE:
+                        return i1 >= i2 ? 1 : 0;
                 }
                 throw new AnalysisException("Unexpected op: " + op);
             });
@@ -214,16 +222,18 @@ public class ConstantPropagation extends
         public Value visit(ShiftExp exp) {
             return evaluateBinary(exp, (op, i1, i2) -> {
                 switch ((ShiftExp.Op) op) {
-                    case SHL: return i1 << i2;
-                    case SHR: return i2 >> i2;
-                    case USHR: return i1 >>> i2;
+                    case SHL:
+                        return i1 << i2;
+                    case SHR:
+                        return i2 >> i2;
+                    case USHR:
+                        return i1 >>> i2;
                 }
                 throw new AnalysisException("Unexpected op: " + op);
             });
         }
 
-        private Value evaluateBinary(AbstractBinaryExp binary,
-                                     ConstantEval constantEval) {
+        private Value evaluateBinary(BinaryExp binary, ConstantEval constantEval) {
             Value v1 = binary.getValue1().accept(this);
             Value v2 = binary.getValue2().accept(this);
             if (v1.isConstant() && v2.isConstant()) {

@@ -143,7 +143,8 @@ public class JClass {
         return Modifier.hasSynthetic(modifiers);
     }
 
-    public @Nullable JClass getSuperClass() {
+    public @Nullable
+    JClass getSuperClass() {
         return superClass;
     }
 
@@ -155,7 +156,8 @@ public class JClass {
         return declaredFields.values();
     }
 
-    public @Nullable JField getDeclaredField(String fieldName) {
+    public @Nullable
+    JField getDeclaredField(String fieldName) {
         return declaredFields.get(fieldName);
     }
 
@@ -165,10 +167,12 @@ public class JClass {
 
     /**
      * Attempts to retrieve the method with the given name.
+     *
      * @throws AmbiguousMethodException if this class has multiple methods
-     *  with the given name.
+     *                                  with the given name.
      */
-    public @Nullable JMethod getDeclaredMethod(String methodName) {
+    public @Nullable
+    JMethod getDeclaredMethod(String methodName) {
         JMethod result = null;
         for (JMethod method : declaredMethods.values()) {
             if (method.getName().equals(methodName)) {
@@ -182,11 +186,13 @@ public class JClass {
         return result;
     }
 
-    public @Nullable JMethod getDeclaredMethod(Subsignature subSignature) {
+    public @Nullable
+    JMethod getDeclaredMethod(Subsignature subSignature) {
         return declaredMethods.get(subSignature);
     }
 
-    public @Nullable JMethod getClinit() {
+    public @Nullable
+    JMethod getClinit() {
         return getDeclaredMethod(Subsignature.get(StringReps.CLINIT));
     }
 

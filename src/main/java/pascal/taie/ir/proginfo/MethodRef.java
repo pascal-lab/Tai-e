@@ -134,7 +134,8 @@ public class MethodRef extends MemberRef {
     }
 
     /**
-     * @return if this is a reference to polymorphic signature method.
+     * @return true if this is a reference to polymorphic signature method,
+     * otherwise false.
      * See JLS (11 Ed.), 15.12.3 for the definition of polymorphic signature method.
      */
     public boolean isPolymorphicSignature() {
@@ -161,7 +162,8 @@ public class MethodRef extends MemberRef {
     }
 
     @Override
-    public @Nullable JMethod resolveNullable() {
+    public @Nullable
+    JMethod resolveNullable() {
         if (method == null) {
             method = World.getClassHierarchy()
                     .resolveMethod(this);

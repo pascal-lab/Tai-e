@@ -33,7 +33,6 @@ import java.util.Set;
  *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
- *
  * @see Indexer
  */
 public class IndexMap<K, V> extends AbstractMap<K, V> {
@@ -122,7 +121,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        Set<Map.Entry<K,V>> es;
+        Set<Map.Entry<K, V>> es;
         return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
     }
 
@@ -160,7 +159,8 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
             next = 0;
             if (size > 0) {
                 // advance to first entry
-                for (next = 0; next < BOUND && es[next] == null; ++next) {}
+                for (next = 0; next < BOUND && es[next] == null; ++next) {
+                }
             }
         }
 

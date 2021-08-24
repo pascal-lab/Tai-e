@@ -29,5 +29,6 @@ public class GetMember {
 
     // We need to trigger the reference analysis for A, otherwise
     // A may not be resolved by frontend.
-    void refA(U u) {}
+    void refA(U u) {
+    }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Representation of statements.
+ * Representation of statements in Tai-e IR.
  */
 public interface Stmt {
 
@@ -49,7 +49,8 @@ public interface Stmt {
     List<Exp> getUses();
 
     /**
-     * @return if execution after this statement can continue at the following statement.
+     * @return true if execution after this statement can continue at
+     * the following statement, otherwise false.
      */
     boolean canFallThrough();
 

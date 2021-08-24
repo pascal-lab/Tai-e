@@ -5,13 +5,17 @@ class UnreachableCase {
         int y = x << 2;
         switch (y) {
             case 1:
-                use(1); break; // unreachable case
+                use(1);
+                break; // unreachable case
             case 2:
-                use(2); break; // unreachable case
+                use(2);
+                break; // unreachable case
             case 3:
-                use(3); break; // unreachable case
+                use(3);
+                break; // unreachable case
             case 4:
-                use(4); break;
+                use(4);
+                break;
         }
     }
 
@@ -20,13 +24,17 @@ class UnreachableCase {
         int y = x << 3;
         switch (y) {
             case 2:
-                use(2); break;  // unreachable case
+                use(2);
+                break;  // unreachable case
             case 4:
-                use(4); break; // unreachable case
+                use(4);
+                break; // unreachable case
             case 8:
-                use(8); break;
+                use(8);
+                break;
             default:
-                use(666); break; // unreachable case
+                use(666);
+                break; // unreachable case
         }
     }
 
@@ -39,9 +47,11 @@ class UnreachableCase {
             case 4:
                 use(4);
             case 8:
-                use(8); break;
+                use(8);
+                break;
             default:
-                use(666); break; // unreachable case
+                use(666);
+                break; // unreachable case
         }
     }
 
@@ -50,26 +60,34 @@ class UnreachableCase {
         int y = x << 10;
         switch (y) {
             case 2:
-                use(2); break; // unreachable case
+                use(2);
+                break; // unreachable case
             case 4:
-                use(4); break; // unreachable case
+                use(4);
+                break; // unreachable case
             case 8:
-                use(8); break; // unreachable case
+                use(8);
+                break; // unreachable case
             default:
-                use(666); break;
+                use(666);
+                break;
         }
     }
 
     void allReach(int x) {
         switch (x) {
             case 2:
-                use(2); break;
+                use(2);
+                break;
             case 4:
-                use(4); break;
+                use(4);
+                break;
             case 8:
-                use(8); break;
+                use(8);
+                break;
             default:
-                use(666); break;
+                use(666);
+                break;
         }
     }
 

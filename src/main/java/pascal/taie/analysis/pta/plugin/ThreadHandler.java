@@ -68,7 +68,7 @@ public class ThreadHandler implements Plugin {
         this.solver = solver;
         hierarchy = World.getClassHierarchy();
         threadStartThis = hierarchy.getJREMethod(
-                "<java.lang.Thread: void start()>")
+                        "<java.lang.Thread: void start()>")
                 .getIR()
                 .getThis();
         currentThread = hierarchy.getJREMethod(
@@ -90,7 +90,7 @@ public class ThreadHandler implements Plugin {
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = nativeModel.getSystemThreadGroup();
         IR threadGroupInitIR = hierarchy.getJREMethod(
-                "<java.lang.ThreadGroup: void <init>()>")
+                        "<java.lang.ThreadGroup: void <init>()>")
                 .getIR();
         Var initThis = threadGroupInitIR.getThis();
         solver.addVarPointsTo(context, initThis, context, systemThreadGroup);
@@ -100,7 +100,7 @@ public class ThreadHandler implements Plugin {
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThreadGroup = nativeModel.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
-                "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
+                        "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
 
         initThis = threadGroupInitIR.getThis();
@@ -118,7 +118,7 @@ public class ThreadHandler implements Plugin {
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = nativeModel.getMainThread();
         IR threadInitIR = hierarchy.getJREMethod(
-                "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
+                        "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
         initThis = threadInitIR.getThis();
         solver.addVarPointsTo(context, initThis, context, mainThread);

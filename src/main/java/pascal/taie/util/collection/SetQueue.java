@@ -19,6 +19,7 @@ import java.util.Set;
 
 /**
  * A Queue implementation which contains no duplicate elements.
+ *
  * @param <E> type of elements.
  */
 public class SetQueue<E> extends AbstractQueue<E> {

@@ -27,7 +27,7 @@ public final class Streams {
     }
 
     /**
-     * @return if the given stream is empty.
+     * @return true if the given stream is empty, otherwise false.
      */
     public static <T> boolean isEmpty(Stream<T> stream) {
         return stream.findAny().isEmpty();
@@ -38,7 +38,7 @@ public final class Streams {
      */
     public static <T> Stream<T> reverse(Stream<T> stream) {
         Iterator<T> iterator = stream.collect(
-                Collectors.toCollection(ArrayDeque::new))
+                        Collectors.toCollection(ArrayDeque::new))
                 .descendingIterator();
         Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), false);

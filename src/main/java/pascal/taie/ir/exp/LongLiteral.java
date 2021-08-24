@@ -22,8 +22,9 @@ public class LongLiteral implements IntegerLiteral {
     private static final LongLiteral[] cache = new LongLiteral[-(-128) + 127 + 1];
 
     static {
-        for(int i = 0; i < cache.length; i++)
+        for (int i = 0; i < cache.length; i++) {
             cache[i] = new LongLiteral(i - 128);
+        }
     }
 
     private final long value;
@@ -35,7 +36,7 @@ public class LongLiteral implements IntegerLiteral {
     public static LongLiteral get(long value) {
         final int offset = 128;
         if (value >= -128 && value <= 127) { // will cache
-            return cache[(int)value + offset];
+            return cache[(int) value + offset];
         }
         return new LongLiteral(value);
     }

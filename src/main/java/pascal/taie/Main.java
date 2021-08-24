@@ -79,7 +79,7 @@ public class Main {
             PlanConfig.writeConfigs(configs, Configs.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it
-               return plan;
+                return plan;
             }
         } else if (options.getPlanFile() != null) {
             // Analyses are specified by file

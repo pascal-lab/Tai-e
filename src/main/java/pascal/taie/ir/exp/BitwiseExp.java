@@ -21,11 +21,17 @@ public class BitwiseExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /** | */
+        /**
+         * |
+         */
         OR("|"),
-        /** & */
+        /**
+         * &
+         */
         AND("&"),
-        /** ^ */
+        /**
+         * ^
+         */
         XOR("^"),
         ;
 

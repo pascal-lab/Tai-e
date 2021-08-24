@@ -44,7 +44,7 @@ class TaintManager {
     }
 
     /**
-     * @return if an obj represents taint objects.
+     * @return true if given obj represents a taint object, otherwise false.
      */
     boolean isTaint(Obj obj) {
         return obj instanceof MockObj &&

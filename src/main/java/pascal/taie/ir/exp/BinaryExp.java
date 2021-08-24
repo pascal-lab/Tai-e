@@ -17,7 +17,8 @@ package pascal.taie.ir.exp;
  */
 public interface BinaryExp extends RValue {
 
-    interface Op {}
+    interface Op {
+    }
 
     Op getOperator();
 

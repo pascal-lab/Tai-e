@@ -22,11 +22,17 @@ public class ComparisonExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /** cmp */
+        /**
+         * cmp
+         */
         CMP("cmp"),
-        /** cmpl */
+        /**
+         * cmpl
+         */
         CMPL("cmpl"),
-        /** cmpg */
+        /**
+         * cmpg
+         */
         CMPG("cmpg"),
         ;
 

@@ -117,10 +117,10 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
     @Override
     public Set<Obj> getPointsToSet(Var var) {
         return varPointsTo.computeIfAbsent(var, v ->
-            csManager.csVarsOf(var)
-                    .flatMap(csVar -> csVar.getPointsToSet().objects())
-                    .map(CSObj::getObject)
-                    .collect(Collectors.toUnmodifiableSet()));
+                csManager.csVarsOf(var)
+                        .flatMap(csVar -> csVar.getPointsToSet().objects())
+                        .map(CSObj::getObject)
+                        .collect(Collectors.toUnmodifiableSet()));
     }
 
     @Override

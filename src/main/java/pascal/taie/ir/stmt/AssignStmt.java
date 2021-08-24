@@ -23,6 +23,7 @@ import java.util.Optional;
 
 /**
  * Representation of assign statements.
+ *
  * @param <L> type of lvalue.
  * @param <R> type of rvalue.
  */
@@ -39,7 +40,8 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
     }
 
     @Override
-    public @Nonnull L getLValue() {
+    public @Nonnull
+    L getLValue() {
         return lvalue;
     }
 

@@ -153,7 +153,7 @@ class Solver {
         });
         if (!diff.isEmpty()) {
             pointerFlowGraph.succsOf(pointer)
-                    .forEach(succ ->workList.addPointerEntry(succ, diff));
+                    .forEach(succ -> workList.addPointerEntry(succ, diff));
         }
         return diff;
     }
@@ -171,6 +171,7 @@ class Solver {
 
     /**
      * Processes instance stores when points-to set of the base variable changes.
+     *
      * @param var the base variable
      * @param pts set of new discovered objects pointed by the variable.
      */
@@ -187,6 +188,7 @@ class Solver {
 
     /**
      * Processes instance loads when points-to set of the base variable changes.
+     *
      * @param var the base variable
      * @param pts set of new discovered objects pointed by the variable.
      */
@@ -203,6 +205,7 @@ class Solver {
 
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
+     *
      * @param var the receiver variable
      * @param pts set of new discovered objects pointed by the variable.
      */

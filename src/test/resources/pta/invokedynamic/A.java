@@ -28,18 +28,20 @@ public class A {
     }
 
     public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type)
-                           throws NoSuchMethodException, IllegalAccessException {
+            throws NoSuchMethodException, IllegalAccessException {
         MethodType mt = MethodType.methodType(Void.TYPE, A.class);
         MethodHandle handle = MethodHandles.lookup().findStatic(A.class, name, mt);
         return new ConstantCallSite(handle);
     }
+
     public static CallSite bootstrap2(MethodHandles.Lookup caller, String name, MethodType type)
-                           throws NoSuchMethodException, IllegalAccessException {
+            throws NoSuchMethodException, IllegalAccessException {
         MethodHandle handle = MethodHandles.lookup().findStatic(A.class, name, type);
         return new ConstantCallSite(handle);
     }
+
     public static CallSite bootstrap3(MethodHandles.Lookup caller, String name, MethodType type)
-                           throws NoSuchMethodException, IllegalAccessException {
+            throws NoSuchMethodException, IllegalAccessException {
         Class<?> c;
         try {
             c = Class.forName("Unknown");
@@ -49,8 +51,9 @@ public class A {
         MethodHandle handle = MethodHandles.lookup().findStatic(c, name, type);
         return new ConstantCallSite(handle);
     }
+
     public static CallSite bootstrap4(MethodHandles.Lookup caller, String name, MethodType type)
-                           throws NoSuchMethodException, IllegalAccessException {
+            throws NoSuchMethodException, IllegalAccessException {
         MethodType mt = MethodType.methodType(Void.TYPE, A.class);
         MethodHandle handle = MethodHandles.lookup().findVirtual(A.class, name, mt);
         return new ConstantCallSite(handle);

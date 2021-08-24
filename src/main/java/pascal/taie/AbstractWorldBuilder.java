@@ -58,8 +58,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                     JREs, options.getJavaVersion());
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Stream.concat(
-                        paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                        Stream.of(options.getClassPath()))
+                                paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                                Stream.of(options.getClassPath()))
                         .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +

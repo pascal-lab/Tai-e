@@ -8,7 +8,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 /**
  * Represents call graph edge from invokedynamic to bootstrap method.
  */
-class BSMCallEdge  extends Edge<CSCallSite, CSMethod> {
+class BSMCallEdge extends Edge<CSCallSite, CSMethod> {
 
     public BSMCallEdge(CSCallSite csCallSite, CSMethod callee) {
         super(CallKind.OTHER, csCallSite, callee);

@@ -86,16 +86,16 @@ class LookupModel extends AbstractModel {
     private void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find private methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
-                Reflections.getDeclaredMethods(cls, name)
-                        .filter(Predicate.not(JMethod::isStatic)),
+                        Reflections.getDeclaredMethods(cls, name)
+                                .filter(Predicate.not(JMethod::isStatic)),
                 MethodHandle.Kind.REF_invokeVirtual);
     }
 
     private void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find static methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
-                Reflections.getDeclaredMethods(cls, name)
-                        .filter(JMethod::isStatic),
+                        Reflections.getDeclaredMethods(cls, name)
+                                .filter(JMethod::isStatic),
                 MethodHandle.Kind.REF_invokeStatic);
     }
 

@@ -17,35 +17,40 @@ import java.util.stream.Stream;
 
 /**
  * Representation of a directed graph.
+ *
  * @param <N> type of nodes
  */
 public interface Graph<N> extends Iterable<N> {
 
     /**
-     * @return if this graph has given node.
+     * @return true if this graph has given node, otherwise false.
      */
     boolean hasNode(N node);
 
     /**
-     * @return if this graph has an edge from given source to target.
+     * @return true if this graph has an edge from given source to target,
+     * otherwise false.
      */
     boolean hasEdge(N source, N target);
 
     /**
-     * @return a stream of predecessors of given node in this graph.
+     * @return the predecessors of given node in this graph.
      */
     Stream<N> predsOf(N node);
 
     /**
-     * @return a stream of successors of given node in this graph.
+     * @return the successors of given node in this graph.
      */
     Stream<N> succsOf(N node);
 
     /**
-     * @return a stream of all nodes of this graph.
+     * @return all nodes of this graph.
      */
     Stream<N> nodes();
 
+    /**
+     * @return the number of the nodes in this graph.
+     */
     int getNumberOfNodes();
 
     @Override

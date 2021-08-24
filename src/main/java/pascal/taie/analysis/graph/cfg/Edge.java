@@ -21,25 +21,39 @@ public class Edge<N> {
 
     public enum Kind {
 
-        /** Edge from entry node to real start node. */
+        /**
+         * Edge from entry node to real start node.
+         */
         ENTRY,
 
-        /** Edge kind for fall-through to next statement. */
+        /**
+         * Edge kind for fall-through to next statement.
+         */
         FALL_THROUGH,
 
-        /** Edge kind for goto statements. */
+        /**
+         * Edge kind for goto statements.
+         */
         GOTO,
 
-        /** Edge kind for if statements when condition is true. */
+        /**
+         * Edge kind for if statements when condition is true.
+         */
         IF_TRUE,
 
-        /** Edge kind for if statements when condition is false. */
+        /**
+         * Edge kind for if statements when condition is false.
+         */
         IF_FALSE,
 
-        /** Edge kind for switch statements (explicit case). */
+        /**
+         * Edge kind for switch statements (explicit case).
+         */
         SWITCH_CASE,
 
-        /** Edge kind for switch statements (default case). */
+        /**
+         * Edge kind for switch statements (default case).
+         */
         SWITCH_DEFAULT,
 
         /**
@@ -87,15 +101,15 @@ public class Edge<N> {
     }
 
     /**
-     * @return if this edge is a switch-case edge.
+     * @return true if this edge is a switch-case edge, otherwise false.
      */
     public boolean isSwitchCase() {
         return kind == Kind.SWITCH_CASE;
     }
 
     /**
-     * If this edge is a switch-case edge, return the case value,
-     * otherwise return minimal integer value.
+     * If this edge is a switch-case edge, returns the case value,
+     * otherwise returns minimal integer value.
      */
     public int getCaseValue() {
         assert isSwitchCase() : this + " is not a switch-case edge";
@@ -103,7 +117,7 @@ public class Edge<N> {
     }
 
     /**
-     * @return if this edge is an exceptional edge.
+     * @return true if this edge is an exceptional edge, otherwise false.
      */
     public boolean isExceptional() {
         return kind == Kind.CAUGHT_EXCEPTION ||

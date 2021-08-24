@@ -64,7 +64,7 @@ public class ReflectiveAction {
     static void invoke() throws Exception {
         // invoke static method
         Method staticFoo = U.class.getMethod("staticFoo", Object.class);
-        staticFoo.invoke(null, new Object[]{ null });
+        staticFoo.invoke(null, new Object[]{null});
 
         // invoke instance method
         Method baz = V.class.getMethod("baz", V.class, String.class);
@@ -94,5 +94,6 @@ public class ReflectiveAction {
         inst.set(new U(), new V());
     }
 
-    static void use(Object o) {}
+    static void use(Object o) {
+    }
 }

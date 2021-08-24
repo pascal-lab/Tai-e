@@ -25,6 +25,7 @@ public abstract class InterproceduralAnalysis extends Analysis {
 
     /**
      * Runs this analysis for the whole program.
+     *
      * @return the analysis result for the whole program.
      * The result will be stored in {@link pascal.taie.World}.
      * If the result is not used by following analyses, then this method

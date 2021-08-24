@@ -28,7 +28,8 @@ public class DefUse {
 
     void switchCase(int i) {
         switch (i) {
-            case 1: return;
+            case 1:
+                return;
             case 10:
                 use(i);
                 break;

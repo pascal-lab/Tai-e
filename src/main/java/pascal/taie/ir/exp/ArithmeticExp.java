@@ -21,15 +21,25 @@ public class ArithmeticExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /** + */
+        /**
+         * +
+         */
         ADD("+"),
-        /** - */
+        /**
+         * -
+         */
         SUB("-"),
-        /** * */
+        /**
+         *
+         */
         MUL("*"),
-        /** / */
+        /**
+         * /
+         */
         DIV("/"),
-        /** % */
+        /**
+         * %
+         */
         REM("%"),
         ;
 

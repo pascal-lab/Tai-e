@@ -18,48 +18,49 @@ import pascal.taie.analysis.graph.cfg.Edge;
 public interface DataflowAnalysis<Node, Fact> {
 
     /**
-     * Returns whether the analysis is forward.
+     * @return true if this analysis is forward;
      */
     boolean isForward();
 
     /**
-     * Returns new fact in boundary conditions, i.e., the fact for entry node
-     * in forward analysis or exit node in backward analysis.
+     * @return new fact in boundary conditions, i.e., the fact for
+     * entry (exit) node in forward (backward) analysis.
      */
     Fact newBoundaryFact(CFG<Node> cfg);
 
     /**
-     * Returns new initial fact for non-boundary nodes.
+     * @return new initial fact for non-boundary nodes.
      */
     Fact newInitialFact();
 
     /**
-     * Merges a fact to another result fact.
-     * This function is used to handle control-flow confluences.
+     * Merges a fact into another (result) fact.
+     * This function will be used to handle control-flow confluences.
      */
     void mergeInto(Fact fact, Fact result);
 
     /**
      * Node Transfer function for the analysis.
-     * The function transfer data-flow from in to out, and return whether
-     * the out fact has been changed by the transfer.
+     * The function transfers data-flow from in (out) fact to out (in) fact
+     * for forward (backward) analysis.
+     *
+     * @return true if the transfer changed the out (int) fact, otherwise false.
      */
     boolean transferNode(Node node, Fact in, Fact out);
 
     /**
-     * Returns if this analysis needs to perform edge transfer.
+     * @return true if this analysis needs to perform edge transfer.
      */
     boolean hasEdgeTransfer();
 
     /**
-     * @return if given edge needs to be applied transfer function.
+     * @return true if the given edge needs to be applied transfer function,
+     * otherwise false.
      */
     boolean needTransfer(Edge<Node> edge);
 
     /**
      * Edge Transfer function for the analysis.
-     * The function transfer data-flow from in to out, and return whether
-     * the out fact has been changed by the transfer.
      */
     void transferEdge(Edge<Node> edge, Fact nodeFact, Fact edgeFact);
 }

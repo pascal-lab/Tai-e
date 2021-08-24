@@ -40,7 +40,7 @@ public interface JClassBuilder {
     Collection<JMethod> getDeclaredMethods();
 
     /**
-     * @return if the class being built is application class.
+     * @return true if this class is application class, otherwise false.
      */
     boolean isApplication();
 }

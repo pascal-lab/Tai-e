@@ -24,7 +24,8 @@ class PointsToSet {
 
     private final Set<Obj> set = Sets.newHybridSet();
 
-    PointsToSet() {}
+    PointsToSet() {
+    }
 
     PointsToSet(Obj obj) {
         addObject(obj);

@@ -89,7 +89,7 @@ public class ExceptionAnalysis implements Plugin {
      * it newly throws.
      *
      * @param csVar variable pointer
-     * @param pts objects added to the csVar points to set
+     * @param pts   objects added to the csVar points to set
      */
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
@@ -157,7 +157,7 @@ public class ExceptionAnalysis implements Plugin {
                                 CSMethod caller = callSite.getContainer();
                                 Invoke invoke = callSite.getCallSite();
                                 workList.addEntry(caller, invoke, uncaught);
-                    });
+                            });
                 }
             }
         }
@@ -167,9 +167,9 @@ public class ExceptionAnalysis implements Plugin {
      * Performs an intra-procedural analysis to compute the exceptions that are
      * not caught by the current method.
      *
-     * @param currentStmt the statements that throws exceptions
+     * @param currentStmt   the statements that throws exceptions
      * @param newExceptions the new-found exceptions thrown by currentStmt
-     * @param csMethod the csMethod containing currentStmt
+     * @param csMethod      the csMethod containing currentStmt
      * @return the exceptions thrown by currentStmt but not caught by csMethod
      */
     private Collection<CSObj> analyzeIntraUncaught(

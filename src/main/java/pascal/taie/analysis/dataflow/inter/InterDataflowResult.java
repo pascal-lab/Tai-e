@@ -19,8 +19,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * An object which manages the data-flow facts associated with nodes and edges
+ * of an ICFG.
  * TODO: merge with {@link pascal.taie.analysis.dataflow.fact.DataflowResult}
  *  by parameterize edge type?
+ *
+ * @param <Node> type of ICFG nodes
+ * @param <Fact> type of data-flow facts
  */
 public class InterDataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
 
@@ -33,6 +38,9 @@ public class InterDataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
         return edgeFacts.get(edge);
     }
 
+    /**
+     * Associates a data-flow fact with an ICFG edge.
+     */
     public void setEdgeFact(ICFGEdge<Node> edge, Fact fact) {
         edgeFacts.put(edge, fact);
     }

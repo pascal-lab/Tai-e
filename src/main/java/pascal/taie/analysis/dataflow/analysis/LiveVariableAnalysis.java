@@ -57,7 +57,7 @@ public class LiveVariableAnalysis extends
                 in.remove((Var) def);
             }
         });
-        // gen uses in stmt
+        // generate uses in stmt
         stmt.getUses().forEach(use -> {
             if (use instanceof Var) {
                 in.add((Var) use);

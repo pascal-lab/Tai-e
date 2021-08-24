@@ -24,6 +24,7 @@ import java.util.stream.Stream;
  * Note that the top element is conceptual, i.e., it is mock and does not
  * really contains all elements in the domain, thus remove and iteration
  * operations on the top element are unsupported.
+ *
  * @param <E> type of elements
  */
 public class ToppedSetFact<E> extends SetFact<E> {
