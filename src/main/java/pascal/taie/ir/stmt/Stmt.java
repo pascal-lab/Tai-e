@@ -50,12 +50,10 @@ public interface Stmt {
     List<RValue> getUses();
 
     /**
-     * @return true if execution after this statement can continue at
+     * @return true if execution after this statement could continue at
      * the following statement, otherwise false.
      */
     boolean canFallThrough();
 
-    void accept(StmtVisitor visitor);
-
-    <T> T accept(StmtRVisitor<T> visitor);
+    <T> T accept(StmtVisitor<T> visitor);
 }

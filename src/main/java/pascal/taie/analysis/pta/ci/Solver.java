@@ -89,29 +89,32 @@ class Solver {
         }
     }
 
-    private class StmtProcessor implements StmtVisitor {
+    private class StmtProcessor implements StmtVisitor<Void> {
 
         @Override
-        public void visit(New stmt) {
+        public Void visit(New stmt) {
             VarPtr lhs = pointerFlowGraph.getVarPtr(stmt.getLValue());
             Obj obj = heapModel.getObj(stmt);
             workList.addPointerEntry(lhs, new PointsToSet(obj));
+            return null;
         }
 
         @Override
-        public void visit(Copy stmt) {
+        public Void visit(Copy stmt) {
             VarPtr lhs = pointerFlowGraph.getVarPtr(stmt.getLValue());
             VarPtr rhs = pointerFlowGraph.getVarPtr(stmt.getRValue());
             addPFGEdge(rhs, lhs);
+            return null;
         }
 
         @Override
-        public void visit(Invoke stmt) {
+        public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
                 JMethod callee = resolveCallee(null, stmt);
                 workList.addCallEdge(
                         new Edge<>(CallKind.STATIC, stmt, callee));
             }
+            return null;
         }
     }
 

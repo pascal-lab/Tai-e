@@ -12,6 +12,11 @@
 
 package pascal.taie.ir.exp;
 
+/**
+ * Exp visitor which may return a result after the visit.
+ *
+ * @param <T> type of the return value
+ */
 public interface ExpVisitor<T> {
 
     // var
@@ -145,5 +150,7 @@ public interface ExpVisitor<T> {
     }
 
     // default
-    T visitDefault(Exp exp);
+    default T visitDefault(Exp exp) {
+        return null;
+    }
 }

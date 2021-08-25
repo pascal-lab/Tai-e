@@ -465,7 +465,7 @@ public class DefaultSolver extends Solver {
     /**
      * Processes the statements in context-sensitive new reachable methods.
      */
-    private class StmtProcessor implements StmtVisitor {
+    private class StmtProcessor implements StmtVisitor<Void> {
 
         private CSMethod csMethod;
 
@@ -490,7 +490,7 @@ public class DefaultSolver extends Solver {
         }
 
         @Override
-        public void visit(New stmt) {
+        public Void visit(New stmt) {
             // obtain context-sensitive heap object
             NewExp rvalue = stmt.getRValue();
             Obj obj = heapModel.getObj(stmt);
@@ -502,6 +502,7 @@ public class DefaultSolver extends Solver {
             if (hasOverriddenFinalize(rvalue)) {
                 processFinalizer(stmt);
             }
+            return null;
         }
 
         private void processNewMultiArray(
@@ -562,7 +563,7 @@ public class DefaultSolver extends Solver {
         }
 
         @Override
-        public void visit(AssignLiteral stmt) {
+        public Void visit(AssignLiteral stmt) {
             Literal literal = stmt.getRValue();
             if (isConcerned(literal)) {
                 Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
@@ -570,62 +571,68 @@ public class DefaultSolver extends Solver {
                         .selectHeapContext(csMethod, obj);
                 addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
             }
+            return null;
         }
 
         @Override
-        public void visit(Copy stmt) {
+        public Void visit(Copy stmt) {
             Var rvalue = stmt.getRValue();
             if (isConcerned(rvalue)) {
                 CSVar from = csManager.getCSVar(context, rvalue);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
             }
+            return null;
         }
 
         @Override
-        public void visit(Cast stmt) {
+        public Void visit(Cast stmt) {
             CastExp cast = stmt.getRValue();
             if (isConcerned(cast.getValue())) {
                 CSVar from = csManager.getCSVar(context, cast.getValue());
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
             }
+            return null;
         }
 
         /**
          * Processes static load.
          */
         @Override
-        public void visit(LoadField stmt) {
+        public Void visit(LoadField stmt) {
             if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
             }
+            return null;
         }
 
         /**
          * Processes static store.
          */
         @Override
-        public void visit(StoreField stmt) {
+        public Void visit(StoreField stmt) {
             if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar from = csManager.getCSVar(context, stmt.getRValue());
                 addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
             }
+            return null;
         }
 
         /**
          * Processes static invocation.
          */
         @Override
-        public void visit(Invoke stmt) {
+        public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
                 processInvokeStatic(stmt);
             }
+            return null;
         }
     }
 }

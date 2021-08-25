@@ -93,7 +93,7 @@ public class SimpleSolver extends Solver {
     /**
      * Processes the statements in context-sensitive new reachable methods.
      */
-    private class StmtProcessor implements StmtVisitor {
+    private class StmtProcessor implements StmtVisitor<Void> {
 
         private final CSMethod csMethod;
 
@@ -105,51 +105,55 @@ public class SimpleSolver extends Solver {
         }
 
         @Override
-        public void visit(New stmt) {
+        public Void visit(New stmt) {
             // obtain context-sensitive heap object
             Obj obj = heapModel.getObj(stmt);
             Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
             addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
+            return null;
         }
 
         @Override
-        public void visit(Copy stmt) {
+        public Void visit(Copy stmt) {
             CSVar from = csManager.getCSVar(context, stmt.getRValue());
             CSVar to = csManager.getCSVar(context, stmt.getLValue());
             addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            return null;
         }
 
         /**
          * Processes static load.
          */
         @Override
-        public void visit(LoadField stmt) {
+        public Void visit(LoadField stmt) {
             if (stmt.isStatic()) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar to = csManager.getCSVar(context, stmt.getLValue());
                 addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
             }
+            return null;
         }
 
         /**
          * Processes static store.
          */
         @Override
-        public void visit(StoreField stmt) {
+        public Void visit(StoreField stmt) {
             if (stmt.isStatic()) {
                 JField field = stmt.getFieldRef().resolve();
                 StaticField sfield = csManager.getStaticField(field);
                 CSVar from = csManager.getCSVar(context, stmt.getRValue());
                 addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
             }
+            return null;
         }
 
         /**
          * Processes static invocation.
          */
         @Override
-        public void visit(Invoke stmt) {
+        public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
                 JMethod callee = CallGraphs.resolveCallee(null, stmt);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, stmt);
@@ -159,6 +163,7 @@ public class SimpleSolver extends Solver {
                         new Edge<>(CallKind.STATIC, csCallSite, csCallee);
                 workList.addCallEdge(edge);
             }
+            return null;
         }
     }
 

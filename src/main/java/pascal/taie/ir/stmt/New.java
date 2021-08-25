@@ -39,12 +39,7 @@ public class New extends AssignStmt<Var, NewExp> {
     }
 
     @Override
-    public void accept(StmtVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T accept(StmtRVisitor<T> visitor) {
+    public <T> T accept(StmtVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

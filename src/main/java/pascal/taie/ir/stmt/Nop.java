@@ -18,12 +18,7 @@ package pascal.taie.ir.stmt;
 public class Nop extends AbstractStmt {
 
     @Override
-    public void accept(StmtVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T accept(StmtRVisitor<T> visitor) {
+    public <T> T accept(StmtVisitor<T> visitor) {
         return visitor.visit(this);
     }
 

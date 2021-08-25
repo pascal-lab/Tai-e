@@ -24,7 +24,7 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.StmtRVisitor;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Throw;
@@ -64,8 +64,8 @@ enum ImplicitThrowAnalysis {
     /**
      * Visitor for compute implicit exceptions that may be thrown by each Stmt.
      */
-    private final StmtRVisitor<Collection<ClassType>> implicitVisitor
-            = new StmtRVisitor<>() {
+    private final StmtVisitor<Collection<ClassType>> implicitVisitor
+            = new StmtVisitor<>() {
         @Override
         public Collection<ClassType> visit(New stmt) {
             return stmt.getRValue() instanceof NewInstance ?

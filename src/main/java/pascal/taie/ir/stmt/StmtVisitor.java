@@ -12,92 +12,98 @@
 
 package pascal.taie.ir.stmt;
 
-public interface StmtVisitor {
+/**
+ * Stmt visitor which may return a result after the visit.
+ *
+ * @param <T> type of the return value
+ */
+public interface StmtVisitor<T> {
 
-    default void visit(New stmt) {
-        visitDefault(stmt);
+    default T visit(New stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(AssignLiteral stmt) {
-        visitDefault(stmt);
+    default T visit(AssignLiteral stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Copy stmt) {
-        visitDefault(stmt);
+    default T visit(Copy stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(LoadArray stmt) {
-        visitDefault(stmt);
+    default T visit(LoadArray stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(StoreArray stmt) {
-        visitDefault(stmt);
+    default T visit(StoreArray stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(LoadField stmt) {
-        visitDefault(stmt);
+    default T visit(LoadField stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(StoreField stmt) {
-        visitDefault(stmt);
+    default T visit(StoreField stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Binary stmt) {
-        visitDefault(stmt);
+    default T visit(Binary stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Unary stmt) {
-        visitDefault(stmt);
+    default T visit(Unary stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(InstanceOf stmt) {
-        visitDefault(stmt);
+    default T visit(InstanceOf stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Cast stmt) {
-        visitDefault(stmt);
+    default T visit(Cast stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Goto stmt) {
-        visitDefault(stmt);
+    default T visit(Goto stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(If stmt) {
-        visitDefault(stmt);
+    default T visit(If stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(TableSwitch stmt) {
-        visitDefault(stmt);
+    default T visit(TableSwitch stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(LookupSwitch stmt) {
-        visitDefault(stmt);
+    default T visit(LookupSwitch stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Invoke stmt) {
-        visitDefault(stmt);
+    default T visit(Invoke stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Return stmt) {
-        visitDefault(stmt);
+    default T visit(Return stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Throw stmt) {
-        visitDefault(stmt);
+    default T visit(Throw stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Catch stmt) {
-        visitDefault(stmt);
+    default T visit(Catch stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Monitor stmt) {
-        visitDefault(stmt);
+    default T visit(Monitor stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visit(Nop stmt) {
-        visitDefault(stmt);
+    default T visit(Nop stmt) {
+        return visitDefault(stmt);
     }
 
-    default void visitDefault(Stmt stmt) {
+    default T visitDefault(Stmt stmt) {
+        return null;
     }
 }
