@@ -33,7 +33,7 @@ public class InstanceFieldAccess extends FieldAccess {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of(base);
     }
 

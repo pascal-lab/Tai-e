@@ -12,7 +12,8 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,15 +39,15 @@ public interface Stmt {
     void setLineNumber(int lineNumber);
 
     /**
-     * @return the (optional) expression defined in this Stmt.
+     * @return the (optional) left-value expression defined in this Stmt.
      * In Tai-e IR, each Stmt can define at most one expression.
      */
-    Optional<Exp> getDef();
+    Optional<LValue> getDef();
 
     /**
-     * @return a list of expressions used in this Stmt.
+     * @return a list of right-value expressions used in this Stmt.
      */
-    List<Exp> getUses();
+    List<RValue> getUses();
 
     /**
      * @return true if execution after this statement can continue at

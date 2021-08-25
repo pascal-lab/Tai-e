@@ -50,7 +50,7 @@ public class InstanceOfExp implements RValue {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of(value);
     }
 

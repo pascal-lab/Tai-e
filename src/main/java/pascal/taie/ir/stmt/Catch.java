@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class Catch extends AbstractStmt {
     }
 
     @Override
-    public Optional<Exp> getDef() {
+    public Optional<LValue> getDef() {
         return Optional.of(exceptionRef);
     }
 

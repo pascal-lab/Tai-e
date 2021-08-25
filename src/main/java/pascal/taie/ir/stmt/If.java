@@ -13,7 +13,7 @@
 package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.ConditionExp;
-import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public class If extends JumpStmt {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return CollectionUtils.append(condition.getUses(), condition);
     }
 

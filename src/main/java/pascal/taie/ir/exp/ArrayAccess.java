@@ -50,7 +50,7 @@ public class ArrayAccess implements LValue, RValue {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of(base, index);
     }
 

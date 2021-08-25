@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
@@ -66,7 +66,7 @@ public abstract class SwitchStmt extends JumpStmt {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of(value);
     }
 

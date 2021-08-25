@@ -40,7 +40,7 @@ public class NewArray implements NewExp {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of(length);
     }
 

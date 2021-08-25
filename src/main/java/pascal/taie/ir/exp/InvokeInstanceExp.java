@@ -35,8 +35,8 @@ public abstract class InvokeInstanceExp extends InvokeExp {
     }
 
     @Override
-    public List<Exp> getUses() {
-        List<Exp> uses = new ArrayList<>(args.size() + 1);
+    public List<RValue> getUses() {
+        List<RValue> uses = new ArrayList<>(args.size() + 1);
         uses.add(base);
         uses.addAll(args);
         return uses;

@@ -12,7 +12,8 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,12 +45,12 @@ abstract class AbstractStmt implements Stmt {
     }
 
     @Override
-    public Optional<Exp> getDef() {
+    public Optional<LValue> getDef() {
         return Optional.empty();
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of();
     }
 }

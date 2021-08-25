@@ -48,7 +48,7 @@ public class NewMultiArray implements NewExp {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.copyOf(lengths);
     }
 

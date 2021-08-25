@@ -12,7 +12,6 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
@@ -20,6 +19,8 @@ import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
@@ -107,12 +108,12 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
     }
 
     @Override
-    public Optional<Exp> getDef() {
+    public Optional<LValue> getDef() {
         return Optional.ofNullable(result);
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return CollectionUtils.append(invokeExp.getUses(), invokeExp);
     }
 

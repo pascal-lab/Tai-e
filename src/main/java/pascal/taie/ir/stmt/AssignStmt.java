@@ -12,7 +12,6 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
 
@@ -51,15 +50,15 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
     }
 
     @Override
-    public Optional<Exp> getDef() {
+    public Optional<LValue> getDef() {
         return Optional.of(lvalue);
     }
 
     @Override
-    public List<Exp> getUses() {
-        List<Exp> luses = lvalue.getUses();
-        List<Exp> ruses = rvalue.getUses();
-        List<Exp> uses = new ArrayList<>(luses.size() + ruses.size() + 1);
+    public List<RValue> getUses() {
+        List<RValue> luses = lvalue.getUses();
+        List<RValue> ruses = rvalue.getUses();
+        List<RValue> uses = new ArrayList<>(luses.size() + ruses.size() + 1);
         uses.addAll(luses);
         uses.addAll(ruses);
         uses.add(rvalue);

@@ -29,7 +29,7 @@ public interface Exp {
     /**
      * @return a list of expressions which are used by (contained in) this Exp.
      */
-    default List<Exp> getUses() {
+    default List<RValue> getUses() {
         return List.of();
     }
 

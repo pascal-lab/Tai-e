@@ -47,7 +47,7 @@ abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return List.of(value1, value2);
     }
 

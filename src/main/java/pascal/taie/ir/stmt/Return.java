@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.stmt;
 
-import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ public class Return extends AbstractStmt {
     }
 
     @Override
-    public List<Exp> getUses() {
+    public List<RValue> getUses() {
         return value != null ? List.of(value) : List.of();
     }
 
