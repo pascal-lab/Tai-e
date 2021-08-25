@@ -29,13 +29,12 @@ public class CPFact extends MapFact<Var, Value> {
     }
 
     @Override
-    public Value get(Object key) {
-        //noinspection SuspiciousMethodCalls
+    public Value get(Var key) {
         return map.getOrDefault(key, Value.getUndef());
     }
 
     @Override
-    public MapFact<Var, Value> duplicate() {
+    public MapFact<Var, Value> copy() {
         return new CPFact(this.map);
     }
 

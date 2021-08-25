@@ -23,7 +23,7 @@ public class FactTest {
     @Test
     public void testToppedSetFact() {
         ToppedSetFact<Integer> top = new ToppedSetFact<>(true);
-        ToppedSetFact<Integer> fact1 = top.duplicate();
+        ToppedSetFact<Integer> fact1 = top.copy();
         fact1.intersect(top);
         Assert.assertTrue(fact1.isTop());
 

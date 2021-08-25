@@ -39,8 +39,7 @@ public class MapFact<K, V> {
      * @return the value to which the specified key is mapped,
      * or null if this map contains no mapping for the key.
      */
-    public V get(Object key) {
-        //noinspection SuspiciousMethodCalls
+    public V get(K key) {
         return map.get(key);
     }
 
@@ -67,9 +66,9 @@ public class MapFact<K, V> {
     }
 
     /**
-     * Creates a duplication of this fact.
+     * Creates and returns a copy of this fact.
      */
-    public MapFact<K, V> duplicate() {
+    public MapFact<K, V> copy() {
         return new MapFact<>(this.map);
     }
 

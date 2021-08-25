@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * Represents set-like data-flow facts.
  * This fact can represent a top element in the lattice, i.e., Universe.
  * Note that the top element is conceptual, i.e., it is mock and does not
- * really contains all elements in the domain, thus remove and iteration
+ * really contain all elements in the domain, thus remove and iteration
  * operations on the top element are unsupported.
  *
  * @param <E> type of elements
@@ -53,7 +53,7 @@ public class ToppedSetFact<E> extends SetFact<E> {
     }
 
     @Override
-    public boolean contains(Object e) {
+    public boolean contains(E e) {
         return isTop || super.contains(e);
     }
 
@@ -112,10 +112,10 @@ public class ToppedSetFact<E> extends SetFact<E> {
     }
 
     @Override
-    public ToppedSetFact<E> duplicate() {
-        ToppedSetFact<E> dup = new ToppedSetFact<>(set);
-        dup.setTop(isTop);
-        return dup;
+    public ToppedSetFact<E> copy() {
+        ToppedSetFact<E> copy = new ToppedSetFact<>(set);
+        copy.setTop(isTop);
+        return copy;
     }
 
     @Override

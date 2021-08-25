@@ -18,6 +18,9 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 
+/**
+ * Implementation of classic live variable analysis.
+ */
 public class LiveVariableAnalysis extends
         AbstractDataflowAnalysis<Stmt, SetFact<Var>> {
 
@@ -49,7 +52,7 @@ public class LiveVariableAnalysis extends
 
     @Override
     public boolean transferNode(Stmt stmt, SetFact<Var> in, SetFact<Var> out) {
-        SetFact<Var> oldIn = in.duplicate();
+        SetFact<Var> oldIn = in.copy();
         in.set(out);
         // kill definition in stmt
         stmt.getDef().ifPresent(def -> {

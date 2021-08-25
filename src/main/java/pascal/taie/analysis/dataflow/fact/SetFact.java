@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 /**
  * Represents set-like data-flow facts.
- * TODO: implement copy-on-write?
  *
  * @param <E> type of elements
  */
@@ -42,8 +41,7 @@ public class SetFact<E> {
     /**
      * @return true if this set contains the specified element, otherwise false.
      */
-    public boolean contains(Object e) {
-        //noinspection SuspiciousMethodCalls
+    public boolean contains(E e) {
         return set.contains(e);
     }
 
@@ -57,7 +55,7 @@ public class SetFact<E> {
     }
 
     /**
-     * Removes an element from this fact (if present).
+     * Removes an element from this fact.
      *
      * @return true if an element was removed as a result of the call, otherwise false.
      */
@@ -66,7 +64,7 @@ public class SetFact<E> {
     }
 
     /**
-     * Removes all the elements of this collection that satisfy the given predicate.
+     * Removes all the elements of this fact that satisfy the given predicate.
      *
      * @return true if any elements were removed as a result of the call,
      * otherwise false.
@@ -76,7 +74,7 @@ public class SetFact<E> {
     }
 
     /**
-     * Unions other fact.
+     * Unions other fact into this fact.
      *
      * @return true if this fact changed as a result of the call, otherwise false.
      */
@@ -85,16 +83,16 @@ public class SetFact<E> {
     }
 
     /**
-     * @return a new fact which is the union of given f1 and f2.
+     * @return a new fact which is the union of this and other facts.
      */
     public SetFact<E> unionWith(SetFact<E> other) {
-        SetFact<E> result = duplicate();
+        SetFact<E> result = copy();
         result.union(other);
         return result;
     }
 
     /**
-     * Intersects other fact
+     * Intersects this fact with other fact.
      *
      * @return true if this fact changed as a result of the call, otherwise false.
      */
@@ -103,16 +101,16 @@ public class SetFact<E> {
     }
 
     /**
-     * @return a new fact which is the intersection of this and other.
+     * @return a new fact which is the intersection of this and other facts.
      */
     public SetFact<E> intersectWith(SetFact<E> other) {
-        SetFact<E> result = duplicate();
+        SetFact<E> result = copy();
         result.intersect(other);
         return result;
     }
 
     /**
-     * Sets the content of this set to other set.
+     * Sets the content of this set to the same as other set.
      */
     public void set(SetFact<E> other) {
         clear();
@@ -120,9 +118,9 @@ public class SetFact<E> {
     }
 
     /**
-     * Creates a duplication of this fact.
+     * Creates and returns a copy of this fact.
      */
-    public SetFact<E> duplicate() {
+    public SetFact<E> copy() {
         return new SetFact<>(this.set);
     }
 

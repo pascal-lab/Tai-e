@@ -95,9 +95,11 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
             Stmt stmt, NodeResult<Stmt, SetFact<Var>> liveVars) {
         if (stmt instanceof AssignStmt<?, ?>) {
             AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
-            return assign.getLValue() instanceof Var &&
-                    !liveVars.getOutFact(assign).contains(assign.getLValue()) &&
-                    hasNoSideEffect(assign.getRValue());
+            if (assign.getLValue() instanceof Var) {
+                Var lhs = (Var) assign.getLValue();
+                return !liveVars.getOutFact(assign).contains(lhs) &&
+                        hasNoSideEffect(assign.getRValue());
+            }
         }
         return false;
     }

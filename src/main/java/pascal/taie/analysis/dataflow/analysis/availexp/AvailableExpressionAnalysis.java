@@ -71,7 +71,7 @@ public class AvailableExpressionAnalysis extends
             // true to ensure that the successors the will be analyzed later
             return true;
         }
-        SetFact<ExpWrapper> oldOut = out.duplicate();
+        SetFact<ExpWrapper> oldOut = out.copy();
         out.set(in);
         if (stmt instanceof DefinitionStmt) {
             Exp lvalue = ((DefinitionStmt<?, ?>) stmt).getLValue();

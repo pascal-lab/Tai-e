@@ -20,13 +20,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Solver for interprocedural data-flow analysis.
- * The workload of interprocedural analysis is heavy, thus we always
+ * Solver for inter-procedural data-flow analysis.
+ * The workload of inter-procedural analysis is heavy, thus we always
  * adopt work-list algorithm for efficiency.
  */
 class InterSolver<Method, Node, Fact> {
 
-    private final InterDataflowAnalysis<Method, Node, Fact> analysis;
+    private final InterDataflowAnalysis<Node, Fact> analysis;
 
     private final ICFG<Method, Node> icfg;
 
@@ -34,7 +34,7 @@ class InterSolver<Method, Node, Fact> {
 
     private Queue<Node> workList;
 
-    InterSolver(InterDataflowAnalysis<Method, Node, Fact> analysis,
+    InterSolver(InterDataflowAnalysis<Node, Fact> analysis,
                 ICFG<Method, Node> icfg) {
         this.analysis = analysis;
         this.icfg = icfg;

@@ -24,7 +24,7 @@ import pascal.taie.config.AnalysisConfig;
 
 public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         extends InterproceduralAnalysis
-        implements InterDataflowAnalysis<Method, Node, Fact> {
+        implements InterDataflowAnalysis<Node, Fact> {
 
     protected ICFG<Method, Node> icfg;
 
