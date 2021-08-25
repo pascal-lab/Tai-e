@@ -27,9 +27,43 @@ import java.util.Map;
  * @param <Node> type of ICFG nodes
  * @param <Fact> type of data-flow facts
  */
-public class InterDataflowResult<Node, Fact> extends NodeResult<Node, Fact> {
+public class InterDataflowResult<Node, Fact> implements NodeResult<Node, Fact> {
+
+    private final Map<Node, Fact> inFacts = new LinkedHashMap<>();
+
+    private final Map<Node, Fact> outFacts = new LinkedHashMap<>();
 
     private final Map<ICFGEdge<Node>, Fact> edgeFacts = new LinkedHashMap<>();
+
+    /**
+     * @return the flowing-in fact of given node.
+     */
+    @Override
+    public Fact getInFact(Node node) {
+        return inFacts.get(node);
+    }
+
+    /**
+     * Associates a data-flow fact with a node as its flowing-in fact.
+     */
+    public void setInFact(Node node, Fact fact) {
+        inFacts.put(node, fact);
+    }
+
+    /**
+     * @return the flowing-out fact of given node.
+     */
+    @Override
+    public Fact getOutFact(Node node) {
+        return outFacts.get(node);
+    }
+
+    /**
+     * Associates a data-flow fact with a node as its flowing-out fact.
+     */
+    public void setOutFact(Node node, Fact fact) {
+        outFacts.put(node, fact);
+    }
 
     /**
      * @return the fact of given edge.

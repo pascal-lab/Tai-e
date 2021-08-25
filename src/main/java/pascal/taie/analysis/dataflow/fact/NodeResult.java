@@ -12,47 +12,21 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
- * An object which manages the data-flow facts associates with
- * the nodes of a graph.
+ * An interface for querying data-flow results.
  *
  * @param <Node> type of graph nodes
  * @param <Fact> type of data-flow facts
  */
-public class NodeResult<Node, Fact> {
-
-    private final Map<Node, Fact> inFacts = new LinkedHashMap<>();
-
-    private final Map<Node, Fact> outFacts = new LinkedHashMap<>();
+public interface NodeResult<Node, Fact> {
 
     /**
      * @return the flowing-in fact of given node.
      */
-    public Fact getInFact(Node node) {
-        return inFacts.get(node);
-    }
-
-    /**
-     * Associates a data-flow fact with a node as its flowing-in fact.
-     */
-    public void setInFact(Node node, Fact fact) {
-        inFacts.put(node, fact);
-    }
+    Fact getInFact(Node node);
 
     /**
      * @return the flowing-out fact of given node.
      */
-    public Fact getOutFact(Node node) {
-        return outFacts.get(node);
-    }
-
-    /**
-     * Associates a data-flow fact with a node as its flowing-out fact.
-     */
-    public void setOutFact(Node node, Fact fact) {
-        outFacts.put(node, fact);
-    }
+    Fact getOutFact(Node node);
 }

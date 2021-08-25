@@ -14,7 +14,6 @@ package pascal.taie.analysis.dataflow.solver;
 
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
-import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 
@@ -69,7 +68,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
         });
     }
 
-    private Fact getOrNewOutFact(NodeResult<Node, Fact> result, Node node) {
+    private Fact getOrNewOutFact(DataflowResult<Node, Fact> result, Node node) {
         Fact fact = result.getOutFact(node);
         if (fact == null) {
             fact = analysis.newInitialFact();
@@ -131,7 +130,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
         });
     }
 
-    private Fact getOrNewInFact(NodeResult<Node, Fact> result, Node node) {
+    private Fact getOrNewInFact(DataflowResult<Node, Fact> result, Node node) {
         Fact fact = result.getInFact(node);
         if (fact == null) {
             fact = analysis.newInitialFact();
