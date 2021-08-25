@@ -44,6 +44,11 @@ abstract class AbstractStmt implements Stmt {
         this.lineNumber = lineNumber;
     }
 
+    // Following three methods provide default behaviors for the three
+    // implemented APIs (declared in Stmt). The subclasses of this class
+    // should override these APIs iff their behaviors are different from
+    // the default ones.
+
     @Override
     public Optional<LValue> getDef() {
         return Optional.empty();
@@ -52,5 +57,10 @@ abstract class AbstractStmt implements Stmt {
     @Override
     public List<RValue> getUses() {
         return List.of();
+    }
+
+    @Override
+    public boolean canFallThrough() {
+        return true;
     }
 }

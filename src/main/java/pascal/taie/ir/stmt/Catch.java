@@ -41,11 +41,6 @@ public class Catch extends AbstractStmt {
     }
 
     @Override
-    public boolean canFallThrough() {
-        return true;
-    }
-
-    @Override
     public void accept(StmtVisitor visitor) {
         visitor.visit(this);
     }

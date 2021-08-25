@@ -24,9 +24,4 @@ public abstract class DefinitionStmt<L extends LValue, R extends RValue>
     L getLValue();
 
     public abstract R getRValue();
-
-    @Override
-    public boolean canFallThrough() {
-        return true;
-    }
 }

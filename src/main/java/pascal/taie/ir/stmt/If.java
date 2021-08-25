@@ -50,11 +50,6 @@ public class If extends JumpStmt {
     }
 
     @Override
-    public boolean canFallThrough() {
-        return true;
-    }
-
-    @Override
     public Stream<Stmt> targets() {
         return Stream.of(target);
     }
