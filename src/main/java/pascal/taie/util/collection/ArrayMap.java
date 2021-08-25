@@ -88,9 +88,9 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     @Override
     public V put(K key, V value) {
         Objects.requireNonNull(key, NULL_KEY);
-        ensureCapacity(size() + 1);
         Entry<K, V> e = getEntry(key);
         if (e == null) {
+            ensureCapacity(size() + 1);
             entries.add(new MapEntry<>(key, value));
             return null;
         } else {

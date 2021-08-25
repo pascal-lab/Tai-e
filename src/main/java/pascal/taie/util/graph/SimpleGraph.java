@@ -12,13 +12,12 @@
 
 package pascal.taie.util.graph;
 
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Maps.addToMapSet;
-import static pascal.taie.util.collection.Maps.newMap;
-import static pascal.taie.util.collection.Sets.newSet;
 
 /**
  * A simple map-based implementation of {@link Graph<N>}.
@@ -27,11 +26,11 @@ import static pascal.taie.util.collection.Sets.newSet;
  */
 public class SimpleGraph<N> implements Graph<N> {
 
-    private final Set<N> nodes = newSet();
+    private final Set<N> nodes = Sets.newSet();
 
-    private final Map<N, Set<N>> predMap = newMap();
+    private final Map<N, Set<N>> predMap = Maps.newMap();
 
-    private final Map<N, Set<N>> succMap = newMap();
+    private final Map<N, Set<N>> succMap = Maps.newMap();
 
     public void addNode(N node) {
         nodes.add(node);
@@ -40,8 +39,8 @@ public class SimpleGraph<N> implements Graph<N> {
     public void addEdge(N source, N target) {
         nodes.add(source);
         nodes.add(target);
-        addToMapSet(predMap, target, source);
-        addToMapSet(succMap, source, target);
+        Maps.addToMapSet(predMap, target, source);
+        Maps.addToMapSet(succMap, source, target);
     }
 
     @Override

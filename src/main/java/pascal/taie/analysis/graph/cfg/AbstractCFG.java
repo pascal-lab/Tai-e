@@ -14,15 +14,13 @@ package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Maps.addToMapSet;
-import static pascal.taie.util.collection.Maps.newMap;
-import static pascal.taie.util.collection.Sets.newSet;
 
 abstract class AbstractCFG<N> implements CFG<N> {
 
@@ -32,14 +30,19 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     protected N exit;
 
-    protected final Set<N> nodes = newSet();
+    protected final Set<N> nodes;
 
-    private final Map<N, Set<Edge<N>>> inEdges = newMap();
+    private final Map<N, Set<Edge<N>>> inEdges;
 
-    private final Map<N, Set<Edge<N>>> outEdges = newMap();
+    private final Map<N, Set<Edge<N>>> outEdges;
 
     AbstractCFG(IR ir) {
         this.ir = ir;
+        // number of nodes = number of statements in IR + entry + exit
+        int nNodes = ir.getStmts().size() + 2;
+        nodes = Sets.newSet(nNodes);
+        inEdges = Maps.newMap(nNodes);
+        outEdges = Maps.newMap(nNodes);
     }
 
     @Override
@@ -96,8 +99,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
             ((ExceptionalEdge<N>) existingEdge).addExceptions(
                     edge.exceptions());
         } else {
-            addToMapSet(inEdges, edge.getTarget(), edge);
-            addToMapSet(outEdges, edge.getSource(), edge);
+            Maps.addToMapSet(inEdges, edge.getTarget(), edge);
+            Maps.addToMapSet(outEdges, edge.getSource(), edge);
         }
     }
 

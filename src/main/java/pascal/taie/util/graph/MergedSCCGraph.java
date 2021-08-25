@@ -37,7 +37,7 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     private void init(Graph<N> graph) {
         nodes = Sets.newSet();
         // Map from original node to the corresponding merged node.
-        Map<N, MergedNode<N>> nodeMap = Maps.newMap();
+        Map<N, MergedNode<N>> nodeMap = Maps.newMap(graph.getNumberOfNodes());
         SCC<N> scc = new SCC<>(graph);
         scc.getComponents().forEach(component -> {
             MergedNode<N> node = new MergedNode<>(component);

@@ -60,8 +60,8 @@ public class SCC<N> {
         // use iterative (non-recursive) algorithm to avoid stack overflow
         // for large graph
         int index = 0;
-        Map<N, Integer> indexes = Maps.newMap();
-        Map<N, Integer> lows = Maps.newMap();
+        Map<N, Integer> indexes = Maps.newMap(graph.getNumberOfNodes());
+        Map<N, Integer> lows = Maps.newMap(graph.getNumberOfNodes());
         Deque<N> stack = new ArrayDeque<>();
         Set<N> inStack = Sets.newSet();
         for (N curr : graph) {
