@@ -35,7 +35,7 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
                         Fact predOut = analysis.hasEdgeTransfer() ?
                                 result.getEdgeFact(inEdge) :
                                 result.getOutFact(inEdge.getSource());
-                        analysis.mergeInto(predOut, in);
+                        analysis.meetInto(predOut, in);
                     });
                     // apply node transfer function
                     Fact out = result.getOutFact(node);
@@ -69,7 +69,7 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
                     // meet incoming facts from succ to node
                     cfg.succsOf(node).forEach(succ -> {
                         Fact succIn = result.getInFact(succ);
-                        analysis.mergeInto(succIn, out);
+                        analysis.meetInto(succIn, out);
                     });
                     // apply node transfer function
                     Fact in = result.getInFact(node);

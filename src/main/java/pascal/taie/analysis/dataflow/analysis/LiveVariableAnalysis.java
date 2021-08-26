@@ -46,8 +46,8 @@ public class LiveVariableAnalysis extends
     }
 
     @Override
-    public void mergeInto(SetFact<Var> fact, SetFact<Var> result) {
-        result.union(fact);
+    public void meetInto(SetFact<Var> fact, SetFact<Var> target) {
+        target.union(fact);
     }
 
     @Override

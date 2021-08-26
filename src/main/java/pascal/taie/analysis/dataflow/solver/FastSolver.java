@@ -170,7 +170,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                     Fact predOut = analysis.hasEdgeTransfer() ?
                             result.getEdgeFact(inEdge) :
                             result.getOutFact(inEdge.getSource());
-                    analysis.mergeInto(predOut, in);
+                    analysis.meetInto(predOut, in);
                 });
             }
             // apply node transfer function
@@ -209,7 +209,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                     Fact succIn = analysis.hasEdgeTransfer() ?
                             result.getEdgeFact(outEdge) :
                             result.getInFact(outEdge.getTarget());
-                    analysis.mergeInto(succIn, out);
+                    analysis.meetInto(succIn, out);
                 });
             }
             // apply node transfer function

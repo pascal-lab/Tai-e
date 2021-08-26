@@ -109,8 +109,8 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public void mergeInto(MapFact<Var, Value> fact, MapFact<Var, Value> result) {
-        cp.mergeInto(fact, result);
+    public void meetInto(MapFact<Var, Value> fact, MapFact<Var, Value> target) {
+        cp.meetInto(fact, target);
     }
 
     @Override

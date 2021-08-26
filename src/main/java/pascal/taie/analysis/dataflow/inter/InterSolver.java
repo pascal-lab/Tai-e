@@ -81,7 +81,7 @@ class InterSolver<Method, Node, Fact> {
             Fact in = result.getInFact(node);
             icfg.inEdgesOf(node).forEach(inEdge -> {
                 Fact edgeFact = result.getEdgeFact(inEdge);
-                analysis.mergeInto(edgeFact, in);
+                analysis.meetInto(edgeFact, in);
             });
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);

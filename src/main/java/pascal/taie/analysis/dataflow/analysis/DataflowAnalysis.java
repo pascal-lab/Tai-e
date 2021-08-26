@@ -40,10 +40,10 @@ public interface DataflowAnalysis<Node, Fact> {
     Fact newInitialFact();
 
     /**
-     * Merges a fact into another (result) fact.
+     * Meets a fact into another (target) fact.
      * This function will be used to handle control-flow confluences.
      */
-    void mergeInto(Fact fact, Fact result);
+    void meetInto(Fact fact, Fact target);
 
     /**
      * Node Transfer function for the analysis.
