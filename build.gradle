@@ -34,3 +34,15 @@ dependencies {
 application {
     mainClassName = 'pascal.taie.Main'
 }
+
+// create a single Jar with all dependencies
+task allInOne(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'pascal.taie.Main'
+    }
+    archiveBaseName = project.name + '-all'
+    from { configurations.compile.collect {
+        it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
