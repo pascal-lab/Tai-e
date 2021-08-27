@@ -23,7 +23,7 @@ import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 
-import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -58,8 +58,8 @@ public class Main {
     }
 
     private static List<AnalysisConfig> processConfigs(Options options) {
-        File configFile = Configs.getAnalysisConfig();
-        List<AnalysisConfig> analysisConfigs = AnalysisConfig.readConfigs(configFile);
+        InputStream content = Configs.getAnalysisConfig();
+        List<AnalysisConfig> analysisConfigs = AnalysisConfig.parseConfigs(content);
         ConfigManager manager = new ConfigManager(analysisConfigs);
         AnalysisPlanner planner = new AnalysisPlanner(manager);
         boolean reachableScope = options.getScope().equals(Scope.REACHABLE);

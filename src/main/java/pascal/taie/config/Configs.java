@@ -13,6 +13,7 @@
 package pascal.taie.config;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
 
@@ -41,14 +42,27 @@ public final class Configs {
     }
 
     /**
-     * @return the file for storing analysis configurations.
+     * File name of analysis configuration.
      * TODO: the path of configuration file is hardcoded, make it configurable?
      */
-    public static File getAnalysisConfig() {
-        URL url = Objects.requireNonNull(Configs.class
+    private static final String CONFIG = "tai-e-analyses.yml";
+
+    /**
+     * @return the content of analysis configuration.
+     */
+    public static InputStream getAnalysisConfig() {
+        return Configs.class
                 .getClassLoader()
-                .getResource("tai-e-analyses.yml"));
-        return new File(url.getFile());
+                .getResourceAsStream(CONFIG);
+    }
+
+    /**
+     * @return the URL of analysis configuration.
+     */
+    public static URL getAnalysisConfigURL() {
+        return Configs.class
+                .getClassLoader()
+                .getResource(CONFIG);
     }
 
     /**

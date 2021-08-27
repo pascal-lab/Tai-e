@@ -47,7 +47,7 @@ public class ConfigManager {
     private void addConfig(AnalysisConfig config) {
         if (configs.containsKey(config.getId())) {
             throw new ConfigException("There are multiple analyses for the same id " +
-                    config.getId() + " in " + Configs.getAnalysisConfig());
+                    config.getId() + " in " + Configs.getAnalysisConfigURL());
         }
         configs.put(config.getId(), config);
     }
@@ -62,7 +62,7 @@ public class ConfigManager {
         AnalysisConfig config = configs.get(id);
         if (config == null) {
             throw new ConfigException("Analysis \"" + id + "\" is not found in " +
-                    Configs.getAnalysisConfig());
+                    Configs.getAnalysisConfigURL());
         }
         return config;
     }

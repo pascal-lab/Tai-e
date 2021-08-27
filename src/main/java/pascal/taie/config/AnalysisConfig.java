@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,16 +171,16 @@ public class AnalysisConfig {
     }
 
     /**
-     * Reads a list of AnalysisConfig from given file.
+     * Parses a list of AnalysisConfig from given input stream.
      */
-    public static List<AnalysisConfig> readConfigs(File file) {
+    public static List<AnalysisConfig> parseConfigs(InputStream content) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, AnalysisConfig.class);
         try {
-            return mapper.readValue(file, type);
+            return mapper.readValue(content, type);
         } catch (IOException e) {
-            throw new ConfigException("Failed to read analysis config file " + file, e);
+            throw new ConfigException("Failed to read analysis config file", e);
         }
     }
 }
