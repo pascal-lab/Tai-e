@@ -32,7 +32,7 @@ dependencies {
 }
 
 application {
-    mainClassName = 'pascal.taie.Main'
+    mainClass.set('pascal.taie.Main')
 }
 
 // create a single Jar with all dependencies
