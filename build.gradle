@@ -41,8 +41,11 @@ task allInOne(type: Jar) {
         attributes 'Main-Class': 'pascal.taie.Main'
     }
     archiveBaseName = project.name + '-all'
-    from { configurations.compileClasspath.collect {
-        it.isDirectory() ? it : zipTree(it) }
+    from {
+        configurations.compileClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with jar
 }
