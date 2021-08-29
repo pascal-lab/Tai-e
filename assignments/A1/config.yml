@@ -1,12 +1,12 @@
 name: A1
 exclude:
-  - pascal.analysis.graph.callgraph.*
-  - pascal.analysis.graph.icfg.*
-  - pascal.analysis.pta.*
-  - pascal.analysis.dataflow.analysis.*
-  - pascal.analysis.dataflow.fact.*
-  - pascal.analysis.dataflow.solver.*
-  - pascal.analysis.dataflow.inter.*
+  - pascal.taie.analysis.graph.callgraph.*
+  - pascal.taie.analysis.graph.icfg.*
+  - pascal.taie.analysis.pta.*
+  - pascal.taie.analysis.dataflow.analysis.*
+  - pascal.taie.analysis.dataflow.fact.*
+  - pascal.taie.analysis.dataflow.solver.*
+  - pascal.taie.analysis.dataflow.inter.*
 sourceFiles:
   - pascal.taie.ir.stmt.Stmt
   - pascal.taie.ir.exp.Exp
