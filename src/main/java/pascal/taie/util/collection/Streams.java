@@ -43,4 +43,23 @@ public final class Streams {
         Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), false);
     }
+
+    /**
+     * Leverages {@link Stream#concat(Stream, Stream)} to create a lazily
+     * concatenated stream whose elements are all the elements of multiple
+     * given streams. The resulting stream is ordered if all input streams
+     * are ordered, and parallel if one of the input streams is parallel.
+     *
+     * @param streams the streams to be concatenated
+     * @param <T>     the type of stream elements
+     * @return the concatenated stream
+     */
+    @SafeVarargs
+    public static <T> Stream<T> concat(Stream<? extends T>... streams) {
+        Stream<T> result = Stream.of();
+        for (int i = streams.length - 1; i >= 0; --i) {
+            result = Stream.concat(streams[i], result);
+        }
+        return result;
+    }
 }

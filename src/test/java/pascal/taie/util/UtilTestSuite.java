@@ -21,6 +21,7 @@ import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
 import pascal.taie.util.collection.IndexMapTest;
 import pascal.taie.util.collection.SetQueueTest;
+import pascal.taie.util.collection.StreamsTest;
 import pascal.taie.util.graph.GraphTest;
 
 @RunWith(Suite.class)
@@ -33,6 +34,7 @@ import pascal.taie.util.graph.GraphTest;
         IndexMapTest.class,
         SetQueueTest.class,
         CollectionUtilsTest.class,
+        StreamsTest.class,
         // graph
         GraphTest.class,
 })
