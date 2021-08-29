@@ -1,0 +1,25 @@
+name: A2
+exclude:
+  - pascal.analysis.graph.callgraph.*
+  - pascal.analysis.graph.icfg.*
+  - pascal.analysis.pta.*
+  - pascal.analysis.dataflow.analysis.*
+  - pascal.analysis.dataflow.fact.*
+  - pascal.analysis.dataflow.solver.*
+  - pascal.analysis.dataflow.inter.*
+sourceFiles:
+  - pascal.taie.ir.stmt.Stmt
+  - pascal.taie.ir.exp.Exp
+  - pascal.taie.ir.exp.Var
+  - pascal.taie.analysis.graph.cfg.CFG
+  - pascal.taie.util.graph.Graph
+  - pascal.taie.analysis.dataflow.analysis.DataflowAnalysis
+  - pascal.taie.analysis.dataflow.fact.DataflowResult
+  - pascal.taie.analysis.dataflow.fact.NodeResult
+  - pascal.taie.analysis.dataflow.fact.MapFact
+  - pascal.taie.analysis.dataflow.analysis.constprop.CPFact
+  - pascal.taie.analysis.dataflow.analysis.constprop.Value
+incompleteFiles:
+  - pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
+  - pascal.taie.analysis.dataflow.solver.Solver
+  - pascal.taie.analysis.dataflow.solver.WorkListSolver
