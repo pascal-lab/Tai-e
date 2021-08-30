@@ -22,6 +22,7 @@ import pascal.taie.config.ConfigException;
 import pascal.taie.config.Configs;
 import pascal.taie.util.collection.Streams;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,9 +30,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -43,7 +46,16 @@ final class AssignmentMaker {
 
     private static final Logger logger = LogManager.getLogger(AssignmentMaker.class);
 
+    /**
+     * Relative path to Tai-e jar.
+     */
     private static final String TAI_E = "build/libs/tai-e-all.jar";
+
+    private static final Path SOURCE_DIR = Path.of("src/main/java");
+
+    private static final Path TEST_SOURCE_DIR = Path.of("src/test/java");
+
+    private static final Path TEST_RESOURCES_DIR = Path.of("src/test/resources");
 
     private final static String CLASS_SUFFIX = ".class";
 
@@ -53,14 +65,20 @@ final class AssignmentMaker {
         }
     }
 
+    /**
+     * Path to the directory for assignment content.
+     */
     private final Path ASS_DIR;
 
+    /**
+     * Path to the directory for the generated assignment.
+     */
     private final Path TARGET_DIR;
 
     private final Config config;
 
     private AssignmentMaker(String name) {
-        ASS_DIR = Path.of("assignments").resolve(name);
+        ASS_DIR = Path.of("assignments", name);
         TARGET_DIR = Configs.getOutputDir().toPath().resolve(name);
         File target = TARGET_DIR.toFile();
         if (target.exists()) {
@@ -92,10 +110,12 @@ final class AssignmentMaker {
         packDependencies();
         copySourceFiles();
         copyIncompleteFiles();
+        copyTestClasses();
+        copyTestResources();
     }
 
     private void packDependencies() {
-        Path path = Path.of(TARGET_DIR.toString(), "lib/dependencies.jar");
+        Path path = TARGET_DIR.resolve("lib/dependencies.jar");
         File parent = path.getParent().toFile();
         if (!parent.exists()) {
             parent.mkdirs();
@@ -119,26 +139,33 @@ final class AssignmentMaker {
         }
     }
 
-    private static final String SOURCE_DIR = "src/main/java";
-
     private void copySourceFiles() {
-        Path source = Path.of(SOURCE_DIR);
-        Path target = Path.of(TARGET_DIR.toString(), SOURCE_DIR);
+        Path target = TARGET_DIR.resolve(SOURCE_DIR);
         config.getSourceFiles()
-                .forEach(className -> copyClass(source, target, className));
+                .forEach(className -> copyClass(SOURCE_DIR, target, className,
+                        AssignmentMaker::toSourcePath));
     }
 
     private void copyIncompleteFiles() {
         Path source = ASS_DIR;
-        Path target = Path.of(TARGET_DIR.toString(), SOURCE_DIR);
+        Path target = TARGET_DIR.resolve(SOURCE_DIR);
         config.getIncompleteFiles()
-                .forEach(className -> copyClass(source, target, className));
+                .forEach(className -> copyClass(source, target, className,
+                        AssignmentMaker::toSourcePath));
     }
 
-    private void copyClass(Path source, Path target, String className) {
-        String[] path = toSourcePath(className);
-        Path from = Path.of(source.toString(), path);
-        Path to = Path.of(target.toString(), path);
+    private void copyTestClasses() {
+        Path target = TARGET_DIR.resolve(TEST_SOURCE_DIR);
+        config.getTestClasses()
+                .forEach(className -> copyClass(TEST_SOURCE_DIR, target, className,
+                        AssignmentMaker::toSourcePath));
+    }
+
+    private void copyClass(Path source, Path target,
+                           String item, Function<String, String> converter) {
+        String path = converter.apply(item);
+        Path from = source.resolve(path);
+        Path to = target.resolve(path);
         File parent = to.getParent().toFile();
         if (!parent.exists()) {
             parent.mkdirs();
@@ -154,10 +181,31 @@ final class AssignmentMaker {
      * Converts a class name to corresponding path of source file,
      * e.g., class a.b.C will be converted to a/b/C.java.
      */
-    private static String[] toSourcePath(String className) {
+    private static String toSourcePath(String className) {
         String[] split = className.split("\\.");
         split[split.length - 1] = split[split.length - 1] + ".java";
-        return split;
+        return String.join(File.separator, Arrays.asList(split));
+    }
+
+    private void copyTestResources() {
+        Path target = TARGET_DIR.resolve(TEST_RESOURCES_DIR);
+        config.getTestResources().forEach(item -> {
+            copyClass(TEST_RESOURCES_DIR, target, item, Function.identity());
+            copyClass(TEST_RESOURCES_DIR, target, item,
+                    AssignmentMaker::toExpectedPath);
+        });
+    }
+
+    private static @Nullable
+    String toExpectedPath(String testPath) {
+        String[] split = testPath.split("/");
+        String file = split[split.length - 1];
+        if (file.endsWith(".java")) {
+            split[split.length - 1] = file.substring(0,
+                    file.length() - ".java".length()) + "-expected.txt";
+            return String.join(File.separator, Arrays.asList(split));
+        }
+        return null;
     }
 
     /**
