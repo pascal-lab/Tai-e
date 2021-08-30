@@ -57,6 +57,11 @@ final class AssignmentMaker {
 
     private static final Path TEST_RESOURCES_DIR = Path.of("src/test/resources");
 
+    /**
+     * Root directory of all assignment content.
+     */
+    private static final Path ASS_ROOT = Path.of("assignments");
+
     private final static String CLASS_SUFFIX = ".class";
 
     public static void main(String[] args) {
@@ -78,7 +83,7 @@ final class AssignmentMaker {
     private final Config config;
 
     private AssignmentMaker(String name) {
-        ASS_DIR = Path.of("assignments", name);
+        ASS_DIR = ASS_ROOT.resolve(name);
         TARGET_DIR = Configs.getOutputDir().toPath().resolve(name);
         File target = TARGET_DIR.toFile();
         if (target.exists()) {
@@ -112,6 +117,7 @@ final class AssignmentMaker {
         copyIncompleteFiles();
         copyTestClasses();
         copyTestResources();
+        copyCommonFiles();
     }
 
     private void packDependencies() {
@@ -142,27 +148,27 @@ final class AssignmentMaker {
     private void copySourceFiles() {
         Path target = TARGET_DIR.resolve(SOURCE_DIR);
         config.getSourceFiles()
-                .forEach(className -> copyClass(SOURCE_DIR, target, className,
+                .forEach(className -> copyFile(SOURCE_DIR, target, className,
                         AssignmentMaker::toSourcePath));
     }
 
     private void copyIncompleteFiles() {
         Path source = ASS_DIR;
         Path target = TARGET_DIR.resolve(SOURCE_DIR);
-        config.getIncompleteFiles()
-                .forEach(className -> copyClass(source, target, className,
+        config.getOverwrittenFiles()
+                .forEach(className -> copyFile(source, target, className,
                         AssignmentMaker::toSourcePath));
     }
 
     private void copyTestClasses() {
         Path target = TARGET_DIR.resolve(TEST_SOURCE_DIR);
         config.getTestClasses()
-                .forEach(className -> copyClass(TEST_SOURCE_DIR, target, className,
+                .forEach(className -> copyFile(TEST_SOURCE_DIR, target, className,
                         AssignmentMaker::toSourcePath));
     }
 
-    private void copyClass(Path source, Path target,
-                           String item, Function<String, String> converter) {
+    private void copyFile(Path source, Path target,
+                          String item, Function<String, String> converter) {
         String path = converter.apply(item);
         Path from = source.resolve(path);
         Path to = target.resolve(path);
@@ -175,6 +181,10 @@ final class AssignmentMaker {
         } catch (IOException e) {
             throw new RuntimeException("Failed to copy " + from + " to " + to, e);
         }
+    }
+
+    private void copyFile(Path source, Path target, String item) {
+        copyFile(source, target, item, Function.identity());
     }
 
     /**
@@ -190,8 +200,8 @@ final class AssignmentMaker {
     private void copyTestResources() {
         Path target = TARGET_DIR.resolve(TEST_RESOURCES_DIR);
         config.getTestResources().forEach(item -> {
-            copyClass(TEST_RESOURCES_DIR, target, item, Function.identity());
-            copyClass(TEST_RESOURCES_DIR, target, item,
+            copyFile(TEST_RESOURCES_DIR, target, item);
+            copyFile(TEST_RESOURCES_DIR, target, item,
                     AssignmentMaker::toExpectedPath);
         });
     }
@@ -206,6 +216,17 @@ final class AssignmentMaker {
             return String.join(File.separator, Arrays.asList(split));
         }
         return null;
+    }
+
+    /**
+     * Copies common files that are the same across assignments.
+     */
+    private void copyCommonFiles() {
+        // build.gradle
+        copyFile(ASS_ROOT, TARGET_DIR, "build.gradle");
+        // copyright.txt
+        copyFile(ASS_ROOT, TARGET_DIR, "copyright.txt");
+        // Ax/plan.yml
     }
 
     /**
@@ -230,10 +251,11 @@ final class AssignmentMaker {
         private final List<String> sourceFiles;
 
         /**
-         * Incomplete files to be included in the assignment.
-         * These files should have been prepared in folder Ax/.
+         * Source files to be included in the assignment.
+         * These files overwrite the original source files in Tai-e for
+         * specific assignment, and should have been prepared in folder Ax/.
          */
-        private final List<String> incompleteFiles;
+        private final List<String> overwrittenFiles;
 
         /**
          * Test classes to be included in the assignment.
@@ -250,13 +272,13 @@ final class AssignmentMaker {
                 @JsonProperty("name") String name,
                 @JsonProperty("exclude") List<String> exclude,
                 @JsonProperty("sourceFiles") List<String> sourceFiles,
-                @JsonProperty("incompleteFiles") List<String> incompleteFiles,
+                @JsonProperty("overwrittenFiles") List<String> overwrittenFiles,
                 @JsonProperty("testClasses") List<String> testClasses,
                 @JsonProperty("testResources") List<String> testResources) {
             this.name = name;
             this.exclude = Objects.requireNonNullElse(exclude, List.of());
             this.sourceFiles = Objects.requireNonNullElse(sourceFiles, List.of());
-            this.incompleteFiles = Objects.requireNonNull(incompleteFiles);
+            this.overwrittenFiles = Objects.requireNonNull(overwrittenFiles);
             this.testClasses = Objects.requireNonNullElse(testClasses, List.of());
             this.testResources = Objects.requireNonNullElse(testResources, List.of());
         }
@@ -269,8 +291,8 @@ final class AssignmentMaker {
             return sourceFiles;
         }
 
-        private List<String> getIncompleteFiles() {
-            return incompleteFiles;
+        private List<String> getOverwrittenFiles() {
+            return overwrittenFiles;
         }
 
         private List<String> getTestClasses() {
@@ -286,14 +308,14 @@ final class AssignmentMaker {
             try {
                 return mapper.readValue(configFile, Config.class);
             } catch (IOException e) {
-                throw new ConfigException("Failed to read assignment config " + configFile);
+                throw new ConfigException("Failed to read assignment config " + configFile, e);
             }
         }
 
         private boolean shouldIncludeClass(String item) {
             return Streams.concat(exclude.stream(),
                             sourceFiles.stream(),
-                            incompleteFiles.stream())
+                            overwrittenFiles.stream())
                     .noneMatch(entry -> match(item, entry));
         }
 

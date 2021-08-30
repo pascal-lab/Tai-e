@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation files('lib/dependencies.jar')
+    testImplementation 'junit:junit:4.13'
+}
+
+application {
+    mainClass.set('pascal.taie.Main')
+}
