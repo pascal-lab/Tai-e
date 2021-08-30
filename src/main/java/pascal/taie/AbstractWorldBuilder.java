@@ -63,7 +63,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                         .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +
-                        " is not supported yet");
+                        " is not supported yet", e);
             }
         }
     }

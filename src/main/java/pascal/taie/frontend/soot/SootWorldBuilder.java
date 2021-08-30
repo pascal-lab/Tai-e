@@ -88,6 +88,13 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
+        if (options.isPreBuildIR()) {
+            // we need to set this option to false when pre-building IRs,
+            // otherwise Soot throws RuntimeException saying
+            // "No method source set for method ...".
+            // TODO: figure out the reason of "No method source"
+            soot.options.Options.v().set_drop_bodies_after_load(false);
+        }
 
         Scene scene = G.v().soot_Scene();
         // The following line is necessary to avoid a runtime exception
