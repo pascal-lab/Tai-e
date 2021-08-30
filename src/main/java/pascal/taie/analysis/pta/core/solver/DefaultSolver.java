@@ -54,7 +54,6 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
@@ -129,9 +128,8 @@ public class DefaultSolver extends Solver {
             processNewCSMethod(csMethod);
         }
         // setup main arguments
-        NativeModel nativeModel = World.getNativeModel();
-        Obj args = nativeModel.getMainArgs();
-        Obj argsElem = nativeModel.getMainArgsElem();
+        Obj args = nativeObjs.getMainArgs();
+        Obj argsElem = nativeObjs.getMainArgsElem();
         addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);

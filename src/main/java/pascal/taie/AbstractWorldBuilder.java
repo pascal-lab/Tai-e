@@ -72,6 +72,6 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             TypeManager typeManager, ClassHierarchy hierarchy) {
         return World.getOptions().enableNativeModel() ?
                 new DefaultNativeModel(typeManager, hierarchy) :
-                new EmptyNativeModel(typeManager, hierarchy);
+                new EmptyNativeModel();
     }
 }

@@ -10,12 +10,9 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.natives;
+package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.core.heap.MockObj;
-import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
@@ -23,7 +20,10 @@ import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.language.classes.StringReps.THREAD;
 import static pascal.taie.language.classes.StringReps.THREAD_GROUP;
 
-abstract class AbstractNativeModel implements NativeModel {
+/**
+ * Models objects created by native code.
+ */
+public class NativeObjs {
 
     /**
      * Description for native-generating objects.
@@ -40,8 +40,7 @@ abstract class AbstractNativeModel implements NativeModel {
 
     private final Obj mainArgsElem; // Element in args
 
-    AbstractNativeModel(TypeManager typeManager,
-                        ClassHierarchy hierarchy) {
+    public NativeObjs(TypeManager typeManager) {
         mainThread = new MockObj(NATIVE_DESC, "<main-thread>",
                 typeManager.getClassType(THREAD));
         systemThreadGroup = new MockObj(NATIVE_DESC, "<system-thread-group>",
@@ -56,27 +55,22 @@ abstract class AbstractNativeModel implements NativeModel {
                 string, World.getMainMethod());
     }
 
-    @Override
     public Obj getMainThread() {
         return mainThread;
     }
 
-    @Override
     public Obj getSystemThreadGroup() {
         return systemThreadGroup;
     }
 
-    @Override
     public Obj getMainThreadGroup() {
         return mainThreadGroup;
     }
 
-    @Override
     public Obj getMainArgs() {
         return mainArgs;
     }
 
-    @Override
     public Obj getMainArgsElem() {
         return mainArgsElem;
     }

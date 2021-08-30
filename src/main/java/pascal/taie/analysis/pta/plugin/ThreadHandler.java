@@ -16,6 +16,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -25,7 +26,6 @@ import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.natives.NativeModel;
 
 import java.util.Set;
 
@@ -83,12 +83,12 @@ public class ThreadHandler implements Plugin {
         if (!solver.getOptions().getBoolean("implicit-entries")) {
             return;
         }
-        NativeModel nativeModel = World.getNativeModel();
+        NativeObjs nativeObjs = solver.getNativeObjs();
         Context context = solver.getContextSelector().getDefaultContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
-        Obj systemThreadGroup = nativeModel.getSystemThreadGroup();
+        Obj systemThreadGroup = nativeObjs.getSystemThreadGroup();
         IR threadGroupInitIR = hierarchy.getJREMethod(
                         "<java.lang.ThreadGroup: void <init>()>")
                 .getIR();
@@ -98,7 +98,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThreadGroup = nativeModel.getMainThreadGroup();
+        Obj mainThreadGroup = nativeObjs.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
                         "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
@@ -116,7 +116,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThread = nativeModel.getMainThread();
+        Obj mainThread = nativeObjs.getMainThread();
         IR threadInitIR = hierarchy.getJREMethod(
                         "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();

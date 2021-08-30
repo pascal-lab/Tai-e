@@ -25,6 +25,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -54,6 +55,8 @@ public abstract class Solver {
 
     protected final TypeManager typeManager;
 
+    protected final NativeObjs nativeObjs;
+
     protected CSManager csManager;
 
     protected Plugin plugin;
@@ -71,6 +74,7 @@ public abstract class Solver {
     protected Solver() {
         this.typeManager = World.getTypeManager();
         this.hierarchy = World.getClassHierarchy();
+        this.nativeObjs = new NativeObjs(typeManager);
     }
 
     public AnalysisOptions getOptions() {
@@ -87,6 +91,10 @@ public abstract class Solver {
 
     public TypeManager getTypeManager() {
         return typeManager;
+    }
+
+    public NativeObjs getNativeObjs() {
+        return nativeObjs;
     }
 
     public CSManager getCSManager() {

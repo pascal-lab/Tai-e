@@ -52,7 +52,7 @@ import static pascal.taie.language.classes.StringReps.OBJECT;
 import static pascal.taie.language.classes.StringReps.STRING;
 import static pascal.taie.util.collection.Maps.newMap;
 
-public class DefaultNativeModel extends AbstractNativeModel {
+public class DefaultNativeModel implements NativeModel {
 
     private static final Logger logger = LogManager.getLogger(DefaultNativeModel.class);
 
@@ -64,7 +64,6 @@ public class DefaultNativeModel extends AbstractNativeModel {
 
     public DefaultNativeModel(TypeManager typeManager,
                               ClassHierarchy hierarchy) {
-        super(typeManager, hierarchy);
         this.typeManager = typeManager;
         this.hierarchy = hierarchy;
         initModels();

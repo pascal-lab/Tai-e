@@ -12,21 +12,10 @@
 
 package pascal.taie.language.natives;
 
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 
 public interface NativeModel {
-
-    Obj getMainThread();
-
-    Obj getSystemThreadGroup();
-
-    Obj getMainThreadGroup();
-
-    Obj getMainArgs();
-
-    Obj getMainArgsElem();
 
     IR buildNativeIR(JMethod method);
 }

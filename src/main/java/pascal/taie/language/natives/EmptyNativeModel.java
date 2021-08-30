@@ -13,18 +13,12 @@
 package pascal.taie.language.natives;
 
 import pascal.taie.ir.IR;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.TypeManager;
 
 /**
  * Builds empty IR for every native method.
  */
-public class EmptyNativeModel extends AbstractNativeModel {
-
-    public EmptyNativeModel(TypeManager typeManager, ClassHierarchy hierarchy) {
-        super(typeManager, hierarchy);
-    }
+public class EmptyNativeModel implements NativeModel {
 
     @Override
     public IR buildNativeIR(JMethod method) {
