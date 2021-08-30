@@ -41,6 +41,8 @@ import java.util.jar.JarOutputStream;
 
 /**
  * Makes assignments according to configurations.
+ * Note: make sure to execute gradle allInOne task before using this class
+ * to make new assignments.
  */
 final class AssignmentMaker {
 
@@ -56,6 +58,11 @@ final class AssignmentMaker {
     private static final Path TEST_SOURCE_DIR = Path.of("src/test/java");
 
     private static final Path TEST_RESOURCES_DIR = Path.of("src/test/resources");
+
+    /**
+     * Directory for rt.jar. This jar is needed by Soot frontend.
+     */
+    private static final Path RT_DIR = Path.of("java-benchmarks/JREs/jre1.5");
 
     /**
      * Root directory of all assignment content.
@@ -226,6 +233,8 @@ final class AssignmentMaker {
         copyFile(ASS_ROOT, TARGET_DIR, "build.gradle");
         // copyright.txt
         copyFile(ASS_ROOT, TARGET_DIR, "copyright.txt");
+        // lib/rt.jar
+        copyFile(RT_DIR, TARGET_DIR.resolve("lib"), "rt.jar");
         // Ax/plan.yml
     }
 
