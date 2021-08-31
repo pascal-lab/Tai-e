@@ -236,6 +236,7 @@ final class AssignmentMaker {
         // lib/rt.jar
         copyFile(RT_DIR, TARGET_DIR.resolve("lib"), "rt.jar");
         // Ax/plan.yml
+        copyFile(ASS_DIR, TARGET_DIR, "plan.yml");
     }
 
     /**
