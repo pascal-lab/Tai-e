@@ -102,3 +102,4 @@
     analyses: [ ]
     action: dump # | compare
     file: null
+    log-mismatches: false # | whether log mismatched items

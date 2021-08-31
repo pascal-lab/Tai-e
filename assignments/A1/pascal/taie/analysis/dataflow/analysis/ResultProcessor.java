@@ -136,13 +136,16 @@ public class ResultProcessor extends InterproceduralAnalysis {
         // and the another one for intra-procedural analysis.
         // If an ID has result in World, then it is classified as
         // inter-procedural analysis, and others are intra-procedural analyses.
+        @SuppressWarnings("unchecked")
         Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
                 .stream()
                 .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
         if (groups.containsKey(false)) {
             processIntraResults(groups.get(false));
         }
-        mismatches.forEach(System.out::println);
+        if (getOptions().getBoolean("log-mismatches")) {
+            mismatches.forEach(logger::info);
+        }
         return mismatches;
     }
 
@@ -180,6 +183,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
         } else if (result instanceof NodeResult) {
+            @SuppressWarnings("unchecked")
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
             IR ir = method.getIR();
             ir.forEach(stmt -> out.println(toString(stmt, nodeResult)));
@@ -233,6 +237,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
             });
         } else if (result instanceof NodeResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
+            @SuppressWarnings("unchecked")
             NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
             IR ir = method.getIR();
             ir.forEach(stmt -> {
