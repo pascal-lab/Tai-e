@@ -38,8 +38,8 @@ application {
     mainClass.set('pascal.taie.Main')
 }
 
-// create a single Jar with all dependencies
 task allInOne(type: Jar) {
+    description 'Creates a single jar file including Tai-e and all dependencies'
     manifest {
         attributes 'Main-Class': 'pascal.taie.Main'
     }
@@ -51,4 +51,13 @@ task allInOne(type: Jar) {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with jar
+}
+
+task assignments(dependsOn: allInOne, type: JavaExec) {
+    description 'Generates assignments'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'pascal.taie.util.AssignmentMaker'
+    def cmdArgs = project.hasProperty("args") ?
+            project.getProperty("args") : ""
+    args cmdArgs.split()
 }
