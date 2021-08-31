@@ -5,7 +5,7 @@
 - id: cfg
   options:
     exception: explicit
-    dump: false
+    dump: true
 - id: livevar
   options: {}
 - id: process-result

@@ -13,5 +13,5 @@ dependencies {
 }
 
 application {
-    mainClass.set('pascal.taie.Main')
+    mainClass.set('pascal.taie.Assignment')
 }

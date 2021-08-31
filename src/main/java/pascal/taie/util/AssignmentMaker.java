@@ -91,7 +91,9 @@ final class AssignmentMaker {
 
     private AssignmentMaker(String name) {
         ASS_DIR = ASS_ROOT.resolve(name);
-        TARGET_DIR = Configs.getOutputDir().toPath().resolve(name);
+        TARGET_DIR = Configs.getOutputDir().toPath()
+                .resolve(name)
+                .resolve("tai-e");
         File target = TARGET_DIR.toFile();
         if (target.exists()) {
             deleteDirectory(TARGET_DIR);
