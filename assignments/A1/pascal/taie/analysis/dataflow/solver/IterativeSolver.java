@@ -24,58 +24,11 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
 
     @Override
     protected void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        boolean changed;
-        do {
-            changed = false;
-            for (Node node : cfg) {
-                if (!cfg.isEntry(node)) {
-                    // meet incoming facts from preds to node
-                    Fact in = result.getInFact(node);
-                    cfg.inEdgesOf(node).forEach(inEdge -> {
-                        Fact predOut = analysis.hasEdgeTransfer() ?
-                                result.getEdgeFact(inEdge) :
-                                result.getOutFact(inEdge.getSource());
-                        analysis.meetInto(predOut, in);
-                    });
-                    // apply node transfer function
-                    Fact out = result.getOutFact(node);
-                    boolean c = analysis.transferNode(node, in, out);
-                    if (c) {
-                        changed = true;
-                        cfg.outEdgesOf(node).forEach(outEdge -> {
-                            if (analysis.hasEdgeTransfer()) {
-                                // apply edge transfer if necessary
-                                Fact edgeFact = result.getEdgeFact(outEdge);
-                                analysis.transferEdge(outEdge, out, edgeFact);
-                            }
-                        });
-                    }
-                }
-            }
-        } while (changed);
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * No edge transfer.
-     */
     @Override
     protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        boolean changed;
-        do {
-            changed = false;
-            for (Node node : cfg) {
-                if (!cfg.isExit(node)) {
-                    Fact out = result.getOutFact(node);
-                    // meet incoming facts from succ to node
-                    cfg.succsOf(node).forEach(succ -> {
-                        Fact succIn = result.getInFact(succ);
-                        analysis.meetInto(succIn, out);
-                    });
-                    // apply node transfer function
-                    Fact in = result.getInFact(node);
-                    changed |= analysis.transferNode(node, in, out);
-                }
-            }
-        } while (changed);
+        // TODO - finish me
     }
 }
