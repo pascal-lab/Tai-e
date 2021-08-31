@@ -22,6 +22,7 @@ import pascal.taie.config.Configs;
 import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
+import pascal.taie.util.Timer;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -34,14 +35,16 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        Options options = processArgs(args);
-        List<AnalysisConfig> plan = processConfigs(options);
-        if (plan.isEmpty()) {
-            logger.info("No analyses are specified");
-            System.exit(0);
-        }
-        buildWorld(options, plan);
-        executePlan(plan);
+        Timer.runAndCount(() -> {
+            Options options = processArgs(args);
+            List<AnalysisConfig> plan = processConfigs(options);
+            if (plan.isEmpty()) {
+                logger.info("No analyses are specified");
+                System.exit(0);
+            }
+            buildWorld(options, plan);
+            executePlan(plan);
+        }, "Tai-e");
     }
 
     /**
@@ -101,16 +104,23 @@ public class Main {
     }
 
     private static void buildWorld(Options options, List<AnalysisConfig> plan) {
-        Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
-        try {
-            Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();
-            WorldBuilder builder = builderCtor.newInstance();
-            builder.build(options, plan);
-        } catch (InstantiationException | IllegalAccessException |
-                NoSuchMethodException | InvocationTargetException e) {
-            System.err.println("Failed to build world due to " + e);
-            System.exit(1);
-        }
+        Timer.runAndCount(() -> {
+            try {
+                Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
+                Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();
+                WorldBuilder builder = builderCtor.newInstance();
+                builder.build(options, plan);
+                logger.info("{} classes with {} methods in the world",
+                        World.getClassHierarchy().allClasses().count(),
+                        World.getClassHierarchy().allClasses()
+                                .mapToInt(c -> c.getDeclaredMethods().size())
+                                .sum());
+            } catch (InstantiationException | IllegalAccessException |
+                    NoSuchMethodException | InvocationTargetException e) {
+                System.err.println("Failed to build world due to " + e);
+                System.exit(1);
+            }
+        }, "WorldBuilder");
     }
 
     private static void executePlan(List<AnalysisConfig> plan) {

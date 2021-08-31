@@ -66,41 +66,42 @@ public class Timer {
 
     @Override
     public String toString() {
-        return String.format("(%s) elapsed time: %.2fs",
+        return String.format("[%s] elapsed time: %.2fs",
                 name, inSecond());
     }
 
     /**
      * Runs a task, log the elapsed time, and return the result.
      *
-     * @param task    task to be executed
-     * @param message message of the task
+     * @param task     task to be executed
+     * @param taskName name of the task
      */
-    public static <T> T runAndCount(Supplier<T> task, String message) {
-        Timer timer = new Timer(message);
+    public static <T> T runAndCount(Supplier<T> task, String taskName, Level level) {
+        logger.info("{} starts ...", taskName);
+        Timer timer = new Timer(taskName);
         timer.start();
         T result = task.get();
         timer.stop();
-        logger.info(timer);
+        logger.log(level, "{} finishes, elapsed time: {}", taskName,
+                String.format("%.2fs", timer.inSecond()));
         return result;
     }
 
     /**
      * Runs a task and log the elapsed time.
      *
-     * @param task    task to be executed
-     * @param message message of the task
+     * @param task     task to be executed
+     * @param taskName taskName of the task
      */
-    public static void runAndCount(Runnable task, String message) {
-        runAndCount(task, message, Level.INFO);
+    public static void runAndCount(Runnable task, String taskName) {
+        runAndCount(task, taskName, Level.INFO);
     }
 
-    public static void runAndCount(Runnable task, String message, Level level) {
-        Timer timer = new Timer(message);
-        timer.start();
-        task.run();
-        timer.stop();
-        logger.log(level, timer);
+    public static void runAndCount(Runnable task, String taskName, Level level) {
+        runAndCount(() -> {
+            task.run();
+            return null;
+        }, taskName, level);
     }
 
     /**

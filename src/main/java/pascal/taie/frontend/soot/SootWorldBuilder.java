@@ -25,7 +25,6 @@ import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.language.type.TypeManagerImpl;
-import pascal.taie.util.Timer;
 import soot.G;
 import soot.PackManager;
 import soot.Scene;
@@ -208,14 +207,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
     protected static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
         // TODO: parallelize?
-        Timer timer = new Timer("Build all classes");
-        timer.start();
         new ArrayList<>(scene.getClasses()).forEach(c ->
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
-        timer.stop();
-        logger.info(timer);
-        logger.info("#classes: {}", () -> hierarchy.allClasses().count());
-        logger.info("#methods: {}", () -> hierarchy.allClasses()
-                .mapToInt(c -> c.getDeclaredMethods().size()).sum());
     }
 }

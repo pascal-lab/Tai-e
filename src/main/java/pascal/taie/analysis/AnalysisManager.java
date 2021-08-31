@@ -46,7 +46,7 @@ public class AnalysisManager {
      */
     public void execute(List<AnalysisConfig> analysisPlan) {
         analysisPlan.forEach(config -> Timer.runAndCount(
-                () -> runAnalysis(config), "Run " + config.getId()));
+                () -> runAnalysis(config), config.getId()));
     }
 
     private void runAnalysis(AnalysisConfig config) {
@@ -114,7 +114,8 @@ public class AnalysisManager {
                             World.getOptions().getScope());
                 }
             }
-            logger.info("{} methods in the scope", scope.size());
+            logger.info("{} methods in scope ({}) of intra-procedural analysis",
+                    scope.size(), World.getOptions().getScope());
         }
         return scope;
     }
