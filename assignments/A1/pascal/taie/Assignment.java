@@ -22,9 +22,13 @@ import java.util.List;
 public class Assignment {
 
     public static void main(String[] args) {
-        List<String> argList = new ArrayList<>();
-        Collections.addAll(argList, "-pp", "-p", "plan.yml");
-        Collections.addAll(argList, args);
-        Main.main(argList.toArray(new String[0]));
+        if (args.length > 0) {
+            List<String> argList = new ArrayList<>();
+            Collections.addAll(argList, "-pp", "-p", "plan.yml");
+            Collections.addAll(argList, args);
+            Main.main(argList.toArray(new String[0]));
+        } else {
+            System.out.println("Usage: -cp <CLASS_PATH> -m <CLASS_NAME>");
+        }
     }
 }
