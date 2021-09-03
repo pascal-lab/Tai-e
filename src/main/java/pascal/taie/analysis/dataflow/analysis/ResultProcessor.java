@@ -265,13 +265,22 @@ public class ResultProcessor extends InterproceduralAnalysis {
             ir.forEach(stmt -> {
                 String stmtStr = toString(stmt);
                 String given = toString(stmt, nodeResult);
+                boolean foundExpeceted = false;
                 for (String line : lines) {
-                    if (line.startsWith(stmtStr) && !line.equals(given)) {
-                        int idx = stmtStr.length();
-                        mismatches.add(String.format("%s %s expected: %s, given: %s",
-                                method, stmtStr, line.substring(idx + 1),
-                                given.substring(idx + 1)));
+                    if (line.startsWith(stmtStr)) {
+                        foundExpeceted = true;
+                        if (!line.equals(given)) {
+                            int idx = stmtStr.length();
+                            mismatches.add(String.format("%s %s expected: %s, given: %s",
+                                    method, stmtStr, line.substring(idx + 1),
+                                    given.substring(idx + 1)));
+                        }
                     }
+                }
+                if (!foundExpeceted) {
+                    int idx = stmtStr.length();
+                    mismatches.add(String.format("%s %s expected: null, given: %s",
+                            method, stmtStr, given.substring(idx + 1)));
                 }
             });
         } else if (inputResult.size() == 1) {
