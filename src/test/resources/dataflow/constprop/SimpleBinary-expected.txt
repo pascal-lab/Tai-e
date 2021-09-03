@@ -5,7 +5,6 @@
 -------------------- <SimpleBinary: void constant()> (constprop) --------------------
 [0@L4] x = 1; {x=1}
 [1@L4] y = 2; {x=1, y=2}
-[2@L5] temp$0 = x; {temp$0=1, x=1, y=2}
-[3@L5] a = temp$0 + y; {a=3, temp$0=1, x=1, y=2}
-[4@L5] return; {a=3, temp$0=1, x=1, y=2}
+[2@L5] a = x + y; {a=3, x=1, y=2}
+[3@L5] return; {a=3, x=1, y=2}
 

@@ -8,9 +8,8 @@
 [2@L5] return; {f=0, t=1}
 
 -------------------- <SimpleBoolean: void undefined()> (constprop) --------------------
-[0@L10] temp$0 = 1; {temp$0=1}
-[1@L10] z = temp$0; {temp$0=1, z=1}
-[2@L10] return; {temp$0=1, z=1}
+[0@L10] z = 1; {z=1}
+[1@L10] return; {z=1}
 
 -------------------- <SimpleBoolean: void propagation()> (constprop) --------------------
 [0@L14] a = 1; {a=1}

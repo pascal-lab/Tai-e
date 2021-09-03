@@ -4,24 +4,23 @@
 
 -------------------- <Interprocedural: void param(int,boolean)> (constprop) --------------------
 [0@L4] x = i; {b=NAC, i=NAC, x=NAC}
-[1@L5] temp$0 = i; {b=NAC, i=NAC, temp$0=NAC, x=NAC}
-[2@L5] %intconst0 = 10; {%intconst0=10, b=NAC, i=NAC, temp$0=NAC, x=NAC}
-[3@L5] y = temp$0 + %intconst0; {%intconst0=10, b=NAC, i=NAC, temp$0=NAC, x=NAC, y=NAC}
-[4@L6] p = b; {%intconst0=10, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[5@L7] %intconst1 = 0; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[6@L7] if (b == %intconst1) goto 8; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[7@L7] goto 14; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[8@L7] nop; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[9@L7] goto 11; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[10@L7] goto 11; {}
-[11@L7] nop; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[12@L7] temp$1 = 0; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$0=NAC, temp$1=0, x=NAC, y=NAC}
-[13@L7] goto 16; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$0=NAC, temp$1=0, x=NAC, y=NAC}
-[14@L7] nop; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$0=NAC, x=NAC, y=NAC}
-[15@L7] temp$1 = 1; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$0=NAC, temp$1=1, x=NAC, y=NAC}
-[16@L7] nop; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
-[17@L7] q = temp$1; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, q=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
-[18@L7] return; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, q=NAC, temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+[1@L5] %intconst0 = 10; {%intconst0=10, b=NAC, i=NAC, x=NAC}
+[2@L5] y = i + %intconst0; {%intconst0=10, b=NAC, i=NAC, x=NAC, y=NAC}
+[3@L6] p = b; {%intconst0=10, b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+[4@L7] %intconst1 = 0; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+[5@L7] if (b == %intconst1) goto 7; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+[6@L7] goto 13; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+[7@L7] nop; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, x=NAC, y=NAC}
+[8@L7] goto 10; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, x=NAC, y=NAC}
+[9@L7] goto 10; {}
+[10@L7] nop; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, x=NAC, y=NAC}
+[11@L7] temp$1 = 0; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$1=0, x=NAC, y=NAC}
+[12@L7] goto 15; {%intconst0=10, %intconst1=0, b=0, i=NAC, p=NAC, temp$1=0, x=NAC, y=NAC}
+[13@L7] nop; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+[14@L7] temp$1 = 1; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$1=1, x=NAC, y=NAC}
+[15@L7] nop; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, temp$1=NAC, x=NAC, y=NAC}
+[16@L7] q = temp$1; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, q=NAC, temp$1=NAC, x=NAC, y=NAC}
+[17@L7] return; {%intconst0=10, %intconst1=0, b=NAC, i=NAC, p=NAC, q=NAC, temp$1=NAC, x=NAC, y=NAC}
 
 -------------------- <Interprocedural: void invoke()> (constprop) --------------------
 [0@L11] temp$0 = invokevirtual %this.<Interprocedural: int ten()>(); {temp$0=NAC}

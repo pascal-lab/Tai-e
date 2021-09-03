@@ -76,12 +76,12 @@ public class CPTestFull {
         CPTest.testCP("Interprocedural");
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testBoolean() {
         CPTest.testCP("Boolean");
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testVariousBinaryOp() {
         CPTest.testCP("VariousBinaryOp");
     }

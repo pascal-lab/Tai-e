@@ -1,57 +1,57 @@
 -------------------- <UnreachableCase: void <init>()> (deadcode) --------------------
 
 -------------------- <UnreachableCase: void tableSwitch()> (deadcode) --------------------
-[5@L6] nop;
-[6@L8] %intconst1 = 1;
-[7@L8] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
-[8@L9] goto 24;
-[9@L9] nop;
-[10@L11] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst0);
-[11@L12] goto 24;
-[12@L12] nop;
-[13@L14] %intconst2 = 3;
-[14@L14] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
-[15@L15] goto 24;
-[20@L6] goto 24;
+[4@L6] nop;
+[5@L8] %intconst1 = 1;
+[6@L8] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
+[7@L9] goto 23;
+[8@L9] nop;
+[9@L11] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst0);
+[10@L12] goto 23;
+[11@L12] nop;
+[12@L14] %intconst2 = 3;
+[13@L14] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
+[14@L15] goto 23;
+[19@L6] goto 23;
 
 -------------------- <UnreachableCase: void lookupSwitch()> (deadcode) --------------------
-[5@L25] nop;
-[6@L27] %intconst1 = 2;
-[7@L27] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
-[8@L28] goto 25;
-[9@L28] nop;
-[10@L30] %intconst2 = 4;
-[11@L30] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
-[12@L31] goto 25;
-[17@L34] nop;
-[18@L36] %intconst4 = 666;
-[19@L36] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst4);
-[20@L37] goto 25;
-[21@L25] goto 25;
+[4@L25] nop;
+[5@L27] %intconst1 = 2;
+[6@L27] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
+[7@L28] goto 24;
+[8@L28] nop;
+[9@L30] %intconst2 = 4;
+[10@L30] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
+[11@L31] goto 24;
+[16@L34] nop;
+[17@L36] %intconst4 = 666;
+[18@L36] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst4);
+[19@L37] goto 24;
+[20@L25] goto 24;
 
 -------------------- <UnreachableCase: void noBreak()> (deadcode) --------------------
-[5@L44] nop;
-[6@L46] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst0);
-[14@L51] nop;
-[15@L53] %intconst3 = 666;
-[16@L53] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst3);
-[17@L54] goto 22;
-[18@L44] goto 22;
+[4@L44] nop;
+[5@L46] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst0);
+[13@L51] nop;
+[14@L53] %intconst3 = 666;
+[15@L53] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst3);
+[16@L54] goto 21;
+[17@L44] goto 21;
 
 -------------------- <UnreachableCase: void defaultCase()> (deadcode) --------------------
-[5@L61] nop;
-[6@L63] %intconst1 = 2;
-[7@L63] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
-[8@L64] goto 25;
-[9@L64] nop;
-[10@L66] %intconst2 = 4;
-[11@L66] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
-[12@L67] goto 25;
-[13@L67] nop;
-[14@L69] %intconst3 = 8;
-[15@L69] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst3);
-[16@L70] goto 25;
-[21@L61] goto 25;
+[4@L61] nop;
+[5@L63] %intconst1 = 2;
+[6@L63] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst1);
+[7@L64] goto 24;
+[8@L64] nop;
+[9@L66] %intconst2 = 4;
+[10@L66] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst2);
+[11@L67] goto 24;
+[12@L67] nop;
+[13@L69] %intconst3 = 8;
+[14@L69] invokevirtual %this.<UnreachableCase: void use(int)>(%intconst3);
+[15@L70] goto 24;
+[20@L61] goto 24;
 
 -------------------- <UnreachableCase: void allReach(int)> (deadcode) --------------------
 [17@L78] goto 21;

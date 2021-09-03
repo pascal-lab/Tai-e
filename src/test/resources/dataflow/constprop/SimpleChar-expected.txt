@@ -8,9 +8,8 @@
 [2@L5] return; {a=97, x=120}
 
 -------------------- <SimpleChar: void undefined()> (constprop) --------------------
-[0@L10] temp$0 = 122; {temp$0=122}
-[1@L10] z = temp$0; {temp$0=122, z=122}
-[2@L10] return; {temp$0=122, z=122}
+[0@L10] z = 122; {z=122}
+[1@L10] return; {z=122}
 
 -------------------- <SimpleChar: void propagation()> (constprop) --------------------
 [0@L14] a = 97; {a=97}

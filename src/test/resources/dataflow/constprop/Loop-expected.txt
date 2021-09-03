@@ -6,57 +6,51 @@
 [0@L3] b = 1; {b=1}
 [1@L3] c = 1; {b=1, c=1}
 [2@L4] i = 0; {b=1, c=1, i=0}
-[3@L4] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[4@L5] %intconst0 = 10; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[5@L5] if (i < %intconst0) goto 7; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[6@L5] goto 16; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[7@L5] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[8@L6] a = b; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[9@L7] b = c; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[10@L8] temp$0 = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[11@L8] c = temp$0; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[12@L9] %intconst1 = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[13@L9] temp$1 = i + %intconst1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[14@L9] i = temp$1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[15@L5] goto 3; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[16@L5] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[17@L5] return; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
+[3@L4] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[4@L5] %intconst0 = 10; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[5@L5] if (i < %intconst0) goto 7; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[6@L5] goto 14; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[7@L5] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[8@L6] a = b; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[9@L7] b = c; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[10@L8] c = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[11@L9] %intconst1 = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[12@L9] i = i + %intconst1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[13@L5] goto 3; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[14@L5] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[15@L5] return; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
 
 -------------------- <Loop: void whileNAC()> (constprop) --------------------
 [0@L14] b = 0; {b=0}
 [1@L14] c = 0; {b=0, c=0}
 [2@L15] i = 0; {b=0, c=0, i=0}
-[3@L15] nop; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[4@L16] %intconst0 = 10; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[5@L16] if (i < %intconst0) goto 7; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[6@L16] goto 16; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[7@L16] nop; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[8@L17] a = b; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[9@L18] b = c; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[10@L19] temp$0 = 1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[11@L19] c = temp$0; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[12@L20] %intconst1 = 1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[13@L20] temp$1 = i + %intconst1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[14@L20] i = temp$1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[15@L16] goto 3; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[16@L16] nop; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
-[17@L16] return; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC, temp$0=1, temp$1=NAC}
+[3@L15] nop; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[4@L16] %intconst0 = 10; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[5@L16] if (i < %intconst0) goto 7; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[6@L16] goto 14; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[7@L16] nop; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[8@L17] a = b; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[9@L18] b = c; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[10@L19] c = 1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC}
+[11@L20] %intconst1 = 1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC}
+[12@L20] i = i + %intconst1; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC}
+[13@L16] goto 3; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=1, i=NAC}
+[14@L16] nop; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
+[15@L16] return; {%intconst0=10, %intconst1=1, a=NAC, b=NAC, c=NAC, i=NAC}
 
 -------------------- <Loop: void whileUndefinedConstant()> (constprop) --------------------
 [0@L26] i = 0; {i=0}
-[1@L26] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[2@L27] %intconst0 = 10; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[3@L27] if (i < %intconst0) goto 5; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[4@L27] goto 14; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[5@L27] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[6@L28] a = b; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[7@L29] b = c; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[8@L30] temp$0 = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[9@L30] c = temp$0; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[10@L31] %intconst1 = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[11@L31] temp$1 = i + %intconst1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[12@L31] i = temp$1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[13@L27] goto 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[14@L27] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
-[15@L27] return; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC, temp$0=1, temp$1=NAC}
+[1@L26] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[2@L27] %intconst0 = 10; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[3@L27] if (i < %intconst0) goto 5; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[4@L27] goto 12; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[5@L27] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[6@L28] a = b; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[7@L29] b = c; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[8@L30] c = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[9@L31] %intconst1 = 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[10@L31] i = i + %intconst1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[11@L27] goto 1; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[12@L27] nop; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
+[13@L27] return; {%intconst0=10, %intconst1=1, a=1, b=1, c=1, i=NAC}
 

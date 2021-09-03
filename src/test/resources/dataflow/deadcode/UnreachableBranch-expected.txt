@@ -1,8 +1,7 @@
 -------------------- <UnreachableBranch: void <init>()> (deadcode) --------------------
 
 -------------------- <UnreachableBranch: int foo()> (deadcode) --------------------
-[3@L7] goto 8;
-[8@L7] nop;
-[9@L10] temp$1 = 200;
-[10@L10] z = temp$1;
+[3@L7] goto 7;
+[7@L7] nop;
+[8@L10] z = 200;
 

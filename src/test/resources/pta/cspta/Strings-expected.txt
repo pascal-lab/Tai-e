@@ -13,9 +13,7 @@ Points-to sets of all variables
 []:<Strings: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}]
 []:<Strings: void main(java.lang.String[])>/temp$2 -> [[]:ConstantObj{java.lang.String: "bbb"}]
 []:<Strings: void main(java.lang.String[])>/temp$3 -> [[]:ConstantObj{java.lang.String: "ccc"}]
-[]:<Strings: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconst1]}]
 []:<Strings: void main(java.lang.String[])>/temp$6 -> [[]:ConstantObj{java.lang.String: "ddd"}]
-[]:<Strings: void main(java.lang.String[])>/temp$7 -> [[]:NewObj{<Strings: void main(java.lang.String[])>:13(@L13)/newarray (java.lang.String)[%intconst1]}]
 []:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Strings: void main(java.lang.String[])>:3(@L6)/new A}]
 
 Points-to sets of all instance fields

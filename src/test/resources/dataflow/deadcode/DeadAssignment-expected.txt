@@ -1,8 +1,8 @@
 -------------------- <DeadAssignment: void <init>()> (deadcode) --------------------
 
 -------------------- <DeadAssignment: void foo()> (deadcode) --------------------
-[3@L5] y = temp$0 + %intconst0;
-[8@L8] a = x;
+[2@L5] y = x + %intconst0;
+[6@L8] a = x;
 
 -------------------- <DeadAssignment: void use(int)> (deadcode) --------------------
 

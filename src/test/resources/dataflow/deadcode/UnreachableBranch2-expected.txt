@@ -1,14 +1,13 @@
 -------------------- <UnreachableBranch2: void <init>()> (deadcode) --------------------
 
 -------------------- <UnreachableBranch2: void foo()> (deadcode) --------------------
-[3@L7] goto 9;
-[9@L10] nop;
-[10@L12] temp$1 = 200;
-[11@L12] z = temp$1;
-[12@L14] a = x;
-[13@L15] invokevirtual %this.<UnreachableBranch2: void use(int)>(a);
-[14@L16] invokevirtual %this.<UnreachableBranch2: void use(int)>(z);
-[15@L16] return;
+[3@L7] goto 8;
+[8@L10] nop;
+[9@L12] z = 200;
+[10@L14] a = x;
+[11@L15] invokevirtual %this.<UnreachableBranch2: void use(int)>(a);
+[12@L16] invokevirtual %this.<UnreachableBranch2: void use(int)>(z);
+[13@L16] return;
 
 -------------------- <UnreachableBranch2: void use(int)> (deadcode) --------------------
 
