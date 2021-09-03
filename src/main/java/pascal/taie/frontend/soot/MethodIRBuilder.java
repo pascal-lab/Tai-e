@@ -82,7 +82,9 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 import soot.Body;
 import soot.Local;
 import soot.SootMethod;
@@ -168,7 +170,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
-import static pascal.taie.util.collection.Maps.newHybridMap;
 
 /**
  * Converts Jimple to Tai-e IR.
@@ -209,6 +210,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
             buildThis(body.getThisLocal());
         }
         buildParams(body.getParameterLocals());
+        tempToDef = getTempToDef(body);
         buildStmts(body);
         buildExceptionEntries(body.getTraps());
         return new DefaultIR(method,
@@ -289,12 +291,12 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * Map from jump statements in Jimple to the corresponding Tai-e statements.
      */
-    private final Map<Unit, Stmt> jumpMap = newHybridMap();
+    private final Map<Unit, Stmt> jumpMap = Maps.newHybridMap();
 
     /**
      * Map from jump target statements in Jimple to the corresponding Tai-e statements.
      */
-    private final Map<Unit, Stmt> jumpTargetMap = newHybridMap();
+    private final Map<Unit, Stmt> jumpTargetMap = Maps.newHybridMap();
 
     /**
      * All trap-related units of current Jimple body.
@@ -323,8 +325,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * In Tai-e IR, above code will be converted to this:
      * if a > b goto label1;
      * label1:
-     * #intconstant0 = 1; // <-- tempJumpTarget
-     * x = #intconstant0 + y;
+     * %intconst0 = 1; // <-- tempTarget
+     * x = %intconst0 + y;
      * <p>
      * Tai-e adds an {@link AssignLiteral} statement before the
      * corresponding addition, so we need to set the target
@@ -363,6 +365,54 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         stmt.setLineNumber(currentUnit.getJavaSourceStartLineNumber());
         stmt.setIndex(stmts.size());
         stmts.add(stmt);
+    }
+
+    /**
+     * Map from temp variable to its definition stmt, e.g.,
+     * for temp$i = x, we map temp$i -> temp$i = x.
+     */
+    private Map<Local, AssignStmt> tempToDef;
+
+    /**
+     * Set of temp variables that have been processed in {@link #getVar(Local)}.
+     */
+    private final Set<Local> processedTemps = Sets.newHybridSet();
+
+    /**
+     * Collects the relevant temp variables and their definition statements.
+     * TODO: remove this step for body parsed from .class files.
+     */
+    private static Map<Local, AssignStmt> getTempToDef(Body body) {
+        Map<Local, Set<AssignStmt>> varToAssigns = Maps.newHybridMap();
+        for (Unit unit : body.getUnits()) {
+            if (unit instanceof AssignStmt) {
+                AssignStmt assign = (AssignStmt) unit;
+                Value lhs = assign.getLeftOp();
+                if (lhs instanceof Local) {
+                    Local var = (Local) lhs;
+                    if (var.getName().startsWith("temp$")) {
+                        Maps.addToMapSet(varToAssigns, var, assign);
+                    }
+                }
+            }
+        }
+        Map<Local, AssignStmt> tempToDef = Maps.newHybridMap();
+        varToAssigns.forEach((var, assigns) -> {
+            if (assigns.size() == 1) {
+                AssignStmt assign = CollectionUtils.getOne(assigns);
+                Value rhs = assign.getRightOp();
+                if (rhs instanceof Constant ||
+                        rhs instanceof Local ||
+                        rhs instanceof BinopExpr) {
+                    tempToDef.put(var, assign);
+                }
+            }
+        });
+        return tempToDef;
+    }
+
+    private boolean isTempVar(Local local) {
+        return tempToDef.containsKey(local);
     }
 
     /**
@@ -445,13 +495,32 @@ class MethodIRBuilder extends AbstractStmtSwitch {
         if (lhs instanceof Local) {
             Local lvar = (Local) lhs;
             if (rhs instanceof Local) {
-                addStmt(new Copy(getVar(lvar), getVar((Local) rhs)));
+                Local rvar = (Local) rhs;
+                if (isTempVar(rvar)) {
+                    // for assignment like x = temp$i, if we have recorded
+                    // definition to temp$i, then we directly replace temp$i
+                    // by its definition value.
+                    Value defValue = tempToDef.get(rvar).getRightOp();
+                    if (defValue instanceof Constant) {
+                        defValue.apply(constantConverter);
+                        addStmt(new AssignLiteral(getVar(lvar),
+                                (Literal) constantConverter.getResult()));
+                    } else if (defValue instanceof Local) {
+                        addStmt(new Copy(getVar(lvar), getVar((Local) defValue)));
+                    } else if (defValue instanceof BinopExpr) {
+                        buildBinary(lvar, (BinopExpr) defValue);
+                    }
+                } else if (!isTempVar(lvar)) {
+                    addStmt(new Copy(getVar(lvar), getVar(rvar)));
+                }
             } else if (rhs instanceof AnyNewExpr) {
                 buildNew(lvar, (AnyNewExpr) rhs);
             } else if (rhs instanceof Constant) {
-                rhs.apply(constantConverter);
-                addStmt(new AssignLiteral(getVar(lvar),
-                        (Literal) constantConverter.getResult()));
+                if (!isTempVar(lvar)) {
+                    rhs.apply(constantConverter);
+                    addStmt(new AssignLiteral(getVar(lvar),
+                            (Literal) constantConverter.getResult()));
+                }
             } else if (rhs instanceof FieldRef) {
                 addStmt(new LoadField(getVar(lvar),
                         getFieldAccess((FieldRef) rhs)));
@@ -459,7 +528,9 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                 addStmt(new LoadArray(getVar(lvar),
                         getArrayAccess((ArrayRef) rhs)));
             } else if (rhs instanceof BinopExpr) {
-                buildBinary(lvar, (BinopExpr) rhs);
+                if (!isTempVar(lvar)) {
+                    buildBinary(lvar, (BinopExpr) rhs);
+                }
             } else if (rhs instanceof UnopExpr) {
                 buildUnary(lvar, (UnopExpr) rhs);
             } else if (rhs instanceof InstanceOfExpr) {
@@ -493,6 +564,32 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * Shortcut: converts Jimple Local to Var.
      */
     private Var getVar(Local local) {
+        if (tempToDef.containsKey(local)) {
+            // handle the case when the given local is recorded in tempToDef
+            AssignStmt def = tempToDef.get(local);
+            Value defValue = def.getRightOp();
+            if (defValue instanceof Local) {
+                // return x for case temp$i = x
+                return varManager.getVar((Local) defValue);
+            }
+            // add (skipped) assignment for the temp var if necessary
+            if (!processedTemps.contains(local)) {
+                processedTemps.add(local);
+                Unit temp = currentUnit;
+                currentUnit = def;
+                if (defValue instanceof Constant) {
+                    defValue.apply(constantConverter);
+                    addStmt(new AssignLiteral(varManager.getVar(local),
+                            (Literal) constantConverter.getResult()));
+                } else if (defValue instanceof BinopExpr) {
+                    buildBinary(local, (BinopExpr) defValue);
+                } else {
+                    throw new SootFrontendException(
+                            "Expected Local, Constant or BinopExpr, given " + defValue);
+                }
+                currentUnit = temp;
+            }
+        }
         return varManager.getVar(local);
     }
 
