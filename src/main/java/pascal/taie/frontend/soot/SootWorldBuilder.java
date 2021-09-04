@@ -29,6 +29,7 @@ import soot.G;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
+import soot.SootResolver;
 import soot.Transform;
 
 import java.util.ArrayList;
@@ -45,30 +46,13 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
     @Override
     public void build(Options options, List<AnalysisConfig> plan) {
-        runSoot(options, plan, this);
+        initSoot(options, plan, this);
+        runSoot(new String[]{"-cp", getClassPath(options), options.getMainClass()});
     }
 
-    private static void runSoot(Options options, List<AnalysisConfig> plan,
-                                SootWorldBuilder builder) {
-        initSoot(options, plan);
-        // Configure Soot transformer
-        Transform transform = new Transform(
-                "wjtp.tai-e", new SceneTransformer() {
-            @Override
-            protected void internalTransform(String phaseName, Map<String, String> opts) {
-                builder.build(options, Scene.v());
-            }
-        });
-        PackManager.v()
-                .getPack("wjtp")
-                .add(transform);
-
-        // Run main analysis
-        soot.Main.main(new String[]{"-cp", getClassPath(options),
-                options.getMainClass()});
-    }
-
-    public static void initSoot(Options options, List<AnalysisConfig> plan) {
+    private static void initSoot(Options options, List<AnalysisConfig> plan,
+                                 SootWorldBuilder builder) {
+        // reset Soot
         G.reset();
 
         // set Soot options
@@ -125,6 +109,18 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // scene.addBasicClass("sun.net.www.protocol.https.Handler");
 
         addReflectionLogClasses(plan, scene);
+
+        // Configure Soot transformer
+        Transform transform = new Transform(
+                "wjtp.tai-e", new SceneTransformer() {
+            @Override
+            protected void internalTransform(String phaseName, Map<String, String> opts) {
+                builder.build(options, Scene.v());
+            }
+        });
+        PackManager.v()
+                .getPack("wjtp")
+                .add(transform);
     }
 
     /**
@@ -209,5 +205,15 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // TODO: parallelize?
         new ArrayList<>(scene.getClasses()).forEach(c ->
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
+    }
+
+    private static void runSoot(String[] args) {
+        try {
+            soot.Main.v().run(args);
+        } catch (SootResolver.SootClassNotFoundException e) {
+            throw new RuntimeException(e.getMessage()
+                    .replace("is your soot-class-path set",
+                            "are your class path and class name given"));
+        }
     }
 }
