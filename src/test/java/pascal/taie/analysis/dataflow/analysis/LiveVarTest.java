@@ -17,9 +17,33 @@ import pascal.taie.analysis.Tests;
 
 public class LiveVarTest {
 
-    @Test
-    public void test() {
-        Tests.testDFA("LiveVar", "src/test/resources/dataflow/",
+    static void testLV(String inputClass) {
+        Tests.testDFA(inputClass, "src/test/resources/dataflow/livevar",
                 LiveVariableAnalysis.ID);
+    }
+
+    @Test
+    public void testAssign() {
+        testLV("Assign");
+    }
+
+    @Test
+    public void testInvoke() {
+        testLV("Invoke");
+    }
+
+    @Test
+    public void testBranch() {
+        testLV("Branch");
+    }
+
+    @Test
+    public void testLoop() {
+        testLV("Loop");
+    }
+
+    @Test
+    public void testBranchLoop() {
+        testLV("BranchLoop");
     }
 }

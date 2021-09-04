@@ -1,0 +1,16 @@
+-------------------- <Branch: void <init>()> (livevar) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <Branch: int ifElse(int,int,int)> (livevar) --------------------
+[0@L4] x = m; [k, n, x]
+[1@L5] %intconst0 = 0; [%intconst0, k, n, x]
+[2@L5] if (n > %intconst0) goto 4; [k, n, x]
+[3@L5] goto 7; [k, n]
+[4@L5] nop; [n, x]
+[5@L5] temp$1 = x + n; [temp$1]
+[6@L6] return temp$1; []
+[7@L6] nop; [k, n]
+[8@L6] temp$3 = k + n; [temp$3]
+[9@L8] return temp$3; []
+

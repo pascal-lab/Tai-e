@@ -68,7 +68,7 @@ public class AvailableExpressionAnalysis extends
     public boolean transferNode(Stmt stmt, SetFact<ExpWrapper> in, SetFact<ExpWrapper> out) {
         if (((ToppedSetFact<ExpWrapper>) in).isTop()) {
             // valid data facts have not arrived yet, just skip and return
-            // true to ensure that the successors the will be analyzed later
+            // true to ensure that the successor Stmts will be analyzed later
             return true;
         }
         SetFact<ExpWrapper> oldOut = out.copy();

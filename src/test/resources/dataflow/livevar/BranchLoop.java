@@ -1,25 +1,4 @@
-/**
- * Test case for live variable analysis.
- */
-public class LiveVar {
-
-    public static void main(String[] args) {
-    }
-
-    int assign(int a, int b, int c) {
-        int d = a + b;
-        b = d;
-        c = a;
-        return b;
-    }
-
-    int invoke(int a, int b, int c) {
-        int x = a - b;
-        int y = a - x;
-        int z = x;
-        invoke(0, 0, 0);
-        return z;
-    }
+class BranchLoop {
 
     int loopBranch(int m, int n, int k) {
         int a, i;
