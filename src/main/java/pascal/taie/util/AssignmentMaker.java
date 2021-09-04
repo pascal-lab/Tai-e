@@ -27,9 +27,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -38,11 +41,11 @@ import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Makes assignments according to configurations.
- * Note: make sure to execute gradle allInOne task before using this class
- * to make new assignments.
  */
 final class AssignmentMaker {
 
@@ -127,6 +130,7 @@ final class AssignmentMaker {
         copyTestClasses();
         copyTestResources();
         copyCommonFiles();
+        zipPackage();
     }
 
     private void packDependencies() {
@@ -215,6 +219,50 @@ final class AssignmentMaker {
         });
     }
 
+    private void zipPackage() {
+        Path source = TARGET_DIR.getParent();
+        File zipFile = new File(Configs.getOutputDir(), config.getPackageName());
+        try (ZipOutputStream zos = new ZipOutputStream(
+                new FileOutputStream(zipFile))) {
+            Files.walkFileTree(source, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(
+                        Path file, BasicFileAttributes attributes) {
+                    // only copy files, no symbolic links
+                    if (attributes.isSymbolicLink()) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                    try (FileInputStream fis = new FileInputStream(file.toFile())) {
+                        Path targetFile = source.relativize(file);
+                        zos.putNextEntry(new ZipEntry(targetFile.toString()));
+
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = fis.read(buffer)) > 0) {
+                            zos.write(buffer, 0, len);
+                        }
+                        // if large file, throws out of memory
+                        // byte[] bytes = Files.readAllBytes(file);
+                        // zos.write(bytes, 0, bytes.length);
+                        zos.closeEntry();
+                        logger.info("Zip file : {}", file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    logger.error("Unable to zip : {}%n{}", file, exc);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static @Nullable
     String toExpectedPath(String testPath) {
         String[] split = testPath.split("/");
@@ -253,6 +301,11 @@ final class AssignmentMaker {
         private final String name;
 
         /**
+         * Name of assignment package.
+         */
+        private final String packageName;
+
+        /**
          * Classes to be excluded in the assignment.
          */
         private final List<String> exclude;
@@ -282,12 +335,14 @@ final class AssignmentMaker {
         @JsonCreator
         private Config(
                 @JsonProperty("name") String name,
+                @JsonProperty("packageName") String packageName,
                 @JsonProperty("exclude") List<String> exclude,
                 @JsonProperty("sourceFiles") List<String> sourceFiles,
                 @JsonProperty("overwrittenFiles") List<String> overwrittenFiles,
                 @JsonProperty("testClasses") List<String> testClasses,
                 @JsonProperty("testResources") List<String> testResources) {
             this.name = name;
+            this.packageName = Objects.requireNonNull(packageName);
             this.exclude = Objects.requireNonNullElse(exclude, List.of());
             this.sourceFiles = Objects.requireNonNullElse(sourceFiles, List.of());
             this.overwrittenFiles = Objects.requireNonNull(overwrittenFiles);
@@ -297,6 +352,10 @@ final class AssignmentMaker {
 
         private String getName() {
             return name;
+        }
+
+        private String getPackageName() {
+            return packageName;
         }
 
         private List<String> getSourceFiles() {
