@@ -18,14 +18,14 @@ import pascal.taie.analysis.dataflow.analysis.AvailExpTest;
 import pascal.taie.analysis.dataflow.analysis.LiveVarTest;
 import pascal.taie.analysis.dataflow.analysis.ReachDefTest;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPTestSuite;
-import pascal.taie.analysis.dataflow.analysis.deadcode.DCDTestFull;
+import pascal.taie.analysis.dataflow.analysis.DeadCodeTestFull;
 import pascal.taie.analysis.dataflow.fact.FactTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         FactTest.class,
         CPTestSuite.class,
-        DCDTestFull.class,
+        DeadCodeTestFull.class,
         LiveVarTest.class,
         ReachDefTest.class,
         AvailExpTest.class,

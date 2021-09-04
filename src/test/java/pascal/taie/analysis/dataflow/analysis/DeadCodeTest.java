@@ -10,13 +10,13 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.analysis.deadcode;
+package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 
-public class DCDTest {
+public class DeadCodeTest {
 
     static void testDCD(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/deadcode/",

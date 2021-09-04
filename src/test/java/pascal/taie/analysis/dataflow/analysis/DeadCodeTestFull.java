@@ -10,64 +10,64 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.analysis.deadcode;
+package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
 
-public class DCDTestFull {
+public class DeadCodeTestFull {
 
     @Test
     public void testControlFlowUnreachable() {
-        DCDTest.testDCD("ControlFlowUnreachable");
+        DeadCodeTest.testDCD("ControlFlowUnreachable");
     }
 
     @Test
     public void testUnreachableBranch() {
-        DCDTest.testDCD("UnreachableBranch");
+        DeadCodeTest.testDCD("UnreachableBranch");
     }
 
     @Test
     public void testUnreachableCase() {
-        DCDTest.testDCD("UnreachableCase");
+        DeadCodeTest.testDCD("UnreachableCase");
     }
 
     @Test
     public void testDeadAssignment() {
-        DCDTest.testDCD("DeadAssignment");
+        DeadCodeTest.testDCD("DeadAssignment");
     }
 
     @Test
     public void testControlFlowUnreachable2() {
-        DCDTest.testDCD("ControlFlowUnreachable2");
+        DeadCodeTest.testDCD("ControlFlowUnreachable2");
     }
 
     @Test
     public void testUnreachableBranch2() {
-        DCDTest.testDCD("UnreachableBranch2");
+        DeadCodeTest.testDCD("UnreachableBranch2");
     }
 
     @Test
     public void testDeadAssignment2() {
-        DCDTest.testDCD("DeadAssignment2");
+        DeadCodeTest.testDCD("DeadAssignment2");
     }
 
     @Test
     public void testMixedDeadCode() {
-        DCDTest.testDCD("MixedDeadCode");
+        DeadCodeTest.testDCD("MixedDeadCode");
     }
 
     @Test
     public void testLoops() {
-        DCDTest.testDCD("Loops");
+        DeadCodeTest.testDCD("Loops");
     }
 
     @Test
     public void testNotDead() {
-        DCDTest.testDCD("NotDead");
+        DeadCodeTest.testDCD("NotDead");
     }
 
     @Test
     public void testLiveAssignments() {
-        DCDTest.testDCD("LiveAssignments");
+        DeadCodeTest.testDCD("LiveAssignments");
     }
 }

@@ -29,4 +29,8 @@ testClasses:
   - pascal.taie.analysis.Tests
   - pascal.taie.analysis.dataflow.analysis.LiveVarTest
 testResources:
-  - dataflow/LiveVar.java
+  - dataflow/livevar/Assign.java
+  - dataflow/livevar/Branch.java
+  - dataflow/livevar/BranchLoop.java
+  - dataflow/livevar/Invoke.java
+  - dataflow/livevar/Loop.java
