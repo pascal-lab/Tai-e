@@ -1,9 +1,6 @@
 .gradle/
-gradle/
 build/
 sootOutput/
 .idea/
 output/
 out/
-gradlew.bat
-gradlew
