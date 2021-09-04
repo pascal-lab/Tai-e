@@ -279,8 +279,10 @@ final class AssignmentMaker {
      * Copies common files that are the same across assignments.
      */
     private void copyCommonFiles() {
-        // build.gradle
+        // Gradle-related
         copyFile(ASS_ROOT, TARGET_DIR, "build.gradle");
+        copyFile(ASS_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.jar");
+        copyFile(ASS_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.properties");
         // copyright.txt
         copyFile(ASS_ROOT, TARGET_DIR, "copyright.txt");
         // lib/rt.jar
