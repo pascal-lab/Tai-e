@@ -15,8 +15,8 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 import pascal.taie.util.AnalysisException;
 
 /**
- * Possible values for constant propagation.
- * A value can be either NAC, or a constant, or UNDEF.
+ * Represents lattice values in constant propagation.
+ * A value can be either NAC, a constant, or UNDEF.
  */
 public class Value {
 
@@ -95,8 +95,11 @@ public class Value {
     }
 
     /**
-     * If this value represents a (integer) constant, then returns the integer,
-     * otherwise throws an exception.
+     * If this value represents a (integer) constant, then returns the integer.
+     * The client code should call {@link #isConstant()} to check if this Value
+     * is constant before calling this method.
+     *
+     * @throws AnalysisException if this value is not a constant
      */
     public int getConstant() {
         if (!isConstant()) {

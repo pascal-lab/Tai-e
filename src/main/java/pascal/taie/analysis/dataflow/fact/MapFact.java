@@ -14,7 +14,6 @@ package pascal.taie.analysis.dataflow.fact;
 
 import pascal.taie.util.collection.Maps;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
@@ -23,16 +22,26 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Represents map-like data-flow facts.
+ *
+ * @param <K> type of keys
+ * @param <V> type of values
+ */
 public class MapFact<K, V> {
 
+    /**
+     * The map holding the mappings of this MapFact.
+     */
     protected final Map<K, V> map;
 
+    /**
+     * Constructs a new MapFact with the same mappings as specified Map.
+     *
+     * @param map the map whose mappings are to be placed in this map.
+     */
     public MapFact(Map<K, V> map) {
         this.map = Maps.newHybridMap(map);
-    }
-
-    public MapFact() {
-        this(Collections.emptyMap());
     }
 
     /**
@@ -79,14 +88,26 @@ public class MapFact<K, V> {
         map.clear();
     }
 
+    /**
+     * @return a {@link Set} view of the keys contained in this fact.
+     */
     public Set<K> keySet() {
         return map.keySet();
     }
 
+    /**
+     * @return all entries (key-value mappings) in this fact.
+     */
     public Stream<Map.Entry<K, V>> entries() {
         return map.entrySet().stream();
     }
 
+    /**
+     * Performs the given action for each entry(key-value mapping) in this fact
+     * until all entries have been processed or the action throws an exception.
+     *
+     * @param action the action to be performed for each entry.
+     */
     public void forEach(BiConsumer<K, V> action) {
         map.forEach(action);
     }

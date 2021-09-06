@@ -1,4 +1,4 @@
-/*
+ /*
  * Tai-e: A Static Analysis Framework for Java
  *
  * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
@@ -13,9 +13,9 @@
 package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.World;
+import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
-import pascal.taie.analysis.dataflow.fact.MapFact;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.LocalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class InterConstantPropagation extends
-        AbstractInterDataflowAnalysis<JMethod, Stmt, MapFact<Var, Value>> {
+        AbstractInterDataflowAnalysis<JMethod, Stmt, CPFact> {
 
     public static final String ID = "inter-constprop";
 
@@ -100,23 +100,23 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> newBoundaryFact(Stmt boundary) {
+    public CPFact newBoundaryFact(Stmt boundary) {
         IR ir = icfg.getContainingMethodOf(boundary).getIR();
         return cp.newBoundaryFact(ir);
     }
 
     @Override
-    public MapFact<Var, Value> newInitialFact() {
+    public CPFact newInitialFact() {
         return cp.newInitialFact();
     }
 
     @Override
-    public void meetInto(MapFact<Var, Value> fact, MapFact<Var, Value> target) {
+    public void meetInto(CPFact fact, CPFact target) {
         cp.meetInto(fact, target);
     }
 
     @Override
-    protected boolean transferCall(Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
+    protected boolean transferCall(Stmt stmt, CPFact in, CPFact out) {
         Invoke call = (Invoke) stmt;
         boolean changed = false;
         Var lhs = call.getResult();
@@ -133,14 +133,14 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    protected boolean transferNonCall(Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
+    protected boolean transferNonCall(Stmt stmt, CPFact in, CPFact out) {
         return aliasAware ?
                 transferAliasAware(stmt, in, out) :
                 cp.transferNode(stmt, in, out);
     }
 
     private boolean transferAliasAware(
-            Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
+            Stmt stmt, CPFact in, CPFact out) {
         if (isAliasRelevant(stmt)) {
             if (stmt instanceof LoadField) { // x = o.f
                 LoadField load = (LoadField) stmt;
@@ -160,7 +160,7 @@ public class InterConstantPropagation extends
                 storeToLoads.get(store).forEach(load -> {
                     // propagate stored value to aliased loads
                     Var lhs = load.getLValue();
-                    MapFact<Var, Value> loadOut = solver.getOutFact(load);
+                    CPFact loadOut = solver.getOutFact(load);
                     Value oldV = loadOut.get(lhs);
                     Value newV = cp.meetValue(oldV, value);
                     if (loadOut.update(lhs, newV)) {
@@ -186,14 +186,14 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public void transferLocalEdge(LocalEdge<Stmt> edge, MapFact<Var, Value> out,
-                                  MapFact<Var, Value> edgeFact) {
+    public void transferLocalEdge(LocalEdge<Stmt> edge, CPFact out,
+                                  CPFact edgeFact) {
         cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
     }
 
     @Override
-    public void transferCallEdge(CallEdge<Stmt> edge, MapFact<Var, Value> callSiteIn,
-                                 MapFact<Var, Value> edgeFact) {
+    public void transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteIn,
+                                 CPFact edgeFact) {
         // Passing arguments at call site to parameters of the callee
         InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
         Stmt entry = edge.getTarget();
@@ -211,8 +211,8 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public void transferReturnEdge(ReturnEdge<Stmt> edge, MapFact<Var, Value> returnOut,
-                                   MapFact<Var, Value> edgeFact) {
+    public void transferReturnEdge(ReturnEdge<Stmt> edge, CPFact returnOut,
+                                   CPFact edgeFact) {
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
         if (lhs != null && cp.canHoldInt(lhs)) {

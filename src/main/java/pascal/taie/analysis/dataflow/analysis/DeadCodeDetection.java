@@ -13,9 +13,9 @@
 package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
-import pascal.taie.analysis.dataflow.fact.MapFact;
 import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
@@ -55,7 +55,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
     public Set<Stmt> analyze(IR ir) {
         // obtain pre-analyses results
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
-        NodeResult<Stmt, MapFact<Var, Value>> constants =
+        NodeResult<Stmt, CPFact> constants =
                 ir.getResult(ConstantPropagation.ID);
         NodeResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariableAnalysis.ID);
@@ -105,7 +105,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
     }
 
     private boolean isDeadBranch(
-            Edge<Stmt> edge, NodeResult<Stmt, MapFact<Var, Value>> constants) {
+            Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.getSource();
         if (src instanceof If) {
             If ifStmt = (If) src;

@@ -13,7 +13,7 @@
 package pascal.taie.ir.exp;
 
 /**
- * Representation of literal in Tai-e IR.
+ * Representation of literals.
  */
 public interface Literal extends RValue {
 }

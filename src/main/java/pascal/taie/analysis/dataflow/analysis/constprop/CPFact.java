@@ -18,23 +18,31 @@ import pascal.taie.ir.exp.Var;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Represents data facts of constant propagation, which maps variables
+ * to their lattice values.
+ */
 public class CPFact extends MapFact<Var, Value> {
-
-    CPFact(Map<Var, Value> map) {
-        super(map);
-    }
 
     public CPFact() {
         this(Collections.emptyMap());
     }
 
+    private CPFact(Map<Var, Value> map) {
+        super(map);
+    }
+
+    /**
+     * @return the value to which the specified variable is mapped,
+     * or Undef if this map contains no mapping for the variable.
+     */
     @Override
     public Value get(Var key) {
         return map.getOrDefault(key, Value.getUndef());
     }
 
     @Override
-    public MapFact<Var, Value> copy() {
+    public CPFact copy() {
         return new CPFact(this.map);
     }
 

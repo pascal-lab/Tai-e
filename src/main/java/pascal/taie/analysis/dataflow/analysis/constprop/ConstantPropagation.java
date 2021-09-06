@@ -13,7 +13,6 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis;
-import pascal.taie.analysis.dataflow.fact.MapFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.config.AnalysisConfig;
@@ -23,7 +22,6 @@ import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
@@ -36,7 +34,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 public class ConstantPropagation extends
-        AbstractDataflowAnalysis<Stmt, MapFact<Var, Value>> {
+        AbstractDataflowAnalysis<Stmt, CPFact> {
 
     public static final String ID = "constprop";
 
@@ -50,11 +48,11 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> newBoundaryFact(CFG<Stmt> cfg) {
+    public CPFact newBoundaryFact(CFG<Stmt> cfg) {
         return newBoundaryFact(cfg.getIR());
     }
 
-    public MapFact<Var, Value> newBoundaryFact(IR ir) {
+    public CPFact newBoundaryFact(IR ir) {
         // make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
         ir.getParams()
@@ -65,12 +63,12 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public MapFact<Var, Value> newInitialFact() {
+    public CPFact newInitialFact() {
         return new CPFact();
     }
 
     @Override
-    public void meetInto(MapFact<Var, Value> fact, MapFact<Var, Value> target) {
+    public void meetInto(CPFact fact, CPFact target) {
         fact.forEach((var, value) ->
                 target.update(var, meetValue(value, target.get(var))));
     }
@@ -93,7 +91,7 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public boolean transferNode(Stmt stmt, MapFact<Var, Value> in, MapFact<Var, Value> out) {
+    public boolean transferNode(Stmt stmt, CPFact in, CPFact out) {
         if (stmt instanceof DefinitionStmt<?, ?>) {
             Exp lvalue = ((DefinitionStmt<?, ?>) stmt).getLValue();
             if (lvalue instanceof Var) {
@@ -131,124 +129,85 @@ public class ConstantPropagation extends
         return false;
     }
 
-    public static Value evaluate(Exp exp, MapFact<Var, Value> env) {
-        return exp.accept(new Evaluator(env));
-    }
-
-    private static class Evaluator implements ExpVisitor<Value> {
-
-        private final MapFact<Var, Value> env;
-
-        private Evaluator(MapFact<Var, Value> env) {
-            this.env = env;
-        }
-
-        @Override
-        public Value visit(Var var) {
-            return env.get(var);
-        }
-
-        @Override
-        public Value visit(IntLiteral literal) {
-            return Value.makeConstant(literal.getValue());
-        }
-
-        /**
-         * Evaluator for binary expressions with constant operands.
-         */
-        @FunctionalInterface
-        private interface ConstantEval {
-            int eval(BinaryExp.Op op, int i1, int i2);
-        }
-
-        @Override
-        public Value visit(ArithmeticExp exp) {
-            return evaluateBinary(exp, (op, i1, i2) -> {
-                switch ((ArithmeticExp.Op) op) {
-                    case ADD:
-                        return i1 + i2;
-                    case SUB:
-                        return i1 - i2;
-                    case MUL:
-                        return i1 * i2;
-                    case DIV:
-                        return i1 / i2;
-                    case REM:
-                        return i1 % i2;
-                }
-                throw new AnalysisException("Unexpected op: " + op);
-            });
-        }
-
-        @Override
-        public Value visit(BitwiseExp exp) {
-            return evaluateBinary(exp, (op, i1, i2) -> {
-                switch ((BitwiseExp.Op) op) {
-                    case OR:
-                        return i1 | i2;
-                    case AND:
-                        return i1 & i2;
-                    case XOR:
-                        return i1 ^ i2;
-                }
-                throw new AnalysisException("Unexpected op: " + op);
-            });
-        }
-
-        @Override
-        public Value visit(ConditionExp exp) {
-            return evaluateBinary(exp, (op, i1, i2) -> {
-                switch ((ConditionExp.Op) op) {
-                    case EQ:
-                        return i1 == i2 ? 1 : 0;
-                    case NE:
-                        return i1 != i2 ? 1 : 0;
-                    case LT:
-                        return i1 < i2 ? 1 : 0;
-                    case GT:
-                        return i1 > i2 ? 1 : 0;
-                    case LE:
-                        return i1 <= i2 ? 1 : 0;
-                    case GE:
-                        return i1 >= i2 ? 1 : 0;
-                }
-                throw new AnalysisException("Unexpected op: " + op);
-            });
-        }
-
-        @Override
-        public Value visit(ShiftExp exp) {
-            return evaluateBinary(exp, (op, i1, i2) -> {
-                switch ((ShiftExp.Op) op) {
-                    case SHL:
-                        return i1 << i2;
-                    case SHR:
-                        return i2 >> i2;
-                    case USHR:
-                        return i1 >>> i2;
-                }
-                throw new AnalysisException("Unexpected op: " + op);
-            });
-        }
-
-        private Value evaluateBinary(BinaryExp binary, ConstantEval constantEval) {
-            Value v1 = binary.getOperand1().accept(this);
-            Value v2 = binary.getOperand2().accept(this);
+    /**
+     * Evaluates the {@link Value} of given expression.
+     *
+     * @param exp the expression to be evaluated
+     * @param in  IN fact of the statement
+     * @return the resulting {@link Value}
+     */
+    public static Value evaluate(Exp exp, CPFact in) {
+        if (exp instanceof IntLiteral) {
+            return Value.makeConstant(((IntLiteral) exp).getValue());
+        } else if (exp instanceof Var) {
+            return in.get((Var) exp);
+        } else if (exp instanceof BinaryExp) {
+            BinaryExp binary = (BinaryExp) exp;
+            Value v1 = evaluate(binary.getOperand1(), in);
+            Value v2 = evaluate(binary.getOperand2(), in);
             if (v1.isConstant() && v2.isConstant()) {
+                BinaryExp.Op op = binary.getOperator();
                 int i1 = v1.getConstant();
                 int i2 = v2.getConstant();
-                return Value.makeConstant(
-                        constantEval.eval(binary.getOperator(), i1, i2));
+                return Value.makeConstant(evaluate(op, i1, i2));
             } else if (v1.isNAC() || v2.isNAC()) {
                 return Value.getNAC();
             }
             return Value.getUndef();
         }
+        // return NAC for other cases
+        return Value.getNAC();
+    }
 
-        @Override
-        public Value visitDefault(Exp exp) {
-            return Value.getNAC();
+    private static int evaluate(BinaryExp.Op op, int i1, int i2) {
+        if (op instanceof ArithmeticExp.Op) {
+            switch ((ArithmeticExp.Op) op) {
+                case ADD:
+                    return i1 + i2;
+                case SUB:
+                    return i1 - i2;
+                case MUL:
+                    return i1 * i2;
+                case DIV:
+                    return i1 / i2;
+                case REM:
+                    return i1 % i2;
+            }
+        } else if (op instanceof BitwiseExp.Op) {
+            switch ((BitwiseExp.Op) op) {
+                case OR:
+                    return i1 | i2;
+                case AND:
+                    return i1 & i2;
+                case XOR:
+                    return i1 ^ i2;
+            }
+        } else if (op instanceof ConditionExp.Op) {
+            switch ((ConditionExp.Op) op) {
+                case EQ:
+                    return i1 == i2 ? 1 : 0;
+                case NE:
+                    return i1 != i2 ? 1 : 0;
+                case LT:
+                    return i1 < i2 ? 1 : 0;
+                case GT:
+                    return i1 > i2 ? 1 : 0;
+                case LE:
+                    return i1 <= i2 ? 1 : 0;
+                case GE:
+                    return i1 >= i2 ? 1 : 0;
+            }
+        } else if (op instanceof ShiftExp.Op) {
+            switch ((ShiftExp.Op) op) {
+                case SHL:
+                    return i1 << i2;
+                case SHR:
+                    return i2 >> i2;
+                case USHR:
+                    return i1 >>> i2;
+            }
         }
+        throw new AnalysisException("Unexpected op: " + op);
     }
 
     @Override
@@ -264,7 +223,7 @@ public class ConstantPropagation extends
 
     @Override
     public void transferEdge(
-            Edge<Stmt> edge, MapFact<Var, Value> nodeFact, MapFact<Var, Value> edgeFact) {
+            Edge<Stmt> edge, CPFact nodeFact, CPFact edgeFact) {
         edgeFact.copyFrom(nodeFact);
         if (edge.getKind() == Edge.Kind.IF_TRUE) {
             ConditionExp cond = ((If) edge.getSource()).getCondition();
