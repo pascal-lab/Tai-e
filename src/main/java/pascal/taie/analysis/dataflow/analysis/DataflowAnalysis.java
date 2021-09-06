@@ -50,7 +50,7 @@ public interface DataflowAnalysis<Node, Fact> {
      * The function transfers data-flow from in (out) fact to out (in) fact
      * for forward (backward) analysis.
      *
-     * @return true if the transfer changed the out (int) fact, otherwise false.
+     * @return true if the transfer changed the out (in) fact, otherwise false.
      */
     boolean transferNode(Node node, Fact in, Fact out);
 

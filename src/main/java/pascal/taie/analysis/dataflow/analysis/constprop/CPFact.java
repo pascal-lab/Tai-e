@@ -24,7 +24,7 @@ public class CPFact extends MapFact<Var, Value> {
         super(map);
     }
 
-    CPFact() {
+    public CPFact() {
         this(Collections.emptyMap());
     }
 

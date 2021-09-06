@@ -21,29 +21,20 @@ public class ShiftExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /**
-         * <<
-         */
         SHL("<<"),
-        /**
-         * >>
-         */
         SHR(">>"),
-        /**
-         * >>>
-         */
         USHR(">>>"),
         ;
 
-        private final String name;
+        private final String symbol;
 
-        Op(String name) {
-            this.name = name;
+        Op(String symbol) {
+            this.symbol = symbol;
         }
 
         @Override
         public String toString() {
-            return name;
+            return symbol;
         }
     }
 
@@ -56,7 +47,7 @@ public class ShiftExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert isIntLikeOrLong(value1) && isIntLike(value2);
+        assert isIntLikeOrLong(operand1) && isIntLike(operand2);
     }
 
     @Override
@@ -66,7 +57,7 @@ public class ShiftExp extends AbstractBinaryExp {
 
     @Override
     public PrimitiveType getType() {
-        return (PrimitiveType) value1.getType();
+        return (PrimitiveType) operand1.getType();
     }
 
     @Override

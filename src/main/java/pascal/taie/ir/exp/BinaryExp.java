@@ -17,12 +17,24 @@ package pascal.taie.ir.exp;
  */
 public interface BinaryExp extends RValue {
 
+    /**
+     * Representation of binary operators.
+     */
     interface Op {
     }
 
+    /**
+     * @return the operator.
+     */
     Op getOperator();
 
-    Var getValue1();
+    /**
+     * @return the first operand.
+     */
+    Var getOperand1();
 
-    Var getValue2();
+    /**
+     * @return the second operand.
+     */
+    Var getOperand2();
 }

@@ -31,7 +31,6 @@ import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
@@ -52,13 +51,12 @@ public class ConstantPropagation extends
 
     @Override
     public MapFact<Var, Value> newBoundaryFact(CFG<Stmt> cfg) {
-        return newBoundaryFact(cfg.getMethod());
+        return newBoundaryFact(cfg.getIR());
     }
 
-    public MapFact<Var, Value> newBoundaryFact(JMethod method) {
+    public MapFact<Var, Value> newBoundaryFact(IR ir) {
         // make conservative assumption about parameters: assign NAC to them
         CPFact entryFact = new CPFact();
-        IR ir = method.getIR();
         ir.getParams()
                 .stream()
                 .filter(this::canHoldInt)
@@ -234,8 +232,8 @@ public class ConstantPropagation extends
         }
 
         private Value evaluateBinary(BinaryExp binary, ConstantEval constantEval) {
-            Value v1 = binary.getValue1().accept(this);
-            Value v2 = binary.getValue2().accept(this);
+            Value v1 = binary.getOperand1().accept(this);
+            Value v2 = binary.getOperand2().accept(this);
             if (v1.isConstant() && v2.isConstant()) {
                 int i1 = v1.getConstant();
                 int i2 = v2.getConstant();
@@ -273,9 +271,9 @@ public class ConstantPropagation extends
             if (cond.getOperator() == ConditionExp.Op.EQ) {
                 // if (v1 == v2) {
                 //   ... <- v1 must equal to v2 at this branch
-                Var v1 = cond.getValue1();
+                Var v1 = cond.getOperand1();
                 Value val1 = nodeFact.get(v1);
-                Var v2 = cond.getValue2();
+                Var v2 = cond.getOperand2();
                 Value val2 = nodeFact.get(v2);
                 edgeFact.update(v1, val1.restrictTo(val2));
                 edgeFact.update(v2, val2.restrictTo(val1));

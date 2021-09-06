@@ -22,6 +22,7 @@ import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -100,7 +101,8 @@ public class InterConstantPropagation extends
 
     @Override
     public MapFact<Var, Value> newBoundaryFact(Stmt boundary) {
-        return cp.newBoundaryFact(icfg.getContainingMethodOf(boundary));
+        IR ir = icfg.getContainingMethodOf(boundary).getIR();
+        return cp.newBoundaryFact(ir);
     }
 
     @Override

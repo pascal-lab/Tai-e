@@ -21,37 +21,22 @@ public class ArithmeticExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /**
-         * +
-         */
         ADD("+"),
-        /**
-         * -
-         */
         SUB("-"),
-        /**
-         *
-         */
         MUL("*"),
-        /**
-         * /
-         */
         DIV("/"),
-        /**
-         * %
-         */
         REM("%"),
         ;
 
-        private final String name;
+        private final String symbol;
 
-        Op(String name) {
-            this.name = name;
+        Op(String symbol) {
+            this.symbol = symbol;
         }
 
         @Override
         public String toString() {
-            return name;
+            return symbol;
         }
     }
 
@@ -64,9 +49,9 @@ public class ArithmeticExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert (isIntLike(value1) && isIntLike(value2)) ||
-                value1.getType().equals(value2.getType());
-        assert isPrimitive(value1);
+        assert (isIntLike(operand1) && isIntLike(operand2)) ||
+                operand1.getType().equals(operand2.getType());
+        assert isPrimitive(operand1);
     }
 
     @Override
@@ -76,7 +61,7 @@ public class ArithmeticExp extends AbstractBinaryExp {
 
     @Override
     public PrimitiveType getType() {
-        return (PrimitiveType) value1.getType();
+        return (PrimitiveType) operand1.getType();
     }
 
     @Override

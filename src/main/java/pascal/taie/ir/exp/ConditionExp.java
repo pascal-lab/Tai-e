@@ -21,41 +21,23 @@ public class ConditionExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /**
-         * ==
-         */
         EQ("=="),
-        /**
-         * !=
-         */
         NE("!="),
-        /**
-         * <
-         */
         LT("<"),
-        /**
-         * >
-         */
         GT(">"),
-        /**
-         * <=
-         */
         LE("<="),
-        /**
-         * >=
-         */
         GE(">="),
         ;
 
-        private final String name;
+        private final String symbol;
 
-        Op(String name) {
-            this.name = name;
+        Op(String symbol) {
+            this.symbol = symbol;
         }
 
         @Override
         public String toString() {
-            return name;
+            return symbol;
         }
     }
 
@@ -68,8 +50,8 @@ public class ConditionExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert (isIntLike(value1) && isIntLike(value2)) ||
-                (isReference(value1) && isReference(value2));
+        assert (isIntLike(operand1) && isIntLike(operand2)) ||
+                (isReference(operand1) && isReference(operand2));
     }
 
     @Override

@@ -76,8 +76,8 @@ public class ExpWrapper {
 
     private static boolean equals(BinaryExp binary1, BinaryExp binary2) {
         return binary1.getOperator().equals(binary2.getOperator()) &&
-                binary1.getValue1().equals(binary2.getValue1()) &&
-                binary1.getValue2().equals(binary2.getValue2());
+                binary1.getOperand1().equals(binary2.getOperand1()) &&
+                binary1.getOperand2().equals(binary2.getOperand2());
     }
 
     private static boolean equals(CastExp cast1, CastExp cast2) {
@@ -117,7 +117,7 @@ public class ExpWrapper {
 
     private static int hashCode(BinaryExp binary) {
         return Hashes.hash(binary.getOperator(),
-                binary.getValue1(), binary.getValue2());
+                binary.getOperand1(), binary.getOperand2());
     }
 
     private static int hashCode(CastExp cast) {

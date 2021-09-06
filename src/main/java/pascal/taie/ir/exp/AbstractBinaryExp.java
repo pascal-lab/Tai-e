@@ -18,15 +18,18 @@ import pascal.taie.language.type.Type;
 
 import java.util.List;
 
+/**
+ * Provides common functionalities for {@link BinaryExp} implementations.
+ */
 abstract class AbstractBinaryExp implements BinaryExp {
 
-    protected final Var value1;
+    protected final Var operand1;
 
-    protected final Var value2;
+    protected final Var operand2;
 
-    protected AbstractBinaryExp(Var value1, Var value2) {
-        this.value1 = value1;
-        this.value2 = value2;
+    protected AbstractBinaryExp(Var operand1, Var operand2) {
+        this.operand1 = operand1;
+        this.operand2 = operand2;
         validate();
     }
 
@@ -37,23 +40,23 @@ abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     @Override
-    public Var getValue1() {
-        return value1;
+    public Var getOperand1() {
+        return operand1;
     }
 
     @Override
-    public Var getValue2() {
-        return value2;
+    public Var getOperand2() {
+        return operand2;
     }
 
     @Override
     public List<RValue> getUses() {
-        return List.of(value1, value2);
+        return List.of(operand1, operand2);
     }
 
     @Override
     public String toString() {
-        return value1 + " " + getOperator() + " " + value2;
+        return operand1 + " " + getOperator() + " " + operand2;
     }
 
     // Convenient methods for subclasses to validate value types.
@@ -66,7 +69,7 @@ abstract class AbstractBinaryExp implements BinaryExp {
      *
      * @return the computational type of given variable.
      */
-    private Type getComputationalTypeOf(Var var) {
+    private static Type getComputationalTypeOf(Var var) {
         Type type = var.getType();
         if (type instanceof PrimitiveType) {
             switch ((PrimitiveType) type) {

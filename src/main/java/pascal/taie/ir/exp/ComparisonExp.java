@@ -22,29 +22,20 @@ public class ComparisonExp extends AbstractBinaryExp {
 
     public enum Op implements BinaryExp.Op {
 
-        /**
-         * cmp
-         */
         CMP("cmp"),
-        /**
-         * cmpl
-         */
         CMPL("cmpl"),
-        /**
-         * cmpg
-         */
         CMPG("cmpg"),
         ;
 
-        private final String name;
+        private final String instruction;
 
-        Op(String name) {
-            this.name = name;
+        Op(String instruction) {
+            this.instruction = instruction;
         }
 
         @Override
         public String toString() {
-            return name;
+            return instruction;
         }
     }
 
@@ -57,8 +48,8 @@ public class ComparisonExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        Type v1type = value1.getType();
-        assert v1type.equals(value2.getType());
+        Type v1type = operand1.getType();
+        assert v1type.equals(operand2.getType());
         assert v1type.equals(PrimitiveType.LONG) ||
                 v1type.equals(PrimitiveType.FLOAT) ||
                 v1type.equals(PrimitiveType.DOUBLE);
