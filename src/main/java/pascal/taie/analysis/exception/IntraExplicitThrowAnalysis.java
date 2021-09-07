@@ -65,7 +65,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
             }
             // collect all definition stmts
             Exp lhs = null, rhs = null;
-            if (s instanceof DefinitionStmt<?, ?>) {
+            if (s instanceof DefinitionStmt) {
                 DefinitionStmt<?, ?> define = (DefinitionStmt<?, ?>) s;
                 lhs = define.getLValue();
                 rhs = define.getRValue();

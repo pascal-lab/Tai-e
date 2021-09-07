@@ -31,14 +31,21 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Representation of invocation statement, e.g., r = o.m(..).
+ * Representation of invocation statement, e.g., r = o.m(..) or o.m(..).
  */
 public class Invoke extends DefinitionStmt<Var, InvokeExp>
         implements Comparable<Invoke> {
 
-    private final InvokeExp invokeExp;
-
+    /**
+     * The variable receiving the result of the invocation. This field
+     * is null if no variable receives the invocation result, e.g., o.m(..).
+     */
     private final Var result;
+
+    /**
+     * The invocation expression.
+     */
+    private final InvokeExp invokeExp;
 
     /**
      * The method containing this invoke statement.

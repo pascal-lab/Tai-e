@@ -35,8 +35,14 @@ public class Var implements LValue, RValue {
      */
     private final JMethod method;
 
+    /**
+     * The name of this Var.
+     */
     private final String name;
 
+    /**
+     * The type of this Var.
+     */
     private final Type type;
 
     /**
@@ -57,6 +63,9 @@ public class Var implements LValue, RValue {
         return method;
     }
 
+    /**
+     * @return name of this Var.
+     */
     public String getName() {
         return name;
     }

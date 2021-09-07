@@ -92,7 +92,7 @@ public class ConstantPropagation extends
 
     @Override
     public boolean transferNode(Stmt stmt, CPFact in, CPFact out) {
-        if (stmt instanceof DefinitionStmt<?, ?>) {
+        if (stmt instanceof DefinitionStmt) {
             Exp lvalue = ((DefinitionStmt<?, ?>) stmt).getLValue();
             if (lvalue instanceof Var) {
                 Var lhs = (Var) lvalue;

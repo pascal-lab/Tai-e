@@ -14,6 +14,9 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.PrimitiveType;
 
+/**
+ * Representation of int literals.
+ */
 public class IntLiteral implements IntegerLiteral {
 
     /**
@@ -27,6 +30,9 @@ public class IntLiteral implements IntegerLiteral {
         }
     }
 
+    /**
+     * The value of the literal.
+     */
     private final int value;
 
     private IntLiteral(int value) {
@@ -46,6 +52,9 @@ public class IntLiteral implements IntegerLiteral {
         return PrimitiveType.INT;
     }
 
+    /**
+     * @return the value of the literal as an int.
+     */
     public int getValue() {
         return value;
     }
@@ -57,14 +66,10 @@ public class IntLiteral implements IntegerLiteral {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if (o instanceof IntLiteral) {
+            return value == ((IntLiteral) o).getValue();
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        IntLiteral that = (IntLiteral) o;
-        return value == that.value;
+        return false;
     }
 
     @Override

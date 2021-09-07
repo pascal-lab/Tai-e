@@ -14,6 +14,9 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.PrimitiveType;
 
+/**
+ * Representation of long literals.
+ */
 public class LongLiteral implements IntegerLiteral {
 
     /**
@@ -27,6 +30,9 @@ public class LongLiteral implements IntegerLiteral {
         }
     }
 
+    /**
+     * The value of the literal.
+     */
     private final long value;
 
     private LongLiteral(long value) {
@@ -46,6 +52,9 @@ public class LongLiteral implements IntegerLiteral {
         return PrimitiveType.LONG;
     }
 
+    /**
+     * @return the value of the literal as a long.
+     */
     public long getValue() {
         return value;
     }
@@ -57,14 +66,10 @@ public class LongLiteral implements IntegerLiteral {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if (o instanceof LongLiteral) {
+            return value == ((LongLiteral) o).getValue();
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        LongLiteral that = (LongLiteral) o;
-        return value == that.value;
+        return false;
     }
 
     @Override
