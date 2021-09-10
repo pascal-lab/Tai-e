@@ -4,7 +4,6 @@ class Interprocedural {
         int x = i;
         int y = i + 10;
         boolean p = b;
-        boolean q = b || false;
     }
 
     void invoke() {

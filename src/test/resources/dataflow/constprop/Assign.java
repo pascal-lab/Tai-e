@@ -1,6 +1,6 @@
 class Assign {
 
-    static void multipleAssigns() {
+    void assign() {
         int x = 1, y;
         x = 2;
         x = 3;

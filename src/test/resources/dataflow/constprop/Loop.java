@@ -1,5 +1,5 @@
 class Loop {
-    static void whileConstant() {
+    void whileConstant() {
         int a, b = 1, c = 1;
         int i = 0;
         while (i < 10) {
@@ -10,7 +10,7 @@ class Loop {
         }
     }
 
-    static void whileNAC() {
+    void whileNAC() {
         int a, b = 0, c = 0;
         int i = 0;
         while (i < 10) {
@@ -21,7 +21,7 @@ class Loop {
         }
     }
 
-    static void whileUndefinedConstant() {
+    void whileUndefinedConstant() {
         int a, b, c;
         int i = 0;
         while (i < 10) {

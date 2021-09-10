@@ -2,7 +2,7 @@
 [0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
 
--------------------- <Assign: void multipleAssigns()> (constprop) --------------------
+-------------------- <Assign: void assign()> (constprop) --------------------
 [0@L4] x = 1; {x=1}
 [1@L5] x = 2; {x=2}
 [2@L6] x = 3; {x=3}

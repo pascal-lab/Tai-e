@@ -82,6 +82,11 @@ public class CPTestFull {
     }
 
     @Test
+    public void testDivisionByZero() {
+        CPTest.testCP("DivisionByZero");
+    }
+
+    @Test
     public void testVariousBinaryOp() {
         CPTest.testCP("VariousBinaryOp");
     }
