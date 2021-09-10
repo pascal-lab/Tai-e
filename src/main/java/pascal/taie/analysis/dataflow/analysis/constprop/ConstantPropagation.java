@@ -143,10 +143,15 @@ public class ConstantPropagation extends
             return in.get((Var) exp);
         } else if (exp instanceof BinaryExp) {
             BinaryExp binary = (BinaryExp) exp;
+            BinaryExp.Op op = binary.getOperator();
             Value v1 = evaluate(binary.getOperand1(), in);
             Value v2 = evaluate(binary.getOperand2(), in);
+            // handle division-by-zero by returning UNDEF
+            if ((op == ArithmeticExp.Op.DIV || op == ArithmeticExp.Op.REM) &&
+                    v2.isConstant() && v2.getConstant() == 0) {
+                return Value.getUndef();
+            }
             if (v1.isConstant() && v2.isConstant()) {
-                BinaryExp.Op op = binary.getOperator();
                 int i1 = v1.getConstant();
                 int i2 = v2.getConstant();
                 return Value.makeConstant(evaluate(op, i1, i2));
