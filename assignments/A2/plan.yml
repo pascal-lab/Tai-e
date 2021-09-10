@@ -1,0 +1,17 @@
+- id: throw
+  options:
+    exception: explicit
+    algorithm: intra
+- id: cfg
+  options:
+    exception: explicit
+    dump: true
+- id: constprop
+  options: {}
+- id: process-result
+  options:
+    analyses:
+    - constprop
+    action: dump
+    file: null
+    log-mismatches: false
