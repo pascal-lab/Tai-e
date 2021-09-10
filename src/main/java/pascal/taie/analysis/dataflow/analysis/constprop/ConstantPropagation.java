@@ -38,8 +38,14 @@ public class ConstantPropagation extends
 
     public static final String ID = "constprop";
 
+    /**
+     * Whether enable edge transfer.
+     */
+    private final boolean edgeTransfer;
+
     public ConstantPropagation(AnalysisConfig config) {
         super(config);
+        edgeTransfer = getOptions().getBooleanOrDefault("edge-transfer", true);
     }
 
     @Override
@@ -217,7 +223,7 @@ public class ConstantPropagation extends
 
     @Override
     public boolean hasEdgeTransfer() {
-        return true;
+        return edgeTransfer;
     }
 
     @Override

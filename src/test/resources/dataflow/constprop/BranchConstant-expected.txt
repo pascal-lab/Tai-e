@@ -11,8 +11,8 @@
 [5@L7] nop; {%intconst0=0, b=NAC, x=2, y=2}
 [6@L8] z = x + y; {%intconst0=0, b=NAC, x=2, y=2, z=4}
 [7@L7] goto 10; {%intconst0=0, b=NAC, x=2, y=2, z=4}
-[8@L7] nop; {%intconst0=0, b=0, x=2, y=2}
-[9@L10] z = x * y; {%intconst0=0, b=0, x=2, y=2, z=4}
+[8@L7] nop; {%intconst0=0, b=NAC, x=2, y=2}
+[9@L10] z = x * y; {%intconst0=0, b=NAC, x=2, y=2, z=4}
 [10@L10] nop; {%intconst0=0, b=NAC, x=2, y=2, z=4}
 [11@L12] n = z; {%intconst0=0, b=NAC, n=4, x=2, y=2, z=4}
 [12@L12] return; {%intconst0=0, b=NAC, n=4, x=2, y=2, z=4}

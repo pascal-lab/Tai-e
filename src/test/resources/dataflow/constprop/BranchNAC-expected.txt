@@ -9,8 +9,8 @@
 [3@L5] nop; {%intconst0=0, b=NAC}
 [4@L6] x = 10; {%intconst0=0, b=NAC, x=10}
 [5@L5] goto 8; {%intconst0=0, b=NAC, x=10}
-[6@L5] nop; {%intconst0=0, b=0}
-[7@L8] x = 20; {%intconst0=0, b=0, x=20}
+[6@L5] nop; {%intconst0=0, b=NAC}
+[7@L8] x = 20; {%intconst0=0, b=NAC, x=20}
 [8@L8] nop; {%intconst0=0, b=NAC, x=NAC}
 [9@L10] y = x; {%intconst0=0, b=NAC, x=NAC, y=NAC}
 [10@L10] return; {%intconst0=0, b=NAC, x=NAC, y=NAC}
@@ -22,8 +22,8 @@
 [3@L15] nop; {%intconst0=0, b=NAC, p=NAC}
 [4@L16] x = undef; {%intconst0=0, b=NAC, p=NAC, x=UNDEF}
 [5@L15] goto 8; {%intconst0=0, b=NAC, p=NAC, x=UNDEF}
-[6@L15] nop; {%intconst0=0, b=0, p=NAC}
-[7@L18] x = p; {%intconst0=0, b=0, p=NAC, x=NAC}
+[6@L15] nop; {%intconst0=0, b=NAC, p=NAC}
+[7@L18] x = p; {%intconst0=0, b=NAC, p=NAC, x=NAC}
 [8@L18] nop; {%intconst0=0, b=NAC, p=NAC, x=NAC}
 [9@L20] y = x; {%intconst0=0, b=NAC, p=NAC, x=NAC, y=NAC}
 [10@L20] return; {%intconst0=0, b=NAC, p=NAC, x=NAC, y=NAC}
@@ -36,9 +36,9 @@
 [4@L26] x = 2; {%intconst0=0, b=NAC, x=2}
 [5@L27] y = 3; {%intconst0=0, b=NAC, x=2, y=3}
 [6@L25] goto 10; {%intconst0=0, b=NAC, x=2, y=3}
-[7@L25] nop; {%intconst0=0, b=0}
-[8@L29] x = 3; {%intconst0=0, b=0, x=3}
-[9@L30] y = 2; {%intconst0=0, b=0, x=3, y=2}
+[7@L25] nop; {%intconst0=0, b=NAC}
+[8@L29] x = 3; {%intconst0=0, b=NAC, x=3}
+[9@L30] y = 2; {%intconst0=0, b=NAC, x=3, y=2}
 [10@L30] nop; {%intconst0=0, b=NAC, x=NAC, y=NAC}
 [11@L32] z = x + y; {%intconst0=0, b=NAC, x=NAC, y=NAC, z=NAC}
 [12@L32] return; {%intconst0=0, b=NAC, x=NAC, y=NAC, z=NAC}

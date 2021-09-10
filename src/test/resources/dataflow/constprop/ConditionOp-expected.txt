@@ -10,8 +10,8 @@
 [4@L5] nop; {i0=0, i1=1}
 [5@L5] temp$0 = 0; {i0=0, i1=1, temp$0=0}
 [6@L5] goto 9; {i0=0, i1=1, temp$0=0}
-[7@L5] nop; {i0=UNDEF, i1=UNDEF}
-[8@L5] temp$0 = 1; {i0=UNDEF, i1=UNDEF, temp$0=1}
+[7@L5] nop; {i0=0, i1=1}
+[8@L5] temp$0 = 1; {i0=0, i1=1, temp$0=1}
 [9@L5] nop; {i0=0, i1=1, temp$0=NAC}
 [10@L5] b1 = temp$0; {b1=NAC, i0=0, i1=1, temp$0=NAC}
 [11@L6] if (i0 != i1) goto 16; {b1=NAC, i0=0, i1=1, temp$0=NAC}
@@ -33,8 +33,8 @@
 [4@L11] nop; {f=0, t=1}
 [5@L11] temp$0 = 0; {f=0, t=1, temp$0=0}
 [6@L11] goto 9; {f=0, t=1, temp$0=0}
-[7@L11] nop; {f=UNDEF, t=UNDEF}
-[8@L11] temp$0 = 1; {f=UNDEF, t=UNDEF, temp$0=1}
+[7@L11] nop; {f=0, t=1}
+[8@L11] temp$0 = 1; {f=0, t=1, temp$0=1}
 [9@L11] nop; {f=0, t=1, temp$0=NAC}
 [10@L11] b1 = temp$0; {b1=NAC, f=0, t=1, temp$0=NAC}
 [11@L12] if (t != f) goto 16; {b1=NAC, f=0, t=1, temp$0=NAC}

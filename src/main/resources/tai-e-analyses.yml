@@ -81,6 +81,8 @@
   analysisClass: pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
   id: constprop
   requires: [ cfg ]
+  options:
+    edge-transfer: true
 
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation

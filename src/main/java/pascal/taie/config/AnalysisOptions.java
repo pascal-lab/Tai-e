@@ -75,6 +75,10 @@ public class AnalysisOptions {
         return (Boolean) get(key);
     }
 
+    public boolean getBooleanOrDefault(String key, boolean defaultValue) {
+        return (Boolean) options.getOrDefault(key, defaultValue);
+    }
+
     public int getInt(String key) {
         return (Integer) get(key);
     }

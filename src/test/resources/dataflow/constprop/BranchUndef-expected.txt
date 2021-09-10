@@ -9,8 +9,8 @@
 [3@L5] nop; {%intconst0=0, b=NAC}
 [4@L6] x = undef; {%intconst0=0, b=NAC, x=UNDEF}
 [5@L5] goto 8; {%intconst0=0, b=NAC, x=UNDEF}
-[6@L5] nop; {%intconst0=0, b=0}
-[7@L8] x = 10; {%intconst0=0, b=0, x=10}
+[6@L5] nop; {%intconst0=0, b=NAC}
+[7@L8] x = 10; {%intconst0=0, b=NAC, x=10}
 [8@L8] nop; {%intconst0=0, b=NAC, x=10}
 [9@L10] y = x; {%intconst0=0, b=NAC, x=10, y=10}
 [10@L10] return; {%intconst0=0, b=NAC, x=10, y=10}

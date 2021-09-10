@@ -19,7 +19,7 @@ public class CPTest {
 
     static void testCP(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/constprop/",
-                ConstantPropagation.ID);
+                ConstantPropagation.ID, "edge-transfer:false");
     }
 
     @Test
