@@ -17,6 +17,11 @@ import org.junit.Test;
 public class CPTestFull {
 
     @Test
+    public void testAssign() {
+        CPTest.testCP("Assign");
+    }
+
+    @Test
     public void testSimpleConstant() {
         CPTest.testCP("SimpleConstant");
     }
@@ -39,11 +44,6 @@ public class CPTestFull {
     @Test
     public void testSimpleChar() {
         CPTest.testCP("SimpleChar");
-    }
-
-    @Test
-    public void testAssign() {
-        CPTest.testCP("Assign");
     }
 
     @Test
@@ -77,8 +77,8 @@ public class CPTestFull {
     }
 
     @Test
-    public void testBoolean() {
-        CPTest.testCP("Boolean");
+    public void testLogicalOp() {
+        CPTest.testCP("LogicalOp");
     }
 
     @Test
@@ -87,7 +87,7 @@ public class CPTestFull {
     }
 
     @Test
-    public void testVariousBinaryOp() {
-        CPTest.testCP("VariousBinaryOp");
+    public void testConditionOp() {
+        CPTest.testCP("ConditionOp");
     }
 }

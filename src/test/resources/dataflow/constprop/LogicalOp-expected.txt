@@ -1,8 +1,8 @@
--------------------- <Boolean: void <init>()> (constprop) --------------------
+-------------------- <LogicalOp: void <init>()> (constprop) --------------------
 [0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
 
--------------------- <Boolean: void boolOp()> (constprop) --------------------
+-------------------- <LogicalOp: void logicalOp()> (constprop) --------------------
 [0@L4] bTrue = 1; {bTrue=1}
 [1@L5] bFalse = 0; {bFalse=0, bTrue=1}
 [2@L6] %intconst0 = 0; {%intconst0=0, bFalse=0, bTrue=1}
@@ -32,16 +32,5 @@
 [26@L7] temp$1 = 1; {%intconst0=0, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=1}
 [27@L7] nop; {%intconst0=0, b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
 [28@L7] b2 = temp$1; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
-[29@L8] x = 10; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10}
-[30@L9] y = 20; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
-[31@L10] if (x > y) goto 36; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
-[32@L10] goto 33; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
-[33@L10] nop; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
-[34@L10] temp$2 = 0; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=0, x=10, y=20}
-[35@L10] goto 38; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=0, x=10, y=20}
-[36@L10] nop; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, x=10, y=20}
-[37@L10] temp$2 = 1; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=1, x=10, y=20}
-[38@L10] nop; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, x=10, y=20}
-[39@L10] b3 = temp$2; {%intconst0=0, b1=NAC, b2=NAC, b3=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, x=10, y=20}
-[40@L10] return; {%intconst0=0, b1=NAC, b2=NAC, b3=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, x=10, y=20}
+[29@L7] return; {%intconst0=0, b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
 

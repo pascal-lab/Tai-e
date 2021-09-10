@@ -1,12 +1,4 @@
-class VariousBinaryOp {
-
-    void intArith() {
-        int i0 = 0, i1 = 1;
-        int a = i0 + i1;
-        int b = i0 - i1;
-        int c = i0 * i1;
-        int d = i0 / i1;
-    }
+class ConditionOp {
 
     void intEqNeq() {
         int i0 = 0, i1 = 1;

@@ -38,6 +38,19 @@ overwrittenFiles:
   - pascal.taie.Assignment
 testClasses:
   - pascal.taie.analysis.Tests
-  - pascal.taie.analysis.dataflow.analysis.constprop.CPTestFull
+  - pascal.taie.analysis.dataflow.analysis.constprop.CPTest
 testResources:
   - dataflow/constprop/Assign.java
+  - dataflow/constprop/SimpleConstant.java
+  - dataflow/constprop/SimpleBinary.java
+  - dataflow/constprop/SimpleBranch.java
+  - dataflow/constprop/SimpleBoolean.java
+  - dataflow/constprop/SimpleChar.java
+  - dataflow/constprop/BinaryOp.java
+  - dataflow/constprop/BranchConstant.java
+  - dataflow/constprop/BranchNAC.java
+  - dataflow/constprop/BranchUndef.java
+  - dataflow/constprop/Loop.java
+  - dataflow/constprop/Interprocedural.java
+  - dataflow/constprop/LogicalOp.java
+  - dataflow/constprop/DivisionByZero.java

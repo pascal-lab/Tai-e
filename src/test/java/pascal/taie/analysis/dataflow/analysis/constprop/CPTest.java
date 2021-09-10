@@ -23,6 +23,11 @@ public class CPTest {
     }
 
     @Test
+    public void testAssign() {
+        testCP("Assign");
+    }
+
+    @Test
     public void testSimpleConstant() {
         testCP("SimpleConstant");
     }
@@ -35,5 +40,55 @@ public class CPTest {
     @Test
     public void testSimpleBranch() {
         testCP("SimpleBranch");
+    }
+
+    @Test
+    public void testSimpleBoolean() {
+        testCP("SimpleBoolean");
+    }
+
+    @Test
+    public void testSimpleChar() {
+        testCP("SimpleChar");
+    }
+
+    @Test
+    public void testBinaryOp() {
+        testCP("BinaryOp");
+    }
+
+    @Test
+    public void testBranchConstant() {
+        testCP("BranchConstant");
+    }
+
+    @Test
+    public void testBranchNAC() {
+        testCP("BranchNAC");
+    }
+
+    @Test
+    public void testBranchUndef() {
+        testCP("BranchUndef");
+    }
+
+    @Test
+    public void testLoop() {
+        testCP("Loop");
+    }
+
+    @Test
+    public void testInterprocedural() {
+        testCP("Interprocedural");
+    }
+
+    @Test
+    public void testLogicalOp() {
+        testCP("LogicalOp");
+    }
+
+    @Test
+    public void testDivisionByZero() {
+        testCP("DivisionByZero");
     }
 }
