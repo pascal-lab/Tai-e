@@ -18,11 +18,13 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
 /**
  * Default implementation of IR.
+ * The data structures in this class are immutable.
  */
 public class DefaultIR extends AbstractHolder implements IR {
 
@@ -58,7 +60,8 @@ public class DefaultIR extends AbstractHolder implements IR {
         return method;
     }
 
-    public Var getThis() {
+    @Override
+    public @Nullable Var getThis() {
         return thisVar;
     }
 
@@ -83,8 +86,8 @@ public class DefaultIR extends AbstractHolder implements IR {
     }
 
     @Override
-    public Stmt getStmt(int index) {
-        return stmts.get(index);
+    public Stmt getStmt(int i) {
+        return stmts.get(i);
     }
 
     @Override

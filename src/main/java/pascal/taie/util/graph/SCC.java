@@ -112,7 +112,7 @@ public class SCC<N> {
             scc.add(v2);
         } while (node != v2);
         // Reverse SCC so that the nodes connected to predecessors
-        // (outside of the SCC) will be listed ahead.
+        // (outside the SCC) will be listed ahead.
         Collections.reverse(scc);
         componentList.add(scc);
         if (scc.size() > 1) {
