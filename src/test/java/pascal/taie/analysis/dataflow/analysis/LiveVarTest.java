@@ -22,6 +22,11 @@ public class LiveVarTest {
                 LiveVariableAnalysis.ID);
     }
 
+    static void testSLV(String inputClass) {
+        Tests.testDFA(inputClass, "src/test/resources/dataflow/livevar",
+                LiveVariableAnalysis.ID, "strongly:true");
+    }
+
     @Test
     public void testAssign() {
         testLV("Assign");
@@ -45,5 +50,15 @@ public class LiveVarTest {
     @Test
     public void testBranchLoop() {
         testLV("BranchLoop");
+    }
+
+    @Test
+    public void testStronglyAssign() {
+        testSLV("StronglyAssign");
+    }
+
+    @Test
+    public void testStronglyBranchLoop() {
+        testSLV("StronglyBranchLoop");
     }
 }

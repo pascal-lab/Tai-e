@@ -16,18 +16,25 @@ import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Stmt;
 
 /**
- * Implementation of classic live variable analysis.
+ * Implementation of live variable analysis.
  */
 public class LiveVariableAnalysis extends
         AbstractDataflowAnalysis<Stmt, SetFact<Var>> {
 
     public static final String ID = "livevar";
 
+    /**
+     * Whether enable strongly live variable analysis.
+     */
+    private final boolean strongly;
+
     public LiveVariableAnalysis(AnalysisConfig config) {
         super(config);
+        strongly = getOptions().getBoolean("strongly");
     }
 
     @Override
@@ -61,11 +68,34 @@ public class LiveVariableAnalysis extends
             }
         });
         // generate uses in stmt
-        stmt.getUses().forEach(use -> {
-            if (use instanceof Var) {
-                in.add((Var) use);
+        if (strongly) {
+            // only add strongly live variables
+            if (stmt instanceof Copy) {
+                // for a Copy statement, say x = y, we consider y as
+                // strongly live only when x is also strongly live
+                Copy copy = (Copy) stmt;
+                Var lVar = copy.getLValue();
+                Var rVar = copy.getRValue();
+                if (out.contains(lVar)) {
+                    in.add(rVar);
+                }
+            } else {
+                // for non-Copy statements, all used variables
+                // are considered strongly live
+                stmt.getUses().forEach(use -> {
+                    if (use instanceof Var) {
+                        in.add((Var) use);
+                    }
+                });
             }
-        });
+        } else {
+            // add all used variables
+            stmt.getUses().forEach(use -> {
+                if (use instanceof Var) {
+                    in.add((Var) use);
+                }
+            });
+        }
         return !in.equals(oldIn);
     }
 }

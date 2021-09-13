@@ -66,6 +66,8 @@
   analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariableAnalysis
   id: livevar
   requires: [ cfg ]
+  options:
+    strongly: false # enable strongly live variable analysis
 
 - description: available expression analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpressionAnalysis
