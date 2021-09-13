@@ -38,8 +38,9 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
 
     /**
      * The variable receiving the result of the invocation. This field
-     * is null if no variable receives the invocation result, e.g., o.m(..).
+     * is null if no variable receives the invocation result, e.g., o.m(...).
      */
+    @Nullable
     private final Var result;
 
     /**
@@ -48,11 +49,11 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
     private final InvokeExp invokeExp;
 
     /**
-     * The method containing this invoke statement.
+     * The method containing this statement.
      */
     private final JMethod container;
 
-    public Invoke(JMethod method, InvokeExp invokeExp, Var result) {
+    public Invoke(JMethod method, InvokeExp invokeExp, @Nullable Var result) {
         this.invokeExp = invokeExp;
         this.result = result;
         if (invokeExp instanceof InvokeInstanceExp) {

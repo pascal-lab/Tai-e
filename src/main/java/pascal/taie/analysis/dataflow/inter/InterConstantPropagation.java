@@ -177,10 +177,12 @@ public class InterConstantPropagation extends
     private boolean isAliasRelevant(Stmt stmt) {
         if (stmt instanceof LoadField) {
             LoadField load = (LoadField) stmt;
-            return !load.isStatic() && cp.canHoldInt(load.getLValue());
+            return !load.isStatic() &&
+                    ConstantPropagation.canHoldInt(load.getLValue());
         } else if (stmt instanceof StoreField) {
             StoreField store = (StoreField) stmt;
-            return !store.isStatic() && cp.canHoldInt(store.getRValue());
+            return !store.isStatic() &&
+                    ConstantPropagation.canHoldInt(store.getRValue());
         }
         return false;
     }
@@ -203,7 +205,7 @@ public class InterConstantPropagation extends
         for (int i = 0; i < args.size(); ++i) {
             Var arg = args.get(i);
             Var param = params.get(i);
-            if (cp.canHoldInt(param)) {
+            if (ConstantPropagation.canHoldInt(param)) {
                 Value argValue = callSiteIn.get(arg);
                 edgeFact.update(param, argValue);
             }
@@ -215,7 +217,7 @@ public class InterConstantPropagation extends
                                    CPFact edgeFact) {
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
-        if (lhs != null && cp.canHoldInt(lhs)) {
+        if (lhs != null && ConstantPropagation.canHoldInt(lhs)) {
             Value retValue = edge.returnVars()
                     .map(returnOut::get)
                     .reduce(Value.getUndef(), cp::meetValue);

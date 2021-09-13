@@ -9,6 +9,7 @@ exclude:
   - pascal.taie.analysis.dataflow.solver.*
   - pascal.taie.analysis.dataflow.inter.*
 sourceFiles:
+  - pascal.taie.ir.IR
   - pascal.taie.ir.stmt.Stmt
   - pascal.taie.ir.stmt.DefinitionStmt
   - pascal.taie.ir.exp.Exp

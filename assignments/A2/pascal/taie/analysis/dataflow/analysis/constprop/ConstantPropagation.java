@@ -78,7 +78,7 @@ public class ConstantPropagation extends
     /**
      * @return true if the given variable can hold integer value, otherwise false.
      */
-    public boolean canHoldInt(Var var) {
+    public static boolean canHoldInt(Var var) {
         Type type = var.getType();
         if (type instanceof PrimitiveType) {
             switch ((PrimitiveType) type) {

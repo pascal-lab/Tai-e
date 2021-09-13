@@ -90,4 +90,9 @@ public class CPTestFull {
     public void testConditionOp() {
         CPTest.testCP("ConditionOp");
     }
+
+    @Test
+    public void testComparisonOp() {
+        CPTest.testCP("ComparisonOp");
+    }
 }

@@ -63,7 +63,7 @@ public class ConstantPropagation extends
         CPFact entryFact = new CPFact();
         ir.getParams()
                 .stream()
-                .filter(this::canHoldInt)
+                .filter(ConstantPropagation::canHoldInt)
                 .forEach(p -> entryFact.update(p, Value.getNAC()));
         return entryFact;
     }
@@ -120,7 +120,7 @@ public class ConstantPropagation extends
     /**
      * @return true if the given variable can hold integer value, otherwise false.
      */
-    public boolean canHoldInt(Var var) {
+    public static boolean canHoldInt(Var var) {
         Type type = var.getType();
         if (type instanceof PrimitiveType) {
             switch ((PrimitiveType) type) {
@@ -146,7 +146,9 @@ public class ConstantPropagation extends
         if (exp instanceof IntLiteral) {
             return Value.makeConstant(((IntLiteral) exp).getValue());
         } else if (exp instanceof Var) {
-            return in.get((Var) exp);
+            Var var = (Var) exp;
+            // treat the values of non-int variables as NAC
+            return canHoldInt(var) ? in.get(var) : Value.getNAC();
         } else if (exp instanceof BinaryExp) {
             BinaryExp binary = (BinaryExp) exp;
             BinaryExp.Op op = binary.getOperator();

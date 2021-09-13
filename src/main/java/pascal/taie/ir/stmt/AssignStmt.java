@@ -56,11 +56,11 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
 
     @Override
     public List<RValue> getUses() {
-        List<RValue> luses = lvalue.getUses();
-        List<RValue> ruses = rvalue.getUses();
-        List<RValue> uses = new ArrayList<>(luses.size() + ruses.size() + 1);
-        uses.addAll(luses);
-        uses.addAll(ruses);
+        List<RValue> lUses = lvalue.getUses();
+        List<RValue> rUses = rvalue.getUses();
+        List<RValue> uses = new ArrayList<>(lUses.size() + rUses.size() + 1);
+        uses.addAll(lUses);
+        uses.addAll(rUses);
         uses.add(rvalue);
         return uses;
     }
