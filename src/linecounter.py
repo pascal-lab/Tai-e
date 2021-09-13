@@ -16,7 +16,7 @@ def notExcluded(path, excludes):
 		return True
 
 if __name__ == '__main__':
-	excludes = [ 'test', 'Test' ] + sys.argv[1:]
+	excludes = [ 'test', 'Test', ] + sys.argv[1:]
 	total = 0
 	nFile = 0
 	for root, dirs, files in os.walk(os.getcwd()):
