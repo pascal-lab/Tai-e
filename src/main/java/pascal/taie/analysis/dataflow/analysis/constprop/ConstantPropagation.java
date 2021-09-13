@@ -238,10 +238,15 @@ public class ConstantPropagation extends
     public void transferEdge(
             Edge<Stmt> edge, CPFact nodeFact, CPFact edgeFact) {
         edgeFact.copyFrom(nodeFact);
-        if (edge.getKind() == Edge.Kind.IF_TRUE) {
+        Edge.Kind kind = edge.getKind();
+        if (edge.getSource() instanceof If) {
             ConditionExp cond = ((If) edge.getSource()).getCondition();
-            if (cond.getOperator() == ConditionExp.Op.EQ) {
+            ConditionExp.Op op = cond.getOperator();
+            if ((kind == Edge.Kind.IF_TRUE && op == ConditionExp.Op.EQ) ||
+                    (kind == Edge.Kind.IF_FALSE && op == ConditionExp.Op.NE)) {
                 // if (v1 == v2) {
+                //   ... <- v1 must equal to v2 at this branch
+                // if (v1 != v2) { ... } else {
                 //   ... <- v1 must equal to v2 at this branch
                 Var v1 = cond.getOperand1();
                 Value val1 = nodeFact.get(v1);
@@ -250,7 +255,7 @@ public class ConstantPropagation extends
                 edgeFact.update(v1, val1.restrictTo(val2));
                 edgeFact.update(v2, val2.restrictTo(val1));
             }
-        } else if (edge.getKind() == Edge.Kind.SWITCH_CASE) {
+        } else if (kind == Edge.Kind.SWITCH_CASE) {
             // switch (x) {
             //   case 1: ... <- x must be 1 at this branch
             Var var = ((SwitchStmt) edge.getSource()).getValue();

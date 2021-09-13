@@ -53,12 +53,13 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     @Override
     public Set<Stmt> analyze(IR ir) {
-        // obtain pre-analyses results
+        // obtain results of pre-analyses
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
         NodeResult<Stmt, CPFact> constants =
                 ir.getResult(ConstantPropagation.ID);
         NodeResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariableAnalysis.ID);
+        // keep statements (dead code) sorted in the result set
         Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
         // initialize graph traversal
         Set<Stmt> visited = Sets.newSet(cfg.getNumberOfNodes());
@@ -93,7 +94,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     private boolean isDeadAssignment(
             Stmt stmt, NodeResult<Stmt, SetFact<Var>> liveVars) {
-        if (stmt instanceof AssignStmt<?, ?>) {
+        if (stmt instanceof AssignStmt) {
             AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
             if (assign.getLValue() instanceof Var) {
                 Var lhs = (Var) assign.getLValue();
