@@ -1,6 +1,6 @@
 class DeadAssignment {
 
-    void foo() {
+    void deadAssign() {
         int x = 1;
         int y = x + 2; // dead assignment
         int z = x + 3;

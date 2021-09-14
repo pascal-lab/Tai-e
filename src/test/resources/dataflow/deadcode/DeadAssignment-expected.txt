@@ -1,6 +1,6 @@
 -------------------- <DeadAssignment: void <init>()> (deadcode) --------------------
 
--------------------- <DeadAssignment: void foo()> (deadcode) --------------------
+-------------------- <DeadAssignment: void deadAssign()> (deadcode) --------------------
 [2@L5] y = x + %intconst0;
 [6@L8] a = x;
 

@@ -24,16 +24,51 @@ public class DeadCodeTest {
 
     @Test
     public void testControlFlowUnreachable() {
-        testDCD("ControlFlowUnreachable");
+        DeadCodeTest.testDCD("ControlFlowUnreachable");
     }
 
     @Test
-    public void testUnreachableBranch() {
-        testDCD("UnreachableBranch");
+    public void testControlFlowUnreachable2() {
+        DeadCodeTest.testDCD("ControlFlowUnreachable2");
+    }
+
+    @Test
+    public void testUnreachableIfBranch() {
+        DeadCodeTest.testDCD("UnreachableIfBranch");
+    }
+
+    @Test
+    public void testUnreachableSwitchBranch() {
+        DeadCodeTest.testDCD("UnreachableSwitchBranch");
     }
 
     @Test
     public void testDeadAssignment() {
-        testDCD("DeadAssignment");
+        DeadCodeTest.testDCD("DeadAssignment");
+    }
+
+    @Test
+    public void testDeadAssignment2() {
+        DeadCodeTest.testDCD("DeadAssignment2");
+    }
+
+    @Test
+    public void testLiveAssignments() {
+        DeadCodeTest.testDCD("LiveAssignments");
+    }
+
+    @Test
+    public void testMixedDeadCode() {
+        DeadCodeTest.testDCD("MixedDeadCode");
+    }
+
+    @Test
+    public void testLoops() {
+        DeadCodeTest.testDCD("Loops");
+    }
+
+    @Test
+    public void testNotDead() {
+        DeadCodeTest.testDCD("NotDead");
     }
 }

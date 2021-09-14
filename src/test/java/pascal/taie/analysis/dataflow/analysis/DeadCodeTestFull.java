@@ -22,6 +22,11 @@ public class DeadCodeTestFull {
     }
 
     @Test
+    public void testControlFlowUnreachable2() {
+        DeadCodeTest.testDCD("ControlFlowUnreachable2");
+    }
+
+    @Test
     public void testUnreachableIfBranch() {
         DeadCodeTest.testDCD("UnreachableIfBranch");
     }
@@ -37,13 +42,13 @@ public class DeadCodeTestFull {
     }
 
     @Test
-    public void testControlFlowUnreachable2() {
-        DeadCodeTest.testDCD("ControlFlowUnreachable2");
+    public void testDeadAssignment2() {
+        DeadCodeTest.testDCD("DeadAssignment2");
     }
 
     @Test
-    public void testDeadAssignment2() {
-        DeadCodeTest.testDCD("DeadAssignment2");
+    public void testLiveAssignments() {
+        DeadCodeTest.testDCD("LiveAssignments");
     }
 
     @Test
@@ -59,10 +64,5 @@ public class DeadCodeTestFull {
     @Test
     public void testNotDead() {
         DeadCodeTest.testDCD("NotDead");
-    }
-
-    @Test
-    public void testLiveAssignments() {
-        DeadCodeTest.testDCD("LiveAssignments");
     }
 }
