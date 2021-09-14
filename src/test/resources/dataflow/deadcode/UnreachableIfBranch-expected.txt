@@ -1,0 +1,18 @@
+-------------------- <UnreachableIfBranch: void <init>()> (deadcode) --------------------
+
+-------------------- <UnreachableIfBranch: int branch1()> (deadcode) --------------------
+[3@L7] goto 7;
+[7@L7] nop;
+[8@L10] z = 200;
+
+-------------------- <UnreachableIfBranch: void branch2()> (deadcode) --------------------
+[3@L19] goto 8;
+[8@L22] nop;
+[9@L24] z = 200;
+[10@L26] a = x;
+[11@L27] invokevirtual %this.<UnreachableIfBranch: void use(int)>(a);
+[12@L28] invokevirtual %this.<UnreachableIfBranch: void use(int)>(z);
+[13@L28] return;
+
+-------------------- <UnreachableIfBranch: void use(int)> (deadcode) --------------------
+

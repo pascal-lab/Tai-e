@@ -16,8 +16,8 @@ import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Representation of switch statement, e.g.,
@@ -25,38 +25,83 @@ import java.util.stream.Stream;
  * case 1: ...
  * case 2: ...
  * default: ...
- * }.
+ * }
  */
 public abstract class SwitchStmt extends JumpStmt {
 
+    /**
+     * The variable holding the condition value of the switch-statement.
+     */
     protected final Var value;
 
+    /**
+     * List of jump targets of the switch-statement, one target for each case.
+     */
     protected List<Stmt> targets;
 
+    /**
+     * The jump target for default case.
+     */
     protected Stmt defaultTarget;
 
     public SwitchStmt(Var value) {
         this.value = value;
     }
 
+    /**
+     * @return the variable holding the condition value of the switch-statement.
+     */
     public Var getValue() {
         return value;
     }
 
-    public Stmt getTarget(int index) {
-        return targets.get(index);
-    }
-
-    public List<Stmt> getTargets() {
-        return targets;
+    /**
+     * @return the i-th jump target (for i-th case) of the switch-statement.
+     * The indexes start from 0. Target for default case is excluded.
+     */
+    public Stmt getTarget(int i) {
+        return targets.get(i);
     }
 
     public void setTargets(List<Stmt> targets) {
         this.targets = targets;
     }
 
-    public abstract Stream<Pair<Integer, Stmt>> caseTargets();
+    /**
+     * @return all case values of the switch statement. For example,
+     * for switch statement
+     *
+     * <p>
+     * switch (x) {<p>
+     *     case 1: a = 1; break;<p>
+     *     case 3: a = 3; break;<p>
+     *     default: a = 0; break;<p>
+     * } <p>
+     * <p>
+     *
+     * This API would return [1, 3].
+     */
+    public abstract List<Integer> getCaseValues();
 
+    /**
+     * @return pairs of case value and the corresponding jump target.
+     * Default case is excluded. For example, for switch statement
+     *
+     * <p>
+     * switch (x) {<p>
+     *     case 1: a = 1; break;<p>
+     *     case 3: a = 3; break;<p>
+     *     default: a = 0; break;<p>
+     * } <p>
+     * <p>
+     *
+     * This API would return [(1, a = 1;), (3, a = 3;)].
+     */
+    public abstract List<Pair<Integer, Stmt>> getCaseTargets();
+
+    /**
+     * @return the jump target for default case.
+     */
     public Stmt getDefaultTarget() {
         return defaultTarget;
     }
@@ -76,15 +121,15 @@ public abstract class SwitchStmt extends JumpStmt {
     }
 
     @Override
-    public Stream<Stmt> targets() {
-        return targets.stream();
+    public List<Stmt> getTargets() {
+        return Collections.unmodifiableList(targets);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getInsnString());
         sb.append(" (").append(value).append(") {");
-        caseTargets().forEach(caseTarget -> {
+        getCaseTargets().forEach(caseTarget -> {
             int caseValue = caseTarget.getFirst();
             Stmt target = caseTarget.getSecond();
             sb.append(caseValue).append("->").append(toString(target)).append(", ");

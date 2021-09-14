@@ -15,8 +15,9 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class TableSwitch extends SwitchStmt {
 
@@ -39,10 +40,18 @@ public class TableSwitch extends SwitchStmt {
     }
 
     @Override
-    public Stream<Pair<Integer, Stmt>> caseTargets() {
+    public List<Integer> getCaseValues() {
+        return IntStream.range(lowIndex, highIndex + 1)
+                .boxed()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Pair<Integer, Stmt>> getCaseTargets() {
         return IntStream.range(lowIndex, highIndex + 1)
                 .mapToObj(i -> new Pair<>(i,
-                        targets == null ? null : targets.get(i - lowIndex)));
+                        targets == null ? null : targets.get(i - lowIndex)))
+                .collect(Collectors.toList());
     }
 
     @Override

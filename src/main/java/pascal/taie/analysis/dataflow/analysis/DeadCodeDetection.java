@@ -92,7 +92,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         return deadCode.isEmpty() ? Collections.emptySet() : deadCode;
     }
 
-    private boolean isDeadAssignment(
+    private static boolean isDeadAssignment(
             Stmt stmt, NodeResult<Stmt, SetFact<Var>> liveVars) {
         if (stmt instanceof AssignStmt) {
             AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
@@ -105,7 +105,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         return false;
     }
 
-    private boolean isDeadBranch(
+    private static boolean isDeadBranch(
             Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.getSource();
         if (src instanceof If) {
@@ -119,24 +119,25 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
             }
         } else if (src instanceof SwitchStmt) {
             SwitchStmt switchStmt = (SwitchStmt) src;
-            Value caseValue = ConstantPropagation.evaluate(
+            Value condV = ConstantPropagation.evaluate(
                     switchStmt.getValue(), constants.getInFact(switchStmt));
-            if (caseValue.isConstant()) {
-                int v = caseValue.getConstant();
-                if (edge.getKind() == Edge.Kind.SWITCH_CASE) {
+            if (condV.isConstant()) {
+                int v = condV.getConstant();
+                if (edge.isSwitchCase()) {
                     return v != edge.getCaseValue();
                 } else { // default case
                     // if any other case matches the case value, then
                     // default case is unreachable (dead)
-                    return switchStmt.caseTargets()
-                            .anyMatch(p -> p.getFirst() == v);
+                    return switchStmt.getCaseValues()
+                            .stream()
+                            .anyMatch(x -> x == v);
                 }
             }
         }
         return false;
     }
 
-    private boolean hasNoSideEffect(RValue rvalue) {
+    private static boolean hasNoSideEffect(RValue rvalue) {
         // new expression modifies the heap
         if (rvalue instanceof NewExp ||
                 // cast may trigger ClassCastException

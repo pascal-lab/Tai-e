@@ -22,13 +22,13 @@ public class DeadCodeTestFull {
     }
 
     @Test
-    public void testUnreachableBranch() {
-        DeadCodeTest.testDCD("UnreachableBranch");
+    public void testUnreachableIfBranch() {
+        DeadCodeTest.testDCD("UnreachableIfBranch");
     }
 
     @Test
-    public void testUnreachableCase() {
-        DeadCodeTest.testDCD("UnreachableCase");
+    public void testUnreachableSwitchBranch() {
+        DeadCodeTest.testDCD("UnreachableSwitchBranch");
     }
 
     @Test
@@ -39,11 +39,6 @@ public class DeadCodeTestFull {
     @Test
     public void testControlFlowUnreachable2() {
         DeadCodeTest.testDCD("ControlFlowUnreachable2");
-    }
-
-    @Test
-    public void testUnreachableBranch2() {
-        DeadCodeTest.testDCD("UnreachableBranch2");
     }
 
     @Test

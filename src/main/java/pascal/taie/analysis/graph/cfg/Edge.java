@@ -13,6 +13,7 @@
 package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Hashes;
 
 import java.util.stream.Stream;
@@ -108,12 +109,16 @@ public class Edge<N> {
     }
 
     /**
-     * If this edge is a switch-case edge, returns the case value,
-     * otherwise returns minimal integer value.
+     * If this edge is a switch-case edge, then returns the case value.
+     * The client code should call {@link #isSwitchCase()} to check if
+     * this edge is switch-case edge before calling this method.
+     *
+     * @throws AnalysisException if this edge is not a switch-case edge.
      */
     public int getCaseValue() {
-        assert isSwitchCase() : this + " is not a switch-case edge";
-        return Integer.MIN_VALUE;
+        // SwitchEdge overrides this method, thus this method
+        // should NOT be reachable
+        throw new AnalysisException(this + " is not a switch-case edge");
     }
 
     /**

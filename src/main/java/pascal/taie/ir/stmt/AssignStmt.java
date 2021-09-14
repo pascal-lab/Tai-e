@@ -39,8 +39,7 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
     }
 
     @Override
-    public @Nonnull
-    L getLValue() {
+    public @Nonnull L getLValue() {
         return lvalue;
     }
 

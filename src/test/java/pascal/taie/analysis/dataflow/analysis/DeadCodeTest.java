@@ -14,7 +14,6 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
-import pascal.taie.analysis.dataflow.analysis.DeadCodeDetection;
 
 public class DeadCodeTest {
 

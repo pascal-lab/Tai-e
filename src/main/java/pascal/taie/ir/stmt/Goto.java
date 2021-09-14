@@ -12,7 +12,7 @@
 
 package pascal.taie.ir.stmt;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * Representation of goto statement, e.g., goto L.
@@ -35,8 +35,8 @@ public class Goto extends JumpStmt {
     }
 
     @Override
-    public Stream<Stmt> targets() {
-        return Stream.of(target);
+    public List<Stmt> getTargets() {
+        return List.of(target);
     }
 
     @Override

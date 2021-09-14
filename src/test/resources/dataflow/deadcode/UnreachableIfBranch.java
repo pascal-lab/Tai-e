@@ -1,6 +1,18 @@
-class UnreachableBranch2 {
+class UnreachableIfBranch {
 
-    void foo() {
+    int branch1() {
+        int x = 10;
+        int y = 1;
+        int z;
+        if (x > y) {
+            z = 100;
+        } else {
+            z = 200; // unreachable branch
+        }
+        return z;
+    }
+
+    void branch2() {
         int x = 10;
         int y = 1;
         int z;

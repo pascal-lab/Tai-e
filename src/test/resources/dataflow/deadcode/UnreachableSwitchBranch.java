@@ -1,4 +1,4 @@
-class UnreachableCase {
+class UnreachableSwitchBranch {
 
     void tableSwitch() {
         int x = 1;
@@ -38,7 +38,7 @@ class UnreachableCase {
         }
     }
 
-    void noBreak() {
+    void fallThrough() {
         int x = 1;
         int y = x << 2;
         switch (y) {
@@ -50,8 +50,8 @@ class UnreachableCase {
                 use(8);
                 break;
             default:
-                use(666);
-                break; // unreachable case
+                use(666); // unreachable case
+                break;
         }
     }
 
