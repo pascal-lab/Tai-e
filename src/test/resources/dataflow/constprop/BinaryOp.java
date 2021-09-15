@@ -14,6 +14,13 @@ class BinaryOp {
         int z = y - 12;
     }
 
+    void constant3() {
+        int i5 = 5;
+        int x = i5 * 77;
+        int y = x / 6;
+        int z = y % 5;
+    }
+
     void NAC(int p) {
         int x = p;
         int y = 1 + x;
@@ -28,5 +35,7 @@ class BinaryOp {
         int x = 1, y = 2, z = 3;
         int a = x + y * z;
         int b = (x - y) * z;
+        int c = (x - y) / z;
+        int d = (x + y) % z;
     }
 }
