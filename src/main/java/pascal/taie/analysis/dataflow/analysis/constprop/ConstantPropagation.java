@@ -258,7 +258,7 @@ public class ConstantPropagation extends
         } else if (kind == Edge.Kind.SWITCH_CASE) {
             // switch (x) {
             //   case 1: ... <- x must be 1 at this branch
-            Var var = ((SwitchStmt) edge.getSource()).getValue();
+            Var var = ((SwitchStmt) edge.getSource()).getVar();
             int caseValue = edge.getCaseValue();
             edgeFact.update(var, Value.makeConstant(caseValue));
         }

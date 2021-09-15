@@ -23,8 +23,8 @@ public class LookupSwitch extends SwitchStmt {
 
     private final List<Integer> caseValues;
 
-    public LookupSwitch(Var value, List<Integer> caseValues) {
-        super(value);
+    public LookupSwitch(Var var, List<Integer> caseValues) {
+        super(var);
         this.caseValues = List.copyOf(caseValues);
     }
 

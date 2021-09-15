@@ -25,8 +25,8 @@ public class TableSwitch extends SwitchStmt {
 
     private final int highIndex;
 
-    public TableSwitch(Var value, int lowIndex, int highIndex) {
-        super(value);
+    public TableSwitch(Var var, int lowIndex, int highIndex) {
+        super(var);
         this.lowIndex = lowIndex;
         this.highIndex = highIndex;
     }

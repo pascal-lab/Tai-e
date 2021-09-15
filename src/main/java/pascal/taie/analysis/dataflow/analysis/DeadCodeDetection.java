@@ -120,7 +120,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         } else if (src instanceof SwitchStmt) {
             SwitchStmt switchStmt = (SwitchStmt) src;
             Value condV = ConstantPropagation.evaluate(
-                    switchStmt.getValue(), constants.getInFact(switchStmt));
+                    switchStmt.getVar(), constants.getInFact(switchStmt));
             if (condV.isConstant()) {
                 int v = condV.getConstant();
                 if (edge.isSwitchCase()) {

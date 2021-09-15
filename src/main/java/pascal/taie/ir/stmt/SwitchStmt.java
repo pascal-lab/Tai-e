@@ -16,7 +16,6 @@ import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ public abstract class SwitchStmt extends JumpStmt {
     /**
      * The variable holding the condition value of the switch-statement.
      */
-    protected final Var value;
+    protected final Var var;
 
     /**
      * List of jump targets of the switch-statement, one target for each case.
@@ -44,15 +43,15 @@ public abstract class SwitchStmt extends JumpStmt {
      */
     protected Stmt defaultTarget;
 
-    public SwitchStmt(Var value) {
-        this.value = value;
+    public SwitchStmt(Var var) {
+        this.var = var;
     }
 
     /**
      * @return the variable holding the condition value of the switch-statement.
      */
-    public Var getValue() {
-        return value;
+    public Var getVar() {
+        return var;
     }
 
     /**
@@ -64,7 +63,7 @@ public abstract class SwitchStmt extends JumpStmt {
     }
 
     public void setTargets(List<Stmt> targets) {
-        this.targets = targets;
+        this.targets = List.copyOf(targets);
     }
 
     /**
@@ -112,7 +111,7 @@ public abstract class SwitchStmt extends JumpStmt {
 
     @Override
     public List<RValue> getUses() {
-        return List.of(value);
+        return List.of(var);
     }
 
     @Override
@@ -122,13 +121,13 @@ public abstract class SwitchStmt extends JumpStmt {
 
     @Override
     public List<Stmt> getTargets() {
-        return Collections.unmodifiableList(targets);
+        return targets;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getInsnString());
-        sb.append(" (").append(value).append(") {");
+        sb.append(" (").append(var).append(") {");
         getCaseTargets().forEach(caseTarget -> {
             int caseValue = caseTarget.getFirst();
             Stmt target = caseTarget.getSecond();
