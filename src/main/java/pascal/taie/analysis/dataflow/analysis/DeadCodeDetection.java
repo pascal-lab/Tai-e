@@ -59,7 +59,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
                 ir.getResult(ConstantPropagation.ID);
         NodeResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariableAnalysis.ID);
-        // keep statements (dead code) sorted in the result set
+        // keep statements (dead code) sorted in the resulting set
         Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
         // initialize graph traversal
         Set<Stmt> visited = Sets.newSet(cfg.getNumberOfNodes());
@@ -73,7 +73,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
                 deadCode.add(stmt);
             }
             cfg.outEdgesOf(stmt)
-                    .filter(edge -> !isDeadBranch(edge, constants))
+                    .filter(edge -> !isUnreachableBranch(edge, constants))
                     .map(Edge::getTarget)
                     .forEach(succ -> {
                         if (!visited.contains(succ)) {
@@ -105,7 +105,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         return false;
     }
 
-    private static boolean isDeadBranch(
+    private static boolean isUnreachableBranch(
             Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.getSource();
         if (src instanceof If) {
@@ -137,6 +137,9 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
         return false;
     }
 
+    /**
+     * @return true if given RValue has no side effect, otherwise false.
+     */
     private static boolean hasNoSideEffect(RValue rvalue) {
         // new expression modifies the heap
         if (rvalue instanceof NewExp ||

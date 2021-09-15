@@ -89,14 +89,24 @@ public class Edge<N> {
         this.target = target;
     }
 
+    /**
+     * @return the kind of the edge.
+     * @see Edge.Kind
+     */
     public Kind getKind() {
         return kind;
     }
 
+    /**
+     * @return the source node.
+     */
     public N getSource() {
         return source;
     }
 
+    /**
+     * @return the target node.
+     */
     public N getTarget() {
         return target;
     }

@@ -16,7 +16,7 @@ import pascal.taie.analysis.IntraproceduralAnalysis;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
-import pascal.taie.analysis.dataflow.fact.NodeResult;
+import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
@@ -49,18 +49,24 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     @Override
     public Set<Stmt> analyze(IR ir) {
-        // obtain results of pre-analyses
+        // obtain CFG
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
-        NodeResult<Stmt, CPFact> constants =
+        // obtain result of constant propagation
+        DataflowResult<Stmt, CPFact> constants =
                 ir.getResult(ConstantPropagation.ID);
-        NodeResult<Stmt, SetFact<Var>> liveVars =
+        // obtain result of live variable analysis
+        DataflowResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariableAnalysis.ID);
-        // keep statements (dead code) sorted in the result set
+        // keep statements (dead code) sorted in the resulting set
         Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
         // TODO - finish me
+        // Your task is to recognize dead code in ir and add it to deadCode
         return deadCode;
     }
 
+    /**
+     * @return true if given RValue has no side effect, otherwise false.
+     */
     private static boolean hasNoSideEffect(RValue rvalue) {
         // new expression modifies the heap
         if (rvalue instanceof NewExp ||
