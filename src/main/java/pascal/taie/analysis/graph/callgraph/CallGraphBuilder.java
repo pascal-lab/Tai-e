@@ -36,7 +36,8 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
         CGBuilder<Invoke, JMethod> builder;
         switch (algorithm) {
             case "pta":
-                builder = new PTABasedBuilder(getOptions().getString("pta"));
+            case "cipta":
+                builder = new PTABasedBuilder(algorithm);
                 break;
             case "cha":
                 builder = new CHABuilder();

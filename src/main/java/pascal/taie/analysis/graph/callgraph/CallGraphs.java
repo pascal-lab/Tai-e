@@ -98,31 +98,36 @@ public final class CallGraphs {
     }
 
     static void dumpCallGraph(CallGraph<Invoke, JMethod> callGraph, String output) {
-        File outFile = new File(output);
-        try (PrintStream out =
-                     new PrintStream(new FileOutputStream(outFile))) {
-            logger.info("Dumping call graph to {} ...", outFile);
-            Comparator<JMethod> cmp = Comparator.comparing(JMethod::toString);
-            out.printf("#reachable methods: %d%n", callGraph.getNumberOfMethods());
-            out.println("---------- Reachable methods: ----------");
-            callGraph.reachableMethods()
-                    .sorted(cmp)
-                    .forEach(out::println);
-            out.printf("%n#call graph edges: %d%n", callGraph.getNumberOfEdges());
-            out.println("---------- Call graph edges: ----------");
-            callGraph.reachableMethods()
-                    .sorted(cmp) // sort reachable methods
-                    .forEach(caller ->
-                            callGraph.callSitesIn(caller)
-                                    .sorted(Comparator.comparing(Invoke::getIndex))
-                                    .filter(callSite ->
-                                            !Streams.isEmpty(callGraph.calleesOf(callSite)))
-                                    .forEach(callSite ->
-                                            out.println(toString(callSite) + SEP +
-                                                    toString(callGraph.calleesOf(callSite)))));
-        } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump call graph to " + outFile, e);
+        PrintStream out;
+        if (output != null) { // if output file is given, then dump to the file
+            File outFile = new File(output);
+            try {
+                out = new PrintStream(new FileOutputStream(outFile));
+                logger.info("Dumping call graph to {} ...", outFile);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open output file", e);
+            }
+        } else { // otherwise, dump call graph to System.out
+            out = System.out;
         }
+        Comparator<JMethod> cmp = Comparator.comparing(JMethod::toString);
+        out.printf("#reachable methods: %d%n", callGraph.getNumberOfMethods());
+        out.println("---------- Reachable methods: ----------");
+        callGraph.reachableMethods()
+                .sorted(cmp)
+                .forEach(out::println);
+        out.printf("%n#call graph edges: %d%n", callGraph.getNumberOfEdges());
+        out.println("---------- Call graph edges: ----------");
+        callGraph.reachableMethods()
+                .sorted(cmp) // sort reachable methods
+                .forEach(caller ->
+                        callGraph.callSitesIn(caller)
+                                .sorted(Comparator.comparing(Invoke::getIndex))
+                                .filter(callSite ->
+                                        !Streams.isEmpty(callGraph.calleesOf(callSite)))
+                                .forEach(callSite ->
+                                        out.println(toString(callSite) + SEP +
+                                                toString(callGraph.calleesOf(callSite)))));
     }
 
     static void dumpMethods(CallGraph<Invoke, JMethod> callGraph, String output) {
