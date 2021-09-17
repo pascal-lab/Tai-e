@@ -27,4 +27,7 @@ class C extends B {
     C() {
         super.foo();
     }
+
+    void foo() {
+    }
 }

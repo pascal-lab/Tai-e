@@ -38,7 +38,7 @@ public class JClass {
 
     private JClass superClass;
 
-    private Collection<JClass> interfaces = Set.of();
+    private Collection<JClass> interfaces;
 
     private JClass outerClass;
 

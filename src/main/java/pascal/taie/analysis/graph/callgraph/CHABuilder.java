@@ -48,32 +48,33 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
     @Override
     public CallGraph<Invoke, JMethod> build() {
-        DefaultCallGraph callGraph = new DefaultCallGraph();
-        callGraph.addEntryMethod(World.getMainMethod());
-        buildCallGraph(callGraph);
-        return callGraph;
+        return buildCallGraph(World.getMainMethod());
     }
 
-    private void buildCallGraph(DefaultCallGraph callGraph) {
+    private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {
         hierarchy = World.getClassHierarchy();
         resolveTable = Maps.newMap();
-        Queue<JMethod> queue = new ArrayDeque<>();
-        callGraph.entryMethods()
-                .forEach(queue::add);
-        while (!queue.isEmpty()) {
-            JMethod method = queue.poll();
+        DefaultCallGraph callGraph = new DefaultCallGraph();
+        callGraph.addEntryMethod(entry);
+        Queue<JMethod> workList = new ArrayDeque<>();
+        workList.add(entry);
+        while (!workList.isEmpty()) {
+            JMethod method = workList.poll();
             callGraph.addReachableMethod(method);
             callGraph.callSitesIn(method).forEach(invoke -> {
                 Set<JMethod> callees = resolveCalleesOf(invoke);
                 callees.forEach(callee -> {
                     if (!callGraph.contains(callee)) {
-                        queue.add(callee);
+                        workList.add(callee);
                     }
                     callGraph.addEdge(new Edge<>(
                             CallGraphs.getCallKind(invoke), invoke, callee));
                 });
             });
         }
+        hierarchy = null;
+        resolveTable = null;
+        return callGraph;
     }
 
     /**
