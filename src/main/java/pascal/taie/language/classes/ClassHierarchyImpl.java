@@ -436,15 +436,18 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         }
     }
 
-    private Collection<JClass> getDirectSubinterfacesOf(JClass jClass) {
-        return directSubinterfaces.getOrDefault(jClass, Set.of());
+    @Override
+    public Collection<JClass> getDirectSubinterfacesOf(JClass jclass) {
+        return directSubinterfaces.getOrDefault(jclass, Set.of());
     }
 
-    private Collection<JClass> getDirectImplementorsOf(JClass jclass) {
+    @Override
+    public Collection<JClass> getDirectImplementorsOf(JClass jclass) {
         return directImplementors.getOrDefault(jclass, Set.of());
     }
 
-    private Collection<JClass> getDirectSubClassesOf(JClass jClass) {
-        return directSubclasses.getOrDefault(jClass, Set.of());
+    @Override
+    public Collection<JClass> getDirectSubClassesOf(JClass jclass) {
+        return directSubclasses.getOrDefault(jclass, Set.of());
     }
 }

@@ -143,6 +143,21 @@ public interface ClassHierarchy {
     @Nullable
     JMethod dispatch(JClass receiverClass, MethodRef methodRef);
 
+    /**
+     * @return the direct subinterfaces of given interface.
+     */
+    Collection<JClass> getDirectSubinterfacesOf(JClass jclass);
+
+    /**
+     * @return the direct implementors of given interface.
+     */
+    Collection<JClass> getDirectImplementorsOf(JClass jclass);
+
+    /**
+     * @return the direct subclasses of given class.
+     */
+    Collection<JClass> getDirectSubClassesOf(JClass jclass);
+
     boolean isSubclass(JClass superclass, JClass subclass);
 
     /**
