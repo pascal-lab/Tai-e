@@ -21,6 +21,11 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Represents methods in the program. Each instance contains various
+ * information of a method, including method name, signature, declaring class,
+ * method body (IR), etc.
+ */
 public class JMethod extends ClassMember {
 
     private final List<Type> paramTypes;

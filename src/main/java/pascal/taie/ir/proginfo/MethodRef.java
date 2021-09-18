@@ -32,6 +32,9 @@ import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
+/**
+ * Represents method references in IR.
+ */
 @InternalCanonicalized
 public class MethodRef extends MemberRef {
 
@@ -129,6 +132,9 @@ public class MethodRef extends MemberRef {
         return returnType;
     }
 
+    /**
+     * @return the subsignature of the method reference.
+     */
     public Subsignature getSubsignature() {
         return subsignature;
     }

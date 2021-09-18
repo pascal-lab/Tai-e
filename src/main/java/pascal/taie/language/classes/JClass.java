@@ -22,6 +22,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Represents classes in the program. Each instance contains various
+ * information of a class, including class name, modifiers, declared
+ * methods and fields, etc.
+ */
 public class JClass {
 
     private final JClassLoader loader;
@@ -186,6 +191,11 @@ public class JClass {
         return result;
     }
 
+    /**
+     * Attempts to retrieve the method with the given subsignature.
+     * If the class has declared a method that has the same subsignature
+     * as the given one, then returns the method; otherwise, returns null.
+     */
     public @Nullable
     JMethod getDeclaredMethod(Subsignature subSignature) {
         return declaredMethods.get(subSignature);

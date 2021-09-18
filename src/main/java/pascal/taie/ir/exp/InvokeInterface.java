@@ -17,7 +17,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import java.util.List;
 
 /**
- * Representation of invokeinterface expression, e.g., o.m(..).
+ * Representation of invokeinterface expression, e.g., o.m(...).
  */
 public class InvokeInterface extends InvokeInstanceExp {
 

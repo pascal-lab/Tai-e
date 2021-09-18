@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Representation of invocation statement, e.g., r = o.m(..) or o.m(..).
+ * Representation of invocation statement, e.g., r = o.m(...) or o.m(...).
  */
 public class Invoke extends DefinitionStmt<Var, InvokeExp>
         implements Comparable<Invoke> {
@@ -83,10 +83,18 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
         return invokeExp;
     }
 
+    /**
+     * @return the invocation expression of this invoke.
+     * @see InvokeExp
+     */
     public InvokeExp getInvokeExp() {
         return invokeExp;
     }
 
+    /**
+     * @return the method reference of this invoke.
+     * @see MethodRef
+     */
     public MethodRef getMethodRef() {
         return invokeExp.getMethodRef();
     }

@@ -19,6 +19,7 @@ public enum CallKind {
     SPECIAL,
     STATIC,
     DYNAMIC,
-    // non-regular calls, such calls are typically handled by plugins
+    // non-regular calls, such calls are typically handled by
+    // pointer analysis plugins
     OTHER,
 }

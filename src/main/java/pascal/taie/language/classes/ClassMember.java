@@ -34,6 +34,9 @@ public abstract class ClassMember {
         this.modifiers = modifiers;
     }
 
+    /**
+     * @return the declaring class of the class member.
+     */
     public JClass getDeclaringClass() {
         return declaringClass;
     }

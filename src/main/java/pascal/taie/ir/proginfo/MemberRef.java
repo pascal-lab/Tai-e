@@ -17,6 +17,9 @@ import pascal.taie.language.classes.JClass;
 
 import javax.annotation.Nullable;
 
+/**
+ * Represents references to class members in IR.
+ */
 public abstract class MemberRef {
 
     private final JClass declaringClass;
@@ -31,6 +34,9 @@ public abstract class MemberRef {
         this.isStatic = isStatic;
     }
 
+    /**
+     * @return the declaring class of the reference.
+     */
     public JClass getDeclaringClass() {
         return declaringClass;
     }

@@ -17,7 +17,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import java.util.List;
 
 /**
- * Representation of invokespecial expression, e.g., super.m(..).
+ * Representation of invokespecial expression, e.g., super.m(...).
  */
 public class InvokeSpecial extends InvokeInstanceExp {
 

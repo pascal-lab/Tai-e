@@ -27,6 +27,9 @@ import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
+/**
+ * Represents field references in IR.
+ */
 @InternalCanonicalized
 public class FieldRef extends MemberRef {
 

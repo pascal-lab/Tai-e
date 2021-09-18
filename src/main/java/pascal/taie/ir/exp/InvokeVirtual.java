@@ -17,7 +17,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import java.util.List;
 
 /**
- * Representation of invokevirtual expression, e.g., o.m(..).
+ * Representation of invokevirtual expression, e.g., o.m(...).
  */
 public class InvokeVirtual extends InvokeInstanceExp {
 

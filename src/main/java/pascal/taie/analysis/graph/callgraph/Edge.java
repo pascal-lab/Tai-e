@@ -14,6 +14,12 @@ package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.util.Hashes;
 
+/**
+ * Represents call graph edges in the call graph.
+ *
+ * @param <CallSite> type of call sites
+ * @param <Method>   type of methods
+ */
 public class Edge<CallSite, Method> {
 
     private final CallKind kind;
@@ -31,14 +37,23 @@ public class Edge<CallSite, Method> {
         hashCode = Hashes.hash(kind, callSite, callee);
     }
 
+    /**
+     * @return kind of the call edge.
+     */
     public CallKind getKind() {
         return kind;
     }
 
+    /**
+     * @return the call site (i.e., the source) of the call edge.
+     */
     public CallSite getCallSite() {
         return callSite;
     }
 
+    /**
+     * @return the callee method (i.e., the target) of the call edge.
+     */
     public Method getCallee() {
         return callee;
     }

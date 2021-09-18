@@ -17,6 +17,10 @@ import pascal.taie.language.type.Type;
 
 import java.util.Set;
 
+/**
+ * Represents fields in the program. Each instance contains various
+ * information of a field, including field name, type, declaring class, etc.
+ */
 public class JField extends ClassMember {
 
     private final Type type;

@@ -17,7 +17,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import java.util.List;
 
 /**
- * Representation of invokestatic expression, e.g., T.m(..).
+ * Representation of invokestatic expression, e.g., T.m(...).
  */
 public class InvokeStatic extends InvokeExp {
 

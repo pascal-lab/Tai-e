@@ -16,6 +16,12 @@ import pascal.taie.util.graph.Graph;
 
 import java.util.stream.Stream;
 
+/**
+ * Representation of call graph.
+ *
+ * @param <CallSite> type of call sites
+ * @param <Method>   type of methods
+ */
 public interface CallGraph<CallSite, Method> extends Graph<Method> {
 
     /**
