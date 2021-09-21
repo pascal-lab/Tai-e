@@ -156,7 +156,7 @@ public interface ClassHierarchy {
     /**
      * @return the direct subclasses of given class.
      */
-    Collection<JClass> getDirectSubClassesOf(JClass jclass);
+    Collection<JClass> getDirectSubclassesOf(JClass jclass);
 
     boolean isSubclass(JClass superclass, JClass subclass);
 

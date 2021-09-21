@@ -431,7 +431,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             getDirectImplementorsOf(jclass).forEach(impl ->
                     getAllSubclassesOf0(impl, result, true));
         } else {
-            getDirectSubClassesOf(jclass).forEach(subclass ->
+            getDirectSubclassesOf(jclass).forEach(subclass ->
                     getAllSubclassesOf0(subclass, result, true));
         }
     }
@@ -447,7 +447,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public Collection<JClass> getDirectSubClassesOf(JClass jclass) {
+    public Collection<JClass> getDirectSubclassesOf(JClass jclass) {
         return directSubclasses.getOrDefault(jclass, Set.of());
     }
 }

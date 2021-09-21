@@ -75,7 +75,7 @@ class CHABuilder2 implements CGBuilder<Invoke, JMethod> {
                         if (target != null) {
                             targets.add(target);
                         }
-                        workList.addAll(hierarchy.getDirectSubClassesOf(c));
+                        workList.addAll(hierarchy.getDirectSubclassesOf(c));
                     }
                 }
                 return targets;
