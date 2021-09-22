@@ -1,0 +1,29 @@
+-------------------- <A: void <init>()> (livevar) --------------------
+[0@L4] invokespecial %this.<java.lang.Object: void <init>()>(); [%this]
+[1@L5] temp$0 = null; [%this, temp$0]
+[2@L5] %this.<A: C c> = temp$0; []
+[3@L5] return; []
+
+-------------------- <A: void setC(C)> (livevar) --------------------
+[0@L9] %this.<A: C c> = c; []
+[1@L9] return; []
+
+-------------------- <B: void <init>()> (livevar) --------------------
+[0@L15] invokespecial %this.<A: void <init>()>(); []
+[1@L15] return; []
+
+-------------------- <C: void <init>()> (livevar) --------------------
+[0@L19] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L19] return; []
+
+-------------------- <Reference: void <init>()> (livevar) --------------------
+[0@L22] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L22] return; []
+
+-------------------- <Reference: A referenceType(C)> (livevar) --------------------
+[0@L24] temp$0 = new B; [c, temp$0]
+[1@L24] invokespecial temp$0.<B: void <init>()>(); [c, temp$0]
+[2@L24] b = temp$0; [b, c]
+[3@L25] invokevirtual b.<B: void setC(C)>(c); [b]
+[4@L26] return b; []
+

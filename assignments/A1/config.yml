@@ -34,5 +34,6 @@ testResources:
   - dataflow/livevar/Assign.java
   - dataflow/livevar/Branch.java
   - dataflow/livevar/BranchLoop.java
-  - dataflow/livevar/Invoke.java
-  - dataflow/livevar/Loop.java
+  - dataflow/livevar/Array.java
+  - dataflow/livevar/Fibonacci.java
+  - dataflow/livevar/Reference.java
