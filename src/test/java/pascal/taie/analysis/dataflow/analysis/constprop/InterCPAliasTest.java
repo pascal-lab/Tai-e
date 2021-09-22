@@ -10,7 +10,7 @@ public class InterCPAliasTest {
 
     static void testInterCP(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
-                "alias-aware:true;pta:cipta", "-a", "cipta", "-a", "cg=pta:cipta");
+                "alias-aware:true;pta:cipta", "-a", "cipta", "-a", "cg=algorithm:cipta");
     }
 
     @Test
