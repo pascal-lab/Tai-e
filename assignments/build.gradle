@@ -15,3 +15,8 @@ dependencies {
 application {
     mainClass.set('pascal.taie.Assignment')
 }
+
+test {
+    useJUnit()
+    maxHeapSize = '4G'
+}
