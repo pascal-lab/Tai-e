@@ -49,7 +49,7 @@ public class Value {
     }
 
     /**
-     * Returns the NAC.
+     * @return the NAC.
      */
     public static Value getNAC() {
         return NAC;
@@ -57,6 +57,8 @@ public class Value {
 
     /**
      * Makes a constant value.
+     *
+     * @return the constant for given value.
      */
     public static Value makeConstant(int value) {
         final int offset = 128;
@@ -67,28 +69,28 @@ public class Value {
     }
 
     /**
-     * Returns the UNDEF.
+     * @return the UNDEF.
      */
     public static Value getUndef() {
         return UNDEF;
     }
 
     /**
-     * Returns if this value is NAC.
+     * @return true if this value is NAC, otherwise false.
      */
     public boolean isNAC() {
         return kind == Kind.NAC;
     }
 
     /**
-     * Returns if this value represents a constant.
+     * @return true if this value represents a constant, otherwise false.
      */
     public boolean isConstant() {
         return kind == Kind.CONSTANT;
     }
 
     /**
-     * Returns if this value is UNDEF.
+     * @return true if this value is UNDEF, otherwise false.
      */
     public boolean isUndef() {
         return kind == Kind.UNDEF;

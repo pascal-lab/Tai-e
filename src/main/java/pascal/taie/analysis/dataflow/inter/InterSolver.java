@@ -50,25 +50,21 @@ class InterSolver<Method, Node, Fact> {
     private void initialize() {
         Set<Node> entryNodes = icfg.entryMethods()
                 .map(icfg::getEntryOf)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toSet());
+        entryNodes.forEach(entry -> {
+            result.setInFact(entry, analysis.newBoundaryFact(entry));
+            result.setOutFact(entry, analysis.newBoundaryFact(entry));
+            icfg.outEdgesOf(entry).forEach(edge ->
+                    result.setEdgeFact(edge, analysis.newBoundaryFact(entry)));
+        });
         icfg.forEach(node -> {
-            Fact initIn, initOut;
             if (entryNodes.contains(node)) {
-                initIn = analysis.newBoundaryFact(node);
-                initOut = analysis.newBoundaryFact(node);
-            } else {
-                initIn = analysis.newInitialFact();
-                initOut = analysis.newInitialFact();
+                return;
             }
-            result.setInFact(node, initIn);
-            result.setOutFact(node, initOut);
-            icfg.outEdgesOf(node).forEach(edge -> {
-                Fact edgeFact = analysis.newInitialFact();
-                result.setEdgeFact(edge, edgeFact);
-                if (entryNodes.contains(node)) {
-                    analysis.transferEdge(edge, initIn, initOut, edgeFact);
-                }
-            });
+            result.setInFact(node, analysis.newInitialFact());
+            result.setOutFact(node, analysis.newInitialFact());
+            icfg.outEdgesOf(node).forEach(edge ->
+                    result.setEdgeFact(edge, analysis.newInitialFact()));
         });
     }
 
