@@ -19,6 +19,7 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,14 +47,25 @@ public class Var implements LValue, RValue {
     private final Type type;
 
     /**
+     * If this variable is a temporary variable generated to hold a constant value,
+     * then this field holds that constant value; otherwise, this field is null.
+     */
+    private final Literal constValue;
+
+    /**
      * Relevant statements of this variable.
      */
     private RelevantStmts relevantStmts = RelevantStmts.EMPTY;
 
     public Var(JMethod method, String name, Type type) {
+        this(method, name, type, null);
+    }
+
+    public Var(JMethod method, String name, Type type, Literal constValue) {
         this.method = method;
         this.name = name;
         this.type = type;
+        this.constValue = constValue;
     }
 
     /**
@@ -73,6 +85,26 @@ public class Var implements LValue, RValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    /**
+     * @return true if this variable is a temporary variable for holding
+     * constant value, otherwise false.
+     */
+    public boolean isTempConst() {
+        return constValue != null;
+    }
+
+    /**
+     * @return the constant value held by this temporary variable.
+     * @throws AnalysisException if this variable is not temporary variable
+     */
+    public Literal getTempConstValue() {
+        if (!isTempConst()) {
+            throw new AnalysisException(this + " is not a temporary variable" +
+                    " that holds const value");
+        }
+        return constValue;
     }
 
     @Override

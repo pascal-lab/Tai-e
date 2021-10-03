@@ -93,7 +93,9 @@ class VarManager {
             varName = "%" + literal.getType().getName() +
                     "const" + counter++;
         }
-        return newVar(varName, literal.getType());
+        Var var = new Var(method, varName, literal.getType(), literal);
+        vars.add(var);
+        return var;
     }
 
     Var getThis() {
