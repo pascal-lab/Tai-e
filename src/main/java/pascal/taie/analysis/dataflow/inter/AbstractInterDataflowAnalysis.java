@@ -15,10 +15,11 @@ package pascal.taie.analysis.dataflow.inter;
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.graph.icfg.CallEdge;
+import pascal.taie.analysis.graph.icfg.CallToReturnEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
 import pascal.taie.analysis.graph.icfg.ICFGBuilder;
 import pascal.taie.analysis.graph.icfg.ICFGEdge;
-import pascal.taie.analysis.graph.icfg.LocalEdge;
+import pascal.taie.analysis.graph.icfg.NormalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.config.AnalysisConfig;
 
@@ -35,13 +36,25 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     }
 
     @Override
-    public abstract boolean transferNode(Node node, Fact in, Fact out);
+    public boolean transferNode(Node node, Fact in, Fact out) {
+        if (icfg.isCallSite(node)) {
+            return transferCallNode(node, in, out);
+        } else {
+            return transferNonCallNode(node, in, out);
+        }
+    }
+
+    protected abstract boolean transferCallNode(Node node, Fact in, Fact out);
+
+    protected abstract boolean transferNonCallNode(Node node, Fact in, Fact out);
 
     @Override
     public void transferEdge(
             ICFGEdge<Node> edge, Fact out, Fact edgeFact) {
-        if (edge instanceof LocalEdge) {
-            transferLocalEdge((LocalEdge<Node>) edge, out, edgeFact);
+        if (edge instanceof NormalEdge) {
+            transferNormalEdge((NormalEdge<Node>) edge, out, edgeFact);
+        } else if (edge instanceof CallToReturnEdge) {
+            transferCallToReturnEdge((CallToReturnEdge<Node>) edge, out, edgeFact);
         } else if (edge instanceof CallEdge) {
             transferCallEdge((CallEdge<Node>) edge, out, edgeFact);
         } else {
@@ -49,7 +62,9 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         }
     }
 
-    protected abstract void transferLocalEdge(LocalEdge<Node> edge, Fact out, Fact edgeFact);
+    protected abstract void transferNormalEdge(NormalEdge<Node> edge, Fact out, Fact edgeFact);
+
+    protected abstract void transferCallToReturnEdge(CallToReturnEdge<Node> edge, Fact out, Fact edgeFact);
 
     protected abstract void transferCallEdge(CallEdge<Node> edge, Fact callSiteOut, Fact edgeFact);
 

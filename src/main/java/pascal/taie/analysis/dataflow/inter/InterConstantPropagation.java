@@ -17,7 +17,8 @@ import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
 import pascal.taie.analysis.graph.icfg.CallEdge;
-import pascal.taie.analysis.graph.icfg.LocalEdge;
+import pascal.taie.analysis.graph.icfg.CallToReturnEdge;
+import pascal.taie.analysis.graph.icfg.NormalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -116,14 +117,15 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public boolean transferNode(Stmt stmt, CPFact in, CPFact out) {
-        if (stmt instanceof Invoke) {
-            return out.copyFrom(in);
-        } else {
-            return aliasAware ?
-                    transferAliasAware(stmt, in, out) :
-                    cp.transferNode(stmt, in, out);
-        }
+    protected boolean transferCallNode(Stmt stmt, CPFact in, CPFact out) {
+        return out.copyFrom(in);
+    }
+
+    @Override
+    protected boolean transferNonCallNode(Stmt stmt, CPFact in, CPFact out) {
+        return aliasAware ?
+                transferAliasAware(stmt, in, out) :
+                cp.transferNode(stmt, in, out);
     }
 
     private boolean transferAliasAware(
@@ -175,24 +177,24 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public void transferLocalEdge(LocalEdge<Stmt> edge, CPFact out, CPFact edgeFact) {
-        if (edge.getSource() instanceof Invoke) {
-            // for call-to-return edge, we kill the value of LHS variable
-            Invoke invoke = (Invoke) edge.getSource();
-            Var lhs = invoke.getResult();
-            if (lhs != null) {
-                for (Var outVar : out.keySet()) {
-                    if (!outVar.equals(lhs)) {
-                        edgeFact.update(outVar, out.get(outVar));
-                    }
+    public void transferNormalEdge(NormalEdge<Stmt> edge, CPFact out, CPFact edgeFact) {
+        // Just apply edge transfer of intraprocedural constant propagation
+        cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
+    }
+
+    @Override
+    protected void transferCallToReturnEdge(CallToReturnEdge<Stmt> edge, CPFact out, CPFact edgeFact) {
+        // Kill the value of LHS variable
+        Invoke invoke = (Invoke) edge.getSource();
+        Var lhs = invoke.getResult();
+        if (lhs != null) {
+            for (Var outVar : out.keySet()) {
+                if (!outVar.equals(lhs)) {
+                    edgeFact.update(outVar, out.get(outVar));
                 }
-            } else {
-                edgeFact.copyFrom(out);
             }
         } else {
-            // for other edges, just apply edge transfer of intraprocedural
-            // constant propagation
-            cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
+            edgeFact.copyFrom(out);
         }
     }
 

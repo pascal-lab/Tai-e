@@ -59,13 +59,16 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
             cfg.forEach(stmt -> {
                 stmtToCFG.put(stmt, cfg);
                 cfg.outEdgesOf(stmt).forEach(edge -> {
-                    LocalEdge<Stmt> local = new LocalEdge<>(edge);
+                    ICFGEdge<Stmt> local = isCallSite(stmt) ?
+                            new CallToReturnEdge<>(edge) :
+                            new NormalEdge<>(edge);
                     Maps.addToMapSet(outEdges, stmt, local);
                     Maps.addToMapSet(inEdges, edge.getTarget(), local);
                 });
                 if (isCallSite(stmt)) {
                     calleesOf(stmt).forEach(callee -> {
-                        if (getCFGOf(callee) == null) { // FIXME: same issues as above
+                        if (getCFGOf(callee) == null) {
+                            logger.warn("CFG of {} is missing", callee);
                             return;
                         }
                         // Add call edges

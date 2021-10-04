@@ -15,6 +15,6 @@ package pascal.taie.analysis.graph.icfg;
 public class CallEdge<Node> extends ICFGEdge<Node> {
 
     CallEdge(Node source, Node target) {
-        super(Kind.CALL, source, target);
+        super(source, target);
     }
 }

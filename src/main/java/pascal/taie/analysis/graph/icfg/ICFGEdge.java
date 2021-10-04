@@ -16,19 +16,15 @@ import pascal.taie.util.Hashes;
 
 public abstract class ICFGEdge<Node> {
 
-    private final Kind kind;
     private final Node source;
+
     private final Node target;
+
     private int hashCode = 0;
 
-    ICFGEdge(Kind kind, Node source, Node target) {
-        this.kind = kind;
+    ICFGEdge(Node source, Node target) {
         this.source = source;
         this.target = target;
-    }
-
-    public Kind getKind() {
-        return kind;
     }
 
     public Node getSource() {
@@ -40,7 +36,7 @@ public abstract class ICFGEdge<Node> {
     }
 
     protected int computeHashCode() {
-        return Hashes.hash(kind, source, target);
+        return Hashes.hash(source, target);
     }
 
     @Override
@@ -48,9 +44,7 @@ public abstract class ICFGEdge<Node> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ICFGEdge<?> edge = (ICFGEdge<?>) o;
-        return kind == edge.kind &&
-                source.equals(edge.source) &&
-                target.equals(edge.target);
+        return source.equals(edge.source) && target.equals(edge.target);
     }
 
     @Override
@@ -63,12 +57,7 @@ public abstract class ICFGEdge<Node> {
 
     @Override
     public String toString() {
-        return kind + " Edge{" + source + " -> " + target + '}';
-    }
-
-    public enum Kind {
-        LOCAL, // intra-procedural edge
-        CALL, // call edge
-        RETURN, // return edge
+        return getClass().getSimpleName() +
+                "{" + source + " -> " + target + '}';
     }
 }
