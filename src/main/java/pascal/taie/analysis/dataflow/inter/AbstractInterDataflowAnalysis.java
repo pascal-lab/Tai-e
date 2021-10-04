@@ -35,25 +35,15 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     }
 
     @Override
-    public boolean transferNode(Node node, Fact in, Fact out) {
-        if (icfg.isCallSite(node)) {
-            return transferCall(node, in, out);
-        } else {
-            return transferNonCall(node, in, out);
-        }
-    }
-
-    protected abstract boolean transferCall(Node node, Fact in, Fact out);
-
-    protected abstract boolean transferNonCall(Node node, Fact in, Fact out);
+    public abstract boolean transferNode(Node node, Fact in, Fact out);
 
     @Override
     public void transferEdge(
-            ICFGEdge<Node> edge, Fact in, Fact out, Fact edgeFact) {
+            ICFGEdge<Node> edge, Fact out, Fact edgeFact) {
         if (edge instanceof LocalEdge) {
             transferLocalEdge((LocalEdge<Node>) edge, out, edgeFact);
         } else if (edge instanceof CallEdge) {
-            transferCallEdge((CallEdge<Node>) edge, in, edgeFact);
+            transferCallEdge((CallEdge<Node>) edge, out, edgeFact);
         } else {
             transferReturnEdge((ReturnEdge<Node>) edge, out, edgeFact);
         }
@@ -61,7 +51,7 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
 
     protected abstract void transferLocalEdge(LocalEdge<Node> edge, Fact out, Fact edgeFact);
 
-    protected abstract void transferCallEdge(CallEdge<Node> edge, Fact callSiteIn, Fact edgeFact);
+    protected abstract void transferCallEdge(CallEdge<Node> edge, Fact callSiteOut, Fact edgeFact);
 
     protected abstract void transferReturnEdge(ReturnEdge<Node> edge, Fact returnOut, Fact edgeFact);
 

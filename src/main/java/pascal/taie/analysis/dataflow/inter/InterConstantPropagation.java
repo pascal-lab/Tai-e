@@ -116,27 +116,14 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    protected boolean transferCall(Stmt stmt, CPFact in, CPFact out) {
-        Invoke call = (Invoke) stmt;
-        boolean changed = false;
-        Var lhs = call.getResult();
-        if (lhs != null) {
-            for (Var inVar : in.keySet()) {
-                if (!inVar.equals(lhs)) {
-                    changed |= out.update(inVar, in.get(inVar));
-                }
-            }
-            return changed;
-        } else {
+    public boolean transferNode(Stmt stmt, CPFact in, CPFact out) {
+        if (stmt instanceof Invoke) {
             return out.copyFrom(in);
+        } else {
+            return aliasAware ?
+                    transferAliasAware(stmt, in, out) :
+                    cp.transferNode(stmt, in, out);
         }
-    }
-
-    @Override
-    protected boolean transferNonCall(Stmt stmt, CPFact in, CPFact out) {
-        return aliasAware ?
-                transferAliasAware(stmt, in, out) :
-                cp.transferNode(stmt, in, out);
     }
 
     private boolean transferAliasAware(
@@ -188,14 +175,29 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public void transferLocalEdge(LocalEdge<Stmt> edge, CPFact out,
-                                  CPFact edgeFact) {
-        cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
+    public void transferLocalEdge(LocalEdge<Stmt> edge, CPFact out, CPFact edgeFact) {
+        if (edge.getSource() instanceof Invoke) {
+            // for call-to-return edge, we kill the value of LHS variable
+            Invoke invoke = (Invoke) edge.getSource();
+            Var lhs = invoke.getResult();
+            if (lhs != null) {
+                for (Var outVar : out.keySet()) {
+                    if (!outVar.equals(lhs)) {
+                        edgeFact.update(outVar, out.get(outVar));
+                    }
+                }
+            } else {
+                edgeFact.copyFrom(out);
+            }
+        } else {
+            // for other edges, just apply edge transfer of intraprocedural
+            // constant propagation
+            cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
+        }
     }
 
     @Override
-    public void transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteIn,
-                                 CPFact edgeFact) {
+    public void transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteOut, CPFact edgeFact) {
         // Passing arguments at call site to parameters of the callee
         InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
         Stmt entry = edge.getTarget();
@@ -206,15 +208,14 @@ public class InterConstantPropagation extends
             Var arg = args.get(i);
             Var param = params.get(i);
             if (ConstantPropagation.canHoldInt(param)) {
-                Value argValue = callSiteIn.get(arg);
+                Value argValue = callSiteOut.get(arg);
                 edgeFact.update(param, argValue);
             }
         }
     }
 
     @Override
-    public void transferReturnEdge(ReturnEdge<Stmt> edge, CPFact returnOut,
-                                   CPFact edgeFact) {
+    public void transferReturnEdge(ReturnEdge<Stmt> edge, CPFact returnOut, CPFact edgeFact) {
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
         if (lhs != null && ConstantPropagation.canHoldInt(lhs)) {

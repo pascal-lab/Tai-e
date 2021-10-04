@@ -13,6 +13,9 @@
 package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.analysis.graph.icfg.ICFG;
+import pascal.taie.ir.IRPrinter;
+import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.SetQueue;
 
 import java.util.Queue;
@@ -73,6 +76,9 @@ class InterSolver<Method, Node, Fact> {
         icfg.forEach(workList::add);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
+            if (!(node instanceof Nop)) {
+                System.out.println(IRPrinter.toString((Stmt) node));
+            }
             // meet incoming facts
             Fact in = result.getInFact(node);
             icfg.inEdgesOf(node).forEach(inEdge -> {
@@ -88,11 +94,10 @@ class InterSolver<Method, Node, Fact> {
     }
 
     void propagate(Node node) {
-        Fact in = result.getInFact(node);
         Fact out = result.getOutFact(node);
         icfg.outEdgesOf(node).forEach(edge -> {
             // apply edge transfer
-            analysis.transferEdge(edge, in, out, result.getEdgeFact(edge));
+            analysis.transferEdge(edge, out, result.getEdgeFact(edge));
             workList.add(edge.getTarget());
         });
     }
