@@ -56,5 +56,5 @@ public interface InterDataflowAnalysis<Node, Fact> {
     /**
      * Edge Transfer function for this analysis.
      */
-    void transferEdge(ICFGEdge<Node> edge, Fact out, Fact edgeFact);
+    Fact transferEdge(ICFGEdge<Node> edge, Fact out);
 }

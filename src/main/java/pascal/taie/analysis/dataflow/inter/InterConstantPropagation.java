@@ -177,54 +177,56 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public void transferNormalEdge(NormalEdge<Stmt> edge, CPFact out, CPFact edgeFact) {
+    protected CPFact transferNormalEdge(NormalEdge<Stmt> edge, CPFact out) {
         // Just apply edge transfer of intraprocedural constant propagation
-        cp.transferEdge(edge.getCFGEdge(), out, edgeFact);
+        return cp.transferEdge(edge.getCFGEdge(), out);
     }
 
     @Override
-    protected void transferCallToReturnEdge(CallToReturnEdge<Stmt> edge, CPFact out, CPFact edgeFact) {
+    protected CPFact transferCallToReturnEdge(CallToReturnEdge<Stmt> edge, CPFact out) {
         // Kill the value of LHS variable
         Invoke invoke = (Invoke) edge.getSource();
         Var lhs = invoke.getResult();
         if (lhs != null) {
-            for (Var outVar : out.keySet()) {
-                if (!outVar.equals(lhs)) {
-                    edgeFact.update(outVar, out.get(outVar));
-                }
-            }
+            CPFact result = out.copy();
+            result.remove(lhs);
+            return result;
         } else {
-            edgeFact.copyFrom(out);
+            return out;
         }
     }
 
     @Override
-    public void transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteOut, CPFact edgeFact) {
+    protected CPFact transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteOut) {
         // Passing arguments at call site to parameters of the callee
         InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
         Stmt entry = edge.getTarget();
         JMethod callee = icfg.getContainingMethodOf(entry);
         List<Var> args = invokeExp.getArgs();
         List<Var> params = callee.getIR().getParams();
+        CPFact result = newInitialFact();
         for (int i = 0; i < args.size(); ++i) {
             Var arg = args.get(i);
             Var param = params.get(i);
             if (ConstantPropagation.canHoldInt(param)) {
                 Value argValue = callSiteOut.get(arg);
-                edgeFact.update(param, argValue);
+                result.update(param, argValue);
             }
         }
+        return result;
     }
 
     @Override
-    public void transferReturnEdge(ReturnEdge<Stmt> edge, CPFact returnOut, CPFact edgeFact) {
+    protected CPFact transferReturnEdge(ReturnEdge<Stmt> edge, CPFact returnOut) {
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
+        CPFact result = newInitialFact();
         if (lhs != null && ConstantPropagation.canHoldInt(lhs)) {
             Value retValue = edge.returnVars()
                     .map(returnOut::get)
                     .reduce(Value.getUndef(), cp::meetValue);
-            edgeFact.update(lhs, retValue);
+            result.update(lhs, retValue);
         }
+        return result;
     }
 }

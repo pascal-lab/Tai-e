@@ -13,7 +13,6 @@
 package pascal.taie.util.collection;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;

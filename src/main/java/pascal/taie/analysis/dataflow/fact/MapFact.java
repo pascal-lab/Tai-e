@@ -62,6 +62,13 @@ public class MapFact<K, V> {
     }
 
     /**
+     * Removes the key-value mapping for given key.
+     */
+    public void remove(K key) {
+        map.remove(key);
+    }
+
+    /**
      * Copies the content from given fact to this fact.
      *
      * @return true if this fact changed as a result of the call, otherwise false.

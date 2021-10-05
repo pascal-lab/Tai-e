@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.dataflow.inter;
 
+import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.icfg.ICFG;
 import pascal.taie.util.collection.SetQueue;
 
@@ -30,7 +31,7 @@ class InterSolver<Method, Node, Fact> {
 
     private final ICFG<Method, Node> icfg;
 
-    private InterDataflowResult<Node, Fact> result;
+    private DataflowResult<Node, Fact> result;
 
     private Queue<Node> workList;
 
@@ -40,8 +41,8 @@ class InterSolver<Method, Node, Fact> {
         this.icfg = icfg;
     }
 
-    InterDataflowResult<Node, Fact> solve() {
-        result = new InterDataflowResult<>();
+    DataflowResult<Node, Fact> solve() {
+        result = new DataflowResult<>();
         initialize();
         doSolve();
         return result;
@@ -54,8 +55,6 @@ class InterSolver<Method, Node, Fact> {
         entryNodes.forEach(entry -> {
             result.setInFact(entry, analysis.newBoundaryFact(entry));
             result.setOutFact(entry, analysis.newBoundaryFact(entry));
-            icfg.outEdgesOf(entry).forEach(edge ->
-                    result.setEdgeFact(edge, analysis.newBoundaryFact(entry)));
         });
         icfg.forEach(node -> {
             if (entryNodes.contains(node)) {
@@ -63,8 +62,6 @@ class InterSolver<Method, Node, Fact> {
             }
             result.setInFact(node, analysis.newInitialFact());
             result.setOutFact(node, analysis.newInitialFact());
-            icfg.outEdgesOf(node).forEach(edge ->
-                    result.setEdgeFact(edge, analysis.newInitialFact()));
         });
     }
 
@@ -76,8 +73,8 @@ class InterSolver<Method, Node, Fact> {
             // meet incoming facts
             Fact in = result.getInFact(node);
             icfg.inEdgesOf(node).forEach(inEdge -> {
-                Fact edgeFact = result.getEdgeFact(inEdge);
-                analysis.meetInto(edgeFact, in);
+                Fact predOut = result.getOutFact(inEdge.getSource());
+                analysis.meetInto(analysis.transferEdge(inEdge, predOut), in);
             });
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
@@ -88,12 +85,7 @@ class InterSolver<Method, Node, Fact> {
     }
 
     void propagate(Node node) {
-        Fact out = result.getOutFact(node);
-        icfg.outEdgesOf(node).forEach(edge -> {
-            // apply edge transfer
-            analysis.transferEdge(edge, out, result.getEdgeFact(edge));
-            workList.add(edge.getTarget());
-        });
+        icfg.succsOf(node).forEach(workList::add);
     }
 
     Fact getOutFact(Node node) {

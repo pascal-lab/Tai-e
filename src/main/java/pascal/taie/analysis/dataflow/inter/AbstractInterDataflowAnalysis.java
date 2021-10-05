@@ -49,26 +49,25 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     protected abstract boolean transferNonCallNode(Node node, Fact in, Fact out);
 
     @Override
-    public void transferEdge(
-            ICFGEdge<Node> edge, Fact out, Fact edgeFact) {
+    public Fact transferEdge(ICFGEdge<Node> edge, Fact out) {
         if (edge instanceof NormalEdge) {
-            transferNormalEdge((NormalEdge<Node>) edge, out, edgeFact);
+            return transferNormalEdge((NormalEdge<Node>) edge, out);
         } else if (edge instanceof CallToReturnEdge) {
-            transferCallToReturnEdge((CallToReturnEdge<Node>) edge, out, edgeFact);
+            return transferCallToReturnEdge((CallToReturnEdge<Node>) edge, out);
         } else if (edge instanceof CallEdge) {
-            transferCallEdge((CallEdge<Node>) edge, out, edgeFact);
+            return transferCallEdge((CallEdge<Node>) edge, out);
         } else {
-            transferReturnEdge((ReturnEdge<Node>) edge, out, edgeFact);
+            return transferReturnEdge((ReturnEdge<Node>) edge, out);
         }
     }
 
-    protected abstract void transferNormalEdge(NormalEdge<Node> edge, Fact out, Fact edgeFact);
+    protected abstract Fact transferNormalEdge(NormalEdge<Node> edge, Fact out);
 
-    protected abstract void transferCallToReturnEdge(CallToReturnEdge<Node> edge, Fact out, Fact edgeFact);
+    protected abstract Fact transferCallToReturnEdge(CallToReturnEdge<Node> edge, Fact out);
 
-    protected abstract void transferCallEdge(CallEdge<Node> edge, Fact callSiteOut, Fact edgeFact);
+    protected abstract Fact transferCallEdge(CallEdge<Node> edge, Fact callSiteOut);
 
-    protected abstract void transferReturnEdge(ReturnEdge<Node> edge, Fact returnOut, Fact edgeFact);
+    protected abstract Fact transferReturnEdge(ReturnEdge<Node> edge, Fact returnOut);
 
     @Override
     public Object analyze() {

@@ -46,21 +46,8 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
         return false;
     }
 
-    /**
-     * By default, if a data-flow analysis has edge transfer, then it needs
-     * to apply transfer for every edge.
-     */
-    @Override
-    public boolean needTransfer(Edge<Node> edge) {
-        return true;
-    }
-
-    @Override
-    public void transferEdge(Edge<Node> edge, Fact nodeFact, Fact edgeFact) {
-    }
-
     @Override
     public Fact transferEdge(Edge<Node> edge, Fact nodeFact) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

@@ -16,9 +16,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An object which manages the data-flow facts associated with nodes of a CFG.
+ * An object which manages the data-flow facts associated with nodes.
  *
- * @param <Node> type of CFG nodes
+ * @param <Node> type of nodes
  * @param <Fact> type of data-flow facts
  */
 public class DataflowResult<Node, Fact> implements NodeResult<Node, Fact> {

@@ -36,7 +36,7 @@ public abstract class Solver<Node, Fact> {
      */
     public static <Node, Fact> Solver<Node, Fact> makeSolver(
             DataflowAnalysis<Node, Fact> analysis) {
-        return new IterativeSolver<>(analysis);
+        return new FastSolver<>(analysis);
     }
 
     /**
