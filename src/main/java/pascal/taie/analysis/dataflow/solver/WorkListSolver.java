@@ -38,24 +38,17 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
             // meet incoming facts
             Fact in = result.getInFact(node);
             cfg.inEdgesOf(node).forEach(inEdge -> {
-                Fact predOut = analysis.hasEdgeTransfer() ?
-                        result.getEdgeFact(inEdge) :
-                        result.getOutFact(inEdge.getSource());
-                analysis.meetInto(predOut, in);
+                Fact fact = result.getOutFact(inEdge.getSource());
+                if (analysis.hasEdgeTransfer()) {
+                    fact = analysis.transferEdge(inEdge, fact);
+                }
+                analysis.meetInto(fact, in);
             });
             // apply node transfer function
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.outEdgesOf(node).forEach(outEdge -> {
-                    if (analysis.hasEdgeTransfer()) {
-                        // apply edge transfer if necessary
-                        Fact edgeFact = result.getEdgeFact(outEdge);
-                        analysis.transferEdge(outEdge, out, edgeFact);
-                    }
-                    // prepare to process successors
-                    workList.add(outEdge.getTarget());
-                });
+                cfg.succsOf(node).forEach(workList::add);
             }
         }
     }
@@ -74,24 +67,17 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
             // meet incoming facts
             Fact out = result.getOutFact(node);
             cfg.outEdgesOf(node).forEach(outEdge -> {
-                Fact succIn = analysis.hasEdgeTransfer() ?
-                        result.getEdgeFact(outEdge) :
-                        result.getInFact(outEdge.getTarget());
-                analysis.meetInto(succIn, out);
+                Fact fact = result.getInFact(outEdge.getTarget());
+                if (analysis.hasEdgeTransfer()) {
+                    fact = analysis.transferEdge(outEdge, fact);
+                }
+                analysis.meetInto(fact, out);
             });
             // apply node transfer function
             Fact in = result.getInFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.inEdgesOf(node).forEach(inEdge -> {
-                    if (analysis.hasEdgeTransfer()) {
-                        // apply edge transfer if necessary
-                        Fact edgeFact = result.getEdgeFact(inEdge);
-                        analysis.transferEdge(inEdge, in, edgeFact);
-                    }
-                    // prepare to process successors
-                    workList.add(inEdge.getSource());
-                });
+                cfg.predsOf(node).forEach(workList::add);
             }
         }
     }

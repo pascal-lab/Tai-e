@@ -1,0 +1,16 @@
+-------------------- <EdgeTransfer: void <init>()> (constprop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <EdgeTransfer: int branch(int)> (constprop) --------------------
+[0@L5] %intconst0 = 1; {%intconst0=1, x=NAC}
+[1@L5] if (x == %intconst0) goto 3; {%intconst0=1, x=NAC}
+[2@L5] goto 6; {%intconst0=1, x=NAC}
+[3@L5] nop; {%intconst0=1, x=1}
+[4@L6] y = x + %intconst0; {%intconst0=1, x=1, y=2}
+[5@L5] goto 8; {%intconst0=1, x=1, y=2}
+[6@L5] nop; {%intconst0=1, x=NAC}
+[7@L8] y = 2; {%intconst0=1, x=NAC, y=2}
+[8@L8] nop; {%intconst0=1, x=NAC, y=2}
+[9@L10] return y; {%intconst0=1, x=NAC, y=2}
+

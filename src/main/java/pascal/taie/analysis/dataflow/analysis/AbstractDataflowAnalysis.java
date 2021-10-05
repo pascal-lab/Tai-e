@@ -58,4 +58,9 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
     @Override
     public void transferEdge(Edge<Node> edge, Fact nodeFact, Fact edgeFact) {
     }
+
+    @Override
+    public Fact transferEdge(Edge<Node> edge, Fact nodeFact) {
+        return null;
+    }
 }

@@ -12,13 +12,11 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
-import pascal.taie.analysis.graph.cfg.Edge;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An object which manages the data-flow facts associated with nodes and edges of a CFG.
+ * An object which manages the data-flow facts associated with nodes of a CFG.
  *
  * @param <Node> type of CFG nodes
  * @param <Fact> type of data-flow facts
@@ -28,12 +26,6 @@ public class DataflowResult<Node, Fact> implements NodeResult<Node, Fact> {
     private final Map<Node, Fact> inFacts = new LinkedHashMap<>();
 
     private final Map<Node, Fact> outFacts = new LinkedHashMap<>();
-
-    private final Map<Edge<Node>, Fact> edgeFacts;
-
-    public DataflowResult(boolean hasEdgeFacts) {
-        edgeFacts = hasEdgeFacts ? new LinkedHashMap<>() : null;
-    }
 
     /**
      * @return the flowing-in fact of given node.
@@ -63,19 +55,5 @@ public class DataflowResult<Node, Fact> implements NodeResult<Node, Fact> {
      */
     public void setOutFact(Node node, Fact fact) {
         outFacts.put(node, fact);
-    }
-
-    /**
-     * @return the fact of given edge.
-     */
-    public Fact getEdgeFact(Edge<Node> edge) {
-        return edgeFacts.get(edge);
-    }
-
-    /**
-     * Associates a data-flow fact with a CFG edge.
-     */
-    public void setEdgeFact(Edge<Node> edge, Fact fact) {
-        edgeFacts.put(edge, fact);
     }
 }

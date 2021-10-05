@@ -36,7 +36,7 @@ public abstract class Solver<Node, Fact> {
      */
     public static <Node, Fact> Solver<Node, Fact> makeSolver(
             DataflowAnalysis<Node, Fact> analysis) {
-        return new FastSolver<>(analysis);
+        return new IterativeSolver<>(analysis);
     }
 
     /**
@@ -57,8 +57,7 @@ public abstract class Solver<Node, Fact> {
      * @return the initialized data-flow result
      */
     private DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
-        DataflowResult<Node, Fact> result =
-                new DataflowResult<>(analysis.hasEdgeTransfer());
+        DataflowResult<Node, Fact> result = new DataflowResult<>();
         if (analysis.isForward()) {
             initializeForward(cfg, result);
         } else {
@@ -72,10 +71,6 @@ public abstract class Solver<Node, Fact> {
         Node entry = cfg.getEntry();
         result.setInFact(entry, analysis.newBoundaryFact(cfg));
         result.setOutFact(entry, analysis.newBoundaryFact(cfg));
-        if (analysis.hasEdgeTransfer()) {
-            cfg.outEdgesOf(entry).forEach(edge ->
-                    result.setEdgeFact(edge, analysis.newBoundaryFact(cfg)));
-        }
         cfg.forEach(node -> {
             // skip entry which has been initialized
             if (cfg.isEntry(node)) {
@@ -84,11 +79,6 @@ public abstract class Solver<Node, Fact> {
             // initialize in & out fact
             result.setInFact(node, analysis.newInitialFact());
             result.setOutFact(node, analysis.newInitialFact());
-            // initialize edge fact
-            if (analysis.hasEdgeTransfer()) {
-                cfg.outEdgesOf(node).forEach(edge ->
-                        result.setEdgeFact(edge, analysis.newInitialFact()));
-            }
         });
     }
 
@@ -97,10 +87,6 @@ public abstract class Solver<Node, Fact> {
         Node exit = cfg.getExit();
         result.setInFact(exit, analysis.newBoundaryFact(cfg));
         result.setOutFact(exit, analysis.newBoundaryFact(cfg));
-        if (analysis.hasEdgeTransfer()) {
-            cfg.inEdgesOf(exit).forEach(edge ->
-                    result.setEdgeFact(edge, analysis.newBoundaryFact(cfg)));
-        }
         cfg.forEach(node -> {
             // skip exit which has been initialized
             if (cfg.isExit(node)) {
@@ -109,11 +95,6 @@ public abstract class Solver<Node, Fact> {
             // initialize in fact
             result.setInFact(node, analysis.newInitialFact());
             result.setOutFact(node, analysis.newInitialFact());
-            // initialize edge fact
-            if (analysis.hasEdgeTransfer()) {
-                cfg.inEdgesOf(node).forEach(edge ->
-                        result.setEdgeFact(edge, analysis.newInitialFact()));
-            }
         });
     }
 

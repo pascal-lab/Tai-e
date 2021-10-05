@@ -12,16 +12,14 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.Test;
+import pascal.taie.analysis.Tests;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        CPTestFull.class,
-        EdgeTransferTest.class,
-        InterCPAliasTest.class,
-        MeetValueTest.class,
-        ValueTest.class,
-})
-public class CPTestSuite {
+public class EdgeTransferTest {
+
+    @Test
+    public void test() {
+        Tests.testDFA("EdgeTransfer", "src/test/resources/dataflow/constprop/",
+                ConstantPropagation.ID, "edge-transfer:true");
+    }
 }

@@ -32,32 +32,20 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
                     // meet incoming facts from preds to node
                     Fact in = result.getInFact(node);
                     cfg.inEdgesOf(node).forEach(inEdge -> {
-                        Fact predOut = analysis.hasEdgeTransfer() ?
-                                result.getEdgeFact(inEdge) :
-                                result.getOutFact(inEdge.getSource());
-                        analysis.meetInto(predOut, in);
+                        Fact fact = result.getOutFact(inEdge.getSource());
+                        if (analysis.hasEdgeTransfer()) {
+                            fact = analysis.transferEdge(inEdge, fact);
+                        }
+                        analysis.meetInto(fact, in);
                     });
                     // apply node transfer function
                     Fact out = result.getOutFact(node);
-                    boolean c = analysis.transferNode(node, in, out);
-                    if (c) {
-                        changed = true;
-                        cfg.outEdgesOf(node).forEach(outEdge -> {
-                            if (analysis.hasEdgeTransfer()) {
-                                // apply edge transfer if necessary
-                                Fact edgeFact = result.getEdgeFact(outEdge);
-                                analysis.transferEdge(outEdge, out, edgeFact);
-                            }
-                        });
-                    }
+                    changed |= analysis.transferNode(node, in, out);
                 }
             }
         } while (changed);
     }
 
-    /**
-     * No edge transfer.
-     */
     @Override
     protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
         boolean changed;
@@ -67,9 +55,12 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
                 if (!cfg.isExit(node)) {
                     Fact out = result.getOutFact(node);
                     // meet incoming facts from succ to node
-                    cfg.succsOf(node).forEach(succ -> {
-                        Fact succIn = result.getInFact(succ);
-                        analysis.meetInto(succIn, out);
+                    cfg.outEdgesOf(node).forEach(outEdge -> {
+                        Fact fact = result.getInFact(outEdge.getTarget());
+                        if (analysis.hasEdgeTransfer()) {
+                            fact = analysis.transferEdge(outEdge, fact);
+                        }
+                        analysis.meetInto(fact, out);
                     });
                     // apply node transfer function
                     Fact in = result.getInFact(node);

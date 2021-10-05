@@ -13,7 +13,10 @@
 package pascal.taie.util.collection;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -24,6 +27,19 @@ import java.util.stream.StreamSupport;
 public final class Streams {
 
     private Streams() {
+    }
+
+    /**
+     * @return an arbitrary element of the given collection.
+     * @throws java.util.NoSuchElementException if the stream is empty
+     */
+    public static <T> T getOne(Stream<? extends T> stream) {
+        Optional<? extends T> one = stream.findAny();
+        if (one.isPresent()) {
+            return one.get();
+        } else {
+            throw new NoSuchElementException("The stream is empty");
+        }
     }
 
     /**

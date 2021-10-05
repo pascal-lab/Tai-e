@@ -16,6 +16,7 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.util.collection.Streams;
 
 import java.util.TreeSet;
 
@@ -35,10 +36,6 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
         Fact entryFact = analysis.newBoundaryFact(cfg);
         result.setInFact(entry, entryFact);
         result.setOutFact(entry, entryFact);
-        if (analysis.hasEdgeTransfer()) {
-            cfg.outEdgesOf(entry).forEach(edge ->
-                    result.setEdgeFact(edge, entryFact));
-        }
         cfg.forEach(node -> {
             // skip entry which has been initialized
             if (cfg.isEntry(node)) {
@@ -47,24 +44,16 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             // initialize in fact
             if (cfg.inEdgesOf(node).count() == 1) {
                 cfg.inEdgesOf(node).forEach(edge -> {
-                    Fact in;
-                    if (analysis.hasEdgeTransfer()) {
-                        in = getOrNewEdgeOutFact(result, edge);
-                    } else {
-                        in = getOrNewOutFact(result, edge.getSource());
+                    if (!analysis.hasEdgeTransfer()) {
+                        result.setInFact(node,
+                                getOrNewOutFact(result, edge.getSource()));
                     }
-                    result.setInFact(edge.getTarget(), in);
                 });
             } else {
                 result.setInFact(node, analysis.newInitialFact());
             }
             // initialize out fact
             getOrNewOutFact(result, node);
-            // initialize edge fact
-            if (analysis.hasEdgeTransfer()) {
-                cfg.outEdgesOf(node).forEach(edge ->
-                        getOrNewEdgeOutFact(result, edge));
-            }
         });
     }
 
@@ -73,81 +62,6 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
         if (fact == null) {
             fact = analysis.newInitialFact();
             result.setOutFact(node, fact);
-        }
-        return fact;
-    }
-
-    private Fact getOrNewEdgeOutFact(DataflowResult<Node, Fact> result, Edge<Node> edge) {
-        Fact fact = result.getEdgeFact(edge);
-        if (fact == null) {
-            if (analysis.needTransfer(edge)) {
-                fact = analysis.newInitialFact();
-            } else {
-                fact = getOrNewOutFact(result, edge.getSource());
-            }
-            result.setEdgeFact(edge, fact);
-        }
-        return fact;
-    }
-
-    @Override
-    protected void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        // initialize exit
-        Node exit = cfg.getExit();
-        Fact exitFact = analysis.newBoundaryFact(cfg);
-        result.setInFact(exit, exitFact);
-        result.setOutFact(exit, exitFact);
-        if (analysis.hasEdgeTransfer()) {
-            cfg.inEdgesOf(exit).forEach(edge ->
-                    result.setEdgeFact(edge, exitFact));
-        }
-        cfg.forEach(node -> {
-            // skip exit which has been initialized
-            if (cfg.isExit(node)) {
-                return;
-            }
-            // initialize out fact
-            if (cfg.outEdgesOf(node).count() == 1) {
-                cfg.outEdgesOf(node).forEach(edge -> {
-                    Fact out;
-                    if (analysis.hasEdgeTransfer()) {
-                        out = getOrNewEdgeInFact(result, edge);
-                    } else {
-                        out = getOrNewInFact(result, edge.getTarget());
-                    }
-                    result.setOutFact(edge.getSource(), out);
-                });
-            } else {
-                result.setOutFact(node, analysis.newInitialFact());
-            }
-            // initialize in fact
-            getOrNewInFact(result, node);
-            // initialize edge fact
-            if (analysis.hasEdgeTransfer()) {
-                cfg.inEdgesOf(node).forEach(edge ->
-                        getOrNewEdgeInFact(result, edge));
-            }
-        });
-    }
-
-    private Fact getOrNewInFact(DataflowResult<Node, Fact> result, Node node) {
-        Fact fact = result.getInFact(node);
-        if (fact == null) {
-            fact = analysis.newInitialFact();
-            result.setInFact(node, fact);
-        }
-        return fact;
-    }
-
-    private Fact getOrNewEdgeInFact(DataflowResult<Node, Fact> result, Edge<Node> edge) {
-        Fact fact = result.getEdgeFact(edge);
-        if (fact == null) {
-            if (analysis.needTransfer(edge)) {
-                fact = analysis.newInitialFact();
-            } else {
-                fact = getOrNewInFact(result, edge.getTarget());
-            }
-            result.setEdgeFact(edge, fact);
         }
         return fact;
     }
@@ -164,31 +78,69 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
         while (!workList.isEmpty()) {
             Node node = workList.pollFirst();
             // meet incoming facts
-            Fact in = result.getInFact(node);
-            if (cfg.inEdgesOf(node).count() > 1) {
+            Fact in;
+            int inDegree = (int) cfg.inEdgesOf(node).count();
+            if (inDegree > 1) {
+                in = result.getInFact(node);
                 cfg.inEdgesOf(node).forEach(inEdge -> {
-                    Fact predOut = analysis.hasEdgeTransfer() ?
-                            result.getEdgeFact(inEdge) :
-                            result.getOutFact(inEdge.getSource());
-                    analysis.meetInto(predOut, in);
+                    Fact fact = result.getOutFact(inEdge.getSource());
+                    if (analysis.hasEdgeTransfer()) {
+                        fact = analysis.transferEdge(inEdge, fact);
+                    }
+                    analysis.meetInto(fact, in);
                 });
+            } else if (inDegree == 1 && analysis.hasEdgeTransfer()) {
+                Edge<Node> inEdge = Streams.getOne(cfg.inEdgesOf(node));
+                in = analysis.transferEdge(inEdge,
+                        result.getOutFact(inEdge.getSource()));
+                result.setInFact(node, in);
+            } else {
+                in = result.getInFact(node);
             }
             // apply node transfer function
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.outEdgesOf(node).forEach(outEdge -> {
-                    if (analysis.hasEdgeTransfer() &&
-                            analysis.needTransfer(outEdge)) {
-                        // apply edge transfer if necessary
-                        Fact edgeFact = result.getEdgeFact(outEdge);
-                        analysis.transferEdge(outEdge, out, edgeFact);
-                    }
-                    // prepare to process successors
-                    workList.add(outEdge.getTarget());
-                });
+                cfg.succsOf(node).forEach(workList::add);
             }
         }
+    }
+
+    @Override
+    protected void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+        // initialize exit
+        Node exit = cfg.getExit();
+        Fact exitFact = analysis.newBoundaryFact(cfg);
+        result.setInFact(exit, exitFact);
+        result.setOutFact(exit, exitFact);
+        cfg.forEach(node -> {
+            // skip exit which has been initialized
+            if (cfg.isExit(node)) {
+                return;
+            }
+            // initialize out fact
+            if (cfg.outEdgesOf(node).count() == 1) {
+                cfg.outEdgesOf(node).forEach(edge -> {
+                    if (!analysis.hasEdgeTransfer()) {
+                        result.setOutFact(node,
+                                getOrNewInFact(result, edge.getTarget()));
+                    }
+                });
+            } else {
+                result.setOutFact(node, analysis.newInitialFact());
+            }
+            // initialize in fact
+            getOrNewInFact(result, node);
+        });
+    }
+
+    private Fact getOrNewInFact(DataflowResult<Node, Fact> result, Node node) {
+        Fact fact = result.getInFact(node);
+        if (fact == null) {
+            fact = analysis.newInitialFact();
+            result.setInFact(node, fact);
+        }
+        return fact;
     }
 
     @Override
@@ -203,29 +155,30 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
         while (!workList.isEmpty()) {
             Node node = workList.pollFirst();
             // meet incoming facts
-            Fact out = result.getOutFact(node);
-            if (cfg.outEdgesOf(node).count() > 1) {
+            Fact out;
+            int outDegree = (int) cfg.outEdgesOf(node).count();
+            if (outDegree > 1) {
+                out = result.getOutFact(node);
                 cfg.outEdgesOf(node).forEach(outEdge -> {
-                    Fact succIn = analysis.hasEdgeTransfer() ?
-                            result.getEdgeFact(outEdge) :
-                            result.getInFact(outEdge.getTarget());
-                    analysis.meetInto(succIn, out);
+                    Fact fact = result.getInFact(outEdge.getTarget());
+                    if (analysis.hasEdgeTransfer()) {
+                        fact = analysis.transferEdge(outEdge, fact);
+                    }
+                    analysis.meetInto(fact, out);
                 });
+            } else if (outDegree == 1 && analysis.hasEdgeTransfer()) {
+                Edge<Node> outEdge = Streams.getOne(cfg.outEdgesOf(node));
+                out = analysis.transferEdge(outEdge,
+                        result.getOutFact(outEdge.getTarget()));
+                result.setOutFact(node, out);
+            } else {
+                out = result.getOutFact(node);
             }
             // apply node transfer function
             Fact in = result.getInFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.inEdgesOf(node).forEach(inEdge -> {
-                    if (analysis.hasEdgeTransfer() &&
-                            analysis.needTransfer(inEdge)) {
-                        // apply edge transfer if necessary
-                        Fact edgeFact = result.getEdgeFact(inEdge);
-                        analysis.transferEdge(inEdge, in, edgeFact);
-                    }
-                    // prepare to process successors
-                    workList.add(inEdge.getSource());
-                });
+                cfg.predsOf(node).forEach(workList::add);
             }
         }
     }

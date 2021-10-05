@@ -69,4 +69,6 @@ public interface DataflowAnalysis<Node, Fact> {
      * Edge Transfer function for this analysis.
      */
     void transferEdge(Edge<Node> edge, Fact nodeFact, Fact edgeFact);
+
+    Fact transferEdge(Edge<Node> edge, Fact nodeFact);
 }
