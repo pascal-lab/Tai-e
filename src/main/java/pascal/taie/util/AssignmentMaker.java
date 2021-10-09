@@ -68,6 +68,11 @@ final class AssignmentMaker {
     private static final Path RT_DIR = Path.of("java-benchmarks/JREs/jre1.5");
 
     /**
+     * Root directory of Tai-e.
+     */
+    private static final Path TAI_E_ROOT = Path.of("");
+
+    /**
      * Root directory of all assignment content.
      */
     private static final Path ASS_ROOT = Path.of("assignments");
@@ -281,8 +286,10 @@ final class AssignmentMaker {
     private void copyCommonFiles() {
         // Gradle-related
         copyFile(ASS_ROOT, TARGET_DIR, "build.gradle");
-        copyFile(ASS_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.jar");
-        copyFile(ASS_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.properties");
+        copyFile(TAI_E_ROOT, TARGET_DIR, "gradlew");
+        copyFile(TAI_E_ROOT, TARGET_DIR, "gradlew.bat");
+        copyFile(TAI_E_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.jar");
+        copyFile(TAI_E_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.properties");
         // copyright.txt
         copyFile(ASS_ROOT, TARGET_DIR, "copyright.txt");
         // lib/rt.jar
