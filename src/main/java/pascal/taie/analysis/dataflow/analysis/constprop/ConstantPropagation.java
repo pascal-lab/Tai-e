@@ -224,8 +224,13 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public boolean hasEdgeTransfer() {
-        return edgeTransfer;
+    public boolean needTransferEdge(Edge<Stmt> edge) {
+        if (edgeTransfer) {
+            return edge.getSource() instanceof If ||
+                    edge.getKind() == Edge.Kind.SWITCH_CASE;
+        } else {
+            return false;
+        }
     }
 
     @Override

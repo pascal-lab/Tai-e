@@ -39,10 +39,11 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
     }
 
     /**
-     * By default, a data-flow analysis does not have edge transfer.
+     * By default, a data-flow analysis does not have edge transfer, i.e.,
+     * does not need to perform transfer for any edges.
      */
     @Override
-    public boolean hasEdgeTransfer() {
+    public boolean needTransferEdge(Edge<Node> edge) {
         return false;
     }
 

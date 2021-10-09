@@ -44,7 +44,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             // initialize in fact
             if (cfg.inEdgesOf(node).count() == 1) {
                 cfg.inEdgesOf(node).forEach(edge -> {
-                    if (!analysis.hasEdgeTransfer()) {
+                    if (!analysis.needTransferEdge(edge)) {
                         result.setInFact(node,
                                 getOrNewOutFact(result, edge.getSource()));
                     }
@@ -84,16 +84,20 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 in = result.getInFact(node);
                 cfg.inEdgesOf(node).forEach(inEdge -> {
                     Fact fact = result.getOutFact(inEdge.getSource());
-                    if (analysis.hasEdgeTransfer()) {
+                    if (analysis.needTransferEdge(inEdge)) {
                         fact = analysis.transferEdge(inEdge, fact);
                     }
                     analysis.meetInto(fact, in);
                 });
-            } else if (inDegree == 1 && analysis.hasEdgeTransfer()) {
+            } else if (inDegree == 1) {
                 Edge<Node> inEdge = Streams.getOne(cfg.inEdgesOf(node));
-                in = analysis.transferEdge(inEdge,
-                        result.getOutFact(inEdge.getSource()));
-                result.setInFact(node, in);
+                if (analysis.needTransferEdge(inEdge)) {
+                    in = analysis.transferEdge(inEdge,
+                            result.getOutFact(inEdge.getSource()));
+                    result.setInFact(node, in);
+                } else {
+                    in = result.getInFact(node);
+                }
             } else {
                 in = result.getInFact(node);
             }
@@ -121,7 +125,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             // initialize out fact
             if (cfg.outEdgesOf(node).count() == 1) {
                 cfg.outEdgesOf(node).forEach(edge -> {
-                    if (!analysis.hasEdgeTransfer()) {
+                    if (!analysis.needTransferEdge(edge)) {
                         result.setOutFact(node,
                                 getOrNewInFact(result, edge.getTarget()));
                     }
@@ -161,16 +165,20 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 out = result.getOutFact(node);
                 cfg.outEdgesOf(node).forEach(outEdge -> {
                     Fact fact = result.getInFact(outEdge.getTarget());
-                    if (analysis.hasEdgeTransfer()) {
+                    if (analysis.needTransferEdge(outEdge)) {
                         fact = analysis.transferEdge(outEdge, fact);
                     }
                     analysis.meetInto(fact, out);
                 });
-            } else if (outDegree == 1 && analysis.hasEdgeTransfer()) {
+            } else if (outDegree == 1) {
                 Edge<Node> outEdge = Streams.getOne(cfg.outEdgesOf(node));
-                out = analysis.transferEdge(outEdge,
-                        result.getOutFact(outEdge.getTarget()));
-                result.setOutFact(node, out);
+                if (analysis.needTransferEdge(outEdge)) {
+                    out = analysis.transferEdge(outEdge,
+                            result.getOutFact(outEdge.getTarget()));
+                    result.setOutFact(node, out);
+                } else {
+                    out = result.getOutFact(node);
+                }
             } else {
                 out = result.getOutFact(node);
             }

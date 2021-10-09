@@ -33,8 +33,8 @@ public class CPFact extends MapFact<Var, Value> {
     }
 
     /**
-     * @return the value to which the specified variable is mapped,
-     * or Undef if this map contains no mapping for the variable.
+     * @return the value of given variable in this fact,
+     * or UNDEF if this fact contains no mapping for the variable.
      */
     @Override
     public Value get(Var key) {
