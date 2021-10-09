@@ -57,8 +57,7 @@ public abstract class Solver<Node, Fact> {
      * @return the initialized data-flow result
      */
     private DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
-        DataflowResult<Node, Fact> result =
-                new DataflowResult<>(analysis.hasEdgeTransfer());
+        DataflowResult<Node, Fact> result = new DataflowResult<>();
         if (analysis.isForward()) {
             initializeForward(cfg, result);
         } else {
