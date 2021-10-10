@@ -16,13 +16,13 @@ import pascal.taie.util.AnalysisException;
 
 /**
  * Represents lattice values in constant propagation.
- * A value can be either NAC, a constant, or UNDEF.
+ * A value can be either UNDEF, a constant, or NAC.
  */
 public class Value {
 
-    private static final Value NAC = new Value(Kind.NAC);
-
     private static final Value UNDEF = new Value(Kind.UNDEF);
+
+    private static final Value NAC = new Value(Kind.NAC);
 
     /**
      * Cache frequently used values for saving space.
@@ -111,10 +111,10 @@ public class Value {
     }
 
     Value restrictTo(Value other) {
-        if (Kind.isHigher(kind, other.kind)) {
-            return other;
-        } else if (Kind.isHigher(other.kind, kind)) {
+        if (kind.isHigherThan(other.kind)) {
             return this;
+        } else if (other.kind.isHigherThan(kind)) {
+            return other;
         } else if (isConstant()) {
             return value == other.value ? this : UNDEF;
         } else {
@@ -142,29 +142,29 @@ public class Value {
     @Override
     public String toString() {
         switch (kind) {
+            case UNDEF:
+                return "UNDEF";
             case NAC:
                 return "NAC";
             case CONSTANT:
                 return Integer.toString(value);
-            case UNDEF:
-                return "UNDEF";
             default:
                 throw new IllegalStateException("Unexpected value: " + kind);
         }
     }
 
     private enum Kind {
-        NAC, // not a constant
-        CONSTANT, // an integer constant
         UNDEF, // undefined value
+        CONSTANT, // an integer constant
+        NAC, // not a constant
         ;
 
         /**
-         * @return true if k1 has higher position than k2 in the lattice,
-         * otherwise false.
+         * @return true if this kind has higher position than the other kind
+         * in the lattice, otherwise false.
          */
-        private static boolean isHigher(Kind k1, Kind k2) {
-            return k1.ordinal() < k2.ordinal();
+        private boolean isHigherThan(Kind other) {
+            return ordinal() < other.ordinal();
         }
     }
 }
