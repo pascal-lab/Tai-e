@@ -40,8 +40,8 @@
 
 -------------------- <BinaryOp: void undefined()> (constprop) --------------------
 [0@L31] %intconst0 = 1; {%intconst0=1}
-[1@L31] y = x + %intconst0; {%intconst0=1, y=UNDEF}
-[2@L31] return; {%intconst0=1, y=UNDEF}
+[1@L31] y = x + %intconst0; {%intconst0=1}
+[2@L31] return; {%intconst0=1}
 
 -------------------- <BinaryOp: void longExpressions()> (constprop) --------------------
 [0@L35] x = 1; {x=1}

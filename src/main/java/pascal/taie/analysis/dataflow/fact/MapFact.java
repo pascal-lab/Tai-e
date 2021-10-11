@@ -63,9 +63,12 @@ public class MapFact<K, V> {
 
     /**
      * Removes the key-value mapping for given key.
+     *
+     * @return the previous value associated with key,
+     * or null if there was no mapping for key.
      */
-    public void remove(K key) {
-        map.remove(key);
+    public V remove(K key) {
+        return map.remove(key);
     }
 
     /**

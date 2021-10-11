@@ -250,8 +250,9 @@ public class ConstantPropagation extends
                 Var v2 = cond.getOperand2();
                 Value val2 = nodeFact.get(v2);
                 CPFact result = nodeFact.copy();
-                result.update(v1, val1.restrictTo(val2));
-                result.update(v2, val2.restrictTo(val1));
+                Value joined = joinValue(val1, val2);
+                result.update(v1, joined);
+                result.update(v2, joined);
                 return result;
             }
         } else if (kind == Edge.Kind.SWITCH_CASE) {
@@ -261,9 +262,26 @@ public class ConstantPropagation extends
             Value val = nodeFact.get(var);
             int caseValue = edge.getCaseValue();
             CPFact result = nodeFact.copy();
-            result.update(var, val.restrictTo(Value.makeConstant(caseValue)));
+            result.update(var, joinValue(val, Value.makeConstant(caseValue)));
             return result;
         }
         return nodeFact;
+    }
+
+    /**
+     * Joins two Values.
+     */
+    private Value joinValue(Value v1, Value v2) {
+        if (v1.isNAC() && v2.isConstant()) {
+            return v2;
+        } else if (v1.isConstant() && v2.isNAC()) {
+            return v1;
+        } else if (v1.isUndef() || v2.isUndef()) {
+            return Value.getUndef();
+        } else if (v1.equals(v2)) {
+            return v1;
+        } else {
+            return Value.getUndef();
+        }
     }
 }

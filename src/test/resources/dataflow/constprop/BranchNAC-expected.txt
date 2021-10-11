@@ -20,8 +20,8 @@
 [1@L15] if (b == %intconst0) goto 6; {%intconst0=0, b=NAC, p=NAC}
 [2@L15] goto 3; {%intconst0=0, b=NAC, p=NAC}
 [3@L15] nop; {%intconst0=0, b=NAC, p=NAC}
-[4@L16] x = undef; {%intconst0=0, b=NAC, p=NAC, x=UNDEF}
-[5@L15] goto 8; {%intconst0=0, b=NAC, p=NAC, x=UNDEF}
+[4@L16] x = undef; {%intconst0=0, b=NAC, p=NAC}
+[5@L15] goto 8; {%intconst0=0, b=NAC, p=NAC}
 [6@L15] nop; {%intconst0=0, b=NAC, p=NAC}
 [7@L18] x = p; {%intconst0=0, b=NAC, p=NAC, x=NAC}
 [8@L18] nop; {%intconst0=0, b=NAC, p=NAC, x=NAC}

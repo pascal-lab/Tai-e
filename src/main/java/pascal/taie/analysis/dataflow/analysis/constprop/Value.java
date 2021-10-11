@@ -20,8 +20,14 @@ import pascal.taie.util.AnalysisException;
  */
 public class Value {
 
+    /**
+     * The object representing UNDEF.
+     */
     private static final Value UNDEF = new Value(Kind.UNDEF);
 
+    /**
+     * The object representing NAC.
+     */
     private static final Value NAC = new Value(Kind.NAC);
 
     /**
@@ -31,7 +37,7 @@ public class Value {
 
     static {
         for (int i = 0; i < cache.length; i++) {
-            cache[i] = new Value(Kind.CONSTANT, i - 128);
+            cache[i] = new Value(i - 128);
         }
     }
 
@@ -40,19 +46,20 @@ public class Value {
     private final int value;
 
     private Value(Kind kind) {
-        this(kind, 0);
+        this.kind = kind;
+        this.value = 0;
     }
 
-    private Value(Kind kind, int value) {
-        this.kind = kind;
+    private Value(int value) {
+        this.kind = Kind.CONSTANT;
         this.value = value;
     }
 
     /**
-     * @return the NAC.
+     * @return the UNDEF.
      */
-    public static Value getNAC() {
-        return NAC;
+    public static Value getUndef() {
+        return UNDEF;
     }
 
     /**
@@ -65,21 +72,21 @@ public class Value {
         if (value >= -128 && value <= 127) { // will cache
             return cache[value + offset];
         }
-        return new Value(Kind.CONSTANT, value);
+        return new Value(value);
     }
 
     /**
-     * @return the UNDEF.
+     * @return the NAC.
      */
-    public static Value getUndef() {
-        return UNDEF;
+    public static Value getNAC() {
+        return NAC;
     }
 
     /**
-     * @return true if this value is NAC, otherwise false.
+     * @return true if this value is UNDEF, otherwise false.
      */
-    public boolean isNAC() {
-        return kind == Kind.NAC;
+    public boolean isUndef() {
+        return kind == Kind.UNDEF;
     }
 
     /**
@@ -90,10 +97,10 @@ public class Value {
     }
 
     /**
-     * @return true if this value is UNDEF, otherwise false.
+     * @return true if this value is NAC, otherwise false.
      */
-    public boolean isUndef() {
-        return kind == Kind.UNDEF;
+    public boolean isNAC() {
+        return kind == Kind.NAC;
     }
 
     /**
@@ -108,18 +115,6 @@ public class Value {
             throw new AnalysisException(this + " is not a constant");
         }
         return value;
-    }
-
-    Value restrictTo(Value other) {
-        if (kind.isHigherThan(other.kind)) {
-            return this;
-        } else if (other.kind.isHigherThan(kind)) {
-            return other;
-        } else if (isConstant()) {
-            return value == other.value ? this : UNDEF;
-        } else {
-            return this;
-        }
     }
 
     @Override
@@ -157,14 +152,5 @@ public class Value {
         UNDEF, // undefined value
         CONSTANT, // an integer constant
         NAC, // not a constant
-        ;
-
-        /**
-         * @return true if this kind has higher position than the other kind
-         * in the lattice, otherwise false.
-         */
-        private boolean isHigherThan(Kind other) {
-            return ordinal() < other.ordinal();
-        }
     }
 }

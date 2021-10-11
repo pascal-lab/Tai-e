@@ -21,6 +21,12 @@ import java.util.Map;
 /**
  * Represents data facts of constant propagation, which maps variables
  * to their lattice values.
+ *
+ * Note that in this implementation, we use absence to represent UNDEF,
+ * i.e., if a CPFact does not contain variable-value mapping of a variable,
+ * it represents that the lattice value of the variable is UNDEF;
+ * moreover, if we set the lattice value of a variable to UNDEF,
+ * it effectively removes the variable from the CPFact.
  */
 public class CPFact extends MapFact<Var, Value> {
 
@@ -34,7 +40,7 @@ public class CPFact extends MapFact<Var, Value> {
 
     /**
      * @return the value of given variable in this fact,
-     * or UNDEF if this fact contains no mapping for the variable.
+     * or UNDEF the variable is absent in this fact.
      */
     @Override
     public Value get(Var key) {
@@ -42,17 +48,19 @@ public class CPFact extends MapFact<Var, Value> {
     }
 
     @Override
+    public boolean update(Var key, Value value) {
+        if (value.isUndef()) {
+            // if the client code sets variable key to UNDEF,
+            // then we remove the variable from the CPFact
+            // as we use absence to represent UNDEF.
+            return remove(key) != null;
+        } else {
+            return super.update(key, value);
+        }
+    }
+
+    @Override
     public CPFact copy() {
         return new CPFact(this.map);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int hashCode() {
-        throw new UnsupportedOperationException();
     }
 }

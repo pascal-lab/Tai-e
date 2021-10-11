@@ -7,8 +7,8 @@
 [1@L5] if (b == %intconst0) goto 6; {%intconst0=0, b=NAC}
 [2@L5] goto 3; {%intconst0=0, b=NAC}
 [3@L5] nop; {%intconst0=0, b=NAC}
-[4@L6] x = undef; {%intconst0=0, b=NAC, x=UNDEF}
-[5@L5] goto 8; {%intconst0=0, b=NAC, x=UNDEF}
+[4@L6] x = undef; {%intconst0=0, b=NAC}
+[5@L5] goto 8; {%intconst0=0, b=NAC}
 [6@L5] nop; {%intconst0=0, b=NAC}
 [7@L8] x = 10; {%intconst0=0, b=NAC, x=10}
 [8@L8] nop; {%intconst0=0, b=NAC, x=10}
@@ -16,7 +16,7 @@
 [10@L10] return; {%intconst0=0, b=NAC, x=10, y=10}
 
 -------------------- <BranchUndef: void undefined2(boolean)> (constprop) --------------------
-[0@L15] x = undef; {b=NAC, x=UNDEF}
+[0@L15] x = undef; {b=NAC}
 [1@L16] x = 20; {b=NAC, x=20}
 [2@L17] a = x; {a=20, b=NAC, x=20}
 [3@L17] return; {a=20, b=NAC, x=20}
