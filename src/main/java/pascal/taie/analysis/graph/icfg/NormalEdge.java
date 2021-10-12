@@ -14,6 +14,13 @@ package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.analysis.graph.cfg.Edge;
 
+/**
+ * The edge connecting nodes in the same method.
+ * Note that This kind of edges does not include the edges from call sites
+ * to their return sites, which are represented by {@link CallToReturnEdge}.
+ *
+ * @param <Node> type of nodes
+ */
 public class NormalEdge<Node> extends ICFGEdge<Node> {
 
     /**

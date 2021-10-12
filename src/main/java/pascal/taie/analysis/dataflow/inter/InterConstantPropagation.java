@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+ /**
+  * Implementation of interprocedural constant propagation for int values.
+  */
 public class InterConstantPropagation extends
         AbstractInterDataflowAnalysis<JMethod, Stmt, CPFact> {
 

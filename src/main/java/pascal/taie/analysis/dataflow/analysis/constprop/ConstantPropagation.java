@@ -33,6 +33,9 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
+/**
+ * Implementation of constant propagation for int values.
+ */
 public class ConstantPropagation extends
         AbstractDataflowAnalysis<Stmt, CPFact> {
 
@@ -81,6 +84,7 @@ public class ConstantPropagation extends
 
     /**
      * Meets two Values.
+     * This method computes the greatest lower bound of two Values.
      */
     public Value meetValue(Value v1, Value v2) {
         if (v1.isUndef() && v2.isConstant()) {
@@ -270,6 +274,7 @@ public class ConstantPropagation extends
 
     /**
      * Joins two Values.
+     * This method computes the least upper bound of two Values.
      */
     private Value joinValue(Value v1, Value v2) {
         if (v1.isNAC() && v2.isConstant()) {

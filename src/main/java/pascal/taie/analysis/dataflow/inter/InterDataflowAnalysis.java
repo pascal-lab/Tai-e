@@ -55,6 +55,10 @@ public interface InterDataflowAnalysis<Node, Fact> {
 
     /**
      * Edge Transfer function for this analysis.
+     *
+     * @param edge the ICFG edge that the transfer function is applied on.
+     * @param out  the OUT fact of source node of the edge.
+     * @return the result of edge transfer function.
      */
     Fact transferEdge(ICFGEdge<Node> edge, Fact out);
 }

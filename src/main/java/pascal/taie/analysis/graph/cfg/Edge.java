@@ -18,6 +18,11 @@ import pascal.taie.util.Hashes;
 
 import java.util.stream.Stream;
 
+/**
+ * Represents CFG edges.
+ *
+ * @param <N> type of CFG nodes.
+ */
 public class Edge<N> {
 
     public enum Kind {

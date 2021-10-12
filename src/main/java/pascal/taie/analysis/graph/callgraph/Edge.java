@@ -15,7 +15,7 @@ package pascal.taie.analysis.graph.callgraph;
 import pascal.taie.util.Hashes;
 
 /**
- * Represents call graph edges in the call graph.
+ * Represents call edges in the call graph.
  *
  * @param <CallSite> type of call sites
  * @param <Method>   type of methods

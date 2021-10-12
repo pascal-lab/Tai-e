@@ -12,6 +12,11 @@
 
 package pascal.taie.analysis.graph.icfg;
 
+/**
+ * The edge connecting a call site to method entry of the callee.
+ *
+ * @param <Node> type of nodes
+ */
 public class CallEdge<Node> extends ICFGEdge<Node> {
 
     CallEdge(Node source, Node target) {

@@ -23,6 +23,13 @@ import pascal.taie.analysis.graph.icfg.NormalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.config.AnalysisConfig;
 
+/**
+ * Provides common functionalities for {@link InterDataflowAnalysis} implementations.
+ *
+ * @param <Method> type of ICFG edges
+ * @param <Node>   type of ICFG nodes
+ * @param <Fact>   type of data-flow facts
+ */
 public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         extends InterproceduralAnalysis
         implements InterDataflowAnalysis<Node, Fact> {
@@ -35,6 +42,10 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         super(config);
     }
 
+    /**
+     * Dispatches {@code Node} to specific node transfer functions for
+     * call nodes and non-call nodes.
+     */
     @Override
     public boolean transferNode(Node node, Fact in, Fact out) {
         if (icfg.isCallSite(node)) {
@@ -44,10 +55,20 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         }
     }
 
+    /**
+     * Transfer function for call node.
+     */
     protected abstract boolean transferCallNode(Node node, Fact in, Fact out);
 
+    /**
+     * Transfer function for non-call node.
+     */
     protected abstract boolean transferNonCallNode(Node node, Fact in, Fact out);
 
+    /**
+     * Dispatches {@link ICFGEdge} to specific edge transfer functions
+     * according to the concrete type of {@link ICFGEdge}.
+     */
     @Override
     public Fact transferEdge(ICFGEdge<Node> edge, Fact out) {
         if (edge instanceof NormalEdge) {
@@ -61,6 +82,7 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         }
     }
 
+    // ---------- transfer functions for specific ICFG edges ----------
     protected abstract Fact transferNormalEdge(NormalEdge<Node> edge, Fact out);
 
     protected abstract Fact transferCallToReturnEdge(CallToReturnEdge<Node> edge, Fact out);
@@ -68,6 +90,7 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     protected abstract Fact transferCallEdge(CallEdge<Node> edge, Fact callSiteOut);
 
     protected abstract Fact transferReturnEdge(ReturnEdge<Node> edge, Fact returnOut);
+    // ----------------------------------------------------------------
 
     @Override
     public Object analyze() {

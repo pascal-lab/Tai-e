@@ -14,10 +14,25 @@ package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.util.Hashes;
 
+/**
+ * Abstract class for ICFG edges.
+ *
+ * @param <Node> type of ICFG nodes
+ * @see NormalEdge
+ * @see CallToReturnEdge
+ * @see CallEdge
+ * @see ReturnEdge
+ */
 public abstract class ICFGEdge<Node> {
 
+    /**
+     * The source node of the edge.
+     */
     private final Node source;
 
+    /**
+     * The target node of the edge.
+     */
     private final Node target;
 
     private int hashCode = 0;
@@ -27,16 +42,18 @@ public abstract class ICFGEdge<Node> {
         this.target = target;
     }
 
+    /**
+     * @return the source node of the edge.
+     */
     public Node getSource() {
         return source;
     }
 
+    /**
+     * @return the target node of the edge.
+     */
     public Node getTarget() {
         return target;
-    }
-
-    protected int computeHashCode() {
-        return Hashes.hash(source, target);
     }
 
     @Override
@@ -50,7 +67,7 @@ public abstract class ICFGEdge<Node> {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = computeHashCode();
+            hashCode = Hashes.hash(source, target);
         }
         return hashCode;
     }
