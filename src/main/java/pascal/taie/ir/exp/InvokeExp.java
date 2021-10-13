@@ -23,8 +23,14 @@ import java.util.stream.Collectors;
  */
 public abstract class InvokeExp implements RValue {
 
+    /**
+     * The method reference at the invocation.
+     */
     protected final MethodRef methodRef;
 
+    /**
+     * The arguments of the invocation.
+     */
     protected final List<Var> args;
 
     protected InvokeExp(MethodRef methodRef, List<Var> args) {
@@ -37,18 +43,32 @@ public abstract class InvokeExp implements RValue {
         return methodRef.getReturnType();
     }
 
+    /**
+     * @return the method reference at the invocation.
+     */
     public MethodRef getMethodRef() {
         return methodRef;
     }
 
+    /**
+     * @return the number of the arguments of the invocation.
+     */
     public int getArgCount() {
         return args.size();
     }
 
+    /**
+     * @return the i-th argument of the invocation.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     * (index < 0 || index >= getArgCount())
+     */
     public Var getArg(int i) {
         return args.get(i);
     }
 
+    /**
+     * @return a list of arguments of the invocation.
+     */
     public List<Var> getArgs() {
         return args;
     }

@@ -203,8 +203,7 @@ public class InterConstantPropagation extends
     protected CPFact transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteOut) {
         // Passing arguments at call site to parameters of the callee
         InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
-        Stmt entry = edge.getTarget();
-        JMethod callee = icfg.getContainingMethodOf(entry);
+        JMethod callee = edge.getCallee();
         List<Var> args = invokeExp.getArgs();
         List<Var> params = callee.getIR().getParams();
         CPFact result = newInitialFact();

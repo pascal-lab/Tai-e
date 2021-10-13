@@ -73,7 +73,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         }
                         // Add call edges
                         Stmt entry = getEntryOf(callee);
-                        CallEdge<Stmt> call = new CallEdge<>(stmt, entry);
+                        CallEdge<Stmt> call = new CallEdge<>(stmt, entry, callee);
                         Maps.addToMapSet(outEdges, stmt, call);
                         Maps.addToMapSet(inEdges, entry, call);
                         // Add return edges
