@@ -7,7 +7,8 @@
     exception: explicit
     dump: true
 - id: constprop
-  options: {}
+  options:
+    edge-transfer: false
 - id: process-result
   options:
     analyses:

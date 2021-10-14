@@ -219,7 +219,7 @@ public class ConstantPropagation extends
                 case SHL:
                     return i1 << i2;
                 case SHR:
-                    return i2 >> i2;
+                    return i1 >> i2;
                 case USHR:
                     return i1 >>> i2;
             }
