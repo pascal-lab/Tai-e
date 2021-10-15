@@ -30,7 +30,7 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
     Stream<Method> calleesOf(CallSite callSite);
 
     /**
-     * @return the call sites that can call the given method.
+     * @return the call sites that invoke the given method.
      */
     Stream<CallSite> callersOf(Method callee);
 

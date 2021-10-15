@@ -21,23 +21,53 @@ import java.util.stream.Stream;
  */
 public interface ICFG<Method, Node> extends Graph<Node> {
 
-    Stream<ICFGEdge<Node>> inEdgesOf(Node node);
-
-    Stream<ICFGEdge<Node>> outEdgesOf(Node node);
-
+    /**
+     * @return entry methods of the ICFG.
+     */
     Stream<Method> entryMethods();
 
+    /**
+     * @return the incoming edges of the given node.
+     */
+    Stream<ICFGEdge<Node>> inEdgesOf(Node node);
+
+    /**
+     * @return the outgoing edges of the given node.
+     */
+    Stream<ICFGEdge<Node>> outEdgesOf(Node node);
+
+    /**
+     * @return the methods that are called by the given call site.
+     */
     Stream<Method> calleesOf(Node callSite);
 
-    Node getEntryOf(Method method);
-
-    Stream<Node> callersOf(Method method);
-
-    Node getExitOf(Method method);
-
+    /**
+     * @return the return sites of the given call site.
+     */
     Stream<Node> returnSitesOf(Node callSite);
 
+    /**
+     * @return the entry node of the given method.
+     */
+    Node getEntryOf(Method method);
+
+    /**
+     * @return the exit node of the given method.
+     */
+    Node getExitOf(Method method);
+
+    /**
+     * @return the call sites that invoke the given method.
+     */
+    Stream<Node> callersOf(Method method);
+
+    /**
+     * @return the method that contains the given node.
+     */
     Method getContainingMethodOf(Node node);
 
+    /**
+     * @return true if the given node is a call site, otherwise false.
+     */
     boolean isCallSite(Node node);
 }
