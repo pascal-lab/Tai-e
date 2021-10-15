@@ -24,9 +24,10 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.graph.GraphDumper;
+import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
+import java.util.Map;
 
 public class ICFGBuilder extends InterproceduralAnalysis {
 
@@ -46,12 +47,31 @@ public class ICFGBuilder extends InterproceduralAnalysis {
         CallGraph<Stmt, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
         ICFG<JMethod, Stmt> icfg = new DefaultICFG(callGraph);
         if (isDump) {
-            File outFile = new File(Configs.getOutputDir(), "icfg.dot");
-            logger.info("Dumping call graph to {} ...", outFile);
-            GraphDumper.dumpDotFile(icfg, outFile.getPath(),
-                    stmt -> toString(stmt, icfg));
+            dumpICFG(icfg);
         }
         return icfg;
+    }
+
+    private static void dumpICFG(ICFG<JMethod, Stmt> icfg) {
+        String dotPath = new File(Configs.getOutputDir(), "icfg.dot")
+                .toString();
+        logger.info("Dumping call graph to {} ...", dotPath);
+        new DotDumper<Stmt>()
+                .setNodeToString(n -> toString(n, icfg))
+                .setGlobalNodeAttributes(Map.of("shape", "box",
+                        "style", "filled", "color", "\".3 .2 1.0\""))
+                .setEdgeAttrs(e -> {
+                    if (e instanceof CallEdge) {
+                        return Map.of("style", "dashed", "color", "blue");
+                    } else if (e instanceof ReturnEdge) {
+                        return Map.of("style", "dashed", "color", "red");
+                    } else if (e instanceof CallToReturnEdge) {
+                        return Map.of("style", "dashed");
+                    } else {
+                        return Map.of();
+                    }
+                })
+                .dump(icfg, dotPath);
     }
 
     private static String toString(Stmt stmt, ICFG<JMethod, Stmt> icfg) {

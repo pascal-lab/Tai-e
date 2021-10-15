@@ -35,18 +35,6 @@ public class GraphTest {
         return graph;
     }
 
-    private static <N> void printGraph(Graph<N> graph) {
-        System.out.print("Nodes: ");
-        for (N node : graph) {
-            System.out.print(node + ",");
-        }
-        System.out.println();
-        graph.forEach(node ->
-                graph.succsOf(node).forEach(succ ->
-                        System.out.printf("%s -> %s\n", node, succ)));
-        System.out.println();
-    }
-
     @Test
     public void testSimpleGraph() {
         Graph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
