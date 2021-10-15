@@ -58,10 +58,12 @@ public interface CFG<N> extends Graph<N> {
     /**
      * @return incoming edges of the given node.
      */
+    @Override
     Stream<Edge<N>> inEdgesOf(N node);
 
     /**
      * @return outgoing edges of the given node.
      */
+    @Override
     Stream<Edge<N>> outEdgesOf(N node);
 }

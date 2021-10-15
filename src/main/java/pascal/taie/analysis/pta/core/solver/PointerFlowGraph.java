@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.graph.Edge;
 import pascal.taie.util.graph.Graph;
 
 import java.util.Set;
@@ -41,6 +42,12 @@ public class PointerFlowGraph implements Graph<Pointer> {
         }
     }
 
+    @Override
+    public Stream<? extends Edge<Pointer>> inEdgesOf(Pointer node) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Stream<PointerFlowEdge> outEdgesOf(Pointer pointer) {
         return pointer.outEdges();
     }

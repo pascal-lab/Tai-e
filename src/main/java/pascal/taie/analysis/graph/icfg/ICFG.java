@@ -29,11 +29,13 @@ public interface ICFG<Method, Node> extends Graph<Node> {
     /**
      * @return the incoming edges of the given node.
      */
+    @Override
     Stream<ICFGEdge<Node>> inEdgesOf(Node node);
 
     /**
      * @return the outgoing edges of the given node.
      */
+    @Override
     Stream<ICFGEdge<Node>> outEdgesOf(Node node);
 
     /**
