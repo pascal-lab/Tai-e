@@ -8,38 +8,38 @@ public class InterCPAliasTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/alias";
 
-    static void testInterCP(String inputClass) {
+    private static void test(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "alias-aware:true;pta:cipta", "-a", "cipta", "-a", "cg=algorithm:cipta");
     }
 
     @Test
     public void testSimpleField() {
-        testInterCP("SimpleField");
+        test("SimpleField");
     }
 
     @Test
     public void testMultiLoads() {
-        testInterCP("MultiLoads");
+        test("MultiLoads");
     }
 
     @Test
     public void testMultiStores() {
-        testInterCP("MultiStores");
+        test("MultiStores");
     }
 
     @Test
     public void testMultiObjs() {
-        testInterCP("MultiObjs");
+        test("MultiObjs");
     }
 
     @Test
     public void testInterprocedural() {
-        testInterCP("Interprocedural");
+        test("Interprocedural");
     }
 
     @Test
     public void testInterprocedural2() {
-        testInterCP("Interprocedural2");
+        test("Interprocedural2");
     }
 }
