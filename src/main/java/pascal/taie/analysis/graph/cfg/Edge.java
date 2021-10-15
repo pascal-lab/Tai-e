@@ -15,6 +15,7 @@ package pascal.taie.analysis.graph.cfg;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Hashes;
+import pascal.taie.util.graph.AbstractEdge;
 
 import java.util.stream.Stream;
 
@@ -23,7 +24,7 @@ import java.util.stream.Stream;
  *
  * @param <N> type of CFG nodes.
  */
-public class Edge<N> {
+public class Edge<N> extends AbstractEdge<N> {
 
     public enum Kind {
 
@@ -84,14 +85,9 @@ public class Edge<N> {
 
     private final Kind kind;
 
-    private final N source;
-
-    private final N target;
-
     Edge(Kind kind, N source, N target) {
+        super(source, target);
         this.kind = kind;
-        this.source = source;
-        this.target = target;
     }
 
     /**
@@ -100,20 +96,6 @@ public class Edge<N> {
      */
     public Kind getKind() {
         return kind;
-    }
-
-    /**
-     * @return the source node.
-     */
-    public N getSource() {
-        return source;
-    }
-
-    /**
-     * @return the target node.
-     */
-    public N getTarget() {
-        return target;
     }
 
     /**

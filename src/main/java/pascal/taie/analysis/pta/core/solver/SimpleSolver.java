@@ -168,10 +168,10 @@ public class SimpleSolver extends Solver {
     }
 
     @Override
-    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        if (pointerFlowGraph.addEdge(from, to, kind)) {
-            if (!from.getPointsToSet().isEmpty()) {
-                workList.addPointerEntry(to, from.getPointsToSet());
+    public void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind) {
+        if (pointerFlowGraph.addEdge(source, target, kind)) {
+            if (!source.getPointsToSet().isEmpty()) {
+                workList.addPointerEntry(target, source.getPointsToSet());
             }
         }
     }
@@ -333,7 +333,7 @@ public class SimpleSolver extends Solver {
 
     // ---------- unused APIs ----------
     @Override
-    public void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
+    public void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind) {
         throw new UnsupportedOperationException();
     }
 

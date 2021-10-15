@@ -25,16 +25,16 @@ public class PointerFlowGraph implements Graph<Pointer> {
 
     private final Set<Pointer> pointers = newSet();
 
-    public boolean addEdge(Pointer from, Pointer to,
+    public boolean addEdge(Pointer source, Pointer target,
                            PointerFlowEdge.Kind kind) {
-        return addEdge(from, to, null, kind);
+        return addEdge(source, target, null, kind);
     }
 
-    public boolean addEdge(Pointer from, Pointer to, Type type,
+    public boolean addEdge(Pointer source, Pointer target, Type type,
                            PointerFlowEdge.Kind kind) {
-        if (from.addOutEdge(new PointerFlowEdge(kind, from, to, type))) {
-            pointers.add(from);
-            pointers.add(to);
+        if (source.addOutEdge(new PointerFlowEdge(kind, source, target, type))) {
+            pointers.add(source);
+            pointers.add(target);
             return true;
         } else {
             return false;
@@ -66,7 +66,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
 
     @Override
     public Stream<Pointer> succsOf(Pointer node) {
-        return node.outEdges().map(PointerFlowEdge::getTo);
+        return node.outEdges().map(PointerFlowEdge::getTarget);
     }
 
     @Override

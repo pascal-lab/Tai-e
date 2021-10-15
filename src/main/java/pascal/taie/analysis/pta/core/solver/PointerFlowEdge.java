@@ -15,41 +15,31 @@ package pascal.taie.analysis.pta.core.solver;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
+import pascal.taie.util.graph.AbstractEdge;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class PointerFlowEdge {
+public class PointerFlowEdge extends AbstractEdge<Pointer> {
 
     private final Kind kind;
-    private final Pointer from;
-    private final Pointer to;
 
     /**
-     * Type of "to" node. This type is useful for handling some cases,
+     * Type of "source" node. This type is useful for handling some cases,
      * e.g., type casting and reflective assignment.
      * If this field is null, it means that this PFG edge does not have
-     * type constraint between "from" and "to" nodes.
+     * type constraint between "source" and "target" nodes.
      */
     private final Type type;
 
-    public PointerFlowEdge(Kind kind, Pointer from, Pointer to, Type type) {
+    public PointerFlowEdge(Kind kind, Pointer source, Pointer target, Type type) {
+        super(source, target);
         this.kind = kind;
-        this.from = from;
-        this.to = to;
         this.type = type;
     }
 
     public Kind getKind() {
         return kind;
-    }
-
-    public Pointer getFrom() {
-        return from;
-    }
-
-    public Pointer getTo() {
-        return to;
     }
 
     public Optional<Type> getType() {
@@ -62,19 +52,19 @@ public class PointerFlowEdge {
         if (o == null || getClass() != o.getClass()) return false;
         PointerFlowEdge that = (PointerFlowEdge) o;
         return kind == that.kind &&
-                from.equals(that.from) &&
-                to.equals(that.to) &&
+                source.equals(that.source) &&
+                target.equals(that.target) &&
                 Objects.equals(type, that.type);
     }
 
     @Override
     public int hashCode() {
-        return Hashes.safeHash(kind, from, to, type);
+        return Hashes.safeHash(kind, source, target, type);
     }
 
     @Override
     public String toString() {
-        return "[" + kind + "]" + from + " -> " + to;
+        return "[" + kind + "]" + source + " -> " + target;
     }
 
     public enum Kind {

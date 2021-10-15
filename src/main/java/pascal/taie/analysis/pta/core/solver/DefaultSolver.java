@@ -189,11 +189,11 @@ public class DefaultSolver extends Solver {
         });
         if (!diff.isEmpty()) {
             pointerFlowGraph.outEdgesOf(pointer).forEach(edge -> {
-                Pointer to = edge.getTo();
+                Pointer target = edge.getTarget();
                 edge.getType().ifPresentOrElse(
-                        type -> workList.addPointerEntry(to,
+                        type -> workList.addPointerEntry(target,
                                 getAssignablePointsToSet(diff, type)),
-                        () -> workList.addPointerEntry(to, diff));
+                        () -> workList.addPointerEntry(target, diff));
             });
         }
         return diff;
@@ -251,13 +251,13 @@ public class DefaultSolver extends Solver {
     }
 
     @Override
-    public void addPFGEdge(Pointer from, Pointer to, Type type, PointerFlowEdge.Kind kind) {
-        if (pointerFlowGraph.addEdge(from, to, type, kind)) {
-            PointsToSet fromSet = type == null ?
-                    from.getPointsToSet() :
-                    getAssignablePointsToSet(from.getPointsToSet(), type);
-            if (!fromSet.isEmpty()) {
-                workList.addPointerEntry(to, fromSet);
+    public void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind) {
+        if (pointerFlowGraph.addEdge(source, target, type, kind)) {
+            PointsToSet sourceSet = type == null ?
+                    source.getPointsToSet() :
+                    getAssignablePointsToSet(source.getPointsToSet(), type);
+            if (!sourceSet.isEmpty()) {
+                workList.addPointerEntry(target, sourceSet);
             }
         }
     }

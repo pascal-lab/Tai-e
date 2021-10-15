@@ -195,18 +195,18 @@ public abstract class Solver {
     }
 
     /**
-     * Adds an edge "from -> to" to the PFG.
+     * Adds an edge "source -> target" to the PFG.
      */
-    public void addPFGEdge(Pointer from, Pointer to, PointerFlowEdge.Kind kind) {
-        addPFGEdge(from, to, null, kind);
+    public void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind) {
+        addPFGEdge(source, target, null, kind);
     }
 
     /**
-     * Adds an edge "from -> to" to the PFG.
+     * Adds an edge "source -> target" to the PFG.
      * If type is not null, then we need to filter out assignable objects
-     * in from points-to set.
+     * in source points-to set.
      */
-    public abstract void addPFGEdge(Pointer from, Pointer to, Type type,
+    public abstract void addPFGEdge(Pointer source, Pointer target, Type type,
                                     PointerFlowEdge.Kind kind);
 
     /**
