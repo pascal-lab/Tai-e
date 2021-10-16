@@ -18,15 +18,23 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
+import pascal.taie.ir.IR;
+import pascal.taie.ir.IRPrinter;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.type.Type;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,6 +50,11 @@ public class ClassDumper extends InterproceduralAnalysis {
     private static final String SUFFIX = ".tir";
 
     private static final String INDENT = "    ";
+
+    /**
+     * Whether show line number of statement in the source code.
+     */
+    private static final boolean SHOW_LINE_NUMBER = true;
 
     public ClassDumper(AnalysisConfig config) {
         super(config);
@@ -77,8 +90,11 @@ public class ClassDumper extends InterproceduralAnalysis {
                 dumpClassDeclaration();
                 out.println(" {");
                 out.println();
-                jclass.getDeclaredFields().forEach(this::dumpField);
-                out.println();
+                if (!jclass.getDeclaredFields().isEmpty()) {
+                    jclass.getDeclaredFields().forEach(this::dumpField);
+                    out.println();
+                }
+                jclass.getDeclaredMethods().forEach(this::dumpMethod);
                 out.println("}");
             } catch (FileNotFoundException e) {
                 logger.warn("Failed to dump class {}, caused by {}", jclass, e);
@@ -117,6 +133,74 @@ public class ClassDumper extends InterproceduralAnalysis {
 
         private void dumpModifiers(Set<Modifier> mods) {
             mods.forEach(m -> out.print(m + " "));
+        }
+
+        private void dumpMethod(JMethod method) {
+            out.print(INDENT);
+            dumpMethodDeclaration(method);
+            if (hasIR(method)) {
+                out.println(" {");
+                IR ir = method.getIR();
+                // dump variables
+                dumpVariables(ir);
+                // dump statements
+                ir.forEach(s -> out.printf("%s%s%s%n",
+                        INDENT, INDENT, IRPrinter.toString(s)));
+                out.printf("%s}%n", INDENT);
+            } else {
+                out.println(";");
+            }
+            out.println();
+        }
+
+        private void dumpMethodDeclaration(JMethod method) {
+            dumpModifiers(method.getModifiers());
+            out.printf("%s %s(", method.getReturnType(), method.getName());
+            // dump parameters
+            int paramCount = method.getParamCount();
+            if (paramCount > 0) {
+                IR ir = hasIR(method) ? method.getIR() : null;
+                for (int i = 0; i < paramCount; ++i) {
+                    if (i > 0) {
+                        out.print(' ');
+                    }
+                    out.print(method.getParamType(i));
+                    if (ir != null) {
+                        out.printf(" %s", ir.getParam(i));
+                    }
+                    if (i < paramCount - 1) {
+                        out.print(',');
+                    }
+                }
+            }
+            out.print(')');
+        }
+
+        private static boolean hasIR(JMethod method) {
+            return !method.isAbstract();
+        }
+
+        private void dumpVariables(IR ir) {
+            // group variables by their types;
+            Map<Type, List<Var>> vars = new LinkedHashMap<>();
+            ir.getVars().stream()
+                    .filter(v -> v != ir.getThis() &&
+                            !ir.getParams().contains(v))
+                    .forEach(v ->
+                            vars.computeIfAbsent(
+                                    v.getType(), (unused) -> new ArrayList<>())
+                                    .add(v)
+                    );
+            vars.forEach((t, vs) -> {
+                out.printf("%s%s%s", INDENT, INDENT, t);
+                for (int i = 0; i < vs.size(); ++i) {
+                    out.printf(" %s", vs.get(i));
+                    if (i < vs.size() - 1) {
+                        out.print(',');
+                    }
+                }
+                out.println(";");
+            });
         }
     }
 }
