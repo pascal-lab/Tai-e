@@ -18,6 +18,7 @@
 <B: void bar()>[1@L18] invokespecial temp$0.<C: void <init>()>(); -> [<C: void <init>()>]
 <B: void bar()>[3@L19] invokevirtual c.<C: void baz()>(); -> [<C: void baz()>]
 <C: void <init>()>[0@L23] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
-<C: void baz()>[1@L25] invokestatic <Recursion: void main(java.lang.String[])>(%nullconst); -> [<Recursion: void main(java.lang.String[])>]
+<C: void baz()>[0@L25] invokestatic <Recursion: void main(java.lang.String[])>(%nullconst); -> [<Recursion: void main(java.lang.String[])>]
 <Recursion: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<A: void <init>()>(); -> [<A: void <init>()>]
 <Recursion: void main(java.lang.String[])>[3@L5] invokevirtual a.<A: void foo()>(); -> [<A: void foo()>]
+----------------------------------------

@@ -70,7 +70,7 @@ public class IRPrinter {
                     indy.getMethodName(), indy.getMethodType(),
                     indy.getBootstrapArgs().stream()
                             .map(Literal::toString)
-                            .collect(Collectors.joining(",")),
+                            .collect(Collectors.joining(", ")),
                     indy.getArgsString());
         } else {
             if (ie instanceof InvokeInstanceExp) {

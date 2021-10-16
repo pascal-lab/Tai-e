@@ -18,3 +18,4 @@
 <SpecialCall: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<A: void <init>()>(); -> [<A: void <init>()>]
 <SpecialCall: void main(java.lang.String[])>[4@L5] invokespecial temp$1.<C: void <init>()>(); -> [<C: void <init>()>]
 <SpecialCall: void main(java.lang.String[])>[7@L6] invokespecial temp$2.<A: void <init>(B)>(b); -> [<A: void <init>(B)>]
+----------------------------------------

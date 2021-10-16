@@ -20,3 +20,4 @@
 <Interface2: void main(java.lang.String[])>[5@L16] invokespecial temp$1.<E: void <init>()>(); -> [<E: void <init>()>]
 <Interface2: void main(java.lang.String[])>[7@L17] invokeinterface ii.<II: void foo()>(); -> [<E: void foo()>]
 <Interface2: void main(java.lang.String[])>[8@L18] invokeinterface ii.<II: void bar()>(); -> [<E: void bar()>]
+----------------------------------------

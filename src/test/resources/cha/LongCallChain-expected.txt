@@ -26,3 +26,4 @@
 <LongCallChain: void foo()>[0@L8] invokestatic <LongCallChain: void bar1()>(); -> [<LongCallChain: void bar1()>]
 <LongCallChain: void foo()>[1@L9] invokestatic <LongCallChain: void bar2()>(); -> [<LongCallChain: void bar2()>]
 <LongCallChain: void main(java.lang.String[])>[0@L4] invokestatic <LongCallChain: void foo()>(); -> [<LongCallChain: void foo()>]
+----------------------------------------

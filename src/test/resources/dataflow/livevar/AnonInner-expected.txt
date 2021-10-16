@@ -25,3 +25,4 @@
 [4@L17] temp$2 = invokeinterface temp$1.<Adder: int add(int)>(%intconst1); [temp$0, temp$2]
 [5@L17] invokevirtual temp$0.<java.io.PrintStream: void println(int)>(temp$2); []
 [6@L17] return; []
+

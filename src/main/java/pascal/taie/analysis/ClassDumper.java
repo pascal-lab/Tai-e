@@ -25,6 +25,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 
 import java.io.File;
@@ -50,11 +51,6 @@ public class ClassDumper extends InterproceduralAnalysis {
     private static final String SUFFIX = ".tir";
 
     private static final String INDENT = "    ";
-
-    /**
-     * Whether show line number of statement in the source code.
-     */
-    private static final boolean SHOW_LINE_NUMBER = true;
 
     public ClassDumper(AnalysisConfig config) {
         super(config);
@@ -128,7 +124,6 @@ public class ClassDumper extends InterproceduralAnalysis {
             out.print(INDENT);
             dumpModifiers(field.getModifiers());
             out.printf("%s %s;%n", field.getType().getName(), field.getName());
-            // TODO: handle field initialization (constant expression)
         }
 
         private void dumpModifiers(Set<Modifier> mods) {
@@ -157,20 +152,19 @@ public class ClassDumper extends InterproceduralAnalysis {
             dumpModifiers(method.getModifiers());
             out.printf("%s %s(", method.getReturnType(), method.getName());
             // dump parameters
-            int paramCount = method.getParamCount();
-            if (paramCount > 0) {
-                IR ir = hasIR(method) ? method.getIR() : null;
-                for (int i = 0; i < paramCount; ++i) {
-                    if (i > 0) {
-                        out.print(' ');
-                    }
-                    out.print(method.getParamType(i));
-                    if (ir != null) {
-                        out.printf(" %s", ir.getParam(i));
-                    }
-                    if (i < paramCount - 1) {
-                        out.print(',');
-                    }
+            if (method.getParamCount() > 0) {
+                if (hasIR(method)) {
+                    // if the method has IR, then dump parameter names
+                    IR ir = method.getIR();
+                    out.print(ir.getParams()
+                            .stream()
+                            .map(p -> p.getType().getName() + " " + p.getName())
+                            .collect(Collectors.joining(", ")));
+                } else {
+                    out.print(method.getParamTypes()
+                            .stream()
+                            .map(Type::getName)
+                            .collect(Collectors.joining(", ")));
                 }
             }
             out.print(')');
@@ -184,21 +178,19 @@ public class ClassDumper extends InterproceduralAnalysis {
             // group variables by their types;
             Map<Type, List<Var>> vars = new LinkedHashMap<>();
             ir.getVars().stream()
-                    .filter(v -> v != ir.getThis() &&
-                            !ir.getParams().contains(v))
+                    .filter(v -> v != ir.getThis())
+                    .filter(v -> !ir.getParams().contains(v))
+                    .filter(v -> !v.getType().equals(NullType.NULL))
                     .forEach(v ->
                             vars.computeIfAbsent(
                                     v.getType(), (unused) -> new ArrayList<>())
                                     .add(v)
                     );
             vars.forEach((t, vs) -> {
-                out.printf("%s%s%s", INDENT, INDENT, t);
-                for (int i = 0; i < vs.size(); ++i) {
-                    out.printf(" %s", vs.get(i));
-                    if (i < vs.size() - 1) {
-                        out.print(',');
-                    }
-                }
+                out.printf("%s%s%s ", INDENT, INDENT, t);
+                out.print(vs.stream()
+                        .map(Var::getName)
+                        .collect(Collectors.joining(", ")));
                 out.println(";");
             });
         }

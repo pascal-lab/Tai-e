@@ -18,3 +18,4 @@
 [12@L5] goto 2; [arr, i, result]
 [13@L5] nop; [result]
 [14@L8] return result; []
+

@@ -9,7 +9,7 @@
 [3@L5] %intconst0 = 0; [%intconst0, a, aux, temp$1]
 [4@L5] %intconst1 = 1; [%intconst0, %intconst1, a, aux, temp$1]
 [5@L5] temp$2 = temp$1 - %intconst1; [%intconst0, a, aux, temp$2]
-[6@L5] invokestatic <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)>(a,aux,%intconst0,temp$2); []
+[6@L5] invokestatic <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)>(a, aux, %intconst0, temp$2); []
 [7@L5] return; []
 
 -------------------- <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)> (livevar) --------------------
@@ -22,11 +22,11 @@
 [6@L11] %intconst0 = 2; [%intconst0, a, aux, hi, lo, temp$1]
 [7@L11] temp$2 = temp$1 / %intconst0; [a, aux, hi, lo, temp$2]
 [8@L11] mid = lo + temp$2; [a, aux, hi, lo, mid]
-[9@L12] invokestatic <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)>(a,aux,lo,mid); [a, aux, hi, lo, mid]
+[9@L12] invokestatic <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)>(a, aux, lo, mid); [a, aux, hi, lo, mid]
 [10@L13] %intconst1 = 1; [%intconst1, a, aux, hi, lo, mid]
 [11@L13] temp$4 = mid + %intconst1; [a, aux, hi, lo, mid, temp$4]
-[12@L13] invokestatic <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)>(a,aux,temp$4,hi); [a, aux, hi, lo, mid]
-[13@L14] invokestatic <Sort: void merge(java.lang.Comparable[],java.lang.Comparable[],int,int,int)>(a,aux,lo,mid,hi); []
+[12@L13] invokestatic <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)>(a, aux, temp$4, hi); [a, aux, hi, lo, mid]
+[13@L14] invokestatic <Sort: void merge(java.lang.Comparable[],java.lang.Comparable[],int,int,int)>(a, aux, lo, mid, hi); []
 [14@L14] return; []
 
 -------------------- <Sort: void merge(java.lang.Comparable[],java.lang.Comparable[],int,int,int)> (livevar) --------------------
@@ -69,7 +69,7 @@
 [36@L25] nop; [%intconst0, a, aux, hi, i, j, k, mid]
 [37@L27] temp$24 = aux[j]; [%intconst0, a, aux, hi, i, j, k, mid, temp$24]
 [38@L27] temp$27 = aux[i]; [%intconst0, a, aux, hi, i, j, k, mid, temp$24, temp$27]
-[39@L27] temp$28 = invokestatic <Sort: boolean less(java.lang.Comparable,java.lang.Comparable)>(temp$24,temp$27); [%intconst0, a, aux, hi, i, j, k, mid, temp$28]
+[39@L27] temp$28 = invokestatic <Sort: boolean less(java.lang.Comparable,java.lang.Comparable)>(temp$24, temp$27); [%intconst0, a, aux, hi, i, j, k, mid, temp$28]
 [40@L27] %intconst1 = 0; [%intconst0, %intconst1, a, aux, hi, i, j, k, mid, temp$28]
 [41@L27] if (temp$28 == %intconst1) goto 49; [%intconst0, a, aux, hi, i, j, k, mid]
 [42@L27] goto 43; [%intconst0, a, aux, hi, i, j, k, mid]

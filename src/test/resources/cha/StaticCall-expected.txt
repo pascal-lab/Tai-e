@@ -13,3 +13,4 @@
 <StaticCall: void foo()>[0@L9] invokestatic <StaticCall: void bar()>(); -> [<StaticCall: void bar()>]
 <StaticCall: void main(java.lang.String[])>[0@L4] invokestatic <StaticCall: void foo()>(); -> [<StaticCall: void foo()>]
 <StaticCall: void main(java.lang.String[])>[1@L5] invokestatic <A: void baz()>(); -> [<A: void baz()>]
+----------------------------------------

@@ -12,3 +12,4 @@
 <AbstractMethod: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<B: void <init>()>(); -> [<B: void <init>()>]
 <AbstractMethod: void main(java.lang.String[])>[3@L5] invokevirtual a.<A: void foo()>(); -> [<B: void foo()>]
 <B: void <init>()>[0@L13] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
+----------------------------------------

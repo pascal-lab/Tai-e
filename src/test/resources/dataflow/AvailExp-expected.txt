@@ -23,9 +23,9 @@
 [17@L18] c = r; [(long) a, a, a + b, b, r, temp$4]
 [18@L18] nop; [(long) a, a, a + b, b]
 [19@L20] r = p; [(long) a, a, a + b, b, p]
-[20@L21] invokevirtual %this.<AvailExp: void use(int,int,int)>(a,b,c); [(long) a, a, a + b, b, p]
+[20@L21] invokevirtual %this.<AvailExp: void use(int,int,int)>(a, b, c); [(long) a, a, a + b, b, p]
 [21@L22] temp$8 = (int) l; [(int) l, (long) a, a, a + b, b, p]
-[22@L22] invokevirtual %this.<AvailExp: void use(int,int,int)>(temp$8,r,q); [(int) l, (long) a, a, a + b, b, p]
+[22@L22] invokevirtual %this.<AvailExp: void use(int,int,int)>(temp$8, r, q); [(int) l, (long) a, a, a + b, b, p]
 [23@L22] temp$10 = r + q; [(int) l, (long) a, a, a + b, b, p, r + q]
 [24@L23] return temp$10; [(int) l, (long) a, a, a + b, b, p, r + q]
 

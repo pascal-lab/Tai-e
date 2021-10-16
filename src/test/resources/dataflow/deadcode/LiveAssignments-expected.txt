@@ -1,2 +1,6 @@
--------------------- <java.util.TimeZone: int getOffsets(long,int[])> (deadcode) --------------------
+-------------------- <LiveAssignments: void <init>()> (deadcode) --------------------
+
+-------------------- <LiveAssignments: void foo(int[],LiveAssignments$C)> (deadcode) --------------------
+
+-------------------- <LiveAssignments$C: void <init>()> (deadcode) --------------------
 

@@ -14,3 +14,4 @@
 <B: void <init>()>[0@L14] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
 <VirtualCall: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<B: void <init>()>(); -> [<B: void <init>()>]
 <VirtualCall: void main(java.lang.String[])>[3@L5] invokevirtual b.<B: void foo()>(); -> [<A: void foo()>, <C: void foo()>, <D: void foo()>]
+----------------------------------------

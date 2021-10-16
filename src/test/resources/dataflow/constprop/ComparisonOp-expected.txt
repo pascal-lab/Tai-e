@@ -55,25 +55,24 @@
 [23@L28] return temp$6; {%intconst0=0, temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$6=0}
 
 -------------------- <ComparisonOp: int acmp(java.lang.Object,java.lang.Object)> (constprop) --------------------
-[0@L32] %nullconst = null; {}
-[1@L32] if (o1 == %nullconst) goto 3; {}
-[2@L32] goto 6; {}
-[3@L32] nop; {}
-[4@L32] temp$0 = 0; {temp$0=0}
-[5@L33] return temp$0; {temp$0=0}
-[6@L33] nop; {}
-[7@L35] if (o1 == o2) goto 9; {}
-[8@L35] goto 12; {}
-[9@L35] nop; {}
-[10@L35] temp$1 = 1; {temp$1=1}
-[11@L36] return temp$1; {temp$1=1}
-[12@L36] nop; {}
-[13@L38] if (o1 != o2) goto 15; {}
-[14@L38] goto 18; {}
-[15@L38] nop; {}
-[16@L38] temp$2 = -1; {temp$2=-1}
-[17@L39] return temp$2; {temp$2=-1}
-[18@L39] nop; {}
-[19@L39] temp$3 = 666; {temp$3=666}
-[20@L41] return temp$3; {temp$3=666}
+[0@L32] if (o1 == %nullconst) goto 2; {}
+[1@L32] goto 5; {}
+[2@L32] nop; {}
+[3@L32] temp$0 = 0; {temp$0=0}
+[4@L33] return temp$0; {temp$0=0}
+[5@L33] nop; {}
+[6@L35] if (o1 == o2) goto 8; {}
+[7@L35] goto 11; {}
+[8@L35] nop; {}
+[9@L35] temp$1 = 1; {temp$1=1}
+[10@L36] return temp$1; {temp$1=1}
+[11@L36] nop; {}
+[12@L38] if (o1 != o2) goto 14; {}
+[13@L38] goto 17; {}
+[14@L38] nop; {}
+[15@L38] temp$2 = -1; {temp$2=-1}
+[16@L39] return temp$2; {temp$2=-1}
+[17@L39] nop; {}
+[18@L39] temp$3 = 666; {temp$3=666}
+[19@L41] return temp$3; {temp$3=666}
 

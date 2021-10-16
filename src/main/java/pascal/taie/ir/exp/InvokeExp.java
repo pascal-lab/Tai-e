@@ -78,7 +78,7 @@ public abstract class InvokeExp implements RValue {
     public String getArgsString() {
         return "(" + args.stream()
                 .map(Var::toString)
-                .collect(Collectors.joining(",")) + ")";
+                .collect(Collectors.joining(", ")) + ")";
     }
 
     @Override
