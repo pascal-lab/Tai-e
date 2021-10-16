@@ -19,6 +19,7 @@ import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.Modifier;
 
 import java.io.File;
@@ -74,7 +75,11 @@ public class ClassDumper extends InterproceduralAnalysis {
                     new File(Configs.getOutputDir(), fileName)))) {
                 this.out = out;
                 dumpClassDeclaration();
-
+                out.println(" {");
+                out.println();
+                jclass.getDeclaredFields().forEach(this::dumpField);
+                out.println();
+                out.println("}");
             } catch (FileNotFoundException e) {
                 logger.warn("Failed to dump class {}, caused by {}", jclass, e);
             }
@@ -101,6 +106,13 @@ public class ClassDumper extends InterproceduralAnalysis {
                 out.print(" extends ");
                 out.print(superClass.getName());
             }
+        }
+
+        private void dumpField(JField field) {
+            out.print(INDENT);
+            dumpModifiers(field.getModifiers());
+            out.printf("%s %s;%n", field.getType().getName(), field.getName());
+            // TODO: handle field initialization (constant expression)
         }
 
         private void dumpModifiers(Set<Modifier> mods) {
