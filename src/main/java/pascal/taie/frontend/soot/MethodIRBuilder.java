@@ -614,7 +614,10 @@ class MethodIRBuilder extends AbstractStmtSwitch {
             Literal rvalue = (Literal) constantConverter.getResult();
             return constantVars.computeIfAbsent(rvalue, v -> {
                 Var lvalue = varManager.newConstantVar(v);
-                addTempStmt(new AssignLiteral(lvalue, v));
+                if (!(rvalue instanceof NullLiteral)) {
+                    // add temp assignment for non-null variable
+                    addTempStmt(new AssignLiteral(lvalue, v));
+                }
                 return lvalue;
             });
         }
