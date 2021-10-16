@@ -118,6 +118,13 @@ public class ClassDumper extends InterproceduralAnalysis {
                 out.print(" extends ");
                 out.print(superClass.getName());
             }
+            if (!jclass.getInterfaces().isEmpty()) {
+                out.print(" implements ");
+                out.print(jclass.getInterfaces()
+                        .stream()
+                        .map(JClass::getName)
+                        .collect(Collectors.joining(", ")));
+            }
         }
 
         private void dumpField(JField field) {
