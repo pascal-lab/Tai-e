@@ -123,8 +123,8 @@ public class DotDumper<N> {
             // dump ends
             out.println("}");
         } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump graph to " + filePath +
-                    ", caused by  " + e);
+            logger.warn("Failed to dump graph to {}, caused by {}",
+                    filePath, e);
         }
     }
 

@@ -105,3 +105,7 @@
     action: dump # | compare
     file: null
     log-mismatches: false # | whether log mismatched items
+
+- description: dump classes
+  analysisClass: pascal.taie.analysis.ClassDumper
+  id: class-dumper
