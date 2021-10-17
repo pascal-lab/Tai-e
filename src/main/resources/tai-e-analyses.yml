@@ -107,5 +107,5 @@
     log-mismatches: false # | whether log mismatched items
 
 - description: dump classes
-  analysisClass: pascal.taie.analysis.ClassDumper
+  analysisClass: pascal.taie.analysis.misc.ClassDumper
   id: class-dumper

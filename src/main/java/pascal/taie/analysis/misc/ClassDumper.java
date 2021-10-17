@@ -11,11 +11,12 @@
  * commercial use is disallowed.
  */
 
-package pascal.taie.analysis;
+package pascal.taie.analysis.misc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.IR;
@@ -101,7 +102,7 @@ public class ClassDumper extends InterproceduralAnalysis {
             // dump class modifiers
             jclass.getModifiers()
                     .stream()
-                    // if jclass is an interface, then don't dump modifieres
+                    // if jclass is an interface, then don't dump modifiers
                     // "interface" and "abstract"
                     .filter(m -> !jclass.isInterface() ||
                             (m != Modifier.INTERFACE && m != Modifier.ABSTRACT))
