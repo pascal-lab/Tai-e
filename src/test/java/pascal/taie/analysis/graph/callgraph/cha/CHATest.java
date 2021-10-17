@@ -36,4 +36,24 @@ public class CHATest {
     public void testInterface() {
         Tests.testCHA("Interface");
     }
+
+    @Test
+    public void testInterface2() {
+        Tests.testCHA("Interface2");
+    }
+
+    @Test
+    public void testAbstractMethod() {
+        Tests.testCHA("AbstractMethod");
+    }
+
+    @Test
+    public void testRecursion() {
+        Tests.testCHA("Recursion");
+    }
+
+    @Test
+    public void testLongCallChain() {
+        Tests.testCHA("LongCallChain");
+    }
 }

@@ -127,7 +127,7 @@ public class MapFact<K, V> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MapFact)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         MapFact<?, ?> that = (MapFact<?, ?>) o;

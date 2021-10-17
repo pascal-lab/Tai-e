@@ -55,7 +55,7 @@ public class ICFGBuilder extends InterproceduralAnalysis {
     private static void dumpICFG(ICFG<JMethod, Stmt> icfg) {
         String dotPath = new File(Configs.getOutputDir(), "icfg.dot")
                 .toString();
-        logger.info("Dumping call graph to {} ...", dotPath);
+        logger.info("Dumping ICFG to {} ...", dotPath);
         new DotDumper<Stmt>()
                 .setNodeToString(n -> toString(n, icfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",

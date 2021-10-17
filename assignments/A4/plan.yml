@@ -1,0 +1,27 @@
+- id: cg
+  options:
+    algorithm: cha
+    action: dump
+    file: null
+- id: throw
+  options:
+    exception: explicit
+    algorithm: intra
+- id: cfg
+  options:
+    exception: explicit
+    dump: false
+- id: icfg
+  options:
+    dump: true
+- id: inter-constprop
+  options:
+    alias-aware: false
+    pta: null
+- id: process-result
+  options:
+    analyses:
+      - inter-constprop
+    action: dump
+    file: null
+    log-mismatches: false
