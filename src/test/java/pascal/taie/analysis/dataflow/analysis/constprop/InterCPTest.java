@@ -22,7 +22,10 @@ public class InterCPTest {
 
     private static void test(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
-                "alias-aware:false", "-a", "cg=algorithm:cha");
+                "alias-aware:false", "-a", "cg=algorithm:cha"
+                // , "-a", "icfg=dump:true" // <-- uncomment this code if you want
+                                            // to output ICFGs for the test cases
+        );
     }
 
     @Test
@@ -33,5 +36,10 @@ public class InterCPTest {
     @Test
     public void testArgRet() {
         test("ArgRet");
+    }
+
+    @Test
+    public void testCall() {
+        test("Call");
     }
 }

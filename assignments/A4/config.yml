@@ -14,6 +14,7 @@ sourceFiles:
   - pascal.taie.ir.IR
   - pascal.taie.ir.stmt.Stmt
   - pascal.taie.ir.stmt.DefinitionStmt
+  - pascal.taie.ir.stmt.Invoke
   - pascal.taie.ir.exp.Exp
   - pascal.taie.ir.exp.Var
   - pascal.taie.ir.exp.IntLiteral
@@ -25,6 +26,12 @@ sourceFiles:
   - pascal.taie.ir.exp.InvokeExp
   - pascal.taie.ir.proginfo.MethodRef
   - pascal.taie.analysis.graph.cfg.CFG
+  - pascal.taie.analysis.graph.icfg.ICFG
+  - pascal.taie.analysis.graph.icfg.CallEdge
+  - pascal.taie.analysis.graph.icfg.CallToReturnEdge
+  - pascal.taie.analysis.graph.icfg.ICFGEdge
+  - pascal.taie.analysis.graph.icfg.NormalEdge
+  - pascal.taie.analysis.graph.icfg.ReturnEdge
   - pascal.taie.util.graph.Graph
   - pascal.taie.analysis.dataflow.analysis.DataflowAnalysis
   - pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis
@@ -33,7 +40,6 @@ sourceFiles:
   - pascal.taie.analysis.dataflow.fact.MapFact
   - pascal.taie.analysis.dataflow.analysis.constprop.CPFact
   - pascal.taie.analysis.dataflow.analysis.constprop.Value
-  - pascal.taie.analysis.dataflow.analysis.ResultProcessor
   - pascal.taie.analysis.dataflow.inter.AbstractInterDataflowAnalysis
   - pascal.taie.analysis.dataflow.inter.InterDataflowAnalysis
   - pascal.taie.analysis.graph.callgraph.AbstractCallGraph
@@ -48,15 +54,16 @@ overwrittenFiles:
   - pascal.taie.analysis.dataflow.inter.InterConstantPropagation
   - pascal.taie.analysis.dataflow.inter.InterSolver
   - pascal.taie.analysis.graph.callgraph.CHABuilder
-  # complete
   - pascal.taie.analysis.dataflow.solver.Solver
   - pascal.taie.analysis.dataflow.solver.WorkListSolver
+  # complete
   - pascal.taie.Assignment
     # remove dispatch, all subclasses
   - pascal.taie.language.classes.ClassHierarchy
   - pascal.taie.language.classes.ClassHierarchyImpl
   - pascal.taie.analysis.graph.callgraph.CallGraphBuilder # remove PTABuilder
   - pascal.taie.analysis.graph.callgraph.CallGraphs # remove resolveCallee
+  - pascal.taie.analysis.dataflow.analysis.ResultProcessor # handle empty call graph
 testClasses:
   - pascal.taie.analysis.Tests
   - pascal.taie.analysis.graph.callgraph.cha.CHATest
@@ -72,3 +79,4 @@ testResources:
   - cha/Interface2.java
   - dataflow/constprop/inter/Example.java
   - dataflow/constprop/inter/ArgRet.java
+  - dataflow/constprop/inter/Call.java

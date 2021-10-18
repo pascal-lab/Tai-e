@@ -28,6 +28,7 @@ import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ICFGBuilder extends InterproceduralAnalysis {
 
@@ -53,7 +54,10 @@ public class ICFGBuilder extends InterproceduralAnalysis {
     }
 
     private static void dumpICFG(ICFG<JMethod, Stmt> icfg) {
-        String dotPath = new File(Configs.getOutputDir(), "icfg.dot")
+        String dotPath = new File(Configs.getOutputDir(),
+                icfg.entryMethods()
+                        .map(m -> m.getDeclaringClass() + "." + m.getName())
+                        .collect(Collectors.joining("-")) + "-icfg.dot")
                 .toString();
         logger.info("Dumping ICFG to {} ...", dotPath);
         new DotDumper<Stmt>()
