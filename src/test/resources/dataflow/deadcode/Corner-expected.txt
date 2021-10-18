@@ -1,0 +1,12 @@
+-------------------- <Corner: void <init>()> (deadcode) --------------------
+
+-------------------- <Corner: int sideEffectAssignment()> (deadcode) --------------------
+[0@L3] x = 1;
+[3@L5] x = temp$0;
+
+-------------------- <Corner: int invoke()> (deadcode) --------------------
+[0@L10] x = 1;
+[3@L12] x = temp$0;
+
+-------------------- <Corner: int foo(int)> (deadcode) --------------------
+

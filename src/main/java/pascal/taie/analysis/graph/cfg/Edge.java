@@ -113,9 +113,10 @@ public class Edge<N> extends AbstractEdge<N> {
      * @throws AnalysisException if this edge is not a switch-case edge.
      */
     public int getCaseValue() {
-        // SwitchEdge overrides this method, thus this method
+        // SwitchCaseEdge overrides this method, thus this method
         // should NOT be reachable
-        throw new AnalysisException(this + " is not a switch-case edge");
+        throw new AnalysisException(this + " is not a switch-case edge," +
+                " please call isSwitchCase() before calling this method");
     }
 
     /**

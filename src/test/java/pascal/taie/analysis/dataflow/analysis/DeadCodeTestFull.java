@@ -65,4 +65,24 @@ public class DeadCodeTestFull {
     public void testNotDead() {
         DeadCodeTest.testDCD("NotDead");
     }
+
+    @Test
+    public void testCorner() {
+        DeadCodeTest.testDCD("Corner");
+    }
+
+    @Test
+    public void testAllReachableIfBranch() {
+        DeadCodeTest.testDCD("AllReachableIfBranch");
+    }
+
+    @Test
+    public void testForLoops() {
+        DeadCodeTest.testDCD("ForLoops");
+    }
+
+    @Test
+    public void testPotentialDeadCode() {
+        DeadCodeTest.testDCD("PotentialDeadCode");
+    }
 }

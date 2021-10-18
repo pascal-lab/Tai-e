@@ -49,12 +49,7 @@ testClasses:
   - pascal.taie.analysis.dataflow.analysis.DeadCodeTest
 testResources:
   - dataflow/deadcode/ControlFlowUnreachable.java
-  - dataflow/deadcode/ControlFlowUnreachable2.java
   - dataflow/deadcode/UnreachableIfBranch.java
   - dataflow/deadcode/UnreachableSwitchBranch.java
   - dataflow/deadcode/DeadAssignment.java
-  - dataflow/deadcode/DeadAssignment2.java
-  - dataflow/deadcode/LiveAssignments.java
-  - dataflow/deadcode/MixedDeadCode.java
   - dataflow/deadcode/Loops.java
-  - dataflow/deadcode/NotDead.java
