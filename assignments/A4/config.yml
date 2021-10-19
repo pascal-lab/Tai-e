@@ -1,5 +1,5 @@
-name: A2
-packageName: Assignment-2-constant-propagation-worklist-solver.zip
+name: A4
+packageName: Assignment-4-cha-interprocedural-constant-propagation.zip
 exclude:
   - pascal.taie.analysis.graph.callgraph.*
   - pascal.taie.analysis.pta.*
