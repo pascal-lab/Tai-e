@@ -15,6 +15,7 @@ package pascal.taie.language.classes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.util.AnalysisException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -151,9 +152,28 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return directSubclasses.getOrDefault(jclass, Set.of());
     }
 
+    private static boolean checkCHA = false;
+
+    public static void setCheckCHA(boolean checkCHA) {
+        ClassHierarchyImpl.checkCHA = checkCHA;
+    }
+
+    private static void checkCHA() {
+        if (checkCHA) {
+            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+            for (StackTraceElement e : stack) {
+                if (e.getClassName().equals("pascal.taie.analysis.graph.callgraph.CHABuilder")) {
+                    throw new AnalysisException("You are NOT allowed to use" +
+                            " ClassHierarchyImpl.resolveMethod(MethodRef) in this assignment ╮(╯▽╰)╭");
+                }
+            }
+        }
+    }
+
     @Override
     public @Nullable
     JMethod resolveMethod(MethodRef methodRef) {
+        checkCHA();
         JClass declaringClass = methodRef.getDeclaringClass();
         JMethod method = lookupMethod(declaringClass,
                 methodRef.getSubsignature(), true);

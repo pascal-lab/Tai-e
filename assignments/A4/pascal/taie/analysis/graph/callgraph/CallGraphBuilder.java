@@ -16,6 +16,7 @@ import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
@@ -39,7 +40,9 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
         } else {
             throw new ConfigException("Unknown call graph building algorithm: " + algorithm);
         }
+        ClassHierarchyImpl.setCheckCHA(true);
         CallGraph<Invoke, JMethod> callGraph = builder.build();
+        ClassHierarchyImpl.setCheckCHA(false);
         takeAction(callGraph);
         return callGraph;
     }
