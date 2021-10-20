@@ -70,69 +70,19 @@ public class ResultProcessor extends InterproceduralAnalysis {
     public ResultProcessor(AnalysisConfig config) {
         super(config);
         action = getOptions().getString("action");
+    }
+
+    @Override
+    public Object analyze() {
+        // initialization
         switch (action) {
             case "dump":
-                setupOut();
+                setOutput();
                 break;
             case "compare":
                 readInputs();
                 break;
         }
-    }
-
-    private void setupOut() {
-        String output = getOptions().getString("file");
-        if (output != null) {
-            try {
-                out = new PrintStream(output);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Failed to open output file", e);
-            }
-        } else {
-            out = System.out;
-        }
-    }
-
-    private void readInputs() {
-        String action = getOptions().getString("action");
-        if (action.equals("compare")) {
-            String input = getOptions().getString("file");
-            Path path = Path.of(input);
-            try {
-                inputs = Maps.newMap();
-                BufferedReader reader = Files.newBufferedReader(path);
-                String line;
-                Pair<String, String> currentKey = null;
-                while ((line = reader.readLine()) != null) {
-                    Pair<String, String> key = extractKey(line);
-                    if (key != null) {
-                        currentKey = key;
-                    } else if (!line.isBlank()) {
-                        Maps.addToMapSet(inputs, currentKey, line);
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to read input file", e);
-            }
-        }
-    }
-
-    private static Pair<String, String> extractKey(String line) {
-        if (line.startsWith("----------") && line.endsWith("----------")) {
-            int ms = line.indexOf('<'); // method start
-            int me = line.indexOf("> "); // method end
-            String method = line.substring(ms, me + 1);
-            int as = line.lastIndexOf('('); // analysis start
-            int ae = line.lastIndexOf(')'); // analysis end
-            String analysis = line.substring(as + 1, ae);
-            return new Pair<>(method, analysis);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public Object analyze() {
         mismatches = new LinkedHashSet<>();
         // Classify given analysis IDs into two groups, one for inter-procedural
         // and the another one for intra-procedural analysis.
@@ -151,7 +101,59 @@ public class ResultProcessor extends InterproceduralAnalysis {
         if (getOptions().getBoolean("log-mismatches")) {
             mismatches.forEach(logger::info);
         }
+        // close out stream
+        if (action.equals("dump") && out != System.out) {
+            out.close();
+        }
         return mismatches;
+    }
+
+    private void setOutput() {
+        String output = getOptions().getString("file");
+        if (output != null) {
+            try {
+                out = new PrintStream(output);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open output file", e);
+            }
+        } else {
+            out = System.out;
+        }
+    }
+
+    private void readInputs() {
+        String input = getOptions().getString("file");
+        Path path = Path.of(input);
+        try {
+            inputs = Maps.newMap();
+            BufferedReader reader = Files.newBufferedReader(path);
+            String line;
+            Pair<String, String> currentKey = null;
+            while ((line = reader.readLine()) != null) {
+                Pair<String, String> key = extractKey(line);
+                if (key != null) {
+                    currentKey = key;
+                } else if (!line.isBlank()) {
+                    Maps.addToMapSet(inputs, currentKey, line);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read input file", e);
+        }
+    }
+
+    private static Pair<String, String> extractKey(String line) {
+        if (line.startsWith("----------") && line.endsWith("----------")) {
+            int ms = line.indexOf('<'); // method start
+            int me = line.indexOf("> "); // method end
+            String method = line.substring(ms, me + 1);
+            int as = line.lastIndexOf('('); // analysis start
+            int ae = line.lastIndexOf(')'); // analysis end
+            String analysis = line.substring(as + 1, ae);
+            return new Pair<>(method, analysis);
+        } else {
+            return null;
+        }
     }
 
     private void processInterResults(List<String> analyses) {

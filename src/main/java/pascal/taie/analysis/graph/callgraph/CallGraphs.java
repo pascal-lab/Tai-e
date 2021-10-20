@@ -129,6 +129,9 @@ public final class CallGraphs {
                                         out.println(toString(callSite) + SEP +
                                                 toString(callGraph.calleesOf(callSite)))));
         out.println("----------------------------------------");
+        if (out != System.out) {
+            out.close();
+        }
     }
 
     static void dumpMethods(CallGraph<Invoke, JMethod> callGraph, String output) {
