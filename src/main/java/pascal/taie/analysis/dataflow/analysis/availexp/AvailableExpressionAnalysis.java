@@ -60,8 +60,8 @@ public class AvailableExpressionAnalysis extends
     }
 
     @Override
-    public void meetInto(SetFact<ExpWrapper> fact, SetFact<ExpWrapper> target) {
-        target.intersect(fact);
+    public boolean meetInto(SetFact<ExpWrapper> fact, SetFact<ExpWrapper> target) {
+        return target.intersect(fact);
     }
 
     @Override

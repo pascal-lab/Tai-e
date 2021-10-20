@@ -42,8 +42,10 @@ public interface DataflowAnalysis<Node, Fact> {
     /**
      * Meets a fact into another (target) fact.
      * This function will be used to handle control-flow confluences.
+     *
+     * @return true if the meet operation changed the target fact, otherwise false.
      */
-    void meetInto(Fact fact, Fact target);
+    boolean meetInto(Fact fact, Fact target);
 
     /**
      * Node Transfer function for the analysis.

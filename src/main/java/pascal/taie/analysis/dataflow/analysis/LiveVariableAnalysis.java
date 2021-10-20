@@ -53,8 +53,8 @@ public class LiveVariableAnalysis extends
     }
 
     @Override
-    public void meetInto(SetFact<Var> fact, SetFact<Var> target) {
-        target.union(fact);
+    public boolean meetInto(SetFact<Var> fact, SetFact<Var> target) {
+        return target.union(fact);
     }
 
     @Override
