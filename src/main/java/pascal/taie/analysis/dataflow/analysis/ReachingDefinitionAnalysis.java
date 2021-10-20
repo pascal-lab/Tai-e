@@ -43,8 +43,8 @@ public class ReachingDefinitionAnalysis extends
     }
 
     @Override
-    public boolean meetInto(SetFact<Stmt> fact, SetFact<Stmt> target) {
-        return target.union(fact);
+    public void meetInto(SetFact<Stmt> fact, SetFact<Stmt> target) {
+        target.union(fact);
     }
 
     @Override

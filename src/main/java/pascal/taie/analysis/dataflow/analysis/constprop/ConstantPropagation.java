@@ -77,11 +77,9 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public boolean meetInto(CPFact fact, CPFact target) {
-        boolean[] changed = { false };
+    public void meetInto(CPFact fact, CPFact target) {
         fact.forEach((var, value) ->
-                changed[0] |= target.update(var, meetValue(value, target.get(var))));
-        return changed[0];
+                target.update(var, meetValue(value, target.get(var))));
     }
 
     /**

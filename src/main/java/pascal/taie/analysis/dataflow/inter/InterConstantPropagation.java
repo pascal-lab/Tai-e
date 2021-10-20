@@ -115,8 +115,8 @@ public class InterConstantPropagation extends
     }
 
     @Override
-    public boolean meetInto(CPFact fact, CPFact target) {
-        return cp.meetInto(fact, target);
+    public void meetInto(CPFact fact, CPFact target) {
+        cp.meetInto(fact, target);
     }
 
     @Override
