@@ -151,7 +151,7 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
     @Override
     public String toString() {
         String ret = result == null ? "" : result + " = ";
-        return String.format("%s%s@%s:%d(@L%d)",
-                ret, invokeExp, container, getIndex(), getLineNumber());
+        return String.format("%s[%d@L%d] %s%s",
+                container, getIndex(), getLineNumber(), ret, invokeExp);
     }
 }

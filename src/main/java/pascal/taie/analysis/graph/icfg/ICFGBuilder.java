@@ -20,6 +20,7 @@ import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
+import pascal.taie.analysis.graph.cfg.CFGDumper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
@@ -81,14 +82,7 @@ public class ICFGBuilder extends InterproceduralAnalysis {
     private static String toString(Stmt stmt, ICFG<JMethod, Stmt> icfg) {
         JMethod method = icfg.getContainingMethodOf(stmt);
         CFG<Stmt> cfg = getCFGOf(method);
-        if (cfg.isEntry(stmt)) {
-            return "ENTRY" + method;
-        } else if (cfg.isExit(stmt)) {
-            return "EXIT" + method;
-        } else {
-            return String.format("%d@L%d:%s",
-                    stmt.getIndex(), stmt.getLineNumber(), stmt);
-        }
+        return CFGDumper.toString(stmt, cfg);
     }
 
     static CFG<Stmt> getCFGOf(JMethod method) {

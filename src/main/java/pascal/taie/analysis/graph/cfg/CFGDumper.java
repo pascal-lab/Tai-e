@@ -62,11 +62,11 @@ public class CFGDumper {
                 .dump(cfg, toDotPath(cfg));
     }
 
-    private static <N> String toString(N node, CFG<N> cfg) {
+    public static <N> String toString(N node, CFG<N> cfg) {
         if (cfg.isEntry(node)) {
-            return "Entry";
+            return "Entry" + cfg.getMethod();
         } else if (cfg.isExit(node)) {
-            return "Exit";
+            return "Exit" + cfg.getMethod();
         } else {
             return node instanceof Stmt ?
                     ((Stmt) node).getIndex() + ": " + node.toString().replace("\"", "\\\"") :
