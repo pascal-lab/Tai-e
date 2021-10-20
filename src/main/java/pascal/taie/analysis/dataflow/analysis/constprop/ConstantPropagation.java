@@ -42,13 +42,13 @@ public class ConstantPropagation extends
     public static final String ID = "constprop";
 
     /**
-     * Whether enable edge transfer.
+     * Whether enable refinement on lattice value via edge transfer.
      */
-    private final boolean edgeTransfer;
+    private final boolean edgeRefine;
 
     public ConstantPropagation(AnalysisConfig config) {
         super(config);
-        edgeTransfer = getOptions().getBooleanOrDefault("edge-transfer", true);
+        edgeRefine = getOptions().getBooleanOrDefault("edge-refine", true);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class ConstantPropagation extends
 
     @Override
     public boolean needTransferEdge(Edge<Stmt> edge) {
-        if (edgeTransfer) {
+        if (edgeRefine) {
             return edge.getSource() instanceof If ||
                     edge.getKind() == Edge.Kind.SWITCH_CASE;
         } else {

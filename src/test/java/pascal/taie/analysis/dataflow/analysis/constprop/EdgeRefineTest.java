@@ -15,11 +15,11 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
-public class EdgeTransferTest {
+public class EdgeRefineTest {
 
     @Test
     public void test() {
-        Tests.testDFA("EdgeTransfer", "src/test/resources/dataflow/constprop/",
-                ConstantPropagation.ID, "edge-transfer:true");
+        Tests.testDFA("EdgeRefine", "src/test/resources/dataflow/constprop/",
+                ConstantPropagation.ID, "edge-refine:true");
     }
 }

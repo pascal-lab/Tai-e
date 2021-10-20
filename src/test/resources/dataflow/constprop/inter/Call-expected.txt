@@ -54,9 +54,9 @@
 [4@L16] nop; {%intconst0=0, temp$0=NAC}
 [5@L17] x = 5; {%intconst0=0, temp$0=NAC, x=5}
 [6@L16] goto 10; {%intconst0=0, temp$0=NAC, x=5}
-[7@L16] nop; {%intconst0=0, temp$0=0}
-[8@L19] temp$2 = invokestatic <Call: int five()>(); {%intconst0=0, temp$0=0}
-[9@L19] x = temp$2; {%intconst0=0, temp$0=0, temp$2=5, x=5}
+[7@L16] nop; {%intconst0=0, temp$0=NAC}
+[8@L19] temp$2 = invokestatic <Call: int five()>(); {%intconst0=0, temp$0=NAC}
+[9@L19] x = temp$2; {%intconst0=0, temp$0=NAC, temp$2=5, x=5}
 [10@L19] nop; {%intconst0=0, temp$0=NAC, temp$2=5, x=5}
 [11@L22] temp$3 = invokestatic <Call: boolean anyBool()>(); {%intconst0=0, temp$0=NAC, temp$2=5, x=5}
 [12@L22] if (temp$3 == %intconst0) goto 17; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
@@ -64,9 +64,9 @@
 [14@L22] nop; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
 [15@L23] y = 10; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, x=5, y=10}
 [16@L22] goto 20; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, x=5, y=10}
-[17@L22] nop; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=0, x=5}
-[18@L25] temp$5 = invokestatic <Call: int five()>(); {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=0, x=5}
-[19@L25] y = temp$5; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=0, temp$5=5, x=5, y=5}
+[17@L22] nop; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[18@L25] temp$5 = invokestatic <Call: int five()>(); {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[19@L25] y = temp$5; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=5}
 [20@L25] nop; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=NAC}
 [21@L27] z = y; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=NAC, z=NAC}
 [22@L27] return; {%intconst0=0, temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=NAC, z=NAC}
@@ -105,6 +105,6 @@
 [8@L54] y = z; {%intconst0=0, b=NAC, temp$0=NAC, x=1, y=1, z=1}
 [9@L55] z = 1; {%intconst0=0, b=NAC, temp$0=NAC, x=1, y=1, z=1}
 [10@L52] goto 2; {%intconst0=0, b=NAC, temp$0=NAC, x=1, y=1, z=1}
-[11@L52] nop; {%intconst0=0, b=0, temp$0=NAC, x=1, y=1, z=1}
-[12@L52] return; {%intconst0=0, b=0, temp$0=NAC, x=1, y=1, z=1}
+[11@L52] nop; {%intconst0=0, b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[12@L52] return; {%intconst0=0, b=NAC, temp$0=NAC, x=1, y=1, z=1}
 

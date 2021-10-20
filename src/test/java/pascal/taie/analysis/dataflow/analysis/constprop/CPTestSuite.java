@@ -18,7 +18,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         CPTestFull.class,
-        EdgeTransferTest.class,
+        EdgeRefineTest.class,
         InterCPAliasTest.class,
         MeetValueTest.class,
         ValueTest.class,

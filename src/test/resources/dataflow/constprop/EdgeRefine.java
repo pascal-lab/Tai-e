@@ -1,4 +1,4 @@
-class EdgeTransfer {
+class EdgeRefine {
 
     int branch(int x) {
         int y;

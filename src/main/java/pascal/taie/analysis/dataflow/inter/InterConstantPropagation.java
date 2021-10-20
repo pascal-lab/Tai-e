@@ -48,6 +48,8 @@ public class InterConstantPropagation extends
 
     private final ConstantPropagation cp;
 
+    private final boolean edgeRefine;
+
     private final boolean aliasAware;
 
     /**
@@ -60,6 +62,7 @@ public class InterConstantPropagation extends
     public InterConstantPropagation(AnalysisConfig config) {
         super(config);
         cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
+        edgeRefine = getOptions().getBoolean("edge-refine");
         aliasAware = getOptions().getBoolean("alias-aware");
         if (aliasAware) {
             storeToLoads = computeStoreToLoads();
@@ -182,7 +185,7 @@ public class InterConstantPropagation extends
     @Override
     protected CPFact transferNormalEdge(NormalEdge<Stmt> edge, CPFact out) {
         // Just apply edge transfer of intraprocedural constant propagation
-        return cp.transferEdge(edge.getCFGEdge(), out);
+        return edgeRefine ? cp.transferEdge(edge.getCFGEdge(), out) : out;
     }
 
     @Override

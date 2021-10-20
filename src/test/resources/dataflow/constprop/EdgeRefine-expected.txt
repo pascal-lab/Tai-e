@@ -1,8 +1,8 @@
--------------------- <EdgeTransfer: void <init>()> (constprop) --------------------
+-------------------- <EdgeRefine: void <init>()> (constprop) --------------------
 [0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
 
--------------------- <EdgeTransfer: int branch(int)> (constprop) --------------------
+-------------------- <EdgeRefine: int branch(int)> (constprop) --------------------
 [0@L5] %intconst0 = 1; {%intconst0=1, x=NAC}
 [1@L5] if (x == %intconst0) goto 3; {%intconst0=1, x=NAC}
 [2@L5] goto 6; {%intconst0=1, x=NAC}

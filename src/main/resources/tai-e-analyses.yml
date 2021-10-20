@@ -82,13 +82,14 @@
   id: constprop
   requires: [ cfg ]
   options:
-    edge-transfer: true
+    edge-refine: true # refine lattice value via edge transfer
 
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
   id: inter-constprop
   requires: [ icfg,cipta(pta=cipta),pta(pta=pta) ]
   options:
+    edge-refine: true # refine lattice value via edge transfer
     alias-aware: false
     pta: null
 
