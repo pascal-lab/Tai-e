@@ -21,6 +21,7 @@ import pascal.taie.analysis.graph.cfg.CFGBuilder;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -66,9 +67,7 @@ public final class Tests {
             // if the opts is not empty, and the opts[0] is not "-a",
             // then this option is given to analysis *id*.
             Collections.addAll(args, "-a", id + "=" + opts[0]);
-            for (int i = 1; i < opts.length; ++i) {
-                args.add(opts[i]);
-            }
+            args.addAll(Arrays.asList(opts).subList(1, opts.length));
         } else {
             Collections.addAll(args, "-a", id);
             Collections.addAll(args, opts);

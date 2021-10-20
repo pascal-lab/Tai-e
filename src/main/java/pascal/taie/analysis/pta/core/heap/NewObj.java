@@ -53,7 +53,7 @@ public class NewObj implements Obj {
 
     @Override
     public String toString() {
-        return String.format("NewObj{%s:%d(@L%d)/%s}",
+        return String.format("NewObj{%s[%d@L%d] %s}",
                 allocSite.getContainer(), allocSite.getIndex(),
                 allocSite.getLineNumber(), allocSite.getRValue());
     }

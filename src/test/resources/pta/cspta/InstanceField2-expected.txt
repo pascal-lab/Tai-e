@@ -1,17 +1,17 @@
 Points-to sets of all variables
-[]:<InstanceField2: void <init>()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>:0(@L11)/new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>:0(@L15)/new InstanceField2}]
-[]:<InstanceField2: void entry1()>/temp$0 -> [[]:NewObj{<InstanceField2: void entry1()>:0(@L11)/new InstanceField2}]
-[]:<InstanceField2: void entry2()>/temp$0 -> [[]:NewObj{<InstanceField2: void entry2()>:0(@L15)/new InstanceField2}]
-[]:<InstanceField2: void f()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>:0(@L11)/new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>:0(@L15)/new InstanceField2}]
-[]:<InstanceField2: void f()>/temp$0 -> [[]:NewObj{<InstanceField2: void f()>:0(@L19)/new java.lang.Object}]
-[]:<InstanceField2: void g()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>:0(@L11)/new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>:0(@L15)/new InstanceField2}]
-[]:<InstanceField2: void g()>/local -> [[]:NewObj{<InstanceField2: void f()>:0(@L19)/new java.lang.Object}]
+[]:<InstanceField2: void <init>()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>[0@L11] new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>[0@L15] new InstanceField2}]
+[]:<InstanceField2: void entry1()>/temp$0 -> [[]:NewObj{<InstanceField2: void entry1()>[0@L11] new InstanceField2}]
+[]:<InstanceField2: void entry2()>/temp$0 -> [[]:NewObj{<InstanceField2: void entry2()>[0@L15] new InstanceField2}]
+[]:<InstanceField2: void f()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>[0@L11] new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>[0@L15] new InstanceField2}]
+[]:<InstanceField2: void f()>/temp$0 -> [[]:NewObj{<InstanceField2: void f()>[0@L19] new java.lang.Object}]
+[]:<InstanceField2: void g()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>[0@L11] new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>[0@L15] new InstanceField2}]
+[]:<InstanceField2: void g()>/local -> [[]:NewObj{<InstanceField2: void f()>[0@L19] new java.lang.Object}]
 []:<InstanceField2: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceField2: void main(java.lang.String[])>}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>:0(@L11)/new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>:0(@L15)/new InstanceField2}, []:NewObj{<InstanceField2: void f()>:0(@L19)/new java.lang.Object}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<InstanceField2: void entry1()>[0@L11] new InstanceField2}, []:NewObj{<InstanceField2: void entry2()>[0@L15] new InstanceField2}, []:NewObj{<InstanceField2: void f()>[0@L19] new java.lang.Object}]
 
 Points-to sets of all instance fields
-[]:NewObj{<InstanceField2: void entry1()>:0(@L11)/new InstanceField2}.field -> [[]:NewObj{<InstanceField2: void f()>:0(@L19)/new java.lang.Object}]
-[]:NewObj{<InstanceField2: void entry2()>:0(@L15)/new InstanceField2}.field -> [[]:NewObj{<InstanceField2: void f()>:0(@L19)/new java.lang.Object}]
+[]:NewObj{<InstanceField2: void entry1()>[0@L11] new InstanceField2}.field -> [[]:NewObj{<InstanceField2: void f()>[0@L19] new java.lang.Object}]
+[]:NewObj{<InstanceField2: void entry2()>[0@L15] new InstanceField2}.field -> [[]:NewObj{<InstanceField2: void f()>[0@L19] new java.lang.Object}]
 
 Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceField2: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <InstanceField2: void main(java.lang.String[])>}]
