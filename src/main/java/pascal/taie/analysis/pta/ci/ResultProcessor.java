@@ -77,6 +77,9 @@ class ResultProcessor {
         int ifptSize = getPointers(result, InstanceField.class)
                 .mapToInt(p -> p.getPointsToSet().size())
                 .sum();
+        int aptSize = getPointers(result, ArrayIndex.class)
+                .mapToInt(p -> p.getPointsToSet().size())
+                .sum();
         int reachable = result.getCallGraph().getNumberOfMethods();
         int callEdges = (int) result.getCallGraph()
                 .edges().count();
@@ -84,6 +87,7 @@ class ResultProcessor {
         System.out.printf("%-30s%s%n", "#var pointers:", format(vars));
         System.out.printf("%-30s%s%n", "#var points-to:", format(vptSize));
         System.out.printf("%-30s%s%n", "#instance field points-to:", format(ifptSize));
+        System.out.printf("%-30s%s%n", "#array indexes points-to:", format(aptSize));
         System.out.printf("%-30s%s%n", "#reachable methods:", format(reachable));
         System.out.printf("%-30s%s%n", "#call graph edges:", format(callEdges));
         System.out.println("----------------------------------------");
@@ -108,6 +112,7 @@ class ResultProcessor {
         }
         dumpPointers(out, getPointers(result, VarPtr.class), "variables");
         dumpPointers(out, getPointers(result, InstanceField.class), "instance fields");
+        dumpPointers(out, getPointers(result, ArrayIndex.class), "array indexes");
         if (out != System.out) {
             out.close();
         }
@@ -137,6 +142,7 @@ class ResultProcessor {
         Map<String, Pointer> pointers = new LinkedHashMap<>();
         addPointers(pointers, getPointers(result, VarPtr.class));
         addPointers(pointers, getPointers(result, InstanceField.class));
+        addPointers(pointers, getPointers(result, ArrayIndex.class));
         List<String> mismatches = new ArrayList<>();
         pointers.forEach((pointerStr, pointer) -> {
             String given = toString(pointer.getPointsToSet());
