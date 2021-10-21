@@ -124,7 +124,8 @@ public final class Tests {
             // if given options do not specify only-app, then set it true
             ptaArgs.add("only-app:true");
         }
-        Collections.addAll(args, "-a", "pta=" + String.join(";", ptaArgs));
+        String pta = dir.equals("cipta") ? "cipta" : "pta";
+        Collections.addAll(args, "-a", pta + "=" + String.join(";", ptaArgs));
         Main.main(args.toArray(new String[0]));
     }
 }

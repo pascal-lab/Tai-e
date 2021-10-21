@@ -16,7 +16,7 @@
     taint-config: null # path to config file of taint analysis, when this file
     # is given, taint analysis will be enabled
 
-- description: a functional context-insensitive pointer analysis, only for education purpose
+- description: a context-insensitive pointer analysis, only for education purpose
   analysisClass: pascal.taie.analysis.pta.ci.CIPTA
   id: cipta
   options:
