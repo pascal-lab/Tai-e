@@ -21,7 +21,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -92,8 +91,8 @@ class CIPTAResult implements PointerAnalysisResult {
         return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
             Set<Obj> pts = Sets.newHybridSet();
             getPointsToSet(base).forEach(o -> {
-                InstanceFieldPtr fieldPtr = pointerFlowGraph
-                        .getInstanceFieldPtr(o, field);
+                InstanceField fieldPtr = pointerFlowGraph
+                        .getInstanceField(o, field);
                 pts.addAll(fieldPtr.getPointsToSet().getSet());
             });
             return pts;
@@ -120,7 +119,7 @@ class CIPTAResult implements PointerAnalysisResult {
     }
 
     @Override
-    public Stream<InstanceField> instanceFields() {
+    public Stream<pascal.taie.analysis.pta.core.cs.element.InstanceField> instanceFields() {
         throw new UnsupportedOperationException();
     }
 

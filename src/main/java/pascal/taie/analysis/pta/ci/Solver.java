@@ -26,9 +26,11 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -133,6 +135,8 @@ class Solver {
                     Var v = vp.getVar();
                     processInstanceStore(v, diff);
                     processInstanceLoad(v, diff);
+                    processArrayStore(v, diff);
+                    processArrayLoad(v, diff);
                     processCall(v, diff);
                 }
             }
@@ -182,9 +186,9 @@ class Solver {
         for (StoreField store : var.getStoreFields()) {
             VarPtr fromPtr = pointerFlowGraph.getVarPtr(store.getRValue());
             pts.forEach(baseObj -> {
-                InstanceFieldPtr fieldPtr = pointerFlowGraph.getInstanceFieldPtr(
+                InstanceField instanceField = pointerFlowGraph.getInstanceField(
                         baseObj, store.getFieldRef().resolve());
-                addPFGEdge(fromPtr, fieldPtr);
+                addPFGEdge(fromPtr, instanceField);
             });
         }
     }
@@ -199,9 +203,41 @@ class Solver {
         for (LoadField load : var.getLoadFields()) {
             VarPtr toPtr = pointerFlowGraph.getVarPtr(load.getLValue());
             pts.forEach(baseObj -> {
-                InstanceFieldPtr fieldPtr = pointerFlowGraph.getInstanceFieldPtr(
+                InstanceField instanceField = pointerFlowGraph.getInstanceField(
                         baseObj, load.getFieldRef().resolve());
-                addPFGEdge(fieldPtr, toPtr);
+                addPFGEdge(instanceField, toPtr);
+            });
+        }
+    }
+
+    /**
+     * Processes array stores when points-to set of the base variable changes.
+     *
+     * @param var the base variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
+    private void processArrayStore(Var var, PointsToSet pts) {
+        for (StoreArray store : var.getStoreArrays()) {
+            VarPtr fromPtr = pointerFlowGraph.getVarPtr(store.getRValue());
+            pts.forEach(array -> {
+                ArrayIndex arrayIndex = pointerFlowGraph.getArrayIndex(array);
+                addPFGEdge(fromPtr, arrayIndex);
+            });
+        }
+    }
+
+    /**
+     * Processes array loads when points-to set of the base variable changes.
+     *
+     * @param var the base variable
+     * @param pts set of new discovered objects pointed by the variable.
+     */
+    private void processArrayLoad(Var var, PointsToSet pts) {
+        for (LoadArray load : var.getLoadArrays()) {
+            VarPtr toPtr = pointerFlowGraph.getVarPtr(load.getLValue());
+            pts.forEach(array -> {
+                ArrayIndex arrayIndex = pointerFlowGraph.getArrayIndex(array);
+                addPFGEdge(arrayIndex, toPtr);
             });
         }
     }

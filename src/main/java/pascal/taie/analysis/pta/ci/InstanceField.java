@@ -19,13 +19,13 @@ import pascal.taie.util.Hashes;
 /**
  * Represents instance field pointers in PFG.
  */
-class InstanceFieldPtr extends Pointer {
+class InstanceField extends Pointer {
 
     private final Obj base;
 
     private final JField field;
 
-    InstanceFieldPtr(Obj base, JField field) {
+    InstanceField(Obj base, JField field) {
         this.base = base;
         this.field = field;
     }
@@ -46,7 +46,7 @@ class InstanceFieldPtr extends Pointer {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InstanceFieldPtr fieldPtr = (InstanceFieldPtr) o;
+        InstanceField fieldPtr = (InstanceField) o;
         return base.equals(fieldPtr.base) && field.equals(fieldPtr.field);
     }
 

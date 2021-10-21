@@ -74,7 +74,7 @@ class ResultProcessor {
         int vars = (int) result.vars().count();
         int vptSize = result.vars()
                 .mapToInt(v -> result.getPointsToSet(v).size()).sum();
-        int ifptSize = getPointers(result, InstanceFieldPtr.class)
+        int ifptSize = getPointers(result, InstanceField.class)
                 .mapToInt(p -> p.getPointsToSet().size())
                 .sum();
         int reachable = result.getCallGraph().getNumberOfMethods();
@@ -107,7 +107,7 @@ class ResultProcessor {
             out = System.out;
         }
         dumpPointers(out, getPointers(result, VarPtr.class), "variables");
-        dumpPointers(out, getPointers(result, InstanceFieldPtr.class), "instance fields");
+        dumpPointers(out, getPointers(result, InstanceField.class), "instance fields");
         if (out != System.out) {
             out.close();
         }
@@ -136,7 +136,7 @@ class ResultProcessor {
         var inputs = readPointsToSets(input);
         Map<String, Pointer> pointers = new LinkedHashMap<>();
         addPointers(pointers, getPointers(result, VarPtr.class));
-        addPointers(pointers, getPointers(result, InstanceFieldPtr.class));
+        addPointers(pointers, getPointers(result, InstanceField.class));
         List<String> mismatches = new ArrayList<>();
         pointers.forEach((pointerStr, pointer) -> {
             String given = toString(pointer.getPointsToSet());

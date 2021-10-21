@@ -38,9 +38,19 @@ class PointerFlowGraph {
     private final Map<Var, VarPtr> varPtrs = newMap();
 
     /**
+     * Map from JField to StaticField node.
+     */
+    private final Map<JField, StaticField> staticFields = newMap();
+
+    /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private final Map<Obj, Map<JField, InstanceFieldPtr>> fieldPtrs = newMap();
+    private final Map<Obj, Map<JField, InstanceField>> instanceFields = newMap();
+
+    /**
+     * Map from Obj (array) to ArrayIndex node.
+     */
+    private final Map<Obj, ArrayIndex> arrayIndexes = newMap();
 
     /**
      * Map from a pointer (node) to its successors in PFG.
@@ -55,7 +65,7 @@ class PointerFlowGraph {
     }
 
     /**
-     * Returns the corresponding Var node for the given variable.
+     * @return the corresponding Var node for the given variable.
      */
     VarPtr getVarPtr(Var var) {
         return varPtrs.computeIfAbsent(var, v -> {
@@ -66,28 +76,54 @@ class PointerFlowGraph {
     }
 
     /**
-     * Returns the corresponding instance field node
-     * for the given object and field.
+     * @return the corresponding StaticField node for the given field.
+     * The field should be a static field.
      */
-    InstanceFieldPtr getInstanceFieldPtr(Obj base, JField field) {
-        return fieldPtrs.computeIfAbsent(base, o -> newHybridMap())
+    StaticField getStaticField(JField field) {
+        return staticFields.computeIfAbsent(field, f -> {
+            StaticField staticField = new StaticField(f);
+            pointers.add(staticField);
+            return staticField;
+        });
+    }
+
+    /**
+     * @return the corresponding InstanceField node for the given object and field.
+     * The field should be an instance field.
+     */
+    InstanceField getInstanceField(Obj base, JField field) {
+        return instanceFields.computeIfAbsent(base, o -> newHybridMap())
                 .computeIfAbsent(field, f -> {
-                    InstanceFieldPtr fieldPtr = new InstanceFieldPtr(base, f);
-                    pointers.add(fieldPtr);
-                    return fieldPtr;
+                    InstanceField instanceField = new InstanceField(base, f);
+                    pointers.add(instanceField);
+                    return instanceField;
                 });
     }
 
     /**
+     * @return the corresponding ArrayIndex node for the given array object.
+     */
+    ArrayIndex getArrayIndex(Obj array) {
+        return arrayIndexes.computeIfAbsent(array, a -> {
+            ArrayIndex arrayIndex = new ArrayIndex(a);
+            pointers.add(arrayIndex);
+            return arrayIndex;
+        });
+    }
+
+    /**
      * Adds an edge (from -> to) to this PFG.
-     * If the edge (from -> to) is already in this PFG, then returns false,
-     * otherwise returns true.
+     * If the edge (from -> to) has already been added in this PFG,
+     * then returns false, otherwise returns true.
      */
     boolean addEdge(Pointer from, Pointer to) {
         return successors.computeIfAbsent(from, p -> newHybridSet())
                 .add(to);
     }
 
+    /**
+     * @return successors of given pointer in the PFG.
+     */
     Stream<Pointer> succsOf(Pointer pointer) {
         return successors.getOrDefault(pointer, Set.of()).stream();
     }
