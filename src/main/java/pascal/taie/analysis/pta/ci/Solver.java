@@ -110,6 +110,28 @@ class Solver {
         }
 
         @Override
+        public Void visit(LoadField stmt) {
+            if (stmt.isStatic()) {
+                VarPtr lhs = pointerFlowGraph.getVarPtr(stmt.getLValue());
+                StaticField staticField = pointerFlowGraph
+                        .getStaticField(stmt.getFieldRef().resolve());
+                addPFGEdge(staticField, lhs);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(StoreField stmt) {
+            if (stmt.isStatic()) {
+                StaticField staticField = pointerFlowGraph
+                        .getStaticField(stmt.getFieldRef().resolve());
+                VarPtr rhs = pointerFlowGraph.getVarPtr(stmt.getRValue());
+                addPFGEdge(rhs, staticField);
+            }
+            return null;
+        }
+
+        @Override
         public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
                 JMethod callee = resolveCallee(null, stmt);

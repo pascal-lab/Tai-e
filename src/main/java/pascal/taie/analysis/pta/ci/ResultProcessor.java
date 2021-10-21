@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 class ResultProcessor {
@@ -72,13 +73,18 @@ class ResultProcessor {
 
     private static void printStatistics(CIPTAResult result) {
         int vars = (int) result.vars().count();
-        int vptSize = result.vars()
-                .mapToInt(v -> result.getPointsToSet(v).size()).sum();
+        ToIntFunction<Pointer> getSize = p -> p.getPointsToSet().size();
+        int vptSize = getPointers(result, VarPtr.class)
+                .mapToInt(getSize)
+                .sum();
+        int sfptSize = getPointers(result, StaticField.class)
+                .mapToInt(getSize)
+                .sum();
         int ifptSize = getPointers(result, InstanceField.class)
-                .mapToInt(p -> p.getPointsToSet().size())
+                .mapToInt(getSize)
                 .sum();
         int aptSize = getPointers(result, ArrayIndex.class)
-                .mapToInt(p -> p.getPointsToSet().size())
+                .mapToInt(getSize)
                 .sum();
         int reachable = result.getCallGraph().getNumberOfMethods();
         int callEdges = (int) result.getCallGraph()
@@ -86,8 +92,10 @@ class ResultProcessor {
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s%n", "#var pointers:", format(vars));
         System.out.printf("%-30s%s%n", "#var points-to:", format(vptSize));
+        System.out.printf("%-30s%s%n", "#static field points-to:", format(sfptSize));
         System.out.printf("%-30s%s%n", "#instance field points-to:", format(ifptSize));
         System.out.printf("%-30s%s%n", "#array indexes points-to:", format(aptSize));
+        System.out.println();
         System.out.printf("%-30s%s%n", "#reachable methods:", format(reachable));
         System.out.printf("%-30s%s%n", "#call graph edges:", format(callEdges));
         System.out.println("----------------------------------------");
@@ -111,6 +119,7 @@ class ResultProcessor {
             out = System.out;
         }
         dumpPointers(out, getPointers(result, VarPtr.class), "variables");
+        dumpPointers(out, getPointers(result, StaticField.class), "static fields");
         dumpPointers(out, getPointers(result, InstanceField.class), "instance fields");
         dumpPointers(out, getPointers(result, ArrayIndex.class), "array indexes");
         if (out != System.out) {
@@ -141,6 +150,7 @@ class ResultProcessor {
         var inputs = readPointsToSets(input);
         Map<String, Pointer> pointers = new LinkedHashMap<>();
         addPointers(pointers, getPointers(result, VarPtr.class));
+        addPointers(pointers, getPointers(result, StaticField.class));
         addPointers(pointers, getPointers(result, InstanceField.class));
         addPointers(pointers, getPointers(result, ArrayIndex.class));
         List<String> mismatches = new ArrayList<>();

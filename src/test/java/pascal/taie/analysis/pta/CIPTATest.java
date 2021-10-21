@@ -68,4 +68,9 @@ public class CIPTATest {
     public void testCallField() {
         Tests.testPTA(DIR, "CallField");
     }
+
+    @Test
+    public void testStaticField() {
+        Tests.testPTA(DIR, "StaticField");
+    }
 }
