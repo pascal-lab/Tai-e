@@ -56,6 +56,20 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
     }
 
     /**
+     * Each method in ICFG has only one exit, but it may have multiple return
+     * statements. This API returns all returned variables. E.g., for the
+     * return edges starting from the exit of method:
+     * <pre>
+     * int foo(...) {
+     *     if (...) {
+     *         return x;
+     *     } else {
+     *         return y;
+     *     }
+     * }
+     * </pre>
+     * this API returns [x, y].
+     *
      * @return the variables that hold the return values.
      */
     public Stream<Var> returnVars() {

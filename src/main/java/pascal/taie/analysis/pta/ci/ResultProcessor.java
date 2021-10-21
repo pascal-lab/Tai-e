@@ -94,14 +94,22 @@ class ResultProcessor {
     }
 
     private static void dumpPointsToSet(CIPTAResult result, String output) {
-        File outFile = new File(output);
-        try (PrintStream out =
-                     new PrintStream(new FileOutputStream(outFile))) {
-            logger.info("Dumping points-to set to {} ...", outFile);
-            dumpPointers(out, getPointers(result, VarPtr.class), "variables");
-            dumpPointers(out, getPointers(result, InstanceFieldPtr.class), "instance fields");
-        } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump points-to set to " + outFile, e);
+        PrintStream out;
+        if (output != null) {  // if output file is given, then dump to the file
+            File outFile = new File(output);
+            try {
+                out = new PrintStream(new FileOutputStream(outFile));
+                logger.info("Dumping points-to set to {} ...", outFile);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open output file", e);
+            }
+        } else {  // otherwise, dump to System.out
+            out = System.out;
+        }
+        dumpPointers(out, getPointers(result, VarPtr.class), "variables");
+        dumpPointers(out, getPointers(result, InstanceFieldPtr.class), "instance fields");
+        if (out != System.out) {
+            out.close();
         }
     }
 

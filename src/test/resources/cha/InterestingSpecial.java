@@ -14,7 +14,8 @@ class A {
 
     void callInteresting() {
         System.out.println(this);
-        interesting();
+        interesting(); // Since Java 11, invokevirtual/invokeinterface
+                       // may be used to call private methods
     }
 }
 

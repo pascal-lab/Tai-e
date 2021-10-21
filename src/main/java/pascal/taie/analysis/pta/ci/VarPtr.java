@@ -37,8 +37,8 @@ class VarPtr extends Pointer {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        VarPtr varPtr = (VarPtr) o;
-        return var.equals(varPtr.var);
+        VarPtr other = (VarPtr) o;
+        return var.equals(other.var);
     }
 
     @Override

@@ -11,7 +11,8 @@
  */
 
 /**
- * This package provides a functional context-insensitive pointer analysis.
+ * This package provides a context-insensitive pointer analysis which can
+ * handle core pointer-affecting statements in Java.
  * This analysis is only for education purpose and not our main pointer analysis.
  * To use full-fledged pointer analysis, please refer to
  * {@link pascal.taie.analysis.pta.PointerAnalysis}.
