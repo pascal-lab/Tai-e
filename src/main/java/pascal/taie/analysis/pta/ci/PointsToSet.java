@@ -16,43 +16,71 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-class PointsToSet {
+/**
+ * Representation of points-to sets.
+ */
+class PointsToSet implements Iterable<Obj> {
 
     private final Set<Obj> set = Sets.newHybridSet();
 
+    /**
+     * Constructs an empty points-to set.
+     */
     PointsToSet() {
     }
 
+    /**
+     * Constructs a points-to set containing one object.
+     */
     PointsToSet(Obj obj) {
         addObject(obj);
     }
 
+    /**
+     * Adds an object to this set.
+     *
+     * @return true if this points-to set changed as a result of the call,
+     * otherwise false.
+     */
     boolean addObject(Obj obj) {
         return set.add(obj);
     }
 
+    /**
+     * @return whether this set if empty.
+     */
     boolean isEmpty() {
         return set.isEmpty();
     }
 
+    /**
+     * @return the number of objects in this set.
+     */
     int size() {
         return set.size();
     }
 
-    void forEach(Consumer<Obj> action) {
-        set.forEach(action);
-    }
-
+    /**
+     * @return all objects in this set.
+     */
     Stream<Obj> objects() {
         return set.stream();
     }
 
-    Set<Obj> getSet() {
+    /**
+     * @return all objects in this set.
+     */
+    Set<Obj> getObjects() {
         return Collections.unmodifiableSet(set);
+    }
+
+    @Override
+    public Iterator<Obj> iterator() {
+        return set.iterator();
     }
 
     @Override

@@ -76,6 +76,7 @@ class Solver {
         callGraph = new DefaultCallGraph();
         stmtProcessor = new StmtProcessor();
         hierarchy = World.getClassHierarchy();
+        // initialize main method
         JMethod main = World.getMainMethod();
         callGraph.addEntryMethod(main);
         addReachable(main);
@@ -91,6 +92,9 @@ class Solver {
         }
     }
 
+    /**
+     * Processes statements in new reachable methods.
+     */
     private class StmtProcessor implements StmtVisitor<Void> {
 
         @Override
@@ -155,11 +159,13 @@ class Solver {
                 if (p instanceof VarPtr) {
                     VarPtr vp = (VarPtr) p;
                     Var v = vp.getVar();
-                    processInstanceStore(v, diff);
-                    processInstanceLoad(v, diff);
-                    processArrayStore(v, diff);
-                    processArrayLoad(v, diff);
-                    processCall(v, diff);
+                    for (Obj o : diff) {
+                        processInstanceStore(v, o);
+                        processInstanceLoad(v, o);
+                        processArrayStore(v, o);
+                        processArrayLoad(v, o);
+                        processCall(v, o);
+                    }
                 }
             }
             while (workList.hasCallEdges()) {
@@ -202,16 +208,14 @@ class Solver {
      * Processes instance stores when points-to set of the base variable changes.
      *
      * @param var the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param base new discovered object pointed by the variable.
      */
-    private void processInstanceStore(Var var, PointsToSet pts) {
+    private void processInstanceStore(Var var, Obj base) {
         for (StoreField store : var.getStoreFields()) {
             VarPtr fromPtr = pointerFlowGraph.getVarPtr(store.getRValue());
-            pts.forEach(baseObj -> {
-                InstanceField instanceField = pointerFlowGraph.getInstanceField(
-                        baseObj, store.getFieldRef().resolve());
-                addPFGEdge(fromPtr, instanceField);
-            });
+            InstanceField instanceField = pointerFlowGraph.getInstanceField(
+                    base, store.getFieldRef().resolve());
+            addPFGEdge(fromPtr, instanceField);
         }
     }
 
@@ -219,16 +223,14 @@ class Solver {
      * Processes instance loads when points-to set of the base variable changes.
      *
      * @param var the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param base new discovered object pointed by the variable.
      */
-    private void processInstanceLoad(Var var, PointsToSet pts) {
+    private void processInstanceLoad(Var var, Obj base) {
         for (LoadField load : var.getLoadFields()) {
             VarPtr toPtr = pointerFlowGraph.getVarPtr(load.getLValue());
-            pts.forEach(baseObj -> {
-                InstanceField instanceField = pointerFlowGraph.getInstanceField(
-                        baseObj, load.getFieldRef().resolve());
-                addPFGEdge(instanceField, toPtr);
-            });
+            InstanceField instanceField = pointerFlowGraph.getInstanceField(
+                    base, load.getFieldRef().resolve());
+            addPFGEdge(instanceField, toPtr);
         }
     }
 
@@ -236,15 +238,13 @@ class Solver {
      * Processes array stores when points-to set of the base variable changes.
      *
      * @param var the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param array new discovered array object pointed by the variable.
      */
-    private void processArrayStore(Var var, PointsToSet pts) {
+    private void processArrayStore(Var var, Obj array) {
         for (StoreArray store : var.getStoreArrays()) {
             VarPtr fromPtr = pointerFlowGraph.getVarPtr(store.getRValue());
-            pts.forEach(array -> {
-                ArrayIndex arrayIndex = pointerFlowGraph.getArrayIndex(array);
-                addPFGEdge(fromPtr, arrayIndex);
-            });
+            ArrayIndex arrayIndex = pointerFlowGraph.getArrayIndex(array);
+            addPFGEdge(fromPtr, arrayIndex);
         }
     }
 
@@ -252,15 +252,13 @@ class Solver {
      * Processes array loads when points-to set of the base variable changes.
      *
      * @param var the base variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param array new discovered array object pointed by the variable.
      */
-    private void processArrayLoad(Var var, PointsToSet pts) {
+    private void processArrayLoad(Var var, Obj array) {
         for (LoadArray load : var.getLoadArrays()) {
             VarPtr toPtr = pointerFlowGraph.getVarPtr(load.getLValue());
-            pts.forEach(array -> {
-                ArrayIndex arrayIndex = pointerFlowGraph.getArrayIndex(array);
-                addPFGEdge(arrayIndex, toPtr);
-            });
+            ArrayIndex arrayIndex = pointerFlowGraph.getArrayIndex(array);
+            addPFGEdge(arrayIndex, toPtr);
         }
     }
 
@@ -268,20 +266,18 @@ class Solver {
      * Processes instance calls when points-to set of the receiver variable changes.
      *
      * @param var the receiver variable
-     * @param pts set of new discovered objects pointed by the variable.
+     * @param recv set of new discovered objects pointed by the variable.
      */
-    private void processCall(Var var, PointsToSet pts) {
+    private void processCall(Var var, Obj recv) {
         for (Invoke callSite : var.getInvokes()) {
-            pts.forEach(recvObj -> {
-                // build call edge
-                JMethod callee = resolveCallee(recvObj.getType(), callSite);
-                workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
-                        callSite, callee));
-                // pass receiver object to this variable
-                VarPtr thisPtr = pointerFlowGraph.getVarPtr(callee.getIR().getThis());
-                PointsToSet recvPts = new PointsToSet(recvObj);
-                workList.addPointerEntry(thisPtr, recvPts);
-            });
+            // build call edge
+            JMethod callee = resolveCallee(recv.getType(), callSite);
+            workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
+                    callSite, callee));
+            // pass receiver object to this variable
+            VarPtr thisPtr = pointerFlowGraph.getVarPtr(callee.getIR().getThis());
+            PointsToSet recvPts = new PointsToSet(recv);
+            workList.addPointerEntry(thisPtr, recvPts);
         }
     }
 

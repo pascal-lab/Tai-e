@@ -80,7 +80,7 @@ class CIPTAResult implements PointerAnalysisResult {
     public Set<Obj> getPointsToSet(Var var) {
         return pointerFlowGraph.getVarPtr(var)
                 .getPointsToSet()
-                .getSet();
+                .getObjects();
     }
 
     @Override
@@ -93,7 +93,7 @@ class CIPTAResult implements PointerAnalysisResult {
             getPointsToSet(base).forEach(o -> {
                 InstanceField fieldPtr = pointerFlowGraph
                         .getInstanceField(o, field);
-                pts.addAll(fieldPtr.getPointsToSet().getSet());
+                pts.addAll(fieldPtr.getPointsToSet().getObjects());
             });
             return pts;
         });
