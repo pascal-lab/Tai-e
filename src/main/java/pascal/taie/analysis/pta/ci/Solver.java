@@ -259,8 +259,8 @@ class Solver {
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
      *
-     * @param var the receiver variable
-     * @param recv set of new discovered objects pointed by the variable.
+     * @param var the variable that holds receiver objects
+     * @param recv a new discovered object pointed by the variable
      */
     private void processCall(Var var, Obj recv) {
         for (Invoke callSite : var.getInvokes()) {
@@ -276,6 +276,14 @@ class Solver {
         }
     }
 
+    /**
+     * Resolves the callee of a call site with the type of receiver object.
+     *
+     * @param type the type of the receiver object. If the callSite is static,
+     *             this parameter is ignored (i.e., it can be null).
+     * @param callSite the call site to be resolved.
+     * @return the resolved callee.
+     */
     private JMethod resolveCallee(Type type, Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         if (callSite.isInterface() || callSite.isVirtual()) {
