@@ -12,22 +12,12 @@
 
 package pascal.taie.analysis.pta.ci;
 
-import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.JMethod;
-
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 class WorkList {
 
     private final Queue<Entry> pointerEntries = new ArrayDeque<>();
-
-    private final Queue<Edge<Invoke, JMethod>> callEdges = new ArrayDeque<>();
-
-    boolean hasPointerEntries() {
-        return !pointerEntries.isEmpty();
-    }
 
     void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
         pointerEntries.add(new Entry(pointer, pointsToSet));
@@ -37,33 +27,19 @@ class WorkList {
         return pointerEntries.poll();
     }
 
+    boolean isEmpty() {
+        return pointerEntries.isEmpty();
+    }
+
     static class Entry {
 
         final Pointer pointer;
 
         final PointsToSet pointsToSet;
 
-        public Entry(Pointer pointer, PointsToSet pointsToSet) {
+        Entry(Pointer pointer, PointsToSet pointsToSet) {
             this.pointer = pointer;
             this.pointsToSet = pointsToSet;
         }
-    }
-
-    boolean hasCallEdges() {
-        return !callEdges.isEmpty();
-    }
-
-    void addCallEdge(Edge<Invoke, JMethod> edge) {
-        callEdges.add(edge);
-    }
-
-    Edge<Invoke, JMethod> pollCallEdge() {
-        Edge<Invoke, JMethod> edge = callEdges.iterator().next();
-        callEdges.remove(edge);
-        return edge;
-    }
-
-    boolean isEmpty() {
-        return pointerEntries.isEmpty() && callEdges.isEmpty();
     }
 }

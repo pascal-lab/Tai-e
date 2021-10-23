@@ -139,8 +139,7 @@ class Solver {
         public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
                 JMethod callee = resolveCallee(null, stmt);
-                workList.addCallEdge(
-                        new Edge<>(CallKind.STATIC, stmt, callee));
+                processCallEdge(new Edge<>(CallKind.STATIC, stmt, callee));
             }
             return null;
         }
@@ -151,25 +150,20 @@ class Solver {
      */
     private void analyze() {
         while (!workList.isEmpty()) {
-            while (workList.hasPointerEntries()) {
-                WorkList.Entry entry = workList.pollPointerEntry();
-                Pointer p = entry.pointer;
-                PointsToSet pts = entry.pointsToSet;
-                PointsToSet diff = propagate(p, pts);
-                if (p instanceof VarPtr) {
-                    VarPtr vp = (VarPtr) p;
-                    Var v = vp.getVar();
-                    for (Obj o : diff) {
-                        processInstanceStore(v, o);
-                        processInstanceLoad(v, o);
-                        processArrayStore(v, o);
-                        processArrayLoad(v, o);
-                        processCall(v, o);
-                    }
+            WorkList.Entry entry = workList.pollPointerEntry();
+            Pointer p = entry.pointer;
+            PointsToSet pts = entry.pointsToSet;
+            PointsToSet diff = propagate(p, pts);
+            if (p instanceof VarPtr) {
+                VarPtr vp = (VarPtr) p;
+                Var v = vp.getVar();
+                for (Obj o : diff) {
+                    processInstanceStore(v, o);
+                    processInstanceLoad(v, o);
+                    processArrayStore(v, o);
+                    processArrayLoad(v, o);
+                    processCall(v, o);
                 }
-            }
-            while (workList.hasCallEdges()) {
-                processCallEdge(workList.pollCallEdge());
             }
         }
     }
@@ -270,14 +264,15 @@ class Solver {
      */
     private void processCall(Var var, Obj recv) {
         for (Invoke callSite : var.getInvokes()) {
-            // build call edge
-            JMethod callee = resolveCallee(recv.getType(), callSite);
-            workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
-                    callSite, callee));
             // pass receiver object to this variable
-            VarPtr thisPtr = pointerFlowGraph.getVarPtr(callee.getIR().getThis());
+            JMethod callee = resolveCallee(recv.getType(), callSite);
+            VarPtr thisPtr = pointerFlowGraph.getVarPtr(
+                    callee.getIR().getThis());
             PointsToSet recvPts = new PointsToSet(recv);
             workList.addPointerEntry(thisPtr, recvPts);
+            // build call edge
+            processCallEdge(new Edge<>(
+                    CallGraphs.getCallKind(callSite), callSite, callee));
         }
     }
 
