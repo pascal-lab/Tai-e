@@ -1,0 +1,20 @@
+#reachable methods: 7
+---------- Reachable methods: ----------
+<A: void <init>()>
+<A: void foo()>
+<B: void <init>()>
+<B: void bar()>
+<B: void goo()>
+<Recursion2: void main(java.lang.String[])>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 7
+---------- Call graph edges: ----------
+<A: void <init>()>[0@L16] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<A: void foo()>[0@L18] invokevirtual %this.<A: void goo()>(); -> [<B: void goo()>]
+<B: void <init>()>[0@L24] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
+<B: void bar()>[0@L26] invokespecial %this.<A: void foo()>(); -> [<A: void foo()>]
+<B: void goo()>[0@L30] invokevirtual %this.<B: void bar()>(); -> [<B: void bar()>]
+<Recursion2: void main(java.lang.String[])>[1@L11] invokespecial temp$0.<B: void <init>()>(); -> [<B: void <init>()>]
+<Recursion2: void main(java.lang.String[])>[3@L12] invokeinterface i.<I: void foo()>(); -> [<A: void foo()>]
+----------------------------------------

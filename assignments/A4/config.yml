@@ -72,11 +72,8 @@ testResources:
   - cha/AbstractMethod.java
   - cha/VirtualCall.java
   - cha/StaticCall.java
-  - cha/SpecialCall.java
-  - cha/Recursion.java
-  - cha/LongCallChain.java
   - cha/Interface.java
-  - cha/Interface2.java
   - dataflow/constprop/inter/Example.java
-  - dataflow/constprop/inter/ArgRet.java
-  - dataflow/constprop/inter/Call.java
+  - dataflow/constprop/inter/Fibonacci.java
+  - dataflow/constprop/inter/MultiIntArgs.java
+  - dataflow/constprop/inter/Reference.java

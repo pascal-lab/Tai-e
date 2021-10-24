@@ -1,0 +1,23 @@
+-------------------- <MultiIntArgs: int goo(int,int)> (inter-constprop) --------------------
+[0@L3] temp$1 = x + y; {temp$1=5, x=2, y=3}
+[1@L4] return temp$1; {temp$1=5, x=2, y=3}
+
+-------------------- <MultiIntArgs: int foo(int,int)> (inter-constprop) --------------------
+[0@L7] temp$0 = x * y; {temp$0=NAC, x=NAC, y=NAC}
+[1@L8] return temp$0; {temp$0=NAC, x=NAC, y=NAC}
+
+-------------------- <MultiIntArgs: void main(java.lang.String[])> (inter-constprop) --------------------
+[0@L13] a = 2; {a=2}
+[1@L14] b = 3; {a=2, b=3}
+[2@L15] temp$0 = invokestatic <MultiIntArgs: int goo(int,int)>(a, b); {a=2, b=3}
+[3@L15] c = temp$0; {a=2, b=3, c=5, temp$0=5}
+[4@L18] x = 2; {a=2, b=3, c=5, temp$0=5, x=2}
+[5@L19] y = 3; {a=2, b=3, c=5, temp$0=5, x=2, y=3}
+[6@L20] temp$1 = invokestatic <MultiIntArgs: int foo(int,int)>(x, y); {a=2, b=3, c=5, temp$0=5, x=2, y=3}
+[7@L20] z = temp$1; {a=2, b=3, c=5, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
+[8@L22] r = 4; {a=2, b=3, c=5, r=4, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
+[9@L23] s = 5; {a=2, b=3, c=5, r=4, s=5, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
+[10@L24] temp$2 = invokestatic <MultiIntArgs: int foo(int,int)>(r, s); {a=2, b=3, c=5, r=4, s=5, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
+[11@L24] t = temp$2; {a=2, b=3, c=5, r=4, s=5, t=NAC, temp$0=5, temp$1=NAC, temp$2=NAC, x=2, y=3, z=NAC}
+[12@L24] return; {a=2, b=3, c=5, r=4, s=5, t=NAC, temp$0=5, temp$1=NAC, temp$2=NAC, x=2, y=3, z=NAC}
+

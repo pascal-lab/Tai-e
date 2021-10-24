@@ -43,6 +43,11 @@ public class CHATestFull {
     }
 
     @Test
+    public void testInterface3() {
+        Tests.testCHA("Interface3");
+    }
+
+    @Test
     public void testAbstractMethod() {
         Tests.testCHA("AbstractMethod");
     }
@@ -50,6 +55,17 @@ public class CHATestFull {
     @Test
     public void testRecursion() {
         Tests.testCHA("Recursion");
+    }
+
+    @Test
+    public void testRecursion2() {
+        Tests.testCHA("Recursion2");
+    }
+
+
+    @Test
+    public void testMaxPQ() {
+        Tests.testCHA("MaxPQ");
     }
 
     @Test

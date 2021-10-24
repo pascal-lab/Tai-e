@@ -23,11 +23,6 @@ public class CHATest {
     }
 
     @Test
-    public void testSpecialCall() {
-        Tests.testCHA("SpecialCall");
-    }
-
-    @Test
     public void testVirtualCall() {
         Tests.testCHA("VirtualCall");
     }
@@ -38,22 +33,7 @@ public class CHATest {
     }
 
     @Test
-    public void testInterface2() {
-        Tests.testCHA("Interface2");
-    }
-
-    @Test
     public void testAbstractMethod() {
         Tests.testCHA("AbstractMethod");
-    }
-
-    @Test
-    public void testRecursion() {
-        Tests.testCHA("Recursion");
-    }
-
-    @Test
-    public void testLongCallChain() {
-        Tests.testCHA("LongCallChain");
     }
 }

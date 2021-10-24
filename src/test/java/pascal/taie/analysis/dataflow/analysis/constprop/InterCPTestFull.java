@@ -13,24 +13,22 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
-import pascal.taie.analysis.Tests;
-import pascal.taie.analysis.dataflow.inter.InterConstantPropagation;
 
-public class InterCPTest {
-
-    private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/inter";
-
-    static void test(String inputClass) {
-        Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
-                "edge-refine:false;alias-aware:false", "-a", "cg=algorithm:cha"
-                // , "-a", "icfg=dump:true" // <-- uncomment this code if you want
-                                            // to output ICFGs for the test cases
-        );
-    }
+public class InterCPTestFull {
 
     @Test
     public void testExample() {
-        test("Example");
+        InterCPTest.test("Example");
+    }
+
+    @Test
+    public void testArgRet() {
+        InterCPTest.test("ArgRet");
+    }
+
+    @Test
+    public void testCall() {
+        InterCPTest.test("Call");
     }
 
     @Test
@@ -44,7 +42,33 @@ public class InterCPTest {
     }
 
     @Test
+    public void testDeadLoop() {
+        InterCPTest.test("DeadLoop");
+    }
+
+    @Test
+    public void testFloatArg() {
+        InterCPTest.test("FloatArg");
+    }
+
+    @Test
+    public void testMultiReturn() {
+        InterCPTest.test("MultiReturn");
+    }
+
+    @Test
+    public void testCharArgs() {
+        InterCPTest.test("CharArgs");
+    }
+
+    @Test
     public void testMultiIntArgs() {
         InterCPTest.test("MultiIntArgs");
     }
+
+    @Test
+    public void testRedBlackBST() {
+        InterCPTest.test("RedBlackBST");
+    }
+
 }

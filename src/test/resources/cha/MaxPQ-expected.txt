@@ -1,0 +1,34 @@
+#reachable methods: 12
+---------- Reachable methods: ----------
+<MaxPQ: boolean isEmpty()>
+<MaxPQ: boolean less(int,int)>
+<MaxPQ: int delMax()>
+<MaxPQ: void <init>()>
+<MaxPQ: void <init>(int)>
+<MaxPQ: void exch(int,int)>
+<MaxPQ: void insert(int)>
+<MaxPQ: void main(java.lang.String[])>
+<MaxPQ: void resize(int)>
+<MaxPQ: void sink(int)>
+<MaxPQ: void swim(int)>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 16
+---------- Call graph edges: ----------
+<MaxPQ: int delMax()>[0@L103] temp$0 = invokevirtual %this.<MaxPQ: boolean isEmpty()>(); -> [<MaxPQ: boolean isEmpty()>]
+<MaxPQ: int delMax()>[16@L106] invokevirtual %this.<MaxPQ: void exch(int,int)>(%intconst2, temp$4); -> [<MaxPQ: void exch(int,int)>]
+<MaxPQ: int delMax()>[17@L107] invokevirtual %this.<MaxPQ: void sink(int)>(%intconst2); -> [<MaxPQ: void sink(int)>]
+<MaxPQ: int delMax()>[41@L109] invokevirtual %this.<MaxPQ: void resize(int)>(temp$18); -> [<MaxPQ: void resize(int)>]
+<MaxPQ: void <init>()>[1@L19] invokespecial %this.<MaxPQ: void <init>(int)>(%intconst0); -> [<MaxPQ: void <init>(int)>]
+<MaxPQ: void <init>(int)>[0@L10] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<MaxPQ: void insert(int)>[12@L88] invokevirtual %this.<MaxPQ: void resize(int)>(temp$6); -> [<MaxPQ: void resize(int)>]
+<MaxPQ: void insert(int)>[21@L92] invokevirtual %this.<MaxPQ: void swim(int)>(temp$11); -> [<MaxPQ: void swim(int)>]
+<MaxPQ: void main(java.lang.String[])>[1@L178] invokespecial temp$0.<MaxPQ: void <init>()>(); -> [<MaxPQ: void <init>()>]
+<MaxPQ: void main(java.lang.String[])>[4@L179] invokevirtual pq.<MaxPQ: void insert(int)>(%intconst0); -> [<MaxPQ: void insert(int)>]
+<MaxPQ: void main(java.lang.String[])>[5@L180] temp$1 = invokevirtual pq.<MaxPQ: int delMax()>(); -> [<MaxPQ: int delMax()>]
+<MaxPQ: void sink(int)>[14@L129] temp$6 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(j, temp$5); -> [<MaxPQ: boolean less(int,int)>]
+<MaxPQ: void sink(int)>[22@L130] temp$9 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(k, j); -> [<MaxPQ: boolean less(int,int)>]
+<MaxPQ: void sink(int)>[28@L131] invokevirtual %this.<MaxPQ: void exch(int,int)>(k, j); -> [<MaxPQ: void exch(int,int)>]
+<MaxPQ: void swim(int)>[7@L120] temp$1 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(temp$0, k); -> [<MaxPQ: boolean less(int,int)>]
+<MaxPQ: void swim(int)>[14@L121] invokevirtual %this.<MaxPQ: void exch(int,int)>(k, temp$2); -> [<MaxPQ: void exch(int,int)>]
+----------------------------------------

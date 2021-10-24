@@ -1,0 +1,24 @@
+#reachable methods: 8
+---------- Reachable methods: ----------
+<A: void <init>()>
+<A: void bar()>
+<A: void foo()>
+<B: void bar()>
+<B: void foo()>
+<D: void <init>()>
+<Interface3: void main(java.lang.String[])>
+<java.lang.Object: void <init>()>
+
+#call graph edges: 13
+---------- Call graph edges: ----------
+<A: void <init>()>[0@L30] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
+<D: void <init>()>[0@L47] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
+<Interface3: void main(java.lang.String[])>[1@L15] invokespecial temp$0.<D: void <init>()>(); -> [<D: void <init>()>]
+<Interface3: void main(java.lang.String[])>[3@L16] invokeinterface i.<I: void foo()>(); -> [<A: void foo()>, <B: void foo()>]
+<Interface3: void main(java.lang.String[])>[5@L18] invokespecial temp$1.<D: void <init>()>(); -> [<D: void <init>()>]
+<Interface3: void main(java.lang.String[])>[7@L19] invokeinterface ii.<II: void foo()>(); -> [<A: void foo()>]
+<Interface3: void main(java.lang.String[])>[8@L20] invokeinterface ii.<II: void bar()>(); -> [<A: void bar()>]
+<Interface3: void main(java.lang.String[])>[10@L22] invokespecial temp$2.<D: void <init>()>(); -> [<D: void <init>()>]
+<Interface3: void main(java.lang.String[])>[12@L23] invokeinterface iii.<III: void bar()>(); -> [<A: void bar()>, <B: void bar()>]
+<Interface3: void main(java.lang.String[])>[13@L24] invokeinterface iii.<III: void foo()>(); -> [<A: void foo()>, <B: void foo()>]
+----------------------------------------
