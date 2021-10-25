@@ -71,4 +71,8 @@ public class InterCPTestFull {
         InterCPTest.test("RedBlackBST");
     }
 
+    @Test
+    public void testPlusPlus() {
+        InterCPTest.test("PlusPlus");
+    }
 }

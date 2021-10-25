@@ -22,7 +22,7 @@
 <MaxPQ: void <init>()>[1@L19] invokespecial %this.<MaxPQ: void <init>(int)>(%intconst0); -> [<MaxPQ: void <init>(int)>]
 <MaxPQ: void <init>(int)>[0@L10] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
 <MaxPQ: void insert(int)>[12@L88] invokevirtual %this.<MaxPQ: void resize(int)>(temp$6); -> [<MaxPQ: void resize(int)>]
-<MaxPQ: void insert(int)>[21@L92] invokevirtual %this.<MaxPQ: void swim(int)>(temp$11); -> [<MaxPQ: void swim(int)>]
+<MaxPQ: void insert(int)>[20@L92] invokevirtual %this.<MaxPQ: void swim(int)>(temp$11); -> [<MaxPQ: void swim(int)>]
 <MaxPQ: void main(java.lang.String[])>[1@L178] invokespecial temp$0.<MaxPQ: void <init>()>(); -> [<MaxPQ: void <init>()>]
 <MaxPQ: void main(java.lang.String[])>[4@L179] invokevirtual pq.<MaxPQ: void insert(int)>(%intconst0); -> [<MaxPQ: void insert(int)>]
 <MaxPQ: void main(java.lang.String[])>[5@L180] temp$1 = invokevirtual pq.<MaxPQ: int delMax()>(); -> [<MaxPQ: int delMax()>]

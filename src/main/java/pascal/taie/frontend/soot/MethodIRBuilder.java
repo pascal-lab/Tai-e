@@ -93,6 +93,7 @@ import soot.Trap;
 import soot.Unit;
 import soot.UnitBox;
 import soot.Value;
+import soot.ValueBox;
 import soot.jimple.AbstractConstantSwitch;
 import soot.jimple.AbstractJimpleValueSwitch;
 import soot.jimple.AbstractStmtSwitch;
@@ -383,7 +384,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * TODO: remove this step for body parsed from .class files.
      */
     private static Map<Local, AssignStmt> getTempToDef(Body body) {
-        Map<Local, Set<AssignStmt>> varToAssigns = Maps.newHybridMap();
+        Map<Local, Set<AssignStmt>> tempToAssigns = Maps.newHybridMap();
+        Map<Local, Set<Unit>> tempToUses = Maps.newHybridMap();
         for (Unit unit : body.getUnits()) {
             if (unit instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) unit;
@@ -391,19 +393,36 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                 if (lhs instanceof Local) {
                     Local var = (Local) lhs;
                     if (var.getName().startsWith("temp$")) {
-                        Maps.addToMapSet(varToAssigns, var, assign);
+                        Maps.addToMapSet(tempToAssigns, var, assign);
                     }
                 }
             }
+            // collect the uses of temp variables
+            unit.getUseBoxes()
+                    .stream()
+                    .map(ValueBox::getValue)
+                    .forEach(value -> {
+                        if (value instanceof Local) {
+                            Local var = (Local) value;
+                            if (var.getName().startsWith("temp$")) {
+                                Maps.addToMapSet(tempToUses, var, unit);
+                            }
+                        }
+                    });
         }
         Map<Local, AssignStmt> tempToDef = Maps.newHybridMap();
-        varToAssigns.forEach((var, assigns) -> {
+        tempToAssigns.forEach((var, assigns) -> {
             if (assigns.size() == 1) {
                 AssignStmt assign = CollectionUtils.getOne(assigns);
                 Value rhs = assign.getRightOp();
-                if (rhs instanceof Constant ||
+                if ((rhs instanceof Constant ||
                         rhs instanceof Local ||
-                        rhs instanceof BinopExpr) {
+                        rhs instanceof BinopExpr) &&
+                        tempToUses.getOrDefault(var, Set.of()).size() <= 1) {
+                    // if multiple units use a temp variable, then we don't
+                    // inline the RHS expression, because the value of RHS may
+                    // change between the two units, and lead to wrong result.
+                    // y = ++x; could trigger this issue.
                     tempToDef.put(var, assign);
                 }
             }
