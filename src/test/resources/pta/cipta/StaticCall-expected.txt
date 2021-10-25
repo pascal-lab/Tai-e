@@ -1,6 +1,7 @@
 Points-to sets of all variables
 <StaticCall: java.lang.Object bar(int,java.lang.Object)>/n -> []
 <StaticCall: java.lang.Object bar(int,java.lang.Object)>/o -> [NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+<StaticCall: java.lang.Object bar(int,java.lang.Object)>/temp$0 -> []
 <StaticCall: java.lang.Object bar(int,java.lang.Object)>/temp$2 -> [NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
 <StaticCall: java.lang.Object foo(int,java.lang.Object)>/n -> []
 <StaticCall: java.lang.Object foo(int,java.lang.Object)>/o -> [NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]

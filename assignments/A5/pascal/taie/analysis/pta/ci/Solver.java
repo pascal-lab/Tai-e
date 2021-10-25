@@ -131,17 +131,17 @@ class Solver {
     }
 
     /**
-     * Resolves the callee of a call site with the type of receiver object.
+     * Resolves the callee of a call site with the receiver object.
      *
-     * @param type the type of the receiver object. If the callSite is static,
-     *             this parameter is ignored (i.e., it can be null).
+     * @param recv the receiver object of the method call. If the callSite
+     *             is static, this parameter is ignored (i.e., can be null).
      * @param callSite the call site to be resolved.
      * @return the resolved callee.
      */
-    private JMethod resolveCallee(Type type, Invoke callSite) {
+    private JMethod resolveCallee(Obj recv, Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         if (callSite.isInterface() || callSite.isVirtual()) {
-            return hierarchy.dispatch(type, methodRef);
+            return hierarchy.dispatch(recv.getType(), methodRef);
         } else if (callSite.isSpecial() || callSite.isStatic()) {
             return methodRef.resolveNullable();
         } else {
