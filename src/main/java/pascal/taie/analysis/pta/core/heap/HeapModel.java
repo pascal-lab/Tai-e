@@ -16,7 +16,7 @@ import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.stmt.New;
 
 /**
- * Model for heap objects.
+ * Represents of heap models for heap objects.
  */
 public interface HeapModel {
 

@@ -17,16 +17,27 @@ import pascal.taie.language.type.Type;
 
 import java.util.Optional;
 
+/**
+ * Represents of abstract objects in pointer analysis.
+ *
+ * @see HeapModel
+ */
 public interface Obj {
 
+    /**
+     * @return the type of the object.
+     */
     Type getType();
 
+    /**
+     * @return the allocation of the object.
+     */
     Object getAllocation();
 
     /**
      * @return the method containing the allocation site of this object.
-     * For Some special objects, e.g., string constants do not
-     * have such method.
+     * For some special objects, e.g., string constants, which are not
+     * allocated in any method, this API returns an empty Optional.
      */
     Optional<JMethod> getContainerMethod();
 

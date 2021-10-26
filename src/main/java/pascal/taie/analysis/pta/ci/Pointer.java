@@ -13,7 +13,9 @@
 package pascal.taie.analysis.pta.ci;
 
 /**
- * Represents pointers (i.e., nodes) in pointer flow graph.
+ * Represents pointers in pointer analysis and nodes in pointer flow graph.
+ *
+ * @see PointerFlowGraph
  */
 abstract class Pointer {
 

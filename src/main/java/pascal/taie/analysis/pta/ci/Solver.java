@@ -100,7 +100,7 @@ class Solver {
         public Void visit(New stmt) {
             VarPtr lhs = pointerFlowGraph.getVarPtr(stmt.getLValue());
             Obj obj = heapModel.getObj(stmt);
-            workList.addPointerEntry(lhs, new PointsToSet(obj));
+            workList.addEntry(lhs, new PointsToSet(obj));
             return null;
         }
 
@@ -149,7 +149,7 @@ class Solver {
      */
     private void analyze() {
         while (!workList.isEmpty()) {
-            WorkList.Entry entry = workList.pollPointerEntry();
+            WorkList.Entry entry = workList.pollEntry();
             Pointer p = entry.pointer;
             PointsToSet pts = entry.pointsToSet;
             PointsToSet diff = propagate(p, pts);
@@ -181,18 +181,18 @@ class Solver {
         });
         if (!diff.isEmpty()) {
             pointerFlowGraph.succsOf(pointer)
-                    .forEach(succ -> workList.addPointerEntry(succ, diff));
+                    .forEach(succ -> workList.addEntry(succ, diff));
         }
         return diff;
     }
 
     /**
-     * Adds an edge "from -> to" to the PFG.
+     * Adds an edge "source -> target" to the PFG.
      */
-    private void addPFGEdge(Pointer from, Pointer to) {
-        if (pointerFlowGraph.addEdge(from, to)) {
-            if (!from.getPointsToSet().isEmpty()) {
-                workList.addPointerEntry(to, from.getPointsToSet());
+    private void addPFGEdge(Pointer source, Pointer target) {
+        if (pointerFlowGraph.addEdge(source, target)) {
+            if (!source.getPointsToSet().isEmpty()) {
+                workList.addEntry(target, source.getPointsToSet());
             }
         }
     }
@@ -268,7 +268,7 @@ class Solver {
             VarPtr thisPtr = pointerFlowGraph.getVarPtr(
                     callee.getIR().getThis());
             PointsToSet recvPts = new PointsToSet(recv);
-            workList.addPointerEntry(thisPtr, recvPts);
+            workList.addEntry(thisPtr, recvPts);
             // build call edge
             processCallEdge(new Edge<>(
                     CallGraphs.getCallKind(callSite), callSite, callee));

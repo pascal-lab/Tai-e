@@ -114,9 +114,9 @@ class Solver {
     }
 
     /**
-     * Adds an edge "from -> to" to the PFG.
+     * Adds an edge "source -> target" to the PFG.
      */
-    private void addPFGEdge(Pointer from, Pointer to) {
+    private void addPFGEdge(Pointer source, Pointer target) {
         // TODO - finish me
     }
 

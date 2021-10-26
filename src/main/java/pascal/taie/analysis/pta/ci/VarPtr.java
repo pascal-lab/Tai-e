@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.ci;
 import pascal.taie.ir.exp.Var;
 
 /**
- * Represents variable pointer in PFG.
+ * Represents local variable pointer in PFG.
  */
 class VarPtr extends Pointer {
 
@@ -25,6 +25,9 @@ class VarPtr extends Pointer {
         this.var = var;
     }
 
+    /**
+     * @return the corresponding variable of the variable pointer.
+     */
     Var getVar() {
         return var;
     }

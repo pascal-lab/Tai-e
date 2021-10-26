@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Representation of points-to sets.
+ * Represents of points-to sets.
  */
 class PointsToSet implements Iterable<Obj> {
 

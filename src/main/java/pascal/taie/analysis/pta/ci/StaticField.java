@@ -26,7 +26,10 @@ class StaticField extends Pointer {
         this.field = field;
     }
 
-    public JField getField() {
+    /**
+     * @return the corresponding static field of the StaticField pointer.
+     */
+    JField getField() {
         return field;
     }
 

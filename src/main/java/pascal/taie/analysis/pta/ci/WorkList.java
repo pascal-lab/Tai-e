@@ -15,22 +15,39 @@ package pascal.taie.analysis.pta.ci;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+/**
+ * Represents work list in pointer analysis.
+ */
 class WorkList {
 
-    private final Queue<Entry> pointerEntries = new ArrayDeque<>();
+    private final Queue<Entry> entries = new ArrayDeque<>();
 
-    void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        pointerEntries.add(new Entry(pointer, pointsToSet));
+    /**
+     * Adds an entry to the work list.
+     */
+    void addEntry(Pointer pointer, PointsToSet pointsToSet) {
+        entries.add(new Entry(pointer, pointsToSet));
     }
 
-    Entry pollPointerEntry() {
-        return pointerEntries.poll();
+    /**
+     * Retrieves and removes an entry from this queue, or returns null
+     * if this work list is empty.
+     */
+    Entry pollEntry() {
+        return entries.poll();
     }
 
+    /**
+     * @return true if the work list is empty, otherwise false.
+     */
     boolean isEmpty() {
-        return pointerEntries.isEmpty();
+        return entries.isEmpty();
     }
 
+    /**
+     * Represents entries in the work list.
+     * Each entry consists of a pointer and a points-to set.
+     */
     static class Entry {
 
         final Pointer pointer;

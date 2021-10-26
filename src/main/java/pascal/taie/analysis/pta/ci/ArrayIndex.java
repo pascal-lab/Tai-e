@@ -17,6 +17,12 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 
 /**
  * Represents array index pointers in PFG.
+ *
+ * Ideally, an array index should consist of an array object and an index.
+ * However, pointer analysis does not distinguish loads and stores to
+ * different indexes of an array, and treats arrays as special objects
+ * with a mock field. Since there is only one such mock field of each array,
+ * we don't need to represent the field explicitly.
  */
 class ArrayIndex extends Pointer {
 
@@ -26,7 +32,10 @@ class ArrayIndex extends Pointer {
         this.array = array;
     }
 
-    public Obj getArray() {
+    /**
+     * @return the array object.
+     */
+    Obj getArray() {
         return array;
     }
 

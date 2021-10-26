@@ -30,10 +30,16 @@ class InstanceField extends Pointer {
         this.field = field;
     }
 
+    /**
+     * @return the base object.
+     */
     Obj getBase() {
         return base;
     }
 
+    /**
+     * @return the corresponding instance field of the InstanceField pointer.
+     */
     JField getField() {
         return field;
     }

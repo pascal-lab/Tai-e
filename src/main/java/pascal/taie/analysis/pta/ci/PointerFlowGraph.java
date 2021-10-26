@@ -25,6 +25,9 @@ import static pascal.taie.util.collection.Maps.newMap;
 import static pascal.taie.util.collection.Sets.newHybridSet;
 import static pascal.taie.util.collection.Sets.newSet;
 
+/**
+ * Represents pointer flow graph in pointer analysis.
+ */
 class PointerFlowGraph {
 
     /**
@@ -76,8 +79,7 @@ class PointerFlowGraph {
     }
 
     /**
-     * @return the corresponding StaticField node for the given field.
-     * The field should be a static field.
+     * @return the corresponding StaticField node for the given static field.
      */
     StaticField getStaticField(JField field) {
         return staticFields.computeIfAbsent(field, f -> {
@@ -88,8 +90,8 @@ class PointerFlowGraph {
     }
 
     /**
-     * @return the corresponding InstanceField node for the given object and field.
-     * The field should be an instance field.
+     * @return the corresponding InstanceField node for the given object
+     * and instance field.
      */
     InstanceField getInstanceField(Obj base, JField field) {
         return instanceFields.computeIfAbsent(base, o -> newHybridMap())
@@ -112,13 +114,14 @@ class PointerFlowGraph {
     }
 
     /**
-     * Adds an edge (from -> to) to this PFG.
-     * If the edge (from -> to) has already been added in this PFG,
-     * then returns false, otherwise returns true.
+     * Adds an edge (source -> target) to this PFG.
+     *
+     * @return true if this PFG changed as a result of the call,
+     * otherwise false.
      */
-    boolean addEdge(Pointer from, Pointer to) {
-        return successors.computeIfAbsent(from, p -> newHybridSet())
-                .add(to);
+    boolean addEdge(Pointer source, Pointer target) {
+        return successors.computeIfAbsent(source, p -> newHybridSet())
+                .add(target);
     }
 
     /**
