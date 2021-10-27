@@ -34,7 +34,6 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 import java.util.List;
@@ -93,8 +92,15 @@ class Solver {
      * Processes statements in new reachable methods.
      */
     private class StmtProcessor implements StmtVisitor<Void> {
-        // TODO - if you choose visitor pattern to implement addReachable(),
-        //  then finish me
+        // TODO - if you choose to implement addReachable()
+        //  via visitor pattern, then finish me
+    }
+
+    /**
+     * Adds an edge "source -> target" to the PFG.
+     */
+    private void addPFGEdge(Pointer source, Pointer target) {
+        // TODO - finish me
     }
 
     /**
@@ -111,13 +117,6 @@ class Solver {
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         // TODO - finish me
         return null;
-    }
-
-    /**
-     * Adds an edge "source -> target" to the PFG.
-     */
-    private void addPFGEdge(Pointer source, Pointer target) {
-        // TODO - finish me
     }
 
     /**

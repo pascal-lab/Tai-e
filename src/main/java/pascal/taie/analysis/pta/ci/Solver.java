@@ -145,6 +145,17 @@ class Solver {
     }
 
     /**
+     * Adds an edge "source -> target" to the PFG.
+     */
+    private void addPFGEdge(Pointer source, Pointer target) {
+        if (pointerFlowGraph.addEdge(source, target)) {
+            if (!source.getPointsToSet().isEmpty()) {
+                workList.addEntry(target, source.getPointsToSet());
+            }
+        }
+    }
+
+    /**
      * Processes work-list entries until the work-list is empty.
      */
     private void analyze() {
@@ -184,17 +195,6 @@ class Solver {
                     .forEach(succ -> workList.addEntry(succ, diff));
         }
         return diff;
-    }
-
-    /**
-     * Adds an edge "source -> target" to the PFG.
-     */
-    private void addPFGEdge(Pointer source, Pointer target) {
-        if (pointerFlowGraph.addEdge(source, target)) {
-            if (!source.getPointsToSet().isEmpty()) {
-                workList.addEntry(target, source.getPointsToSet());
-            }
-        }
     }
 
     /**
@@ -276,25 +276,6 @@ class Solver {
     }
 
     /**
-     * Resolves the callee of a call site with the receiver object.
-     *
-     * @param recv the receiver object of the method call. If the callSite
-     *             is static, this parameter is ignored (i.e., can be null).
-     * @param callSite the call site to be resolved.
-     * @return the resolved callee.
-     */
-    private JMethod resolveCallee(Obj recv, Invoke callSite) {
-        MethodRef methodRef = callSite.getMethodRef();
-        if (callSite.isInterface() || callSite.isVirtual()) {
-            return hierarchy.dispatch(recv.getType(), methodRef);
-        } else if (callSite.isSpecial() || callSite.isStatic()) {
-            return methodRef.resolveNullable();
-        } else {
-            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
-        }
-    }
-
-    /**
      * Process the call edges in work list.
      */
     private void processCallEdge(Edge<Invoke, JMethod> edge) {
@@ -319,6 +300,25 @@ class Solver {
                     addPFGEdge(retPtr, lhsPtr);
                 }
             }
+        }
+    }
+
+    /**
+     * Resolves the callee of a call site with the receiver object.
+     *
+     * @param recv the receiver object of the method call. If the callSite
+     *             is static, this parameter is ignored (i.e., can be null).
+     * @param callSite the call site to be resolved.
+     * @return the resolved callee.
+     */
+    private JMethod resolveCallee(Obj recv, Invoke callSite) {
+        MethodRef methodRef = callSite.getMethodRef();
+        if (callSite.isInterface() || callSite.isVirtual()) {
+            return hierarchy.dispatch(recv.getType(), methodRef);
+        } else if (callSite.isSpecial() || callSite.isStatic()) {
+            return methodRef.resolveNullable();
+        } else {
+            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
         }
     }
 

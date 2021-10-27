@@ -1,0 +1,16 @@
+- id: cipta
+  options:
+    merge-string-constants: false
+    merge-string-objects: false
+    merge-string-builders: false
+    merge-exception-objects: true
+    only-app: false
+    action: dump
+    file: null
+- id: cg
+  options:
+    algorithm: cipta
+    action: dump
+    file: null
+- id: class-dumper
+  options: {}

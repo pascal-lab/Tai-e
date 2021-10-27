@@ -1,0 +1,21 @@
+Points-to sets of all variables
+<A: void <init>()>/%this -> [NewObj{<B: A foo(A)>[0@L18] new A}, NewObj{<Example: void main(java.lang.String[])>[0@L4] new A}, NewObj{<Example: void main(java.lang.String[])>[3@L5] new B}]
+<B: A foo(A)>/%this -> [NewObj{<Example: void main(java.lang.String[])>[3@L5] new B}]
+<B: A foo(A)>/r -> [NewObj{<B: A foo(A)>[0@L18] new A}]
+<B: A foo(A)>/temp$0 -> [NewObj{<B: A foo(A)>[0@L18] new A}]
+<B: A foo(A)>/y -> [NewObj{<Example: void main(java.lang.String[])>[0@L4] new A}]
+<B: void <init>()>/%this -> [NewObj{<Example: void main(java.lang.String[])>[3@L5] new B}]
+<Example: void main(java.lang.String[])>/a -> [NewObj{<Example: void main(java.lang.String[])>[0@L4] new A}]
+<Example: void main(java.lang.String[])>/b -> [NewObj{<Example: void main(java.lang.String[])>[3@L5] new B}]
+<Example: void main(java.lang.String[])>/c -> [NewObj{<B: A foo(A)>[0@L18] new A}]
+<Example: void main(java.lang.String[])>/temp$0 -> [NewObj{<Example: void main(java.lang.String[])>[0@L4] new A}]
+<Example: void main(java.lang.String[])>/temp$1 -> [NewObj{<Example: void main(java.lang.String[])>[3@L5] new B}]
+<Example: void main(java.lang.String[])>/temp$2 -> [NewObj{<B: A foo(A)>[0@L18] new A}]
+<java.lang.Object: void <init>()>/%this -> [NewObj{<B: A foo(A)>[0@L18] new A}, NewObj{<Example: void main(java.lang.String[])>[0@L4] new A}, NewObj{<Example: void main(java.lang.String[])>[3@L5] new B}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+

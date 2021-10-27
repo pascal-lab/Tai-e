@@ -16,14 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
-import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
@@ -99,6 +92,7 @@ class CIPTAResult implements PointerAnalysisResult {
         });
     }
 
+
     @Override
     public Set<Obj> getPointsToSet(JField field) {
         if (!field.isStatic()) {
@@ -116,55 +110,5 @@ class CIPTAResult implements PointerAnalysisResult {
 
     PointerFlowGraph getPointerFlowGraph() {
         return pointerFlowGraph;
-    }
-
-    // ------------------------------------------
-    // Below methods are mainly for context-sensitive pointer analysis,
-    // thus not supported in context-insensitive analysis.
-    // ------------------------------------------
-
-    @Override
-    public Stream<CSVar> csVars() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Stream<pascal.taie.analysis.pta.core.cs.element.InstanceField> instanceFields() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Stream<ArrayIndex> arrayIndexes() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Stream<StaticField> staticFields() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Stream<CSObj> csObjects() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<CSObj> getPointsToSet(CSVar var) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public CallGraph<CSCallSite, CSMethod> getCSCallGraph() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <R> void storePluginResult(Class<? extends Plugin> pluginClass, R result) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <R> R getPluginResult(Class<? extends Plugin> pluginClass) {
-        throw new UnsupportedOperationException();
     }
 }

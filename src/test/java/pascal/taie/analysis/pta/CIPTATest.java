@@ -20,6 +20,11 @@ public class CIPTATest {
     private static final String DIR = "cipta";
 
     @Test
+    public void testExample() {
+        Tests.testPTA(DIR, "Example");
+    }
+
+    @Test
     public void testArray() {
         Tests.testPTA(DIR, "Array");
     }
