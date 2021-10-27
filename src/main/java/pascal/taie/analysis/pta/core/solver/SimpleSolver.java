@@ -18,6 +18,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.CSCallGraph;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -65,7 +66,7 @@ public class SimpleSolver extends Solver {
      * Initializes pointer analysis.
      */
     private void initialize() {
-        callGraph = new OnFlyCallGraph(csManager);
+        callGraph = new CSCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         plugin.onStart();

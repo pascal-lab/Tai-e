@@ -24,10 +24,12 @@ import static pascal.taie.util.collection.Sets.newHybridSet;
 public class CSCallSite extends AbstractCSElement {
 
     private final Invoke callSite;
+
     /**
      * Context-sensitive method which contains this CS call site.
      */
     private CSMethod container;
+
     /**
      * Call edges from this call site.
      */

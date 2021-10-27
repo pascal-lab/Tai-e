@@ -41,8 +41,13 @@ public class ListContext<T> implements Context {
         return new ListContext<>(List.of(e1, e2));
     }
 
-    public static <T> Context make(T e1, T e2, T e3) {
-        return new ListContext<>(List.of(e1, e2, e3));
+    @SafeVarargs
+    public static <T> Context make(T... elements) {
+        if (elements.length == 0) {
+            return make();
+        } else {
+            return new ListContext<>(List.of(elements));
+        }
     }
 
     @Override

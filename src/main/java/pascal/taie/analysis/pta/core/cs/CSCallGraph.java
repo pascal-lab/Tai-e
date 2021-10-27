@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.analysis.pta.core.cs;
 
 import pascal.taie.analysis.graph.callgraph.AbstractCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -26,29 +26,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-class OnFlyCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
+public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
 
-    OnFlyCallGraph(CSManager csManager) {
+    public CSCallGraph(CSManager csManager) {
         this.csManager = csManager;
     }
 
-    void addEntryMethod(CSMethod entryMethod) {
+    public void addEntryMethod(CSMethod entryMethod) {
         entryMethods.add(entryMethod);
         // Let pointer analysis explicitly call addNewMethod()
     }
 
-    void addEdge(Edge<CSCallSite, CSMethod> edge) {
+    public void addEdge(Edge<CSCallSite, CSMethod> edge) {
         edge.getCallSite().addEdge(edge);
         edge.getCallee().addEdge(edge);
     }
 
-    boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
+    public boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
         return edge.getCallSite().getEdges().contains(edge);
     }
 
-    boolean addReachableMethod(CSMethod csMethod) {
+    public boolean addReachableMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
             callSitesIn(csMethod).forEach(csCallSite ->
                     csCallSite.setContainer(csMethod));

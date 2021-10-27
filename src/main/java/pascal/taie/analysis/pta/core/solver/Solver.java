@@ -16,6 +16,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.cs.CSCallGraph;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -61,7 +62,7 @@ public abstract class Solver {
 
     protected Plugin plugin;
 
-    protected OnFlyCallGraph callGraph;
+    protected CSCallGraph callGraph;
 
     protected PointerFlowGraph pointerFlowGraph;
 

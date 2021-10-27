@@ -19,6 +19,7 @@ import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.CSCallGraph;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -111,7 +112,7 @@ public class DefaultSolver extends Solver {
      */
     private void initialize() {
         onlyApp = options.getBoolean("only-app");
-        callGraph = new OnFlyCallGraph(csManager);
+        callGraph = new CSCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         reachableMethods = newSet();
