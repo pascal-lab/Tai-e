@@ -15,15 +15,12 @@ package pascal.taie.analysis.pta.ci;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Maps.newHybridMap;
-import static pascal.taie.util.collection.Maps.newMap;
-import static pascal.taie.util.collection.Sets.newHybridSet;
-import static pascal.taie.util.collection.Sets.newSet;
 
 /**
  * Represents pointer flow graph in pointer analysis.
@@ -33,32 +30,32 @@ class PointerFlowGraph {
     /**
      * Set of all pointer in this PFG.
      */
-    private final Set<Pointer> pointers = newSet();
+    private final Set<Pointer> pointers = Sets.newSet();
 
     /**
      * Map from Variable to Var node.
      */
-    private final Map<Var, VarPtr> varPtrs = newMap();
+    private final Map<Var, VarPtr> varPtrs = Maps.newMap();
 
     /**
      * Map from JField to StaticField node.
      */
-    private final Map<JField, StaticField> staticFields = newMap();
+    private final Map<JField, StaticField> staticFields = Maps.newMap();
 
     /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private final Map<Obj, Map<JField, InstanceField>> instanceFields = newMap();
+    private final Map<Obj, Map<JField, InstanceField>> instanceFields = Maps.newMap();
 
     /**
      * Map from Obj (array) to ArrayIndex node.
      */
-    private final Map<Obj, ArrayIndex> arrayIndexes = newMap();
+    private final Map<Obj, ArrayIndex> arrayIndexes = Maps.newMap();
 
     /**
      * Map from a pointer (node) to its successors in PFG.
      */
-    private final Map<Pointer, Set<Pointer>> successors = newMap();
+    private final Map<Pointer, Set<Pointer>> successors = Maps.newMap();
 
     /**
      * Returns all pointers in this PFG.
@@ -94,7 +91,7 @@ class PointerFlowGraph {
      * and instance field.
      */
     InstanceField getInstanceField(Obj base, JField field) {
-        return instanceFields.computeIfAbsent(base, o -> newHybridMap())
+        return instanceFields.computeIfAbsent(base, o -> Maps.newHybridMap())
                 .computeIfAbsent(field, f -> {
                     InstanceField instanceField = new InstanceField(base, f);
                     pointers.add(instanceField);
@@ -120,7 +117,7 @@ class PointerFlowGraph {
      * otherwise false.
      */
     boolean addEdge(Pointer source, Pointer target) {
-        return successors.computeIfAbsent(source, p -> newHybridSet())
+        return successors.computeIfAbsent(source, p -> Sets.newHybridSet())
                 .add(target);
     }
 

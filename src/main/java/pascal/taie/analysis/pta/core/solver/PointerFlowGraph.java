@@ -14,17 +14,16 @@ package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Edge;
 import pascal.taie.util.graph.Graph;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.util.collection.Sets.newSet;
-
 public class PointerFlowGraph implements Graph<Pointer> {
 
-    private final Set<Pointer> pointers = newSet();
+    private final Set<Pointer> pointers = Sets.newSet();
 
     public boolean addEdge(Pointer source, Pointer target,
                            PointerFlowEdge.Kind kind) {

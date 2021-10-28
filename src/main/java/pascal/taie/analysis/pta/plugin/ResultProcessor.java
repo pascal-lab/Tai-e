@@ -18,6 +18,7 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
 
@@ -65,13 +66,17 @@ public class ResultProcessor implements Plugin {
 
     @Override
     public void onFinish() {
-        PointerAnalysisResult result = solver.getResult();
+        process(solver.getOptions(), solver.getResult());
+    }
+
+    public static void process(AnalysisOptions options,
+                               PointerAnalysisResult result) {
         printStatistics(result);
-        String action = solver.getOptions().getString("action");
+        String action = options.getString("action");
         if (action == null) {
             return;
         }
-        String file = solver.getOptions().getString("file");
+        String file = options.getString("file");
         switch (action) {
             case "dump":
                 dumpPointsToSet(result, file);

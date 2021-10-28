@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class PointerAnalysisResultImpl implements PointerAnalysisResult {
+public class PointerAnalysisResultImpl implements PointerAnalysisResult {
 
     private static final Logger logger = LogManager.getLogger(PointerAnalysisResultImpl.class);
 
@@ -68,7 +68,7 @@ class PointerAnalysisResultImpl implements PointerAnalysisResult {
 
     private final Map<Class<? extends Plugin>, Object> pluginResults = Maps.newMap();
 
-    PointerAnalysisResultImpl(CSManager csManager,
+    public PointerAnalysisResultImpl(CSManager csManager,
                               CallGraph<CSCallSite, CSMethod> csCallGraph) {
         this.csManager = csManager;
         this.csCallGraph = csCallGraph;

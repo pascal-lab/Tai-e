@@ -37,6 +37,7 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
         switch (algorithm) {
             case "pta":
             case "cipta":
+            case "cspta":
                 builder = new PTABasedBuilder(algorithm);
                 break;
             case "cha":

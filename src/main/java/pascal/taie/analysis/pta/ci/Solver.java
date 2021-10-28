@@ -23,7 +23,6 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
@@ -32,9 +31,7 @@ import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.AnalysisException;
 
 import java.util.List;
 
@@ -51,8 +48,6 @@ class Solver {
     private WorkList workList;
 
     private StmtProcessor stmtProcessor;
-
-    private ClassHierarchy hierarchy;
 
     Solver(HeapModel heapModel) {
         this.heapModel = heapModel;
@@ -74,7 +69,6 @@ class Solver {
         pointerFlowGraph = new PointerFlowGraph();
         callGraph = new DefaultCallGraph();
         stmtProcessor = new StmtProcessor();
-        hierarchy = World.getClassHierarchy();
         // initialize main method
         JMethod main = World.getMainMethod();
         callGraph.addEntryMethod(main);
@@ -137,7 +131,7 @@ class Solver {
         @Override
         public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
-                JMethod callee = resolveCallee(null, stmt);
+                JMethod callee = CallGraphs.resolveCallee(null, stmt);
                 processCallEdge(new Edge<>(CallKind.STATIC, stmt, callee));
             }
             return null;
@@ -264,7 +258,7 @@ class Solver {
     private void processCall(Var var, Obj recv) {
         for (Invoke callSite : var.getInvokes()) {
             // pass receiver object to this variable
-            JMethod callee = resolveCallee(recv, callSite);
+            JMethod callee = CallGraphs.resolveCallee(recv.getType(), callSite);
             VarPtr thisPtr = pointerFlowGraph.getVarPtr(
                     callee.getIR().getThis());
             PointsToSet recvPts = new PointsToSet(recv);
@@ -300,25 +294,6 @@ class Solver {
                     addPFGEdge(retPtr, lhsPtr);
                 }
             }
-        }
-    }
-
-    /**
-     * Resolves the callee of a call site with the receiver object.
-     *
-     * @param recv the receiver object of the method call. If the callSite
-     *             is static, this parameter is ignored (i.e., can be null).
-     * @param callSite the call site to be resolved.
-     * @return the resolved callee.
-     */
-    private JMethod resolveCallee(Obj recv, Invoke callSite) {
-        MethodRef methodRef = callSite.getMethodRef();
-        if (callSite.isInterface() || callSite.isVirtual()) {
-            return hierarchy.dispatch(recv.getType(), methodRef);
-        } else if (callSite.isSpecial() || callSite.isStatic()) {
-            return methodRef.resolveNullable();
-        } else {
-            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
         }
     }
 
