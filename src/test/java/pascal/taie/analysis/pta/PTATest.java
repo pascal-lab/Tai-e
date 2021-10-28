@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
-public class CSPTATest {
+public class PTATest {
 
     private static final String DIR = "cspta";
 

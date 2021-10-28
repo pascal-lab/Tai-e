@@ -2,7 +2,6 @@
   analysisClass: pascal.taie.analysis.pta.PointerAnalysis
   id: pta
   options:
-    solver: default # | simple
     cs: ci # | k-[obj/type/call]
     implicit-entries: true # analyze implicit entries
     only-app: false # only analyze application code

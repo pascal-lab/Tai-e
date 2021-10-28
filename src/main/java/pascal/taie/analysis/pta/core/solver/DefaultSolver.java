@@ -15,23 +15,30 @@ package pascal.taie.analysis.pta.core.solver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.CSCallGraph;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
+import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
+import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeExp;
@@ -52,6 +59,7 @@ import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -59,6 +67,9 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,10 +81,8 @@ import java.util.Set;
 
 import static pascal.taie.language.classes.StringReps.FINALIZE;
 import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
-import static pascal.taie.util.collection.Maps.newMap;
-import static pascal.taie.util.collection.Sets.newSet;
 
-public class DefaultSolver extends Solver {
+public class DefaultSolver implements Solver {
 
     private static final Logger logger = LogManager.getLogger(DefaultSolver.class);
 
@@ -82,7 +91,32 @@ public class DefaultSolver extends Solver {
      */
     private static final String MULTI_ARRAY_DESC = "MultiArrayObj";
 
+    private final AnalysisOptions options;
+
+    private final HeapModel heapModel;
+
+    private final ContextSelector contextSelector;
+
+    private final CSManager csManager;
+
+    private final ClassHierarchy hierarchy;
+
+    private final TypeManager typeManager;
+
+    private final NativeObjs nativeObjs;
+
+    /**
+     * Whether only analyzes application code.
+     */
+    private boolean onlyApp;
+
+    private Plugin plugin;
+
     private WorkList workList;
+
+    private CSCallGraph callGraph;
+
+    private PointerFlowGraph pointerFlowGraph;
 
     private Set<JMethod> reachableMethods;
 
@@ -93,18 +127,77 @@ public class DefaultSolver extends Solver {
 
     private StmtProcessor stmtProcessor;
 
+    private PointerAnalysisResult result;
+
+    public DefaultSolver(AnalysisOptions options, HeapModel heapModel,
+                         ContextSelector contextSelector, CSManager csManager) {
+        this.options = options;
+        this.heapModel = heapModel;
+        this.contextSelector = contextSelector;
+        this.csManager = csManager;
+        hierarchy = World.getClassHierarchy();
+        typeManager = World.getTypeManager();
+        nativeObjs = new NativeObjs(typeManager);
+    }
+
     @Override
-    public CallGraph<CSCallSite, CSMethod> getCallGraph() {
+    public AnalysisOptions getOptions() {
+        return options;
+    }
+
+    @Override
+    public HeapModel getHeapModel() {
+        return heapModel;
+    }
+
+    @Override
+    public ContextSelector getContextSelector() {
+        return contextSelector;
+    }
+
+    @Override
+    public CSManager getCSManager() {
+        return csManager;
+    }
+
+    @Override
+    public ClassHierarchy getHierarchy() {
+        return hierarchy;
+    }
+
+    @Override
+    public TypeManager getTypeManager() {
+        return typeManager;
+    }
+
+    @Override
+    public NativeObjs getNativeObjs() {
+        return nativeObjs;
+    }
+
+    @Override
+    public CSCallGraph getCallGraph() {
         return callGraph;
     }
 
+    @Override
+    public PointsToSet getPointsToSetOf(Pointer pointer) {
+        return pointer.getPointsToSet();
+    }
+
+    @Override
+    public void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
+    // ---------- solver logic starts ----------
     /**
      * Runs pointer analysis algorithm.
      */
     @Override
     public void solve() {
         initialize();
-        doSolve();
+        analyze();
     }
 
     /**
@@ -115,8 +208,8 @@ public class DefaultSolver extends Solver {
         callGraph = new CSCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        reachableMethods = newSet();
-        initializedClasses = newSet();
+        reachableMethods = Sets.newSet();
+        initializedClasses = Sets.newSet();
         stmtProcessor = new StmtProcessor();
         plugin.onStart();
 
@@ -148,7 +241,7 @@ public class DefaultSolver extends Solver {
     /**
      * Processes worklist entries until the worklist is empty.
      */
-    private void doSolve() {
+    private void analyze() {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
                 WorkList.Entry entry = workList.pollPointerEntry();
@@ -210,57 +303,6 @@ public class DefaultSolver extends Solver {
                 .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
                 .forEach(result::addObject);
         return result;
-    }
-
-    @Override
-    public void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        workList.addCallEdge(edge);
-    }
-
-    @Override
-    public void addCSMethod(CSMethod csMethod) {
-        processNewCSMethod(csMethod);
-    }
-
-    @Override
-    public void initializeClass(JClass cls) {
-        if (cls == null || initializedClasses.contains(cls)) {
-            return;
-        }
-        // initialize super class
-        JClass superclass = cls.getSuperClass();
-        if (superclass != null) {
-            initializeClass(superclass);
-        }
-        // TODO: initialize the superinterfaces which
-        //  declare default methods
-        JMethod clinit = cls.getClinit();
-        if (clinit != null) {
-            // processNewCSMethod() may trigger initialization of more
-            // classes. So cls must be added before processNewCSMethod(),
-            // otherwise, infinite recursion may occur.
-            initializedClasses.add(cls);
-            CSMethod csMethod = csManager.getCSMethod(
-                    contextSelector.getDefaultContext(), clinit);
-            addCSMethod(csMethod);
-        }
-    }
-
-    @Override
-    public void addPointsTo(Pointer pointer, PointsToSet pts) {
-        workList.addPointerEntry(pointer, pts);
-    }
-
-    @Override
-    public void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind) {
-        if (pointerFlowGraph.addEdge(source, target, type, kind)) {
-            PointsToSet sourceSet = type == null ?
-                    source.getPointsToSet() :
-                    getAssignablePointsToSet(source.getPointsToSet(), type);
-            if (!sourceSet.isEmpty()) {
-                workList.addPointerEntry(target, sourceSet);
-            }
-        }
     }
 
     /**
@@ -470,9 +512,9 @@ public class DefaultSolver extends Solver {
 
         private Context context;
 
-        private final Map<NewMultiArray, MockObj[]> newArrays = newMap();
+        private final Map<NewMultiArray, MockObj[]> newArrays = Maps.newMap();
 
-        private final Map<New, Invoke> registerInvokes = newMap();
+        private final Map<New, Invoke> registerInvokes = Maps.newMap();
 
         private final JMethod finalize = Objects.requireNonNull(
                 hierarchy.getJREMethod(FINALIZE));
@@ -633,5 +675,96 @@ public class DefaultSolver extends Solver {
             }
             return null;
         }
+    }
+
+    // ---------- solver logic ends ----------
+
+    @Override
+    public void addPointsTo(Pointer pointer, PointsToSet pts) {
+        workList.addPointerEntry(pointer, pts);
+    }
+
+
+    @Override
+    public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
+        addVarPointsTo(context, var, csManager.getCSObj(heapContext, obj));
+    }
+
+    @Override
+    public void addVarPointsTo(Context context, Var var, CSObj csObj) {
+        addPointsTo(csManager.getCSVar(context, var), csObj);
+    }
+
+    @Override
+    public void addVarPointsTo(Context context, Var var, PointsToSet pts) {
+        addPointsTo(csManager.getCSVar(context, var), pts);
+    }
+
+    @Override
+    public void addArrayPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj) {
+        CSObj csArray = csManager.getCSObj(arrayContext, array);
+        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
+        CSObj elem = csManager.getCSObj(heapContext, obj);
+        addPointsTo(arrayIndex, elem);
+    }
+
+    @Override
+    public void addStaticFieldPointsTo(JField field, PointsToSet pts) {
+        assert field.isStatic();
+        addPointsTo(csManager.getStaticField(field), pts);
+    }
+
+    @Override
+    public void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind) {
+        if (pointerFlowGraph.addEdge(source, target, type, kind)) {
+            PointsToSet sourceSet = type == null ?
+                    source.getPointsToSet() :
+                    getAssignablePointsToSet(source.getPointsToSet(), type);
+            if (!sourceSet.isEmpty()) {
+                workList.addPointerEntry(target, sourceSet);
+            }
+        }
+    }
+
+    @Override
+    public void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        workList.addCallEdge(edge);
+    }
+
+    @Override
+    public void addCSMethod(CSMethod csMethod) {
+        processNewCSMethod(csMethod);
+    }
+
+    @Override
+    public void initializeClass(JClass cls) {
+        if (cls == null || initializedClasses.contains(cls)) {
+            return;
+        }
+        // initialize super class
+        JClass superclass = cls.getSuperClass();
+        if (superclass != null) {
+            initializeClass(superclass);
+        }
+        // TODO: initialize the superinterfaces which
+        //  declare default methods
+        JMethod clinit = cls.getClinit();
+        if (clinit != null) {
+            // processNewCSMethod() may trigger initialization of more
+            // classes. So cls must be added before processNewCSMethod(),
+            // otherwise, infinite recursion may occur.
+            initializedClasses.add(cls);
+            CSMethod csMethod = csManager.getCSMethod(
+                    contextSelector.getDefaultContext(), clinit);
+            addCSMethod(csMethod);
+        }
+    }
+
+    @Override
+    public PointerAnalysisResult getResult() {
+        if (result == null) {
+            result = new PointerAnalysisResultImpl(csManager, callGraph);
+        }
+        return result;
     }
 }

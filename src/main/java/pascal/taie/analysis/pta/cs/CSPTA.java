@@ -17,9 +17,9 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.selector.CISelector;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
 import pascal.taie.util.Strings;
 
@@ -39,12 +39,13 @@ public class CSPTA extends InterproceduralAnalysis {
 
     @Override
     public PointerAnalysisResult analyze() {
-        HeapModel heapModel = new AllocationSiteBasedModel(getOptions());
-        ContextSelector selector = getContextSelector(getOptions().getString("cs"));
-        Solver solver = new Solver(heapModel, selector);
+        AnalysisOptions options = getOptions();
+        Solver solver = new Solver(
+                new AllocationSiteBasedModel(options),
+                getContextSelector(options.getString("cs")));
         solver.solve();
         PointerAnalysisResult result = solver.getResult();
-        ResultProcessor.process(getOptions(), result);
+        ResultProcessor.process(options, result);
         return result;
     }
 

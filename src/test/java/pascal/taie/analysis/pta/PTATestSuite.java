@@ -19,7 +19,7 @@ import pascal.taie.analysis.pta.core.cs.context.ContextTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         ContextTest.class,
-        CSPTATest.class,
+        PTATest.class,
         ExceptionTest.class,
         LambdaTest.class,
         ReflectionTest.class,
