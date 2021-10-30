@@ -32,6 +32,7 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 
 import java.util.List;
 
@@ -131,7 +132,7 @@ class Solver {
         @Override
         public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
-                JMethod callee = CallGraphs.resolveCallee(null, stmt);
+                JMethod callee = resolveCallee(null, stmt);
                 processCallEdge(new Edge<>(CallKind.STATIC, stmt, callee));
             }
             return null;
@@ -194,7 +195,7 @@ class Solver {
     /**
      * Processes instance stores when points-to set of the base variable changes.
      *
-     * @param var the base variable
+     * @param var  the base variable
      * @param base new discovered object pointed by the variable.
      */
     private void processInstanceStore(Var var, Obj base) {
@@ -209,7 +210,7 @@ class Solver {
     /**
      * Processes instance loads when points-to set of the base variable changes.
      *
-     * @param var the base variable
+     * @param var  the base variable
      * @param base new discovered object pointed by the variable.
      */
     private void processInstanceLoad(Var var, Obj base) {
@@ -224,7 +225,7 @@ class Solver {
     /**
      * Processes array stores when points-to set of the base variable changes.
      *
-     * @param var the base variable
+     * @param var   the base variable
      * @param array new discovered array object pointed by the variable.
      */
     private void processArrayStore(Var var, Obj array) {
@@ -238,7 +239,7 @@ class Solver {
     /**
      * Processes array loads when points-to set of the base variable changes.
      *
-     * @param var the base variable
+     * @param var   the base variable
      * @param array new discovered array object pointed by the variable.
      */
     private void processArrayLoad(Var var, Obj array) {
@@ -252,13 +253,13 @@ class Solver {
     /**
      * Processes instance calls when points-to set of the receiver variable changes.
      *
-     * @param var the variable that holds receiver objects
+     * @param var  the variable that holds receiver objects
      * @param recv a new discovered object pointed by the variable
      */
     private void processCall(Var var, Obj recv) {
         for (Invoke callSite : var.getInvokes()) {
             // pass receiver object to this variable
-            JMethod callee = CallGraphs.resolveCallee(recv.getType(), callSite);
+            JMethod callee = resolveCallee(recv, callSite);
             VarPtr thisPtr = pointerFlowGraph.getVarPtr(
                     callee.getIR().getThis());
             PointsToSet recvPts = new PointsToSet(recv);
@@ -295,6 +296,19 @@ class Solver {
                 }
             }
         }
+    }
+
+    /**
+     * Resolves the callee of a call site with the receiver object.
+     *
+     * @param recv     the receiver object of the method call. If the callSite
+     *                 is static, this parameter is ignored (i.e., can be null).
+     * @param callSite the call site to be resolved.
+     * @return the resolved callee.
+     */
+    private JMethod resolveCallee(Obj recv, Invoke callSite) {
+        Type type = recv != null ? recv.getType() : null;
+        return CallGraphs.resolveCallee(type, callSite);
     }
 
     CIPTAResult getResult() {

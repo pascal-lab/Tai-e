@@ -35,6 +35,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.language.type.Type;
 
 import java.util.List;
 
@@ -132,20 +133,14 @@ class Solver {
     /**
      * Resolves the callee of a call site with the receiver object.
      *
-     * @param recv the receiver object of the method call. If the callSite
-     *             is static, this parameter is ignored (i.e., can be null).
+     * @param recv     the receiver object of the method call. If the callSite
+     *                 is static, this parameter is ignored (i.e., can be null).
      * @param callSite the call site to be resolved.
      * @return the resolved callee.
      */
     private JMethod resolveCallee(Obj recv, Invoke callSite) {
-        MethodRef methodRef = callSite.getMethodRef();
-        if (callSite.isInterface() || callSite.isVirtual()) {
-            return hierarchy.dispatch(recv.getType(), methodRef);
-        } else if (callSite.isSpecial() || callSite.isStatic()) {
-            return methodRef.resolveNullable();
-        } else {
-            throw new AnalysisException("Cannot resolve Invoke: " + callSite);
-        }
+        Type type = recv != null ? recv.getType() : null;
+        return CallGraphs.resolveCallee(type, callSite);
     }
 
     CIPTAResult getResult() {

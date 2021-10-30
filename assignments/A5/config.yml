@@ -8,7 +8,8 @@ exclude:
   - pascal.taie.analysis.pta.PointerAnalysis
   - pascal.taie.analysis.pta.ci.*
   - pascal.taie.analysis.pta.cs.*
-  - pascal.taie.analysis.pta.solver.*
+  - pascal.taie.analysis.pta.core.cs.*
+  - pascal.taie.analysis.pta.core.solver.*
   - pascal.taie.analysis.pta.plugin.*
   - pascal.taie.analysis.pta.pts.*
   - pascal.taie.analysis.Tests

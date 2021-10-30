@@ -49,6 +49,7 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 
 class Solver {
 
@@ -169,7 +170,7 @@ class Solver {
         @Override
         public Void visit(Invoke stmt) {
             if (stmt.isStatic()) {
-                JMethod callee = CallGraphs.resolveCallee(null, stmt);
+                JMethod callee = resolveCallee(null, stmt);
                 CSCallSite csCallSite = csManager.getCSCallSite(context, stmt);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
@@ -306,8 +307,7 @@ class Solver {
         Var var = recv.getVar();
         for (Invoke callSite : var.getInvokes()) {
             // resolve callee
-            JMethod callee = CallGraphs.resolveCallee(
-                    recvObj.getObject().getType(), callSite);
+            JMethod callee = resolveCallee(recvObj, callSite);
             // select context
             CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
             Context calleeContext = contextSelector.selectContext(
@@ -352,6 +352,19 @@ class Solver {
                 }
             }
         }
+    }
+
+    /**
+     * Resolves the callee of a call site with the receiver object.
+     *
+     * @param recv the receiver object of the method call. If the callSite
+     *             is static, this parameter is ignored (i.e., can be null).
+     * @param callSite the call site to be resolved.
+     * @return the resolved callee.
+     */
+    private JMethod resolveCallee(CSObj recv, Invoke callSite) {
+        Type type = recv != null ? recv.getObject().getType() : null;
+        return CallGraphs.resolveCallee(type, callSite);
     }
 
     PointerAnalysisResult getResult() {
