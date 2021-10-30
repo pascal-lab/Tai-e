@@ -14,6 +14,8 @@ Points-to sets of all variables
 <java.lang.Object: int hashCode()>/%native-this -> [NewObj{<Array: void main(java.lang.String[])>[1@L4] newarray (A)[%intconst0]}]
 <java.lang.Object: void <init>()>/%this -> [NewObj{<Array: void main(java.lang.String[])>[14@L10] new A}, NewObj{<Array: void main(java.lang.String[])>[2@L5] new A}, NewObj{<Array: void main(java.lang.String[])>[6@L6] new A}]
 
+Points-to sets of all static fields
+
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes

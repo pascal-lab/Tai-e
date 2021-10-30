@@ -10,5 +10,9 @@ Points-to sets of all variables
 <Assign2: void main(java.lang.String[])>/temp$0 -> [NewObj{<Assign2: void main(java.lang.String[])>[0@L3] new A}]
 <java.lang.Object: void <init>()>/%this -> [NewObj{<A: void cycle()>[0@L10] new A}, NewObj{<A: void cycle()>[3@L11] new A}, NewObj{<A: void cycle()>[6@L12] new A}, NewObj{<Assign2: void main(java.lang.String[])>[0@L3] new A}]
 
+Points-to sets of all static fields
+
 Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 

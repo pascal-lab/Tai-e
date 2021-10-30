@@ -21,5 +21,9 @@ Points-to sets of all variables
 <CallParamRet: void main(java.lang.String[])>/temp$2 -> [NewObj{<CallParamRet: void main(java.lang.String[])>[4@L6] new B}]
 <java.lang.Object: void <init>()>/%this -> [NewObj{<A: void param()>[0@L14] new B}, NewObj{<A: void param()>[3@L15] new B}, NewObj{<CallParamRet: void main(java.lang.String[])>[0@L4] new A}, NewObj{<CallParamRet: void main(java.lang.String[])>[4@L6] new B}]
 
+Points-to sets of all static fields
+
 Points-to sets of all instance fields
+
+Points-to sets of all array indexes
 

@@ -1,0 +1,18 @@
+Points-to sets of all variables
+<A: void <init>()>/%this -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<MergeParam: A foo(A)>/a -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<MergeParam: void main(java.lang.String[])>/a1 -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}]
+<MergeParam: void main(java.lang.String[])>/a2 -> [NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<MergeParam: void main(java.lang.String[])>/result -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<MergeParam: void main(java.lang.String[])>/temp$0 -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}]
+<MergeParam: void main(java.lang.String[])>/temp$1 -> [NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<MergeParam: void main(java.lang.String[])>/temp$2 -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<MergeParam: void main(java.lang.String[])>/temp$3 -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+<java.lang.Object: void <init>()>/%this -> [NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+

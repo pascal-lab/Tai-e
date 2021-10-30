@@ -65,12 +65,9 @@ testResources:
   - pta/cipta/Assign.java
   - pta/cipta/Assign2.java
   - pta/cipta/Call.java
-  - pta/cipta/CallField.java
-  - pta/cipta/CallParamRet.java
   - pta/cipta/Example.java
   - pta/cipta/InstanceField.java
-  - pta/cipta/InstanceField2.java
-  - pta/cipta/New.java
   - pta/cipta/StaticCall.java
   - pta/cipta/StaticField.java
   - pta/cipta/StoreLoad.java
+  - pta/cipta/MergeParam.java
