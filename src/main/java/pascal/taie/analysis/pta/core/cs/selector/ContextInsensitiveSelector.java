@@ -28,16 +28,16 @@ public class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
 
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, JMethod callee) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 
     @Override
     protected Context selectNewObjContext(CSMethod method, NewObj obj) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 }

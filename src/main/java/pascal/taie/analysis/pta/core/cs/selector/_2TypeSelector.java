@@ -24,7 +24,7 @@ import pascal.taie.language.type.Type;
 public class _2TypeSelector implements ContextSelector {
 
     @Override
-    public Context getDefaultContext() {
+    public Context getEmptyContext() {
         return ListContext.make();
     }
 

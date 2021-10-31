@@ -214,7 +214,7 @@ public class DefaultSolver implements Solver {
         plugin.onStart();
 
         // process program entries (including implicit entries)
-        Context defContext = contextSelector.getDefaultContext();
+        Context defContext = contextSelector.getEmptyContext();
         for (JMethod entry : computeEntries()) {
             // initialize class type of entry methods
             CSMethod csMethod = csManager.getCSMethod(defContext, entry);
@@ -755,7 +755,7 @@ public class DefaultSolver implements Solver {
             // otherwise, infinite recursion may occur.
             initializedClasses.add(cls);
             CSMethod csMethod = csManager.getCSMethod(
-                    contextSelector.getDefaultContext(), clinit);
+                    contextSelector.getEmptyContext(), clinit);
             addCSMethod(csMethod);
         }
     }

@@ -84,7 +84,7 @@ public class ThreadHandler implements Plugin {
             return;
         }
         NativeObjs nativeObjs = solver.getNativeObjs();
-        Context context = solver.getContextSelector().getDefaultContext();
+        Context context = solver.getContextSelector().getEmptyContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this

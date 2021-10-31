@@ -67,7 +67,7 @@ public abstract class AbstractModel implements Model {
         hierarchy = solver.getHierarchy();
         csManager = solver.getCSManager();
         heapModel = solver.getHeapModel();
-        defaultHctx = solver.getContextSelector().getDefaultContext();
+        defaultHctx = solver.getContextSelector().getEmptyContext();
         registerVarAndHandler();
     }
 

@@ -101,7 +101,7 @@ public class TreeContext<T> implements Context {
         private final TreeContext<T> rootContext = new TreeContext<>();
 
         @Override
-        public TreeContext<T> getDefaultContext() {
+        public TreeContext<T> getEmptyContext() {
             return rootContext;
         }
 

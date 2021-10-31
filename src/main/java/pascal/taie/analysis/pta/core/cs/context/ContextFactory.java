@@ -20,9 +20,9 @@ package pascal.taie.analysis.pta.core.cs.context;
 public interface ContextFactory<T> {
 
     /**
-     * @return the default context.
+     * @return the empty context.
      */
-    Context getDefaultContext();
+    Context getEmptyContext();
 
     /**
      * @return the context with one element.

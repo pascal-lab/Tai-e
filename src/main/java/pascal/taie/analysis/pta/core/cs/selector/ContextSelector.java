@@ -21,7 +21,10 @@ import pascal.taie.language.classes.JMethod;
 
 public interface ContextSelector {
 
-    Context getDefaultContext();
+    /**
+     * @return the empty context that does not contain any context elements.
+     */
+    Context getEmptyContext();
 
     /**
      * Selects contexts for static methods.

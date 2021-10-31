@@ -23,7 +23,7 @@ import pascal.taie.language.classes.JMethod;
 public class _1ObjSelector implements ContextSelector {
 
     @Override
-    public Context getDefaultContext() {
+    public Context getEmptyContext() {
         return ListContext.make();
     }
 
@@ -39,6 +39,6 @@ public class _1ObjSelector implements ContextSelector {
 
     @Override
     public Context selectHeapContext(CSMethod method, Obj obj) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 }

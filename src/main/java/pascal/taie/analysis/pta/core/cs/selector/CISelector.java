@@ -23,22 +23,22 @@ import pascal.taie.language.classes.JMethod;
 public class CISelector implements ContextSelector {
 
     @Override
-    public Context getDefaultContext() {
+    public Context getEmptyContext() {
         return ListContext.make();
     }
 
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, JMethod callee) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 
     @Override
     public Context selectHeapContext(CSMethod method, Obj obj) {
-        return getDefaultContext();
+        return getEmptyContext();
     }
 }

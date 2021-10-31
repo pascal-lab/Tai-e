@@ -85,7 +85,7 @@ class Solver {
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         // process program entry, i.e., main method
-        Context defContext = contextSelector.getDefaultContext();
+        Context defContext = contextSelector.getEmptyContext();
         JMethod main = World.getMainMethod();
         CSMethod csMethod = csManager.getCSMethod(defContext, main);
         callGraph.addEntryMethod(csMethod);

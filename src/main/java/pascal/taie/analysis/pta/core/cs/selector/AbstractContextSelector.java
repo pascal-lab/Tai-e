@@ -24,8 +24,8 @@ abstract class AbstractContextSelector<T> implements ContextSelector {
     protected final ContextFactory<T> factory = new TreeContext.Factory<>();
 
     @Override
-    public Context getDefaultContext() {
-        return factory.getDefaultContext();
+    public Context getEmptyContext() {
+        return factory.getEmptyContext();
     }
 
     @Override
@@ -35,7 +35,7 @@ abstract class AbstractContextSelector<T> implements ContextSelector {
         if (obj instanceof NewObj) {
             return selectNewObjContext(method, (NewObj) obj);
         } else {
-            return getDefaultContext();
+            return getEmptyContext();
         }
     }
 

@@ -74,7 +74,7 @@ public class TaintAnalysis implements Plugin {
     public void setSolver(Solver solver) {
         this.solver = solver;
         csManager = solver.getCSManager();
-        defaultCtx = solver.getContextSelector().getDefaultContext();
+        defaultCtx = solver.getContextSelector().getEmptyContext();
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy());

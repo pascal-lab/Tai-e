@@ -145,7 +145,7 @@ public class InvokeDynamicAnalysis implements Plugin {
         hierarchy = solver.getHierarchy();
         typeManager = solver.getTypeManager();
 
-        defContext = selector.getDefaultContext();
+        defContext = selector.getEmptyContext();
         lookup = hierarchy.getJREClass(StringReps.LOOKUP).getType();
         methodHandle = hierarchy.getJREClass(StringReps.METHOD_HANDLE).getType();
         callSite = hierarchy.getJREClass(StringReps.CALL_SITE).getType();
