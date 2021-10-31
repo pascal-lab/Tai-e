@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.core.solver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.AbstractResultHolder;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -27,7 +28,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -43,7 +43,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PointerAnalysisResultImpl implements PointerAnalysisResult {
+public class PointerAnalysisResultImpl extends AbstractResultHolder
+        implements PointerAnalysisResult {
 
     private static final Logger logger = LogManager.getLogger(PointerAnalysisResultImpl.class);
 
@@ -65,8 +66,6 @@ public class PointerAnalysisResultImpl implements PointerAnalysisResult {
      * Call graph (context projected out).
      */
     private CallGraph<Invoke, JMethod> callGraph;
-
-    private final Map<Class<? extends Plugin>, Object> pluginResults = Maps.newMap();
 
     public PointerAnalysisResultImpl(CSManager csManager,
                               CallGraph<CSCallSite, CSMethod> csCallGraph) {
@@ -192,15 +191,5 @@ public class PointerAnalysisResultImpl implements PointerAnalysisResult {
                     callSite, callee));
         });
         return callGraph;
-    }
-
-    @Override
-    public <R> void storePluginResult(Class<? extends Plugin> pluginClass, R result) {
-        pluginResults.put(pluginClass, result);
-    }
-
-    @Override
-    public <R> R getPluginResult(Class<? extends Plugin> pluginClass) {
-        return (R) pluginResults.get(pluginClass);
     }
 }

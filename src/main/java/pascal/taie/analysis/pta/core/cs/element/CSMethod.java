@@ -12,13 +12,15 @@
 
 package pascal.taie.analysis.pta.core.cs.element;
 
+import pascal.taie.analysis.AbstractResultHolder;
+import pascal.taie.analysis.ResultHolder;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.plugin.exception.CSMethodThrowResult;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Sets.newHybridSet;
@@ -26,12 +28,13 @@ import static pascal.taie.util.collection.Sets.newHybridSet;
 public class CSMethod extends AbstractCSElement {
 
     private final JMethod method;
+
     /**
      * Callers of this CS method.
      */
     private final Set<Edge<CSCallSite, CSMethod>> edges = newHybridSet();
 
-    private CSMethodThrowResult throwResult;
+    private final ResultHolder resultHolder = new AbstractResultHolder() {};
 
     CSMethod(JMethod method, Context context) {
         super(context);
@@ -50,15 +53,12 @@ public class CSMethod extends AbstractCSElement {
         return edges.stream();
     }
 
-    public CSMethodThrowResult getOrCreateThrowResult() {
-        if (throwResult == null) {
-            throwResult = new CSMethodThrowResult();
-        }
-        return throwResult;
+    public <R> R getResult(String id, Supplier<R> supplier) {
+        return resultHolder.getResult(id, supplier);
     }
 
-    public Optional<CSMethodThrowResult> getThrowResult() {
-        return Optional.ofNullable(throwResult);
+    public <R> Optional<R> getResult(String id) {
+        return Optional.ofNullable(resultHolder.getResult(id));
     }
 
     @Override

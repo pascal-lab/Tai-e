@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta;
 
+import pascal.taie.analysis.ResultHolder;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -30,7 +31,7 @@ import pascal.taie.language.classes.JMethod;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface PointerAnalysisResult {
+public interface PointerAnalysisResult extends ResultHolder {
 
     /**
      * @return all reachable context-sensitive variables in the program.
@@ -96,14 +97,4 @@ public interface PointerAnalysisResult {
      * @return the resulting call graph (without contexts).
      */
     CallGraph<Invoke, JMethod> getCallGraph();
-
-    /**
-     * Stores plugin result with the plugin class.
-     */
-    <R> void storePluginResult(Class<? extends Plugin> pluginClass, R result);
-
-    /**
-     * Given a plugin class, returns the corresponding result.
-     */
-    <R> R getPluginResult(Class<? extends Plugin> pluginClass);
 }

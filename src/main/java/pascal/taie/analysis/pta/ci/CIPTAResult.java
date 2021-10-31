@@ -14,6 +14,7 @@ package pascal.taie.analysis.pta.ci;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.AbstractResultHolder;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
@@ -23,7 +24,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class CIPTAResult implements PointerAnalysisResult {
+class CIPTAResult extends AbstractResultHolder implements PointerAnalysisResult {
 
     private static final Logger logger = LogManager.getLogger(CIPTAResult.class);
 
@@ -155,16 +155,6 @@ class CIPTAResult implements PointerAnalysisResult {
 
     @Override
     public CallGraph<CSCallSite, CSMethod> getCSCallGraph() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <R> void storePluginResult(Class<? extends Plugin> pluginClass, R result) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <R> R getPluginResult(Class<? extends Plugin> pluginClass) {
         throw new UnsupportedOperationException();
     }
 }

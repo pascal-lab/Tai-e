@@ -12,7 +12,7 @@
 
 package pascal.taie.ir;
 
-import pascal.taie.analysis.AbstractHolder;
+import pascal.taie.analysis.AbstractResultHolder;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
@@ -26,7 +26,7 @@ import java.util.Set;
  * Default implementation of IR.
  * The data structures in this class are immutable.
  */
-public class DefaultIR extends AbstractHolder implements IR {
+public class DefaultIR extends AbstractResultHolder implements IR {
 
     private final JMethod method;
 

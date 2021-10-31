@@ -13,13 +13,14 @@
 package pascal.taie.analysis;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static pascal.taie.util.collection.Maps.newHybridMap;
 
 /**
  * Implementation for {@link ResultHolder}.
  */
-public abstract class AbstractHolder implements ResultHolder {
+public abstract class AbstractResultHolder implements ResultHolder {
 
     /**
      * Map from analysis ID to the corresponding analysis result.
@@ -27,18 +28,23 @@ public abstract class AbstractHolder implements ResultHolder {
     private final Map<String, Object> results = newHybridMap();
 
     @Override
-    public void storeResult(String id, Object result) {
+    public <R> void storeResult(String id, R result) {
         results.put(id, result);
     }
 
     @Override
-    public Object getResult(String id) {
-        return results.get(id);
+    public <R> R getResult(String id) {
+        return (R) results.get(id);
     }
 
     @Override
-    public Object getResult(String id, Object defaultResult) {
-        return results.getOrDefault(id, defaultResult);
+    public <R> R getResult(String id, R defaultResult) {
+        return (R) results.getOrDefault(id, defaultResult);
+    }
+
+    @Override
+    public <R> R getResult(String id, Supplier<R> supplier) {
+        return (R) results.computeIfAbsent(id, unused -> supplier.get());
     }
 
     @Override

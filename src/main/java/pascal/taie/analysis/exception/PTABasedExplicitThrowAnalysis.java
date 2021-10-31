@@ -34,7 +34,7 @@ class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
 
     PTABasedExplicitThrowAnalysis() {
         PointerAnalysisResult result = World.getResult(PointerAnalysis.ID);
-        this.ptaThrowResult = result.getPluginResult(ExceptionAnalysis.class);
+        this.ptaThrowResult = result.getResult(ExceptionAnalysis.class.getName());
     }
 
     @Override

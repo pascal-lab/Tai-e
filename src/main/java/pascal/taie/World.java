@@ -12,7 +12,7 @@
 
 package pascal.taie;
 
-import pascal.taie.analysis.AbstractHolder;
+import pascal.taie.analysis.AbstractResultHolder;
 import pascal.taie.analysis.ResultHolder;
 import pascal.taie.config.Options;
 import pascal.taie.ir.IRBuilder;
@@ -59,7 +59,7 @@ public final class World {
 
     private NativeModel nativeModel;
 
-    private final ResultHolder resultHolder = new AbstractHolder() {
+    private final ResultHolder resultHolder = new AbstractResultHolder() {
     };
 
     private JMethod mainMethod;

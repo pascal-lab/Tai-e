@@ -12,6 +12,8 @@
 
 package pascal.taie.analysis;
 
+import java.util.function.Supplier;
+
 /**
  * The holder object of analysis results.
  * The results of each analysis are associated with its id.
@@ -34,9 +36,16 @@ public interface ResultHolder {
 
     /**
      * If this holder contains the result for given analysis id,
-     * then return the result, otherwise, return the given default result.
+     * then returns the result; otherwise, return the given default result.
      */
     <R> R getResult(String id, R defaultResult);
+
+    /**
+     * If this holder contains the result for given analysis id,
+     * then returns the result; otherwise, supplier is used to create a result,
+     * which is stored in the holder, and returned as the result of the call.
+     */
+    <R> R getResult(String id, Supplier<R> supplier);
 
     /**
      * Clears result of the analysis specified by given id.

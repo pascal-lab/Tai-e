@@ -157,7 +157,7 @@ public class TaintAnalysis implements Plugin {
     @Override
     public void onFinish() {
         List<TaintFlow> taintFlows = collectTaintFlows();
-        solver.getResult().storePluginResult(getClass(), taintFlows);
+        solver.getResult().storeResult(getClass().getName(), taintFlows);
         taintFlows.forEach(logger::info);
     }
 

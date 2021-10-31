@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static pascal.taie.util.collection.Sets.newHybridSet;
@@ -118,7 +119,9 @@ public class ExceptionAnalysis implements Plugin {
         if (edge.getKind() != CallKind.OTHER) {
             // currently, don't propagate exceptions along OTHER edges
             CSMethod callee = edge.getCallee();
-            callee.getThrowResult().ifPresent(result -> {
+            Optional<CSMethodThrowResult> csResult =
+                    callee.getResult(getClass().getName());
+            csResult.ifPresent(result -> {
                 CSMethod caller = edge.getCallSite().getContainer();
                 Invoke invoke = edge.getCallSite().getCallSite();
                 Collection<CSObj> exceptions = result.mayThrowUncaught();
@@ -141,7 +144,8 @@ public class ExceptionAnalysis implements Plugin {
             CSMethod csMethod = entry.csMethod;
             Stmt stmt = entry.stmt;
             Collection<CSObj> exceptions = entry.exceptions;
-            CSMethodThrowResult result = csMethod.getOrCreateThrowResult();
+            CSMethodThrowResult result = csMethod.getResult(
+                    getClass().getName(), CSMethodThrowResult::new);
             Collection<CSObj> diff = result.propagate(stmt, exceptions);
             if (!diff.isEmpty()) {
                 Collection<CSObj> uncaught = analyzeIntraUncaught(
@@ -208,9 +212,11 @@ public class ExceptionAnalysis implements Plugin {
                 .forEach(csMethod -> {
                     JMethod method = csMethod.getMethod();
                     MethodThrowResult result = throwResult.getOrCreateResult(method);
-                    csMethod.getThrowResult().ifPresent(result::addCSMethodThrowResult);
+                    Optional<CSMethodThrowResult> csResult =
+                            csMethod.getResult(getClass().getName());
+                    csResult.ifPresent(result::addCSMethodThrowResult);
                 });
         solver.getResult()
-                .storePluginResult(getClass(), throwResult);
+                .storeResult(getClass().getName(), throwResult);
     }
 }
