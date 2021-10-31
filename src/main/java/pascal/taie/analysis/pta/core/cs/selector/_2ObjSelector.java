@@ -20,6 +20,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
 
+/**
+ * Implementation of 2-object sensitivity.
+ */
 public class _2ObjSelector implements ContextSelector {
 
     @Override

@@ -21,6 +21,9 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
+/**
+ * Implementation of 2-type sensitivity.
+ */
 public class _2TypeSelector implements ContextSelector {
 
     @Override

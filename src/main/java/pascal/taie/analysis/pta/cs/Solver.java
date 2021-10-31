@@ -324,8 +324,7 @@ class Solver {
     }
 
     private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (!callGraph.containsEdge(edge)) {
-            callGraph.addEdge(edge);
+        if (callGraph.addEdge(edge)) {
             CSMethod csCallee = edge.getCallee();
             addReachable(csCallee);
 

@@ -21,6 +21,9 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
+/**
+ * Implementation of 2-call-site sensitivity.
+ */
 public class _2CallSelector implements ContextSelector {
 
     @Override

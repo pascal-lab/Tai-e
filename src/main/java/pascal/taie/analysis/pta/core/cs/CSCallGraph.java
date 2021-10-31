@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Represents context-sensitive call graph.
+ */
 public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     private final CSManager csManager;
@@ -34,24 +37,39 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
         this.csManager = csManager;
     }
 
+    /**
+     * Adds an entry method to this call graph.
+     */
     public void addEntryMethod(CSMethod entryMethod) {
         entryMethods.add(entryMethod);
-        // Let pointer analysis explicitly call addNewMethod()
     }
 
-    public void addEdge(Edge<CSCallSite, CSMethod> edge) {
-        edge.getCallSite().addEdge(edge);
-        edge.getCallee().addEdge(edge);
-    }
-
-    public boolean containsEdge(Edge<CSCallSite, CSMethod> edge) {
-        return edge.getCallSite().getEdges().contains(edge);
-    }
-
+    /**
+     * Adds a reachable method to this call graph.
+     *
+     * @return true if this call graph changed as a result of the call,
+     * otherwise false.
+     */
     public boolean addReachableMethod(CSMethod csMethod) {
         if (reachableMethods.add(csMethod)) {
             callSitesIn(csMethod).forEach(csCallSite ->
                     csCallSite.setContainer(csMethod));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Adds a new call graph edge to this call graph.
+     *
+     * @param edge the call edge to be added
+     * @return true if the call graph changed as a result of the call,
+     * otherwise false.
+     */
+    public boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
+        if (edge.getCallSite().addEdge(edge)) {
+            edge.getCallee().addEdge(edge);
             return true;
         } else {
             return false;

@@ -432,8 +432,7 @@ public class DefaultSolver implements Solver {
      * Processes the call edges in work list.
      */
     private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (!callGraph.containsEdge(edge)) {
-            callGraph.addEdge(edge);
+        if (callGraph.addEdge(edge)) {
             CSMethod csCallee = edge.getCallee();
             processNewCSMethod(csCallee);
             if (edge.getKind() != CallKind.OTHER) {

@@ -20,6 +20,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
 
+/**
+ * Implementation of context insensitivity.
+ */
 public class CISelector implements ContextSelector {
 
     @Override

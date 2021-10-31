@@ -13,40 +13,61 @@
 package pascal.taie.analysis.pta.core.cs.context;
 
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.Maps;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * List-based contexts. Each context is represented by a list of context elements.
+ *
+ * @param <T> type of context elements
  */
 public class ListContext<T> implements Context {
 
-    private final List<T> elements;
-
+    /**
+     * The empty context.
+     */
     private static final ListContext<?> EMPTY_CONTEXT = new ListContext<>(List.of());
+
+    /**
+     * Cache for contexts with one element.
+     */
+    private static final Map<Object, ListContext<?>> oneContexts = Maps.newMap();
+
+    /**
+     * List of elements in the context.
+     */
+    private final List<T> elements;
 
     private ListContext(List<T> elements) {
         this.elements = elements;
     }
 
+    /**
+     * @return an empty context.
+     */
     public static Context make() {
         return EMPTY_CONTEXT;
     }
 
+    /**
+     * @return a context that consists of the given context element.
+     */
     public static <T> Context make(T e) {
-        return new ListContext<>(List.of(e));
+        return oneContexts.computeIfAbsent(e,
+                el -> new ListContext<>(List.of(el)));
     }
 
-    public static <T> Context make(T e1, T e2) {
-        return new ListContext<>(List.of(e1, e2));
-    }
-
+    /**
+     * @return a context that consists of given context elements.
+     */
     @SafeVarargs
     public static <T> Context make(T... elements) {
-        if (elements.length == 0) {
-            return make();
-        } else {
-            return new ListContext<>(List.of(elements));
+        switch (elements.length) {
+            case 0: return make();
+            case 1: return make(elements[0]);
+            default: return new ListContext<>(List.of(elements));
         }
     }
 
