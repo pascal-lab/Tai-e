@@ -94,12 +94,12 @@ public class ResultProcessor implements Plugin {
                 .mapToInt(v -> result.getPointsToSet(v).size()).sum();
         int vptSizeSens = result.csVars()
                 .mapToInt(v -> v.getPointsToSet().size()).sum();
+        int sfptSizeSens = result.staticFields()
+                .mapToInt(f -> f.getPointsToSet().size()).sum();
         int ifptSizeSens = result.instanceFields()
                 .mapToInt(f -> f.getPointsToSet().size()).sum();
         int aptSizeSens = result.arrayIndexes()
                 .mapToInt(a -> a.getPointsToSet().size()).sum();
-        int sfptSizeSens = result.staticFields()
-                .mapToInt(f -> f.getPointsToSet().size()).sum();
         int reachableInsens = result.getCallGraph().getNumberOfMethods();
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
         int callEdgeInsens = (int) result.getCallGraph()
@@ -111,12 +111,12 @@ public class ResultProcessor implements Plugin {
                 format(varInsens), format(varSens));
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var points-to:",
                 format(vptSizeInsens), format(vptSizeSens));
+        System.out.printf("%-30s%s (sens)%n", "#static field points-to:",
+                format(sfptSizeSens));
         System.out.printf("%-30s%s (sens)%n", "#instance field points-to:",
                 format(ifptSizeSens));
         System.out.printf("%-30s%s (sens)%n", "#array points-to:",
                 format(aptSizeSens));
-        System.out.printf("%-30s%s (sens)%n", "#static field points-to:",
-                format(sfptSizeSens));
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#reachable methods:",
                 format(reachableInsens), format(reachableSens));
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#call graph edges:",
@@ -129,16 +129,24 @@ public class ResultProcessor implements Plugin {
     }
 
     private static void dumpPointsToSet(PointerAnalysisResult result, String output) {
-        File outFile = new File(output);
-        try (PrintStream out =
-                     new PrintStream(new FileOutputStream(outFile))) {
-            logger.info("Dumping points-to set to {} ...", outFile);
-            dumpPointers(out, result.csVars(), "variables");
-            dumpPointers(out, result.instanceFields(), "instance fields");
-            dumpPointers(out, result.arrayIndexes(), "array indexes");
-            dumpPointers(out, result.staticFields(), "static fields");
-        } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump points-to set to " + outFile, e);
+        PrintStream out;
+        if (output != null) {  // if output file is given, then dump to the file
+            File outFile = new File(output);
+            try {
+                out = new PrintStream(new FileOutputStream(outFile));
+                logger.info("Dumping points-to set to {} ...", outFile);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open output file", e);
+            }
+        } else {  // otherwise, dump to System.out
+            out = System.out;
+        }
+        dumpPointers(out, result.csVars(), "variables");
+        dumpPointers(out, result.staticFields(), "static fields");
+        dumpPointers(out, result.instanceFields(), "instance fields");
+        dumpPointers(out, result.arrayIndexes(), "array indexes");
+        if (out != System.out) {
+            out.close();
         }
     }
 
@@ -154,9 +162,9 @@ public class ResultProcessor implements Plugin {
         var inputs = readPointsToSets(input);
         Map<String, Pointer> pointers = new LinkedHashMap<>();
         addPointers(pointers, result.csVars());
+        addPointers(pointers, result.staticFields());
         addPointers(pointers, result.instanceFields());
         addPointers(pointers, result.arrayIndexes());
-        addPointers(pointers, result.staticFields());
         List<String> mismatches = new ArrayList<>();
         pointers.forEach((pointerStr, pointer) -> {
             String given = toString(pointer.getPointsToSet());
