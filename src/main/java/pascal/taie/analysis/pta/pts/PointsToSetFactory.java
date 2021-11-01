@@ -18,6 +18,9 @@ import pascal.taie.util.collection.Sets;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * Provides static factory methods for {@link PointsToSet}.
+ */
 public class PointsToSetFactory {
 
     private static final Supplier<Set<CSObj>> setFactory = Sets::newHybridSet;

@@ -1,0 +1,16 @@
+- id: cspta
+  options:
+    cs: ci
+    merge-string-constants: false
+    merge-string-objects: false
+    merge-string-builders: false
+    merge-exception-objects: true
+    action: dump
+    file: null
+- id: cg
+  options:
+    algorithm: cspta
+    action: dump
+    file: null
+- id: class-dumper
+  options: {}
