@@ -39,8 +39,7 @@ Points-to sets of all variables
 []:<TwoObject: void m()>/temp$5 -> [[]:NewObj{<TwoObject: void m()>[3@L12] new java.lang.Object}]
 []:<TwoObject: void m()>/temp$6 -> [[NewObj{<TwoObject: void m()>[6@L13] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}]
 []:<TwoObject: void m()>/temp$7 -> [[]:NewObj{<TwoObject: void m()>[9@L14] new java.lang.Object}]
-
-Points-to sets of all static fields
+[]:<TwoObject: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}]
 
 Points-to sets of all instance fields
 [NewObj{<TwoObject: void m()>[0@L11] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}.this$0 -> [[]:NewObj{<TwoObject: void m()>[0@L11] new List}]
@@ -49,4 +48,7 @@ Points-to sets of all instance fields
 []:NewObj{<TwoObject: void m()>[6@L13] new List}.element -> [[]:NewObj{<TwoObject: void m()>[9@L14] new java.lang.Object}]
 
 Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoObject: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
 

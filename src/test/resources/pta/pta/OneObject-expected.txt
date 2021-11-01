@@ -27,12 +27,14 @@ Points-to sets of all variables
 []:<OneObject: void m()>/temp$3 -> [[]:NewObj{<OneObject: void m()>[9@L10] new B}]
 []:<OneObject: void m()>/temp$4 -> [[]:NewObj{<OneObject: void m()>[6@L9] new B}]
 []:<OneObject: void m()>/x -> [[]:NewObj{<OneObject: void m()>[6@L9] new B}]
-
-Points-to sets of all static fields
+[]:<OneObject: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <OneObject: void main(java.lang.String[])>}]
 
 Points-to sets of all instance fields
 []:NewObj{<OneObject: void m()>[0@L7] new A}.f -> [[]:NewObj{<OneObject: void m()>[6@L9] new B}]
 []:NewObj{<OneObject: void m()>[3@L8] new A}.f -> [[]:NewObj{<OneObject: void m()>[9@L10] new B}]
 
 Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <OneObject: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <OneObject: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
 

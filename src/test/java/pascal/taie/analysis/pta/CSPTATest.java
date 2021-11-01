@@ -15,9 +15,9 @@ package pascal.taie.analysis.pta;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
-public class PTATest {
+public class CSPTATest {
 
-    private static final String DIR = "pta";
+    private static final String DIR = "cspta";
 
     // Tests for context insensitivity
     @Test
@@ -108,11 +108,6 @@ public class PTATest {
     }
 
     @Test
-    public void testCast() {
-        Tests.testPTA(DIR, "Cast");
-    }
-
-    @Test
     public void testNull() {
         Tests.testPTA(DIR, "Null");
     }
@@ -120,41 +115,5 @@ public class PTATest {
     @Test
     public void testPrimitive() {
         Tests.testPTA(DIR, "Primitive");
-    }
-
-    @Test
-    public void testStrings() {
-        Tests.testPTA(DIR, "Strings");
-    }
-
-    @Test
-    public void testMultiArray() {
-        Tests.testPTA(DIR, "MultiArray");
-    }
-
-    @Test
-    public void testClinit() {
-        Tests.testPTA(DIR, "Clinit");
-    }
-
-    @Test
-    public void testClassObj() {
-        Tests.testPTA(DIR, "ClassObj");
-    }
-
-    // Tests for handling of non-normal objects
-    @Test
-    public void testTypeSens() {
-        Tests.testPTA(DIR, "TypeSens", "cs:2-type");
-    }
-
-    @Test
-    public void testSpecialHeapContext() {
-        Tests.testPTA(DIR, "SpecialHeapContext", "cs:2-obj");
-    }
-
-    @Test
-    public void testNativeModel() {
-        Tests.testPTA(DIR, "NativeModel", "only-app:false");
     }
 }

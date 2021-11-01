@@ -24,10 +24,12 @@ Points-to sets of all variables
 [<TwoCall: void main(java.lang.String[])>[0@L3] invokestatic TwoCall.m()]:<TwoCall: void m()>/temp$2 -> [[<TwoCall: void main(java.lang.String[])>[0@L3] invokestatic TwoCall.m()]:NewObj{<TwoCall: void m()>[3@L8] new B}]
 [<TwoCall: void main(java.lang.String[])>[0@L3] invokestatic TwoCall.m()]:<TwoCall: void m()>/temp$3 -> [[<TwoCall: void main(java.lang.String[])>[0@L3] invokestatic TwoCall.m()]:NewObj{<TwoCall: void m()>[7@L9] new C}]
 [<TwoCall: void main(java.lang.String[])>[0@L3] invokestatic TwoCall.m()]:<TwoCall: void m()>/temp$4 -> [[<TwoCall: void main(java.lang.String[])>[0@L3] invokestatic TwoCall.m()]:NewObj{<TwoCall: void m()>[7@L9] new C}]
-
-Points-to sets of all static fields
+[]:<TwoCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}]
 
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoCall: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
 
