@@ -180,6 +180,9 @@ class Solver {
         }
     }
 
+    /**
+     * Adds an edge "source -> target" to the PFG.
+     */
     private void addPFGEdge(Pointer source, Pointer target) {
         if (pointerFlowGraph.addEdge(source, target)) {
             if (!source.getPointsToSet().isEmpty()) {
@@ -188,6 +191,9 @@ class Solver {
         }
     }
 
+    /**
+     * Processes work-list entries until the work-list is empty.
+     */
     private void analyze() {
         while (!workList.isEmpty()) {
             WorkList.Entry entry = workList.pollEntry();

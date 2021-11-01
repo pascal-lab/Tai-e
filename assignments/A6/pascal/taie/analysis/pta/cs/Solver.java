@@ -96,11 +96,7 @@ class Solver {
      * Processes new reachable context-sensitive method.
      */
     private void addReachable(CSMethod csMethod) {
-        if (callGraph.addReachableMethod(csMethod)) {
-            JMethod method = csMethod.getMethod();
-            StmtProcessor stmtProcessor = new StmtProcessor(csMethod);
-            method.getIR().forEach(s -> s.accept(stmtProcessor));
-        }
+        // TODO - finish me
     }
 
     /**
@@ -117,94 +113,22 @@ class Solver {
             this.context = csMethod.getContext();
         }
 
-        @Override
-        public Void visit(New stmt) {
-            // obtain context-sensitive heap object
-            CSVar v = csManager.getCSVar(context, stmt.getLValue());
-            Obj obj = heapModel.getObj(stmt);
-            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            CSObj csObj = csManager.getCSObj(heapContext, obj);
-            workList.addEntry(v, PointsToSetFactory.make(csObj));
-            return null;
-        }
-
-        @Override
-        public Void visit(Copy stmt) {
-            CSVar from = csManager.getCSVar(context, stmt.getRValue());
-            CSVar to = csManager.getCSVar(context, stmt.getLValue());
-            addPFGEdge(from, to);
-            return null;
-        }
-
-        /**
-         * Processes static load.
-         */
-        @Override
-        public Void visit(LoadField stmt) {
-            if (stmt.isStatic()) {
-                JField field = stmt.getFieldRef().resolve();
-                StaticField sfield = csManager.getStaticField(field);
-                CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                addPFGEdge(sfield, to);
-            }
-            return null;
-        }
-
-        /**
-         * Processes static store.
-         */
-        @Override
-        public Void visit(StoreField stmt) {
-            if (stmt.isStatic()) {
-                JField field = stmt.getFieldRef().resolve();
-                StaticField sfield = csManager.getStaticField(field);
-                CSVar from = csManager.getCSVar(context, stmt.getRValue());
-                addPFGEdge(from, sfield);
-            }
-            return null;
-        }
-
-        /**
-         * Processes static invocation.
-         */
-        @Override
-        public Void visit(Invoke stmt) {
-            if (stmt.isStatic()) {
-                JMethod callee = resolveCallee(null, stmt);
-                CSCallSite csCallSite = csManager.getCSCallSite(context, stmt);
-                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
-                CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-                processCallEdge(new Edge<>(CallKind.STATIC, csCallSite, csCallee));
-            }
-            return null;
-        }
+        // TODO - if you choose to implement addReachable()
+        //  via visitor pattern, then finish me
     }
 
+    /**
+     * Adds an edge "source -> target" to the PFG.
+     */
     private void addPFGEdge(Pointer source, Pointer target) {
-        if (pointerFlowGraph.addEdge(source, target)) {
-            if (!source.getPointsToSet().isEmpty()) {
-                workList.addEntry(target, source.getPointsToSet());
-            }
-        }
+        // TODO - finish me
     }
 
+    /**
+     * Processes work-list entries until the work-list is empty.
+     */
     private void analyze() {
-        while (!workList.isEmpty()) {
-            WorkList.Entry entry = workList.pollEntry();
-            Pointer p = entry.pointer;
-            PointsToSet pts = entry.pointsToSet;
-            PointsToSet diff = propagate(p, pts);
-            if (p instanceof CSVar) {
-                CSVar v = (CSVar) p;
-                for (CSObj o : diff) {
-                    processInstanceStore(v, o);
-                    processInstanceLoad(v, o);
-                    processArrayStore(v, o);
-                    processArrayLoad(v, o);
-                    processCall(v, o);
-                }
-            }
-        }
+        // TODO - finish me
     }
 
     /**
@@ -212,88 +136,8 @@ class Solver {
      * returns the difference set of pointsToSet and pt(pointer).
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
-        logger.trace("Propagate {} to {}", pointsToSet, pointer);
-        final PointsToSet diff = PointsToSetFactory.make();
-        pointsToSet.forEach(obj -> {
-            if (pointer.getPointsToSet().addObject(obj)) {
-                diff.addObject(obj);
-            }
-        });
-        if (!diff.isEmpty()) {
-            pointerFlowGraph.succsOf(pointer)
-                    .forEach(succ -> workList.addEntry(succ, diff));
-        }
-        return diff;
-    }
-
-    /**
-     * Processes instance stores when points-to set of the base variable changes.
-     *
-     * @param baseVar the base variable
-     * @param baseObj new discovered object pointed by the variable.
-     */
-    private void processInstanceStore(CSVar baseVar, CSObj baseObj) {
-        Context context = baseVar.getContext();
-        Var var = baseVar.getVar();
-        for (StoreField store : var.getStoreFields()) {
-            Var fromVar = store.getRValue();
-            CSVar from = csManager.getCSVar(context, fromVar);
-            InstanceField instField = csManager.getInstanceField(
-                    baseObj, store.getFieldRef().resolve());
-            addPFGEdge(from, instField);
-        }
-    }
-
-    /**
-     * Processes instance loads when points-to set of the base variable changes.
-     *
-     * @param baseVar the base variable
-     * @param baseObj new discovered object pointed by the variable.
-     */
-    private void processInstanceLoad(CSVar baseVar, CSObj baseObj) {
-        Context context = baseVar.getContext();
-        Var var = baseVar.getVar();
-        for (LoadField load : var.getLoadFields()) {
-            Var toVar = load.getLValue();
-            CSVar to = csManager.getCSVar(context, toVar);
-            InstanceField instField = csManager.getInstanceField(
-                    baseObj, load.getFieldRef().resolve());
-            addPFGEdge(instField, to);
-        }
-    }
-
-    /**
-     * Processes array stores when points-to set of the array variable changes.
-     *
-     * @param arrayVar the array variable
-     * @param array    new discovered array pointed by the variable.
-     */
-    private void processArrayStore(CSVar arrayVar, CSObj array) {
-        Context context = arrayVar.getContext();
-        Var var = arrayVar.getVar();
-        for (StoreArray store : var.getStoreArrays()) {
-            Var rvalue = store.getRValue();
-            CSVar from = csManager.getCSVar(context, rvalue);
-            ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-            addPFGEdge(from, arrayIndex);
-        }
-    }
-
-    /**
-     * Processes array loads when points-to set of the array variable changes.
-     *
-     * @param arrayVar the array variable
-     * @param array    new discovered array pointed by the variable.
-     */
-    private void processArrayLoad(CSVar arrayVar, CSObj array) {
-        Context context = arrayVar.getContext();
-        Var var = arrayVar.getVar();
-        for (LoadArray load : var.getLoadArrays()) {
-            Var lvalue = load.getLValue();
-            CSVar to = csManager.getCSVar(context, lvalue);
-            ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-            addPFGEdge(arrayIndex, to);
-        }
+        // TODO - finish me
+        return null;
     }
 
     /**
@@ -303,54 +147,7 @@ class Solver {
      * @param recvObj set of new discovered objects pointed by the variable.
      */
     private void processCall(CSVar recv, CSObj recvObj) {
-        Context context = recv.getContext();
-        Var var = recv.getVar();
-        for (Invoke callSite : var.getInvokes()) {
-            // resolve callee
-            JMethod callee = resolveCallee(recvObj, callSite);
-            // select context
-            CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
-            Context calleeContext = contextSelector.selectContext(
-                    csCallSite, recvObj, callee);
-            // pass receiver object to *this* variable
-            CSVar thisVar = csManager.getCSVar(
-                    calleeContext, callee.getIR().getThis());
-            workList.addEntry(thisVar, PointsToSetFactory.make(recvObj));
-            // build call edge
-            CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-            processCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
-                    csCallSite, csCallee));
-        }
-    }
-
-    private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (callGraph.addEdge(edge)) {
-            CSMethod csCallee = edge.getCallee();
-            addReachable(csCallee);
-
-            Context callerCtx = edge.getCallSite().getContext();
-            Invoke callSite = edge.getCallSite().getCallSite();
-            Context calleeCtx = csCallee.getContext();
-            JMethod callee = csCallee.getMethod();
-            InvokeExp invokeExp = callSite.getInvokeExp();
-            // pass arguments to parameters
-            for (int i = 0; i < invokeExp.getArgCount(); ++i) {
-                Var arg = invokeExp.getArg(i);
-                Var param = callee.getIR().getParam(i);
-                CSVar argVar = csManager.getCSVar(callerCtx, arg);
-                CSVar paramVar = csManager.getCSVar(calleeCtx, param);
-                addPFGEdge(argVar, paramVar);
-            }
-            // pass results to LHS variable
-            Var lhs = callSite.getResult();
-            if (lhs != null) {
-                CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
-                for (Var ret : callee.getIR().getReturnVars()) {
-                    CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                    addPFGEdge(csRet, csLHS);
-                }
-            }
-        }
+        // TODO - finish me
     }
 
     /**
