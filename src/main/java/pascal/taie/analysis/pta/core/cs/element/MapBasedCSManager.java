@@ -36,12 +36,12 @@ import static pascal.taie.util.collection.Maps.newMap;
 public class MapBasedCSManager implements CSManager {
 
     private final Map<Var, Map<Context, CSVar>> vars = newMap();
-    private final Map<CSObj, Map<JField, InstanceField>> instanceFields = newMap();
-    private final Map<CSObj, ArrayIndex> arrayIndexes = newMap();
-    private final Map<JField, StaticField> staticFields = newMap();
     private final Map<Obj, Map<Context, CSObj>> objs = newMap();
     private final Map<Invoke, Map<Context, CSCallSite>> callSites = newMap();
     private final Map<JMethod, Map<Context, CSMethod>> methods = newMap();
+    private final Map<JField, StaticField> staticFields = newMap();
+    private final Map<CSObj, Map<JField, InstanceField>> instanceFields = newMap();
+    private final Map<CSObj, ArrayIndex> arrayIndexes = newMap();
 
     private static <R, Key1, Key2> R getOrCreateCSElement(
             Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
@@ -53,24 +53,6 @@ public class MapBasedCSManager implements CSManager {
     public CSVar getCSVar(Context context, Var var) {
         return getOrCreateCSElement(vars, Objects.requireNonNull(var), context,
                 (v, c) -> initializePointsToSet(new CSVar(v, c)));
-    }
-
-    @Override
-    public InstanceField getInstanceField(CSObj base, JField field) {
-        return getOrCreateCSElement(instanceFields, base, field,
-                (b, f) -> initializePointsToSet(new InstanceField(b, f)));
-    }
-
-    @Override
-    public ArrayIndex getArrayIndex(CSObj array) {
-        return arrayIndexes.computeIfAbsent(array,
-                (a) -> initializePointsToSet(new ArrayIndex(a)));
-    }
-
-    @Override
-    public StaticField getStaticField(JField field) {
-        return staticFields.computeIfAbsent(field,
-                (f) -> initializePointsToSet(new StaticField(f)));
     }
 
     @Override
@@ -89,6 +71,24 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
+    public StaticField getStaticField(JField field) {
+        return staticFields.computeIfAbsent(field,
+                (f) -> initializePointsToSet(new StaticField(f)));
+    }
+
+    @Override
+    public InstanceField getInstanceField(CSObj base, JField field) {
+        return getOrCreateCSElement(instanceFields, base, field,
+                (b, f) -> initializePointsToSet(new InstanceField(b, f)));
+    }
+
+    @Override
+    public ArrayIndex getArrayIndex(CSObj array) {
+        return arrayIndexes.computeIfAbsent(array,
+                (a) -> initializePointsToSet(new ArrayIndex(a)));
+    }
+
+    @Override
     public Stream<CSVar> csVars() {
         return Maps.mapMapValues(vars);
     }
@@ -99,13 +99,8 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Stream<InstanceField> instanceFields() {
-        return Maps.mapMapValues(instanceFields);
-    }
-
-    @Override
-    public Stream<ArrayIndex> arrayIndexes() {
-        return arrayIndexes.values().stream();
+    public Stream<CSObj> objects() {
+        return Maps.mapMapValues(objs);
     }
 
     @Override
@@ -114,8 +109,13 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Stream<CSObj> objects() {
-        return Maps.mapMapValues(objs);
+    public Stream<InstanceField> instanceFields() {
+        return Maps.mapMapValues(instanceFields);
+    }
+
+    @Override
+    public Stream<ArrayIndex> arrayIndexes() {
+        return arrayIndexes.values().stream();
     }
 
     private <P extends Pointer> P initializePointsToSet(P pointer) {

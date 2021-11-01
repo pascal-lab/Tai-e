@@ -58,7 +58,7 @@ public class TreeContext<T> implements Context {
     @Override
     public T getElementAt(int i) {
         assert 0 < i && i <= length;
-        if (i == length) {
+        if (i == length - 1) {
             return elem;
         } else {
             return parent.getElementAt(i);

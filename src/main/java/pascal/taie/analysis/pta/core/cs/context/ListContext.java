@@ -31,7 +31,7 @@ public class ListContext<T> implements Context {
     private static final ListContext<?> EMPTY_CONTEXT = new ListContext<>(List.of());
 
     /**
-     * Cache for contexts with one element.
+     * Cache for contexts that consists of one element.
      */
     private static final Map<Object, ListContext<?>> oneContexts = Maps.newMap();
 

@@ -22,33 +22,73 @@ import pascal.taie.language.classes.JMethod;
 import java.util.stream.Stream;
 
 /**
- * Manages context-sensitive elements in pointer analysis.
+ * Manages context-sensitive elements and pointers in pointer analysis.
  */
 public interface CSManager {
 
+    /**
+     * @return a context-sensitive variable for given context and variable.
+     */
     CSVar getCSVar(Context context, Var var);
 
-    InstanceField getInstanceField(CSObj base, JField field);
-
-    ArrayIndex getArrayIndex(CSObj array);
-
-    StaticField getStaticField(JField field);
-
+    /**
+     * @return a context-sensitive object for given context and object.
+     */
     CSObj getCSObj(Context heapContext, Obj obj);
 
+    /**
+     * @return a context-sensitive call site for given context and call site.
+     */
     CSCallSite getCSCallSite(Context context, Invoke callSite);
 
+    /**
+     * @return a context-sensitive method for given context and method.
+     */
     CSMethod getCSMethod(Context context, JMethod method);
 
+    /**
+     * @return the corresponding StaticField pointer for given static field.
+     */
+    StaticField getStaticField(JField field);
+
+    /**
+     * @return the corresponding InstanceField pointer for given object
+     * and instance field.
+     */
+    InstanceField getInstanceField(CSObj base, JField field);
+
+    /**
+     * @return the corresponding ArrayIndex pointer for given array object.
+     */
+    ArrayIndex getArrayIndex(CSObj array);
+
+    /**
+     * @return all relevant context-sensitive variables for given variable.
+     */
     Stream<CSVar> csVarsOf(Var var);
 
+    /**
+     * @return all context-sensitive variables.
+     */
     Stream<CSVar> csVars();
 
-    Stream<InstanceField> instanceFields();
+    /**
+     * @return all context-sensitive objects.
+     */
+    Stream<CSObj> objects();
 
-    Stream<ArrayIndex> arrayIndexes();
-
+    /**
+     * @return all static field pointers.
+     */
     Stream<StaticField> staticFields();
 
-    Stream<CSObj> objects();
+    /**
+     * @return all instance field pointers.
+     */
+    Stream<InstanceField> instanceFields();
+
+    /**
+     * @return all array index pointers.
+     */
+    Stream<ArrayIndex> arrayIndexes();
 }

@@ -28,28 +28,28 @@ public abstract class AbstractResultHolder implements ResultHolder {
     private final Map<String, Object> results = newHybridMap();
 
     @Override
-    public <R> void storeResult(String id, R result) {
-        results.put(id, result);
+    public <R> void storeResult(String key, R result) {
+        results.put(key, result);
     }
 
     @Override
-    public <R> R getResult(String id) {
-        return (R) results.get(id);
+    public <R> R getResult(String key) {
+        return (R) results.get(key);
     }
 
     @Override
-    public <R> R getResult(String id, R defaultResult) {
-        return (R) results.getOrDefault(id, defaultResult);
+    public <R> R getResult(String key, R defaultResult) {
+        return (R) results.getOrDefault(key, defaultResult);
     }
 
     @Override
-    public <R> R getResult(String id, Supplier<R> supplier) {
-        return (R) results.computeIfAbsent(id, unused -> supplier.get());
+    public <R> R getResult(String key, Supplier<R> supplier) {
+        return (R) results.computeIfAbsent(key, unused -> supplier.get());
     }
 
     @Override
-    public void clearResult(String id) {
-        results.remove(id);
+    public void clearResult(String key) {
+        results.remove(key);
     }
 
     @Override

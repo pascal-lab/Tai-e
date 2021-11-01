@@ -21,6 +21,9 @@ import pascal.taie.util.graph.Graph;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Represents pointer flow graph in context-sensitive pointer analysis.
+ */
 public class PointerFlowGraph implements Graph<Pointer> {
 
     private final Set<Pointer> pointers = Sets.newSet();

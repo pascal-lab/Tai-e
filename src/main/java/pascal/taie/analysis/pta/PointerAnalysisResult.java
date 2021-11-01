@@ -31,6 +31,9 @@ import pascal.taie.language.classes.JMethod;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Represents results of pointer analysis.
+ */
 public interface PointerAnalysisResult extends ResultHolder {
 
     /**

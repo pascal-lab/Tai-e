@@ -14,7 +14,7 @@ package pascal.taie.analysis.pta.core.cs.context;
 
 /**
  * Representation of contexts in context-sensitive pointer analysis.
- * Each context represent a list of zero or more context elements.
+ * Each context can be seen as a list of zero or more context elements.
  */
 public interface Context {
 
@@ -24,7 +24,7 @@ public interface Context {
     int getLength();
 
     /**
-     * @return the i-th element of this context. Starts from 1.
+     * @return the i-th element of this context. Starts from 0.
      */
     Object getElementAt(int i);
 }

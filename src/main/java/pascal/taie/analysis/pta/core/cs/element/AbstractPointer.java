@@ -23,6 +23,7 @@ import static pascal.taie.util.collection.Sets.newHybridSet;
 abstract class AbstractPointer implements Pointer {
 
     private PointsToSet pointsToSet;
+
     private final Set<PointerFlowEdge> outEdges = newHybridSet();
 
     @Override

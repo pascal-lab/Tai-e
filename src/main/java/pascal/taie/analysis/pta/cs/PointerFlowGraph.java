@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Represents pointer flow graph in context-sensitive pointer analysis.
+ */
 class PointerFlowGraph {
 
     /**

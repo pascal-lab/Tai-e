@@ -19,12 +19,19 @@ import pascal.taie.language.type.Type;
 import java.util.stream.Stream;
 
 /**
- * Represent pointers/nodes in pointer analysis/pointer flow graph.
+ * Represents all pointers (nodes) in context-sensitive
+ * pointer analysis (pointer flow graph).
  */
 public interface Pointer {
 
+    /**
+     * @return the points-to set associated with the pointer.
+     */
     PointsToSet getPointsToSet();
 
+    /**
+     * Sets the associated points-to set of the pointer.
+     */
     void setPointsToSet(PointsToSet pointsToSet);
 
     /**
