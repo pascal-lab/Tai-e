@@ -21,6 +21,9 @@ import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Sets.newHybridSet;
 
+/**
+ * Represents context-sensitive call sites.
+ */
 public class CSCallSite extends AbstractCSElement {
 
     private final Invoke callSite;
@@ -40,6 +43,9 @@ public class CSCallSite extends AbstractCSElement {
         this.callSite = callSite;
     }
 
+    /**
+     * @return the call site (without context).
+     */
     public Invoke getCallSite() {
         return callSite;
     }

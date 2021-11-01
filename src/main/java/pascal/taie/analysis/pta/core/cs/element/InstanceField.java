@@ -15,6 +15,9 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.Type;
 
+/**
+ * Represents instance field pointers.
+ */
 public class InstanceField extends AbstractPointer {
 
     private final CSObj base;
@@ -26,10 +29,16 @@ public class InstanceField extends AbstractPointer {
         this.field = field;
     }
 
+    /**
+     * @return the base object.
+     */
     public CSObj getBase() {
         return base;
     }
 
+    /**
+     * @return the corresponding instance field of the InstanceField pointer.
+     */
     public JField getField() {
         return field;
     }

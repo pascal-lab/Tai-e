@@ -15,6 +15,9 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 
+/**
+ * Represents context-sensitive objects.
+ */
 public class CSObj extends AbstractCSElement {
 
     private final Obj obj;
@@ -24,6 +27,9 @@ public class CSObj extends AbstractCSElement {
         this.obj = obj;
     }
 
+    /**
+     * @return the abstract object (without context).
+     */
     public Obj getObject() {
         return obj;
     }

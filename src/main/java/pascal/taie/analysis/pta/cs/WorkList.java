@@ -18,6 +18,9 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+/**
+ * Represents work list in pointer analysis.
+ */
 class WorkList {
 
     private final Queue<Entry> entries = new ArrayDeque<>();

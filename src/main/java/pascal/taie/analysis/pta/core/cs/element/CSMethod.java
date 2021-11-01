@@ -25,12 +25,15 @@ import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Sets.newHybridSet;
 
+/**
+ * Represents context-sensitive methods.
+ */
 public class CSMethod extends AbstractCSElement {
 
     private final JMethod method;
 
     /**
-     * Callers of this CS method.
+     * Call edges to this CS method.
      */
     private final Set<Edge<CSCallSite, CSMethod>> edges = newHybridSet();
 
@@ -41,6 +44,9 @@ public class CSMethod extends AbstractCSElement {
         this.method = method;
     }
 
+    /**
+     * @return the method (without context).
+     */
     public JMethod getMethod() {
         return method;
     }

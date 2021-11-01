@@ -16,6 +16,9 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.Type;
 
+/**
+ * Represents context-sensitive variables.
+ */
 public class CSVar extends AbstractPointer implements CSElement {
 
     private final Var var;
@@ -32,6 +35,9 @@ public class CSVar extends AbstractPointer implements CSElement {
         return context;
     }
 
+    /**
+     * @return the variable (without context).
+     */
     public Var getVar() {
         return var;
     }

@@ -15,6 +15,9 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
 
+/**
+ * Represents array index pointers.
+ */
 public class ArrayIndex extends AbstractPointer {
 
     private final CSObj array;
@@ -23,6 +26,9 @@ public class ArrayIndex extends AbstractPointer {
         this.array = array;
     }
 
+    /**
+     * @return the array object.
+     */
     public CSObj getArray() {
         return array;
     }
