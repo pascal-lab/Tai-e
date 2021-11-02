@@ -1,4 +1,4 @@
-name: A5
+name: A6
 packageName: Assignment-6-context-sensitive-pointer-analysis.zip
 exclude:
   - pascal.taie.analysis.dataflow.*
