@@ -1,4 +1,4 @@
-class UnreachableSwitchBranch {
+class UnreachableSwitchBranch2 {
 
     void tableSwitch() {
         int x = 1;

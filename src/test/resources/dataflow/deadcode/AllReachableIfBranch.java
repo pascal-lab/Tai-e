@@ -1,6 +1,6 @@
-class AllReachableIfBranch{
+class AllReachableIfBranch {
     int branch(int x, int y) {
-        int z = x+y;//dead
+        int z = x + y;//dead
         if (x > y) {
             z = 100;
         } else {
@@ -10,13 +10,13 @@ class AllReachableIfBranch{
     }
 
     int branch2(int x, int y) {
-        int z = x+y;//dead
-        int a = x-y;
+        int z = x + y;//dead
+        int a = x - y;
         if (x > y) {
-            a = a+1;
+            a = a + 1;
             z = 100;//dead
         }
-        z = 2+a;
+        z = 2 + a;
         return z;
     }
 

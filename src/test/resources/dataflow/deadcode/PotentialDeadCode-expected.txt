@@ -1,6 +1,0 @@
--------------------- <PotentialDeadCode: void <init>()> (deadcode) --------------------
-
--------------------- <PotentialDeadCode: int array()> (deadcode) --------------------
-
--------------------- <PotentialDeadCode: int field()> (deadcode) --------------------
-

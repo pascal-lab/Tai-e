@@ -32,8 +32,18 @@ public class DeadCodeTestFull {
     }
 
     @Test
+    public void testUnreachableIfBranch2() {
+        DeadCodeTest.testDCD("UnreachableIfBranch2");
+    }
+
+    @Test
     public void testUnreachableSwitchBranch() {
         DeadCodeTest.testDCD("UnreachableSwitchBranch");
+    }
+
+    @Test
+    public void testUnreachableSwitchBranch2() {
+        DeadCodeTest.testDCD("UnreachableSwitchBranch2");
     }
 
     @Test
@@ -82,7 +92,7 @@ public class DeadCodeTestFull {
     }
 
     @Test
-    public void testPotentialDeadCode() {
-        DeadCodeTest.testDCD("PotentialDeadCode");
+    public void testArrayField() {
+        DeadCodeTest.testDCD("ArrayField");
     }
 }

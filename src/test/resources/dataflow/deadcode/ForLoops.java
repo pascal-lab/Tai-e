@@ -20,5 +20,6 @@ class ForLoops {
         use(y)
     }
 
-    void use(int x) {}
+    void use(int x) {
+    }
 }

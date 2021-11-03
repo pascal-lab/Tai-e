@@ -1,9 +1,9 @@
-class PotentialDeadCode {
+class ArrayField {
 
     int foo;
 
     int array() {
-        int arr[] = { 1, 2, 3 };
+        int arr[] = {1, 2, 3};
         if (arr[0] > arr[1]) {
             return arr[0]; // potential dead code
         } else {
@@ -12,7 +12,7 @@ class PotentialDeadCode {
     }
 
     int field() {
-        PotentialDeadCode bar = new PotentialDeadCode();
+        ArrayField bar = new ArrayField();
         bar.foo = 1;
         if (bar.foo > 0) {
             return 1;
