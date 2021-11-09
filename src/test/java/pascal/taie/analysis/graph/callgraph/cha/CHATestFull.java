@@ -62,7 +62,6 @@ public class CHATestFull {
         Tests.testCHA("Recursion2");
     }
 
-
     @Test
     public void testMaxPQ() {
         Tests.testCHA("MaxPQ");

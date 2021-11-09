@@ -97,7 +97,7 @@
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
   id: inter-constprop
-  requires: [ icfg,pta(pta=pta),cipta(pta=cipta),pta(pta=cspta) ]
+  requires: [ icfg,pta(pta=pta),cipta(pta=cipta),cspta(pta=cspta) ]
   options:
     edge-refine: true # refine lattice value via edge transfer
     alias-aware: false

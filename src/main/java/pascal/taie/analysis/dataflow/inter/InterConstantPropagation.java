@@ -48,8 +48,17 @@ public class InterConstantPropagation extends
 
     private final ConstantPropagation cp;
 
+     /**
+      * Whether the constant propagation use control-flow edge information
+      * to refine analysis results.
+      */
     private final boolean edgeRefine;
 
+     /**
+      * Whether the constant propagation takes alias information into account.
+      * If this field is true, it would leverage pointer analysis results to
+      * handle instance fields, static fields and arrays more precisely.
+      */
     private final boolean aliasAware;
 
     /**
