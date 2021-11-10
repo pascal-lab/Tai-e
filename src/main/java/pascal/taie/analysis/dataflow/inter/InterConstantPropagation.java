@@ -79,6 +79,10 @@ public class InterConstantPropagation extends
      */
     private Map<StoreField, Set<LoadField>> fieldStoreToLoads;
 
+    private Map<StoreArray, Set<LoadArray>> arrayStoreToLoads;
+
+    private Map<LoadArray, Set<StoreArray>> arrayLoadToStores;
+
     public InterConstantPropagation(AnalysisConfig config) {
         super(config);
         cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
@@ -118,14 +122,22 @@ public class InterConstantPropagation extends
                 }
             }
         });
-        // collect related instance field stores and loads
-        // via alias information derived from pointer analysis
+        // collect related instance field stores and loads as well as
+        // related array stores and loads via alias information
+        // derived from pointer analysis
         String ptaId = getOptions().getString("pta");
         PointerAnalysisResult pta = World.getResult(ptaId);
         Map<Obj, Set<Var>> pointedBy = Maps.newMap();
-        pta.vars().forEach(var ->
-                pta.getPointsToSet(var).forEach(obj ->
-                        Maps.addToMapSet(pointedBy, obj, var)));
+        pta.vars()
+                .filter(v -> !v.getStoreFields().isEmpty() ||
+                        !v.getLoadFields().isEmpty() ||
+                        !v.getStoreArrays().isEmpty() ||
+                        !v.getLoadArrays().isEmpty())
+                .forEach(v ->
+                        pta.getPointsToSet(v).forEach(obj ->
+                                Maps.addToMapSet(pointedBy, obj, v)));
+        arrayStoreToLoads = Maps.newMap();
+        arrayLoadToStores = Maps.newMap();
         pointedBy.values().forEach(aliases -> {
             for (Var v : aliases) {
                 v.getStoreFields()
@@ -143,6 +155,14 @@ public class InterConstantPropagation extends
                                     })
                             );
                         });
+                for (StoreArray store : v.getStoreArrays()) {
+                    for (Var u : aliases) {
+                        for (LoadArray load : u.getLoadArrays()) {
+                            Maps.addToMapSet(arrayStoreToLoads, store, load);
+                            Maps.addToMapSet(arrayLoadToStores, load, store);
+                        }
+                    }
+                }
             }
         });
     }
@@ -180,25 +200,64 @@ public class InterConstantPropagation extends
                 cp.transferNode(stmt, in, out);
     }
 
-
     private boolean transferAliasAware(Stmt stmt, CPFact in, CPFact out) {
         return stmt.accept(new StmtVisitor<>() {
 
             @Override
             public Boolean visit(LoadArray load) {
-                return StmtVisitor.super.visit(load);
+                boolean changed = false;
+                Var lhs = load.getLValue();
+                // do not propagate lhs
+                for (Var inVar : in.keySet()) {
+                    if (!inVar.equals(lhs)) {
+                        changed |= out.update(inVar, in.get(inVar));
+                    }
+                }
+                for (StoreArray store : arrayLoadToStores.getOrDefault(load, Set.of())) {
+                    changed |= transferLoadArray(store, load);
+                }
+                return changed;
             }
 
             @Override
             public Boolean visit(StoreArray store) {
-                return StmtVisitor.super.visit(store);
+                for (LoadArray load: arrayStoreToLoads.getOrDefault(store, Set.of())) {
+                    if (transferLoadArray(store, load)) {
+                        solver.propagate(load);
+                    }
+                }
+                return cp.transferNode(store, in, out);
+            }
+
+            private boolean transferLoadArray(StoreArray store, LoadArray load) {
+                // suppose that
+                // store is a[i] = x;
+                // load is y = b[j];
+                Var i = store.getArrayAccess().getIndex();
+                Var j = load.getArrayAccess().getIndex();
+                CPFact storeOut = solver.getOutFact(store);
+                CPFact loadOut = solver.getOutFact(load);
+                Value vi = storeOut.get(i);
+                Value vj = loadOut.get(j);
+                if (!vi.isUndef() && !vj.isUndef()) {
+                    if (vi.isConstant() && vj.isConstant() && vi.equals(vj) ||
+                            vi.isNAC() || vj.isNAC()) {
+                        Var x = store.getRValue();
+                        Value vx = storeOut.get(x);
+                        Var y = load.getLValue();
+                        Value oldVy = loadOut.get(y);
+                        Value newVy = cp.meetValue(oldVy, vx);
+                        return loadOut.update(y, newVy);
+                    }
+                }
+                return false;
             }
 
             @Override
             public Boolean visit(LoadField load) {
                 boolean changed = false;
                 Var lhs = load.getLValue();
-                // kill x
+                // do not propagate lhs
                 for (Var inVar : in.keySet()) {
                     if (!inVar.equals(lhs)) {
                         changed |= out.update(inVar, in.get(inVar));
