@@ -1,4 +1,4 @@
-class SimpleArray {
+class Array {
 
     public static void main(String[] args) {
         int[] a1 = { 1, 2, 3, 5, 7, 9 };

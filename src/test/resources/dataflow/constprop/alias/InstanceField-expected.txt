@@ -2,7 +2,7 @@
 [0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
 
--------------------- <SimpleField: void main(java.lang.String[])> (inter-constprop) --------------------
+-------------------- <InstanceField: void main(java.lang.String[])> (inter-constprop) --------------------
 [0@L4] temp$0 = new A; {}
 [1@L4] invokespecial temp$0.<A: void <init>()>(); {}
 [2@L4] a1 = temp$0; {}

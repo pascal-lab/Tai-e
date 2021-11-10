@@ -14,8 +14,8 @@ public class InterCPAliasTest {
     }
 
     @Test
-    public void testSimpleField() {
-        test("SimpleField");
+    public void testInstanceField() {
+        test("InstanceField");
     }
 
     @Test
