@@ -18,8 +18,6 @@ import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.CallToReturnEdge;
-import pascal.taie.analysis.graph.icfg.ICFG;
-import pascal.taie.analysis.graph.icfg.ICFGBuilder;
 import pascal.taie.analysis.graph.icfg.NormalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
@@ -88,17 +86,17 @@ public class InterConstantPropagation extends
         cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
         edgeRefine = getOptions().getBoolean("edge-refine");
         aliasAware = getOptions().getBoolean("alias-aware");
-        if (aliasAware) {
-            initializeAliases();
-        }
     }
 
-    private void initializeAliases() {
+    @Override
+    protected void initialize() {
+        if (!aliasAware) {
+            return;
+        }
         fieldStoreToLoads = Maps.newMap();
         // collect related static field stores and loads
         Map<JField, Set<StoreField>> staticStores = Maps.newMap();
         Map<JField, Set<LoadField>> staticLoads = Maps.newMap();
-        ICFG<JMethod, Stmt> icfg = World.getResult(ICFGBuilder.ID);
         for (Stmt s : icfg) {
             if (s instanceof StoreField) {
                 StoreField store = (StoreField) s;
@@ -221,12 +219,13 @@ public class InterConstantPropagation extends
 
             @Override
             public Boolean visit(StoreArray store) {
+                boolean changed = cp.transferNode(store, in, out);
                 for (LoadArray load: arrayStoreToLoads.getOrDefault(store, Set.of())) {
                     if (transferLoadArray(store, load)) {
                         solver.propagate(load);
                     }
                 }
-                return cp.transferNode(store, in, out);
+                return changed;
             }
 
             private boolean transferLoadArray(StoreArray store, LoadArray load) {

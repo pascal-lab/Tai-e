@@ -8,5 +8,6 @@ class Array {
         a2[1] = 888;
         a2[2] = 999;
         int y = a2[1];
+        int z = a2[2];
     }
 }

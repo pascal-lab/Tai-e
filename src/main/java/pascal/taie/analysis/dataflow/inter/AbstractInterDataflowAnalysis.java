@@ -43,6 +43,13 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     }
 
     /**
+     * If the concrete analysis needs to perform some initialization before
+     * the solver starts, then it can overwrite this method.
+     */
+    protected void initialize() {
+    }
+
+    /**
      * Dispatches {@code Node} to specific node transfer functions for
      * call nodes and non-call nodes.
      */
@@ -95,6 +102,7 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     @Override
     public Object analyze() {
         icfg = World.getResult(ICFGBuilder.ID);
+        initialize();
         solver = new InterSolver<>(this, icfg);
         return solver.solve();
     }
