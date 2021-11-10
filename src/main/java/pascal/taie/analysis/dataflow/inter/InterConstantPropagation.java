@@ -40,7 +40,6 @@ import pascal.taie.util.collection.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * Implementation of interprocedural constant propagation for int values.
@@ -100,14 +99,16 @@ public class InterConstantPropagation extends
         for (Stmt s : icfg) {
             if (s instanceof StoreField) {
                 StoreField store = (StoreField) s;
-                if (store.isStatic()) {
+                if (store.isStatic() &&
+                        ConstantPropagation.canHoldInt(store.getRValue())) {
                     Maps.addToMapSet(staticStores,
                             store.getFieldRef().resolve(), store);
                 }
             }
             if (s instanceof LoadField) {
                 LoadField load = (LoadField) s;
-                if (load.isStatic()) {
+                if (load.isStatic() &&
+                        ConstantPropagation.canHoldInt(load.getLValue())) {
                     Maps.addToMapSet(staticLoads,
                             load.getFieldRef().resolve(), load);
                 }
@@ -138,26 +139,28 @@ public class InterConstantPropagation extends
         arrayLoadToStores = Maps.newMap();
         pointedBy.values().forEach(aliases -> {
             for (Var v : aliases) {
-                v.getStoreFields()
-                        .stream()
-                        .filter(Predicate.not(StoreField::isStatic))
-                        .forEach(store -> {
-                            JField storedField = store.getFieldRef().resolve();
-                            aliases.forEach(u ->
-                                    u.getLoadFields().forEach(load -> {
-                                        JField loadedField = load
-                                                .getFieldRef().resolve();
-                                        if (storedField.equals(loadedField)) {
-                                            Maps.addToMapSet(fieldStoreToLoads, store, load);
-                                        }
-                                    })
-                            );
-                        });
+                for (StoreField store : v.getStoreFields()) {
+                    if (!store.isStatic() &&
+                            ConstantPropagation.canHoldInt(store.getRValue())) {
+                        JField storedField = store.getFieldRef().resolve();
+                        aliases.forEach(u ->
+                                u.getLoadFields().forEach(load -> {
+                                    JField loadedField = load
+                                            .getFieldRef().resolve();
+                                    if (storedField.equals(loadedField)) {
+                                        Maps.addToMapSet(fieldStoreToLoads, store, load);
+                                    }
+                                })
+                        );
+                    }
+                }
                 for (StoreArray store : v.getStoreArrays()) {
-                    for (Var u : aliases) {
-                        for (LoadArray load : u.getLoadArrays()) {
-                            Maps.addToMapSet(arrayStoreToLoads, store, load);
-                            Maps.addToMapSet(arrayLoadToStores, load, store);
+                    if (ConstantPropagation.canHoldInt(store.getRValue())) {
+                        for (Var u : aliases) {
+                            for (LoadArray load : u.getLoadArrays()) {
+                                Maps.addToMapSet(arrayStoreToLoads, store, load);
+                                Maps.addToMapSet(arrayLoadToStores, load, store);
+                            }
                         }
                     }
                 }
