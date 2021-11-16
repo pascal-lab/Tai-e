@@ -51,6 +51,13 @@ class PointsToSet implements Iterable<Obj> {
     }
 
     /**
+     * @return true if this points-to set contains the given object, otherwise false.
+     */
+    boolean contains(Obj obj) {
+        return set.contains(obj);
+    }
+
+    /**
      * @return whether this set if empty.
      */
     boolean isEmpty() {
