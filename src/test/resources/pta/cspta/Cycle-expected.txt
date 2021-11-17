@@ -1,0 +1,24 @@
+Points-to sets of all variables
+[]:<A: void <init>(B)>/%this -> [[]:NewObj{<Cycle: void cycle()>[6@L9] new A}, []:NewObj{<Cycle: void cycle()>[9@L10] new A}]
+[]:<A: void <init>(B)>/b -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<B: void <init>()>/%this -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<Cycle: void cycle()>/a1 -> [[]:NewObj{<Cycle: void cycle()>[6@L9] new A}]
+[]:<Cycle: void cycle()>/a2 -> [[]:NewObj{<Cycle: void cycle()>[9@L10] new A}]
+[]:<Cycle: void cycle()>/b1 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<Cycle: void cycle()>/b2 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<Cycle: void cycle()>/temp$0 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}]
+[]:<Cycle: void cycle()>/temp$1 -> [[]:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<Cycle: void cycle()>/temp$2 -> [[]:NewObj{<Cycle: void cycle()>[6@L9] new A}]
+[]:<Cycle: void cycle()>/temp$3 -> [[]:NewObj{<Cycle: void cycle()>[9@L10] new A}]
+[]:<Cycle: void cycle()>/temp$4 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<Cycle: void cycle()>/temp$5 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}, []:NewObj{<Cycle: void cycle()>[6@L9] new A}, []:NewObj{<Cycle: void cycle()>[9@L10] new A}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<Cycle: void cycle()>[6@L9] new A}.b -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:NewObj{<Cycle: void cycle()>[9@L10] new A}.b -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+
+Points-to sets of all array indexes
+

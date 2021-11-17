@@ -78,22 +78,16 @@ overwrittenFiles:
 testClasses:
   - pascal.taie.analysis.pta.CSPTATest
 testResources:
-  - pta/cspta/Array.java
-  - pta/cspta/Assign.java
-  - pta/cspta/Assign2.java
-  - pta/cspta/Call.java
-  - pta/cspta/CallField.java
-  - pta/cspta/CallParamRet.java
-  - pta/cspta/InstanceField2.java
-  - pta/cspta/InstanceField.java
   - pta/cspta/New.java
-  - pta/cspta/Null.java
+  - pta/cspta/Assign.java
+  - pta/cspta/StoreLoad.java
+  - pta/cspta/InstanceField.java
+  - pta/cspta/Call.java
+  - pta/cspta/Array.java
+  - pta/cspta/StaticField.java
   - pta/cspta/OneCall.java
   - pta/cspta/OneObject.java
   - pta/cspta/OneType.java
-  - pta/cspta/Primitive.java
-  - pta/cspta/StaticField.java
-  - pta/cspta/StoreLoad.java
   - pta/cspta/TwoCall.java
   - pta/cspta/TwoObject.java
   - pta/cspta/TwoType.java
