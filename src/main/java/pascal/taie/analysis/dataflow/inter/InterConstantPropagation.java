@@ -280,7 +280,7 @@ public class InterConstantPropagation extends
             public Boolean visit(StoreField store) {
                 Var var = store.getRValue();
                 Value value = in.get(var);
-                fieldStoreToLoads.get(store).forEach(load -> {
+                fieldStoreToLoads.getOrDefault(store, Set.of()).forEach(load -> {
                     // propagate stored value to aliased loads
                     Var lhs = load.getLValue();
                     CPFact loadOut = solver.getOutFact(load);

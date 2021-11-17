@@ -1,0 +1,42 @@
+-------------------- <ObjSens: void main(java.lang.String[])> (inter-constprop) --------------------
+[0@L4] temp$0 = new X; {}
+[1@L4] invokespecial temp$0.<X: void <init>()>(); {}
+[2@L4] x1 = temp$0; {}
+[3@L5] temp$1 = new Y; {}
+[4@L5] invokespecial temp$1.<Y: void <init>()>(); {}
+[5@L5] y1 = temp$1; {}
+[6@L6] invokevirtual x1.<X: void setY(Y)>(y1); {}
+[7@L8] temp$2 = new X; {}
+[8@L8] invokespecial temp$2.<X: void <init>()>(); {}
+[9@L8] x2 = temp$2; {}
+[10@L9] temp$3 = new Y; {}
+[11@L9] invokespecial temp$3.<Y: void <init>()>(); {}
+[12@L9] y2 = temp$3; {}
+[13@L10] invokevirtual x2.<X: void setY(Y)>(y2); {}
+[14@L12] temp$4 = invokevirtual x1.<X: Y getY()>(); {}
+[15@L12] yy1 = temp$4; {}
+[16@L13] temp$5 = 147; {temp$5=147}
+[17@L13] yy1.<Y: int f> = temp$5; {temp$5=147}
+[18@L14] temp$6 = invokevirtual x2.<X: Y getY()>(); {temp$5=147}
+[19@L14] yy2 = temp$6; {temp$5=147}
+[20@L15] temp$7 = 258; {temp$5=147, temp$7=258}
+[21@L15] yy2.<Y: int f> = temp$7; {temp$5=147, temp$7=258}
+[22@L16] n = yy1.<Y: int f>; {n=147, temp$5=147, temp$7=258}
+[23@L16] return; {n=147, temp$5=147, temp$7=258}
+
+-------------------- <X: void <init>()> (inter-constprop) --------------------
+[0@L20] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L20] return; {}
+
+-------------------- <X: void setY(Y)> (inter-constprop) --------------------
+[0@L25] %this.<X: Y y> = y; {}
+[1@L25] return; {}
+
+-------------------- <X: Y getY()> (inter-constprop) --------------------
+[0@L29] temp$0 = %this.<X: Y y>; {}
+[1@L29] return temp$0; {}
+
+-------------------- <Y: void <init>()> (inter-constprop) --------------------
+[0@L33] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L33] return; {}
+

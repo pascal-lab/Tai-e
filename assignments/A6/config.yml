@@ -5,7 +5,6 @@ exclude:
   - pascal.taie.analysis.exception.*
   - pascal.taie.analysis.graph.cfg.*
   - pascal.taie.analysis.graph.icfg.*
-  - pascal.taie.analysis.pta.PointerAnalysis
   - pascal.taie.analysis.pta.ci.*
   - pascal.taie.analysis.pta.cs.*
   - pascal.taie.analysis.pta.core.cs.context.*

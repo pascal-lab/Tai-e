@@ -10,9 +10,11 @@ public class InterCPAliasTest {
 
     private static void test(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
-                "alias-aware:true;pta:cspta", "-a", "cspta", "-a", "cg=algorithm:cspta");
+                "edge-refine:false;alias-aware:true;pta:cspta",
+                "-a", "cspta=cs:2-obj", "-a", "cg=algorithm:cspta");
     }
 
+    // Tests instance field
     @Test
     public void testInstanceField() {
         test("InstanceField");
@@ -41,5 +43,53 @@ public class InterCPAliasTest {
     @Test
     public void testInterprocedural2() {
         test("Interprocedural2");
+    }
+
+    // Tests static field
+    @Test
+    public void testStaticField() {
+        test("StaticField");
+    }
+
+    @Test
+    public void testStaticFieldMultiStores() {
+        test("StaticFieldMultiStores");
+    }
+
+    // Tests array
+    @Test
+    public void testArray() {
+        test("Array");
+    }
+
+    @Test
+    public void testArrayField() {
+        test("ArrayField");
+    }
+
+    @Test
+    public void testArrayInter() {
+        test("ArrayInter");
+    }
+
+    @Test
+    public void testArrayInter2() {
+        test("ArrayInter2");
+    }
+
+    @Test
+    public void testArrayLoops() {
+        test("ArrayLoops");
+    }
+
+    // Other tests
+    @Test
+    public void testReference() {
+        test("Reference");
+    }
+
+    @Test
+    public void testObjSens() {
+        test("ObjSens");
     }
 }

@@ -1,0 +1,51 @@
+-------------------- <StaticFieldMultiStores: void main(java.lang.String[])> (inter-constprop) --------------------
+[0@L8] invokestatic <StaticFieldMultiStores: void storeConst()>(); {}
+[1@L9] invokestatic <StaticFieldMultiStores: void storeNAC()>(); {}
+[2@L10] x = <StaticFieldMultiStores: int f>; {x=555}
+[3@L11] y = <StaticFieldMultiStores: int g>; {x=555, y=NAC}
+[4@L11] return; {x=555, y=NAC}
+
+-------------------- <StaticFieldMultiStores: void storeConst()> (inter-constprop) --------------------
+[0@L15] temp$0 = invokestatic <StaticFieldMultiStores: int getNAC()>(); {}
+[1@L15] %intconst0 = 0; {%intconst0=0, temp$0=NAC}
+[2@L15] if (temp$0 > %intconst0) goto 4; {%intconst0=0, temp$0=NAC}
+[3@L15] goto 8; {%intconst0=0, temp$0=NAC}
+[4@L15] nop; {%intconst0=0, temp$0=NAC}
+[5@L16] temp$1 = 555; {%intconst0=0, temp$0=NAC, temp$1=555}
+[6@L16] <StaticFieldMultiStores: int f> = temp$1; {%intconst0=0, temp$0=NAC, temp$1=555}
+[7@L15] goto 11; {%intconst0=0, temp$0=NAC, temp$1=555}
+[8@L15] nop; {%intconst0=0, temp$0=NAC}
+[9@L18] temp$2 = 555; {%intconst0=0, temp$0=NAC, temp$2=555}
+[10@L18] <StaticFieldMultiStores: int f> = temp$2; {%intconst0=0, temp$0=NAC, temp$2=555}
+[11@L18] nop; {%intconst0=0, temp$0=NAC, temp$1=555, temp$2=555}
+[12@L18] return; {%intconst0=0, temp$0=NAC, temp$1=555, temp$2=555}
+
+-------------------- <StaticFieldMultiStores: void storeNAC()> (inter-constprop) --------------------
+[0@L23] temp$0 = invokestatic <StaticFieldMultiStores: int getNAC()>(); {}
+[1@L23] %intconst0 = 0; {%intconst0=0, temp$0=NAC}
+[2@L23] if (temp$0 > %intconst0) goto 4; {%intconst0=0, temp$0=NAC}
+[3@L23] goto 8; {%intconst0=0, temp$0=NAC}
+[4@L23] nop; {%intconst0=0, temp$0=NAC}
+[5@L24] temp$1 = 666; {%intconst0=0, temp$0=NAC, temp$1=666}
+[6@L24] <StaticFieldMultiStores: int g> = temp$1; {%intconst0=0, temp$0=NAC, temp$1=666}
+[7@L23] goto 11; {%intconst0=0, temp$0=NAC, temp$1=666}
+[8@L23] nop; {%intconst0=0, temp$0=NAC}
+[9@L26] temp$2 = 777; {%intconst0=0, temp$0=NAC, temp$2=777}
+[10@L26] <StaticFieldMultiStores: int g> = temp$2; {%intconst0=0, temp$0=NAC, temp$2=777}
+[11@L26] nop; {%intconst0=0, temp$0=NAC, temp$1=666, temp$2=777}
+[12@L26] return; {%intconst0=0, temp$0=NAC, temp$1=666, temp$2=777}
+
+-------------------- <StaticFieldMultiStores: int getNAC()> (inter-constprop) --------------------
+[0@L32] i = 0; {i=0}
+[1@L32] nop; {%intconst0=5, %intconst1=1, i=NAC}
+[2@L32] %intconst0 = 5; {%intconst0=5, %intconst1=1, i=NAC}
+[3@L32] if (i < %intconst0) goto 5; {%intconst0=5, %intconst1=1, i=NAC}
+[4@L32] goto 10; {%intconst0=5, %intconst1=1, i=NAC}
+[5@L32] nop; {%intconst0=5, %intconst1=1, i=NAC}
+[6@L32] nop; {%intconst0=5, %intconst1=1, i=NAC}
+[7@L32] %intconst1 = 1; {%intconst0=5, %intconst1=1, i=NAC}
+[8@L32] i = i + %intconst1; {%intconst0=5, %intconst1=1, i=NAC}
+[9@L32] goto 1; {%intconst0=5, %intconst1=1, i=NAC}
+[10@L32] nop; {%intconst0=5, %intconst1=1, i=NAC}
+[11@L34] return i; {%intconst0=5, %intconst1=1, i=NAC}
+
