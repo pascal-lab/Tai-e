@@ -14,6 +14,7 @@ package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.CallToReturnEdge;
 import pascal.taie.analysis.graph.icfg.ICFG;
@@ -47,6 +48,13 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
      * the solver starts, then it can overwrite this method.
      */
     protected void initialize() {
+    }
+
+    /**
+     * If the concrete analysis needs to perform some finishing work after
+     * the solver finishes, then it can overwrite this method.
+     */
+    protected void finish() {
     }
 
     /**
@@ -104,6 +112,8 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
         icfg = World.getResult(ICFGBuilder.ID);
         initialize();
         solver = new InterSolver<>(this, icfg);
-        return solver.solve();
+        DataflowResult<Node, Fact> result = solver.solve();
+        finish();
+        return result;
     }
 }

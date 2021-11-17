@@ -169,6 +169,14 @@ public class InterConstantPropagation extends
     }
 
     @Override
+    protected void finish() {
+        // clear unused intermediate results
+        fieldStoreToLoads = null;
+        arrayStoreToLoads = null;
+        arrayLoadToStores = null;
+    }
+
+    @Override
     public boolean isForward() {
         return cp.isForward();
     }
