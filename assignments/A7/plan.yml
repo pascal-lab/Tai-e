@@ -1,0 +1,37 @@
+- id: cspta
+  options:
+    cs: 2-obj
+    merge-string-constants: false
+    merge-string-objects: false
+    merge-string-builders: false
+    merge-exception-objects: true
+    action: null
+    file: null
+- id: cg
+  options:
+    algorithm: cspta
+    action: dump
+    file: null
+- id: throw
+  options:
+    exception: explicit
+    algorithm: intra
+- id: cfg
+  options:
+    exception: explicit
+    dump: false
+- id: icfg
+  options:
+    dump: true
+- id: inter-constprop
+  options:
+    edge-refine: false
+    alias-aware: true
+    pta: cspta
+- id: process-result
+  options:
+    analyses:
+    - inter-constprop
+    action: dump
+    file: null
+    log-mismatches: false

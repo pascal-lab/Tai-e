@@ -11,7 +11,10 @@ public class InterCPAliasTest {
     private static void test(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "edge-refine:false;alias-aware:true;pta:cspta",
-                "-a", "cspta=cs:2-obj", "-a", "cg=algorithm:cspta");
+                "-a", "cspta=cs:2-obj", "-a", "cg=algorithm:cspta"
+                //, "-a", "icfg=dump:true" // <-- uncomment this code if you want
+                                           // to output ICFGs for the test cases
+        );
     }
 
     // Tests instance field

@@ -1,6 +1,6 @@
 -------------------- <A: void <init>()> (inter-constprop) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
-[1@L1] return; {}
+[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L12] return; {}
 
 -------------------- <MultiLoads: void main(java.lang.String[])> (inter-constprop) --------------------
 [0@L4] temp$0 = new A; {}

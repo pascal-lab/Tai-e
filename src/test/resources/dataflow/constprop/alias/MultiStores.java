@@ -9,3 +9,7 @@ class MultiStores {
         int x = a.f;
     }
 }
+
+class A {
+    int f;
+}

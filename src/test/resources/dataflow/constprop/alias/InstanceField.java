@@ -9,3 +9,7 @@ class InstanceField {
         int y = a2.f;
     }
 }
+
+class A {
+    int f;
+}

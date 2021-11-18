@@ -8,3 +8,7 @@ class MultiLoads {
         int z = a.f;
     }
 }
+
+class A {
+    int f;
+}

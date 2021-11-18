@@ -1,4 +1,5 @@
 class MultiObjs {
+
     public static void main(String[] args) {
         A a1 = new A();
         a1.f = 2333;
@@ -12,4 +13,8 @@ class MultiObjs {
         int y = aaa.f;
         int z = a1.f;
     }
+}
+
+class A {
+    int f;
 }

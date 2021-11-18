@@ -1,12 +1,12 @@
 name: A4
 packageName: Assignment-4-cha-interprocedural-constant-propagation.zip
 exclude:
-  - pascal.taie.analysis.graph.callgraph.*
-  - pascal.taie.analysis.pta.*
   - pascal.taie.analysis.dataflow.analysis.*
   - pascal.taie.analysis.dataflow.fact.*
   - pascal.taie.analysis.dataflow.solver.*
   - pascal.taie.analysis.dataflow.inter.*
+  - pascal.taie.analysis.graph.callgraph.*
+  - pascal.taie.analysis.pta.*
 sourceFiles:
   - pascal.taie.language.classes.JClass
   - pascal.taie.language.classes.JMethod
