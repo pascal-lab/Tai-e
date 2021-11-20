@@ -9,4 +9,7 @@ class SourceSink {
 
     static void sink(String s, int n) {
     }
+
+    static void sink(String s1, String s2) {
+    }
 }

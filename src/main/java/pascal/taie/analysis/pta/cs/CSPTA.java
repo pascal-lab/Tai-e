@@ -40,7 +40,7 @@ public class CSPTA extends InterproceduralAnalysis {
     @Override
     public PointerAnalysisResult analyze() {
         AnalysisOptions options = getOptions();
-        Solver solver = new Solver(
+        Solver solver = new Solver(options,
                 new AllocationSiteBasedModel(options),
                 getContextSelector(options.getString("cs")));
         solver.solve();

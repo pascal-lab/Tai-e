@@ -17,6 +17,7 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
@@ -33,14 +34,10 @@ class TaintManager {
     Obj getTaint(Invoke source, Type type) {
         Obj taint = Maps.getMapMap(taints, source, type);
         if (taint == null) {
-            taint = newTaint(source, type);
+            taint = new MockObj(TAINT_DESC, source, type);
             Maps.addToMapMap(taints, source, type, taint);
         }
         return taint;
-    }
-
-    private Obj newTaint(Invoke source, Type type) {
-        return new MockObj(TAINT_DESC, source, type);
     }
 
     /**
@@ -51,7 +48,14 @@ class TaintManager {
                 ((MockObj) obj).getDescription().equals(TAINT_DESC);
     }
 
-    Invoke getSourceCall(Obj taint) {
-        return (Invoke) taint.getAllocation();
+    /**
+     * @return the source call of given taint object.
+     * @throws AnalysisException if given object is not a taint object.
+     */
+    Invoke getSourceCall(Obj obj) {
+        if (isTaint(obj)) {
+            return (Invoke) obj.getAllocation();
+        }
+        throw new AnalysisException(obj + " is not a taint object");
     }
 }

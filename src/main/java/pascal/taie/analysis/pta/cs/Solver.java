@@ -35,8 +35,10 @@ import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.taint.TaintAnalysiss;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
@@ -51,9 +53,11 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-class Solver {
+public class Solver {
 
     private static final Logger logger = LogManager.getLogger(Solver.class);
+
+    private final AnalysisOptions options;
 
     private final HeapModel heapModel;
 
@@ -67,16 +71,37 @@ class Solver {
 
     private WorkList workList;
 
+    private TaintAnalysiss taintAnalysis;
+
     private PointerAnalysisResult result;
 
-    Solver(HeapModel heapModel, ContextSelector contextSelector) {
+    Solver(AnalysisOptions options, HeapModel heapModel,
+           ContextSelector contextSelector) {
+        this.options = options;
         this.heapModel = heapModel;
         this.contextSelector = contextSelector;
+    }
+
+    public AnalysisOptions getOptions() {
+        return options;
+    }
+
+    public ContextSelector getContextSelector() {
+        return contextSelector;
+    }
+
+    public CSManager getCSManager() {
+        return csManager;
+    }
+
+    public void addVarPointsTo(Pointer pointer, PointsToSet pointsToSet) {
+        workList.addEntry(pointer, pointsToSet);
     }
 
     void solve() {
         initialize();
         analyze();
+        taintAnalysis.onFinish();
     }
 
     private void initialize() {
@@ -84,6 +109,7 @@ class Solver {
         callGraph = new CSCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
+        taintAnalysis = new TaintAnalysiss(this);
         // process program entry, i.e., main method
         Context defContext = contextSelector.getEmptyContext();
         JMethod main = World.getMainMethod();
@@ -202,6 +228,7 @@ class Solver {
             PointsToSet diff = propagate(p, pts);
             if (p instanceof CSVar) {
                 CSVar v = (CSVar) p;
+                taintAnalysis.onNewPointsToSet(v, diff);
                 for (CSObj o : diff) {
                     processInstanceStore(v, o);
                     processInstanceLoad(v, o);
@@ -356,6 +383,8 @@ class Solver {
                     addPFGEdge(csRet, csLHS);
                 }
             }
+
+            taintAnalysis.onNewCallEdge(edge);
         }
     }
 
@@ -372,7 +401,7 @@ class Solver {
         return CallGraphs.resolveCallee(type, callSite);
     }
 
-    PointerAnalysisResult getResult() {
+    public PointerAnalysisResult getResult() {
         if (result == null) {
             result = new PointerAnalysisResultImpl(csManager, callGraph);
         }
