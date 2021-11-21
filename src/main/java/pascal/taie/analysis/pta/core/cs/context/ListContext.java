@@ -13,10 +13,8 @@
 package pascal.taie.analysis.pta.core.cs.context;
 
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.collection.Maps;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * List-based contexts. Each context is represented by a list of context elements.
@@ -29,11 +27,6 @@ public class ListContext<T> implements Context {
      * The empty context.
      */
     private static final ListContext<?> EMPTY_CONTEXT = new ListContext<>(List.of());
-
-    /**
-     * Cache for contexts that consists of one element.
-     */
-    private static final Map<Object, ListContext<?>> oneContexts = Maps.newMap();
 
     /**
      * List of elements in the context.
@@ -52,23 +45,12 @@ public class ListContext<T> implements Context {
     }
 
     /**
-     * @return a context that consists of the given context element.
-     */
-    public static <T> Context make(T e) {
-        return oneContexts.computeIfAbsent(e,
-                el -> new ListContext<>(List.of(el)));
-    }
-
-    /**
      * @return a context that consists of given context elements.
      */
     @SafeVarargs
     public static <T> Context make(T... elements) {
-        switch (elements.length) {
-            case 0: return make();
-            case 1: return make(elements[0]);
-            default: return new ListContext<>(List.of(elements));
-        }
+        return elements.length == 0 ?
+                EMPTY_CONTEXT : new ListContext<>(List.of(elements));
     }
 
     @Override
