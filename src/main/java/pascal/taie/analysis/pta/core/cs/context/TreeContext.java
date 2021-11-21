@@ -106,12 +106,12 @@ public class TreeContext<T> implements Context {
         }
 
         @Override
-        public Context get(T elem) {
+        public Context make(T elem) {
             return rootContext.getChild(elem);
         }
 
         @Override
-        public TreeContext<T> get(T... elems) {
+        public TreeContext<T> make(T... elems) {
             TreeContext<T> result = rootContext;
             for (T elem : elems) {
                 result = result.getChild(elem);
@@ -120,7 +120,7 @@ public class TreeContext<T> implements Context {
         }
 
         @Override
-        public TreeContext<T> getLastK(Context context, int k) {
+        public TreeContext<T> makeLastK(Context context, int k) {
             if (k == 0) {
                 return rootContext;
             }
@@ -133,7 +133,7 @@ public class TreeContext<T> implements Context {
                 elems[i - 1] = c.getElem();
                 c = c.getParent();
             }
-            return get((T[]) elems);
+            return make((T[]) elems);
         }
 
         @Override
@@ -142,7 +142,7 @@ public class TreeContext<T> implements Context {
             if (parent.getLength() < limit) {
                 return p.getChild(elem);
             } else {
-                return getLastK(p, limit - 1).getChild(elem);
+                return makeLastK(p, limit - 1).getChild(elem);
             }
         }
     }

@@ -27,20 +27,20 @@ public interface ContextFactory<T> {
     /**
      * @return the context with one element.
      */
-    Context get(T elem);
+    Context make(T elem);
 
     /**
      * @return the context that consists of given elements.
      */
-    Context get(T... elems);
+    Context make(T... elems);
 
     /**
      * @return a context with last k elements of given context.
      */
-    Context getLastK(Context context, int k);
+    Context makeLastK(Context context, int k);
 
     /**
-     * Constructs a context by appending an context element to a parent context.
+     * Constructs a context by appending a context element to a parent context.
      * The length of the resulting context will be restricted by given limit.
      *
      * @return the resulting context.

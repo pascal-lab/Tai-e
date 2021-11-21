@@ -44,6 +44,6 @@ abstract class KContextSelector<T> extends AbstractContextSelector<T> {
 
     @Override
     protected Context selectNewObjContext(CSMethod method, NewObj obj) {
-        return factory.getLastK(method.getContext(), hlimit);
+        return factory.makeLastK(method.getContext(), hlimit);
     }
 }
