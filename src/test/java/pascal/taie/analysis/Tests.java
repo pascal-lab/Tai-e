@@ -100,8 +100,21 @@ public final class Tests {
         Collections.addAll(args, "-a", chaArg);
         Main.main(args.toArray(new String[0]));
     }
-
+    
     public static void testPTA(String dir, String main, String... opts) {
+        doTestPTA("pta", dir, main, opts);
+    }
+
+    public static void testCIPTA(String dir, String main, String... opts) {
+        doTestPTA("cipta", dir, main, opts);
+    }
+
+    public static void testCSPTA(String dir, String main, String... opts) {
+        doTestPTA("cspta", dir, main, opts);
+    }
+
+    private static void doTestPTA(
+            String pta, String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         String classPath = "src/test/resources/pta/" + dir;
@@ -124,8 +137,6 @@ public final class Tests {
             // if given options do not specify only-app, then set it true
             ptaArgs.add("only-app:true");
         }
-        String pta = Set.of("pta", "cipta", "cspta").contains(dir) ?
-                dir : "pta";
         Collections.addAll(args, "-a", pta + "=" + String.join(";", ptaArgs));
         Main.main(args.toArray(new String[0]));
     }

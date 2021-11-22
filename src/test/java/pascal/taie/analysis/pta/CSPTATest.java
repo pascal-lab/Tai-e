@@ -21,66 +21,66 @@ public class CSPTATest {
 
     @Test
     public void testNew() {
-        Tests.testPTA(DIR, "New");
+        Tests.testCSPTA(DIR, "New");
     }
 
     @Test
     public void testAssign() {
-        Tests.testPTA(DIR, "Assign");
+        Tests.testCSPTA(DIR, "Assign");
     }
 
     @Test
     public void testStoreLoad() {
-        Tests.testPTA(DIR, "StoreLoad");
+        Tests.testCSPTA(DIR, "StoreLoad");
     }
 
     @Test
     public void testCall() {
-        Tests.testPTA(DIR, "Call");
+        Tests.testCSPTA(DIR, "Call");
     }
 
     @Test
     public void testInstanceField() {
-        Tests.testPTA(DIR, "InstanceField");
+        Tests.testCSPTA(DIR, "InstanceField");
     }
 
     @Test
     public void testOneCall() {
-        Tests.testPTA(DIR, "OneCall", "cs:1-call");
+        Tests.testCSPTA(DIR, "OneCall", "cs:1-call");
     }
 
     @Test
     public void testOneObject() {
-        Tests.testPTA(DIR, "OneObject", "cs:1-obj");
+        Tests.testCSPTA(DIR, "OneObject", "cs:1-obj");
     }
 
     @Test
     public void testOneType() {
-        Tests.testPTA(DIR, "OneType", "cs:1-type");
+        Tests.testCSPTA(DIR, "OneType", "cs:1-type");
     }
 
     @Test
     public void testTwoCall() {
-        Tests.testPTA(DIR, "TwoCall", "cs:2-call");
+        Tests.testCSPTA(DIR, "TwoCall", "cs:2-call");
     }
 
     @Test
     public void testTwoObject() {
-        Tests.testPTA(DIR, "TwoObject", "cs:2-obj");
+        Tests.testCSPTA(DIR, "TwoObject", "cs:2-obj");
     }
 
     @Test
     public void testTwoType() {
-        Tests.testPTA(DIR, "TwoType", "cs:2-type");
+        Tests.testCSPTA(DIR, "TwoType", "cs:2-type");
     }
 
     @Test
     public void testStaticField() {
-        Tests.testPTA(DIR, "StaticField");
+        Tests.testCSPTA(DIR, "StaticField");
     }
 
     @Test
     public void testArray() {
-        Tests.testPTA(DIR, "Array");
+        Tests.testCSPTA(DIR, "Array");
     }
 }

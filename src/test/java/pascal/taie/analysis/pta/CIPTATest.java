@@ -21,51 +21,51 @@ public class CIPTATest {
 
     @Test
     public void testExample() {
-        Tests.testPTA(DIR, "Example");
+        Tests.testCIPTA(DIR, "Example");
     }
 
     @Test
     public void testArray() {
-        Tests.testPTA(DIR, "Array");
+        Tests.testCIPTA(DIR, "Array");
     }
 
     @Test
     public void testAssign() {
-        Tests.testPTA(DIR, "Assign");
+        Tests.testCIPTA(DIR, "Assign");
     }
 
     @Test
     public void testAssign2() {
-        Tests.testPTA(DIR, "Assign2");
+        Tests.testCIPTA(DIR, "Assign2");
     }
 
     @Test
     public void testStoreLoad() {
-        Tests.testPTA(DIR, "StoreLoad");
+        Tests.testCIPTA(DIR, "StoreLoad");
     }
 
     @Test
     public void testCall() {
-        Tests.testPTA(DIR, "Call");
+        Tests.testCIPTA(DIR, "Call");
     }
 
     @Test
     public void testInstanceField() {
-        Tests.testPTA(DIR, "InstanceField");
+        Tests.testCIPTA(DIR, "InstanceField");
     }
 
     @Test
     public void testStaticField() {
-        Tests.testPTA(DIR, "StaticField");
+        Tests.testCIPTA(DIR, "StaticField");
     }
 
     @Test
     public void testStaticCall() {
-        Tests.testPTA(DIR, "StaticCall");
+        Tests.testCIPTA(DIR, "StaticCall");
     }
 
     @Test
     public void testMergeParam() {
-        Tests.testPTA(DIR, "MergeParam");
+        Tests.testCIPTA(DIR, "MergeParam");
     }
 }
