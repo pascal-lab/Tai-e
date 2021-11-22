@@ -19,7 +19,7 @@ import pascal.taie.util.Hashes;
 /**
  * Each instance represents a taint flow from source to sink.
  */
-class TaintFlow implements Comparable<TaintFlow> {
+public class TaintFlow implements Comparable<TaintFlow> {
 
     /**
      * Invocation of the source method.

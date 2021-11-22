@@ -11,10 +11,16 @@ Points-to sets of all variables
 []:<SourceSink: void sink(java.lang.String,int)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
 
+Points-to sets of all static fields
+
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <SimpleTaint: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <SimpleTaint: void main(java.lang.String[])>}]
 
-Points-to sets of all static fields
+Detected 4 taint flow(s):
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[2@L5] invokestatic <SourceSink: void sink(java.lang.String)>(s1);/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic <SourceSink: void sink(java.lang.String,int)>(s3, %intconst0);/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[5@L8] invokestatic <SourceSink: void sink(java.lang.String)>(s2);/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic <SourceSink: void sink(java.lang.String,int)>(s3, %intconst0);/0}
 

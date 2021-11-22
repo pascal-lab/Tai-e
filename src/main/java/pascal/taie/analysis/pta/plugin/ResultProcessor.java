@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
@@ -36,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -77,12 +79,19 @@ public class ResultProcessor implements Plugin {
             return;
         }
         String file = options.getString("file");
+        boolean taintEnabled = options.getString("taint-config") != null;
         switch (action) {
             case "dump":
-                dumpPointsToSet(result, file);
+                dumpPointsToSet(result, file, taintEnabled);
                 break;
             case "compare":
-                comparePointsToSet(result, file);
+                if (taintEnabled) {
+                    // when taint analysis is enabled, we only compare
+                    // detected taint flows
+                    compareTaintFlows(result, file);
+                } else {
+                    comparePointsToSet(result, file);
+                }
                 break;
         }
     }
@@ -128,7 +137,8 @@ public class ResultProcessor implements Plugin {
         return formatter.format(i);
     }
 
-    private static void dumpPointsToSet(PointerAnalysisResult result, String output) {
+    private static void dumpPointsToSet(PointerAnalysisResult result,
+                                        String output, boolean taintEnabled) {
         PrintStream out;
         if (output != null) {  // if output file is given, then dump to the file
             File outFile = new File(output);
@@ -145,6 +155,9 @@ public class ResultProcessor implements Plugin {
         dumpPointers(out, result.staticFields(), "static fields");
         dumpPointers(out, result.instanceFields(), "instance fields");
         dumpPointers(out, result.arrayIndexes(), "array indexes");
+        if (taintEnabled) {
+            dumpTaintFlows(out, result);
+        }
         if (out != System.out) {
             out.close();
         }
@@ -210,5 +223,61 @@ public class ResultProcessor implements Plugin {
 
     private static String toString(PointsToSet pts) {
         return Strings.toString(pts.objects());
+    }
+
+    private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {
+        List<TaintFlow> taintFlows = getTaintFlows(result);
+        out.printf("Detected %d taint flow(s):%n", taintFlows.size());
+        taintFlows.forEach(out::println);
+        out.println();
+    }
+
+    /**
+     * @return taint analysis result.
+     */
+    private static List<TaintFlow> getTaintFlows(PointerAnalysisResult result) {
+        for (String key : result.getKeys()) {
+            if (key.contains("Taint")) { // adapt different taint analyses
+                return result.getResult(key);
+            }
+        }
+        throw new AnalysisException("Taint analysis result is absent");
+    }
+
+    private static void compareTaintFlows(PointerAnalysisResult result, String input) {
+        logger.info("Comparing taint flows with {} ...", input);
+        List<String> inputs = readTaintFlows(input);
+        List<String> taintFlows = getTaintFlows(result)
+                .stream()
+                .map(TaintFlow::toString)
+                .collect(Collectors.toList());
+        List<String> mismatches = new ArrayList<>();
+        taintFlows.forEach(taintFlow -> {
+            if (!inputs.contains(taintFlow)) {
+                mismatches.add(taintFlow + " should NOT be included");
+            }
+        });
+        inputs.forEach(expected -> {
+            if (!taintFlows.contains(expected)) {
+                mismatches.add(expected + " should be included");
+            }
+        });
+        if (!mismatches.isEmpty()) {
+            throw new AnalysisException("Mismatches of taint flow(s)\n" +
+                    String.join("\n", mismatches));
+        }
+    }
+
+    private static List<String> readTaintFlows(String input) {
+        try {
+            List<String> taintFlows = new ArrayList<>();
+            Files.lines(Path.of(input))
+                    .filter(line -> line.startsWith("TaintFlow{") && line.contains(SEP))
+                    .forEach(taintFlows::add);
+            return taintFlows;
+        } catch (IOException e) {
+            throw new AnalysisException(
+                    "Failed to read taint flows from " + input, e);
+        }
     }
 }

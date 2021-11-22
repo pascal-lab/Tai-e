@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -45,6 +46,11 @@ public abstract class AbstractResultHolder implements ResultHolder {
     @Override
     public <R> R getResult(String key, Supplier<R> supplier) {
         return (R) results.computeIfAbsent(key, unused -> supplier.get());
+    }
+
+    @Override
+    public Collection<String> getKeys() {
+        return results.keySet();
     }
 
     @Override

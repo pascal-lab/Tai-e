@@ -13,7 +13,7 @@
     file: null # path to input/output file
     reflection-log: null # path to reflection log
     taint-config: null # path to config file of taint analysis, when this file
-    # is given, taint analysis will be enabled
+                       # is given, taint analysis will be enabled
 
 - description: a context-insensitive pointer analysis, only for educational purpose
   analysisClass: pascal.taie.analysis.pta.ci.CIPTA
@@ -37,6 +37,8 @@
     merge-exception-objects: true
     action: null # | dump | compare
     file: null # path to input/output file
+    taint-config: null # path to config file of taint analysis, when this file
+                       # is given, taint analysis will be enabled
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder

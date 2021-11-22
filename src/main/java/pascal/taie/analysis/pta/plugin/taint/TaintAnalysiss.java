@@ -172,8 +172,6 @@ public class TaintAnalysiss {
         }
         List<TaintFlow> taintFlows = collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
-        logger.info("Detected {} taint flows:", taintFlows.size());
-        taintFlows.forEach(logger::info);
     }
 
     private List<TaintFlow> collectTaintFlows() {

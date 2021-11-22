@@ -11,6 +11,5 @@ transfers:
   - { method: "<java.lang.String: java.lang.String concat(java.lang.String)>", from: 0, to: result }
   - { method: "<java.lang.String: char[] toCharArray()>", from: base, to: result }
   - { method: "<java.lang.String: void <init>(char[])>", from: 0, to: base }
-
   - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>", from: 0, to: base }
   - { method: "<java.lang.StringBuffer: java.lang.String toString()>", from: base, to: result }

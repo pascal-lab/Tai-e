@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
@@ -42,6 +43,12 @@ public interface ResultHolder {
      * which is stored in the holder, and returned as the result of the call.
      */
     <R> R getResult(String key, Supplier<R> supplier);
+
+    /**
+     *
+     * @return all keys in the holder.
+     */
+    Collection<String> getKeys();
 
     /**
      * Clears result of the analysis specified by given key.
