@@ -48,6 +48,16 @@ public class InterCPAliasTest {
         test("Interprocedural2");
     }
 
+    @Test
+    public void testInheritedField() {
+        test("InheritedField");
+    }
+
+    @Test
+    public void testFieldCorner() {
+        test("FieldCorner");
+    }
+
     // Tests static field
     @Test
     public void testStaticField() {
@@ -85,6 +95,11 @@ public class InterCPAliasTest {
         test("ArrayLoops");
     }
 
+    @Test
+    public void testArrayCorner() {
+        test("ArrayCorner");
+    }
+
     // Other tests
     @Test
     public void testReference() {
@@ -94,5 +109,20 @@ public class InterCPAliasTest {
     @Test
     public void testObjSens() {
         test("ObjSens");
+    }
+
+    @Test
+    public void testObjSens2() {
+        test("ObjSens2");
+    }
+
+    @Test
+    public void testArrayInField() {
+        test("ArrayInField");
+    }
+
+    @Test
+    public void testMaxPQ() {
+        test("MaxPQ");
     }
 }
