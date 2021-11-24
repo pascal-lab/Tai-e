@@ -38,8 +38,8 @@ public class TaintTest {
     }
 
     @Test
-    public void testArgToBase() {
-        Tests.testCSPTA(DIR, "ArgToBase",
+    public void testStringAppend() {
+        Tests.testCSPTA(DIR, "StringAppend",
                 "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 

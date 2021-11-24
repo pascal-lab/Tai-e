@@ -15,21 +15,22 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 
 /**
- * Represents a specific parameter of a method.
+ * Represents a sink that consists of a sink method and
+ * a sensitive index.
  */
-class MethodParam {
+class Sink {
 
     /**
-     * The method.
+     * The sink method.
      */
     private final JMethod method;
 
     /**
-     * Index of the parameter.
+     * Index of the sensitive parameter.
      */
     private final int index;
 
-    MethodParam(JMethod method, int index) {
+    Sink(JMethod method, int index) {
         this.method = method;
         this.index = index;
     }
@@ -50,7 +51,7 @@ class MethodParam {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MethodParam that = (MethodParam) o;
+        Sink that = (Sink) o;
         return method.equals(that.method) && index == that.index;
     }
 

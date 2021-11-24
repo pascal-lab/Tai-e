@@ -24,6 +24,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.Sets;
 
 import java.io.File;
@@ -37,21 +39,21 @@ import java.util.Set;
 class TaintConfig {
 
     /**
-     * Set of source methods.
+     * Set of sources.
      */
-    private final Set<JMethod> sources;
+    private final Set<Source> sources;
 
     /**
-     * Set of sink methods.
+     * Set of sinks.
      */
-    private final Set<MethodParam> sinks;
+    private final Set<Sink> sinks;
 
     /**
      * Set of taint transfers;
      */
     private final Set<TaintTransfer> transfers;
 
-    private TaintConfig(Set<JMethod> sources, Set<MethodParam> sinks,
+    private TaintConfig(Set<Source> sources, Set<Sink> sinks,
                         Set<TaintTransfer> transfers) {
         this.sources = sources;
         this.sinks = sinks;
@@ -61,16 +63,19 @@ class TaintConfig {
     /**
      * Reads a taint analysis configuration from file
      *
-     * @param path      the path to the config file
-     * @param hierarchy the class hierarchy
+     * @param path        the path to the config file
+     * @param hierarchy   the class hierarchy
+     * @param typeManager the type manager
      * @return the TaintConfig object
      * @throws ConfigException if failed to load the config file
      */
-    static TaintConfig readConfig(String path, ClassHierarchy hierarchy) {
+    static TaintConfig readConfig(
+            String path, ClassHierarchy hierarchy, TypeManager typeManager) {
         File file = new File(path);
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(TaintConfig.class, new Deserializer(hierarchy));
+        module.addDeserializer(TaintConfig.class,
+                new Deserializer(hierarchy, typeManager));
         mapper.registerModule(module);
         try {
             return mapper.readValue(file, TaintConfig.class);
@@ -79,11 +84,11 @@ class TaintConfig {
         }
     }
 
-    Set<JMethod> getSources() {
+    Set<Source> getSources() {
         return sources;
     }
 
-    Set<MethodParam> getSinks() {
+    Set<Sink> getSinks() {
         return sinks;
     }
 
@@ -119,8 +124,11 @@ class TaintConfig {
 
         private final ClassHierarchy hierarchy;
 
-        private Deserializer(ClassHierarchy hierarchy) {
+        private final TypeManager typeManager;
+
+        private Deserializer(ClassHierarchy hierarchy, TypeManager typeManager) {
             this.hierarchy = hierarchy;
+            this.typeManager = typeManager;
         }
 
         @Override
@@ -128,33 +136,35 @@ class TaintConfig {
                 throws IOException {
             ObjectCodec oc = p.getCodec();
             JsonNode node = oc.readTree(p);
-            Set<JMethod> sources = deserializeMethods(node.get("sources"));
-            Set<MethodParam> sinks = deserializeMethodParams(node.get("sinks"));
+            Set<Source> sources = deserializeSources(node.get("sources"));
+            Set<Sink> sinks = deserializeSinks(node.get("sinks"));
             Set<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
             return new TaintConfig(sources, sinks, transfers);
         }
 
         /**
          * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
-         * to a set of {@link JMethod}.
+         * to a set of {@link Source}.
          *
          * @param node the node to be deserialized
-         * @return set of deserialized {@link JMethod}
+         * @return set of deserialized {@link Source}
          */
-        private Set<JMethod> deserializeMethods(JsonNode node) {
+        private Set<Source> deserializeSources(JsonNode node) {
             if (node instanceof ArrayNode) {
                 ArrayNode arrayNode = (ArrayNode) node;
-                Set<JMethod> methods = Sets.newSet(arrayNode.size());
+                Set<Source> sources = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
-                    String methodSig = elem.asText();
+                    String methodSig = elem.get("method").asText();
                     JMethod method = hierarchy.getMethod(methodSig);
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        methods.add(method);
+                        Type type = typeManager.getType(
+                                elem.get("type").asText());
+                        sources.add(new Source(method, type));
                     }
                 }
-                return Collections.unmodifiableSet(methods);
+                return Collections.unmodifiableSet(sources);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return Set.of();
@@ -163,15 +173,15 @@ class TaintConfig {
 
         /**
          * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
-         * to a set of {@link MethodParam}.
+         * to a set of {@link Sink}.
          *
          * @param node the node to be deserialized
-         * @return set of deserialized {@link MethodParam}
+         * @return set of deserialized {@link Sink}
          */
-        private Set<MethodParam> deserializeMethodParams(JsonNode node) {
+        private Set<Sink> deserializeSinks(JsonNode node) {
             if (node instanceof ArrayNode) {
                 ArrayNode arrayNode = (ArrayNode) node;
-                Set<MethodParam> methodParams = Sets.newSet(arrayNode.size());
+                Set<Sink> sinks = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
                     JMethod method = hierarchy.getMethod(methodSig);
@@ -179,10 +189,10 @@ class TaintConfig {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
                         int index = elem.get("index").asInt();
-                        methodParams.add(new MethodParam(method, index));
+                        sinks.add(new Sink(method, index));
                     }
                 }
-                return Collections.unmodifiableSet(methodParams);
+                return Collections.unmodifiableSet(sinks);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return Set.of();
@@ -208,7 +218,9 @@ class TaintConfig {
                         // the class hierarchy, just ignore it.
                         int from = TaintTransfer.toInt(elem.get("from").asText());
                         int to = TaintTransfer.toInt(elem.get("to").asText());
-                        transfers.add(new TaintTransfer(method, from, to));
+                        Type type = typeManager.getType(
+                                elem.get("type").asText());
+                        transfers.add(new TaintTransfer(method, from, to, type));
                     }
                 }
                 return Collections.unmodifiableSet(transfers);

@@ -13,6 +13,7 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 
 /**
  * Represents taint transfer between argument/base/return variables
@@ -56,10 +57,16 @@ class TaintTransfer {
      */
     private final int to;
 
-    TaintTransfer(JMethod method, int from, int to) {
+    /**
+     * Type of transferred taint object.
+     */
+    private final Type type;
+
+    TaintTransfer(JMethod method, int from, int to, Type type) {
         this.method = method;
         this.from = from;
         this.to = to;
+        this.type = type;
     }
 
     JMethod getMethod() {
@@ -74,6 +81,10 @@ class TaintTransfer {
         return to;
     }
 
+    Type getType() {
+        return type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -84,7 +95,7 @@ class TaintTransfer {
         }
         TaintTransfer that = (TaintTransfer) o;
         return method.equals(that.method) &&
-                from == that.from && to == that.to;
+                from == that.from && to == that.to && type.equals(that.type);
     }
 
     @Override
@@ -92,12 +103,14 @@ class TaintTransfer {
         int result = method.hashCode();
         result = 31 * result + from;
         result = 31 * result + to;
+        result = 31 * result + type.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return method + ": " + toString(from) + " -> " + toString(to);
+        return method + ": " + toString(from) + " -> " + toString(to) +
+                "(" + type + ")";
     }
 
     /**

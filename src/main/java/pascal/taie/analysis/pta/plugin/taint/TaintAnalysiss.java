@@ -84,7 +84,8 @@ public class TaintAnalysiss {
         defaultCtx = solver.getContextSelector().getEmptyContext();
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
-                World.getClassHierarchy());
+                World.getClassHierarchy(),
+                World.getTypeManager());
         config.getTransfers().forEach(t ->
                 Maps.addToMapSet(transfers, t.getMethod(), t));
         logger.info(config);
