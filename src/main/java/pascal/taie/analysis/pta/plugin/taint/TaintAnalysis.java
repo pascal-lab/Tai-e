@@ -50,6 +50,12 @@ public class TaintAnalysis implements Plugin {
     private final TaintManager manager = new TaintManager();
 
     /**
+     * Map from method (which is source method) to set of types of
+     * taint objects returned by the method calls.
+     */
+    private final Map<JMethod, Set<Type>> sources = Maps.newMap();
+
+    /**
      * Map from method (which causes taint transfer) to set of relevant
      * {@link TaintTransfer}.
      */
@@ -79,24 +85,28 @@ public class TaintAnalysis implements Plugin {
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
                 solver.getTypeManager());
+        logger.info(config);
+        config.getSources().forEach(s ->
+                Maps.addToMapSet(sources, s.getMethod(), s.getType()));
         config.getTransfers().forEach(t ->
                 Maps.addToMapSet(transfers, t.getMethod(), t));
-        logger.info(config);
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         Invoke callSite = edge.getCallSite().getCallSite();
-        JMethod target = edge.getCallee().getMethod();
+        JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
         Var lhs = callSite.getLValue();
-        if (lhs != null && config.getSources().contains(target)) {
-            Obj taint = manager.getTaint(callSite, target.getReturnType());
-            solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
-                    defaultCtx, taint);
+        if (lhs != null && sources.containsKey(callee)) {
+            sources.get(callee).forEach(type -> {
+                Obj taint = manager.getTaint(callSite, type);
+                solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
+                        defaultCtx, taint);
+            });
         }
         // process taint transfer
-        Set<TaintTransfer> transfers = this.transfers.get(target);
+        Set<TaintTransfer> transfers = this.transfers.get(callee);
         if (transfers != null) {
             transfers.forEach(transfer -> {
                 Var from = getVar(callSite, transfer.getFrom());
@@ -104,7 +114,7 @@ public class TaintAnalysis implements Plugin {
                 // when transfer to result variable, and the call site
                 // does not have result variable, then "to" is null.
                 if (to != null) {
-                    Type type = target.getReturnType();
+                    Type type = transfer.getType();
                     Maps.addToMapSet(varTransfers, from, new Pair<>(to, type));
                     Context ctx = edge.getCallSite().getContext();
                     CSVar csFrom = csManager.getCSVar(ctx, from);
