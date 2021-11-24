@@ -16,19 +16,31 @@ import pascal.taie.util.AnalysisException;
 
 public enum PrimitiveType implements Type {
 
-    BYTE("byte"),
-    SHORT("short"),
     INT("int"),
+    CHAR("char"),
+    BOOLEAN("boolean"),
+    BYTE("byte"),
     LONG("long"),
     FLOAT("float"),
     DOUBLE("double"),
-    CHAR("char"),
-    BOOLEAN("boolean");
+    SHORT("short");
 
     private final String name;
 
     PrimitiveType(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return true if given name represents a primitive type, otherwise false.
+     */
+    public static boolean isPrimitiveType(String name) {
+        for (PrimitiveType t : values()) {
+            if (t.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

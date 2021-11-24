@@ -21,6 +21,10 @@ import pascal.taie.language.classes.JClassLoader;
  */
 public interface TypeManager {
 
+    Type getType(JClassLoader loader, String typeName);
+
+    Type getType(String typeName);
+
     ClassType getClassType(JClassLoader loader, String className);
 
     ClassType getClassType(String className);

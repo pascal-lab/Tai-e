@@ -72,6 +72,38 @@ public class TypeManagerImpl implements TypeManager {
     }
 
     @Override
+    public Type getType(JClassLoader loader, String typeName) {
+        try {
+            if (typeName.endsWith("[]")) {
+                int dim = 0;
+                int i = typeName.length() - 1;
+                while (i > 0) {
+                    if (typeName.charAt(i - 1) == '[' && typeName.charAt(i) == ']') {
+                        ++dim;
+                        i -= 2;
+                    } else {
+                        break;
+                    }
+                }
+                return getArrayType(
+                        getType(loader, typeName.substring(0, i + 1)),
+                        dim);
+            } else if (PrimitiveType.isPrimitiveType(typeName)) {
+                return PrimitiveType.get(typeName);
+            } else {
+                return getClassType(loader, typeName);
+            }
+        } catch (Exception e) {
+            throw new AnalysisException("Invalid type name: " + typeName, e);
+        }
+    }
+
+    @Override
+    public Type getType(String typeName) {
+        return getType(hierarchy.getDefaultClassLoader(), typeName);
+    }
+
+    @Override
     public ClassType getClassType(JClassLoader loader, String className) {
         // FIXME: given a non-exist class name, this method will still return
         //  a ClassType with null JClass. This case should return null.

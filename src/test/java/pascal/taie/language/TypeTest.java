@@ -99,4 +99,16 @@ public class TypeTest {
         Assert.assertTrue(typeManager.isSubtype(aArray, bArray));
         Assert.assertFalse(typeManager.isSubtype(bArray, aArray));
     }
+
+    @Test
+    public void testGetType1() {
+        Type a = typeManager.getClassType("A");
+        Type aArray = typeManager.getArrayType(a, 1);
+        Type aArray2 = typeManager.getType("A[]");
+        Assert.assertEquals(aArray, aArray2);
+
+        Type intArray = typeManager.getArrayType(INT, 2);
+        Type intArray2 = typeManager.getType("int[][]");
+        Assert.assertEquals(intArray, intArray2);
+    }
 }
