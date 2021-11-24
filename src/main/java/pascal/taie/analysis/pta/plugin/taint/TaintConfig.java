@@ -84,14 +84,23 @@ class TaintConfig {
         }
     }
 
+    /**
+     * @return sources in the configuration.
+     */
     Set<Source> getSources() {
         return sources;
     }
 
+    /**
+     * @return sinks in the configuration.
+     */
     Set<Sink> getSinks() {
         return sinks;
     }
 
+    /**
+     * @return taint transfers in the configuration.
+     */
     Set<TaintTransfer> getTransfers() {
         return transfers;
     }

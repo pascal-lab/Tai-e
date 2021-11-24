@@ -31,6 +31,11 @@ class TaintManager {
 
     private final Map<Invoke, Map<Type, Obj>> taints = Maps.newHybridMap();
 
+    /**
+     * @param source invocation to the source method, i.e., source call
+     * @param type   type of the taint object
+     * @return the taint object for given source and type.
+     */
     Obj getTaint(Invoke source, Type type) {
         Obj taint = Maps.getMapMap(taints, source, type);
         if (taint == null) {

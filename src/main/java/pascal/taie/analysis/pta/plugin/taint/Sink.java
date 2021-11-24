@@ -35,10 +35,16 @@ class Sink {
         this.index = index;
     }
 
+    /**
+     * @return the sink method.
+     */
     JMethod getMethod() {
         return method;
     }
 
+    /**
+     * @return the index of the sensitive argument.
+     */
     int getIndex() {
         return index;
     }

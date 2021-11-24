@@ -37,10 +37,16 @@ class Source {
         this.type = type;
     }
 
+    /**
+     * @return the source method.
+     */
     JMethod getMethod() {
         return method;
     }
 
+    /**
+     * @return the type of the taint object.
+     */
     Type getType() {
         return type;
     }

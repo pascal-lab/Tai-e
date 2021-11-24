@@ -69,18 +69,30 @@ class TaintTransfer {
         this.type = type;
     }
 
+    /**'
+     * @return the method that causes taint transfer.
+     */
     JMethod getMethod() {
         return method;
     }
 
+    /**
+     * @return the index of "from" variable.
+     */
     int getFrom() {
         return from;
     }
 
+    /**
+     * @return the index of "to" variable.
+     */
     int getTo() {
         return to;
     }
 
+    /**
+     * @return the type of the transferred taint object.
+     */
     Type getType() {
         return type;
     }
@@ -114,7 +126,7 @@ class TaintTransfer {
     }
 
     /**
-     * Coverts index string to number.
+     * Coverts string to index.
      */
     static int toInt(String s) {
         switch (s.toLowerCase()) {
@@ -127,6 +139,9 @@ class TaintTransfer {
         }
     }
 
+    /**
+     * Converts index to string.
+     */
     private static String toString(int index) {
         switch (index) {
             case BASE:
