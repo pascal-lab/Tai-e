@@ -106,7 +106,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
             // current reference handler doesn't support Java 9+
             plugin.addPlugin(new ReferenceHandler());
         }
-        if (World.getOptions().getJavaVersion() >= 7) {
+        if (InvokeDynamicAnalysis.useMethodHandle()) {
             plugin.addPlugin(new InvokeDynamicAnalysis());
         }
         if (World.getOptions().getJavaVersion() >= 8) {

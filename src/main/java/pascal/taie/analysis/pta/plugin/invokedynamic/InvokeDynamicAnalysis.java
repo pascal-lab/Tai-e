@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
+import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -135,6 +136,16 @@ public class InvokeDynamicAnalysis implements Plugin {
      * Map from class type to corresponding Method.Lookup object.
      */
     private final Map<ClassType, MockObj> lookupObjs = Maps.newMap();
+
+    /**
+     * @return true if java.lang.invoke.MethodHandle is used by
+     * the program being analyzed, otherwise false.
+     */
+    public static boolean useMethodHandle() {
+        // if MethodHandle is not loaded, we consider it as unused.
+        return World.getClassHierarchy()
+                .getJREClass(StringReps.METHOD_HANDLE) != null;
+    }
 
     @Override
     public void setSolver(Solver solver) {
