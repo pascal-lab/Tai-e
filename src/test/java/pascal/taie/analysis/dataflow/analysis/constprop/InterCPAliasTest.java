@@ -8,7 +8,7 @@ public class InterCPAliasTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/alias";
 
-    private static void test(String inputClass) {
+    static void test(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "edge-refine:false;alias-aware:true;pta:cspta",
                 "-a", "cspta=cs:2-obj", "-a", "cg=algorithm:cspta"
@@ -17,72 +17,9 @@ public class InterCPAliasTest {
         );
     }
 
-    // Tests instance field
-    @Test
-    public void testInstanceField() {
-        test("InstanceField");
-    }
-
-    @Test
-    public void testMultiLoads() {
-        test("MultiLoads");
-    }
-
-    @Test
-    public void testMultiStores() {
-        test("MultiStores");
-    }
-
-    @Test
-    public void testMultiObjs() {
-        test("MultiObjs");
-    }
-
-    @Test
-    public void testInterprocedural() {
-        test("Interprocedural");
-    }
-
-    @Test
-    public void testInterprocedural2() {
-        test("Interprocedural2");
-    }
-
-    @Test
-    public void testInheritedField() {
-        test("InheritedField");
-    }
-
-    @Test
-    public void testFieldCorner() {
-        test("FieldCorner");
-    }
-
-    // Tests static field
-    @Test
-    public void testStaticField() {
-        test("StaticField");
-    }
-
-    @Test
-    public void testStaticFieldMultiStores() {
-        test("StaticFieldMultiStores");
-    }
-
-    // Tests array
     @Test
     public void testArray() {
         test("Array");
-    }
-
-    @Test
-    public void testArrayField() {
-        test("ArrayField");
-    }
-
-    @Test
-    public void testArrayInter() {
-        test("ArrayInter");
     }
 
     @Test
@@ -96,14 +33,18 @@ public class InterCPAliasTest {
     }
 
     @Test
-    public void testArrayCorner() {
-        test("ArrayCorner");
+    public void testInstanceField() {
+        test("InstanceField");
     }
 
-    // Other tests
     @Test
-    public void testReference() {
-        test("Reference");
+    public void testMultiStores() {
+        test("MultiStores");
+    }
+
+    @Test
+    public void testInterprocedural2() {
+        test("Interprocedural2");
     }
 
     @Test
@@ -112,17 +53,12 @@ public class InterCPAliasTest {
     }
 
     @Test
-    public void testObjSens2() {
-        test("ObjSens2");
+    public void testStaticField() {
+        test("StaticField");
     }
 
     @Test
-    public void testArrayInField() {
-        test("ArrayInField");
-    }
-
-    @Test
-    public void testMaxPQ() {
-        test("MaxPQ");
+    public void testStaticFieldMultiStores() {
+        test("StaticFieldMultiStores");
     }
 }

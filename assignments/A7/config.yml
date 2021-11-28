@@ -110,17 +110,11 @@ testClasses:
   - pascal.taie.analysis.dataflow.analysis.constprop.InterCPAliasTest
 testResources:
   - dataflow/constprop/alias/Array.java
-  - dataflow/constprop/alias/ArrayField.java
-  - dataflow/constprop/alias/ArrayInter.java
   - dataflow/constprop/alias/ArrayInter2.java
   - dataflow/constprop/alias/ArrayLoops.java
   - dataflow/constprop/alias/InstanceField.java
-  - dataflow/constprop/alias/Interprocedural.java
-  - dataflow/constprop/alias/Interprocedural2.java
-  - dataflow/constprop/alias/MultiLoads.java
-  - dataflow/constprop/alias/MultiObjs.java
   - dataflow/constprop/alias/MultiStores.java
+  - dataflow/constprop/alias/Interprocedural2.java
   - dataflow/constprop/alias/ObjSens.java
-  - dataflow/constprop/alias/Reference.java
   - dataflow/constprop/alias/StaticField.java
   - dataflow/constprop/alias/StaticFieldMultiStores.java
