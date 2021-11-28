@@ -84,6 +84,8 @@ overwrittenFiles:
 testClasses:
   - pascal.taie.analysis.pta.TaintTest
 testResources:
+  - pta/taint/taint-config.yml
+  - pta/taint/SourceSink.java
   - pta/taint/ArgToResult.java
   - pta/taint/BaseToResult.java
   - pta/taint/CSTaint.java

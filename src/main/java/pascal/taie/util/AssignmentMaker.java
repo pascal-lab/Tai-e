@@ -219,8 +219,16 @@ final class AssignmentMaker {
         Path target = TARGET_DIR.resolve(TEST_RESOURCES_DIR);
         config.getTestResources().forEach(item -> {
             copyFile(TEST_RESOURCES_DIR, target, item);
-            copyFile(TEST_RESOURCES_DIR, target, item,
-                    AssignmentMaker::toExpectedPath);
+            // some source files in test resources are just dependencies
+            // of other test cases, and thus do no have expected result
+            String fileName = toExpectedFileName(item);
+            if (fileName != null) {
+                Path expected = TEST_RESOURCES_DIR.resolve(fileName);
+                if (Files.exists(expected)) {
+                    copyFile(TEST_RESOURCES_DIR, target, item,
+                            AssignmentMaker::toExpectedFileName);
+                }
+            }
         });
     }
 
@@ -269,7 +277,7 @@ final class AssignmentMaker {
     }
 
     private static @Nullable
-    String toExpectedPath(String testPath) {
+    String toExpectedFileName(String testPath) {
         String[] split = testPath.split("/");
         String file = split[split.length - 1];
         if (file.endsWith(".java")) {
