@@ -46,11 +46,6 @@ public class TaintAnalysiss {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysiss.class);
 
-    /**
-     * Whether this analysis is disabled or not.
-     */
-    private final boolean disabled;
-
     private final TaintManager manager = new TaintManager();
 
     /**
@@ -72,19 +67,15 @@ public class TaintAnalysiss {
      */
     private final Map<Var, Set<Pair<Var, Type>>> varTransfers = Maps.newMap();
 
-    private TaintConfig config;
+    private final TaintConfig config;
 
-    private Solver solver;
+    private final Solver solver;
 
-    private CSManager csManager;
+    private final CSManager csManager;
 
-    private Context defaultCtx;
+    private final Context defaultCtx;
 
     public TaintAnalysiss(Solver solver) {
-        disabled = solver.getOptions().getString("taint-config") == null;
-        if (disabled) {
-            return;
-        }
         this.solver = solver;
         csManager = solver.getCSManager();
         defaultCtx = solver.getContextSelector().getEmptyContext();
@@ -100,9 +91,6 @@ public class TaintAnalysiss {
     }
 
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (disabled) {
-            return;
-        }
         Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
@@ -164,9 +152,6 @@ public class TaintAnalysiss {
     }
 
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (disabled) {
-            return;
-        }
         Set<Pair<Var, Type>> transfers = varTransfers.get(csVar.getVar());
         if (transfers != null) {
             transfers.forEach(p -> {
@@ -178,9 +163,6 @@ public class TaintAnalysiss {
     }
 
     public void onFinish() {
-        if (disabled) {
-            return;
-        }
         List<TaintFlow> taintFlows = collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
     }

@@ -71,6 +71,8 @@ public class Solver {
 
     private WorkList workList;
 
+    private boolean enableTaintAnalysis;
+
     private TaintAnalysiss taintAnalysis;
 
     private PointerAnalysisResult result;
@@ -101,7 +103,9 @@ public class Solver {
     void solve() {
         initialize();
         analyze();
-        taintAnalysis.onFinish();
+        if (enableTaintAnalysis) {
+            taintAnalysis.onFinish();
+        }
     }
 
     private void initialize() {
@@ -109,7 +113,10 @@ public class Solver {
         callGraph = new CSCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
-        taintAnalysis = new TaintAnalysiss(this);
+        enableTaintAnalysis = options.getString("taint-config") != null;
+        if (enableTaintAnalysis) {
+            taintAnalysis = new TaintAnalysiss(this);
+        }
         // process program entry, i.e., main method
         Context defContext = contextSelector.getEmptyContext();
         JMethod main = World.getMainMethod();
@@ -228,7 +235,9 @@ public class Solver {
             PointsToSet diff = propagate(p, pts);
             if (p instanceof CSVar) {
                 CSVar v = (CSVar) p;
-                taintAnalysis.onNewPointsToSet(v, diff);
+                if (enableTaintAnalysis) {
+                    taintAnalysis.onNewPointsToSet(v, diff);
+                }
                 for (CSObj o : diff) {
                     processInstanceStore(v, o);
                     processInstanceLoad(v, o);
@@ -383,8 +392,9 @@ public class Solver {
                     addPFGEdge(csRet, csLHS);
                 }
             }
-
-            taintAnalysis.onNewCallEdge(edge);
+            if (enableTaintAnalysis) {
+                taintAnalysis.onNewCallEdge(edge);
+            }
         }
     }
 
