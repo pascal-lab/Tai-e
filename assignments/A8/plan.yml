@@ -1,0 +1,17 @@
+- id: cspta
+  options:
+    cs: 2-obj
+    merge-string-constants: false
+    merge-string-objects: false
+    merge-string-builders: false
+    merge-exception-objects: true
+    taint-config: src/test/resources/pta/taint/taint-config.yml
+    action: dump
+    file: null
+- id: cg
+  options:
+    algorithm: cspta
+    action: dump
+    file: null
+- id: class-dumper
+  options: {}

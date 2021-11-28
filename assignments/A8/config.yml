@@ -1,0 +1,92 @@
+name: A8
+packageName: Assignment-8-taint-analysis.zip
+exclude:
+  - pascal.taie.analysis.dataflow.*
+  - pascal.taie.analysis.exception.*
+  - pascal.taie.analysis.graph.cfg.*
+  - pascal.taie.analysis.graph.icfg.*
+  - pascal.taie.analysis.pta.ci.*
+  - pascal.taie.analysis.pta.cs.*
+  - pascal.taie.analysis.pta.core.cs.context.*
+  - pascal.taie.analysis.pta.core.cs.selector.*
+  - pascal.taie.analysis.pta.core.solver.*
+  - pascal.taie.analysis.pta.plugin.*
+  - pascal.taie.analysis.pta.PointerAnalysis
+  - pascal.taie.analysis.Tests
+sourceFiles:
+  - pascal.taie.analysis.graph.callgraph.AbstractCallGraph
+  - pascal.taie.analysis.graph.callgraph.CallGraph
+  - pascal.taie.analysis.graph.callgraph.CallGraphBuilder
+  - pascal.taie.analysis.graph.callgraph.CallKind
+  - pascal.taie.analysis.graph.callgraph.Edge
+  - pascal.taie.analysis.pta.core.cs.CSCallGraph
+  - pascal.taie.analysis.pta.core.cs.context.Context
+  - pascal.taie.analysis.pta.core.cs.context.ListContext
+  - pascal.taie.analysis.pta.core.cs.element.ArrayIndex
+  - pascal.taie.analysis.pta.core.cs.element.CSCallSite
+  - pascal.taie.analysis.pta.core.cs.element.CSElement
+  - pascal.taie.analysis.pta.core.cs.element.CSManager
+  - pascal.taie.analysis.pta.core.cs.element.CSMethod
+  - pascal.taie.analysis.pta.core.cs.element.CSObj
+  - pascal.taie.analysis.pta.core.cs.element.CSVar
+  - pascal.taie.analysis.pta.core.cs.element.InstanceField
+  - pascal.taie.analysis.pta.core.cs.element.Pointer
+  - pascal.taie.analysis.pta.core.cs.element.StaticField
+  - pascal.taie.analysis.pta.core.cs.selector.CISelector
+  - pascal.taie.analysis.pta.core.cs.selector.ContextSelector
+  - pascal.taie.analysis.pta.core.heap.HeapModel
+  - pascal.taie.analysis.pta.core.heap.Obj
+  - pascal.taie.analysis.pta.cs.CSPTA
+  - pascal.taie.analysis.pta.cs.PointerFlowGraph
+  - pascal.taie.analysis.pta.cs.WorkList
+  - pascal.taie.analysis.pta.plugin.ResultProcessor
+  - pascal.taie.analysis.pta.plugin.taint.Sink
+  - pascal.taie.analysis.pta.plugin.taint.Source
+  - pascal.taie.analysis.pta.plugin.taint.TaintConfig
+  - pascal.taie.analysis.pta.plugin.taint.TaintFlow
+  - pascal.taie.analysis.pta.plugin.taint.TaintManager
+  - pascal.taie.analysis.pta.plugin.taint.TaintTransfer
+  - pascal.taie.analysis.pta.pts.PointsToSet
+  - pascal.taie.analysis.pta.pts.PointsToSetFactory
+  - pascal.taie.ir.exp.InvokeExp
+  - pascal.taie.ir.exp.Var
+  - pascal.taie.ir.IR
+  - pascal.taie.ir.stmt.ArrayStmt
+  - pascal.taie.ir.stmt.AssignStmt
+  - pascal.taie.ir.stmt.Copy
+  - pascal.taie.ir.stmt.DefinitionStmt
+  - pascal.taie.ir.stmt.FieldStmt
+  - pascal.taie.ir.stmt.Invoke
+  - pascal.taie.ir.stmt.LoadArray
+  - pascal.taie.ir.stmt.LoadField
+  - pascal.taie.ir.stmt.New
+  - pascal.taie.ir.stmt.Stmt
+  - pascal.taie.ir.stmt.StmtVisitor
+  - pascal.taie.ir.stmt.StoreArray
+  - pascal.taie.ir.stmt.StoreField
+  - pascal.taie.language.classes.JField
+  - pascal.taie.language.classes.JMethod
+overwrittenFiles:
+  - pascal.taie.analysis.pta.cs.Solver
+  - pascal.taie.analysis.pta.core.cs.selector._1CallSelector
+  - pascal.taie.analysis.pta.core.cs.selector._1ObjSelector
+  - pascal.taie.analysis.pta.core.cs.selector._1TypeSelector
+  - pascal.taie.analysis.pta.core.cs.selector._2CallSelector
+  - pascal.taie.analysis.pta.core.cs.selector._2ObjSelector
+  - pascal.taie.analysis.pta.core.cs.selector._2TypeSelector
+  - pascal.taie.analysis.pta.plugin.taint.TaintAnalysiss
+  # complete
+  - pascal.taie.Assignment
+  - pascal.taie.analysis.pta.core.cs.element.Pointer # remove PFGEdge dependency
+  - pascal.taie.analysis.pta.core.cs.element.AbstractPointer
+  - pascal.taie.analysis.pta.plugin.ResultProcessor # remove Plugin and Solver dependencies
+  - pascal.taie.analysis.Tests # remove CFG and DFA dependencies
+testClasses:
+  - pascal.taie.analysis.pta.TaintTest
+testResources:
+  - pta/taint/ArgToResult.java
+  - pta/taint/BaseToResult.java
+  - pta/taint/CSTaint.java
+  - pta/taint/FieldTaint.java
+  - pta/taint/SimpleTaint.java
+  - pta/taint/StringAppend.java
