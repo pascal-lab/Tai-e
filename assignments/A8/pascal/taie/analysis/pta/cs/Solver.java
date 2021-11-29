@@ -94,10 +94,6 @@ public class Solver {
         return csManager;
     }
 
-    public void addVarPointsTo(Pointer pointer, PointsToSet pointsToSet) {
-        workList.addEntry(pointer, pointsToSet);
-    }
-
     void solve() {
         initialize();
         analyze();

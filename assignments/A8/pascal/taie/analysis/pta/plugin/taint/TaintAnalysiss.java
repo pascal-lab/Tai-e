@@ -34,12 +34,12 @@ public class TaintAnalysiss {
 
     private final CSManager csManager;
 
-    private final Context defaultCtx;
+    private final Context emptyContext;
 
     public TaintAnalysiss(Solver solver) {
         this.solver = solver;
         csManager = solver.getCSManager();
-        defaultCtx = solver.getContextSelector().getEmptyContext();
+        emptyContext = solver.getContextSelector().getEmptyContext();
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 World.getClassHierarchy(),

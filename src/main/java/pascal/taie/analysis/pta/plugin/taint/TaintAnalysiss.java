@@ -73,12 +73,12 @@ public class TaintAnalysiss {
 
     private final CSManager csManager;
 
-    private final Context defaultCtx;
+    private final Context emptyContext;
 
     public TaintAnalysiss(Solver solver) {
         this.solver = solver;
         csManager = solver.getCSManager();
-        defaultCtx = solver.getContextSelector().getEmptyContext();
+        emptyContext = solver.getContextSelector().getEmptyContext();
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 World.getClassHierarchy(),
@@ -100,7 +100,7 @@ public class TaintAnalysiss {
                 Obj taint = manager.getTaint(callSite, type);
                 solver.addVarPointsTo(
                         csManager.getCSVar(edge.getCallSite().getContext(), lhs),
-                        PointsToSetFactory.make(csManager.getCSObj(defaultCtx, taint)));
+                        PointsToSetFactory.make(csManager.getCSObj(emptyContext, taint)));
             });
         }
         // process taint transfer
@@ -144,7 +144,7 @@ public class TaintAnalysiss {
                 .filter(manager::isTaint)
                 .map(manager::getSourceCall)
                 .map(source -> manager.getTaint(source, type))
-                .map(taint -> csManager.getCSObj(defaultCtx, taint))
+                .map(taint -> csManager.getCSObj(emptyContext, taint))
                 .forEach(newTaints::addObject);
         if (!newTaints.isEmpty()) {
             solver.addVarPointsTo(csManager.getCSVar(ctx, to), newTaints);

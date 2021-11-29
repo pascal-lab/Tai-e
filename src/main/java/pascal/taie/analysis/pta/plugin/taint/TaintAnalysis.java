@@ -74,13 +74,13 @@ public class TaintAnalysis implements Plugin {
 
     private CSManager csManager;
 
-    private Context defaultCtx;
+    private Context emptyContext;
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         csManager = solver.getCSManager();
-        defaultCtx = solver.getContextSelector().getEmptyContext();
+        emptyContext = solver.getContextSelector().getEmptyContext();
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
@@ -102,7 +102,7 @@ public class TaintAnalysis implements Plugin {
             sources.get(callee).forEach(type -> {
                 Obj taint = manager.getTaint(callSite, type);
                 solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
-                        defaultCtx, taint);
+                        emptyContext, taint);
             });
         }
         // process taint transfer
@@ -146,7 +146,7 @@ public class TaintAnalysis implements Plugin {
                 .filter(manager::isTaint)
                 .map(manager::getSourceCall)
                 .map(source -> manager.getTaint(source, type))
-                .map(taint -> csManager.getCSObj(defaultCtx, taint))
+                .map(taint -> csManager.getCSObj(emptyContext, taint))
                 .forEach(newTaints::addObject);
         if (!newTaints.isEmpty()) {
             solver.addVarPointsTo(ctx, to, newTaints);
