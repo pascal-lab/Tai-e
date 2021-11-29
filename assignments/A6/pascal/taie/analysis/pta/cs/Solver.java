@@ -37,6 +37,7 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
+import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
@@ -55,6 +56,8 @@ class Solver {
 
     private static final Logger logger = LogManager.getLogger(Solver.class);
 
+    private final AnalysisOptions options;
+
     private final HeapModel heapModel;
 
     private final ContextSelector contextSelector;
@@ -69,7 +72,9 @@ class Solver {
 
     private PointerAnalysisResult result;
 
-    Solver(HeapModel heapModel, ContextSelector contextSelector) {
+    Solver(AnalysisOptions options, HeapModel heapModel,
+           ContextSelector contextSelector) {
+        this.options = options;
         this.heapModel = heapModel;
         this.contextSelector = contextSelector;
     }
