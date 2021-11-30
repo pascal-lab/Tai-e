@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.plugin.taint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.cs.Solver;
@@ -26,7 +27,7 @@ public class TaintAnalysiss {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysiss.class);
 
-    private final TaintManager manager = new TaintManager();
+    private final TaintManager manager;
 
     private final TaintConfig config;
 
@@ -37,6 +38,7 @@ public class TaintAnalysiss {
     private final Context emptyContext;
 
     public TaintAnalysiss(Solver solver) {
+        manager = new TaintManager();
         this.solver = solver;
         csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
@@ -56,7 +58,9 @@ public class TaintAnalysiss {
 
     private List<TaintFlow> collectTaintFlows() {
         List<TaintFlow> taintFlows = new ArrayList<>();
+        PointerAnalysisResult result = solver.getResult();
         // TODO - finish me
+        // You could query pointer analysis results you need via variable result.
         return taintFlows;
     }
 }

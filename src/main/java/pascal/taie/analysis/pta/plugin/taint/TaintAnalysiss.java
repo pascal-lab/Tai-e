@@ -46,7 +46,7 @@ public class TaintAnalysiss {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysiss.class);
 
-    private final TaintManager manager = new TaintManager();
+    private final TaintManager manager;
 
     /**
      * Map from method (which is source method) to set of types of
@@ -76,6 +76,7 @@ public class TaintAnalysiss {
     private final Context emptyContext;
 
     public TaintAnalysiss(Solver solver) {
+        manager = new TaintManager();
         this.solver = solver;
         csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
@@ -97,7 +98,7 @@ public class TaintAnalysiss {
         Var lhs = callSite.getLValue();
         if (lhs != null && sources.containsKey(callee)) {
             sources.get(callee).forEach(type -> {
-                Obj taint = manager.getTaint(callSite, type);
+                Obj taint = manager.makeTaint(callSite, type);
                 solver.addVarPointsTo(
                         csManager.getCSVar(edge.getCallSite().getContext(), lhs),
                         PointsToSetFactory.make(csManager.getCSObj(emptyContext, taint)));
@@ -143,7 +144,7 @@ public class TaintAnalysiss {
                 .map(CSObj::getObject)
                 .filter(manager::isTaint)
                 .map(manager::getSourceCall)
-                .map(source -> manager.getTaint(source, type))
+                .map(source -> manager.makeTaint(source, type))
                 .map(taint -> csManager.getCSObj(emptyContext, taint))
                 .forEach(newTaints::addObject);
         if (!newTaints.isEmpty()) {

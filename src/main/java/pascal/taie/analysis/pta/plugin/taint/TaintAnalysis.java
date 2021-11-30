@@ -100,7 +100,7 @@ public class TaintAnalysis implements Plugin {
         Var lhs = callSite.getLValue();
         if (lhs != null && sources.containsKey(callee)) {
             sources.get(callee).forEach(type -> {
-                Obj taint = manager.getTaint(callSite, type);
+                Obj taint = manager.makeTaint(callSite, type);
                 solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
                         emptyContext, taint);
             });
@@ -145,7 +145,7 @@ public class TaintAnalysis implements Plugin {
                 .map(CSObj::getObject)
                 .filter(manager::isTaint)
                 .map(manager::getSourceCall)
-                .map(source -> manager.getTaint(source, type))
+                .map(source -> manager.makeTaint(source, type))
                 .map(taint -> csManager.getCSObj(emptyContext, taint))
                 .forEach(newTaints::addObject);
         if (!newTaints.isEmpty()) {

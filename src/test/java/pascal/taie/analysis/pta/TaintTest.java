@@ -38,12 +38,6 @@ public class TaintTest {
     }
 
     @Test
-    public void testStringAppend() {
-        Tests.testCSPTA(DIR, "StringAppend",
-                "taint-config:src/test/resources/pta/taint/taint-config.yml");
-    }
-
-    @Test
     public void testArgToResult() {
         Tests.testCSPTA(DIR, "ArgToResult",
                 "taint-config:src/test/resources/pta/taint/taint-config.yml");
@@ -53,5 +47,23 @@ public class TaintTest {
     public void testBaseToResult() {
         Tests.testCSPTA(DIR, "BaseToResult",
                 "taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testStringAppend() {
+        Tests.testCSPTA(DIR, "StringAppend",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testInterTaintTransfer() {
+        Tests.testCSPTA(DIR, "InterTaintTransfer",
+                "cs:2-call;taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testTaintInList() {
+        Tests.testCSPTA(DIR, "TaintInList",
+                "cs:2-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 }

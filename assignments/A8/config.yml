@@ -92,3 +92,5 @@ testResources:
   - pta/taint/FieldTaint.java
   - pta/taint/SimpleTaint.java
   - pta/taint/StringAppend.java
+  - pta/taint/InterTaintTransfer.java
+  - pta/taint/TaintInList.java
