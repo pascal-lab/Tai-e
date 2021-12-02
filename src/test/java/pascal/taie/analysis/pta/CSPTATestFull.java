@@ -138,7 +138,6 @@ public class CSPTATestFull {
         Tests.testCSPTA(DIR, "StaticSelect", "cs:2-obj");
     }
 
-
     @Test
     public void testTwoCallOnly() {
         Tests.testCSPTA(DIR, "TwoCallOnly", "cs:2-call");

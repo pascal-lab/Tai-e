@@ -20,8 +20,9 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.cs.Solver;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class TaintAnalysiss {
 
@@ -52,12 +53,12 @@ public class TaintAnalysiss {
     // TODO - finish me
 
     public void onFinish() {
-        List<TaintFlow> taintFlows = collectTaintFlows();
+        Set<TaintFlow> taintFlows = collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
     }
 
-    private List<TaintFlow> collectTaintFlows() {
-        List<TaintFlow> taintFlows = new ArrayList<>();
+    private Set<TaintFlow> collectTaintFlows() {
+        Set<TaintFlow> taintFlows = new TreeSet<>();
         PointerAnalysisResult result = solver.getResult();
         // TODO - finish me
         // You could query pointer analysis results you need via variable result.

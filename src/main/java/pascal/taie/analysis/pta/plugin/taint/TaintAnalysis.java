@@ -37,11 +37,9 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 public class TaintAnalysis implements Plugin {
 
@@ -167,13 +165,13 @@ public class TaintAnalysis implements Plugin {
 
     @Override
     public void onFinish() {
-        List<TaintFlow> taintFlows = collectTaintFlows();
+        Set<TaintFlow> taintFlows = collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
     }
 
-    private List<TaintFlow> collectTaintFlows() {
+    private Set<TaintFlow> collectTaintFlows() {
         PointerAnalysisResult result = solver.getResult();
-        List<TaintFlow> taintFlows = new ArrayList<>();
+        Set<TaintFlow> taintFlows = new TreeSet<>();
         config.getSinks().forEach(sink -> {
             int i = sink.getIndex();
             result.getCallGraph()
@@ -188,9 +186,6 @@ public class TaintAnalysis implements Plugin {
                                 .forEach(taintFlows::add);
                     });
         });
-        return taintFlows.stream()
-                .distinct()
-                .sorted()
-                .collect(Collectors.toUnmodifiableList());
+        return taintFlows;
     }
 }

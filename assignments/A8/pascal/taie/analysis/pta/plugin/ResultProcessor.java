@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -213,7 +214,7 @@ public class ResultProcessor {
     }
 
     private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {
-        List<TaintFlow> taintFlows = getTaintFlows(result);
+        Set<TaintFlow> taintFlows = getTaintFlows(result);
         out.printf("Detected %d taint flow(s):%n", taintFlows.size());
         taintFlows.forEach(out::println);
         out.println();
@@ -222,7 +223,7 @@ public class ResultProcessor {
     /**
      * @return taint analysis result.
      */
-    private static List<TaintFlow> getTaintFlows(PointerAnalysisResult result) {
+    private static Set<TaintFlow> getTaintFlows(PointerAnalysisResult result) {
         for (String key : result.getKeys()) {
             if (key.contains("Taint")) { // adapt different taint analyses
                 return result.getResult(key);
