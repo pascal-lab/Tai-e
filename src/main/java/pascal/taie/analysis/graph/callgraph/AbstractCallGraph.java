@@ -141,6 +141,16 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
+    public int getInDegreeOf(Method node) {
+        return (int) predsOf(node).count();
+    }
+
+    @Override
+    public int getOutDegreeOf(Method node) {
+        return (int) succsOf(node).count();
+    }
+
+    @Override
     public Stream<Method> nodes() {
         return reachableMethods();
     }

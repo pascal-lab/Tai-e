@@ -132,6 +132,16 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
+    public int getInDegreeOf(N node) {
+        return inEdges.getOrDefault(node, Set.of()).size();
+    }
+
+    @Override
+    public int getOutDegreeOf(N node) {
+        return outEdges.getOrDefault(node, Set.of()).size();
+    }
+
+    @Override
     public boolean hasNode(N node) {
         return nodes.contains(node);
     }

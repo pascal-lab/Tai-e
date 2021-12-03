@@ -64,6 +64,16 @@ public class SimpleGraph<N> implements Graph<N> {
     }
 
     @Override
+    public int getInDegreeOf(N node) {
+        return predMap.getOrDefault(node, Set.of()).size();
+    }
+
+    @Override
+    public int getOutDegreeOf(N node) {
+        return succMap.getOrDefault(node, Set.of()).size();
+    }
+
+    @Override
     public Stream<N> nodes() {
         return nodes.stream();
     }

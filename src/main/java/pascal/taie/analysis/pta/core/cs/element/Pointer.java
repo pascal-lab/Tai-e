@@ -47,6 +47,11 @@ public interface Pointer {
     Stream<PointerFlowEdge> outEdges();
 
     /**
+     * @return out degree of this pointer in pointer flow graph.
+     */
+    int getOutDegree();
+
+    /**
      * @return the type of this pointer
      */
     Type getType();

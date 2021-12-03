@@ -48,6 +48,16 @@ public class ReverseGraph<N> implements Graph<N> {
     }
 
     @Override
+    public int getInDegreeOf(N node) {
+        return graph.getOutDegreeOf(node);
+    }
+
+    @Override
+    public int getOutDegreeOf(N node) {
+        return graph.getInDegreeOf(node);
+    }
+
+    @Override
     public Stream<N> nodes() {
         return graph.nodes();
     }

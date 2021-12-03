@@ -119,6 +119,16 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
+    public int getInDegreeOf(Stmt stmt) {
+        return inEdges.getOrDefault(stmt, Set.of()).size();
+    }
+
+    @Override
+    public int getOutDegreeOf(Stmt stmt) {
+        return outEdges.getOrDefault(stmt, Set.of()).size();
+    }
+
+    @Override
     public Stmt getEntryOf(JMethod method) {
         return getCFGOf(method).getEntry();
     }

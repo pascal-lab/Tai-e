@@ -76,6 +76,16 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     }
 
     @Override
+    public int getInDegreeOf(MergedNode<N> node) {
+        return node.getPreds().size();
+    }
+
+    @Override
+    public int getOutDegreeOf(MergedNode<N> node) {
+        return node.getSuccs().size();
+    }
+
+    @Override
     public Stream<MergedNode<N>> nodes() {
         return nodes.stream();
     }

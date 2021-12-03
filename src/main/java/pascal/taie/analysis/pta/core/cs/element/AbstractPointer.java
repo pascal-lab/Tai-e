@@ -45,4 +45,9 @@ abstract class AbstractPointer implements Pointer {
     public Stream<PointerFlowEdge> outEdges() {
         return outEdges.stream();
     }
+
+    @Override
+    public int getOutDegree() {
+        return outEdges.size();
+    }
 }

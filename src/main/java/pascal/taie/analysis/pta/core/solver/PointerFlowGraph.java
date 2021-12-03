@@ -54,6 +54,16 @@ public class PointerFlowGraph implements Graph<Pointer> {
         return pointer.outEdges();
     }
 
+    @Override
+    public int getInDegreeOf(Pointer node) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getOutDegreeOf(Pointer node) {
+        return node.getOutDegree();
+    }
+
     public Stream<Pointer> pointers() {
         return pointers.stream();
     }

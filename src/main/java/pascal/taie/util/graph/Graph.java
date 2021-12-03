@@ -59,12 +59,22 @@ public interface Graph<N> extends Iterable<N> {
     }
 
     /**
+     * @return the number of in edges of the given node.
+     */
+    int getInDegreeOf(N node);
+
+    /**
      * @return outgoing edges of the given node.
      */
     default Stream<? extends Edge<N>> outEdgesOf(N node) {
         return succsOf(node)
                 .map(succ -> new AbstractEdge<N>(node, succ) {});
     }
+
+    /**
+     * @return the number of out edges of the given node.
+     */
+    int getOutDegreeOf(N node);
 
     /**
      * @return all nodes of this graph.
