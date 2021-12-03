@@ -77,13 +77,13 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Stream<CSMethod> calleesOf(CSCallSite csCallSite) {
-        return csCallSite.edges().map(Edge::getCallee);
+    public Stream<CSCallSite> callersOf(CSMethod callee) {
+        return callee.edges().map(Edge::getCallSite);
     }
 
     @Override
-    public Stream<CSCallSite> callersOf(CSMethod callee) {
-        return callee.edges().map(Edge::getCallSite);
+    public Stream<CSMethod> calleesOf(CSCallSite csCallSite) {
+        return csCallSite.edges().map(Edge::getCallee);
     }
 
     @Override

@@ -25,14 +25,19 @@ import java.util.stream.Stream;
 public interface CallGraph<CallSite, Method> extends Graph<Method> {
 
     /**
+     * @return the call sites that invoke the given method.
+     */
+    Stream<CallSite> callersOf(Method callee);
+
+    /**
      * @return the methods that are called by the given call site.
      */
     Stream<Method> calleesOf(CallSite callSite);
 
     /**
-     * @return the call sites that invoke the given method.
+     * @return the methods that are called by all call sites in the given method.
      */
-    Stream<CallSite> callersOf(Method callee);
+    Stream<Method> calleesOfMethod(Method caller);
 
     /**
      * @return the method that contains the given call site.

@@ -39,6 +39,13 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected final Set<Method> reachableMethods = Sets.newSet();
 
     @Override
+    public Stream<CallSite> callersOf(Method callee) {
+        Set<Edge<CallSite, Method>> edges = calleeToEdges.get(callee);
+        return edges != null ?
+                edges.stream().map(Edge::getCallSite) : Stream.of();
+    }
+
+    @Override
     public Stream<Method> calleesOf(CallSite callSite) {
         Set<Edge<CallSite, Method>> edges = callSiteToEdges.get(callSite);
         return edges != null ?
@@ -46,10 +53,10 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Stream<CallSite> callersOf(Method callee) {
-        Set<Edge<CallSite, Method>> edges = calleeToEdges.get(callee);
-        return edges != null ?
-                edges.stream().map(Edge::getCallSite) : Stream.of();
+    public Stream<Method> calleesOfMethod(Method caller) {
+        return callSitesIn(caller)
+                .flatMap(this::calleesOf)
+                .distinct();
     }
 
     @Override
