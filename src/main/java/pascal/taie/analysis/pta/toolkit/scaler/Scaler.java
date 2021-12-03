@@ -1,0 +1,218 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2020-- Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2020-- Yue Li <yueli@nju.edu.cn>
+ * All rights reserved.
+ *
+ * Tai-e is only for educational and academic purposes,
+ * and any form of commercial use is disallowed.
+ * Distribution of Tai-e is disallowed without the approval.
+ */
+
+package pascal.taie.analysis.pta.toolkit.scaler;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
+import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.graph.Graph;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * Given a TST (Total Scalability Threshold), select the ST (Scalability Threshold),
+ * then select context-sensitivity based on the selected ST value.
+ */
+public class Scaler {
+
+    private static final Logger logger = LogManager.getLogger(Scaler.class);
+
+    private final PointerAnalysisResultEx pta;
+
+    /**
+     * Total scalability threshold.
+     */
+    private final long tst;
+
+    /**
+     * Context computer for the fastest and the most imprecise
+     * context sensitivity variant.
+     */
+    private final ContextComputer bottomLine;
+
+    private final List<ContextComputer> ctxComputers;
+
+    /**
+     * Map from a method to total size of points-to sets of all (concerned)
+     * variables in the method.
+     */
+    private final Map<JMethod, Integer> ptsSize = Maps.newMap();
+
+    public Scaler(PointerAnalysisResult ptaBase, long tst) {
+        this.pta = new PointerAnalysisResultExImpl(ptaBase);
+        this.tst = tst;
+        bottomLine = new _InsensitiveContextComputer(pta);
+        // From the most precise analysis to the least precise analysis
+        Graph<Obj> oag = OAGBuilder.build(pta);
+        // TODO - make ctxComputers configurable
+        ctxComputers = List.of(
+                new _2ObjContextComputer(pta, oag),
+                new _2TypeContextComputer(pta, oag),
+                new _1TypeContextComputer(pta));
+    }
+
+    /**
+     * Selects context sensitivity variants for the methods in the program.
+     * Currently, we only consider instance methods, as the contexts of static
+     * methods actually come from instance methods.
+     *
+     * @return a map from methods to their selected context sensitivity variants.
+     */
+    public Map<JMethod, String> selectContext() {
+        Set<JMethod> instanceMethods = pta.getBase()
+                .getCallGraph()
+                .reachableMethods()
+                .collect(Collectors.toUnmodifiableSet());
+        long st = binarySearch(instanceMethods, tst);
+        return instanceMethods.stream()
+                .collect(Collectors.toMap(m -> m, m -> selectVariantFor(m, st)));
+    }
+
+    /**
+     * Search the suitable st such that the accumulative size of
+     * context-sensitive points to sets of given methods is less than given tst.
+     *
+     * @return the st for every method
+     */
+    private long binarySearch(Set<JMethod> methods, long tst) {
+        // Select the max value and make it as end
+        long end = methods.stream()
+                .mapToLong(m -> getWeight(m, ctxComputers.get(0)))
+                .max()
+                .getAsLong();
+        long start = 0;
+        long mid, ret = 0;
+        while (start <= end) {
+            mid = (start + end) / 2;
+            long totalSize = getTotalAccumulativePTS(methods, mid);
+            if (totalSize < tst) {
+                ret = mid;
+                start = mid + 1;
+            } else if (totalSize > tst) {
+                end = mid - 1;
+            } else {
+                ret = mid;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Given a set of methods and a st (scalability threshold),
+     * computes the total size of all (concerned) variables in the program.
+     */
+    private long getTotalAccumulativePTS(Set<JMethod> methods, long st) {
+        long total = 0;
+        for (JMethod method : methods) {
+            if (!isSpecialMethod(method)) {
+                // special methods are excluded from this computation
+                ContextComputer cc = selectContextComputer(method, st);
+                total += getWeight(method, cc);
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Selects a suitable context computer for given method and st.
+     * If there are any ContextComputers which can satisfy that the weight
+     * of given method can be less than or equal to given st, then the
+     * most expensive (and precise) ContextComputer is returned;
+     * otherwise, bottom line is returned.
+     *
+     * @return the selected context computer for method according to tst
+     */
+    private ContextComputer selectContextComputer(JMethod method, long st) {
+        ContextComputer ctxComp;
+        if (isSpecialMethod(method)) {
+            // special methods will be analyzed with the most precise variant
+            ctxComp = ctxComputers.get(0);
+        } else {
+            ctxComp = bottomLine;
+            for (ContextComputer cc : ctxComputers) {
+                if (getWeight(method, cc) <= st) {
+                    ctxComp = cc;
+                    break;
+                }
+            }
+        }
+        return ctxComp;
+    }
+
+    /**
+     * @return the special methods that should be analyzed with
+     * the most precise context sensitivity variant.
+     */
+    private static boolean isSpecialMethod(JMethod method) {
+        return method.getDeclaringClass()
+                .getName()
+                .startsWith("java.util.");
+    }
+
+    /**
+     * @return the weight of given method when analyzed using the
+     * context sensitivity variant that corresponds to given ContextComputer.
+     */
+    private long getWeight(JMethod method, ContextComputer cc) {
+        return ((long) cc.contextNumberOf(method))
+                * ((long) getCIPTSSizeOf(method));
+    }
+
+    /**
+     * @return total size of points-to sets of all (concerned) variables
+     * in given method when analyzed using context insensitivity.
+     */
+    private int getCIPTSSizeOf(JMethod method) {
+        if (!ptsSize.containsKey(method)) {
+            int size = method.getIR()
+                    .getVars()
+                    .stream()
+                    .filter(Scaler::isConcerned)
+                    .mapToInt(v -> pta.getBase().getPointsToSet(v).size())
+                    .sum();
+            ptsSize.put(method, size);
+        }
+        return ptsSize.get(method);
+    }
+
+    /**
+     * @return if given variable is concerned in pointer analysis.
+     */
+    private static boolean isConcerned(Var var) {
+        Type type = var.getType();
+        return type instanceof ReferenceType && !(type instanceof NullType);
+    }
+
+    /**
+     * Given st, selects suitable context sensitivity variant for given method.
+     */
+    private String selectVariantFor(JMethod method, long st) {
+        ContextComputer ctxComp = selectContextComputer(method, st);
+        logger.debug("{}, {}, {}", method,
+                ctxComp.getVariantName(), ctxComp.contextNumberOf(method));
+        return ctxComp.getVariantName();
+    }
+}
