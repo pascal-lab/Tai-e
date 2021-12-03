@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -37,6 +39,8 @@ import java.util.Set;
  * Configuration for taint analysis.
  */
 class TaintConfig {
+
+    private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
     /**
      * Set of sources.
@@ -171,6 +175,8 @@ class TaintConfig {
                         Type type = typeManager.getType(
                                 elem.get("type").asText());
                         sources.add(new Source(method, type));
+                    } else {
+                        logger.warn("Cannot find source method '{}'", methodSig);
                     }
                 }
                 return Collections.unmodifiableSet(sources);
@@ -199,6 +205,8 @@ class TaintConfig {
                         // the class hierarchy, just ignore it.
                         int index = elem.get("index").asInt();
                         sinks.add(new Sink(method, index));
+                    } else {
+                        logger.warn("Cannot find sink method '{}'", methodSig);
                     }
                 }
                 return Collections.unmodifiableSet(sinks);
@@ -230,6 +238,8 @@ class TaintConfig {
                         Type type = typeManager.getType(
                                 elem.get("type").asText());
                         transfers.add(new TaintTransfer(method, from, to, type));
+                    } else {
+                        logger.warn("Cannot find taint-transfer method '{}'", methodSig);
                     }
                 }
                 return Collections.unmodifiableSet(transfers);
