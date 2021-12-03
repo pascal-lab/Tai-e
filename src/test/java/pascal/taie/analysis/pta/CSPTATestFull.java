@@ -41,28 +41,8 @@ public class CSPTATestFull {
     }
 
     @Test
-    public void testAssign2() {
-        Tests.testCSPTA(DIR, "Assign2");
-    }
-
-    @Test
     public void testInstanceField() {
         Tests.testCSPTA(DIR, "InstanceField");
-    }
-
-    @Test
-    public void testInstanceField2() {
-        Tests.testCSPTA(DIR, "InstanceField2");
-    }
-
-    @Test
-    public void testCallParamRet() {
-        Tests.testCSPTA(DIR, "CallParamRet");
-    }
-
-    @Test
-    public void testCallField() {
-        Tests.testCSPTA(DIR, "CallField");
     }
 
     // Tests for context sensitivity variants
@@ -105,16 +85,6 @@ public class CSPTATestFull {
     @Test
     public void testArray() {
         Tests.testCSPTA(DIR, "Array");
-    }
-
-    @Test
-    public void testNull() {
-        Tests.testCSPTA(DIR, "Null");
-    }
-
-    @Test
-    public void testPrimitive() {
-        Tests.testCSPTA(DIR, "Primitive");
     }
 
     // New tests
