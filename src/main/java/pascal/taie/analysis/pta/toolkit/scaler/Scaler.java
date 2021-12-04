@@ -39,6 +39,8 @@ public class Scaler {
 
     private static final Logger logger = LogManager.getLogger(Scaler.class);
 
+    private static final int DEFAULT_TST = 30000000;
+
     private final PointerAnalysisResultEx pta;
 
     /**
@@ -59,6 +61,10 @@ public class Scaler {
      * variables in the method.
      */
     private final Map<JMethod, Integer> ptsSize = Maps.newMap();
+
+    public Scaler(PointerAnalysisResult ptaBase) {
+        this(ptaBase, DEFAULT_TST);
+    }
 
     public Scaler(PointerAnalysisResult ptaBase, long tst) {
         this.pta = new PointerAnalysisResultExImpl(ptaBase);

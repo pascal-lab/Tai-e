@@ -6,8 +6,6 @@ import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 
-import static java.util.function.Predicate.not;
-
 /**
  * This class computes (estimates) the number of contexts for given method
  * when using corresponding context sensitivity variant.
@@ -23,22 +21,14 @@ abstract class ContextComputer {
 
     ContextComputer(PointerAnalysisResultEx pta) {
         this.pta = pta;
-        computeContext();
-    }
-
-    private void computeContext() {
-        pta.getBase()
-                .getCallGraph()
-                .reachableMethods()
-                .filter(not(JMethod::isStatic))
-                .forEach(m -> method2ctxNumber.put(m, computeContextNumberOf(m)));
     }
 
     /**
      * @return the number of contexts of the given method.
      */
     int contextNumberOf(JMethod method) {
-        return method2ctxNumber.get(method);
+        return method2ctxNumber.computeIfAbsent(
+                method, this::computeContextNumberOf);
     }
 
     /**
