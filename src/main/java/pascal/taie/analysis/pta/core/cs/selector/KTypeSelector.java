@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-public class KTypeSelector extends KContextSelector<Type> {
+class KTypeSelector extends KLimitingSelector<Type> {
 
     public KTypeSelector(int k, int hk) {
         super(k, hk);

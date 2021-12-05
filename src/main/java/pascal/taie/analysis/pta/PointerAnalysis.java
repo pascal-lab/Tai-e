@@ -15,8 +15,7 @@ package pascal.taie.analysis.pta;
 import pascal.taie.World;
 import pascal.taie.analysis.InterproceduralAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
-import pascal.taie.analysis.pta.core.cs.selector.ContextInsensitiveSelector;
-import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.cs.selector.ContextSelectorFactory;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.solver.DefaultSolver;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -33,11 +32,6 @@ import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
-import pascal.taie.config.ConfigException;
-import pascal.taie.util.Strings;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 public class PointerAnalysis extends InterproceduralAnalysis {
 
@@ -52,7 +46,7 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         AnalysisOptions options = getOptions();
         Solver solver = new DefaultSolver(options,
                 new AllocationSiteBasedModel(options),
-                getContextSelector(options.getString("cs")),
+                ContextSelectorFactory.makePlainSelector(options.getString("cs")),
                 new MapBasedCSManager());
         // The initialization of some Plugins may read the fields in solver,
         // e.g., contextSelector or csManager, thus we initialize Plugins
@@ -62,39 +56,10 @@ public class PointerAnalysis extends InterproceduralAnalysis {
         return solver.getResult();
     }
 
-    /**
-     * @return context selector for {@link DefaultSolver}.
-     */
-    private static ContextSelector getContextSelector(String cs) {
-        if (cs.equals("ci")) {
-            return new ContextInsensitiveSelector();
-        } else {
-            try {
-                // we expect that the argument of context-sensitivity variant
-                // is of pattern k-kind, where k is limit of context length
-                // and kind represents kind of context element (obj, type, etc.).
-                String[] splits = cs.split("-");
-                int k = Integer.parseInt(splits[0]);
-                String kind = Strings.capitalize(splits[1]);
-                String selectorName = "pascal.taie.analysis.pta.core.cs.selector." +
-                        "K" + kind + "Selector";
-                Class<?> c = Class.forName(selectorName);
-                Constructor<?> ctor = c.getConstructor(int.class);
-                return (ContextSelector) ctor.newInstance(k);
-            } catch (RuntimeException e) {
-                throw new ConfigException("Unexpected context-sensitivity variants: " + cs, e);
-            } catch (ClassNotFoundException | NoSuchMethodException |
-                    InvocationTargetException | InstantiationException |
-                    IllegalAccessException e) {
-                throw new ConfigException("Failed to initialize context selector: " + cs, e);
-            }
-        }
-    }
-
     private static void setPlugin(Solver solver, AnalysisOptions options) {
         CompositePlugin plugin = new CompositePlugin();
         // To record elapsed time precisely, AnalysisTimer should be added at first.
-        // TODO: remove such order dependency
+        // TODO: remove such order dependency?
         plugin.addPlugin(
                 new AnalysisTimer(),
                 new ClassInitializer(),

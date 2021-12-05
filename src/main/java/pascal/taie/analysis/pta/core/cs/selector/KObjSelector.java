@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
 
-public class KObjSelector extends KContextSelector<Obj> {
+class KObjSelector extends KLimitingSelector<Obj> {
 
     public KObjSelector(int k, int hk) {
         super(k, hk);

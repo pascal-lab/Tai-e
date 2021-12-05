@@ -18,7 +18,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-public class KCallSelector extends KContextSelector<Invoke> {
+class KCallSelector extends KLimitingSelector<Invoke> {
 
     public KCallSelector(int k, int hk) {
         super(k, hk);

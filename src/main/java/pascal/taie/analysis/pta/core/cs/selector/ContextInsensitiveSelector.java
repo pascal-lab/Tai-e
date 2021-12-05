@@ -24,7 +24,7 @@ import pascal.taie.language.classes.JMethod;
  * Context insensitivity does not use any context elements,
  * thus the type of context elements is irrelevant.
  */
-public class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
+class ContextInsensitiveSelector extends AbstractContextSelector<Void> {
 
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
