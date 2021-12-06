@@ -25,7 +25,7 @@
 [18@L15] temp$9 = %this.<GaussianElimination: int n>; [%this, A, b, temp$8, temp$9]
 [19@L15] %intconst1 = 1; [%intconst1, %this, A, b, temp$8, temp$9]
 [20@L15] temp$10 = temp$9 + %intconst1; [%intconst1, %this, A, b, temp$10, temp$8]
-[21@L15] temp$11 = newmultiarray (double)[temp$8][temp$10]; [%intconst1, %this, A, b, temp$11]
+[21@L15] temp$11 = newmultiarray double[temp$8][temp$10]; [%intconst1, %this, A, b, temp$11]
 [22@L15] %this.<GaussianElimination: double[][] a> = temp$11; [%intconst1, %this, A, b]
 [23@L16] i = 0; [%intconst1, %this, A, b, i]
 [24@L16] nop; [%intconst1, %this, A, b, i]
@@ -179,7 +179,7 @@
 
 -------------------- <GaussianElimination: double[] primal()> (livevar) --------------------
 [0@L58] temp$0 = %this.<GaussianElimination: int n>; [%doubleconst2, %this, temp$0]
-[1@L58] x = newarray (double)[temp$0]; [%doubleconst2, %this, x]
+[1@L58] x = newarray double[temp$0]; [%doubleconst2, %this, x]
 [2@L59] temp$1 = %this.<GaussianElimination: int n>; [%doubleconst2, %this, temp$1, x]
 [3@L59] temp$3 = %this.<GaussianElimination: int m>; [%doubleconst2, %this, temp$1, temp$3, x]
 [4@L59] %intconst0 = 1; [%doubleconst2, %intconst0, %this, temp$1, temp$3, x]

@@ -6,7 +6,7 @@
 
 -------------------- <ArrayLoops: void loopConst()> (inter-constprop) --------------------
 [0@L10] %intconst0 = 5; {%intconst0=5}
-[1@L10] a = newarray (int)[%intconst0]; {%intconst0=5}
+[1@L10] a = newarray int[%intconst0]; {%intconst0=5}
 [2@L11] i = 0; {%intconst0=5, i=0}
 [3@L11] nop; {%intconst0=5, %intconst1=1, i=NAC, temp$0=NAC, temp$3=666}
 [4@L11] temp$0 = a.length; {%intconst0=5, %intconst1=1, i=NAC, temp$0=NAC, temp$3=666}
@@ -26,7 +26,7 @@
 
 -------------------- <ArrayLoops: void loopMix()> (inter-constprop) --------------------
 [0@L18] %intconst0 = 5; {%intconst0=5}
-[1@L18] a = newarray (int)[%intconst0]; {%intconst0=5}
+[1@L18] a = newarray int[%intconst0]; {%intconst0=5}
 [2@L19] i = 0; {%intconst0=5, i=0}
 [3@L19] nop; {%intconst0=5, %intconst1=1, i=NAC, temp$0=NAC, temp$3=666}
 [4@L19] temp$0 = a.length; {%intconst0=5, %intconst1=1, i=NAC, temp$0=NAC, temp$3=666}
@@ -51,7 +51,7 @@
 
 -------------------- <ArrayLoops: void loopNAC()> (inter-constprop) --------------------
 [0@L28] %intconst0 = 5; {%intconst0=5}
-[1@L28] a = newarray (int)[%intconst0]; {%intconst0=5}
+[1@L28] a = newarray int[%intconst0]; {%intconst0=5}
 [2@L29] i = 0; {%intconst0=5, i=0}
 [3@L29] nop; {%intconst0=5, %intconst1=1, i=NAC, temp$0=NAC}
 [4@L29] temp$0 = a.length; {%intconst0=5, %intconst1=1, i=NAC, temp$0=NAC}

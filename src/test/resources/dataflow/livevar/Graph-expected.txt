@@ -9,7 +9,7 @@
 [1@L12] %this.<Graph: int V> = V; [%this, V]
 [2@L13] temp$0 = 0; [%this, V, temp$0]
 [3@L13] %this.<Graph: int E> = temp$0; [%this, V]
-[4@L14] temp$1 = newarray (java.util.List)[V]; [%this, V, temp$1]
+[4@L14] temp$1 = newarray java.util.List[V]; [%this, V, temp$1]
 [5@L14] %this.<Graph: java.util.List[] adj> = temp$1; [%this, V]
 [6@L15] v = 0; [%this, V, v]
 [7@L15] nop; [%this, V, v]
