@@ -2,8 +2,8 @@ package pascal.taie.analysis.pta.toolkit.scaler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.graph.Graph;
 

@@ -19,6 +19,7 @@ import pascal.taie.util.Strings;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -26,6 +27,13 @@ import java.util.function.Predicate;
  * Provides static factory methods for various context selectors.
  */
 public class ContextSelectorFactory {
+
+    /**
+     * @return selector for context insensitivity.
+     */
+    public static ContextSelector makeCISelector() {
+        return new ContextInsensitiveSelector();
+    }
 
     /**
      * @return a context selector for given context sensitivity variant.
@@ -75,5 +83,13 @@ public class ContextSelectorFactory {
     public static ContextSelector makeSelectiveSelector(
             String cs, Predicate<JMethod> isCSMethod, Predicate<Obj> isCSObj) {
         return new SelectiveSelector(makePlainSelector(cs), isCSMethod, isCSObj);
+    }
+
+    /**
+     * @return a guided context selector which applies the context sensitivity
+     * variants to the methods according to given map.
+     */
+    public static ContextSelector makeGuidedSelector(Map<JMethod, String> csMap) {
+        return new GuidedSelector(csMap);
     }
 }

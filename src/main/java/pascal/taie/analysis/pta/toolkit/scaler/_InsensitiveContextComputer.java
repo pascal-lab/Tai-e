@@ -15,7 +15,7 @@ class _InsensitiveContextComputer extends ContextComputer {
 
     @Override
     String getVariantName() {
-        return "context-insensitive";
+        return "ci";
     }
 
     @Override

@@ -15,9 +15,9 @@ package pascal.taie.analysis.pta.toolkit.scaler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
@@ -92,8 +92,10 @@ public class Scaler {
                 .reachableMethods()
                 .collect(Collectors.toUnmodifiableSet());
         long st = binarySearch(instanceMethods, tst);
-        return instanceMethods.stream()
+        Map<JMethod, String> csMap = instanceMethods.stream()
                 .collect(Collectors.toMap(m -> m, m -> selectVariantFor(m, st)));
+        logCSMap(csMap);
+        return csMap;
     }
 
     /**
@@ -104,6 +106,7 @@ public class Scaler {
      */
     private long binarySearch(Set<JMethod> methods, long tst) {
         // Select the max value and make it as end
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         long end = methods.stream()
                 .mapToLong(m -> getWeight(m, ctxComputers.get(0)))
                 .max()
@@ -220,5 +223,22 @@ public class Scaler {
         logger.debug("{}, {}, {}", method,
                 ctxComp.getVariantName(), ctxComp.contextNumberOf(method));
         return ctxComp.getVariantName();
+    }
+
+    private static void logCSMap(Map<JMethod, String> csMap) {
+        if (logger.isDebugEnabled()) {
+            csMap.entrySet()
+                    .stream()
+                    .sorted((e1, e2) -> {
+                        int cmp1 = e1.getValue().compareTo(e2.getValue());
+                        if (cmp1 != 0) {
+                            return cmp1;
+                        } else {
+                            return e1.getKey().toString()
+                                    .compareTo(e2.getKey().toString());
+                        }
+                    })
+                    .forEach(logger::debug);
+        }
     }
 }

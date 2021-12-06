@@ -12,8 +12,8 @@
 
 package pascal.taie.analysis.pta.toolkit.scaler;
 
-import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
