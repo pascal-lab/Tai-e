@@ -12,19 +12,23 @@
 
 package pascal.taie.analysis.pta.core.cs.selector;
 
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.ConfigException;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Strings;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
- * Provides static factory methods for context selectors.
+ * Provides static factory methods for various context selectors.
  */
 public class ContextSelectorFactory {
 
     /**
-     * @return context selector for given context sensitivity variant.
+     * @return a context selector for given context sensitivity variant.
      * The returned selector applies the same variant for all methods.
      */
     public static ContextSelector makePlainSelector(String cs) {
@@ -51,5 +55,25 @@ public class ContextSelectorFactory {
                 throw new ConfigException("Failed to initialize context selector: " + cs, e);
             }
         }
+    }
+
+    /**
+     * @return a selective context selector which applies given context sensitivity
+     * variant (specified by cs) to set of methods (specified by csMethods),
+     * and cs to all objects.
+     */
+    public static ContextSelector makeSelectiveSelector(
+            String cs, Set<JMethod> csMethods) {
+        return makeSelectiveSelector(cs, csMethods::contains, o -> true);
+    }
+
+    /**
+     * @return a selective context selector which applies given context sensitivity
+     * variant (specified by cs) to part of methods (specified by isCSMethod)
+     * and part of objects (specified by isCSObj).
+     */
+    public static ContextSelector makeSelectiveSelector(
+            String cs, Predicate<JMethod> isCSMethod, Predicate<Obj> isCSObj) {
+        return new SelectiveSelector(makePlainSelector(cs), isCSMethod, isCSObj);
     }
 }
