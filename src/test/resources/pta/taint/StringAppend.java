@@ -18,7 +18,7 @@ class StringAppend {
         sb.append("abc");
         sb.append(taint);
         sb.append("xyz");
-        String s= sb.toString();
+        String s = sb.toString();
         SourceSink.sink(s); // taint
     }
 
@@ -28,7 +28,7 @@ class StringAppend {
         sb.append("abc");
         sb.append(taint);
         sb.append("xyz");
-        String s= sb.toString();
+        String s = sb.toString();
         SourceSink.sink(s); // taint
     }
 }

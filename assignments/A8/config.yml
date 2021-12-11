@@ -86,11 +86,10 @@ testClasses:
 testResources:
   - pta/taint/taint-config.yml
   - pta/taint/SourceSink.java
+  - pta/taint/SimpleTaint.java
   - pta/taint/ArgToResult.java
   - pta/taint/BaseToResult.java
-  - pta/taint/CSTaint.java
-  - pta/taint/FieldTaint.java
-  - pta/taint/SimpleTaint.java
   - pta/taint/StringAppend.java
+  - pta/taint/OneCallTaint.java
   - pta/taint/InterTaintTransfer.java
   - pta/taint/TaintInList.java

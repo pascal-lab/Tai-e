@@ -17,24 +17,12 @@ import pascal.taie.analysis.Tests;
 
 public class TaintTest {
 
-    private static final String DIR = "taint";
+    static final String DIR = "taint";
 
     @Test
     public void testSimpleTaint() {
         Tests.testCSPTA(DIR, "SimpleTaint",
                 "taint-config:src/test/resources/pta/taint/taint-config.yml");
-    }
-
-    @Test
-    public void testFieldTaint() {
-        Tests.testCSPTA(DIR, "FieldTaint",
-                "taint-config:src/test/resources/pta/taint/taint-config.yml");
-    }
-
-    @Test
-    public void testCSTaint() {
-        Tests.testCSPTA(DIR, "CSTaint",
-                "cs:1-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
@@ -53,6 +41,12 @@ public class TaintTest {
     public void testStringAppend() {
         Tests.testCSPTA(DIR, "StringAppend",
                 "taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testOneCallTaint() {
+        Tests.testCSPTA(DIR, "OneCallTaint",
+                "cs:1-call;taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test

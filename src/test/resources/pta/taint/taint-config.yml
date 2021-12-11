@@ -1,10 +1,12 @@
 sources:
   - { method: "<SourceSink: java.lang.String source()>", type: "java.lang.String" }
+  - { method: "<SourceSink: java.lang.String sourceAndSink(java.lang.String,java.lang.String)>", type: "java.lang.String" }
 
 sinks:
   - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }
   - { method: "<SourceSink: void sink(java.lang.String,int)>", index: 0 }
   - { method: "<SourceSink: void sink(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<SourceSink: java.lang.String sourceAndSink(java.lang.String,java.lang.String)>", index: 0 }
 
 transfers:
   - { method: "<java.lang.String: java.lang.String concat(java.lang.String)>", from: base, to: result, type: "java.lang.String" }

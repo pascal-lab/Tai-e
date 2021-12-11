@@ -12,4 +12,8 @@ class SourceSink {
 
     static void sink(String s1, String s2) {
     }
+
+    static String sourceAndSink(String s1, String s2) {
+        return new String();
+    }
 }

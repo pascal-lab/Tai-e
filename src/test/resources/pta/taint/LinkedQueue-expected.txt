@@ -1,0 +1,61 @@
+Points-to sets of all variables
+[]:<LinkedQueue: boolean isEmpty()>/%this -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
+[]:<LinkedQueue: boolean isEmpty()>/temp$0 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: boolean isEmpty()>/temp$1 -> []
+[]:<LinkedQueue: java.lang.String dequeue()>/%this -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
+[]:<LinkedQueue: java.lang.String dequeue()>/item -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$0 -> []
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$1 -> []
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$2 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$3 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$4 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$5 -> []
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$6 -> []
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$7 -> []
+[]:<LinkedQueue: java.lang.String dequeue()>/temp$8 -> []
+[]:<LinkedQueue: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
+[]:<LinkedQueue: void <init>()>/temp$0 -> []
+[]:<LinkedQueue: void <init>()>/temp$1 -> []
+[]:<LinkedQueue: void <init>()>/temp$2 -> []
+[]:<LinkedQueue: void enqueue(java.lang.String)>/%this -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/item -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/oldlast -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$0 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$1 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$2 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$3 -> []
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$4 -> []
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$5 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$6 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$7 -> []
+[]:<LinkedQueue: void enqueue(java.lang.String)>/temp$8 -> []
+[]:<LinkedQueue: void main(java.lang.String[])>/queue -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
+[]:<LinkedQueue: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
+[]:<LinkedQueue: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<LinkedQueue: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<LinkedQueue: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<Node: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}, []:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[]:<java.lang.String: void <init>()>/$b0 -> []
+[]:<java.lang.String: void <init>()>/$r2 -> []
+[]:<java.lang.String: void <init>()>/%this -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}.item -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}.next -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}.first -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}.last -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
+[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}.n -> []
+[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}.coder -> []
+[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}.value -> []
+
+Points-to sets of all array indexes
+
+Detected 2 taint flow(s):
+TaintFlow{<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <LinkedQueue: void main(java.lang.String[])>[8@L58] invokestatic <SourceSink: void sink(java.lang.String)>(temp$3);/0}
+TaintFlow{<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic <SourceSink: java.lang.String source()>(); -> <LinkedQueue: void main(java.lang.String[])>[8@L58] invokestatic <SourceSink: void sink(java.lang.String)>(temp$3);/0}
+

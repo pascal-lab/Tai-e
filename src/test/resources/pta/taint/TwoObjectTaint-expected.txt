@@ -1,0 +1,60 @@
+Points-to sets of all variables
+[NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]:<java.lang.String: void <init>()>/$b0 -> []
+[NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]:<java.lang.String: void <init>()>/$r2 -> []
+[NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]:<java.lang.String: void <init>()>/%this -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: java.lang.String next()>/%this -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: java.lang.String next()>/temp$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: java.lang.String next()>/temp$1 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: void <init>(List)>/%this -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: void <init>(List)>/temp$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<java.lang.Object: void <init>()>/%this -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:<List: Iterator iterator()>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:<List: Iterator iterator()>/temp$0 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:<List: void <init>()>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:<List: void add(java.lang.String)>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:<List: void add(java.lang.String)>/e -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: java.lang.String next()>/%this -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: java.lang.String next()>/temp$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: java.lang.String next()>/temp$1 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: void <init>(List)>/%this -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<List$ListIterator: void <init>(List)>/temp$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}, NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]:<java.lang.Object: void <init>()>/%this -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<List: Iterator iterator()>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<List: Iterator iterator()>/temp$0 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<List: void <init>()>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<List: void add(java.lang.String)>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<List: void add(java.lang.String)>/e -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/i1 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/i2 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/l1 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/l2 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$4 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$5 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$6 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/temp$7 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}.this$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
+[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}.this$0 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]
+[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}.coder -> []
+[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}.value -> []
+[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}.element -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}.element -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Points-to sets of all array indexes
+
+Detected 2 taint flow(s):
+TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <TwoObjectTaint: void main(java.lang.String[])>[13@L13] invokestatic <SourceSink: void sink(java.lang.String)>(temp$5);/0}
+TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic <SourceSink: java.lang.String source()>(); -> <TwoObjectTaint: void main(java.lang.String[])>[17@L15] invokestatic <SourceSink: void sink(java.lang.String)>(temp$7);/0}
+

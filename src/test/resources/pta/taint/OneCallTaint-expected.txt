@@ -1,0 +1,33 @@
+Points-to sets of all variables
+[<OneCallTaint: void main(java.lang.String[])>[1@L3] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/$b0 -> []
+[<OneCallTaint: void main(java.lang.String[])>[1@L3] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/$r2 -> []
+[<OneCallTaint: void main(java.lang.String[])>[1@L3] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/%this -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[<OneCallTaint: void main(java.lang.String[])>[5@L6] temp$2 = invokestatic OneCallTaint.identity(s1)]:<OneCallTaint: java.lang.String identity(java.lang.String)>/s -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[<OneCallTaint: void main(java.lang.String[])>[7@L7] temp$3 = invokestatic OneCallTaint.identity(s2)]:<OneCallTaint: java.lang.String identity(java.lang.String)>/s -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[<OneCallTaint: void main(java.lang.String[])>[9@L9] invokestatic SourceSink.sink(ss1)]:<SourceSink: void sink(java.lang.String)>/s -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[<SourceSink: java.lang.String source()>[1@L4] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/$b0 -> []
+[<SourceSink: java.lang.String source()>[1@L4] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/$r2 -> []
+[<SourceSink: java.lang.String source()>[1@L4] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/%this -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[<java.lang.String: void <init>()>[0@L219] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}, []:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/s1 -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/s2 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/ss1 -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/ss2 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}.coder -> []
+[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}.value -> []
+[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}.coder -> []
+[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}.value -> []
+
+Points-to sets of all array indexes
+
+Detected 0 taint flow(s):
+
