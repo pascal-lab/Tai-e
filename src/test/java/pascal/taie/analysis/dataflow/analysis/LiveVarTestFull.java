@@ -15,91 +15,91 @@ package pascal.taie.analysis.dataflow.analysis;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
-public class LiveVarTestFull {
+public class LiveVarTestFull extends LiveVarTest {
 
-    static void testSLV(String inputClass) {
+    void testSLV(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/livevar",
                 LiveVariableAnalysis.ID, "strongly:true");
     }
 
     @Test
     public void testAssign() {
-        LiveVarTest.testLV("Assign");
+        testLV("Assign");
     }
 
     @Test
     public void testInvoke() {
-        LiveVarTest.testLV("Invoke");
+        testLV("Invoke");
     }
 
     @Test
     public void testBranch() {
-        LiveVarTest.testLV("Branch");
+        testLV("Branch");
     }
 
     @Test
     public void testLoop() {
-        LiveVarTest.testLV("Loop");
+        testLV("Loop");
     }
 
     @Test
     public void testBranchLoop() {
-        LiveVarTest.testLV("BranchLoop");
+        testLV("BranchLoop");
     }
 
     @Test
     public void AnonInner() {
-        LiveVarTest.testLV("AnonInner");
+        testLV("AnonInner");
     }
 
     @Test
     public void Array() {
-        LiveVarTest.testLV("Array");
+        testLV("Array");
     }
 
     @Test
     public void Field() {
-        LiveVarTest.testLV("Field");
+        testLV("Field");
     }
 
     @Test
     public void Graph() {
-        LiveVarTest.testLV("Graph");
+        testLV("Graph");
     }
 
     @Test
     public void Sort() {
-        LiveVarTest.testLV("Sort");
+        testLV("Sort");
     }
 
     @Test
     public void ComplexAssign() {
-        LiveVarTest.testLV("ComplexAssign");
+        testLV("ComplexAssign");
     }
 
     @Test
     public void Corner() {
-        LiveVarTest.testLV("Corner");
+        testLV("Corner");
     }
 
     @Test
     public void Fibonacci() {
-        LiveVarTest.testLV("Fibonacci");
+        testLV("Fibonacci");
     }
 
     @Test
     public void GaussianElimination() {
-        LiveVarTest.testLV("GaussianElimination");
+        testLV("GaussianElimination");
     }
 
     @Test
     public void Switch() {
-        LiveVarTest.testLV("Switch");
+        testLV("Switch");
     }
 
     @Test
     public void Reference() {
-        LiveVarTest.testLV("Reference");
+        testLV("Reference");
     }
 
     @Test

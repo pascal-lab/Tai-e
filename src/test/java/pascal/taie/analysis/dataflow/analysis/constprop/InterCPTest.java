@@ -20,7 +20,7 @@ public class InterCPTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/inter";
 
-    static void test(String inputClass) {
+    void test(String inputClass) {
         Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "edge-refine:false;alias-aware:false", "-a", "cg=algorithm:cha"
                 // , "-a", "icfg=dump:true" // <-- uncomment this code if you want
@@ -35,16 +35,16 @@ public class InterCPTest {
 
     @Test
     public void testReference() {
-        InterCPTest.test("Reference");
+        test("Reference");
     }
 
     @Test
     public void testFibonacci() {
-        InterCPTest.test("Fibonacci");
+        test("Fibonacci");
     }
 
     @Test
     public void testMultiIntArgs() {
-        InterCPTest.test("MultiIntArgs");
+        test("MultiIntArgs");
     }
 }

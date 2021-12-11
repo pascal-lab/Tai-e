@@ -17,9 +17,9 @@ import pascal.taie.analysis.Tests;
 
 public class LiveVarTest {
 
-    static void testLV(String inputClass) {
+    void testLV(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/livevar",
-                LiveVariableAnalysis.ID);
+                LiveVariableAnalysis.ID, "strongly:false");
     }
 
     @Test
@@ -39,16 +39,16 @@ public class LiveVarTest {
 
     @Test
     public void Array() {
-        LiveVarTest.testLV("Array");
+        testLV("Array");
     }
 
     @Test
     public void Fibonacci() {
-        LiveVarTest.testLV("Fibonacci");
+        testLV("Fibonacci");
     }
 
     @Test
     public void Reference() {
-        LiveVarTest.testLV("Reference");
+        testLV("Reference");
     }
 }

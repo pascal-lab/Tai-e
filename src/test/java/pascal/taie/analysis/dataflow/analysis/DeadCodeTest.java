@@ -17,7 +17,7 @@ import pascal.taie.analysis.Tests;
 
 public class DeadCodeTest {
 
-    static void testDCD(String inputClass) {
+    void testDCD(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/deadcode/",
                 DeadCodeDetection.ID);
     }

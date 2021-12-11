@@ -14,85 +14,50 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
 
-public class CPTestFull {
-
-    @Test
-    public void testAssign() {
-        CPTest.testCP("Assign");
-    }
-
-    @Test
-    public void testSimpleConstant() {
-        CPTest.testCP("SimpleConstant");
-    }
-
-    @Test
-    public void testSimpleBinary() {
-        CPTest.testCP("SimpleBinary");
-    }
-
-    @Test
-    public void testSimpleBranch() {
-        CPTest.testCP("SimpleBranch");
-    }
-
+public class CPTestFull extends CPTest {
+    
     @Test
     public void testSimpleBoolean() {
-        CPTest.testCP("SimpleBoolean");
+        testCP("SimpleBoolean");
     }
-
-    @Test
-    public void testSimpleChar() {
-        CPTest.testCP("SimpleChar");
-    }
-
+    
     @Test
     public void testBinaryOp() {
-        CPTest.testCP("BinaryOp");
+        testCP("BinaryOp");
     }
-
-    @Test
-    public void testBranchConstant() {
-        CPTest.testCP("BranchConstant");
-    }
-
+    
     @Test
     public void testBranchNAC() {
-        CPTest.testCP("BranchNAC");
+        testCP("BranchNAC");
     }
 
     @Test
     public void testBranchUndef() {
-        CPTest.testCP("BranchUndef");
+        testCP("BranchUndef");
     }
 
     @Test
     public void testLoop() {
-        CPTest.testCP("Loop");
+        testCP("Loop");
     }
-
-    @Test
-    public void testInterprocedural() {
-        CPTest.testCP("Interprocedural");
-    }
-
+    
     @Test
     public void testLogicalOp() {
-        CPTest.testCP("LogicalOp");
+        testCP("LogicalOp");
     }
 
     @Test
     public void testDivisionByZero() {
-        CPTest.testCP("DivisionByZero");
+        testCP("DivisionByZero");
     }
 
     @Test
     public void testConditionOp() {
-        CPTest.testCP("ConditionOp");
+        testCP("ConditionOp");
     }
 
     @Test
     public void testComparisonOp() {
-        CPTest.testCP("ComparisonOp");
+        testCP("ComparisonOp");
     }
 }

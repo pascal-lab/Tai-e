@@ -21,7 +21,7 @@
 
 -------------------- <ArrayCorner: void corner1(int)> (inter-constprop) --------------------
 [0@L24] %intconst0 = 2; {%intconst0=2, x=NAC}
-[1@L24] a = newarray (int)[%intconst0]; {%intconst0=2, x=NAC}
+[1@L24] a = newarray int[%intconst0]; {%intconst0=2, x=NAC}
 [2@L25] temp$2 = 1; {%intconst0=2, temp$2=1, x=NAC}
 [3@L25] a[x] = temp$2; {%intconst0=2, temp$2=1, x=NAC}
 [4@L26] temp$5 = 2; {%intconst0=2, temp$2=1, temp$5=2, x=NAC}
@@ -32,7 +32,7 @@
 
 -------------------- <ArrayCorner: void corner2(int)> (inter-constprop) --------------------
 [0@L31] %intconst0 = 2; {%intconst0=2, x=NAC}
-[1@L31] b = newarray (int)[%intconst0]; {%intconst0=2, x=NAC}
+[1@L31] b = newarray int[%intconst0]; {%intconst0=2, x=NAC}
 [2@L32] temp$2 = 1; {%intconst0=2, temp$2=1, x=NAC}
 [3@L32] b[x] = temp$2; {%intconst0=2, temp$2=1, x=NAC}
 [4@L33] temp$4 = 0; {%intconst0=2, temp$2=1, temp$4=0, x=NAC}
@@ -41,7 +41,7 @@
 
 -------------------- <ArrayCorner: void corner3(int)> (inter-constprop) --------------------
 [0@L37] %intconst0 = 2; {%intconst0=2, x=NAC}
-[1@L37] c = newarray (int)[%intconst0]; {%intconst0=2, x=NAC}
+[1@L37] c = newarray int[%intconst0]; {%intconst0=2, x=NAC}
 [2@L38] temp$1 = 0; {%intconst0=2, temp$1=0, x=NAC}
 [3@L38] temp$2 = 1; {%intconst0=2, temp$1=0, temp$2=1, x=NAC}
 [4@L38] c[temp$1] = temp$2; {%intconst0=2, temp$1=0, temp$2=1, x=NAC}
@@ -53,7 +53,7 @@
 
 -------------------- <ArrayCorner: void corner4(int)> (inter-constprop) --------------------
 [0@L44] %intconst0 = 2; {%intconst0=2, x=NAC}
-[1@L44] d = newarray (int)[%intconst0]; {%intconst0=2, x=NAC}
+[1@L44] d = newarray int[%intconst0]; {%intconst0=2, x=NAC}
 [2@L45] temp$1 = 1; {%intconst0=2, temp$1=1, x=NAC}
 [3@L45] temp$2 = 1; {%intconst0=2, temp$1=1, temp$2=1, x=NAC}
 [4@L45] d[temp$1] = temp$2; {%intconst0=2, temp$1=1, temp$2=1, x=NAC}
@@ -65,7 +65,7 @@
 
 -------------------- <ArrayCorner: void corner5(int)> (inter-constprop) --------------------
 [0@L51] %intconst0 = 2; {%intconst0=2, x=NAC}
-[1@L51] e = newarray (int)[%intconst0]; {%intconst0=2, x=NAC}
+[1@L51] e = newarray int[%intconst0]; {%intconst0=2, x=NAC}
 [2@L52] y = 1; {%intconst0=2, x=NAC, y=1}
 [3@L53] %intconst1 = 1; {%intconst0=2, %intconst1=1, x=NAC, y=1}
 [4@L53] if (x > %intconst1) goto 6; {%intconst0=2, %intconst1=1, x=NAC, y=1}
@@ -83,7 +83,7 @@
 
 -------------------- <ArrayCorner: void corner6(int)> (inter-constprop) --------------------
 [0@L62] %intconst0 = 2; {%intconst0=2, x=NAC}
-[1@L62] f = newarray (int)[%intconst0]; {%intconst0=2, x=NAC}
+[1@L62] f = newarray int[%intconst0]; {%intconst0=2, x=NAC}
 [2@L63] temp$1 = 0; {%intconst0=2, temp$1=0, x=NAC}
 [3@L63] temp$2 = 1; {%intconst0=2, temp$1=0, temp$2=1, x=NAC}
 [4@L63] f[temp$1] = temp$2; {%intconst0=2, temp$1=0, temp$2=1, x=NAC}
@@ -97,7 +97,7 @@
 
 -------------------- <ArrayCorner: void corner7(int)> (inter-constprop) --------------------
 [0@L70] %intconst0 = 3; {%intconst0=3, x=NAC}
-[1@L70] g = newarray (int)[%intconst0]; {%intconst0=3, x=NAC}
+[1@L70] g = newarray int[%intconst0]; {%intconst0=3, x=NAC}
 [2@L71] temp$2 = 1; {%intconst0=3, temp$2=1, x=NAC}
 [3@L71] g[x] = temp$2; {%intconst0=3, temp$2=1, x=NAC}
 [4@L72] temp$4 = 2; {%intconst0=3, temp$2=1, temp$4=2, x=NAC}
@@ -111,7 +111,7 @@
 
 -------------------- <ArrayCorner: void corner8(int)> (inter-constprop) --------------------
 [0@L78] %intconst0 = 3; {%intconst0=3, x=NAC}
-[1@L78] h = newarray (int)[%intconst0]; {%intconst0=3, x=NAC}
+[1@L78] h = newarray int[%intconst0]; {%intconst0=3, x=NAC}
 [2@L79] temp$1 = 0; {%intconst0=3, temp$1=0, x=NAC}
 [3@L79] temp$2 = 0; {%intconst0=3, temp$1=0, temp$2=0, x=NAC}
 [4@L79] h[temp$1] = temp$2; {%intconst0=3, temp$1=0, temp$2=0, x=NAC}
@@ -139,7 +139,7 @@
 
 -------------------- <ArrayCorner: void corner10()> (inter-constprop) --------------------
 [0@L96] %intconst0 = 2; {%intconst0=2}
-[1@L96] j = newarray (int)[%intconst0]; {%intconst0=2}
+[1@L96] j = newarray int[%intconst0]; {%intconst0=2}
 [2@L98] temp$2 = 0; {%intconst0=2, temp$2=0}
 [3@L98] j[y] = temp$2; {%intconst0=2, temp$2=0}
 [4@L99] temp$4 = 1; {%intconst0=2, temp$2=0, temp$4=1}
@@ -152,7 +152,7 @@
 
 -------------------- <ArrayCorner: void corner11()> (inter-constprop) --------------------
 [0@L105] %intconst0 = 2; {%intconst0=2}
-[1@L105] k = newarray (int)[%intconst0]; {%intconst0=2}
+[1@L105] k = newarray int[%intconst0]; {%intconst0=2}
 [2@L106] temp$1 = 0; {%intconst0=2, temp$1=0}
 [3@L106] temp$2 = 1; {%intconst0=2, temp$1=0, temp$2=1}
 [4@L106] k[temp$1] = temp$2; {%intconst0=2, temp$1=0, temp$2=1}

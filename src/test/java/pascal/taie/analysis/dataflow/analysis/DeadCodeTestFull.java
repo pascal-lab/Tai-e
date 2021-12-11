@@ -14,85 +14,60 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import org.junit.Test;
 
-public class DeadCodeTestFull {
-
-    @Test
-    public void testControlFlowUnreachable() {
-        DeadCodeTest.testDCD("ControlFlowUnreachable");
-    }
+public class DeadCodeTestFull extends DeadCodeTest {
 
     @Test
     public void testControlFlowUnreachable2() {
-        DeadCodeTest.testDCD("ControlFlowUnreachable2");
+        testDCD("ControlFlowUnreachable2");
     }
-
-    @Test
-    public void testUnreachableIfBranch() {
-        DeadCodeTest.testDCD("UnreachableIfBranch");
-    }
-
+    
     @Test
     public void testUnreachableIfBranch2() {
-        DeadCodeTest.testDCD("UnreachableIfBranch2");
-    }
-
-    @Test
-    public void testUnreachableSwitchBranch() {
-        DeadCodeTest.testDCD("UnreachableSwitchBranch");
+        testDCD("UnreachableIfBranch2");
     }
 
     @Test
     public void testUnreachableSwitchBranch2() {
-        DeadCodeTest.testDCD("UnreachableSwitchBranch2");
-    }
-
-    @Test
-    public void testDeadAssignment() {
-        DeadCodeTest.testDCD("DeadAssignment");
+        testDCD("UnreachableSwitchBranch2");
     }
 
     @Test
     public void testDeadAssignment2() {
-        DeadCodeTest.testDCD("DeadAssignment2");
+        testDCD("DeadAssignment2");
     }
 
     @Test
     public void testLiveAssignments() {
-        DeadCodeTest.testDCD("LiveAssignments");
+        testDCD("LiveAssignments");
     }
 
     @Test
     public void testMixedDeadCode() {
-        DeadCodeTest.testDCD("MixedDeadCode");
-    }
-
-    @Test
-    public void testLoops() {
-        DeadCodeTest.testDCD("Loops");
+        testDCD("MixedDeadCode");
     }
 
     @Test
     public void testNotDead() {
-        DeadCodeTest.testDCD("NotDead");
+        testDCD("NotDead");
     }
 
     @Test
     public void testCorner() {
-        DeadCodeTest.testDCD("Corner");
+        testDCD("Corner");
     }
 
     @Test
     public void testAllReachableIfBranch() {
-        DeadCodeTest.testDCD("AllReachableIfBranch");
+        testDCD("AllReachableIfBranch");
     }
 
     @Test
     public void testForLoops() {
-        DeadCodeTest.testDCD("ForLoops");
+        testDCD("ForLoops");
     }
 
     @Test
     public void testArrayField() {
-        DeadCodeTest.testDCD("ArrayField");
+        testDCD("ArrayField");
     }
 }

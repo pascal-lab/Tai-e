@@ -15,26 +15,11 @@ package pascal.taie.analysis.graph.callgraph.cha;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
-public class CHATestFull {
-
-    @Test
-    public void testStaticCall() {
-        Tests.testCHA("StaticCall");
-    }
+public class CHATestFull extends CHATest {
 
     @Test
     public void testSpecialCall() {
         Tests.testCHA("SpecialCall");
-    }
-
-    @Test
-    public void testVirtualCall() {
-        Tests.testCHA("VirtualCall");
-    }
-
-    @Test
-    public void testInterface() {
-        Tests.testCHA("Interface");
     }
 
     @Test
@@ -45,11 +30,6 @@ public class CHATestFull {
     @Test
     public void testInterface3() {
         Tests.testCHA("Interface3");
-    }
-
-    @Test
-    public void testAbstractMethod() {
-        Tests.testCHA("AbstractMethod");
     }
 
     @Test

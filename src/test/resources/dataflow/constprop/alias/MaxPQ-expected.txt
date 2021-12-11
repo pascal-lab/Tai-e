@@ -2,7 +2,7 @@
 [0@L7] invokespecial %this.<java.lang.Object: void <init>()>(); {initCapacity=1}
 [1@L8] %intconst0 = 1; {%intconst0=1, initCapacity=1}
 [2@L8] temp$1 = initCapacity + %intconst0; {%intconst0=1, initCapacity=1, temp$1=2}
-[3@L8] temp$2 = newarray (int)[temp$1]; {%intconst0=1, initCapacity=1, temp$1=2}
+[3@L8] temp$2 = newarray int[temp$1]; {%intconst0=1, initCapacity=1, temp$1=2}
 [4@L8] %this.<MaxPQ: int[] pq> = temp$2; {%intconst0=1, initCapacity=1, temp$1=2}
 [5@L9] temp$3 = 0; {%intconst0=1, initCapacity=1, temp$1=2, temp$3=0}
 [6@L9] %this.<MaxPQ: int n> = temp$3; {%intconst0=1, initCapacity=1, temp$1=2, temp$3=0}
@@ -31,7 +31,7 @@
 [1@L21] return temp$0; {temp$0=NAC}
 
 -------------------- <MaxPQ: void resize(int)> (inter-constprop) --------------------
-[0@L25] temp = newarray (int)[capacity]; {capacity=NAC}
+[0@L25] temp = newarray int[capacity]; {capacity=NAC}
 [1@L26] i = 1; {capacity=NAC, i=1}
 [2@L26] nop; {%intconst0=1, capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
 [3@L26] temp$0 = %this.<MaxPQ: int n>; {%intconst0=1, capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}

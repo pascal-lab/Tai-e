@@ -1,6 +1,6 @@
 -------------------- <ArrayInter: void main(java.lang.String[])> (inter-constprop) --------------------
 [0@L4] %intconst0 = 3; {%intconst0=3}
-[1@L4] a = newarray (int)[%intconst0]; {%intconst0=3}
+[1@L4] a = newarray int[%intconst0]; {%intconst0=3}
 [2@L5] %intconst1 = 123; {%intconst0=3, %intconst1=123}
 [3@L5] invokestatic <ArrayInter: void set0(int[],int)>(a, %intconst1); {%intconst0=3, %intconst1=123}
 [4@L6] %intconst2 = 666; {%intconst0=3, %intconst1=123, %intconst2=666}

@@ -9,7 +9,7 @@
 
 -------------------- <ArrayField: int array()> (inter-constprop) --------------------
 [0@L11] %intconst0 = 3; {%intconst0=3}
-[1@L11] temp$0 = newarray (int)[%intconst0]; {%intconst0=3}
+[1@L11] temp$0 = newarray int[%intconst0]; {%intconst0=3}
 [2@L11] %intconst1 = 0; {%intconst0=3, %intconst1=0}
 [3@L11] %intconst2 = 1; {%intconst0=3, %intconst1=0, %intconst2=1}
 [4@L11] temp$0[%intconst1] = %intconst2; {%intconst0=3, %intconst1=0, %intconst2=1}

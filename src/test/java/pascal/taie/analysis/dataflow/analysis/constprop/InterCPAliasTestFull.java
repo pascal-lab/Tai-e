@@ -14,114 +14,68 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
 
-public class InterCPAliasTestFull {
+public class InterCPAliasTestFull extends InterCPAliasTest {
 
     // Tests instance field
     @Test
-    public void testInstanceField() {
-        InterCPAliasTest.test("InstanceField");
-    }
-
-    @Test
     public void testMultiLoads() {
-        InterCPAliasTest.test("MultiLoads");
-    }
-
-    @Test
-    public void testMultiStores() {
-        InterCPAliasTest.test("MultiStores");
+        test("MultiLoads");
     }
 
     @Test
     public void testMultiObjs() {
-        InterCPAliasTest.test("MultiObjs");
+        test("MultiObjs");
     }
 
     @Test
     public void testInterprocedural() {
-        InterCPAliasTest.test("Interprocedural");
+        test("Interprocedural");
     }
-
-    @Test
-    public void testInterprocedural2() {
-        InterCPAliasTest.test("Interprocedural2");
-    }
-
+    
     @Test
     public void testInheritedField() {
-        InterCPAliasTest.test("InheritedField");
+        test("InheritedField");
     }
 
     @Test
     public void testFieldCorner() {
-        InterCPAliasTest.test("FieldCorner");
+        test("FieldCorner");
     }
-
-    // Tests static field
-    @Test
-    public void testStaticField() {
-        InterCPAliasTest.test("StaticField");
-    }
-
-    @Test
-    public void testStaticFieldMultiStores() {
-        InterCPAliasTest.test("StaticFieldMultiStores");
-    }
-
+    
     // Tests array
     @Test
-    public void testArray() {
-        InterCPAliasTest.test("Array");
-    }
-
-    @Test
     public void testArrayField() {
-        InterCPAliasTest.test("ArrayField");
+        test("ArrayField");
     }
 
     @Test
     public void testArrayInter() {
-        InterCPAliasTest.test("ArrayInter");
+        test("ArrayInter");
     }
-
-    @Test
-    public void testArrayInter2() {
-        InterCPAliasTest.test("ArrayInter2");
-    }
-
-    @Test
-    public void testArrayLoops() {
-        InterCPAliasTest.test("ArrayLoops");
-    }
-
+    
     @Test
     public void testArrayCorner() {
-        InterCPAliasTest.test("ArrayCorner");
+        test("ArrayCorner");
     }
 
     // Other tests
     @Test
     public void testReference() {
-        InterCPAliasTest.test("Reference");
+        test("Reference");
     }
-
-    @Test
-    public void testObjSens() {
-        InterCPAliasTest.test("ObjSens");
-    }
-
+    
     @Test
     public void testObjSens2() {
-        InterCPAliasTest.test("ObjSens2");
+        test("ObjSens2");
     }
 
     @Test
     public void testArrayInField() {
-        InterCPAliasTest.test("ArrayInField");
+        test("ArrayInField");
     }
 
     @Test
     public void testMaxPQ() {
-        InterCPAliasTest.test("MaxPQ");
+        test("MaxPQ");
     }
 }

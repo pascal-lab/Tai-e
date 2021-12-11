@@ -15,77 +15,7 @@ package pascal.taie.analysis.pta;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
-import static pascal.taie.analysis.pta.CSPTATest.DIR;
-
-public class CSPTATestFull {
-
-    // Tests for context insensitivity
-    @Test
-    public void testNew() {
-        Tests.testCSPTA(DIR, "New");
-    }
-
-    @Test
-    public void testAssign() {
-        Tests.testCSPTA(DIR, "Assign");
-    }
-
-    @Test
-    public void testStoreLoad() {
-        Tests.testCSPTA(DIR, "StoreLoad");
-    }
-
-    @Test
-    public void testCall() {
-        Tests.testCSPTA(DIR, "Call");
-    }
-
-    @Test
-    public void testInstanceField() {
-        Tests.testCSPTA(DIR, "InstanceField");
-    }
-
-    // Tests for context sensitivity variants
-    @Test
-    public void testOneCall() {
-        Tests.testCSPTA(DIR, "OneCall", "cs:1-call");
-    }
-
-    @Test
-    public void testOneObject() {
-        Tests.testCSPTA(DIR, "OneObject", "cs:1-obj");
-    }
-
-    @Test
-    public void testOneType() {
-        Tests.testCSPTA(DIR, "OneType", "cs:1-type");
-    }
-
-    @Test
-    public void testTwoCall() {
-        Tests.testCSPTA(DIR, "TwoCall", "cs:2-call");
-    }
-
-    @Test
-    public void testTwoObject() {
-        Tests.testCSPTA(DIR, "TwoObject", "cs:2-obj");
-    }
-
-    @Test
-    public void testTwoType() {
-        Tests.testCSPTA(DIR, "TwoType", "cs:2-type");
-    }
-
-    // Tests for Java feature supporting
-    @Test
-    public void testStaticField() {
-        Tests.testCSPTA(DIR, "StaticField");
-    }
-
-    @Test
-    public void testArray() {
-        Tests.testCSPTA(DIR, "Array");
-    }
+public class CSPTATestFull extends CSPTATest {
 
     // New tests
     @Test

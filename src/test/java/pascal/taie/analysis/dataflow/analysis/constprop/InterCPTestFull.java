@@ -14,65 +14,45 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.Test;
 
-public class InterCPTestFull {
-
-    @Test
-    public void testExample() {
-        InterCPTest.test("Example");
-    }
+public class InterCPTestFull extends InterCPTest {
 
     @Test
     public void testArgRet() {
-        InterCPTest.test("ArgRet");
+        test("ArgRet");
     }
 
     @Test
     public void testCall() {
-        InterCPTest.test("Call");
+        test("Call");
     }
-
-    @Test
-    public void testReference() {
-        InterCPTest.test("Reference");
-    }
-
-    @Test
-    public void testFibonacci() {
-        InterCPTest.test("Fibonacci");
-    }
-
+    
     @Test
     public void testDeadLoop() {
-        InterCPTest.test("DeadLoop");
+        test("DeadLoop");
     }
 
     @Test
     public void testFloatArg() {
-        InterCPTest.test("FloatArg");
+        test("FloatArg");
     }
 
     @Test
     public void testMultiReturn() {
-        InterCPTest.test("MultiReturn");
+        test("MultiReturn");
     }
 
     @Test
     public void testCharArgs() {
-        InterCPTest.test("CharArgs");
+        test("CharArgs");
     }
-
-    @Test
-    public void testMultiIntArgs() {
-        InterCPTest.test("MultiIntArgs");
-    }
-
+    
     @Test
     public void testRedBlackBST() {
-        InterCPTest.test("RedBlackBST");
+        test("RedBlackBST");
     }
 
     @Test
     public void testPlusPlus() {
-        InterCPTest.test("PlusPlus");
+        test("PlusPlus");
     }
 }

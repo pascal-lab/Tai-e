@@ -17,7 +17,7 @@ import pascal.taie.analysis.Tests;
 
 public class CPTest {
 
-    static void testCP(String inputClass) {
+    void testCP(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID, "edge-refine:false");
     }
