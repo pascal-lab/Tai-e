@@ -25,6 +25,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Numberer;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
@@ -61,8 +62,10 @@ public class ICFGBuilder extends InterproceduralAnalysis {
                         .collect(Collectors.joining("-")) + "-icfg.dot")
                 .toString();
         logger.info("Dumping ICFG to {} ...", dotPath);
+        Numberer<Stmt> numberer = new Numberer<>();
         new DotDumper<Stmt>()
-                .setNodeToString(n -> toString(n, icfg))
+                .setNodeToString(n -> Integer.toString(numberer.getNumberOf(n)))
+                .setNodeLabeler(n -> toLabel(n, icfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
                 .setEdgeAttrs(e -> {
@@ -79,10 +82,10 @@ public class ICFGBuilder extends InterproceduralAnalysis {
                 .dump(icfg, dotPath);
     }
 
-    private static String toString(Stmt stmt, ICFG<JMethod, Stmt> icfg) {
+    private static String toLabel(Stmt stmt, ICFG<JMethod, Stmt> icfg) {
         JMethod method = icfg.getContainingMethodOf(stmt);
         CFG<Stmt> cfg = getCFGOf(method);
-        return CFGDumper.toString(stmt, cfg);
+        return CFGDumper.toLabel(stmt, cfg);
     }
 
     static CFG<Stmt> getCFGOf(JMethod method) {

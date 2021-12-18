@@ -49,12 +49,17 @@ public class DotDumper<N> {
     private Map<String, String> globalNodeAttrs = Map.of();
 
     /**
+     * The labeler for nodes.
+     */
+    private Function<N, String> nodeLabeler = node -> null;
+
+    /**
      * The node attributes.
      */
     private Function<N, Map<String, String>> nodeAttrs = node -> null;
 
     /**
-     * The labelers for edges.
+     * The labeler for edges.
      */
     private Function<Edge<N>, String> edgeLabeler = edge -> null;
 
@@ -75,6 +80,11 @@ public class DotDumper<N> {
 
     public DotDumper<N> setGlobalNodeAttributes(Map<String, String> attrs) {
         globalNodeAttrs = attrs;
+        return this;
+    }
+
+    public DotDumper<N> setNodeLabeler(Function<N, String> nodeLabeler) {
+        this.nodeLabeler = nodeLabeler;
         return this;
     }
 
@@ -136,10 +146,16 @@ public class DotDumper<N> {
         out.print(INDENT);
         out.print(getNodeRep(node));
         // dump node attributes
+        String label = nodeLabeler.apply(node);
         Map<String, String> attrs = nodeAttrs.apply(node);
-        if (attrs != null) {
+        if (label != null || attrs != null) {
             out.print(" [");
-            dumpAttributes(attrs);
+            if (label != null) {
+                out.printf("label=\"%s\",", label);
+            }
+            if (attrs != null) {
+                dumpAttributes(attrs);
+            }
             out.print(']');
         }
         out.println(";");

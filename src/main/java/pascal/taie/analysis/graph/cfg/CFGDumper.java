@@ -16,6 +16,7 @@ import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Numberer;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
@@ -34,8 +35,10 @@ public class CFGDumper {
      * Dumps the given CFG to .dot file.
      */
     static <N> void dumpDotFile(CFG<N> cfg) {
+        Numberer<N> numberer = new Numberer<>();
         new DotDumper<N>()
-                .setNodeToString(n -> toString(n, cfg))
+                .setNodeToString(n -> Integer.toString(numberer.getNumberOf(n)))
+                .setNodeLabeler(n -> toLabel(n, cfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
                 .setEdgeLabeler(e -> {
@@ -62,7 +65,7 @@ public class CFGDumper {
                 .dump(cfg, toDotPath(cfg));
     }
 
-    public static <N> String toString(N node, CFG<N> cfg) {
+    public static <N> String toLabel(N node, CFG<N> cfg) {
         if (cfg.isEntry(node)) {
             return "Entry" + cfg.getMethod();
         } else if (cfg.isExit(node)) {
