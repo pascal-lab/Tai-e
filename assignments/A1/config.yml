@@ -12,6 +12,7 @@ sourceFiles:
   - pascal.taie.ir.stmt.Stmt
   - pascal.taie.ir.exp.Exp
   - pascal.taie.ir.exp.Var
+  - pascal.taie.analysis.StmtResult
   - pascal.taie.analysis.graph.cfg.CFG
   - pascal.taie.util.graph.Graph
   - pascal.taie.analysis.dataflow.analysis.DataflowAnalysis
@@ -24,7 +25,7 @@ overwrittenFiles:
   - pascal.taie.analysis.dataflow.solver.Solver
   - pascal.taie.analysis.dataflow.solver.IterativeSolver
   # complete
-  - pascal.taie.analysis.dataflow.analysis.ResultProcessor
+  - pascal.taie.analysis.ResultProcessor
   - pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   - pascal.taie.Assignment
 testClasses:

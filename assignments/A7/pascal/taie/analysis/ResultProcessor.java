@@ -10,13 +10,11 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis.dataflow.analysis;
+package pascal.taie.analysis;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.InterproceduralAnalysis;
-import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
@@ -94,26 +92,23 @@ public class ResultProcessor extends InterproceduralAnalysis {
     }
 
     private void readInputs() {
-        String action = getOptions().getString("action");
-        if (action.equals("compare")) {
-            String input = getOptions().getString("file");
-            Path path = Path.of(input);
-            try {
-                inputs = Maps.newMap();
-                BufferedReader reader = Files.newBufferedReader(path);
-                String line;
-                Pair<String, String> currentKey = null;
-                while ((line = reader.readLine()) != null) {
-                    Pair<String, String> key = extractKey(line);
-                    if (key != null) {
-                        currentKey = key;
-                    } else if (!line.isBlank()) {
-                        Maps.addToMapSet(inputs, currentKey, line);
-                    }
+        String input = getOptions().getString("file");
+        Path path = Path.of(input);
+        try {
+            inputs = Maps.newMap();
+            BufferedReader reader = Files.newBufferedReader(path);
+            String line;
+            Pair<String, String> currentKey = null;
+            while ((line = reader.readLine()) != null) {
+                Pair<String, String> key = extractKey(line);
+                if (key != null) {
+                    currentKey = key;
+                } else if (!line.isBlank()) {
+                    Maps.addToMapSet(inputs, currentKey, line);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to read input file", e);
             }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read input file", e);
         }
     }
 
@@ -217,11 +212,10 @@ public class ResultProcessor extends InterproceduralAnalysis {
         Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
-        } else if (result instanceof NodeResult) {
-            @SuppressWarnings("unchecked")
-            NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
+        } else if (result instanceof StmtResult) {
+            StmtResult<?> StmtResult = (StmtResult<?>) result;
             IR ir = method.getIR();
-            ir.forEach(stmt -> out.println(toString(stmt, nodeResult)));
+            ir.forEach(stmt -> out.println(toString(stmt, StmtResult)));
         } else {
             out.println(toString(result));
         }
@@ -241,11 +235,11 @@ public class ResultProcessor extends InterproceduralAnalysis {
     }
 
     /**
-     * Converts a stmt and its analysis result (flowing-out fact)
-     * to the corresponding string representation.
+     * Converts a stmt and its analysis result to the corresponding
+     * string representation.
      */
-    private static String toString(Stmt stmt, NodeResult<Stmt, ?> result) {
-        return toString(stmt) + " " + toString(result.getOutFact(stmt));
+    private static String toString(Stmt stmt, StmtResult<?> result) {
+        return toString(stmt) + " " + toString(result.getResult(stmt));
     }
 
     private void compareResult(JMethod method, String id,
@@ -270,19 +264,18 @@ public class ResultProcessor extends InterproceduralAnalysis {
                             " should be included");
                 }
             });
-        } else if (result instanceof NodeResult) {
+        } else if (result instanceof StmtResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
             // if the expected input does not contain the results
             // for the given method, just skip
             if (lines == null) {
                 return;
             }
-            @SuppressWarnings("unchecked")
-            NodeResult<Stmt, ?> nodeResult = (NodeResult<Stmt, ?>) result;
+            StmtResult<?> StmtResult = (StmtResult<?>) result;
             IR ir = method.getIR();
             ir.forEach(stmt -> {
                 String stmtStr = toString(stmt);
-                String given = toString(stmt, nodeResult);
+                String given = toString(stmt, StmtResult);
                 boolean foundExpeceted = false;
                 for (String line : lines) {
                     if (line.startsWith(stmtStr)) {

@@ -25,6 +25,7 @@ sourceFiles:
   - pascal.taie.ir.exp.ShiftExp
   - pascal.taie.ir.exp.InvokeExp
   - pascal.taie.ir.proginfo.MethodRef
+  - pascal.taie.analysis.StmtResult
   - pascal.taie.analysis.graph.cfg.CFG
   - pascal.taie.analysis.graph.icfg.ICFG
   - pascal.taie.analysis.graph.icfg.CallEdge
@@ -32,7 +33,6 @@ sourceFiles:
   - pascal.taie.analysis.graph.icfg.ICFGEdge
   - pascal.taie.analysis.graph.icfg.NormalEdge
   - pascal.taie.analysis.graph.icfg.ReturnEdge
-  - pascal.taie.util.graph.Graph
   - pascal.taie.analysis.dataflow.analysis.DataflowAnalysis
   - pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis
   - pascal.taie.analysis.dataflow.fact.DataflowResult
@@ -49,6 +49,7 @@ sourceFiles:
   - pascal.taie.analysis.graph.callgraph.CGBuilder
   - pascal.taie.analysis.graph.callgraph.DefaultCallGraph
   - pascal.taie.analysis.graph.callgraph.Edge
+  - pascal.taie.util.graph.Graph
 overwrittenFiles:
   - pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
   - pascal.taie.analysis.dataflow.inter.InterConstantPropagation
@@ -61,9 +62,9 @@ overwrittenFiles:
     # remove dispatch, all subclasses
   - pascal.taie.language.classes.ClassHierarchy
   - pascal.taie.language.classes.ClassHierarchyImpl
+  - pascal.taie.analysis.ResultProcessor # handle empty call graph
   - pascal.taie.analysis.graph.callgraph.CallGraphBuilder # remove PTABuilder
   - pascal.taie.analysis.graph.callgraph.CallGraphs # remove resolveCallee
-  - pascal.taie.analysis.dataflow.analysis.ResultProcessor # handle empty call graph
 testClasses:
   - pascal.taie.analysis.Tests
   - pascal.taie.analysis.graph.callgraph.cha.CHATest

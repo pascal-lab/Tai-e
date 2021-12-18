@@ -13,6 +13,7 @@ exclude:
   - pascal.taie.analysis.pta.plugin.*
   - pascal.taie.analysis.pta.PointerAnalysis
 sourceFiles:
+  - pascal.taie.analysis.StmtResult
   - pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis
   - pascal.taie.analysis.dataflow.analysis.constprop.CPFact
   - pascal.taie.analysis.dataflow.analysis.constprop.Value
@@ -101,7 +102,7 @@ overwrittenFiles:
   - pascal.taie.analysis.pta.core.cs.selector._2TypeSelector
   # complete
   - pascal.taie.Assignment
-  - pascal.taie.analysis.dataflow.analysis.ResultProcessor # handle empty call graph
+  - pascal.taie.analysis.ResultProcessor # handle empty call graph
   - pascal.taie.analysis.pta.core.cs.element.Pointer # remove PFGEdge dependency
   - pascal.taie.analysis.pta.core.cs.element.AbstractPointer
   - pascal.taie.analysis.pta.plugin.ResultProcessor # remove Plugin and Solver dependencies

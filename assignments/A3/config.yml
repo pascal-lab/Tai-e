@@ -23,9 +23,9 @@ sourceFiles:
   - pascal.taie.ir.exp.ConditionExp
   - pascal.taie.ir.exp.BitwiseExp
   - pascal.taie.ir.exp.ShiftExp
+  - pascal.taie.analysis.ResultProcessor
   - pascal.taie.analysis.graph.cfg.CFG
   - pascal.taie.analysis.graph.cfg.Edge
-  - pascal.taie.util.graph.Graph
   - pascal.taie.analysis.dataflow.analysis.DataflowAnalysis
   - pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis
   - pascal.taie.analysis.dataflow.fact.DataflowResult
@@ -34,6 +34,7 @@ sourceFiles:
   - pascal.taie.analysis.dataflow.fact.SetFact
   - pascal.taie.analysis.dataflow.analysis.constprop.CPFact
   - pascal.taie.analysis.dataflow.analysis.constprop.Value
+  - pascal.taie.util.graph.Graph
 overwrittenFiles:
   - pascal.taie.analysis.dataflow.analysis.DeadCodeDetection
   - pascal.taie.analysis.dataflow.analysis.LiveVariableAnalysis
@@ -41,7 +42,7 @@ overwrittenFiles:
   - pascal.taie.analysis.dataflow.solver.Solver
   - pascal.taie.analysis.dataflow.solver.WorkListSolver
   # complete
-  - pascal.taie.analysis.dataflow.analysis.ResultProcessor
+  - pascal.taie.analysis.ResultProcessor
   - pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   - pascal.taie.Assignment
 testClasses:
