@@ -1,4 +1,5 @@
 name: A2
+analyses: [ constprop ]
 packageName: Assignment-2-constant-propagation-worklist-solver.zip
 exclude:
   - pascal.taie.analysis.graph.callgraph.*

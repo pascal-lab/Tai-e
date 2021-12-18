@@ -1,4 +1,5 @@
 name: A4
+analyses: [ cg, inter-constprop ]
 packageName: Assignment-4-cha-interprocedural-constant-propagation.zip
 exclude:
   - pascal.taie.analysis.dataflow.analysis.*

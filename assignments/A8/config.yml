@@ -1,4 +1,5 @@
 name: A8
+analyses: [ cspta ]
 packageName: Assignment-8-taint-analysis.zip
 exclude:
   - pascal.taie.analysis.dataflow.*

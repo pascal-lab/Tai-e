@@ -1,4 +1,5 @@
 name: A5
+analyses: [ cipta ]
 packageName: Assignment-5-context-insensitive-pointer-analysis.zip
 exclude:
   - pascal.taie.analysis.dataflow.*

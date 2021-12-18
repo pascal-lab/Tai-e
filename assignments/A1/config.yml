@@ -1,4 +1,5 @@
 name: A1
+analyses: [ livevar ]
 packageName: Assignment-1-live-variable-iterative-solver.zip
 exclude:
   - pascal.taie.analysis.graph.callgraph.*

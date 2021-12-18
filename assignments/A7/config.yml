@@ -1,4 +1,5 @@
 name: A7
+analyses: [ inter-constprop ]
 packageName: Assignment-7-alias-aware-interprocedural-constant-propagation.zip
 exclude:
   - pascal.taie.analysis.dataflow.analysis.*

@@ -221,14 +221,16 @@ final class AssignmentMaker {
             copyFile(TEST_RESOURCES_DIR, target, item);
             // some source files in test resources are just dependencies
             // of other test cases, and thus do no have expected result
-            String fileName = toExpectedFileName(item);
-            if (fileName != null) {
-                Path expected = TEST_RESOURCES_DIR.resolve(fileName);
-                if (Files.exists(expected)) {
-                    copyFile(TEST_RESOURCES_DIR, target, item,
-                            AssignmentMaker::toExpectedFileName);
+            config.getAnalyses().forEach(analysis -> {
+                String fileName = toExpectedFileName(item, analysis);
+                if (fileName != null) {
+                    Path expected = TEST_RESOURCES_DIR.resolve(fileName);
+                    if (Files.exists(expected)) {
+                        copyFile(TEST_RESOURCES_DIR, target, item,
+                                x -> toExpectedFileName(x, analysis));
+                    }
                 }
-            }
+            });
         });
     }
 
@@ -277,12 +279,14 @@ final class AssignmentMaker {
     }
 
     private static @Nullable
-    String toExpectedFileName(String testPath) {
+    String toExpectedFileName(String testPath, String analysis) {
         String[] split = testPath.split("/");
         String file = split[split.length - 1];
         if (file.endsWith(".java")) {
             split[split.length - 1] = file.substring(0,
-                    file.length() - ".java".length()) + "-expected.txt";
+                    file.length() - ".java".length()) +
+                    "-" + analysis +
+                    "-expected.txt";
             return String.join(File.separator, Arrays.asList(split));
         }
         return null;
@@ -316,6 +320,11 @@ final class AssignmentMaker {
          * the assignment number.
          */
         private final String name;
+
+        /**
+         * List of IDs of analyses to be tested in the assignment.
+         */
+        private final List<String> analyses;
 
         /**
          * Name of assignment package.
@@ -352,6 +361,7 @@ final class AssignmentMaker {
         @JsonCreator
         private Config(
                 @JsonProperty("name") String name,
+                @JsonProperty("analyses") List<String> analyses,
                 @JsonProperty("packageName") String packageName,
                 @JsonProperty("exclude") List<String> exclude,
                 @JsonProperty("sourceFiles") List<String> sourceFiles,
@@ -359,6 +369,7 @@ final class AssignmentMaker {
                 @JsonProperty("testClasses") List<String> testClasses,
                 @JsonProperty("testResources") List<String> testResources) {
             this.name = name;
+            this.analyses = Objects.requireNonNull(analyses);
             this.packageName = Objects.requireNonNull(packageName);
             this.exclude = Objects.requireNonNullElse(exclude, List.of());
             this.sourceFiles = Objects.requireNonNullElse(sourceFiles, List.of());
@@ -369,6 +380,10 @@ final class AssignmentMaker {
 
         private String getName() {
             return name;
+        }
+
+        private List<String> getAnalyses() {
+            return analyses;
         }
 
         private String getPackageName() {

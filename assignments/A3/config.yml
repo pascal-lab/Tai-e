@@ -1,4 +1,5 @@
 name: A3
+analyses: [ deadcode ]
 packageName: Assignment-3-dead-code-detection.zip
 exclude:
   - pascal.taie.analysis.graph.callgraph.*
