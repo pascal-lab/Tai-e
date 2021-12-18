@@ -15,7 +15,6 @@ package pascal.taie.analysis;
 import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.dataflow.analysis.ResultProcessor;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 

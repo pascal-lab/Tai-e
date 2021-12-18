@@ -111,7 +111,7 @@
   requires: [ cfg,constprop,livevar ]
 
 - description: process results of previously-run analyses
-  analysisClass: pascal.taie.analysis.dataflow.analysis.ResultProcessor
+  analysisClass: pascal.taie.analysis.ResultProcessor
   id: process-result
   options:
     analyses: [ ]
