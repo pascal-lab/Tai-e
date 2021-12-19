@@ -24,6 +24,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.util.LinkedHashMap;
@@ -37,9 +38,9 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
     private static final Logger logger = LogManager.getLogger(DefaultICFG.class);
 
-    private final Map<Stmt, Set<ICFGEdge<Stmt>>> inEdges = Maps.newMap();
+    private final MultiMap<Stmt, ICFGEdge<Stmt>> inEdges = Maps.newMultiMap();
 
-    private final Map<Stmt, Set<ICFGEdge<Stmt>>> outEdges = Maps.newMap();
+    private final MultiMap<Stmt, ICFGEdge<Stmt>> outEdges = Maps.newMultiMap();
 
     private final Map<Stmt, CFG<Stmt>> stmtToCFG = new LinkedHashMap<>();
 
@@ -62,8 +63,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                     ICFGEdge<Stmt> local = isCallSite(stmt) ?
                             new CallToReturnEdge<>(edge) :
                             new NormalEdge<>(edge);
-                    Maps.addToMapSet(outEdges, stmt, local);
-                    Maps.addToMapSet(inEdges, edge.getTarget(), local);
+                    outEdges.put(stmt, local);
+                    inEdges.put(edge.getTarget(), local);
                 });
                 if (isCallSite(stmt)) {
                     calleesOf(stmt).forEach(callee -> {
@@ -74,8 +75,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         // Add call edges
                         Stmt entry = getEntryOf(callee);
                         CallEdge<Stmt> call = new CallEdge<>(stmt, entry, callee);
-                        Maps.addToMapSet(outEdges, stmt, call);
-                        Maps.addToMapSet(inEdges, entry, call);
+                        outEdges.put(stmt, call);
+                        inEdges.put(entry, call);
                         // Add return edges
                         Stmt exit = getExitOf(callee);
                         Set<Var> retVars = Sets.newHybridSet();
@@ -99,8 +100,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         returnSitesOf(stmt).forEach(retSite -> {
                             ReturnEdge<Stmt> ret = new ReturnEdge<>(
                                     exit, retSite, stmt, retVars, exceptions);
-                            Maps.addToMapSet(outEdges, exit, ret);
-                            Maps.addToMapSet(inEdges, retSite, ret);
+                            outEdges.put(exit, ret);
+                            inEdges.put(retSite, ret);
                         });
                     });
                 }
@@ -110,22 +111,22 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
     @Override
     public Stream<ICFGEdge<Stmt>> inEdgesOf(Stmt stmt) {
-        return inEdges.getOrDefault(stmt, Set.of()).stream();
+        return inEdges.get(stmt).stream();
     }
 
     @Override
     public Stream<ICFGEdge<Stmt>> outEdgesOf(Stmt stmt) {
-        return outEdges.getOrDefault(stmt, Set.of()).stream();
+        return outEdges.get(stmt).stream();
     }
 
     @Override
     public int getInDegreeOf(Stmt stmt) {
-        return inEdges.getOrDefault(stmt, Set.of()).size();
+        return inEdges.get(stmt).size();
     }
 
     @Override
     public int getOutDegreeOf(Stmt stmt) {
-        return outEdges.getOrDefault(stmt, Set.of()).size();
+        return outEdges.get(stmt).size();
     }
 
     @Override

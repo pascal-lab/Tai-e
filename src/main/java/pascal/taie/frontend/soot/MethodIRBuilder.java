@@ -84,6 +84,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 import soot.Body;
 import soot.Local;
@@ -384,8 +385,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
      * TODO: remove this step for body parsed from .class files.
      */
     private static Map<Local, AssignStmt> getTempToDef(Body body) {
-        Map<Local, Set<AssignStmt>> tempToAssigns = Maps.newHybridMap();
-        Map<Local, Set<Unit>> tempToUses = Maps.newHybridMap();
+        MultiMap<Local, AssignStmt> tempToAssigns = Maps.newMultiMap();
+        MultiMap<Local, Unit> tempToUses = Maps.newMultiMap();
         for (Unit unit : body.getUnits()) {
             if (unit instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) unit;
@@ -393,7 +394,7 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                 if (lhs instanceof Local) {
                     Local var = (Local) lhs;
                     if (var.getName().startsWith("temp$")) {
-                        Maps.addToMapSet(tempToAssigns, var, assign);
+                        tempToAssigns.put(var, assign);
                     }
                 }
             }
@@ -405,20 +406,20 @@ class MethodIRBuilder extends AbstractStmtSwitch {
                         if (value instanceof Local) {
                             Local var = (Local) value;
                             if (var.getName().startsWith("temp$")) {
-                                Maps.addToMapSet(tempToUses, var, unit);
+                                tempToUses.put(var, unit);
                             }
                         }
                     });
         }
         Map<Local, AssignStmt> tempToDef = Maps.newHybridMap();
-        tempToAssigns.forEach((var, assigns) -> {
+        tempToAssigns.forEachSet((var, assigns) -> {
             if (assigns.size() == 1) {
                 AssignStmt assign = CollectionUtils.getOne(assigns);
                 Value rhs = assign.getRightOp();
                 if ((rhs instanceof Constant ||
                         rhs instanceof Local ||
                         rhs instanceof BinopExpr) &&
-                        tempToUses.getOrDefault(var, Set.of()).size() <= 1) {
+                        tempToUses.get(var).size() <= 1) {
                     // if multiple units use a temp variable, then we don't
                     // inline the RHS expression, because the value of RHS may
                     // change between the two units, and lead to wrong result.

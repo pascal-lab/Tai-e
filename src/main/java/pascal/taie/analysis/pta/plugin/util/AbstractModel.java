@@ -26,11 +26,11 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.TriConsumer;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Provides common functionalities for implementing API models.
@@ -57,7 +57,8 @@ public abstract class AbstractModel implements Model {
 
     protected final Map<JMethod, int[]> relevantVarIndexes = Maps.newHybridMap();
 
-    protected final Map<Var, Set<Invoke>> relevantVars = Maps.newHybridMap();
+    protected final MultiMap<Var, Invoke> relevantVars
+            = Maps.newMultiMap(Maps.newHybridMap());
 
     protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
             = Maps.newHybridMap();
@@ -84,7 +85,7 @@ public abstract class AbstractModel implements Model {
             int[] indexes = relevantVarIndexes.get(target);
             if (indexes != null) {
                 for (int i : indexes) {
-                    Maps.addToMapSet(relevantVars, getArg(invoke, i), invoke);
+                    relevantVars.put(getArg(invoke, i), invoke);
                 }
             }
         }

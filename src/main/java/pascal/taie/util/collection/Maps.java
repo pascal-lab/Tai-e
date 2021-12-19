@@ -29,10 +29,6 @@ public final class Maps {
     private Maps() {
     }
 
-    public static <K, E> boolean addToMapSet(Map<K, Set<E>> map, K key, E element) {
-        return map.computeIfAbsent(key, k -> Sets.newHybridSet()).add(element);
-    }
-
     public static <K1, K2, V> void addToMapMap(Map<K1, Map<K2, V>> map,
                                                K1 key1, K2 key2, V value) {
         map.computeIfAbsent(key1, k -> newHybridMap()).put(key2, value);
@@ -43,6 +39,16 @@ public final class Maps {
             Map<K1, Map<K2, V>> map, K1 key1, K2 key2) {
         Map<K2, V> map2 = map.get(key1);
         return map2 == null ? null : map2.get(key2);
+    }
+
+    /**
+     * @return all values of all maps of the given map.
+     */
+    public static <K1, K2, V> Stream<V> mapMapValues(Map<K1, Map<K2, V>> map) {
+        return map.values()
+                .stream()
+                .flatMap(m -> m.entrySet().stream())
+                .map(Map.Entry::getValue);
     }
 
     public static <K, V> Map<K, V> newMap() {
@@ -81,18 +87,12 @@ public final class Maps {
         return new DelegateMultiMap<>(newMap(), HybridArrayHashSet::new);
     }
 
+    public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map) {
+        return new DelegateMultiMap<>(map, HybridArrayHashSet::new);
+    }
+
     public static <K, V> MultiMap<K, V> newMultiMap(int initialCapacity) {
         return new DelegateMultiMap<>(
                 newMap(initialCapacity), HybridArrayHashSet::new);
-    }
-
-    /**
-     * @return all values of all maps of the given map.
-     */
-    public static <K1, K2, V> Stream<V> mapMapValues(Map<K1, Map<K2, V>> map) {
-        return map.values()
-                .stream()
-                .flatMap(m -> m.entrySet().stream())
-                .map(Map.Entry::getValue);
     }
 }

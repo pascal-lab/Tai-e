@@ -18,8 +18,8 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
-import java.util.Map;
 import java.util.Set;
 
 import static java.util.function.Predicate.not;
@@ -40,36 +40,36 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     /**
      * Map from receiver objects to the methods invoked on them.
      */
-    private Map<Obj, Set<JMethod>> recv2Methods;
+    private MultiMap<Obj, JMethod> recv2Methods;
 
     @Override
     public Set<JMethod> getMethodsInvokedOn(Obj obj) {
         computeMethodReceiverObjects();
-        return recv2Methods.getOrDefault(obj, Set.of());
+        return recv2Methods.get(obj);
     }
 
     /**
      * Map from methods to their receiver objects.
      */
-    private Map<JMethod, Set<Obj>> method2Recvs;
+    private MultiMap<JMethod, Obj> method2Recvs;
 
     @Override
     public Set<Obj> getReceiverObjectsOf(JMethod method) {
         computeMethodReceiverObjects();
-        return method2Recvs.getOrDefault(method, Set.of());
+        return method2Recvs.get(method);
     }
 
     private void computeMethodReceiverObjects() {
         if (recv2Methods == null && method2Recvs == null) {
-            recv2Methods = Maps.newMap();
-            method2Recvs = Maps.newMap();
+            recv2Methods = Maps.newMultiMap();
+            method2Recvs = Maps.newMultiMap();
             base.getCallGraph().reachableMethods()
                     .filter(not(JMethod::isStatic))
                     .forEach(method -> {
                         Var thisVar = method.getIR().getThis();
                         base.getPointsToSet(thisVar).forEach(recv -> {
-                            Maps.addToMapSet(recv2Methods, recv, method);
-                            Maps.addToMapSet(method2Recvs, method, recv);
+                            recv2Methods.put(recv, method);
+                            method2Recvs.put(method, recv);
                         });
                     });
         }
@@ -78,20 +78,20 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     /**
      * Map from methods to the objects allocated in them.
      */
-    private Map<JMethod, Set<Obj>> method2Objs;
+    private MultiMap<JMethod, Obj> method2Objs;
 
     @Override
     public Set<Obj> getObjectsAllocatedIn(JMethod method) {
         computeAllocatedObjects();
-        return method2Objs.getOrDefault(method, Set.of());
+        return method2Objs.get(method);
     }
 
     private void computeAllocatedObjects() {
         if (method2Objs == null) {
-            method2Objs = Maps.newMap();
+            method2Objs = Maps.newMultiMap();
             base.objects().forEach(obj ->
                     obj.getContainerMethod().ifPresent(m ->
-                            Maps.addToMapSet(method2Objs, m, obj)));
+                            method2Objs.put(m, obj)));
         }
     }
 }

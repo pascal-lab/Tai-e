@@ -22,8 +22,8 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.MultiMap;
 
-import java.util.Map;
 import java.util.Set;
 
 public class ExceptionTest {
@@ -44,7 +44,7 @@ public class ExceptionTest {
 
     @Test
     public void testCatchImplicit() {
-        test("explicit", "implicitCaught", "implicitUncaught");
+        test("explicit" /*"all"*/, "implicitCaught", "implicitUncaught");
     }
 
     @Test
@@ -71,14 +71,14 @@ public class ExceptionTest {
             ThrowResult throwResult = ir.getResult(ThrowAnalysis.ID);
             CatchResult result = CatchAnalysis.analyze(ir, throwResult);
             ir.forEach(stmt -> {
-                Map<Stmt, Set<ClassType>> caught = result.getCaughtOf(stmt);
+                MultiMap<Stmt, ClassType> caught = result.getCaughtOf(stmt);
                 Set<ClassType> uncaught = result.getUncaughtOf(stmt);
                 if (!caught.isEmpty() || !uncaught.isEmpty()) {
                     System.out.printf("%s(@L%d)%n", stmt, stmt.getLineNumber());
                     if (!caught.isEmpty()) {
                         System.out.println("Caught exceptions:");
-                        caught.forEach((s, e) ->
-                                System.out.printf("%s(@L%d): %s%n", s, s.getLineNumber(), e));
+                        caught.forEachSet((s, es) ->
+                                System.out.printf("%s(@L%d): %s%n", s, s.getLineNumber(), es));
                     }
                     if (!uncaught.isEmpty()) {
                         System.out.println("Uncaught exceptions: " + uncaught);

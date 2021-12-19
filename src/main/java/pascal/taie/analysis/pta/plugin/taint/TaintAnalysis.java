@@ -35,9 +35,9 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -51,20 +51,20 @@ public class TaintAnalysis implements Plugin {
      * Map from method (which is source method) to set of types of
      * taint objects returned by the method calls.
      */
-    private final Map<JMethod, Set<Type>> sources = Maps.newMap();
+    private final MultiMap<JMethod, Type> sources = Maps.newMultiMap();
 
     /**
      * Map from method (which causes taint transfer) to set of relevant
      * {@link TaintTransfer}.
      */
-    private final Map<JMethod, Set<TaintTransfer>> transfers = Maps.newMap();
+    private final MultiMap<JMethod, TaintTransfer> transfers = Maps.newMultiMap();
 
     /**
      * Map from variable to taint transfer information.
      * The taint objects pointed to by the "key" variable are supposed
      * to be transferred to "value" variable with specified type.
      */
-    private final Map<Var, Set<Pair<Var, Type>>> varTransfers = Maps.newMap();
+    private final MultiMap<Var, Pair<Var, Type>> varTransfers = Maps.newMultiMap();
 
     private TaintConfig config;
 
@@ -85,9 +85,9 @@ public class TaintAnalysis implements Plugin {
                 solver.getTypeManager());
         logger.info(config);
         config.getSources().forEach(s ->
-                Maps.addToMapSet(sources, s.getMethod(), s.getType()));
+                sources.put(s.getMethod(), s.getType()));
         config.getTransfers().forEach(t ->
-                Maps.addToMapSet(transfers, t.getMethod(), t));
+                transfers.put(t.getMethod(), t));
     }
 
     @Override
@@ -104,22 +104,19 @@ public class TaintAnalysis implements Plugin {
             });
         }
         // process taint transfer
-        Set<TaintTransfer> transfers = this.transfers.get(callee);
-        if (transfers != null) {
-            transfers.forEach(transfer -> {
-                Var from = getVar(callSite, transfer.getFrom());
-                Var to = getVar(callSite, transfer.getTo());
-                // when transfer to result variable, and the call site
-                // does not have result variable, then "to" is null.
-                if (to != null) {
-                    Type type = transfer.getType();
-                    Maps.addToMapSet(varTransfers, from, new Pair<>(to, type));
-                    Context ctx = edge.getCallSite().getContext();
-                    CSVar csFrom = csManager.getCSVar(ctx, from);
-                    transferTaint(solver.getPointsToSetOf(csFrom), ctx, to, type);
-                }
-            });
-        }
+        transfers.get(callee).forEach(transfer -> {
+            Var from = getVar(callSite, transfer.getFrom());
+            Var to = getVar(callSite, transfer.getTo());
+            // when transfer to result variable, and the call site
+            // does not have result variable, then "to" is null.
+            if (to != null) {
+                Type type = transfer.getType();
+                varTransfers.put(from, new Pair<>(to, type));
+                Context ctx = edge.getCallSite().getContext();
+                CSVar csFrom = csManager.getCSVar(ctx, from);
+                transferTaint(solver.getPointsToSetOf(csFrom), ctx, to, type);
+            }
+        });
     }
 
     /**
@@ -153,14 +150,11 @@ public class TaintAnalysis implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        Set<Pair<Var, Type>> transfers = varTransfers.get(csVar.getVar());
-        if (transfers != null) {
-            transfers.forEach(p -> {
-                Var to = p.getFirst();
-                Type type = p.getSecond();
-                transferTaint(pts, csVar.getContext(), to, type);
-            });
-        }
+        varTransfers.get(csVar.getVar()).forEach(p -> {
+            Var to = p.getFirst();
+            Type type = p.getSecond();
+            transferTaint(pts, csVar.getContext(), to, type);
+        });
     }
 
     @Override

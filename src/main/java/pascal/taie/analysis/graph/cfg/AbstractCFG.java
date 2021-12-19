@@ -15,10 +15,10 @@ package pascal.taie.analysis.graph.cfg;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -32,17 +32,17 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     protected final Set<N> nodes;
 
-    private final Map<N, Set<Edge<N>>> inEdges;
+    private final MultiMap<N, Edge<N>> inEdges;
 
-    private final Map<N, Set<Edge<N>>> outEdges;
+    private final MultiMap<N, Edge<N>> outEdges;
 
     AbstractCFG(IR ir) {
         this.ir = ir;
         // number of nodes = number of statements in IR + entry + exit
         int nNodes = ir.getStmts().size() + 2;
         nodes = Sets.newSet(nNodes);
-        inEdges = Maps.newMap(nNodes);
-        outEdges = Maps.newMap(nNodes);
+        inEdges = Maps.newMultiMap(nNodes);
+        outEdges = Maps.newMultiMap(nNodes);
     }
 
     @Override
@@ -99,8 +99,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
             ((ExceptionalEdge<N>) existingEdge).addExceptions(
                     edge.exceptions());
         } else {
-            Maps.addToMapSet(inEdges, edge.getTarget(), edge);
-            Maps.addToMapSet(outEdges, edge.getSource(), edge);
+            inEdges.put(edge.getTarget(), edge);
+            outEdges.put(edge.getSource(), edge);
         }
     }
 
@@ -111,8 +111,7 @@ abstract class AbstractCFG<N> implements CFG<N> {
      */
     private @Nullable
     Edge<N> getExistingEdge(Edge<N> edge) {
-        for (Edge<N> outEdge : outEdges.getOrDefault(
-                edge.getSource(), Set.of())) {
+        for (Edge<N> outEdge : outEdges.get(edge.getSource())) {
             if (outEdge.getTarget().equals(edge.getTarget()) &&
                     outEdge.getKind() == edge.getKind()) {
                 return outEdge;
@@ -123,22 +122,22 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     @Override
     public Stream<Edge<N>> inEdgesOf(N node) {
-        return inEdges.getOrDefault(node, Set.of()).stream();
+        return inEdges.get(node).stream();
     }
 
     @Override
     public Stream<Edge<N>> outEdgesOf(N node) {
-        return outEdges.getOrDefault(node, Set.of()).stream();
+        return outEdges.get(node).stream();
     }
 
     @Override
     public int getInDegreeOf(N node) {
-        return inEdges.getOrDefault(node, Set.of()).size();
+        return inEdges.get(node).size();
     }
 
     @Override
     public int getOutDegreeOf(N node) {
-        return outEdges.getOrDefault(node, Set.of()).size();
+        return outEdges.get(node).size();
     }
 
     @Override

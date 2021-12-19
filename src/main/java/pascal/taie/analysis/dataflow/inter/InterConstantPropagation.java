@@ -36,10 +36,9 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Implementation of interprocedural constant propagation for int values.
@@ -74,11 +73,11 @@ public class InterConstantPropagation extends
      * load statements may be aliases, e.g., [a.f = b;] -> [x = y.f;],
      * where a and y are aliases, then they should be recorded in this map.
      */
-    private Map<StoreField, Set<LoadField>> fieldStoreToLoads;
+    private MultiMap<StoreField, LoadField> fieldStoreToLoads;
 
-    private Map<StoreArray, Set<LoadArray>> arrayStoreToLoads;
+    private MultiMap<StoreArray, LoadArray> arrayStoreToLoads;
 
-    private Map<LoadArray, Set<StoreArray>> arrayLoadToStores;
+    private MultiMap<LoadArray, StoreArray> arrayLoadToStores;
 
     public InterConstantPropagation(AnalysisConfig config) {
         super(config);
@@ -92,33 +91,29 @@ public class InterConstantPropagation extends
         if (!aliasAware) {
             return;
         }
-        fieldStoreToLoads = Maps.newMap();
+        fieldStoreToLoads = Maps.newMultiMap();
         // collect related static field stores and loads
-        Map<JField, Set<StoreField>> staticStores = Maps.newMap();
-        Map<JField, Set<LoadField>> staticLoads = Maps.newMap();
+        MultiMap<JField, StoreField> staticStores = Maps.newMultiMap();
+        MultiMap<JField, LoadField> staticLoads = Maps.newMultiMap();
         for (Stmt s : icfg) {
             if (s instanceof StoreField) {
                 StoreField store = (StoreField) s;
                 if (store.isStatic() &&
                         ConstantPropagation.canHoldInt(store.getRValue())) {
-                    Maps.addToMapSet(staticStores,
-                            store.getFieldRef().resolve(), store);
+                    staticStores.put(store.getFieldRef().resolve(), store);
                 }
             }
             if (s instanceof LoadField) {
                 LoadField load = (LoadField) s;
                 if (load.isStatic() &&
                         ConstantPropagation.canHoldInt(load.getLValue())) {
-                    Maps.addToMapSet(staticLoads,
-                            load.getFieldRef().resolve(), load);
+                    staticLoads.put(load.getFieldRef().resolve(), load);
                 }
             }
         }
-        staticStores.forEach((field, stores) -> {
-            for (StoreField store : stores) {
-                for (LoadField load : staticLoads.getOrDefault(field, Set.of())) {
-                    Maps.addToMapSet(fieldStoreToLoads, store, load);
-                }
+        staticStores.forEach((field, store) -> {
+            for (LoadField load : staticLoads.get(field)) {
+                fieldStoreToLoads.put(store, load);
             }
         });
         // collect related instance field stores and loads as well as
@@ -126,7 +121,7 @@ public class InterConstantPropagation extends
         // derived from pointer analysis
         String ptaId = getOptions().getString("pta");
         PointerAnalysisResult pta = World.getResult(ptaId);
-        Map<Obj, Set<Var>> pointedBy = Maps.newMap();
+        MultiMap<Obj, Var> pointedBy = Maps.newMultiMap();
         pta.vars()
                 .filter(v -> !v.getStoreFields().isEmpty() ||
                         !v.getLoadFields().isEmpty() ||
@@ -134,10 +129,10 @@ public class InterConstantPropagation extends
                         !v.getLoadArrays().isEmpty())
                 .forEach(v ->
                         pta.getPointsToSet(v).forEach(obj ->
-                                Maps.addToMapSet(pointedBy, obj, v)));
-        arrayStoreToLoads = Maps.newMap();
-        arrayLoadToStores = Maps.newMap();
-        pointedBy.values().forEach(aliases -> {
+                                pointedBy.put(obj, v)));
+        arrayStoreToLoads = Maps.newMultiMap();
+        arrayLoadToStores = Maps.newMultiMap();
+        pointedBy.forEachSet((unused, aliases) -> {
             for (Var v : aliases) {
                 for (StoreField store : v.getStoreFields()) {
                     if (!store.isStatic() &&
@@ -148,7 +143,7 @@ public class InterConstantPropagation extends
                                     JField loadedField = load
                                             .getFieldRef().resolve();
                                     if (storedField.equals(loadedField)) {
-                                        Maps.addToMapSet(fieldStoreToLoads, store, load);
+                                        fieldStoreToLoads.put(store, load);
                                     }
                                 })
                         );
@@ -158,8 +153,8 @@ public class InterConstantPropagation extends
                     if (ConstantPropagation.canHoldInt(store.getRValue())) {
                         for (Var u : aliases) {
                             for (LoadArray load : u.getLoadArrays()) {
-                                Maps.addToMapSet(arrayStoreToLoads, store, load);
-                                Maps.addToMapSet(arrayLoadToStores, load, store);
+                                arrayStoreToLoads.put(store, load);
+                                arrayLoadToStores.put(load, store);
                             }
                         }
                     }
@@ -222,7 +217,7 @@ public class InterConstantPropagation extends
                         changed |= out.update(inVar, in.get(inVar));
                     }
                 }
-                for (StoreArray store : arrayLoadToStores.getOrDefault(load, Set.of())) {
+                for (StoreArray store : arrayLoadToStores.get(load)) {
                     changed |= transferLoadArray(store, load);
                 }
                 return changed;
@@ -231,7 +226,7 @@ public class InterConstantPropagation extends
             @Override
             public Boolean visit(StoreArray store) {
                 boolean changed = cp.transferNode(store, in, out);
-                for (LoadArray load: arrayStoreToLoads.getOrDefault(store, Set.of())) {
+                for (LoadArray load: arrayStoreToLoads.get(store)) {
                     if (transferLoadArray(store, load)) {
                         solver.propagate(load);
                     }
@@ -280,7 +275,7 @@ public class InterConstantPropagation extends
             public Boolean visit(StoreField store) {
                 Var var = store.getRValue();
                 Value value = in.get(var);
-                fieldStoreToLoads.getOrDefault(store, Set.of()).forEach(load -> {
+                fieldStoreToLoads.get(store).forEach(load -> {
                     // propagate stored value to aliased loads
                     Var lhs = load.getLValue();
                     CPFact loadOut = solver.getOutFact(load);

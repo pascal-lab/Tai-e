@@ -31,9 +31,8 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 public class ReflectionAnalysis implements Plugin {
@@ -48,7 +47,7 @@ public class ReflectionAnalysis implements Plugin {
 
     private CSManager csManager;
 
-    private final Map<Var, Set<ReflectiveCallEdge>> reflectiveArgs = Maps.newMap();
+    private final MultiMap<Var, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -88,10 +87,8 @@ public class ReflectionAnalysis implements Plugin {
         if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {
             reflectiveActionModel.handleNewPointsToSet(csVar, pts);
         }
-        Set<ReflectiveCallEdge> edges = reflectiveArgs.get(csVar.getVar());
-        if (edges != null) {
-            edges.forEach(edge -> passReflectiveArgs(edge, pts));
-        }
+        reflectiveArgs.get(csVar.getVar())
+                .forEach(edge -> passReflectiveArgs(edge, pts));
     }
 
     @Override
@@ -110,7 +107,7 @@ public class ReflectionAnalysis implements Plugin {
                 CSVar csArgs = csManager.getCSVar(callerCtx, args);
                 passReflectiveArgs(refEdge, solver.getPointsToSetOf(csArgs));
                 // record args for later-arrive array objects
-                Maps.addToMapSet(reflectiveArgs, args, refEdge);
+                reflectiveArgs.put(args, refEdge);
             }
             // pass return value
             Invoke invoke = refEdge.getCallSite().getCallSite();

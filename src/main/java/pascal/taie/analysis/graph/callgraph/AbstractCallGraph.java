@@ -13,6 +13,7 @@
 package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
@@ -31,10 +32,10 @@ import java.util.stream.Stream;
 public abstract class AbstractCallGraph<CallSite, Method>
         implements CallGraph<CallSite, Method> {
 
-    protected final Map<CallSite, Set<Edge<CallSite, Method>>> callSiteToEdges = Maps.newMap();
-    protected final Map<Method, Set<Edge<CallSite, Method>>> calleeToEdges = Maps.newMap();
+    protected final MultiMap<CallSite, Edge<CallSite, Method>> callSiteToEdges = Maps.newMultiMap();
+    protected final MultiMap<Method, Edge<CallSite, Method>> calleeToEdges = Maps.newMultiMap();
     protected final Map<CallSite, Method> callSiteToContainer = Maps.newMap();
-    protected final Map<Method, Set<CallSite>> callSitesIn = Maps.newMap();
+    protected final MultiMap<Method, CallSite> callSitesIn = Maps.newMultiMap();
     protected final Set<Method> entryMethods = Sets.newSet();
     protected final Set<Method> reachableMethods = Sets.newSet();
 
@@ -66,32 +67,27 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public Stream<CallSite> callSitesIn(Method method) {
-        return callSitesIn.getOrDefault(method, Set.of()).stream();
+        return callSitesIn.get(method).stream();
     }
 
     @Override
     public Stream<Edge<CallSite, Method>> edgesOf(CallSite callSite) {
-        return callSiteToEdges.getOrDefault(callSite, Set.of()).stream();
+        return callSiteToEdges.get(callSite).stream();
     }
 
     @Override
     public Stream<Edge<CallSite, Method>> edgesTo(Method method) {
-        return calleeToEdges.getOrDefault(method, Set.of()).stream();
+        return calleeToEdges.get(method).stream();
     }
 
     @Override
     public Stream<Edge<CallSite, Method>> edges() {
-        return callSiteToEdges.values()
-                .stream()
-                .flatMap(Set::stream);
+        return callSiteToEdges.values().stream();
     }
 
     @Override
     public int getNumberOfEdges() {
-        return callSiteToEdges.values()
-                .stream()
-                .mapToInt(Set::size)
-                .sum();
+        return callSiteToEdges.size();
     }
 
     @Override

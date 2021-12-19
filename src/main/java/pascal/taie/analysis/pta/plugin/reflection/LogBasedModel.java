@@ -33,6 +33,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
@@ -65,13 +66,13 @@ class LogBasedModel extends MetaObjModel {
 
     private final Set<JMethod> relevantMethods = Sets.newSet();
 
-    private final Map<Invoke, Set<JClass>> forNameTargets = Maps.newMap();
+    private final MultiMap<Invoke, JClass> forNameTargets = Maps.newMultiMap();
 
-    private final Map<Invoke, Set<ClassType>> arrayTypeTargets = Maps.newMap();
+    private final MultiMap<Invoke, ClassType> arrayTypeTargets = Maps.newMultiMap();
 
-    private final Map<Invoke, Set<JClass>> classTargets = Maps.newMap();
+    private final MultiMap<Invoke, JClass> classTargets = Maps.newMultiMap();
 
-    private final Map<Invoke, Set<ClassMember>> memberTargets = Maps.newMap();
+    private final MultiMap<Invoke, ClassMember> memberTargets = Maps.newMultiMap();
 
     private final ContextSelector selector;
 
@@ -121,20 +122,20 @@ class LogBasedModel extends MetaObjModel {
             if (target instanceof JClass) {
                 if (item.api.equals("Class.forName")) {
                     for (Invoke invoke : invokes) {
-                        Maps.addToMapSet(forNameTargets, invoke, (JClass) target);
+                        forNameTargets.put(invoke, (JClass) target);
                     }
                 } else {
                     for (Invoke invoke : invokes) {
-                        Maps.addToMapSet(classTargets, invoke, (JClass) target);
+                        classTargets.put(invoke, (JClass) target);
                     }
                 }
             } else if (target instanceof ClassMember) {
                 for (Invoke invoke : invokes) {
-                    Maps.addToMapSet(memberTargets, invoke, (ClassMember) target);
+                    memberTargets.put(invoke, (ClassMember) target);
                 }
             } else {
                 for (Invoke invoke : invokes) {
-                    Maps.addToMapSet(arrayTypeTargets, invoke, (ClassType) target);
+                    arrayTypeTargets.put(invoke, (ClassType) target);
                 }
             }
             invokes.stream()
@@ -221,20 +222,20 @@ class LogBasedModel extends MetaObjModel {
         }
     }
 
-    private <T> void passTargetToBase(Map<Invoke, Set<T>> targetMap,
+    private <T> void passTargetToBase(MultiMap<Invoke, T> targetMap,
                                       CSMethod csMethod, Invoke invoke) {
         passTarget(targetMap, csMethod, invoke,
                 i -> ((InvokeInstanceExp) i.getInvokeExp()).getBase());
     }
 
-    private <T> void passTargetToArg0(Map<Invoke, Set<T>> targetMap,
+    private <T> void passTargetToArg0(MultiMap<Invoke, T> targetMap,
                                       CSMethod csMethod, Invoke invoke) {
         passTarget(targetMap, csMethod, invoke,
                 i -> i.getInvokeExp().getArg(0));
     }
 
     private <T> void passTarget(
-            Map<Invoke, Set<T>> targetMap, CSMethod csMethod,
+            MultiMap<Invoke, T> targetMap, CSMethod csMethod,
             Invoke invoke, Function<Invoke, Var> varGetter) {
         if (targetMap.containsKey(invoke)) {
             Context context = csMethod.getContext();

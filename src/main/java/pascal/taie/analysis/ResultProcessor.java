@@ -24,6 +24,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
 import java.io.BufferedReader;
@@ -61,7 +62,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
 
     private PrintStream out;
 
-    private Map<Pair<String, String>, Set<String>> inputs;
+    private MultiMap<Pair<String, String>, String> inputs;
 
     private Set<String> mismatches;
 
@@ -123,7 +124,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
         String input = getOptions().getString("file");
         Path path = Path.of(input);
         try {
-            inputs = Maps.newMap();
+            inputs = Maps.newMultiMap();
             BufferedReader reader = Files.newBufferedReader(path);
             String line;
             Pair<String, String> currentKey = null;
@@ -132,7 +133,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
                 if (key != null) {
                     currentKey = key;
                 } else if (!line.isBlank()) {
-                    Maps.addToMapSet(inputs, currentKey, line);
+                    inputs.put(currentKey, line);
                 }
             }
         } catch (IOException e) {
@@ -236,8 +237,7 @@ public class ResultProcessor extends InterproceduralAnalysis {
 
     private void compareResult(JMethod method, String id,
                                BiFunction<JMethod, String, ?> resultGetter) {
-        Set<String> inputResult = inputs.getOrDefault(
-                new Pair<>(method.toString(), id), Set.of());
+        Set<String> inputResult = inputs.get(new Pair<>(method.toString(), id));
         Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             Set<String> given = ((Set<?>) result)

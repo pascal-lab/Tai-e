@@ -15,32 +15,32 @@ package pascal.taie.analysis.exception;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.util.collection.Maps.addToMapSet;
-import static pascal.taie.util.collection.Maps.newHybridMap;
-import static pascal.taie.util.collection.Maps.newMap;
-import static pascal.taie.util.collection.Sets.newSet;
-
 public class CatchResult {
 
-    private final Map<Stmt, Map<Stmt, Set<ClassType>>> caughtImplicit = newHybridMap();
+    private final Map<Stmt, MultiMap<Stmt, ClassType>> caughtImplicit = Maps.newHybridMap();
 
-    private final Map<Stmt, Set<ClassType>> uncaughtImplicit = newHybridMap();
+    private final MultiMap<Stmt, ClassType> uncaughtImplicit
+            = Maps.newMultiMap(Maps.newHybridMap());
 
-    private final Map<Stmt, Map<Stmt, Set<ClassType>>> caughtExplicit = newHybridMap();
+    private final Map<Stmt, MultiMap<Stmt, ClassType>> caughtExplicit = Maps.newHybridMap();
 
-    private final Map<Stmt, Set<ClassType>> uncaughtExplicit = newHybridMap();
+    private final MultiMap<Stmt, ClassType> uncaughtExplicit
+            = Maps.newMultiMap(Maps.newHybridMap());
 
     void addCaughtImplicit(Stmt stmt, Catch catcher, ClassType exceptionType) {
-        addToMapSet(caughtImplicit.computeIfAbsent(stmt, s -> newHybridMap()),
-                catcher, exceptionType);
+        caughtImplicit.computeIfAbsent(stmt, s -> Maps.newMultiMap(Maps.newHybridMap()))
+                .put(catcher, exceptionType);
     }
 
     void addUncaughtImplicit(Stmt stmt, ClassType exceptionType) {
-        addToMapSet(uncaughtImplicit, stmt, exceptionType);
+        uncaughtImplicit.put(stmt, exceptionType);
     }
 
     /**
@@ -49,8 +49,8 @@ public class CatchResult {
      * from Catch statements to set of exception types that are caught
      * by the Catches.
      */
-    public Map<Stmt, Set<ClassType>> getCaughtImplicitOf(Stmt stmt) {
-        return caughtImplicit.getOrDefault(stmt, Map.of());
+    public MultiMap<Stmt, ClassType> getCaughtImplicitOf(Stmt stmt) {
+        return caughtImplicit.getOrDefault(stmt, Maps.newMultiMap(Map.of()));
     }
 
     /**
@@ -58,16 +58,16 @@ public class CatchResult {
      * by given Stmt but not caught by its containing method.
      */
     public Set<ClassType> getUncaughtImplicitOf(Stmt stmt) {
-        return uncaughtImplicit.getOrDefault(stmt, Set.of());
+        return uncaughtImplicit.get(stmt);
     }
 
     void addCaughtExplicit(Stmt stmt, Catch catcher, ClassType exceptionType) {
-        addToMapSet(caughtExplicit.computeIfAbsent(stmt, s -> newHybridMap()),
-                catcher, exceptionType);
+        caughtExplicit.computeIfAbsent(stmt, s -> Maps.newMultiMap())
+                .put(catcher, exceptionType);
     }
 
     void addUncaughtExplicit(Stmt stmt, ClassType exceptionType) {
-        addToMapSet(uncaughtExplicit, stmt, exceptionType);
+        uncaughtExplicit.put(stmt, exceptionType);
     }
 
     /**
@@ -76,8 +76,8 @@ public class CatchResult {
      * from Catch statements to set of exception types that are caught
      * by the Catches.
      */
-    public Map<Stmt, Set<ClassType>> getCaughtExplicitOf(Stmt stmt) {
-        return caughtExplicit.getOrDefault(stmt, Map.of());
+    public MultiMap<Stmt, ClassType> getCaughtExplicitOf(Stmt stmt) {
+        return caughtExplicit.getOrDefault(stmt, Maps.newMultiMap());
     }
 
     /**
@@ -85,7 +85,7 @@ public class CatchResult {
      * by given Stmt but not caught by its containing method.
      */
     public Set<ClassType> getUncaughtExplicitOf(Stmt stmt) {
-        return uncaughtExplicit.getOrDefault(stmt, Set.of());
+        return uncaughtExplicit.get(stmt);
     }
 
     /**
@@ -94,8 +94,8 @@ public class CatchResult {
      * The result of the call is a map from Catch statements to set of
      * exception types that are caught by the Catches.
      */
-    public Map<Stmt, Set<ClassType>> getCaughtOf(Stmt stmt) {
-        Map<Stmt, Set<ClassType>> caught = newMap();
+    public MultiMap<Stmt, ClassType> getCaughtOf(Stmt stmt) {
+        MultiMap<Stmt, ClassType> caught = Maps.newMultiMap();
         caught.putAll(getCaughtImplicitOf(stmt));
         caught.putAll(getCaughtExplicitOf(stmt));
         return caught;
@@ -106,7 +106,7 @@ public class CatchResult {
      * thrown by given Stmt and cannot be caught by its containing method.
      */
     public Set<ClassType> getUncaughtOf(Stmt stmt) {
-        Set<ClassType> uncaught = newSet();
+        Set<ClassType> uncaught = Sets.newSet();
         uncaught.addAll(getUncaughtImplicitOf(stmt));
         uncaught.addAll(getUncaughtExplicitOf(stmt));
         return uncaught;

@@ -23,6 +23,7 @@ import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +41,7 @@ public class ExceptionAnalysis implements Plugin {
     /**
      * Map from thrown variables to the corresponding throw statements.
      */
-    private final Map<Var, Set<Throw>> var2Throws = Maps.newMap();
+    private final MultiMap<Var, Throw> var2Throws = Maps.newMultiMap();
 
     /**
      * Map from each method to the result of catch analysis on it.
@@ -79,7 +80,7 @@ public class ExceptionAnalysis implements Plugin {
             if (stmt instanceof Throw) {
                 Throw throwStmt = (Throw) stmt;
                 Var exceptionRef = throwStmt.getExceptionRef();
-                Maps.addToMapSet(var2Throws, exceptionRef, throwStmt);
+                var2Throws.put(exceptionRef, throwStmt);
             }
         });
         catchers.put(method, CatchAnalysis.getPotentialCatchers(ir));
@@ -95,7 +96,7 @@ public class ExceptionAnalysis implements Plugin {
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Set<Throw> throwStmts = var2Throws.get(csVar.getVar());
-        if (throwStmts != null) {
+        if (!throwStmts.isEmpty()) {
             Var exceptionRef = csVar.getVar();
             Context ctx = csVar.getContext();
             JMethod currentMethod = exceptionRef.getMethod();

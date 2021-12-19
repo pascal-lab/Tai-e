@@ -101,7 +101,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
         CatchResult catchResult = CatchAnalysis.analyze(ir, throwResult);
         ir.forEach(stmt -> {
             // build edges for implicit exceptions
-            catchResult.getCaughtImplicitOf(stmt).forEach((catcher, exceptions) ->
+            catchResult.getCaughtImplicitOf(stmt).forEachSet((catcher, exceptions) ->
                     cfg.inEdgesOf(stmt)
                             .filter(Predicate.not(Edge::isExceptional))
                             .map(Edge::getSource)
@@ -121,7 +121,7 @@ public class CFGBuilder extends IntraproceduralAnalysis {
             }
             // build edges for explicit exceptions
             if (stmt instanceof Throw || stmt instanceof Invoke) {
-                catchResult.getCaughtExplicitOf(stmt).forEach((catcher, exceptions) ->
+                catchResult.getCaughtExplicitOf(stmt).forEachSet((catcher, exceptions) ->
                         cfg.addEdge(new ExceptionalEdge<>(
                                 Edge.Kind.CAUGHT_EXCEPTION,
                                 stmt, catcher, exceptions))

@@ -13,9 +13,9 @@
 package pascal.taie.util.graph;
 
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -28,9 +28,9 @@ public class SimpleGraph<N> implements Graph<N> {
 
     private final Set<N> nodes = Sets.newSet();
 
-    private final Map<N, Set<N>> predMap = Maps.newMap();
+    private final MultiMap<N, N> preds = Maps.newMultiMap();
 
-    private final Map<N, Set<N>> succMap = Maps.newMap();
+    private final MultiMap<N, N> succs = Maps.newMultiMap();
 
     public void addNode(N node) {
         nodes.add(node);
@@ -39,8 +39,8 @@ public class SimpleGraph<N> implements Graph<N> {
     public void addEdge(N source, N target) {
         nodes.add(source);
         nodes.add(target);
-        Maps.addToMapSet(predMap, target, source);
-        Maps.addToMapSet(succMap, source, target);
+        preds.put(target, source);
+        succs.put(source, target);
     }
 
     @Override
@@ -50,27 +50,27 @@ public class SimpleGraph<N> implements Graph<N> {
 
     @Override
     public boolean hasEdge(N source, N target) {
-        return succMap.getOrDefault(source, Set.of()).contains(target);
+        return succs.get(source).contains(target);
     }
 
     @Override
     public Stream<N> predsOf(N node) {
-        return predMap.getOrDefault(node, Set.of()).stream();
+        return preds.get(node).stream();
     }
 
     @Override
     public Stream<N> succsOf(N node) {
-        return succMap.getOrDefault(node, Set.of()).stream();
+        return succs.get(node).stream();
     }
 
     @Override
     public int getInDegreeOf(N node) {
-        return predMap.getOrDefault(node, Set.of()).size();
+        return preds.get(node).size();
     }
 
     @Override
     public int getOutDegreeOf(N node) {
-        return succMap.getOrDefault(node, Set.of()).size();
+        return succs.get(node).size();
     }
 
     @Override

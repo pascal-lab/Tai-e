@@ -38,17 +38,16 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Maps.addToMapMap;
-import static pascal.taie.util.collection.Maps.addToMapSet;
 import static pascal.taie.util.collection.Maps.getMapMap;
-import static pascal.taie.util.collection.Maps.newMap;
 
 public class LambdaAnalysis implements Plugin {
 
@@ -73,19 +72,19 @@ public class LambdaAnalysis implements Plugin {
     /**
      * Map from method to the lambda functional objects created in the method.
      */
-    private final Map<JMethod, Set<MockObj>> lambdaObjs = newMap();
+    private final MultiMap<JMethod, MockObj> lambdaObjs = Maps.newMultiMap();
 
     /**
      * Map from Invoke (of invokedynamic) and type to mock obj to avoid mocking same objects
      */
-    private final Map<Invoke, Map<ClassType, MockObj>> newObjs = newMap();
+    private final Map<Invoke, Map<ClassType, MockObj>> newObjs = Maps.newMap();
 
     /**
      * Map from receiver variable to the information about the related
      * instance invocation sites. When new objects reach the receiver variable,
      * this information will be used to build lambda call edges.
      */
-    private final Map<CSVar, Set<InstanceInvoInfo>> invoInfos = newMap();
+    private final MultiMap<CSVar, InstanceInvoInfo> invoInfos = Maps.newMultiMap();
 
     @Override
     public void setSolver(Solver solver) {
@@ -102,7 +101,7 @@ public class LambdaAnalysis implements Plugin {
             Type type = indy.getMethodType().getReturnType();
             JMethod container = invoke.getContainer();
             // record lambda meta factories of new reachable methods
-            addToMapSet(lambdaObjs, container,
+            lambdaObjs.put(container,
                     new MockObj(LAMBDA_DESC, invoke, type, container));
         });
     }
@@ -126,20 +125,17 @@ public class LambdaAnalysis implements Plugin {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
-        Set<MockObj> lambdas = lambdaObjs.get(method);
-        if (lambdas != null) {
-            Context context = csMethod.getContext();
-            lambdas.forEach(lambdaObj -> {
-                // propagate lambda functional objects
-                Invoke invoke = (Invoke) lambdaObj.getAllocation();
-                Var ret = invoke.getResult();
-                assert ret != null;
-                // here we use full method context as the heap context of
-                // lambda object, so that it can be directly used to obtain
-                // context-sensitive captured values later.
-                solver.addVarPointsTo(context, ret, context, lambdaObj);
-            });
-        }
+        Context context = csMethod.getContext();
+        lambdaObjs.get(method).forEach(lambdaObj -> {
+            // propagate lambda functional objects
+            Invoke invoke = (Invoke) lambdaObj.getAllocation();
+            Var ret = invoke.getResult();
+            assert ret != null;
+            // here we use full method context as the heap context of
+            // lambda object, so that it can be directly used to obtain
+            // context-sensitive captured values later.
+            solver.addVarPointsTo(context, ret, context, lambdaObj);
+        });
     }
 
     @Override
@@ -210,7 +206,7 @@ public class LambdaAnalysis implements Plugin {
                                 indy, indyCtx));
                 // New objects may reach csRecvVar later, thus we store it
                 // together with information about the related Lambda invocation.
-                addToMapSet(invoInfos, csRecvVar,
+                invoInfos.put(csRecvVar,
                         new InstanceInvoInfo(csCallSite, indy, indyCtx));
                 break;
             }
@@ -331,11 +327,7 @@ public class LambdaAnalysis implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        Set<InstanceInvoInfo> infos = invoInfos.get(csVar);
-        if (infos == null) {
-            return;
-        }
-        infos.forEach(info -> {
+        invoInfos.get(csVar).forEach(info -> {
             // handle the case of that new objects reach base variable
             // of lambda invocation
             InvokeDynamic indy = info.getLambdaIndy();
