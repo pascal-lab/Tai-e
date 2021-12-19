@@ -48,7 +48,6 @@ public class MultiMapTest {
 
         MultiMap<Integer, Integer> m2 = Maps.newMultiMap();
         Assert.assertTrue(m2.putAll(m1));
-        System.out.println(m2);
         Assert.assertEquals(4, m2.size());
     }
 
@@ -125,5 +124,33 @@ public class MultiMapTest {
         Assert.assertNotEquals(m1, m2);
         m2.clear();
         Assert.assertEquals(m1, m2);
+    }
+
+    @Test
+    public void testEntrySet() {
+        MultiMap<Integer, Integer> m = Maps.newMultiMap();
+        var entrySet = m.entrySet();
+        m.put(1, 1);
+        m.putAll(2, Set.of(777, 888, 999));
+        m.putAll(3, Set.of(987, 555));
+        Assert.assertEquals(6, entrySet.size());
+        m.removeAll(2);
+        Assert.assertEquals(3, entrySet.size());
+        m.clear();
+        Assert.assertTrue(entrySet.isEmpty());
+    }
+
+    @Test
+    public void testValues() {
+        MultiMap<Integer, Integer> m = Maps.newMultiMap();
+        var values = m.values();
+        m.put(1, 1);
+        m.putAll(2, Set.of(777, 888, 999));
+        m.putAll(3, Set.of(987, 555));
+        Assert.assertEquals(6, values.size());
+        m.removeAll(2);
+        Assert.assertEquals(3, values.size());
+        m.clear();
+        Assert.assertTrue(values.isEmpty());
     }
 }

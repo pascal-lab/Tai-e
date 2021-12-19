@@ -21,7 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 /**
- * Static utility methods for {@link Map}.
+ * Static utility methods for various maps, including {@link Map},
+ * {@link MultiMap}, {@link TwoKeyMap} and {@link TwoKeyMultiMap}.
  */
 public final class Maps {
 
@@ -77,7 +78,7 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap() {
-        return new DelegateMultiMap<K, V>(newMap(), HybridArrayHashSet::new);
+        return new DelegateMultiMap<>(newMap(), HybridArrayHashSet::new);
     }
 
     /**

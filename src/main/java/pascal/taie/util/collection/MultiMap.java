@@ -14,6 +14,7 @@ package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -116,9 +117,25 @@ public interface MultiMap<K, V> {
     Set<K> keySet();
 
     /**
+     * @return an unmodifiable view collection containing the <i>value</i>
+     * from each key-value pair contained in this multimap, without
+     * collapsing duplicates (so {@code values().size() == size()}).
+     */
+    Collection<V> values();
+
+    /**
+     * @return an unmodifiable view of all key-value pairs
+     * contained in this multimap, as {@link Map.Entry} instances.
+     */
+    Set<Map.Entry<K, V>> entrySet();
+
+    /**
      * Performs the given action for all key-value pairs contained in this multimap.
      */
-    void forEach(@Nonnull BiConsumer<K, V> action);
+    default void forEach(@Nonnull BiConsumer<K, V> action) {
+        entrySet().forEach(entry ->
+                action.accept(entry.getKey(), entry.getValue()));
+    }
 
     /**
      * Removes all key-value pairs from the multimap, leaving it empty.

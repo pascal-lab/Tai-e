@@ -15,9 +15,10 @@ package pascal.taie.util.collection;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -146,11 +147,48 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
     }
 
     @Override
-    public void forEach(@Nonnull BiConsumer<K, V> action) {
-        for (K key : map.keySet()) {
-            for (V value : get(key)) {
-                action.accept(key, value);
+    protected Iterator<Map.Entry<K, V>> entryIterator() {
+        return new EntryIterator();
+    }
+
+    private final class EntryIterator implements Iterator<Map.Entry<K, V>> {
+
+        private final Iterator<Map.Entry<K, Set<V>>> mapIt;
+
+        private K currKey;
+
+        private Iterator<V> valueIt;
+
+        private EntryIterator() {
+            mapIt = map.entrySet().iterator();
+            if (mapIt.hasNext()) {
+                advanceKey();
+            } else {
+                valueIt = Collections.emptyIterator();
             }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return valueIt.hasNext() || mapIt.hasNext();
+        }
+
+        @Override
+        public Map.Entry<K, V> next() {
+            if (valueIt.hasNext()) {
+                return new MapEntry<>(currKey, valueIt.next());
+            } else if (mapIt.hasNext()) {
+                advanceKey();
+                return new MapEntry<>(currKey, valueIt.next());
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+
+        private void advanceKey() {
+            var entry = mapIt.next();
+            currKey = entry.getKey();
+            valueIt = entry.getValue().iterator();
         }
     }
 

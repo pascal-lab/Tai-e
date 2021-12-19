@@ -69,4 +69,12 @@ class MapEntry<K, V> implements Entry<K, V>, Serializable {
     public int hashCode() {
         return Hashes.safeHash(key, value);
     }
+
+    @Override
+    public String toString() {
+        return "MapEntry{" +
+                "key=" + key +
+                ", value=" + value +
+                '}';
+    }
 }
