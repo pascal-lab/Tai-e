@@ -76,6 +76,10 @@ public final class Maps {
         return new ConcurrentHashMap<>(initialCapacity);
     }
 
+    public static <K, V> MultiMap<K, V> newMultiMap() {
+        return new DelegateMultiMap<K, V>(newMap(), HybridArrayHashSet::new);
+    }
+
     /**
      * @return all values of all maps of the given map.
      */
