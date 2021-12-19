@@ -138,6 +138,11 @@ public interface MultiMap<K, V> {
     }
 
     /**
+     * Performs the given action for key-value-set pairs contained in this multimap.
+     */
+    void forEachSet(@Nonnull BiConsumer<K, Set<V>> action);
+
+    /**
      * Removes all key-value pairs from the multimap, leaving it empty.
      */
     void clear();

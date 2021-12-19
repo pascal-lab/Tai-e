@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -190,6 +191,11 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
             currKey = entry.getKey();
             valueIt = entry.getValue().iterator();
         }
+    }
+
+    @Override
+    public void forEachSet(@Nonnull BiConsumer<K, Set<V>> action) {
+        map.forEach(action);
     }
 
     @Override

@@ -81,6 +81,11 @@ public final class Maps {
         return new DelegateMultiMap<>(newMap(), HybridArrayHashSet::new);
     }
 
+    public static <K, V> MultiMap<K, V> newMultiMap(int initialCapacity) {
+        return new DelegateMultiMap<>(
+                newMap(initialCapacity), HybridArrayHashSet::new);
+    }
+
     /**
      * @return all values of all maps of the given map.
      */
