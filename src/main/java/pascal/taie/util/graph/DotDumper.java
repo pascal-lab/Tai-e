@@ -143,22 +143,7 @@ public class DotDumper<N> {
     }
 
     private void dumpNode(N node) {
-        out.print(INDENT);
-        out.print(getNodeRep(node));
-        // dump node attributes
-        String label = nodeLabeler.apply(node);
-        Map<String, String> attrs = nodeAttrs.apply(node);
-        if (label != null || attrs != null) {
-            out.print(" [");
-            if (label != null) {
-                out.printf("label=\"%s\",", label);
-            }
-            if (attrs != null) {
-                dumpAttributes(attrs);
-            }
-            out.print(']');
-        }
-        out.println(";");
+        dumpElement(node, this::getNodeRep, nodeLabeler, nodeAttrs);
     }
 
     private String getNodeRep(N node) {
@@ -166,11 +151,31 @@ public class DotDumper<N> {
     }
 
     private void dumpEdge(Edge<N> edge) {
+        dumpElement(edge, this::getEdgeRep, edgeLabeler, edgeAttrs);
+    }
+
+    private String getEdgeRep(Edge<N> edge) {
+        return getNodeRep(edge.getSource()) + " -> " +
+                getNodeRep(edge.getTarget());
+    }
+
+    /**
+     * Dumps an element (either a node or an edge).
+     *
+     * @param elem     element to be dumped
+     * @param getRep   function that returns string representation of {@code elem}
+     * @param getLabel function that returns label of {@code elem}
+     * @param getAttrs function that returns attributes of {@code elem}
+     * @param <T>      type of the element
+     */
+    private <T> void dumpElement(T elem,
+                                 Function<T, String> getRep,
+                                 Function<T, String> getLabel,
+                                 Function<T, Map<String, String>> getAttrs) {
         out.print(INDENT);
-        out.printf("%s -> %s",
-                getNodeRep(edge.getSource()), getNodeRep(edge.getTarget()));
-        String label = edgeLabeler.apply(edge);
-        Map<String, String> attrs = edgeAttrs.apply(edge);
+        out.print(getRep.apply(elem));
+        String label = getLabel.apply(elem);
+        Map<String, String> attrs = getAttrs.apply(elem);
         if (label != null || attrs != null) {
             out.print(" [");
             if (label != null) {
@@ -181,6 +186,6 @@ public class DotDumper<N> {
             }
             out.print(']');
         }
-        out.println(";");
+        out.println(';');
     }
 }
