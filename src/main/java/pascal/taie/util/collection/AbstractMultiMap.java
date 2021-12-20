@@ -13,7 +13,6 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
-import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;

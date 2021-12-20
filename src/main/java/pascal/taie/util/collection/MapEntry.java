@@ -32,7 +32,7 @@ class MapEntry<K, V> implements Entry<K, V>, Serializable {
     /**
      * Constructs a new map entry.
      */
-    public MapEntry(K key, V value) {
+    MapEntry(K key, V value) {
         this.key = key;
         this.value = value;
     }

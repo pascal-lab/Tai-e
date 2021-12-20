@@ -15,6 +15,7 @@ package pascal.taie.util.collection;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -27,9 +28,21 @@ import java.util.function.BiConsumer;
  *
  *  <ul>
  *   <li>k1 → [v1]
- *   <li>k2 → [v2, v3, v4]
+ *   <li>k2 → [v2, v3]
  *   <li>k3 → [v2, v5]
  *</ul>
+ *
+ * ... or as a single "flattened" collection of key-value pairs:
+ *
+ * <ul>
+ *   <li>k1 → v1
+ *   <li>k2 → v2
+ *   <li>k2 → v3
+ *   <li>k3 → v2
+ *   <li>k3 → v5
+ * </ul>
+ *
+ * Note that both {@code null} keys and values are <i>not</i> permitted in this map.
  *
  * @param <K> type of the keys in this map
  * @param <V> type of the values in this map
@@ -60,7 +73,7 @@ public interface MultiMap<K, V> {
      * in this multimap, if {@code key} is absent; otherwise, this returns
      * an empty set.
      */
-    Set<V> get(@Nonnull K key);
+    Set<V> get(K key);
 
     /**
      * Stores a key-value pair in this multimap.
@@ -75,14 +88,14 @@ public interface MultiMap<K, V> {
      *
      * @return {@code true} if the multimap changed
      */
-    boolean putAll(@Nonnull K key, Collection<? extends V> values);
+    boolean putAll(@Nonnull K key, @Nonnull Collection<? extends V> values);
 
     /**
      * Stores all key-value pairs of {@code multimap} in this multimap.
      *
      * @return {@code true} if the multimap changed
      */
-    boolean putAll(MultiMap<K, V> multiMap);
+    boolean putAll(@Nonnull MultiMap<K, V> multiMap);
 
     /**
      * Removes a single key-value pair with the key {@code key} and the value
@@ -133,12 +146,13 @@ public interface MultiMap<K, V> {
      * Performs the given action for all key-value pairs contained in this multimap.
      */
     default void forEach(@Nonnull BiConsumer<K, V> action) {
+        Objects.requireNonNull(action);
         entrySet().forEach(entry ->
                 action.accept(entry.getKey(), entry.getValue()));
     }
 
     /**
-     * Performs the given action for key-value-set pairs contained in this multimap.
+     * Performs the given action for key-(value-set) pairs contained in this multimap.
      */
     void forEachSet(@Nonnull BiConsumer<K, Set<V>> action);
 

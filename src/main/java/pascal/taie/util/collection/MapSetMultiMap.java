@@ -18,25 +18,33 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
- * A delegation-based implementation of {@link MultiMap}.
+ * An implementation of {@link MultiMap} that stores key-value pairs
+ * as a map from key to the sets of its corresponding values.
  *
  * @param <K> type of the keys in this map
  * @param <V> type of the values in this map
  */
-public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
+public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V> {
 
+    /**
+     * The backing map.
+     */
     private final Map<K, Set<V>> map;
 
+    /**
+     * Factory function for creating new sets.
+     */
     private final Supplier<Set<V>> setFactory;
 
     private int size = 0;
 
-    public DelegateMultiMap(Map<K, Set<V>> map, Supplier<Set<V>> setFactory) {
+    public MapSetMultiMap(Map<K, Set<V>> map, Supplier<Set<V>> setFactory) {
         this.map = map;
         this.setFactory = setFactory;
     }
@@ -53,6 +61,7 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
 
     @Override
     public Set<V> get(@Nonnull K key) {
+        Objects.requireNonNull(key, NULL_KEY);
         Set<V> values = map.get(key);
         return values == null ? Collections.emptySet() :
                 Collections.unmodifiableSet(values);
@@ -60,6 +69,8 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
 
     @Override
     public boolean put(@Nonnull K key, @Nonnull V value) {
+        Objects.requireNonNull(key, NULL_KEY);
+        Objects.requireNonNull(value, NULL_VALUE);
         if (getOrCreateSet(key).add(value)) {
             ++size;
             return true;
@@ -69,13 +80,17 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
     }
 
     @Override
-    public boolean putAll(@Nonnull K key, Collection<? extends V> values) {
+    public boolean putAll(@Nonnull K key, @Nonnull Collection<? extends V> values) {
+        Objects.requireNonNull(key, NULL_KEY);
+        Objects.requireNonNull(values);
         if (!values.isEmpty()) {
             Set<V> set = getOrCreateSet(key);
-            int beforeSize = set.size();
-            set.addAll(values);
-            int diff = set.size() - beforeSize;
-            assert diff >= 0;
+            int diff = 0;
+            for (V v : values) {
+                if (set.add(Objects.requireNonNull(v, NULL_VALUE))) {
+                    ++diff;
+                }
+            }
             if (diff > 0) {
                 size += diff;
                 return true;
@@ -89,7 +104,8 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
     }
 
     @Override
-    public boolean putAll(MultiMap<K, V> multiMap) {
+    public boolean putAll(@Nonnull MultiMap<K, V> multiMap) {
+        Objects.requireNonNull(multiMap);
         boolean changed = false;
         for (K key : multiMap.keySet()) {
             if (putAll(key, multiMap.get(key))) {
@@ -177,10 +193,10 @@ public class DelegateMultiMap<K, V> extends AbstractMultiMap<K, V> {
         @Override
         public Map.Entry<K, V> next() {
             if (valueIt.hasNext()) {
-                return new MapEntry<>(currKey, valueIt.next());
+                return new ImmutableMapEntry<>(currKey, valueIt.next());
             } else if (mapIt.hasNext()) {
                 advanceKey();
-                return new MapEntry<>(currKey, valueIt.next());
+                return new ImmutableMapEntry<>(currKey, valueIt.next());
             } else {
                 throw new NoSuchElementException();
             }

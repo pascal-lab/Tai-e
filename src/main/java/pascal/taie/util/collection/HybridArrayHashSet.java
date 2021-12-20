@@ -34,7 +34,8 @@ public final class HybridArrayHashSet<E> extends AbstractSet<E> {
 
     // invariant: at most one of singleton, array and hashset is non-null
 
-    private static final String NULL_MESSAGE = "HybridArrayHashSet does not permit null keys";
+    private static final String NULL_MESSAGE = "HybridArrayHashSet does not permit null values";
+
     /**
      * Default threshold for the number of items necessary for the array set
      * to become a hash set.

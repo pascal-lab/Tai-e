@@ -84,15 +84,15 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap() {
-        return new DelegateMultiMap<>(newMap(), HybridArrayHashSet::new);
+        return new MapSetMultiMap<>(newMap(), HybridArrayHashSet::new);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map) {
-        return new DelegateMultiMap<>(map, HybridArrayHashSet::new);
+        return new MapSetMultiMap<>(map, HybridArrayHashSet::new);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(int initialCapacity) {
-        return new DelegateMultiMap<>(
+        return new MapSetMultiMap<>(
                 newMap(initialCapacity), HybridArrayHashSet::new);
     }
 }
