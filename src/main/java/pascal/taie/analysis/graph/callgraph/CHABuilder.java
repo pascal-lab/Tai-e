@@ -23,9 +23,9 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.ArrayDeque;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
@@ -44,7 +44,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     /**
      * Cache resolve results for interface/virtual invocations.
      */
-    private Map<JClass, Map<MemberRef, Set<JMethod>>> resolveTable;
+    private TwoKeyMap<JClass, MemberRef, Set<JMethod>> resolveTable;
 
     @Override
     public CallGraph<Invoke, JMethod> build() {
@@ -53,7 +53,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
     private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {
         hierarchy = World.getClassHierarchy();
-        resolveTable = Maps.newMap();
+        resolveTable = Maps.newTwoKeyMap();
         DefaultCallGraph callGraph = new DefaultCallGraph();
         callGraph.addEntryMethod(entry);
         Queue<JMethod> workList = new ArrayDeque<>();
@@ -87,7 +87,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
             case VIRTUAL: {
                 MethodRef methodRef = callSite.getMethodRef();
                 JClass cls = methodRef.getDeclaringClass();
-                Set<JMethod> callees = Maps.getMapMap(resolveTable, cls, methodRef);
+                Set<JMethod> callees = resolveTable.get(cls, methodRef);
                 if (callees != null) {
                     return callees;
                 }
@@ -97,7 +97,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                         .map(c -> hierarchy.dispatch(c, methodRef))
                         .filter(Objects::nonNull) // filter out null callees
                         .collect(Collectors.toUnmodifiableSet());
-                Maps.addToMapMap(resolveTable, cls, methodRef, callees);
+                resolveTable.put(cls, methodRef, callees);
                 return callees;
             }
             case SPECIAL:

@@ -19,8 +19,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
-
-import java.util.Map;
+import pascal.taie.util.collection.TwoKeyMap;
 
 /**
  * Manages taint objects.
@@ -29,7 +28,7 @@ class TaintManager {
 
     private static final String TAINT_DESC = "TaintObj";
 
-    private final Map<Invoke, Map<Type, Obj>> taints = Maps.newHybridMap();
+    private final TwoKeyMap<Invoke, Type, Obj> taints = Maps.newTwoKeyMap();
 
     /**
      * Makes a taint object for given source and type.
@@ -39,12 +38,8 @@ class TaintManager {
      * @return the taint object for given source and type.
      */
     Obj makeTaint(Invoke source, Type type) {
-        Obj taint = Maps.getMapMap(taints, source, type);
-        if (taint == null) {
-            taint = new MockObj(TAINT_DESC, source, type);
-            Maps.addToMapMap(taints, source, type, taint);
-        }
-        return taint;
+        return taints.computeIfAbsent(source, type,
+                (s, t) -> new MockObj(TAINT_DESC, s, t));
     }
 
     /**

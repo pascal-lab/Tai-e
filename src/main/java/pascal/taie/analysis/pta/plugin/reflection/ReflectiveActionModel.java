@@ -41,13 +41,10 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
-
-import static pascal.taie.util.collection.Maps.addToMapMap;
-import static pascal.taie.util.collection.Maps.getMapMap;
 
 /**
  * Models reflective-action methods, currently supports
@@ -78,7 +75,7 @@ class ReflectiveActionModel extends AbstractModel {
      * Map from Invoke (of Class/Constructor/Array.newInstance()) and type
      * to the reflectively-created objects.
      */
-    private final Map<Invoke, Map<ReferenceType, MockObj>> newObjs = Maps.newMap();
+    private final TwoKeyMap<Invoke, ReferenceType, MockObj> newObjs = Maps.newTwoKeyMap();
 
     ReflectiveActionModel(Solver solver) {
         super(solver);
@@ -177,12 +174,12 @@ class ReflectiveActionModel extends AbstractModel {
     }
 
     private CSObj newReflectiveObj(Context context, Invoke invoke, ReferenceType type) {
-        MockObj newObj = getMapMap(newObjs, invoke, type);
+        MockObj newObj = newObjs.get(invoke, type);
         if (newObj == null) {
             newObj = new MockObj(REF_OBJ_DESC, invoke, type,
                     invoke.getContainer());
             // TODO: process newObj by heapModel?
-            addToMapMap(newObjs, invoke, type, newObj);
+            newObjs.put(invoke, type, newObj);
         }
         // TODO: double-check if the heap context is proper
         CSObj csNewObj = csManager.getCSObj(context, newObj);

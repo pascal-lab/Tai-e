@@ -20,14 +20,10 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Maps.newHybridMap;
-import static pascal.taie.util.collection.Maps.newMap;
 
 /**
  * Manages data by maintaining the data and their context-sensitive
@@ -35,39 +31,33 @@ import static pascal.taie.util.collection.Maps.newMap;
  */
 public class MapBasedCSManager implements CSManager {
 
-    private final Map<Var, Map<Context, CSVar>> vars = newMap();
-    private final Map<Obj, Map<Context, CSObj>> objs = newMap();
-    private final Map<Invoke, Map<Context, CSCallSite>> callSites = newMap();
-    private final Map<JMethod, Map<Context, CSMethod>> methods = newMap();
-    private final Map<JField, StaticField> staticFields = newMap();
-    private final Map<CSObj, Map<JField, InstanceField>> instanceFields = newMap();
-    private final Map<CSObj, ArrayIndex> arrayIndexes = newMap();
-
-    private static <R, Key1, Key2> R getOrCreateCSElement(
-            Map<Key1, Map<Key2, R>> map, Key1 key1, Key2 key2, BiFunction<Key1, Key2, R> creator) {
-        return map.computeIfAbsent(key1, k -> newHybridMap())
-                .computeIfAbsent(key2, (k) -> creator.apply(key1, key2));
-    }
+    private final TwoKeyMap<Var, Context, CSVar> vars = Maps.newTwoKeyMap();
+    private final TwoKeyMap<Obj, Context, CSObj> objs = Maps.newTwoKeyMap();
+    private final TwoKeyMap<Invoke, Context, CSCallSite> callSites = Maps.newTwoKeyMap();
+    private final TwoKeyMap<JMethod, Context, CSMethod> methods = Maps.newTwoKeyMap();
+    private final Map<JField, StaticField> staticFields = Maps.newMap();
+    private final TwoKeyMap<CSObj, JField, InstanceField> instanceFields = Maps.newTwoKeyMap();
+    private final Map<CSObj, ArrayIndex> arrayIndexes = Maps.newMap();
 
     @Override
     public CSVar getCSVar(Context context, Var var) {
-        return getOrCreateCSElement(vars, Objects.requireNonNull(var), context,
+        return vars.computeIfAbsent(var, context,
                 (v, c) -> initializePointsToSet(new CSVar(v, c)));
     }
 
     @Override
     public CSObj getCSObj(Context heapContext, Obj obj) {
-        return getOrCreateCSElement(objs, obj, heapContext, CSObj::new);
+        return objs.computeIfAbsent(obj, heapContext, CSObj::new);
     }
 
     @Override
     public CSCallSite getCSCallSite(Context context, Invoke callSite) {
-        return getOrCreateCSElement(callSites, callSite, context, CSCallSite::new);
+        return callSites.computeIfAbsent(callSite, context, CSCallSite::new);
     }
 
     @Override
     public CSMethod getCSMethod(Context context, JMethod method) {
-        return getOrCreateCSElement(methods, method, context, CSMethod::new);
+        return methods.computeIfAbsent(method, context, CSMethod::new);
     }
 
     @Override
@@ -78,7 +68,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public InstanceField getInstanceField(CSObj base, JField field) {
-        return getOrCreateCSElement(instanceFields, base, field,
+        return instanceFields.computeIfAbsent(base, field,
                 (b, f) -> initializePointsToSet(new InstanceField(b, f)));
     }
 
@@ -90,17 +80,19 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<CSVar> csVars() {
-        return Maps.mapMapValues(vars);
+        return vars.values().stream();
     }
 
     @Override
     public Stream<CSVar> csVarsOf(Var var) {
-        return vars.getOrDefault(var, Map.of()).values().stream();
+        var csVars = vars.get(var);
+        return csVars == null ? Stream.empty() :
+                csVars.values().stream();
     }
 
     @Override
     public Stream<CSObj> objects() {
-        return Maps.mapMapValues(objs);
+        return objs.values().stream();
     }
 
     @Override
@@ -110,7 +102,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Stream<InstanceField> instanceFields() {
-        return Maps.mapMapValues(instanceFields);
+        return instanceFields.values().stream();
     }
 
     @Override

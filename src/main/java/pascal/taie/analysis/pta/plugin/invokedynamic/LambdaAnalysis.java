@@ -40,14 +40,11 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Maps.addToMapMap;
-import static pascal.taie.util.collection.Maps.getMapMap;
 
 public class LambdaAnalysis implements Plugin {
 
@@ -77,7 +74,7 @@ public class LambdaAnalysis implements Plugin {
     /**
      * Map from Invoke (of invokedynamic) and type to mock obj to avoid mocking same objects
      */
-    private final Map<Invoke, Map<ClassType, MockObj>> newObjs = Maps.newMap();
+    private final TwoKeyMap<Invoke, ClassType, MockObj> newObjs = Maps.newTwoKeyMap();
 
     /**
      * Map from receiver variable to the information about the related
@@ -164,12 +161,12 @@ public class LambdaAnalysis implements Plugin {
                 // the newly-allocated object. Note that here we use the
                 // *invokedynamic* to represent the *allocation site*,
                 // instead of the actual invocation site of the constructor.
-                MockObj newObj = getMapMap(newObjs, indyInvoke, type);
+                MockObj newObj = newObjs.get(indyInvoke, type);
                 if (newObj == null) {
                     // TODO: use heapModel to process mock obj?
                     newObj = new MockObj(LAMBDA_NEW_DESC, indyInvoke, type,
                             indyInvoke.getContainer());
-                    addToMapMap(newObjs, indyInvoke, type, newObj);
+                    newObjs.put(indyInvoke, type, newObj);
                 }
                 // pass the mock object to result variable (if present)
                 // TODO: double-check if the heap context is proper
