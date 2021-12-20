@@ -38,7 +38,12 @@ public final class Tests {
      */
     private static final boolean DUMP_IR = true;
 
-    public static void testPTA(String dir, String main, String... opts) {
+    public static void testCSPTA(String dir, String main, String... opts) {
+        doTestPTA("cspta", dir, main, opts);
+    }
+
+    private static void doTestPTA(
+            String id, String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         String classPath = "src/test/resources/pta/" + dir;
@@ -48,14 +53,35 @@ public final class Tests {
         ptaArgs.add("implicit-entries:false");
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
         ptaArgs.add("action:" + action);
-        String file = Paths.get(classPath, main + "-expected.txt").toString();
+        String file = getExpectedFile(classPath, main, id);
         ptaArgs.add("file:" + file);
-        Collections.addAll(ptaArgs, opts);
-        Collections.addAll(args, "-a", dir + "=" + String.join(";", ptaArgs));
+        boolean specifyOnlyApp = false;
+        for (String opt : opts) {
+            ptaArgs.add(opt);
+            if (opt.contains("only-app")) {
+                specifyOnlyApp = true;
+            }
+        }
+        if (!specifyOnlyApp) {
+            // if given options do not specify only-app, then set it true
+            ptaArgs.add("only-app:true");
+        }
+        Collections.addAll(args, "-a", id + "=" + String.join(";", ptaArgs));
         if (DUMP_IR) {
             // dump IR
             Collections.addAll(args, "-a", ClassDumper.ID);
         }
         Main.main(args.toArray(new String[0]));
+    }
+
+    /**
+     * @param dir  the directory containing the test case
+     * @param main main class of the test case
+     * @param id   analysis ID
+     * @return the expected file for given test case and analysis.
+     */
+    private static String getExpectedFile(String dir, String main, String id) {
+        String fileName = String.format("%s-%s-expected.txt", main, id);
+        return Paths.get(dir, fileName).toString();
     }
 }

@@ -43,7 +43,7 @@ public final class Tests {
     }
 
     private static void doTestPTA(
-            String pta, String dir, String main, String... opts) {
+            String id, String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         String classPath = "src/test/resources/pta/" + dir;
@@ -53,7 +53,7 @@ public final class Tests {
         ptaArgs.add("implicit-entries:false");
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
         ptaArgs.add("action:" + action);
-        String file = Paths.get(classPath, main + "-expected.txt").toString();
+        String file = getExpectedFile(classPath, main, id);
         ptaArgs.add("file:" + file);
         boolean specifyOnlyApp = false;
         for (String opt : opts) {
@@ -70,7 +70,18 @@ public final class Tests {
             // dump IR
             Collections.addAll(args, "-a", ClassDumper.ID);
         }
-        Collections.addAll(args, "-a", pta + "=" + String.join(";", ptaArgs));
+        Collections.addAll(args, "-a", id + "=" + String.join(";", ptaArgs));
         Main.main(args.toArray(new String[0]));
+    }
+
+    /**
+     * @param dir  the directory containing the test case
+     * @param main main class of the test case
+     * @param id   analysis ID
+     * @return the expected file for given test case and analysis.
+     */
+    private static String getExpectedFile(String dir, String main, String id) {
+        String fileName = String.format("%s-%s-expected.txt", main, id);
+        return Paths.get(dir, fileName).toString();
     }
 }
