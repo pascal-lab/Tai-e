@@ -24,6 +24,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * Implements {@link TwoKeyMap} as map of maps.
+ */
 public class MapMapTwoKeyMap<K1, K2, V> extends
         AbstractTwoKeyMap<K1, K2, V> {
 
@@ -47,7 +50,8 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
     @Nullable
     @Override
     public Map<K2, V> get(K1 key1) {
-        return Collections.unmodifiableMap(map.get(key1));
+        var m = map.get(key1);
+        return m == null ? null : Collections.unmodifiableMap(m);
     }
 
     @Nullable

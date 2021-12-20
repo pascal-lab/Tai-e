@@ -15,6 +15,7 @@ package pascal.taie.util.collection;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ConstantConditions")
@@ -196,5 +197,54 @@ public class TwoKeyMapTest {
         Assert.assertEquals(777,
                 (int) m.computeIfAbsent(1, 1, (k1, k2) -> 777));
         Assert.assertEquals(777, (int) m.get(1, 1));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testPutNull1() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        m.put(1, 2, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testPutNull2() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(1, 1);
+        map.put(2, null);
+        m.putAll(1, map);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testModifyViaGetMap() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        m.put(1, 1, 1);
+        m.get(1).put(2, 2);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testModifyViaEntrySet() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        m.entrySet().add(null);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testModifyViaEntrySetIterator() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        m.put(1, 1, 1);
+        var it = m.entrySet().iterator();
+        it.next();
+        it.remove();
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testModifyViaKeySet() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        m.keySet().add(1);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testModifyViaValues() {
+        TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
+        m.values().add(1);
     }
 }
