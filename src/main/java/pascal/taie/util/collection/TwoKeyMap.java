@@ -28,16 +28,16 @@ import java.util.function.BiFunction;
  * to second-level maps as values:
  *
  * <ul>
- *   <li>k1 → { k2 → v1, k3 → v2 }
- *   <li>k2 → { k4 → v1 }
+ *   <li>k1 -> { k2 -> v1, k3 -> v2 }
+ *   <li>k2 -> { k4 -> v1 }
  * </ul>
  *
  * ... or as a single "flattened" collection of key1-key2-value triples:
  *
  * <ul>
- *   <li>k1, k2 → v1
- *   <li>k1, k3 → v2
- *   <li>k2, k4 → v1
+ *   <li>k1, k2 -> v1
+ *   <li>k1, k3 -> v2
+ *   <li>k2, k4 -> v1
  * </ul>
  *
  * Note that both {@code null} keys and values are <i>not</i> permitted in this map.

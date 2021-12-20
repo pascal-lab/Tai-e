@@ -28,14 +28,18 @@ class Graph {
 ### Output (use Logger)
 
 
-### Annotation (@Override, @Nullable, ...)
+### Annotation (@Override, @Nullable, @Nonnull, ...)
 Always add `@Override` annotation for overridden methods.
 
 For the methods that may return `null`, add `@Nullable` annotation to their return values. For example, `public @Nullable X getX()`.
 
+For the methods that require non-`null` arguments, add `@Nonnull` annotation to the specific parameters, For example, `void setX(@Nonnull x)`.
+
 ### Use Tai-e Library
 - Use `Sets`/`Maps` to Create Sets/Maps.
 When creating Set/Map, use proper `Sets.newSet`/`Maps.newMap()` factory methods instead of `new HashSet/Map<>()`.
+
+- Tai-e provides some data structures (in package `pascal.tai.util.collection`) that are commonly-used in static analysis but not included in JDK, e.g., `MultiMap` and `TwoKeyMap`. You could use them to make life easier.
 
 - Use `Hashes.hash()` to Compute Hash Value of Multiple Objects. If the arguments may be `null`, use `Hashes.safeHash()`.
 

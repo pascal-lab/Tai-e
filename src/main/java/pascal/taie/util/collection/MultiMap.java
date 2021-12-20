@@ -27,19 +27,19 @@ import java.util.function.BiConsumer;
  * to <i>nonempty</i> collections of values:
  *
  *  <ul>
- *   <li>k1 → [v1]
- *   <li>k2 → [v2, v3]
- *   <li>k3 → [v2, v5]
+ *   <li>k1 -> [v1]
+ *   <li>k2 -> [v2, v3]
+ *   <li>k3 -> [v2, v5]
  *</ul>
  *
  * ... or as a single "flattened" collection of key-value pairs:
  *
  * <ul>
- *   <li>k1 → v1
- *   <li>k2 → v2
- *   <li>k2 → v3
- *   <li>k3 → v2
- *   <li>k3 → v5
+ *   <li>k1 -> v1
+ *   <li>k2 -> v2
+ *   <li>k2 -> v3
+ *   <li>k3 -> v2
+ *   <li>k3 -> v5
  * </ul>
  *
  * Note that both {@code null} keys and values are <i>not</i> permitted in this map.
