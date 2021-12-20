@@ -23,6 +23,10 @@ import java.util.Set;
 
 public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 
+    protected static final String NULL_KEY = "MultiMap does not permit null keys";
+
+    protected static final String NULL_VALUE = "MultiMap does not permit null values";
+
     @Override
     public boolean containsValue(V value) {
         for (K key : keySet()) {
@@ -78,41 +82,11 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
     public Collection<V> values() {
         Collection<V> vals = values;
         if (vals == null) {
-            vals = Collections.unmodifiableCollection(new Values());
+            vals = Views.toCollection(entrySet(), Map.Entry::getValue,
+                    o -> this.containsValue((V) o));
             values = vals;
         }
         return vals;
-    }
-
-    private final class Values extends AbstractCollection<V> {
-
-        @Override
-        public boolean contains(Object o) {
-            return AbstractMultiMap.this.containsValue((V) o);
-        }
-
-        @Nonnull
-        @Override
-        public Iterator<V> iterator() {
-            return new Iterator<V>() {
-                private final Iterator<Map.Entry<K, V>> i = entrySet().iterator();
-
-                @Override
-                public boolean hasNext() {
-                    return i.hasNext();
-                }
-
-                @Override
-                public V next() {
-                    return i.next().getValue();
-                }
-            };
-        }
-
-        @Override
-        public int size() {
-            return AbstractMultiMap.this.size();
-        }
     }
 
     @Override
@@ -125,7 +99,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MultiMap<?, ?>)) {
+        if (!(o instanceof MultiMap)) {
             return false;
         }
         @SuppressWarnings("unchecked")
