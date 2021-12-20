@@ -17,6 +17,7 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -88,6 +89,36 @@ public class Views {
         @Override
         public int size() {
             return backing.size();
+        }
+    }
+
+    /**
+     * Creates an immutable view set for given collection.
+     * Note that the uniqueness of elements in the resulting set view
+     * is guaranteed by given collection {@code c} and function {@code mapper},
+     * not by the resulting set view itself.
+     *
+     * @param c        the backing collection
+     * @param mapper   the function maps elements in backing collection to
+     *                 the ones in view collection
+     * @param contains the predicate function that check if view collection
+     *                 contains given object
+     * @param <T>      type of elements in backing collection
+     * @param <R>      type of elements in view collection
+     * @return an immutable view set.
+     */
+    public static <T, R> Set<R> toSet(
+            Collection<T> c, Function<T, R> mapper, Predicate<Object> contains) {
+        return Collections.unmodifiableSet(
+                new SetView<>(c, mapper, contains));
+    }
+
+    private static class SetView<T, R> extends CollectionView<T, R>
+            implements Set<R> {
+
+        private SetView(Collection<T> backing,
+                        Function<T, R> mapper, Predicate<Object> contains) {
+            super(backing, mapper, contains);
         }
     }
 }

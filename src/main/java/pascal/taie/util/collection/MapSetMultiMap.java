@@ -106,13 +106,9 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V> {
     @Override
     public boolean putAll(@Nonnull MultiMap<K, V> multiMap) {
         Objects.requireNonNull(multiMap);
-        boolean changed = false;
-        for (K key : multiMap.keySet()) {
-            if (putAll(key, multiMap.get(key))) {
-                changed = true;
-            }
-        }
-        return changed;
+        boolean[] changed = { false };
+        multiMap.forEachSet((k, vs) -> changed[0] |= putAll(k, vs));
+        return changed[0];
     }
 
     @Override

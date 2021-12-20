@@ -50,7 +50,7 @@ import java.util.function.BiConsumer;
 public interface MultiMap<K, V> {
 
     /**
-     * @return true if this multimap contains at least one key-value pair
+     * @return {@code true} if this multimap contains at least one key-value pair
      * with the key {@code key} and the value {@code value}.
      */
     boolean contains(K key, V value);
@@ -64,7 +64,7 @@ public interface MultiMap<K, V> {
     /**
      * @return {@code true} if this multimap contains at least one key-value pair
      * with the value {@code value}. Note that this operation may be slow
-     * compared to {@link #containsKey(Object)}.
+     * compared to {@link #containsKey(Object)} in some implementations.
      */
     boolean containsValue(V value);
 
@@ -84,9 +84,7 @@ public interface MultiMap<K, V> {
 
     /**
      * Stores a key-value pair in this multimap for each of {@code values},
-     * all using the same key, {@code key}.
-     *
-     * @return {@code true} if the multimap changed
+     * all using the same key, {@code key}.=
      */
     boolean putAll(@Nonnull K key, @Nonnull Collection<? extends V> values);
 

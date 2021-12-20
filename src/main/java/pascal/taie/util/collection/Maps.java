@@ -95,4 +95,8 @@ public final class Maps {
         return new MapSetMultiMap<>(
                 newMap(initialCapacity), HybridArrayHashSet::new);
     }
+
+    public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
+        return new MapMapTwoKeyMap<>(newMap(), HybridArrayHashMap::new);
+    }
 }
