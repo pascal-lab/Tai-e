@@ -18,6 +18,7 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.Lists;
 import soot.SootClass;
 
 import java.util.Collection;
@@ -67,20 +68,17 @@ class SootClassBuilder implements JClassBuilder {
 
     @Override
     public Collection<JClass> getInterfaces() {
-        return converter.convertCollection(sootClass.getInterfaces(),
-                converter::convertClass);
+        return Lists.map(sootClass.getInterfaces(), converter::convertClass);
     }
 
     @Override
     public Collection<JField> getDeclaredFields() {
-        return converter.convertCollection(sootClass.getFields(),
-                converter::convertField);
+        return Lists.map(sootClass.getFields(), converter::convertField);
     }
 
     @Override
     public Collection<JMethod> getDeclaredMethods() {
-        return converter.convertCollection(sootClass.getMethods(),
-                converter::convertMethod);
+        return Lists.map(sootClass.getMethods(), converter::convertMethod);
     }
 
     @Override

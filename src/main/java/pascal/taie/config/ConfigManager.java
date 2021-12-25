@@ -92,7 +92,7 @@ public class ConfigManager {
                             return Configs.satisfyConditions(conditions, c.getOptions());
                         })
                         .map(required -> getConfig(Configs.extractId(required)))
-                        .collect(Collectors.toUnmodifiableList()));
+                        .toList());
     }
 
     /**

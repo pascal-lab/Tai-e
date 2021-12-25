@@ -13,7 +13,9 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -36,5 +38,13 @@ public final class Lists {
             }
         }
         return null;
+    }
+
+    /**
+     * Applies a mapper function on a given collection and returns
+     * the resulting list. The resulting list is immutable.
+     */
+    public static <T, R> List<R> map(Collection<T> c, Function<T, R> mapper) {
+        return c.isEmpty() ? List.of() : c.stream().map(mapper).toList();
     }
 }

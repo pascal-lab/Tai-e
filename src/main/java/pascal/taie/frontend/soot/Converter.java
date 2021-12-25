@@ -22,6 +22,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
+import pascal.taie.util.collection.Lists;
 import soot.ArrayType;
 import soot.BooleanType;
 import soot.ByteType;
@@ -40,11 +41,8 @@ import soot.SootMethod;
 import soot.SootMethodRef;
 import soot.VoidType;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
@@ -123,16 +121,12 @@ class Converter {
 
     JMethod convertMethod(SootMethod sootMethod) {
         return methodMap.computeIfAbsent(sootMethod, m -> {
-            List<Type> paramTypes = m.getParameterTypes()
-                    .stream()
-                    .map(this::convertType)
-                    .collect(Collectors.toList());
+            List<Type> paramTypes = Lists.map(
+                    m.getParameterTypes(), this::convertType);
             Type returnType = convertType(m.getReturnType());
-            List<ClassType> exceptions = m.getExceptions()
-                    .stream()
-                    .map(SootClass::getType)
-                    .map(t -> (ClassType) convertType(t))
-                    .collect(Collectors.toList());
+            List<ClassType> exceptions = Lists.map(
+                    m.getExceptions(),
+                    sc -> (ClassType) convertType(sc.getType()));
             // TODO: convert attributes
             return new JMethod(convertClass(m.getDeclaringClass()),
                     m.getName(), Modifiers.convert(m.getModifiers()),
@@ -151,24 +145,11 @@ class Converter {
     MethodRef convertMethodRef(SootMethodRef sootMethodRef) {
         return methodRefMap.computeIfAbsent(sootMethodRef, ref -> {
             JClass cls = convertClass(ref.getDeclaringClass());
-            List<Type> paramTypes = ref.getParameterTypes()
-                    .stream()
-                    .map(this::convertType)
-                    .collect(Collectors.toList());
+            List<Type> paramTypes = Lists.map(
+                    ref.getParameterTypes(), this::convertType);
             Type returnType = convertType(ref.getReturnType());
             return MethodRef.get(cls, ref.getName(), paramTypes, returnType,
                     ref.isStatic());
         });
-    }
-
-    <S, T> Collection<T> convertCollection(
-            Collection<S> collection, Function<S, T> mapper) {
-        if (collection.isEmpty()) {
-            return List.of();
-        } else {
-            return collection.stream()
-                    .map(mapper)
-                    .collect(Collectors.toUnmodifiableList());
-        }
     }
 }

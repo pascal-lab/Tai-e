@@ -91,13 +91,12 @@ public class AnalysisManager {
                             .map(JClass::getDeclaredMethods)
                             .flatMap(Collection::stream)
                             .filter(m -> !m.isAbstract() && !m.isNative())
-                            .collect(Collectors.toUnmodifiableList());
+                            .toList();
                     break;
                 }
                 case Scope.REACHABLE: {
                     CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
-                    scope = callGraph.reachableMethods()
-                            .collect(Collectors.toUnmodifiableList());
+                    scope = callGraph.reachableMethods().toList();
                     break;
                 }
                 case Scope.ALL: {
@@ -106,7 +105,7 @@ public class AnalysisManager {
                             .map(JClass::getDeclaredMethods)
                             .flatMap(Collection::stream)
                             .filter(m -> !m.isAbstract() && !m.isNative())
-                            .collect(Collectors.toUnmodifiableList());
+                            .toList();
                     break;
                 }
                 default: {

@@ -118,7 +118,7 @@ public class PlanConfig {
                                 entry.getKey() + ":" + entry.getValue(), e);
                     }
                 })
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     /**

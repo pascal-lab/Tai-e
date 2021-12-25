@@ -102,7 +102,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
                     .stream()
                     .filter(Predicate.not(JClass::isAbstract))
                     .map(JClass::getType)
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
         }
     }
 

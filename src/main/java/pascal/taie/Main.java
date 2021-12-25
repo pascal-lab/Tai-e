@@ -23,12 +23,12 @@ import pascal.taie.config.Options;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 import pascal.taie.util.Timer;
+import pascal.taie.util.collection.Lists;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Main {
 
@@ -75,9 +75,8 @@ public class Main {
             // Output analysis plan to file.
             // For outputting purpose, we first convert AnalysisConfigs
             // in the expanded plan to PlanConfigs
-            List<PlanConfig> configs = plan.stream()
-                    .map(ac -> new PlanConfig(ac.getId(), ac.getOptions()))
-                    .collect(Collectors.toUnmodifiableList());
+            List<PlanConfig> configs = Lists.map(plan,
+                    ac -> new PlanConfig(ac.getId(), ac.getOptions()));
             // TODO: turn off output in testing?
             PlanConfig.writeConfigs(configs, Configs.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {

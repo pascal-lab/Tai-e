@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 /**
  * Provides unmodifiable view collections.
  */
-public class Views {
+public final class Views {
 
     private Views() {
     }

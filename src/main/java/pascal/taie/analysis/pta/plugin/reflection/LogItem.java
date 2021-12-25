@@ -63,7 +63,7 @@ public class LogItem {
                                 LogItem.UNKNOWN : Integer.parseInt(s3);
                         return new LogItem(api, target, caller, lineNumber);
                     })
-                    .collect(Collectors.toUnmodifiableList());
+                    .toList();
         } catch (IOException e) {
             logger.error("Failed to load reflection log from {}", path);
             return List.of();

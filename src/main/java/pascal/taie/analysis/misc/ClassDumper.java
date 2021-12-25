@@ -61,7 +61,7 @@ public class ClassDumper extends InterproceduralAnalysis {
     public Object analyze() {
         List<JClass> classes = World.getClassHierarchy()
                 .applicationClasses()
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         logger.info("Dumping {} classes to {} ...",
                 classes.size(), Configs.getOutputDir());
         classes.parallelStream()
