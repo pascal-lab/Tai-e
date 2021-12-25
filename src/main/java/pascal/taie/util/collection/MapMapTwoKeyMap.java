@@ -162,10 +162,6 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
         }
     }
 
-    private record Entry<K1, K2, V>(K1 key1, K2 key2, V value)
-            implements TwoKeyMap.Entry<K1, K2, V> {
-    }
-
     @Override
     public void clear() {
         map.clear();

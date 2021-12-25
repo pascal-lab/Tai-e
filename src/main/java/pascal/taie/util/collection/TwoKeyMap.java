@@ -116,11 +116,12 @@ public interface TwoKeyMap<K1, K2, V> {
     boolean removeAll(K1 key1);
 
     /**
-     * @return an unmodifiable view of all <i>distinct</i> two-keys contained
-     * in this two-key map. Note that the result contains a two-key pair if
-     * and only if this map maps that key pair to a non-{@code null} value.
+     * @return an unmodifiable view of all <i>distinct</i> two-key pairs
+     * contained in this two-key map. Note that the result contains
+     * a two-key pair if and only if this map maps that key pair to
+     * a non-{@code null} value.
      */
-    Set<Pair<K1, K2>> twoKeySet();
+    Set<KeyPair<K1, K2>> keyPairSet();
 
     /**
      *  @return an unmodifiable view of first keys of all mappings contained
@@ -208,42 +209,22 @@ public interface TwoKeyMap<K1, K2, V> {
      * returns a collection-view of the map, whose elements are of this class.
      * The only way to obtain a reference to a map entry is from the iterator
      * of this collection-view. These {@link Entry>} objects are valid only
-     * for the duration of the iteration; more formally, the behavior ofa map entry
-     * is undefined if the backing map has been modified after the entry was
-     * returned by the iterator.
+     * for the duration of the iteration; more formally, the behavior of a
+     * map entry is undefined if the backing map has been modified after
+     * the entry was returned by the iterator.
      */
-    interface Entry<K1, K2, V> {
+    record Entry<K1, K2, V>(K1 key1, K2 key2, V value) {
+    }
 
-        /**
-         * @return the first key corresponding to this entry.
-         */
-        K1 key1();
-
-        /**
-         * @return the second key corresponding to this entry.
-         */
-        K2 key2();
-
-        /**
-         * Returns the value corresponding to this entry. If the mapping
-         * has been removed from the backing map (by the iterator's
-         * remove operation), the results of this call are undefined.
-         *
-         * @return the value corresponding to this entry
-         */
-        V value();
-
-        /**
-         * Compares the specified object with this entry for equality.
-         *
-         * @return {@code true} if the given object is also a map entry
-         * and the two entries represent the same mapping.
-         */
-        boolean equals(Object o);
-
-        /**
-         * @return the hash code value for this map entry.
-         */
-        int hashCode();
+    /**
+     * A key pair (key1-key2 pair). The {@link #keyPairSet()} method returns
+     * a collection-view of the map, whose elements are of this class.
+     * The only way to obtain a reference to a map entry is from the iterator
+     * of this collection-view. These {@link KeyPair} objects are valid only
+     * for the duration of the iteration; more formally, the behavior of a
+     * key pair is undefined if the backing map has been modified after
+     * the pair was returned by the iterator.
+     */
+    record KeyPair<K1, K2>(K1 key1, K2 key2) {
     }
 }

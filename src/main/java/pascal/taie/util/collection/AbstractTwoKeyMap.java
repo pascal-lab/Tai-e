@@ -96,18 +96,18 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
 
     protected abstract Iterator<TwoKeyMap.Entry<K1, K2, V>> entryIterator();
 
-    private Set<Pair<K1, K2>> twoKeySet;
+    private Set<KeyPair<K1, K2>> twoKeySet;
 
     @Override
-    public Set<Pair<K1, K2>> twoKeySet() {
-        Set<Pair<K1, K2>> set = twoKeySet;
+    public Set<KeyPair<K1, K2>> keyPairSet() {
+        Set<KeyPair<K1, K2>> set = twoKeySet;
         if (set == null) {
             set = Views.toSet(entrySet(),
-                    e -> new Pair<>(e.key1(), e.key2()),
+                    e -> new KeyPair<>(e.key1(), e.key2()),
                     o -> {
-                        if (o instanceof Pair<?, ?> pair) {
-                            return containsKey((K1) pair.first(),
-                                    (K2) pair.second());
+                        if (o instanceof KeyPair<?, ?> pair) {
+                            return containsKey((K1) pair.key1(),
+                                    (K2) pair.key2());
                         }
                         return false;
                     });
