@@ -12,7 +12,6 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -27,24 +26,21 @@ public final class Lists {
     }
 
     /**
-     * Finds the first element of given list that satisfies the given predicate.
-     * If not such element is found, returns null.
+     * Applies a mapper function on a given collection and returns
+     * the results as a list. The resulting list is unmodifiable.
      */
-    @Nullable
-    public static <T> T findFirst(List<T> list, Predicate<T> p) {
-        for (T e : list) {
-            if (p.test(e)) {
-                return e;
-            }
-        }
-        return null;
+    public static <T, R> List<R> map(Collection<? extends T> c,
+                                     Function<T, R> mapper) {
+        return c.isEmpty() ? List.of() : c.stream().map(mapper).toList();
     }
 
     /**
-     * Applies a mapper function on a given collection and returns
-     * the resulting list. The resulting list is immutable.
+     * Tests the elements in a given collection and returns a list of elements
+     * that can pass the test. The resulting list is unmodifiable.
      */
-    public static <T, R> List<R> map(Collection<T> c, Function<T, R> mapper) {
-        return c.isEmpty() ? List.of() : c.stream().map(mapper).toList();
+    public static <T> List<T> filter(Collection<T> c,
+                                     Predicate<? super T> predicate) {
+        List<T> result = c.stream().filter(predicate).toList();
+        return result.isEmpty() ? List.of() : result;
     }
 }

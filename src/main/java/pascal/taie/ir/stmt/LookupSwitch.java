@@ -16,7 +16,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class LookupSwitch extends SwitchStmt {
@@ -42,7 +41,7 @@ public class LookupSwitch extends SwitchStmt {
         return IntStream.range(0, caseValues.size())
                 .mapToObj(i -> new Pair<>(caseValues.get(i),
                         targets == null ? null : targets.get(i)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

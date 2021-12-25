@@ -22,6 +22,7 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
+import pascal.taie.util.collection.Lists;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -248,10 +248,8 @@ public class ResultProcessor implements Plugin {
     private static void compareTaintFlows(PointerAnalysisResult result, String input) {
         logger.info("Comparing taint flows with {} ...", input);
         List<String> inputs = readTaintFlows(input);
-        List<String> taintFlows = getTaintFlows(result)
-                .stream()
-                .map(TaintFlow::toString)
-                .collect(Collectors.toList());
+        List<String> taintFlows = Lists.map(getTaintFlows(result),
+                TaintFlow::toString);
         List<String> mismatches = new ArrayList<>();
         taintFlows.forEach(taintFlow -> {
             if (!inputs.contains(taintFlow)) {

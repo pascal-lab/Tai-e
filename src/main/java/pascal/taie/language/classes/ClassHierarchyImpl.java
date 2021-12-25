@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Maps.newMap;
@@ -92,7 +91,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         return loaders.values()
                 .stream()
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

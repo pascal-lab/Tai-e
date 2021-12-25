@@ -33,10 +33,9 @@ public final class Strings {
 
     /**
      * Converts a stream to a string.
-     * The the elements in the collection are sorted by their
-     * string representation (in alphabet order) in the resulting string.
-     * This is particularly useful for comparing expected results with the ones
-     * given by the analysis.
+     * The elements in the collection are sorted by their string representation
+     * (in alphabet order) in the resulting string. This is particularly useful
+     * for comparing expected results with the ones given by the analysis.
      */
     public static <T> String toString(Stream<T> stream) {
         return "[" + stream.map(T::toString)
@@ -46,12 +45,11 @@ public final class Strings {
 
     /**
      * Converts a collection to a string.
-     * The the elements in the collection are sorted by their
-     * string representation (in alphabet order) in the resulting string.
-     * This is particularly useful for comparing expected results with the ones
-     * given by the analysis.
+     * The elements in the collection are sorted by their string representation
+     * (in alphabet order) in the resulting string. This is particularly useful
+     * for comparing expected results with the ones given by the analysis.
      */
-    public static <T> String toString(Collection<? extends T> coll) {
-        return toString(coll.stream());
+    public static <T> String toString(Collection<T> c) {
+        return toString(c.stream());
     }
 }

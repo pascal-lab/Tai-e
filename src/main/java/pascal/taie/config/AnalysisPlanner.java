@@ -13,6 +13,7 @@
 package pascal.taie.config;
 
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.SCC;
@@ -24,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.Sets.newSet;
 
@@ -59,9 +58,7 @@ public class AnalysisPlanner {
      * Converts a list of PlanConfigs to the list of corresponding AnalysisConfigs.
      */
     private List<AnalysisConfig> covertConfigs(List<PlanConfig> planConfigs) {
-        return planConfigs.stream()
-                .map(pc -> manager.getConfig(pc.getId()))
-                .collect(Collectors.toList());
+        return Lists.map(planConfigs, pc -> manager.getConfig(pc.getId()));
     }
 
     /**
@@ -94,7 +91,8 @@ public class AnalysisPlanner {
         }
         if (reachableScope) { // analysis scope is set to reachable
             // check if given analyses include call graph builder
-            AnalysisConfig cg = Lists.findFirst(plan, AnalysisPlanner::isCG);
+            AnalysisConfig cg = CollectionUtils.findFirst(plan,
+                    AnalysisPlanner::isCG);
             if (cg == null) {
                 throw new ConfigException(String.format("Scope is reachable" +
                                 " but call graph builder (%s) is not given in plan",
@@ -133,7 +131,8 @@ public class AnalysisPlanner {
                                            boolean reachableScope) {
         List<AnalysisConfig> configs = covertConfigs(planConfigs);
         if (reachableScope) { // complete call graph builder
-            AnalysisConfig cg = Lists.findFirst(configs, AnalysisPlanner::isCG);
+            AnalysisConfig cg = CollectionUtils.findFirst(configs,
+                    AnalysisPlanner::isCG);
             if (cg == null) {
                 // if analysis scope is reachable and call graph builder is
                 // not given, then we automatically add it
@@ -151,7 +150,8 @@ public class AnalysisPlanner {
      * it will run before all the analyses that it does not require.
      */
     private List<AnalysisConfig> shiftCG(List<AnalysisConfig> plan) {
-        AnalysisConfig cg = Lists.findFirst(plan, AnalysisPlanner::isCG);
+        AnalysisConfig cg = CollectionUtils.findFirst(plan,
+                AnalysisPlanner::isCG);
         Set<AnalysisConfig> required = manager.getAllRequiredConfigs(cg);
         List<AnalysisConfig> notRequired = new ArrayList<>();
         // obtain the analyses that run before cg but not required by cg
@@ -221,10 +221,9 @@ public class AnalysisPlanner {
         // Check if the require graph is self-contained, i.e., every required
         // analysis is included in the graph
         graph.forEach(config -> {
-            List<AnalysisConfig> missing = manager.getRequiredConfigs(config)
-                    .stream()
-                    .filter(Predicate.not(graph::hasNode))
-                    .collect(Collectors.toList());
+            List<AnalysisConfig> missing = Lists.filter(
+                    manager.getRequiredConfigs(config),
+                    c -> !graph.hasNode(c));
             if (!missing.isEmpty()) {
                 throw new ConfigException("Invalid analysis plan: " +
                         missing + " are missing");

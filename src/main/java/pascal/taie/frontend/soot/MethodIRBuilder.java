@@ -83,6 +83,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
@@ -253,10 +254,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 taieIf.setTarget(jumpTargetMap.get(jimpleIf.getTarget()));
             } else if (unit instanceof soot.jimple.SwitchStmt jimpleSwitch) {
                 SwitchStmt taieSwitch = (SwitchStmt) stmt;
-                taieSwitch.setTargets(jimpleSwitch.getTargets()
-                        .stream()
-                        .map(jumpTargetMap::get)
-                        .collect(Collectors.toList()));
+                taieSwitch.setTargets(Lists.map(jimpleSwitch.getTargets(),
+                        jumpTargetMap::get));
                 taieSwitch.setDefaultTarget(
                         jumpTargetMap.get(jimpleSwitch.getDefaultTarget()));
             }
@@ -481,10 +480,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
         @Override
         public void caseMethodType(soot.jimple.MethodType v) {
-            List<Type> paramTypes = v.getParameterTypes()
-                    .stream()
-                    .map(converter::convertType)
-                    .collect(Collectors.toList());
+            List<Type> paramTypes = Lists.map(v.getParameterTypes(),
+                    converter::convertType);
             Type returnType = converter.convertType(v.getReturnType());
             setResult(MethodType.get(paramTypes, returnType));
         }
@@ -677,10 +674,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
         @Override
         public void caseNewMultiArrayExpr(NewMultiArrayExpr v) {
-            List<Var> lengths = v.getSizes()
-                    .stream()
-                    .map(MethodIRBuilder.this::getLocalOrConstant)
-                    .collect(Collectors.toList());
+            List<Var> lengths = Lists.map(v.getSizes(),
+                    MethodIRBuilder.this::getLocalOrConstant);
             setResult(new NewMultiArray((ArrayType) getTypeOf(v), lengths));
         }
     };
@@ -866,10 +861,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
     public void caseLookupSwitchStmt(LookupSwitchStmt stmt) {
         currentUnit = stmt;
         Var var = getLocalOrConstant(stmt.getKey());
-        List<Integer> caseValues = stmt.getLookupValues()
-                .stream()
-                .map(v -> v.value)
-                .collect(Collectors.toList());
+        List<Integer> caseValues = Lists.map(stmt.getLookupValues(),
+                v -> v.value);
         LookupSwitch lookupSwitch = new LookupSwitch(var, caseValues);
         jumpMap.put(currentUnit, lookupSwitch);
         addStmt(lookupSwitch);
@@ -907,10 +900,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         } else {
             MethodRef methodRef = converter
                     .convertMethodRef(invokeExpr.getMethodRef());
-            List<Var> args = invokeExpr.getArgs()
-                    .stream()
-                    .map(this::getLocalOrConstant)
-                    .collect(Collectors.toList());
+            List<Var> args = Lists.map(invokeExpr.getArgs(),
+                    this::getLocalOrConstant);
             if (invokeExpr instanceof InstanceInvokeExpr) {
                 Var base = getVar(
                         (Local) ((InstanceInvokeExpr) invokeExpr).getBase());
@@ -931,23 +922,16 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 invokeExpr.getBootstrapMethodRef());
         SootMethodRef sigInfo = invokeExpr.getMethodRef();
         String methodName = sigInfo.getName();
-        List<Type> paramTypes = sigInfo.getParameterTypes()
-                .stream()
-                .map(converter::convertType)
-                .collect(Collectors.toList());
+        List<Type> paramTypes = Lists.map(sigInfo.getParameterTypes(),
+                converter::convertType);
         Type returnType = converter.convertType(sigInfo.getReturnType());
         MethodType methodType = MethodType.get(paramTypes, returnType);
-        List<Literal> bootstrapArgs = invokeExpr.getBootstrapArgs()
-                .stream()
-                .map(v -> {
-                    v.apply(constantConverter);
-                    return (Literal) constantConverter.getResult();
-                })
-                .collect(Collectors.toList());
-        List<Var> args = invokeExpr.getArgs()
-                .stream()
-                .map(this::getLocalOrConstant)
-                .collect(Collectors.toList());
+        List<Literal> bootstrapArgs = Lists.map(invokeExpr.getBootstrapArgs(), v -> {
+            v.apply(constantConverter);
+            return constantConverter.getResult();
+        });
+        List<Var> args = Lists.map(invokeExpr.getArgs(),
+                this::getLocalOrConstant);
         return new InvokeDynamic(bootstrapMethodRef, methodName, methodType,
                 bootstrapArgs, args);
     }

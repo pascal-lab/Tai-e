@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -191,7 +190,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 // some implicit entries may not exist in certain JDK version,
                 // thus we filter out null
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
+                .toList());
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeManager, hierarchy));
         IRBuilder irBuilder = new IRBuilder(converter);

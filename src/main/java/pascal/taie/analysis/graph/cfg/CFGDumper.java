@@ -49,8 +49,8 @@ public class CFGDumper {
                     } else if (edge.isExceptional()) {
                         return edge.getKind() + "\n" +
                                 edge.exceptions()
-                                        .map(t -> t.getJClass().getSimpleName()).
-                                        collect(Collectors.toList());
+                                        .map(t -> t.getJClass().getSimpleName())
+                                        .toList();
                     } else {
                         return edge.getKind().toString();
                     }

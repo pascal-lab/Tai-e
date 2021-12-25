@@ -22,7 +22,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Finds strongly connected components in a directed graph using
@@ -80,8 +79,7 @@ public class SCC<N> {
                     inStack.add(node);
                 }
                 boolean hasUnvisitedSucc = false;
-                for (N succ : graph.succsOf(node)
-                        .collect(Collectors.toList())) {
+                for (N succ : graph.succsOf(node).toList()) {
                     if (!indexes.containsKey(succ)) {
                         workStack.push(succ);
                         hasUnvisitedSucc = true;

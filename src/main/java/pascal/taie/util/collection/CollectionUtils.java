@@ -12,9 +12,11 @@
 
 package pascal.taie.util.collection;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Utility methods for {@link Collection}.
@@ -27,17 +29,34 @@ public final class CollectionUtils {
     }
 
     /**
-     * @return an arbitrary element of the given collection.
+     * Iterates the elements in the specific collection, in the order they are
+     * returned by the collection's iterator, and finds the first element
+     * of given collection that satisfies the predicate. If not such element
+     * is found, returns {@code null}.
      */
-    public static <T> T getOne(Collection<? extends T> collection) {
-        return collection.iterator().next();
+    @Nullable
+    public static <T> T findFirst(Collection<? extends T> c,
+                                  Predicate<? super T> p) {
+        for (T e : c) {
+            if (p.test(e)) {
+                return e;
+            }
+        }
+        return null;
     }
 
+    /**
+     * @return an arbitrary element of the given collection.
+     */
+    public static <T> T getOne(Collection<T> c) {
+        return c.iterator().next();
+    }
+    
     /**
      * Creates a list of given collection, appends a specific element to
      * the list and returns it.
      */
-    public static <T> List<T> append(Collection<T> c, T e) {
+    public static <T> List<T> append(Collection<? extends T> c, T e) {
         List<T> result = new ArrayList<>(c.size() + 1);
         result.addAll(c);
         result.add(e);

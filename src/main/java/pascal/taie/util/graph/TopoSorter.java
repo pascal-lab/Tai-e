@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Topologically sorts a directed graph using DFS.
@@ -93,7 +92,7 @@ public class TopoSorter<N> {
             N curr = stack.peek();
             visited.add(curr);
             boolean hasUnvisitedPred = false;
-            for (N pred : graph.predsOf(curr).collect(Collectors.toList())) {
+            for (N pred : graph.predsOf(curr).toList()) {
                 if (!visited.contains(pred)) {
                     stack.push(pred);
                     hasUnvisitedPred = true;
