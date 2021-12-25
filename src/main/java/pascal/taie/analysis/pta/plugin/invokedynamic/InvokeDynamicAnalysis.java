@@ -169,8 +169,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         method.getIR().forEach(stmt -> {
-            if (stmt instanceof Invoke) {
-                Invoke invoke = (Invoke) stmt;
+            if (stmt instanceof Invoke invoke) {
                 if (!invoke.isDynamic()) {
                     methodTypeModel.handleNewInvoke(invoke);
                     lookupModel.handleNewInvoke(invoke);

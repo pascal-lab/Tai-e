@@ -104,8 +104,7 @@ public class ConstantPropagation extends
     public boolean transferNode(Stmt stmt, CPFact in, CPFact out) {
         if (stmt instanceof DefinitionStmt) {
             Exp lvalue = ((DefinitionStmt<?, ?>) stmt).getLValue();
-            if (lvalue instanceof Var) {
-                Var lhs = (Var) lvalue;
+            if (lvalue instanceof Var lhs) {
                 Exp rhs = ((DefinitionStmt<?, ?>) stmt).getRValue();
                 boolean changed = false;
                 for (Var inVar : in.keySet()) {
@@ -149,12 +148,10 @@ public class ConstantPropagation extends
     public static Value evaluate(Exp exp, CPFact in) {
         if (exp instanceof IntLiteral) {
             return Value.makeConstant(((IntLiteral) exp).getValue());
-        } else if (exp instanceof Var) {
-            Var var = (Var) exp;
+        } else if (exp instanceof Var var) {
             // treat the values of non-int variables as NAC
             return canHoldInt(var) ? in.get(var) : Value.getNAC();
-        } else if (exp instanceof BinaryExp) {
-            BinaryExp binary = (BinaryExp) exp;
+        } else if (exp instanceof BinaryExp binary) {
             BinaryExp.Op op = binary.getOperator();
             Value v1 = evaluate(binary.getOperand1(), in);
             Value v2 = evaluate(binary.getOperand2(), in);

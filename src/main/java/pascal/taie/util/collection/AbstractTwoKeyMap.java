@@ -73,8 +73,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
 
         @Override
         public boolean contains(Object o) {
-            if (o instanceof TwoKeyMap.Entry) {
-                var entry = (TwoKeyMap.Entry<?, ?, ?>) o;
+            if (o instanceof Entry<?, ?, ?> entry) {
                 //noinspection unchecked
                 V v = AbstractTwoKeyMap.this.get(
                         (K1) entry.getKey1(), (K2) entry.getKey2());
@@ -106,8 +105,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
             set = Views.toSet(entrySet(),
                     e -> new Pair<>(e.getKey1(), e.getKey2()),
                     o -> {
-                        if (o instanceof Pair) {
-                            var pair = (Pair<?, ?>) o;
+                        if (o instanceof Pair<?, ?> pair) {
                             return containsKey((K1) pair.getFirst(),
                                     (K2) pair.getSecond());
                         }

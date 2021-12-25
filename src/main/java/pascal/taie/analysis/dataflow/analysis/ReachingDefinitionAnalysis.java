@@ -52,8 +52,7 @@ public class ReachingDefinitionAnalysis extends
         SetFact<Stmt> oldOut = out.copy();
         out.set(in);
         stmt.getDef().ifPresent(def -> {
-            if (def instanceof Var) {
-                Var defVar = (Var) def;
+            if (def instanceof Var defVar) {
                 // kill previous definitions of defVar
                 out.removeIf(s -> s.getDef().stream().anyMatch(defVar::equals));
                 // generate definition of defVar

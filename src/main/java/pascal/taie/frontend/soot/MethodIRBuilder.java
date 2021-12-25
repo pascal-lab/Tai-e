@@ -245,17 +245,13 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
     private static void linkJumpTargets(
             Map<Unit, Stmt> jumpMap, Map<Unit, Stmt> jumpTargetMap) {
         jumpMap.forEach((unit, stmt) -> {
-            if (unit instanceof GotoStmt) {
-                GotoStmt jimpleGoto = (GotoStmt) unit;
+            if (unit instanceof GotoStmt jimpleGoto) {
                 Goto taieGoto = (Goto) stmt;
                 taieGoto.setTarget(jumpTargetMap.get(jimpleGoto.getTarget()));
-            } else if (unit instanceof IfStmt) {
-                IfStmt jimpleIf = (IfStmt) unit;
+            } else if (unit instanceof IfStmt jimpleIf) {
                 If taieIf = (If) stmt;
                 taieIf.setTarget(jumpTargetMap.get(jimpleIf.getTarget()));
-            } else if (unit instanceof soot.jimple.SwitchStmt) {
-                soot.jimple.SwitchStmt jimpleSwitch
-                        = (soot.jimple.SwitchStmt) unit;
+            } else if (unit instanceof soot.jimple.SwitchStmt jimpleSwitch) {
                 SwitchStmt taieSwitch = (SwitchStmt) stmt;
                 taieSwitch.setTargets(jimpleSwitch.getTargets()
                         .stream()
@@ -388,11 +384,9 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         MultiMap<Local, AssignStmt> tempToAssigns = Maps.newMultiMap();
         MultiMap<Local, Unit> tempToUses = Maps.newMultiMap();
         for (Unit unit : body.getUnits()) {
-            if (unit instanceof AssignStmt) {
-                AssignStmt assign = (AssignStmt) unit;
+            if (unit instanceof AssignStmt assign) {
                 Value lhs = assign.getLeftOp();
-                if (lhs instanceof Local) {
-                    Local var = (Local) lhs;
+                if (lhs instanceof Local var) {
                     if (var.getName().startsWith("temp$")) {
                         tempToAssigns.put(var, assign);
                     }
@@ -403,8 +397,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                     .stream()
                     .map(ValueBox::getValue)
                     .forEach(value -> {
-                        if (value instanceof Local) {
-                            Local var = (Local) value;
+                        if (value instanceof Local var) {
                             if (var.getName().startsWith("temp$")) {
                                 tempToUses.put(var, unit);
                             }
@@ -512,10 +505,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
             buildInvoke((Local) lhs, stmt.getInvokeExpr());
             return;
         }
-        if (lhs instanceof Local) {
-            Local lvar = (Local) lhs;
-            if (rhs instanceof Local) {
-                Local rvar = (Local) rhs;
+        if (lhs instanceof Local lvar) {
+            if (rhs instanceof Local rvar) {
                 if (isTempVar(rvar)) {
                     // for assignment like x = temp$i, if we have recorded
                     // definition to temp$i, then we directly replace temp$i

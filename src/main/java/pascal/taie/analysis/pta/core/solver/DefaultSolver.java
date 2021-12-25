@@ -249,8 +249,7 @@ public class DefaultSolver implements Solver {
                 Pointer p = entry.pointer;
                 PointsToSet pts = entry.pointsToSet;
                 PointsToSet diff = propagate(p, pts);
-                if (p instanceof CSVar) {
-                    CSVar v = (CSVar) p;
+                if (p instanceof CSVar v) {
                     if (onlyApp && !v.getVar().getMethod()
                             .getDeclaringClass().isApplication()) {
                         continue;

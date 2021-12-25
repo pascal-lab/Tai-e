@@ -248,8 +248,7 @@ public class LambdaAnalysis implements Plugin {
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (edge instanceof LambdaCallEdge) {
-            LambdaCallEdge lambdaCallEdge = (LambdaCallEdge) edge;
+        if (edge instanceof LambdaCallEdge lambdaCallEdge) {
             CSCallSite csCallSite = lambdaCallEdge.getCallSite();
             CSMethod csCallee = lambdaCallEdge.getCallee();
             Context calleeContext = csCallee.getContext();

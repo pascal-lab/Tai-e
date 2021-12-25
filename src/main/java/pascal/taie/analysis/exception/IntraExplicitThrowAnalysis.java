@@ -38,12 +38,10 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     public void analyze(IR ir, ThrowResult result) {
         Map<Throw, ClassType> definiteThrows = findDefiniteThrows(ir);
         ir.forEach(stmt -> {
-            if (stmt instanceof Throw) {
-                Throw throwStmt = (Throw) stmt;
+            if (stmt instanceof Throw throwStmt) {
                 result.addExplicit(throwStmt,
                         mayThrowExplicitly(throwStmt, definiteThrows));
-            } else if (stmt instanceof Invoke) {
-                Invoke invoke = (Invoke) stmt;
+            } else if (stmt instanceof Invoke invoke) {
                 result.addExplicit(invoke, mayThrowExplicitly(invoke));
             }
         });
@@ -58,14 +56,12 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
         Map<Exp, List<Exp>> assigns = newMap();
         ir.forEach(s -> {
             // collect all throw Stmts and corresponding thrown Vars
-            if (s instanceof Throw) {
-                Throw throwStmt = (Throw) s;
+            if (s instanceof Throw throwStmt) {
                 throwVars.put(throwStmt.getExceptionRef(), throwStmt);
             }
             // collect all definition stmts
             Exp lhs = null, rhs = null;
-            if (s instanceof DefinitionStmt) {
-                DefinitionStmt<?, ?> define = (DefinitionStmt<?, ?>) s;
+            if (s instanceof DefinitionStmt<?, ?> define) {
                 lhs = define.getLValue();
                 rhs = define.getRValue();
             }

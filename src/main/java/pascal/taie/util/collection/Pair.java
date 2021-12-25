@@ -41,8 +41,7 @@ public class Pair<T1, T2> {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Pair) {
-            Pair<?, ?> anoPair = (Pair<?, ?>) o;
+        if (o instanceof Pair<?, ?> anoPair) {
             return Objects.equals(first, anoPair.first)
                     && Objects.equals(second, anoPair.second);
         }

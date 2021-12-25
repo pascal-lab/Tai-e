@@ -96,8 +96,7 @@ class Converter {
             }
         } else if (sootType instanceof RefType) {
             return typeManager.getClassType(loader, sootType.toString());
-        } else if (sootType instanceof ArrayType) {
-            ArrayType arrayType = (ArrayType) sootType;
+        } else if (sootType instanceof ArrayType arrayType) {
             return typeManager.getArrayType(
                     convertType(arrayType.baseType),
                     arrayType.numDimensions);

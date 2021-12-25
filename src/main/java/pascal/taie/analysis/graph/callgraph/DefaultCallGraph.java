@@ -37,8 +37,7 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
         if (reachableMethods.add(method)) {
             if (!method.isAbstract()) {
                 method.getIR().forEach(stmt -> {
-                    if (stmt instanceof Invoke) {
-                        Invoke invoke = (Invoke) stmt;
+                    if (stmt instanceof Invoke invoke) {
                         callSiteToContainer.put(invoke, method);
                         callSitesIn.put(method, invoke);
                     }

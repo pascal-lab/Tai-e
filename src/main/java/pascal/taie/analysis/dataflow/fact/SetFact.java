@@ -148,10 +148,9 @@ public class SetFact<E> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SetFact)) {
+        if (!(o instanceof SetFact<?> that)) {
             return false;
         }
-        SetFact<?> that = (SetFact<?>) o;
         return set.equals(that.set);
     }
 

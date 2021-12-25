@@ -63,8 +63,7 @@ public class IRPrinter {
         }
         InvokeExp ie = invoke.getInvokeExp();
         formatter.format("%s ", ie.getInvokeString());
-        if (ie instanceof InvokeDynamic) {
-            InvokeDynamic indy = (InvokeDynamic) ie;
+        if (ie instanceof InvokeDynamic indy) {
             formatter.format("%s \"%s\" <%s>[%s]%s;",
                     indy.getBootstrapMethodRef(),
                     indy.getMethodName(), indy.getMethodType(),

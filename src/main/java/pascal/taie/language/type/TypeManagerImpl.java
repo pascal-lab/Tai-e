@@ -189,8 +189,7 @@ public class TypeManagerImpl implements TypeManager {
                 return supertype == OBJECT ||
                         supertype == CLONEABLE ||
                         supertype == SERIALIZABLE;
-            } else if (supertype instanceof ArrayType) {
-                ArrayType superArray = (ArrayType) supertype;
+            } else if (supertype instanceof ArrayType superArray) {
                 ArrayType subArray = (ArrayType) subtype;
                 Type superBase = superArray.getBaseType();
                 Type subBase = subArray.getBaseType();

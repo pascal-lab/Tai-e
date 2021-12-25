@@ -159,8 +159,7 @@ class Solver {
             Pointer p = entry.pointer;
             PointsToSet pts = entry.pointsToSet;
             PointsToSet diff = propagate(p, pts);
-            if (p instanceof VarPtr) {
-                VarPtr vp = (VarPtr) p;
+            if (p instanceof VarPtr vp) {
                 Var v = vp.getVar();
                 for (Obj o : diff) {
                     processInstanceStore(v, o);

@@ -348,10 +348,9 @@ public final class HybridArrayHashSet<E> extends AbstractSet<E> {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Set<?>)) {
+        if (!(obj instanceof Set<?> s)) {
             return false;
         }
-        Set<?> s = (Set<?>) obj;
         if (size() != s.size()) {
             return false;
         }

@@ -196,10 +196,9 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof TwoKeyMap.Entry)) {
+            if (!(o instanceof TwoKeyMap.Entry<?, ?, ?> entry)) {
                 return false;
             }
-            var entry = (TwoKeyMap.Entry<?, ?, ?>) o;
             return key1.equals(entry.getKey1()) &&
                     key2.equals(entry.getKey2()) &&
                     value.equals(entry.getValue());

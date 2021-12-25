@@ -233,8 +233,7 @@ public class Solver {
             Pointer p = entry.pointer;
             PointsToSet pts = entry.pointsToSet;
             PointsToSet diff = propagate(p, pts);
-            if (p instanceof CSVar) {
-                CSVar v = (CSVar) p;
+            if (p instanceof CSVar v) {
                 if (enableTaintAnalysis) {
                     taintAnalysis.onNewPointsToSet(v, diff);
                 }

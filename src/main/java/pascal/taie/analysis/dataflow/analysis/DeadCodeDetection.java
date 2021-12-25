@@ -94,10 +94,8 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
 
     private static boolean isDeadAssignment(
             Stmt stmt, NodeResult<Stmt, SetFact<Var>> liveVars) {
-        if (stmt instanceof AssignStmt) {
-            AssignStmt<?, ?> assign = (AssignStmt<?, ?>) stmt;
-            if (assign.getLValue() instanceof Var) {
-                Var lhs = (Var) assign.getLValue();
+        if (stmt instanceof AssignStmt<?, ?> assign) {
+            if (assign.getLValue() instanceof Var lhs) {
                 return !liveVars.getOutFact(assign).contains(lhs) &&
                         hasNoSideEffect(assign.getRValue());
             }
@@ -108,8 +106,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
     private static boolean isUnreachableBranch(
             Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.getSource();
-        if (src instanceof If) {
-            If ifStmt = (If) src;
+        if (src instanceof If ifStmt) {
             Value cond = ConstantPropagation.evaluate(
                     ifStmt.getCondition(), constants.getInFact(ifStmt));
             if (cond.isConstant()) {
@@ -117,8 +114,7 @@ public class DeadCodeDetection extends IntraproceduralAnalysis {
                 return v == 1 && edge.getKind() == Edge.Kind.IF_FALSE ||
                         v == 0 && edge.getKind() == Edge.Kind.IF_TRUE;
             }
-        } else if (src instanceof SwitchStmt) {
-            SwitchStmt switchStmt = (SwitchStmt) src;
+        } else if (src instanceof SwitchStmt switchStmt) {
             Value condV = ConstantPropagation.evaluate(
                     switchStmt.getVar(), constants.getInFact(switchStmt));
             if (condV.isConstant()) {

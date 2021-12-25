@@ -286,16 +286,14 @@ public final class HybridArrayHashMap<K, V> extends AbstractMap<K, V> {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Map<?, ?>)) {
+        if (!(obj instanceof Map<?, ?> m)) {
             return false;
         }
-        Map<?, ?> m = (Map<?, ?>) obj;
         int this_size = size();
         if (this_size != m.size()) {
             return false;
         }
-        if (this_size == 1 && obj instanceof HybridArrayHashMap<?, ?>) {
-            HybridArrayHashMap<?, ?> h = (HybridArrayHashMap<?, ?>) obj;
+        if (this_size == 1 && obj instanceof HybridArrayHashMap<?, ?> h) {
             if (singleton_key != null && h.singleton_key != null)
                 return singleton_key.equals(h.singleton_key)
                         && (Objects.equals(singleton_value, h.singleton_value));
@@ -416,10 +414,9 @@ public final class HybridArrayHashMap<K, V> extends AbstractMap<K, V> {
 
         @Override
         public boolean contains(Object o) {
-            if (!(o instanceof Entry<?, ?>)) {
+            if (!(o instanceof Entry<?, ?> e)) {
                 return false;
             }
-            Entry<?, ?> e = (Entry<?, ?>) o;
             if (singleton_key != null) {
                 return singleton_key.equals(e.getKey())
                         && Objects.equals(singleton_value, e.getValue());

@@ -98,8 +98,7 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (edge instanceof ReflectiveCallEdge) {
-            ReflectiveCallEdge refEdge = (ReflectiveCallEdge) edge;
+        if (edge instanceof ReflectiveCallEdge refEdge) {
             Context callerCtx = refEdge.getCallSite().getContext();
             // pass argument
             Var args = refEdge.getArgs();

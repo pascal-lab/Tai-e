@@ -54,8 +54,7 @@ public final class CSObjs {
     public static @Nullable
     JClass toClass(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof ClassLiteral) {
-            ClassLiteral klass = (ClassLiteral) alloc;
+        if (alloc instanceof ClassLiteral klass) {
             Type type = klass.getTypeValue();
             if (type instanceof ClassType) {
                 return ((ClassType) type).getJClass();
@@ -74,8 +73,7 @@ public final class CSObjs {
     public static @Nullable
     JMethod toConstructor(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof JMethod) {
-            JMethod method = (JMethod) alloc;
+        if (alloc instanceof JMethod method) {
             if (method.isConstructor()) {
                 return method;
             }
@@ -90,8 +88,7 @@ public final class CSObjs {
     public static @Nullable
     JMethod toMethod(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
-        if (alloc instanceof JMethod) {
-            JMethod method = (JMethod) alloc;
+        if (alloc instanceof JMethod method) {
             if (!method.isConstructor()) {
                 return method;
             }

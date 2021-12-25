@@ -52,8 +52,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 
         @Override
         public boolean contains(Object o) {
-            if (o instanceof Map.Entry) {
-                Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
+            if (o instanceof Map.Entry<?, ?> entry) {
                 //noinspection unchecked
                 return AbstractMultiMap.this.contains(
                         (K) entry.getKey(), (V) entry.getValue());

@@ -47,8 +47,7 @@ public class ClassInitializer implements Plugin {
                 if (type instanceof ClassType) {
                     solver.initializeClass(((ClassType) type).getJClass());
                 }
-            } else if (s instanceof FieldStmt) {
-                FieldStmt<?, ?> fieldStmt = (FieldStmt<?, ?>) s;
+            } else if (s instanceof FieldStmt<?, ?> fieldStmt) {
                 if (fieldStmt.isStatic()) {
                     JField field = fieldStmt.getFieldRef().resolve();
                     solver.initializeClass(field.getDeclaringClass());

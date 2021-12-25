@@ -163,8 +163,7 @@ class TaintConfig {
          * @return set of deserialized {@link Source}
          */
         private Set<Source> deserializeSources(JsonNode node) {
-            if (node instanceof ArrayNode) {
-                ArrayNode arrayNode = (ArrayNode) node;
+            if (node instanceof ArrayNode arrayNode) {
                 Set<Source> sources = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
@@ -194,8 +193,7 @@ class TaintConfig {
          * @return set of deserialized {@link Sink}
          */
         private Set<Sink> deserializeSinks(JsonNode node) {
-            if (node instanceof ArrayNode) {
-                ArrayNode arrayNode = (ArrayNode) node;
+            if (node instanceof ArrayNode arrayNode) {
                 Set<Sink> sinks = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
@@ -224,8 +222,7 @@ class TaintConfig {
          * @return set of deserialized {@link TaintTransfer}
          */
         private Set<TaintTransfer> deserializeTransfers(JsonNode node) {
-            if (node instanceof ArrayNode) {
-                ArrayNode arrayNode = (ArrayNode) node;
+            if (node instanceof ArrayNode arrayNode) {
                 Set<TaintTransfer> transfers = Sets.newSet(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();

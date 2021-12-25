@@ -77,8 +77,7 @@ public class ExceptionAnalysis implements Plugin {
     public void onNewMethod(JMethod method) {
         IR ir = method.getIR();
         ir.forEach(stmt -> {
-            if (stmt instanceof Throw) {
-                Throw throwStmt = (Throw) stmt;
+            if (stmt instanceof Throw throwStmt) {
                 Var exceptionRef = throwStmt.getExceptionRef();
                 var2Throws.put(exceptionRef, throwStmt);
             }

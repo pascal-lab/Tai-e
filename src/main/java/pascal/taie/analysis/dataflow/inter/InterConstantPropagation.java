@@ -96,15 +96,13 @@ public class InterConstantPropagation extends
         MultiMap<JField, StoreField> staticStores = Maps.newMultiMap();
         MultiMap<JField, LoadField> staticLoads = Maps.newMultiMap();
         for (Stmt s : icfg) {
-            if (s instanceof StoreField) {
-                StoreField store = (StoreField) s;
+            if (s instanceof StoreField store) {
                 if (store.isStatic() &&
                         ConstantPropagation.canHoldInt(store.getRValue())) {
                     staticStores.put(store.getFieldRef().resolve(), store);
                 }
             }
-            if (s instanceof LoadField) {
-                LoadField load = (LoadField) s;
+            if (s instanceof LoadField load) {
                 if (load.isStatic() &&
                         ConstantPropagation.canHoldInt(load.getLValue())) {
                     staticLoads.put(load.getFieldRef().resolve(), load);

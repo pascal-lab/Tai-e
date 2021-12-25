@@ -75,8 +75,7 @@ public class AvailableExpressionAnalysis extends
         out.set(in);
         if (stmt instanceof DefinitionStmt) {
             Exp lvalue = ((DefinitionStmt<?, ?>) stmt).getLValue();
-            if (lvalue instanceof Var) {
-                Var defVar = (Var) lvalue;
+            if (lvalue instanceof Var defVar) {
                 // kill affected expressions
                 out.removeIf(expWrapper ->
                         expWrapper.get().getUses().contains(defVar));

@@ -173,8 +173,7 @@ public final class CallGraphs {
         Map<Invoke, String> invokeReps =
                 new TreeMap<>(Comparator.comparing(Invoke::getIndex));
         caller.getIR().forEach(s -> {
-            if (s instanceof Invoke) {
-                Invoke invoke = (Invoke) s;
+            if (s instanceof Invoke invoke) {
                 if (invoke.isDynamic()) { // skip invokedynamic
                     return;
                 }
