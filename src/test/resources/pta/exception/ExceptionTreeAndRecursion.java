@@ -17,7 +17,9 @@ public class ExceptionTreeAndRecursion {
             m();
             m1();
         } catch (ArithmeticException e1) {
+            e1.getMessage();
         } catch (IllegalStateException e2) {
+            e2.getMessage();
         }
     }
 

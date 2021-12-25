@@ -3,7 +3,6 @@ Class.forName;U;ReflectiveAction.arraynew;59;;
 Class.forName;U;ReflectiveAction.forname;30;;
 Class.forName;W;ReflectiveAction.forname;38;;
 Class.forName;W;ReflectiveAction.forname;41;;
-Class.forName;void;ReflectiveAction.forname;34;;
 Class.newInstance;U;ReflectiveAction.cnew;47;;
 Class.newInstance;U;ReflectiveAction.forname;31;;
 Class.newInstance;V;ReflectiveAction.forname;35;;

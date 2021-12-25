@@ -17,7 +17,9 @@ public class ExceptionCircleAndRecursion {
             m(2);
             m1(3);
         } catch (ArithmeticException e1) {
+            e1.getMessage();
         } catch (IllegalStateException e2) {
+            e2.getMessage();
         }
     }
 
