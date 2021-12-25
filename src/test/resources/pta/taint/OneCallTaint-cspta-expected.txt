@@ -9,7 +9,7 @@ Points-to sets of all variables
 [<SourceSink: java.lang.String source()>[1@L4] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/$b0 -> []
 [<SourceSink: java.lang.String source()>[1@L4] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/$r2 -> []
 [<SourceSink: java.lang.String source()>[1@L4] invokespecial temp$0.<init>()]:<java.lang.String: void <init>()>/%this -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
-[<java.lang.String: void <init>()>[0@L219] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}, []:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
+[<java.lang.String: void <init>()>[0@L243] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}, []:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}]
 []:<OneCallTaint: void main(java.lang.String[])>/s1 -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]
 []:<OneCallTaint: void main(java.lang.String[])>/s2 -> [[]:NewObj{<SourceSink: java.lang.String source()>[0@L3] new java.lang.String}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<OneCallTaint: void main(java.lang.String[])>/ss1 -> [[]:NewObj{<OneCallTaint: void main(java.lang.String[])>[0@L3] new java.lang.String}]

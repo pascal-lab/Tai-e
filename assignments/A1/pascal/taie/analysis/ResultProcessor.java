@@ -67,17 +67,34 @@ public class ResultProcessor extends InterproceduralAnalysis {
     public ResultProcessor(AnalysisConfig config) {
         super(config);
         action = getOptions().getString("action");
-        switch (action) {
-            case "dump":
-                setupOut();
-                break;
-            case "compare":
-                readInputs();
-                break;
-        }
     }
 
-    private void setupOut() {
+    @Override
+    public Object analyze() {
+        // initialization
+        switch (action) {
+            case "dump" -> setOutput();
+            case "compare" -> readInputs();
+        }
+        mismatches = new LinkedHashSet<>();
+        // Classify given analysis IDs into two groups, one for inter-procedural
+        // and the another one for intra-procedural analysis.
+        // If an ID has result in World, then it is classified as
+        // inter-procedural analysis, and others are intra-procedural analyses.
+        @SuppressWarnings("unchecked")
+        Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
+                .stream()
+                .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
+        if (groups.containsKey(false)) {
+            processIntraResults(groups.get(false));
+        }
+        if (getOptions().getBoolean("log-mismatches")) {
+            mismatches.forEach(logger::info);
+        }
+        return mismatches;
+    }
+
+    private void setOutput() {
         String output = getOptions().getString("file");
         if (output != null) {
             try {
@@ -125,26 +142,6 @@ public class ResultProcessor extends InterproceduralAnalysis {
         }
     }
 
-    @Override
-    public Object analyze() {
-        mismatches = new LinkedHashSet<>();
-        // Classify given analysis IDs into two groups, one for inter-procedural
-        // and the another one for intra-procedural analysis.
-        // If an ID has result in World, then it is classified as
-        // inter-procedural analysis, and others are intra-procedural analyses.
-        @SuppressWarnings("unchecked")
-        Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
-                .stream()
-                .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
-        if (groups.containsKey(false)) {
-            processIntraResults(groups.get(false));
-        }
-        if (getOptions().getBoolean("log-mismatches")) {
-            mismatches.forEach(logger::info);
-        }
-        return mismatches;
-    }
-
     private void processIntraResults(List<String> analyses) {
         Stream<JMethod> methods = World.getClassHierarchy()
                 .applicationClasses()
@@ -161,12 +158,8 @@ public class ResultProcessor extends InterproceduralAnalysis {
         methods.forEach(method ->
                 analyses.forEach(id -> {
                     switch (action) {
-                        case "dump":
-                            dumpResult(method, id, resultGetter);
-                            break;
-                        case "compare":
-                            compareResult(method, id, resultGetter);
-                            break;
+                        case "dump" -> dumpResult(method, id, resultGetter);
+                        case "compare" -> compareResult(method, id, resultGetter);
                     }
                 })
         );
