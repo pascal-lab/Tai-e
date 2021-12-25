@@ -36,7 +36,7 @@ public class ArrayIndex extends AbstractPointer {
     @Override
     public Type getType() {
         return ((ArrayType) array.getObject().getType())
-                .getElementType();
+                .elementType();
     }
 
     @Override

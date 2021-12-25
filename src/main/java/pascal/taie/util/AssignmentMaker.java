@@ -128,7 +128,7 @@ final class AssignmentMaker {
 
     private void make() {
         logger.info("Making assignment {} at {} ...",
-                config.getName(), TARGET_DIR);
+                config.name(), TARGET_DIR);
         packDependencies();
         copySourceFiles();
         copyIncompleteFiles();
@@ -165,7 +165,7 @@ final class AssignmentMaker {
 
     private void copySourceFiles() {
         Path target = TARGET_DIR.resolve(SOURCE_DIR);
-        config.getSourceFiles()
+        config.sourceFiles()
                 .forEach(className -> copyFile(SOURCE_DIR, target, className,
                         AssignmentMaker::toSourcePath));
     }
@@ -173,14 +173,14 @@ final class AssignmentMaker {
     private void copyIncompleteFiles() {
         Path source = ASS_DIR;
         Path target = TARGET_DIR.resolve(SOURCE_DIR);
-        config.getOverwrittenFiles()
+        config.overwrittenFiles()
                 .forEach(className -> copyFile(source, target, className,
                         AssignmentMaker::toSourcePath));
     }
 
     private void copyTestClasses() {
         Path target = TARGET_DIR.resolve(TEST_SOURCE_DIR);
-        config.getTestClasses()
+        config.testClasses()
                 .forEach(className -> copyFile(TEST_SOURCE_DIR, target, className,
                         AssignmentMaker::toSourcePath));
     }
@@ -217,11 +217,11 @@ final class AssignmentMaker {
 
     private void copyTestResources() {
         Path target = TARGET_DIR.resolve(TEST_RESOURCES_DIR);
-        config.getTestResources().forEach(item -> {
+        config.testResources().forEach(item -> {
             copyFile(TEST_RESOURCES_DIR, target, item);
             // some source files in test resources are just dependencies
             // of other test cases, and thus do no have expected result
-            config.getAnalyses().forEach(analysis -> {
+            config.analyses().forEach(analysis -> {
                 String fileName = toExpectedFileName(item, analysis);
                 if (fileName != null) {
                     Path expected = TEST_RESOURCES_DIR.resolve(fileName);
@@ -236,7 +236,7 @@ final class AssignmentMaker {
 
     private void zipPackage() {
         Path source = TARGET_DIR.getParent();
-        File zipFile = new File(Configs.getOutputDir(), config.getPackageName());
+        File zipFile = new File(Configs.getOutputDir(), config.packageName());
         try (ZipOutputStream zos = new ZipOutputStream(
                 new FileOutputStream(zipFile))) {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
@@ -313,50 +313,11 @@ final class AssignmentMaker {
     /**
      * Configuration for which files should be included in each assignment.
      */
-    private static class Config {
-
-        /**
-         * Name of this assignment, which should be "Ax" where x is
-         * the assignment number.
-         */
-        private final String name;
-
-        /**
-         * List of IDs of analyses to be tested in the assignment.
-         */
-        private final List<String> analyses;
-
-        /**
-         * Name of assignment package.
-         */
-        private final String packageName;
-
-        /**
-         * Classes to be excluded in the assignment.
-         */
-        private final List<String> exclude;
-
-        /**
-         * Source files to be included in the assignment.
-         */
-        private final List<String> sourceFiles;
-
-        /**
-         * Source files to be included in the assignment.
-         * These files overwrite the original source files in Tai-e for
-         * specific assignment, and should have been prepared in folder Ax/.
-         */
-        private final List<String> overwrittenFiles;
-
-        /**
-         * Test classes to be included in the assignment.
-         */
-        private final List<String> testClasses;
-
-        /**
-         * Test resources (i.e., test-related files) to be included in the assignment.
-         */
-        private final List<String> testResources;
+    private record Config(
+            String name, List<String> analyses, String packageName,
+            List<String> exclude, List<String> sourceFiles,
+            List<String> overwrittenFiles, List<String> testClasses,
+            List<String> testResources) {
 
         @JsonCreator
         private Config(
@@ -376,34 +337,6 @@ final class AssignmentMaker {
             this.overwrittenFiles = Objects.requireNonNull(overwrittenFiles);
             this.testClasses = Objects.requireNonNullElse(testClasses, List.of());
             this.testResources = Objects.requireNonNullElse(testResources, List.of());
-        }
-
-        private String getName() {
-            return name;
-        }
-
-        private List<String> getAnalyses() {
-            return analyses;
-        }
-
-        private String getPackageName() {
-            return packageName;
-        }
-
-        private List<String> getSourceFiles() {
-            return sourceFiles;
-        }
-
-        private List<String> getOverwrittenFiles() {
-            return overwrittenFiles;
-        }
-
-        private List<String> getTestClasses() {
-            return testClasses;
-        }
-
-        private List<String> getTestResources() {
-            return testResources;
         }
 
         private static Config parseConfig(File configFile) {

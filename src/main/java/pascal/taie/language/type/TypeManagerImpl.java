@@ -191,9 +191,9 @@ public class TypeManagerImpl implements TypeManager {
                         supertype == SERIALIZABLE;
             } else if (supertype instanceof ArrayType superArray) {
                 ArrayType subArray = (ArrayType) subtype;
-                Type superBase = superArray.getBaseType();
-                Type subBase = subArray.getBaseType();
-                if (superArray.getDimensions() == subArray.getDimensions()) {
+                Type superBase = superArray.baseType();
+                Type subBase = subArray.baseType();
+                if (superArray.dimensions() == subArray.dimensions()) {
                     if (subBase.equals(superBase)) {
                         return true;
                     } else if (superBase instanceof ClassType &&
@@ -202,7 +202,7 @@ public class TypeManagerImpl implements TypeManager {
                                 ((ClassType) superBase).getJClass(),
                                 ((ClassType) subBase).getJClass());
                     }
-                } else if (superArray.getDimensions() < subArray.getDimensions()) {
+                } else if (superArray.dimensions() < subArray.dimensions()) {
                     return superBase == OBJECT ||
                             superBase == CLONEABLE ||
                             superBase == SERIALIZABLE;

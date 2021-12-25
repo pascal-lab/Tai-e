@@ -60,11 +60,11 @@ public class NewMultiArray implements NewExp {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("newmultiarray ");
-        sb.append(type.getBaseType());
+        sb.append(type.baseType());
         lengths.forEach(length ->
                 sb.append('[').append(length).append(']'));
         sb.append("[]".repeat(
-                Math.max(0, type.getDimensions() - lengths.size())));
+                Math.max(0, type.dimensions() - lengths.size())));
         return sb.toString();
     }
 }

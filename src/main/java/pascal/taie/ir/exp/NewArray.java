@@ -51,6 +51,6 @@ public class NewArray implements NewExp {
 
     @Override
     public String toString() {
-        return String.format("newarray %s[%s]", type.getElementType(), length);
+        return String.format("newarray %s[%s]", type.elementType(), length);
     }
 }

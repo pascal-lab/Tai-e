@@ -43,7 +43,7 @@ public class ArrayAccess implements LValue, RValue {
     @Override
     public Type getType() {
         if (base.getType() instanceof ArrayType) {
-            return ((ArrayType) base.getType()).getElementType();
+            return ((ArrayType) base.getType()).elementType();
         } else {
             throw new RuntimeException("Invalid base type: " + base.getType());
         }

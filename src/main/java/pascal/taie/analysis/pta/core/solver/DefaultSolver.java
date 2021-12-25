@@ -552,7 +552,7 @@ public class DefaultSolver implements Solver {
                 ArrayType type = nma.getType();
                 MockObj[] newArrays = new MockObj[nma.getLengthCount() - 1];
                 for (int i = 1; i < nma.getLengthCount(); ++i) {
-                    type = (ArrayType) type.getElementType();
+                    type = (ArrayType) type.elementType();
                     newArrays[i - 1] = new MockObj(MULTI_ARRAY_DESC,
                             allocSite, type, allocSite.getContainer());
                 }

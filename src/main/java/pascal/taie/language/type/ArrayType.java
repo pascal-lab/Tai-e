@@ -12,49 +12,12 @@
 
 package pascal.taie.language.type;
 
-public class ArrayType implements ReferenceType {
-
-    private final Type baseType;
-
-    private final int dimensions;
-
-    private final Type elementType;
-
-    public ArrayType(Type baseType, int dimensions, Type elementType) {
-        this.baseType = baseType;
-        this.dimensions = dimensions;
-        this.elementType = elementType;
-    }
-
-    public Type getBaseType() {
-        return baseType;
-    }
-
-    public int getDimensions() {
-        return dimensions;
-    }
-
-    public Type getElementType() {
-        return elementType;
-    }
+public record ArrayType(Type baseType, int dimensions, Type elementType)
+        implements ReferenceType {
 
     @Override
     public String getName() {
         return elementType + "[]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ArrayType arrayType = (ArrayType) o;
-        return dimensions == arrayType.dimensions
-                && baseType.equals(arrayType.baseType);
-    }
-
-    @Override
-    public int hashCode() {
-        return baseType.hashCode() * 31 + dimensions * 17; // magic prime ...
     }
 
     @Override
