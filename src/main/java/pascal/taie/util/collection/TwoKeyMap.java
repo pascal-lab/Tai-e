@@ -149,7 +149,7 @@ public interface TwoKeyMap<K1, K2, V> {
     default void forEach(@Nonnull TriConsumer<K1, K2, V> action) {
         Objects.requireNonNull(action);
         entrySet().forEach(entry -> action.accept(
-                entry.getKey1(), entry.getKey2(), entry.getValue()));
+                entry.key1(), entry.key2(), entry.value()));
     }
 
     /**
@@ -217,12 +217,12 @@ public interface TwoKeyMap<K1, K2, V> {
         /**
          * @return the first key corresponding to this entry.
          */
-        K1 getKey1();
+        K1 key1();
 
         /**
          * @return the second key corresponding to this entry.
          */
-        K2 getKey2();
+        K2 key2();
 
         /**
          * Returns the value corresponding to this entry. If the mapping
@@ -231,7 +231,7 @@ public interface TwoKeyMap<K1, K2, V> {
          *
          * @return the value corresponding to this entry
          */
-        V getValue();
+        V value();
 
         /**
          * Compares the specified object with this entry for equality.

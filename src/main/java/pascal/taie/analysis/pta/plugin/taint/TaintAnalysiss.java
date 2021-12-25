@@ -146,8 +146,8 @@ public class TaintAnalysiss {
 
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         varTransfers.get(csVar.getVar()).forEach(p -> {
-            Var to = p.getFirst();
-            Type type = p.getSecond();
+            Var to = p.first();
+            Type type = p.second();
             transferTaint(pts, csVar.getContext(), to, type);
         });
     }

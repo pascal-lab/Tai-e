@@ -15,7 +15,6 @@ package pascal.taie.util.collection;
 import pascal.taie.util.Hashes;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 

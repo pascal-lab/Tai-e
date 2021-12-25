@@ -129,8 +129,8 @@ public abstract class SwitchStmt extends JumpStmt {
         StringBuilder sb = new StringBuilder(getInsnString());
         sb.append(" (").append(var).append(") {");
         getCaseTargets().forEach(caseTarget -> {
-            int caseValue = caseTarget.getFirst();
-            Stmt target = caseTarget.getSecond();
+            int caseValue = caseTarget.first();
+            Stmt target = caseTarget.second();
             sb.append(caseValue).append("->").append(toString(target)).append(", ");
         });
         sb.append("default->").append(toString(defaultTarget)).append('}');

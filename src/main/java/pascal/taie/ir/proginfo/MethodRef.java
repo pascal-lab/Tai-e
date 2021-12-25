@@ -20,7 +20,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.Hashes;
 import pascal.taie.util.InternalCanonicalized;
 
 import javax.annotation.Nullable;
@@ -186,33 +185,6 @@ public class MethodRef extends MemberRef {
                 parameterTypes, returnType);
     }
 
-    private static class Key {
-
-        private final JClass declaringClass;
-
-        private final Subsignature subsignature;
-
-        private Key(JClass declaringClass, Subsignature subsignature) {
-            this.declaringClass = declaringClass;
-            this.subsignature = subsignature;
-        }
-
-        @Override
-        public int hashCode() {
-            return Hashes.hash(declaringClass, subsignature);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Key key = (Key) o;
-            return declaringClass.equals(key.declaringClass) &&
-                    subsignature.equals(key.subsignature);
-        }
+    private record Key(JClass declaringClass, Subsignature subsignature) {
     }
 }

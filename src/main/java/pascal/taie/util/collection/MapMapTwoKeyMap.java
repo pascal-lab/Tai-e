@@ -12,8 +12,6 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.Hashes;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -164,59 +162,8 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
         }
     }
 
-    private static class Entry<K1, K2, V> implements TwoKeyMap.Entry<K1, K2, V> {
-
-        private final K1 key1;
-        private final K2 key2;
-        private final V value;
-
-        private Entry(K1 key1, K2 key2, V value) {
-            this.key1 = key1;
-            this.key2 = key2;
-            this.value = value;
-        }
-
-        @Override
-        public K1 getKey1() {
-            return key1;
-        }
-
-        @Override
-        public K2 getKey2() {
-            return key2;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof TwoKeyMap.Entry<?, ?, ?> entry)) {
-                return false;
-            }
-            return key1.equals(entry.getKey1()) &&
-                    key2.equals(entry.getKey2()) &&
-                    value.equals(entry.getValue());
-        }
-
-        @Override
-        public int hashCode() {
-            return Hashes.hash(key1, key2, value);
-        }
-
-        @Override
-        public String toString() {
-            return "Entry{" +
-                    "key1=" + key1 +
-                    ", key2=" + key2 +
-                    ", value=" + value +
-                    '}';
-        }
+    private record Entry<K1, K2, V>(K1 key1, K2 key2, V value)
+            implements TwoKeyMap.Entry<K1, K2, V> {
     }
 
     @Override

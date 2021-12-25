@@ -76,8 +76,8 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
             if (o instanceof Entry<?, ?, ?> entry) {
                 //noinspection unchecked
                 V v = AbstractTwoKeyMap.this.get(
-                        (K1) entry.getKey1(), (K2) entry.getKey2());
-                return Objects.equals(entry.getValue(), v);
+                        (K1) entry.key1(), (K2) entry.key2());
+                return Objects.equals(entry.value(), v);
             }
             return false;
         }
@@ -103,11 +103,11 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
         Set<Pair<K1, K2>> set = twoKeySet;
         if (set == null) {
             set = Views.toSet(entrySet(),
-                    e -> new Pair<>(e.getKey1(), e.getKey2()),
+                    e -> new Pair<>(e.key1(), e.key2()),
                     o -> {
                         if (o instanceof Pair<?, ?> pair) {
-                            return containsKey((K1) pair.getFirst(),
-                                    (K2) pair.getSecond());
+                            return containsKey((K1) pair.first(),
+                                    (K2) pair.second());
                         }
                         return false;
                     });
@@ -121,7 +121,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
     public Collection<V> values() {
         Collection<V> vals = values;
         if (vals == null) {
-            vals = Views.toCollection(entrySet(), Entry::getValue,
+            vals = Views.toCollection(entrySet(), Entry::value,
                     o -> containsValue((V) o));
             values = vals;
         }
@@ -148,9 +148,9 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
         }
         try {
             for (var e : entrySet()) {
-                K1 key1 = e.getKey1();
-                K2 key2 = e.getKey2();
-                V value = e.getValue();
+                K1 key1 = e.key1();
+                K2 key2 = e.key2();
+                V value = e.value();
                 if (!Objects.equals(value, that.get(key1, key2))) {
                     return false;
                 }
@@ -169,9 +169,9 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
             sb.append('\n');
         }
         for (var e : entrySet()) {
-            K1 key1 = e.getKey1();
-            K2 key2 = e.getKey2();
-            V value = e.getValue();
+            K1 key1 = e.key1();
+            K2 key2 = e.key2();
+            V value = e.value();
             sb.append("  ")
                     .append(key1).append(',')
                     .append(key2).append('=')
