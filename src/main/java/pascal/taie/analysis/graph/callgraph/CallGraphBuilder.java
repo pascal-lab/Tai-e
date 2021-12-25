@@ -33,19 +33,12 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
 
     @Override
     public CallGraph<Invoke, JMethod> analyze() {
-        CGBuilder<Invoke, JMethod> builder;
-        switch (algorithm) {
-            case "pta":
-            case "cipta":
-            case "cspta":
-                builder = new PTABasedBuilder(algorithm);
-                break;
-            case "cha":
-                builder = new CHABuilder();
-                break;
-            default:
-                throw new ConfigException("Unknown call graph building algorithm: " + algorithm);
-        }
+        CGBuilder<Invoke, JMethod> builder = switch (algorithm) {
+            case "pta", "cipta", "cspta" -> new PTABasedBuilder(algorithm);
+            case "cha" -> new CHABuilder();
+            default -> throw new ConfigException(
+                    "Unknown call graph building algorithm: " + algorithm);
+        };
         CallGraph<Invoke, JMethod> callGraph = builder.build();
         takeAction(callGraph);
         return callGraph;
@@ -57,21 +50,18 @@ public class CallGraphBuilder extends InterproceduralAnalysis {
             return;
         }
         switch (action) {
-            case "dump": {
+            case "dump" -> {
                 String file = getOptions().getString("file");
                 CallGraphs.dumpCallGraph(callGraph, file);
-                break;
             }
-            case "dump-recall": {
+            case "dump-recall" -> {
                 List<String> files = (List<String>) getOptions().get("file");
                 CallGraphs.dumpMethods(callGraph, files.get(0));
                 CallGraphs.dumpCallEdges(callGraph, files.get(1));
-                break;
             }
-            case "compare": {
+            case "compare" -> {
                 String file = getOptions().getString("file");
                 CallGraphs.compareCallGraph(callGraph, file);
-                break;
             }
         }
     }

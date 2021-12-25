@@ -124,14 +124,11 @@ public class TaintAnalysis implements Plugin {
      */
     private static Var getVar(Invoke callSite, int index) {
         InvokeExp invokeExp = callSite.getInvokeExp();
-        switch (index) {
-            case TaintTransfer.BASE:
-                return ((InvokeInstanceExp) invokeExp).getBase();
-            case TaintTransfer.RESULT:
-                return callSite.getResult();
-            default:
-                return invokeExp.getArg(index);
-        }
+        return switch (index) {
+            case TaintTransfer.BASE -> ((InvokeInstanceExp) invokeExp).getBase();
+            case TaintTransfer.RESULT -> callSite.getResult();
+            default -> invokeExp.getArg(index);
+        };
     }
 
     private void transferTaint(PointsToSet pts, Context ctx, Var to, Type type) {

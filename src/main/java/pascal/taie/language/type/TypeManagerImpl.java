@@ -131,24 +131,16 @@ public class TypeManagerImpl implements TypeManager {
     @Override
     public ClassType getBoxedType(Type type) {
         if (type instanceof PrimitiveType) {
-            switch ((PrimitiveType) type) {
-                case BOOLEAN:
-                    return BOOLEAN;
-                case BYTE:
-                    return BYTE;
-                case SHORT:
-                    return SHORT;
-                case CHAR:
-                    return CHARACTER;
-                case INT:
-                    return INTEGER;
-                case LONG:
-                    return LONG;
-                case FLOAT:
-                    return FLOAT;
-                case DOUBLE:
-                    return DOUBLE;
-            }
+            return switch ((PrimitiveType) type) {
+                case BOOLEAN -> BOOLEAN;
+                case BYTE -> BYTE;
+                case SHORT -> SHORT;
+                case CHAR -> CHARACTER;
+                case INT -> INTEGER;
+                case LONG -> LONG;
+                case FLOAT -> FLOAT;
+                case DOUBLE -> DOUBLE;
+            };
         } else if (type instanceof VoidType) {
             return VOID;
         }

@@ -88,34 +88,23 @@ class LogBasedModel extends MetaObjModel {
         if (!supportedApis.contains(item.api)) {
             return;
         }
-        Object target = null;
         // obtain reflective target
-        switch (item.api) {
-            case "Class.forName":
-            case "Class.newInstance": {
-                target = hierarchy.getClass(item.target);
-                break;
-            }
-            case "Constructor.newInstance":
-            case "Method.invoke": {
-                target = hierarchy.getMethod(item.target);
-                break;
-            }
-            case "Field.get":
-            case "Field.set": {
-                target = hierarchy.getField(item.target);
-                break;
-            }
-            case "Array.newInstance": {
+        Object target = switch (item.api) {
+            case "Class.forName", "Class.newInstance" ->
+                    hierarchy.getClass(item.target);
+            case "Constructor.newInstance", "Method.invoke" ->
+                    hierarchy.getMethod(item.target);
+            case "Field.get", "Field.set" ->
+                    hierarchy.getField(item.target);
+            case "Array.newInstance" -> {
                 // Note that currently we only support Array.newInstance(Class,int),
                 // and ignore primitive arrays.
                 String baseName = StringReps.getBaseTypeNameOf(item.target);
                 JClass baseClass = hierarchy.getClass(baseName);
-                if (baseClass != null) {
-                    target = baseClass.getType();
-                }
+                yield baseClass != null ? baseClass.getType() : null;
             }
-        }
+            default -> null;
+        };
         // add target specified in the item
         if (target != null) {
             List<Invoke> invokes = getMatchedInvokes(item);

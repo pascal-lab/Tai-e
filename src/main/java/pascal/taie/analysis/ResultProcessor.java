@@ -75,12 +75,8 @@ public class ResultProcessor extends InterproceduralAnalysis {
     public Object analyze() {
         // initialization
         switch (action) {
-            case "dump":
-                setOutput();
-                break;
-            case "compare":
-                readInputs();
-                break;
+            case "dump" -> setOutput();
+            case "compare" -> readInputs();
         }
         mismatches = new LinkedHashSet<>();
         // Classify given analysis IDs into two groups, one for inter-procedural
@@ -188,12 +184,8 @@ public class ResultProcessor extends InterproceduralAnalysis {
         methods.forEach(method ->
                 analyses.forEach(id -> {
                     switch (action) {
-                        case "dump":
-                            dumpResult(method, id, resultGetter);
-                            break;
-                        case "compare":
-                            compareResult(method, id, resultGetter);
-                            break;
+                        case "dump" -> dumpResult(method, id, resultGetter);
+                        case "compare" -> compareResult(method, id, resultGetter);
                     }
                 })
         );

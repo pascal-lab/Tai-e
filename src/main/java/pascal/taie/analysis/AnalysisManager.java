@@ -30,7 +30,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Creates and executes analyses based on given analysis plan.
@@ -85,33 +84,28 @@ public class AnalysisManager {
     private List<JMethod> getScope() {
         if (scope == null) {
             switch (World.getOptions().getScope()) {
-                case Scope.APP: {
+                case Scope.APP -> {
                     scope = World.getClassHierarchy()
                             .applicationClasses()
                             .map(JClass::getDeclaredMethods)
                             .flatMap(Collection::stream)
                             .filter(m -> !m.isAbstract() && !m.isNative())
                             .toList();
-                    break;
                 }
-                case Scope.REACHABLE: {
+                case Scope.REACHABLE -> {
                     CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
                     scope = callGraph.reachableMethods().toList();
-                    break;
                 }
-                case Scope.ALL: {
+                case Scope.ALL -> {
                     scope = World.getClassHierarchy()
                             .allClasses()
                             .map(JClass::getDeclaredMethods)
                             .flatMap(Collection::stream)
                             .filter(m -> !m.isAbstract() && !m.isNative())
                             .toList();
-                    break;
                 }
-                default: {
-                    throw new ConfigException("Unexpected scope option: " +
-                            World.getOptions().getScope());
-                }
+                default -> throw new ConfigException(
+                        "Unexpected scope option: " + World.getOptions().getScope());
             }
             logger.info("{} methods in scope ({}) of intra-procedural analysis",
                     scope.size(), World.getOptions().getScope());

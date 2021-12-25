@@ -62,12 +62,8 @@ class ResultProcessor {
         }
         String file = options.getString("file");
         switch (action) {
-            case "dump":
-                dumpPointsToSet(result, file);
-                break;
-            case "compare":
-                comparePointsToSet(result, file);
-                break;
+            case "dump" -> dumpPointsToSet(result, file);
+            case "compare" -> comparePointsToSet(result, file);
         }
     }
 

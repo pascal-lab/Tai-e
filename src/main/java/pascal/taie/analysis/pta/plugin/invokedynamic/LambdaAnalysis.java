@@ -155,7 +155,7 @@ public class LambdaAnalysis implements Plugin {
         final MethodRef targetRef = getMethodHandle(indy).getMethodRef();
 
         switch (mh.getKind()) {
-            case REF_newInvokeSpecial: { // targetRef is constructor
+            case REF_newInvokeSpecial -> { // targetRef is constructor
                 ClassType type = targetRef.getDeclaringClass().getType();
                 // Create mock object (if absent) which represents
                 // the newly-allocated object. Note that here we use the
@@ -177,11 +177,9 @@ public class LambdaAnalysis implements Plugin {
                 }
                 // add call edge to constructor
                 addLambdaCallEdge(csCallSite, csNewObj, targetRef, indy, indyCtx);
-                break;
             }
-            case REF_invokeInterface:
-            case REF_invokeVirtual:
-            case REF_invokeSpecial: { // targetRef is instance method
+            case REF_invokeInterface, REF_invokeVirtual, REF_invokeSpecial -> {
+                // targetRef is instance method
                 List<Var> capturedArgs = indy.getArgs();
                 List<Var> actualArgs = invoke.getInvokeExp().getArgs();
                 // Obtain receiver variable and context
@@ -205,14 +203,11 @@ public class LambdaAnalysis implements Plugin {
                 // together with information about the related Lambda invocation.
                 invoInfos.put(csRecvVar,
                         new InstanceInvoInfo(csCallSite, indy, indyCtx));
-                break;
             }
-            case REF_invokeStatic: { // targetRef is static method
+            case REF_invokeStatic -> { // targetRef is static method
                 addLambdaCallEdge(csCallSite, null, targetRef, indy, indyCtx);
-                break;
             }
-            default:
-                throw new AnalysisException(mh.getKind() + " is not supported");
+            default -> throw new AnalysisException(mh.getKind() + " is not supported");
         }
     }
 

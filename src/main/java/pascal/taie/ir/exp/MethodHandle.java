@@ -54,16 +54,12 @@ public class MethodHandle implements ReferenceLiteral {
     }
 
     public boolean isMethodRef() {
-        switch (kind) {
-            case REF_invokeStatic:
-            case REF_invokeSpecial:
-            case REF_invokeVirtual:
-            case REF_newInvokeSpecial:
-            case REF_invokeInterface:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case REF_invokeStatic,
+                    REF_invokeSpecial, REF_invokeVirtual,
+                    REF_newInvokeSpecial, REF_invokeInterface -> true;
+            default -> false;
+        };
     }
 
     public MethodRef getMethodRef() {
@@ -72,15 +68,11 @@ public class MethodHandle implements ReferenceLiteral {
     }
 
     public boolean isFieldRef() {
-        switch (kind) {
-            case REF_getField:
-            case REF_getStatic:
-            case REF_putField:
-            case REF_putStatic:
-                return true;
-            default:
-                return false;
-        }
+        return switch (kind) {
+            case REF_getField, REF_getStatic,
+                    REF_putField, REF_putStatic -> true;
+            default -> false;
+        };
     }
 
     public FieldRef getFieldRef() {
@@ -144,28 +136,18 @@ public class MethodHandle implements ReferenceLiteral {
         }
 
         public static Kind get(int kind) {
-            switch (kind) {
-                case MethodHandleInfo.REF_getField:
-                    return REF_getField;
-                case MethodHandleInfo.REF_getStatic:
-                    return REF_getStatic;
-                case MethodHandleInfo.REF_putField:
-                    return REF_putField;
-                case MethodHandleInfo.REF_putStatic:
-                    return REF_putStatic;
-                case MethodHandleInfo.REF_invokeVirtual:
-                    return REF_invokeVirtual;
-                case MethodHandleInfo.REF_invokeStatic:
-                    return REF_invokeStatic;
-                case MethodHandleInfo.REF_invokeSpecial:
-                    return REF_invokeSpecial;
-                case MethodHandleInfo.REF_newInvokeSpecial:
-                    return REF_newInvokeSpecial;
-                case MethodHandleInfo.REF_invokeInterface:
-                    return REF_invokeInterface;
-                default:
-                    throw new AnalysisException("No MethodHandle kind for " + kind);
-            }
+            return switch (kind) {
+                case MethodHandleInfo.REF_getField -> REF_getField;
+                case MethodHandleInfo.REF_getStatic -> REF_getStatic;
+                case MethodHandleInfo.REF_putField -> REF_putField;
+                case MethodHandleInfo.REF_putStatic -> REF_putStatic;
+                case MethodHandleInfo.REF_invokeVirtual -> REF_invokeVirtual;
+                case MethodHandleInfo.REF_invokeStatic -> REF_invokeStatic;
+                case MethodHandleInfo.REF_invokeSpecial -> REF_invokeSpecial;
+                case MethodHandleInfo.REF_newInvokeSpecial -> REF_newInvokeSpecial;
+                case MethodHandleInfo.REF_invokeInterface -> REF_invokeInterface;
+                default -> throw new AnalysisException("No MethodHandle kind for " + kind);
+            };
         }
     }
 }

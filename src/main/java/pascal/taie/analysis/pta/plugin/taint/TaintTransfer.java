@@ -129,27 +129,21 @@ class TaintTransfer {
      * Coverts string to index.
      */
     static int toInt(String s) {
-        switch (s.toLowerCase()) {
-            case BASE_STR:
-                return BASE;
-            case RESULT_STR:
-                return RESULT;
-            default:
-                return Integer.parseInt(s);
-        }
+        return switch (s.toLowerCase()) {
+            case BASE_STR -> BASE;
+            case RESULT_STR -> RESULT;
+            default -> Integer.parseInt(s);
+        };
     }
 
     /**
      * Converts index to string.
      */
     private static String toString(int index) {
-        switch (index) {
-            case BASE:
-                return BASE_STR;
-            case RESULT:
-                return RESULT_STR;
-            default:
-                return Integer.toString(index);
-        }
+        return switch (index) {
+            case BASE -> BASE_STR;
+            case RESULT -> RESULT_STR;
+            default -> Integer.toString(index);
+        };
     }
 }

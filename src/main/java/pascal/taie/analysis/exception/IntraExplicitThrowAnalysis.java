@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.Maps.newHybridMap;
 import static pascal.taie.util.collection.Maps.newMap;

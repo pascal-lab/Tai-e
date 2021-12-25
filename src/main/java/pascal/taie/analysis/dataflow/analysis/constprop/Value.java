@@ -136,16 +136,11 @@ public class Value {
 
     @Override
     public String toString() {
-        switch (kind) {
-            case UNDEF:
-                return "UNDEF";
-            case NAC:
-                return "NAC";
-            case CONSTANT:
-                return Integer.toString(value);
-            default:
-                throw new IllegalStateException("Unexpected value: " + kind);
-        }
+        return switch (kind) {
+            case UNDEF -> "UNDEF";
+            case NAC -> "NAC";
+            case CONSTANT -> Integer.toString(value);
+        };
     }
 
     private enum Kind {

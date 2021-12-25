@@ -178,51 +178,34 @@ public class ConstantPropagation extends
 
     private static int evaluate(BinaryExp.Op op, int i1, int i2) {
         if (op instanceof ArithmeticExp.Op) {
-            switch ((ArithmeticExp.Op) op) {
-                case ADD:
-                    return i1 + i2;
-                case SUB:
-                    return i1 - i2;
-                case MUL:
-                    return i1 * i2;
-                case DIV:
-                    return i1 / i2;
-                case REM:
-                    return i1 % i2;
-            }
+            return switch ((ArithmeticExp.Op) op) {
+                case ADD -> i1 + i2;
+                case SUB -> i1 - i2;
+                case MUL -> i1 * i2;
+                case DIV -> i1 / i2;
+                case REM -> i1 % i2;
+            };
         } else if (op instanceof BitwiseExp.Op) {
-            switch ((BitwiseExp.Op) op) {
-                case OR:
-                    return i1 | i2;
-                case AND:
-                    return i1 & i2;
-                case XOR:
-                    return i1 ^ i2;
-            }
+            return switch ((BitwiseExp.Op) op) {
+                case OR -> i1 | i2;
+                case AND -> i1 & i2;
+                case XOR -> i1 ^ i2;
+            };
         } else if (op instanceof ConditionExp.Op) {
-            switch ((ConditionExp.Op) op) {
-                case EQ:
-                    return i1 == i2 ? 1 : 0;
-                case NE:
-                    return i1 != i2 ? 1 : 0;
-                case LT:
-                    return i1 < i2 ? 1 : 0;
-                case GT:
-                    return i1 > i2 ? 1 : 0;
-                case LE:
-                    return i1 <= i2 ? 1 : 0;
-                case GE:
-                    return i1 >= i2 ? 1 : 0;
-            }
+            return switch ((ConditionExp.Op) op) {
+                case EQ -> i1 == i2 ? 1 : 0;
+                case NE -> i1 != i2 ? 1 : 0;
+                case LT -> i1 < i2 ? 1 : 0;
+                case GT -> i1 > i2 ? 1 : 0;
+                case LE -> i1 <= i2 ? 1 : 0;
+                case GE -> i1 >= i2 ? 1 : 0;
+            };
         } else if (op instanceof ShiftExp.Op) {
-            switch ((ShiftExp.Op) op) {
-                case SHL:
-                    return i1 << i2;
-                case SHR:
-                    return i1 >> i2;
-                case USHR:
-                    return i1 >>> i2;
-            }
+            return switch ((ShiftExp.Op) op) {
+                case SHL -> i1 << i2;
+                case SHR -> i1 >> i2;
+                case USHR -> i1 >>> i2;
+            };
         }
         throw new AnalysisException("Unexpected op: " + op);
     }

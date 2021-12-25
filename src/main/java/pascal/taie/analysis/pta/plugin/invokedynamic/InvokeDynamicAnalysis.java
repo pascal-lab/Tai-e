@@ -369,7 +369,7 @@ public class InvokeDynamicAnalysis implements Plugin {
         }
         Set<Context> contexts = method2ctxs.get(invoke.getContainer());
         switch (mh.getKind()) {
-            case REF_invokeVirtual: {
+            case REF_invokeVirtual -> {
                 // for virtual invocation, record base variable and
                 // add invokedynamic call edge
                 Var base = invoke.getInvokeExp().getArg(0);
@@ -380,13 +380,11 @@ public class InvokeDynamicAnalysis implements Plugin {
                     recvObjs.forEach(recv ->
                             addInvokeDynamicCallEdge(ctx, invoke, recv, mh));
                 });
-                break;
             }
-            case REF_invokeStatic: {
+            case REF_invokeStatic -> {
                 // for static invocation, just add invokedynamic call edge
                 contexts.forEach(ctx ->
                         addInvokeDynamicCallEdge(ctx, invoke, null, mh));
-                break;
             }
             // TODO: handle other MethodHandle operations
         }
@@ -403,7 +401,7 @@ public class InvokeDynamicAnalysis implements Plugin {
         JMethod callee;
         Context calleeCtx;
         switch (mh.getKind()) {
-            case REF_invokeVirtual: {
+            case REF_invokeVirtual -> {
                 callee = hierarchy.dispatch(recv.getObject().getType(), ref);
                 if (callee == null) {
                     return;
@@ -411,17 +409,14 @@ public class InvokeDynamicAnalysis implements Plugin {
                 calleeCtx = selector.selectContext(csCallSite, recv, callee);
                 // pass receiver object
                 solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recv);
-                break;
             }
-            case REF_invokeStatic: {
+            case REF_invokeStatic -> {
                 callee = ref.resolve();
                 calleeCtx = selector.selectContext(csCallSite, callee);
-                break;
             }
             // TODO: handle other MethodHandle operations
-            default:
-                throw new UnsupportedOperationException(
-                        mh.getKind() + " is currently not supported");
+            default -> throw new UnsupportedOperationException(
+                    mh.getKind() + " is currently not supported");
         }
         solver.addCallEdge(new InvokeDynamicCallEdge(
                 csCallSite, csManager.getCSMethod(calleeCtx, callee)));

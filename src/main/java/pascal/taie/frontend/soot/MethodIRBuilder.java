@@ -176,7 +176,7 @@ import static pascal.taie.language.type.VoidType.VOID;
 /**
  * Converts Jimple to Tai-e IR.
  */
-class MethodIRBuilder extends AbstractStmtSwitch {
+class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     private static final Logger logger = LogManager.getLogger(MethodIRBuilder.class);
 
@@ -438,8 +438,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * Converts Jimple Constants to Literals.
      */
-    private final AbstractConstantSwitch constantConverter
-            = new AbstractConstantSwitch() {
+    private final AbstractConstantSwitch<Literal> constantConverter
+            = new AbstractConstantSwitch<>() {
 
         @Override
         public void caseDoubleConstant(DoubleConstant v) {
@@ -670,8 +670,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * Converts Jimple NewExpr to NewExp
      */
-    private final AbstractJimpleValueSwitch newExprConverter
-            = new AbstractJimpleValueSwitch() {
+    private final AbstractJimpleValueSwitch<NewExp> newExprConverter
+            = new AbstractJimpleValueSwitch<>() {
 
         @Override
         public void caseNewExpr(NewExpr v) {
@@ -704,8 +704,8 @@ class MethodIRBuilder extends AbstractStmtSwitch {
     /**
      * Extracts BinaryExp.Op from Jimple BinopExpr.
      */
-    private final AbstractJimpleValueSwitch binaryOpExtractor
-            = new AbstractJimpleValueSwitch() {
+    private final AbstractJimpleValueSwitch<BinaryExp.Op> binaryOpExtractor
+            = new AbstractJimpleValueSwitch<>() {
 
         // ---------- Arithmetic expression ----------
         @Override

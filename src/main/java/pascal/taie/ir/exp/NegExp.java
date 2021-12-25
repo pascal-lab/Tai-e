@@ -38,22 +38,12 @@ public class NegExp implements UnaryExp {
 
     @Override
     public PrimitiveType getType() {
-        switch ((PrimitiveType) value.getType()) {
-            case INT:
-            case BYTE:
-            case SHORT:
-            case BOOLEAN:
-            case CHAR:
-                return PrimitiveType.INT;
-            case LONG:
-                return PrimitiveType.LONG;
-            case FLOAT:
-                return PrimitiveType.FLOAT;
-            case DOUBLE:
-                return PrimitiveType.DOUBLE;
-        }
-        throw new RuntimeException(
-                "Invalid value type of NegExp: " + value.getType());
+        return switch ((PrimitiveType) value.getType()) {
+            case INT, BYTE, SHORT, BOOLEAN, CHAR -> PrimitiveType.INT;
+            case LONG -> PrimitiveType.LONG;
+            case FLOAT -> PrimitiveType.FLOAT;
+            case DOUBLE -> PrimitiveType.DOUBLE;
+        };
     }
 
     @Override

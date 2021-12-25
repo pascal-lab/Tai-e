@@ -82,34 +82,29 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
      */
     private Set<JMethod> resolveCalleesOf(Invoke callSite) {
         CallKind kind = CallGraphs.getCallKind(callSite);
-        switch (kind) {
-            case INTERFACE:
-            case VIRTUAL: {
+        return switch (kind) {
+            case INTERFACE, VIRTUAL -> {
                 MethodRef methodRef = callSite.getMethodRef();
                 JClass cls = methodRef.getDeclaringClass();
                 Set<JMethod> callees = resolveTable.get(cls, methodRef);
-                if (callees != null) {
-                    return callees;
+                if (callees == null) {
+                    callees = hierarchy.getAllSubclassesOf(cls, true)
+                            .stream()
+                            .filter(Predicate.not(JClass::isAbstract))
+                            .map(c -> hierarchy.dispatch(c, methodRef))
+                            .filter(Objects::nonNull) // filter out null callees
+                            .collect(Collectors.toUnmodifiableSet());
+                    resolveTable.put(cls, methodRef, callees);
                 }
-                callees = hierarchy.getAllSubclassesOf(cls, true)
-                        .stream()
-                        .filter(Predicate.not(JClass::isAbstract))
-                        .map(c -> hierarchy.dispatch(c, methodRef))
-                        .filter(Objects::nonNull) // filter out null callees
-                        .collect(Collectors.toUnmodifiableSet());
-                resolveTable.put(cls, methodRef, callees);
-                return callees;
+                yield callees;
             }
-            case SPECIAL:
-            case STATIC: {
-                return Set.of(callSite.getMethodRef().resolve());
-            }
-            case DYNAMIC: {
+            case SPECIAL, STATIC -> Set.of(callSite.getMethodRef().resolve());
+            case DYNAMIC -> {
                 logger.debug("CHA cannot resolve invokedynamic " + callSite);
-                return Set.of();
+                yield Set.of();
             }
-            default:
-                throw new AnalysisException("Failed to resolve call site: " + callSite);
-        }
+            default -> throw new AnalysisException(
+                    "Failed to resolve call site: " + callSite);
+        };
     }
 }
