@@ -57,8 +57,8 @@ public class CatchAnalysis {
             for (ExceptionEntry entry : catchers.getOrDefault(stmt, List.of())) {
                 Set<ClassType> uncaughtImplicit = newHybridSet();
                 implicit.forEach(t -> {
-                    if (typeManager.isSubtype(entry.getCatchType(), t)) {
-                        result.addCaughtImplicit(stmt, entry.getHandler(), t);
+                    if (typeManager.isSubtype(entry.catchType(), t)) {
+                        result.addCaughtImplicit(stmt, entry.handler(), t);
                     } else {
                         uncaughtImplicit.add(t);
                     }
@@ -67,8 +67,8 @@ public class CatchAnalysis {
 
                 Set<ClassType> uncaughtExplicit = newHybridSet();
                 explicit.forEach(t -> {
-                    if (typeManager.isSubtype(entry.getCatchType(), t)) {
-                        result.addCaughtExplicit(stmt, entry.getHandler(), t);
+                    if (typeManager.isSubtype(entry.catchType(), t)) {
+                        result.addCaughtExplicit(stmt, entry.handler(), t);
                     } else {
                         uncaughtExplicit.add(t);
                     }
@@ -88,7 +88,7 @@ public class CatchAnalysis {
     public static Map<Stmt, List<ExceptionEntry>> getPotentialCatchers(IR ir) {
         Map<Stmt, List<ExceptionEntry>> catchers = new LinkedHashMap<>();
         ir.getExceptionEntries().forEach(entry -> {
-            for (int i = entry.getStart().getIndex(); i < entry.getEnd().getIndex(); ++i) {
+            for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
                 Stmt stmt = ir.getStmt(i);
                 catchers.computeIfAbsent(stmt, s -> new ArrayList<>())
                         .add(entry);

@@ -18,70 +18,17 @@ import pascal.taie.language.type.ClassType;
 
 /**
  * Representation of exception entries. Each entry consists of four items:
- * start, end: the ranges in the Stmt array at which the exception
- * handler is active.
- * handler: start of exception handler.
- * catchType: the class of exceptions that this exception handler
- * is designated to catch.
+ * <ul>
+ *     <li>start: the beginning of the try-block (inclusive).
+ *     <li>end: the end of the try-block (exclusive).
+ *     <li>handler: the beginning of the catch-block (inclusive),
+ *     i.e., the handler for the exceptions thrown by the try-block.
+ *     <li>catchType: the class of exceptions that this exception handler
+ *     is designated to catch.
+ * </ul>
  */
-public class ExceptionEntry {
-
-    /**
-     * The beginning of the try-block (inclusive).
-     */
-    private final Stmt start;
-
-    /**
-     * The end of the try-block (exclusive).
-     */
-    private final Stmt end;
-
-    /**
-     * The beginning of the catch-block (inclusive), i.e., the catch statement,
-     * which is the handler for the exceptions thrown by the try-block.
-     */
-    private final Catch handler;
-
-    /**
-     * The type of exceptions handled by the handler.
-     */
-    private final ClassType catchType;
-
-    public ExceptionEntry(Stmt start, Stmt end, Catch handler, ClassType catchType) {
-        this.start = start;
-        this.end = end;
-        this.handler = handler;
-        this.catchType = catchType;
-    }
-
-    /**
-     * @return the beginning of the try-block (inclusive).
-     */
-    public Stmt getStart() {
-        return start;
-    }
-
-    /**
-     * @return the end of the try-block (exclusive).
-     */
-    public Stmt getEnd() {
-        return end;
-    }
-
-    /**
-     * @return the beginning of the catch-block (inclusive), i.e.,
-     * the handler for the exceptions thrown by the try-block.
-     */
-    public Catch getHandler() {
-        return handler;
-    }
-
-    /**
-     * @return the type of exceptions handled by the handler.
-     */
-    public ClassType getCatchType() {
-        return catchType;
-    }
+public record ExceptionEntry(Stmt start, Stmt end,
+                             Catch handler, ClassType catchType) {
 
     @Override
     public String toString() {

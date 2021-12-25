@@ -19,7 +19,6 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.Hashes;
 import pascal.taie.util.InternalCanonicalized;
 
 import javax.annotation.Nullable;
@@ -97,37 +96,6 @@ public class FieldRef extends MemberRef {
                 getDeclaringClass(), getName(), type);
     }
 
-    private static class Key {
-
-        private final JClass declaringClass;
-
-        private final String name;
-
-        private final Type type;
-
-        private Key(JClass declaringClass, String name, Type type) {
-            this.declaringClass = declaringClass;
-            this.name = name;
-            this.type = type;
-        }
-
-        @Override
-        public int hashCode() {
-            return Hashes.hash(declaringClass, name, type);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Key key = (Key) o;
-            return declaringClass.equals(key.declaringClass) &&
-                    name.equals(key.name) &&
-                    type.equals(key.type);
-        }
+    private record Key(JClass declaringClass, String name, Type type) {
     }
 }

@@ -141,9 +141,9 @@ public class ExceptionAnalysis implements Plugin {
     private void propagateExceptions() {
         while (!workList.isEmpty()) {
             ExceptionWorkList.Entry entry = workList.pollEntry();
-            CSMethod csMethod = entry.csMethod;
-            Stmt stmt = entry.stmt;
-            Collection<CSObj> exceptions = entry.exceptions;
+            CSMethod csMethod = entry.csMethod();
+            Stmt stmt = entry.stmt();
+            Collection<CSObj> exceptions = entry.exceptions();
             CSMethodThrowResult result = csMethod.getResult(
                     getClass().getName(), CSMethodThrowResult::new);
             Collection<CSObj> diff = result.propagate(stmt, exceptions);
@@ -188,8 +188,8 @@ public class ExceptionAnalysis implements Plugin {
                 Collection<CSObj> uncaughtExceptions = newHybridSet();
                 newExceptions.forEach(newException -> {
                     Obj exObj = newException.getObject();
-                    if (typeManager.isSubtype(entry.getCatchType(), exObj.getType())) {
-                        Catch catchStmt = entry.getHandler();
+                    if (typeManager.isSubtype(entry.catchType(), exObj.getType())) {
+                        Catch catchStmt = entry.handler();
                         Var exceptionRef = catchStmt.getExceptionRef();
                         solver.addVarPointsTo(ctx, exceptionRef, newException);
                     } else {
