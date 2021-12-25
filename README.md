@@ -9,7 +9,7 @@ Tai-e is an easy-to-learn, easy-to-use, efficient and extensible static analysis
 ### Prerequisites
 Before running Tai-e, please finish following steps:
 
-- Install **Java 11** on your system (Tai-e is developed in pure Java, and it runs on all major operating systems including Windows/Linux/MacOS).
+- Install **Java 17** on your system (Tai-e is developed in pure Java, and it runs on all major operating systems including Windows/Linux/MacOS).
 - Clone submodule `java-benchmarks` (it contains the Java libraries used by the analysis):
 ```
   git submodule update --init --recursive

@@ -1,10 +1,10 @@
 ## Building Tai-e
 
-Before building Tai-e, make sure that your build tool/IDE uses **JDK 11** (*TODO: check higher JDK versions*).
+Before building Tai-e, make sure that your build tool/IDE uses **JDK 17**.
 
 ### Building Tai-e with Gradle
 Tai-e uses Gradle as its build system, thus it can be easily built as follows:
-1. Install Gradle (we use Gradle 5.6.2, *TODO: check other Gradle versions*).
+1. Install Gradle (we use Gradle 7.3).
 2. Type command in Tai-e's root directory: `gradle compileJava`.
 
 ### Building Tai-e with IntelliJ IDEA (Recommended)
