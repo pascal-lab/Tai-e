@@ -14,33 +14,12 @@ package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.util.Hashes;
 
 /**
  * Each instance represents a taint flow from source to sink.
  */
-public class TaintFlow implements Comparable<TaintFlow> {
-
-    /**
-     * Invocation of the source method.
-     */
-    private final Invoke sourceCall;
-
-    /**
-     * Invocation of the sink method.
-     */
-    private final Invoke sinkCall;
-
-    /**
-     * Index of the sink argument.
-     */
-    private final int index;
-
-    TaintFlow(Invoke sourceCall, Invoke sinkCall, int index) {
-        this.sourceCall = sourceCall;
-        this.sinkCall = sinkCall;
-        this.index = index;
-    }
+public record TaintFlow(Invoke sourceCall, Invoke sinkCall, int index)
+        implements Comparable<TaintFlow> {
 
     @Override
     public int compareTo(TaintFlow other) {
@@ -50,25 +29,6 @@ public class TaintFlow implements Comparable<TaintFlow> {
         }
         int sink = sinkCall.compareTo(other.sinkCall);
         return sink != 0 ? sink : index - other.index;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TaintFlow taintFlow = (TaintFlow) o;
-        return sourceCall.equals(taintFlow.sourceCall) &&
-                sinkCall.equals(taintFlow.sinkCall) &&
-                index == taintFlow.index;
-    }
-
-    @Override
-    public int hashCode() {
-        return Hashes.hash(sourceCall, sinkCall, index);
     }
 
     @Override

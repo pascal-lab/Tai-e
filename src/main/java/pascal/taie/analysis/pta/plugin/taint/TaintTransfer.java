@@ -18,8 +18,14 @@ import pascal.taie.language.type.Type;
 /**
  * Represents taint transfer between argument/base/return variables
  * caused by invocation to specific method.
+ * <ul>
+ *     <li>method: the method that causes taint transfer
+ *     <li>from: the index of "from" variable
+ *     <li>to: the index of "to" variable
+ *     <li>type: the type of the transferred taint object
+ * </ul>
  */
-class TaintTransfer {
+record TaintTransfer(JMethod method, int from, int to, Type type) {
 
     /**
      * Special number representing the base variable.
@@ -41,83 +47,6 @@ class TaintTransfer {
      * String representation of result variable
      */
     private static final String RESULT_STR = "result";
-
-    /**
-     * The method causing taint transfer.
-     */
-    private final JMethod method;
-
-    /**
-     * Index of source variable of the transfer.
-     */
-    private final int from;
-
-    /**
-     * Index of target variable of the transfer.
-     */
-    private final int to;
-
-    /**
-     * Type of transferred taint object.
-     */
-    private final Type type;
-
-    TaintTransfer(JMethod method, int from, int to, Type type) {
-        this.method = method;
-        this.from = from;
-        this.to = to;
-        this.type = type;
-    }
-
-    /**'
-     * @return the method that causes taint transfer.
-     */
-    JMethod getMethod() {
-        return method;
-    }
-
-    /**
-     * @return the index of "from" variable.
-     */
-    int getFrom() {
-        return from;
-    }
-
-    /**
-     * @return the index of "to" variable.
-     */
-    int getTo() {
-        return to;
-    }
-
-    /**
-     * @return the type of the transferred taint object.
-     */
-    Type getType() {
-        return type;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TaintTransfer that = (TaintTransfer) o;
-        return method.equals(that.method) &&
-                from == that.from && to == that.to && type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = method.hashCode();
-        result = 31 * result + from;
-        result = 31 * result + to;
-        result = 31 * result + type.hashCode();
-        return result;
-    }
 
     @Override
     public String toString() {

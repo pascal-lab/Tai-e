@@ -51,15 +51,6 @@ class WorkList {
      * Represents entries in the work list.
      * Each entry consists of a pointer and a points-to set.
      */
-    static class Entry {
-
-        final Pointer pointer;
-
-        final PointsToSet pointsToSet;
-
-        Entry(Pointer pointer, PointsToSet pointsToSet) {
-            this.pointer = pointer;
-            this.pointsToSet = pointsToSet;
-        }
+    record Entry(Pointer pointer, PointsToSet pointsToSet) {
     }
 }

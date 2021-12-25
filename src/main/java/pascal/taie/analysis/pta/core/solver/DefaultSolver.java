@@ -246,8 +246,8 @@ public class DefaultSolver implements Solver {
         while (!workList.isEmpty()) {
             while (workList.hasPointerEntries()) {
                 WorkList.Entry entry = workList.pollPointerEntry();
-                Pointer p = entry.pointer;
-                PointsToSet pts = entry.pointsToSet;
+                Pointer p = entry.pointer();
+                PointsToSet pts = entry.pointsToSet();
                 PointsToSet diff = propagate(p, pts);
                 if (p instanceof CSVar v) {
                     if (onlyApp && !v.getVar().getMethod()

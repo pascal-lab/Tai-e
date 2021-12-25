@@ -156,8 +156,8 @@ class Solver {
     private void analyze() {
         while (!workList.isEmpty()) {
             WorkList.Entry entry = workList.pollEntry();
-            Pointer p = entry.pointer;
-            PointsToSet pts = entry.pointsToSet;
+            Pointer p = entry.pointer();
+            PointsToSet pts = entry.pointsToSet();
             PointsToSet diff = propagate(p, pts);
             if (p instanceof VarPtr vp) {
                 Var v = vp.getVar();

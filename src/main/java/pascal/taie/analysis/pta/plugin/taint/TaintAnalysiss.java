@@ -84,9 +84,9 @@ public class TaintAnalysiss {
                 World.getTypeManager());
         logger.info(config);
         config.getSources()
-                .forEach(s -> sources.put(s.getMethod(), s.getType()));
+                .forEach(s -> sources.put(s.method(), s.type()));
         config.getTransfers()
-                .forEach(t -> transfers.put(t.getMethod(), t));
+                .forEach(t -> transfers.put(t.method(), t));
     }
 
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
@@ -104,12 +104,12 @@ public class TaintAnalysiss {
         }
         // process taint transfer
         transfers.get(callee).forEach(transfer -> {
-            Var from = getVar(callSite, transfer.getFrom());
-            Var to = getVar(callSite, transfer.getTo());
+            Var from = getVar(callSite, transfer.from());
+            Var to = getVar(callSite, transfer.to());
             // when transfer to result variable, and the call site
             // does not have result variable, then "to" is null.
             if (to != null) {
-                Type type = transfer.getType();
+                Type type = transfer.type();
                 varTransfers.put(from, new Pair<>(to, type));
                 Context ctx = edge.getCallSite().getContext();
                 CSVar csFrom = csManager.getCSVar(ctx, from);
@@ -161,9 +161,9 @@ public class TaintAnalysiss {
         PointerAnalysisResult result = solver.getResult();
         Set<TaintFlow> taintFlows = new TreeSet<>();
         config.getSinks().forEach(sink -> {
-            int i = sink.getIndex();
+            int i = sink.index();
             result.getCallGraph()
-                    .callersOf(sink.getMethod())
+                    .callersOf(sink.method())
                     .forEach(sinkCall -> {
                         Var arg = sinkCall.getInvokeExp().getArg(i);
                         result.getPointsToSet(arg)

@@ -55,15 +55,6 @@ class WorkList {
         return pointerEntries.isEmpty() && callEdges.isEmpty();
     }
 
-    static class Entry {
-
-        final Pointer pointer;
-
-        final PointsToSet pointsToSet;
-
-        public Entry(Pointer pointer, PointsToSet pointsToSet) {
-            this.pointer = pointer;
-            this.pointsToSet = pointsToSet;
-        }
+    record Entry(Pointer pointer, PointsToSet pointsToSet) {
     }
 }
