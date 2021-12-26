@@ -48,7 +48,7 @@ public class ConstantPropagation extends
 
     public ConstantPropagation(AnalysisConfig config) {
         super(config);
-        edgeRefine = getOptions().getBooleanOrDefault("edge-refine", true);
+        edgeRefine = getOptions().getBoolean("edge-refine");
     }
 
     @Override

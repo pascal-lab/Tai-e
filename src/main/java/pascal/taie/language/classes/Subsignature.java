@@ -14,11 +14,10 @@ package pascal.taie.language.classes;
 
 import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
+import pascal.taie.util.collection.Maps;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-
-import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 /**
  * Method name and descriptor.
@@ -27,7 +26,7 @@ import static pascal.taie.util.collection.Maps.newConcurrentMap;
 public class Subsignature {
 
     private static final ConcurrentMap<String, Subsignature> map
-            = newConcurrentMap();
+            = Maps.newConcurrentMap();
 
     private final String subsig;
 

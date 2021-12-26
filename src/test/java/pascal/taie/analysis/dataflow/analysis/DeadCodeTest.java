@@ -19,7 +19,9 @@ public class DeadCodeTest {
 
     void testDCD(String inputClass) {
         Tests.testDFA(inputClass, "src/test/resources/dataflow/deadcode/",
-                DeadCodeDetection.ID);
+                DeadCodeDetection.ID,
+                "-a", "livevar=strongly:false",
+                "-a", "constprop=edge-refine:false");
     }
 
     @Test

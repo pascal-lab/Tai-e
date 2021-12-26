@@ -81,9 +81,10 @@ public class InterConstantPropagation extends
 
     public InterConstantPropagation(AnalysisConfig config) {
         super(config);
-        cp = new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
         edgeRefine = getOptions().getBoolean("edge-refine");
         aliasAware = getOptions().getBoolean("alias-aware");
+        cp = new ConstantPropagation(new AnalysisConfig(
+                ConstantPropagation.ID, "edge-refine", edgeRefine));
     }
 
     @Override

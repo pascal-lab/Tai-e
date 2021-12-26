@@ -21,6 +21,7 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -29,7 +30,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
 import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
-import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 /**
  * Represents method references in IR.
@@ -40,7 +40,7 @@ public class MethodRef extends MemberRef {
     private static final Logger logger = LogManager.getLogger(MethodRef.class);
 
     private static final ConcurrentMap<Key, MethodRef> map =
-            newConcurrentMap(4096);
+            Maps.newConcurrentMap(4096);
 
     // Method names of polymorphic signature methods.
     private static final Set<String> METHOD_HANDLE_METHODS = Set.of(
@@ -185,6 +185,9 @@ public class MethodRef extends MemberRef {
                 parameterTypes, returnType);
     }
 
+    /**
+     * Uses as keys to identify {@link MethodRef}s in cache.
+     */
     private record Key(JClass declaringClass, Subsignature subsignature) {
     }
 }

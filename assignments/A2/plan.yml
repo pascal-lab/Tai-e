@@ -8,7 +8,7 @@
     dump: true
 - id: constprop
   options:
-    edge-transfer: false
+    edge-refine: false
 - id: process-result
   options:
     analyses:

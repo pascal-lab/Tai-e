@@ -20,11 +20,10 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentMap;
-
-import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 /**
  * Represents field references in IR.
@@ -35,7 +34,7 @@ public class FieldRef extends MemberRef {
     private static final Logger logger = LogManager.getLogger(FieldRef.class);
 
     private static final ConcurrentMap<Key, FieldRef> map =
-            newConcurrentMap(4096);
+            Maps.newConcurrentMap(4096);
 
     private final Type type;
 
@@ -96,6 +95,9 @@ public class FieldRef extends MemberRef {
                 getDeclaringClass(), getName(), type);
     }
 
+    /**
+     * Uses as keys to identify {@link FieldRef}s in cache.
+     */
     private record Key(JClass declaringClass, String name, Type type) {
     }
 }

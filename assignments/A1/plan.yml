@@ -7,7 +7,8 @@
     exception: explicit
     dump: true
 - id: livevar
-  options: {}
+  options:
+    strongly: false
 - id: process-result
   options:
     analyses:

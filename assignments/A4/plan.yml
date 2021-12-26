@@ -16,6 +16,7 @@
     dump: true
 - id: inter-constprop
   options:
+    edge-refine: false
     alias-aware: false
     pta: null
 - id: process-result

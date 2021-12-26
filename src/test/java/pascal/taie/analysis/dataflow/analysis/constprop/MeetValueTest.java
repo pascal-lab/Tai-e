@@ -22,8 +22,8 @@ public class MeetValueTest {
     private final Value i0 = Value.makeConstant(0);
     private final Value NAC = Value.getNAC();
     private final Value undef = Value.getUndef();
-    private final ConstantPropagation cp =
-            new ConstantPropagation(new AnalysisConfig(ConstantPropagation.ID));
+    private final ConstantPropagation cp = new ConstantPropagation(
+            new AnalysisConfig(ConstantPropagation.ID, "edge-refine", true));
 
     @Test
     public void testMeet() {
