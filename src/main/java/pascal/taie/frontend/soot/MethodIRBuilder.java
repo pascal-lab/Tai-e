@@ -512,7 +512,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                     if (defValue instanceof Constant) {
                         defValue.apply(constantConverter);
                         addStmt(new AssignLiteral(getVar(lvar),
-                                (Literal) constantConverter.getResult()));
+                                constantConverter.getResult()));
                     } else if (defValue instanceof Local) {
                         addStmt(new Copy(getVar(lvar), getVar((Local) defValue)));
                     } else if (defValue instanceof BinopExpr) {
@@ -527,7 +527,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 if (!isTempVar(lvar)) {
                     rhs.apply(constantConverter);
                     addStmt(new AssignLiteral(getVar(lvar),
-                            (Literal) constantConverter.getResult()));
+                            constantConverter.getResult()));
                 }
             } else if (rhs instanceof FieldRef) {
                 addStmt(new LoadField(getVar(lvar),
@@ -588,7 +588,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 if (defValue instanceof Constant) {
                     defValue.apply(constantConverter);
                     addStmt(new AssignLiteral(varManager.getVar(local),
-                            (Literal) constantConverter.getResult()));
+                            constantConverter.getResult()));
                 } else if (defValue instanceof BinopExpr) {
                     buildBinary(local, (BinopExpr) defValue);
                 } else {
@@ -619,7 +619,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
             return getVar((Local) value);
         } else if (value instanceof Constant) {
             value.apply(constantConverter);
-            Literal rvalue = (Literal) constantConverter.getResult();
+            Literal rvalue = constantConverter.getResult();
             return constantVars.computeIfAbsent(rvalue, v -> {
                 Var lvalue = varManager.newConstantVar(v);
                 if (!(rvalue instanceof NullLiteral)) {
@@ -682,7 +682,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     private void buildNew(Local lhs, AnyNewExpr rhs) {
         rhs.apply(newExprConverter);
-        NewExp newExp = (NewExp) newExprConverter.getResult();
+        NewExp newExp = newExprConverter.getResult();
         New newStmt = new New(method, getVar(lhs), newExp);
         addStmt(newStmt);
     }
@@ -776,7 +776,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     private void buildBinary(Local lhs, BinopExpr rhs) {
         rhs.apply(binaryOpExtractor);
-        BinaryExp.Op op = (BinaryExp.Op) binaryOpExtractor.getResult();
+        BinaryExp.Op op = binaryOpExtractor.getResult();
         BinaryExp binaryExp;
         Var v1 = getLocalOrConstant(rhs.getOp1());
         Var v2 = getLocalOrConstant(rhs.getOp2());

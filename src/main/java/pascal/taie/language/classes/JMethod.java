@@ -17,6 +17,7 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
 
 import java.util.List;
 import java.util.Set;
@@ -101,8 +102,11 @@ public class JMethod extends ClassMember {
     }
 
     public IR getIR() {
-        assert !isAbstract();
         if (ir == null) {
+            if (isAbstract()) {
+                throw new AnalysisException("Abstract method " + this +
+                        " has no method body");
+            }
             if (isNative()) {
                 ir = World.getNativeModel().buildNativeIR(this);
             } else {

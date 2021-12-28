@@ -18,8 +18,10 @@ import pascal.taie.ir.exp.Var;
 
 /**
  * Representation of following load field statements:
- * - load instance field: x = o.f
- * - load static field: x = T.f
+ * <ul>
+ *     <li>load instance field: x = o.f
+ *     <li>load static field: x = T.f
+ * </ul>
  */
 public class LoadField extends FieldStmt<Var, FieldAccess> {
 

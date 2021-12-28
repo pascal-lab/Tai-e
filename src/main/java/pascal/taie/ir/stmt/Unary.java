@@ -17,8 +17,10 @@ import pascal.taie.ir.exp.Var;
 
 /**
  * Representation of following kinds of unary assign statements:
- * - negation: x = -y
- * - array length: x = arr.length
+ * <ul>
+ *     <li>negation: x = -y
+ *     <li>array length: x = arr.length
+ * </ul>
  */
 public class Unary extends AssignStmt<Var, UnaryExp> {
 

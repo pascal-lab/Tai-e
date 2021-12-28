@@ -48,14 +48,16 @@ import java.util.List;
 
 /**
  * Models reflective-action methods, currently supports
- * - Class.forName(String)
- * - Class.forName(String,boolean,ClassLoader)
- * - Class.newInstance()
- * - Constructor.newInstance(Object[])
- * - Method.invoke(Object,Object[])
- * - Field.get(Object)
- * - Field.set(Object,Object)
- * - Array.newInstance(Class,int)
+ * <ul>
+ *     <li>Class.forName(String)
+ *     <li>Class.forName(String,boolean,ClassLoader)
+ *     <li>Class.newInstance()
+ *     <li>Constructor.newInstance(Object[])
+ *     <li>Method.invoke(Object,Object[])
+ *     <li>Field.get(Object)
+ *     <li>Field.set(Object,Object)
+ *     <li>Array.newInstance(Class,int)
+ * </ul>
  * TODO: check accessibility
  */
 class ReflectiveActionModel extends AbstractModel {

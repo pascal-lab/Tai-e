@@ -19,7 +19,6 @@ import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class ThrowResult {
     }
 
     public Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
-        return implicit == null ? List.of() :
+        return implicit == null ? Set.of() :
                 implicit.mayThrowImplicitly(stmt);
     }
 

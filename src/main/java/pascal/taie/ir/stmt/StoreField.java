@@ -18,8 +18,10 @@ import pascal.taie.ir.exp.Var;
 
 /**
  * Representation of following store field statements:
- * - store instance field: o.f = x
- * - store static field: T.f = x
+ * <ul>
+ *     <li>store instance field: o.f = x
+ *     <li>store static field: T.f = x
+ * </ul>
  */
 public class StoreField extends FieldStmt<FieldAccess, Var> {
 

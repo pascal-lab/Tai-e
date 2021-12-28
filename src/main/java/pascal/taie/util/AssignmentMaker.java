@@ -257,8 +257,6 @@ final class AssignmentMaker {
                             zos.write(buffer, 0, len);
                         }
                         // if large file, throws out of memory
-                        // byte[] bytes = Files.readAllBytes(file);
-                        // zos.write(bytes, 0, bytes.length);
                         zos.closeEntry();
                         logger.info("Zip file : {}", file);
                     } catch (IOException e) {

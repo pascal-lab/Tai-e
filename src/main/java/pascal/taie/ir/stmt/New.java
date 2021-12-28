@@ -18,9 +18,11 @@ import pascal.taie.language.classes.JMethod;
 
 /**
  * Representation of following kinds of new statements:
- * - new instance: o = new T
- * - new array: o = new T[..]
- * - new multi-array: o = new T[..][..]
+ * <ul>
+ *     <li>new instance: o = new T
+ *     <li>new array: o = new T[..]
+ *     <li>new multi-array: o = new T[..][..]
+ * </ul>
  */
 public class New extends AssignStmt<Var, NewExp> {
 
