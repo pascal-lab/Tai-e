@@ -16,7 +16,7 @@ package pascal.taie.analysis.misc;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.IR;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 /**
  * Dumps out classes.
  */
-public class ClassDumper extends InterproceduralAnalysis {
+public class ClassDumper extends ProgramAnalysis {
 
     private static final Logger logger = LogManager.getLogger(ClassDumper.class);
 

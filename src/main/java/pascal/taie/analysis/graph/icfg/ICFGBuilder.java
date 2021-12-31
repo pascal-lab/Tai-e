@@ -15,7 +15,7 @@ package pascal.taie.analysis.graph.icfg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.cfg.CFG;
@@ -32,7 +32,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ICFGBuilder extends InterproceduralAnalysis {
+public class ICFGBuilder extends ProgramAnalysis {
 
     private static final Logger logger = LogManager.getLogger(ICFGBuilder.class);
 

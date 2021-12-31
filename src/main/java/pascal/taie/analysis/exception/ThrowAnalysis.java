@@ -12,11 +12,11 @@
 
 package pascal.taie.analysis.exception;
 
-import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 
-public class ThrowAnalysis extends IntraproceduralAnalysis {
+public class ThrowAnalysis extends MethodAnalysis {
 
     public static final String ID = "throw";
 

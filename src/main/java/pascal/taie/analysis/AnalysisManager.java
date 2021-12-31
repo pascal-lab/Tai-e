@@ -38,7 +38,9 @@ public class AnalysisManager {
 
     private static final Logger logger = LogManager.getLogger(AnalysisManager.class);
 
-    private List<JMethod> scope;
+    private List<JClass> classScope;
+
+    private List<JMethod> methodScope;
 
     /**
      * Executes the analysis plan.
@@ -55,11 +57,13 @@ public class AnalysisManager {
             Constructor<?> ctor = clazz.getConstructor(AnalysisConfig.class);
             Object analysis = ctor.newInstance(config);
             // Run the analysis
-            if (analysis instanceof IntraproceduralAnalysis) {
-                runIntraproceduralAnalysis((IntraproceduralAnalysis) analysis);
-            } else if (analysis instanceof InterproceduralAnalysis) {
-                runInterproceduralAnalysis((InterproceduralAnalysis) analysis);
-            } else {
+            if (analysis instanceof ProgramAnalysis) {
+                runProgramAnalysis((ProgramAnalysis) analysis);
+            } else if (analysis instanceof ClassAnalysis) {
+                runClassAnalysis((ClassAnalysis) analysis);
+            } else if (analysis instanceof MethodAnalysis) {
+                runMethodAnalysis((MethodAnalysis) analysis);
+            } else  {
                 logger.warn(clazz + " is not an analysis");
             }
         } catch (ClassNotFoundException | NoSuchMethodException |
@@ -70,8 +74,49 @@ public class AnalysisManager {
         }
     }
 
-    private void runIntraproceduralAnalysis(IntraproceduralAnalysis analysis) {
-        getScope().parallelStream()
+    private void runProgramAnalysis(ProgramAnalysis analysis) {
+        Object result = analysis.analyze();
+        if (result != null) {
+            World.storeResult(analysis.getId(), result);
+        }
+    }
+
+    private void runClassAnalysis(ClassAnalysis analysis) {
+        getClassScope().parallelStream()
+                .forEach(c -> {
+                    Object result = analysis.analyze(c);
+                    if (result != null) {
+                        c.storeResult(analysis.getId(), result);
+                    }
+                });
+    }
+
+    private List<JClass> getClassScope() {
+        if (classScope == null) {
+            classScope = switch (World.getOptions().getScope()) {
+                case Scope.APP -> World.getClassHierarchy()
+                        .applicationClasses()
+                        .toList();
+                case Scope.ALL -> World.getClassHierarchy()
+                        .allClasses()
+                        .toList();
+                case Scope.REACHABLE -> {
+                    CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
+                    yield callGraph.reachableMethods()
+                            .map(JMethod::getDeclaringClass)
+                            .toList();
+                }
+                default -> throw new ConfigException(
+                        "Unexpected scope option: " + World.getOptions().getScope());
+            };
+            logger.info("{} classes in scope ({}) of class analyses",
+                    classScope.size(), World.getOptions().getScope());
+        }
+        return classScope;
+    }
+
+    private void runMethodAnalysis(MethodAnalysis analysis) {
+        getMethodScope().parallelStream()
                 .forEach(m -> {
                     IR ir = m.getIR();
                     Object result = analysis.analyze(ir);
@@ -81,42 +126,16 @@ public class AnalysisManager {
                 });
     }
 
-    private List<JMethod> getScope() {
-        if (scope == null) {
-            switch (World.getOptions().getScope()) {
-                case Scope.APP -> {
-                    scope = World.getClassHierarchy()
-                            .applicationClasses()
-                            .map(JClass::getDeclaredMethods)
-                            .flatMap(Collection::stream)
-                            .filter(m -> !m.isAbstract() && !m.isNative())
-                            .toList();
-                }
-                case Scope.REACHABLE -> {
-                    CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
-                    scope = callGraph.reachableMethods().toList();
-                }
-                case Scope.ALL -> {
-                    scope = World.getClassHierarchy()
-                            .allClasses()
-                            .map(JClass::getDeclaredMethods)
-                            .flatMap(Collection::stream)
-                            .filter(m -> !m.isAbstract() && !m.isNative())
-                            .toList();
-                }
-                default -> throw new ConfigException(
-                        "Unexpected scope option: " + World.getOptions().getScope());
-            }
-            logger.info("{} methods in scope ({}) of intra-procedural analysis",
-                    scope.size(), World.getOptions().getScope());
+    private List<JMethod> getMethodScope() {
+        if (methodScope == null) {
+            methodScope = getClassScope().stream()
+                    .map(JClass::getDeclaredMethods)
+                    .flatMap(Collection::stream)
+                    .filter(m -> !m.isAbstract() && !m.isNative())
+                    .toList();
+            logger.info("{} methods in scope ({}) of method analyses",
+                    methodScope.size(), World.getOptions().getScope());
         }
-        return scope;
-    }
-
-    private void runInterproceduralAnalysis(InterproceduralAnalysis analysis) {
-        Object result = analysis.analyze();
-        if (result != null) {
-            World.storeResult(analysis.getId(), result);
-        }
+        return methodScope;
     }
 }

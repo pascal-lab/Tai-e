@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.solver.Solver;
 import pascal.taie.analysis.graph.cfg.CFG;
@@ -22,7 +22,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 
 public abstract class AbstractDataflowAnalysis<Node, Fact>
-        extends IntraproceduralAnalysis
+        extends MethodAnalysis
         implements DataflowAnalysis<Node, Fact> {
 
     private final Solver<Node, Fact> solver;

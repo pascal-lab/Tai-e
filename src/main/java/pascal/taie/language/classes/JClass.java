@@ -12,6 +12,7 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.analysis.AbstractResultHolder;
 import pascal.taie.language.type.ClassType;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  * information of a class, including class name, modifiers, declared
  * methods and fields, etc.
  */
-public class JClass {
+public class JClass extends AbstractResultHolder {
 
     private final JClassLoader loader;
 

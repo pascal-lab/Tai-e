@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.cs;
 
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.selector.CISelector;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
@@ -29,7 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Context-sensitive pointer analysis.
  */
-public class CSPTA extends InterproceduralAnalysis {
+public class CSPTA extends ProgramAnalysis {
 
     public static final String ID = "cspta";
 

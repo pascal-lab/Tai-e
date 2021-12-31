@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.pta.ci;
 
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
@@ -21,7 +21,7 @@ import pascal.taie.config.AnalysisConfig;
 /**
  * Context-insensitive pointer analysis.
  */
-public class CIPTA extends InterproceduralAnalysis {
+public class CIPTA extends ProgramAnalysis {
 
     public static final String ID = "cipta";
 

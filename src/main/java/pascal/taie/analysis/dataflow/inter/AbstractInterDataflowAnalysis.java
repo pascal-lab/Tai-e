@@ -13,7 +13,7 @@
 package pascal.taie.analysis.dataflow.inter;
 
 import pascal.taie.World;
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.CallToReturnEdge;
@@ -32,7 +32,7 @@ import pascal.taie.config.AnalysisConfig;
  * @param <Fact>   type of data-flow facts
  */
 public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
-        extends InterproceduralAnalysis
+        extends ProgramAnalysis
         implements InterDataflowAnalysis<Node, Fact> {
 
     protected ICFG<Method, Node> icfg;

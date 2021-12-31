@@ -19,11 +19,13 @@ IntelliJ IDEA supports a fully-functional integration with Gradle, thus it is ve
 To develop a new analysis and make it available in Tai-e, you need to finish following two steps.
 
 ### 1. Develop the analysis
-Depending on if the analysis is intra- or inter-procedural, the analysis class should extends either [IntraproceduralAnalysis](../src/main/java/pascal/taie/analysis//IntraproceduralAnalysis.java) or [InterproceduralAnalysis](../src/main/java/pascal/taie/analysis//InterproceduralAnalysis.java).
+Depending on if the analysis runs on method-, class- or program-level, the analysis class should extends either [MethodAnalysis](../src/main/java/pascal/taie/analysis/MethodAnalysis.java), [ClassAnalysis](../src/main/java/pascal/taie/analysis/ClassAnalysis.java) or [ProgramAnalysis](../src/main/java/pascal/taie/analysis/ProgramAnalysis.java).
 
-In [IntraproceduralAnalysis](../src/main/java/pascal/taie/analysis//IntraproceduralAnalysis.java), you need to implement the analysis logic in method `analyze(IR)`, which at each time takes the IR of a method as input.
+In [MethodAnalysis](../src/main/java/pascal/taie/analysis/MethodAnalysis.java), you need to implement the analysis logic in method `analyze(IR)`, which at each time takes the IR of a method as input.
 
-In [InterproceduralAnalysis](../src/main/java/pascal/taie/analysis//InterproceduralAnalysis.java), you need to implement the analysis logic in method `analyze()`. Inter-procedural analyses typically require whole-program information, which can be accessed by the static methods of [World](../src/main/java/pascal/taie/World.java), thus we do not pass argument to the `analyze()` method.
+In [ClassAnalysis](../src/main/java/pascal/taie/analysis/ClassAnalysis.java), you need to implement the analysis logic in method `analyze(JClass)`, which at each time takes a class as input.
+
+In [ProgramAnalysis](../src/main/java/pascal/taie/analysis/ProgramAnalysis.java), you need to implement the analysis logic in method `analyze()`. Inter-procedural analyses typically require whole-program information, which can be accessed by the static methods of [World](../src/main/java/pascal/taie/World.java), thus we do not pass argument to the `analyze()` method.
 
 Below we provide some tips which may be useful for developing new analysis.
 
@@ -31,7 +33,7 @@ Below we provide some tips which may be useful for developing new analysis.
 Global options are available at `World.getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `Analysis.getOptions()`.
 
 #### Obtain results of other analyses
-If your analysis requires the results of some other previously-executed analyses, you could obtain it by calling `ir.getResult(id)`/`World.getResult(id)` for intra-/inter-procedural analysis results.
+If your analysis requires the results of some other previously-executed analyses, you could obtain it by calling `ir.getResult(id)`/`jclass.getResult(id)`/`World.getResult(id)` for method/class/program analysis results.
 
 
 ### 2. Add analysis information to configuration file

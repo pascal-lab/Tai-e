@@ -13,27 +13,23 @@
 package pascal.taie.analysis;
 
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.IR;
 
 /**
- * Abstract base class for all intra-procedural analyses.
+ * Abstract base class for all whole-program analyses.
  */
-public abstract class IntraproceduralAnalysis extends Analysis {
+public abstract class ProgramAnalysis extends Analysis {
 
-    // private boolean isParallel;
-
-    protected IntraproceduralAnalysis(AnalysisConfig config) {
+    protected ProgramAnalysis(AnalysisConfig config) {
         super(config);
     }
 
     /**
-     * Runs this analysis for the given IR.
-     *
-     * @param ir IR of the method to be analyzed
-     * @return the analysis result for given ir.
-     * The result will be stored in {@link pascal.taie.ir.IR}.
+     * Runs this analysis for the whole program.
      * If the result is not used by following analyses, then this method
-     * should return null.
+     * should return {@code null}.
+     *
+     * @return the analysis result for the whole program.
+     * The result will be stored in {@link pascal.taie.World}.
      */
-    public abstract Object analyze(IR ir);
+    public abstract Object analyze();
 }

@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.exception.CatchAnalysis;
 import pascal.taie.analysis.exception.CatchResult;
 import pascal.taie.analysis.exception.ThrowAnalysis;
@@ -32,7 +32,7 @@ import pascal.taie.language.type.ClassType;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class CFGBuilder extends IntraproceduralAnalysis {
+public class CFGBuilder extends MethodAnalysis {
 
     public static final String ID = "cfg";
 
