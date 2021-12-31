@@ -12,8 +12,8 @@
 
 package pascal.taie.language.classes;
 
-import pascal.taie.analysis.AbstractResultHolder;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.AbstractResultHolder;
 
 import javax.annotation.Nullable;
 import java.util.Collection;

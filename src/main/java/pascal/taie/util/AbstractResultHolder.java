@@ -10,23 +10,23 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis;
+package pascal.taie.util;
+
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static pascal.taie.util.collection.Maps.newHybridMap;
-
 /**
- * Implementation for {@link ResultHolder}.
+ * Map-based implementation for {@link ResultHolder}.
  */
 public abstract class AbstractResultHolder implements ResultHolder {
 
     /**
      * Map from analysis ID to the corresponding analysis result.
      */
-    private final Map<String, Object> results = newHybridMap();
+    private final Map<String, Object> results = Maps.newHybridMap();
 
     @Override
     public <R> void storeResult(String key, R result) {

@@ -12,7 +12,6 @@
 
 package pascal.taie.analysis.pta;
 
-import pascal.taie.analysis.ResultHolder;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -26,6 +25,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.ResultHolder;
 
 import java.util.Set;
 import java.util.stream.Stream;

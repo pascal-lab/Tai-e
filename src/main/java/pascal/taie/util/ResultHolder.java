@@ -10,7 +10,7 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.analysis;
+package pascal.taie.util;
 
 import java.util.Collection;
 import java.util.function.Supplier;

@@ -12,8 +12,6 @@
 
 package pascal.taie;
 
-import pascal.taie.analysis.AbstractResultHolder;
-import pascal.taie.analysis.ResultHolder;
 import pascal.taie.config.Options;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -23,6 +21,8 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeManager;
+import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.ResultHolder;
 
 import java.util.Collection;
 

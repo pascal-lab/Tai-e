@@ -12,11 +12,11 @@
 
 package pascal.taie.analysis.pta.core.cs.element;
 
-import pascal.taie.analysis.AbstractResultHolder;
-import pascal.taie.analysis.ResultHolder;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.ResultHolder;
 
 import java.util.Optional;
 import java.util.Set;
