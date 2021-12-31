@@ -189,11 +189,9 @@ public class ClassDumper extends ProgramAnalysis {
                     .filter(v -> v != ir.getThis())
                     .filter(v -> !ir.getParams().contains(v))
                     .filter(v -> !v.getType().equals(NullType.NULL))
-                    .forEach(v ->
-                            vars.computeIfAbsent(
-                                    v.getType(), (unused) -> new ArrayList<>())
-                                    .add(v)
-                    );
+                    .forEach(v -> vars.computeIfAbsent(v.getType(),
+                                    (unused) -> new ArrayList<>())
+                            .add(v));
             vars.forEach((t, vs) -> {
                 out.printf("%s%s%s ", INDENT, INDENT, t);
                 out.print(vs.stream()

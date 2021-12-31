@@ -72,12 +72,12 @@ public abstract class SwitchStmt extends JumpStmt {
      *
      * <p>
      * switch (x) {<p>
-     *     case 1: a = 1; break;<p>
-     *     case 3: a = 3; break;<p>
-     *     default: a = 0; break;<p>
+     * case 1: a = 1; break;<p>
+     * case 3: a = 3; break;<p>
+     * default: a = 0; break;<p>
      * } <p>
      * <p>
-     *
+     * <p>
      * This API would return [1, 3].
      */
     public abstract List<Integer> getCaseValues();
@@ -88,12 +88,12 @@ public abstract class SwitchStmt extends JumpStmt {
      *
      * <p>
      * switch (x) {<p>
-     *     case 1: a = 1; break;<p>
-     *     case 3: a = 3; break;<p>
-     *     default: a = 0; break;<p>
+     * case 1: a = 1; break;<p>
+     * case 3: a = 3; break;<p>
+     * default: a = 0; break;<p>
      * } <p>
      * <p>
-     *
+     * <p>
      * This API would return [(1, a = 1;), (3, a = 3;)].
      */
     public abstract List<Pair<Integer, Stmt>> getCaseTargets();

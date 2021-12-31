@@ -60,7 +60,7 @@ public abstract class InvokeExp implements RValue {
     /**
      * @return the i-th argument of the invocation.
      * @throws IndexOutOfBoundsException if the index is out of range
-     * (index < 0 || index >= getArgCount())
+     *                                   (index < 0 || index >= getArgCount())
      */
     public Var getArg(int i) {
         return args.get(i);

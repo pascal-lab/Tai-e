@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Represents data facts of constant propagation, which maps variables
  * to their lattice values.
- *
+ * <p>
  * Note that in this implementation, we use absence to represent UNDEF,
  * i.e., if a CPFact does not contain variable-value mapping of a variable,
  * it represents that the lattice value of the variable is UNDEF;

@@ -192,6 +192,7 @@ public class DefaultSolver implements Solver {
     }
 
     // ---------- solver logic starts ----------
+
     /**
      * Runs pointer analysis algorithm.
      */

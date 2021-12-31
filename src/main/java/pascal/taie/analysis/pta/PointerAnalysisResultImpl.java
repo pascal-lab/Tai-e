@@ -67,7 +67,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     private CallGraph<Invoke, JMethod> callGraph;
 
     public PointerAnalysisResultImpl(CSManager csManager,
-                              CallGraph<CSCallSite, CSMethod> csCallGraph) {
+                                     CallGraph<CSCallSite, CSMethod> csCallGraph) {
         this.csManager = csManager;
         this.csCallGraph = csCallGraph;
     }

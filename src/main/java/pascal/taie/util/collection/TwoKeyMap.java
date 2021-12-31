@@ -31,7 +31,7 @@ import java.util.function.BiFunction;
  *   <li>k1 -> { k2 -> v1, k3 -> v2 }
  *   <li>k2 -> { k4 -> v1 }
  * </ul>
- *
+ * <p>
  * ... or as a single "flattened" collection of key1-key2-value triples:
  *
  * <ul>
@@ -39,7 +39,7 @@ import java.util.function.BiFunction;
  *   <li>k1, k3 -> v2
  *   <li>k2, k4 -> v1
  * </ul>
- *
+ * <p>
  * Note that both {@code null} keys and values are <i>not</i> permitted in this map.
  *
  * @param <K1> type of first keys in this map
@@ -124,7 +124,7 @@ public interface TwoKeyMap<K1, K2, V> {
     Set<KeyPair<K1, K2>> keyPairSet();
 
     /**
-     *  @return an unmodifiable view of first keys of all mappings contained
+     * @return an unmodifiable view of first keys of all mappings contained
      * in this two-key map. Note that the result contains a key if and only if
      * this map contains at least one mapping with the key as the first key.
      */
@@ -175,7 +175,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * the specified key, or {@code null} if the computed value is {@code null}.
      */
     default V computeIfAbsent(K1 key1, K2 key2,
-                      @Nonnull BiFunction<K1, K2, V> mapper) {
+                              @Nonnull BiFunction<K1, K2, V> mapper) {
         Objects.requireNonNull(mapper);
         V v;
         if ((v = get(key1, key2)) == null) {

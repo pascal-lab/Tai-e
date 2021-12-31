@@ -75,14 +75,14 @@ class GuidedSelector extends AbstractContextSelector {
     @Override
     public Context selectContext(CSCallSite callSite, CSObj recv, JMethod callee) {
         String cs = csMap.getOrDefault(callee, DEFAULT_CS);
-        switch (cs) {
-            case "ci": return selectCI();
-            case "1-type": return select1Type(recv);
-            case "2-type": return select2Type(recv);
-            case "2-obj": return select2Obj(recv);
-            default: throw new AnalysisException(cs + " is not supported " +
+        return switch (cs) {
+            case "ci" -> selectCI();
+            case "1-type" -> select1Type(recv);
+            case "2-type" -> select2Type(recv);
+            case "2-obj" -> select2Obj(recv);
+            default -> throw new AnalysisException(cs + " is not supported " +
                     "(currently supported cs: " + SUPPORTED_CS + ")");
-        }
+        };
     }
 
     private Context selectCI() {

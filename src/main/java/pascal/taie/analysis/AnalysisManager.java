@@ -63,7 +63,7 @@ public class AnalysisManager {
                 runClassAnalysis((ClassAnalysis) analysis);
             } else if (analysis instanceof MethodAnalysis) {
                 runMethodAnalysis((MethodAnalysis) analysis);
-            } else  {
+            } else {
                 logger.warn(clazz + " is not an analysis");
             }
         } catch (ClassNotFoundException | NoSuchMethodException |

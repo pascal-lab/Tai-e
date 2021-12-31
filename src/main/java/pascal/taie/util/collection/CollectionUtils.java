@@ -51,7 +51,7 @@ public final class CollectionUtils {
     public static <T> T getOne(Collection<T> c) {
         return c.iterator().next();
     }
-    
+
     /**
      * Creates a list of given collection, appends a specific element to
      * the list and returns it.

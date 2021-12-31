@@ -30,8 +30,8 @@ import java.util.function.BiConsumer;
  *   <li>k1 -> [v1]
  *   <li>k2 -> [v2, v3]
  *   <li>k3 -> [v2, v5]
- *</ul>
- *
+ * </ul>
+ * <p>
  * ... or as a single "flattened" collection of key-value pairs:
  *
  * <ul>
@@ -41,7 +41,7 @@ import java.util.function.BiConsumer;
  *   <li>k3 -> v2
  *   <li>k3 -> v5
  * </ul>
- *
+ * <p>
  * Note that both {@code null} keys and values are <i>not</i> permitted in this map.
  *
  * @param <K> type of the keys in this map

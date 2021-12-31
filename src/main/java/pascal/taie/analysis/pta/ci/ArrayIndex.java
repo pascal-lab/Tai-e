@@ -17,7 +17,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 
 /**
  * Represents array index pointers in PFG.
- *
+ * <p>
  * Ideally, an array index should consist of an array object and an index.
  * However, pointer analysis does not distinguish loads and stores to
  * different indexes of an array, and treats arrays as special objects

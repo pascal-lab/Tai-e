@@ -21,7 +21,7 @@ import java.util.Set;
 
 /**
  * Extended version {@link PointerAnalysisResult}.
- *
+ * <p>
  * Unlike {@link PointerAnalysisResult} which only provides results directly
  * computed from pointer analysis, this class provides more commonly-used results
  * that are indirectly derived from original pointer analysis result.

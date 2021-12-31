@@ -45,7 +45,6 @@ public interface ResultHolder {
     <R> R getResult(String key, Supplier<R> supplier);
 
     /**
-     *
      * @return all keys in the holder.
      */
     Collection<String> getKeys();
