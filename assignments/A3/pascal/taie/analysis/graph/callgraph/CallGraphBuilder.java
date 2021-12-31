@@ -12,10 +12,10 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.config.AnalysisConfig;
 
-public class CallGraphBuilder extends InterproceduralAnalysis {
+public class CallGraphBuilder extends ProgramAnalysis {
 
     public static final String ID = "cg";
 

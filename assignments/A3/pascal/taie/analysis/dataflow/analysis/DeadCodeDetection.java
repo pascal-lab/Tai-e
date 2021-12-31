@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.analysis.IntraproceduralAnalysis;
+import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
@@ -39,7 +39,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class DeadCodeDetection extends IntraproceduralAnalysis {
+public class DeadCodeDetection extends MethodAnalysis {
 
     public static final String ID = "deadcode";
 

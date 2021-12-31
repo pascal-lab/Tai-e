@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import pascal.taie.analysis.InterproceduralAnalysis;
+import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
 import pascal.taie.ir.stmt.Invoke;
@@ -21,7 +21,7 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 
-public class CallGraphBuilder extends InterproceduralAnalysis {
+public class CallGraphBuilder extends ProgramAnalysis {
 
     public static final String ID = "cg";
 

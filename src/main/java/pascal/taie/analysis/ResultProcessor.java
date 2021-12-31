@@ -88,10 +88,10 @@ public class ResultProcessor extends ProgramAnalysis {
                 .stream()
                 .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
         if (groups.containsKey(true)) {
-            processInterResults(groups.get(true));
+            processProgramAnalysisResult(groups.get(true));
         }
         if (groups.containsKey(false)) {
-            processIntraResults(groups.get(false));
+            processMethodAnalysisResult(groups.get(false));
         }
         if (getOptions().getBoolean("log-mismatches")) {
             mismatches.forEach(logger::info);
@@ -151,7 +151,7 @@ public class ResultProcessor extends ProgramAnalysis {
         }
     }
 
-    private void processInterResults(List<String> analyses) {
+    private void processProgramAnalysisResult(List<String> analyses) {
         Comparator<JMethod> comp = (m1, m2) -> {
             if (m1.getDeclaringClass().equals(m2.getDeclaringClass())) {
                 return m1.getIR().getStmt(0).getLineNumber() -
@@ -168,7 +168,7 @@ public class ResultProcessor extends ProgramAnalysis {
         processResults(methods, analyses, (m, id) -> World.getResult(id));
     }
 
-    private void processIntraResults(List<String> analyses) {
+    private void processMethodAnalysisResult(List<String> analyses) {
         Stream<JMethod> methods = World.getClassHierarchy()
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
