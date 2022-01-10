@@ -79,7 +79,7 @@ public class SCC<N> {
                     inStack.add(node);
                 }
                 boolean hasUnvisitedSucc = false;
-                for (N succ : graph.succsOf(node).toList()) {
+                for (N succ : graph.getSuccsOf(node)) {
                     if (!indexes.containsKey(succ)) {
                         workStack.push(succ);
                         hasUnvisitedSucc = true;

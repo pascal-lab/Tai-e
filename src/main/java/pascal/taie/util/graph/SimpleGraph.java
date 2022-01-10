@@ -59,18 +59,13 @@ public class SimpleGraph<N> implements Graph<N> {
     }
 
     @Override
-    public Stream<N> succsOf(N node) {
-        return succs.get(node).stream();
+    public Set<N> getSuccsOf(N node) {
+        return succs.get(node);
     }
 
     @Override
     public int getInDegreeOf(N node) {
         return preds.get(node).size();
-    }
-
-    @Override
-    public int getOutDegreeOf(N node) {
-        return succs.get(node).size();
     }
 
     @Override

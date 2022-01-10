@@ -16,7 +16,7 @@ import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.type.Type;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * Represents all pointers (nodes) in context-sensitive
@@ -44,7 +44,7 @@ public interface Pointer {
     /**
      * @return out edges of this pointer in pointer flow graph.
      */
-    Stream<PointerFlowEdge> outEdges();
+    Set<PointerFlowEdge> getOutEdges();
 
     /**
      * @return out degree of this pointer in pointer flow graph.

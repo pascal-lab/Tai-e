@@ -37,7 +37,7 @@ public interface ICFG<Method, Node> extends Graph<Node> {
      * @return the outgoing edges of the given node.
      */
     @Override
-    Stream<ICFGEdge<Node>> outEdgesOf(Node node);
+    Set<ICFGEdge<Node>> getOutEdgesOf(Node node);
 
     /**
      * @return the methods that are called by the given call site.

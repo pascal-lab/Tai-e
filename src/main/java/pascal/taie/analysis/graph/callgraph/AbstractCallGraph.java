@@ -120,7 +120,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public boolean hasEdge(Method source, Method target) {
-        return succsOf(source).anyMatch(target::equals);
+        return getSuccsOf(source).contains(target);
     }
 
     @Override
@@ -131,15 +131,10 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Stream<Method> succsOf(Method node) {
+    public Set<Method> getSuccsOf(Method node) {
         return callSitesIn(node)
                 .flatMap(this::calleesOf)
-                .distinct();
-    }
-
-    @Override
-    public int getOutDegreeOf(Method node) {
-        return (int) succsOf(node).count();
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

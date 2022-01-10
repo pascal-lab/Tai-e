@@ -72,7 +72,8 @@ public class DeadCodeDetection extends MethodAnalysis {
                 // record dead assignment
                 deadCode.add(stmt);
             }
-            cfg.outEdgesOf(stmt)
+            cfg.getOutEdgesOf(stmt)
+                    .stream()
                     .filter(edge -> !isUnreachableBranch(edge, constants))
                     .map(Edge::getTarget)
                     .forEach(succ -> {

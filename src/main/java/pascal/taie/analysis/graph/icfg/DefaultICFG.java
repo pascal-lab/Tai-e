@@ -60,7 +60,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
             }
             cfg.forEach(stmt -> {
                 stmtToCFG.put(stmt, cfg);
-                cfg.outEdgesOf(stmt).forEach(edge -> {
+                cfg.getOutEdgesOf(stmt).forEach(edge -> {
                     ICFGEdge<Stmt> local = isCallSite(stmt) ?
                             new CallToReturnEdge<>(edge) :
                             new NormalEdge<>(edge);
@@ -116,13 +116,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public Stream<ICFGEdge<Stmt>> outEdgesOf(Stmt stmt) {
-        return outEdges.get(stmt).stream();
-    }
-
-    @Override
-    public int getOutDegreeOf(Stmt stmt) {
-        return outEdges.get(stmt).size();
+    public Set<ICFGEdge<Stmt>> getOutEdgesOf(Stmt stmt) {
+        return outEdges.get(stmt);
     }
 
     @Override
@@ -138,7 +133,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     @Override
     public Stream<Stmt> returnSitesOf(Stmt callSite) {
         assert isCallSite(callSite);
-        return stmtToCFG.get(callSite).succsOf(callSite);
+        return stmtToCFG.get(callSite).getSuccsOf(callSite).stream();
     }
 
     @Override
@@ -158,7 +153,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
     @Override
     public boolean hasEdge(Stmt source, Stmt target) {
-        return outEdgesOf(source)
+        return getOutEdgesOf(source)
+                .stream()
                 .anyMatch(edge -> edge.getTarget().equals(target));
     }
 
@@ -168,8 +164,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public Stream<Stmt> succsOf(Stmt stmt) {
-        return outEdgesOf(stmt).map(ICFGEdge::getTarget);
+    public Set<Stmt> getSuccsOf(Stmt stmt) {
+        return Views.toMappedSet(getOutEdgesOf(stmt), ICFGEdge::getTarget);
     }
 
     @Override

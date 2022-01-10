@@ -17,7 +17,6 @@ import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.util.collection.CollectionUtils;
-import pascal.taie.util.collection.Streams;
 
 import java.util.TreeSet;
 
@@ -106,7 +105,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.succsOf(node).forEach(workList::add);
+                workList.addAll(cfg.getSuccsOf(node));
             }
         }
     }
@@ -124,8 +123,8 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 return;
             }
             // initialize out fact
-            if (cfg.outEdgesOf(node).count() == 1) {
-                cfg.outEdgesOf(node).forEach(edge -> {
+            if (cfg.getOutDegreeOf(node) == 1) {
+                cfg.getOutEdgesOf(node).forEach(edge -> {
                     if (!analysis.needTransferEdge(edge)) {
                         result.setOutFact(node,
                                 getOrNewInFact(result, edge.getTarget()));
@@ -161,10 +160,10 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             Node node = workList.pollFirst();
             // meet incoming facts
             Fact out;
-            int outDegree = (int) cfg.outEdgesOf(node).count();
+            int outDegree = cfg.getOutDegreeOf(node);
             if (outDegree > 1) {
                 out = result.getOutFact(node);
-                cfg.outEdgesOf(node).forEach(outEdge -> {
+                cfg.getOutEdgesOf(node).forEach(outEdge -> {
                     Fact fact = result.getInFact(outEdge.getTarget());
                     if (analysis.needTransferEdge(outEdge)) {
                         fact = analysis.transferEdge(outEdge, fact);
@@ -172,7 +171,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                     analysis.meetInto(fact, out);
                 });
             } else if (outDegree == 1) {
-                Edge<Node> outEdge = Streams.getOne(cfg.outEdgesOf(node));
+                Edge<Node> outEdge = CollectionUtils.getOne(cfg.getOutEdgesOf(node));
                 if (analysis.needTransferEdge(outEdge)) {
                     out = analysis.transferEdge(outEdge,
                             result.getOutFact(outEdge.getTarget()));
@@ -187,7 +186,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             Fact in = result.getInFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.getPredsOf(node).forEach(workList::add);
+                workList.addAll(cfg.getPredsOf(node));
             }
         }
     }

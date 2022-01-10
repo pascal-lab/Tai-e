@@ -17,7 +17,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.graph.Graph;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Representation of a control-flow graph of a method.
@@ -66,5 +65,5 @@ public interface CFG<N> extends Graph<N> {
      * @return outgoing edges of the given node.
      */
     @Override
-    Stream<Edge<N>> outEdgesOf(N node);
+    Set<Edge<N>> getOutEdgesOf(N node);
 }

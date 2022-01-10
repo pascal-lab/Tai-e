@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.core.solver;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Edge;
 import pascal.taie.util.graph.Graph;
 
@@ -50,13 +51,8 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public Stream<PointerFlowEdge> outEdgesOf(Pointer pointer) {
-        return pointer.outEdges();
-    }
-
-    @Override
-    public int getOutDegreeOf(Pointer node) {
-        return node.getOutDegree();
+    public Set<PointerFlowEdge> getOutEdgesOf(Pointer pointer) {
+        return pointer.getOutEdges();
     }
 
     public Stream<Pointer> pointers() {
@@ -70,7 +66,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
 
     @Override
     public boolean hasEdge(Pointer source, Pointer target) {
-        return succsOf(source).anyMatch(target::equals);
+        return getSuccsOf(source).contains(target);
     }
 
     @Override
@@ -79,8 +75,9 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public Stream<Pointer> succsOf(Pointer node) {
-        return node.outEdges().map(PointerFlowEdge::getTarget);
+    public Set<Pointer> getSuccsOf(Pointer node) {
+        return Views.toMappedSet(node.getOutEdges(),
+                PointerFlowEdge::getTarget);
     }
 
     @Override

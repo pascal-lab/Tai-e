@@ -129,7 +129,7 @@ public class DotDumper<N> {
             // dump nodes
             graph.forEach(this::dumpNode);
             // dump edges
-            graph.forEach(n -> graph.outEdgesOf(n).forEach(this::dumpEdge));
+            graph.forEach(n -> graph.getOutEdgesOf(n).forEach(this::dumpEdge));
             // dump ends
             out.println("}");
         } catch (FileNotFoundException e) {

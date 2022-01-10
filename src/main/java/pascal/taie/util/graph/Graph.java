@@ -51,7 +51,7 @@ public interface Graph<N> extends Iterable<N> {
     /**
      * @return the successors of given node in this graph.
      */
-    Stream<N> succsOf(N node);
+    Set<N> getSuccsOf(N node);
 
     /**
      * @return incoming edges of the given node.
@@ -71,15 +71,17 @@ public interface Graph<N> extends Iterable<N> {
     /**
      * @return outgoing edges of the given node.
      */
-    default Stream<? extends Edge<N>> outEdgesOf(N node) {
-        return succsOf(node)
-                .map(succ -> new AbstractEdge<N>(node, succ) {});
+    default Set<? extends Edge<N>> getOutEdgesOf(N node) {
+        return Views.toMappedSet(getSuccsOf(node),
+                succ -> new AbstractEdge<N>(node, succ) {});
     }
 
     /**
      * @return the number of out edges of the given node.
      */
-    int getOutDegreeOf(N node);
+    default int getOutDegreeOf(N node) {
+        return getOutEdgesOf(node).size();
+    }
 
     /**
      * @return all nodes of this graph.

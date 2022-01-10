@@ -13,7 +13,6 @@
 package pascal.taie.util.graph;
 
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.Streams;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class TopoSorter<N> {
         initialize(graph);
         preservedOrder.forEach(this::visit);
         graph.nodes()
-                .filter(n -> Streams.isEmpty(graph.succsOf(n)))
+                .filter(n -> graph.getSuccsOf(n).isEmpty())
                 .forEach(this::visit);
         if (reverse) {
             Collections.reverse(sortedList);

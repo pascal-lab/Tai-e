@@ -47,7 +47,7 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
         });
         nodes.forEach(node -> node.getNodes()
                 .stream()
-                .flatMap(graph::succsOf)
+                .flatMap(n -> graph.getSuccsOf(n).stream())
                 .map(nodeMap::get)
                 .filter(succ -> succ != node) // exclude self-loop
                 .forEach(succ -> {
@@ -72,13 +72,8 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     }
 
     @Override
-    public Stream<MergedNode<N>> succsOf(MergedNode<N> node) {
-        return node.getSuccs().stream();
-    }
-
-    @Override
-    public int getOutDegreeOf(MergedNode<N> node) {
-        return node.getSuccs().size();
+    public Set<MergedNode<N>> getSuccsOf(MergedNode<N> node) {
+        return Collections.unmodifiableSet(node.getSuccs());
     }
 
     @Override

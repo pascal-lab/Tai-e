@@ -127,13 +127,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
-    public Stream<Edge<N>> outEdgesOf(N node) {
-        return outEdges.get(node).stream();
-    }
-
-    @Override
-    public int getOutDegreeOf(N node) {
-        return outEdges.get(node).size();
+    public Set<Edge<N>> getOutEdgesOf(N node) {
+        return outEdges.get(node);
     }
 
     @Override
@@ -143,7 +138,7 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     @Override
     public boolean hasEdge(N source, N target) {
-        return succsOf(source).anyMatch(target::equals);
+        return getSuccsOf(source).contains(target);
     }
 
     @Override
@@ -152,8 +147,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
-    public Stream<N> succsOf(N node) {
-        return outEdgesOf(node).map(Edge::getTarget);
+    public Set<N> getSuccsOf(N node) {
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::getTarget);
     }
 
     @Override

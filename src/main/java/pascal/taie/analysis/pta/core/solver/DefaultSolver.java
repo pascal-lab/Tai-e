@@ -283,7 +283,7 @@ public class DefaultSolver implements Solver {
             }
         });
         if (!diff.isEmpty()) {
-            pointerFlowGraph.outEdgesOf(pointer).forEach(edge -> {
+            pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge -> {
                 Pointer target = edge.getTarget();
                 edge.getType().ifPresentOrElse(
                         type -> workList.addPointerEntry(target,

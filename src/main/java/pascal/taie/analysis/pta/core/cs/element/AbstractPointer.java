@@ -15,8 +15,8 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Sets.newHybridSet;
 
@@ -42,8 +42,8 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
-    public Stream<PointerFlowEdge> outEdges() {
-        return outEdges.stream();
+    public Set<PointerFlowEdge> getOutEdges() {
+        return Collections.unmodifiableSet(outEdges);
     }
 
     @Override
