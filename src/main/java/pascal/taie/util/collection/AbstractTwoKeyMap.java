@@ -102,7 +102,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
     public Set<KeyPair<K1, K2>> keyPairSet() {
         Set<KeyPair<K1, K2>> set = twoKeySet;
         if (set == null) {
-            set = Views.toSet(entrySet(),
+            set = Views.toMappedSet(entrySet(),
                     e -> new KeyPair<>(e.key1(), e.key2()),
                     o -> {
                         if (o instanceof KeyPair<?, ?> pair) {
@@ -121,7 +121,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
     public Collection<V> values() {
         Collection<V> vals = values;
         if (vals == null) {
-            vals = Views.toCollection(entrySet(), Entry::value,
+            vals = Views.toMappedCollection(entrySet(), Entry::value,
                     o -> containsValue((V) o));
             values = vals;
         }

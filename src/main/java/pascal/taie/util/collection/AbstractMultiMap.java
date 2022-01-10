@@ -80,7 +80,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
     public Collection<V> values() {
         Collection<V> vals = values;
         if (vals == null) {
-            vals = Views.toCollection(entrySet(), Map.Entry::getValue,
+            vals = Views.toMappedCollection(entrySet(), Map.Entry::getValue,
                     o -> containsValue((V) o));
             values = vals;
         }

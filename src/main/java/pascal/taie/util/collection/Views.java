@@ -17,12 +17,14 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
  * Provides unmodifiable view collections.
+ * TODO: mentions complexity of specific operations.
  */
 public final class Views {
 
@@ -30,7 +32,9 @@ public final class Views {
     }
 
     /**
-     * Creates an immutable view collection for given collection.
+     * Given a mapper function, creates an immutable view collection
+     * for given collection. The elements of the resulting collection
+     * are mapped from given collection.
      *
      * @param c        the backing collection
      * @param mapper   the function maps elements in backing collection to
@@ -41,13 +45,13 @@ public final class Views {
      * @param <R>      type of elements in view collection
      * @return an immutable view collection.
      */
-    public static <T, R> Collection<R> toCollection(
+    public static <T, R> Collection<R> toMappedCollection(
             Collection<T> c, Function<T, R> mapper, Predicate<Object> contains) {
         return Collections.unmodifiableCollection(
-                new CollectionView<>(c, mapper, contains));
+                new MappedCollectionView<>(c, mapper, contains));
     }
 
-    private static class CollectionView<T, R> extends AbstractCollection<R> {
+    private static class MappedCollectionView<T, R> extends AbstractCollection<R> {
 
         private final Collection<T> backing;
 
@@ -55,8 +59,8 @@ public final class Views {
 
         private final Predicate<Object> contains;
 
-        private CollectionView(Collection<T> backing,
-                               Function<T, R> mapper, Predicate<Object> contains) {
+        private MappedCollectionView(Collection<T> backing,
+                                     Function<T, R> mapper, Predicate<Object> contains) {
             this.backing = backing;
             this.mapper = mapper;
             this.contains = contains;
@@ -72,16 +76,16 @@ public final class Views {
         public Iterator<R> iterator() {
             return new Iterator<>() {
 
-                private final Iterator<T> i = backing.iterator();
+                private final Iterator<T> it = backing.iterator();
 
                 @Override
                 public boolean hasNext() {
-                    return i.hasNext();
+                    return it.hasNext();
                 }
 
                 @Override
                 public R next() {
-                    return mapper.apply(i.next());
+                    return mapper.apply(it.next());
                 }
             };
         }
@@ -93,10 +97,10 @@ public final class Views {
     }
 
     /**
-     * Creates an immutable view set for given collection.
-     * Note that the uniqueness of elements in the resulting set view
-     * is guaranteed by given collection {@code c} and function {@code mapper},
-     * not by the resulting set view itself.
+     * Given a mapper function, creates an immutable view set for
+     * given collection. Note that the uniqueness of elements in the
+     * resulting set view is guaranteed by given collection {@code c}
+     * and function {@code mapper}, not by the resulting set view itself.
      *
      * @param c        the backing collection
      * @param mapper   the function maps elements in backing collection to
@@ -107,18 +111,107 @@ public final class Views {
      * @param <R>      type of elements in view collection
      * @return an immutable view set.
      */
-    public static <T, R> Set<R> toSet(
+    public static <T, R> Set<R> toMappedSet(
             Collection<T> c, Function<T, R> mapper, Predicate<Object> contains) {
         return Collections.unmodifiableSet(
-                new SetView<>(c, mapper, contains));
+                new MappedSetView<>(c, mapper, contains));
     }
 
-    private static class SetView<T, R> extends CollectionView<T, R>
+    private static class MappedSetView<T, R> extends MappedCollectionView<T, R>
             implements Set<R> {
 
-        private SetView(Collection<T> backing,
-                        Function<T, R> mapper, Predicate<Object> contains) {
+        private MappedSetView(Collection<T> backing,
+                              Function<T, R> mapper, Predicate<Object> contains) {
             super(backing, mapper, contains);
+        }
+    }
+
+    /**
+     * Given a filter function, creates an immutable view collection for
+     * given collection. The elements in the original collection that do not
+     * satisfy the filter function will be absent in the resulting collection.
+     *
+     * @param backing the backing collection
+     * @param filter  the function that decides which elements stay in the
+     *                resulting collection
+     * @param <T>     type of elements in the resulting collection
+     * @return an immutable view collection.
+     */
+    public static <T> Collection<T> toFilteredCollection(
+            Collection<? extends T> backing, Predicate<T> filter) {
+        return Collections.unmodifiableCollection(
+                new FilteredCollectionView<>(backing, filter));
+    }
+
+    private static class FilteredCollectionView<T> extends AbstractCollection<T> {
+
+        private final Collection<? extends T> backing;
+
+        private final Predicate<T> filter;
+
+        private FilteredCollectionView(Collection<? extends T> backing, Predicate<T> filter) {
+            this.backing = backing;
+            this.filter = filter;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return backing.contains(o) && filter.test((T) o);
+        }
+
+        @Nonnull
+        @Override
+        public Iterator<T> iterator() {
+            return new FilteredIterator();
+        }
+
+        private class FilteredIterator implements Iterator<T> {
+
+            private final Iterator<? extends T> it = backing.iterator();
+
+            private T next;
+
+            private FilteredIterator() {
+                advance();
+            }
+
+            private void advance() {
+                next = null;
+                T e;
+                while (it.hasNext()) {
+                    e = it.next();
+                    if (filter.test(e)) {
+                        next = e;
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            @Override
+            public T next() {
+                T e = next;
+                if (e == null) {
+                    throw new NoSuchElementException();
+                }
+                advance();
+                return e;
+            }
+        }
+
+        @Override
+        public int size() {
+            int size = 0;
+            for (T e : backing) {
+                if (filter.test(e)) {
+                    ++size;
+                }
+            }
+            return size;
         }
     }
 }

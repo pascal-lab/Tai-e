@@ -24,6 +24,8 @@ import pascal.taie.util.collection.MultiMapTest;
 import pascal.taie.util.collection.SetQueueTest;
 import pascal.taie.util.collection.StreamsTest;
 import pascal.taie.util.collection.TwoKeyMapTest;
+import pascal.taie.util.collection.Views;
+import pascal.taie.util.collection.ViewsTest;
 import pascal.taie.util.graph.GraphTest;
 
 @RunWith(Suite.class)
@@ -39,6 +41,7 @@ import pascal.taie.util.graph.GraphTest;
         SetQueueTest.class,
         CollectionUtilsTest.class,
         StreamsTest.class,
+        ViewsTest.class,
         // graph
         GraphTest.class,
 })
