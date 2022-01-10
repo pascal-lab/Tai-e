@@ -32,6 +32,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -124,7 +125,7 @@ class CIPTAResult extends AbstractResultHolder implements PointerAnalysisResult 
     // ------------------------------------------
 
     @Override
-    public Stream<CSVar> csVars() {
+    public Collection<CSVar> getCSVars() {
         throw new UnsupportedOperationException();
     }
 

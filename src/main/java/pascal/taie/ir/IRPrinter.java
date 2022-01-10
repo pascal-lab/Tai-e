@@ -67,7 +67,8 @@ public class IRPrinter {
             formatter.format("%s \"%s\" <%s>[%s]%s;",
                     indy.getBootstrapMethodRef(),
                     indy.getMethodName(), indy.getMethodType(),
-                    indy.getBootstrapArgs().stream()
+                    indy.getBootstrapArgs()
+                            .stream()
                             .map(Literal::toString)
                             .collect(Collectors.joining(", ")),
                     indy.getArgsString());

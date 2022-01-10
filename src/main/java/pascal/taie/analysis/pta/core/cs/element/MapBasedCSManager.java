@@ -22,6 +22,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -79,8 +80,13 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Stream<CSVar> csVars() {
-        return vars.values().stream();
+    public Collection<Var> getVars() {
+        return vars.keySet();
+    }
+
+    @Override
+    public Collection<CSVar> csVars() {
+        return vars.values();
     }
 
     @Override

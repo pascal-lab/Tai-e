@@ -19,6 +19,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.Collection;
 import java.util.stream.Stream;
 
 /**
@@ -63,6 +64,11 @@ public interface CSManager {
     ArrayIndex getArrayIndex(CSObj array);
 
     /**
+     * @return all variables (without contexts).
+     */
+    Collection<Var> getVars();
+
+    /**
      * @return all relevant context-sensitive variables for given variable.
      */
     Stream<CSVar> csVarsOf(Var var);
@@ -70,7 +76,7 @@ public interface CSManager {
     /**
      * @return all context-sensitive variables.
      */
-    Stream<CSVar> csVars();
+    Collection<CSVar> csVars();
 
     /**
      * @return all context-sensitive objects.

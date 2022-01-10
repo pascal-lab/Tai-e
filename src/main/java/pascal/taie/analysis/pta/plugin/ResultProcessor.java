@@ -99,10 +99,11 @@ public class ResultProcessor implements Plugin {
 
     private static void printStatistics(PointerAnalysisResult result) {
         int varInsens = (int) result.vars().count();
-        int varSens = (int) result.csVars().count();
+        int varSens = (int) result.getCSVars().size();
         int vptSizeInsens = result.vars()
                 .mapToInt(v -> result.getPointsToSet(v).size()).sum();
-        int vptSizeSens = result.csVars()
+        int vptSizeSens = result.getCSVars()
+                .stream()
                 .mapToInt(v -> v.getPointsToSet().size()).sum();
         int sfptSizeSens = result.staticFields()
                 .mapToInt(f -> f.getPointsToSet().size()).sum();
@@ -152,7 +153,7 @@ public class ResultProcessor implements Plugin {
         } else {  // otherwise, dump to System.out
             out = System.out;
         }
-        dumpPointers(out, result.csVars(), "variables");
+        dumpPointers(out, result.getCSVars().stream(), "variables");
         dumpPointers(out, result.staticFields(), "static fields");
         dumpPointers(out, result.instanceFields(), "instance fields");
         dumpPointers(out, result.arrayIndexes(), "array indexes");
@@ -175,7 +176,7 @@ public class ResultProcessor implements Plugin {
         logger.info("Comparing points-to set with {} ...", input);
         var inputs = readPointsToSets(input);
         Map<String, Pointer> pointers = new LinkedHashMap<>();
-        addPointers(pointers, result.csVars());
+        addPointers(pointers, result.getCSVars().stream());
         addPointers(pointers, result.staticFields());
         addPointers(pointers, result.instanceFields());
         addPointers(pointers, result.arrayIndexes());

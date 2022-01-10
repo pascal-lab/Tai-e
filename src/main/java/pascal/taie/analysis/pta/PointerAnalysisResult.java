@@ -27,6 +27,7 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.ResultHolder;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -38,7 +39,7 @@ public interface PointerAnalysisResult extends ResultHolder {
     /**
      * @return all reachable context-sensitive variables in the program.
      */
-    Stream<CSVar> csVars();
+    Collection<CSVar> getCSVars();
 
     /**
      * @return all reachable variables in the program.

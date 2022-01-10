@@ -36,6 +36,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -73,13 +74,13 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
-    public Stream<CSVar> csVars() {
+    public Collection<CSVar> getCSVars() {
         return csManager.csVars();
     }
 
     @Override
     public Stream<Var> vars() {
-        return csVars().map(CSVar::getVar).distinct();
+        return csManager.getVars().stream();
     }
 
     @Override
