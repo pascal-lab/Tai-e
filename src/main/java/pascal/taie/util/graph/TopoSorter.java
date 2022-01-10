@@ -57,8 +57,9 @@ public class TopoSorter<N> {
     private TopoSorter(Graph<N> graph, boolean reverse, List<N> preservedOrder) {
         initialize(graph);
         preservedOrder.forEach(this::visit);
-        graph.nodes()
-                .filter(n -> graph.getSuccsOf(n).isEmpty())
+        graph.getNodes()
+                .stream()
+                .filter(n -> graph.getOutDegreeOf(n) == 0)
                 .forEach(this::visit);
         if (reverse) {
             Collections.reverse(sortedList);

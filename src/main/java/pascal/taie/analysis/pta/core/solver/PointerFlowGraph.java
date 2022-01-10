@@ -19,8 +19,8 @@ import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Edge;
 import pascal.taie.util.graph.Graph;
 
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Represents pointer flow graph in context-sensitive pointer analysis.
@@ -55,8 +55,8 @@ public class PointerFlowGraph implements Graph<Pointer> {
         return pointer.getOutEdges();
     }
 
-    public Stream<Pointer> pointers() {
-        return pointers.stream();
+    public Set<Pointer> getPointers() {
+        return Collections.unmodifiableSet(pointers);
     }
 
     @Override
@@ -81,12 +81,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public Stream<Pointer> nodes() {
-        return pointers();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return pointers.size();
+    public Set<Pointer> getNodes() {
+        return getPointers();
     }
 }

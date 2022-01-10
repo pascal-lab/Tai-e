@@ -13,7 +13,6 @@
 package pascal.taie.util.graph;
 
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * A reverse view of given graph.
@@ -49,12 +48,7 @@ public class ReverseGraph<N> implements Graph<N> {
     }
 
     @Override
-    public Stream<N> nodes() {
-        return graph.nodes();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return graph.getNumberOfNodes();
+    public Set<N> getNodes() {
+        return graph.getNodes();
     }
 }

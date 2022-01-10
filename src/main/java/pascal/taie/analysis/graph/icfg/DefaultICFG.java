@@ -28,6 +28,7 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -169,12 +170,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public Stream<Stmt> nodes() {
-        return stmtToCFG.keySet().stream();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return stmtToCFG.size();
+    public Set<Stmt> getNodes() {
+        return Collections.unmodifiableSet(stmtToCFG.keySet());
     }
 }

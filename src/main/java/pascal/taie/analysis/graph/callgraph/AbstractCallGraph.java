@@ -16,6 +16,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -138,12 +139,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Stream<Method> nodes() {
-        return reachableMethods();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return reachableMethods.size();
+    public Set<Method> getNodes() {
+        return Collections.unmodifiableSet(reachableMethods);
     }
 }

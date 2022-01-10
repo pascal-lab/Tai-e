@@ -19,7 +19,6 @@ import pascal.taie.util.collection.Sets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Represents a merged graph of a directed graph G.
@@ -77,12 +76,7 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     }
 
     @Override
-    public Stream<MergedNode<N>> nodes() {
-        return nodes.stream();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return nodes.size();
+    public Set<MergedNode<N>> getNodes() {
+        return Collections.unmodifiableSet(nodes);
     }
 }

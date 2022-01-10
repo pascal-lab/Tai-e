@@ -16,7 +16,6 @@ import pascal.taie.util.collection.Views;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Representation of a directed graph.
@@ -86,15 +85,17 @@ public interface Graph<N> extends Iterable<N> {
     /**
      * @return all nodes of this graph.
      */
-    Stream<N> nodes();
+    Set<N> getNodes();
 
     /**
      * @return the number of the nodes in this graph.
      */
-    int getNumberOfNodes();
+    default int getNumberOfNodes() {
+        return getNodes().size();
+    }
 
     @Override
     default Iterator<N> iterator() {
-        return nodes().iterator();
+        return getNodes().iterator();
     }
 }

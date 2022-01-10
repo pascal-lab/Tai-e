@@ -16,8 +16,8 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * A simple map-based implementation of {@link Graph<N>}.
@@ -69,12 +69,7 @@ public class SimpleGraph<N> implements Graph<N> {
     }
 
     @Override
-    public Stream<N> nodes() {
-        return nodes.stream();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return nodes.size();
+    public Set<N> getNodes() {
+        return Collections.unmodifiableSet(nodes);
     }
 }

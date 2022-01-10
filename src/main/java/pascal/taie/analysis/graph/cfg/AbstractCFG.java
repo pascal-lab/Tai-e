@@ -20,8 +20,8 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Stream;
 
 abstract class AbstractCFG<N> implements CFG<N> {
 
@@ -152,12 +152,7 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
-    public Stream<N> nodes() {
-        return nodes.stream();
-    }
-
-    @Override
-    public int getNumberOfNodes() {
-        return nodes.size();
+    public Set<N> getNodes() {
+        return Collections.unmodifiableSet(nodes);
     }
 }
