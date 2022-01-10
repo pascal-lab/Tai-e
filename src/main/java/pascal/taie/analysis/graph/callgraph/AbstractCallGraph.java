@@ -18,6 +18,7 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -123,10 +124,10 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
-    public Stream<Method> predsOf(Method node) {
+    public Set<Method> getPredsOf(Method node) {
         return callersOf(node)
                 .map(this::getContainerMethodOf)
-                .distinct();
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -134,11 +135,6 @@ public abstract class AbstractCallGraph<CallSite, Method>
         return callSitesIn(node)
                 .flatMap(this::calleesOf)
                 .distinct();
-    }
-
-    @Override
-    public int getInDegreeOf(Method node) {
-        return (int) predsOf(node).count();
     }
 
     @Override

@@ -16,6 +16,7 @@ import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.graph.Graph;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -59,7 +60,7 @@ public interface CFG<N> extends Graph<N> {
      * @return incoming edges of the given node.
      */
     @Override
-    Stream<Edge<N>> inEdgesOf(N node);
+    Set<Edge<N>> getInEdgesOf(N node);
 
     /**
      * @return outgoing edges of the given node.

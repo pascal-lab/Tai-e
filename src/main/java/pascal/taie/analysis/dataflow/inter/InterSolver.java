@@ -72,7 +72,7 @@ class InterSolver<Method, Node, Fact> {
             Node node = workList.poll();
             // meet incoming facts
             Fact in = result.getInFact(node);
-            icfg.inEdgesOf(node).forEach(inEdge -> {
+            icfg.getInEdgesOf(node).forEach(inEdge -> {
                 Fact predOut = result.getOutFact(inEdge.getSource());
                 analysis.meetInto(analysis.transferEdge(inEdge, predOut), in);
             });

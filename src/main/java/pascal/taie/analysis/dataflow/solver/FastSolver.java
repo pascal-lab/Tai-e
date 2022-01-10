@@ -16,6 +16,7 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Streams;
 
 import java.util.TreeSet;
@@ -42,8 +43,8 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 return;
             }
             // initialize in fact
-            if (cfg.inEdgesOf(node).count() == 1) {
-                cfg.inEdgesOf(node).forEach(edge -> {
+            if (cfg.getInDegreeOf(node) == 1) {
+                cfg.getInEdgesOf(node).forEach(edge -> {
                     if (!analysis.needTransferEdge(edge)) {
                         result.setInFact(node,
                                 getOrNewOutFact(result, edge.getSource()));
@@ -79,10 +80,10 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             Node node = workList.pollFirst();
             // meet incoming facts
             Fact in;
-            int inDegree = (int) cfg.inEdgesOf(node).count();
+            int inDegree = cfg.getInDegreeOf(node);
             if (inDegree > 1) {
                 in = result.getInFact(node);
-                cfg.inEdgesOf(node).forEach(inEdge -> {
+                cfg.getInEdgesOf(node).forEach(inEdge -> {
                     Fact fact = result.getOutFact(inEdge.getSource());
                     if (analysis.needTransferEdge(inEdge)) {
                         fact = analysis.transferEdge(inEdge, fact);
@@ -90,7 +91,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                     analysis.meetInto(fact, in);
                 });
             } else if (inDegree == 1) {
-                Edge<Node> inEdge = Streams.getOne(cfg.inEdgesOf(node));
+                Edge<Node> inEdge = CollectionUtils.getOne(cfg.getInEdgesOf(node));
                 if (analysis.needTransferEdge(inEdge)) {
                     in = analysis.transferEdge(inEdge,
                             result.getOutFact(inEdge.getSource()));
@@ -186,7 +187,7 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
             Fact in = result.getInFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.predsOf(node).forEach(workList::add);
+                cfg.getPredsOf(node).forEach(workList::add);
             }
         }
     }

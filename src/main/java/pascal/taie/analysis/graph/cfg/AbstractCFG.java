@@ -17,6 +17,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.Views;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -121,18 +122,13 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
-    public Stream<Edge<N>> inEdgesOf(N node) {
-        return inEdges.get(node).stream();
+    public Set<Edge<N>> getInEdgesOf(N node) {
+        return inEdges.get(node);
     }
 
     @Override
     public Stream<Edge<N>> outEdgesOf(N node) {
         return outEdges.get(node).stream();
-    }
-
-    @Override
-    public int getInDegreeOf(N node) {
-        return inEdges.get(node).size();
     }
 
     @Override
@@ -151,8 +147,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
-    public Stream<N> predsOf(N node) {
-        return inEdgesOf(node).map(Edge::getSource);
+    public Set<N> getPredsOf(N node) {
+        return Views.toMappedSet(getInEdgesOf(node), Edge::getSource);
     }
 
     @Override

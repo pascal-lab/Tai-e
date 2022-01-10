@@ -12,6 +12,8 @@
 
 package pascal.taie.util.graph;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -38,13 +40,13 @@ public class ReverseGraph<N> implements Graph<N> {
     }
 
     @Override
-    public Stream<N> predsOf(N node) {
-        return graph.succsOf(node);
+    public Set<N> getPredsOf(N node) {
+        return graph.succsOf(node).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public Stream<N> succsOf(N node) {
-        return graph.predsOf(node);
+        return graph.getPredsOf(node).stream();
     }
 
     @Override

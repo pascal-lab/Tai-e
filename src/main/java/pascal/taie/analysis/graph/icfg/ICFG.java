@@ -14,6 +14,7 @@ package pascal.taie.analysis.graph.icfg;
 
 import pascal.taie.util.graph.Graph;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -30,7 +31,7 @@ public interface ICFG<Method, Node> extends Graph<Node> {
      * @return the incoming edges of the given node.
      */
     @Override
-    Stream<ICFGEdge<Node>> inEdgesOf(Node node);
+    Set<ICFGEdge<Node>> getInEdgesOf(Node node);
 
     /**
      * @return the outgoing edges of the given node.

@@ -12,7 +12,10 @@
 
 package pascal.taie.util.graph;
 
+import pascal.taie.util.collection.Views;
+
 import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -43,7 +46,7 @@ public interface Graph<N> extends Iterable<N> {
     /**
      * @return the predecessors of given node in this graph.
      */
-    Stream<N> predsOf(N node);
+    Set<N> getPredsOf(N node);
 
     /**
      * @return the successors of given node in this graph.
@@ -53,15 +56,17 @@ public interface Graph<N> extends Iterable<N> {
     /**
      * @return incoming edges of the given node.
      */
-    default Stream<? extends Edge<N>> inEdgesOf(N node) {
-        return predsOf(node)
-                .map(pred -> new AbstractEdge<N>(pred, node) {});
+    default Set<? extends Edge<N>> getInEdgesOf(N node) {
+        return Views.toMappedSet(getPredsOf(node),
+                pred -> new AbstractEdge<N>(pred, node) {});
     }
 
     /**
      * @return the number of in edges of the given node.
      */
-    int getInDegreeOf(N node);
+    default int getInDegreeOf(N node) {
+        return getInEdgesOf(node).size();
+    }
 
     /**
      * @return outgoing edges of the given node.

@@ -31,7 +31,7 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
                 if (!cfg.isEntry(node)) {
                     // meet incoming facts from preds to node
                     Fact in = result.getInFact(node);
-                    cfg.inEdgesOf(node).forEach(inEdge -> {
+                    cfg.getInEdgesOf(node).forEach(inEdge -> {
                         Fact fact = result.getOutFact(inEdge.getSource());
                         if (analysis.needTransferEdge(inEdge)) {
                             fact = analysis.transferEdge(inEdge, fact);

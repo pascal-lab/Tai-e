@@ -101,7 +101,8 @@ public class CFGBuilder extends MethodAnalysis {
         ir.forEach(stmt -> {
             // build edges for implicit exceptions
             catchResult.getCaughtImplicitOf(stmt).forEachSet((catcher, exceptions) ->
-                    cfg.inEdgesOf(stmt)
+                    cfg.getInEdgesOf(stmt)
+                            .stream()
                             .filter(Predicate.not(Edge::isExceptional))
                             .map(Edge::getSource)
                             .forEach(pred ->
@@ -110,7 +111,8 @@ public class CFGBuilder extends MethodAnalysis {
                                             pred, catcher, exceptions))));
             Set<ClassType> uncaught = catchResult.getUncaughtImplicitOf(stmt);
             if (!uncaught.isEmpty()) {
-                cfg.inEdgesOf(stmt)
+                cfg.getInEdgesOf(stmt)
+                        .stream()
                         .filter(Predicate.not(Edge::isExceptional))
                         .map(Edge::getSource)
                         .forEach(pred -> cfg.addEdge(

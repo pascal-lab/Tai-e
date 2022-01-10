@@ -26,6 +26,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.Views;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -86,7 +87,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         // collect return and exception information from
                         // the real return and excepting Stmts, and attach
                         // them to the ReturnEdge.
-                        getCFGOf(callee).inEdgesOf(exit).forEach(retEdge -> {
+                        getCFGOf(callee).getInEdgesOf(exit).forEach(retEdge -> {
                             if (retEdge.getKind() == Edge.Kind.RETURN) {
                                 Return ret = (Return) retEdge.getSource();
                                 if (ret.getValue() != null) {
@@ -110,18 +111,13 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public Stream<ICFGEdge<Stmt>> inEdgesOf(Stmt stmt) {
-        return inEdges.get(stmt).stream();
+    public Set<ICFGEdge<Stmt>> getInEdgesOf(Stmt stmt) {
+        return inEdges.get(stmt);
     }
 
     @Override
     public Stream<ICFGEdge<Stmt>> outEdgesOf(Stmt stmt) {
         return outEdges.get(stmt).stream();
-    }
-
-    @Override
-    public int getInDegreeOf(Stmt stmt) {
-        return inEdges.get(stmt).size();
     }
 
     @Override
@@ -167,8 +163,8 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public Stream<Stmt> predsOf(Stmt stmt) {
-        return inEdgesOf(stmt).map(ICFGEdge::getSource);
+    public Set<Stmt> getPredsOf(Stmt stmt) {
+        return Views.toMappedSet(getInEdgesOf(stmt), ICFGEdge::getSource);
     }
 
     @Override

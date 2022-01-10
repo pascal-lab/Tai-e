@@ -40,7 +40,7 @@ public final class Views {
      * @param mapper   the function maps elements in backing collection to
      *                 the ones in view collection
      * @param contains the predicate function that check if view collection
-     *                 contains given object
+     *                 contains given object.
      * @param <T>      type of elements in backing collection
      * @param <R>      type of elements in view collection
      * @return an immutable view collection.
@@ -49,6 +49,24 @@ public final class Views {
             Collection<T> c, Function<T, R> mapper, Predicate<Object> contains) {
         return Collections.unmodifiableCollection(
                 new MappedCollectionView<>(c, mapper, contains));
+    }
+
+    /**
+     * Given a mapper function, creates an immutable view collection
+     * for given collection. The elements of the resulting collection
+     * are mapped from given collection.
+     *
+     * @param c        the backing collection
+     * @param mapper   the function maps elements in backing collection to
+     *                 the ones in view collection
+     * @param <T>      type of elements in backing collection
+     * @param <R>      type of elements in view collection
+     * @return an immutable view collection.
+     */
+    public static <T, R> Collection<R> toMappedCollection(
+            Collection<T> c, Function<T, R> mapper) {
+        return Collections.unmodifiableCollection(
+                new MappedCollectionView<>(c, mapper));
     }
 
     private static class MappedCollectionView<T, R> extends AbstractCollection<R> {
@@ -64,6 +82,12 @@ public final class Views {
             this.backing = backing;
             this.mapper = mapper;
             this.contains = contains;
+        }
+
+        private MappedCollectionView(Collection<T> backing, Function<T, R> mapper) {
+            this.backing = backing;
+            this.mapper = mapper;
+            this.contains = super::contains;
         }
 
         @Override
@@ -117,12 +141,33 @@ public final class Views {
                 new MappedSetView<>(c, mapper, contains));
     }
 
+    /**
+     * Given a mapper function, creates an immutable view set for
+     * given collection. Note that the uniqueness of elements in the
+     * resulting set view is guaranteed by given collection {@code c}
+     * and function {@code mapper}, not by the resulting set view itself.
+     *
+     * @param c        the backing collection
+     * @param mapper   the function maps elements in backing collection to
+     *                 the ones in view collection
+     * @param <T>      type of elements in backing collection
+     * @param <R>      type of elements in view collection
+     * @return an immutable view set.
+     */
+    public static <T, R> Set<R> toMappedSet(Collection<T> c, Function<T, R> mapper) {
+        return Collections.unmodifiableSet(new MappedSetView<>(c, mapper));
+    }
+
     private static class MappedSetView<T, R> extends MappedCollectionView<T, R>
             implements Set<R> {
 
         private MappedSetView(Collection<T> backing,
                               Function<T, R> mapper, Predicate<Object> contains) {
             super(backing, mapper, contains);
+        }
+
+        private MappedSetView(Collection<T> backing, Function<T, R> mapper) {
+            super(backing, mapper);
         }
     }
 

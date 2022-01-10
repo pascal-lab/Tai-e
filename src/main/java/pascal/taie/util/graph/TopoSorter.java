@@ -92,7 +92,7 @@ public class TopoSorter<N> {
             N curr = stack.peek();
             visited.add(curr);
             boolean hasUnvisitedPred = false;
-            for (N pred : graph.predsOf(curr).toList()) {
+            for (N pred : graph.getPredsOf(curr)) {
                 if (!visited.contains(pred)) {
                     stack.push(pred);
                     hasUnvisitedPred = true;

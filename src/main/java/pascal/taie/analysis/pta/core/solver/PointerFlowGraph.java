@@ -45,18 +45,13 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public Stream<? extends Edge<Pointer>> inEdgesOf(Pointer node) {
+    public Set<? extends Edge<Pointer>> getInEdgesOf(Pointer node) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Stream<PointerFlowEdge> outEdgesOf(Pointer pointer) {
         return pointer.outEdges();
-    }
-
-    @Override
-    public int getInDegreeOf(Pointer node) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -79,7 +74,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public Stream<Pointer> predsOf(Pointer node) {
+    public Set<Pointer> getPredsOf(Pointer node) {
         throw new UnsupportedOperationException();
     }
 

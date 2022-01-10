@@ -54,8 +54,8 @@ public class SimpleGraph<N> implements Graph<N> {
     }
 
     @Override
-    public Stream<N> predsOf(N node) {
-        return preds.get(node).stream();
+    public Set<N> getPredsOf(N node) {
+        return preds.get(node);
     }
 
     @Override

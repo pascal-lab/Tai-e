@@ -16,6 +16,7 @@ package pascal.taie.util.graph;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -66,18 +67,13 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     }
 
     @Override
-    public Stream<MergedNode<N>> predsOf(MergedNode<N> node) {
-        return node.getPreds().stream();
+    public Set<MergedNode<N>> getPredsOf(MergedNode<N> node) {
+        return Collections.unmodifiableSet(node.getPreds());
     }
 
     @Override
     public Stream<MergedNode<N>> succsOf(MergedNode<N> node) {
         return node.getSuccs().stream();
-    }
-
-    @Override
-    public int getInDegreeOf(MergedNode<N> node) {
-        return node.getPreds().size();
     }
 
     @Override

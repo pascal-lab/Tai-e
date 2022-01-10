@@ -38,7 +38,7 @@ class _2TypeContextComputer extends ContextComputer {
         for (Obj recv : pta.getReceiverObjectsOf(method)) {
             int inDegree = oag.getInDegreeOf(recv);
             if (inDegree > 0) {
-                oag.predsOf(recv).forEach(pred ->
+                oag.getPredsOf(recv).forEach(pred ->
                         contexts.add(List.of(pred.getContainerType(),
                                 recv.getContainerType())));
             } else { // without allocator, back to 1-type
