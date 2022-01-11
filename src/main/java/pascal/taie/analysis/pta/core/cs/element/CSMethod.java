@@ -17,13 +17,12 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.ResultHolder;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Sets.newHybridSet;
 
 /**
  * Represents context-sensitive methods.
@@ -35,7 +34,7 @@ public class CSMethod extends AbstractCSElement {
     /**
      * Call edges to this CS method.
      */
-    private final Set<Edge<CSCallSite, CSMethod>> edges = newHybridSet();
+    private final Set<Edge<CSCallSite, CSMethod>> edges = Sets.newHybridSet();
 
     private final ResultHolder resultHolder = new AbstractResultHolder() {};
 

@@ -16,6 +16,7 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.ir.stmt.Invoke;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -64,7 +65,7 @@ public class CSCallSite extends AbstractCSElement {
     }
 
     public Set<Edge<CSCallSite, CSMethod>> getEdges() {
-        return edges;
+        return Collections.unmodifiableSet(edges);
     }
 
     public Stream<Edge<CSCallSite, CSMethod>> edges() {

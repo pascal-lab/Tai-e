@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import pascal.taie.util.collection.ArrayMapTest;
 import pascal.taie.util.collection.ArraySetTest;
-import pascal.taie.util.collection.CollectionUtilsTest;
 import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
 import pascal.taie.util.collection.IndexMapTest;
@@ -24,7 +23,6 @@ import pascal.taie.util.collection.MultiMapTest;
 import pascal.taie.util.collection.SetQueueTest;
 import pascal.taie.util.collection.StreamsTest;
 import pascal.taie.util.collection.TwoKeyMapTest;
-import pascal.taie.util.collection.Views;
 import pascal.taie.util.collection.ViewsTest;
 import pascal.taie.util.graph.GraphTest;
 
@@ -39,7 +37,6 @@ import pascal.taie.util.graph.GraphTest;
         TwoKeyMapTest.class,
         IndexMapTest.class,
         SetQueueTest.class,
-        CollectionUtilsTest.class,
         StreamsTest.class,
         ViewsTest.class,
         // graph
