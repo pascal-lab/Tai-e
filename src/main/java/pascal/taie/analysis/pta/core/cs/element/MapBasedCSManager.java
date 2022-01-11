@@ -23,8 +23,9 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * Manages data by maintaining the data and their context-sensitive
@@ -85,35 +86,34 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
-    public Collection<CSVar> csVars() {
+    public Collection<CSVar> getCSVars() {
         return vars.values();
     }
 
     @Override
-    public Stream<CSVar> csVarsOf(Var var) {
+    public Collection<CSVar> getCSVarsOf(Var var) {
         var csVars = vars.get(var);
-        return csVars == null ? Stream.empty() :
-                csVars.values().stream();
+        return csVars != null ? csVars.values() : Set.of();
     }
 
     @Override
-    public Stream<CSObj> objects() {
-        return objs.values().stream();
+    public Collection<CSObj> getObjects() {
+        return objs.values();
     }
 
     @Override
-    public Stream<StaticField> staticFields() {
-        return staticFields.values().stream();
+    public Collection<StaticField> getStaticFields() {
+        return Collections.unmodifiableCollection(staticFields.values());
     }
 
     @Override
-    public Stream<InstanceField> instanceFields() {
-        return instanceFields.values().stream();
+    public Collection<InstanceField> getInstanceFields() {
+        return instanceFields.values();
     }
 
     @Override
-    public Stream<ArrayIndex> arrayIndexes() {
-        return arrayIndexes.values().stream();
+    public Collection<ArrayIndex> getArrayIndexes() {
+        return Collections.unmodifiableCollection(arrayIndexes.values());
     }
 
     private <P extends Pointer> P initializePointsToSet(P pointer) {

@@ -16,6 +16,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Map;
@@ -55,7 +56,7 @@ class PointerFlowGraph {
     /**
      * Map from a pointer (node) to its successors in PFG.
      */
-    private final Map<Pointer, Set<Pointer>> successors = Maps.newMap();
+    private final MultiMap<Pointer, Pointer> successors = Maps.newMultiMap();
 
     /**
      * Returns all pointers in this PFG.
@@ -117,14 +118,13 @@ class PointerFlowGraph {
      * otherwise false.
      */
     boolean addEdge(Pointer source, Pointer target) {
-        return successors.computeIfAbsent(source, p -> Sets.newHybridSet())
-                .add(target);
+        return successors.put(source, target);
     }
 
     /**
      * @return successors of given pointer in the PFG.
      */
-    Stream<Pointer> succsOf(Pointer pointer) {
-        return successors.getOrDefault(pointer, Set.of()).stream();
+    Set<Pointer> getSuccsOf(Pointer pointer) {
+        return successors.get(pointer);
     }
 }

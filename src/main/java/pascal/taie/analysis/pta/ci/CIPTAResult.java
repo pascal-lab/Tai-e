@@ -130,22 +130,22 @@ class CIPTAResult extends AbstractResultHolder implements PointerAnalysisResult 
     }
 
     @Override
-    public Stream<pascal.taie.analysis.pta.core.cs.element.InstanceField> instanceFields() {
+    public Collection<pascal.taie.analysis.pta.core.cs.element.InstanceField> getInstanceFields() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Stream<ArrayIndex> arrayIndexes() {
+    public Collection<ArrayIndex> getArrayIndexes() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Stream<StaticField> staticFields() {
+    public Collection<StaticField> getStaticFields() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Stream<CSObj> csObjects() {
+    public Collection<CSObj> getCSObjects() {
         throw new UnsupportedOperationException();
     }
 

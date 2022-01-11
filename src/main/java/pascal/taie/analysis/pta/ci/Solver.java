@@ -185,7 +185,7 @@ class Solver {
             }
         });
         if (!diff.isEmpty()) {
-            pointerFlowGraph.succsOf(pointer)
+            pointerFlowGraph.getSuccsOf(pointer)
                     .forEach(succ -> workList.addEntry(succ, diff));
         }
         return diff;

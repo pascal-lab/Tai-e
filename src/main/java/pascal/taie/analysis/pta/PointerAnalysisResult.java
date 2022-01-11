@@ -49,22 +49,22 @@ public interface PointerAnalysisResult extends ResultHolder {
     /**
      * @return all reachable instance fields in the program.
      */
-    Stream<InstanceField> instanceFields();
+    Collection<InstanceField> getInstanceFields();
 
     /**
      * @return all reachable array indexes in the program.
      */
-    Stream<ArrayIndex> arrayIndexes();
+    Collection<ArrayIndex> getArrayIndexes();
 
     /**
      * @return all reachable static fields in the program.
      */
-    Stream<StaticField> staticFields();
+    Collection<StaticField> getStaticFields();
 
     /**
      * @return all reachable context-sensitive objects in the program.
      */
-    Stream<CSObj> csObjects();
+    Collection<CSObj> getCSObjects();
 
     /**
      * @return all reachable objects in the program.

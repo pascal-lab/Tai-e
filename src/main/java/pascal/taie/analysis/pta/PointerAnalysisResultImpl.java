@@ -75,7 +75,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Collection<CSVar> getCSVars() {
-        return csManager.csVars();
+        return csManager.getCSVars();
     }
 
     @Override
@@ -84,28 +84,31 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
-    public Stream<InstanceField> instanceFields() {
-        return csManager.instanceFields();
+    public Collection<InstanceField> getInstanceFields() {
+        return csManager.getInstanceFields();
     }
 
     @Override
-    public Stream<ArrayIndex> arrayIndexes() {
-        return csManager.arrayIndexes();
+    public Collection<ArrayIndex> getArrayIndexes() {
+        return csManager.getArrayIndexes();
     }
 
     @Override
-    public Stream<StaticField> staticFields() {
-        return csManager.staticFields();
+    public Collection<StaticField> getStaticFields() {
+        return csManager.getStaticFields();
     }
 
     @Override
-    public Stream<CSObj> csObjects() {
-        return csManager.objects();
+    public Collection<CSObj> getCSObjects() {
+        return csManager.getObjects();
     }
 
     @Override
     public Stream<Obj> objects() {
-        return csObjects().map(CSObj::getObject).distinct();
+        return getCSObjects()
+                .stream()
+                .map(CSObj::getObject)
+                .distinct();
     }
 
     @Override
@@ -116,7 +119,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     @Override
     public Set<Obj> getPointsToSet(Var var) {
         return varPointsTo.computeIfAbsent(var, v ->
-                csManager.csVarsOf(var)
+                csManager.getCSVarsOf(var)
+                        .stream()
                         .flatMap(csVar -> csVar.getPointsToSet().objects())
                         .map(CSObj::getObject)
                         .collect(Collectors.toUnmodifiableSet()));
@@ -129,11 +133,13 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         }
         return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
             Set<Obj> pts = Sets.newHybridSet();
-            csManager.csVarsOf(base)
+            csManager.getCSVarsOf(base)
+                    .stream()
                     .flatMap(csVar -> csVar.getPointsToSet().objects())
                     .forEach(o -> {
                         InstanceField ifield = csManager.getInstanceField(o, field);
-                        ifield.getPointsToSet().objects()
+                        ifield.getPointsToSet()
+                                .objects()
                                 .map(CSObj::getObject)
                                 .forEach(pts::add);
                     });
@@ -179,7 +185,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     private static CallGraph<Invoke, JMethod> removeContexts(
             CallGraph<CSCallSite, CSMethod> csCallGraph) {
         DefaultCallGraph callGraph = new DefaultCallGraph();
-        csCallGraph.entryMethods().map(CSMethod::getMethod).
+        csCallGraph.entryMethods()
+                .map(CSMethod::getMethod).
                 forEach(callGraph::addEntryMethod);
         csCallGraph.reachableMethods()
                 .map(CSMethod::getMethod)

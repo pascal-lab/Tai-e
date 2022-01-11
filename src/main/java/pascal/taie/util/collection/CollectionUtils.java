@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 /**
  * Utility methods for {@link Collection}.
@@ -61,5 +62,17 @@ public final class CollectionUtils {
         result.addAll(c);
         result.add(e);
         return result;
+    }
+
+    /**
+     * Maps each element in given collection to an integer and computes
+     * the sum of the integers.
+     */
+    public static <T> int sum(Collection<? extends T> c, ToIntFunction<T> toInt) {
+        int sum = 0;
+        for (var e : c) {
+            sum += toInt.applyAsInt(e);
+        }
+        return sum;
     }
 }

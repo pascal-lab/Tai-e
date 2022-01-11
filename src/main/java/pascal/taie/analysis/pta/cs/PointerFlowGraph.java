@@ -14,11 +14,9 @@ package pascal.taie.analysis.pta.cs;
 
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.MultiMap;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Represents pointer flow graph in context-sensitive pointer analysis.
@@ -28,7 +26,7 @@ class PointerFlowGraph {
     /**
      * Map from a pointer (node) to its successors in PFG.
      */
-    private final Map<Pointer, Set<Pointer>> successors = Maps.newMap();
+    private final MultiMap<Pointer, Pointer> successors = Maps.newMultiMap();
 
     /**
      * Adds an edge (source -> target) to this PFG.
@@ -37,14 +35,13 @@ class PointerFlowGraph {
      * otherwise false.
      */
     boolean addEdge(Pointer source, Pointer target) {
-        return successors.computeIfAbsent(source, p -> Sets.newHybridSet())
-                .add(target);
+        return successors.put(source, target);
     }
 
     /**
      * @return successors of given pointer in the PFG.
      */
-    Stream<Pointer> succsOf(Pointer pointer) {
-        return successors.getOrDefault(pointer, Set.of()).stream();
+    Set<Pointer> getSuccsOf(Pointer pointer) {
+        return successors.get(pointer);
     }
 }

@@ -20,7 +20,6 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.Collection;
-import java.util.stream.Stream;
 
 /**
  * Manages context-sensitive elements and pointers in pointer analysis.
@@ -71,30 +70,30 @@ public interface CSManager {
     /**
      * @return all relevant context-sensitive variables for given variable.
      */
-    Stream<CSVar> csVarsOf(Var var);
+    Collection<CSVar> getCSVarsOf(Var var);
 
     /**
      * @return all context-sensitive variables.
      */
-    Collection<CSVar> csVars();
+    Collection<CSVar> getCSVars();
 
     /**
      * @return all context-sensitive objects.
      */
-    Stream<CSObj> objects();
+    Collection<CSObj> getObjects();
 
     /**
      * @return all static field pointers.
      */
-    Stream<StaticField> staticFields();
+    Collection<StaticField> getStaticFields();
 
     /**
      * @return all instance field pointers.
      */
-    Stream<InstanceField> instanceFields();
+    Collection<InstanceField> getInstanceFields();
 
     /**
      * @return all array index pointers.
      */
-    Stream<ArrayIndex> arrayIndexes();
+    Collection<ArrayIndex> getArrayIndexes();
 }
