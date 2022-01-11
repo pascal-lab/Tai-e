@@ -12,22 +12,13 @@
 
 package pascal.taie.util;
 
-import pascal.taie.util.collection.Maps;
-
-import java.util.Map;
-
 /**
- * Provides a unique number (can be used as ID) for each element.
+ * Provides a unique ID number for each element.
  *
  * @param <T> type of elements.
  */
-public class Numberer<T> {
+@FunctionalInterface
+public interface IDProvider<T> {
 
-    private final Map<T, Integer> map = Maps.newMap();
-
-    private int count = 0;
-
-    public int getNumberOf(T e) {
-        return map.computeIfAbsent(e, unused -> count++);
-    }
+    int getID(T t);
 }
