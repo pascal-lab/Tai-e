@@ -22,7 +22,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
 
-import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +42,7 @@ class PTABasedExplicitThrowAnalysis implements ExplicitThrowAnalysis {
         ptaThrowResult.getResult(ir.getMethod())
                 .ifPresent(ptaResult ->
                         ir.forEach(stmt -> {
-                            Collection<ClassType> exceptions = ptaResult
+                            Set<ClassType> exceptions = ptaResult
                                     .mayThrowExplicitly(stmt)
                                     .stream()
                                     .map(o -> (ClassType) o.getType())

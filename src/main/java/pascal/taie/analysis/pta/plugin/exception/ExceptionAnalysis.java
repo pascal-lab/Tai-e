@@ -24,39 +24,44 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
-
-import static pascal.taie.util.collection.Sets.newHybridSet;
 
 public class ExceptionAnalysis implements Plugin {
 
     private Solver solver;
 
+    private CSManager csManager;
+
+    private TypeManager typeManager;
+
     /**
      * Map from thrown variables to the corresponding throw statements.
      */
-    private final MultiMap<Var, Throw> var2Throws = Maps.newMultiMap();
+    private MultiMap<Var, Throw> var2Throws = Maps.newMultiMap();
 
     /**
      * Map from each method to the result of catch analysis on it.
      */
-    private final Map<JMethod, Map<Stmt, List<ExceptionEntry>>> catchers =
+    private Map<JMethod, Map<Stmt, List<ExceptionEntry>>> catchers =
             Maps.newMap(1024);
 
     /**
      * Work-list of exception entries to be propagated.
      */
-    private final ExceptionWorkList workList = new ExceptionWorkList();
+    private Queue<Entry> workList = new ArrayDeque<>();
 
-    private CSManager csManager;
-
-    private TypeManager typeManager;
+    /**
+     * Work-list entries.
+     */
+    private record Entry(CSMethod csMethod, Stmt stmt, Set<CSObj> exceptions) {
+    }
 
     @Override
     public void setSolver(Solver solver) {
@@ -100,9 +105,8 @@ public class ExceptionAnalysis implements Plugin {
             Context ctx = csVar.getContext();
             JMethod currentMethod = exceptionRef.getMethod();
             CSMethod currentCSMethod = csManager.getCSMethod(ctx, currentMethod);
-            throwStmts.forEach(throwStmt ->
-                    workList.addEntry(currentCSMethod, throwStmt,
-                            new ArrayList<>(pts.getObjects())));
+            throwStmts.forEach(throwStmt -> workList.add(
+                    new Entry(currentCSMethod, throwStmt, pts.getObjects())));
             propagateExceptions();
         }
     }
@@ -124,8 +128,8 @@ public class ExceptionAnalysis implements Plugin {
             csResult.ifPresent(result -> {
                 CSMethod caller = edge.getCallSite().getContainer();
                 Invoke invoke = edge.getCallSite().getCallSite();
-                Collection<CSObj> exceptions = result.mayThrowUncaught();
-                workList.addEntry(caller, invoke, exceptions);
+                Set<CSObj> exceptions = result.mayThrowUncaught();
+                workList.add(new Entry(caller, invoke, exceptions));
                 propagateExceptions();
             });
         }
@@ -140,15 +144,15 @@ public class ExceptionAnalysis implements Plugin {
      */
     private void propagateExceptions() {
         while (!workList.isEmpty()) {
-            ExceptionWorkList.Entry entry = workList.pollEntry();
+            Entry entry = workList.poll();
             CSMethod csMethod = entry.csMethod();
             Stmt stmt = entry.stmt();
-            Collection<CSObj> exceptions = entry.exceptions();
+            Set<CSObj> exceptions = entry.exceptions();
             CSMethodThrowResult result = csMethod.getResult(
                     getClass().getName(), CSMethodThrowResult::new);
-            Collection<CSObj> diff = result.propagate(stmt, exceptions);
+            Set<CSObj> diff = result.propagate(stmt, exceptions);
             if (!diff.isEmpty()) {
-                Collection<CSObj> uncaught = analyzeIntraUncaught(
+                Set<CSObj> uncaught = analyzeIntraUncaught(
                         stmt, diff, csMethod);
                 if (!uncaught.isEmpty()) {
                     result.addUncaughtExceptions(uncaught);
@@ -160,7 +164,7 @@ public class ExceptionAnalysis implements Plugin {
                                 CSCallSite callSite = edge.getCallSite();
                                 CSMethod caller = callSite.getContainer();
                                 Invoke invoke = callSite.getCallSite();
-                                workList.addEntry(caller, invoke, uncaught);
+                                workList.add(new Entry(caller, invoke, uncaught));
                             });
                 }
             }
@@ -176,16 +180,16 @@ public class ExceptionAnalysis implements Plugin {
      * @param csMethod      the csMethod containing currentStmt
      * @return the exceptions thrown by currentStmt but not caught by csMethod
      */
-    private Collection<CSObj> analyzeIntraUncaught(
+    private Set<CSObj> analyzeIntraUncaught(
             Stmt currentStmt,
-            Collection<CSObj> newExceptions,
+            Set<CSObj> newExceptions,
             CSMethod csMethod) {
         List<ExceptionEntry> entries = catchers.get(csMethod.getMethod())
                 .get(currentStmt);
         if (entries != null) {
             Context ctx = csMethod.getContext();
             for (ExceptionEntry entry : entries) {
-                Collection<CSObj> uncaughtExceptions = newHybridSet();
+                Set<CSObj> uncaughtExceptions = Sets.newHybridSet();
                 newExceptions.forEach(newException -> {
                     Obj exObj = newException.getObject();
                     if (typeManager.isSubtype(entry.catchType(), exObj.getType())) {
@@ -216,7 +220,13 @@ public class ExceptionAnalysis implements Plugin {
                             csMethod.getResult(getClass().getName());
                     csResult.ifPresent(result::addCSMethodThrowResult);
                 });
-        solver.getResult()
-                .storeResult(getClass().getName(), throwResult);
+        solver.getResult().storeResult(getClass().getName(), throwResult);
+        clear();
+    }
+
+    private void clear() {
+        var2Throws = null;
+        catchers = null;
+        workList = null;
     }
 }

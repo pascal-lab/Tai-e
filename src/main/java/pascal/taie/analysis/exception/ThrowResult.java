@@ -17,12 +17,11 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
-
-import static pascal.taie.util.collection.Maps.newHybridMap;
 
 public class ThrowResult {
 
@@ -34,7 +33,7 @@ public class ThrowResult {
      */
     private final ImplicitThrowAnalysis implicit;
 
-    private final Map<Stmt, Collection<ClassType>> explicitExceptions = newHybridMap();
+    private final MultiMap<Stmt, ClassType> explicitExceptions = Maps.newMultiMap();
 
     ThrowResult(IR ir, ImplicitThrowAnalysis implicitThrowAnalysis) {
         this.ir = ir;
@@ -42,27 +41,27 @@ public class ThrowResult {
     }
 
     void addExplicit(Throw throwStmt, Collection<ClassType> exceptions) {
-        explicitExceptions.put(throwStmt, exceptions);
+        explicitExceptions.putAll(throwStmt, exceptions);
     }
 
     void addExplicit(Invoke invoke, Collection<ClassType> exceptions) {
-        explicitExceptions.put(invoke, exceptions);
+        explicitExceptions.putAll(invoke, exceptions);
     }
 
     public IR getIR() {
         return ir;
     }
 
-    public Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
+    public Set<ClassType> mayThrowImplicitly(Stmt stmt) {
         return implicit == null ? Set.of() :
                 implicit.mayThrowImplicitly(stmt);
     }
 
-    public Collection<ClassType> mayThrowExplicitly(Throw throwStmt) {
-        return explicitExceptions.getOrDefault(throwStmt, Set.of());
+    public Set<ClassType> mayThrowExplicitly(Throw throwStmt) {
+        return explicitExceptions.get(throwStmt);
     }
 
-    public Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
-        return explicitExceptions.getOrDefault(invoke, Set.of());
+    public Set<ClassType> mayThrowExplicitly(Invoke invoke) {
+        return explicitExceptions.get(invoke);
     }
 }

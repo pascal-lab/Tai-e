@@ -17,7 +17,7 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.graph.AbstractEdge;
 
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * Represents CFG edges.
@@ -129,11 +129,11 @@ public class Edge<N> extends AbstractEdge<N> {
 
     /**
      * If this edge is an exceptional edge, return the exception types along
-     * with this edge, otherwise return an empty collection.
+     * with this edge, otherwise return an empty set.
      */
-    public Stream<ClassType> exceptions() {
+    public Set<ClassType> getExceptions() {
         assert isExceptional() : this + " is not an exceptional edge";
-        return Stream.empty();
+        return Set.of();
     }
 
     @Override

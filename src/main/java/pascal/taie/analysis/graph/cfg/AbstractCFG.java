@@ -98,7 +98,7 @@ abstract class AbstractCFG<N> implements CFG<N> {
                 (existingEdge = getExistingEdge(edge)) != null) {
             // Merge exceptional edges with the same kind, source, and target
             ((ExceptionalEdge<N>) existingEdge).addExceptions(
-                    edge.exceptions());
+                    edge.getExceptions());
         } else {
             inEdges.put(edge.getTarget(), edge);
             outEdges.put(edge.getSource(), edge);

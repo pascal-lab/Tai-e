@@ -33,8 +33,7 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeManager;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 enum ImplicitThrowAnalysis {
 
@@ -45,57 +44,57 @@ enum ImplicitThrowAnalysis {
     }
 
     // Implicit exception groups
-    private final Collection<ClassType> ARITHMETIC_EXCEPTION;
+    private final Set<ClassType> ARITHMETIC_EXCEPTION;
 
-    private final Collection<ClassType> LOAD_ARRAY_EXCEPTIONS;
+    private final Set<ClassType> LOAD_ARRAY_EXCEPTIONS;
 
-    private final Collection<ClassType> STORE_ARRAY_EXCEPTIONS;
+    private final Set<ClassType> STORE_ARRAY_EXCEPTIONS;
 
-    private final Collection<ClassType> INITIALIZER_ERROR;
+    private final Set<ClassType> INITIALIZER_ERROR;
 
-    private final Collection<ClassType> CLASS_CAST_EXCEPTION;
+    private final Set<ClassType> CLASS_CAST_EXCEPTION;
 
-    private final Collection<ClassType> NEW_ARRAY_EXCEPTIONS;
+    private final Set<ClassType> NEW_ARRAY_EXCEPTIONS;
 
-    private final Collection<ClassType> NULL_POINTER_EXCEPTION;
+    private final Set<ClassType> NULL_POINTER_EXCEPTION;
 
-    private final Collection<ClassType> OUT_OF_MEMORY_ERROR;
+    private final Set<ClassType> OUT_OF_MEMORY_ERROR;
 
     /**
      * Visitor for compute implicit exceptions that may be thrown by each Stmt.
      */
-    private final StmtVisitor<Collection<ClassType>> implicitVisitor
+    private final StmtVisitor<Set<ClassType>> implicitVisitor
             = new StmtVisitor<>() {
         @Override
-        public Collection<ClassType> visit(New stmt) {
+        public Set<ClassType> visit(New stmt) {
             return stmt.getRValue() instanceof NewInstance ?
                     OUT_OF_MEMORY_ERROR : NEW_ARRAY_EXCEPTIONS;
         }
 
         @Override
-        public Collection<ClassType> visit(LoadArray stmt) {
+        public Set<ClassType> visit(LoadArray stmt) {
             return LOAD_ARRAY_EXCEPTIONS;
         }
 
         @Override
-        public Collection<ClassType> visit(StoreArray stmt) {
+        public Set<ClassType> visit(StoreArray stmt) {
             return STORE_ARRAY_EXCEPTIONS;
         }
 
         @Override
-        public Collection<ClassType> visit(LoadField stmt) {
+        public Set<ClassType> visit(LoadField stmt) {
             return stmt.isStatic() ?
                     INITIALIZER_ERROR : NULL_POINTER_EXCEPTION;
         }
 
         @Override
-        public Collection<ClassType> visit(StoreField stmt) {
+        public Set<ClassType> visit(StoreField stmt) {
             return stmt.isStatic() ?
                     INITIALIZER_ERROR : NULL_POINTER_EXCEPTION;
         }
 
         @Override
-        public Collection<ClassType> visit(Binary stmt) {
+        public Set<ClassType> visit(Binary stmt) {
             if (stmt.getRValue() instanceof ArithmeticExp) {
                 ArithmeticExp.Op op = ((ArithmeticExp) stmt.getRValue())
                         .getOperator();
@@ -103,39 +102,39 @@ enum ImplicitThrowAnalysis {
                     return ARITHMETIC_EXCEPTION;
                 }
             }
-            return List.of();
+            return Set.of();
         }
 
         @Override
-        public Collection<ClassType> visit(Unary stmt) {
+        public Set<ClassType> visit(Unary stmt) {
             return stmt.getRValue() instanceof ArrayLengthExp ?
-                    NULL_POINTER_EXCEPTION : List.of();
+                    NULL_POINTER_EXCEPTION : Set.of();
         }
 
         @Override
-        public Collection<ClassType> visit(Cast stmt) {
+        public Set<ClassType> visit(Cast stmt) {
             return CLASS_CAST_EXCEPTION;
         }
 
         @Override
-        public Collection<ClassType> visit(Invoke stmt) {
+        public Set<ClassType> visit(Invoke stmt) {
             return stmt.isStatic() ?
                     INITIALIZER_ERROR : NULL_POINTER_EXCEPTION;
         }
 
         @Override
-        public Collection<ClassType> visit(Throw stmt) {
+        public Set<ClassType> visit(Throw stmt) {
             return NULL_POINTER_EXCEPTION;
         }
 
         @Override
-        public Collection<ClassType> visit(Monitor stmt) {
+        public Set<ClassType> visit(Monitor stmt) {
             return NULL_POINTER_EXCEPTION;
         }
 
         @Override
-        public Collection<ClassType> visitDefault(Stmt stmt) {
-            return List.of();
+        public Set<ClassType> visitDefault(Stmt stmt) {
+            return Set.of();
         }
     };
 
@@ -146,27 +145,27 @@ enum ImplicitThrowAnalysis {
         ClassType nullPointerException = tm.getClassType(StringReps.NULL_POINTER_EXCEPTION);
         ClassType outOfMemoryError = tm.getClassType(StringReps.OUT_OF_MEMORY_ERROR);
 
-        ARITHMETIC_EXCEPTION = List.of(
+        ARITHMETIC_EXCEPTION = Set.of(
                 tm.getClassType(StringReps.ARITHMETIC_EXCEPTION));
-        LOAD_ARRAY_EXCEPTIONS = List.of(
+        LOAD_ARRAY_EXCEPTIONS = Set.of(
                 indexOutOfBoundsException,
                 nullPointerException);
-        STORE_ARRAY_EXCEPTIONS = List.of(
+        STORE_ARRAY_EXCEPTIONS = Set.of(
                 arrayStoreException,
                 indexOutOfBoundsException,
                 nullPointerException);
-        INITIALIZER_ERROR = List.of(
+        INITIALIZER_ERROR = Set.of(
                 tm.getClassType(StringReps.EXCEPTION_IN_INITIALIZER_ERROR));
-        CLASS_CAST_EXCEPTION = List.of(
+        CLASS_CAST_EXCEPTION = Set.of(
                 tm.getClassType(StringReps.CLASS_CAST_EXCEPTION));
-        NEW_ARRAY_EXCEPTIONS = List.of(
+        NEW_ARRAY_EXCEPTIONS = Set.of(
                 outOfMemoryError,
                 tm.getClassType(StringReps.NEGATIVE_ARRAY_SIZE_EXCEPTION));
-        NULL_POINTER_EXCEPTION = List.of(nullPointerException);
-        OUT_OF_MEMORY_ERROR = List.of(outOfMemoryError);
+        NULL_POINTER_EXCEPTION = Set.of(nullPointerException);
+        OUT_OF_MEMORY_ERROR = Set.of(outOfMemoryError);
     }
 
-    Collection<ClassType> mayThrowImplicitly(Stmt stmt) {
+    Set<ClassType> mayThrowImplicitly(Stmt stmt) {
         return stmt.accept(implicitVisitor);
     }
 

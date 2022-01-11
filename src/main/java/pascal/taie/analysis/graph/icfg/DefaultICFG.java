@@ -96,7 +96,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                                 }
                             }
                             if (retEdge.isExceptional()) {
-                                retEdge.exceptions().forEach(exceptions::add);
+                                retEdge.getExceptions().forEach(exceptions::add);
                             }
                         });
                         returnSitesOf(stmt).forEach(retSite -> {

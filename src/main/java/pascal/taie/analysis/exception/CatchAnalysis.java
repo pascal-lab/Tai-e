@@ -20,6 +20,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeManager;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static pascal.taie.util.collection.Sets.newHybridSet;
 
 /**
  * Intra-procedural catch analysis for computing the exceptions thrown by
@@ -55,7 +54,7 @@ public class CatchAnalysis {
                 explicit = List.of();
             }
             for (ExceptionEntry entry : catchers.getOrDefault(stmt, List.of())) {
-                Set<ClassType> uncaughtImplicit = newHybridSet();
+                Set<ClassType> uncaughtImplicit = Sets.newHybridSet();
                 implicit.forEach(t -> {
                     if (typeManager.isSubtype(entry.catchType(), t)) {
                         result.addCaughtImplicit(stmt, entry.handler(), t);
@@ -65,7 +64,7 @@ public class CatchAnalysis {
                 });
                 implicit = uncaughtImplicit;
 
-                Set<ClassType> uncaughtExplicit = newHybridSet();
+                Set<ClassType> uncaughtExplicit = Sets.newHybridSet();
                 explicit.forEach(t -> {
                     if (typeManager.isSubtype(entry.catchType(), t)) {
                         result.addCaughtExplicit(stmt, entry.handler(), t);
@@ -90,7 +89,7 @@ public class CatchAnalysis {
         ir.getExceptionEntries().forEach(entry -> {
             for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
                 Stmt stmt = ir.getStmt(i);
-                catchers.computeIfAbsent(stmt, s -> new ArrayList<>())
+                catchers.computeIfAbsent(stmt, unused -> new ArrayList<>())
                         .add(entry);
             }
         });

@@ -2,27 +2,24 @@ package pascal.taie.analysis.pta.plugin.exception;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Set;
-
-import static pascal.taie.util.collection.Maps.newHybridMap;
-import static pascal.taie.util.collection.Sets.newHybridSet;
-
 
 public class CSMethodThrowResult {
 
-    private final Map<Stmt, Collection<CSObj>> explicitExceptions = newHybridMap();
+    private final MultiMap<Stmt, CSObj> explicitExceptions = Maps.newMultiMap();
 
-    private final Collection<CSObj> uncaughtExceptions = newHybridSet();
+    private final Set<CSObj> uncaughtExceptions = Sets.newHybridSet();
 
-    Collection<CSObj> propagate(Stmt stmt, Collection<CSObj> exceptions) {
-        Collection<CSObj> diff = newHybridSet();
-        Collection<CSObj> exist = explicitExceptions.computeIfAbsent(
-                stmt, k -> newHybridSet());
+    Set<CSObj> propagate(Stmt stmt, Collection<CSObj> exceptions) {
+        Set<CSObj> diff = Sets.newHybridSet();
         exceptions.forEach(exception -> {
-            if (exist.add(exception)) {
+            if (explicitExceptions.put(stmt, exception)) {
                 diff.add(exception);
             }
         });
@@ -33,11 +30,11 @@ public class CSMethodThrowResult {
         uncaughtExceptions.addAll(exceptions);
     }
 
-    Collection<CSObj> mayThrowExplicitly(Stmt stmt) {
-        return explicitExceptions.getOrDefault(stmt, Set.of());
+    Set<CSObj> mayThrowExplicitly(Stmt stmt) {
+        return explicitExceptions.get(stmt);
     }
 
-    Collection<CSObj> mayThrowUncaught() {
-        return this.uncaughtExceptions;
+    Set<CSObj> mayThrowUncaught() {
+        return Collections.unmodifiableSet(uncaughtExceptions);
     }
 }

@@ -7,7 +7,8 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import static pascal.taie.util.collection.Maps.newHybridMap;
 import static pascal.taie.util.collection.Sets.newHybridSet;
@@ -19,18 +20,18 @@ public class MethodThrowResult {
     private final MultiMap<Stmt, Obj> explicitExceptions
             = Maps.newMultiMap(newHybridMap());
 
-    private final Collection<Obj> uncaughtExceptions = newHybridSet();
+    private final Set<Obj> uncaughtExceptions = newHybridSet();
 
     public MethodThrowResult(JMethod method) {
         this.method = method;
     }
 
-    public Collection<Obj> mayThrowExplicitly(Stmt stmt) {
+    public Set<Obj> mayThrowExplicitly(Stmt stmt) {
         return explicitExceptions.get(stmt);
     }
 
-    public Collection<Obj> mayThrowUncaught() {
-        return uncaughtExceptions;
+    public Set<Obj> mayThrowUncaught() {
+        return Collections.unmodifiableSet(uncaughtExceptions);
     }
 
     void addCSMethodThrowResult(CSMethodThrowResult csMethodThrowResult) {
