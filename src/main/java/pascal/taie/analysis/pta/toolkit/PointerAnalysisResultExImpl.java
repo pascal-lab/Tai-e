@@ -89,7 +89,7 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     private void computeAllocatedObjects() {
         if (method2Objs == null) {
             method2Objs = Maps.newMultiMap();
-            base.objects().forEach(obj ->
+            base.getObjects().forEach(obj ->
                     obj.getContainerMethod().ifPresent(m ->
                             method2Objs.put(m, obj)));
         }

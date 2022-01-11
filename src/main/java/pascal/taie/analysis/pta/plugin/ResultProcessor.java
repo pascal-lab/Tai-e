@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 import static pascal.taie.util.collection.CollectionUtils.sum;
 
@@ -100,14 +101,14 @@ public class ResultProcessor implements Plugin {
     }
 
     private static void printStatistics(PointerAnalysisResult result) {
-        int varInsens = (int) result.vars().count();
+        int varInsens = result.getVars().size();
         int varSens = result.getCSVars().size();
-        int vptSizeInsens = result.vars()
-                .mapToInt(v -> result.getPointsToSet(v).size()).sum();
-        int vptSizeSens = sum(result.getCSVars(), v -> v.getPointsToSet().size());
-        int sfptSizeSens = sum(result.getStaticFields(), f -> f.getPointsToSet().size());
-        int ifptSizeSens = sum(result.getInstanceFields(), f -> f.getPointsToSet().size());
-        int aptSizeSens = sum(result.getArrayIndexes(), a -> a.getPointsToSet().size());
+        int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
+        ToIntFunction<Pointer> getSize = p -> p.getPointsToSet().size();
+        int vptSizeSens = sum(result.getCSVars(), getSize);
+        int sfptSizeSens = sum(result.getStaticFields(), getSize);
+        int ifptSizeSens = sum(result.getInstanceFields(), getSize);
+        int aptSizeSens = sum(result.getArrayIndexes(), getSize);
         int reachableInsens = result.getCallGraph().getNumberOfMethods();
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
         int callEdgeInsens = (int) result.getCallGraph()

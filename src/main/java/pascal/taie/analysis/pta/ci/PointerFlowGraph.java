@@ -18,10 +18,11 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMap;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Represents pointer flow graph in pointer analysis.
@@ -46,7 +47,7 @@ class PointerFlowGraph {
     /**
      * Map from (Obj, Field) to InstanceField node.
      */
-    private final Map<Obj, Map<JField, InstanceField>> instanceFields = Maps.newMap();
+    private final TwoKeyMap<Obj, JField, InstanceField> instanceFields = Maps.newTwoKeyMap();
 
     /**
      * Map from Obj (array) to ArrayIndex node.
@@ -61,8 +62,8 @@ class PointerFlowGraph {
     /**
      * Returns all pointers in this PFG.
      */
-    Stream<Pointer> pointers() {
-        return pointers.stream();
+    Set<Pointer> getPointers() {
+        return Collections.unmodifiableSet(pointers);
     }
 
     /**
@@ -92,12 +93,11 @@ class PointerFlowGraph {
      * and instance field.
      */
     InstanceField getInstanceField(Obj base, JField field) {
-        return instanceFields.computeIfAbsent(base, o -> Maps.newHybridMap())
-                .computeIfAbsent(field, f -> {
-                    InstanceField instanceField = new InstanceField(base, f);
-                    pointers.add(instanceField);
-                    return instanceField;
-                });
+        return instanceFields.computeIfAbsent(base, field, (b, f) -> {
+                InstanceField instanceField = new InstanceField(b, f);
+                pointers.add(instanceField);
+                return instanceField;
+            });
     }
 
     /**

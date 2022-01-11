@@ -29,7 +29,6 @@ import pascal.taie.util.ResultHolder;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Represents results of pointer analysis.
@@ -44,7 +43,7 @@ public interface PointerAnalysisResult extends ResultHolder {
     /**
      * @return all reachable variables in the program.
      */
-    Stream<Var> vars();
+    Collection<Var> getVars();
 
     /**
      * @return all reachable instance fields in the program.
@@ -69,7 +68,7 @@ public interface PointerAnalysisResult extends ResultHolder {
     /**
      * @return all reachable objects in the program.
      */
-    Stream<Obj> objects();
+    Collection<Obj> getObjects();
 
     /**
      * @return context-sensitive points-to set of context-sensitive variable var.

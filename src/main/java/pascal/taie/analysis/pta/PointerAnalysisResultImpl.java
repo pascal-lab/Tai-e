@@ -41,7 +41,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PointerAnalysisResultImpl extends AbstractResultHolder
         implements PointerAnalysisResult {
@@ -79,8 +78,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
-    public Stream<Var> vars() {
-        return csManager.getVars().stream();
+    public Collection<Var> getVars() {
+        return csManager.getVars();
     }
 
     @Override
@@ -104,11 +103,11 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
-    public Stream<Obj> objects() {
+    public Collection<Obj> getObjects() {
         return getCSObjects()
                 .stream()
                 .map(CSObj::getObject)
-                .distinct();
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

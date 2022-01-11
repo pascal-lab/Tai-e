@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Strings;
+import pascal.taie.util.collection.Views;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,13 +28,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
-import java.util.stream.Stream;
+
+import static pascal.taie.util.collection.CollectionUtils.sum;
 
 class ResultProcessor {
 
@@ -68,20 +71,12 @@ class ResultProcessor {
     }
 
     private static void printStatistics(CIPTAResult result) {
-        int vars = (int) result.vars().count();
+        int vars = result.getVars().size();
         ToIntFunction<Pointer> getSize = p -> p.getPointsToSet().size();
-        int vptSize = getPointers(result, VarPtr.class)
-                .mapToInt(getSize)
-                .sum();
-        int sfptSize = getPointers(result, StaticField.class)
-                .mapToInt(getSize)
-                .sum();
-        int ifptSize = getPointers(result, InstanceField.class)
-                .mapToInt(getSize)
-                .sum();
-        int aptSize = getPointers(result, ArrayIndex.class)
-                .mapToInt(getSize)
-                .sum();
+        int vptSize = sum(getPointers(result, VarPtr.class), getSize);
+        int sfptSize = sum(getPointers(result, StaticField.class), getSize);
+        int ifptSize = sum(getPointers(result, InstanceField.class), getSize);
+        int aptSize = sum(getPointers(result, ArrayIndex.class), getSize);
         int reachable = result.getCallGraph().getNumberOfMethods();
         int callEdges = (int) result.getCallGraph()
                 .edges().count();
@@ -123,16 +118,18 @@ class ResultProcessor {
         }
     }
 
-    private static Stream<Pointer> getPointers(
+    private static Collection<Pointer> getPointers(
             CIPTAResult result, Class<? extends Pointer> klass) {
-        return result.getPointerFlowGraph()
-                .pointers()
-                .filter(klass::isInstance);
+        return Views.toFilteredCollection(
+                result.getPointerFlowGraph().getPointers(),
+                klass::isInstance);
     }
 
-    private static void dumpPointers(PrintStream out, Stream<? extends Pointer> pointers, String desc) {
+    private static void dumpPointers(
+            PrintStream out, Collection<? extends Pointer> pointers, String desc) {
         out.println(HEADER + desc);
-        pointers.sorted(Comparator.comparing(Pointer::toString))
+        pointers.stream()
+                .sorted(Comparator.comparing(Pointer::toString))
                 .forEach(p -> out.println(p + SEP + toString(p.getPointsToSet())));
         out.println();
     }
@@ -187,8 +184,9 @@ class ResultProcessor {
     }
 
     private static void addPointers(Map<String, Pointer> map,
-                                    Stream<? extends Pointer> pointers) {
-        pointers.sorted(Comparator.comparing(Pointer::toString))
+                                    Collection<? extends Pointer> pointers) {
+        pointers.stream()
+                .sorted(Comparator.comparing(Pointer::toString))
                 .forEach(p -> map.put(p.toString(), p));
     }
 }

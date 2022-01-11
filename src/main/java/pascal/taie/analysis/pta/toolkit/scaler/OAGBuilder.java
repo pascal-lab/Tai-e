@@ -50,7 +50,7 @@ class OAGBuilder {
     private static Map<Obj, Set<JMethod>> computeInvokedMethods(
             PointerAnalysisResultEx pta) {
         Map<Obj, Set<JMethod>> invokedMethods = Maps.newMap();
-        pta.getBase().objects().forEach(obj -> {
+        pta.getBase().getObjects().forEach(obj -> {
             Set<JMethod> methods = Sets.newHybridSet();
             Queue<JMethod> queue = new ArrayDeque<>(
                     pta.getMethodsInvokedOn(obj));

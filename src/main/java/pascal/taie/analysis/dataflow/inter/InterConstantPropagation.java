@@ -121,7 +121,8 @@ public class InterConstantPropagation extends
         String ptaId = getOptions().getString("pta");
         PointerAnalysisResult pta = World.getResult(ptaId);
         MultiMap<Obj, Var> pointedBy = Maps.newMultiMap();
-        pta.vars()
+        pta.getVars()
+                .stream()
                 .filter(v -> !v.getStoreFields().isEmpty() ||
                         !v.getLoadFields().isEmpty() ||
                         !v.getStoreArrays().isEmpty() ||
