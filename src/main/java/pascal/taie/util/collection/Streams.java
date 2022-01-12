@@ -23,13 +23,6 @@ public final class Streams {
     }
 
     /**
-     * @return true if the given stream is empty, otherwise false.
-     */
-    public static <T> boolean isEmpty(Stream<T> stream) {
-        return stream.findAny().isEmpty();
-    }
-
-    /**
      * Leverages {@link Stream#concat(Stream, Stream)} to create a lazily
      * concatenated stream whose elements are all the elements of multiple
      * given streams. The resulting stream is ordered if all input streams

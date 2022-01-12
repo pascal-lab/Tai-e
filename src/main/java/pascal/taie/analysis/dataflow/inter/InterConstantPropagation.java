@@ -340,7 +340,8 @@ public class InterConstantPropagation extends
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
         CPFact result = newInitialFact();
         if (lhs != null && ConstantPropagation.canHoldInt(lhs)) {
-            Value retValue = edge.returnVars()
+            Value retValue = edge.getReturnVars()
+                    .stream()
                     .map(returnOut::get)
                     .reduce(Value.getUndef(), cp::meetValue);
             result.update(lhs, retValue);

@@ -57,7 +57,9 @@ class OAGBuilder {
             while (!queue.isEmpty()) {
                 JMethod method = queue.poll();
                 methods.add(method);
-                pta.getBase().getCallGraph().calleesOfMethod(method)
+                pta.getBase().getCallGraph()
+                        .getCalleesOfM(method)
+                        .stream()
                         .filter(m -> m.isStatic() && !methods.contains(m))
                         .forEach(queue::add);
             }

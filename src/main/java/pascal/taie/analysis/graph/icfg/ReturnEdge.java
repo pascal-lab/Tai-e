@@ -16,7 +16,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.ClassType;
 
 import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.Collections;
 
 /**
  * The edge connecting a method exit to return site of the call site.
@@ -44,8 +44,8 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
                Collection<Var> retVars, Collection<ClassType> exceptions) {
         super(exit, retSite);
         this.callSite = callSite;
-        this.returnVars = retVars;
-        this.exceptions = exceptions;
+        this.returnVars = Collections.unmodifiableCollection(retVars);
+        this.exceptions = Collections.unmodifiableCollection(exceptions);
     }
 
     /**
@@ -72,14 +72,14 @@ public class ReturnEdge<Node> extends ICFGEdge<Node> {
      *
      * @return the variables that hold the return values.
      */
-    public Stream<Var> returnVars() {
-        return returnVars.stream();
+    public Collection<Var> getReturnVars() {
+        return returnVars;
     }
 
     /**
      * @return the exceptions that may be thrown out.
      */
-    public Stream<ClassType> exceptions() {
-        return exceptions.stream();
+    public Collection<ClassType> getExceptions() {
+        return exceptions;
     }
 }

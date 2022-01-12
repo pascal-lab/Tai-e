@@ -30,11 +30,11 @@ import java.util.Set;
  * Moreover, empty sets and singleton sets are represented with just a reference.
  * Elements cannot be null.
  */
-public final class HybridArrayHashSet<E> extends AbstractSet<E> {
+public class HybridArrayHashSet<E> extends AbstractSet<E> {
 
     // invariant: at most one of singleton, array and hashset is non-null
 
-    private static final String NULL_MESSAGE = "HybridArrayHashSet does not permit null values";
+    private static final String NULL_MESSAGE = "HybridHashSet does not permit null values";
 
     /**
      * Default threshold for the number of items necessary for the array set
@@ -71,6 +71,10 @@ public final class HybridArrayHashSet<E> extends AbstractSet<E> {
         addAll(c);
     }
 
+    protected HashSet<E> newSet(int initialCapacity) {
+        return new HashSet<>(initialCapacity);
+    }
+
     @Override
     public boolean add(E e) {
         Objects.requireNonNull(e, NULL_MESSAGE);
@@ -100,7 +104,7 @@ public final class HybridArrayHashSet<E> extends AbstractSet<E> {
     }
 
     private void convertArraySetToHashSet() {
-        hashSet = new HashSet<>(ARRAY_SET_SIZE * 2);
+        hashSet = newSet(ARRAY_SET_SIZE * 2);
         hashSet.addAll(arraySet);
         arraySet = null;
     }
@@ -136,7 +140,7 @@ public final class HybridArrayHashSet<E> extends AbstractSet<E> {
             }
         }
         if (hashSet == null) {
-            hashSet = new HashSet<>(ARRAY_SET_SIZE + max_new_size);
+            hashSet = newSet(ARRAY_SET_SIZE + max_new_size);
         }
         if (singleton != null) {
             hashSet.add(singleton);

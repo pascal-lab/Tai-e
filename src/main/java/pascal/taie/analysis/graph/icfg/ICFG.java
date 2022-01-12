@@ -42,12 +42,12 @@ public interface ICFG<Method, Node> extends Graph<Node> {
     /**
      * @return the methods that are called by the given call site.
      */
-    Stream<Method> calleesOf(Node callSite);
+    Set<Method> getCalleesOf(Node callSite);
 
     /**
      * @return the return sites of the given call site.
      */
-    Stream<Node> returnSitesOf(Node callSite);
+    Set<Node> getReturnSitesOf(Node callSite);
 
     /**
      * @return the entry node of the given method.
@@ -62,7 +62,7 @@ public interface ICFG<Method, Node> extends Graph<Node> {
     /**
      * @return the call sites that invoke the given method.
      */
-    Stream<Node> callersOf(Method method);
+    Set<Node> getCallersOf(Method method);
 
     /**
      * @return the method that contains the given node.

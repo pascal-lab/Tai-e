@@ -66,6 +66,6 @@ public interface PointsToSet extends Iterable<CSObj> {
 
     @Override
     default Iterator<CSObj> iterator() {
-        return objects().iterator();
+        return getObjects().iterator();
     }
 }

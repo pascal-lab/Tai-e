@@ -104,6 +104,7 @@ public class AnalysisManager {
                     CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
                     yield callGraph.reachableMethods()
                             .map(JMethod::getDeclaringClass)
+                            .distinct()
                             .toList();
                 }
                 default -> throw new ConfigException(

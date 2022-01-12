@@ -157,7 +157,7 @@ public class ExceptionAnalysis implements Plugin {
                 if (!uncaught.isEmpty()) {
                     result.addUncaughtExceptions(uncaught);
                     solver.getCallGraph()
-                            .edgesTo(csMethod)
+                            .edgesInTo(csMethod)
                             // currently, don't propagate exceptions along OTHER edges
                             .filter(edge -> edge.getKind() != CallKind.OTHER)
                             .forEach(edge -> {
@@ -211,15 +211,13 @@ public class ExceptionAnalysis implements Plugin {
         // Collects context-sensitive throw results and stores them in
         // a context-insensitive manner.
         PTAThrowResult throwResult = new PTAThrowResult();
-        solver.getCallGraph()
-                .reachableMethods()
-                .forEach(csMethod -> {
-                    JMethod method = csMethod.getMethod();
-                    MethodThrowResult result = throwResult.getOrCreateResult(method);
-                    Optional<CSMethodThrowResult> csResult =
-                            csMethod.getResult(getClass().getName());
-                    csResult.ifPresent(result::addCSMethodThrowResult);
-                });
+        for (CSMethod csMethod : solver.getCallGraph()) {
+            JMethod method = csMethod.getMethod();
+            MethodThrowResult result = throwResult.getOrCreateResult(method);
+            Optional<CSMethodThrowResult> csResult =
+                    csMethod.getResult(getClass().getName());
+            csResult.ifPresent(result::addCSMethodThrowResult);
+        }
         solver.getResult().storeResult(getClass().getName(), throwResult);
         clear();
     }

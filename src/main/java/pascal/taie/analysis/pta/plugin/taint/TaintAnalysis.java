@@ -166,7 +166,7 @@ public class TaintAnalysis implements Plugin {
         config.getSinks().forEach(sink -> {
             int i = sink.index();
             result.getCallGraph()
-                    .callersOf(sink.method())
+                    .getCallersOf(sink.method())
                     .forEach(sinkCall -> {
                         Var arg = sinkCall.getInvokeExp().getArg(i);
                         result.getPointsToSet(arg)

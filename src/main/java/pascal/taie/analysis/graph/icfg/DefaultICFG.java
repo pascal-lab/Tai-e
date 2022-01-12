@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static pascal.taie.analysis.graph.icfg.ICFGBuilder.getCFGOf;
 
@@ -52,7 +51,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     private void build(CallGraph<Stmt, JMethod> callGraph) {
-        callGraph.reachableMethods().forEach(method -> {
+        callGraph.forEach(method -> {
             CFG<Stmt> cfg = getCFGOf(method);
             if (cfg == null) {
                 logger.warn("CFG of {} is absent, try to fix this" +
@@ -69,7 +68,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                     inEdges.put(edge.getTarget(), local);
                 });
                 if (isCallSite(stmt)) {
-                    calleesOf(stmt).forEach(callee -> {
+                    getCalleesOf(stmt).forEach(callee -> {
                         if (getCFGOf(callee) == null) {
                             logger.warn("CFG of {} is missing", callee);
                             return;
@@ -96,10 +95,10 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                                 }
                             }
                             if (retEdge.isExceptional()) {
-                                retEdge.getExceptions().forEach(exceptions::add);
+                                exceptions.addAll(retEdge.getExceptions());
                             }
                         });
-                        returnSitesOf(stmt).forEach(retSite -> {
+                        getReturnSitesOf(stmt).forEach(retSite -> {
                             ReturnEdge<Stmt> ret = new ReturnEdge<>(
                                     exit, retSite, stmt, retVars, exceptions);
                             outEdges.put(exit, ret);
@@ -132,9 +131,9 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public Stream<Stmt> returnSitesOf(Stmt callSite) {
+    public Set<Stmt> getReturnSitesOf(Stmt callSite) {
         assert isCallSite(callSite);
-        return stmtToCFG.get(callSite).getSuccsOf(callSite).stream();
+        return stmtToCFG.get(callSite).getSuccsOf(callSite);
     }
 
     @Override

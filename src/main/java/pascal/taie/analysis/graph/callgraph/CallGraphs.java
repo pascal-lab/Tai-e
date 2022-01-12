@@ -28,7 +28,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Streams;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -39,6 +38,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Static utility methods about call graph.
@@ -124,10 +123,10 @@ public final class CallGraphs {
                         callGraph.callSitesIn(caller)
                                 .sorted(Comparator.comparing(Invoke::getIndex))
                                 .filter(callSite ->
-                                        !Streams.isEmpty(callGraph.calleesOf(callSite)))
+                                        !callGraph.getCalleesOf(callSite).isEmpty())
                                 .forEach(callSite ->
                                         out.println(toString(callSite) + SEP +
-                                                toString(callGraph.calleesOf(callSite)))));
+                                                toString(callGraph.getCalleesOf(callSite)))));
         out.println("----------------------------------------");
         if (out != System.out) {
             out.close();
@@ -157,7 +156,8 @@ public final class CallGraphs {
                     // sort callers
                     .sorted(Comparator.comparing(JMethod::getSignature))
                     .forEach(m -> getInvokeReps(m).forEach((invoke, rep) ->
-                            callGraph.calleesOf(invoke)
+                            callGraph.getCalleesOf(invoke)
+                                    .stream()
                                     .sorted(Comparator.comparing(JMethod::getSignature))
                                     .forEach(callee -> out.println(rep + "\t" + callee))));
         } catch (FileNotFoundException e) {
@@ -215,7 +215,7 @@ public final class CallGraphs {
                 .forEach(callSite -> invokes.put(toString(callSite), callSite));
         List<String> mismatches = new ArrayList<>();
         invokes.forEach((invokeStr, invoke) -> {
-            String given = toString(callGraph.calleesOf(invoke));
+            String given = toString(callGraph.getCalleesOf(invoke));
             String expected = inputs.get(invokeStr);
             if (!given.equals(expected)) {
                 mismatches.add(String.format("%s, expected: %s, given: %s",
@@ -254,8 +254,8 @@ public final class CallGraphs {
         return invoke.getContainer() + IRPrinter.toString(invoke);
     }
 
-    private static String toString(Stream<JMethod> methods) {
-        return methods
+    private static String toString(Collection<JMethod> methods) {
+        return methods.stream()
                 .sorted(Comparator.comparing(JMethod::toString))
                 .collect(Collectors.toCollection(LinkedHashSet::new))
                 .toString();

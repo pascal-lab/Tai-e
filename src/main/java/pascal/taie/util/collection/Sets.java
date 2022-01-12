@@ -50,6 +50,10 @@ public final class Sets {
         return new HybridArrayHashSet<>(c);
     }
 
+    public static <E> Set<E> newHybridOrderedSet() {
+        return new HybridArrayLinkedHashSet<>();
+    }
+
     public static <E> Set<E> newConcurrentSet() {
         return ConcurrentHashMap.newKeySet();
     }

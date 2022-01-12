@@ -15,6 +15,7 @@ package pascal.taie.analysis.graph.callgraph;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.Views;
 
 import java.util.Collections;
 import java.util.Map;
@@ -37,48 +38,44 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected final MultiMap<CallSite, Edge<CallSite, Method>> callSiteToEdges = Maps.newMultiMap();
     protected final MultiMap<Method, Edge<CallSite, Method>> calleeToEdges = Maps.newMultiMap();
     protected final Map<CallSite, Method> callSiteToContainer = Maps.newMap();
-    protected final MultiMap<Method, CallSite> callSitesIn = Maps.newMultiMap();
+    protected final MultiMap<Method, CallSite> callSitesIn = Maps.newMultiMap(Sets::newHybridOrderedSet);
     protected final Set<Method> entryMethods = Sets.newSet();
     protected final Set<Method> reachableMethods = Sets.newSet();
 
     @Override
-    public Stream<CallSite> callersOf(Method callee) {
-        Set<Edge<CallSite, Method>> edges = calleeToEdges.get(callee);
-        return edges != null ?
-                edges.stream().map(Edge::getCallSite) : Stream.of();
+    public Set<CallSite> getCallersOf(Method callee) {
+        return Views.toMappedSet(calleeToEdges.get(callee), Edge::getCallSite);
     }
 
     @Override
-    public Stream<Method> calleesOf(CallSite callSite) {
-        Set<Edge<CallSite, Method>> edges = callSiteToEdges.get(callSite);
-        return edges != null ?
-                edges.stream().map(Edge::getCallee) : Stream.of();
+    public Set<Method> getCalleesOf(CallSite callSite) {
+        return Views.toMappedSet(callSiteToEdges.get(callSite), Edge::getCallee);
     }
 
     @Override
-    public Stream<Method> calleesOfMethod(Method caller) {
+    public Set<Method> getCalleesOfM(Method caller) {
         return callSitesIn(caller)
-                .flatMap(this::calleesOf)
-                .distinct();
+                .flatMap(cs -> getCalleesOf(cs).stream())
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Method getContainerMethodOf(CallSite callSite) {
+    public Method getContainerOf(CallSite callSite) {
         return callSiteToContainer.get(callSite);
     }
 
     @Override
-    public Stream<CallSite> callSitesIn(Method method) {
-        return callSitesIn.get(method).stream();
+    public Set<CallSite> getCallSitesIn(Method method) {
+        return callSitesIn.get(method);
     }
 
     @Override
-    public Stream<Edge<CallSite, Method>> edgesOf(CallSite callSite) {
+    public Stream<Edge<CallSite, Method>> edgesOutOf(CallSite callSite) {
         return callSiteToEdges.get(callSite).stream();
     }
 
     @Override
-    public Stream<Edge<CallSite, Method>> edgesTo(Method method) {
+    public Stream<Edge<CallSite, Method>> edgesInTo(Method method) {
         return calleeToEdges.get(method).stream();
     }
 
@@ -126,15 +123,16 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public Set<Method> getPredsOf(Method node) {
-        return callersOf(node)
-                .map(this::getContainerMethodOf)
+        return getCallersOf(node)
+                .stream()
+                .map(this::getContainerOf)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public Set<Method> getSuccsOf(Method node) {
         return callSitesIn(node)
-                .flatMap(this::calleesOf)
+                .flatMap(cs -> getCalleesOf(cs).stream())
                 .collect(Collectors.toUnmodifiableSet());
     }
 

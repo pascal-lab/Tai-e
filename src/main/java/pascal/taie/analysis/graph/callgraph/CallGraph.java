@@ -14,6 +14,7 @@ package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.util.graph.Graph;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -27,37 +28,44 @@ public interface CallGraph<CallSite, Method> extends Graph<Method> {
     /**
      * @return the call sites that invoke the given method.
      */
-    Stream<CallSite> callersOf(Method callee);
+    Set<CallSite> getCallersOf(Method callee);
 
     /**
      * @return the methods that are called by the given call site.
      */
-    Stream<Method> calleesOf(CallSite callSite);
+    Set<Method> getCalleesOf(CallSite callSite);
 
     /**
      * @return the methods that are called by all call sites in the given method.
      */
-    Stream<Method> calleesOfMethod(Method caller);
+    Set<Method> getCalleesOfM(Method caller);
 
     /**
      * @return the method that contains the given call site.
      */
-    Method getContainerMethodOf(CallSite callSite);
+    Method getContainerOf(CallSite callSite);
 
     /**
      * @return the call sites within the given method.
      */
-    Stream<CallSite> callSitesIn(Method method);
+    Set<CallSite> getCallSitesIn(Method method);
+
+    /**
+     * @return the call sites within the given method.
+     */
+    default Stream<CallSite> callSitesIn(Method method) {
+        return getCallSitesIn(method).stream();
+    }
 
     /**
      * @return the call edges out of the given call site.
      */
-    Stream<Edge<CallSite, Method>> edgesOf(CallSite callSite);
+    Stream<Edge<CallSite, Method>> edgesOutOf(CallSite callSite);
 
     /**
      * @return the call edges targeting to the given method.
      */
-    Stream<Edge<CallSite, Method>> edgesTo(Method method);
+    Stream<Edge<CallSite, Method>> edgesInTo(Method method);
 
     /**
      * @return all call edges in this call graph.

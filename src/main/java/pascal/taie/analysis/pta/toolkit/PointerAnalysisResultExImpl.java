@@ -22,8 +22,6 @@ import pascal.taie.util.collection.MultiMap;
 
 import java.util.Set;
 
-import static java.util.function.Predicate.not;
-
 public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
 
     private final PointerAnalysisResult base;
@@ -63,15 +61,15 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
         if (recv2Methods == null && method2Recvs == null) {
             recv2Methods = Maps.newMultiMap();
             method2Recvs = Maps.newMultiMap();
-            base.getCallGraph().reachableMethods()
-                    .filter(not(JMethod::isStatic))
-                    .forEach(method -> {
-                        Var thisVar = method.getIR().getThis();
-                        base.getPointsToSet(thisVar).forEach(recv -> {
-                            recv2Methods.put(recv, method);
-                            method2Recvs.put(method, recv);
-                        });
+            base.getCallGraph().forEach(method -> {
+                if (!method.isStatic()) {
+                    Var thisVar = method.getIR().getThis();
+                    base.getPointsToSet(thisVar).forEach(recv -> {
+                        recv2Methods.put(recv, method);
+                        method2Recvs.put(method, recv);
                     });
+                }
+            });
         }
     }
 

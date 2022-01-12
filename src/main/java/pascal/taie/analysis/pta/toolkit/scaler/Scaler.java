@@ -90,6 +90,7 @@ public class Scaler {
         Set<JMethod> instanceMethods = pta.getBase()
                 .getCallGraph()
                 .reachableMethods()
+                .filter(m -> !m.isStatic())
                 .collect(Collectors.toUnmodifiableSet());
         long st = binarySearch(instanceMethods, tst);
         Map<JMethod, String> csMap = instanceMethods.stream()

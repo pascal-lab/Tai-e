@@ -111,10 +111,8 @@ public class ResultProcessor implements Plugin {
         int aptSizeSens = sum(result.getArrayIndexes(), getSize);
         int reachableInsens = result.getCallGraph().getNumberOfMethods();
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
-        int callEdgeInsens = (int) result.getCallGraph()
-                .edges().count();
-        int callEdgeSens = (int) result.getCSCallGraph()
-                .edges().count();
+        int callEdgeInsens = (int) result.getCallGraph().edges().count();
+        int callEdgeSens = (int) result.getCSCallGraph().edges().count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",
                 format(varInsens), format(varSens));

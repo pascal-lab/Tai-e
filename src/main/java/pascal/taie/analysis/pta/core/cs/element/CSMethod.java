@@ -19,10 +19,10 @@ import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.ResultHolder;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * Represents context-sensitive methods.
@@ -54,8 +54,8 @@ public class CSMethod extends AbstractCSElement {
         edges.add(edge);
     }
 
-    public Stream<Edge<CSCallSite, CSMethod>> edges() {
-        return edges.stream();
+    public Set<Edge<CSCallSite, CSMethod>> getEdges() {
+        return Collections.unmodifiableSet(edges);
     }
 
     public <R> R getResult(String id, Supplier<R> supplier) {

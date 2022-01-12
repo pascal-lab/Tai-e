@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 
 /**
  * Static utility methods for various maps, including {@link Map},
@@ -61,6 +62,10 @@ public final class Maps {
 
     public static <K, V> MultiMap<K, V> newMultiMap() {
         return new MapSetMultiMap<>(newMap(), HybridArrayHashSet::new);
+    }
+
+    public static <K, V> MultiMap<K, V> newMultiMap(Supplier<Set<V>> setFactory) {
+        return new MapSetMultiMap<>(newMap(), setFactory);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map) {

@@ -21,9 +21,11 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.Views;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -77,48 +79,48 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     @Override
-    public Stream<CSCallSite> callersOf(CSMethod callee) {
-        return callee.edges().map(Edge::getCallSite);
+    public Set<CSCallSite> getCallersOf(CSMethod callee) {
+        return Views.toMappedSet(callee.getEdges(), Edge::getCallSite);
     }
 
     @Override
-    public Stream<CSMethod> calleesOf(CSCallSite csCallSite) {
-        return csCallSite.edges().map(Edge::getCallee);
+    public Set<CSMethod> getCalleesOf(CSCallSite csCallSite) {
+        return Views.toMappedSet(csCallSite.getEdges(), Edge::getCallee);
     }
 
     @Override
-    public CSMethod getContainerMethodOf(CSCallSite csCallSite) {
+    public CSMethod getContainerOf(CSCallSite csCallSite) {
         return csCallSite.getContainer();
     }
 
     @Override
-    public Stream<CSCallSite> callSitesIn(CSMethod csMethod) {
+    public Set<CSCallSite> getCallSitesIn(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
-        List<CSCallSite> callSites = new ArrayList<>();
+        Set<CSCallSite> callSites = Sets.newHybridOrderedSet();
         for (Stmt s : method.getIR()) {
             if (s instanceof Invoke) {
                 CSCallSite csCallSite = csManager.getCSCallSite(context, (Invoke) s);
                 callSites.add(csCallSite);
             }
         }
-        return callSites.stream();
+        return Collections.unmodifiableSet(callSites);
     }
 
     @Override
-    public Stream<Edge<CSCallSite, CSMethod>> edgesOf(CSCallSite csCallSite) {
-        return csCallSite.edges();
+    public Stream<Edge<CSCallSite, CSMethod>> edgesOutOf(CSCallSite csCallSite) {
+        return csCallSite.getEdges().stream();
     }
 
     @Override
-    public Stream<Edge<CSCallSite, CSMethod>> edgesTo(CSMethod csMethod) {
-        return csMethod.edges();
+    public Stream<Edge<CSCallSite, CSMethod>> edgesInTo(CSMethod csMethod) {
+        return csMethod.getEdges().stream();
     }
 
     @Override
     public Stream<Edge<CSCallSite, CSMethod>> edges() {
         return reachableMethods.stream()
                 .flatMap(this::callSitesIn)
-                .flatMap(this::edgesOf);
+                .flatMap(this::edgesOutOf);
     }
 }
