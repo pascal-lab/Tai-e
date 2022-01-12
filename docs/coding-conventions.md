@@ -14,14 +14,15 @@ Always use the access modifiers with minimal accessibility for classes/methods/f
 ### Use `final` Field
 When possible, declare `final` fields.
 
-### Return Stream
+### Return Unmodifiable Collection
 ```
 class Graph {
-    private Collection<Node> nodes;
+    private Set<Node> nodes;
 
-    Stream<Node> nodes() { return nodes.stream(); } // preferred
-
-    Collection<Node> getNodes() { return nodes; }
+    public Set<Node> getNodes() {
+        // return nodes;
+        return Collections.unmodifiableSet(nodes);
+    }
 }
 ```
 
@@ -36,12 +37,12 @@ For the methods that may return `null`, add `@Nullable` annotation to their retu
 For the methods that require non-`null` arguments, add `@Nonnull` annotation to the specific parameters, For example, `void setX(@Nonnull x)`.
 
 ### Use Tai-e Library
-- Use `Sets`/`Maps` to Create Sets/Maps.
+- Use `Sets`/`Maps` to create Sets/Maps.
 When creating Set/Map, use proper `Sets.newSet`/`Maps.newMap()` factory methods instead of `new HashSet/Map<>()`.
 
 - Tai-e provides some data structures (in package `pascal.tai.util.collection`) that are commonly-used in static analysis but not included in JDK, e.g., `MultiMap` and `TwoKeyMap`. You could use them to make life easier.
 
-- Use `Hashes.hash()` to Compute Hash Value of Multiple Objects. If the arguments may be `null`, use `Hashes.safeHash()`.
+- Use `Hashes.hash()` to compute hash value of multiple objects. If the arguments may be `null`, use `Hashes.safeHash()`.
 
-- Obtain String Constants from `StringReps`.
-When using JDK class names, method subsignatures or signaturess, refer to corresponding fields of `StringReps`.
+- Obtain string constants from string providers.
+When using JDK class names, method names, or signatures, refer to corresponding fields of `ClassNames`, `MethodNames`, or `Signatures` (these classes are annotated by `@StringProvider`).
