@@ -171,8 +171,7 @@ public class ResultProcessor extends ProgramAnalysis {
         Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
-        } else if (result instanceof StmtResult) {
-            StmtResult<?> StmtResult = (StmtResult<?>) result;
+        } else if (result instanceof StmtResult<?> StmtResult) {
             IR ir = method.getIR();
             ir.forEach(stmt -> out.println(toString(stmt, StmtResult)));
         } else {
@@ -222,9 +221,8 @@ public class ResultProcessor extends ProgramAnalysis {
                             " should be included");
                 }
             });
-        } else if (result instanceof StmtResult) {
+        } else if (result instanceof StmtResult<?> StmtResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
-            StmtResult<?> StmtResult = (StmtResult<?>) result;
             IR ir = method.getIR();
             ir.forEach(stmt -> {
                 String stmtStr = toString(stmt);
