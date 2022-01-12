@@ -30,12 +30,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.function.ToIntFunction;
+
+import static pascal.taie.util.collection.CollectionUtils.sum;
 
 /**
  * Dump points-to set to file or compare the analysis result with
@@ -65,34 +68,24 @@ public class ResultProcessor {
         }
         String file = options.getString("file");
         switch (action) {
-            case "dump":
-                dumpPointsToSet(result, file);
-                break;
-            case "compare":
-                comparePointsToSet(result, file);
-                break;
+            case "dump" -> dumpPointsToSet(result, file);
+            case "compare" -> comparePointsToSet(result, file);
         }
     }
 
     private static void printStatistics(PointerAnalysisResult result) {
-        int varInsens = (int) result.vars().count();
-        int varSens = (int) result.csVars().count();
-        int vptSizeInsens = result.vars()
-                .mapToInt(v -> result.getPointsToSet(v).size()).sum();
-        int vptSizeSens = result.csVars()
-                .mapToInt(v -> v.getPointsToSet().size()).sum();
-        int sfptSizeSens = result.staticFields()
-                .mapToInt(f -> f.getPointsToSet().size()).sum();
-        int ifptSizeSens = result.instanceFields()
-                .mapToInt(f -> f.getPointsToSet().size()).sum();
-        int aptSizeSens = result.arrayIndexes()
-                .mapToInt(a -> a.getPointsToSet().size()).sum();
+        int varInsens = result.getVars().size();
+        int varSens = result.getCSVars().size();
+        int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
+        ToIntFunction<Pointer> getSize = p -> p.getPointsToSet().size();
+        int vptSizeSens = sum(result.getCSVars(), getSize);
+        int sfptSizeSens = sum(result.getStaticFields(), getSize);
+        int ifptSizeSens = sum(result.getInstanceFields(), getSize);
+        int aptSizeSens = sum(result.getArrayIndexes(), getSize);
         int reachableInsens = result.getCallGraph().getNumberOfMethods();
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
-        int callEdgeInsens = (int) result.getCallGraph()
-                .edges().count();
-        int callEdgeSens = (int) result.getCSCallGraph()
-                .edges().count();
+        int callEdgeInsens = (int) result.getCallGraph().edges().count();
+        int callEdgeSens = (int) result.getCSCallGraph().edges().count();
         System.out.println("-------------- Pointer analysis statistics: --------------");
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",
                 format(varInsens), format(varSens));
@@ -128,18 +121,19 @@ public class ResultProcessor {
         } else {  // otherwise, dump to System.out
             out = System.out;
         }
-        dumpPointers(out, result.csVars(), "variables");
-        dumpPointers(out, result.staticFields(), "static fields");
-        dumpPointers(out, result.instanceFields(), "instance fields");
-        dumpPointers(out, result.arrayIndexes(), "array indexes");
+        dumpPointers(out, result.getCSVars(), "variables");
+        dumpPointers(out, result.getStaticFields(), "static fields");
+        dumpPointers(out, result.getInstanceFields(), "instance fields");
+        dumpPointers(out, result.getArrayIndexes(), "array indexes");
         if (out != System.out) {
             out.close();
         }
     }
 
-    private static void dumpPointers(PrintStream out, Stream<? extends Pointer> pointers, String desc) {
+    private static void dumpPointers(PrintStream out, Collection<? extends Pointer> pointers, String desc) {
         out.println(HEADER + desc);
-        pointers.sorted(Comparator.comparing(Pointer::toString))
+        pointers.stream()
+                .sorted(Comparator.comparing(Pointer::toString))
                 .forEach(p -> out.println(p + SEP + toString(p.getPointsToSet())));
         out.println();
     }
@@ -148,10 +142,10 @@ public class ResultProcessor {
         logger.info("Comparing points-to set with {} ...", input);
         var inputs = readPointsToSets(input);
         Map<String, Pointer> pointers = new LinkedHashMap<>();
-        addPointers(pointers, result.csVars());
-        addPointers(pointers, result.staticFields());
-        addPointers(pointers, result.instanceFields());
-        addPointers(pointers, result.arrayIndexes());
+        addPointers(pointers, result.getCSVars());
+        addPointers(pointers, result.getStaticFields());
+        addPointers(pointers, result.getInstanceFields());
+        addPointers(pointers, result.getArrayIndexes());
         List<String> mismatches = new ArrayList<>();
         pointers.forEach((pointerStr, pointer) -> {
             String given = toString(pointer.getPointsToSet());
@@ -190,8 +184,9 @@ public class ResultProcessor {
     }
 
     private static void addPointers(Map<String, Pointer> map,
-                                    Stream<? extends Pointer> pointers) {
-        pointers.sorted(Comparator.comparing(Pointer::toString))
+                                    Collection<? extends Pointer> pointers) {
+        pointers.stream()
+                .sorted(Comparator.comparing(Pointer::toString))
                 .forEach(p -> map.put(p.toString(), p));
     }
 

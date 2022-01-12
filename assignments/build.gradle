@@ -23,3 +23,9 @@ test {
     useJUnit()
     maxHeapSize = '4G'
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

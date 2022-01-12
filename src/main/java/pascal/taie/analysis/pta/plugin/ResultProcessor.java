@@ -129,6 +129,7 @@ public class ResultProcessor implements Plugin {
         System.out.printf("%-30s%s (insens) / %s (sens)%n", "#call graph edges:",
                 format(callEdgeInsens), format(callEdgeSens));
         System.out.println("----------------------------------------");
+
     }
 
     private static String format(int i) {

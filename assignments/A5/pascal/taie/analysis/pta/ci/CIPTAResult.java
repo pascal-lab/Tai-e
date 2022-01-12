@@ -24,11 +24,12 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.Views;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class CIPTAResult implements PointerAnalysisResult {
 
@@ -52,21 +53,23 @@ class CIPTAResult implements PointerAnalysisResult {
     }
 
     @Override
-    public Stream<Var> vars() {
-        return pointerFlowGraph.pointers()
-                .filter(p -> p instanceof VarPtr)
-                .map(p -> ((VarPtr) p).getVar());
+    public Collection<Var> getVars() {
+        return Views.toMappedCollection(
+                Views.toFilteredCollection(pointerFlowGraph.getPointers(),
+                        VarPtr.class::isInstance),
+                p -> ((VarPtr) p).getVar());
     }
 
     @Override
-    public Stream<Obj> objects() {
+    public Collection<Obj> getObjects() {
         if (objects == null) {
-            objects = pointerFlowGraph.pointers()
+            objects = pointerFlowGraph.getPointers()
+                    .stream()
                     .map(Pointer::getPointsToSet)
                     .flatMap(PointsToSet::objects)
                     .collect(Collectors.toUnmodifiableSet());
         }
-        return objects.stream();
+        return objects;
     }
 
     @Override
@@ -91,7 +94,6 @@ class CIPTAResult implements PointerAnalysisResult {
             return pts;
         });
     }
-
 
     @Override
     public Set<Obj> getPointsToSet(JField field) {

@@ -129,7 +129,7 @@ Points-to sets of all variables
 []:<java.lang.Integer: int getChars(int,int,byte[])>/$b8 -> []
 []:<java.lang.Integer: int getChars(int,int,byte[])>/$r1 -> []
 []:<java.lang.Integer: int getChars(int,int,byte[])>/$r2 -> []
-[]:<java.lang.Integer: int getChars(int,int,byte[])>/$z2 -> []
+[]:<java.lang.Integer: int getChars(int,int,byte[])>/$z3 -> []
 []:<java.lang.Integer: int getChars(int,int,byte[])>/%intconst6 -> []
 []:<java.lang.Integer: int getChars(int,int,byte[])>/i0 -> []
 []:<java.lang.Integer: int getChars(int,int,byte[])>/i10 -> []

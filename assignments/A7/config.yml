@@ -6,6 +6,7 @@ exclude:
   - pascal.taie.analysis.dataflow.fact.*
   - pascal.taie.analysis.dataflow.solver.*
   - pascal.taie.analysis.dataflow.inter.*
+  - pascal.taie.analysis.graph.callgraph.CHA*
   - pascal.taie.analysis.pta.ci.*
   - pascal.taie.analysis.pta.cs.*
   - pascal.taie.analysis.pta.core.cs.context.*
@@ -104,6 +105,7 @@ overwrittenFiles:
   # complete
   - pascal.taie.Assignment
   - pascal.taie.analysis.ResultProcessor # handle empty call graph
+  - pascal.taie.analysis.graph.callgraph.CallGraphBuilder # remove CHA dependencies
   - pascal.taie.analysis.pta.core.cs.element.Pointer # remove PFGEdge dependency
   - pascal.taie.analysis.pta.core.cs.element.AbstractPointer
   - pascal.taie.analysis.pta.plugin.ResultProcessor # remove Plugin and Solver dependencies

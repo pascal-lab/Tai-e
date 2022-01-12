@@ -4,6 +4,7 @@ packageName: Assignment-6-context-sensitive-pointer-analysis.zip
 exclude:
   - pascal.taie.analysis.dataflow.*
   - pascal.taie.analysis.exception.*
+  - pascal.taie.analysis.graph.callgraph.CHA*
   - pascal.taie.analysis.graph.cfg.*
   - pascal.taie.analysis.graph.icfg.*
   - pascal.taie.analysis.pta.ci.*
@@ -71,6 +72,7 @@ overwrittenFiles:
   - pascal.taie.analysis.pta.core.cs.selector._2TypeSelector
   # complete
   - pascal.taie.Assignment
+  - pascal.taie.analysis.graph.callgraph.CallGraphBuilder # remove CHA dependencies
   - pascal.taie.analysis.pta.core.cs.element.Pointer # remove PFGEdge dependency
   - pascal.taie.analysis.pta.core.cs.element.AbstractPointer
   - pascal.taie.analysis.pta.plugin.ResultProcessor # remove Plugin and Solver dependencies

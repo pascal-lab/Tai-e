@@ -19,20 +19,20 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public interface PointerAnalysisResult {
 
     /**
      * @return all reachable variables in the program.
      */
-    Stream<Var> vars();
+    Collection<Var> getVars();
 
     /**
      * @return all reachable objects in the program.
      */
-    Stream<Obj> objects();
+    Collection<Obj> getObjects();
 
     /**
      * @return set of Obj pointed to by var.
