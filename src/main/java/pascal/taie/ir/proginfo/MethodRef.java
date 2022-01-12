@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
-import static pascal.taie.language.classes.StringReps.VAR_HANDLE;
+import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
+import static pascal.taie.language.classes.ClassNames.VAR_HANDLE;
 
 /**
  * Represents method references in IR.

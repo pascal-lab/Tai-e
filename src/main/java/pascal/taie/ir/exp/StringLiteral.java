@@ -15,7 +15,7 @@ package pascal.taie.ir.exp;
 import pascal.taie.World;
 import pascal.taie.language.type.ClassType;
 
-import static pascal.taie.language.classes.StringReps.STRING;
+import static pascal.taie.language.classes.ClassNames.STRING;
 
 public class StringLiteral implements ReferenceLiteral {
 

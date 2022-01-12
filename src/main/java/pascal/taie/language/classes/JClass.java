@@ -210,7 +210,7 @@ public class JClass extends AbstractResultHolder {
 
     public @Nullable
     JMethod getClinit() {
-        return getDeclaredMethod(Subsignature.get(StringReps.CLINIT));
+        return getDeclaredMethod(Subsignature.getClinit());
     }
 
     public boolean isApplication() {

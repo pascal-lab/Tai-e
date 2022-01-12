@@ -17,9 +17,9 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.language.classes.ClassMember;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeManager;
 
@@ -57,14 +57,14 @@ abstract class MetaObjModel extends AbstractModel {
     MetaObjModel(Solver solver) {
         super(solver);
         TypeManager typeManager = solver.getTypeManager();
-        constructor = typeManager.getClassType(StringReps.CONSTRUCTOR);
-        method = typeManager.getClassType(StringReps.METHOD);
-        field = typeManager.getClassType(StringReps.FIELD);
+        constructor = typeManager.getClassType(ClassNames.CONSTRUCTOR);
+        method = typeManager.getClassType(ClassNames.METHOD);
+        field = typeManager.getClassType(ClassNames.FIELD);
     }
 
     protected JMethod get(String methodName) {
         if (klass == null) {
-            klass = hierarchy.getJREClass(StringReps.CLASS);
+            klass = hierarchy.getJREClass(ClassNames.CLASS);
         }
         assert klass != null;
         return klass.getDeclaredMethod(methodName);

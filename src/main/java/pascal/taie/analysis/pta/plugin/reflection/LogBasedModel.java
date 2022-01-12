@@ -28,6 +28,7 @@ import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassMember;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
@@ -57,11 +58,11 @@ class LogBasedModel extends MetaObjModel {
     );
 
     private final Map<String, String> fullNames = Map.of(
-            "Class", StringReps.CLASS,
-            "Constructor", StringReps.CONSTRUCTOR,
-            "Method", StringReps.METHOD,
-            "Field", StringReps.FIELD,
-            "Array", StringReps.ARRAY
+            "Class", ClassNames.CLASS,
+            "Constructor", ClassNames.CONSTRUCTOR,
+            "Method", ClassNames.METHOD,
+            "Field", ClassNames.FIELD,
+            "Array", ClassNames.ARRAY
     );
 
     private final Set<JMethod> relevantMethods = Sets.newSet();

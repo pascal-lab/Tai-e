@@ -41,8 +41,9 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.Maps;
@@ -145,7 +146,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     public static boolean useMethodHandle() {
         // if MethodHandle is not loaded, we consider it as unused.
         return World.getClassHierarchy()
-                .getJREClass(StringReps.METHOD_HANDLE) != null;
+                .getJREClass(ClassNames.METHOD_HANDLE) != null;
     }
 
     @Override
@@ -158,9 +159,9 @@ public class InvokeDynamicAnalysis implements Plugin {
         typeManager = solver.getTypeManager();
 
         defContext = selector.getEmptyContext();
-        lookup = hierarchy.getJREClass(StringReps.LOOKUP).getType();
-        methodHandle = hierarchy.getJREClass(StringReps.METHOD_HANDLE).getType();
-        callSite = hierarchy.getJREClass(StringReps.CALL_SITE).getType();
+        lookup = hierarchy.getJREClass(ClassNames.LOOKUP).getType();
+        methodHandle = hierarchy.getJREClass(ClassNames.METHOD_HANDLE).getType();
+        callSite = hierarchy.getJREClass(ClassNames.CALL_SITE).getType();
         // TODO: add option to enable MethodTypeModel
         methodTypeModel = DummyModel.get();
         lookupModel = new LookupModel(solver);
@@ -225,7 +226,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                     ClassType declType = ref.getDeclaringClass().getType();
                     if (typeManager.isSubtype(callSite, declType)) {
                         // new [Constant|Mutable|Volatile]CallSite(target);
-                        if (ref.getName().equals(StringReps.INIT_NAME) ||
+                        if (ref.getName().equals(MethodNames.INIT) ||
                                 // callSite.setTarget(target);
                                 ref.getName().equals("setTarget")) {
                             Var tgt = i.getArg(0);

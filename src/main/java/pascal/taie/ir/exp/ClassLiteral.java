@@ -16,7 +16,7 @@ import pascal.taie.World;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
-import static pascal.taie.language.classes.StringReps.CLASS;
+import static pascal.taie.language.classes.ClassNames.CLASS;
 
 public class ClassLiteral implements ReferenceLiteral {
 

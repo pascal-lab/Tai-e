@@ -13,8 +13,8 @@
 package pascal.taie.language.type;
 
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.util.AnalysisException;
 
 import java.util.Map;
@@ -57,18 +57,18 @@ public class TypeManagerImpl implements TypeManager {
         this.hierarchy = hierarchy;
         // Initialize special types
         JClassLoader loader = hierarchy.getBootstrapClassLoader();
-        OBJECT = getClassType(loader, StringReps.OBJECT);
-        SERIALIZABLE = getClassType(loader, StringReps.SERIALIZABLE);
-        CLONEABLE = getClassType(loader, StringReps.CLONEABLE);
-        BOOLEAN = getClassType(loader, StringReps.BOOLEAN);
-        BYTE = getClassType(loader, StringReps.BYTE);
-        SHORT = getClassType(loader, StringReps.SHORT);
-        CHARACTER = getClassType(loader, StringReps.CHARACTER);
-        INTEGER = getClassType(loader, StringReps.INTEGER);
-        LONG = getClassType(loader, StringReps.LONG);
-        FLOAT = getClassType(loader, StringReps.FLOAT);
-        DOUBLE = getClassType(loader, StringReps.DOUBLE);
-        VOID = getClassType(loader, StringReps.VOID);
+        OBJECT = getClassType(loader, ClassNames.OBJECT);
+        SERIALIZABLE = getClassType(loader, ClassNames.SERIALIZABLE);
+        CLONEABLE = getClassType(loader, ClassNames.CLONEABLE);
+        BOOLEAN = getClassType(loader, ClassNames.BOOLEAN);
+        BYTE = getClassType(loader, ClassNames.BYTE);
+        SHORT = getClassType(loader, ClassNames.SHORT);
+        CHARACTER = getClassType(loader, ClassNames.CHARACTER);
+        INTEGER = getClassType(loader, ClassNames.INTEGER);
+        LONG = getClassType(loader, ClassNames.LONG);
+        FLOAT = getClassType(loader, ClassNames.FLOAT);
+        DOUBLE = getClassType(loader, ClassNames.DOUBLE);
+        VOID = getClassType(loader, ClassNames.VOID);
     }
 
     @Override

@@ -34,7 +34,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.classes.Signatures;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
@@ -115,8 +115,8 @@ public class LambdaAnalysis implements Plugin {
         JMethod bsm = ((InvokeDynamic) invoke.getInvokeExp())
                 .getBootstrapMethodRef().resolve();
         String bsmSig = bsm.getSignature();
-        return bsmSig.equals(StringReps.LAMBDA_METAFACTORY) ||
-                bsmSig.equals(StringReps.LAMBDA_ALTMETAFACTORY);
+        return bsmSig.equals(Signatures.LAMBDA_METAFACTORY) ||
+                bsmSig.equals(Signatures.LAMBDA_ALTMETAFACTORY);
     }
 
     @Override

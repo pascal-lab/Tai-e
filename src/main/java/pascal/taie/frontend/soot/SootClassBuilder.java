@@ -24,7 +24,7 @@ import soot.SootClass;
 import java.util.Collection;
 import java.util.Set;
 
-import static pascal.taie.language.classes.StringReps.OBJECT;
+import static pascal.taie.language.classes.ClassNames.OBJECT;
 
 class SootClassBuilder implements JClassBuilder {
 

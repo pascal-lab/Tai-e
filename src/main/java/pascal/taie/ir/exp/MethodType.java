@@ -19,7 +19,7 @@ import pascal.taie.util.Hashes;
 
 import java.util.List;
 
-import static pascal.taie.language.classes.StringReps.METHOD_TYPE;
+import static pascal.taie.language.classes.ClassNames.METHOD_TYPE;
 import static pascal.taie.language.classes.StringReps.toDescriptor;
 
 /**

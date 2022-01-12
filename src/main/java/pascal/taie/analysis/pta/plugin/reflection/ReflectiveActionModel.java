@@ -32,7 +32,6 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -81,7 +80,7 @@ class ReflectiveActionModel extends AbstractModel {
 
     ReflectiveActionModel(Solver solver) {
         super(solver);
-        initNoArg = Subsignature.get(StringReps.INIT_NO_ARG);
+        initNoArg = Subsignature.getNoArgInit();
         selector = solver.getContextSelector();
         typeManager = solver.getTypeManager();
     }

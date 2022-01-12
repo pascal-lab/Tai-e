@@ -22,7 +22,7 @@ import pascal.taie.util.Hashes;
 
 import java.lang.invoke.MethodHandleInfo;
 
-import static pascal.taie.language.classes.StringReps.METHOD_HANDLE;
+import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
 
 /**
  * Representation of java.lang.invoke.MethodHandle instances.

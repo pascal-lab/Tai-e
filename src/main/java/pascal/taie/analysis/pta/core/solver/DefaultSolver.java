@@ -80,8 +80,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static pascal.taie.language.classes.StringReps.FINALIZE;
-import static pascal.taie.language.classes.StringReps.FINALIZER_REGISTER;
+import static pascal.taie.language.classes.Signatures.FINALIZE;
+import static pascal.taie.language.classes.Signatures.FINALIZER_REGISTER;
 
 public class DefaultSolver implements Solver {
 

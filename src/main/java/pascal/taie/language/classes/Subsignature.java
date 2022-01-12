@@ -25,6 +25,11 @@ import java.util.concurrent.ConcurrentMap;
 @InternalCanonicalized
 public class Subsignature {
 
+    // Subsignatures of special methods
+    public static final String CLINIT = "void <clinit>()";
+
+    public static final String NO_ARG_INIT = "void <init>()";
+
     private static final ConcurrentMap<String, Subsignature> map
             = Maps.newConcurrentMap();
 
@@ -37,6 +42,20 @@ public class Subsignature {
 
     public static Subsignature get(String subsig) {
         return map.computeIfAbsent(subsig, Subsignature::new);
+    }
+
+    /**
+     * @return subsignature of no-arg constructor.
+     */
+    public static Subsignature getNoArgInit() {
+        return get(NO_ARG_INIT);
+    }
+
+    /**
+     * @return subsignature of static initializer (clinit).
+     */
+    public static Subsignature getClinit() {
+        return get(CLINIT);
     }
 
     public static void reset() {

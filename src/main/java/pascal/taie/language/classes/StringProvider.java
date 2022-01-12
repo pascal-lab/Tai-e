@@ -10,10 +10,15 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
+package pascal.taie.language.classes;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
 /**
- * Provides model of Java type system.
- *
- * @see pascal.taie.language.type.Type (interface for all types)
- * @see pascal.taie.language.type.TypeManager
+ * Marker annotation for the classes that provide string representations
+ * of special program elements (e.g., names and signatures) via final fields.
  */
-package pascal.taie.language.type;
+@Target(ElementType.TYPE)
+@interface StringProvider {
+}

@@ -265,7 +265,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         if (receiverType instanceof ClassType) {
             cls = ((ClassType) receiverType).getJClass();
         } else if (receiverType instanceof ArrayType) {
-            cls = getJREClass(StringReps.OBJECT);
+            cls = getJREClass(ClassNames.OBJECT);
         } else {
             throw new AnalysisException(receiverType + " cannot be dispatched");
         }
@@ -366,7 +366,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         if (JavaLangObject == null) {
             JClassLoader loader = bootstrapLoader != null ?
                     bootstrapLoader : defaultLoader;
-            JavaLangObject = loader.loadClass(StringReps.OBJECT);
+            JavaLangObject = loader.loadClass(ClassNames.OBJECT);
         }
         return JavaLangObject;
     }

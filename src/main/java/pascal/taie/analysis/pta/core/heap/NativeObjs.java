@@ -16,9 +16,9 @@ import pascal.taie.World;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 
-import static pascal.taie.language.classes.StringReps.STRING;
-import static pascal.taie.language.classes.StringReps.THREAD;
-import static pascal.taie.language.classes.StringReps.THREAD_GROUP;
+import static pascal.taie.language.classes.ClassNames.STRING;
+import static pascal.taie.language.classes.ClassNames.THREAD;
+import static pascal.taie.language.classes.ClassNames.THREAD_GROUP;
 
 /**
  * Models objects created by native code.

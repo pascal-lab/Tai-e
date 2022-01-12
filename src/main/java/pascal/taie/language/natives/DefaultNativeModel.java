@@ -33,9 +33,9 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static pascal.taie.language.classes.StringReps.OBJECT;
-import static pascal.taie.language.classes.StringReps.STRING;
+import static pascal.taie.language.classes.ClassNames.OBJECT;
+import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.util.collection.Maps.newMap;
 
 public class DefaultNativeModel implements NativeModel {
@@ -85,22 +85,22 @@ public class DefaultNativeModel implements NativeModel {
         // which are not related to the receiver Class object.
         // <java.lang.Class: java.lang.reflect.Field[] getDeclaredFields0(boolean)>
         register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredFields0(boolean)>", m ->
-                allocateArray(m, typeManager.getClassType(StringReps.FIELD))
+                allocateArray(m, typeManager.getClassType(ClassNames.FIELD))
         );
 
         // <java.lang.Class: java.lang.reflect.Method[] getDeclaredMethods0(boolean)>
         register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredMethods0(boolean)>", m ->
-                allocateArray(m, typeManager.getClassType(StringReps.METHOD))
+                allocateArray(m, typeManager.getClassType(ClassNames.METHOD))
         );
 
         // <java.lang.Class: java.lang.reflect.Constructor[] getDeclaredConstructors0(boolean)>
         register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredConstructors0(boolean)>", m ->
-                allocateArray(m, typeManager.getClassType(StringReps.CONSTRUCTOR))
+                allocateArray(m, typeManager.getClassType(ClassNames.CONSTRUCTOR))
         );
 
         // <java.lang.Class: java.lang.Class[] getDeclaredClasses0()>
         register("<java.lang.Class: java.lang.Class[] getDeclaredClasses0()>", m ->
-                allocateArray(m, typeManager.getClassType(StringReps.CLASS))
+                allocateArray(m, typeManager.getClassType(ClassNames.CLASS))
         );
 
         // --------------------------------------------------------------------

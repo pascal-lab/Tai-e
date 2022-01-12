@@ -18,10 +18,10 @@ import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
@@ -60,7 +60,7 @@ public final class CSObjs {
                 return ((ClassType) type).getJClass();
             } else if (type instanceof ArrayType) {
                 return World.getClassHierarchy()
-                        .getJREClass(StringReps.OBJECT);
+                        .getJREClass(ClassNames.OBJECT);
             }
         }
         return null;

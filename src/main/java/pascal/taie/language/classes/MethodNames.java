@@ -10,10 +10,19 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
+package pascal.taie.language.classes;
+
 /**
- * Provides model of Java type system.
- *
- * @see pascal.taie.language.type.Type (interface for all types)
- * @see pascal.taie.language.type.TypeManager
+ * Provides names of special methods.
  */
-package pascal.taie.language.type;
+@StringProvider
+public final class MethodNames {
+
+    public static final String INIT = "<init>";
+
+    public static final String CLINIT = "<clinit>";
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private MethodNames() {
+    }
+}

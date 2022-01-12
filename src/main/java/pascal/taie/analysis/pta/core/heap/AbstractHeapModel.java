@@ -21,10 +21,10 @@ import pascal.taie.language.type.TypeManager;
 
 import java.util.Map;
 
-import static pascal.taie.language.classes.StringReps.STRING;
-import static pascal.taie.language.classes.StringReps.STRING_BUFFER;
-import static pascal.taie.language.classes.StringReps.STRING_BUILDER;
-import static pascal.taie.language.classes.StringReps.THROWABLE;
+import static pascal.taie.language.classes.ClassNames.STRING;
+import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
+import static pascal.taie.language.classes.ClassNames.STRING_BUILDER;
+import static pascal.taie.language.classes.ClassNames.THROWABLE;
 import static pascal.taie.util.collection.Maps.newHybridMap;
 import static pascal.taie.util.collection.Maps.newMap;
 

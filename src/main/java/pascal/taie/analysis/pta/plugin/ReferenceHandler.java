@@ -19,8 +19,8 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
 
-import static pascal.taie.language.classes.StringReps.REFERENCE_INIT;
-import static pascal.taie.language.classes.StringReps.REFERENCE_PENDING;
+import static pascal.taie.language.classes.Signatures.REFERENCE_INIT;
+import static pascal.taie.language.classes.Signatures.REFERENCE_PENDING;
 
 /**
  * Models GC behavior that it assigns every reference to Reference.pending.

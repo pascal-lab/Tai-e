@@ -66,11 +66,11 @@ public class JMethod extends ClassMember {
     }
 
     public boolean isConstructor() {
-        return name.equals(StringReps.INIT_NAME);
+        return name.equals(MethodNames.INIT);
     }
 
     public boolean isStaticInitializer() {
-        return name.equals(StringReps.CLINIT_NAME);
+        return name.equals(MethodNames.CLINIT);
     }
 
     public int getParamCount() {
