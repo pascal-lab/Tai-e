@@ -129,11 +129,20 @@ public class AnalysisManager {
 
     private List<JMethod> getMethodScope() {
         if (methodScope == null) {
-            methodScope = getClassScope().stream()
-                    .map(JClass::getDeclaredMethods)
-                    .flatMap(Collection::stream)
-                    .filter(m -> !m.isAbstract() && !m.isNative())
-                    .toList();
+            methodScope = switch (World.getOptions().getScope()) {
+                case Scope.APP, Scope.ALL -> getClassScope()
+                        .stream()
+                        .map(JClass::getDeclaredMethods)
+                        .flatMap(Collection::stream)
+                        .filter(m -> !m.isAbstract() && !m.isNative())
+                        .toList();
+                case Scope.REACHABLE -> {
+                    CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
+                    yield callGraph.reachableMethods().toList();
+                }
+                default -> throw new ConfigException(
+                        "Unexpected scope option: " + World.getOptions().getScope());
+            };
             logger.info("{} methods in scope ({}) of method analyses",
                     methodScope.size(), World.getOptions().getScope());
         }
