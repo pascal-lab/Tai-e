@@ -381,11 +381,10 @@ public class InvokeDynamicAnalysis implements Plugin {
                             addInvokeDynamicCallEdge(ctx, invoke, recv, mh));
                 });
             }
-            case REF_invokeStatic -> {
-                // for static invocation, just add invokedynamic call edge
-                contexts.forEach(ctx ->
-                        addInvokeDynamicCallEdge(ctx, invoke, null, mh));
-            }
+            case REF_invokeStatic ->
+                    // for static invocation, just add invokedynamic call edge
+                    contexts.forEach(ctx ->
+                            addInvokeDynamicCallEdge(ctx, invoke, null, mh));
             // TODO: handle other MethodHandle operations
         }
     }
@@ -429,13 +428,13 @@ public class InvokeDynamicAnalysis implements Plugin {
         if (!indys.isEmpty()) {
             Context context = csMethod.getContext();
             method2ctxs.put(method, context);
-            indys.forEach(indy -> {
-                indy2mhs.get(indy).forEach(mh -> {
+            for (Invoke indy : indys) {
+                for (MethodHandle mh : indy2mhs.get(indy)) {
                     // add new invokedynamic call edges
                     // for already-discovered MethodHandles
                     addInvokeDynamicCallEdge(context, indy, null, mh);
-                });
-            });
+                }
+            }
         }
     }
 }

@@ -85,7 +85,7 @@ class InterSolver<Method, Node, Fact> {
     }
 
     void propagate(Node node) {
-        icfg.getSuccsOf(node).forEach(workList::add);
+        workList.addAll(icfg.getSuccsOf(node));
     }
 
     Fact getOutFact(Node node) {

@@ -48,7 +48,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
             Fact out = result.getOutFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.getSuccsOf(node).forEach(workList::add);
+                workList.addAll(cfg.getSuccsOf(node));
             }
         }
     }
@@ -77,7 +77,7 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
             Fact in = result.getInFact(node);
             boolean changed = analysis.transferNode(node, in, out);
             if (changed) {
-                cfg.getPredsOf(node).forEach(workList::add);
+                workList.addAll(cfg.getPredsOf(node));
             }
         }
     }

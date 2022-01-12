@@ -204,9 +204,8 @@ public class LambdaAnalysis implements Plugin {
                 invoInfos.put(csRecvVar,
                         new InstanceInvoInfo(csCallSite, indy, indyCtx));
             }
-            case REF_invokeStatic -> { // targetRef is static method
-                addLambdaCallEdge(csCallSite, null, targetRef, indy, indyCtx);
-            }
+            case REF_invokeStatic -> // targetRef is static method
+                    addLambdaCallEdge(csCallSite, null, targetRef, indy, indyCtx);
             default -> throw new AnalysisException(mh.getKind() + " is not supported");
         }
     }

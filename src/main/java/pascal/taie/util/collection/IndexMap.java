@@ -154,12 +154,11 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
         private int current, next;
 
         private EntryIterator() {
-            Entry<K, V>[] es = entries;
             current = BOUND;
             next = 0;
             if (size > 0) {
                 // advance to first entry
-                for (next = 0; next < BOUND && es[next] == null; ++next) {
+                for (next = 0; next < BOUND && entries[next] == null; ++next) {
                 }
             }
         }

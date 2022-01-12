@@ -185,8 +185,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             CallGraph<CSCallSite, CSMethod> csCallGraph) {
         DefaultCallGraph callGraph = new DefaultCallGraph();
         csCallGraph.entryMethods()
-                .map(CSMethod::getMethod).
-                forEach(callGraph::addEntryMethod);
+                .map(CSMethod::getMethod)
+                .forEach(callGraph::addEntryMethod);
         csCallGraph.reachableMethods()
                 .map(CSMethod::getMethod)
                 .forEach(callGraph::addReachableMethod);

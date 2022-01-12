@@ -24,7 +24,7 @@ import java.util.function.Predicate;
 
 /**
  * Provides unmodifiable view collections.
- * TODO: mentions complexity of specific operations.
+ * TODO: doc complexity of specific operations.
  */
 public final class Views {
 

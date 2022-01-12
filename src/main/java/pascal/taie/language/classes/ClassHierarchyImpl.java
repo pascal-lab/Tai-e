@@ -285,8 +285,6 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             } else {
                 logger.debug("Failed to dispatch {} on {}",
                         subsignature, receiverClass);
-//                throw new AnalysisException("Fail to dispatch \"" +
-//                        subsignature + "\" on " + receiverClass);
             }
         }
         return target;
