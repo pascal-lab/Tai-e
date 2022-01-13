@@ -184,22 +184,24 @@ public class ResultProcessor extends ProgramAnalysis {
     private void processResults(List<JMethod> methods, List<String> analyses,
                                 BiFunction<JMethod, String, ?> resultGetter) {
         Set<Pair<String, String>> processed = Sets.newSet();
-        methods.forEach(method ->
-                analyses.forEach(id -> {
-                    switch (action) {
-                        case "dump" -> dumpResult(method, id, resultGetter);
-                        case "compare" -> compareResult(method, id, resultGetter);
-                    }
-                    processed.add(new Pair<>(method.toString(), id));
-                })
-        );
-        // check whether expected analysis results of some methods are absent
-        // in given results.
-        for (var key : inputs.keySet()) {
-            if (!processed.contains(key)) {
-                mismatches.add(String.format("Expected \"%s\" result of %s" +
-                                " is absent in given results",
-                        key.second(), key.first()));
+        for (JMethod method : methods) {
+            for (String id : analyses) {
+                switch (action) {
+                    case "dump" -> dumpResult(method, id, resultGetter);
+                    case "compare" -> compareResult(method, id, resultGetter);
+                }
+                processed.add(new Pair<>(method.toString(), id));
+            }
+        }
+        if (action.equals("compare")) {
+            // check whether expected analysis results of some methods
+            // are absent in given results.
+            for (var key : inputs.keySet()) {
+                if (!processed.contains(key)) {
+                    mismatches.add(String.format("Expected \"%s\" result of %s" +
+                                    " is absent in given results",
+                            key.second(), key.first()));
+                }
             }
         }
     }
