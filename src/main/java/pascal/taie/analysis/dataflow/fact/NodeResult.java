@@ -34,6 +34,16 @@ public interface NodeResult<Node, Fact> extends StmtResult<Fact> {
     Fact getOutFact(Node node);
 
     /**
+     * Typically, all {@code stmt}s are relevant in {@code NodeResult}.
+     *
+     * @return {@code true}.
+     */
+    @Override
+    default boolean isRelevant(Stmt stmt) {
+        return true;
+    }
+
+    /**
      * {@link NodeResult} is designed to be compatible with CFGs of both
      * stmt nodes and block nodes. When the node result instance represent
      * results of stmt nodes, it can be used as a {@link StmtResult}.

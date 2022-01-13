@@ -22,6 +22,11 @@ import pascal.taie.ir.stmt.Stmt;
 public interface StmtResult<R> {
 
     /**
+     * @return if {@code stmt} is relevant in this result.
+     */
+    boolean isRelevant(Stmt stmt);
+
+    /**
      * @return analysis result of given stmt.
      */
     R getResult(Stmt stmt);

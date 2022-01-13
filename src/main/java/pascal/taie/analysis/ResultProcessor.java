@@ -18,7 +18,6 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
@@ -199,8 +198,10 @@ public class ResultProcessor extends ProgramAnalysis {
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
         } else if (result instanceof StmtResult<?> stmtResult) {
-            IR ir = method.getIR();
-            ir.forEach(stmt -> out.println(toString(stmt, stmtResult)));
+            method.getIR()
+                    .stmts()
+                    .filter(stmtResult::isRelevant)
+                    .forEach(stmt -> out.println(toString(stmt, stmtResult)));
         } else {
             out.println(toString(result));
         }
@@ -252,28 +253,30 @@ public class ResultProcessor extends ProgramAnalysis {
             });
         } else if (result instanceof StmtResult<?> stmtResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
-            IR ir = method.getIR();
-            ir.forEach(stmt -> {
-                String stmtStr = toString(stmt);
-                String given = toString(stmt, stmtResult);
-                boolean foundExpeceted = false;
-                for (String line : lines) {
-                    if (line.startsWith(stmtStr)) {
-                        foundExpeceted = true;
-                        if (!line.equals(given)) {
-                            int idx = stmtStr.length();
-                            mismatches.add(String.format("%s %s expected: %s, given: %s",
-                                    method, stmtStr, line.substring(idx + 1),
-                                    given.substring(idx + 1)));
+            method.getIR()
+                    .stmts()
+                    .filter(stmtResult::isRelevant)
+                    .forEach(stmt -> {
+                        String stmtStr = toString(stmt);
+                        String given = toString(stmt, stmtResult);
+                        boolean foundExpeceted = false;
+                        for (String line : lines) {
+                            if (line.startsWith(stmtStr)) {
+                                foundExpeceted = true;
+                                if (!line.equals(given)) {
+                                    int idx = stmtStr.length();
+                                    mismatches.add(String.format("%s %s expected: %s, given: %s",
+                                            method, stmtStr, line.substring(idx + 1),
+                                            given.substring(idx + 1)));
+                                }
+                            }
                         }
-                    }
-                }
-                if (!foundExpeceted) {
-                    int idx = stmtStr.length();
-                    mismatches.add(String.format("%s %s expected: null, given: %s",
-                            method, stmtStr, given.substring(idx + 1)));
-                }
-            });
+                        if (!foundExpeceted) {
+                            int idx = stmtStr.length();
+                            mismatches.add(String.format("%s %s expected: null, given: %s",
+                                    method, stmtStr, given.substring(idx + 1)));
+                        }
+                    });
         } else if (inputResult.size() == 1) {
             if (!toString(result).equals(getOne(inputResult))) {
                 mismatches.add(String.format("%s expected: %s, given: %s",
