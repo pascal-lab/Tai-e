@@ -26,6 +26,7 @@ import pascal.taie.util.Strings;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Sets;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -42,7 +43,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.getOne;
 
@@ -162,33 +162,46 @@ public class ResultProcessor extends ProgramAnalysis {
             }
         };
         CallGraph<?, JMethod> cg = World.getResult(CallGraphBuilder.ID);
-        Stream<JMethod> methods = cg.reachableMethods()
+        List<JMethod> methods = cg.reachableMethods()
                 .filter(m -> m.getDeclaringClass().isApplication())
-                .sorted(comp);
+                .sorted(comp)
+                .toList();
         processResults(methods, analyses, (m, id) -> World.getResult(id));
     }
 
     private void processMethodAnalysisResult(List<String> analyses) {
-        Stream<JMethod> methods = World.getClassHierarchy()
+        List<JMethod> methods = World.getClassHierarchy()
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
                 .filter(m -> !m.isAbstract() && !m.isNative())
                 .sorted(Comparator.comparing(m ->
-                        m.getIR().getStmt(0).getLineNumber()));
+                        m.getIR().getStmt(0).getLineNumber()))
+                .toList();
         processResults(methods, analyses, (m, id) -> m.getIR().getResult(id));
     }
 
-    private void processResults(Stream<JMethod> methods, List<String> analyses,
+    private void processResults(List<JMethod> methods, List<String> analyses,
                                 BiFunction<JMethod, String, ?> resultGetter) {
+        Set<Pair<String, String>> processed = Sets.newSet();
         methods.forEach(method ->
                 analyses.forEach(id -> {
                     switch (action) {
                         case "dump" -> dumpResult(method, id, resultGetter);
                         case "compare" -> compareResult(method, id, resultGetter);
                     }
+                    processed.add(new Pair<>(method.toString(), id));
                 })
         );
+        // check whether expected analysis results of some methods are absent
+        // in given results.
+        for (var key : inputs.keySet()) {
+            if (!processed.contains(key)) {
+                mismatches.add(String.format("Expected \"%s\" result of %s" +
+                                " is absent in given results",
+                        key.second(), key.first()));
+            }
+        }
     }
 
     private void dumpResult(JMethod method, String id,
