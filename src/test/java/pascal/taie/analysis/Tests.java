@@ -43,14 +43,14 @@ public final class Tests {
     private static final boolean DUMP_CFG = false;
 
     /**
-     * Tests data-flow analysis.
+     * Starts an analysis for a specific test case.
      *
      * @param main      the main class to be analyzed
      * @param classPath where the main class is located
      * @param id        ID of the analysis to be executed
      * @param opts      options for the analysis
      */
-    public static void testDFA(String main, String classPath, String id, String... opts) {
+    public static void test(String main, String classPath, String id, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);

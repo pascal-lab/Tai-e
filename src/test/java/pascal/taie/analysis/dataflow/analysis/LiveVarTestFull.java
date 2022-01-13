@@ -18,7 +18,7 @@ import pascal.taie.analysis.Tests;
 public class LiveVarTestFull extends LiveVarTest {
 
     void testSLV(String inputClass) {
-        Tests.testDFA(inputClass, "src/test/resources/dataflow/livevar",
+        Tests.test(inputClass, "src/test/resources/dataflow/livevar",
                 LiveVariableAnalysis.ID, "strongly:true");
     }
 

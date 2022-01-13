@@ -19,7 +19,7 @@ public class ReachDefTest {
 
     @Test
     public void test() {
-        Tests.testDFA("ReachDef", "src/test/resources/dataflow/",
+        Tests.test("ReachDef", "src/test/resources/dataflow/",
                 ReachingDefinitionAnalysis.ID);
     }
 }

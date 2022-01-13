@@ -20,7 +20,7 @@ public class AvailExpTest {
 
     @Test
     public void test() {
-        Tests.testDFA("AvailExp", "src/test/resources/dataflow/",
+        Tests.test("AvailExp", "src/test/resources/dataflow/",
                 AvailableExpressionAnalysis.ID);
     }
 }

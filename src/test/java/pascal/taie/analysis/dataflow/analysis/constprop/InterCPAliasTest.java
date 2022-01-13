@@ -9,7 +9,7 @@ public class InterCPAliasTest {
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/alias";
 
     void test(String inputClass) {
-        Tests.testDFA(inputClass, CLASS_PATH, InterConstantPropagation.ID,
+        Tests.test(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "edge-refine:false;alias-aware:true;pta:cspta",
                 "-a", "cspta=cs:2-obj", "-a", "cg=algorithm:cspta"
                 //, "-a", "icfg=dump:true" // <-- uncomment this code if you want

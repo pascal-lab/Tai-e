@@ -18,7 +18,7 @@ import pascal.taie.analysis.Tests;
 public class CHATest {
     
     protected static void test(String main) {
-        Tests.testDFA(main, "src/test/resources/cha/", "cg", "algorithm:cha");
+        Tests.test(main, "src/test/resources/cha/", "cg", "algorithm:cha");
     }
 
     @Test
