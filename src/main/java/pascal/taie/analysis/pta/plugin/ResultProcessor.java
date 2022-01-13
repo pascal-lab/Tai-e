@@ -77,7 +77,7 @@ public class ResultProcessor implements Plugin {
 
     public static void process(AnalysisOptions options,
                                PointerAnalysisResult result) {
-        printStatistics(result);
+        logStatistics(result);
         String action = options.getString("action");
         if (action == null) {
             return;
@@ -100,7 +100,7 @@ public class ResultProcessor implements Plugin {
         }
     }
 
-    private static void printStatistics(PointerAnalysisResult result) {
+    private static void logStatistics(PointerAnalysisResult result) {
         int varInsens = result.getVars().size();
         int varSens = result.getCSVars().size();
         int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
@@ -113,23 +113,22 @@ public class ResultProcessor implements Plugin {
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
         int callEdgeInsens = (int) result.getCallGraph().edges().count();
         int callEdgeSens = (int) result.getCSCallGraph().edges().count();
-        System.out.println("-------------- Pointer analysis statistics: --------------");
-        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var pointers:",
-                format(varInsens), format(varSens));
-        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#var points-to:",
-                format(vptSizeInsens), format(vptSizeSens));
-        System.out.printf("%-30s%s (sens)%n", "#static field points-to:",
-                format(sfptSizeSens));
-        System.out.printf("%-30s%s (sens)%n", "#instance field points-to:",
-                format(ifptSizeSens));
-        System.out.printf("%-30s%s (sens)%n", "#array points-to:",
-                format(aptSizeSens));
-        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#reachable methods:",
-                format(reachableInsens), format(reachableSens));
-        System.out.printf("%-30s%s (insens) / %s (sens)%n", "#call graph edges:",
-                format(callEdgeInsens), format(callEdgeSens));
-        System.out.println("----------------------------------------");
-
+        logger.info("-------------- Pointer analysis statistics: --------------");
+        logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var pointers:",
+                format(varInsens), format(varSens)));
+        logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var points-to:",
+                format(vptSizeInsens), format(vptSizeSens)));
+        logger.info(String.format("%-30s%s (sens)", "#static field points-to:",
+                format(sfptSizeSens)));
+        logger.info(String.format("%-30s%s (sens)", "#instance field points-to:",
+                format(ifptSizeSens)));
+        logger.info(String.format("%-30s%s (sens)", "#array points-to:",
+                format(aptSizeSens)));
+        logger.info(String.format("%-30s%s (insens) / %s (sens)", "#reachable methods:",
+                format(reachableInsens), format(reachableSens)));
+        logger.info(String.format("%-30s%s (insens) / %s (sens)", "#call graph edges:",
+                format(callEdgeInsens), format(callEdgeSens)));
+        logger.info("----------------------------------------");
     }
 
     private static String format(int i) {
@@ -229,7 +228,7 @@ public class ResultProcessor implements Plugin {
 
     private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {
         Set<TaintFlow> taintFlows = getTaintFlows(result);
-        out.printf("Detected %d taint flow(s):%n", taintFlows.size());
+        out.printf("Detected %d taint flow(s):", taintFlows.size());
         taintFlows.forEach(out::println);
         out.println();
     }

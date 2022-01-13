@@ -58,7 +58,7 @@ class ResultProcessor {
     }
 
     void process(CIPTAResult result) {
-        printStatistics(result);
+        logStatistics(result);
         String action = options.getString("action");
         if (action == null) {
             return;
@@ -70,7 +70,7 @@ class ResultProcessor {
         }
     }
 
-    private static void printStatistics(CIPTAResult result) {
+    private static void logStatistics(CIPTAResult result) {
         int vars = result.getVars().size();
         ToIntFunction<Pointer> getSize = p -> p.getPointsToSet().size();
         int vptSize = sum(getPointers(result, VarPtr.class), getSize);
@@ -78,18 +78,16 @@ class ResultProcessor {
         int ifptSize = sum(getPointers(result, InstanceField.class), getSize);
         int aptSize = sum(getPointers(result, ArrayIndex.class), getSize);
         int reachable = result.getCallGraph().getNumberOfMethods();
-        int callEdges = (int) result.getCallGraph()
-                .edges().count();
-        System.out.println("-------------- Pointer analysis statistics: --------------");
-        System.out.printf("%-30s%s%n", "#var pointers:", format(vars));
-        System.out.printf("%-30s%s%n", "#var points-to:", format(vptSize));
-        System.out.printf("%-30s%s%n", "#static field points-to:", format(sfptSize));
-        System.out.printf("%-30s%s%n", "#instance field points-to:", format(ifptSize));
-        System.out.printf("%-30s%s%n", "#array indexes points-to:", format(aptSize));
-        System.out.println();
-        System.out.printf("%-30s%s%n", "#reachable methods:", format(reachable));
-        System.out.printf("%-30s%s%n", "#call graph edges:", format(callEdges));
-        System.out.println("----------------------------------------");
+        int callEdges = result.getCallGraph().getNumberOfEdges();
+        logger.info("-------------- Pointer analysis statistics: --------------");
+        logger.info(String.format("%-30s%s", "#var pointers:", format(vars)));
+        logger.info(String.format("%-30s%s", "#var points-to:", format(vptSize)));
+        logger.info(String.format("%-30s%s", "#static field points-to:", format(sfptSize)));
+        logger.info(String.format("%-30s%s", "#instance field points-to:", format(ifptSize)));
+        logger.info(String.format("%-30s%s", "#array indexes points-to:", format(aptSize)));
+        logger.info(String.format("%-30s%s", "#reachable methods:", format(reachable)));
+        logger.info(String.format("%-30s%s", "#call graph edges:", format(callEdges)));
+        logger.info("----------------------------------------");
     }
 
     private static String format(int i) {
