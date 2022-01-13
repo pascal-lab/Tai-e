@@ -23,6 +23,7 @@ import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Strings;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
@@ -197,9 +198,9 @@ public class ResultProcessor extends ProgramAnalysis {
         Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
-        } else if (result instanceof StmtResult<?> StmtResult) {
+        } else if (result instanceof StmtResult<?> stmtResult) {
             IR ir = method.getIR();
-            ir.forEach(stmt -> out.println(toString(stmt, StmtResult)));
+            ir.forEach(stmt -> out.println(toString(stmt, stmtResult)));
         } else {
             out.println(toString(result));
         }
@@ -213,6 +214,8 @@ public class ResultProcessor extends ProgramAnalysis {
     private static String toString(Object o) {
         if (o instanceof Stmt) {
             return IRPrinter.toString((Stmt) o);
+        } else if (o instanceof Collection) {
+            return Strings.toString((Collection<?>) o);
         } else {
             return Objects.toString(o);
         }
@@ -247,12 +250,12 @@ public class ResultProcessor extends ProgramAnalysis {
                             " should be included");
                 }
             });
-        } else if (result instanceof StmtResult<?> StmtResult) {
+        } else if (result instanceof StmtResult<?> stmtResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
             IR ir = method.getIR();
             ir.forEach(stmt -> {
                 String stmtStr = toString(stmt);
-                String given = toString(stmt, StmtResult);
+                String given = toString(stmt, stmtResult);
                 boolean foundExpeceted = false;
                 for (String line : lines) {
                     if (line.startsWith(stmtStr)) {
