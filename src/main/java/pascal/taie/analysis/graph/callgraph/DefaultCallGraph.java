@@ -68,6 +68,11 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
     }
 
     @Override
+    public JMethod getContainerOf(Invoke invoke) {
+        return invoke.getContainer();
+    }
+
+    @Override
     public boolean isRelevant(Stmt stmt) {
         return stmt instanceof Invoke;
     }

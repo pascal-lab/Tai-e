@@ -13,8 +13,6 @@
 package pascal.taie.analysis.pta;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
@@ -41,8 +39,6 @@ import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.Timer;
 
 public class PointerAnalysis extends ProgramAnalysis {
-
-    private static final Logger logger = LogManager.getLogger(PointerAnalysis.class);
 
     public static final String ID = "pta";
 

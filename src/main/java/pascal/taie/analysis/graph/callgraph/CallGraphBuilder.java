@@ -72,10 +72,6 @@ public class CallGraphBuilder extends ProgramAnalysis {
                 CallGraphs.dumpMethods(callGraph, files.get(0));
                 CallGraphs.dumpCallEdges(callGraph, files.get(1));
             }
-            case "compare" -> {
-                String file = options.getString("file");
-                CallGraphs.compareCallGraph(callGraph, file);
-            }
         }
     }
 }

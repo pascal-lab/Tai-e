@@ -46,8 +46,8 @@
   requires: [ pta(algorithm=pta),cipta(algorithm=cipta),cspta(algorithm=cspta) ]
   options:
     algorithm: pta # | cha | cipta | cspta
-    action: null # | dump | dump-recall | compare
-    file: null # path to input/output files
+    action: null # | dump | dump-recall
+    file: null # path to output files
 
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis

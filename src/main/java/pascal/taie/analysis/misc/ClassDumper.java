@@ -45,9 +45,9 @@ import java.util.stream.Collectors;
  */
 public class ClassDumper extends ProgramAnalysis {
 
-    private static final Logger logger = LogManager.getLogger(ClassDumper.class);
-
     public static final String ID = "class-dumper";
+
+    private static final Logger logger = LogManager.getLogger(ClassDumper.class);
 
     private static final String SUFFIX = ".tir";
 

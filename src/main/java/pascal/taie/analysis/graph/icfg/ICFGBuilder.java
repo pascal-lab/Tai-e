@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 
 public class ICFGBuilder extends ProgramAnalysis {
 
-    private static final Logger logger = LogManager.getLogger(ICFGBuilder.class);
-
     public static final String ID = "icfg";
+
+    private static final Logger logger = LogManager.getLogger(ICFGBuilder.class);
 
     private final boolean isDump;
 

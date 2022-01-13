@@ -122,6 +122,23 @@ public abstract class AbstractCallGraph<CallSite, Method>
     }
 
     @Override
+    public Set<MethodEdge<CallSite, Method>> getInEdgesOf(Method method) {
+        return getCallersOf(method)
+                .stream()
+                .map(cs -> new MethodEdge<>(getContainerOf(cs), method, cs))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public Set<MethodEdge<CallSite, Method>> getOutEdgesOf(Method method) {
+        return callSitesIn(method)
+                .flatMap(cs -> getCalleesOf(cs)
+                        .stream()
+                        .map(callee -> new MethodEdge<>(method, callee, cs)))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
     public Set<Method> getPredsOf(Method node) {
         return getCallersOf(node)
                 .stream()
