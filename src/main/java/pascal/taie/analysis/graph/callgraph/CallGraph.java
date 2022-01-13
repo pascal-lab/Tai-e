@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
+import pascal.taie.analysis.StmtResult;
 import pascal.taie.util.graph.Graph;
 
 import java.util.Set;
@@ -23,7 +24,7 @@ import java.util.stream.Stream;
  * @param <CallSite> type of call sites
  * @param <Method>   type of methods
  */
-public interface CallGraph<CallSite, Method> extends Graph<Method> {
+public interface CallGraph<CallSite, Method> extends Graph<Method>, StmtResult<Set<Method>> {
 
     /**
      * @return the call sites that invoke the given method.

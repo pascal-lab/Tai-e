@@ -16,24 +16,28 @@ import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
 public class CHATest {
+    
+    protected static void test(String main) {
+        Tests.testDFA(main, "src/test/resources/cha/", "cg", "algorithm:cha");
+    }
 
     @Test
     public void testStaticCall() {
-        Tests.testCHA("StaticCall");
+        test("StaticCall");
     }
 
     @Test
     public void testVirtualCall() {
-        Tests.testCHA("VirtualCall");
+        test("VirtualCall");
     }
 
     @Test
     public void testInterface() {
-        Tests.testCHA("Interface");
+        test("Interface");
     }
 
     @Test
     public void testAbstractMethod() {
-        Tests.testCHA("AbstractMethod");
+        test("AbstractMethod");
     }
 }

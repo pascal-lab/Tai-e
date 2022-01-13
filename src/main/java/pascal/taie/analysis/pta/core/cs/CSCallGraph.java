@@ -123,4 +123,14 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
                 .flatMap(this::callSitesIn)
                 .flatMap(this::edgesOutOf);
     }
+
+    @Override
+    public boolean isRelevant(Stmt stmt) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<CSMethod> getResult(Stmt stmt) {
+        throw new UnsupportedOperationException();
+    }
 }

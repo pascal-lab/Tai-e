@@ -15,7 +15,6 @@ package pascal.taie.analysis;
 import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 
 import java.nio.file.Paths;
@@ -84,20 +83,6 @@ public final class Tests {
                             String.join("\n", mismatches),
                     mismatches.isEmpty());
         }
-    }
-
-    public static void testCHA(String main) {
-        List<String> args = new ArrayList<>();
-        args.add("-pp");
-        String classPath = "src/test/resources/cha/";
-        Collections.addAll(args, "-cp", classPath);
-        Collections.addAll(args, "-m", main);
-        String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
-        String file = getExpectedFile(classPath, main, CallGraphBuilder.ID);
-        String chaArg = String.format("%s=algorithm:cha;pta:null;action:%s;file:%s",
-                CallGraphBuilder.ID, action, file);
-        Collections.addAll(args, "-a", chaArg);
-        Main.main(args.toArray(new String[0]));
     }
 
     public static void testPTA(String dir, String main, String... opts) {

@@ -1,29 +1,33 @@
-#reachable methods: 12
----------- Reachable methods: ----------
-<A: void <init>()>
-<A: void m1()>
-<A: void m2()>
-<A: void m3()>
-<A: void m4()>
-<LongCallChain: void bar1()>
-<LongCallChain: void bar2()>
-<LongCallChain: void baz1()>
-<LongCallChain: void baz2()>
-<LongCallChain: void foo()>
-<LongCallChain: void main(java.lang.String[])>
-<java.lang.Object: void <init>()>
+-------------------- <A: void <init>()> (cg) --------------------
+[0@L29] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
-#call graph edges: 11
----------- Call graph edges: ----------
-<A: void <init>()>[0@L29] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
-<A: void m1()>[0@L31] invokevirtual %this.<A: void m2()>(); -> [<A: void m2()>]
-<A: void m2()>[0@L35] invokevirtual %this.<A: void m3()>(); -> [<A: void m3()>]
-<A: void m3()>[0@L39] invokevirtual %this.<A: void m4()>(); -> [<A: void m4()>]
-<LongCallChain: void bar1()>[0@L13] invokestatic <LongCallChain: void baz1()>(); -> [<LongCallChain: void baz1()>]
-<LongCallChain: void bar1()>[1@L14] invokestatic <LongCallChain: void baz2()>(); -> [<LongCallChain: void baz2()>]
-<LongCallChain: void baz1()>[1@L21] invokespecial temp$0.<A: void <init>()>(); -> [<A: void <init>()>]
-<LongCallChain: void baz1()>[3@L22] invokevirtual a.<A: void m1()>(); -> [<A: void m1()>]
-<LongCallChain: void foo()>[0@L8] invokestatic <LongCallChain: void bar1()>(); -> [<LongCallChain: void bar1()>]
-<LongCallChain: void foo()>[1@L9] invokestatic <LongCallChain: void bar2()>(); -> [<LongCallChain: void bar2()>]
-<LongCallChain: void main(java.lang.String[])>[0@L4] invokestatic <LongCallChain: void foo()>(); -> [<LongCallChain: void foo()>]
-----------------------------------------
+-------------------- <A: void m1()> (cg) --------------------
+[0@L31] invokevirtual %this.<A: void m2()>(); [<A: void m2()>]
+
+-------------------- <A: void m2()> (cg) --------------------
+[0@L35] invokevirtual %this.<A: void m3()>(); [<A: void m3()>]
+
+-------------------- <A: void m3()> (cg) --------------------
+[0@L39] invokevirtual %this.<A: void m4()>(); [<A: void m4()>]
+
+-------------------- <A: void m4()> (cg) --------------------
+
+-------------------- <LongCallChain: void main(java.lang.String[])> (cg) --------------------
+[0@L4] invokestatic <LongCallChain: void foo()>(); [<LongCallChain: void foo()>]
+
+-------------------- <LongCallChain: void foo()> (cg) --------------------
+[0@L8] invokestatic <LongCallChain: void bar1()>(); [<LongCallChain: void bar1()>]
+[1@L9] invokestatic <LongCallChain: void bar2()>(); [<LongCallChain: void bar2()>]
+
+-------------------- <LongCallChain: void bar1()> (cg) --------------------
+[0@L13] invokestatic <LongCallChain: void baz1()>(); [<LongCallChain: void baz1()>]
+[1@L14] invokestatic <LongCallChain: void baz2()>(); [<LongCallChain: void baz2()>]
+
+-------------------- <LongCallChain: void bar2()> (cg) --------------------
+
+-------------------- <LongCallChain: void baz1()> (cg) --------------------
+[1@L21] invokespecial temp$0.<A: void <init>()>(); [<A: void <init>()>]
+[3@L22] invokevirtual a.<A: void m1()>(); [<A: void m1()>]
+
+-------------------- <LongCallChain: void baz2()> (cg) --------------------
+

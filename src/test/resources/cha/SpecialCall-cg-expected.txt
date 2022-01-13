@@ -1,21 +1,20 @@
-#reachable methods: 7
----------- Reachable methods: ----------
-<A: void <init>()>
-<A: void <init>(B)>
-<A: void foo()>
-<B: void <init>()>
-<C: void <init>()>
-<SpecialCall: void main(java.lang.String[])>
-<java.lang.Object: void <init>()>
+-------------------- <A: void <init>()> (cg) --------------------
+[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
-#call graph edges: 8
----------- Call graph edges: ----------
-<A: void <init>()>[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
-<A: void <init>(B)>[0@L15] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
-<B: void <init>()>[0@L22] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
-<C: void <init>()>[0@L27] invokespecial %this.<B: void <init>()>(); -> [<B: void <init>()>]
-<C: void <init>()>[1@L28] invokespecial %this.<B: void foo()>(); -> [<A: void foo()>]
-<SpecialCall: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<A: void <init>()>(); -> [<A: void <init>()>]
-<SpecialCall: void main(java.lang.String[])>[4@L5] invokespecial temp$1.<C: void <init>()>(); -> [<C: void <init>()>]
-<SpecialCall: void main(java.lang.String[])>[7@L6] invokespecial temp$2.<A: void <init>(B)>(b); -> [<A: void <init>(B)>]
-----------------------------------------
+-------------------- <A: void <init>(B)> (cg) --------------------
+[0@L15] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+
+-------------------- <A: void foo()> (cg) --------------------
+
+-------------------- <B: void <init>()> (cg) --------------------
+[0@L22] invokespecial %this.<A: void <init>()>(); [<A: void <init>()>]
+
+-------------------- <C: void <init>()> (cg) --------------------
+[0@L27] invokespecial %this.<B: void <init>()>(); [<B: void <init>()>]
+[1@L28] invokespecial %this.<B: void foo()>(); [<A: void foo()>]
+
+-------------------- <SpecialCall: void main(java.lang.String[])> (cg) --------------------
+[1@L4] invokespecial temp$0.<A: void <init>()>(); [<A: void <init>()>]
+[4@L5] invokespecial temp$1.<C: void <init>()>(); [<C: void <init>()>]
+[7@L6] invokespecial temp$2.<A: void <init>(B)>(b); [<A: void <init>(B)>]
+

@@ -13,7 +13,10 @@
 package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+
+import java.util.Set;
 
 /**
  * Default implementation of call graph.
@@ -62,5 +65,15 @@ public class DefaultCallGraph extends AbstractCallGraph<Invoke, JMethod> {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean isRelevant(Stmt stmt) {
+        return stmt instanceof Invoke;
+    }
+
+    @Override
+    public Set<JMethod> getResult(Stmt stmt) {
+        return getCalleesOf((Invoke) stmt);
     }
 }

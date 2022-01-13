@@ -13,42 +13,41 @@
 package pascal.taie.analysis.graph.callgraph.cha;
 
 import org.junit.Test;
-import pascal.taie.analysis.Tests;
 
 public class CHATestFull extends CHATest {
 
     @Test
     public void testSpecialCall() {
-        Tests.testCHA("SpecialCall");
+        test("SpecialCall");
     }
 
     @Test
     public void testInterface2() {
-        Tests.testCHA("Interface2");
+        test("Interface2");
     }
 
     @Test
     public void testInterface3() {
-        Tests.testCHA("Interface3");
+        test("Interface3");
     }
 
     @Test
     public void testRecursion() {
-        Tests.testCHA("Recursion");
+        test("Recursion");
     }
 
     @Test
     public void testRecursion2() {
-        Tests.testCHA("Recursion2");
+        test("Recursion2");
     }
 
     @Test
     public void testMaxPQ() {
-        Tests.testCHA("MaxPQ");
+        test("MaxPQ");
     }
 
     @Test
     public void testLongCallChain() {
-        Tests.testCHA("LongCallChain");
+        test("LongCallChain");
     }
 }

@@ -1,15 +1,12 @@
-#reachable methods: 5
----------- Reachable methods: ----------
-<A: void <init>()>
-<AbstractMethod: void main(java.lang.String[])>
-<B: void <init>()>
-<B: void foo()>
-<java.lang.Object: void <init>()>
+-------------------- <A: void <init>()> (cg) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
-#call graph edges: 4
----------- Call graph edges: ----------
-<A: void <init>()>[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); -> [<java.lang.Object: void <init>()>]
-<AbstractMethod: void main(java.lang.String[])>[1@L4] invokespecial temp$0.<B: void <init>()>(); -> [<B: void <init>()>]
-<AbstractMethod: void main(java.lang.String[])>[3@L5] invokevirtual a.<A: void foo()>(); -> [<B: void foo()>]
-<B: void <init>()>[0@L13] invokespecial %this.<A: void <init>()>(); -> [<A: void <init>()>]
-----------------------------------------
+-------------------- <AbstractMethod: void main(java.lang.String[])> (cg) --------------------
+[1@L4] invokespecial temp$0.<B: void <init>()>(); [<B: void <init>()>]
+[3@L5] invokevirtual a.<A: void foo()>(); [<B: void foo()>]
+
+-------------------- <B: void <init>()> (cg) --------------------
+[0@L13] invokespecial %this.<A: void <init>()>(); [<A: void <init>()>]
+
+-------------------- <B: void foo()> (cg) --------------------
+
