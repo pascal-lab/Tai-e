@@ -18,11 +18,11 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
@@ -206,9 +206,11 @@ public class ResultProcessor extends ProgramAnalysis {
         Object result = resultGetter.apply(method, id);
         if (result instanceof Set) {
             ((Set<?>) result).forEach(e -> out.println(toString(e)));
-        } else if (result instanceof StmtResult<?> StmtResult) {
-            IR ir = method.getIR();
-            ir.forEach(stmt -> out.println(toString(stmt, StmtResult)));
+        } else if (result instanceof StmtResult<?> stmtResult) {
+            method.getIR()
+                    .stmts()
+                    .filter(stmtResult::isRelevant)
+                    .forEach(stmt -> out.println(toString(stmt, stmtResult)));
         } else {
             out.println(toString(result));
         }
@@ -220,8 +222,10 @@ public class ResultProcessor extends ProgramAnalysis {
      * Here we specially handle Stmt by calling IRPrint.toString().
      */
     private static String toString(Object o) {
-        if (o instanceof Stmt) {
-            return IRPrinter.toString((Stmt) o);
+        if (o instanceof Stmt s) {
+            return IRPrinter.toString(s);
+        } else if (o instanceof Collection<?> c) {
+            return CollectionUtils.toString(c);
         } else {
             return Objects.toString(o);
         }

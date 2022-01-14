@@ -48,10 +48,10 @@ import java.util.stream.Collectors;
  */
 public final class CallGraphs {
 
+    private static final Logger logger = LogManager.getLogger(CallGraphs.class);
+
     private CallGraphs() {
     }
-
-    private static final Logger logger = LogManager.getLogger(CallGraphs.class);
 
     public static CallKind getCallKind(InvokeExp invokeExp) {
         if (invokeExp instanceof InvokeVirtual) {
