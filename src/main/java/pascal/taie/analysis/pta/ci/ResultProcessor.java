@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.Strings;
+import pascal.taie.util.collection.Streams;
 import pascal.taie.util.collection.Views;
 
 import java.io.File;
@@ -133,7 +133,7 @@ class ResultProcessor {
     }
 
     private static String toString(PointsToSet pts) {
-        return Strings.toString(pts.objects());
+        return Streams.toString(pts.objects());
     }
 
     private void comparePointsToSet(CIPTAResult result, String input) {

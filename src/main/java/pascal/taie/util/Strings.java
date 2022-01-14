@@ -12,9 +12,9 @@
 
 package pascal.taie.util;
 
+import pascal.taie.util.collection.Streams;
+
 import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Static utility methods for {@link String}.
@@ -31,25 +31,4 @@ public final class Strings {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
-    /**
-     * Converts a stream to a string.
-     * The elements in the collection are sorted by their string representation
-     * (in alphabet order) in the resulting string. This is particularly useful
-     * for comparing expected results with the ones given by the analysis.
-     */
-    public static <T> String toString(Stream<T> stream) {
-        return "[" + stream.map(T::toString)
-                .sorted()
-                .collect(Collectors.joining(", ")) + "]";
-    }
-
-    /**
-     * Converts a collection to a string.
-     * The elements in the collection are sorted by their string representation
-     * (in alphabet order) in the resulting string. This is particularly useful
-     * for comparing expected results with the ones given by the analysis.
-     */
-    public static <T> String toString(Collection<T> c) {
-        return toString(c.stream());
-    }
 }

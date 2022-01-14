@@ -256,35 +256,37 @@ public class ResultProcessor extends ProgramAnalysis {
                             " should be included");
                 }
             });
-        } else if (result instanceof StmtResult<?> StmtResult) {
+        } else if (result instanceof StmtResult<?> stmtResult) {
             Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
             // if the expected input does not contain the results
             // for the given method, just skip
             if (lines.isEmpty()) {
                 return;
             }
-            IR ir = method.getIR();
-            ir.forEach(stmt -> {
-                String stmtStr = toString(stmt);
-                String given = toString(stmt, StmtResult);
-                boolean foundExpeceted = false;
-                for (String line : lines) {
-                    if (line.startsWith(stmtStr)) {
-                        foundExpeceted = true;
-                        if (!line.equals(given)) {
-                            int idx = stmtStr.length();
-                            mismatches.add(String.format("%s %s expected: %s, given: %s",
-                                    method, stmtStr, line.substring(idx + 1),
-                                    given.substring(idx + 1)));
+            method.getIR()
+                    .stmts()
+                    .filter(stmtResult::isRelevant)
+                    .forEach(stmt -> {
+                        String stmtStr = toString(stmt);
+                        String given = toString(stmt, stmtResult);
+                        boolean foundExpeceted = false;
+                        for (String line : lines) {
+                            if (line.startsWith(stmtStr)) {
+                                foundExpeceted = true;
+                                if (!line.equals(given)) {
+                                    int idx = stmtStr.length();
+                                    mismatches.add(String.format("%s %s expected: %s, given: %s",
+                                            method, stmtStr, line.substring(idx + 1),
+                                            given.substring(idx + 1)));
+                                }
+                            }
                         }
-                    }
-                }
-                if (!foundExpeceted) {
-                    int idx = stmtStr.length();
-                    mismatches.add(String.format("%s %s expected: null, given: %s",
-                            method, stmtStr, given.substring(idx + 1)));
-                }
-            });
+                        if (!foundExpeceted) {
+                            int idx = stmtStr.length();
+                            mismatches.add(String.format("%s %s expected: null, given: %s",
+                                    method, stmtStr, given.substring(idx + 1)));
+                        }
+                    });
         } else if (inputResult.size() == 1) {
             if (!toString(result).equals(getOne(inputResult))) {
                 mismatches.add(String.format("%s expected: %s, given: %s",

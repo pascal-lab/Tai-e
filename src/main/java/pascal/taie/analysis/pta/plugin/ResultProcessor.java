@@ -21,8 +21,8 @@ import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.Strings;
 import pascal.taie.util.collection.Lists;
+import pascal.taie.util.collection.Streams;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -223,7 +223,7 @@ public class ResultProcessor implements Plugin {
     }
 
     private static String toString(PointsToSet pts) {
-        return Strings.toString(pts.objects());
+        return Streams.toString(pts.objects());
     }
 
     private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {

@@ -12,7 +12,7 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
-import pascal.taie.util.Strings;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
@@ -161,6 +161,6 @@ public class SetFact<E> {
 
     @Override
     public String toString() {
-        return Strings.toString(set);
+        return CollectionUtils.toString(set);
     }
 }

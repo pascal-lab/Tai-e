@@ -50,6 +50,7 @@ sourceFiles:
   - pascal.taie.analysis.graph.callgraph.CGBuilder
   - pascal.taie.analysis.graph.callgraph.DefaultCallGraph
   - pascal.taie.analysis.graph.callgraph.Edge
+  - pascal.taie.analysis.graph.callgraph.MethodEdge
   - pascal.taie.util.graph.Graph
 overwrittenFiles:
   - pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation

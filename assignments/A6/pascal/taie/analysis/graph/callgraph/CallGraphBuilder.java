@@ -18,8 +18,6 @@ import pascal.taie.config.ConfigException;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.List;
-
 public class CallGraphBuilder extends ProgramAnalysis {
 
     public static final String ID = "cg";
@@ -48,15 +46,9 @@ public class CallGraphBuilder extends ProgramAnalysis {
         if (action == null) {
             return;
         }
-        switch (action) {
-            case "dump" -> {
-                String file = getOptions().getString("file");
-                CallGraphs.dumpCallGraph(callGraph, file);
-            }
-            case "compare" -> {
-                String file = getOptions().getString("file");
-                CallGraphs.compareCallGraph(callGraph, file);
-            }
+        if (action.equals("dump")) {
+            String file = getOptions().getString("file");
+            CallGraphs.dumpCallGraph(callGraph, file);
         }
     }
 }

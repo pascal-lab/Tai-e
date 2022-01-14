@@ -75,4 +75,14 @@ public final class CollectionUtils {
         }
         return sum;
     }
+
+    /**
+     * Converts a collection to a string.
+     * The elements in the collection are sorted by their string representation
+     * (in alphabet order) in the resulting string. This is particularly useful
+     * for comparing expected results with the ones given by the analysis.
+     */
+    public static <T> String toString(Collection<T> c) {
+        return Streams.toString(c.stream());
+    }
 }
