@@ -119,7 +119,7 @@ public class Solver {
         }
         // process program entry, i.e., main method
         Context defContext = contextSelector.getEmptyContext();
-        JMethod main = World.getMainMethod();
+        JMethod main = World.get().getMainMethod();
         CSMethod csMethod = csManager.getCSMethod(defContext, main);
         callGraph.addEntryMethod(csMethod);
         addReachable(csMethod);

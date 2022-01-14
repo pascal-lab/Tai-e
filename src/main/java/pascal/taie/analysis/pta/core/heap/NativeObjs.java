@@ -50,9 +50,9 @@ public class NativeObjs {
         Type string = typeManager.getClassType(STRING);
         Type stringArray = typeManager.getArrayType(string, 1);
         mainArgs = new MockObj(NATIVE_DESC, "<main-arguments>",
-                stringArray, World.getMainMethod());
+                stringArray, World.get().getMainMethod());
         mainArgsElem = new MockObj(NATIVE_DESC, "<main-arguments-element>",
-                string, World.getMainMethod());
+                string, World.get().getMainMethod());
     }
 
     public Obj getMainThread() {

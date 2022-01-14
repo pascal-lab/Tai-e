@@ -106,32 +106,35 @@ public final class World {
         this.classHierarchy = classHierarchy;
     }
 
-    public static IRBuilder getIRBuilder() {
-        return theWorld.irBuilder;
+    public IRBuilder getIRBuilder() {
+        return irBuilder;
     }
 
     public void setIRBuilder(IRBuilder irBuilder) {
         this.irBuilder = irBuilder;
     }
 
-    public static NativeModel getNativeModel() {
-        return theWorld.nativeModel;
+    public NativeModel getNativeModel() {
+        return nativeModel;
     }
 
     public void setNativeModel(NativeModel nativeModel) {
         this.nativeModel = nativeModel;
     }
 
-    public static JMethod getMainMethod() {
-        return theWorld.mainMethod;
+    public JMethod getMainMethod() {
+        return mainMethod;
     }
 
     public void setMainMethod(JMethod mainMethod) {
+        if (this.mainMethod != null) {
+            throw new IllegalStateException("Main method already set");
+        }
         this.mainMethod = mainMethod;
     }
 
-    public static Collection<JMethod> getImplicitEntries() {
-        return theWorld.implicitEntries;
+    public Collection<JMethod> getImplicitEntries() {
+        return implicitEntries;
     }
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {

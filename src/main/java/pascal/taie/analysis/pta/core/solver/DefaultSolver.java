@@ -227,15 +227,15 @@ public class DefaultSolver implements Solver {
         Obj args = nativeObjs.getMainArgs();
         Obj argsElem = nativeObjs.getMainArgsElem();
         addArrayPointsTo(defContext, args, defContext, argsElem);
-        JMethod main = World.getMainMethod();
+        JMethod main = World.get().getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
     }
 
     private Collection<JMethod> computeEntries() {
         List<JMethod> entries = new ArrayList<>();
-        entries.add(World.getMainMethod());
+        entries.add(World.get().getMainMethod());
         if (options.getBoolean("implicit-entries")) {
-            entries.addAll(World.getImplicitEntries());
+            entries.addAll(World.get().getImplicitEntries());
         }
         return entries;
     }

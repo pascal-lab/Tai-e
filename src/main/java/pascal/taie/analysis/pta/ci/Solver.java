@@ -71,7 +71,7 @@ class Solver {
         callGraph = new DefaultCallGraph();
         stmtProcessor = new StmtProcessor();
         // initialize main method
-        JMethod main = World.getMainMethod();
+        JMethod main = World.get().getMainMethod();
         callGraph.addEntryMethod(main);
         addReachable(main);
     }

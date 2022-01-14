@@ -108,9 +108,9 @@ public class JMethod extends ClassMember {
                         " has no method body");
             }
             if (isNative()) {
-                ir = World.getNativeModel().buildNativeIR(this);
+                ir = World.get().getNativeModel().buildNativeIR(this);
             } else {
-                ir = World.getIRBuilder().buildIR(this);
+                ir = World.get().getIRBuilder().buildIR(this);
             }
         }
         return ir;
