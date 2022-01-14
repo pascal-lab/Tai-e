@@ -78,7 +78,7 @@ public final class Tests {
         Collections.addAll(args, "-a", processArg);
         Main.main(args.toArray(new String[0]));
         if (action.equals("compare")) {
-            Set<String> mismatches = World.getResult(ResultProcessor.ID);
+            Set<String> mismatches = World.get().getResult(ResultProcessor.ID);
             Assert.assertTrue("Mismatches of analysis \"" + id + "\":\n" +
                             String.join("\n", mismatches),
                     mismatches.isEmpty());

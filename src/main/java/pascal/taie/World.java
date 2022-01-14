@@ -22,19 +22,16 @@ import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.AbstractResultHolder;
-import pascal.taie.util.ResultHolder;
 
 import java.util.Collection;
 
 /**
  * Manages the whole-program information of the program being analyzed.
  */
-public final class World {
+public final class World extends AbstractResultHolder {
 
     /**
-     * To store whole-program information, we maintain an instance,
-     * (i.e., theWorld, with its instance fields pointing to the information),
-     * instead of using static fields, to ease the resetting of ZA WARUDO.
+     * ZA WARUDO, i.e., the current world.
      */
     private static World theWorld;
 
@@ -48,13 +45,13 @@ public final class World {
 
     private NativeModel nativeModel;
 
-    private final ResultHolder resultHolder = new AbstractResultHolder() {
-    };
-
     private JMethod mainMethod;
 
     private Collection<JMethod> implicitEntries;
 
+    /**
+     * Sets current world to {@code world}.
+     */
     public static void set(World world) {
         theWorld = world;
     }
@@ -139,21 +136,5 @@ public final class World {
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
         this.implicitEntries = implicitEntries;
-    }
-
-    public static void storeResult(String id, Object result) {
-        theWorld.resultHolder.storeResult(id, result);
-    }
-
-    public static <R> R getResult(String id) {
-        return theWorld.resultHolder.getResult(id);
-    }
-
-    public static <R> R getResult(String id, R defaultResult) {
-        return theWorld.resultHolder.getResult(id, defaultResult);
-    }
-
-    public static void clearResult(String id) {
-        theWorld.resultHolder.clearResult(id);
     }
 }

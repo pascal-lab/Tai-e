@@ -48,7 +48,7 @@ public class ICFGBuilder extends ProgramAnalysis {
 
     @Override
     public ICFG<JMethod, Stmt> analyze() {
-        CallGraph<Stmt, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
+        CallGraph<Stmt, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
         ICFG<JMethod, Stmt> icfg = new DefaultICFG(callGraph);
         if (isDump) {
             dumpICFG(icfg);

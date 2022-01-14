@@ -77,7 +77,7 @@ public class AnalysisManager {
     private void runProgramAnalysis(ProgramAnalysis analysis) {
         Object result = analysis.analyze();
         if (result != null) {
-            World.storeResult(analysis.getId(), result);
+            World.get().storeResult(analysis.getId(), result);
         }
     }
 
@@ -104,7 +104,7 @@ public class AnalysisManager {
                         .allClasses()
                         .toList();
                 case Scope.REACHABLE -> {
-                    CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
+                    CallGraph<?, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
                     yield callGraph.reachableMethods()
                             .map(JMethod::getDeclaringClass)
                             .distinct()
@@ -141,7 +141,7 @@ public class AnalysisManager {
                         .filter(m -> !m.isAbstract() && !m.isNative())
                         .toList();
                 case Scope.REACHABLE -> {
-                    CallGraph<?, JMethod> callGraph = World.getResult(CallGraphBuilder.ID);
+                    CallGraph<?, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
                     yield callGraph.reachableMethods().toList();
                 }
                 default -> throw new ConfigException(

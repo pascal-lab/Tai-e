@@ -119,7 +119,7 @@ public class InterConstantPropagation extends
         // related array stores and loads via alias information
         // derived from pointer analysis
         String ptaId = getOptions().getString("pta");
-        PointerAnalysisResult pta = World.getResult(ptaId);
+        PointerAnalysisResult pta = World.get().getResult(ptaId);
         MultiMap<Obj, Var> pointedBy = Maps.newMultiMap();
         pta.getVars()
                 .stream()

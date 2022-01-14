@@ -30,10 +30,10 @@ In [ProgramAnalysis](../src/main/java/pascal/taie/analysis/ProgramAnalysis.java)
 Below we provide some tips which may be useful for developing new analysis.
 
 #### Obtain options
-Global options are available at `World.getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `Analysis.getOptions()`.
+Global options are available at `World.get().getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `analysis.getOptions()`.
 
 #### Obtain results of other analyses
-If your analysis requires the results of some other previously-executed analyses, you could obtain it by calling `ir.getResult(id)`/`jclass.getResult(id)`/`World.getResult(id)` for method/class/program analysis results.
+If your analysis requires the results of some other previously-executed analyses, you could obtain it by calling `ir.getResult(id)`/`jclass.getResult(id)`/`World.get().getResult(id)` for method/class/program analysis results.
 
 
 ### 2. Add analysis information to configuration file

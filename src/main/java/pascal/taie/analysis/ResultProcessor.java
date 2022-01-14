@@ -86,7 +86,7 @@ public class ResultProcessor extends ProgramAnalysis {
         @SuppressWarnings("unchecked")
         Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
                 .stream()
-                .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
+                .collect(Collectors.groupingBy(id -> World.get().getResult(id) != null));
         if (groups.containsKey(true)) {
             processProgramAnalysisResult(groups.get(true));
         }
@@ -161,12 +161,12 @@ public class ResultProcessor extends ProgramAnalysis {
                         .compareTo(m2.getDeclaringClass().toString());
             }
         };
-        CallGraph<?, JMethod> cg = World.getResult(CallGraphBuilder.ID);
+        CallGraph<?, JMethod> cg = World.get().getResult(CallGraphBuilder.ID);
         List<JMethod> methods = cg.reachableMethods()
                 .filter(m -> m.getDeclaringClass().isApplication())
                 .sorted(comp)
                 .toList();
-        processResults(methods, analyses, (m, id) -> World.getResult(id));
+        processResults(methods, analyses, (m, id) -> World.get().getResult(id));
     }
 
     private void processMethodAnalysisResult(List<String> analyses) {

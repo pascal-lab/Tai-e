@@ -109,7 +109,7 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
 
     @Override
     public Object analyze() {
-        icfg = World.getResult(ICFGBuilder.ID);
+        icfg = World.get().getResult(ICFGBuilder.ID);
         initialize();
         solver = new InterSolver<>(this, icfg);
         DataflowResult<Node, Fact> result = solver.solve();

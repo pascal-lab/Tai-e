@@ -33,7 +33,7 @@ class PTABasedBuilder implements CGBuilder<Invoke, JMethod> {
 
     @Override
     public CallGraph<Invoke, JMethod> build() {
-        PointerAnalysisResult result = World.getResult(ptaId);
+        PointerAnalysisResult result = World.get().getResult(ptaId);
         return result.getCallGraph();
     }
 }
