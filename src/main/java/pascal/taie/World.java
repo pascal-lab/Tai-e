@@ -14,16 +14,15 @@ package pascal.taie;
 
 import pascal.taie.config.Options;
 import pascal.taie.ir.IRBuilder;
-import pascal.taie.ir.proginfo.FieldRef;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.AbstractResultHolder;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Manages the whole-program information of the program being analyzed.
@@ -34,6 +33,12 @@ public final class World extends AbstractResultHolder {
      * ZA WARUDO, i.e., the current world.
      */
     private static World theWorld;
+
+    /**
+     * The callbacks that will be invoked at resetting.
+     * This is useful to clear class-level caches.
+     */
+    private final static List<Runnable> resetCallbacks = new ArrayList<>();
 
     private Options options;
 
@@ -63,11 +68,13 @@ public final class World extends AbstractResultHolder {
         return theWorld;
     }
 
+    public static void registerResetCallback(Runnable callback) {
+        resetCallbacks.add(callback);
+    }
+
     public static void reset() {
-        Subsignature.reset();
-        FieldRef.reset();
-        MethodRef.reset();
         theWorld = null;
+        resetCallbacks.forEach(Runnable::run);
     }
 
     public Options getOptions() {

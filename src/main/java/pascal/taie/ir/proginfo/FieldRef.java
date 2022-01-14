@@ -36,6 +36,10 @@ public class FieldRef extends MemberRef {
     private static final ConcurrentMap<Key, FieldRef> map =
             Maps.newConcurrentMap(4096);
 
+    static {
+        World.registerResetCallback(map::clear);
+    }
+
     private final Type type;
 
     /**
@@ -48,10 +52,6 @@ public class FieldRef extends MemberRef {
             JClass declaringClass, String name, Type type, boolean isStatic) {
         Key key = new Key(declaringClass, name, type);
         return map.computeIfAbsent(key, k -> new FieldRef(k, isStatic));
-    }
-
-    public static void reset() {
-        map.clear();
     }
 
     private FieldRef(Key key, boolean isStatic) {

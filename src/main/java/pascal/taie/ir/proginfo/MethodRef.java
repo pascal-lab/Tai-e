@@ -42,6 +42,10 @@ public class MethodRef extends MemberRef {
     private static final ConcurrentMap<Key, MethodRef> map =
             Maps.newConcurrentMap(4096);
 
+    static {
+        World.registerResetCallback(map::clear);
+    }
+
     // Method names of polymorphic signature methods.
     private static final Set<String> METHOD_HANDLE_METHODS = Set.of(
             "invokeExact",
@@ -108,10 +112,6 @@ public class MethodRef extends MemberRef {
         Key key = new Key(declaringClass, subsignature);
         return map.computeIfAbsent(key, k ->
                 new MethodRef(k, name, parameterTypes, returnType, isStatic));
-    }
-
-    public static void reset() {
-        map.clear();
     }
 
     private MethodRef(

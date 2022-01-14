@@ -12,6 +12,7 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.World;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.collection.Maps;
@@ -32,6 +33,10 @@ public class Subsignature {
 
     private static final ConcurrentMap<String, Subsignature> map
             = Maps.newConcurrentMap();
+
+    static {
+        World.registerResetCallback(map::clear);
+    }
 
     private final String subsig;
 
@@ -56,10 +61,6 @@ public class Subsignature {
      */
     public static Subsignature getClinit() {
         return get(CLINIT);
-    }
-
-    public static void reset() {
-        map.clear();
     }
 
     private Subsignature(String subsig) {
