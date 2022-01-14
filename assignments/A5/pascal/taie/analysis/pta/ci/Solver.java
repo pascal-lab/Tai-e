@@ -75,9 +75,9 @@ class Solver {
         pointerFlowGraph = new PointerFlowGraph();
         callGraph = new DefaultCallGraph();
         stmtProcessor = new StmtProcessor();
-        hierarchy = World.getClassHierarchy();
+        hierarchy = World.get().getClassHierarchy();
         // initialize main method
-        JMethod main = World.getMainMethod();
+        JMethod main = World.get().getMainMethod();
         callGraph.addEntryMethod(main);
         addReachable(main);
     }

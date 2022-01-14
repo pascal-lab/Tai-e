@@ -21,8 +21,8 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
     @Override
     public CallGraph<Invoke, JMethod> build() {
-        hierarchy = World.getClassHierarchy();
-        return buildCallGraph(World.getMainMethod());
+        hierarchy = World.get().getClassHierarchy();
+        return buildCallGraph(World.get().getMainMethod());
     }
 
     private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {

@@ -84,7 +84,7 @@ public class ResultProcessor extends ProgramAnalysis {
         @SuppressWarnings("unchecked")
         Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
                 .stream()
-                .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
+                .collect(Collectors.groupingBy(id -> World.get().getResult(id) != null));
         if (groups.containsKey(false)) {
             processIntraResults(groups.get(false));
         }
@@ -143,7 +143,8 @@ public class ResultProcessor extends ProgramAnalysis {
     }
 
     private void processIntraResults(List<String> analyses) {
-        Stream<JMethod> methods = World.getClassHierarchy()
+        Stream<JMethod> methods = World.get()
+                .getClassHierarchy()
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)

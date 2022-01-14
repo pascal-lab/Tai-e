@@ -48,7 +48,7 @@ public class InterConstantPropagation extends
     @Override
     protected void initialize() {
         String ptaId = getOptions().getString("pta");
-        PointerAnalysisResult pta = World.getResult(ptaId);
+        PointerAnalysisResult pta = World.get().getResult(ptaId);
         // You can do initialization work here
     }
 

@@ -86,7 +86,7 @@ public class ResultProcessor extends ProgramAnalysis {
         @SuppressWarnings("unchecked")
         Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
                 .stream()
-                .collect(Collectors.groupingBy(id -> World.getResult(id) != null));
+                .collect(Collectors.groupingBy(id -> World.get().getResult(id) != null));
         if (groups.containsKey(true)) {
             processInterResults(groups.get(true));
         }
@@ -157,13 +157,14 @@ public class ResultProcessor extends ProgramAnalysis {
                         .compareTo(m2.getDeclaringClass().toString());
             }
         };
-        CallGraph<?, JMethod> cg = World.getResult(CallGraphBuilder.ID);
+        CallGraph<?, JMethod> cg = World.get().getResult(CallGraphBuilder.ID);
         Stream<JMethod> methods;
         if (cg.getNumberOfMethods() == 0) {
             // Before the call graph construction has been implemented,
             // there are no methods in the call graph. In this case,
             // we compare the results for all application methods.
-            methods = World.getClassHierarchy()
+            methods = World.get()
+                    .getClassHierarchy()
                     .applicationClasses()
                     .map(JClass::getDeclaredMethods)
                     .flatMap(Collection::stream)
@@ -174,11 +175,12 @@ public class ResultProcessor extends ProgramAnalysis {
                     .filter(m -> m.getDeclaringClass().isApplication())
                     .sorted(comp);
         }
-        processResults(methods, analyses, (m, id) -> World.getResult(id));
+        processResults(methods, analyses, (m, id) -> World.get().getResult(id));
     }
 
     private void processIntraResults(List<String> analyses) {
-        Stream<JMethod> methods = World.getClassHierarchy()
+        Stream<JMethod> methods = World.get()
+                .getClassHierarchy()
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
