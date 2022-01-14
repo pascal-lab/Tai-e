@@ -110,8 +110,13 @@ public class Main {
                 WorldBuilder builder = builderCtor.newInstance();
                 builder.build(options, plan);
                 logger.info("{} classes with {} methods in the world",
-                        World.getClassHierarchy().allClasses().count(),
-                        World.getClassHierarchy().allClasses()
+                        World.get()
+                                .getClassHierarchy()
+                                .allClasses()
+                                .count(),
+                        World.get()
+                                .getClassHierarchy()
+                                .allClasses()
                                 .mapToInt(c -> c.getDeclaredMethods().size())
                                 .sum());
             } catch (InstantiationException | IllegalAccessException |

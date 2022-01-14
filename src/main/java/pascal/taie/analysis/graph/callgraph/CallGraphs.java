@@ -77,7 +77,7 @@ public final class CallGraphs {
     JMethod resolveCallee(Type type, Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         if (callSite.isInterface() || callSite.isVirtual()) {
-            return World.getClassHierarchy()
+            return World.get().getClassHierarchy()
                     .dispatch(type, methodRef);
         } else if (callSite.isSpecial() || callSite.isStatic()) {
             return methodRef.resolveNullable();

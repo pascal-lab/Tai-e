@@ -66,7 +66,7 @@ public class FieldRef extends MemberRef {
     @Override
     public JField resolve() {
         if (field == null) {
-            field = World.getClassHierarchy()
+            field = World.get().getClassHierarchy()
                     .resolveField(this);
             if (field == null) {
                 throw new FieldResolutionFailedException(
@@ -80,7 +80,7 @@ public class FieldRef extends MemberRef {
     public @Nullable
     JField resolveNullable() {
         if (field == null) {
-            field = World.getClassHierarchy()
+            field = World.get().getClassHierarchy()
                     .resolveField(this);
             if (field == null) {
                 logger.warn("Failed to resolve {}", this);

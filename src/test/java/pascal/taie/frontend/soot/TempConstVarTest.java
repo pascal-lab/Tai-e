@@ -26,7 +26,7 @@ public class TempConstVarTest {
     public void test() {
         String main = "TempConst";
         Main.buildWorld("-pp", "-cp", "src/test/resources/basic", "-m", main);
-        JClass jclass = World.getClassHierarchy().getClass(main);
+        JClass jclass = World.get().getClassHierarchy().getClass(main);
         jclass.getDeclaredMethods().forEach(m -> {
             IR ir = m.getIR();
             IRPrinter.print(ir, System.out);

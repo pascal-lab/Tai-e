@@ -66,7 +66,7 @@ public class ThreadHandler implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        hierarchy = World.getClassHierarchy();
+        hierarchy = World.get().getClassHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                         "<java.lang.Thread: void start()>")
                 .getIR()

@@ -48,10 +48,12 @@ public class ReferenceHandler implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        referenceInitThis = World.getClassHierarchy()
+        referenceInitThis = World.get()
+                .getClassHierarchy()
                 .getJREMethod(REFERENCE_INIT)
                 .getIR().getThis();
-        referencePending = World.getClassHierarchy()
+        referencePending = World.get()
+                .getClassHierarchy()
                 .getJREField(REFERENCE_PENDING);
     }
 

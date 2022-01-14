@@ -145,7 +145,7 @@ public class InvokeDynamicAnalysis implements Plugin {
      */
     public static boolean useMethodHandle() {
         // if MethodHandle is not loaded, we consider it as unused.
-        return World.getClassHierarchy()
+        return World.get().getClassHierarchy()
                 .getJREClass(ClassNames.METHOD_HANDLE) != null;
     }
 

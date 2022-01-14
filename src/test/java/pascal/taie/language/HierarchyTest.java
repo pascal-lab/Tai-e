@@ -94,13 +94,15 @@ public class HierarchyTest {
     private static void expectedSubclass(String sup, String sub) {
         JClass superclass = getClass(sup);
         JClass subclass = getClass(sub);
-        Assert.assertTrue(World.getClassHierarchy().isSubclass(superclass, subclass));
+        Assert.assertTrue(World.get().getClassHierarchy()
+                .isSubclass(superclass, subclass));
     }
 
     private static void expectedNotSubclass(String sup, String sub) {
         JClass superclass = getClass(sup);
         JClass subclass = getClass(sub);
-        Assert.assertFalse(World.getClassHierarchy().isSubclass(superclass, subclass));
+        Assert.assertFalse(World.get().getClassHierarchy()
+                .isSubclass(superclass, subclass));
     }
 
     // ---------- Test field resolution resolveField()  ----------
@@ -221,7 +223,7 @@ public class HierarchyTest {
     }
 
     private static JClass getClass(String className) {
-        return World.getClassHierarchy().getClass(className);
+        return World.get().getClassHierarchy().getClass(className);
     }
 
     /**
@@ -287,6 +289,7 @@ public class HierarchyTest {
 
     private static Collection<JClass> getAllSubclasses(
             JClass jclass, boolean selfInclude) {
-        return World.getClassHierarchy().getAllSubclassesOf(jclass, selfInclude);
+        return World.get().getClassHierarchy()
+                .getAllSubclassesOf(jclass, selfInclude);
     }
 }

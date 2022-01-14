@@ -95,11 +95,14 @@ public final class World {
         this.typeManager = typeManager;
     }
 
-    public static ClassHierarchy getClassHierarchy() {
-        return theWorld.classHierarchy;
+    public ClassHierarchy getClassHierarchy() {
+        return classHierarchy;
     }
 
     public void setClassHierarchy(ClassHierarchy classHierarchy) {
+        if (this.classHierarchy != null) {
+            throw new IllegalStateException("ClassHierarchy already set");
+        }
         this.classHierarchy = classHierarchy;
     }
 

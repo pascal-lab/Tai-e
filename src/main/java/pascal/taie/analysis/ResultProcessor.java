@@ -170,7 +170,8 @@ public class ResultProcessor extends ProgramAnalysis {
     }
 
     private void processMethodAnalysisResult(List<String> analyses) {
-        List<JMethod> methods = World.getClassHierarchy()
+        List<JMethod> methods = World.get()
+                .getClassHierarchy()
                 .applicationClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)

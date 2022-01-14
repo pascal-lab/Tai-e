@@ -95,10 +95,12 @@ public class AnalysisManager {
         if (classScope == null) {
             String scope = World.get().getOptions().getScope();
             classScope = switch (scope) {
-                case Scope.APP -> World.getClassHierarchy()
+                case Scope.APP -> World.get()
+                        .getClassHierarchy()
                         .applicationClasses()
                         .toList();
-                case Scope.ALL -> World.getClassHierarchy()
+                case Scope.ALL -> World.get()
+                        .getClassHierarchy()
                         .allClasses()
                         .toList();
                 case Scope.REACHABLE -> {

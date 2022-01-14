@@ -156,7 +156,7 @@ public class MethodRef extends MemberRef {
     @Override
     public JMethod resolve() {
         if (method == null) {
-            method = World.getClassHierarchy()
+            method = World.get().getClassHierarchy()
                     .resolveMethod(this);
             if (method == null) {
                 throw new MethodResolutionFailedException(
@@ -170,7 +170,7 @@ public class MethodRef extends MemberRef {
     public @Nullable
     JMethod resolveNullable() {
         if (method == null) {
-            method = World.getClassHierarchy()
+            method = World.get().getClassHierarchy()
                     .resolveMethod(this);
             if (method == null) {
                 logger.warn("Failed to resolve {}", this);

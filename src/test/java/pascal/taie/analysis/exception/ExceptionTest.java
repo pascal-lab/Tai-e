@@ -63,7 +63,7 @@ public class ExceptionTest {
                 "-a", ThrowAnalysis.ID + "=exception:" + exception
         };
         Main.main(args);
-        JClass c = World.getClassHierarchy().getClass(MAIN);
+        JClass c = World.get().getClassHierarchy().getClass(MAIN);
         for (String methodName : methodNames) {
             JMethod m = c.getDeclaredMethod(methodName);
             System.out.println(m);

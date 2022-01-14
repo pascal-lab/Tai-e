@@ -59,7 +59,8 @@ public class ClassDumper extends ProgramAnalysis {
 
     @Override
     public Object analyze() {
-        List<JClass> classes = World.getClassHierarchy()
+        List<JClass> classes = World.get()
+                .getClassHierarchy()
                 .applicationClasses()
                 .toList();
         logger.info("Dumping {} classes to {} ...",

@@ -50,7 +50,7 @@ public class IRTest {
     public void testIRBuilder() {
         targets.forEach(main -> {
             buildWorld(main);
-            JClass mainClass = World.getClassHierarchy().getClass(main);
+            JClass mainClass = World.get().getClassHierarchy().getClass(main);
             mainClass.getDeclaredMethods()
                     .stream()
                     .sorted(Comparator.comparing(JMethod::toString))
@@ -64,7 +64,7 @@ public class IRTest {
     public void testDefUse() {
         String main = "DefUse";
         buildWorld(main);
-        JClass mainClass = World.getClassHierarchy().getClass(main);
+        JClass mainClass = World.get().getClassHierarchy().getClass(main);
         mainClass.getDeclaredMethods().forEach(m -> {
             System.out.println(m);
             m.getIR().forEach(stmt ->

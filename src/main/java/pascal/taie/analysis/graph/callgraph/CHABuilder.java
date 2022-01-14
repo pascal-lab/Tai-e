@@ -52,7 +52,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     }
 
     private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {
-        hierarchy = World.getClassHierarchy();
+        hierarchy = World.get().getClassHierarchy();
         resolveTable = Maps.newTwoKeyMap();
         DefaultCallGraph callGraph = new DefaultCallGraph();
         callGraph.addEntryMethod(entry);

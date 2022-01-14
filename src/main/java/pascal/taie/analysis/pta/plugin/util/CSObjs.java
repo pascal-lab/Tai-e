@@ -59,7 +59,7 @@ public final class CSObjs {
             if (type instanceof ClassType) {
                 return ((ClassType) type).getJClass();
             } else if (type instanceof ArrayType) {
-                return World.getClassHierarchy()
+                return World.get().getClassHierarchy()
                         .getJREClass(ClassNames.OBJECT);
             }
         }

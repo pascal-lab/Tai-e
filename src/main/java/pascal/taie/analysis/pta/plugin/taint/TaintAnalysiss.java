@@ -80,7 +80,7 @@ public class TaintAnalysiss {
         emptyContext = solver.getContextSelector().getEmptyContext();
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
-                World.getClassHierarchy(),
+                World.get().getClassHierarchy(),
                 World.get().getTypeManager());
         logger.info(config);
         config.getSources()

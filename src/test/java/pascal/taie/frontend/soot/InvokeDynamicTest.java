@@ -36,7 +36,7 @@ public class InvokeDynamicTest {
     public void testFunction() {
         final String main = "Function";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
-        JClass mainClass = World.getClassHierarchy().getClass(main);
+        JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(
@@ -47,7 +47,7 @@ public class InvokeDynamicTest {
     public void testInterface() {
         final String main = "Interface";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
-        JClass mainClass = World.getClassHierarchy().getClass(main);
+        JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(indy -> {
@@ -66,7 +66,7 @@ public class InvokeDynamicTest {
     public void testMultiStatement() {
         final String main = "MultiStatement";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
-        JClass mainClass = World.getClassHierarchy().getClass(main);
+        JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(indy -> {
@@ -81,7 +81,7 @@ public class InvokeDynamicTest {
     public void testWithArgs() {
         final String main = "WithArgs";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
-        JClass mainClass = World.getClassHierarchy().getClass(main);
+        JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(indy ->
@@ -94,7 +94,7 @@ public class InvokeDynamicTest {
     public void testCapture() {
         final String main = "Capture";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
-        JClass mainClass = World.getClassHierarchy().getClass(main);
+        JClass mainClass = World.get().getClassHierarchy().getClass(main);
         mainClass.getDeclaredMethods().forEach(m -> printIR(m.getIR()));
     }
 
