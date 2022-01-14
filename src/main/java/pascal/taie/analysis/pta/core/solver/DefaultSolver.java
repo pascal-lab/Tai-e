@@ -137,7 +137,7 @@ public class DefaultSolver implements Solver {
         this.contextSelector = contextSelector;
         this.csManager = csManager;
         hierarchy = World.getClassHierarchy();
-        typeManager = World.getTypeManager();
+        typeManager = World.get().getTypeManager();
         nativeObjs = new NativeObjs(typeManager);
     }
 

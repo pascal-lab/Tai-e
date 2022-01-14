@@ -69,7 +69,7 @@ abstract class AbstractHeapModel implements HeapModel {
         isMergeStringObjects = options.getBoolean("merge-string-objects");
         isMergeStringBuilders = options.getBoolean("merge-string-builders");
         isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
-        typeManager = World.getTypeManager();
+        typeManager = World.get().getTypeManager();
         string = typeManager.getClassType(STRING);
         stringBuilder = typeManager.getClassType(STRING_BUILDER);
         stringBuffer = typeManager.getClassType(STRING_BUFFER);

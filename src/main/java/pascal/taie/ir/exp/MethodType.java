@@ -50,7 +50,7 @@ public class MethodType implements ReferenceLiteral {
 
     @Override
     public ClassType getType() {
-        return World.getTypeManager().getClassType(METHOD_TYPE);
+        return World.get().getTypeManager().getClassType(METHOD_TYPE);
     }
 
     @Override

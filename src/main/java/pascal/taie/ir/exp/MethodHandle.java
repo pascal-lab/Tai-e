@@ -82,7 +82,7 @@ public class MethodHandle implements ReferenceLiteral {
 
     @Override
     public ClassType getType() {
-        return World.getTypeManager().getClassType(METHOD_HANDLE);
+        return World.get().getTypeManager().getClassType(METHOD_HANDLE);
     }
 
     @Override

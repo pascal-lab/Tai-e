@@ -139,7 +139,7 @@ enum ImplicitThrowAnalysis {
     };
 
     ImplicitThrowAnalysis() {
-        TypeManager tm = World.getTypeManager();
+        TypeManager tm = World.get().getTypeManager();
         ClassType arrayStoreException = tm.getClassType(ClassNames.ARRAY_STORE_EXCEPTION);
         ClassType indexOutOfBoundsException = tm.getClassType(ClassNames.INDEX_OUT_OF_BOUNDS_EXCEPTION);
         ClassType nullPointerException = tm.getClassType(ClassNames.NULL_POINTER_EXCEPTION);

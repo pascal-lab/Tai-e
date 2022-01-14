@@ -93,7 +93,8 @@ public class AnalysisManager {
 
     private List<JClass> getClassScope() {
         if (classScope == null) {
-            classScope = switch (World.getOptions().getScope()) {
+            String scope = World.get().getOptions().getScope();
+            classScope = switch (scope) {
                 case Scope.APP -> World.getClassHierarchy()
                         .applicationClasses()
                         .toList();
@@ -108,10 +109,10 @@ public class AnalysisManager {
                             .toList();
                 }
                 default -> throw new ConfigException(
-                        "Unexpected scope option: " + World.getOptions().getScope());
+                        "Unexpected scope option: " + scope);
             };
             logger.info("{} classes in scope ({}) of class analyses",
-                    classScope.size(), World.getOptions().getScope());
+                    classScope.size(), scope);
         }
         return classScope;
     }
@@ -129,7 +130,8 @@ public class AnalysisManager {
 
     private List<JMethod> getMethodScope() {
         if (methodScope == null) {
-            methodScope = switch (World.getOptions().getScope()) {
+            String scope = World.get().getOptions().getScope();
+            methodScope = switch (scope) {
                 case Scope.APP, Scope.ALL -> getClassScope()
                         .stream()
                         .map(JClass::getDeclaredMethods)
@@ -141,10 +143,10 @@ public class AnalysisManager {
                     yield callGraph.reachableMethods().toList();
                 }
                 default -> throw new ConfigException(
-                        "Unexpected scope option: " + World.getOptions().getScope());
+                        "Unexpected scope option: " + scope);
             };
             logger.info("{} methods in scope ({}) of method analyses",
-                    methodScope.size(), World.getOptions().getScope());
+                    methodScope.size(), scope);
         }
         return methodScope;
     }

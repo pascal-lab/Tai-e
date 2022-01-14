@@ -38,17 +38,6 @@ public final class World {
      */
     private static World theWorld;
 
-    public static void set(World world) {
-        theWorld = world;
-    }
-
-    public static void reset() {
-        Subsignature.reset();
-        FieldRef.reset();
-        MethodRef.reset();
-        theWorld = null;
-    }
-
     private Options options;
 
     private TypeManager typeManager;
@@ -66,19 +55,43 @@ public final class World {
 
     private Collection<JMethod> implicitEntries;
 
-    public static Options getOptions() {
-        return theWorld.options;
+    public static void set(World world) {
+        theWorld = world;
+    }
+
+    /**
+     * @return the current {@code World} instance.
+     */
+    public static World get() {
+        return theWorld;
+    }
+
+    public static void reset() {
+        Subsignature.reset();
+        FieldRef.reset();
+        MethodRef.reset();
+        theWorld = null;
+    }
+
+    public Options getOptions() {
+        return options;
     }
 
     public void setOptions(Options options) {
+        if (this.options != null) {
+            throw new IllegalStateException("Options already set");
+        }
         this.options = options;
     }
 
-    public static TypeManager getTypeManager() {
-        return theWorld.typeManager;
+    public TypeManager getTypeManager() {
+        return typeManager;
     }
 
     public void setTypeManager(TypeManager typeManager) {
+        if (this.typeManager != null) {
+            throw new IllegalStateException("TypeManager already set");
+        }
         this.typeManager = typeManager;
     }
 

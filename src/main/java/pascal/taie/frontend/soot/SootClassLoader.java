@@ -58,7 +58,7 @@ class SootClassLoader implements JClassLoader {
                 new SootClassBuilder(converter, sootClass)
                         .build(jclass);
                 hierarchy.addClass(jclass);
-                if (World.getOptions().isDumpClasses()) {
+                if (World.get().getOptions().isDumpClasses()) {
                     classDumper.dump(sootClass);
                 }
             }

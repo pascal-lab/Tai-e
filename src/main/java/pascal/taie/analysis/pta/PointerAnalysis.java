@@ -91,14 +91,14 @@ public class PointerAnalysis extends ProgramAnalysis {
                 new ExceptionAnalysis(),
                 new ReflectionAnalysis()
         );
-        if (World.getOptions().getJavaVersion() < 9) {
+        if (World.get().getOptions().getJavaVersion() < 9) {
             // current reference handler doesn't support Java 9+
             plugin.addPlugin(new ReferenceHandler());
         }
         if (InvokeDynamicAnalysis.useMethodHandle()) {
             plugin.addPlugin(new InvokeDynamicAnalysis());
         }
-        if (World.getOptions().getJavaVersion() >= 8) {
+        if (World.get().getOptions().getJavaVersion() >= 8) {
             plugin.addPlugin(new LambdaAnalysis());
         }
         if (options.getString("taint-config") != null) {

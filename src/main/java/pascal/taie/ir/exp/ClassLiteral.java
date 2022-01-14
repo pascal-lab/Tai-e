@@ -37,7 +37,7 @@ public class ClassLiteral implements ReferenceLiteral {
     public ClassType getType() {
         // TODO: cache Class type in a static field? Doing so
         //  requires to reset the field when resetting World.
-        return World.getTypeManager().getClassType(CLASS);
+        return World.get().getTypeManager().getClassType(CLASS);
     }
 
     public Type getTypeValue() {

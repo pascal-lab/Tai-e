@@ -70,7 +70,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     protected static NativeModel getNativeModel(
             TypeManager typeManager, ClassHierarchy hierarchy) {
-        return World.getOptions().enableNativeModel() ?
+        return World.get().getOptions().enableNativeModel() ?
                 new DefaultNativeModel(typeManager, hierarchy) :
                 new EmptyNativeModel();
     }
