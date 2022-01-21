@@ -14,6 +14,19 @@ package pascal.taie.frontend.soot;
 
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.AnnotationElement;
+import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.BooleanElement;
+import pascal.taie.language.annotation.ClassElement;
+import pascal.taie.language.annotation.DoubleElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.EnumElement;
+import pascal.taie.language.annotation.FloatElement;
+import pascal.taie.language.annotation.IntElement;
+import pascal.taie.language.annotation.LongElement;
+import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
@@ -23,6 +36,7 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeManager;
 import pascal.taie.util.collection.Lists;
+import pascal.taie.util.collection.Maps;
 import soot.ArrayType;
 import soot.BooleanType;
 import soot.ByteType;
@@ -40,8 +54,23 @@ import soot.SootFieldRef;
 import soot.SootMethod;
 import soot.SootMethodRef;
 import soot.VoidType;
+import soot.tagkit.AbstractHost;
+import soot.tagkit.AnnotationAnnotationElem;
+import soot.tagkit.AnnotationArrayElem;
+import soot.tagkit.AnnotationBooleanElem;
+import soot.tagkit.AnnotationClassElem;
+import soot.tagkit.AnnotationDoubleElem;
+import soot.tagkit.AnnotationElem;
+import soot.tagkit.AnnotationEnumElem;
+import soot.tagkit.AnnotationFloatElem;
+import soot.tagkit.AnnotationIntElem;
+import soot.tagkit.AnnotationLongElem;
+import soot.tagkit.AnnotationStringElem;
+import soot.tagkit.AnnotationTag;
+import soot.tagkit.VisibilityAnnotationTag;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.language.type.VoidType.VOID;
@@ -115,7 +144,8 @@ class Converter {
                 new JField(convertClass(sootField.getDeclaringClass()),
                         sootField.getName(),
                         Modifiers.convert(sootField.getModifiers()),
-                        convertType(sootField.getType())));
+                        convertType(sootField.getType()),
+                        convertAnnotations(sootField)));
     }
 
     JMethod convertMethod(SootMethod sootMethod) {
@@ -129,6 +159,7 @@ class Converter {
             // TODO: convert attributes
             return new JMethod(convertClass(m.getDeclaringClass()),
                     m.getName(), Modifiers.convert(m.getModifiers()),
+                    convertAnnotations(sootMethod),
                     paramTypes, returnType, exceptions, sootMethod);
         });
     }
@@ -150,5 +181,56 @@ class Converter {
             return MethodRef.get(cls, ref.getName(), paramTypes, returnType,
                     ref.isStatic());
         });
+    }
+
+    AnnotationHolder convertAnnotations(AbstractHost host) {
+        var tag = (VisibilityAnnotationTag) host.getTag(VisibilityAnnotationTag.NAME);
+        if (tag != null) {
+            return AnnotationHolder.make(
+                    Lists.map(tag.getAnnotations(), this::convertAnnotation));
+        } else {
+            return AnnotationHolder.make();
+        }
+    }
+
+    Annotation convertAnnotation(AnnotationTag tag) {
+        String annotationType = tag.getType();
+        Map<String, Element> elements = Maps.newHybridMap();
+        tag.getElems().forEach(e -> {
+            String name = e.getName();
+            Element elem = convertAnnotationElement(e);
+            elements.put(name, elem);
+        });
+        return new Annotation(annotationType, elements);
+    }
+
+    Element convertAnnotationElement(AnnotationElem elem) {
+        if (elem instanceof AnnotationStringElem e) {
+            return new StringElement(e.getValue());
+        } else if (elem instanceof AnnotationClassElem e) {
+            return new ClassElement(e.getDesc());
+        } else if (elem instanceof AnnotationAnnotationElem e) {
+            return new AnnotationElement(convertAnnotation(e.getValue()));
+        } else if (elem instanceof AnnotationArrayElem e) {
+            return new ArrayElement(e.getValues()
+                    .stream()
+                    .map(this::convertAnnotationElement)
+                    .toList());
+        } else if (elem instanceof AnnotationEnumElem e) {
+            return new EnumElement(e.getTypeName(), e.getConstantName());
+        } else if (elem instanceof AnnotationIntElem e) {
+            return new IntElement(e.getValue());
+        } else if (elem instanceof AnnotationBooleanElem e) {
+            return new BooleanElement(e.getValue());
+        } else if (elem instanceof AnnotationFloatElem e) {
+            return new FloatElement(e.getValue());
+        } else if (elem instanceof AnnotationDoubleElem e) {
+            return new DoubleElement(e.getValue());
+        } else if (elem instanceof AnnotationLongElem e) {
+            return new LongElement(e.getValue());
+        } else {
+            throw new SootFrontendException(
+                    "Unable to handle AnnotationElem: " + elem);
+        }
     }
 }

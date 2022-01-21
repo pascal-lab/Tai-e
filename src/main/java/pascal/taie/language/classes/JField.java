@@ -13,6 +13,7 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.Type;
 
 import java.util.Set;
@@ -26,8 +27,8 @@ public class JField extends ClassMember {
     private final Type type;
 
     public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
-                  Type type) {
-        super(declaringClass, name, modifiers);
+                  Type type, AnnotationHolder annotationHolder) {
+        super(declaringClass, name, modifiers, annotationHolder);
         this.type = type;
         this.signature = StringReps.getSignatureOf(this);
     }

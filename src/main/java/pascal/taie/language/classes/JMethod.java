@@ -15,6 +15,7 @@ package pascal.taie.language.classes;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
@@ -46,9 +47,10 @@ public class JMethod extends ClassMember {
     private IR ir;
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
+                   AnnotationHolder annotationHolder,
                    List<Type> paramTypes, Type returnType,
                    List<ClassType> exceptions, Object methodSource) {
-        super(declaringClass, name, modifiers);
+        super(declaringClass, name, modifiers, annotationHolder);
         this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
         this.exceptions = List.copyOf(exceptions);

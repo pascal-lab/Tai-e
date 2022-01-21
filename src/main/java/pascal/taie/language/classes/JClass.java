@@ -12,6 +12,9 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.language.annotation.Annotated;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.AbstractResultHolder;
 
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
  * information of a class, including class name, modifiers, declared
  * methods and fields, etc.
  */
-public class JClass extends AbstractResultHolder {
+public class JClass extends AbstractResultHolder implements Annotated {
 
     private final JClassLoader loader;
 
@@ -54,7 +57,7 @@ public class JClass extends AbstractResultHolder {
 
     private Map<Subsignature, JMethod> declaredMethods;
 
-    // TODO: annotations
+    private AnnotationHolder annotationHolder;
 
     /**
      * If this class is application class.
@@ -92,6 +95,7 @@ public class JClass extends AbstractResultHolder {
                         .collect(Collectors.toMap(JMethod::getSubsignature, m -> m,
                                 (oldV, newV) -> oldV, LinkedHashMap::new))
         );
+        annotationHolder = builder.getAnnotationHolder();
         isApplication = builder.isApplication();
     }
 
@@ -116,7 +120,7 @@ public class JClass extends AbstractResultHolder {
     }
 
     public Set<Modifier> getModifiers() {
-        return Collections.unmodifiableSet(modifiers);
+        return modifiers;
     }
 
     public boolean isPublic() {
@@ -211,6 +215,22 @@ public class JClass extends AbstractResultHolder {
     public @Nullable
     JMethod getClinit() {
         return getDeclaredMethod(Subsignature.getClinit());
+    }
+
+    @Override
+    public boolean hasAnnotation(String annotationType) {
+        return annotationHolder.hasAnnotation(annotationType);
+    }
+
+    @Nullable
+    @Override
+    public Annotation getAnnotation(String annotationType) {
+        return annotationHolder.getAnnotation(annotationType);
+    }
+
+    @Override
+    public Collection<Annotation> getAnnotations() {
+        return annotationHolder.getAnnotations();
     }
 
     public boolean isApplication() {

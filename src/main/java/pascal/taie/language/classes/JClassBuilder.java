@@ -12,6 +12,7 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
 
 import java.util.Collection;
@@ -38,6 +39,8 @@ public interface JClassBuilder {
     Collection<JField> getDeclaredFields();
 
     Collection<JMethod> getDeclaredMethods();
+
+    AnnotationHolder getAnnotationHolder();
 
     /**
      * @return true if this class is application class, otherwise false.

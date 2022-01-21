@@ -12,10 +12,15 @@
 
 package pascal.taie.language.classes;
 
-import java.util.Collections;
+import pascal.taie.language.annotation.Annotated;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.AnnotationHolder;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Set;
 
-public abstract class ClassMember {
+public abstract class ClassMember implements Annotated {
 
     protected final JClass declaringClass;
 
@@ -23,15 +28,19 @@ public abstract class ClassMember {
 
     protected final Set<Modifier> modifiers;
 
+    protected final AnnotationHolder annotationHolder;
+
     protected String signature;
 
-    // TODO: annotations, source location
+    // TODO: source location
 
     protected ClassMember(JClass declaringClass, String name,
-                          Set<Modifier> modifiers) {
+                          Set<Modifier> modifiers,
+                          AnnotationHolder annotationHolder) {
         this.declaringClass = declaringClass;
         this.name = name;
         this.modifiers = modifiers;
+        this.annotationHolder = annotationHolder;
     }
 
     /**
@@ -50,7 +59,7 @@ public abstract class ClassMember {
     }
 
     public Set<Modifier> getModifiers() {
-        return Collections.unmodifiableSet(modifiers);
+        return modifiers;
     }
 
     public boolean isPublic() {
@@ -67,6 +76,22 @@ public abstract class ClassMember {
 
     public boolean isStatic() {
         return Modifier.hasStatic(modifiers);
+    }
+
+    @Override
+    public boolean hasAnnotation(String annotationType) {
+        return annotationHolder.hasAnnotation(annotationType);
+    }
+
+    @Nullable
+    @Override
+    public Annotation getAnnotation(String annotationType) {
+        return annotationHolder.getAnnotation(annotationType);
+    }
+
+    @Override
+    public Collection<Annotation> getAnnotations() {
+        return annotationHolder.getAnnotations();
     }
 
     @Override

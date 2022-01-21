@@ -13,38 +13,29 @@
 package pascal.taie.language.annotation;
 
 import javax.annotation.Nullable;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 
 public class Annotation {
-
-    private final RetentionPolicy retention;
 
     private final String annotationType;
 
     private final Map<String, Element> elements;
 
-    public Annotation(RetentionPolicy retention,
-                      String annotationType,
+    public Annotation(String annotationType,
                       Map<String, Element> elements) {
-        this.retention = retention;
         this.annotationType = annotationType;
         this.elements = Map.copyOf(elements);
     }
 
-    public RetentionPolicy getRetention() {
-        return retention;
-    }
-
-    public String getAnnotationType() {
+    public String getType() {
         return annotationType;
     }
 
-    public boolean hasElement(String key) {
-        return elements.containsKey(key);
+    public boolean hasElement(String name) {
+        return elements.containsKey(name);
     }
 
-    @Nullable Element getElement(String key) {
-        return elements.get(key);
+    public @Nullable Element getElement(String name) {
+        return elements.get(name);
     }
 }

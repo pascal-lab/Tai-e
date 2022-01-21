@@ -12,6 +12,7 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JField;
@@ -79,6 +80,11 @@ class SootClassBuilder implements JClassBuilder {
     @Override
     public Collection<JMethod> getDeclaredMethods() {
         return Lists.map(sootClass.getMethods(), converter::convertMethod);
+    }
+
+    @Override
+    public AnnotationHolder getAnnotationHolder() {
+        return converter.convertAnnotations(sootClass);
     }
 
     @Override

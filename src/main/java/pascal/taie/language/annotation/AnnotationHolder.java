@@ -14,28 +14,39 @@ package pascal.taie.language.annotation;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class AnnotationHolder implements Annotated {
+public class AnnotationHolder {
 
     private final Map<String, Annotation> annotations;
 
-    public AnnotationHolder(Map<String, Annotation> annotations) {
-        this.annotations = Map.copyOf(annotations);
+    protected AnnotationHolder(Collection<Annotation> annotations) {
+        this.annotations = annotations.stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        Annotation::getType, a -> a));
     }
 
-    @Override
     public boolean hasAnnotation(String annotationType) {
         return annotations.containsKey(annotationType);
     }
 
-    @Override
     public @Nullable Annotation getAnnotation(String annotationType) {
         return annotations.get(annotationType);
     }
 
-    @Override
     public Collection<Annotation> getAnnotations() {
         return annotations.values();
+    }
+
+    private static final AnnotationHolder EMPTY_HOLDER = new AnnotationHolder(List.of());
+
+    public static AnnotationHolder make(Collection<Annotation> map) {
+        return map.isEmpty() ? EMPTY_HOLDER : new AnnotationHolder(map);
+    }
+
+    public static AnnotationHolder make() {
+        return EMPTY_HOLDER;
     }
 }

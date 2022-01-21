@@ -12,10 +12,6 @@
 
 package pascal.taie.util;
 
-import pascal.taie.util.collection.Streams;
-
-import java.util.Collection;
-
 /**
  * Static utility methods for {@link String}.
  */
