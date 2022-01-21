@@ -26,7 +26,7 @@ import pascal.taie.language.classes.JMethod;
 /**
  * Analysis plugin interface.
  * This interface contains callbacks for pointer analysis events.
- * It is suppose to provide a mechanism for extending functionalities
+ * It is supposed to provide a mechanism for extending functionalities
  * of the analysis, so its implementations would have side effects
  * on pointer analysis and should be thread-safe.
  */
