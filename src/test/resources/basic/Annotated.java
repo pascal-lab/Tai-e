@@ -1,16 +1,60 @@
-@Anno
+@Year(2022)
+@Author(@Name(family = "Tan", given = "Tian"))
 class Annotated {
 
     @Anno
+    @Year
     private Object o;
 
-    @IntAnno
-//    @IntAnno(1)
+    @Year(1999)
     private int i;
 
-    @Anno
-    Object foo(@Anno Object p) {
-        @Anno Object r = p;
+    @Cards({ Mahjong.FENG, Mahjong.TIAO })
+    private String s;
+
+    Object foo(@Anno Object p1, int p2, @Copyright("Free") String p3) {
+        @Anno Object r = p1;
         return r;
     }
+
+    @ClassAnno(String.class)
+    @Copyright("2022 PASCAL group")
+    void baz() {
+    }
+
+    void notAnnotated() {
+    }
+}
+
+@interface Anno {
+}
+
+@interface ClassAnno {
+    Class<?> value();
+}
+
+@interface Year {
+    int value() default 0;
+}
+
+@interface Copyright {
+    String value();
+}
+
+@interface Name {
+    String family();
+
+    String given();
+}
+
+@interface Author {
+    Name value();
+}
+
+enum Mahjong {
+    TIAO, WAN, TONG, FENG, JIAN
+}
+
+@interface Cards {
+    Mahjong[] value();
 }
