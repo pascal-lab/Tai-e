@@ -38,4 +38,29 @@ public class Annotation {
     public @Nullable Element getElement(String name) {
         return elements.get(name);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("@");
+        sb.append(annotationType);
+        int elems = elements.size();
+        if (elems > 0) {
+            sb.append('(');
+            if (elems == 1 && elements.containsKey("value")) {
+                // single-element annotation
+                sb.append(elements.get("value"));
+            } else {
+                // normal annotation
+                int count = 0;
+                for (var e : elements.entrySet()) {
+                    sb.append(e.getKey()).append('=').append(e.getValue());
+                    if (++count < elems) {
+                        sb.append(',');
+                    }
+                }
+            }
+            sb.append(')');
+        }
+        return sb.toString();
+    }
 }

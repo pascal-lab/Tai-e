@@ -14,4 +14,9 @@ package pascal.taie.language.annotation;
 
 // TODO: resolve classDescriptor to Type?
 public record ClassElement(String classDescriptor) implements Element {
+
+    @Override
+    public String toString() {
+        return classDescriptor + ".class";
+    }
 }

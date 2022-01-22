@@ -14,4 +14,9 @@ package pascal.taie.language.annotation;
 
 public record EnumElement(String type, String name)
         implements Element {
+
+    @Override
+    public String toString() {
+        return type + "." + name;
+    }
 }
