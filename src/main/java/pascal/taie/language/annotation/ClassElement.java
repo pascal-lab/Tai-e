@@ -12,7 +12,11 @@
 
 package pascal.taie.language.annotation;
 
-// TODO: resolve classDescriptor to Type?
+/**
+ * Represents class constant elements.
+ * We uses {@code String} instead of {@code Type} to represent the type
+ * information of class element for the same reason as {@link Annotation}.
+ */
 public record ClassElement(String classDescriptor) implements Element {
 
     @Override

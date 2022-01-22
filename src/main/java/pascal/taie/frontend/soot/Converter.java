@@ -189,21 +189,34 @@ class Converter {
         });
     }
 
+    /**
+     * @return an annotation holder that contains all annotations in {@code host}.
+     * @see AbstractHost
+     */
     static AnnotationHolder convertAnnotations(AbstractHost host) {
         var tag = (VisibilityAnnotationTag) host.getTag(VisibilityAnnotationTag.NAME);
         return convertAnnotations(tag);
     }
 
+    /**
+     * @return an annotation holder that contains all annotations in {@code tag}.
+     * @see VisibilityAnnotationTag
+     */
     private static AnnotationHolder convertAnnotations(
             @Nullable VisibilityAnnotationTag tag) {
+        // in Soot, each VisibilityAnnotationTag may contain multiple annotations
+        // (named AnnotationTag, which is a bit confusing).
         return tag == null ? AnnotationHolder.emptyHolder() :
+                // converts all annotations in tag
                 AnnotationHolder.make(Lists.map(tag.getAnnotations(),
                         Converter::convertAnnotation));
     }
 
     private static Annotation convertAnnotation(AnnotationTag tag) {
+        // AnnotationTag is the class that represent an annotation in Soot
         String annotationType = StringReps.toTaieTypeDesc(tag.getType());
         Map<String, Element> elements = Maps.newHybridMap();
+        // converts all elements in tag
         tag.getElems().forEach(e -> {
             String name = e.getName();
             Element elem = convertAnnotationElement(e);
@@ -242,8 +255,16 @@ class Converter {
         }
     }
 
+    /**
+     * Converts all annotations of parameters of {@code sootMethod} to a list
+     * of {@link AnnotationHolder}, one for annotations of each parameter.
+     *
+     * @see VisibilityParameterAnnotationTag
+     */
     private static @Nullable List<AnnotationHolder> convertParamAnnotations(
             SootMethod sootMethod) {
+        // in Soot, each VisibilityParameterAnnotationTag contains
+        // the annotations for all parameters in the SootMethod
         var tag = (VisibilityParameterAnnotationTag)
                 sootMethod.getTag(VisibilityParameterAnnotationTag.NAME);
         return tag == null ? null :

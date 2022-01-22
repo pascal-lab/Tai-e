@@ -18,8 +18,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Container of annotations.
+ * This class makes it easy for a class to implement {@link Annotated}.
+ */
 public class AnnotationHolder {
 
+    /**
+     * Map from annotation type to corresponding annotation in this holder.
+     */
     private final Map<String, Annotation> annotations;
 
     protected AnnotationHolder(Collection<Annotation> annotations) {
@@ -42,10 +49,17 @@ public class AnnotationHolder {
 
     private static final AnnotationHolder EMPTY_HOLDER = new AnnotationHolder(Set.of());
 
-    public static AnnotationHolder make(Collection<Annotation> map) {
-        return map.isEmpty() ? EMPTY_HOLDER : new AnnotationHolder(map);
+    /**
+     * Creates an annotation holder that contains the annotations
+     * in given collection.
+     */
+    public static AnnotationHolder make(Collection<Annotation> annotations) {
+        return annotations.isEmpty() ? EMPTY_HOLDER : new AnnotationHolder(annotations);
     }
 
+    /**
+     * @return an annotation holder that contains no annotations.
+     */
     public static AnnotationHolder emptyHolder() {
         return EMPTY_HOLDER;
     }

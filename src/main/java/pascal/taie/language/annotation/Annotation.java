@@ -12,13 +12,34 @@
 
 package pascal.taie.language.annotation;
 
+import pascal.taie.util.collection.Views;
+
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Set;
 
+/**
+ * Represents annotations in the program.
+ * Each annotation contains 0 or more named elements.
+ *
+ * Currently, we use {@code String} (instead of {@code JClass}
+ * or {@code ClassType}) to represent the type of an annotation.
+ * This makes it easier for the frontends to extract annotations
+ * from the program (The type string is ready in the program,
+ * and the frontends do not need to resolve the string to {@code JClass}).
+ *
+ * TODO: add ElementType and RetentionPolicy.
+ */
 public class Annotation {
 
+    /**
+     * String representation of type of this annotation.
+     */
     private final String annotationType;
 
+    /**
+     * Map from names to corresponding elements in this annotation.
+     */
     private final Map<String, Element> elements;
 
     public Annotation(String annotationType,
@@ -37,6 +58,20 @@ public class Annotation {
 
     public @Nullable Element getElement(String name) {
         return elements.get(name);
+    }
+
+    /**
+     * @return all name-element entries in this annotation.
+     */
+    public Set<Entry> getElementEntries() {
+        return Views.toMappedSet(elements.entrySet(),
+                e -> new Entry(e.getKey(), e.getValue()));
+    }
+
+    /**
+     * Represents name-element entries in annotations.
+     */
+    public record Entry(String name, Element element) {
     }
 
     @Override

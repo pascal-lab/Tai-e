@@ -95,16 +95,28 @@ public class JMethod extends ClassMember {
         return paramTypes;
     }
 
+    /**
+     * @return {@code true} if the {@code i}-th parameter has annotation
+     * of {@code type}.
+     */
     public boolean hasParamAnnotation(int i, String type) {
         return paramAnnotations != null &&
                 paramAnnotations.get(i).hasAnnotation(type);
     }
 
+    /**
+     * @return the annotation attached on the {@code i}-th parameter that is
+     * of {@code type}. If such annotation is absent, {@code null} is returned.
+     */
     public @Nullable Annotation getParamAnnotation(int i, String type) {
         return paramAnnotations == null ? null :
                 paramAnnotations.get(i).getAnnotation(type);
     }
 
+    /**
+     * @return all annotations attached on the {@code i}-th parameter. If the
+     * parameter does not have annotation, an empty collection is returned.
+     */
     public Collection<Annotation> getParamAnnotations(int i) {
         return paramAnnotations == null ? Set.of() :
                 paramAnnotations.get(i).getAnnotations();

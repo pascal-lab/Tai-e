@@ -10,14 +10,11 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.language.annotation;
-
 /**
- * Represents elements attached on {@link Annotation}.
+ * Provides representation of annotations in the program being analyzed.
  *
- * Java supports multiple types of annotation elements.
- * For more information, please refer to
- * https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-9.6.1
+ * @see pascal.taie.language.annotation.Annotated
+ * @see pascal.taie.language.annotation.Annotation
+ * @see pascal.taie.language.annotation.Element
  */
-public interface Element {
-}
+package pascal.taie.language.annotation;
