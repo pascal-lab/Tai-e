@@ -84,7 +84,7 @@ class SootClassBuilder implements JClassBuilder {
 
     @Override
     public AnnotationHolder getAnnotationHolder() {
-        return converter.convertAnnotations(sootClass);
+        return Converter.convertAnnotations(sootClass);
     }
 
     @Override

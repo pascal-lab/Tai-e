@@ -12,6 +12,6 @@
 
 package pascal.taie.language.annotation;
 
-public record EnumElement(String enumType, String enumValue)
+public record EnumElement(String type, String name)
         implements Element {
 }

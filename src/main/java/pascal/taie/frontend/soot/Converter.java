@@ -31,6 +31,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
@@ -188,20 +189,20 @@ class Converter {
         });
     }
 
-    AnnotationHolder convertAnnotations(AbstractHost host) {
+    static AnnotationHolder convertAnnotations(AbstractHost host) {
         var tag = (VisibilityAnnotationTag) host.getTag(VisibilityAnnotationTag.NAME);
         return convertAnnotations(tag);
     }
 
-    private AnnotationHolder convertAnnotations(
+    private static AnnotationHolder convertAnnotations(
             @Nullable VisibilityAnnotationTag tag) {
         return tag == null ? AnnotationHolder.emptyHolder() :
-                AnnotationHolder.make(
-                        Lists.map(tag.getAnnotations(), this::convertAnnotation));
+                AnnotationHolder.make(Lists.map(tag.getAnnotations(),
+                        Converter::convertAnnotation));
     }
 
-    private Annotation convertAnnotation(AnnotationTag tag) {
-        String annotationType = tag.getType();
+    private static Annotation convertAnnotation(AnnotationTag tag) {
+        String annotationType = StringReps.toTaieTypeDesc(tag.getType());
         Map<String, Element> elements = Maps.newHybridMap();
         tag.getElems().forEach(e -> {
             String name = e.getName();
@@ -211,18 +212,20 @@ class Converter {
         return new Annotation(annotationType, elements);
     }
 
-    private Element convertAnnotationElement(AnnotationElem elem) {
+    private static Element convertAnnotationElement(AnnotationElem elem) {
         if (elem instanceof AnnotationStringElem e) {
             return new StringElement(e.getValue());
         } else if (elem instanceof AnnotationClassElem e) {
-            return new ClassElement(e.getDesc());
+            return new ClassElement(StringReps.toTaieTypeDesc(e.getDesc()));
         } else if (elem instanceof AnnotationAnnotationElem e) {
             return new AnnotationElement(convertAnnotation(e.getValue()));
         } else if (elem instanceof AnnotationArrayElem e) {
-            return new ArrayElement(
-                    Lists.map(e.getValues(), this::convertAnnotationElement));
+            return new ArrayElement(Lists.map(e.getValues(),
+                    Converter::convertAnnotationElement));
         } else if (elem instanceof AnnotationEnumElem e) {
-            return new EnumElement(e.getTypeName(), e.getConstantName());
+            return new EnumElement(
+                    StringReps.toTaieTypeDesc(e.getTypeName()),
+                    e.getConstantName());
         } else if (elem instanceof AnnotationIntElem e) {
             return new IntElement(e.getValue());
         } else if (elem instanceof AnnotationBooleanElem e) {
@@ -239,11 +242,11 @@ class Converter {
         }
     }
 
-    private @Nullable List<AnnotationHolder> convertParamAnnotations(
+    private static @Nullable List<AnnotationHolder> convertParamAnnotations(
             SootMethod sootMethod) {
         var tag = (VisibilityParameterAnnotationTag)
                 sootMethod.getTag(VisibilityParameterAnnotationTag.NAME);
         return tag == null ? null :
-                Lists.map(tag.getVisibilityAnnotations(), this::convertAnnotations);
+                Lists.map(tag.getVisibilityAnnotations(), Converter::convertAnnotations);
     }
 }
