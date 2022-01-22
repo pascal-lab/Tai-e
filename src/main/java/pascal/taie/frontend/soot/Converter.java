@@ -68,7 +68,9 @@ import soot.tagkit.AnnotationLongElem;
 import soot.tagkit.AnnotationStringElem;
 import soot.tagkit.AnnotationTag;
 import soot.tagkit.VisibilityAnnotationTag;
+import soot.tagkit.VisibilityParameterAnnotationTag;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -159,8 +161,11 @@ class Converter {
             // TODO: convert attributes
             return new JMethod(convertClass(m.getDeclaringClass()),
                     m.getName(), Modifiers.convert(m.getModifiers()),
+                    paramTypes, returnType, exceptions,
                     convertAnnotations(sootMethod),
-                    paramTypes, returnType, exceptions, sootMethod);
+                    convertParamAnnotations(sootMethod),
+                    sootMethod
+            );
         });
     }
 
@@ -185,15 +190,17 @@ class Converter {
 
     AnnotationHolder convertAnnotations(AbstractHost host) {
         var tag = (VisibilityAnnotationTag) host.getTag(VisibilityAnnotationTag.NAME);
-        if (tag != null) {
-            return AnnotationHolder.make(
-                    Lists.map(tag.getAnnotations(), this::convertAnnotation));
-        } else {
-            return AnnotationHolder.make();
-        }
+        return convertAnnotations(tag);
     }
 
-    Annotation convertAnnotation(AnnotationTag tag) {
+    private AnnotationHolder convertAnnotations(
+            @Nullable VisibilityAnnotationTag tag) {
+        return tag == null ? AnnotationHolder.emptyHolder() :
+                AnnotationHolder.make(
+                        Lists.map(tag.getAnnotations(), this::convertAnnotation));
+    }
+
+    private Annotation convertAnnotation(AnnotationTag tag) {
         String annotationType = tag.getType();
         Map<String, Element> elements = Maps.newHybridMap();
         tag.getElems().forEach(e -> {
@@ -204,7 +211,7 @@ class Converter {
         return new Annotation(annotationType, elements);
     }
 
-    Element convertAnnotationElement(AnnotationElem elem) {
+    private Element convertAnnotationElement(AnnotationElem elem) {
         if (elem instanceof AnnotationStringElem e) {
             return new StringElement(e.getValue());
         } else if (elem instanceof AnnotationClassElem e) {
@@ -212,10 +219,8 @@ class Converter {
         } else if (elem instanceof AnnotationAnnotationElem e) {
             return new AnnotationElement(convertAnnotation(e.getValue()));
         } else if (elem instanceof AnnotationArrayElem e) {
-            return new ArrayElement(e.getValues()
-                    .stream()
-                    .map(this::convertAnnotationElement)
-                    .toList());
+            return new ArrayElement(
+                    Lists.map(e.getValues(), this::convertAnnotationElement));
         } else if (elem instanceof AnnotationEnumElem e) {
             return new EnumElement(e.getTypeName(), e.getConstantName());
         } else if (elem instanceof AnnotationIntElem e) {
@@ -232,5 +237,13 @@ class Converter {
             throw new SootFrontendException(
                     "Unable to handle AnnotationElem: " + elem);
         }
+    }
+
+    private @Nullable List<AnnotationHolder> convertParamAnnotations(
+            SootMethod sootMethod) {
+        var tag = (VisibilityParameterAnnotationTag)
+                sootMethod.getTag(VisibilityParameterAnnotationTag.NAME);
+        return tag == null ? null :
+                Lists.map(tag.getVisibilityAnnotations(), this::convertAnnotations);
     }
 }

@@ -14,8 +14,8 @@ package pascal.taie.language.annotation;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AnnotationHolder {
@@ -40,13 +40,13 @@ public class AnnotationHolder {
         return annotations.values();
     }
 
-    private static final AnnotationHolder EMPTY_HOLDER = new AnnotationHolder(List.of());
+    private static final AnnotationHolder EMPTY_HOLDER = new AnnotationHolder(Set.of());
 
     public static AnnotationHolder make(Collection<Annotation> map) {
         return map.isEmpty() ? EMPTY_HOLDER : new AnnotationHolder(map);
     }
 
-    public static AnnotationHolder make() {
+    public static AnnotationHolder emptyHolder() {
         return EMPTY_HOLDER;
     }
 }

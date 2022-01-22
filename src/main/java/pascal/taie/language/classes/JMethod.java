@@ -15,11 +15,14 @@ package pascal.taie.language.classes;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +41,9 @@ public class JMethod extends ClassMember {
 
     private final Subsignature subsignature;
 
+    @Nullable
+    private final List<AnnotationHolder> paramAnnotations;
+
     /**
      * Source of the body (and/or other information) of this method.
      * IRBuilder can use this to build method IR.
@@ -47,15 +53,17 @@ public class JMethod extends ClassMember {
     private IR ir;
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
+                   List<Type> paramTypes, Type returnType, List<ClassType> exceptions,
                    AnnotationHolder annotationHolder,
-                   List<Type> paramTypes, Type returnType,
-                   List<ClassType> exceptions, Object methodSource) {
+                   @Nullable List<AnnotationHolder> paramAnnotations,
+                   Object methodSource) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
         this.exceptions = List.copyOf(exceptions);
         this.signature = StringReps.getSignatureOf(this);
         this.subsignature = Subsignature.get(name, paramTypes, returnType);
+        this.paramAnnotations = paramAnnotations;
         this.methodSource = methodSource;
     }
 
@@ -85,6 +93,21 @@ public class JMethod extends ClassMember {
 
     public List<Type> getParamTypes() {
         return paramTypes;
+    }
+
+    public boolean hasParamAnnotation(int i, String type) {
+        return paramAnnotations != null &&
+                paramAnnotations.get(i).hasAnnotation(type);
+    }
+
+    public @Nullable Annotation getParamAnnotation(int i, String type) {
+        return paramAnnotations == null ? null :
+                paramAnnotations.get(i).getAnnotation(type);
+    }
+
+    public Collection<Annotation> getParamAnnotations(int i) {
+        return paramAnnotations == null ? Set.of() :
+                paramAnnotations.get(i).getAnnotations();
     }
 
     public Type getReturnType() {
