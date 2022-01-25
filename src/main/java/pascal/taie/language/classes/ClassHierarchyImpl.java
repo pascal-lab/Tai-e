@@ -22,16 +22,14 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Maps.newMap;
-import static pascal.taie.util.collection.Maps.newSmallMap;
-import static pascal.taie.util.collection.Sets.newHybridSet;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 
@@ -42,24 +40,24 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     private JClassLoader bootstrapLoader;
 
     // TODO: properly manage class loaders
-    private final Map<String, JClassLoader> loaders = newSmallMap();
+    private final Map<String, JClassLoader> loaders = Maps.newSmallMap();
 
     private JClass JavaLangObject;
 
     /**
      * Map from each interface to its direct subinterfaces.
      */
-    private final Map<JClass, Set<JClass>> directSubinterfaces = newMap();
+    private final MultiMap<JClass, JClass> directSubinterfaces = Maps.newMultiMap();
 
     /**
      * Map from each interface to its direct implementors.
      */
-    private final Map<JClass, Set<JClass>> directImplementors = newMap();
+    private final MultiMap<JClass, JClass> directImplementors = Maps.newMultiMap();
 
     /**
      * Map from each class to its direct subclasses.
      */
-    private final Map<JClass, Set<JClass>> directSubclasses = newMap();
+    private final MultiMap<JClass, JClass> directSubclasses = Maps.newMultiMap();
 
     /**
      * Map from a class to its direct inner classes.
@@ -69,7 +67,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     /**
      * Cache results of method dispatch.
      */
-    private final Map<JClass, Map<Subsignature, JMethod>> dispatchTable = newMap();
+    private final TwoKeyMap<JClass, Subsignature, JMethod> dispatchTable = Maps.newTwoKeyMap();
 
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
@@ -106,21 +104,15 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // Add direct subinterface
         if (jclass.isInterface()) {
             jclass.getInterfaces().forEach(iface ->
-                    directSubinterfaces.computeIfAbsent(iface,
-                                    i -> newHybridSet())
-                            .add(jclass));
+                    directSubinterfaces.put(iface, jclass));
         } else {
             // add direct implementors
             jclass.getInterfaces().forEach(iface ->
-                    directImplementors.computeIfAbsent(iface,
-                                    i -> newHybridSet())
-                            .add(jclass));
+                    directImplementors.put(iface, jclass));
             // add direct subclasses
             JClass superClass = jclass.getSuperClass();
             if (superClass != null) {
-                directSubclasses.computeIfAbsent(superClass,
-                                c -> newHybridSet())
-                        .add(jclass);
+                directSubclasses.put(superClass, jclass);
             }
         }
         // add inner classes
@@ -288,12 +280,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     public @Nullable
     JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
-        JMethod target = dispatchTable.computeIfAbsent(receiverClass,
-                c -> newMap()).get(subsignature);
+        JMethod target = dispatchTable.get(receiverClass, subsignature);
         if (target == null) {
             target = lookupMethod(receiverClass, subsignature, false);
             if (target != null) {
-                dispatchTable.get(receiverClass).put(subsignature, target);
+                dispatchTable.put(receiverClass, subsignature, target);
             } else {
                 logger.debug("Failed to dispatch {} on {}",
                         subsignature, receiverClass);
@@ -425,7 +416,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     public Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude) {
         // TODO: cache results?
-        Set<JClass> subclasses = newHybridSet();
+        Set<JClass> subclasses = Sets.newHybridSet();
         getAllSubclassesOf0(jclass, subclasses, selfInclude);
         return subclasses;
     }
@@ -447,17 +438,17 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     public Collection<JClass> getDirectSubinterfacesOf(JClass jclass) {
-        return directSubinterfaces.getOrDefault(jclass, Set.of());
+        return directSubinterfaces.get(jclass);
     }
 
     @Override
     public Collection<JClass> getDirectImplementorsOf(JClass jclass) {
-        return directImplementors.getOrDefault(jclass, Set.of());
+        return directImplementors.get(jclass);
     }
 
     @Override
     public Collection<JClass> getDirectSubclassesOf(JClass jclass) {
-        return directSubclasses.getOrDefault(jclass, Set.of());
+        return directSubclasses.get(jclass);
     }
 
     @Override
