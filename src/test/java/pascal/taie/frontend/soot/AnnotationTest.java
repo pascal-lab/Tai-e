@@ -12,7 +12,6 @@
 
 package pascal.taie.frontend.soot;
 
-import org.junit.Before;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -20,14 +19,21 @@ import pascal.taie.language.classes.JClass;
 
 public class AnnotationTest {
 
-    @Before
-    public void setUp() throws Exception {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/basic", "-m", "Annotated");
+    private static void buildWorld(String main) {
+        Main.buildWorld("-pp", "-cp", "src/test/resources/basic", "-m", main);
     }
 
     @Test
     public void testAnnotation() {
+        buildWorld("Annotated");
         JClass main = World.get().getClassHierarchy().getClass("Annotated");
+        AnnotationPrinter.print(main);
+    }
+
+    @Test
+    public void testAnnotationJava() {
+        buildWorld("AnnotatedJava");
+        JClass main = World.get().getClassHierarchy().getClass("AnnotatedJava");
         AnnotationPrinter.print(main);
     }
 }

@@ -206,7 +206,8 @@ class Converter {
             @Nullable VisibilityAnnotationTag tag) {
         // in Soot, each VisibilityAnnotationTag may contain multiple annotations
         // (named AnnotationTag, which is a bit confusing).
-        return tag == null ? AnnotationHolder.emptyHolder() :
+        return tag == null || tag.getAnnotations() == null ?
+                AnnotationHolder.emptyHolder() :
                 // converts all annotations in tag
                 AnnotationHolder.make(Lists.map(tag.getAnnotations(),
                         Converter::convertAnnotation));
@@ -229,6 +230,9 @@ class Converter {
         if (elem instanceof AnnotationStringElem e) {
             return new StringElement(e.getValue());
         } else if (elem instanceof AnnotationClassElem e) {
+            // FIXME: .java frontend and .class frontend have different
+            //  representations for AnnotationClassElem, and current handling
+            //  does not treat .java very well.
             return new ClassElement(StringReps.toTaieTypeDesc(e.getDesc()));
         } else if (elem instanceof AnnotationAnnotationElem e) {
             return new AnnotationElement(convertAnnotation(e.getValue()));
