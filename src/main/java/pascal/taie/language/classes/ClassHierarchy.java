@@ -170,4 +170,10 @@ public interface ClassHierarchy {
      * @param selfInclude whether the result contains jclass itself
      */
     Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude);
+
+    /**
+     * @return the direct inner classes of {@code jclass}. If {@code jclass}
+     * does not have inner classes, an empty collection is returned.
+     */
+    Collection<JClass> getDirectInnerClassesOf(JClass jclass);
 }

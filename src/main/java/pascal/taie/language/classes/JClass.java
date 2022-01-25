@@ -51,8 +51,6 @@ public class JClass extends AbstractResultHolder implements Annotated {
 
     private JClass outerClass;
 
-    private Collection<JClass> innerClasses;
-
     private Map<String, JField> declaredFields;
 
     private Map<Subsignature, JMethod> declaredMethods;
@@ -83,6 +81,7 @@ public class JClass extends AbstractResultHolder implements Annotated {
         modifiers = builder.getModifiers();
         superClass = builder.getSuperClass();
         interfaces = builder.getInterfaces();
+        outerClass = builder.getOuterClass();
         declaredFields = Collections.unmodifiableMap(
                 builder.getDeclaredFields()
                         .stream()
@@ -166,6 +165,14 @@ public class JClass extends AbstractResultHolder implements Annotated {
 
     public Collection<JClass> getInterfaces() {
         return interfaces;
+    }
+
+    public boolean hasOuterClass() {
+        return outerClass != null;
+    }
+
+    public @Nullable JClass getOuterClass() {
+        return outerClass;
     }
 
     public Collection<JField> getDeclaredFields() {

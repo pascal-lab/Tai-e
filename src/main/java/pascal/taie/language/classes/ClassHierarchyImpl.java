@@ -20,6 +20,8 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -58,6 +60,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
      * Map from each class to its direct subclasses.
      */
     private final Map<JClass, Set<JClass>> directSubclasses = newMap();
+
+    /**
+     * Map from a class to its direct inner classes.
+     */
+    private final MultiMap<JClass, JClass> directInnerClasses = Maps.newMultiMap();
 
     /**
      * Cache results of method dispatch.
@@ -115,6 +122,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                                 c -> newHybridSet())
                         .add(jclass);
             }
+        }
+        // add inner classes
+        JClass outer = jclass.getOuterClass();
+        if (outer != null) {
+            directInnerClasses.put(outer, jclass);
         }
     }
 
@@ -446,5 +458,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     public Collection<JClass> getDirectSubclassesOf(JClass jclass) {
         return directSubclasses.getOrDefault(jclass, Set.of());
+    }
+
+    @Override
+    public Collection<JClass> getDirectInnerClassesOf(JClass jclass) {
+        return directInnerClasses.get(jclass);
     }
 }

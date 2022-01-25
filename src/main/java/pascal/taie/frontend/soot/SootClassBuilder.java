@@ -73,6 +73,13 @@ class SootClassBuilder implements JClassBuilder {
     }
 
     @Override
+    public JClass getOuterClass() {
+        return sootClass.hasOuterClass() ?
+                converter.convertClass(sootClass.getOuterClass()) :
+                null;
+    }
+
+    @Override
     public Collection<JField> getDeclaredFields() {
         return Lists.map(sootClass.getFields(), converter::convertField);
     }

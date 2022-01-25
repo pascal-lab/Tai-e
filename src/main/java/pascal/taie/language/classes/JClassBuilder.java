@@ -36,6 +36,8 @@ public interface JClassBuilder {
 
     Collection<JClass> getInterfaces();
 
+    JClass getOuterClass();
+
     Collection<JField> getDeclaredFields();
 
     Collection<JMethod> getDeclaredMethods();
