@@ -12,13 +12,32 @@
 
 package pascal.taie.util.collection;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
-public class HybridArrayLinkedHashSet<E> extends HybridArrayHashSet<E> {
+/**
+ * Hybrid of array set (for small set) and linked hash set (for large set).
+ */
+public final class HybridArrayLinkedHashSet<E> extends AbstractHybridSet<E> {
+
+    /**
+     * Default threshold for the number of items necessary for the array set
+     * to become a hash set.
+     */
+    private static final int ARRAY_SET_SIZE = 8;
 
     @Override
-    protected HashSet<E> newSet(int initialCapacity) {
+    protected int getThreshold() {
+        return ARRAY_SET_SIZE;
+    }
+
+    @Override
+    protected Set<E> newSmallSet(int initialCapacity) {
+        return new ArraySet<>(initialCapacity);
+    }
+
+    @Override
+    protected Set<E> newLargeSet(int initialCapacity) {
         return new LinkedHashSet<>(initialCapacity);
     }
 }

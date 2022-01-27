@@ -56,11 +56,11 @@ public final class Views {
      * for given collection. The elements of the resulting collection
      * are mapped from given collection.
      *
-     * @param c        the backing collection
-     * @param mapper   the function maps elements in backing collection to
-     *                 the ones in view collection
-     * @param <T>      type of elements in backing collection
-     * @param <R>      type of elements in view collection
+     * @param c      the backing collection
+     * @param mapper the function maps elements in backing collection to
+     *               the ones in view collection
+     * @param <T>    type of elements in backing collection
+     * @param <R>    type of elements in view collection
      * @return an immutable view collection.
      */
     public static <T, R> Collection<R> toMappedCollection(
@@ -147,11 +147,11 @@ public final class Views {
      * resulting set view is guaranteed by given collection {@code c}
      * and function {@code mapper}, not by the resulting set view itself.
      *
-     * @param c        the backing collection
-     * @param mapper   the function maps elements in backing collection to
-     *                 the ones in view collection
-     * @param <T>      type of elements in backing collection
-     * @param <R>      type of elements in view collection
+     * @param c      the backing collection
+     * @param mapper the function maps elements in backing collection to
+     *               the ones in view collection
+     * @param <T>    type of elements in backing collection
+     * @param <R>    type of elements in view collection
      * @return an immutable view set.
      */
     public static <T, R> Set<R> toMappedSet(Collection<T> c, Function<T, R> mapper) {

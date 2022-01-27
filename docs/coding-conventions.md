@@ -4,7 +4,7 @@
 
 ## Style (TODO: use style tool)
 ### Import
-- Wildcard imports (`import x.y.*`) are not used.
+- Wildcard imports (`import x.y.*`) should not be used.
 - Imports should be sorted (use `Ctrl+Alt+o` in IntelliJ IDEA)
 
 ## Coding
