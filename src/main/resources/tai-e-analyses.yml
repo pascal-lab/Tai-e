@@ -51,20 +51,18 @@
 
 - description: number of potentially failing cast
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast
-  id: fcast
-  requires: [ pta(algorithm=pta),cipta(algorithm=cipta),cspta(algorithm=cspta) ]
+  id: may-fail-cast
+  requires: [ pta ]
   options:
-    algorithm: pta # | cipta | cspta
     only-app: false # only analyze application code
     action: null # | dump
     file: null # path to output files
 
 - description: number of polymorphic callsites
   analysisClass: pascal.taie.analysis.pta.client.PolymorphicCallSite
-  id: pcall
-  requires: [ pta(algorithm=pta),cipta(algorithm=cipta),cspta(algorithm=cspta) ]
+  id: poly-call
+  requires: [ pta ]
   options:
-    algorithm: pta # | cipta | cspta
     only-app: false # only analyze application code
     action: null # | dump
     file: null # path to output files
