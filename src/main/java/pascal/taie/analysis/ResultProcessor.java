@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.getOne;
 
@@ -58,6 +59,8 @@ public class ResultProcessor extends ProgramAnalysis {
 
     private static final Logger logger = LogManager.getLogger(ResultProcessor.class);
 
+    private final boolean onlyApp;
+
     private final String action;
 
     private PrintStream out;
@@ -68,6 +71,7 @@ public class ResultProcessor extends ProgramAnalysis {
 
     public ResultProcessor(AnalysisConfig config) {
         super(config);
+        onlyApp = getOptions().getBoolean("only-app");
         action = getOptions().getString("action");
     }
 
@@ -151,33 +155,41 @@ public class ResultProcessor extends ProgramAnalysis {
         }
     }
 
+    /**
+     * Compares methods by their declaring classes and source code position.
+     */
+    private static final Comparator<JMethod> methodComp = (m1, m2) -> {
+        if (m1.getDeclaringClass().equals(m2.getDeclaringClass())) {
+            return m1.getIR().getStmt(0).getLineNumber() -
+                    m2.getIR().getStmt(0).getLineNumber();
+        } else {
+            return m1.getDeclaringClass().toString()
+                    .compareTo(m2.getDeclaringClass().toString());
+        }
+    };
+
     private void processProgramAnalysisResult(List<String> analyses) {
-        Comparator<JMethod> comp = (m1, m2) -> {
-            if (m1.getDeclaringClass().equals(m2.getDeclaringClass())) {
-                return m1.getIR().getStmt(0).getLineNumber() -
-                        m2.getIR().getStmt(0).getLineNumber();
-            } else {
-                return m1.getDeclaringClass().toString()
-                        .compareTo(m2.getDeclaringClass().toString());
-            }
-        };
         CallGraph<?, JMethod> cg = World.get().getResult(CallGraphBuilder.ID);
-        List<JMethod> methods = cg.reachableMethods()
-                .filter(m -> m.getDeclaringClass().isApplication())
-                .sorted(comp)
+        Stream<JMethod> methodStream = onlyApp ?
+                cg.reachableMethods().filter(m -> m.getDeclaringClass().isApplication()) :
+                cg.reachableMethods();
+        // TODO: cache methods?
+        List<JMethod> methods = methodStream
+                .sorted(methodComp)
                 .toList();
         processResults(methods, analyses, (m, id) -> World.get().getResult(id));
     }
 
     private void processMethodAnalysisResult(List<String> analyses) {
-        List<JMethod> methods = World.get()
-                .getClassHierarchy()
-                .applicationClasses()
+        Stream<JClass> classStream = onlyApp ?
+                World.get().getClassHierarchy().applicationClasses() :
+                World.get().getClassHierarchy().allClasses();
+        // TODO: cache methods?
+        List<JMethod> methods = classStream
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)
                 .filter(m -> !m.isAbstract() && !m.isNative())
-                .sorted(Comparator.comparing(m ->
-                        m.getIR().getStmt(0).getLineNumber()))
+                .sorted(methodComp)
                 .toList();
         processResults(methods, analyses, (m, id) -> m.getIR().getResult(id));
     }

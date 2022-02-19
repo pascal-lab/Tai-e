@@ -49,23 +49,15 @@
     action: null # | dump | dump-recall
     file: null # path to output files
 
-- description: number of potentially failing cast
+- description: identify casts that may fail
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast
   id: may-fail-cast
   requires: [ pta ]
-  options:
-    only-app: false # only analyze application code
-    action: null # | dump
-    file: null # path to output files
 
-- description: number of polymorphic callsites
+- description: identify polymorphic callsites
   analysisClass: pascal.taie.analysis.pta.client.PolymorphicCallSite
   id: poly-call
   requires: [ pta ]
-  options:
-    only-app: false # only analyze application code
-    action: null # | dump
-    file: null # path to output files
 
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
@@ -133,6 +125,7 @@
   id: process-result
   options:
     analyses: [ ]
+    only-app: true # | false # only process results of application code
     action: dump # | compare
     file: null
     log-mismatches: false # | whether log mismatched items
