@@ -23,7 +23,7 @@ public class MayFailCast extends Collector {
     }
 
     @Override
-    boolean want(Stmt stmt, PointerAnalysisResult result) {
+    boolean isWanted(Stmt stmt, PointerAnalysisResult result) {
         Cast cast = (Cast) stmt;
         Type castType = cast.getRValue().getCastType();
         Var from = cast.getRValue().getValue();

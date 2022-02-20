@@ -53,7 +53,7 @@ public interface ClassHierarchy {
     JClass getClass(String name);
 
     /**
-     * Obtains a method class by its signature.
+     * Obtains a method by its signature.
      *
      * @param methodSig of the method
      * @return the {@link JMethod} for signature if found;

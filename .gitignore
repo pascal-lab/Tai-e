@@ -1,8 +1,6 @@
 .gradle/
+.idea/
 build/
 sootOutput/
-.idea/
 output/
 out/
-tamiflex/
-tai-e-plan.yml

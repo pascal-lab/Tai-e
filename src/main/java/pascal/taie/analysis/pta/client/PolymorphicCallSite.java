@@ -20,7 +20,7 @@ public class PolymorphicCallSite extends Collector {
     }
 
     @Override
-    boolean want(Stmt stmt, PointerAnalysisResult result) {
+    boolean isWanted(Stmt stmt, PointerAnalysisResult result) {
         Invoke invoke = (Invoke) stmt;
         return result.getCallGraph().getCalleesOf(invoke).size() > 1;
     }

@@ -29,7 +29,7 @@ import pascal.taie.util.collection.Sets;
 import java.util.Set;
 
 /**
- * Collects statements in reachable program that fulfills specific conditions.
+ * Collects statements in program that the client wants.
  */
 abstract class Collector extends ProgramAnalysis {
 
@@ -43,10 +43,10 @@ abstract class Collector extends ProgramAnalysis {
     public StmtResult<Boolean> analyze() {
         PointerAnalysisResult result = World.get().getResult(PointerAnalysis.ID);
         CallGraph<Invoke, JMethod> callGraph = result.getCallGraph();
-        Set<Stmt> wantStmts = Sets.newSet();
+        Set<Stmt> wantedStmts = Sets.newSet();
         int nRelevantStmts = 0;
-        int nWantAppStmts = 0, nRelevantAppStmts = 0;
-        // collect polymorphic calls and count
+        int nWantedAppStmts = 0, nRelevantAppStmts = 0;
+        // collect want statements and count
         for (JMethod method : callGraph) {
             boolean isApp = method.getDeclaringClass().isApplication();
             for (Stmt stmt : method.getIR()) {
@@ -55,10 +55,10 @@ abstract class Collector extends ProgramAnalysis {
                     if (isApp) {
                         ++nRelevantAppStmts;
                     }
-                    if (want(stmt, result)) {
-                        wantStmts.add(stmt);
+                    if (isWanted(stmt, result)) {
+                        wantedStmts.add(stmt);
                         if (isApp) {
-                            ++nWantAppStmts;
+                            ++nWantedAppStmts;
                         }
                     }
                 }
@@ -66,9 +66,9 @@ abstract class Collector extends ProgramAnalysis {
         }
         // log statistics
         logger.info("#{}: found {} in {} reachable relevant Stmts",
-                getDescription(), wantStmts.size(), nRelevantStmts);
+                getDescription(), wantedStmts.size(), nRelevantStmts);
         logger.info("#{}: found {} in {} reachable relevant Stmts (app)",
-                getDescription(), nWantAppStmts, nRelevantAppStmts);
+                getDescription(), nWantedAppStmts, nRelevantAppStmts);
         // convert result to StmtResult
         return new StmtResult<>() {
 
@@ -79,14 +79,23 @@ abstract class Collector extends ProgramAnalysis {
 
             @Override
             public Boolean getResult(Stmt stmt) {
-                return wantStmts.contains(stmt);
+                return wantedStmts.contains(stmt);
             }
         };
     }
 
+    /**
+     * @return {@code true} if the given statement is relevant to the client.
+     */
     abstract boolean isRelevant(Stmt stmt);
 
-    abstract boolean want(Stmt stmt, PointerAnalysisResult result);
+    /**
+     * @return {@code true} if the given statement is wanted by the client.
+     */
+    abstract boolean isWanted(Stmt stmt, PointerAnalysisResult result);
 
+    /**
+     * @return description of wanted statements
+     */
     abstract String getDescription();
 }
