@@ -41,7 +41,17 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
 
     @Override
     public IR buildIR(JMethod method) {
-        return new MethodIRBuilder(method, converter).build();
+        try {
+            return new MethodIRBuilder(method, converter).build();
+        } catch (RuntimeException e) {
+            if (e instanceof SootFrontendException) {
+                throw e;
+            } else {
+                throw new SootFrontendException("Exception caused by Soot frontend " +
+                        "(we suggest you compile the source code to bytecode," +
+                        " and let Tai-e analyze the bytecode)", e);
+            }
+        }
     }
 
     /**

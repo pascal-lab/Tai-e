@@ -17,10 +17,11 @@ package pascal.taie.frontend.soot;
  */
 class SootFrontendException extends RuntimeException {
 
-    /**
-     * Constructs a new exception.
-     */
     SootFrontendException(String msg) {
         super(msg);
+    }
+
+    SootFrontendException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }
