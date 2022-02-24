@@ -12,6 +12,9 @@
 
 package pascal.taie.frontend.soot;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
@@ -32,6 +35,8 @@ import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +47,12 @@ import static soot.SootClass.HIERARCHY;
 public class SootWorldBuilder extends AbstractWorldBuilder {
 
     private static final Logger logger = LogManager.getLogger(SootWorldBuilder.class);
+
+    /**
+     * Path to the file which specifies the basic classes that should be
+     * added to Scene in advance.
+     */
+    private static final String BASIC_CLASSES = "basic-classes.yml";
 
     @Override
     public void build(Options options, List<AnalysisConfig> plan) {
@@ -79,34 +90,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
 
         Scene scene = G.v().soot_Scene();
-        // The following line is necessary to avoid a runtime exception
-        // when running soot with Java 1.8
-        scene.addBasicClass("java.awt.dnd.MouseDragGestureRecognizer", HIERARCHY);
-        scene.addBasicClass("java.lang.annotation.Inherited", HIERARCHY);
-        scene.addBasicClass("javax.crypto.spec.IvParameterSpec", HIERARCHY);
-        scene.addBasicClass("javax.sound.sampled.Port", HIERARCHY);
-        scene.addBasicClass("sun.util.locale.provider.HostLocaleProviderAdapterImpl", HIERARCHY);
-
-        // Necessary for Java 11
-        scene.addBasicClass("java.lang.invoke.VarHandleGuards", HIERARCHY);
-
-        // TODO: avoid adding non-exist basic classes. This requires to
-        //  check class path before adding these classes.
-        // For simulating the FileSystem class, we need the implementation
-        // of the FileSystem, but the classes are not loaded automatically
-        // due to the indirection via native code.
-        scene.addBasicClass("java.io.UnixFileSystem");
-        scene.addBasicClass("java.io.WinNTFileSystem");
-        scene.addBasicClass("java.io.Win32FileSystem");
-        // java.net.URL loads handlers dynamically
-        scene.addBasicClass("sun.net.www.protocol.file.Handler");
-        scene.addBasicClass("sun.net.www.protocol.ftp.Handler");
-        scene.addBasicClass("sun.net.www.protocol.http.Handler");
-        scene.addBasicClass("sun.net.www.protocol.jar.Handler");
-        // The following line caused SootClassNotFoundException
-        // for sun.security.ssl.SSLSocketImpl. TODO: fix this
-        // scene.addBasicClass("sun.net.www.protocol.https.Handler");
-
+        addBasicClasses(scene);
         addReflectionLogClasses(plan, scene);
 
         // Configure Soot transformer
@@ -120,6 +104,25 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         PackManager.v()
                 .getPack("wjtp")
                 .add(transform);
+    }
+
+    /**
+     * Reads basic classes specified by file {@link #BASIC_CLASSES} and
+     * adds them to {@code scene}.
+     */
+    private static void addBasicClasses(Scene scene) {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, String.class);
+        try {
+            InputStream content = SootWorldBuilder.class
+                    .getClassLoader()
+                    .getResourceAsStream(BASIC_CLASSES);
+            List<String> classNames = mapper.readValue(content, type);
+            classNames.forEach(name -> scene.addBasicClass(name, HIERARCHY));
+        } catch (IOException e) {
+            throw new SootFrontendException("Failed to read Soot basic classes", e);
+        }
     }
 
     /**

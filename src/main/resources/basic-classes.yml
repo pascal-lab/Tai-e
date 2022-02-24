@@ -1,0 +1,29 @@
+# Basic classes needed by Soot frontend
+
+# Adding classes below is necessary to avoid runtime exception
+# when running soot with Java 8
+- java.awt.dnd.MouseDragGestureRecognizer
+- java.lang.annotation.Inherited
+- javax.crypto.spec.IvParameterSpec
+- javax.sound.sampled.Port
+- sun.util.locale.provider.HostLocaleProviderAdapterImpl
+
+# Necessary for Java 11
+- java.lang.invoke.VarHandleGuards
+
+# For simulating the FileSystem class, we need the implementation
+# of the FileSystem, but the classes are not loaded automatically
+# due to the indirection via native code.
+- java.io.UnixFileSystem
+- java.io.WinNTFileSystem
+- java.io.Win32FileSystem
+
+# java.net.URL loads handlers dynamically
+- sun.net.www.protocol.file.Handler
+- sun.net.www.protocol.ftp.Handler
+- sun.net.www.protocol.http.Handler
+- sun.net.www.protocol.jar.Handler
+
+# The following class caused SootClassNotFoundException
+# for sun.security.ssl.SSLSocketImpl. TODO: fix this
+# - sun.net.www.protocol.https.Handler
