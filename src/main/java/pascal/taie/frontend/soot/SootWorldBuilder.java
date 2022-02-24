@@ -59,8 +59,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 soot.options.Options.output_format_jimple);
         soot.options.Options.v().set_keep_line_number(true);
         soot.options.Options.v().set_app(true);
-        // exclude jdk.* from application classes
-        soot.options.Options.v().set_exclude(List.of("jdk.*"));
+        // exclude jdk classes from application classes
+        soot.options.Options.v().set_exclude(List.of("jdk.*", "apple.laf.*"));
         soot.options.Options.v().set_whole_program(true);
         soot.options.Options.v().set_no_writeout_body_releasing(true);
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
