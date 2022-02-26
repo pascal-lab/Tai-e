@@ -51,7 +51,6 @@ public class TypeSystemImpl implements TypeSystem {
     private final ClassType LONG;
     private final ClassType FLOAT;
     private final ClassType DOUBLE;
-    private final ClassType VOID;
 
     public TypeSystemImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
@@ -68,7 +67,6 @@ public class TypeSystemImpl implements TypeSystem {
         LONG = getClassType(loader, ClassNames.LONG);
         FLOAT = getClassType(loader, ClassNames.FLOAT);
         DOUBLE = getClassType(loader, ClassNames.DOUBLE);
-        VOID = getClassType(loader, ClassNames.VOID);
     }
 
     @Override
@@ -129,26 +127,21 @@ public class TypeSystemImpl implements TypeSystem {
     }
 
     @Override
-    public ClassType getBoxedType(Type type) {
-        if (type instanceof PrimitiveType) {
-            return switch ((PrimitiveType) type) {
-                case BOOLEAN -> BOOLEAN;
-                case BYTE -> BYTE;
-                case SHORT -> SHORT;
-                case CHAR -> CHARACTER;
-                case INT -> INTEGER;
-                case LONG -> LONG;
-                case FLOAT -> FLOAT;
-                case DOUBLE -> DOUBLE;
-            };
-        } else if (type instanceof VoidType) {
-            return VOID;
-        }
-        throw new AnalysisException(type + " cannot be boxed");
+    public ClassType getBoxedType(PrimitiveType type) {
+        return switch (type) {
+            case BOOLEAN -> BOOLEAN;
+            case BYTE -> BYTE;
+            case SHORT -> SHORT;
+            case CHAR -> CHARACTER;
+            case INT -> INTEGER;
+            case LONG -> LONG;
+            case FLOAT -> FLOAT;
+            case DOUBLE -> DOUBLE;
+        };
     }
 
     @Override
-    public Type getUnboxedType(ClassType type) {
+    public PrimitiveType getUnboxedType(ClassType type) {
         if (type.equals(BOOLEAN)) {
             return PrimitiveType.BOOLEAN;
         } else if (type.equals(BYTE)) {
@@ -165,8 +158,6 @@ public class TypeSystemImpl implements TypeSystem {
             return PrimitiveType.FLOAT;
         } else if (type.equals(DOUBLE)) {
             return PrimitiveType.DOUBLE;
-        } else if (type.equals(VOID)) {
-            return VoidType.VOID;
         }
         throw new AnalysisException(type + " cannot be unboxed");
     }

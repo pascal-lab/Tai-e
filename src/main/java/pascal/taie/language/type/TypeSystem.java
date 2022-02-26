@@ -31,9 +31,9 @@ public interface TypeSystem {
 
     ArrayType getArrayType(Type baseType, int dimensions);
 
-    ClassType getBoxedType(Type type);
+    ClassType getBoxedType(PrimitiveType type);
 
-    Type getUnboxedType(ClassType type);
+    PrimitiveType getUnboxedType(ClassType type);
 
     boolean isSubtype(Type supertype, Type subtype);
 }
