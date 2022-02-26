@@ -27,7 +27,7 @@ import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import java.io.File;
@@ -67,19 +67,19 @@ class TaintConfig {
     /**
      * Reads a taint analysis configuration from file
      *
-     * @param path        the path to the config file
-     * @param hierarchy   the class hierarchy
-     * @param typeManager the type manager
+     * @param path       the path to the config file
+     * @param hierarchy  the class hierarchy
+     * @param typeSystem the type manager
      * @return the TaintConfig object
      * @throws ConfigException if failed to load the config file
      */
     static TaintConfig readConfig(
-            String path, ClassHierarchy hierarchy, TypeManager typeManager) {
+            String path, ClassHierarchy hierarchy, TypeSystem typeSystem) {
         File file = new File(path);
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TaintConfig.class,
-                new Deserializer(hierarchy, typeManager));
+                new Deserializer(hierarchy, typeSystem));
         mapper.registerModule(module);
         try {
             return mapper.readValue(file, TaintConfig.class);
@@ -137,11 +137,11 @@ class TaintConfig {
 
         private final ClassHierarchy hierarchy;
 
-        private final TypeManager typeManager;
+        private final TypeSystem typeSystem;
 
-        private Deserializer(ClassHierarchy hierarchy, TypeManager typeManager) {
+        private Deserializer(ClassHierarchy hierarchy, TypeSystem typeSystem) {
             this.hierarchy = hierarchy;
-            this.typeManager = typeManager;
+            this.typeSystem = typeSystem;
         }
 
         @Override
@@ -171,7 +171,7 @@ class TaintConfig {
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        Type type = typeManager.getType(
+                        Type type = typeSystem.getType(
                                 elem.get("type").asText());
                         sources.add(new Source(method, type));
                     } else {
@@ -232,7 +232,7 @@ class TaintConfig {
                         // the class hierarchy, just ignore it.
                         int from = TaintTransfer.toInt(elem.get("from").asText());
                         int to = TaintTransfer.toInt(elem.get("to").asText());
-                        Type type = typeManager.getType(
+                        Type type = typeSystem.getType(
                                 elem.get("type").asText());
                         transfers.add(new TaintTransfer(method, from, to, type));
                     } else {

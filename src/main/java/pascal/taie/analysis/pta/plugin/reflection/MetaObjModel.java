@@ -21,7 +21,7 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 
 import java.util.Map;
 import java.util.Set;
@@ -56,10 +56,10 @@ abstract class MetaObjModel extends AbstractModel {
 
     MetaObjModel(Solver solver) {
         super(solver);
-        TypeManager typeManager = solver.getTypeManager();
-        constructor = typeManager.getClassType(ClassNames.CONSTRUCTOR);
-        method = typeManager.getClassType(ClassNames.METHOD);
-        field = typeManager.getClassType(ClassNames.FIELD);
+        TypeSystem typeSystem = solver.getTypeSystem();
+        constructor = typeSystem.getClassType(ClassNames.CONSTRUCTOR);
+        method = typeSystem.getClassType(ClassNames.METHOD);
+        field = typeSystem.getClassType(ClassNames.FIELD);
     }
 
     protected JMethod get(String methodName) {

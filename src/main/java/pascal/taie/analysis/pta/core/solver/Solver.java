@@ -34,7 +34,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 
 public interface Solver {
 
@@ -42,7 +42,7 @@ public interface Solver {
 
     ClassHierarchy getHierarchy();
 
-    TypeManager getTypeManager();
+    TypeSystem getTypeSystem();
 
     NativeObjs getNativeObjs();
 

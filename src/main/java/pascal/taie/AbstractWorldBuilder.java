@@ -17,7 +17,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.natives.DefaultNativeModel;
 import pascal.taie.language.natives.EmptyNativeModel;
 import pascal.taie.language.natives.NativeModel;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,9 +69,9 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
     }
 
     protected static NativeModel getNativeModel(
-            TypeManager typeManager, ClassHierarchy hierarchy) {
+            TypeSystem typeSystem, ClassHierarchy hierarchy) {
         return World.get().getOptions().enableNativeModel() ?
-                new DefaultNativeModel(typeManager, hierarchy) :
+                new DefaultNativeModel(typeSystem, hierarchy) :
                 new EmptyNativeModel();
     }
 }

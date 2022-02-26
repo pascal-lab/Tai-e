@@ -28,7 +28,7 @@ public class MayFailCast extends Collector {
         Type castType = cast.getRValue().getCastType();
         Var from = cast.getRValue().getValue();
         for (Obj obj : result.getPointsToSet(from)) {
-            if (!World.get().getTypeManager().isSubtype(
+            if (!World.get().getTypeSystem().isSubtype(
                     castType, obj.getType())) {
                 return true;
             }

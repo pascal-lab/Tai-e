@@ -25,7 +25,7 @@ import static pascal.taie.util.collection.Maps.newMap;
 import static pascal.taie.util.collection.Maps.newSmallMap;
 
 // TODO: optimize maps (classTypes and arrayTypes)
-public class TypeManagerImpl implements TypeManager {
+public class TypeSystemImpl implements TypeSystem {
 
     private final ClassHierarchy hierarchy;
 
@@ -53,7 +53,7 @@ public class TypeManagerImpl implements TypeManager {
     private final ClassType DOUBLE;
     private final ClassType VOID;
 
-    public TypeManagerImpl(ClassHierarchy hierarchy) {
+    public TypeSystemImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
         // Initialize special types
         JClassLoader loader = hierarchy.getBootstrapClassLoader();

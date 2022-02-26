@@ -19,7 +19,7 @@ import pascal.taie.language.classes.JClassLoader;
  * For convenience, the special predefined types, i.e., primitive types,
  * null type, and void type can be directly retrieved from their own classes.
  */
-public interface TypeManager {
+public interface TypeSystem {
 
     Type getType(JClassLoader loader, String typeName);
 

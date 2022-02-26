@@ -14,7 +14,7 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 
 import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.THREAD;
@@ -40,15 +40,15 @@ public class NativeObjs {
 
     private final Obj mainArgsElem; // Element in args
 
-    public NativeObjs(TypeManager typeManager) {
+    public NativeObjs(TypeSystem typeSystem) {
         mainThread = new MockObj(NATIVE_DESC, "<main-thread>",
-                typeManager.getClassType(THREAD));
+                typeSystem.getClassType(THREAD));
         systemThreadGroup = new MockObj(NATIVE_DESC, "<system-thread-group>",
-                typeManager.getClassType(THREAD_GROUP));
+                typeSystem.getClassType(THREAD_GROUP));
         mainThreadGroup = new MockObj(NATIVE_DESC, "<main-thread-group>",
-                typeManager.getClassType(THREAD_GROUP));
-        Type string = typeManager.getClassType(STRING);
-        Type stringArray = typeManager.getArrayType(string, 1);
+                typeSystem.getClassType(THREAD_GROUP));
+        Type string = typeSystem.getClassType(STRING);
+        Type stringArray = typeSystem.getArrayType(string, 1);
         mainArgs = new MockObj(NATIVE_DESC, "<main-arguments>",
                 stringArray, World.get().getMainMethod());
         mainArgsElem = new MockObj(NATIVE_DESC, "<main-arguments-element>",

@@ -35,7 +35,7 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Maps;
 import soot.ArrayType;
@@ -86,7 +86,7 @@ class Converter {
 
     private final JClassLoader loader;
 
-    private final TypeManager typeManager;
+    private final TypeSystem typeSystem;
 
     // Following four maps may be concurrently written during IR construction,
     // thus we use concurrent map to ensure their thread-safety.
@@ -102,9 +102,9 @@ class Converter {
     private final ConcurrentMap<SootMethodRef, MethodRef> methodRefMap
             = newConcurrentMap(4096);
 
-    Converter(JClassLoader loader, TypeManager typeManager) {
+    Converter(JClassLoader loader, TypeSystem typeSystem) {
         this.loader = loader;
-        this.typeManager = typeManager;
+        this.typeSystem = typeSystem;
     }
 
     Type convertType(soot.Type sootType) {
@@ -127,9 +127,9 @@ class Converter {
                 return PrimitiveType.BOOLEAN;
             }
         } else if (sootType instanceof RefType) {
-            return typeManager.getClassType(loader, sootType.toString());
+            return typeSystem.getClassType(loader, sootType.toString());
         } else if (sootType instanceof ArrayType arrayType) {
-            return typeManager.getArrayType(
+            return typeSystem.getArrayType(
                     convertType(arrayType.baseType),
                     arrayType.numDimensions);
         } else if (sootType instanceof VoidType) {

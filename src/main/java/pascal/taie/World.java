@@ -17,7 +17,7 @@ import pascal.taie.ir.IRBuilder;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.natives.NativeModel;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AbstractResultHolder;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public final class World extends AbstractResultHolder {
 
     private Options options;
 
-    private TypeManager typeManager;
+    private TypeSystem typeSystem;
 
     private ClassHierarchy classHierarchy;
 
@@ -88,15 +88,15 @@ public final class World extends AbstractResultHolder {
         this.options = options;
     }
 
-    public TypeManager getTypeManager() {
-        return typeManager;
+    public TypeSystem getTypeSystem() {
+        return typeSystem;
     }
 
-    public void setTypeManager(TypeManager typeManager) {
-        if (this.typeManager != null) {
-            throw new IllegalStateException("TypeManager already set");
+    public void setTypeSystem(TypeSystem typeSystem) {
+        if (this.typeSystem != null) {
+            throw new IllegalStateException("TypeSystem already set");
         }
-        this.typeManager = typeManager;
+        this.typeSystem = typeSystem;
     }
 
     public ClassHierarchy getClassHierarchy() {

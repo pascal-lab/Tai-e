@@ -82,7 +82,7 @@ public class TaintAnalysis implements Plugin {
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
-                solver.getTypeManager());
+                solver.getTypeSystem());
         logger.info(config);
         config.getSources().forEach(s ->
                 sources.put(s.method(), s.type()));

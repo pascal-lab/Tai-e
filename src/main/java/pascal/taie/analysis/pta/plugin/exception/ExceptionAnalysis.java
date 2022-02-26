@@ -21,7 +21,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
@@ -39,7 +39,7 @@ public class ExceptionAnalysis implements Plugin {
 
     private CSManager csManager;
 
-    private TypeManager typeManager;
+    private TypeSystem typeSystem;
 
     /**
      * Map from thrown variables to the corresponding throw statements.
@@ -67,7 +67,7 @@ public class ExceptionAnalysis implements Plugin {
     public void setSolver(Solver solver) {
         this.solver = solver;
         this.csManager = solver.getCSManager();
-        this.typeManager = solver.getTypeManager();
+        this.typeSystem = solver.getTypeSystem();
     }
 
     /**
@@ -192,7 +192,7 @@ public class ExceptionAnalysis implements Plugin {
                 Set<CSObj> uncaughtExceptions = Sets.newHybridSet();
                 newExceptions.forEach(newException -> {
                     Obj exObj = newException.getObject();
-                    if (typeManager.isSubtype(entry.catchType(), exObj.getType())) {
+                    if (typeSystem.isSubtype(entry.catchType(), exObj.getType())) {
                         Catch catchStmt = entry.handler();
                         Var exceptionRef = catchStmt.getExceptionRef();
                         solver.addVarPointsTo(ctx, exceptionRef, newException);

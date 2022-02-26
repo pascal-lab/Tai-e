@@ -81,7 +81,7 @@ public class TaintAnalysiss {
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 World.get().getClassHierarchy(),
-                World.get().getTypeManager());
+                World.get().getTypeSystem());
         logger.info(config);
         config.getSources()
                 .forEach(s -> sources.put(s.method(), s.type()));

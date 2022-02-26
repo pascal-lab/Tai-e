@@ -34,7 +34,7 @@ public class StringLiteral implements ReferenceLiteral {
     public ClassType getType() {
         // TODO: cache String type in a static field? Doing so
         //  requires to reset the field when resetting World.
-        return World.get().getTypeManager().getClassType(STRING);
+        return World.get().getTypeSystem().getClassType(STRING);
     }
 
     public String getString() {

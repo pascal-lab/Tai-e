@@ -357,7 +357,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     /**
      * Obtains JClass representing java.lang.Object.
-     * Since the creation of JClass requires TypeManager, which may
+     * Since the creation of JClass requires TypeSystem, which may
      * not be initialized when class loaders are created,
      * we provide this method to retrieve Object class lazily.
      *

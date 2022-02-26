@@ -19,7 +19,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class CatchAnalysis {
      */
     public static CatchResult analyze(IR ir, ThrowResult throwResult) {
         Map<Stmt, List<ExceptionEntry>> catchers = getPotentialCatchers(ir);
-        TypeManager typeManager = World.get().getTypeManager();
+        TypeSystem typeSystem = World.get().getTypeSystem();
         CatchResult result = new CatchResult();
         ir.forEach(stmt -> {
             Collection<ClassType> implicit = throwResult.mayThrowImplicitly(stmt);
@@ -56,7 +56,7 @@ public class CatchAnalysis {
             for (ExceptionEntry entry : catchers.getOrDefault(stmt, List.of())) {
                 Set<ClassType> uncaughtImplicit = Sets.newHybridSet();
                 implicit.forEach(t -> {
-                    if (typeManager.isSubtype(entry.catchType(), t)) {
+                    if (typeSystem.isSubtype(entry.catchType(), t)) {
                         result.addCaughtImplicit(stmt, entry.handler(), t);
                     } else {
                         uncaughtImplicit.add(t);
@@ -66,7 +66,7 @@ public class CatchAnalysis {
 
                 Set<ClassType> uncaughtExplicit = Sets.newHybridSet();
                 explicit.forEach(t -> {
-                    if (typeManager.isSubtype(entry.catchType(), t)) {
+                    if (typeSystem.isSubtype(entry.catchType(), t)) {
                         result.addCaughtExplicit(stmt, entry.handler(), t);
                     } else {
                         uncaughtExplicit.add(t);

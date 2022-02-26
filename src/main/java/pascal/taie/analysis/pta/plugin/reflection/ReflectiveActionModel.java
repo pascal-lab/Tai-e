@@ -37,7 +37,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -70,7 +70,7 @@ class ReflectiveActionModel extends AbstractModel {
 
     private final ContextSelector selector;
 
-    private final TypeManager typeManager;
+    private final TypeSystem typeSystem;
 
     /**
      * Map from Invoke (of Class/Constructor/Array.newInstance()) and type
@@ -82,7 +82,7 @@ class ReflectiveActionModel extends AbstractModel {
         super(solver);
         initNoArg = Subsignature.getNoArgInit();
         selector = solver.getContextSelector();
-        typeManager = solver.getTypeManager();
+        typeSystem = solver.getTypeSystem();
     }
 
     @Override
@@ -260,7 +260,7 @@ class ReflectiveActionModel extends AbstractModel {
                 Type declType = field.getDeclaringClass().getType();
                 baseObjs.forEach(baseObj -> {
                     Type objType = baseObj.getObject().getType();
-                    if (typeManager.isSubtype(declType, objType)) {
+                    if (typeSystem.isSubtype(declType, objType)) {
                         InstanceField ifield = csManager.getInstanceField(baseObj, field);
                         solver.addPFGEdge(ifield, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
                     }
@@ -287,7 +287,7 @@ class ReflectiveActionModel extends AbstractModel {
                 Type declType = field.getDeclaringClass().getType();
                 baseObjs.forEach(baseObj -> {
                     Type objType = baseObj.getObject().getType();
-                    if (typeManager.isSubtype(declType, objType)) {
+                    if (typeSystem.isSubtype(declType, objType)) {
                         InstanceField ifield = csManager.getInstanceField(baseObj, field);
                         solver.addPFGEdge(from, ifield, ifield.getType(),
                                 PointerFlowEdge.Kind.INSTANCE_STORE);
@@ -308,7 +308,7 @@ class ReflectiveActionModel extends AbstractModel {
             if (baseType == null || baseType instanceof VoidType) {
                 return;
             }
-            ArrayType arrayType = typeManager.getArrayType(baseType, 1);
+            ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
             CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
             solver.addVarPointsTo(context, result, csNewArray);
         });

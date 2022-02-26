@@ -41,7 +41,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,15 +57,15 @@ public class DefaultNativeModel implements NativeModel {
 
     private static final Logger logger = LogManager.getLogger(DefaultNativeModel.class);
 
-    private final TypeManager typeManager;
+    private final TypeSystem typeSystem;
 
     private final ClassHierarchy hierarchy;
 
     private final Map<JMethod, Function<JMethod, IR>> models = newMap();
 
-    public DefaultNativeModel(TypeManager typeManager,
+    public DefaultNativeModel(TypeSystem typeSystem,
                               ClassHierarchy hierarchy) {
-        this.typeManager = typeManager;
+        this.typeSystem = typeSystem;
         this.hierarchy = hierarchy;
         initModels();
     }
@@ -88,22 +88,22 @@ public class DefaultNativeModel implements NativeModel {
         // which are not related to the receiver Class object.
         // <java.lang.Class: java.lang.reflect.Field[] getDeclaredFields0(boolean)>
         register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredFields0(boolean)>", m ->
-                allocateArray(m, typeManager.getClassType(ClassNames.FIELD))
+                allocateArray(m, typeSystem.getClassType(ClassNames.FIELD))
         );
 
         // <java.lang.Class: java.lang.reflect.Method[] getDeclaredMethods0(boolean)>
         register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredMethods0(boolean)>", m ->
-                allocateArray(m, typeManager.getClassType(ClassNames.METHOD))
+                allocateArray(m, typeSystem.getClassType(ClassNames.METHOD))
         );
 
         // <java.lang.Class: java.lang.reflect.Constructor[] getDeclaredConstructors0(boolean)>
         register("<java.lang.Class: java.lang.reflect.Constructor[] getDeclaredConstructors0(boolean)>", m ->
-                allocateArray(m, typeManager.getClassType(ClassNames.CONSTRUCTOR))
+                allocateArray(m, typeSystem.getClassType(ClassNames.CONSTRUCTOR))
         );
 
         // <java.lang.Class: java.lang.Class[] getDeclaredClasses0()>
         register("<java.lang.Class: java.lang.Class[] getDeclaredClasses0()>", m ->
-                allocateArray(m, typeManager.getClassType(ClassNames.CLASS))
+                allocateArray(m, typeSystem.getClassType(ClassNames.CLASS))
         );
 
         // --------------------------------------------------------------------
@@ -147,8 +147,8 @@ public class DefaultNativeModel implements NativeModel {
             NativeIRBuilder builder = new NativeIRBuilder(m);
             Var src = builder.getParam(0);
             Var dest = builder.getParam(2);
-            Type objType = typeManager.getClassType(OBJECT);
-            Type arrayType = typeManager.getArrayType(objType, 1);
+            Type objType = typeSystem.getClassType(OBJECT);
+            Type arrayType = typeSystem.getArrayType(objType, 1);
             Var srcArray = builder.newTempVar(arrayType);
             Var destArray = builder.newTempVar(arrayType);
             // Here the index is just a placeholder for array access.
@@ -233,8 +233,8 @@ public class DefaultNativeModel implements NativeModel {
             // <java.io.*FileSystem: java.lang.String[] list(java.io.File)>
             register("<" + fsName + ": java.lang.String[] list(java.io.File)>", m -> {
                 NativeIRBuilder builder = new NativeIRBuilder(m);
-                ClassType string = typeManager.getClassType(STRING);
-                ArrayType stringArray = typeManager.getArrayType(string, 1);
+                ClassType string = typeSystem.getClassType(STRING);
+                ArrayType stringArray = typeSystem.getArrayType(string, 1);
                 Var str = builder.newTempVar(string);
                 Var arr = builder.getReturnVar();
                 // here n is just a placeholder of array-related statements,
@@ -303,8 +303,8 @@ public class DefaultNativeModel implements NativeModel {
         // <java.security.AccessController: java.security.AccessControlContext getStackAccessControlContext()>
         register("<java.security.AccessController: java.security.AccessControlContext getStackAccessControlContext()>", m ->
                 allocateObject(m, "<java.security.AccessControlContext: void <init>(java.security.ProtectionDomain[],boolean)>", b -> {
-                    Var context = b.newTempVar(typeManager.getArrayType(
-                            typeManager.getClassType("java.security.ProtectionDomain"), 1));
+                    Var context = b.newTempVar(typeSystem.getArrayType(
+                            typeSystem.getClassType("java.security.ProtectionDomain"), 1));
                     Var isPrivileged = b.newTempVar(PrimitiveType.BOOLEAN);
                     return List.of(context, isPrivileged);
                 }));
@@ -324,8 +324,8 @@ public class DefaultNativeModel implements NativeModel {
         // Currently, we only model Unsafe operations on arrays.
         // Generic model for Unsafe.put/get is impossible here due to
         // strong typing of ArrayAccess. It can be modeled in Plugin system.
-        Type objArrayType = typeManager.getArrayType(
-                typeManager.getClassType(OBJECT), 1);
+        Type objArrayType = typeSystem.getArrayType(
+                typeSystem.getClassType(OBJECT), 1);
         // <sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>
         register("<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>", m -> {
             NativeIRBuilder builder = new NativeIRBuilder(m);
@@ -456,7 +456,7 @@ public class DefaultNativeModel implements NativeModel {
         NativeIRBuilder builder = new NativeIRBuilder(method);
         List<Stmt> stmts = new ArrayList<>();
         Var len = builder.newTempVar(PrimitiveType.INT);
-        ArrayType arrayType = typeManager.getArrayType(elemType, 1);
+        ArrayType arrayType = typeSystem.getArrayType(elemType, 1);
         Var array = builder.getReturnVar();
         stmts.add(new New(method, array, new NewArray(arrayType, len)));
         if (elemType instanceof ClassType) {

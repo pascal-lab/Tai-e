@@ -219,7 +219,7 @@ public class HierarchyTest {
     }
 
     private static ClassType getClassType(String className) {
-        return World.get().getTypeManager().getClassType(className);
+        return World.get().getTypeSystem().getClassType(className);
     }
 
     private static JClass getClass(String className) {

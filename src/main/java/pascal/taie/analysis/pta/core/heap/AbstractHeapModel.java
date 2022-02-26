@@ -17,7 +17,7 @@ import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 
 import java.util.Map;
 
@@ -42,7 +42,7 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final boolean isMergeExceptionObjects;
 
-    private final TypeManager typeManager;
+    private final TypeSystem typeSystem;
 
     private final Type string;
 
@@ -69,11 +69,11 @@ abstract class AbstractHeapModel implements HeapModel {
         isMergeStringObjects = options.getBoolean("merge-string-objects");
         isMergeStringBuilders = options.getBoolean("merge-string-builders");
         isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
-        typeManager = World.get().getTypeManager();
-        string = typeManager.getClassType(STRING);
-        stringBuilder = typeManager.getClassType(STRING_BUILDER);
-        stringBuffer = typeManager.getClassType(STRING_BUFFER);
-        throwable = typeManager.getClassType(THROWABLE);
+        typeSystem = World.get().getTypeSystem();
+        string = typeSystem.getClassType(STRING);
+        stringBuilder = typeSystem.getClassType(STRING_BUILDER);
+        stringBuffer = typeSystem.getClassType(STRING_BUFFER);
+        throwable = typeSystem.getClassType(THROWABLE);
         mergedSC = new MergedObj(string, "<Merged string constants>");
     }
 
@@ -87,7 +87,7 @@ abstract class AbstractHeapModel implements HeapModel {
                 (type.equals(stringBuilder) || type.equals(stringBuffer))) {
             return getMergedObj(allocSite);
         }
-        if (isMergeExceptionObjects && typeManager.isSubtype(throwable, type)) {
+        if (isMergeExceptionObjects && typeSystem.isSubtype(throwable, type)) {
             return getMergedObj(allocSite);
         }
         return doGetObj(allocSite);

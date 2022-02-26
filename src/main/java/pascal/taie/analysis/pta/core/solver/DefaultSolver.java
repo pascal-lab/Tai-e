@@ -68,7 +68,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
@@ -102,7 +102,7 @@ public class DefaultSolver implements Solver {
 
     private final ClassHierarchy hierarchy;
 
-    private final TypeManager typeManager;
+    private final TypeSystem typeSystem;
 
     private final NativeObjs nativeObjs;
 
@@ -137,8 +137,8 @@ public class DefaultSolver implements Solver {
         this.contextSelector = contextSelector;
         this.csManager = csManager;
         hierarchy = World.get().getClassHierarchy();
-        typeManager = World.get().getTypeManager();
-        nativeObjs = new NativeObjs(typeManager);
+        typeSystem = World.get().getTypeSystem();
+        nativeObjs = new NativeObjs(typeSystem);
     }
 
     @Override
@@ -167,8 +167,8 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
-    public TypeManager getTypeManager() {
-        return typeManager;
+    public TypeSystem getTypeSystem() {
+        return typeSystem;
     }
 
     @Override
@@ -301,7 +301,7 @@ public class DefaultSolver implements Solver {
     private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
         PointsToSet result = PointsToSetFactory.make();
         pts.objects()
-                .filter(o -> typeManager.isSubtype(type, o.getObject().getType()))
+                .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
                 .forEach(result::addObject);
         return result;
     }

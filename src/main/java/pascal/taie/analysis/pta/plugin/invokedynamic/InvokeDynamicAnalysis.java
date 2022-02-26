@@ -45,7 +45,7 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.TypeManager;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
@@ -73,7 +73,7 @@ public class InvokeDynamicAnalysis implements Plugin {
 
     private ClassHierarchy hierarchy;
 
-    private TypeManager typeManager;
+    private TypeSystem typeSystem;
 
     private Context defContext;
 
@@ -156,7 +156,7 @@ public class InvokeDynamicAnalysis implements Plugin {
         selector = solver.getContextSelector();
         heapModel = solver.getHeapModel();
         hierarchy = solver.getHierarchy();
-        typeManager = solver.getTypeManager();
+        typeSystem = solver.getTypeSystem();
 
         defContext = selector.getEmptyContext();
         lookup = hierarchy.getJREClass(ClassNames.LOOKUP).getType();
@@ -224,7 +224,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 .map(i -> {
                     MethodRef ref = i.getMethodRef();
                     ClassType declType = ref.getDeclaringClass().getType();
-                    if (typeManager.isSubtype(callSite, declType)) {
+                    if (typeSystem.isSubtype(callSite, declType)) {
                         // new [Constant|Mutable|Volatile]CallSite(target);
                         if (ref.getName().equals(MethodNames.INIT) ||
                                 // callSite.setTarget(target);
