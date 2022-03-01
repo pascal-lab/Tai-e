@@ -264,6 +264,12 @@ public class DefaultSolver implements Solver {
                 }
             }
             while (workList.hasCallEdges()) {
+                // We store new-added call edges in work list and process them
+                // one by one, instead of processing them immediately. This is
+                // to avoid recursion (processCallEdge()->processNewCSMethod->
+                // StmtProcessor.processInvokeStatic()->processCallEdge());
+                // otherwise, long call chain of static methods in the analyzed
+                // program may cause stack overflow.
                 processCallEdge(workList.pollCallEdge());
             }
         }
