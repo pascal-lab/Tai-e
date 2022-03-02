@@ -24,6 +24,7 @@ package pascal.taie.frontend.soot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.frontend.newfrontend.exposed.IRBuilderHook;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -207,6 +208,13 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     IR build() {
         SootMethod m = (SootMethod) method.getMethodSource();
+
+        // use new frontend to handle java file
+        Optional<IR> irByNewFrontend = IRBuilderHook.getMethodIRByNewFrontend(m, method);
+        if (irByNewFrontend.isPresent()) {
+            return irByNewFrontend.get();
+        }
+
         Body body = m.retrieveActiveBody();
         m.releaseActiveBody(); // release body to save memory
         varManager = new VarManager(method, converter);
