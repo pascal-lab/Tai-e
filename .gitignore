@@ -4,3 +4,6 @@ build/
 sootOutput/
 output/
 out/
+
+# MacOS hidden file
+.DS_Store

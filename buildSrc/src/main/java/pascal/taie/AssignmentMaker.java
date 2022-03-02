@@ -10,17 +10,13 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pascal.taie.config.ConfigException;
-import pascal.taie.config.Configs;
-import pascal.taie.util.collection.Streams;
+import org.gradle.api.Project;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -41,49 +37,44 @@ import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
  * Makes assignments according to configurations.
  */
-final class AssignmentMaker {
+public final class AssignmentMaker {
 
-    private static final Logger logger = LogManager.getLogger(AssignmentMaker.class);
-
-    /**
-     * Relative path to Tai-e jar.
-     */
-    private static final String TAI_E = "build/libs/tai-e-all.jar";
-
-    private static final Path SOURCE_DIR = Path.of("src/main/java");
-
-    private static final Path TEST_SOURCE_DIR = Path.of("src/test/java");
-
-    private static final Path TEST_RESOURCES_DIR = Path.of("src/test/resources");
-
-    /**
-     * Directory for rt.jar. This jar is needed by Soot frontend.
-     */
-    private static final Path RT_DIR = Path.of("java-benchmarks/JREs/jre1.5");
+    private final static String CLASS_SUFFIX = ".class";
 
     /**
      * Root directory of Tai-e.
      */
-    private static final Path TAI_E_ROOT = Path.of("");
+    private final Path TAI_E_ROOT;
+
+    private final Path OUTPUT_DIR;
+
+    /**
+     * path to Tai-e jar.
+     */
+    private final Path TAI_E;
+
+    private final Path SOURCE_DIR;
+
+    private final Path TEST_SOURCE_DIR;
+
+    private final Path TEST_RESOURCES_DIR;
+
+    /**
+     * Directory for rt.jar. This jar is needed by Soot frontend.
+     */
+    private final Path RT_DIR;
 
     /**
      * Root directory of all assignment content.
      */
-    private static final Path ASS_ROOT = Path.of("assignments");
-
-    private final static String CLASS_SUFFIX = ".class";
-
-    public static void main(String[] args) {
-        for (String a : args) {
-            new AssignmentMaker(a).make();
-        }
-    }
+    private final Path ASS_ROOT;
 
     /**
      * Path to the directory for assignment content.
@@ -97,17 +88,38 @@ final class AssignmentMaker {
 
     private final Config config;
 
-    private AssignmentMaker(String name) {
+    private AssignmentMaker(Project project, String name) {
+        // configure the paths
+        TAI_E_ROOT = project.getRootDir().toPath();
+        OUTPUT_DIR = TAI_E_ROOT.resolve("output");
+        TAI_E = TAI_E_ROOT.resolve("build/libs/tai-e-all.jar");
+        SOURCE_DIR = TAI_E_ROOT.resolve("src/main/java");
+        TEST_SOURCE_DIR = TAI_E_ROOT.resolve("src/test/java");
+        TEST_RESOURCES_DIR = TAI_E_ROOT.resolve("src/test/resources");
+        RT_DIR = TAI_E_ROOT.resolve("java-benchmarks/JREs/jre1.5");
+        ASS_ROOT = TAI_E_ROOT.resolve("assignments");
         ASS_DIR = ASS_ROOT.resolve(name);
-        TARGET_DIR = Configs.getOutputDir().toPath()
-                .resolve(name)
-                .resolve("tai-e");
+        TARGET_DIR = OUTPUT_DIR.resolve(name).resolve("tai-e");
         File target = TARGET_DIR.toFile();
         if (target.exists()) {
             deleteDirectory(TARGET_DIR);
         }
         target.mkdirs();
         config = Config.parseConfig(ASS_DIR.resolve("config.yml").toFile());
+    }
+
+    public static void run(Project project) {
+        Object args = project.getProperties().get("args");
+        if (args == null) {
+            System.err.println("""
+                > Task :Assignments
+                Error arguments 'args'! Examples like '-Pargs=A1' or '-Pargs="A1 A2"'
+                """);
+        } else {
+            for (String arg : args.toString().split(" ")) {
+                new AssignmentMaker(project, arg).make();
+            }
+        }
     }
 
     /**
@@ -118,17 +130,16 @@ final class AssignmentMaker {
     private static void deleteDirectory(Path dir) {
         try {
             Files.walk(dir)
-                    .map(Path::toFile)
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(File::delete);
+                 .map(Path::toFile)
+                 .sorted(Comparator.reverseOrder())
+                 .forEach(File::delete);
         } catch (IOException e) {
-            logger.warn("Exception {} thrown when deleting {}", e, dir);
+            System.out.println("Exception %s thrown when deleting %s".formatted(e, dir));
         }
     }
 
     private void make() {
-        logger.info("Making assignment {} at {} ...",
-                config.getName(), TARGET_DIR);
+        System.out.println("Making assignment %s at %s ...".formatted(config.getName(), TARGET_DIR));
         packDependencies();
         copySourceFiles();
         copyIncompleteFiles();
@@ -144,7 +155,7 @@ final class AssignmentMaker {
         if (!parent.exists()) {
             parent.mkdirs();
         }
-        try (var in = new JarInputStream(new FileInputStream(TAI_E));
+        try (var in = new JarInputStream(new FileInputStream(TAI_E.toFile()));
              var out = new JarOutputStream(new FileOutputStream(path.toFile()))
         ) {
             byte[] byteBuff = new byte[1024];
@@ -164,7 +175,7 @@ final class AssignmentMaker {
     }
 
     private void copySourceFiles() {
-        Path target = TARGET_DIR.resolve(SOURCE_DIR);
+        Path target = TARGET_DIR.resolve("src/main/java");
         config.getSourceFiles()
                 .forEach(className -> copyFile(SOURCE_DIR, target, className,
                         AssignmentMaker::toSourcePath));
@@ -172,14 +183,14 @@ final class AssignmentMaker {
 
     private void copyIncompleteFiles() {
         Path source = ASS_DIR;
-        Path target = TARGET_DIR.resolve(SOURCE_DIR);
+        Path target = TARGET_DIR.resolve("src/main/java");
         config.getOverwrittenFiles()
                 .forEach(className -> copyFile(source, target, className,
                         AssignmentMaker::toSourcePath));
     }
 
     private void copyTestClasses() {
-        Path target = TARGET_DIR.resolve(TEST_SOURCE_DIR);
+        Path target = TARGET_DIR.resolve("src/test/java");
         config.getTestClasses()
                 .forEach(className -> copyFile(TEST_SOURCE_DIR, target, className,
                         AssignmentMaker::toSourcePath));
@@ -216,7 +227,7 @@ final class AssignmentMaker {
     }
 
     private void copyTestResources() {
-        Path target = TARGET_DIR.resolve(TEST_RESOURCES_DIR);
+        Path target = TARGET_DIR.resolve("src/test/resources");
         config.getTestResources().forEach(item -> {
             copyFile(TEST_RESOURCES_DIR, target, item);
             // some source files in test resources are just dependencies
@@ -236,7 +247,7 @@ final class AssignmentMaker {
 
     private void zipPackage() {
         Path source = TARGET_DIR.getParent();
-        File zipFile = new File(Configs.getOutputDir(), config.getPackageName());
+        File zipFile = OUTPUT_DIR.resolve(config.getPackageName()).toFile();
         try (ZipOutputStream zos = new ZipOutputStream(
                 new FileOutputStream(zipFile))) {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
@@ -258,7 +269,7 @@ final class AssignmentMaker {
                         }
                         // if large file, throws out of memory
                         zos.closeEntry();
-                        logger.info("Zip file : {}", file);
+                        System.out.println("Zip file : " + file);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -267,7 +278,8 @@ final class AssignmentMaker {
 
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                    logger.error("Unable to zip : {}%n{}", file, exc);
+                    System.err.println("Unable to zip : " + file);
+                    exc.printStackTrace();
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -295,7 +307,7 @@ final class AssignmentMaker {
      */
     private void copyCommonFiles() {
         // Gradle-related
-        copyFile(ASS_ROOT, TARGET_DIR, "build.gradle");
+        copyFile(ASS_ROOT, TARGET_DIR, "build.gradle.kts");
         copyFile(TAI_E_ROOT, TARGET_DIR, "gradlew");
         copyFile(TAI_E_ROOT, TARGET_DIR, "gradlew.bat");
         copyFile(TAI_E_ROOT, TARGET_DIR, "gradle/wrapper/gradle-wrapper.jar");
@@ -409,15 +421,15 @@ final class AssignmentMaker {
             try {
                 return mapper.readValue(configFile, Config.class);
             } catch (IOException e) {
-                throw new ConfigException("Failed to read assignment config " + configFile, e);
+                throw new RuntimeException("Failed to read assignment config " + configFile, e);
             }
         }
 
         private boolean shouldIncludeClass(String item) {
-            return Streams.concat(exclude.stream(),
-                            sourceFiles.stream(),
-                            overwrittenFiles.stream())
-                    .noneMatch(entry -> match(item, entry));
+            return Stream.concat(Stream.concat(exclude.stream(),
+                                         sourceFiles.stream()),
+                                 overwrittenFiles.stream())
+                         .noneMatch(entry -> match(item, entry));
         }
 
         private boolean match(String item, String entry) {
