@@ -4,9 +4,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import pascal.taie.ir.exp.MethodHandle;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
