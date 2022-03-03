@@ -12,7 +12,6 @@ import java.util.Optional;
  */
 public class MethodLocator {
     MethodDeclaration methodDeclaration;
-    MethodLocator() {}
     Optional<MethodDeclaration> getMethodBySig(
             String className,
             String signature, CompilationUnit cu) {

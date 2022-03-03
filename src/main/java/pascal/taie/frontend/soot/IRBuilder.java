@@ -24,7 +24,7 @@ package pascal.taie.frontend.soot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.exposed.ClassHierarchyHolder;
+import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -68,9 +68,6 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {
-        // Let new frontend know ClassHierarchy
-        ClassHierarchyHolder.setClassHierarchy(hierarchy);
-
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
         int nThreads = Runtime.getRuntime().availableProcessors();

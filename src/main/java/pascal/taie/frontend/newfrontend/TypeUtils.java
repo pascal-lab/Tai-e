@@ -1,9 +1,19 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
+import pascal.taie.ir.exp.DoubleLiteral;
+import pascal.taie.ir.exp.FloatLiteral;
+import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 
 public final class TypeUtils {
 
@@ -15,10 +25,13 @@ public final class TypeUtils {
     public static final String JDT_DOUBLE = "double";
     public static final String JDT_CHAR = "char";
     public static final String JDT_BOOLEAN = "boolean";
+    public static final String JDT_VOID = "void";
 
     public static String getErasedName(ITypeBinding iTypeBinding) {
         if (iTypeBinding.isPrimitive()) {
             return iTypeBinding.getName();
+        } else if (iTypeBinding.isArray()) {
+            return getErasedName(iTypeBinding.getComponentType()) + "[]";
         }
         return iTypeBinding.getErasure().getBinaryName();
     }
@@ -72,10 +85,45 @@ public final class TypeUtils {
                 case JDT_DOUBLE -> PrimitiveType.DOUBLE;
                 case JDT_FLOAT -> PrimitiveType.FLOAT;
                 case JDT_BOOLEAN -> PrimitiveType.BOOLEAN;
+                case JDT_VOID -> VoidType.VOID;
                 default -> throw new NewFrontendException("Primitive Type Illegal: " + typeBinding.getName());
             };
+        } else if (typeBinding.isNullType()) {
+            return NullType.NULL;
         } else {
-            throw new NewFrontendException("JDTTypeToTaieType: Not Implement.");
+            var erased = typeBinding.getErasure();
+            var tm = WorldParaHolder.getTypeSystem();
+            var loader = WorldParaHolder.getClassLoader();
+            if (erased.isClass() || erased.isInterface()) {
+                return tm.getType(loader, erased.getBinaryName());
+            } else if (erased.isArray()) {
+                return tm.getArrayType(JDTTypeToTaieType(erased.getElementType()), erased.getDimensions());
+            }
+            throw new NewFrontendException("JDTTypeToTaieType:" + typeBinding.getName() + "is Not Implemented.");
+        }
+    }
+
+    // TODO: do we have to consider type of lvalue?
+    public static Literal getRightPrimitiveLiteral(Expression e) {
+        var res = e.resolveConstantExpressionValue();
+        if (res == null) {
+            if (e instanceof NullLiteral) {
+                return pascal.taie.ir.exp.NullLiteral.get();
+            } else {
+                throw new NewFrontendException(e + " is not literal, why use this function?");
+            }
+        } else {
+            if (res instanceof Integer i) {
+                return IntLiteral.get(i);
+            } else if (res instanceof Long l) {
+                return LongLiteral.get(l);
+            } else if (res instanceof Float f) {
+                return FloatLiteral.get(f);
+            } else if (res instanceof Double d) {
+                return DoubleLiteral.get(d);
+            } else {
+                throw new NewFrontendException(e + " is not primitive literal, why use this function?");
+            }
         }
     }
 }

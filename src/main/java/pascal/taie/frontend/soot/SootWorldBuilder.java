@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.StringReps;
@@ -208,6 +209,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // initialize type manager
         TypeSystem typeSystem = new TypeSystemImpl(hierarchy);
         world.setTypeSystem(typeSystem);
+        // stolen typeSystem, classHierarchy and classLoader for new frontend
+        WorldParaHolder.setWorld(hierarchy, typeSystem, loader);
         // initialize converter
         Converter converter = new Converter(loader, typeSystem);
         loader.setConverter(converter);

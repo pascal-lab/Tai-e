@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend.exposed;
 
+import pascal.taie.frontend.newfrontend.LinenoManger;
 import pascal.taie.frontend.newfrontend.NewMethodIRBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
@@ -13,7 +14,11 @@ record PathAndName(String path, String name) { }
 public class IRBuilderHook {
     public static Optional<IR> getMethodIRByNewFrontend(SootMethod method, JMethod jMethod) {
         return getJavaFileName(method).flatMap(
-                pathAndName -> new NewMethodIRBuilder(pathAndName.path(), pathAndName.name(), method, jMethod).build());
+                pathAndName -> new NewMethodIRBuilder(
+                        pathAndName.path(),
+                        pathAndName.name(),
+                        method,
+                        jMethod).build());
     }
 
     public static Optional<PathAndName> getJavaFileName(SootMethod method) {

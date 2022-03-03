@@ -5,36 +5,49 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.TypeLiteral;
+
+import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
+import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import soot.SootMethod;
 
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class NewMethodIRBuilder {
     private static final Logger logger = LogManager.getLogger(NewMethodIRBuilder.class);
@@ -51,13 +64,16 @@ public class NewMethodIRBuilder {
     private final String className;
 
     // if notHandle, then build() return Optional.empty()
-    private final boolean notHandle;
+    private boolean notHandle;
 
     // Method to be built
     private MethodDeclaration targetMethod;
 
-    // IR to be built;
-    private IR buildRes;
+    // class where method is declared
+    private final JClass targetClass;
+
+    // use linenoManger to retrieve line number;
+    private LinenoManger linenoManger;
 
     public NewMethodIRBuilder(String sourceFilePath, String sourceFileName, SootMethod method, JMethod jMethod) {
         this.sourceFilePath = sourceFilePath;
@@ -67,7 +83,18 @@ public class NewMethodIRBuilder {
         this.methodSig = method.getSubSignature();
         this.className = method.getDeclaringClass().getName();
         this.notHandle = checkIfNotHandle(method);
-        // this.targetClass = ClassHierarchyHolder.getClassHierarchy().getClass(className).getType();
+
+        if (!WorldParaHolder.isWorldReady()) {
+            logger.error("NewFrontend can't get the World");
+            this.targetClass = null;
+            this.notHandle = true;
+        } else {
+            this.targetClass = WorldParaHolder.getClassHierarchy().getClass(className);
+            if (targetClass == null) {
+                logger.error("NewFrontend can't get tai-e class for" + className);
+                this.notHandle = true;
+            }
+        }
     }
 
     // Some Reason for not handle
@@ -109,6 +136,7 @@ public class NewMethodIRBuilder {
             logger.error("parse failed");
             return Optional.empty();
         }
+        this.linenoManger = new LinenoManger(cu);
 
         // find method to be generated.
         var preTargetMethod = new MethodLocator().getMethodBySig(className, methodSig, cu);
@@ -131,8 +159,15 @@ public class NewMethodIRBuilder {
 
     class IRGenerator {
 
-        private final List<Stmt> stmts;
+        private final static String THIS = "%this";
 
+        private final static String STRING_CONSTANT = "%stringconst";
+
+        private final static String CLASS_CONSTANT = "%classconst";
+
+        private final static String NULL_CONSTANT = "%nullconst";
+
+        private final List<Stmt> stmts;
         private final List<Var> params;
         private final Map<IBinding, Var> bindingVarMap;
         private final List<Var> vars;
@@ -158,25 +193,58 @@ public class NewMethodIRBuilder {
             return new DefaultIR(jMethod, thisVar, params, rets, vars, stmts, new ArrayList<>());
         }
 
-        private void buildThis() {
-            // thisVar = new Var(jMethod, "this", targetClass);
-        }
-
-        private void addStmt(Stmt stmt) {
-            stmt.setIndex(stmts.size());
-            stmts.add(stmt);
+        private Var newVar(String name, Type type) {
+            var v = new Var(jMethod, name, type);
+            regVar(v);
+            return v;
         }
 
         private void regVar(Var v) {
             vars.add(v);
         }
 
-        private Var newTempVar(ITypeBinding type) {
+        private Var newTempVar(Type type) {
             int tempNow = tempCounter;
             tempCounter++;
-            var v = new Var(jMethod, "temp$" + tempNow, TypeUtils.JDTTypeToTaieType(type));
+            var v = new Var(jMethod, "temp$" + tempNow, type);
             regVar(v);
             return v;
+        }
+
+        Var newConstantVar(Literal literal) {
+            String varName;
+            if (literal instanceof pascal.taie.ir.exp.StringLiteral) {
+                varName = STRING_CONSTANT + tempCounter++;
+            } else if (literal instanceof ClassLiteral) {
+                varName = CLASS_CONSTANT + tempCounter++;
+            } else if (literal instanceof pascal.taie.ir.exp.NullLiteral) {
+                // each method has at most one variable for null constant,
+                // thus we don't need to count for null constant.
+                varName = NULL_CONSTANT;
+            } else {
+                varName = "%" + literal.getType().getName() +
+                        "const" + tempCounter++;
+            }
+            Var var = new Var(jMethod, varName, literal.getType(), literal);
+            regVar(var);
+            return var;
+        }
+
+        private Var getBinding(IBinding binding) {
+            return bindingVarMap.computeIfAbsent(binding, (b) -> {
+                var v = newVar(b.getName(), TypeUtils.JDTTypeToTaieType(((IVariableBinding) b).getType()));
+                return v;
+            });
+        }
+
+        private void addStmt(int lineNo, Stmt stmt) {
+            stmt.setLineNumber(lineNo);
+            stmt.setIndex(stmts.size());
+            stmts.add(stmt);
+        }
+
+        private void buildThis() {
+            this.thisVar = newVar(THIS, targetClass.getType());
         }
 
         private void buildPara() {
@@ -194,22 +262,17 @@ public class NewMethodIRBuilder {
             }
         }
 
-        private static boolean isSimple(Expression exp) {
-            return exp instanceof Name;
-        }
-
-        private void processIfNotSimple(Expression exp, Consumer<Var> f) {
-            if (IRGenerator.isSimple(exp)) {
-                var visitor = new ExpGenerateVisitor();
-                exp.accept(visitor);
-                assert (visitor.contVar != null);
-                f.accept(visitor.contVar);
-            } else {
-                var temp = newTempVar(exp.resolveTypeBinding());
-                var visitor = new ExpGenerateVisitor(temp);
-                exp.accept(visitor);
-                f.accept(temp);
-            }
+        /**
+         * @apiNote In tai-e design, method reference is also a literal,
+         * but for now, we choose to not handle that.
+         */
+        private static boolean isLiteral(Expression exp) {
+            return exp instanceof BooleanLiteral ||
+                    exp instanceof CharacterLiteral ||
+                    exp instanceof NullLiteral ||
+                    exp instanceof NumberLiteral ||
+                    exp instanceof StringLiteral ||
+                    exp instanceof TypeLiteral;
         }
 
         private void buildStmt() {
@@ -217,7 +280,78 @@ public class NewMethodIRBuilder {
             targetMethod.accept(visitor);
         }
 
-        class StmtGenerateVisitor extends ASTVisitor {
+
+        class VisitorContext {
+            private final Stack<Exp> expStack;
+
+            public VisitorContext() {
+                expStack = new Stack<>();
+            }
+
+            public void pushStack(Exp exp) {
+                expStack.add(exp);
+            }
+
+            public Exp popStack() {
+                return expStack.pop();
+            }
+
+        }
+
+        class LinenoASTVisitor extends ASTVisitor {
+            private int lineno;
+            protected final VisitorContext context;
+
+            public LinenoASTVisitor() {
+                this.context = new VisitorContext();
+            }
+
+            public LinenoASTVisitor(VisitorContext context) {
+                this.context = context;
+            }
+
+            protected void addStmt(Stmt stmt) {
+                IRGenerator.this.addStmt(lineno, stmt);
+            }
+
+            @Override
+            public void preVisit(ASTNode node) {
+                this.lineno = linenoManger.getLineno(node);
+            }
+
+            protected Var expToVar(Exp exp) {
+                if (exp instanceof Var v) {
+                    return v;
+                } else if (exp instanceof BinaryExp exp1) {
+                    var v = newTempVar(exp1.getType());
+                    addStmt(new Binary(v, exp1));
+                    return v;
+                } else if (exp instanceof Literal l) {
+                    var v = newConstantVar(l);
+                    addStmt(new AssignLiteral(v, l));
+                    return v;
+                } else {
+                    throw new NewFrontendException(exp + "is not implemented");
+                }
+            }
+
+            protected Var popVar() {
+                return expToVar(context.popStack());
+            }
+
+            protected Var[] popVar2() {
+                var v2 = context.popStack();
+                var v1 = context.popStack();
+                return new Var[] {expToVar(v1), expToVar(v2)};
+            }
+        }
+
+        class StmtGenerateVisitor extends LinenoASTVisitor {
+
+            public StmtGenerateVisitor() {
+                super();
+            }
+
             @Override
             public boolean visit(Block block) {
                 var stmts = block.statements();
@@ -232,47 +366,27 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(ReturnStatement rs) {
                 var exp = rs.getExpression();
-                processIfNotSimple(exp, (var v) -> {
-                    ret = v;
-                    addStmt(new Return(v));
-                });
+                exp.accept(new ExpVisitor(context));
+                var retVar = popVar();
+                addStmt(new Return(retVar));
+                ret = retVar;
                 return false;
             }
         }
 
-        class ExpGenerateVisitor extends ASTVisitor {
+        class ExpVisitor extends LinenoASTVisitor {
 
-            /**
-             * <p>Var for continuation of this exp</p>
-             * <p>if exp is not {@code Name}, this field need to be given outside</p>
-             * <p>else, after visit this field will be set to the variable correspond to the {@code Name}</p>
-             */
-            private Var contVar;
+            private ExpVisitor() {  }
 
-            // Only when exp is a simple expression (i.e. Name)
-            public ExpGenerateVisitor() {}
-
-            public ExpGenerateVisitor(ITypeBinding contType) {
-                contVar = newTempVar(contType);
-            }
-
-            public ExpGenerateVisitor(Var contVar) {
-                this.contVar = contVar;
-            }
-
-            public Var getContVar() {
-                return contVar;
+            ExpVisitor(VisitorContext context) {
+                super(context);
             }
 
             @Override
             public boolean visit(SimpleName name) {
                 var binding = name.resolveBinding();
                 if (binding instanceof IVariableBinding) {
-                    var v = bindingVarMap.get(binding);
-                    if (v == null) {
-                        throw new NewFrontendException("Binding <" + binding + "> can't be resolved");
-                    }
-                    contVar = v;
+                    context.pushStack(getBinding(binding));
                 } else {
                     throw new NewFrontendException("Exp <" + name + "> can't be handled, not implement");
                 }
@@ -282,33 +396,34 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(InfixExpression exp) {
                 if (exp.getOperator().equals(InfixExpression.Operator.PLUS)) {
-                    processIfNotSimple(exp.getLeftOperand(), (var lVar) -> {
-                        processIfNotSimple(exp.getRightOperand(), (var rVar) -> {
-                            if (exp.extendedOperands().size() == 0) {
-                                addStmt(new Binary(contVar,
-                                        new ArithmeticExp(ArithmeticExp.Op.ADD, lVar, rVar)));
-                            } else {
-                                var temp = newTempVar(exp.resolveTypeBinding());
-                                addStmt(new Binary(temp, new ArithmeticExp(ArithmeticExp.Op.ADD, lVar, rVar)));
-                                var extOperands = exp.extendedOperands();
-                                var i = extOperands.iterator();
-                                while (i.hasNext()) {
-                                    var expNow = i.next();
-                                    var tempNow = i.hasNext() ?
-                                            newTempVar(exp.resolveTypeBinding()) : contVar;
-                                    var finalTemp = temp;
-                                    processIfNotSimple((Expression) expNow, (var v) -> {
-                                        addStmt(new Binary(tempNow, new ArithmeticExp(ArithmeticExp.Op.ADD, finalTemp, v)));
-                                    });
-                                    temp = tempNow;
-                                }
-                            }
-                        });
-                    });
+                    exp.getLeftOperand().accept(this);
+                    exp.getRightOperand().accept(this);
+                    // NOTE: sequence is reversed to push
+                    var lrVar = popVar2();
+                    context.pushStack(new ArithmeticExp(ArithmeticExp.Op.ADD, lrVar[0], lrVar[1]));
+                    var extOperands = exp.extendedOperands();
+                    for (var i : extOperands) {
+                        var expNow = (Expression) i;
+                        expNow.accept(this);
+                        var lrVarNow = popVar2();
+                        context.pushStack(new ArithmeticExp(ArithmeticExp.Op.ADD, lrVarNow[0], lrVarNow[1]));
+                    }
                     return false;
                 } else {
                     throw new NewFrontendException("Operator <" + exp.getOperator() + "> not implement");
                 }
+            }
+
+            @Override
+            public boolean visit(NullLiteral literal) {
+                context.pushStack(pascal.taie.ir.exp.NullLiteral.get());
+                return false;
+            }
+
+            @Override
+            public boolean visit(NumberLiteral literal) {
+                context.pushStack(TypeUtils.getRightPrimitiveLiteral(literal));
+                return false;
             }
         }
     }
