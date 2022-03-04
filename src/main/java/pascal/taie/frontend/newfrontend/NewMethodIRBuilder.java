@@ -8,6 +8,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -18,6 +19,7 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -26,17 +28,23 @@ import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 
+import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
@@ -47,7 +55,13 @@ import pascal.taie.util.collection.Sets;
 import soot.SootMethod;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
+import java.util.function.BiFunction;
 
 public class NewMethodIRBuilder {
     private static final Logger logger = LogManager.getLogger(NewMethodIRBuilder.class);
@@ -152,7 +166,7 @@ public class NewMethodIRBuilder {
             var generator = new IRGenerator();
             return Optional.of(generator.build());
         } catch (NewFrontendException e) {
-            logger.error(e);
+            logger.error(e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -189,7 +203,9 @@ public class NewMethodIRBuilder {
             buildPara();
             buildStmt();
             Set<Var> rets = Sets.newSet();
-            rets.add(ret);
+            if (ret != null) {
+                rets.add(ret);
+            }
             return new DefaultIR(jMethod, thisVar, params, rets, vars, stmts, new ArrayList<>());
         }
 
@@ -211,7 +227,7 @@ public class NewMethodIRBuilder {
             return v;
         }
 
-        Var newConstantVar(Literal literal) {
+        Var newTempConstantVar(Literal literal) {
             String varName;
             if (literal instanceof pascal.taie.ir.exp.StringLiteral) {
                 varName = STRING_CONSTANT + tempCounter++;
@@ -228,6 +244,12 @@ public class NewMethodIRBuilder {
             Var var = new Var(jMethod, varName, literal.getType(), literal);
             regVar(var);
             return var;
+        }
+
+        Var newConstantVar(IVariableBinding v, Literal l) {
+            var name = v.getName();
+            var type = TypeUtils.JDTTypeToTaieType(v.getType());
+            return new Var(jMethod, name, type, l);
         }
 
         private Var getBinding(IBinding binding) {
@@ -324,14 +346,27 @@ public class NewMethodIRBuilder {
                     return v;
                 } else if (exp instanceof BinaryExp exp1) {
                     var v = newTempVar(exp1.getType());
-                    addStmt(new Binary(v, exp1));
+                    newAssignment(v, exp1);
                     return v;
                 } else if (exp instanceof Literal l) {
-                    var v = newConstantVar(l);
-                    addStmt(new AssignLiteral(v, l));
+                    var v = newTempConstantVar(l);
+                    newAssignment(v, exp);
                     return v;
                 } else {
                     throw new NewFrontendException(exp + "is not implemented");
+                }
+            }
+
+            protected void newAssignment(Var left, Exp right) {
+                if (right instanceof BinaryExp exp) {
+                    addStmt(new Binary(left, exp));
+                } else if (right instanceof Literal l) {
+                    addStmt(new AssignLiteral(left, l));
+                } else if (right instanceof Var v) {
+                    addStmt(new Copy(left, v));
+                }
+                else {
+                    throw new NewFrontendException(right + "is not implemented");
                 }
             }
 
@@ -344,6 +379,7 @@ public class NewMethodIRBuilder {
                 var v1 = context.popStack();
                 return new Var[] {expToVar(v1), expToVar(v2)};
             }
+
         }
 
         class StmtGenerateVisitor extends LinenoASTVisitor {
@@ -372,6 +408,50 @@ public class NewMethodIRBuilder {
                 ret = retVar;
                 return false;
             }
+
+            /**
+             * If encounter here, then {@code ass} is a {@code Expression Statement}
+             * e.g. x = 10;
+             */
+            @Override
+            public boolean visit(Assignment ass) {
+                // let ExpVisitor handle this assignment
+                ass.accept(new ExpVisitor(context));
+                // ignore the value of this assignment
+                this.context.popStack();
+                return false;
+            }
+
+            private void handleSingleVarDecl(VariableDeclaration vd) {
+                var name = vd.getName();
+                var val = vd.getInitializer();
+                var visitor = new ExpVisitor(context);
+                name.accept(visitor);
+                if (val == null) {
+                    this.context.popStack();
+                } else {
+                    val.accept(visitor);
+                    var r = this.context.popStack();
+                    var l = popVar();
+                    newAssignment(l, r);
+                }
+            }
+
+            @Override
+            public boolean visit(SingleVariableDeclaration svd) {
+                handleSingleVarDecl(svd);
+                return false;
+            }
+
+            @Override
+            public boolean visit(VariableDeclarationStatement vds) {
+                var singleDecls = vds.fragments();
+                for (var i : singleDecls) {
+                    var singleDecl = (VariableDeclarationFragment) i;
+                    handleSingleVarDecl(singleDecl);
+                }
+                return false;
+            }
         }
 
         class ExpVisitor extends LinenoASTVisitor {
@@ -380,6 +460,20 @@ public class NewMethodIRBuilder {
 
             ExpVisitor(VisitorContext context) {
                 super(context);
+            }
+
+            private void binaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
+                exp.getLeftOperand().accept(this);
+                exp.getRightOperand().accept(this);
+                var lrVar = popVar2();
+                context.pushStack(f.apply(lrVar[0], lrVar[1]));
+                var extOperands = exp.extendedOperands();
+                for (var i : extOperands) {
+                    var expNow = (Expression) i;
+                    expNow.accept(this);
+                    var lrVarNow = popVar2();
+                    context.pushStack(f.apply(lrVarNow[0], lrVarNow[1]));
+                }
             }
 
             @Override
@@ -393,25 +487,36 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+
+
             @Override
             public boolean visit(InfixExpression exp) {
-                if (exp.getOperator().equals(InfixExpression.Operator.PLUS)) {
-                    exp.getLeftOperand().accept(this);
-                    exp.getRightOperand().accept(this);
-                    // NOTE: sequence is reversed to push
-                    var lrVar = popVar2();
-                    context.pushStack(new ArithmeticExp(ArithmeticExp.Op.ADD, lrVar[0], lrVar[1]));
-                    var extOperands = exp.extendedOperands();
-                    for (var i : extOperands) {
-                        var expNow = (Expression) i;
-                        expNow.accept(this);
-                        var lrVarNow = popVar2();
-                        context.pushStack(new ArithmeticExp(ArithmeticExp.Op.ADD, lrVarNow[0], lrVarNow[1]));
+                var op = exp.getOperator();
+                var opStr = op.toString();
+                // handle arithmetic expressions
+                switch (opStr) {
+                    case "+", "-", "*", "/", "%" -> {
+                        binaryCompute(exp, (l, r) ->
+                                new ArithmeticExp(TypeUtils.getArithmeticOp(op), l, r));
+                        return false;
                     }
-                    return false;
-                } else {
-                    throw new NewFrontendException("Operator <" + exp.getOperator() + "> not implement");
+                    case "<<", ">>", ">>>" -> {
+                        binaryCompute(exp, (l, r) ->
+                                new ShiftExp(TypeUtils.getShiftOp(op), l, r));
+                        return false;
+                    }
+                    case "|", "^", "&" -> {
+                        binaryCompute(exp, (l, r) ->
+                                new BitwiseExp(TypeUtils.getBitwiseOp(op), l, r));
+                        return false;
+                    }
+                    default -> throw new NewFrontendException("Operator <" + exp.getOperator() + "> not implement");
                 }
+            }
+
+            @Override
+            public boolean visit(ParenthesizedExpression exp) {
+                return true;
             }
 
             @Override
@@ -423,6 +528,35 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(NumberLiteral literal) {
                 context.pushStack(TypeUtils.getRightPrimitiveLiteral(literal));
+                return false;
+            }
+
+            @Override
+            public boolean visit(Assignment ass) {
+                var lExp = ass.getLeftHandSide();
+                var rExp = ass.getRightHandSide();
+                // if left-hand side is a SimpleName, and right-hand side is a literal
+                // tai-e ir need to put literal into result var
+                // so just visit left will not output the correct ir
+                // this need to be carefully handled
+                if (lExp instanceof SimpleName s && isLiteral(rExp)) {
+                    rExp.accept(this);
+                    var rLiteral = context.popStack();
+                    if (rLiteral instanceof Literal literal) {
+                        var lVar = newConstantVar((IVariableBinding) s.resolveBinding(), literal);
+                        addStmt(new AssignLiteral(lVar, literal));
+                        context.pushStack(lVar);
+                    } else {
+                        throw new NewFrontendException("illegal state, " + rLiteral + "is not literal");
+                    }
+                } else {
+                    lExp.accept(this);
+                    rExp.accept(this);
+                    var rRes = context.popStack();
+                    var lVar = popVar();
+                    newAssignment(lVar, rRes);
+                    context.pushStack(lVar);
+                }
                 return false;
             }
         }

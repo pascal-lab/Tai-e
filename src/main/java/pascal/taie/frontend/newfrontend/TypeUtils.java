@@ -3,13 +3,17 @@ package pascal.taie.frontend.newfrontend;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
+import pascal.taie.ir.exp.ArithmeticExp;
+import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
@@ -103,7 +107,6 @@ public final class TypeUtils {
         }
     }
 
-    // TODO: do we have to consider type of lvalue?
     public static Literal getRightPrimitiveLiteral(Expression e) {
         var res = e.resolveConstantExpressionValue();
         if (res == null) {
@@ -125,5 +128,34 @@ public final class TypeUtils {
                 throw new NewFrontendException(e + " is not primitive literal, why use this function?");
             }
         }
+    }
+
+    public static ArithmeticExp.Op getArithmeticOp(InfixExpression.Operator op) {
+        return switch (op.toString()) {
+            case "+" -> ArithmeticExp.Op.ADD;
+            case "-" -> ArithmeticExp.Op.SUB;
+            case "/" -> ArithmeticExp.Op.DIV;
+            case "*" -> ArithmeticExp.Op.MUL;
+            case "%" -> ArithmeticExp.Op.REM;
+            default -> throw new NewFrontendException(op + "is not arithmetic Op, why use this function?");
+        };
+    }
+
+    public static ShiftExp.Op getShiftOp(InfixExpression.Operator op) {
+        return switch (op.toString()) {
+            case ">>" -> ShiftExp.Op.SHR;
+            case "<<" -> ShiftExp.Op.SHL;
+            case ">>>"-> ShiftExp.Op.USHR;
+            default -> throw new NewFrontendException(op + "is not shift Op, why use this function?");
+        };
+    }
+
+    public static BitwiseExp.Op getBitwiseOp(InfixExpression.Operator op) {
+        return switch (op.toString()) {
+            case "|" -> BitwiseExp.Op.OR;
+            case "&" -> BitwiseExp.Op.AND;
+            case "^" -> BitwiseExp.Op.XOR;
+            default -> throw new NewFrontendException(op + "is not Bitwise Op, why use this function?");
+        };
     }
 }
