@@ -25,4 +25,11 @@ class If {
             return x;
         }
     }
+
+    public static int k(int x) {
+        if (! (x < 0))  {
+            return x - 1;
+        }
+        return x;
+    }
 }

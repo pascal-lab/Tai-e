@@ -11,17 +11,23 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ContinueStatement;
+import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -31,8 +37,10 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -57,8 +65,8 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import soot.SootMethod;
@@ -70,6 +78,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class NewMethodIRBuilder {
@@ -315,11 +324,13 @@ public class NewMethodIRBuilder {
         private void buildStmt() {
             var visitor = new StmtGenerateVisitor();
             targetMethod.accept(visitor);
+            visitor.postProcess();
         }
 
         private boolean checkEndCont() {
             var last = stmts.get(stmts.size() - 1);
-            return last instanceof Return;
+            return last instanceof Return ||
+                    last instanceof Goto;
         }
 
         class BlockLabelGenerator {
@@ -339,7 +350,7 @@ public class NewMethodIRBuilder {
             private final Stack<Exp> expStack;
             private final Stack<String> labelStack;
             private final Map<String, Stmt> blockMap;
-            private final MultiMap<String, Integer> patchMap;
+            private final Map<Integer, String> patchMap;
             private final Map<String, Pair<String, String>> brkContMap;
             private final List<String> assocList;
             private final BlockLabelGenerator labelGenerator;
@@ -348,14 +359,14 @@ public class NewMethodIRBuilder {
              * an expression may just generate side effects,
              * this variable indicates if outer environment need the value of this expression
              * <p> e.g. {@code if ( exp ) then ... else ...}
-             *                -------
+             *                    -------
              *         this exp will just lead to {@code if ... goto ...} </p>
              */
             private boolean evalContext;
 
             public VisitorContext() {
                 this.blockMap = Maps.newMap();
-                this.patchMap = Maps.newMultiMap();
+                this.patchMap = Maps.newMap();
                 this.brkContMap = Maps.newMap();
                 expStack = new Stack<>();
                 this.labelStack = new Stack<>();
@@ -385,22 +396,48 @@ public class NewMethodIRBuilder {
             }
 
             public void addPatchList(int stmtIdx, String label) {
-                this.patchMap.put(label, stmtIdx);
+                this.patchMap.put(stmtIdx, label);
             }
 
             public void addBlockMap(String label, Stmt stmt) {
                 this.blockMap.put(label, stmt);
             }
 
-            public void resolveGoto(String label, Stmt stmt) {
-                for (var i : patchMap.get(label)) {
-                    var nowStmt = stmts.get(i);
-                    if (nowStmt instanceof Goto g) {
-                        g.setTarget(stmt);
-                    } else if (nowStmt instanceof If ifExp) {
-                        ifExp.setTarget(stmt);
+            private void buildUF(UnionFind uf) {
+                blockMap.forEach((label, stmt) -> {
+                    var nowIdx = stmt.getIndex();
+                    var stmtReg = stmt;
+                    while (stmtReg instanceof Goto g) {
+                        var gotoIdx = patchMap.get(g.getIndex());
+                        stmtReg = blockMap.get(gotoIdx);
+                        uf.union(nowIdx, stmtReg.getIndex());
+                        nowIdx = stmtReg.getIndex();
                     }
+                });
+            }
+
+            private void setStmtTarget(Stmt stmt, Stmt target) {
+                if (stmt instanceof Goto g) {
+                    g.setTarget(target);
+                } else if (stmt instanceof If i) {
+                    i.setTarget(target);
+                } else {
+                    throw new NewFrontendException(stmt + " is not goto stmt, why use this function?");
                 }
+            }
+
+            /**
+             * Use union-find set to resolve all goto statements
+             */
+            public void resolveGoto() {
+                var uf = new UnionFind(stmts.size());
+                buildUF(uf);
+                patchMap.forEach((i, label) -> {
+                    var stmt = stmts.get(i);
+                    var labelStmt = blockMap.get(label);
+                    var tagStmt = stmts.get(uf.find(labelStmt.getIndex()));
+                    setStmtTarget(stmt, tagStmt);
+                });
             }
 
             public @Nullable Stmt getStmtByLabel(String label) {
@@ -418,11 +455,39 @@ public class NewMethodIRBuilder {
             public void setEvalContext(boolean evalContext) {
                 this.evalContext = evalContext;
             }
+
+            public void assocBreakAndContinue(String breakLabel, String continueLabel) {
+                for (var i : assocList) {
+                    this.brkContMap.put(i, new Pair<>(breakLabel, continueLabel));
+                }
+            }
+
+            public String getBreakLabel(String label) {
+                var p = this.brkContMap.get(label);
+                if (p != null) {
+                    return p.first();
+                } else {
+                    throw new NewFrontendException("label: "  + label + " don't exist in current context, illegal state");
+                }
+            }
+
+            public String getContinueLabel(String label) {
+                var p = this.brkContMap.get(label);
+                if (p != null) {
+                    return p.second();
+                } else {
+                    throw new NewFrontendException("label: "  + label + " don't exist in current context, illegal state");
+                }
+            }
         }
 
         class LinenoASTVisitor extends ASTVisitor {
             private int lineno;
             protected final VisitorContext context;
+
+            protected int getLineno() {
+                return lineno;
+            }
 
             public LinenoASTVisitor() {
                 this.context = new VisitorContext();
@@ -432,42 +497,46 @@ public class NewMethodIRBuilder {
                 this.context = context;
             }
 
+            public void postProcess() {
+                context.resolveGoto();
+            }
+
             protected void addStmt(Stmt stmt) {
                 // first use IRGenerator to get right index and lineno
                 var newStmt = IRGenerator.this.addStmt(lineno, stmt);
                 if (context.assocList.size() != 0) {
                     for (var i : context.assocList) {
                         context.addBlockMap(i, newStmt);
-                        context.resolveGoto(i, newStmt);
                     }
                 }
                 context.assocList.clear();
             }
 
             protected void addGoto(String label) {
-                var target = context.getStmtByLabel(label);
                 var go = new Goto();
-                if (target != null) {
-                    go.setTarget(target);
-                    addStmt(go);
-                } else {
-                    var top = stmts.size();
-                    addStmt(go);
-                    context.addPatchList(top, label);
+                var top = stmts.size();
+                addStmt(go);
+                context.addPatchList(top, label);
+            }
+
+            /**
+             * <p>if stmts[end] will cover this goto
+             * (i.e. the last statement of stmts[end] is Return)
+             * we don't addGoto.</p>
+             * <p>However, this function should not be always called.
+             * Because there may exist another path to this goto statement.</p>
+             */
+            protected void addCheckedGoto(String label) {
+                if (! checkEndCont()) {
+                    addGoto(label);
                 }
             }
 
             protected void addIf(ConditionExp exp, String label) {
-                var target = context.getStmtByLabel(label);
                 var go = new If(exp);
-                if (target != null) {
-                    go.setTarget(target);
-                    addStmt(go);
-                } else {
-                    var top = stmts.size();
-                    addStmt(go);
-                    context.addPatchList(top, label);
-                }
+                var top = stmts.size();
+                addStmt(go);
+                context.addPatchList(top, label);
             }
 
             @Override
@@ -514,6 +583,28 @@ public class NewMethodIRBuilder {
                 return new Var[] {expToVar(v1), expToVar(v2)};
             }
 
+            protected void withBrkContLabel(BiConsumer<String, String> f) {
+                var contLabel = this.context.popLabel();
+                var brkLabel = this.context.popLabel();
+                f.accept(brkLabel, contLabel);
+                this.context.pushLabel(brkLabel);
+                this.context.pushLabel(contLabel);
+            }
+
+            protected void handleSingleVarDecl(VariableDeclaration vd) {
+                var name = vd.getName();
+                var val = vd.getInitializer();
+                var visitor = new ExpVisitor(context);
+                name.accept(visitor);
+                if (val == null) {
+                    this.context.popStack();
+                } else {
+                    val.accept(visitor);
+                    var r = this.context.popStack();
+                    var l = popVar();
+                    newAssignment(l, r);
+                }
+            }
         }
 
         class StmtGenerateVisitor extends LinenoASTVisitor {
@@ -536,8 +627,14 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(ReturnStatement rs) {
                 var exp = rs.getExpression();
-                exp.accept(new ExpVisitor(context));
-                var retVar = popVar();
+                Var retVar;
+                if (exp != null) {
+                    exp.accept(new ExpVisitor(context));
+                    retVar = popVar();
+                } else {
+                    // TODO: Is this handle correct?
+                    retVar = newTempVar(VoidType.VOID);
+                }
                 addStmt(new Return(retVar));
                 ret = retVar;
                 return false;
@@ -556,21 +653,6 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
-            private void handleSingleVarDecl(VariableDeclaration vd) {
-                var name = vd.getName();
-                var val = vd.getInitializer();
-                var visitor = new ExpVisitor(context);
-                name.accept(visitor);
-                if (val == null) {
-                    this.context.popStack();
-                } else {
-                    val.accept(visitor);
-                    var r = this.context.popStack();
-                    var l = popVar();
-                    newAssignment(l, r);
-                }
-            }
-
             @Override
             public boolean visit(SingleVariableDeclaration svd) {
                 handleSingleVarDecl(svd);
@@ -587,18 +669,44 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            private void handleCondExpInContext(Expression exp, String trueLabel, String falseLabel,
+                                                boolean rev) {
+                // [exp] don't need to give a value
+                context.setEvalContext(false);
+                if (exp == null) {
+                    return;
+                }
+                if (exp instanceof PrefixExpression p &&
+                        p.getOperator() == PrefixExpression.Operator.NOT)
+                {
+                    this.context.pushLabel(falseLabel);
+                    p.getOperand().accept(new ExpVisitor(context));
+                    if (rev) {
+                        addGoto(trueLabel);
+                    }
+                } else {
+                    this.context.pushLabel(trueLabel);
+                    exp.accept(new ExpVisitor(context));
+                    if (!rev) {
+                        addGoto(falseLabel);
+                    }
+                }
+                // reset eval context
+                context.setEvalContext(true);
+            }
+
             // Generate code like :
             //            +--------------+
             //            |    Branch    |------+
             //            +--------------+      |
-            //      +-----|  goto False  |      |
+            //      +-----|  goto False  |      | *No need to check this goto*
             //      |     +--------------+<-----+
             //      |     |    True      |
             //      |     +--------------+
-            //      |     |  goto Next   |------+
+            //      |     |  goto Next   |------+ *This goto can be checked*
             //      +---->+--------------+      |
             //            |    False     |      |
-            //            +--------------+<-----+
+            //            +--------------+<-----+  (Break target)
             //            |     Next     |
             //            +--------------+
             @Override
@@ -609,30 +717,154 @@ public class NewMethodIRBuilder {
                 var trueLabel = context.getNewLabel();
                 var falseLabel = context.getNewLabel();
                 var endLabel = context.getNewLabel();
-                context.pushLabel(trueLabel);
-                context.setEvalContext(false);
-                exp.accept(new ExpVisitor(this.context));
-                context.setEvalContext(true);
-                // if else don't exist, we still add a goto statement
-                // which in fact goto end
-                addGoto(falseLabel);
+                context.assocBreakAndContinue(endLabel, null);
+                handleCondExpInContext(exp, trueLabel, falseLabel, false);
                 context.assocLabel(trueLabel);
                 thenStmt.accept(this);
-                // if the continuation of thenStmt don't exist
-                // (i.e. the last statement of thenStmt is Return)
-                // we don't have to addGoto
-                if (!checkEndCont() && elseStmt != null) {
-                    addGoto(endLabel);
+                if (elseStmt != null) {
+                    addCheckedGoto(endLabel);
                 }
-                // here, if else don't exist, falseLabel will assoc to end
+                // here, if [else] don't exist, falseLabel will assoc to end
                 // true statement will just fall through
                 context.assocLabel(falseLabel);
                 if (elseStmt != null) {
                     elseStmt.accept(this);
-                    context.assocLabel(endLabel);
+                }
+                // assoc label here to confirm breakLabel is legal
+                context.assocLabel(endLabel);
+                return false;
+            }
+
+            // Generate code like :
+            //            +--------------+
+            //            |    Inits     |
+            //            +--------------+<---------+ (Continue target)
+            //            |    Branch    |------+   |
+            //            +--------------+      |   |
+            //      +-----|  goto Break  |      |   |
+            //      |     +--------------+<-----+   |
+            //      |     |    Body      |          |
+            //      |     +--------------+          |
+            //      |     |   Updates    |          |
+            //      |     +--------------+          |
+            //      |     |  goto Branch |----------+ *This goto can be checked*
+            //      +---->+--------------+            (Break target)
+            //            |    Break     |
+            //            +--------------+
+            //
+            private void genNormalLoop(List<Expression> inits,
+                                       Expression cond,
+                                       Statement body,
+                                       List<Expression> updates) {
+                var visitor = new ExpVisitor(context);
+                for (var i : inits) {
+                    i.accept(visitor);
+                    context.popStack();
+                }
+                var contLabel = context.getNewLabel();
+                var breakLabel = context.getNewLabel();
+                var bodyLabel = context.getNewLabel();
+                context.assocLabel(contLabel);
+                context.assocBreakAndContinue(breakLabel, contLabel);
+                handleCondExpInContext(cond, bodyLabel, breakLabel, false);
+                context.pushLabel(breakLabel);
+                context.pushLabel(contLabel);
+                context.assocLabel(bodyLabel);
+                body.accept(this);
+                context.popLabel(); context.popLabel();
+                for (var i : updates) {
+                    i.accept(visitor);
+                }
+                addCheckedGoto(contLabel);
+                context.assocLabel(breakLabel);
+            }
+
+            @Override
+            public boolean visit(WhileStatement ws) {
+                genNormalLoop(new ArrayList<>(), ws.getExpression(),  ws.getBody(), new ArrayList<>());
+                return false;
+            }
+
+            @Override
+            public boolean visit(ForStatement fs) {
+                var init = fs.initializers();
+                var body = fs.getBody();
+                var exp = fs.getExpression();
+                var updates = fs.updaters();
+                // type soundness is promised by JDT (or JDT will gen parse error)
+                // ignore the warning
+                genNormalLoop(init, exp, body, updates);
+                return false;
+            }
+
+            // Generate code like :
+            //     +----->+--------------+ (Continue target)
+            //     |      |    Body      |
+            //     |      +--------------+
+            //     +------|    Branch    |
+            //            +--------------+ (Break target)
+            //            |    Break     |
+            //            +--------------+
+            //
+            @Override
+            public boolean visit(DoStatement ds) {
+                var exp = ds.getExpression();
+                var stmt = ds.getBody();
+                var contLabel = context.getNewLabel();
+                var breakLabel = context.getNewLabel();
+                context.assocLabel(contLabel);
+                context.assocBreakAndContinue(breakLabel, contLabel);
+                context.pushLabel(breakLabel); context.pushLabel(breakLabel);
+                stmt.accept(this);
+                context.popLabel(); context.popLabel();
+                handleCondExpInContext(exp, contLabel, breakLabel, true);
+                context.assocLabel(breakLabel);
+                return false;
+            }
+
+            @Override
+            public boolean visit(BreakStatement bs) {
+                var label = bs.getLabel();
+                if (label != null) {
+                    var brkLabel = this.context.getBreakLabel(label.getIdentifier());
+                    if (brkLabel != null) {
+                        addGoto(brkLabel);
+                    } else {
+                        throw new NewFrontendException("context of" + "line " + this.getLineno()
+                                + ": " + bs +"don't have break target");
+                    }
+                } else {
+                    withBrkContLabel((brk, cont) -> addGoto(brk));
                 }
                 return false;
             }
+
+            @Override
+            public boolean visit(ContinueStatement cs) {
+                var label = cs.getLabel();
+                if (label != null) {
+                    var brkLabel = this.context.getContinueLabel(label.getIdentifier());
+                    if (brkLabel != null) {
+                        addGoto(brkLabel);
+                    } else {
+                        throw new NewFrontendException("context of" + "line " + this.getLineno()
+                                + ": " + cs +"don't have continue target");
+                    }
+                } else {
+                    withBrkContLabel((brk, cont) -> addGoto(cont));
+                }
+                return false;
+            }
+
+            @Override
+            public boolean visit(LabeledStatement stmt) {
+                var label = stmt.getLabel();
+                var inner = stmt.getBody();
+                context.assocLabel(label.getIdentifier());
+                inner.accept(this);
+                return false;
+            }
+
         }
 
         class ExpVisitor extends LinenoASTVisitor {
@@ -669,8 +901,6 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
-
-
             @Override
             public boolean visit(InfixExpression exp) {
                 var op = exp.getOperator();
@@ -693,7 +923,7 @@ public class NewMethodIRBuilder {
                         return false;
                     }
                     case ">", ">=", "==", "<=", "<", "!=" -> {
-                        if (context.isEvalContext()) {
+                        if (! context.isEvalContext()) {
                             // Although this expression don't have evaluation context
                             // its sub expression has an evaluation context
                             // e.g. if (     (1 + 1) >= (2 + 2)           ) { }
@@ -726,7 +956,7 @@ public class NewMethodIRBuilder {
                         // here we can't use binaryCompute
                         // "||" and "&&" has lazy evaluation semantic
                         var l = getAllOperands(exp);
-                        if (context.isEvalContext()) {
+                        if (! context.isEvalContext()) {
                             var trueLabel = context.labelStack.peek();
                             for (var i : l) {
                                 i.accept(this);
@@ -819,6 +1049,22 @@ public class NewMethodIRBuilder {
                     newAssignment(lVar, rRes);
                     context.pushStack(lVar);
                 }
+                return false;
+            }
+
+            /**
+             * @apiNote <p> this function only applied to [for init]
+             *          and wrapped [Expression Statement] </p>
+             *          <p> for api compatible, we still push a null into stack </p>
+             */
+            @Override
+            public boolean visit(VariableDeclarationExpression vde) {
+                var singleDecls = vde.fragments();
+                for (var i : singleDecls) {
+                    var singleDecl = (VariableDeclarationFragment) i;
+                    handleSingleVarDecl(singleDecl);
+                }
+                context.pushStack(pascal.taie.ir.exp.NullLiteral.get());
                 return false;
             }
         }
