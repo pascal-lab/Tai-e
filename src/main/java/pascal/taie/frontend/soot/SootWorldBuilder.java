@@ -132,7 +132,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      * in the reflection log before starting Soot.
      *
      * TODO: this is a tentative solution. We should remove it and use other
-     *  way to load basic classes in the reflection log, so that  world builder
+     *  way to load basic classes in the reflection log, so that world builder
      *  does not depend on analysis plan.
      */
     private static void addReflectionLogClasses(List<AnalysisConfig> plan, Scene scene) {
@@ -220,6 +220,24 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             throw new RuntimeException(e.getMessage()
                     .replace("is your soot-class-path set",
                             "are your class path and class name given"));
+        } catch (AssertionError e) {
+            if (e.getStackTrace()[0].toString()
+                    .startsWith("soot.SootResolver.resolveClass")) {
+                throw new RuntimeException("Exception thrown by class resolver," +
+                        " are your class path and class name given properly?", e);
+            }
+            throw e;
+        } catch (Exception e) {
+            if (e.getStackTrace()[0].getClassName().startsWith("soot.JastAddJ")) {
+                throw new RuntimeException("""
+                        Soot frontend failed to parse input Java source file(s).
+                        This exception may be caused by:
+                        1. syntax errors in the source code. In this case, please fix the errors.
+                        2. language features introduced by Java 8+ in the source code.
+                           In this case, you could either compile the source code to bytecode (*.class)
+                           or rewrite the code by using old features.""", e);
+            }
+            throw e;
         }
     }
 }
