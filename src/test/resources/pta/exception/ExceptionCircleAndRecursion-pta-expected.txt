@@ -1,11 +1,14 @@
 Points-to sets of all variables
-[]:<ExceptionCircleAndRecursion: void m(int)>/$r0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
-[]:<ExceptionCircleAndRecursion: void m1(int)>/$r0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/$r0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/$r1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
-[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/r2 -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}]
+[]:<ExceptionCircleAndRecursion: void m(int)>/temp$1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionCircleAndRecursion: void m1(int)>/temp$1 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}]
+[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/e2 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/temp$0 -> []
+[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/temp$1 -> []
 []:<java.lang.ArithmeticException: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<java.lang.IllegalStateException: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<java.lang.Throwable: java.lang.String getMessage()>/$r1 -> []
 []:<java.lang.Throwable: java.lang.String getMessage()>/%this -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}, []:MergedObj{<Merged java.lang.IllegalStateException>}]
 
 Points-to sets of all static fields

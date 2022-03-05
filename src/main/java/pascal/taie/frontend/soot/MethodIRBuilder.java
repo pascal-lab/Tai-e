@@ -296,7 +296,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 Unit end = trap.getEndUnit();
                 Unit handler = findRealHandler(body, trap.getHandlerUnit());
                 soot.Type catchType = trap.getException().getType();
-                exceptionEntries.add(new ExceptionEntry(trapUnitMap.get(begin),
+                exceptionEntries.add(new ExceptionEntry(
+                        trapUnitMap.get(begin),
                         trapUnitMap.get(end),
                         (Catch) trapUnitMap.get(handler),
                         (ClassType) converter.convertType(catchType)));
@@ -532,6 +533,9 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                     // for assignment like x = temp$i, if we have recorded
                     // definition to temp$i, then we directly replace temp$i
                     // by its definition value.
+                    // FIXME (?): this optimization reduces number of temporary
+                    //  variables, but it does not work with
+                    //  System.setProperty("ENABLE_JIMPLE_OPT", "true");
                     Value defValue = tempToDef.get(rvar).getRightOp();
                     if (defValue instanceof Constant) {
                         defValue.apply(constantConverter);

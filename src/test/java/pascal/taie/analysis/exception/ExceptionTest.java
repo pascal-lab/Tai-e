@@ -32,23 +32,13 @@ public class ExceptionTest {
 
     private static final String MAIN = "Exceptions";
 
-    @BeforeClass
-    public static void buildWorld() {
-        System.setProperty("ENABLE_JIMPLE_OPT", "true");
-    }
-
-    @AfterClass
-    public static void clear() {
-        System.clearProperty("ENABLE_JIMPLE_OPT");
-    }
-
     @Test
     public void testCatchImplicit() {
         test("explicit" /*"all"*/, "implicitCaught", "implicitUncaught");
     }
 
     @Test
-    public void testCatchThrowx() {
+    public void testCatchThrow() {
         test("all", "throwCaught", "throwUncaught", "nestedThrowCaught");
     }
 
