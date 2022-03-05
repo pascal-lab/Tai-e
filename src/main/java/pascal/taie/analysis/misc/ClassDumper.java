@@ -150,6 +150,12 @@ public class ClassDumper extends ProgramAnalysis {
                 // dump statements
                 ir.forEach(s -> out.printf("%s%s%s%n",
                         INDENT, INDENT, IRPrinter.toString(s)));
+                // dump exception entries
+                if (!ir.getExceptionEntries().isEmpty()) {
+                    out.println();
+                    ir.getExceptionEntries().forEach(e ->
+                            out.printf("%s%s%s%n", INDENT, INDENT, e));
+                }
                 out.printf("%s}%n", INDENT);
             } else {
                 out.println(";");
