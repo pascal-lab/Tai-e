@@ -13,6 +13,7 @@
 package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +26,9 @@ class ExceptionalEdge<N> extends Edge<N> {
     ExceptionalEdge(Edge.Kind kind, N source, N target,
                     Set<ClassType> exceptions) {
         super(kind, source, target);
-        this.exceptions = exceptions;
+        // other exception types might be added to this exceptional edge later,
+        // thus we do not use unmodifiable set to store exception types
+        this.exceptions = Sets.newHybridSet(exceptions);
     }
 
     void addExceptions(Collection<ClassType> exceptions) {

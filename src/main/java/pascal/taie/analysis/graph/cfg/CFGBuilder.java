@@ -94,6 +94,30 @@ public class CFGBuilder extends MethodAnalysis {
         }
     }
 
+    /**
+     * Builds exceptional edges for given {@code cfg}.
+     * <p>
+     * Note that if a statement throws an exception, it means that the
+     * execution of the statement does not complete, so that the exceptional
+     * control-flow should not pass through it. Hence, we build exceptional
+     * edges from the predecessors of the throwable statements to the
+     * exceptional control-flow targets (either relevant catch statements
+     * or the method exit).
+     * <p>
+     * For example, in this code snippet:
+     * <pre>
+     * 1 try {
+     * 2     x = 0;
+     * 3     o.foo();
+     * 4 } catch (NullPointerException e) { ... }
+     * </pre>
+     * We build an exceptional edge (with NPE) from line 2 to line 4,
+     * since if {@code o.foo();} at line 3 throws a NPE, the method
+     * invocation is not executed at all.
+     *
+     * @param cfg the basic control-flow graph which the exceptional edges
+     *            are added to.
+     */
     private static void buildExceptionalEdges(StmtCFG cfg) {
         IR ir = cfg.getIR();
         ThrowResult throwResult = ir.getResult(ThrowAnalysis.ID);
