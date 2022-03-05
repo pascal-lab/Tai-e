@@ -25,6 +25,7 @@ public interface WorldBuilder {
     /**
      * Builds a new instance of {@link World} and make it globally accessible
      * through static methods of {@link World}.
+     * TODO: remove {@code plan}.
      */
     void build(Options options, List<AnalysisConfig> plan);
 }

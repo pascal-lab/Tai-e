@@ -130,6 +130,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      * Tai-e's ClassHierarchy depends on Soot's Scene, which does not change
      * after hierarchy's construction, thus we need to add the classes
      * in the reflection log before starting Soot.
+     *
+     * TODO: this is a tentative solution. We should remove it and use other
+     *  way to load basic classes in the reflection log, so that  world builder
+     *  does not depend on analysis plan.
      */
     private static void addReflectionLogClasses(List<AnalysisConfig> plan, Scene scene) {
         plan.forEach(config -> {

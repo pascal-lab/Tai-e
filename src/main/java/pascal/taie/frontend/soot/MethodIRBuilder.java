@@ -93,7 +93,6 @@ import soot.SootMethod;
 import soot.SootMethodRef;
 import soot.Trap;
 import soot.Unit;
-import soot.UnitBox;
 import soot.Value;
 import soot.ValueBox;
 import soot.jimple.AbstractConstantSwitch;
@@ -170,7 +169,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static pascal.taie.language.type.VoidType.VOID;
 
@@ -215,7 +213,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         buildParams(body.getParameterLocals());
         tempToDef = getTempToDef(body);
         buildStmts(body);
-        buildExceptionEntries(body.getTraps());
+        buildExceptionEntries(body);
         return new DefaultIR(method,
                 varManager.getThis(), varManager.getParams(), returnVars,
                 varManager.getVars(), stmts, exceptionEntries);
@@ -231,16 +229,41 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     private void buildStmts(Body body) {
         if (!body.getTraps().isEmpty()) {
-            trapUnits = body.getTraps()
-                    .stream()
-                    .map(Trap::getUnitBoxes)
-                    .flatMap(List::stream)
-                    .map(UnitBox::getUnit)
-                    .collect(Collectors.toSet());
+            trapUnits = Sets.newSet();
+            body.getTraps().forEach(trap -> {
+                trapUnits.add(trap.getBeginUnit());
+                trapUnits.add(trap.getEndUnit());
+                trapUnits.add(findRealHandler(body, trap.getHandlerUnit()));
+            });
             trapUnitMap = new HashMap<>(body.getTraps().size() * 3);
         }
         body.getUnits().forEach(unit -> unit.apply(this));
         linkJumpTargets(jumpMap, jumpTargetMap);
+    }
+
+    /**
+     * Finds out the real exception handler in {@link Trap}.
+     * When Soot uses Java frontend, the handler unit in {@link Trap} is
+     * a {@link NopStmt} instead of catch statement, and the catch statement
+     * follows the {@link NopStmt} in {@link Chain}. To ensure that the
+     * exception handler of Tai-e IR is {@link Catch}, we find out the real
+     * exception handler in Jimple and so that it can be mapped to {@link Catch}.
+     *
+     * @param body the method body being processed.
+     * @param unit the handler unit in {@link Trap}.
+     * @return the real exception handler, i.e., e = @caughtexception;
+     */
+    private static Unit findRealHandler(Body body, Unit unit) {
+        while (!isJimpleCatch(unit)) {
+            // if unit is not a Jimple catch statement, traverse the unit chain
+            unit = body.getUnits().getSuccOf(unit);
+        }
+        return unit;
+    }
+
+    private static boolean isJimpleCatch(Unit unit) {
+        return unit instanceof IdentityStmt identity &&
+                identity.getRightOp() instanceof CaughtExceptionRef;
     }
 
     private static void linkJumpTargets(
@@ -262,7 +285,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         });
     }
 
-    private void buildExceptionEntries(Chain<Trap> traps) {
+    private void buildExceptionEntries(Body body) {
+        Chain<Trap> traps = body.getTraps();
         if (traps.isEmpty()) {
             exceptionEntries = List.of();
         } else {
@@ -270,7 +294,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
             for (Trap trap : traps) {
                 Unit begin = trap.getBeginUnit();
                 Unit end = trap.getEndUnit();
-                Unit handler = trap.getHandlerUnit();
+                Unit handler = findRealHandler(body, trap.getHandlerUnit());
                 soot.Type catchType = trap.getException().getType();
                 exceptionEntries.add(new ExceptionEntry(trapUnitMap.get(begin),
                         trapUnitMap.get(end),
