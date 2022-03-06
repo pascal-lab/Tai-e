@@ -5,6 +5,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
+import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BitwiseExp;
@@ -15,6 +16,7 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.ShiftExp;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
@@ -79,6 +81,11 @@ public final class TypeUtils {
         return signature.equals(signature2);
     }
 
+    /**
+     * get tai-e representation of a JDT ITypeBinding
+     * @param typeBinding binding to be converted, may not be erased
+     * @return tai-e representation of {@code typeBinding}
+     */
     public static Type JDTTypeToTaieType(ITypeBinding typeBinding)  {
         if (typeBinding.isPrimitive()) {
             return switch (typeBinding.getName()) {
@@ -104,8 +111,12 @@ public final class TypeUtils {
             } else if (erased.isArray()) {
                 return tm.getArrayType(JDTTypeToTaieType(erased.getElementType()), erased.getDimensions());
             }
-            throw new NewFrontendException("JDTTypeToTaieType:" + typeBinding.getName() + "is Not Implemented.");
+            throw new NewFrontendException("JDTTypeToTaieType: " + typeBinding.getName() + " is Not Implemented.");
         }
+    }
+
+    public static JClass getTaieClass(ITypeBinding binding) {
+        return World.get().getClassHierarchy().getClass(binding.getErasure().getBinaryName());
     }
 
     public static Literal getRightPrimitiveLiteral(Expression e) {
