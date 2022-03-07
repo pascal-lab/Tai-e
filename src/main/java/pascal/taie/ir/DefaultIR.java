@@ -81,6 +81,11 @@ public class DefaultIR extends AbstractResultHolder implements IR {
     }
 
     @Override
+    public Var getVar(int i) {
+        return vars.get(i);
+    }
+
+    @Override
     public List<Var> getVars() {
         return vars;
     }

@@ -20,7 +20,9 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.Indexable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.List;
  * Representation of method/constructor parameters, lambda parameters,
  * exception parameters, and local variables.
  */
-public class Var implements LValue, RValue {
+public class Var implements LValue, RValue, Indexable {
 
     /**
      * The method containing this Var.
@@ -47,6 +49,11 @@ public class Var implements LValue, RValue {
     private final Type type;
 
     /**
+     * The index of this variable in {@link #method}.
+     */
+    private final int index;
+
+    /**
      * If this variable is a temporary variable generated to hold a constant value,
      * then this field holds that constant value; otherwise, this field is null.
      */
@@ -57,14 +64,16 @@ public class Var implements LValue, RValue {
      */
     private RelevantStmts relevantStmts = RelevantStmts.EMPTY;
 
-    public Var(JMethod method, String name, Type type) {
-        this(method, name, type, null);
+    public Var(JMethod method, String name, Type type, int index) {
+        this(method, name, type, index, null);
     }
 
-    public Var(JMethod method, String name, Type type, Literal constValue) {
+    public Var(JMethod method, String name, Type type, int index,
+               @Nullable Literal constValue) {
         this.method = method;
         this.name = name;
         this.type = type;
+        this.index = index;
         this.constValue = constValue;
     }
 
@@ -73,6 +82,11 @@ public class Var implements LValue, RValue {
      */
     public JMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     /**

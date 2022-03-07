@@ -10,8 +10,8 @@ Points-to sets of all variables
 <Array: void main(java.lang.String[])>/temp$5 -> [NewObj{<Array: void main(java.lang.String[])>[6@L6] new A}]
 <Array: void main(java.lang.String[])>/temp$8 -> []
 <Array: void main(java.lang.String[])>/temp$9 -> [NewObj{<Array: void main(java.lang.String[])>[14@L10] new A}]
-<java.lang.Object: int hashCode()>/%native-ret -> []
-<java.lang.Object: int hashCode()>/%native-this -> [NewObj{<Array: void main(java.lang.String[])>[1@L4] newarray A[%intconst0]}]
+<java.lang.Object: int hashCode()>/%return -> []
+<java.lang.Object: int hashCode()>/%this -> [NewObj{<Array: void main(java.lang.String[])>[1@L4] newarray A[%intconst0]}]
 <java.lang.Object: void <init>()>/%this -> [NewObj{<Array: void main(java.lang.String[])>[14@L10] new A}, NewObj{<Array: void main(java.lang.String[])>[2@L5] new A}, NewObj{<Array: void main(java.lang.String[])>[6@L6] new A}]
 
 Points-to sets of all static fields

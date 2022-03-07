@@ -49,8 +49,15 @@ public class CFGBuilder extends MethodAnalysis {
     @Override
     public CFG<Stmt> analyze(IR ir) {
         StmtCFG cfg = new StmtCFG(ir);
-        cfg.setEntry(new Nop());
-        cfg.setExit(new Nop());
+        // create entry and exit nodes and assign reasonable indexes to them
+        Nop entry = new Nop();
+        entry.setIndex(ir.getStmts().size());
+        cfg.setEntry(entry);
+
+        Nop exit = new Nop();
+        exit.setIndex(ir.getStmts().size() + 1);
+        cfg.setExit(exit);
+
         buildNormalEdges(cfg);
         if (!noException) {
             buildExceptionalEdges(cfg);

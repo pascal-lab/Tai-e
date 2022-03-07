@@ -59,12 +59,17 @@ public interface IR extends Iterable<Stmt>, ResultHolder {
     List<Var> getReturnVars();
 
     /**
+     * @return the i-th {@link Var} in this IR. The indexes start from 0.
+     */
+    Var getVar(int i);
+
+    /**
      * @return the variables in this IR.
      */
     List<Var> getVars();
 
     /**
-     * @return the i-th Stmt in this IR. The indexes start from 0.
+     * @return the i-th {@link Stmt} in this IR. The indexes start from 0.
      */
     Stmt getStmt(int i);
 

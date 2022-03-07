@@ -52,7 +52,12 @@ public class IRBuildHelper {
     private final List<Var> vars;
 
     /**
-     * Counter for numbering temporary variables.
+     * Counter for indexing all variables.
+     */
+    private int varCounter = 0;
+
+    /**
+     * Counter for naming temporary variables.
      */
     private int tempCounter = 0;
 
@@ -134,7 +139,7 @@ public class IRBuildHelper {
     }
 
     private Var newVar(String name, Type type) {
-        Var var = new Var(method, name, type);
+        Var var = new Var(method, name, type, varCounter++);
         vars.add(var);
         return var;
     }

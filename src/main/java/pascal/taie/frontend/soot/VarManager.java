@@ -22,6 +22,7 @@ import pascal.taie.language.type.Type;
 import soot.Local;
 import soot.Value;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,10 +53,17 @@ class VarManager {
 
     private final List<Var> params = new ArrayList<>();
 
+    private Var nullConst;
+
     /**
-     * Counter for temporary constant variables.
+     * Counter for indexing all variables.
      */
-    private int counter = 0;
+    private int varCounter = 0;
+
+    /**
+     * Counter for naming temporary constant variables.
+     */
+    private int tempConstCounter = 0;
 
     public VarManager(JMethod method, Converter converter) {
         this.method = method;
@@ -82,20 +90,22 @@ class VarManager {
     Var newConstantVar(Literal literal) {
         String varName;
         if (literal instanceof StringLiteral) {
-            varName = STRING_CONSTANT + counter++;
+            varName = STRING_CONSTANT + tempConstCounter++;
         } else if (literal instanceof ClassLiteral) {
-            varName = CLASS_CONSTANT + counter++;
+            varName = CLASS_CONSTANT + tempConstCounter++;
         } else if (literal instanceof NullLiteral) {
-            // each method has at most one variable for null constant,
-            // thus we don't need to count for null constant.
-            varName = NULL_CONSTANT;
+            // each method has at most one variable for null constant
+            Var v = nullConst;
+            if (v == null) {
+                v = newVar(NULL_CONSTANT, literal.getType(), literal);
+                nullConst = v;
+            }
+            return v;
         } else {
             varName = "%" + literal.getType().getName() +
-                    "const" + counter++;
+                    "const" + tempConstCounter++;
         }
-        Var var = new Var(method, varName, literal.getType(), literal);
-        vars.add(var);
-        return var;
+        return newVar(varName, literal.getType(), literal);
     }
 
     Var getThis() {
@@ -111,7 +121,11 @@ class VarManager {
     }
 
     private Var newVar(String name, Type type) {
-        Var var = new Var(method, name, type);
+        return newVar(name, type, null);
+    }
+
+    private Var newVar(String name, Type type, @Nullable Literal literal) {
+        Var var = new Var(method, name, type, varCounter++, literal);
         vars.add(var);
         return var;
     }
