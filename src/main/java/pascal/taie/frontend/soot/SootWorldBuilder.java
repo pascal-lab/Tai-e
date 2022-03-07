@@ -228,7 +228,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             }
             throw e;
         } catch (Exception e) {
-            if (e.getStackTrace()[0].getClassName().startsWith("soot.JastAddJ")) {
+            if (e.getStackTrace()[0].getClassName().startsWith("soot.JastAdd")) {
                 throw new RuntimeException("""
                         Soot frontend failed to parse input Java source file(s).
                         This exception may be caused by:

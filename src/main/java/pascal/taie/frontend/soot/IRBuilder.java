@@ -15,6 +15,7 @@ package pascal.taie.frontend.soot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -26,9 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Jimple-based pointer analysis IR builder.
- */
 class IRBuilder implements pascal.taie.ir.IRBuilder {
 
     private static final Logger logger = LogManager.getLogger(IRBuilder.class);
@@ -44,12 +42,12 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
         try {
             return new MethodIRBuilder(method, converter).build();
         } catch (RuntimeException e) {
-            if (e instanceof SootFrontendException) {
-                throw e;
+            if (e.getStackTrace()[0].getClassName().startsWith("soot")) {
+                logger.warn("Soot front failed to build method body for {}," +
+                        " constructs an empty IR instead", method);
+                return new IRBuildHelper(method).buildEmpty();
             } else {
-                throw new SootFrontendException("Exception caused by Soot frontend " +
-                        "(we suggest you compile the source code to bytecode," +
-                        " and let Tai-e analyze the bytecode)", e);
+                throw e;
             }
         }
     }
