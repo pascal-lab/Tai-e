@@ -12,8 +12,6 @@
 
 package pascal.taie.frontend.soot;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -21,14 +19,12 @@ import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class IRTest {
 
-    private static final List<String> targets
-            = Collections.singletonList("AllInOne");
+    private static final List<String> targets = List.of("AllInOne");
 
     private static void buildWorld(String mainClass) {
         Main.buildWorld("-pp", "-cp", "src/test/resources/basic", "-m", mainClass);

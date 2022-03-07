@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.config.Options;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -73,7 +74,7 @@ public class DefaultNativeModel implements NativeModel {
     @Override
     public IR buildNativeIR(JMethod method) {
         return models.getOrDefault(method,
-                        m -> new NativeIRBuilder(method).buildEmpty())
+                        m -> new IRBuildHelper(method).buildEmpty())
                 .apply(method);
     }
 
@@ -115,11 +116,11 @@ public class DefaultNativeModel implements NativeModel {
         // TODO: should return a clone of the heap allocation (not
         //  identity). The behaviour implemented here is based on Soot.
         register("<java.lang.Object: java.lang.Object clone()>", m -> {
-            NativeIRBuilder builder = new NativeIRBuilder(m);
+            IRBuildHelper helper = new IRBuildHelper(m);
             List<Stmt> stmts = new ArrayList<>();
-            stmts.add(new Copy(builder.getReturnVar(), builder.getThisVar()));
-            stmts.add(builder.newReturn());
-            return builder.build(stmts);
+            stmts.add(new Copy(helper.getReturnVar(), helper.getThisVar()));
+            stmts.add(helper.newReturn());
+            return helper.build(stmts);
         });
 
         // --------------------------------------------------------------------
@@ -144,18 +145,18 @@ public class DefaultNativeModel implements NativeModel {
         // --------------------------------------------------------------------
         // <java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
         register("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>", m -> {
-            NativeIRBuilder builder = new NativeIRBuilder(m);
-            Var src = builder.getParam(0);
-            Var dest = builder.getParam(2);
+            IRBuildHelper helper = new IRBuildHelper(m);
+            Var src = helper.getParam(0);
+            Var dest = helper.getParam(2);
             Type objType = typeSystem.getClassType(OBJECT);
             Type arrayType = typeSystem.getArrayType(objType, 1);
-            Var srcArray = builder.newTempVar(arrayType);
-            Var destArray = builder.newTempVar(arrayType);
+            Var srcArray = helper.newTempVar(arrayType);
+            Var destArray = helper.newTempVar(arrayType);
             // Here the index is just a placeholder for array access.
             // It does not correctly model the semantics of arraycopy,
             // but it is sufficient for flow-insensitive pointer analysis.
-            Var index = builder.getParam(1);
-            Var temp = builder.newTempVar(objType);
+            Var index = helper.getParam(1);
+            Var temp = helper.newTempVar(objType);
             // src/dest may point to non-array objects due to imprecision
             // of pointer analysis, thus we add cast statements to filter
             // out load/store operations on non-array objects.
@@ -164,8 +165,8 @@ public class DefaultNativeModel implements NativeModel {
             stmts.add(new Cast(destArray, new CastExp(dest, arrayType)));
             stmts.add(new LoadArray(temp, new ArrayAccess(srcArray, index)));
             stmts.add(new StoreArray(new ArrayAccess(destArray, index), temp));
-            stmts.add(builder.newReturn());
-            return builder.build(stmts);
+            stmts.add(helper.newReturn());
+            return helper.build(stmts);
         });
 
         // <java.lang.System: void setIn0(java.io.InputStream)>
@@ -201,7 +202,7 @@ public class DefaultNativeModel implements NativeModel {
                 : "<java.lang.Thread: void start0()>";
         register(start, m ->
                 invokeVirtualMethod(m, "<java.lang.Thread: void run()>",
-                        NativeIRBuilder::getThisVar, b -> null)
+                        IRBuildHelper::getThisVar, b -> null)
         );
 
         // --------------------------------------------------------------------
@@ -232,20 +233,20 @@ public class DefaultNativeModel implements NativeModel {
 
             // <java.io.*FileSystem: java.lang.String[] list(java.io.File)>
             register("<" + fsName + ": java.lang.String[] list(java.io.File)>", m -> {
-                NativeIRBuilder builder = new NativeIRBuilder(m);
+                IRBuildHelper helper = new IRBuildHelper(m);
                 ClassType string = typeSystem.getClassType(STRING);
                 ArrayType stringArray = typeSystem.getArrayType(string, 1);
-                Var str = builder.newTempVar(string);
-                Var arr = builder.getReturnVar();
+                Var str = helper.newTempVar(string);
+                Var arr = helper.getReturnVar();
                 // here n is just a placeholder of array-related statements,
                 // thus is value is irrelevant.
-                Var n = builder.newTempVar(PrimitiveType.INT);
+                Var n = helper.newTempVar(PrimitiveType.INT);
                 List<Stmt> stmts = new ArrayList<>();
                 stmts.add(new New(m, str, new NewInstance(string)));
                 stmts.add(new New(m, arr, new NewArray(stringArray, n)));
                 stmts.add(new StoreArray(new ArrayAccess(arr, n), str));
-                stmts.add(builder.newReturn());
-                return builder.build(stmts);
+                stmts.add(helper.newReturn());
+                return helper.build(stmts);
             });
         } else {
             logger.warn("Cannot find implementation of FileSystem");
@@ -276,28 +277,28 @@ public class DefaultNativeModel implements NativeModel {
         register("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>", m ->
                 invokeVirtualMethod(m,
                         "<java.security.PrivilegedAction: java.lang.Object run()>",
-                        b -> b.getParam(0), NativeIRBuilder::getReturnVar)
+                        b -> b.getParam(0), IRBuildHelper::getReturnVar)
         );
 
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>
         register("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>", m ->
                 invokeVirtualMethod(m,
                         "<java.security.PrivilegedAction: java.lang.Object run()>",
-                        b -> b.getParam(0), NativeIRBuilder::getReturnVar)
+                        b -> b.getParam(0), IRBuildHelper::getReturnVar)
         );
 
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>
         register("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>", m ->
                 invokeVirtualMethod(m,
                         "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
-                        b -> b.getParam(0), NativeIRBuilder::getReturnVar)
+                        b -> b.getParam(0), IRBuildHelper::getReturnVar)
         );
 
         // <java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>
         register("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>", m ->
                 invokeVirtualMethod(m,
                         "<java.security.PrivilegedExceptionAction: java.lang.Object run()>",
-                        b -> b.getParam(0), NativeIRBuilder::getReturnVar)
+                        b -> b.getParam(0), IRBuildHelper::getReturnVar)
         );
 
         // <java.security.AccessController: java.security.AccessControlContext getStackAccessControlContext()>
@@ -328,27 +329,27 @@ public class DefaultNativeModel implements NativeModel {
                 typeSystem.getClassType(OBJECT), 1);
         // <sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>
         register("<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>", m -> {
-            NativeIRBuilder builder = new NativeIRBuilder(m);
-            Var array = builder.newTempVar(objArrayType);
-            Var i = builder.newTempVar(PrimitiveType.INT);
+            IRBuildHelper helper = new IRBuildHelper(m);
+            Var array = helper.newTempVar(objArrayType);
+            Var i = helper.newTempVar(PrimitiveType.INT);
             List<Stmt> stmts = List.of(
-                    new Cast(array, new CastExp(builder.getParam(0), objArrayType)),
-                    new StoreArray(new ArrayAccess(array, i), builder.getParam(3)),
-                    builder.newReturn()
+                    new Cast(array, new CastExp(helper.getParam(0), objArrayType)),
+                    new StoreArray(new ArrayAccess(array, i), helper.getParam(3)),
+                    helper.newReturn()
             );
-            return builder.build(stmts);
+            return helper.build(stmts);
         });
 
         Function<JMethod, IR> unsafePut = m -> {
-            NativeIRBuilder builder = new NativeIRBuilder(m);
-            Var array = builder.newTempVar(objArrayType);
-            Var i = builder.newTempVar(PrimitiveType.INT);
+            IRBuildHelper helper = new IRBuildHelper(m);
+            Var array = helper.newTempVar(objArrayType);
+            Var i = helper.newTempVar(PrimitiveType.INT);
             List<Stmt> stmts = List.of(
-                    new Cast(array, new CastExp(builder.getParam(0), objArrayType)),
-                    new StoreArray(new ArrayAccess(array, i), builder.getParam(2)),
-                    builder.newReturn()
+                    new Cast(array, new CastExp(helper.getParam(0), objArrayType)),
+                    new StoreArray(new ArrayAccess(array, i), helper.getParam(2)),
+                    helper.newReturn()
             );
-            return builder.build(stmts);
+            return helper.build(stmts);
         };
         // <sun.misc.Unsafe: void putObject(java.lang.Object,long,java.lang.Object)>
         register("<sun.misc.Unsafe: void putObject(java.lang.Object,long,java.lang.Object)>", unsafePut);
@@ -363,15 +364,15 @@ public class DefaultNativeModel implements NativeModel {
         register("<sun.misc.Unsafe: void putOrderedObject(java.lang.Object,long,java.lang.Object)>", unsafePut);
 
         Function<JMethod, IR> unsafeGet = m -> {
-            NativeIRBuilder builder = new NativeIRBuilder(m);
-            Var array = builder.newTempVar(objArrayType);
-            Var i = builder.newTempVar(PrimitiveType.INT);
+            IRBuildHelper helper = new IRBuildHelper(m);
+            Var array = helper.newTempVar(objArrayType);
+            Var i = helper.newTempVar(PrimitiveType.INT);
             List<Stmt> stmts = List.of(
-                    new Cast(array, new CastExp(builder.getParam(0), objArrayType)),
-                    new LoadArray(builder.getReturnVar(), new ArrayAccess(array, i)),
-                    builder.newReturn()
+                    new Cast(array, new CastExp(helper.getParam(0), objArrayType)),
+                    new LoadArray(helper.getReturnVar(), new ArrayAccess(array, i)),
+                    helper.newReturn()
             );
-            return builder.build(stmts);
+            return helper.build(stmts);
         };
 
         // <sun.misc.Unsafe: java.lang.Object getObjectVolatile(java.lang.Object,long)>
@@ -401,14 +402,14 @@ public class DefaultNativeModel implements NativeModel {
      */
     private IR storeStaticField(
             JMethod method, String fieldSig,
-            Function<NativeIRBuilder, Var> getFrom) {
-        NativeIRBuilder builder = new NativeIRBuilder(method);
+            Function<IRBuildHelper, Var> getFrom) {
+        IRBuildHelper helper = new IRBuildHelper(method);
         JField field = hierarchy.getJREField(fieldSig);
         List<Stmt> stmts = new ArrayList<>();
         stmts.add(new StoreField(new StaticFieldAccess(field.getRef()),
-                getFrom.apply(builder)));
-        stmts.add(builder.newReturn());
-        return builder.build(stmts);
+                getFrom.apply(helper)));
+        stmts.add(helper.newReturn());
+        return helper.build(stmts);
     }
 
     /**
@@ -416,16 +417,16 @@ public class DefaultNativeModel implements NativeModel {
      */
     private IR invokeVirtualMethod(
             JMethod method, String calleeSig,
-            Function<NativeIRBuilder, Var> getRecv,
-            Function<NativeIRBuilder, Var> getRet) {
-        NativeIRBuilder builder = new NativeIRBuilder(method);
+            Function<IRBuildHelper, Var> getRecv,
+            Function<IRBuildHelper, Var> getRet) {
+        IRBuildHelper helper = new IRBuildHelper(method);
         JMethod callee = hierarchy.getJREMethod(calleeSig);
         List<Stmt> stmts = new ArrayList<>();
         InvokeVirtual callSite = new InvokeVirtual(
-                callee.getRef(), getRecv.apply(builder), List.of());
-        stmts.add(new Invoke(method, callSite, getRet.apply(builder)));
-        stmts.add(builder.newReturn());
-        return builder.build(stmts);
+                callee.getRef(), getRecv.apply(helper), List.of());
+        stmts.add(new Invoke(method, callSite, getRet.apply(helper)));
+        stmts.add(helper.newReturn());
+        return helper.build(stmts);
     }
 
     /**
@@ -434,18 +435,18 @@ public class DefaultNativeModel implements NativeModel {
      */
     private IR allocateObject(
             JMethod method, String ctorSig,
-            Function<NativeIRBuilder, List<Var>> getArgs) {
-        NativeIRBuilder builder = new NativeIRBuilder(method);
+            Function<IRBuildHelper, List<Var>> getArgs) {
+        IRBuildHelper helper = new IRBuildHelper(method);
         JMethod ctor = hierarchy.getJREMethod(ctorSig);
         ClassType type = ctor.getDeclaringClass().getType();
-        Var base = builder.newTempVar(type);
+        Var base = helper.newTempVar(type);
         List<Stmt> stmts = new ArrayList<>();
         stmts.add(new New(method, base, new NewInstance(type)));
         stmts.add(new Invoke(method,
-                new InvokeSpecial(ctor.getRef(), base, getArgs.apply(builder))));
-        stmts.add(new Copy(builder.getReturnVar(), base));
-        stmts.add(builder.newReturn());
-        return builder.build(stmts);
+                new InvokeSpecial(ctor.getRef(), base, getArgs.apply(helper))));
+        stmts.add(new Copy(helper.getReturnVar(), base));
+        stmts.add(helper.newReturn());
+        return helper.build(stmts);
     }
 
     /**
@@ -453,22 +454,22 @@ public class DefaultNativeModel implements NativeModel {
      * new-created (but uninitialized) object as content, and returns the array.
      */
     private IR allocateArray(JMethod method, Type elemType) {
-        NativeIRBuilder builder = new NativeIRBuilder(method);
+        IRBuildHelper helper = new IRBuildHelper(method);
         List<Stmt> stmts = new ArrayList<>();
-        Var len = builder.newTempVar(PrimitiveType.INT);
+        Var len = helper.newTempVar(PrimitiveType.INT);
         ArrayType arrayType = typeSystem.getArrayType(elemType, 1);
-        Var array = builder.getReturnVar();
+        Var array = helper.getReturnVar();
         stmts.add(new New(method, array, new NewArray(arrayType, len)));
         if (elemType instanceof ClassType) {
             // if the element type is of class type, then we create an
             // uninitialized object as array content (can be seen as
             // a place holder object).
-            Var elem = builder.newTempVar(elemType);
+            Var elem = helper.newTempVar(elemType);
             stmts.add(new New(method, elem,
                     new NewInstance((ClassType) elemType)));
             stmts.add(new StoreArray(new ArrayAccess(array, len), elem));
         }
-        stmts.add(builder.newReturn());
-        return builder.build(stmts);
+        stmts.add(helper.newReturn());
+        return helper.build(stmts);
     }
 }

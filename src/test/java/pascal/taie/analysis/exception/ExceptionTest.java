@@ -12,8 +12,6 @@
 
 package pascal.taie.analysis.exception;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
