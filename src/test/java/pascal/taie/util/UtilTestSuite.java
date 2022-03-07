@@ -18,7 +18,6 @@ import pascal.taie.util.collection.ArrayMapTest;
 import pascal.taie.util.collection.ArraySetTest;
 import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
-import pascal.taie.util.collection.IndexMapTest;
 import pascal.taie.util.collection.MultiMapTest;
 import pascal.taie.util.collection.SetQueueTest;
 import pascal.taie.util.collection.StreamsTest;
@@ -35,7 +34,6 @@ import pascal.taie.util.graph.GraphTest;
         HybridArrayHashSetTest.class,
         MultiMapTest.class,
         TwoKeyMapTest.class,
-        IndexMapTest.class,
         SetQueueTest.class,
         StreamsTest.class,
         ViewsTest.class,
