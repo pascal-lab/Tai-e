@@ -14,6 +14,7 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
+import pascal.taie.util.Indexable;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,11 +22,12 @@ import java.util.Optional;
 /**
  * Representation of statements in Tai-e IR.
  */
-public interface Stmt {
+public interface Stmt extends Indexable {
 
     /**
      * @return the index of this Stmt in the container IR.
      */
+    @Override
     int getIndex();
 
     void setIndex(int index);
