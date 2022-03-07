@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.ForStatement;
@@ -86,6 +87,7 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -231,13 +233,24 @@ public class NewMethodIRBuilder {
         private final static String NULL_CONSTANT = "%nullconst";
 
         private final List<Stmt> stmts;
+
         private final List<Var> params;
+
         private final Map<IBinding, Var> bindingVarMap;
+
         private final List<Var> vars;
+
         private Var ret;
+
         private Var thisVar;
 
         private int tempCounter;
+
+        private final StmtGenerateVisitor stmtVisitor;
+
+        private final ExpVisitor expVisitor;
+
+        private final VisitorContext context;
 
         public IRGenerator() {
             stmts = new ArrayList<>();
@@ -245,6 +258,9 @@ public class NewMethodIRBuilder {
             vars = new ArrayList<>();
             bindingVarMap = Maps.newMap();
             tempCounter = 0;
+            context = new VisitorContext();
+            stmtVisitor = new StmtGenerateVisitor(context);
+            expVisitor = new ExpVisitor(context);
         }
 
         public IR build() {
@@ -353,15 +369,20 @@ public class NewMethodIRBuilder {
         }
 
         private void buildStmt() {
-            var visitor = new StmtGenerateVisitor();
-            targetMethod.accept(visitor);
-            visitor.postProcess();
+            targetMethod.accept(stmtVisitor);
+            stmtVisitor.postProcess();
         }
 
         private boolean checkEndCont() {
             var last = stmts.get(stmts.size() - 1);
             return last instanceof Return ||
                     last instanceof Goto;
+        }
+
+
+
+        private void visitStmt(Statement stmt) {
+            stmt.accept(stmtVisitor);
         }
 
         class BlockLabelGenerator {
@@ -533,6 +554,12 @@ public class NewMethodIRBuilder {
                 context.resolveGoto();
             }
 
+            protected void visitExp(Expression expression) {
+                // assert this two context is equal, or everything is illegal
+                assert (this.context == IRGenerator.this.context);
+                expression.accept(expVisitor);
+            }
+
             protected void addStmt(Stmt stmt) {
                 // first use IRGenerator to get right index and lineno
                 var newStmt = IRGenerator.this.addStmt(lineno, stmt);
@@ -661,12 +688,11 @@ public class NewMethodIRBuilder {
             protected void handleSingleVarDecl(VariableDeclaration vd) {
                 var name = vd.getName();
                 var val = vd.getInitializer();
-                var visitor = new ExpVisitor(context);
-                name.accept(visitor);
+                visitExp(name);
                 if (val == null) {
-                    this.context.popStack();
+                    context.popStack();
                 } else {
-                    val.accept(visitor);
+                    visitExp(val);
                     var r = this.context.popStack();
                     var l = popVar();
                     newAssignment(l, r);
@@ -677,8 +703,12 @@ public class NewMethodIRBuilder {
 
         class StmtGenerateVisitor extends LinenoASTVisitor {
 
-            public StmtGenerateVisitor() {
-                super();
+            public StmtGenerateVisitor(VisitorContext context) {
+                super(context);
+            }
+
+            public boolean visit(EmptyStatement es) {
+                return false;
             }
 
             @Override
@@ -697,7 +727,7 @@ public class NewMethodIRBuilder {
                 var exp = rs.getExpression();
                 Var retVar;
                 if (exp != null) {
-                    exp.accept(new ExpVisitor(context));
+                    visitExp(exp);
                     retVar = popVar();
                 } else {
                     // TODO: Is this handle correct?
@@ -715,7 +745,7 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(Assignment ass) {
                 // let ExpVisitor handle this assignment
-                ass.accept(new ExpVisitor(context));
+                visitExp(ass);
                 // ignore the value of this assignment
                 this.context.popStack();
                 return false;
@@ -748,13 +778,13 @@ public class NewMethodIRBuilder {
                         p.getOperator() == PrefixExpression.Operator.NOT)
                 {
                     this.context.pushLabel(falseLabel);
-                    p.getOperand().accept(new ExpVisitor(context));
+                    visitExp(p.getOperand());
                     if (rev) {
                         addGoto(trueLabel);
                     }
                 } else {
                     this.context.pushLabel(trueLabel);
-                    exp.accept(new ExpVisitor(context));
+                    visitExp(exp);
                     if (!rev) {
                         addGoto(falseLabel);
                     }
@@ -824,9 +854,8 @@ public class NewMethodIRBuilder {
                                        Expression cond,
                                        Statement body,
                                        List<Expression> updates) {
-                var visitor = new ExpVisitor(context);
                 for (var i : inits) {
-                    i.accept(visitor);
+                    visitExp(i);
                     popSideEffect();
                 }
                 var contLabel = context.getNewLabel();
@@ -841,7 +870,7 @@ public class NewMethodIRBuilder {
                 body.accept(this);
                 context.popLabel(); context.popLabel();
                 for (var i : updates) {
-                    i.accept(visitor);
+                    visitExp(i);
                 }
                 addCheckedGoto(contLabel);
                 context.assocLabel(breakLabel);
@@ -936,7 +965,7 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(ExpressionStatement es) {
                 Expression exp = es.getExpression();
-                exp.accept(new ExpVisitor(context));
+                visitExp(exp);
                 popSideEffect();
                 return false;
             }
