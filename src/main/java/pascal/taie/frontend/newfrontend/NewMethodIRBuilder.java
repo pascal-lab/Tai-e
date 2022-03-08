@@ -285,8 +285,12 @@ public class NewMethodIRBuilder {
             return new DefaultIR(jMethod, thisVar, params, rets, vars, stmts, exceptionList);
         }
 
+        private int getVarIndex() {
+            return vars.size();
+        }
+
         private Var newVar(String name, Type type) {
-            var v = new Var(jMethod, name, type);
+            var v = new Var(jMethod, name, type, getVarIndex());
             regVar(v);
             return v;
         }
@@ -298,7 +302,7 @@ public class NewMethodIRBuilder {
         private Var newTempVar(Type type) {
             int tempNow = tempCounter;
             tempCounter++;
-            var v = new Var(jMethod, "%temp$" + tempNow, type);
+            var v = new Var(jMethod, "%temp$" + tempNow, type, getVarIndex());
             regVar(v);
             return v;
         }
@@ -317,7 +321,7 @@ public class NewMethodIRBuilder {
                 varName = "%" + literal.getType().getName() +
                         "const" + tempCounter++;
             }
-            Var var = new Var(jMethod, varName, literal.getType(), literal);
+            Var var = new Var(jMethod, varName, literal.getType(), getVarIndex(), literal);
             regVar(var);
             return var;
         }
@@ -325,7 +329,9 @@ public class NewMethodIRBuilder {
         Var newConstantVar(IVariableBinding v, Literal l) {
             var name = v.getName();
             var type = TypeUtils.JDTTypeToTaieType(v.getType());
-            return new Var(jMethod, name, type, l);
+            var v1 = new Var(jMethod, name, type, getVarIndex(), l);
+            regVar(v1);
+            return v1;
         }
 
         private Var getBinding(IBinding binding) {
@@ -360,7 +366,7 @@ public class NewMethodIRBuilder {
                 var name = svd.getName();
                 var nameString = name.getIdentifier();
                 var type = TypeUtils.JDTTypeToTaieType(svd.getType().resolveBinding());
-                var aVar = new Var(jMethod, nameString, type);
+                var aVar = newVar(nameString, type);
                 params.add(aVar);
                 bindingVarMap.put(name.resolveBinding(), aVar);
             }
