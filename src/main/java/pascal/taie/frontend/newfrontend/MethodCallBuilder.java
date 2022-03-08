@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.Type;
 
 import java.util.ArrayList;
@@ -38,6 +39,6 @@ public class MethodCallBuilder {
         for (var i : binding.getParameterTypes()) {
             paras.add(TypeUtils.JDTTypeToTaieType(i));
         }
-        return MethodRef.get(jClass, "<init>", paras, retType, Modifier.isStatic(binding.getModifiers()));
+        return MethodRef.get(jClass, MethodNames.INIT, paras, retType, Modifier.isStatic(binding.getModifiers()));
     }
 }

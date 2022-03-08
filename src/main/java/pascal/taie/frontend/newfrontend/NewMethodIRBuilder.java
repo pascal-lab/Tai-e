@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -44,6 +45,8 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.ThrowStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -75,10 +78,12 @@ import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
@@ -87,8 +92,8 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
@@ -96,12 +101,14 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import soot.SootMethod;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -240,6 +247,8 @@ public class NewMethodIRBuilder {
 
         private final List<Var> vars;
 
+        private final List<ExceptionEntry> exceptionList;
+
         private Var ret;
 
         private Var thisVar;
@@ -261,6 +270,7 @@ public class NewMethodIRBuilder {
             context = new VisitorContext();
             stmtVisitor = new StmtGenerateVisitor(context);
             expVisitor = new ExpVisitor(context);
+            exceptionList = new ArrayList<>();
         }
 
         public IR build() {
@@ -271,7 +281,8 @@ public class NewMethodIRBuilder {
             if (ret != null) {
                 rets.add(ret);
             }
-            return new DefaultIR(jMethod, thisVar, params, rets, vars, stmts, new ArrayList<>());
+            logger.info(exceptionList);
+            return new DefaultIR(jMethod, thisVar, params, rets, vars, stmts, exceptionList);
         }
 
         private Var newVar(String name, Type type) {
@@ -379,13 +390,98 @@ public class NewMethodIRBuilder {
                     last instanceof Goto;
         }
 
-
-
         private void visitStmt(Statement stmt) {
             stmt.accept(stmtVisitor);
         }
 
+        private int nowPos() {
+            return stmts.size();
+        }
+
+        private Stmt getStmt(int i ) { return stmts.get(i); }
+
+        record ExceptionHandler(String target, Type type, String handler) { }
+
+        class ExceptionEntryManager {
+            private final Map<String, LinkedList<int[]>> codeRegionMap;
+            private final List<ExceptionHandler> handlerList;
+            private final List<String> pausedList;
+
+            ExceptionEntryManager() {
+                this.codeRegionMap = Maps.newMap();
+                this.pausedList = new ArrayList<>();
+                this.handlerList = new ArrayList<>();
+            }
+
+            public void beginRecording(String label) {
+                var newFrame = new int[] { nowPos(), -1 };
+                if (codeRegionMap.containsKey(label)) {
+                    codeRegionMap.computeIfPresent(label, (k, v) -> {
+                        v.addFirst(newFrame);
+                        return v;
+                    });
+                } else {
+                    codeRegionMap.computeIfAbsent(label, k -> {
+                        LinkedList<int[]> newList = new LinkedList<>();
+                        newList.addFirst(newFrame);
+                        return newList;
+                    });
+                }
+            }
+
+            public void endRecording(String label) {
+                assert (codeRegionMap.containsKey(label));
+                codeRegionMap.computeIfPresent(label, (k, v) -> {
+                    int[] now = v.getFirst();
+                    now[1] = nowPos();
+                    return v;
+                });
+            }
+
+            public void pauseRecording(String label) {
+                endRecording(label);
+                pausedList.add(label);
+            }
+
+            public void continueRecordAll() {
+                for (var i : pausedList) {
+                    beginRecording(i);
+                }
+                pausedList.clear();
+            }
+
+            public void registerHandler(String label, Type exceptionType, String handlerLabel) {
+                handlerList.add(new ExceptionHandler(label, exceptionType, handlerLabel));
+            }
+
+            public void resolveEntry(Map<String, Stmt> labelStmtMap) {
+                for (var now : handlerList) {
+                    assert (codeRegionMap.containsKey(now.target));
+                    LinkedList<int[]> l = codeRegionMap.get(now.target);
+                    var revTr = l.descendingIterator();
+                    while (revTr.hasNext()) {
+                        var i = revTr.next();
+                        if (i[0] != i[1]) {
+                            Catch c = (Catch) labelStmtMap.get(now.handler);
+                            ClassType t = (ClassType) now.type;
+                            ExceptionEntry entry = new ExceptionEntry(getStmt(i[0]), getStmt(i[1]), c, t);
+                            exceptionList.add(entry);
+                        }
+                    }
+                }
+            }
+        }
+
         class BlockLabelGenerator {
+
+            private static final char FINALLY = '^';
+
+            private static final char TRY = '@';
+
+            private static final char CATCH = '!';
+
+            private static final char NORMAL = '*';
+
             private int counter;
 
             public BlockLabelGenerator() {
@@ -393,8 +489,40 @@ public class NewMethodIRBuilder {
             }
 
             public String getNewLabel() {
-                return Integer.toString(counter++);
+                return NORMAL + Integer.toString(counter++);
             }
+
+            /**
+             * Return the new label for a [finally] block
+             * @return label, begin with '^'
+             */
+            public String getNewFinLabel() {
+                return String.valueOf(FINALLY) + counter++;
+            }
+
+            public String getNewTryLabel() {
+                return String.valueOf(TRY) + counter++;
+            }
+
+            public String getNewCatchLabel() { return String.valueOf(CATCH) + counter++; }
+
+            public static boolean isFinallyBlock(String label) {
+                return label.charAt(0) == FINALLY;
+            }
+
+            public static boolean isTryBlock(String label) {
+                return label.charAt(0) == TRY;
+            }
+
+            public static boolean isCatchBlock(String label) { return label.charAt(0) == CATCH; }
+
+            public static boolean isNormalBlock(String label) { return label.charAt(0) == NORMAL; }
+
+            public static boolean isUserDefinedLabel(String label) {
+                return ! isNormalBlock(label) && ! isCatchBlock(label) && ! isFinallyBlock(label)
+                        && ! isTryBlock(label);
+            }
+
         }
 
 
@@ -406,6 +534,11 @@ public class NewMethodIRBuilder {
             private final Map<String, Pair<String, String>> brkContMap;
             private final List<String> assocList;
             private final BlockLabelGenerator labelGenerator;
+            private final ExceptionEntryManager exceptionManager;
+            private final Map<String, Block> finallyBlockMap;
+            private final Map<String, String> finallyLabelMap;
+
+            private final LinkedList<String> contextCtrlList;
 
             /**
              * an expression may just generate side effects,
@@ -425,7 +558,11 @@ public class NewMethodIRBuilder {
                 this.labelStack = new Stack<>();
                 this.assocList = new ArrayList<>();
                 this.labelGenerator = new BlockLabelGenerator();
+                this.exceptionManager = new ExceptionEntryManager();
                 this.evalContext = true;
+                this.contextCtrlList = new LinkedList<>();
+                this.finallyBlockMap = Maps.newMap();
+                this.finallyLabelMap = Maps.newMap();
             }
 
             public void pushStack(Exp exp) {
@@ -501,6 +638,8 @@ public class NewMethodIRBuilder {
                 return labelGenerator.getNewLabel();
             }
 
+            public String getNewFinLabel() { return labelGenerator.getNewFinLabel(); }
+
             public boolean isEvalContext() {
                 return evalContext;
             }
@@ -532,6 +671,49 @@ public class NewMethodIRBuilder {
                     throw new NewFrontendException("label: "  + label + " don't exist in current context, illegal state");
                 }
             }
+
+            public @Nullable Block getFinallyBlock(String label) {
+                return this.finallyBlockMap.get(label);
+            }
+
+            public @Nullable Block getFinallyBlockBy(String label) {
+                return this.finallyBlockMap.get(this.finallyLabelMap.get(label));
+            }
+
+            public void assocFinallyBlock(String label, Block finBlock) {
+                this.finallyBlockMap.put(label, finBlock);
+            }
+
+            public void assocFinallyLabel(String tryOrCatch, String fin) {
+                this.finallyLabelMap.put(tryOrCatch, fin);
+            }
+
+            public LinkedList<String> getContextCtrlList() {
+                return this.contextCtrlList;
+            }
+
+            public void pushCtrlList(String label) {
+                this.getContextCtrlList().addFirst(label);
+            }
+
+            public void popCtrlList() {
+                this.contextCtrlList.removeFirst();
+            }
+
+            public ExceptionEntryManager getExceptionManager() {
+                return this.exceptionManager;
+            }
+
+            public BlockLabelGenerator getLabelGenerator() { return this.labelGenerator; }
+
+            public void handleUserLabel(String breakLabel, String contLabel) {
+                if (contextCtrlList.size() > 0) {
+                    if (BlockLabelGenerator.isUserDefinedLabel(this.contextCtrlList.getFirst())) {
+                        assert (assocList.contains(this.contextCtrlList.getFirst()));
+                        assocBreakAndContinue(breakLabel, contLabel);
+                    }
+                }
+            }
         }
 
         class LinenoASTVisitor extends ASTVisitor {
@@ -552,6 +734,7 @@ public class NewMethodIRBuilder {
 
             public void postProcess() {
                 context.resolveGoto();
+                context.getExceptionManager().resolveEntry(context.blockMap);
             }
 
             protected void visitExp(Expression expression) {
@@ -854,21 +1037,20 @@ public class NewMethodIRBuilder {
                                        Expression cond,
                                        Statement body,
                                        List<Expression> updates) {
+                var contLabel = context.getNewLabel();
+                var breakLabel = context.getNewLabel();
+                var bodyLabel = context.getNewLabel();
+                context.handleUserLabel(breakLabel, contLabel);
                 for (var i : inits) {
                     visitExp(i);
                     popSideEffect();
                 }
-                var contLabel = context.getNewLabel();
-                var breakLabel = context.getNewLabel();
-                var bodyLabel = context.getNewLabel();
                 context.assocLabel(contLabel);
                 context.assocBreakAndContinue(breakLabel, contLabel);
                 handleCondExpInContext(cond, bodyLabel, breakLabel, false);
-                context.pushLabel(breakLabel);
-                context.pushLabel(contLabel);
                 context.assocLabel(bodyLabel);
+                context.getContextCtrlList().addFirst(contLabel);
                 body.accept(this);
-                context.popLabel(); context.popLabel();
                 for (var i : updates) {
                     visitExp(i);
                 }
@@ -909,47 +1091,75 @@ public class NewMethodIRBuilder {
                 var stmt = ds.getBody();
                 var contLabel = context.getNewLabel();
                 var breakLabel = context.getNewLabel();
+                context.handleUserLabel(breakLabel, contLabel);
                 context.assocLabel(contLabel);
                 context.assocBreakAndContinue(breakLabel, contLabel);
-                context.pushLabel(breakLabel); context.pushLabel(breakLabel);
+                context.getContextCtrlList().addFirst(contLabel);
                 stmt.accept(this);
-                context.popLabel(); context.popLabel();
                 handleCondExpInContext(exp, contLabel, breakLabel, true);
                 context.assocLabel(breakLabel);
                 return false;
             }
 
+            /**
+             * Generate break/continue statement.
+             * Because of the existence of try-catch-finally,
+             * this need to be carefully handled
+             * @param label may be null, break/continue label
+             * @param brkOrCont 0 for break, 1 for continue
+             */
+            private void genContBrk(@Nullable SimpleName label, int brkOrCont) {
+                for (var i : context.getContextCtrlList()) {
+                    if (BlockLabelGenerator.isTryBlock(i) ||
+                        BlockLabelGenerator.isCatchBlock(i)) {
+                        // First, pause the record of this [Try]/[Catch] Block
+                        // Because the code to be generated is not belong to this [Try]/[Catch] Block
+                        // It's belong to the [Finally] of the [Try]/[Catch] Block
+                        context.getExceptionManager().pauseRecording(i);
+                        // Generate this [Finally] Block
+                        Block fin = context.getFinallyBlockBy(i);
+                        if (fin != null) {
+                            fin.accept(this);
+                        }
+                    } else {
+                        if (label == null) {
+                            // if [label] is null, then we have got the innermost loop block, generate goto here
+                            if (brkOrCont == 0) {
+                                addGoto(context.getBreakLabel(i));
+                            } else {
+                                addGoto(context.getContinueLabel(i));
+                            }
+                            // Continue recording for all outer [Try] block
+                            // Because there might be other path in this [Try] block
+                            context.getExceptionManager().continueRecordAll();
+                            return;
+                        } else if (i.equals(label.getIdentifier())) {
+                            // Or we have got the loop block indicate by [label]
+                            if (brkOrCont == 0) {
+                                addGoto(context.getBreakLabel(i));
+                            } else {
+                                addGoto(context.getContinueLabel(i));
+                            }
+                            context.getExceptionManager().continueRecordAll();
+                            return;
+                        }
+                        // else, just continue to find the right label
+                    }
+                }
+                throw new NewFrontendException("can't find the label for " + label + ", does this label have break/continue target?");
+            }
+
             @Override
             public boolean visit(BreakStatement bs) {
                 var label = bs.getLabel();
-                if (label != null) {
-                    var brkLabel = this.context.getBreakLabel(label.getIdentifier());
-                    if (brkLabel != null) {
-                        addGoto(brkLabel);
-                    } else {
-                        throw new NewFrontendException("context of" + "line " + this.getLineno()
-                                + ": " + bs +" don't have break target");
-                    }
-                } else {
-                    withBrkContLabel((brk, cont) -> addGoto(brk));
-                }
+                genContBrk(label, 0);
                 return false;
             }
 
             @Override
             public boolean visit(ContinueStatement cs) {
                 var label = cs.getLabel();
-                if (label != null) {
-                    var brkLabel = this.context.getContinueLabel(label.getIdentifier());
-                    if (brkLabel != null) {
-                        addGoto(brkLabel);
-                    } else {
-                        throw new NewFrontendException("context of" + "line " + this.getLineno()
-                                + ": " + cs +" don't have continue target");
-                    }
-                } else {
-                    withBrkContLabel((brk, cont) -> addGoto(cont));
-                }
+                genContBrk(label, 1);
                 return false;
             }
 
@@ -958,7 +1168,120 @@ public class NewMethodIRBuilder {
                 var label = stmt.getLabel();
                 var inner = stmt.getBody();
                 context.assocLabel(label.getIdentifier());
+                context.getContextCtrlList().addFirst(label.getIdentifier());
+                // TODO: add break/Continue for all Statement
                 inner.accept(this);
+                return false;
+            }
+
+
+            private String handleCatch(CatchClause cc, String tryLabel, String finLabel1, String finLabel2) {
+                // Here, we still need to recording
+                String nowLabel = context.labelGenerator.getNewCatchLabel();
+                // Note: it's safe to assoc a label here
+                // because a catch block at least generate one statement: catch ...
+                context.assocLabel(nowLabel);
+                context.getExceptionManager().beginRecording(nowLabel);
+                context.assocFinallyLabel(nowLabel, finLabel2);
+                SingleVariableDeclaration decl = cc.getException();
+                Block body = cc.getBody();
+                ITypeBinding exceptionType = decl.getType().resolveBinding();
+                Type taieType = TypeUtils.JDTTypeToTaieType(exceptionType);
+                visitExp(decl.getName());
+                addStmt(new Catch(popVar()));
+                // add exception handler
+                // ([Try Begin] [Try End])ₙ [Catch Begin] [Type]
+                context.getExceptionManager().registerHandler(tryLabel, taieType, nowLabel);
+                context.getContextCtrlList().addFirst(nowLabel);
+                body.accept(this);
+                context.getExceptionManager().endRecording(nowLabel);
+                context.getContextCtrlList().removeFirst();
+                addGoto(finLabel2);
+                return nowLabel;
+            }
+
+            // Normally, generate code like:
+            // +---------------+
+            // |   Try Block   |         Finally 2 block handle "normal" control flow
+            // +---------------+
+            // | Goto Finally2 |-----+         Finally 1 block begin with [Catch e]
+            // +---------------+     |                         end   with [Throw e]
+            // |    Catch 1    |     |         which act as default exception handler
+            // +---------------+     |
+            // | Goto Finally2 |-----+
+            // +---------------+     |
+            // |  .........    |-----+
+            // +---------------+     |
+            // |    Catch n    |     |
+            // +---------------+     |
+            // | Goto Finally2 |-----+
+            // +---------------+     |
+            // | Finally 1     |     |
+            // +---------------+<----+
+            // | Finally 2     |
+            // +---------------+
+            @Override
+            public boolean visit(TryStatement ts) {
+                Block tryBlock = ts.getBody();
+                List catches = ts.catchClauses();
+                Block finBlock = ts.getFinally();
+                String tryLabel = context.labelGenerator.getNewTryLabel();
+                String finLabel1 = context.getNewFinLabel();
+                String finLabel2 = context.getNewFinLabel();
+                context.getContextCtrlList().addFirst(tryLabel);
+                context.assocFinallyLabel(tryLabel, finLabel2);
+
+                if (finBlock != null) {
+                    context.assocFinallyBlock(finLabel2, finBlock);
+                }
+
+                // first handle [Try] block
+                context.getExceptionManager().beginRecording(tryLabel);
+                context.assocLabel(tryLabel);
+                tryBlock.accept(this);
+                context.getExceptionManager().endRecording(tryLabel);
+                addGoto(finLabel2);
+
+                // now, we are not in [Try] block
+                context.getContextCtrlList().removeFirst();
+                List<String> catchLabel = new ArrayList<>();
+                for (var i : catches) {
+                    var l = handleCatch((CatchClause) i, tryLabel, finLabel1, finLabel2);
+                    catchLabel.add(l);
+                }
+
+                if (finBlock != null) {
+                    // add exception handler
+                    // ([Try Begin] [Try End])ₙ [Finally-Catch] [Any]
+                    context.getExceptionManager().registerHandler(tryLabel, TypeUtils.anyException(), finLabel1);
+                    // add exception handler
+                    // ([Catch Begin] [Catch End])ₙ [Finally-Catch] [Any]
+                    for (var i : catchLabel) {
+                        context.getExceptionManager().registerHandler(i, TypeUtils.anyException(), finLabel1);
+                    }
+
+                    // generate finLabel1 block
+                    context.assocLabel(finLabel1);
+                    Var e = newTempVar(TypeUtils.anyException());
+                    addStmt(new Catch(e));
+                    finBlock.accept(this);
+                    addStmt(new Throw(e));
+
+                    // generate finLabel2 block
+                    context.assocLabel(finLabel2);
+                    finBlock.accept(this);
+                } else {
+                    // if [finally] don't exist, we still assoc next statement with [finLabel2]
+                    context.assocLabel(finLabel2);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean visit(ThrowStatement thr) {
+                Expression e = thr.getExpression();
+                visitExp(e);
+                addStmt(new Throw(popVar()));
                 return false;
             }
 
@@ -1184,6 +1507,12 @@ public class NewMethodIRBuilder {
             }
 
             @Override
+            public boolean visit(StringLiteral literal) {
+                context.pushStack(TypeUtils.getStringLiteral(literal));
+                return false;
+            }
+
+            @Override
             public boolean visit(Assignment ass) {
                 var lExp = ass.getLeftHandSide();
                 var rExp = ass.getRightHandSide();
@@ -1242,6 +1571,7 @@ public class NewMethodIRBuilder {
                 // here, if [object] is [null], we can confirm it's a call to [this]
                 Var o;
                 boolean checkInterface;
+                // TODO: not correct! what if this is inner class?
                 if (object == null) {
                     o = thisVar;
                     assert targetClass != null;

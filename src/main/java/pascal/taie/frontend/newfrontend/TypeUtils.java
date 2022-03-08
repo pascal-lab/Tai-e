@@ -5,6 +5,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -16,6 +17,7 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.ShiftExp;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
@@ -142,6 +144,10 @@ public final class TypeUtils {
         }
     }
 
+    public static Literal getStringLiteral(StringLiteral l) {
+        return pascal.taie.ir.exp.StringLiteral.get(l.getEscapedValue());
+    }
+
     public static ArithmeticExp.Op getArithmeticOp(InfixExpression.Operator op) {
         return switch (op.toString()) {
             case "+" -> ArithmeticExp.Op.ADD;
@@ -181,5 +187,14 @@ public final class TypeUtils {
             case "!=" -> ConditionExp.Op.NE;
             default -> throw new NewFrontendException(op + " is not Condition OP, why use this function?");
         };
+    }
+
+    public static Type anyException() {
+        JClass thr = WorldParaHolder.getClassHierarchy().getClass(ClassNames.THROWABLE);
+        if (thr != null) {
+            return thr.getType();
+        } else {
+            throw new NewFrontendException("can't get [Throwable] Type");
+        }
     }
 }

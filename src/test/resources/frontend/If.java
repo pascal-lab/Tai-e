@@ -32,4 +32,15 @@ class If {
         }
         return x;
     }
+
+    public int f1(int x) {
+        if (x > 0) {
+            return x;
+        } else if (x == 0) {
+            return 1;
+        } else  {
+            return 100;
+        }
+    }
+
 }
