@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import pascal.taie.util.collection.ArrayMapTest;
 import pascal.taie.util.collection.ArraySetTest;
+import pascal.taie.util.collection.BitSetTest;
 import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
 import pascal.taie.util.collection.MultiMapTest;
@@ -30,6 +31,7 @@ import pascal.taie.util.graph.GraphTest;
         // collection
         ArraySetTest.class,
         ArrayMapTest.class,
+        BitSetTest.class,
         HybridArrayHashMapTest.class,
         HybridArrayHashSetTest.class,
         MultiMapTest.class,
