@@ -57,4 +57,12 @@ public final class Sets {
     public static <E> Set<E> newConcurrentSet() {
         return ConcurrentHashMap.newKeySet();
     }
+
+    public static BitSet newBitSet() {
+        return new BitSet();
+    }
+
+    public static BitSet newBitSet(int nbits) {
+        return new BitSet(nbits);
+    }
 }

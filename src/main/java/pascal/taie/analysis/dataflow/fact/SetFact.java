@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
+import pascal.taie.util.collection.AbstractBitSet;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Sets;
 
@@ -31,7 +32,11 @@ public class SetFact<E> {
     protected final Set<E> set;
 
     public SetFact(Collection<E> c) {
-        set = Sets.newHybridSet(c);
+        if (c instanceof AbstractBitSet<E> s) {
+            set = s.copy();
+        } else {
+            set = Sets.newHybridSet(c);
+        }
     }
 
     public SetFact() {
