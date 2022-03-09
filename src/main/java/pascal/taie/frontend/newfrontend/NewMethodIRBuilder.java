@@ -9,6 +9,9 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
@@ -74,7 +77,10 @@ import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
+import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
@@ -88,10 +94,12 @@ import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
@@ -101,7 +109,6 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import soot.SootMethod;
@@ -543,6 +550,7 @@ public class NewMethodIRBuilder {
             private final ExceptionEntryManager exceptionManager;
             private final Map<String, Block> finallyBlockMap;
             private final Map<String, String> finallyLabelMap;
+            private final Map<Integer, Var> intLiteralMap;
 
             private final LinkedList<String> contextCtrlList;
 
@@ -569,6 +577,7 @@ public class NewMethodIRBuilder {
                 this.contextCtrlList = new LinkedList<>();
                 this.finallyBlockMap = Maps.newMap();
                 this.finallyLabelMap = Maps.newMap();
+                this.intLiteralMap = Maps.newMap();
             }
 
             public void pushStack(Exp exp) {
@@ -720,6 +729,17 @@ public class NewMethodIRBuilder {
                     }
                 }
             }
+
+            public Var getInt(LinenoASTVisitor visitor, int i) {
+                if (this.intLiteralMap.containsKey(i)) {
+                    return intLiteralMap.get(i);
+                } else {
+                    Var v = newTempConstantVar(IntLiteral.get(i));
+                    intLiteralMap.put(i, v);
+                    visitor.newAssignment(v, IntLiteral.get(i));
+                    return v;
+                }
+            }
         }
 
         class LinenoASTVisitor extends ASTVisitor {
@@ -804,12 +824,22 @@ public class NewMethodIRBuilder {
                         addStmt(new Invoke(jMethod, exp, v));
                     } else if (right instanceof FieldAccess exp) {
                         addStmt(new LoadField(v, exp));
-                    } else {
+                    } else if (right instanceof ArrayAccess exp) {
+                        addStmt(new LoadArray(v, exp));
+                    } else if (right instanceof NewArray exp) {
+                        addStmt(new New(jMethod, v, exp));
+                    } else if (right instanceof NewMultiArray exp) {
+                        addStmt(new New(jMethod, v, exp));
+                    }
+                    else {
                         throw new NewFrontendException(right + " is not implemented");
                     }
                 } else if (left instanceof FieldAccess s) {
                     addStmt(new StoreField(s, expToVar(right)));
-                } else {
+                } else if (left instanceof ArrayAccess a) {
+                    addStmt(new StoreArray(a, expToVar(right)));
+                }
+                else {
                     throw new NewFrontendException(left + " is not implemented");
                 }
             }
@@ -819,11 +849,17 @@ public class NewMethodIRBuilder {
                     return v;
                 } else if (exp instanceof BinaryExp
                         || exp instanceof InvokeExp
-                        || exp instanceof FieldAccess) {
+                        || exp instanceof FieldAccess
+                        || exp instanceof ArrayAccess
+                        || exp instanceof NewExp) {
                     var v = newTempVar(exp.getType());
                     newAssignment(v, exp);
                     return v;
                 } else if (exp instanceof Literal l) {
+                    // TODO: hook all literal
+                    if (exp instanceof IntLiteral i) {
+                        return context.getInt(this, i.getValue());
+                    }
                     var v = newTempConstantVar(l);
                     newAssignment(v, exp);
                     return v;
@@ -1321,10 +1357,14 @@ public class NewMethodIRBuilder {
                 }
             }
 
-            private Exp listCompute(List<Expression> exp, Function<List<Var>, Exp> f) {
+            /**
+             * some JDT method will always return a raw Type List
+             * @param exp   an Expression List returned by some JDT method
+             */
+            private Exp listCompute(List exp, Function<List<Var>, Exp> f) {
                 List<Var> list = new ArrayList<>();
                 for (var i : exp) {
-                    i.accept(this);
+                    ((Expression) i).accept(this);
                     list.add(this.popVar());
                 }
                 return f.apply(list);
@@ -1639,6 +1679,74 @@ public class NewMethodIRBuilder {
                 context.pushStack(listCompute(cic.arguments(), l -> new InvokeSpecial(init, temp, l)));
                 popSideEffect();
                 context.pushStack(temp);
+                return false;
+            }
+
+            private void initArr(Expression exp, LValue access) {
+                if (exp instanceof ArrayInitializer init) {
+                    var exps = init.expressions();
+                    boolean isOneDim;
+                    if (init.expressions().size() == 0) {
+                        isOneDim = true;
+                    } else {
+                        isOneDim = !(init.expressions().get(0) instanceof ArrayInitializer);
+                    }
+                    var type = (pascal.taie.language.type.ArrayType)
+                            TypeUtils.JDTTypeToTaieType(init.resolveTypeBinding());
+                    Var length = context.getInt(this, init.expressions().size());
+                    List<Var> lengths = new ArrayList<>();
+                    lengths.add(length);
+                    newAssignment(access, isOneDim ? new NewArray(type, length) :
+                                                     new NewMultiArray(type, lengths));
+                    for (var i = 0; i < init.expressions().size(); ++i) {
+                        context.pushStack(access);
+                        initArr((Expression) exps.get(i), new ArrayAccess(popVar(), context.getInt(this, i)));
+                    }
+                } else {
+                    exp.accept(this);
+                    newAssignment(access, popVar());
+                }
+            }
+
+            private void handleArrInit(ArrayInitializer init) {
+                ITypeBinding typeBinding = init.resolveTypeBinding();
+                var type = (pascal.taie.language.type.ArrayType) TypeUtils.JDTTypeToTaieType(typeBinding);
+                Var temp = newTempVar(type);
+                initArr(init, temp);
+                context.pushStack(temp);
+            }
+
+            // Tai-e IR can represent both fix-sized and var-sized multiArray
+            @Override
+            public boolean visit(ArrayCreation ac) {
+                ArrayType t = ac.getType();
+                var taieType = (pascal.taie.language.type.ArrayType) TypeUtils.JDTTypeToTaieType(t.resolveBinding());
+                ArrayInitializer arrInit = ac.getInitializer();
+                if (t.getDimensions() == 1 && arrInit == null) {
+                    // if this is one dimension array, use [NewArray]
+                   Expression exp =  (Expression) ac.dimensions().get(0);
+                   exp.accept(this);
+                   Var length = popVar();
+                   context.pushStack(new NewArray(taieType, length));
+                } else if (arrInit == null) {
+                   context.pushStack(listCompute(ac.dimensions(), l -> new NewMultiArray(taieType, l)));
+                } else {
+                    handleArrInit(ac.getInitializer());
+                }
+                return false;
+            }
+
+            @Override
+            public boolean visit(ArrayInitializer init) {
+                handleArrInit(init);
+                return false;
+            }
+
+            @Override
+            public boolean visit(org.eclipse.jdt.core.dom.ArrayAccess access) {
+                access.getIndex().accept(this);
+                access.getArray().accept(this);
+                context.pushStack(new ArrayAccess(popVar(), popVar()));
                 return false;
             }
         }
