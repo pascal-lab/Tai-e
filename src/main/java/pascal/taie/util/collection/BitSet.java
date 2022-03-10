@@ -680,7 +680,27 @@ public class BitSet {
         checkInvariants();
         return changed;
     }
-    
+
+    /**
+     * Sets the content of this bit set to the same as specified bit set.
+     *
+     * @param set a bit set
+     */
+    public void setTo(BitSet set) {
+        if (this == set) {
+            return;
+        }
+        if (words.length < set.wordsInUse) {
+            words = Arrays.copyOf(set.words, set.wordsInUse);
+        } else {
+            System.arraycopy(set.words, 0, words, 0, set.wordsInUse);
+            if (set.wordsInUse < wordsInUse) {
+                Arrays.fill(words, set.wordsInUse, wordsInUse, 0);
+            }
+        }
+        wordsInUse = set.wordsInUse;
+    }
+
     /**
      * Returns the hash code value for this bit set. The hash code depends
      * only on which bits are set within this {@code BitSet}.

@@ -76,6 +76,19 @@ public class BitSetTest {
     }
 
     @Test
+    public void testSetTo() {
+        BitSet s = BitSet.of(1, 2, 300);
+        s.setTo(BitSet.of());
+        assertTrue(s.isEmpty());
+        s.setTo(BitSet.of(111, 222, 333));
+        assertEquals(s, BitSet.of(111, 222, 333));
+        s.setTo(BitSet.of(1));
+        assertEquals(s, BitSet.of(1));
+        s.setTo(BitSet.of(11111));
+        assertEquals(s, BitSet.of(11111));
+    }
+
+    @Test
     public void testContains() {
         assertTrue(BitSet.of().contains(BitSet.of()));
         assertTrue(BitSet.of(1, 2, 3).contains(BitSet.of()));
