@@ -118,8 +118,12 @@ public class SetFact<E> {
      * Sets the content of this set to the same as other set.
      */
     public void set(SetFact<E> other) {
-        clear();
-        union(other);
+        if (set instanceof AbstractBitSet<E> s) {
+            s.setTo(other.set);
+        } else {
+            clear();
+            union(other);
+        }
     }
 
     /**

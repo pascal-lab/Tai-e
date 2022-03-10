@@ -15,18 +15,27 @@ package pascal.taie.util.collection;
 import pascal.taie.util.Hashes;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 /**
  * Bit set based implementation of {@link java.util.Set}.
- *
- * The subclasses just need to take care of the mappings between indexes
- * and objects.
+ * <p>
+ * To store objects in bit set, the subclasses need to take care of
+ * the mappings between objects and indexes by implementing {@link #getIndex}
+ * and {@link #getElement}. The objects stored in the same bit set should
+ * always preserve the invariant:
+ * <code>e.equals(getElement(getIndex(e)))</code>.
+ * <p>
+ * Note: objects in different contexts may be mapped to the same index, and
+ * it may cause unexpected behaviors if they are stored in the same bit set.
+ * To avoid this, for each bit set, we require the subclasses to provide
+ * a context object which indicates the context of the objects represented
+ * by the bits in the set. We consider set operations (e.g., {@link #addAll}
+ * and {@link #containsAll}) meaningful only when the two bit sets have
+ * the equivalent context object.
  *
  * @param <E> type of elements
  */
@@ -44,24 +53,34 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     @Override
     public boolean contains(Object o) {
+        checkInvariant(o);
         return bitSet.get(getIndex((E) o));
     }
 
     @Override
     public boolean add(E e) {
+        checkInvariant(e);
         return bitSet.set(getIndex(e));
     }
 
     @Override
     public boolean remove(Object o) {
+        checkInvariant(o);
         return bitSet.clear(getIndex((E) o));
+    }
+
+    /**
+     * The objects passed to this set should preserve this invariant.
+     */
+    private void checkInvariant(Object o) {
+        assert o.equals(getElement(getIndex((E) o)));
     }
 
     @Override
     public boolean containsAll(@Nonnull Collection<?> c) {
         if (c instanceof AbstractBitSet s) {
-            return Objects.equals(getContext(), s.getContext()) &&
-                    bitSet.contains(s.bitSet);
+            checkContext(s);
+            return bitSet.contains(s.bitSet);
         } else {
             return super.containsAll(c);
         }
@@ -70,8 +89,8 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
     @Override
     public boolean addAll(@Nonnull Collection<? extends E> c) {
         if (c instanceof AbstractBitSet s) {
-            return Objects.equals(getContext(), s.getContext()) &&
-                    bitSet.or(s.bitSet);
+            checkContext(s);
+            return bitSet.or(s.bitSet);
         } else {
             return super.addAll(c);
         }
@@ -80,8 +99,8 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
     @Override
     public boolean removeAll(Collection<?> c) {
         if (c instanceof AbstractBitSet s) {
-            return Objects.equals(getContext(), s.getContext()) &&
-                    bitSet.andNot(s.bitSet);
+            checkContext(s);
+            return bitSet.andNot(s.bitSet);
         } else {
             return super.removeAll(c);
         }
@@ -90,11 +109,33 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
     @Override
     public boolean retainAll(@Nonnull Collection<?> c) {
         if (c instanceof AbstractBitSet s) {
-            return Objects.equals(getContext(), s.getContext()) &&
-                    bitSet.and(s.bitSet);
+            checkContext(s);
+            return bitSet.and(s.bitSet);
         } else {
             return super.retainAll(c);
         }
+    }
+
+    /**
+     * Sets the content of this bit set to the same as given collection.
+     */
+    public void setTo(@Nonnull Collection<E> c) {
+        if (c instanceof AbstractBitSet s) {
+            checkContext(s);
+            bitSet.setTo(s.bitSet);
+        } else {
+            clear();
+            addAll(c);
+        }
+    }
+
+    /**
+     * Checks if the set to operate on has equivalent context as this bit set.
+     *
+     * @param set the set to operate on
+     */
+    private void checkContext(AbstractBitSet<?> set) {
+        assert getContext().equals(set.getContext());
     }
 
     @Override
@@ -151,7 +192,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     @Override
     public int hashCode() {
-        return Hashes.safeHash(getContext(), bitSet);
+        return Hashes.hash(getContext(), bitSet);
     }
 
     /**
@@ -160,11 +201,9 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
     public abstract AbstractBitSet<E> copy();
 
     /**
-     * @return the context object of the elements represented by
-     * the bits in {@link #bitSet}. This ... useful for two ...
-     * typically, the container of the elements
+     * @return the context for the objects represented by the bits in this set.
      */
-    protected abstract @Nullable Object getContext();
+    protected abstract Object getContext();
 
     /**
      * Maps an object to the corresponding index.
