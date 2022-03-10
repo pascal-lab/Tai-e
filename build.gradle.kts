@@ -28,7 +28,7 @@ dependencies {
     implementation(files("lib/sootclasses-modified.jar"))
     implementation("org.soot-oss:soot:4.3.0-20211223.212205-256")
     // Eliminate SLF4J warning
-    implementation("org.slf4j:slf4j-simple:1.7.5")
+    implementation("org.slf4j:slf4j-nop:1.7.5")
 
     testImplementation("junit:junit:4.13")
 }
