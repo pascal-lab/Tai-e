@@ -55,7 +55,7 @@ public class AvailableExpressionAnalysis extends
     }
 
     @Override
-    public SetFact<ExpWrapper> newInitialFact() {
+    public SetFact<ExpWrapper> newInitialFact(CFG<Stmt> cfg) {
         return new ToppedSetFact<>(true);
     }
 

@@ -77,8 +77,8 @@ public abstract class Solver<Node, Fact> {
                 return;
             }
             // initialize in & out fact
-            result.setInFact(node, analysis.newInitialFact());
-            result.setOutFact(node, analysis.newInitialFact());
+            result.setInFact(node, analysis.newInitialFact(cfg));
+            result.setOutFact(node, analysis.newInitialFact(cfg));
         });
     }
 
@@ -93,8 +93,8 @@ public abstract class Solver<Node, Fact> {
                 return;
             }
             // initialize in fact
-            result.setInFact(node, analysis.newInitialFact());
-            result.setOutFact(node, analysis.newInitialFact());
+            result.setInFact(node, analysis.newInitialFact(cfg));
+            result.setOutFact(node, analysis.newInitialFact(cfg));
         });
     }
 

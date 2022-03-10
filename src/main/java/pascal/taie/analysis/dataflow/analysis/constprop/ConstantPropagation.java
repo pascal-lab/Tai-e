@@ -72,7 +72,7 @@ public class ConstantPropagation extends
     }
 
     @Override
-    public CPFact newInitialFact() {
+    public CPFact newInitialFact(CFG<Stmt> cfg) {
         return new CPFact();
     }
 

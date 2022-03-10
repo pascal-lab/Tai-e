@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
+import pascal.taie.analysis.dataflow.fact.CFGStmtSet;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
@@ -34,12 +35,12 @@ public class ReachingDefinitionAnalysis extends
 
     @Override
     public SetFact<Stmt> newBoundaryFact(CFG<Stmt> cfg) {
-        return new SetFact<>();
+        return new SetFact<>(new CFGStmtSet(cfg));
     }
 
     @Override
-    public SetFact<Stmt> newInitialFact() {
-        return new SetFact<>();
+    public SetFact<Stmt> newInitialFact(CFG<Stmt> cfg) {
+        return new SetFact<>(new CFGStmtSet(cfg));
     }
 
     @Override

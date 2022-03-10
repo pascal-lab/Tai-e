@@ -12,6 +12,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
+import pascal.taie.analysis.dataflow.fact.LocalVarSet;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
@@ -44,12 +45,12 @@ public class LiveVariableAnalysis extends
 
     @Override
     public SetFact<Var> newBoundaryFact(CFG<Stmt> cfg) {
-        return new SetFact<>();
+        return new SetFact<>(new LocalVarSet(cfg.getIR()));
     }
 
     @Override
-    public SetFact<Var> newInitialFact() {
-        return new SetFact<>();
+    public SetFact<Var> newInitialFact(CFG<Stmt> cfg) {
+        return new SetFact<>(new LocalVarSet(cfg.getIR()));
     }
 
     @Override

@@ -184,7 +184,7 @@ public class InterConstantPropagation extends
 
     @Override
     public CPFact newInitialFact() {
-        return cp.newInitialFact();
+        return new CPFact();
     }
 
     @Override

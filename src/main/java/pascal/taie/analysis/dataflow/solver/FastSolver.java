@@ -46,21 +46,22 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 cfg.getInEdgesOf(node).forEach(edge -> {
                     if (!analysis.needTransferEdge(edge)) {
                         result.setInFact(node,
-                                getOrNewOutFact(result, edge.getSource()));
+                                getOrNewOutFact(result, cfg, edge.getSource()));
                     }
                 });
             } else {
-                result.setInFact(node, analysis.newInitialFact());
+                result.setInFact(node, analysis.newInitialFact(cfg));
             }
             // initialize out fact
-            getOrNewOutFact(result, node);
+            getOrNewOutFact(result, cfg, node);
         });
     }
 
-    private Fact getOrNewOutFact(DataflowResult<Node, Fact> result, Node node) {
+    private Fact getOrNewOutFact(
+            DataflowResult<Node, Fact> result, CFG<Node> cfg, Node node) {
         Fact fact = result.getOutFact(node);
         if (fact == null) {
-            fact = analysis.newInitialFact();
+            fact = analysis.newInitialFact(cfg);
             result.setOutFact(node, fact);
         }
         return fact;
@@ -127,21 +128,22 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 cfg.getOutEdgesOf(node).forEach(edge -> {
                     if (!analysis.needTransferEdge(edge)) {
                         result.setOutFact(node,
-                                getOrNewInFact(result, edge.getTarget()));
+                                getOrNewInFact(result, cfg, edge.getTarget()));
                     }
                 });
             } else {
-                result.setOutFact(node, analysis.newInitialFact());
+                result.setOutFact(node, analysis.newInitialFact(cfg));
             }
             // initialize in fact
-            getOrNewInFact(result, node);
+            getOrNewInFact(result, cfg, node);
         });
     }
 
-    private Fact getOrNewInFact(DataflowResult<Node, Fact> result, Node node) {
+    private Fact getOrNewInFact(
+            DataflowResult<Node, Fact> result, CFG<Node> cfg, Node node) {
         Fact fact = result.getInFact(node);
         if (fact == null) {
-            fact = analysis.newInitialFact();
+            fact = analysis.newInitialFact(cfg);
             result.setInFact(node, fact);
         }
         return fact;
