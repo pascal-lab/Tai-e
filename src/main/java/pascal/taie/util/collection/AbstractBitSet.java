@@ -37,6 +37,8 @@ import java.util.NoSuchElementException;
  * and {@link #containsAll}) meaningful only when the two bit sets have
  * the equivalent context object.
  *
+ * TODO: add mod count
+ *
  * @param <E> type of elements
  */
 public abstract class AbstractBitSet<E> extends AbstractSet<E> {
@@ -165,8 +167,14 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
          */
         private int index;
 
+        /**
+         * Index of last iterated set bit; -1 if no such
+         */
+        private int lastRet;
+
         private BitSetIterator() {
             index = bitSet.nextSetBit(0);
+            lastRet = -1;
         }
 
         @Override
@@ -176,17 +184,21 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
         @Override
         public E next() {
-            if (index == -1) {
+            int i = index;
+            if (i == -1) {
                 throw new NoSuchElementException();
             }
-            E ret = getElement(index);
-            index = bitSet.nextSetBit(index); // advance
-            return ret;
+            index = bitSet.nextSetBit(i + 1); // advance
+            return getElement(lastRet = i);
         }
 
         @Override
         public void remove() {
-            bitSet.clear(index);
+            if (lastRet < 0) {
+                throw new IllegalStateException();
+            }
+            bitSet.clear(lastRet);
+            lastRet = -1;
         }
     }
 

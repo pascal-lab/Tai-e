@@ -20,7 +20,6 @@ package pascal.taie.util;
  * implementations of this class), so you need to use {@link #getIndex()}
  * with care.
  */
-@FunctionalInterface
 public interface Indexable {
 
     /**

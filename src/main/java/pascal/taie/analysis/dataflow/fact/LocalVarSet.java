@@ -43,12 +43,12 @@ public class LocalVarSet extends AbstractBitSet<Var> {
     }
 
     @Override
-    protected int getIndex(Var var) throws IllegalArgumentException {
+    protected int getIndex(Var var) {
         return var.getIndex();
     }
 
     @Override
-    protected Var getElement(int index) throws IllegalArgumentException {
+    protected Var getElement(int index) {
         return ir.getVar(index);
     }
 }

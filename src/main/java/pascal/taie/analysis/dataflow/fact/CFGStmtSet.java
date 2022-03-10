@@ -43,7 +43,7 @@ public class CFGStmtSet extends AbstractBitSet<Stmt> {
     }
 
     @Override
-    protected int getIndex(Stmt stmt) throws IllegalArgumentException {
+    protected int getIndex(Stmt stmt) {
         return stmt.getIndex();
     }
 
@@ -54,7 +54,7 @@ public class CFGStmtSet extends AbstractBitSet<Stmt> {
      * @see pascal.taie.analysis.graph.cfg.CFGBuilder
      */
     @Override
-    protected Stmt getElement(int index) throws IllegalArgumentException {
+    protected Stmt getElement(int index) {
         int nStmts = cfg.getIR().getStmts().size();
         if (index == nStmts) {
             return cfg.getEntry();
