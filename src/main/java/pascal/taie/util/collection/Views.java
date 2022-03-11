@@ -14,6 +14,7 @@ package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractCollection;
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -122,9 +123,11 @@ public final class Views {
 
     /**
      * Given a mapper function, creates an immutable view set for
-     * given collection. Note that the uniqueness of elements in the
-     * resulting set view is guaranteed by given collection {@code c}
-     * and function {@code mapper}, not by the resulting set view itself.
+     * given collection.
+     * <p>
+     * WARNING: the uniqueness of elements in the resulting set view is
+     * guaranteed by given collection {@code c} and function {@code mapper},
+     * not by the resulting set view itself.
      *
      * @param c        the backing collection
      * @param mapper   the function maps elements in backing collection to
@@ -143,9 +146,11 @@ public final class Views {
 
     /**
      * Given a mapper function, creates an immutable view set for
-     * given collection. Note that the uniqueness of elements in the
-     * resulting set view is guaranteed by given collection {@code c}
-     * and function {@code mapper}, not by the resulting set view itself.
+     * given collection.
+     * <p>
+     * WARNING: the uniqueness of elements in the resulting set view is
+     * guaranteed by given collection {@code c} and function {@code mapper},
+     * not by the resulting set view itself.
      *
      * @param c      the backing collection
      * @param mapper the function maps elements in backing collection to
@@ -257,6 +262,79 @@ public final class Views {
                 }
             }
             return size;
+        }
+    }
+
+    /**
+     * Given two sets, creates an immutable view set consisting of elements
+     * of the two sets.
+     *
+     * WARNING: this implementation simply treats two sets as one set and
+     * does not guarantee the uniqueness of elements. It is responsibility of
+     * the client code to guarantee that the elements in {@code set1} and
+     * {@code set2} are disjoint.
+     *
+     * @param set1 the first set to combine
+     * @param set2 the second set to combine
+     * @param <T>  type of elements
+     * @return     an immutable view set containing elements of {@code set1}
+     *             and {@code set2}
+     */
+    public static <T> Set<T> toCombinedSet(
+            Set<? extends T> set1, Set<? extends T> set2) {
+        return Collections.unmodifiableSet(new CombinedSetView<T>(set1, set2));
+    }
+
+    private static class CombinedSetView<T> extends AbstractSet<T> {
+
+        private final Set<? extends T> set1;
+
+        private final Set<? extends T> set2;
+
+        private CombinedSetView(Set<? extends T> set1, Set<? extends T> set2) {
+            this.set1 = set1;
+            this.set2 = set2;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return set1.contains(o) || set2.contains(o);
+        }
+
+        @Override
+        public @Nonnull Iterator<T> iterator() {
+            return new Iterator<>() {
+
+                private final Iterator<? extends T> it1 = set1.iterator();
+
+                private final Iterator<? extends T> it2 = set2.iterator();
+
+                @Override
+                public boolean hasNext() {
+                    return it1.hasNext() || it2.hasNext();
+                }
+
+                @Override
+                public T next() {
+                    if (it1.hasNext()) {
+                        return it1.next();
+                    } else if (it2.hasNext()) {
+                        return it2.next();
+                    } else {
+                        throw new NoSuchElementException();
+                    }
+                }
+            };
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return set1.isEmpty() && set2.isEmpty();
+        }
+
+        @Override
+        public int size() {
+            return set1.size() + set2.size();
         }
     }
 }
