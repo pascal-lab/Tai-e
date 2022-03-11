@@ -106,6 +106,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Throw;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
@@ -915,6 +916,7 @@ public class NewMethodIRBuilder {
                 this.context.pushLabel(contLabel);
             }
 
+            // TODO: check if [val] is Literal
             protected void handleSingleVarDecl(VariableDeclaration vd) {
                 var name = vd.getName();
                 var val = vd.getInitializer();
@@ -1111,6 +1113,7 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(ForStatement fs) {
                 var init = fs.initializers();
@@ -1366,10 +1369,10 @@ public class NewMethodIRBuilder {
              * some JDT method will always return a raw Type List
              * @param exp   an Expression List returned by some JDT method
              */
-            private Exp listCompute(List exp, Function<List<Var>, Exp> f) {
+            private Exp listCompute(List<Expression> exp, Function<List<Var>, Exp> f) {
                 List<Var> list = new ArrayList<>();
                 for (var i : exp) {
-                    ((Expression) i).accept(this);
+                    i.accept(this);
                     list.add(this.popVar());
                 }
                 return f.apply(list);
@@ -1398,6 +1401,33 @@ public class NewMethodIRBuilder {
                     // TODO: check if it's correct for inner class
                     return newVar(THIS, classType);
                 }
+            }
+
+            private void genStringBuilderAppend(Var sb, List<Expression> exp) {
+                // don't use [listCompute]
+                for (var i : exp) {
+                    i.accept(this);
+                    Var v = popVar();
+                    List<Var> args = new ArrayList<>();
+                    args.add(v);
+                    MethodRef append = TypeUtils.getStringBuilderAppend(v.getType());
+                    context.pushStack(new InvokeVirtual(append, sb, args));
+                    popSideEffect();
+                }
+            }
+
+            /**
+             * @apiNote the value {@code exp} can't be const.
+             * i.e. {@code "12321" + 1} is not handled by this function.
+             * @param exp an InfixExpression, where {@code Op} is {@code Plus}.
+             */
+            private void genStringBuild(InfixExpression exp) {
+                assert exp.getOperator() == InfixExpression.Operator.PLUS;
+                ClassType sb = TypeUtils.getStringBuilder();
+                MethodRef newSb = TypeUtils.getNewStringBuilder();
+                Var sbVar = genNewObject(newSb, new ArrayList<>(), sb);
+                genStringBuilderAppend(sbVar, getAllOperands(exp));
+                context.pushStack(new InvokeVirtual(TypeUtils.getToString(), sbVar, new ArrayList<>()));
             }
 
             // Ref: JLS17 6.5.6.1
@@ -1437,6 +1467,18 @@ public class NewMethodIRBuilder {
 
             @Override
             public boolean visit(InfixExpression exp) {
+                // if this expression is const value, just use it.
+                if (exp.resolveConstantExpressionValue() != null) {
+                    context.pushStack(TypeUtils.getRightPrimitiveLiteral(exp));
+                    return false;
+                }
+
+                // if this expression type is [String], use another function to handle it
+                if (exp.resolveTypeBinding().getBinaryName().equals(ClassNames.STRING)) {
+                    genStringBuild(exp);
+                    return false;
+                }
+
                 var op = exp.getOperator();
                 var opStr = op.toString();
                 // handle arithmetic expressions
@@ -1651,6 +1693,7 @@ public class NewMethodIRBuilder {
                 return exp;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(MethodInvocation mi) {
                 Expression object = mi.getExpression();
@@ -1674,18 +1717,24 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(ClassInstanceCreation cic) {
                 ITypeBinding binding = cic.resolveTypeBinding();
                 Type type = TypeUtils.JDTTypeToTaieType(binding);
-                Var temp = newTempVar(type);
                 IMethodBinding methodBinding = cic.resolveConstructorBinding();
                 MethodRef init = getInitRef(methodBinding);
-                addStmt(new New(jMethod, temp, new NewInstance((ClassType) type)));
-                context.pushStack(listCompute(cic.arguments(), l -> new InvokeSpecial(init, temp, l)));
-                popSideEffect();
+                Var temp = genNewObject(init, cic.arguments(), type);
                 context.pushStack(temp);
                 return false;
+            }
+
+            private Var genNewObject(MethodRef init, List<Expression> args, Type declClassType) {
+                Var temp = newTempVar(declClassType);
+                addStmt(new New(jMethod, temp, new NewInstance((ClassType) declClassType)));
+                context.pushStack(listCompute(args, l -> new InvokeSpecial(init, temp, l)));
+                popSideEffect();
+                return temp;
             }
 
             private void initArr(Expression exp, LValue access) {
@@ -1723,6 +1772,7 @@ public class NewMethodIRBuilder {
             }
 
             // Tai-e IR can represent both fix-sized and var-sized multiArray
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(ArrayCreation ac) {
                 ArrayType t = ac.getType();

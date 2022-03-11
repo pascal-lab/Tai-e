@@ -1,5 +1,6 @@
 class Literal {
     public static int f() {
+        int a = 1 + 1 + 1;
         return 1 + 1 + 1;
     }
 
@@ -9,5 +10,9 @@ class Literal {
 
     public static Object h() {
         return null;
+    }
+
+    public static String s(String h) {
+        return h + "123" + 123 + 123.4 + new Literal();
     }
 }

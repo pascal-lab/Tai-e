@@ -16,19 +16,25 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
-import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.MethodNames;
+import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.classes.Subsignature;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public final class TypeUtils {
 
@@ -131,6 +137,7 @@ public final class TypeUtils {
     }
 
     public static Literal getRightPrimitiveLiteral(Expression e) {
+        var t = e.resolveTypeBinding();
         var res = e.resolveConstantExpressionValue();
         if (res == null) {
             if (e instanceof NullLiteral) {
@@ -154,7 +161,7 @@ public final class TypeUtils {
     }
 
     public static Literal getStringLiteral(StringLiteral l) {
-        return pascal.taie.ir.exp.StringLiteral.get(l.getEscapedValue());
+        return pascal.taie.ir.exp.StringLiteral.get(l.getLiteralValue());
     }
 
     public static ArithmeticExp.Op getArithmeticOp(InfixExpression.Operator op) {
@@ -233,6 +240,52 @@ public final class TypeUtils {
                 .getJREClass(META_FACTORY_CLASS);
         assert meta != null;
         var method = meta.getDeclaredMethod(META_FACTORY_METHOD);
+        assert method != null;
+        return method.getRef();
+    }
+
+    public static MethodRef getNewStringBuilder() {
+        JClass sb = World.get()
+                .getClassHierarchy()
+                .getJREClass(ClassNames.STRING_BUILDER);
+        assert sb != null;
+        JMethod method = sb.getDeclaredMethod(
+                Subsignature.get(MethodNames.INIT, new ArrayList<>(), VoidType.VOID)
+        );
+        assert method != null;
+        return method.getRef();
+    }
+
+    public static ClassType getStringBuilder() {
+        JClass sb = World.get()
+                .getClassHierarchy()
+                .getJREClass(ClassNames.STRING_BUILDER);
+        assert sb != null;
+        return sb.getType();
+    }
+
+    public static MethodRef getStringBuilderAppend(Type argType) {
+        JClass sb = World.get()
+                .getClassHierarchy()
+                .getJREClass(ClassNames.STRING_BUILDER);
+        assert sb != null;
+        List<Type> param = new ArrayList<>();
+        if (! (argType instanceof PrimitiveType)) {
+            // in fact, it can't be null if no error occur
+            argType = Objects.requireNonNull(World.get().getClassHierarchy()
+                    .getJREClass(ClassNames.OBJECT)).getType();
+        }
+        param.add(argType);
+        JMethod method = sb.getDeclaredMethod(
+                Subsignature.get("append", param, sb.getType()));
+        assert method != null;
+        return method.getRef();
+    }
+
+    public static MethodRef getToString() {
+        JClass obj = World.get().getClassHierarchy().getJREClass(ClassNames.OBJECT);
+        assert obj != null;
+        JMethod method = obj.getDeclaredMethod("toString");
         assert method != null;
         return method.getRef();
     }
