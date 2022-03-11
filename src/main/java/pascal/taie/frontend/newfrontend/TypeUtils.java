@@ -16,13 +16,19 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.MethodHandle;
+import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.ShiftExp;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
+
+import java.util.Arrays;
+import java.util.List;
 
 public final class TypeUtils {
 
@@ -35,6 +41,9 @@ public final class TypeUtils {
     public static final String JDT_CHAR = "char";
     public static final String JDT_BOOLEAN = "boolean";
     public static final String JDT_VOID = "void";
+
+    public static final String META_FACTORY_CLASS = "java.lang.invoke.LambdaMetafactory";
+    public static final String META_FACTORY_METHOD = "metafactory";
 
     public static String getErasedName(ITypeBinding iTypeBinding) {
         if (iTypeBinding.isPrimitive()) {
@@ -196,5 +205,35 @@ public final class TypeUtils {
         } else {
             throw new NewFrontendException("can't get [Throwable] Type");
         }
+    }
+
+    /**
+     * Extract Tai-e MethodType from JDT ITypeBinding
+     * @param typeBinding should be a function interface
+     * @return Tai-e MethodType correspond to the method in {@code typeBinding}
+     */
+    public static MethodType extractFuncInterface(ITypeBinding typeBinding) {
+        IMethodBinding binding = typeBinding.getFunctionalInterfaceMethod();
+        return getMethodType(binding);
+    }
+
+    public static MethodType getMethodType(IMethodBinding binding) {
+        assert (binding != null);
+
+        Type retType = JDTTypeToTaieType(binding.getReturnType());
+        List<Type> paraType = Arrays.stream(binding.getParameterTypes())
+                .map(TypeUtils::JDTTypeToTaieType)
+                .toList();
+        return MethodType.get(paraType, retType);
+    }
+
+    public static MethodRef getMetaFactory() {
+        var meta = World.get()
+                .getClassHierarchy()
+                .getJREClass(META_FACTORY_CLASS);
+        assert meta != null;
+        var method = meta.getDeclaredMethod(META_FACTORY_METHOD);
+        assert method != null;
+        return method.getRef();
     }
 }

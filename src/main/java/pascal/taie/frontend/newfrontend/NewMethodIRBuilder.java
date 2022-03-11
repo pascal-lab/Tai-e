@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -70,6 +71,7 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -77,6 +79,8 @@ import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.MethodHandle;
+import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
@@ -115,6 +119,7 @@ import soot.SootMethod;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1629,6 +1634,7 @@ public class NewMethodIRBuilder {
                 }
                 // 2. if the type [object] is [Interface], then use [InvokeInterface]
                 // TODO: implement [JEP 181](https://openjdk.java.net/jeps/181)
+                // TODO: check [ArrayType::clone, ArrayType::length]
                 if (checkInterface) {
                     exp = listCompute(args, l -> new InvokeInterface(ref, o, l));
                 }
@@ -1747,6 +1753,49 @@ public class NewMethodIRBuilder {
                 access.getIndex().accept(this);
                 access.getArray().accept(this);
                 context.pushStack(new ArrayAccess(popVar(), popVar()));
+                return false;
+            }
+
+            @Override
+            public boolean visit(ExpressionMethodReference mr) {
+                IMethodBinding binding = mr.resolveMethodBinding();
+                ITypeBinding typeBinding = mr.resolveTypeBinding();
+                Type funcInterType = TypeUtils.JDTTypeToTaieType(typeBinding);
+                MethodType targetType = MethodType.get(new ArrayList<>(), funcInterType);
+                MethodType samMethodType = TypeUtils.extractFuncInterface(typeBinding);
+                MethodType instantiatedMethodType = TypeUtils.getMethodType(binding);
+                MethodRef ref = getMethodRef(binding);
+                MethodHandle mh;
+                boolean needObj = true;
+                if (Modifier.isStatic(binding.getModifiers())) {
+                    mh = MethodHandle.get(MethodHandle.Kind.REF_invokeStatic, ref);
+                    needObj = false;
+                } else {
+                    if (mr.getExpression() instanceof Name n) {
+                        // if [mr] is [C::inst], where [inst] is instance method,
+                        // we don't need to push [object] into [dynArgs]
+                        needObj = ! (n.resolveBinding().getKind() == IBinding.TYPE);
+                    }
+                    if (mr.getExpression().resolveTypeBinding().isInterface()) {
+                        mh = MethodHandle.get(MethodHandle.Kind.REF_invokeInterface, ref);
+                    } else if (Modifier.isPrivate(binding.getModifiers())) {
+                        mh = MethodHandle.get(MethodHandle.Kind.REF_invokeSpecial, ref);
+                    } else {
+                        mh = MethodHandle.get(MethodHandle.Kind.REF_invokeVirtual, ref);
+                    }
+                }
+                List<Var> dynArgs = new ArrayList<>();
+                if (needObj) {
+                    mr.getExpression().accept(this);
+                    dynArgs.add(popVar());
+                }
+                List<Literal> staticArgs = new ArrayList<>();
+                staticArgs.add(samMethodType);
+                staticArgs.add(mh);
+                staticArgs.add(instantiatedMethodType);
+                InvokeDynamic inDy = new InvokeDynamic(TypeUtils.getMetaFactory(),
+                        binding.getName(), targetType, staticArgs, dynArgs);
+                context.pushStack(inDy);
                 return false;
             }
         }
