@@ -44,24 +44,11 @@ public class CFGStmtSet extends AbstractBitSet<Stmt> {
 
     @Override
     protected int getIndex(Stmt stmt) {
-        return stmt.getIndex();
+        return cfg.getIndex(stmt);
     }
 
-    /**
-     * Maps an index to corresponding {@link Stmt}.
-     * This implementation is not elegant as the indexes of entry and exit
-     * Stmts follow the last Stmt in the IR.
-     * @see pascal.taie.analysis.graph.cfg.CFGBuilder
-     */
     @Override
     protected Stmt getElement(int index) {
-        int nStmts = cfg.getIR().getStmts().size();
-        if (index == nStmts) {
-            return cfg.getEntry();
-        } else if (index == nStmts + 1) {
-            return cfg.getExit();
-        } else {
-            return cfg.getIR().getStmt(index);
-        }
+        return cfg.getNode(index);
     }
 }

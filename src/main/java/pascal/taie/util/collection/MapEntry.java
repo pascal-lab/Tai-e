@@ -22,7 +22,7 @@ import java.util.Objects;
  * Map entry.
  * Pair of a key and a value.
  */
-class MapEntry<K, V> implements Entry<K, V>, Serializable {
+public class MapEntry<K, V> implements Entry<K, V>, Serializable {
 
     private final K key;
 
@@ -31,7 +31,7 @@ class MapEntry<K, V> implements Entry<K, V>, Serializable {
     /**
      * Constructs a new map entry.
      */
-    MapEntry(K key, V value) {
+    public MapEntry(K key, V value) {
         this.key = key;
         this.value = value;
     }

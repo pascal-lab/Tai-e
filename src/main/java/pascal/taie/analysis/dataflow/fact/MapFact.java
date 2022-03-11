@@ -15,6 +15,7 @@ package pascal.taie.analysis.dataflow.fact;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -119,7 +120,19 @@ public class MapFact<K, V> {
      * @param action the action to be performed for each entry.
      */
     public void forEach(BiConsumer<K, V> action) {
-        map.forEach(action);
+        Objects.requireNonNull(action);
+        entries().forEach(entry -> {
+            K k;
+            V v;
+            try {
+                k = entry.getKey();
+                v = entry.getValue();
+            } catch (IllegalStateException ise) {
+                // this usually means the entry is no longer in the map.
+                throw new ConcurrentModificationException(ise);
+            }
+            action.accept(k, v);
+        });
     }
 
     @Override
@@ -144,8 +157,7 @@ public class MapFact<K, V> {
         // Sort key-value pairs by key's string representation, so that the
         // fact representation is stable across executions. This is useful
         // for comparing expected results and the ones given by the analysis.
-        return "{" + map.entrySet()
-                .stream()
+        return "{" + entries()
                 .sorted(Comparator.comparing(e -> e.getKey().toString()))
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining(", ")) + "}";

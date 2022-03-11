@@ -56,6 +56,16 @@ public interface CFG<N> extends Graph<N> {
     boolean isExit(N node);
 
     /**
+     * @return a unique index for given node in this CFG.
+     */
+    int getIndex(N node);
+
+    /**
+     * @return the corresponding node specified by the given index.
+     */
+    N getNode(int index);
+
+    /**
      * @return incoming edges of the given node.
      */
     @Override
