@@ -125,7 +125,8 @@ public class IRBuildHelper {
     }
 
     /**
-     * Builds an IR with given {@link Stmt}s.
+     * Builds an IR with given {@link Stmt}s. This method sets the indexes
+     * of given {@link Stmt}s, so client code does not need to set the indexes.
      *
      * @param stmts statements of the IR being built.
      */
