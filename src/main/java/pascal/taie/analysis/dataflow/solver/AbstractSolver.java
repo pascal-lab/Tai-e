@@ -15,6 +15,8 @@ package pascal.taie.analysis.dataflow.solver;
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
+import pascal.taie.analysis.graph.cfg.CFGNodeMapper;
+import pascal.taie.util.collection.IndexMap;
 
 /**
  * Provides common functionalities for {@link Solver}.
@@ -37,7 +39,11 @@ abstract class AbstractSolver<Node, Fact> implements Solver<Node, Fact> {
      * @return the initialized data-flow result
      */
     private DataflowResult<Node, Fact> initialize(DataflowAnalysis<Node, Fact> analysis) {
-        DataflowResult<Node, Fact> result = new DataflowResult<>();
+        CFG<Node> cfg = analysis.getCFG();
+        var mapper = new CFGNodeMapper<>(cfg);
+        DataflowResult<Node, Fact> result = new DataflowResult<>(
+                new IndexMap<>(mapper, cfg.getNumberOfNodes()),
+                new IndexMap<>(mapper, cfg.getNumberOfNodes()));
         if (analysis.isForward()) {
             initializeForward(analysis, result);
         } else {

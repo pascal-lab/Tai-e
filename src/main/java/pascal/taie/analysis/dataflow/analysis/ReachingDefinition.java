@@ -14,6 +14,7 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
+import pascal.taie.analysis.graph.cfg.CFGNodeMapper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -42,17 +43,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         private Analysis(CFG<Stmt> cfg) {
             super(cfg);
-            stmtMapper = new ObjectIdMapper<>() {
-                @Override
-                public int getId(Stmt stmt) {
-                    return cfg.getIndex(stmt);
-                }
-
-                @Override
-                public Stmt getObject(int id) {
-                    return cfg.getNode(id);
-                }
-            };
+            stmtMapper = new CFGNodeMapper<>(cfg);
         }
 
         @Override

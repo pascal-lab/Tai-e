@@ -23,9 +23,18 @@ import java.util.Map;
  */
 public class DataflowResult<Node, Fact> implements NodeResult<Node, Fact> {
 
-    private final Map<Node, Fact> inFacts = new LinkedHashMap<>();
+    private final Map<Node, Fact> inFacts;
 
-    private final Map<Node, Fact> outFacts = new LinkedHashMap<>();
+    private final Map<Node, Fact> outFacts;
+
+    public DataflowResult(Map<Node, Fact> inFacts, Map<Node, Fact> outFacts) {
+        this.inFacts = inFacts;
+        this.outFacts = outFacts;
+    }
+
+    public DataflowResult() {
+        this(new LinkedHashMap<>(), new LinkedHashMap<>());
+    }
 
     /**
      * @return the flowing-in fact of given node.
