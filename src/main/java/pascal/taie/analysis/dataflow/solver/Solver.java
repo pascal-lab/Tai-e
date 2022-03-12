@@ -38,7 +38,7 @@ public interface Solver<Node, Fact> {
     }
 
     /**
-     * Solves given analysis problem.
+     * Solves the given analysis problem.
      *
      * @return the data-flow analysis result
      */

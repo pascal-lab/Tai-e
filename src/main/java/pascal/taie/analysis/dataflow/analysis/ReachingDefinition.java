@@ -12,12 +12,13 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.analysis.dataflow.fact.CFGStmtSet;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.collection.MapperBitSet;
 
 public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
@@ -34,8 +35,24 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
     private static class Analysis extends AbstractDataflowAnalysis<Stmt, SetFact<Stmt>> {
 
+        /**
+         * Mapper for Stmts (nodes) in the CFG.
+         */
+        private final ObjectIdMapper<Stmt> stmtMapper;
+
         private Analysis(CFG<Stmt> cfg) {
             super(cfg);
+            stmtMapper = new ObjectIdMapper<>() {
+                @Override
+                public int getId(Stmt stmt) {
+                    return cfg.getIndex(stmt);
+                }
+
+                @Override
+                public Stmt getObject(int id) {
+                    return cfg.getNode(id);
+                }
+            };
         }
 
         @Override
@@ -45,12 +62,12 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         @Override
         public SetFact<Stmt> newBoundaryFact() {
-            return new SetFact<>(new CFGStmtSet(cfg));
+            return newInitialFact();
         }
 
         @Override
         public SetFact<Stmt> newInitialFact() {
-            return new SetFact<>(new CFGStmtSet(cfg));
+            return new SetFact<>(new MapperBitSet<>(stmtMapper));
         }
 
         @Override

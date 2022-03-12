@@ -12,7 +12,6 @@
 
 package pascal.taie.util.collection;
 
-
 import pascal.taie.util.ObjectIdMapper;
 
 /**

@@ -12,13 +12,14 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.analysis.dataflow.fact.LocalVarSet;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.collection.MapperBitSet;
 
 /**
  * Implementation of live variable analysis.
@@ -43,9 +44,25 @@ public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
          */
         private final boolean strongly;
 
+        /**
+         * Mapper for variables in the IR.
+         */
+        private final ObjectIdMapper<Var> varMapper;
+
         private Analysis(CFG<Stmt> cfg, boolean strongly) {
             super(cfg);
             this.strongly = strongly;
+            this.varMapper = new ObjectIdMapper<>() {
+                @Override
+                public int getId(Var var) {
+                    return var.getIndex();
+                }
+
+                @Override
+                public Var getObject(int id) {
+                    return cfg.getIR().getVar(id);
+                }
+            };
         }
 
         @Override
@@ -55,12 +72,12 @@ public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
 
         @Override
         public SetFact<Var> newBoundaryFact() {
-            return new SetFact<>(new LocalVarSet(cfg.getIR()));
+            return newInitialFact();
         }
 
         @Override
         public SetFact<Var> newInitialFact() {
-            return new SetFact<>(new LocalVarSet(cfg.getIR()));
+            return new SetFact<>(new MapperBitSet<>(varMapper));
         }
 
         @Override
