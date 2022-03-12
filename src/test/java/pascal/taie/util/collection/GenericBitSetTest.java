@@ -18,14 +18,14 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class AbstractBitSetTest {
+public class GenericBitSetTest {
 
     private static final Object CONTEXT = new Object();
 
-    private static class StringSet extends AbstractBitSet<String> {
+    private static class StringSet extends GenericBitSet<String> {
 
         @Override
-        public AbstractBitSet<String> copy() {
+        public GenericBitSet<String> copy() {
             throw new UnsupportedOperationException();
         }
 

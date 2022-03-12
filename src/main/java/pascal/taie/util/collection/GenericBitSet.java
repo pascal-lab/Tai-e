@@ -25,9 +25,9 @@ import java.util.NoSuchElementException;
  * <p>
  * To store objects in bit set, the subclasses need to take care of
  * the mappings between objects and indexes by implementing {@link #getIndex}
- * and {@link #getElement}. The objects stored in the same bit set should
- * always preserve the invariant:
- * <code>e.equals(getElement(getIndex(e)))</code>.
+ * and {@link #getElement}. The objects stored in the same bit set {@code s}
+ * should preserve the invariant:
+ * <code>e.equals(s.getElement(s.getIndex(e)))</code>.
  * <p>
  * Note: objects in different contexts may be mapped to the same index, and
  * it may cause unexpected behaviors if they are stored in the same bit set.
@@ -41,15 +41,15 @@ import java.util.NoSuchElementException;
  *
  * @param <E> type of elements
  */
-public abstract class AbstractBitSet<E> extends AbstractSet<E> {
+public abstract class GenericBitSet<E> extends AbstractSet<E> {
 
     protected final BitSet bitSet;
 
-    protected AbstractBitSet() {
+    protected GenericBitSet() {
         bitSet = new BitSet();
     }
 
-    protected AbstractBitSet(AbstractBitSet<E> s) {
+    protected GenericBitSet(GenericBitSet<E> s) {
         bitSet = new BitSet(s.bitSet);
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     @Override
     public boolean containsAll(@Nonnull Collection<?> c) {
-        if (c instanceof AbstractBitSet s) {
+        if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.contains(s.bitSet);
         } else {
@@ -90,7 +90,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     @Override
     public boolean addAll(@Nonnull Collection<? extends E> c) {
-        if (c instanceof AbstractBitSet s) {
+        if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.or(s.bitSet);
         } else {
@@ -100,7 +100,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        if (c instanceof AbstractBitSet s) {
+        if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.andNot(s.bitSet);
         } else {
@@ -110,7 +110,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     @Override
     public boolean retainAll(@Nonnull Collection<?> c) {
-        if (c instanceof AbstractBitSet s) {
+        if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.and(s.bitSet);
         } else {
@@ -122,7 +122,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
      * Sets the content of this bit set to the same as given collection.
      */
     public void setTo(@Nonnull Collection<E> c) {
-        if (c instanceof AbstractBitSet s) {
+        if (c instanceof GenericBitSet s) {
             checkContext(s);
             bitSet.setTo(s.bitSet);
         } else {
@@ -136,7 +136,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
      *
      * @param set the set to operate on
      */
-    private void checkContext(AbstractBitSet<?> set) {
+    private void checkContext(GenericBitSet<?> set) {
         assert getContext().equals(set.getContext());
     }
 
@@ -210,7 +210,7 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
     /**
      * Creates a copy of this set.
      */
-    public abstract AbstractBitSet<E> copy();
+    public abstract GenericBitSet<E> copy();
 
     /**
      * @return the context for the objects represented by the bits in this set.
@@ -219,15 +219,11 @@ public abstract class AbstractBitSet<E> extends AbstractSet<E> {
 
     /**
      * Maps an object to the corresponding index.
-     * @throws IllegalArgumentException if given object cannot be properly
-     * mapped to an index.
      */
-    protected abstract int getIndex(E o) throws IllegalArgumentException;
+    protected abstract int getIndex(E o);
 
     /**
      * Maps an index to the corresponding object.
-     * @throws IllegalArgumentException if given index cannot be properly
-     * mapped to an index.
      */
-    protected abstract E getElement(int index) throws IllegalArgumentException;
+    protected abstract E getElement(int index);
 }
