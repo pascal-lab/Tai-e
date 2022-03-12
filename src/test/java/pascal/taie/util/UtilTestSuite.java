@@ -43,6 +43,8 @@ import pascal.taie.util.graph.GraphTest;
         ViewsTest.class,
         // graph
         GraphTest.class,
+        // others
+        MapperTest.class,
 })
 public class UtilTestSuite {
 }
