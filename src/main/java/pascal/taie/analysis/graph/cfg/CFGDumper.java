@@ -16,8 +16,8 @@ import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.IDProvider;
-import pascal.taie.util.MapIDProvider;
+import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.SimpleMapper;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
@@ -36,9 +36,9 @@ public class CFGDumper {
      * Dumps the given CFG to .dot file.
      */
     static <N> void dumpDotFile(CFG<N> cfg) {
-        IDProvider<N> provider = new MapIDProvider<>();
+        ObjectIdMapper<N> mapper = new SimpleMapper<>();
         new DotDumper<N>()
-                .setNodeToString(n -> Integer.toString(provider.getID(n)))
+                .setNodeToString(n -> Integer.toString(mapper.getId(n)))
                 .setNodeLabeler(n -> toLabel(n, cfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))

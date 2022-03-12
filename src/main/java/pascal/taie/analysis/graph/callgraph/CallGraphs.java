@@ -28,8 +28,8 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.IDProvider;
-import pascal.taie.util.MapIDProvider;
+import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.SimpleMapper;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.graph.DotDumper;
 
@@ -98,9 +98,9 @@ public final class CallGraphs {
                     .toString();
         }
         logger.info("Dumping call graph to {} ...", output);
-        IDProvider<JMethod> provider = new MapIDProvider<>();
+        ObjectIdMapper<JMethod> mapper = new SimpleMapper<>();
         new DotDumper<JMethod>()
-                .setNodeToString(n -> Integer.toString(provider.getID(n)))
+                .setNodeToString(n -> Integer.toString(mapper.getId(n)))
                 .setNodeLabeler(JMethod::toString)
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
