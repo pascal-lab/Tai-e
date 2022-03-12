@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import fj.Class;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -23,7 +24,7 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.classes.Signatures;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
@@ -154,6 +155,10 @@ public final class TypeUtils {
                 return FloatLiteral.get(f);
             } else if (res instanceof Double d) {
                 return DoubleLiteral.get(d);
+            } else if (res instanceof Character c) {
+                return IntLiteral.get((int) c);
+            } else if (res instanceof Boolean b) {
+                return IntLiteral.get(b ? 1 : 0);
             } else {
                 throw new NewFrontendException(e + " is not primitive literal, why use this function?");
             }
@@ -245,12 +250,16 @@ public final class TypeUtils {
     }
 
     public static MethodRef getNewStringBuilder() {
+        return getInitMethodRef(ClassNames.STRING_BUILDER, new ArrayList<>());
+    }
+
+    public static MethodRef getInitMethodRef(String name, List<Type> param) {
         JClass sb = World.get()
                 .getClassHierarchy()
-                .getJREClass(ClassNames.STRING_BUILDER);
+                .getJREClass(name);
         assert sb != null;
         JMethod method = sb.getDeclaredMethod(
-                Subsignature.get(MethodNames.INIT, new ArrayList<>(), VoidType.VOID)
+                Subsignature.get(MethodNames.INIT, param, VoidType.VOID)
         );
         assert method != null;
         return method.getRef();
@@ -288,5 +297,94 @@ public final class TypeUtils {
         JMethod method = obj.getDeclaredMethod("toString");
         assert method != null;
         return method.getRef();
+    }
+
+    public static MethodRef getSimpleJREMethod(String className, String method) {
+        JClass obj = World.get().getClassHierarchy().getJREClass(className);
+        assert obj != null;
+        JMethod jmethod = obj.getDeclaredMethod(method);
+        assert jmethod != null;
+        return jmethod.getRef();
+    }
+
+    public static MethodRef getJREMethod(String className, String method, List<Type> paramType, Type retType) {
+        JClass obj = World.get().getClassHierarchy().getJREClass(className);
+        assert obj != null;
+        JMethod jmethod = obj.getDeclaredMethod(
+                Subsignature.get(method, paramType, retType)
+        );
+        assert jmethod != null;
+        return jmethod.getRef();
+    }
+
+    public static String getRefNameOfPrimitive(String t) {
+        return switch (t) {
+            case JDT_BOOLEAN -> ClassNames.BOOLEAN;
+            case JDT_CHAR    -> ClassNames.CHARACTER;
+            case JDT_INT     -> ClassNames.INTEGER;
+            case JDT_BYTE    -> ClassNames.BYTE;
+            case JDT_SHORT   -> ClassNames.SHORT;
+            case JDT_LONG    -> ClassNames.LONG;
+            case JDT_FLOAT   -> ClassNames.FLOAT;
+            case JDT_DOUBLE  -> ClassNames.DOUBLE;
+            default -> throw new NewFrontendException(t + " is not primitive, why use this function?");
+        };
+    }
+
+    public static int getIndexOfPrimitive(PrimitiveType t) {
+        return switch (t) {
+            case BOOLEAN -> 0;
+            case CHAR -> 1;
+            case BYTE -> 2;
+            case SHORT -> 3;
+            case INT -> 4;
+            case LONG -> 5;
+            case FLOAT -> 6;
+            case DOUBLE -> 7;
+        };
+    }
+
+    public static int getIndexOfPrimitive(Type t) {
+        if (t instanceof PrimitiveType p) {
+            return getIndexOfPrimitive(p);
+        } else {
+            return switch (t.getName()) {
+                case ClassNames.BOOLEAN -> 0;
+                case ClassNames.CHARACTER -> 1;
+                case ClassNames.BYTE -> 2;
+                case ClassNames.SHORT -> 3;
+                case ClassNames.INTEGER -> 4;
+                case ClassNames.LONG -> 5;
+                case ClassNames.FLOAT -> 6;
+                case ClassNames.DOUBLE -> 7;
+                default -> throw new NewFrontendException(t + " is not primitive type, why use this function?");
+            };
+        }
+    }
+
+    public static PrimitiveType getPrimitiveByIndex(int i) {
+        return switch (i) {
+            case 0 -> PrimitiveType.BOOLEAN;
+            case 1 -> PrimitiveType.CHAR;
+            case 2 -> PrimitiveType.BYTE;
+            case 3 -> PrimitiveType.SHORT;
+            case 4 -> PrimitiveType.INT;
+            case 5 -> PrimitiveType.LONG;
+            case 6 -> PrimitiveType.FLOAT;
+            case 7 -> PrimitiveType.DOUBLE;
+            default -> throw new NewFrontendException(i + " is not legal primitive index");
+        };
+    }
+
+    public static PrimitiveType getWidenType(PrimitiveType type) {
+        if (getIndexOfPrimitive(type) < getIndexOfPrimitive(PrimitiveType.INT)) {
+            return PrimitiveType.INT;
+        } else {
+            return type;
+        }
+    }
+
+    public static PrimitiveType getPrimitiveByRef(Type t) {
+        return getPrimitiveByIndex(getIndexOfPrimitive(t));
     }
 }

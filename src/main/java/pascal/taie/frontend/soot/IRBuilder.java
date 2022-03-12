@@ -24,7 +24,6 @@ package pascal.taie.frontend.soot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;

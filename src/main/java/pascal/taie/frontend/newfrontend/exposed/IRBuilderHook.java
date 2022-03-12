@@ -2,8 +2,6 @@ package pascal.taie.frontend.newfrontend.exposed;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.LinenoManger;
-import pascal.taie.frontend.newfrontend.NewFrontendException;
 import pascal.taie.frontend.newfrontend.NewMethodIRBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;

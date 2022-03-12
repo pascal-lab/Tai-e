@@ -15,10 +15,12 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
@@ -58,6 +60,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -65,6 +69,7 @@ import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
@@ -93,6 +98,7 @@ import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
@@ -111,6 +117,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
@@ -121,6 +128,8 @@ import soot.SootMethod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +142,16 @@ import java.util.function.Function;
 
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getInitRef;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
+import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getInitMethodRef;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getRefNameOfPrimitive;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getWidenType;
 
 public class NewMethodIRBuilder {
     private static final Logger logger = LogManager.getLogger(NewMethodIRBuilder.class);
@@ -339,19 +358,15 @@ public class NewMethodIRBuilder {
             return var;
         }
 
-        Var newConstantVar(IVariableBinding v, Literal l) {
-            var name = v.getName();
-            var type = TypeUtils.JDTTypeToTaieType(v.getType());
-            var v1 = new Var(jMethod, name, type, getVarIndex(), l);
-            regVar(v1);
-            return v1;
-        }
-
         private Var getBinding(IBinding binding) {
             return bindingVarMap.computeIfAbsent(binding, (b) -> {
                 var v = newVar(b.getName(), TypeUtils.JDTTypeToTaieType(((IVariableBinding) b).getType()));
                 return v;
             });
+        }
+
+        private Type getReturnType() {
+            return jMethod.getReturnType();
         }
 
 
@@ -383,19 +398,6 @@ public class NewMethodIRBuilder {
                 params.add(aVar);
                 bindingVarMap.put(name.resolveBinding(), aVar);
             }
-        }
-
-        /**
-         * @apiNote In tai-e design, method reference is also a literal,
-         * but for now, we choose to not handle that.
-         */
-        private static boolean isLiteral(Expression exp) {
-            return exp instanceof BooleanLiteral ||
-                    exp instanceof CharacterLiteral ||
-                    exp instanceof NullLiteral ||
-                    exp instanceof NumberLiteral ||
-                    exp instanceof StringLiteral ||
-                    exp instanceof TypeLiteral;
         }
 
         private void buildStmt() {
@@ -764,6 +766,11 @@ public class NewMethodIRBuilder {
                 this.context = context;
             }
 
+            @Override
+            public void preVisit(ASTNode node) {
+                this.lineno = linenoManger.getLineno(node);
+            }
+
             public void postProcess() {
                 context.resolveGoto();
                 context.getExceptionManager().resolveEntry(context.blockMap);
@@ -813,9 +820,116 @@ public class NewMethodIRBuilder {
                 context.addPatchList(top, label);
             }
 
-            @Override
-            public void preVisit(ASTNode node) {
-                this.lineno = linenoManger.getLineno(node);
+            /**
+             * some JDT method will always return a raw Type List
+             * @param exp   an Expression List returned by some JDT method
+             */
+            protected Exp listCompute(List<Expression> exp, List<Type> types, Function<List<Var>, Exp> f) {
+                List<Var> list = new ArrayList<>();
+                for (var i = 0; i < exp.size(); ++i) {
+                    visitExp(exp.get(i));
+                    list.add(popVar(types.get(i)));
+                }
+                return f.apply(list);
+            }
+
+            protected Var genNewObject1(MethodRef init, List<Var> args, Type declClassType) {
+                Var temp = newTempVar(declClassType);
+                addStmt(new New(jMethod, temp, new NewInstance((ClassType) declClassType)));
+                context.pushStack(new InvokeSpecial(init, temp, args));
+                popSideEffect();
+                return temp;
+            }
+
+            protected Exp genNewCast(Exp exp, Type t) {
+                Var v = expToVar(exp);
+                return new CastExp(v, t);
+            }
+
+            protected Var genNewObject(MethodRef init, List<Expression> args, Type declClassType) {
+                return (Var) listCompute(args, init.getParameterTypes(), l -> genNewObject1(init, l, declClassType));
+            }
+
+            private Exp unboxingConversion(Exp exp, ReferenceType expType, PrimitiveType targetType) {
+                Var v = expToVar(exp, expType);
+                return new InvokeVirtual(
+                        getSimpleJREMethod(expType.getName(), targetType + "Value"),
+                        v,
+                        new ArrayList<>());
+            }
+
+            private Exp boxingConversion(Exp exp, PrimitiveType expType, ReferenceType targetType) {
+                Var v = expToVar(exp, expType);
+                return new InvokeStatic(
+                        getJREMethod(targetType.getName(), "valueOf",
+                                List.of(getPrimitiveByRef(targetType)), targetType),
+                        List.of(v));
+            }
+
+            private Exp widening(Exp exp, PrimitiveType expType, PrimitiveType targetType) {
+                // JDT Should check correctness for us
+                assert expType != targetType;
+                if (getWidenType(expType).equals(targetType)) {
+                    return exp;
+                } else {
+                    return genNewCast(exp, targetType);
+                }
+            }
+
+            protected Exp preformTypeConversion(Exp exp, Type type) {
+                Type expType = exp.getType();
+                // 1. if [type] and [expType] both reference type,
+                //    then there's no need for type conversion
+                if (expType instanceof ReferenceType &&
+                        type instanceof ReferenceType) {
+                    return exp;
+                }
+                // 2. if [type] is reference, and [expType] is primitive,
+                //    then try to perform boxing conversion
+                else if (expType instanceof PrimitiveType p
+                        && type instanceof ReferenceType r) {
+                    return boxingConversion(exp, p, r);
+                }
+                else {
+                    // 3. if [type] is primitive, and [expType] is reference,
+                    //    then try to perform unboxing conversion
+                    if (expType instanceof ReferenceType r &&
+                            type instanceof PrimitiveType p) {
+                        exp = unboxingConversion(exp, r, p);
+                        expType = exp.getType();
+                    }
+                    // 4. if [type] is primitive, and [expType] is primitive,
+                    //    then try to perform widening primitive conversion
+                    if (expType instanceof PrimitiveType e &&
+                            type instanceof PrimitiveType t) {
+                        return widening(exp, e, t);
+                    }
+                    throw new NewFrontendException("illegal state, expType is " + expType + ", type is " + type);
+                }
+            }
+
+            /**
+             * See JLS17 ch 5.6, pp. 141 for detail
+             * @param contextChoose  <p>0  for  numeric arithmetic context</p>
+             *                 <p>1  for  numeric choice context</p>
+             *                 <p>2  for  numeric array context</p>
+             * @param operands operands for Numeric Promotion
+             * @return type that operands will promote to
+             */
+            protected Type resolveNumericPromotion(int contextChoose, List<Expression> operands) {
+                var typeList = operands.stream()
+                        .map(k -> getIndexOfPrimitive(JDTTypeToTaieType(k.resolveTypeBinding())))
+                        .max(Integer::compareTo);
+                assert typeList.isPresent();
+                int maxType = typeList.get();
+                // see JLS 5.6 for detail
+                if (maxType >= getIndexOfPrimitive(PrimitiveType.LONG)) {
+                    return getPrimitiveByIndex(maxType);
+                } else if (contextChoose == 0 || contextChoose == 2) {
+                    return PrimitiveType.INT;
+                } else {
+                    return getPrimitiveByIndex(maxType);
+                }
             }
 
             protected void newAssignment(LValue left, Exp right) {
@@ -836,18 +950,38 @@ public class NewMethodIRBuilder {
                         addStmt(new New(jMethod, v, exp));
                     } else if (right instanceof NewMultiArray exp) {
                         addStmt(new New(jMethod, v, exp));
+                    } else if (right instanceof CastExp exp) {
+                        addStmt(new Cast(v, exp));
                     }
                     else {
                         throw new NewFrontendException(right + " is not implemented");
                     }
                 } else if (left instanceof FieldAccess s) {
-                    addStmt(new StoreField(s, expToVar(right)));
+                    addStmt(new StoreField(s, expToVar(right, left.getType())));
                 } else if (left instanceof ArrayAccess a) {
-                    addStmt(new StoreArray(a, expToVar(right)));
+                    addStmt(new StoreArray(a, expToVar(right, left.getType())));
                 }
                 else {
                     throw new NewFrontendException(left + " is not implemented");
                 }
+            }
+
+            protected void handleAssignment(Expression lExp, Expression rExp) {
+                visitExp(rExp);
+                Exp r = context.popStack();
+                LValue v;
+                visitExp(lExp);
+                v = popLValue();
+                r = preformTypeConversion(r, v.getType());
+                newAssignment(v, r);
+                context.pushStack(v);
+            }
+
+            protected Var expToVar(Exp exp, Type varType) {
+                if (! varType.equals(exp.getType())) {
+                    exp = preformTypeConversion(exp, varType);
+                }
+                return expToVar(exp);
             }
 
             protected Var expToVar(Exp exp) {
@@ -857,7 +991,8 @@ public class NewMethodIRBuilder {
                         || exp instanceof InvokeExp
                         || exp instanceof FieldAccess
                         || exp instanceof ArrayAccess
-                        || exp instanceof NewExp) {
+                        || exp instanceof NewExp
+                        || exp instanceof CastExp) {
                     var v = newTempVar(exp.getType());
                     newAssignment(v, exp);
                     return v;
@@ -898,14 +1033,18 @@ public class NewMethodIRBuilder {
                 }
             }
 
+            protected Var popVar(Type type) {
+                return expToVar(context.popStack(), type);
+            }
+
             protected Var popVar() {
                 return expToVar(context.popStack());
             }
 
-            protected Var[] popVar2() {
+            protected Var[] popVar2(Type t1, Type t2) {
                 var v2 = context.popStack();
                 var v1 = context.popStack();
-                return new Var[] {expToVar(v1), expToVar(v2)};
+                return new Var[] {expToVar(v1, t1), expToVar(v2, t2)};
             }
 
             protected void withBrkContLabel(BiConsumer<String, String> f) {
@@ -916,19 +1055,15 @@ public class NewMethodIRBuilder {
                 this.context.pushLabel(contLabel);
             }
 
-            // TODO: check if [val] is Literal
             protected void handleSingleVarDecl(VariableDeclaration vd) {
                 var name = vd.getName();
                 var val = vd.getInitializer();
-                visitExp(name);
                 if (val == null) {
-                    context.popStack();
+                    visitExp(name);
                 } else {
-                    visitExp(val);
-                    var r = this.context.popStack();
-                    var l = popVar();
-                    newAssignment(l, r);
+                    handleAssignment(name, val);
                 }
+                popSideEffect();
             }
 
         }
@@ -960,7 +1095,7 @@ public class NewMethodIRBuilder {
                 Var retVar;
                 if (exp != null) {
                     visitExp(exp);
-                    retVar = popVar();
+                    retVar = popVar(getReturnType());
                 } else {
                     // TODO: Is this handle correct?
                     retVar = newTempVar(VoidType.VOID);
@@ -979,7 +1114,7 @@ public class NewMethodIRBuilder {
                 // let ExpVisitor handle this assignment
                 visitExp(ass);
                 // ignore the value of this assignment
-                this.context.popStack();
+                popSideEffect();
                 return false;
             }
 
@@ -1351,32 +1486,21 @@ public class NewMethodIRBuilder {
             }
 
             private void binaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
+                Type t = resolveNumericPromotion(0, getAllOperands(exp));
                 exp.getLeftOperand().accept(this);
-                var lVar = popVar();
+                var lVar = popVar(t);
                 exp.getRightOperand().accept(this);
-                var rVar = popVar();
+                var rVar = popVar(t);
                 context.pushStack(f.apply(lVar, rVar));
                 var extOperands = exp.extendedOperands();
                 for (var i : extOperands) {
                     var expNow = (Expression) i;
                     expNow.accept(this);
-                    var lrVarNow = popVar2();
+                    var lrVarNow = popVar2(t, t);
                     context.pushStack(f.apply(lrVarNow[0], lrVarNow[1]));
                 }
             }
 
-            /**
-             * some JDT method will always return a raw Type List
-             * @param exp   an Expression List returned by some JDT method
-             */
-            private Exp listCompute(List<Expression> exp, Function<List<Var>, Exp> f) {
-                List<Var> list = new ArrayList<>();
-                for (var i : exp) {
-                    i.accept(this);
-                    list.add(this.popVar());
-                }
-                return f.apply(list);
-            }
 
             private FieldAccess handleField(IVariableBinding binding, Var object) {
                 ITypeBinding declClass = binding.getDeclaringClass();
@@ -1417,15 +1541,15 @@ public class NewMethodIRBuilder {
             }
 
             /**
+             * @param exp an InfixExpression, where {@code Op} is {@code Plus}.
              * @apiNote the value {@code exp} can't be const.
              * i.e. {@code "12321" + 1} is not handled by this function.
-             * @param exp an InfixExpression, where {@code Op} is {@code Plus}.
              */
             private void genStringBuild(InfixExpression exp) {
                 assert exp.getOperator() == InfixExpression.Operator.PLUS;
                 ClassType sb = TypeUtils.getStringBuilder();
                 MethodRef newSb = TypeUtils.getNewStringBuilder();
-                Var sbVar = genNewObject(newSb, new ArrayList<>(), sb);
+                Var sbVar = genNewObject(newSb, List.of(), sb);
                 genStringBuilderAppend(sbVar, getAllOperands(exp));
                 context.pushStack(new InvokeVirtual(TypeUtils.getToString(), sbVar, new ArrayList<>()));
             }
@@ -1442,8 +1566,7 @@ public class NewMethodIRBuilder {
                         context.pushStack(getBinding(binding));
                     }
                     return false;
-                }
-                else {
+                } else {
                     throw new NewFrontendException("Exp [ " + name + " ] can't be handled");
                 }
             }
@@ -1455,10 +1578,10 @@ public class NewMethodIRBuilder {
                 SimpleName name1 = name.getName();
                 IBinding q = qualifier.resolveBinding();
                 if (q instanceof ITypeBinding) {
-                    context.pushStack(handleField( (IVariableBinding)name1.resolveBinding(), null));
+                    context.pushStack(handleField((IVariableBinding) name1.resolveBinding(), null));
                 } else if (q instanceof IVariableBinding) {
                     qualifier.accept(this);
-                    context.pushStack(handleField( (IVariableBinding)name1.resolveBinding(), popVar()));
+                    context.pushStack(handleField((IVariableBinding) name1.resolveBinding(), popVar()));
                 } else {
                     throw new NewFrontendException("Exp [ " + name + " ] can't be handled");
                 }
@@ -1499,7 +1622,7 @@ public class NewMethodIRBuilder {
                         return false;
                     }
                     case ">", ">=", "==", "<=", "<", "!=" -> {
-                        if (! context.isEvalContext()) {
+                        if (!context.isEvalContext()) {
                             // Although this expression don't have evaluation context
                             // its sub expression has an evaluation context
                             // e.g. if (     (1 + 1) >= (2 + 2)           ) { }
@@ -1512,7 +1635,7 @@ public class NewMethodIRBuilder {
                                 addIf(new ConditionExp(TypeUtils.getConditionOp(op), l, r), trueLabel);
                                 return pascal.taie.ir.exp.NullLiteral.get();
                             });
-                            context.popStack();
+                            popSideEffect();
                             // DO NOT forget to reset this variable
                             context.setEvalContext(false);
                         } else {
@@ -1533,7 +1656,7 @@ public class NewMethodIRBuilder {
                         // "||" and "&&" has lazy evaluation semantic
                         // TODO: if "!" in l, this impl suck!
                         var l = getAllOperands(exp);
-                        if (! context.isEvalContext()) {
+                        if (!context.isEvalContext()) {
                             var trueLabel = context.labelStack.peek();
                             for (var i : l) {
                                 i.accept(this);
@@ -1613,31 +1736,14 @@ public class NewMethodIRBuilder {
                 // tai-e ir need to put literal into result var
                 // so just visit left will not output the correct ir
                 // this need to be carefully handled
-                if (lExp instanceof SimpleName s && isLiteral(rExp)) {
-                    rExp.accept(this);
-                    var rLiteral = context.popStack();
-                    if (rLiteral instanceof Literal literal) {
-                        var lVar = newConstantVar((IVariableBinding) s.resolveBinding(), literal);
-                        addStmt(new AssignLiteral(lVar, literal));
-                        context.pushStack(lVar);
-                    } else {
-                        throw new NewFrontendException("illegal state, " + rLiteral + "is not literal");
-                    }
-                } else {
-                    lExp.accept(this);
-                    rExp.accept(this);
-                    var rRes = context.popStack();
-                    var lVar = popLValue();
-                    newAssignment(lVar, rRes);
-                    context.pushStack(lVar);
-                }
+                handleAssignment(lExp, rExp);
                 return false;
             }
 
             /**
              * @apiNote <p> this function only applied to [for init]
-             *          and wrapped [Expression Statement] </p>
-             *          <p> for api compatible, we still push a null into stack </p>
+             * and wrapped [Expression Statement] </p>
+             * <p> for api compatible, we still push a null into stack </p>
              */
             @Override
             public boolean visit(VariableDeclarationExpression vde) {
@@ -1655,10 +1761,12 @@ public class NewMethodIRBuilder {
                 int modifier = decl.getModifiers();
                 MethodRef ref = getMethodRef(binding);
                 Exp exp;
-                // 1. if this method is [static], that means it has nothing to do with [object]
+                List<Type> paramsType = Arrays.stream(binding.getParameterTypes())
+                        .map(TypeUtils::JDTTypeToTaieType)
+                        .toList();// 1. if this method is [static], that means it has nothing to do with [object]
                 //    JDT has resolved the binding of method
                 if (Modifier.isStatic(modifier)) {
-                    exp = listCompute(args, (l) -> new InvokeStatic(ref, l));
+                    exp = listCompute(args, paramsType, (l) -> new InvokeStatic(ref, l));
                     return exp;
                 }
                 // here, if [object] is [null], we can confirm it's a call to [this]
@@ -1678,17 +1786,17 @@ public class NewMethodIRBuilder {
                 // TODO: implement [JEP 181](https://openjdk.java.net/jeps/181)
                 // TODO: check [ArrayType::clone, ArrayType::length]
                 if (checkInterface) {
-                    exp = listCompute(args, l -> new InvokeInterface(ref, o, l));
+                    exp = listCompute(args, paramsType, l -> new InvokeInterface(ref, o, l));
                 }
                 // 3. if the name of this method call is "<init>"
                 //    or this method is [private]
                 //    then use [InvokeSpecial]
                 else if (ref.getName().equals("<init>") || Modifier.isPrivate(modifier)) {
-                    exp = listCompute(args, l -> new InvokeSpecial(ref, o, l));
+                    exp = listCompute(args, paramsType, l -> new InvokeSpecial(ref, o, l));
                 }
                 // 4. otherwise, use [InvokeVirtual]
                 else {
-                    exp = listCompute(args, l -> new InvokeVirtual(ref, o, l));
+                    exp = listCompute(args, paramsType, l -> new InvokeVirtual(ref, o, l));
                 }
                 return exp;
             }
@@ -1729,13 +1837,6 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
-            private Var genNewObject(MethodRef init, List<Expression> args, Type declClassType) {
-                Var temp = newTempVar(declClassType);
-                addStmt(new New(jMethod, temp, new NewInstance((ClassType) declClassType)));
-                context.pushStack(listCompute(args, l -> new InvokeSpecial(init, temp, l)));
-                popSideEffect();
-                return temp;
-            }
 
             private void initArr(Expression exp, LValue access) {
                 if (exp instanceof ArrayInitializer init) {
@@ -1752,14 +1853,14 @@ public class NewMethodIRBuilder {
                     List<Var> lengths = new ArrayList<>();
                     lengths.add(length);
                     newAssignment(access, isOneDim ? new NewArray(type, length) :
-                                                     new NewMultiArray(type, lengths));
+                            new NewMultiArray(type, lengths));
                     for (var i = 0; i < init.expressions().size(); ++i) {
                         context.pushStack(access);
                         initArr((Expression) exps.get(i), new ArrayAccess(popVar(), context.getInt(this, i)));
                     }
                 } else {
                     exp.accept(this);
-                    newAssignment(access, popVar());
+                    newAssignment(access, popVar(access.getType()));
                 }
             }
 
@@ -1780,12 +1881,15 @@ public class NewMethodIRBuilder {
                 ArrayInitializer arrInit = ac.getInitializer();
                 if (t.getDimensions() == 1 && arrInit == null) {
                     // if this is one dimension array, use [NewArray]
-                   Expression exp =  (Expression) ac.dimensions().get(0);
-                   exp.accept(this);
-                   Var length = popVar();
-                   context.pushStack(new NewArray(taieType, length));
+                    Expression exp = (Expression) ac.dimensions().get(0);
+                    exp.accept(this);
+                    Var length = popVar(PrimitiveType.INT);
+                    context.pushStack(new NewArray(taieType, length));
                 } else if (arrInit == null) {
-                   context.pushStack(listCompute(ac.dimensions(), l -> new NewMultiArray(taieType, l)));
+                    context.pushStack(
+                            listCompute(ac.dimensions(),
+                                    Collections.nCopies(ac.dimensions().size(), PrimitiveType.INT),
+                                    l -> new NewMultiArray(taieType, l)));
                 } else {
                     handleArrInit(ac.getInitializer());
                 }
@@ -1802,7 +1906,7 @@ public class NewMethodIRBuilder {
             public boolean visit(org.eclipse.jdt.core.dom.ArrayAccess access) {
                 access.getIndex().accept(this);
                 access.getArray().accept(this);
-                context.pushStack(new ArrayAccess(popVar(), popVar()));
+                context.pushStack(new ArrayAccess(popVar(), popVar(PrimitiveType.INT)));
                 return false;
             }
 
@@ -1824,7 +1928,7 @@ public class NewMethodIRBuilder {
                     if (mr.getExpression() instanceof Name n) {
                         // if [mr] is [C::inst], where [inst] is instance method,
                         // we don't need to push [object] into [dynArgs]
-                        needObj = ! (n.resolveBinding().getKind() == IBinding.TYPE);
+                        needObj = !(n.resolveBinding().getKind() == IBinding.TYPE);
                     }
                     if (mr.getExpression().resolveTypeBinding().isInterface()) {
                         mh = MethodHandle.get(MethodHandle.Kind.REF_invokeInterface, ref);
@@ -1846,6 +1950,27 @@ public class NewMethodIRBuilder {
                 InvokeDynamic inDy = new InvokeDynamic(TypeUtils.getMetaFactory(),
                         binding.getName(), targetType, staticArgs, dynArgs);
                 context.pushStack(inDy);
+                return false;
+            }
+
+            @Override
+            public boolean visit(CastExpression cast) {
+                cast.getExpression().accept(this);
+                Exp exp = context.popStack();
+                context.pushStack(genNewCast(exp,
+                        JDTTypeToTaieType(cast.getType().resolveBinding())));
+                return false;
+            }
+
+            @Override
+            public boolean visit(BooleanLiteral b) {
+                context.pushStack(getRightPrimitiveLiteral(b));
+                return false;
+            }
+
+            @Override
+            public boolean visit(CharacterLiteral c) {
+                context.pushStack(getRightPrimitiveLiteral(c));
                 return false;
             }
         }
