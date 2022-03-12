@@ -16,6 +16,7 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
+import java.util.Comparator;
 import java.util.TreeSet;
 
 class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
@@ -25,7 +26,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                                   DataflowResult<Node, Fact> result) {
         CFG<Node> cfg = analysis.getCFG();
         TreeSet<Node> workList = new TreeSet<>(
-                new Orderer<>(cfg, analysis.isForward()));
+                Comparator.comparingInt(cfg::getIndex));
         cfg.forEach(node -> {
             if (!cfg.isEntry(node)) {
                 workList.add(node);
@@ -56,7 +57,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                                    DataflowResult<Node, Fact> result) {
         CFG<Node> cfg = analysis.getCFG();
         TreeSet<Node> workList = new TreeSet<>(
-                new Orderer<>(cfg, analysis.isForward()));
+                Comparator.comparingInt(n -> -cfg.getIndex(n)));
         cfg.forEach(node -> {
             if (!cfg.isExit(node)) {
                 workList.add(node);
