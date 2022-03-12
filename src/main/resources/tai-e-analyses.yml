@@ -83,19 +83,19 @@
     dump: false # dump inter-procedural control-flow graph
 
 - description: live variable analysis
-  analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariableAnalysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariable
   id: livevar
   requires: [ cfg ]
   options:
     strongly: true # enable strongly live variable analysis
 
 - description: available expression analysis
-  analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpressionAnalysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpression
   id: availexp
   requires: [ cfg ]
 
 - description: reaching definition analysis
-  analysisClass: pascal.taie.analysis.dataflow.analysis.ReachingDefinitionAnalysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.ReachingDefinition
   id: reachdef
   requires: [ cfg ]
 

@@ -32,12 +32,12 @@ public interface DataflowAnalysis<Node, Fact> {
      * @return new fact in boundary conditions, i.e., the fact for
      * entry (exit) node in forward (backward) analysis.
      */
-    Fact newBoundaryFact(CFG<Node> cfg);
+    Fact newBoundaryFact();
 
     /**
      * @return new initial fact for non-boundary nodes.
      */
-    Fact newInitialFact(CFG<Node> cfg);
+    Fact newInitialFact();
 
     /**
      * Meets a fact into another (target) fact.
@@ -61,6 +61,19 @@ public interface DataflowAnalysis<Node, Fact> {
 
     /**
      * Edge Transfer function for this analysis.
+     * Note that this function should NOT modify {@code nodeFact}.
+     *
+     * @param edge     the edge that the transfer function is applied on
+     * @param nodeFact the fact of the source node of the edge. Note that
+     *                 which node is the source node of an edge depends on
+     *                 the direction of the analysis.
+     * @return the resulting edge fact
      */
     Fact transferEdge(Edge<Node> edge, Fact nodeFact);
+
+    /**
+     * @return the control-flow graph that this analysis works on.
+     */
+    CFG<Node> getCFG();
+
 }

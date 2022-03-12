@@ -14,6 +14,7 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
+import pascal.taie.analysis.dataflow.analysis.constprop.CPUtils;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
 import pascal.taie.analysis.dataflow.fact.NodeResult;
@@ -43,6 +44,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Detects dead code in an IR.
+ */
 public class DeadCodeDetection extends MethodAnalysis {
 
     public static final String ID = "deadcode";
@@ -58,7 +62,7 @@ public class DeadCodeDetection extends MethodAnalysis {
         NodeResult<Stmt, CPFact> constants =
                 ir.getResult(ConstantPropagation.ID);
         NodeResult<Stmt, SetFact<Var>> liveVars =
-                ir.getResult(LiveVariableAnalysis.ID);
+                ir.getResult(LiveVariable.ID);
         // keep statements (dead code) sorted in the resulting set
         Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
         // initialize graph traversal
@@ -108,7 +112,7 @@ public class DeadCodeDetection extends MethodAnalysis {
             Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.getSource();
         if (src instanceof If ifStmt) {
-            Value cond = ConstantPropagation.evaluate(
+            Value cond = CPUtils.evaluate(
                     ifStmt.getCondition(), constants.getInFact(ifStmt));
             if (cond.isConstant()) {
                 int v = cond.getConstant();
@@ -116,7 +120,7 @@ public class DeadCodeDetection extends MethodAnalysis {
                         v == 0 && edge.getKind() == Edge.Kind.IF_TRUE;
             }
         } else if (src instanceof SwitchStmt switchStmt) {
-            Value condV = ConstantPropagation.evaluate(
+            Value condV = CPUtils.evaluate(
                     switchStmt.getVar(), constants.getInFact(switchStmt));
             if (condV.isConstant()) {
                 int v = condV.getConstant();

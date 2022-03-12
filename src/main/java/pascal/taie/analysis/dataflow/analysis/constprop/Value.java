@@ -138,8 +138,8 @@ public class Value {
     public String toString() {
         return switch (kind) {
             case UNDEF -> "UNDEF";
-            case NAC -> "NAC";
             case CONSTANT -> Integer.toString(value);
+            case NAC -> "NAC";
         };
     }
 

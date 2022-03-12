@@ -12,30 +12,16 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import pascal.taie.analysis.MethodAnalysis;
-import pascal.taie.analysis.dataflow.fact.DataflowResult;
-import pascal.taie.analysis.dataflow.solver.Solver;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.graph.cfg.Edge;
-import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.IR;
 
 public abstract class AbstractDataflowAnalysis<Node, Fact>
-        extends MethodAnalysis
         implements DataflowAnalysis<Node, Fact> {
 
-    private final Solver<Node, Fact> solver;
+    protected final CFG<Node> cfg;
 
-    protected AbstractDataflowAnalysis(AnalysisConfig config) {
-        super(config);
-        solver = Solver.makeSolver(this);
-    }
-
-    @Override
-    public DataflowResult<Node, Fact> analyze(IR ir) {
-        CFG<Node> cfg = ir.getResult(CFGBuilder.ID);
-        return solver.solve(cfg);
+    protected AbstractDataflowAnalysis(CFG<Node> cfg) {
+        this.cfg = cfg;
     }
 
     /**
@@ -50,5 +36,10 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
     @Override
     public Fact transferEdge(Edge<Node> edge, Fact nodeFact) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CFG<Node> getCFG() {
+        return cfg;
     }
 }

@@ -23,17 +23,15 @@ import java.util.TreeSet;
 /**
  * Work-list solver with optimization.
  */
-class FastSolver<Node, Fact> extends Solver<Node, Fact> {
-
-    FastSolver(DataflowAnalysis<Node, Fact> analysis) {
-        super(analysis);
-    }
+class FastSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
 
     @Override
-    protected void initializeForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void initializeForward(DataflowAnalysis<Node, Fact> analysis,
+                                     DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         // initialize entry
         Node entry = cfg.getEntry();
-        Fact entryFact = analysis.newBoundaryFact(cfg);
+        Fact entryFact = analysis.newBoundaryFact();
         result.setInFact(entry, entryFact);
         result.setOutFact(entry, entryFact);
         cfg.forEach(node -> {
@@ -46,29 +44,32 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 cfg.getInEdgesOf(node).forEach(edge -> {
                     if (!analysis.needTransferEdge(edge)) {
                         result.setInFact(node,
-                                getOrNewOutFact(result, cfg, edge.getSource()));
+                                getOrNewOutFact(result, analysis, edge.getSource()));
                     }
                 });
             } else {
-                result.setInFact(node, analysis.newInitialFact(cfg));
+                result.setInFact(node, analysis.newInitialFact());
             }
             // initialize out fact
-            getOrNewOutFact(result, cfg, node);
+            getOrNewOutFact(result, analysis, node);
         });
     }
 
-    private Fact getOrNewOutFact(
-            DataflowResult<Node, Fact> result, CFG<Node> cfg, Node node) {
+    private Fact getOrNewOutFact(DataflowResult<Node, Fact> result,
+                                 DataflowAnalysis<Node, Fact> analysis,
+                                 Node node) {
         Fact fact = result.getOutFact(node);
         if (fact == null) {
-            fact = analysis.newInitialFact(cfg);
+            fact = analysis.newInitialFact();
             result.setOutFact(node, fact);
         }
         return fact;
     }
 
     @Override
-    protected void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveForward(DataflowAnalysis<Node, Fact> analysis,
+                                  DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         TreeSet<Node> workList = new TreeSet<>(
                 new Orderer<>(cfg, analysis.isForward()));
         cfg.forEach(node -> {
@@ -112,10 +113,12 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     @Override
-    protected void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void initializeBackward(DataflowAnalysis<Node, Fact> analysis,
+                                      DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         // initialize exit
         Node exit = cfg.getExit();
-        Fact exitFact = analysis.newBoundaryFact(cfg);
+        Fact exitFact = analysis.newBoundaryFact();
         result.setInFact(exit, exitFact);
         result.setOutFact(exit, exitFact);
         cfg.forEach(node -> {
@@ -128,29 +131,32 @@ class FastSolver<Node, Fact> extends Solver<Node, Fact> {
                 cfg.getOutEdgesOf(node).forEach(edge -> {
                     if (!analysis.needTransferEdge(edge)) {
                         result.setOutFact(node,
-                                getOrNewInFact(result, cfg, edge.getTarget()));
+                                getOrNewInFact(result, analysis, edge.getTarget()));
                     }
                 });
             } else {
-                result.setOutFact(node, analysis.newInitialFact(cfg));
+                result.setOutFact(node, analysis.newInitialFact());
             }
             // initialize in fact
-            getOrNewInFact(result, cfg, node);
+            getOrNewInFact(result, analysis, node);
         });
     }
 
-    private Fact getOrNewInFact(
-            DataflowResult<Node, Fact> result, CFG<Node> cfg, Node node) {
+    private Fact getOrNewInFact(DataflowResult<Node, Fact> result,
+                                DataflowAnalysis<Node, Fact> analysis,
+                                Node node) {
         Fact fact = result.getInFact(node);
         if (fact == null) {
-            fact = analysis.newInitialFact(cfg);
+            fact = analysis.newInitialFact();
             result.setInFact(node, fact);
         }
         return fact;
     }
 
     @Override
-    protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveBackward(DataflowAnalysis<Node, Fact> analysis,
+                                   DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         TreeSet<Node> workList = new TreeSet<>(
                 new Orderer<>(cfg, analysis.isForward()));
         cfg.forEach(node -> {

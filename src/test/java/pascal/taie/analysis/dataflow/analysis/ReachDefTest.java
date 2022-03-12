@@ -20,6 +20,6 @@ public class ReachDefTest {
     @Test
     public void test() {
         Tests.test("ReachDef", "src/test/resources/dataflow/",
-                ReachingDefinitionAnalysis.ID);
+                ReachingDefinition.ID);
     }
 }

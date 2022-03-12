@@ -19,7 +19,7 @@ public class LiveVarTest {
 
     void testLV(String inputClass) {
         Tests.test(inputClass, "src/test/resources/dataflow/livevar",
-                LiveVariableAnalysis.ID, "strongly:false");
+                LiveVariable.ID, "strongly:false");
     }
 
     @Test

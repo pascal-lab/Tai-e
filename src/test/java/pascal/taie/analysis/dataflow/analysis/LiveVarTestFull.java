@@ -19,7 +19,7 @@ public class LiveVarTestFull extends LiveVarTest {
 
     void testSLV(String inputClass) {
         Tests.test(inputClass, "src/test/resources/dataflow/livevar",
-                LiveVariableAnalysis.ID, "strongly:true");
+                LiveVariable.ID, "strongly:true");
     }
 
     @Test

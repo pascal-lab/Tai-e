@@ -18,14 +18,12 @@ import pascal.taie.analysis.graph.cfg.CFG;
 
 import java.util.TreeSet;
 
-class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
-
-    WorkListSolver(DataflowAnalysis<Node, Fact> analysis) {
-        super(analysis);
-    }
+class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
 
     @Override
-    protected void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveForward(DataflowAnalysis<Node, Fact> analysis,
+                                  DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         TreeSet<Node> workList = new TreeSet<>(
                 new Orderer<>(cfg, analysis.isForward()));
         cfg.forEach(node -> {
@@ -54,7 +52,9 @@ class WorkListSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     @Override
-    protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveBackward(DataflowAnalysis<Node, Fact> analysis,
+                                   DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         TreeSet<Node> workList = new TreeSet<>(
                 new Orderer<>(cfg, analysis.isForward()));
         cfg.forEach(node -> {

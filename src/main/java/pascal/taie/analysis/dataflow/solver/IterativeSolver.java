@@ -16,14 +16,12 @@ import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 
-class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
-
-    public IterativeSolver(DataflowAnalysis<Node, Fact> analysis) {
-        super(analysis);
-    }
+class IterativeSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
 
     @Override
-    protected void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveForward(DataflowAnalysis<Node, Fact> analysis,
+                                  DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         boolean changed;
         do {
             changed = false;
@@ -47,7 +45,9 @@ class IterativeSolver<Node, Fact> extends Solver<Node, Fact> {
     }
 
     @Override
-    protected void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
+    protected void doSolveBackward(DataflowAnalysis<Node, Fact> analysis,
+                                   DataflowResult<Node, Fact> result) {
+        CFG<Node> cfg = analysis.getCFG();
         boolean changed;
         do {
             changed = false;

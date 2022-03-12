@@ -14,102 +14,33 @@ package pascal.taie.analysis.dataflow.solver;
 
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
-import pascal.taie.analysis.graph.cfg.CFG;
 
 /**
- * Base class for data-flow analysis solver, which provides common
- * functionalities for different solver implementations.
+ * Interface of data-flow analysis solver.
  *
- * @param <Node> type of CFG nodes
- * @param <Fact> type of data-flow facts
+ * @param <Node> type of control-flow graph nodes
+ * @param <Fact> type of data facts
  */
-public abstract class Solver<Node, Fact> {
-
-    protected final DataflowAnalysis<Node, Fact> analysis;
-
-    protected Solver(DataflowAnalysis<Node, Fact> analysis) {
-        this.analysis = analysis;
-    }
+public interface Solver<Node, Fact> {
 
     /**
-     * Static factory method to create a new solver for given analysis.
+     * The default solver.
      */
-    public static <Node, Fact> Solver<Node, Fact> makeSolver(
-            DataflowAnalysis<Node, Fact> analysis) {
-        return new FastSolver<>(analysis);
+    @SuppressWarnings("rawtypes")
+    Solver SOLVER = new FastSolver<>();
+
+    /**
+     * Static factory method for obtaining a solver.
+     */
+    @SuppressWarnings("unchecked")
+    static <Node, Fact> Solver<Node, Fact> getSolver() {
+        return (Solver<Node, Fact>) SOLVER;
     }
 
     /**
-     * Starts this solver on the given CFG.
+     * Solves given analysis problem.
      *
-     * @param cfg control-flow graph where the analysis is performed on
-     * @return the analysis result
+     * @return the data-flow analysis result
      */
-    public DataflowResult<Node, Fact> solve(CFG<Node> cfg) {
-        DataflowResult<Node, Fact> result = initialize(cfg);
-        doSolve(cfg, result);
-        return result;
-    }
-
-    /**
-     * Creates and initializes a new data-flow result for given CFG.
-     *
-     * @return the initialized data-flow result
-     */
-    private DataflowResult<Node, Fact> initialize(CFG<Node> cfg) {
-        DataflowResult<Node, Fact> result = new DataflowResult<>();
-        if (analysis.isForward()) {
-            initializeForward(cfg, result);
-        } else {
-            initializeBackward(cfg, result);
-        }
-        return result;
-    }
-
-    protected void initializeForward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        // initialize entry
-        Node entry = cfg.getEntry();
-        result.setInFact(entry, analysis.newBoundaryFact(cfg));
-        result.setOutFact(entry, analysis.newBoundaryFact(cfg));
-        cfg.forEach(node -> {
-            // skip entry which has been initialized
-            if (cfg.isEntry(node)) {
-                return;
-            }
-            // initialize in & out fact
-            result.setInFact(node, analysis.newInitialFact(cfg));
-            result.setOutFact(node, analysis.newInitialFact(cfg));
-        });
-    }
-
-    protected void initializeBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        // initialize exit
-        Node exit = cfg.getExit();
-        result.setInFact(exit, analysis.newBoundaryFact(cfg));
-        result.setOutFact(exit, analysis.newBoundaryFact(cfg));
-        cfg.forEach(node -> {
-            // skip exit which has been initialized
-            if (cfg.isExit(node)) {
-                return;
-            }
-            // initialize in fact
-            result.setInFact(node, analysis.newInitialFact(cfg));
-            result.setOutFact(node, analysis.newInitialFact(cfg));
-        });
-    }
-
-    /**
-     * Solves the data-flow problem for given CFG.
-     */
-    private void doSolve(CFG<Node> cfg, DataflowResult<Node, Fact> result) {
-        if (analysis.isForward()) {
-            doSolveForward(cfg, result);
-        } else {
-            doSolveBackward(cfg, result);
-        }
-    }
-
-    protected abstract void doSolveForward(CFG<Node> cfg, DataflowResult<Node, Fact> result);
-
-    protected abstract void doSolveBackward(CFG<Node> cfg, DataflowResult<Node, Fact> result);
+    DataflowResult<Node, Fact> solve(DataflowAnalysis<Node, Fact> analysis);
 }
