@@ -282,36 +282,45 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
         Set<K> ks = keySet;
         if (ks == null) {
             ks = new AbstractSet<>() {
+                @Override
                 public Iterator<K> iterator() {
                     return new Iterator<>() {
+
                         private final Iterator<Entry<K,V>> i = entrySet().iterator();
 
+                        @Override
                         public boolean hasNext() {
                             return i.hasNext();
                         }
 
+                        @Override
                         public K next() {
                             return i.next().getKey();
                         }
 
+                        @Override
                         public void remove() {
                             i.remove();
                         }
                     };
                 }
 
+                @Override
                 public int size() {
                     return IndexMap.this.size();
                 }
 
+                @Override
                 public boolean isEmpty() {
                     return IndexMap.this.isEmpty();
                 }
 
+                @Override
                 public void clear() {
                     IndexMap.this.clear();
                 }
 
+                @Override
                 public boolean contains(Object k) {
                     return IndexMap.this.containsKey(k);
                 }
