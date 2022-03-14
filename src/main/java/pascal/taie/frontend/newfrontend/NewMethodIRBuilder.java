@@ -50,6 +50,8 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
@@ -59,7 +61,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -104,11 +105,14 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
@@ -127,6 +131,7 @@ import soot.SootMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -146,6 +151,7 @@ import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getWidenType;
 
 public class NewMethodIRBuilder {
@@ -276,7 +282,7 @@ public class NewMethodIRBuilder {
 
         private final List<ExceptionEntry> exceptionList;
 
-        private Var ret;
+        private final Set<Var> retVar;
 
         private Var thisVar;
 
@@ -298,18 +304,15 @@ public class NewMethodIRBuilder {
             stmtVisitor = new StmtGenerateVisitor(context);
             expVisitor = new ExpVisitor(context);
             exceptionList = new ArrayList<>();
+            retVar = Sets.newSet();
         }
 
         public IR build() {
             buildThis();
             buildPara();
             buildStmt();
-            Set<Var> rets = Sets.newSet();
-            if (ret != null) {
-                rets.add(ret);
-            }
             logger.info(exceptionList);
-            return new DefaultIR(jMethod, thisVar, params, rets, vars, stmts, exceptionList);
+            return new DefaultIR(jMethod, thisVar, params, retVar, vars, stmts, exceptionList);
         }
 
         private int getVarIndex() {
@@ -374,6 +377,10 @@ public class NewMethodIRBuilder {
             stmt.setIndex(stmts.size());
             stmts.add(stmt);
             return stmt;
+        }
+
+        private void addRetVar(Var v) {
+            retVar.add(v);
         }
 
         private void buildThis() {
@@ -553,6 +560,8 @@ public class NewMethodIRBuilder {
             private final Map<String, Block> finallyBlockMap;
             private final Map<String, String> finallyLabelMap;
             private final Map<Integer, Var> intLiteralMap;
+            private final Map<Integer, List<String>> switchMap;
+            private final Map<Integer, String> switchDefaultMap;
 
             private final LinkedList<String> contextCtrlList;
 
@@ -568,6 +577,8 @@ public class NewMethodIRBuilder {
                 this.finallyBlockMap = Maps.newMap();
                 this.finallyLabelMap = Maps.newMap();
                 this.intLiteralMap = Maps.newMap();
+                this.switchMap = Maps.newMap();
+                this.switchDefaultMap = Maps.newMap();
             }
 
             public void pushStack(Exp exp) {
@@ -588,6 +599,14 @@ public class NewMethodIRBuilder {
 
             public void addBlockMap(String label, Stmt stmt) {
                 this.blockMap.put(label, stmt);
+            }
+
+            public void addSwitchMap(int stmtIdx, List<String> label) {
+                this.switchMap.put(stmtIdx, label);
+            }
+
+            public void addSwitchDefaultMap(int stmtIdx, String label) {
+                this.switchDefaultMap.put(stmtIdx, label);
             }
 
             private void buildUF(UnionFind uf) {
@@ -614,9 +633,32 @@ public class NewMethodIRBuilder {
             }
 
             /**
+             * there may by no return statement in a method
+             * it will cause some label detaching from ir
+             * e.g.
+             * public void f(int x) {
+             *     if (x > 0) {
+             *         return;
+             *     }
+             *     +------------+ there is a [goto] pointed to here, but here contains nothing
+             * }
+             * this function will add the return
+             */
+            private void confirmNoDetach() {
+                if (assocList.size() != 0) {
+                    Stmt stmt = addStmt(-1, new Return());
+                    for (var i : assocList) {
+                        context.addBlockMap(i, stmt);
+                    }
+                    assocList.clear();
+                }
+            }
+
+            /**
              * Use union-find set to resolve all goto statements
              */
             public void resolveGoto() {
+                confirmNoDetach();
                 var uf = new UnionFind(stmts.size());
                 buildUF(uf);
                 patchMap.forEach((i, label) -> {
@@ -624,6 +666,22 @@ public class NewMethodIRBuilder {
                     var labelStmt = blockMap.get(label);
                     var tagStmt = stmts.get(uf.find(labelStmt.getIndex()));
                     setStmtTarget(stmt, tagStmt);
+                });
+
+                switchMap.forEach((i, labels) -> {
+                    var stmt = (SwitchStmt) stmts.get(i);
+                    List<Stmt> targets = labels
+                            .stream()
+                            .map(blockMap::get)
+                            .toList();
+                    stmt.setTargets(targets);
+                });
+
+                switchDefaultMap.forEach((i, label) -> {
+                    var stmt = (SwitchStmt) stmts.get(i);
+                    Stmt now = blockMap.get(label);
+                    assert now != null;
+                    stmt.setDefaultTarget(now);
                 });
             }
 
@@ -783,6 +841,20 @@ public class NewMethodIRBuilder {
                 var top = stmts.size();
                 addStmt(go);
                 context.addPatchList(top, label);
+            }
+
+            protected void addTableSwitch(Var v, int lowIdx, int highIdx, List<String> label, String defaultLabel) {
+                var top = stmts.size();
+                addStmt(new TableSwitch(v, lowIdx, highIdx));
+                context.addSwitchMap(top, label);
+                context.addSwitchDefaultMap(top, defaultLabel);
+            }
+
+            protected void addLookupSwitch(Var v, List<Integer> values, List<String> label, String defaultLabel) {
+                var top = stmts.size();
+                addStmt(new LookupSwitch(v, values));
+                context.addSwitchMap(top, label);
+                context.addSwitchDefaultMap(top, defaultLabel);
             }
 
             /**
@@ -1145,6 +1217,29 @@ public class NewMethodIRBuilder {
                 visitExp(exp);
                 popControlFlow(trueLabel, falseLabel, next);
             }
+
+            protected InvokeExp genSimpleInvoke(Var v,
+                                                String methodName,
+                                                List<Var> args,
+                                                List<Type> paraType,
+                                                Type retType) {
+                ClassType t = (ClassType) v.getType();
+                MethodRef r = MethodRef.get(t.getJClass(), methodName, paraType, retType, false);
+                return new InvokeVirtual(r, v, args);
+            }
+
+            protected InvokeExp genEquals(Var v1, Var v2) {
+                Type t = v1.getType();
+                Type objType = getType(ClassNames.OBJECT);
+                return genSimpleInvoke(v1, "equals",
+                        List.of(v2), List.of(objType), PrimitiveType.BOOLEAN);
+            }
+
+            protected void genStmts(List<Statement> stmts1) {
+                for (var i : stmts1) {
+                    visitStmt(i);
+                }
+            }
         }
 
         class StmtGenerateVisitor extends LinenoASTVisitor {
@@ -1157,14 +1252,11 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(Block block) {
                 var stmts = block.statements();
-                for (var i : stmts) {
-                    assert (i instanceof Statement);
-                    Statement stmt = (Statement) i;
-                    stmt.accept(this);
-                }
+                genStmts(stmts);
                 return false;
             }
 
@@ -1175,12 +1267,11 @@ public class NewMethodIRBuilder {
                 if (exp != null) {
                     visitExp(exp);
                     retVar = popVar(getReturnType());
+                    addStmt(new Return(retVar));
+                    addRetVar(retVar);
                 } else {
-                    // TODO: Is this handle correct?
-                    retVar = newTempVar(VoidType.VOID);
+                    addStmt(new Return());
                 }
-                addStmt(new Return(retVar));
-                ret = retVar;
                 return false;
             }
 
@@ -1212,8 +1303,6 @@ public class NewMethodIRBuilder {
                 }
                 return false;
             }
-
-
 
             // Generate code like :
             //            +--------------+
@@ -1523,6 +1612,136 @@ public class NewMethodIRBuilder {
                 Expression e = thr.getExpression();
                 visitExp(e);
                 addStmt(new Throw(popVar()));
+                return false;
+            }
+
+            private void genSwitchCtrl(boolean isPrimitive,
+                                       Var switchVar,
+                                       List<Expression> exps,
+                                       List<String> targets,
+                                       @Nullable String defaultLabel) {
+                if (isPrimitive) {
+                    // exps will be unique, if it's continuous, we use [tableswitch]
+                    // otherwise, use [lookupswitch]
+                    // if it's primitive type, we convert all [exps] to [int]
+                    List<Integer> rightExps = exps
+                            .stream()
+                            .map(i -> Integer.valueOf(i.resolveConstantExpressionValue().toString()))
+                            .toList();
+                    // to check if it's a continuous list, first sort it.
+                    List<Pair<Integer, String>> l = new ArrayList<>();
+                    for (int i = 0; i < exps.size(); ++i) {
+                        l.add(new Pair<>(rightExps.get(i), targets.get(i)));
+                    }
+                    l.sort(Comparator.comparing(Pair::first));
+                    int min = l.get(0).first();
+                    int max = l.get(l.size() - 1).first();
+                    // l is continuous iff (max - min == l.size() - 1)
+                    if (max - min == l.size() - 1) {
+                        var nowTargets = l.stream().map(Pair::second).toList();
+                        addTableSwitch(switchVar, min, max, nowTargets, defaultLabel);
+                    } else {
+                        addLookupSwitch(switchVar, rightExps, targets, defaultLabel);
+                    }
+
+                } else {
+                    // transform to if
+                    for (int i = 0; i < exps.size(); ++i) {
+                        visitExp(exps.get(i));
+                        Var v = popVar();
+                        context.pushStack(genEquals(switchVar, v));
+                        popControlFlow(targets.get(i), null, false);
+                    }
+                }
+            }
+
+            // switch (var) { case ... }
+            // if [var] is Enum or String, we transform it to [if]
+            // else, use tai-e (lookupswitch/tableswitch)
+            // Generate code like:
+            //        +----------------+
+            //        |  Switch Header |------+
+            //        +----------------+<-----+
+            //        |  Defalut       |      |
+            //        +----------------+      |
+            //   +----|  Goto End      |      |
+            //   |    +----------------+<-----+
+            //   |    |  Case 1        |      |
+            //   |    +----------------+      |
+            //   +----|  Goto End      |      |
+            //   |    +----------------+<-----+
+            //   |    |   ...          |
+            //   +--->+----------------+
+            //        |  End           |
+            //        +----------------+
+            @Override
+            public boolean visit(SwitchStatement ss) {
+                visitExp(ss.getExpression());
+                Var v = popVar();
+                boolean isPrimitive = v.getType() instanceof PrimitiveType;
+                String now = context.getNewLabel();
+                String end = context.getNewLabel();
+                context.handleUserLabel(end, null);
+                context.getContextCtrlList().addFirst(now);
+                context.assocBreakAndContinue(now, end, null);
+                Map<String, List<Statement>> blocks = Maps.newMap();
+                List<String> targets = new ArrayList<>();
+                List<Expression> caseExps = new ArrayList<>();
+                String defaultLabel = null;
+
+                // JDT handle switch like [ SwitchCase1, SwitchCase2, Statement1, Statement2, SwitchCase3, ... ]
+                // we first separate these Statements
+                var i = ss.statements().iterator();
+                Statement s = (Statement) i.next();
+                while (i.hasNext()) {
+                    String nowLabel = context.getNewLabel();
+                    while (s instanceof SwitchCase sc)
+                    {
+                        if (sc.isDefault()) {
+                            defaultLabel = nowLabel;
+                        } else {
+                            for (var exp : sc.expressions()) {
+                                caseExps.add((Expression) exp);
+                                targets.add(nowLabel);
+                            }
+                        }
+                        if (! i.hasNext()) {
+                            break;
+                        }
+                        s = (Statement) i.next();
+                    }
+                    List<Statement> nowStmt = new ArrayList<>();
+                    while (! (s instanceof SwitchCase))
+                    {
+                        nowStmt.add(s);
+                        if (! i.hasNext()) {
+                            break;
+                        }
+                        s = (Statement) i.next();
+                    }
+                    blocks.put(nowLabel, nowStmt);
+                }
+
+                if (defaultLabel == null) {
+                    defaultLabel = context.getNewLabel();
+                    blocks.put(defaultLabel, List.of());
+                }
+                genSwitchCtrl(isPrimitive, v, caseExps, targets, defaultLabel);
+
+                List<Statement> defaultStmts = blocks.get(defaultLabel);
+                blocks.remove(defaultLabel);
+                context.assocLabel(defaultLabel);
+                genStmts(defaultStmts);
+                addCheckedGoto(end);
+
+                blocks.forEach((label, stmts) -> {
+                    context.assocLabel(label);
+                    genStmts(stmts);
+                    addGoto(end);
+                });
+
+                context.getContextCtrlList().removeFirst();
+                context.assocLabel(end);
                 return false;
             }
 

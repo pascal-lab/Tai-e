@@ -124,7 +124,7 @@ public final class TypeUtils {
             var erased = typeBinding.getErasure();
             var tm = WorldParaHolder.getTypeSystem();
             var loader = WorldParaHolder.getClassLoader();
-            if (erased.isClass() || erased.isInterface()) {
+            if (erased.isClass() || erased.isInterface() || erased.isEnum()) {
                 return tm.getType(loader, erased.getBinaryName());
             } else if (erased.isArray()) {
                 return tm.getArrayType(JDTTypeToTaieType(erased.getElementType()), erased.getDimensions());
@@ -386,5 +386,9 @@ public final class TypeUtils {
 
     public static PrimitiveType getPrimitiveByRef(Type t) {
         return getPrimitiveByIndex(getIndexOfPrimitive(t));
+    }
+
+    public static Type getType(String name) {
+        return World.get().getTypeSystem().getType(name);
     }
 }
