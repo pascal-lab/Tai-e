@@ -2,18 +2,18 @@
 [0@L3] temp$0 = new Interprocedural2$X; {}
 [1@L3] invokespecial temp$0.<Interprocedural2$X: void <init>()>(); {}
 [2@L3] x = temp$0; {}
-[3@L4] %intconst0 = 123; {%intconst0=123}
-[4@L4] invokevirtual x.<Interprocedural2$X: void setF(int)>(%intconst0); {%intconst0=123}
-[5@L5] temp$1 = invokevirtual x.<Interprocedural2$X: int getF()>(); {%intconst0=123}
-[6@L5] a = temp$1; {%intconst0=123, a=123, temp$1=123}
-[7@L6] temp$2 = new Interprocedural2$Y; {%intconst0=123, a=123, temp$1=123}
-[8@L6] invokespecial temp$2.<Interprocedural2$Y: void <init>()>(); {%intconst0=123, a=123, temp$1=123}
-[9@L6] y = temp$2; {%intconst0=123, a=123, temp$1=123}
-[10@L7] %intconst1 = 789; {%intconst0=123, %intconst1=789, a=123, temp$1=123}
-[11@L7] invokevirtual y.<Interprocedural2$Y: void setG(int)>(%intconst1); {%intconst0=123, %intconst1=789, a=123, temp$1=123}
-[12@L8] temp$3 = invokevirtual y.<Interprocedural2$Y: int getG()>(); {%intconst0=123, %intconst1=789, a=123, temp$1=123}
-[13@L8] b = temp$3; {%intconst0=123, %intconst1=789, a=123, b=789, temp$1=123, temp$3=789}
-[14@L8] return; {%intconst0=123, %intconst1=789, a=123, b=789, temp$1=123, temp$3=789}
+[3@L4] %intconst0 = 123; {}
+[4@L4] invokevirtual x.<Interprocedural2$X: void setF(int)>(%intconst0); {}
+[5@L5] temp$1 = invokevirtual x.<Interprocedural2$X: int getF()>(); {}
+[6@L5] a = temp$1; {a=123, temp$1=123}
+[7@L6] temp$2 = new Interprocedural2$Y; {a=123, temp$1=123}
+[8@L6] invokespecial temp$2.<Interprocedural2$Y: void <init>()>(); {a=123, temp$1=123}
+[9@L6] y = temp$2; {a=123, temp$1=123}
+[10@L7] %intconst1 = 789; {a=123, temp$1=123}
+[11@L7] invokevirtual y.<Interprocedural2$Y: void setG(int)>(%intconst1); {a=123, temp$1=123}
+[12@L8] temp$3 = invokevirtual y.<Interprocedural2$Y: int getG()>(); {a=123, temp$1=123}
+[13@L8] b = temp$3; {a=123, b=789, temp$1=123, temp$3=789}
+[14@L8] return; {a=123, b=789, temp$1=123, temp$3=789}
 
 -------------------- <Interprocedural2$X: void <init>()> (inter-constprop) --------------------
 [0@L11] invokespecial %this.<java.lang.Object: void <init>()>(); {}

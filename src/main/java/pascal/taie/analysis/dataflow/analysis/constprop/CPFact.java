@@ -13,6 +13,7 @@
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import pascal.taie.analysis.dataflow.fact.MapFact;
+import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Var;
 
 import java.util.Collections;
@@ -21,6 +22,15 @@ import java.util.Map;
 /**
  * Represents data facts of constant propagation, which maps variables
  * to their lattice values.
+ * <p>
+ * For better performance, this implementation treats temporary constant
+ * variables specially. These variables have two features:
+ * <ul>
+ *     <li>its value is associated with itself</li>
+ *     <li>its value never change</li>
+ * </ul>
+ * So this map does not need to actually store the values of these variables:
+ * the values must be constants and can be obtained from the variables themselves.
  * <p>
  * Note that in this implementation, we use absence to represent UNDEF,
  * i.e., if a CPFact does not contain variable-value mapping of a variable,
@@ -43,19 +53,29 @@ public class CPFact extends MapFact<Var, Value> {
      * or UNDEF the variable is absent in this fact.
      */
     @Override
-    public Value get(Var key) {
-        return map.getOrDefault(key, Value.getUndef());
+    public Value get(Var var) {
+        if (var.isTempConst() &&
+                var.getTempConstValue() instanceof IntLiteral i) {
+            // for temporary constant variable, directly return
+            // the associated value
+            return Value.makeConstant(i.getValue());
+        } else {
+            return map.getOrDefault(var, Value.getUndef());
+        }
     }
 
     @Override
-    public boolean update(Var key, Value value) {
-        if (value.isUndef()) {
+    public boolean update(Var var, Value value) {
+        if (var.isTempConst()) {
+            // do not store temporary constant variables
+            return false;
+        } else if (value.isUndef()) {
             // if the client code sets variable key to UNDEF,
             // then we remove the variable from the CPFact
             // as we use absence to represent UNDEF.
-            return remove(key) != null;
+            return remove(var) != null;
         } else {
-            return super.update(key, value);
+            return super.update(var, value);
         }
     }
 

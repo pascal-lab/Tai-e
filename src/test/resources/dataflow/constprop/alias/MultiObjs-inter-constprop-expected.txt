@@ -19,28 +19,28 @@
 [13@L9] temp$5 = 666; {temp$1=2333, temp$3=666, temp$5=666}
 [14@L9] a3.<A: int f> = temp$5; {temp$1=2333, temp$3=666, temp$5=666}
 [15@L10] temp$7 = args.length; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[16@L10] %intconst0 = 0; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[17@L10] if (temp$7 > %intconst0) goto 19; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[18@L10] goto 22; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[19@L10] nop; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[20@L10] temp$6 = a1; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[21@L10] goto 24; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[22@L10] nop; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[23@L10] temp$6 = a2; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[24@L10] nop; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[25@L10] aa = temp$6; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[26@L11] temp$9 = args.length; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[27@L11] if (temp$9 > %intconst0) goto 29; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[28@L11] goto 32; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[29@L11] nop; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[30@L11] temp$8 = a2; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[31@L11] goto 34; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[32@L11] nop; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[33@L11] temp$8 = a3; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[34@L11] nop; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[35@L11] aaa = temp$8; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[36@L12] x = aa.<A: int f>; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC}
-[37@L13] y = aaa.<A: int f>; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666}
-[38@L14] z = a1.<A: int f>; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
-[39@L14] return; {%intconst0=0, temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
+[16@L10] %intconst0 = 0; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[17@L10] if (temp$7 > %intconst0) goto 19; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[18@L10] goto 22; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[19@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[20@L10] temp$6 = a1; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[21@L10] goto 24; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[22@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[23@L10] temp$6 = a2; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[24@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[25@L10] aa = temp$6; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[26@L11] temp$9 = args.length; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[27@L11] if (temp$9 > %intconst0) goto 29; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[28@L11] goto 32; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[29@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[30@L11] temp$8 = a2; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[31@L11] goto 34; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[32@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[33@L11] temp$8 = a3; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[34@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[35@L11] aaa = temp$8; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[36@L12] x = aa.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC}
+[37@L13] y = aaa.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666}
+[38@L14] z = a1.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
+[39@L14] return; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
 
