@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
@@ -53,15 +52,13 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
-import org.eclipse.jdt.core.dom.TypeLiteral;
 
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
-import pascal.taie.World;
+import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -128,7 +125,6 @@ import soot.SootMethod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -144,11 +140,9 @@ import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getInitRef;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getInitMethodRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getRefNameOfPrimitive;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getWidenType;
@@ -549,7 +543,6 @@ public class NewMethodIRBuilder {
 
         class VisitorContext {
             private final Stack<Exp> expStack;
-            private final Stack<String> labelStack;
             private final Map<String, Stmt> blockMap;
             private final Map<Integer, String> patchMap;
             private final Map<String, Pair<String, String>> brkContMap;
@@ -562,26 +555,14 @@ public class NewMethodIRBuilder {
 
             private final LinkedList<String> contextCtrlList;
 
-            /**
-             * an expression may just generate side effects,
-             * this variable indicates if outer environment need the value of this expression
-             * <p> e.g. {@code if ( exp ) then ... else ...}
-             *                    -------
-             *         this exp will just lead to {@code if ... goto ...} </p>
-             * TODO: Remove this by {@code expToControlEffect}
-             */
-            private boolean evalContext;
-
             public VisitorContext() {
                 this.blockMap = Maps.newMap();
                 this.patchMap = Maps.newMap();
                 this.brkContMap = Maps.newMap();
                 expStack = new Stack<>();
-                this.labelStack = new Stack<>();
                 this.assocList = new ArrayList<>();
                 this.labelGenerator = new BlockLabelGenerator();
                 this.exceptionManager = new ExceptionEntryManager();
-                this.evalContext = true;
                 this.contextCtrlList = new LinkedList<>();
                 this.finallyBlockMap = Maps.newMap();
                 this.finallyLabelMap = Maps.newMap();
@@ -594,14 +575,6 @@ public class NewMethodIRBuilder {
 
             public Exp popStack() {
                 return expStack.pop();
-            }
-
-            public void pushLabel(String label) {
-                labelStack.push(label);
-            }
-
-            public String popLabel() {
-                return labelStack.pop();
             }
 
             public void assocLabel(String label) {
@@ -663,18 +636,8 @@ public class NewMethodIRBuilder {
 
             public String getNewFinLabel() { return labelGenerator.getNewFinLabel(); }
 
-            public boolean isEvalContext() {
-                return evalContext;
-            }
-
-            public void setEvalContext(boolean evalContext) {
-                this.evalContext = evalContext;
-            }
-
-            public void assocBreakAndContinue(String breakLabel, String continueLabel) {
-                for (var i : assocList) {
-                    this.brkContMap.put(i, new Pair<>(breakLabel, continueLabel));
-                }
+            public void assocBreakAndContinue(String nowLabel, String breakLabel, String continueLabel) {
+                this.brkContMap.put(nowLabel, new Pair<>(breakLabel, continueLabel));
             }
 
             public String getBreakLabel(String label) {
@@ -733,7 +696,7 @@ public class NewMethodIRBuilder {
                 if (contextCtrlList.size() > 0) {
                     if (BlockLabelGenerator.isUserDefinedLabel(this.contextCtrlList.getFirst())) {
                         assert (assocList.contains(this.contextCtrlList.getFirst()));
-                        assocBreakAndContinue(breakLabel, contLabel);
+                        assocBreakAndContinue(this.contextCtrlList.getFirst(), breakLabel, contLabel);
                     }
                 }
             }
@@ -748,6 +711,7 @@ public class NewMethodIRBuilder {
                     return v;
                 }
             }
+
         }
 
         class LinenoASTVisitor extends ASTVisitor {
@@ -801,7 +765,7 @@ public class NewMethodIRBuilder {
             }
 
             /**
-             * <p>if stmts[end] will cover this goto
+             * <p>If stmts[end] will cover this goto
              * (i.e. the last statement of stmts[end] is Return)
              * we don't addGoto.</p>
              * <p>However, this function should not be always called.
@@ -987,6 +951,8 @@ public class NewMethodIRBuilder {
             protected Var expToVar(Exp exp) {
                 if (exp instanceof Var v) {
                     return v;
+                } else if (exp instanceof ConditionExp exp1) {
+                    return collectBoolEval(exp1);
                 } else if (exp instanceof BinaryExp
                         || exp instanceof InvokeExp
                         || exp instanceof FieldAccess
@@ -1013,6 +979,51 @@ public class NewMethodIRBuilder {
                 if (exp instanceof InvokeExp exp1) {
                     addStmt(new Invoke(jMethod, exp1));
                 }
+            }
+
+            protected void genIfHeader(ConditionExp e, String trueLabel, String falseLabel, boolean next) {
+                addIf(e, trueLabel);
+                if (next) {
+                    addGoto(falseLabel);
+                }
+            }
+
+            private Var collectBoolEval(BiConsumer<String, String> condMaker) {
+                Var v = newTempVar(PrimitiveType.BOOLEAN);
+                String trueLabel = context.getNewLabel();
+                String falseLabel = context.getNewLabel();
+                String endLabel = context.getNewLabel();
+                condMaker.accept(trueLabel, falseLabel);
+                context.assocLabel(falseLabel);
+                newAssignment(v, IntLiteral.get(0));
+                addGoto(endLabel);
+                context.assocLabel(trueLabel);
+                newAssignment(v, IntLiteral.get(1));
+                context.assocLabel(endLabel);
+                return v;
+            }
+
+            private Var collectBoolEval(ConditionExp exp) {
+                return collectBoolEval((t, f) -> genIfHeader(exp, t, f, false));
+            }
+
+            protected Var collectBoolEval(Expression exp) {
+                return collectBoolEval((t, f) -> transformCond(exp, t, f, false));
+            }
+
+            protected void expToControlFlow(Exp exp, String trueLabel, String falseLabel, boolean next) {
+                ConditionExp cond;
+                if (exp instanceof ConditionExp e) {
+                    cond = e;
+                } else {
+                    Var v = expToVar(exp, PrimitiveType.BOOLEAN);
+                    cond = new ConditionExp(ConditionExp.Op.EQ, v, context.getInt(this, 0));
+                }
+                genIfHeader(cond, trueLabel, falseLabel, next);
+            }
+
+            protected void popControlFlow(String trueLabel, String falseLabel, boolean next) {
+                expToControlFlow(context.popStack(), trueLabel, falseLabel, next);
             }
 
             protected void popSideEffect() {
@@ -1047,14 +1058,6 @@ public class NewMethodIRBuilder {
                 return new Var[] {expToVar(v1, t1), expToVar(v2, t2)};
             }
 
-            protected void withBrkContLabel(BiConsumer<String, String> f) {
-                var contLabel = this.context.popLabel();
-                var brkLabel = this.context.popLabel();
-                f.accept(brkLabel, contLabel);
-                this.context.pushLabel(brkLabel);
-                this.context.pushLabel(contLabel);
-            }
-
             protected void handleSingleVarDecl(VariableDeclaration vd) {
                 var name = vd.getName();
                 var val = vd.getInitializer();
@@ -1066,6 +1069,56 @@ public class NewMethodIRBuilder {
                 popSideEffect();
             }
 
+            protected List<Expression> getAllOperands(InfixExpression exp) {
+                var left = exp.getLeftOperand();
+                var right = exp.getRightOperand();
+                var extend = exp.extendedOperands();
+                List<Expression> l = new ArrayList<>();
+                l.add(left);
+                l.add(right);
+                for (var i : extend) {
+                    l.add((Expression) i);
+                }
+                return l;
+            }
+
+
+            protected void transformCond(Expression exp,
+                                       String trueLabel,
+                                       String falseLabel,
+                                       boolean next) {
+                if (exp instanceof InfixExpression infix) {
+                    if (infix.getOperator().equals(InfixExpression.Operator.CONDITIONAL_OR)) {
+                        var operands = getAllOperands(infix);
+                        for (var i = 0; i < operands.size() - 1; ++i) {
+                            var falseNow = context.getNewLabel();
+                            transformCond(operands.get(i), trueLabel, falseNow, false);
+                            context.assocLabel(falseNow);
+                        }
+                        transformCond(operands.get(operands.size() - 1), trueLabel, falseLabel, next);
+                        return;
+                    } else if (infix.getOperator() == InfixExpression.Operator.CONDITIONAL_AND) {
+                        var operands = getAllOperands(infix);
+                        for (var i = 0; i < operands.size() - 1; ++i) {
+                            var trueNow = context.getNewLabel();
+                            transformCond(operands.get(i), trueNow, falseLabel, true);
+                            context.assocLabel(trueNow);
+                        }
+                        transformCond(operands.get(operands.size() - 1), trueLabel, falseLabel, next);
+                        return;
+                    }
+                } else if (exp instanceof PrefixExpression prefix) {
+                    if (prefix.getOperator().equals(PrefixExpression.Operator.NOT)) {
+                        transformCond(prefix.getOperand(), falseLabel, trueLabel, !next);
+                        return;
+                    }
+                } else if (exp instanceof ParenthesizedExpression p) {
+                    transformCond(p.getExpression(), trueLabel, falseLabel, next);
+                    return;
+                }
+                visitExp(exp);
+                popControlFlow(trueLabel, falseLabel, next);
+            }
         }
 
         class StmtGenerateVisitor extends LinenoASTVisitor {
@@ -1134,31 +1187,7 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
-            private void handleCondExpInContext(Expression exp, String trueLabel, String falseLabel,
-                                                boolean rev) {
-                // [exp] don't need to give a value
-                context.setEvalContext(false);
-                if (exp == null) {
-                    return;
-                }
-                if (exp instanceof PrefixExpression p &&
-                        p.getOperator() == PrefixExpression.Operator.NOT)
-                {
-                    this.context.pushLabel(falseLabel);
-                    visitExp(p.getOperand());
-                    if (rev) {
-                        addGoto(trueLabel);
-                    }
-                } else {
-                    this.context.pushLabel(trueLabel);
-                    visitExp(exp);
-                    if (!rev) {
-                        addGoto(falseLabel);
-                    }
-                }
-                // reset eval context
-                context.setEvalContext(true);
-            }
+
 
             // Generate code like :
             //            +--------------+
@@ -1182,8 +1211,7 @@ public class NewMethodIRBuilder {
                 var trueLabel = context.getNewLabel();
                 var falseLabel = context.getNewLabel();
                 var endLabel = context.getNewLabel();
-                context.assocBreakAndContinue(endLabel, null);
-                handleCondExpInContext(exp, trueLabel, falseLabel, false);
+                transformCond(exp, trueLabel, falseLabel, true);
                 context.assocLabel(trueLabel);
                 thenStmt.accept(this);
                 if (elseStmt != null) {
@@ -1230,11 +1258,12 @@ public class NewMethodIRBuilder {
                     popSideEffect();
                 }
                 context.assocLabel(contLabel);
-                context.assocBreakAndContinue(breakLabel, contLabel);
-                handleCondExpInContext(cond, bodyLabel, breakLabel, false);
-                context.assocLabel(bodyLabel);
                 context.getContextCtrlList().addFirst(contLabel);
+                context.assocBreakAndContinue(contLabel, breakLabel, contLabel);
+                transformCond(cond, bodyLabel, breakLabel, true);
+                context.assocLabel(bodyLabel);
                 body.accept(this);
+                context.getContextCtrlList().removeFirst();
                 for (var i : updates) {
                     visitExp(i);
                 }
@@ -1278,10 +1307,11 @@ public class NewMethodIRBuilder {
                 var breakLabel = context.getNewLabel();
                 context.handleUserLabel(breakLabel, contLabel);
                 context.assocLabel(contLabel);
-                context.assocBreakAndContinue(breakLabel, contLabel);
+                context.assocBreakAndContinue(contLabel, breakLabel, contLabel);
                 context.getContextCtrlList().addFirst(contLabel);
                 stmt.accept(this);
-                handleCondExpInContext(exp, contLabel, breakLabel, true);
+                context.getContextCtrlList().removeFirst();
+                transformCond(exp, contLabel, breakLabel, false);
                 context.assocLabel(breakLabel);
                 return false;
             }
@@ -1622,88 +1652,22 @@ public class NewMethodIRBuilder {
                         return false;
                     }
                     case ">", ">=", "==", "<=", "<", "!=" -> {
-                        if (!context.isEvalContext()) {
-                            // Although this expression don't have evaluation context
-                            // its sub expression has an evaluation context
-                            // e.g. if (     (1 + 1) >= (2 + 2)           ) { }
-                            //         |     -------                      |
-                            //         |     is eval context              |
-                            //         +-------- not eval context --------+
-                            context.setEvalContext(true);
-                            var trueLabel = context.popLabel();
-                            binaryCompute(exp, (l, r) -> {
-                                addIf(new ConditionExp(TypeUtils.getConditionOp(op), l, r), trueLabel);
-                                return pascal.taie.ir.exp.NullLiteral.get();
-                            });
-                            popSideEffect();
-                            // DO NOT forget to reset this variable
-                            context.setEvalContext(false);
-                        } else {
-                            binaryCompute(exp, (l, r) -> {
-                                var v = newTempVar(PrimitiveType.BOOLEAN);
-                                var trueLabel = context.getNewLabel();
-                                var falseLabel = context.getNewLabel();
-                                var endLabel = context.getNewLabel();
-                                addIf(new ConditionExp(TypeUtils.getConditionOp(op), l, r), trueLabel);
-                                collectBoolEval(trueLabel, falseLabel, endLabel, v);
-                                return v;
-                            });
-                        }
+                        binaryCompute(exp, (l, r) ->
+                                new ConditionExp(TypeUtils.getConditionOp(op), l, r));
                         return false;
                     }
-                    case "||" -> {
-                        // here we can't use binaryCompute
-                        // "||" and "&&" has lazy evaluation semantic
-                        // TODO: if "!" in l, this impl suck!
-                        var l = getAllOperands(exp);
-                        if (!context.isEvalContext()) {
-                            var trueLabel = context.labelStack.peek();
-                            for (var i : l) {
-                                i.accept(this);
-                                context.pushLabel(trueLabel);
-                            }
-                            context.popLabel();
-                        } else {
-                            context.setEvalContext(false);
-                            var trueLabel = context.getNewLabel();
-                            var falseLabel = context.getNewLabel();
-                            var endLabel = context.getNewLabel();
-                            var v = newTempVar(PrimitiveType.BOOLEAN);
-                            for (var i : l) {
-                                context.pushLabel(trueLabel);
-                                i.accept(this);
-                            }
-                            collectBoolEval(trueLabel, falseLabel, endLabel, v);
-                            context.pushStack(v);
-                        }
+                    case "||", "&&" -> {
+                        Var v = collectBoolEval(exp);
+                        context.pushStack(v);
                         return false;
                     }
                     default -> throw new NewFrontendException("Operator <" + exp.getOperator() + "> not implement");
                 }
             }
 
-            private List<Expression> getAllOperands(InfixExpression exp) {
-                var left = exp.getLeftOperand();
-                var right = exp.getRightOperand();
-                var extend = exp.extendedOperands();
-                List<Expression> l = new ArrayList<>();
-                l.add(left);
-                l.add(right);
-                for (var i : extend) {
-                    l.add((Expression) i);
-                }
-                return l;
-            }
 
-            private void collectBoolEval(String trueLabel, String falseLabel, String endLabel, Var v) {
-                addGoto(falseLabel);
-                context.assocLabel(trueLabel);
-                addStmt(new AssignLiteral(v, IntLiteral.get(1)));
-                addGoto(endLabel);
-                context.assocLabel(falseLabel);
-                addStmt(new AssignLiteral(v, IntLiteral.get(0)));
-                context.assocLabel(endLabel);
-            }
+
+
 
             @Override
             public boolean visit(ParenthesizedExpression exp) {
@@ -1971,6 +1935,17 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(CharacterLiteral c) {
                 context.pushStack(getRightPrimitiveLiteral(c));
+                return false;
+            }
+
+            @Override
+            public boolean visit(PrefixExpression p) {
+                switch (p.getOperator().toString()) {
+                    case "!" -> {
+                        collectBoolEval(p);
+                        return false;
+                    }
+                }
                 return false;
             }
         }

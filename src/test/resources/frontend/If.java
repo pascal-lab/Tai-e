@@ -43,4 +43,12 @@ class If {
         }
     }
 
+    public int f2(int x) {
+        if (x > 0 && (! (x < 10) || x > 20)) {
+            return 20;
+        } else {
+            boolean b = x < 10 && (!(x < 20) || x > 30);
+            return 0;
+        }
+    }
 }

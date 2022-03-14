@@ -65,7 +65,7 @@ class Loop {
                 break;
             }
             break;
-        } while (! (temp < 0) );
+        } while (!(temp < 0));
         return;
     }
 }
