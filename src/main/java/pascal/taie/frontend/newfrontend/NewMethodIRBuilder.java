@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
@@ -1011,6 +1012,27 @@ public class NewMethodIRBuilder {
                 return collectBoolEval((t, f) -> transformCond(exp, t, f, false));
             }
 
+            protected Var genCondExpression(ConditionalExpression ce) {
+                Expression cond = ce.getExpression();
+                Expression thenExp = ce.getThenExpression();
+                Expression elseExp = ce.getElseExpression();
+                Var v = newTempVar(PrimitiveType.BOOLEAN);
+                String trueLabel = context.getNewLabel();
+                String falseLabel = context.getNewLabel();
+                String endLabel = context.getNewLabel();
+                Type t = JDTTypeToTaieType(ce.resolveTypeBinding());
+                transformCond(cond, trueLabel, falseLabel, false);
+                context.assocLabel(falseLabel);
+                visitExp(elseExp);
+                newAssignment(v, popExp(t));
+                addGoto(endLabel);
+                context.assocLabel(trueLabel);
+                visitExp(thenExp);
+                newAssignment(v, popExp(t));
+                context.assocLabel(endLabel);
+                return v;
+            }
+
             protected void expToControlFlow(Exp exp, String trueLabel, String falseLabel, boolean next) {
                 ConditionExp cond;
                 if (exp instanceof ConditionExp e) {
@@ -1020,6 +1042,10 @@ public class NewMethodIRBuilder {
                     cond = new ConditionExp(ConditionExp.Op.EQ, v, context.getInt(this, 0));
                 }
                 genIfHeader(cond, trueLabel, falseLabel, next);
+            }
+
+            protected Exp popExp(Type t) {
+                return preformTypeConversion(context.popStack(), t);
             }
 
             protected void popControlFlow(String trueLabel, String falseLabel, boolean next) {
@@ -1939,13 +1965,20 @@ public class NewMethodIRBuilder {
             }
 
             @Override
-            public boolean visit(PrefixExpression p) {
-                switch (p.getOperator().toString()) {
+            public boolean visit(PrefixExpression pe) {
+                switch (pe.getOperator().toString()) {
                     case "!" -> {
-                        collectBoolEval(p);
+                        collectBoolEval(pe);
                         return false;
                     }
                 }
+                return false;
+            }
+
+            @Override
+            public boolean visit(ConditionalExpression ce) {
+                Exp e = genCondExpression(ce);
+                context.pushStack(e);
                 return false;
             }
         }
