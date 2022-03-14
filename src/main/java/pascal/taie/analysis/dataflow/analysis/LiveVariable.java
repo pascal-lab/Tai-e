@@ -15,6 +15,7 @@ package pascal.taie.analysis.dataflow.analysis;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.ir.LocalVarMapper;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Stmt;
@@ -52,17 +53,7 @@ public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
         private Analysis(CFG<Stmt> cfg, boolean strongly) {
             super(cfg);
             this.strongly = strongly;
-            this.varMapper = new ObjectIdMapper<>() {
-                @Override
-                public int getId(Var var) {
-                    return var.getIndex();
-                }
-
-                @Override
-                public Var getObject(int id) {
-                    return cfg.getIR().getVar(id);
-                }
-            };
+            this.varMapper = new LocalVarMapper(cfg.getIR());
         }
 
         @Override
