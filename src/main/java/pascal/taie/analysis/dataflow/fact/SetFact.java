@@ -79,6 +79,15 @@ public class SetFact<E> {
     }
 
     /**
+     * Removes all elements of other fact.
+     *
+     * @return true if this fact changed as a result of the call, otherwise false.
+     */
+    public boolean removeAll(SetFact<E> other) {
+        return set.removeAll(other.set);
+    }
+
+    /**
      * Unions other fact into this fact.
      *
      * @return true if this fact changed as a result of the call, otherwise false.
