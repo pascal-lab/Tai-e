@@ -14,8 +14,8 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
-import pascal.taie.analysis.dataflow.analysis.constprop.CPUtils;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
+import pascal.taie.analysis.dataflow.analysis.constprop.Evaluator;
 import pascal.taie.analysis.dataflow.analysis.constprop.Value;
 import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
@@ -112,7 +112,7 @@ public class DeadCodeDetection extends MethodAnalysis {
             Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.getSource();
         if (src instanceof If ifStmt) {
-            Value cond = CPUtils.evaluate(
+            Value cond = Evaluator.evaluate(
                     ifStmt.getCondition(), constants.getInFact(ifStmt));
             if (cond.isConstant()) {
                 int v = cond.getConstant();
@@ -120,7 +120,7 @@ public class DeadCodeDetection extends MethodAnalysis {
                         v == 0 && edge.getKind() == Edge.Kind.IF_TRUE;
             }
         } else if (src instanceof SwitchStmt switchStmt) {
-            Value condV = CPUtils.evaluate(
+            Value condV = Evaluator.evaluate(
                     switchStmt.getVar(), constants.getInFact(switchStmt));
             if (condV.isConstant()) {
                 int v = condV.getConstant();

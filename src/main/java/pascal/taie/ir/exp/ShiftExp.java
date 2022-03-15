@@ -47,7 +47,7 @@ public class ShiftExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert isIntLikeOrLong(operand1) && isIntLike(operand2);
+        assert Exps.holdsInteger(operand1) && Exps.holdsInt(operand2);
     }
 
     @Override

@@ -47,8 +47,8 @@ public class BitwiseExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert (isIntLike(operand1) && isIntLike(operand2)) ||
-                (isLong(operand1) && isLong(operand2));
+        assert (Exps.holdsInt(operand1) && Exps.holdsInt((operand2)) ||
+                (Exps.holdsLong(operand1) && Exps.holdsLong(operand2)));
     }
 
     @Override

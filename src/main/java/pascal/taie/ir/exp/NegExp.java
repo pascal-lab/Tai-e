@@ -38,12 +38,8 @@ public class NegExp implements UnaryExp {
 
     @Override
     public PrimitiveType getType() {
-        return switch ((PrimitiveType) value.getType()) {
-            case INT, BYTE, SHORT, BOOLEAN, CHAR -> PrimitiveType.INT;
-            case LONG -> PrimitiveType.LONG;
-            case FLOAT -> PrimitiveType.FLOAT;
-            case DOUBLE -> PrimitiveType.DOUBLE;
-        };
+        PrimitiveType type = (PrimitiveType) value.getType();
+        return type.asInt() ? PrimitiveType.INT : type;
     }
 
     @Override

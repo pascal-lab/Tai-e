@@ -12,10 +12,6 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.ReferenceType;
-import pascal.taie.language.type.Type;
-
 import java.util.List;
 
 /**
@@ -57,53 +53,5 @@ abstract class AbstractBinaryExp implements BinaryExp {
     @Override
     public String toString() {
         return operand1 + " " + getOperator() + " " + operand2;
-    }
-
-    // Convenient methods for subclasses to validate value types.
-
-    /**
-     * Obtain the computational type of given variable.
-     * JVM Spec. (11 Ed., 2.11.1): most operations on values of actual types
-     * boolean, byte, char, and short are correctly performed by instructions
-     * operating on values of computational type int.
-     *
-     * @return the computational type of given variable.
-     */
-    private static Type getComputationalTypeOf(Var var) {
-        Type type = var.getType();
-        if (type instanceof PrimitiveType) {
-            switch ((PrimitiveType) type) {
-                case BOOLEAN:
-                case BYTE:
-                case CHAR:
-                case SHORT:
-                    return PrimitiveType.INT;
-            }
-        }
-        return type;
-    }
-
-    /**
-     * @return true if the type of given variable is computed as int, otherwise false.
-     * @see #getComputationalTypeOf(Var)
-     */
-    protected boolean isIntLike(Var var) {
-        return getComputationalTypeOf(var).equals(PrimitiveType.INT);
-    }
-
-    protected boolean isLong(Var var) {
-        return var.getType().equals(PrimitiveType.LONG);
-    }
-
-    protected boolean isIntLikeOrLong(Var var) {
-        return isIntLike(var) || isLong(var);
-    }
-
-    protected boolean isPrimitive(Var var) {
-        return var.getType() instanceof PrimitiveType;
-    }
-
-    protected boolean isReference(Var var) {
-        return var.getType() instanceof ReferenceType;
     }
 }

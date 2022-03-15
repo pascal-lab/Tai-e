@@ -17,35 +17,20 @@ import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.Exps;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
 /**
- * Provides utilities for constant propagation. Since some functions are used
- * not only by {@link ConstantPropagation} by also other classes, we extract
- * these functions to here to make them easily accessible.
+ * Evaluates expressions in constant propagation. Since this functionality
+ * is used not only by {@link ConstantPropagation} but also other classes,
+ * we implement it as static methods to make it easily accessible.
  */
-public class CPUtils {
+public final class Evaluator {
 
-    private CPUtils() {
-    }
-
-    /**
-     * @return true if the given variable can hold integer value, otherwise false.
-     */
-    public static boolean canHoldInt(Var var) {
-        Type type = var.getType();
-        if (type instanceof PrimitiveType primType) {
-            return switch (primType) {
-                case BYTE, SHORT, INT, CHAR, BOOLEAN -> true;
-                default -> false;
-            };
-        }
-        return false;
+    private Evaluator() {
     }
 
     /**
@@ -60,7 +45,7 @@ public class CPUtils {
             return Value.makeConstant(((IntLiteral) exp).getValue());
         } else if (exp instanceof Var var) {
             // treat the values of non-int variables as NAC
-            return canHoldInt(var) ? in.get(var) : Value.getNAC();
+            return Exps.holdsInt(var) ? in.get(var) : Value.getNAC();
         } else if (exp instanceof BinaryExp binary) {
             BinaryExp.Op op = binary.getOperator();
             Value v1 = evaluate(binary.getOperand1(), in);

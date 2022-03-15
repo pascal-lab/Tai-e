@@ -50,8 +50,8 @@ public class ConditionExp extends AbstractBinaryExp {
 
     @Override
     protected void validate() {
-        assert (isIntLike(operand1) && isIntLike(operand2)) ||
-                (isReference(operand1) && isReference(operand2));
+        assert (Exps.holdsInt(operand1) && Exps.holdsInt(operand2)) ||
+                (Exps.holdsReference(operand1) && Exps.holdsReference(operand2));
     }
 
     @Override

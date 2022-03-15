@@ -20,6 +20,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.Exps;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.If;
@@ -69,7 +70,7 @@ public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
             CPFact entryFact = newInitialFact();
             ir.getParams()
                     .stream()
-                    .filter(CPUtils::canHoldInt)
+                    .filter(Exps::holdsInt)
                     .forEach(p -> entryFact.update(p, Value.getNAC()));
             return entryFact;
         }
@@ -115,8 +116,8 @@ public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
                             changed |= out.update(inVar, in.get(inVar));
                         }
                     }
-                    return CPUtils.canHoldInt(lhs) ?
-                            out.update(lhs, CPUtils.evaluate(rhs, in)) || changed :
+                    return Exps.holdsInt(lhs) ?
+                            out.update(lhs, Evaluator.evaluate(rhs, in)) || changed :
                             changed;
                 }
             }

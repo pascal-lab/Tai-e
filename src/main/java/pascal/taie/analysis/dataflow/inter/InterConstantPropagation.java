@@ -40,7 +40,7 @@ import pascal.taie.util.collection.MultiMap;
 
 import java.util.List;
 
-import static pascal.taie.analysis.dataflow.analysis.constprop.CPUtils.canHoldInt;
+import static pascal.taie.ir.exp.Exps.holdsInt;
 
 /**
  * Implementation of interprocedural constant propagation for int values.
@@ -99,12 +99,12 @@ public class InterConstantPropagation extends
         MultiMap<JField, LoadField> staticLoads = Maps.newMultiMap();
         for (Stmt s : icfg) {
             if (s instanceof StoreField store) {
-                if (store.isStatic() && canHoldInt(store.getRValue())) {
+                if (store.isStatic() && holdsInt(store.getRValue())) {
                     staticStores.put(store.getFieldRef().resolve(), store);
                 }
             }
             if (s instanceof LoadField load) {
-                if (load.isStatic() && canHoldInt(load.getLValue())) {
+                if (load.isStatic() && holdsInt(load.getLValue())) {
                     staticLoads.put(load.getFieldRef().resolve(), load);
                 }
             }
@@ -134,7 +134,7 @@ public class InterConstantPropagation extends
         pointedBy.forEachSet((unused, aliases) -> {
             for (Var v : aliases) {
                 for (StoreField store : v.getStoreFields()) {
-                    if (!store.isStatic() && canHoldInt(store.getRValue())) {
+                    if (!store.isStatic() && holdsInt(store.getRValue())) {
                         JField storedField = store.getFieldRef().resolve();
                         aliases.forEach(u ->
                                 u.getLoadFields().forEach(load -> {
@@ -148,7 +148,7 @@ public class InterConstantPropagation extends
                     }
                 }
                 for (StoreArray store : v.getStoreArrays()) {
-                    if (canHoldInt(store.getRValue())) {
+                    if (holdsInt(store.getRValue())) {
                         for (Var u : aliases) {
                             for (LoadArray load : u.getLoadArrays()) {
                                 arrayStoreToLoads.put(store, load);
@@ -324,7 +324,7 @@ public class InterConstantPropagation extends
         for (int i = 0; i < args.size(); ++i) {
             Var arg = args.get(i);
             Var param = params.get(i);
-            if (canHoldInt(param)) {
+            if (holdsInt(param)) {
                 Value argValue = callSiteOut.get(arg);
                 result.update(param, argValue);
             }
@@ -337,7 +337,7 @@ public class InterConstantPropagation extends
         // Passing return value to the LHS of the call statement
         Var lhs = ((Invoke) edge.getCallSite()).getResult();
         CPFact result = newInitialFact();
-        if (lhs != null && canHoldInt(lhs)) {
+        if (lhs != null && holdsInt(lhs)) {
             Value retValue = edge.getReturnVars()
                     .stream()
                     .map(returnOut::get)
