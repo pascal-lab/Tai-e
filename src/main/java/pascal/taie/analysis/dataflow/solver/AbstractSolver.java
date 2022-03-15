@@ -15,7 +15,7 @@ package pascal.taie.analysis.dataflow.solver;
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.CFGNodeMapper;
+import pascal.taie.analysis.graph.cfg.CFGNodeIndexer;
 import pascal.taie.util.collection.IndexMap;
 
 /**
@@ -40,10 +40,10 @@ abstract class AbstractSolver<Node, Fact> implements Solver<Node, Fact> {
      */
     private DataflowResult<Node, Fact> initialize(DataflowAnalysis<Node, Fact> analysis) {
         CFG<Node> cfg = analysis.getCFG();
-        var mapper = new CFGNodeMapper<>(cfg);
+        var indexer = new CFGNodeIndexer<>(cfg);
         DataflowResult<Node, Fact> result = new DataflowResult<>(
-                new IndexMap<>(mapper, cfg.getNumberOfNodes()),
-                new IndexMap<>(mapper, cfg.getNumberOfNodes()));
+                new IndexMap<>(indexer, cfg.getNumberOfNodes()),
+                new IndexMap<>(indexer, cfg.getNumberOfNodes()));
         if (analysis.isForward()) {
             initializeForward(analysis, result);
         } else {

@@ -27,7 +27,7 @@ import pascal.taie.util.AnalysisException;
 /**
  * Provides utilities for constant propagation. Since some functions are used
  * not only by {@link ConstantPropagation} by also other classes, we extract
- * these functions to make them easily accessible.
+ * these functions to here to make them easily accessible.
  */
 public class CPUtils {
 
@@ -39,15 +39,11 @@ public class CPUtils {
      */
     public static boolean canHoldInt(Var var) {
         Type type = var.getType();
-        if (type instanceof PrimitiveType) {
-            switch ((PrimitiveType) type) {
-                case BYTE:
-                case SHORT:
-                case INT:
-                case CHAR:
-                case BOOLEAN:
-                    return true;
-            }
+        if (type instanceof PrimitiveType primType) {
+            return switch (primType) {
+                case BYTE, SHORT, INT, CHAR, BOOLEAN -> true;
+                default -> false;
+            };
         }
         return false;
     }

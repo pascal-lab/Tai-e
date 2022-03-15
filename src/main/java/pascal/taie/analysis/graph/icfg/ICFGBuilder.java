@@ -25,8 +25,8 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.ObjectIdMapper;
-import pascal.taie.util.SimpleMapper;
+import pascal.taie.util.Indexer;
+import pascal.taie.util.SimpleIndexer;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
@@ -63,9 +63,9 @@ public class ICFGBuilder extends ProgramAnalysis {
                         .collect(Collectors.joining("-")) + "-icfg.dot")
                 .toString();
         logger.info("Dumping ICFG to {} ...", dotPath);
-        ObjectIdMapper<Stmt> mapper = new SimpleMapper<>();
+        Indexer<Stmt> indexer = new SimpleIndexer<>();
         new DotDumper<Stmt>()
-                .setNodeToString(n -> Integer.toString(mapper.getId(n)))
+                .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
                 .setNodeLabeler(n -> toLabel(n, icfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))

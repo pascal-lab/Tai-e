@@ -15,12 +15,12 @@ package pascal.taie.analysis.dataflow.analysis;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.LocalVarMapper;
+import pascal.taie.ir.LocalVarIndexer;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.util.ObjectIdMapper;
-import pascal.taie.util.collection.MapperBitSet;
+import pascal.taie.util.Indexer;
+import pascal.taie.util.collection.IndexerBitSet;
 
 /**
  * Implementation of live variable analysis.
@@ -46,14 +46,14 @@ public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
         private final boolean strongly;
 
         /**
-         * Mapper for variables in the IR.
+         * Indexer for variables in the IR.
          */
-        private final ObjectIdMapper<Var> varMapper;
+        private final Indexer<Var> varIndexer;
 
         private Analysis(CFG<Stmt> cfg, boolean strongly) {
             super(cfg);
             this.strongly = strongly;
-            this.varMapper = new LocalVarMapper(cfg.getIR());
+            this.varIndexer = new LocalVarIndexer(cfg.getIR());
         }
 
         @Override
@@ -68,7 +68,7 @@ public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
 
         @Override
         public SetFact<Var> newInitialFact() {
-            return new SetFact<>(new MapperBitSet<>(varMapper));
+            return new SetFact<>(new IndexerBitSet<>(varIndexer));
         }
 
         @Override

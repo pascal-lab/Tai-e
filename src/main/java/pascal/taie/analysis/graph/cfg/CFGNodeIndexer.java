@@ -12,28 +12,22 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.Indexer;
 
 /**
- * Maintains mappings between nodes in given CFG and their indexes.
+ * Indexer for nodes in a CFG.
  *
  * @param <Node> type of CFG nodes.
  */
-public class CFGNodeMapper<Node> implements ObjectIdMapper<Node> {
-
-    private final CFG<Node> cfg;
-
-    public CFGNodeMapper(CFG<Node> cfg) {
-        this.cfg = cfg;
-    }
+public record CFGNodeIndexer<Node>(CFG<Node> cfg) implements Indexer<Node> {
 
     @Override
-    public int getId(Node node) {
+    public int getIndex(Node node) {
         return cfg.getIndex(node);
     }
 
     @Override
-    public Node getObject(int id) {
-        return cfg.getNode(id);
+    public Node getObject(int index) {
+        return cfg.getNode(index);
     }
 }

@@ -16,8 +16,8 @@ import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.ObjectIdMapper;
-import pascal.taie.util.SimpleMapper;
+import pascal.taie.util.Indexer;
+import pascal.taie.util.SimpleIndexer;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
@@ -36,9 +36,9 @@ public class CFGDumper {
      * Dumps the given CFG to .dot file.
      */
     static <N> void dumpDotFile(CFG<N> cfg) {
-        ObjectIdMapper<N> mapper = new SimpleMapper<>();
+        Indexer<N> indexer = new SimpleIndexer<>();
         new DotDumper<N>()
-                .setNodeToString(n -> Integer.toString(mapper.getId(n)))
+                .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
                 .setNodeLabeler(n -> toLabel(n, cfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))

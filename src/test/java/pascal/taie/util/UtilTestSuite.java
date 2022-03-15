@@ -14,10 +14,10 @@ package pascal.taie.util;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import pascal.taie.util.collection.GenericBitSetTest;
 import pascal.taie.util.collection.ArrayMapTest;
 import pascal.taie.util.collection.ArraySetTest;
 import pascal.taie.util.collection.BitSetTest;
+import pascal.taie.util.collection.GenericBitSetTest;
 import pascal.taie.util.collection.HybridArrayHashMapTest;
 import pascal.taie.util.collection.HybridArrayHashSetTest;
 import pascal.taie.util.collection.IndexMapTest;
@@ -46,7 +46,7 @@ import pascal.taie.util.graph.GraphTest;
         // graph
         GraphTest.class,
         // others
-        MapperTest.class,
+        IndexerTest.class,
 })
 public class UtilTestSuite {
 }

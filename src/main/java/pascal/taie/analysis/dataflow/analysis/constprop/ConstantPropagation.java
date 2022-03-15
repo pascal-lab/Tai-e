@@ -66,7 +66,7 @@ public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
 
         public CPFact newBoundaryFact(IR ir) {
             // make conservative assumption about parameters: assign NAC to them
-            CPFact entryFact = new CPFact();
+            CPFact entryFact = newInitialFact();
             ir.getParams()
                     .stream()
                     .filter(CPUtils::canHoldInt)

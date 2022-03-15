@@ -14,7 +14,7 @@ package pascal.taie.util.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
-import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.Indexer;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -24,22 +24,21 @@ import static org.junit.Assert.assertEquals;
 
 public class IndexMapTest {
 
-    private static final ObjectIdMapper<Integer> mapper
-            = new ObjectIdMapper<>() {
+    private static final Indexer<Integer> indexer = new Indexer<>() {
 
         @Override
-        public int getId(Integer i) {
+        public int getIndex(Integer i) {
             return i;
         }
 
         @Override
-        public Integer getObject(int id) {
-            return id;
+        public Integer getObject(int index) {
+            return index;
         }
     };
 
     private static Map<Integer, String> makeMap() {
-        Map<Integer, String> m = new IndexMap<>(mapper, 6);
+        Map<Integer, String> m = new IndexMap<>(indexer, 6);
         m.put(1, "one");
         m.put(3, "three");
         m.put(4, "four");

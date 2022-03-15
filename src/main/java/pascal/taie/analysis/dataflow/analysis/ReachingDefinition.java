@@ -14,15 +14,15 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.CFGNodeMapper;
+import pascal.taie.analysis.graph.cfg.CFGNodeIndexer;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.LocalVarMapper;
+import pascal.taie.ir.LocalVarIndexer;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.IndexMap;
-import pascal.taie.util.collection.MapperBitSet;
+import pascal.taie.util.collection.IndexerBitSet;
 
 import java.util.Map;
 
@@ -42,9 +42,9 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
     private static class Analysis extends AbstractDataflowAnalysis<Stmt, SetFact<Stmt>> {
 
         /**
-         * Mapper for Stmts (nodes) in the CFG.
+         * Indexer for stmts (nodes) in the CFG.
          */
-        private final ObjectIdMapper<Stmt> stmtMapper;
+        private final Indexer<Stmt> stmtIndexer;
 
         /**
          * Maps a variable to all statements that define it.
@@ -56,7 +56,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         private Analysis(CFG<Stmt> cfg) {
             super(cfg);
-            stmtMapper = new CFGNodeMapper<>(cfg);
+            stmtIndexer = new CFGNodeIndexer<>(cfg);
             defs = computeDefs(cfg.getIR());
         }
 
@@ -65,7 +65,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
          */
         private  Map<Var, SetFact<Stmt>> computeDefs(IR ir) {
             Map<Var, SetFact<Stmt>> defs = new IndexMap<>(
-                    new LocalVarMapper(ir),
+                    new LocalVarIndexer(ir),
                     ir.getVars().size());
             for (Stmt stmt : ir) {
                 stmt.getDef().ifPresent(def -> {
@@ -90,7 +90,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         @Override
         public SetFact<Stmt> newInitialFact() {
-            return new SetFact<>(new MapperBitSet<>(stmtMapper));
+            return new SetFact<>(new IndexerBitSet<>(stmtIndexer));
         }
 
         @Override

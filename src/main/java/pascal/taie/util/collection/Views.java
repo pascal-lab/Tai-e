@@ -282,7 +282,7 @@ public final class Views {
      */
     public static <T> Set<T> toCombinedSet(
             Set<? extends T> set1, Set<? extends T> set2) {
-        return Collections.unmodifiableSet(new CombinedSetView<T>(set1, set2));
+        return Collections.unmodifiableSet(new CombinedSetView<>(set1, set2));
     }
 
     private static class CombinedSetView<T> extends AbstractSet<T> {

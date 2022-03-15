@@ -12,7 +12,7 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.ObjectIdMapper;
+import pascal.taie.util.Indexer;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractMap;
@@ -27,13 +27,13 @@ import java.util.Set;
 /**
  * Array-based implementation of the {@link Map} interface.
  * <p>
- * This implementation requires a {@link ObjectIdMapper}, which computes
+ * This implementation requires a {@link Indexer}, which provides
  * a unique index for each key object that could be put into this map.
- * Since the mapper maintains the mappings between objects and indexes,
+ * Since the indexer maintains the mappings between objects and indexes,
  * this map does not need to store the keys, and it only keeps an array
  * ({@code values}) of the corresponding values.
- * A key object would be mapped to an {@code index} by the mapper.
- * If {@code values[index]} if {@code null}, it means that the corresponding
+ * A key object would be indexed to {@code index} by the indexer.
+ * If {@code values[index]} is {@code null}, it means that the corresponding
  * key is absent in this map. Hence, it does not permit {@code null} values.
  * <p>
  * The capacity of each map is <b>fixed</b>, and only the numbers in [0, capacity)
@@ -43,7 +43,7 @@ import java.util.Set;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *
- * @see ObjectIdMapper
+ * @see Indexer
  *
  * TODO: add mod count
  */
@@ -51,7 +51,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     private static final String NULL_VALUE_MSG = "IndexMap does not permit null values";
 
-    private final ObjectIdMapper<K> mapper;
+    private final Indexer<K> indexer;
 
     private final V[] values;
 
@@ -61,8 +61,8 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     private Set<K> keySet;
 
-    public IndexMap(ObjectIdMapper<K> mapper, int capacity) {
-        this.mapper = mapper;
+    public IndexMap(Indexer<K> indexer, int capacity) {
+        this.indexer = indexer;
         this.values = (V[]) new Object[capacity];
     }
 
@@ -82,7 +82,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        int index = mapper.getId((K) key);
+        int index = indexer.getIndex((K) key);
         return isValidIndex(index) && values[index] != null;
     }
 
@@ -92,14 +92,14 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public V get(Object key) {
-        int index = mapper.getId((K) key);
+        int index = indexer.getIndex((K) key);
         return isValidIndex(index) ? values[index] : null;
     }
 
     @Override
     public V put(K key, V value) {
         Objects.requireNonNull(value, NULL_VALUE_MSG);
-        int index = mapper.getId(key);
+        int index = indexer.getIndex(key);
         if (isValidIndex(index)) {
             V oldV = values[index];
             values[index] = value;
@@ -109,13 +109,13 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
             return oldV;
         } else {
             throw new IllegalArgumentException(
-                    key + " cannot be properly indexed by " + mapper);
+                    key + " cannot be properly indexed by " + indexer);
         }
     }
 
     @Override
     public V remove(Object key) {
-        int index = mapper.getId((K) key);
+        int index = indexer.getIndex((K) key);
         if (isValidIndex(index)) {
             V oldV = values[index];
             if (oldV != null) {
@@ -156,7 +156,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
         public boolean remove(Object o) {
             if (o instanceof Map.Entry<?, ?> e) {
                 Object key = e.getKey();
-                int index = mapper.getId((K) key);
+                int index = indexer.getIndex((K) key);
                 if (isValidIndex(index)) {
                     V v = values[index];
                     if (v != null && v.equals(e.getValue())) {
@@ -258,7 +258,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
         private MapEntry(int index) {
             this.index = index;
-            this.key = mapper.getObject(index);
+            this.key = indexer.getObject(index);
         }
 
         @Override
