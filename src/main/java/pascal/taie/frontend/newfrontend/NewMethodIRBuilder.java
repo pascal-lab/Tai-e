@@ -1260,6 +1260,20 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            private void genAllFinBlock(Runnable r) {
+                for (var i : context.getContextCtrlList()) {
+                    if (BlockLabelGenerator.isTryBlock(i) || BlockLabelGenerator.isCatchBlock(i)) {
+                        Block fin = context.getFinallyBlockBy(i);
+                        context.getExceptionManager().pauseRecording(i);
+                        if (fin != null) {
+                            fin.accept(this);
+                        }
+                    }
+                }
+                r.run();
+                context.getExceptionManager().continueRecordAll();
+            }
+
             @Override
             public boolean visit(ReturnStatement rs) {
                 var exp = rs.getExpression();
@@ -1267,10 +1281,10 @@ public class NewMethodIRBuilder {
                 if (exp != null) {
                     visitExp(exp);
                     retVar = popVar(getReturnType());
-                    addStmt(new Return(retVar));
+                    genAllFinBlock(() -> addStmt(new Return(retVar)));
                     addRetVar(retVar);
                 } else {
-                    addStmt(new Return());
+                    genAllFinBlock(() -> addStmt(new Return()));
                 }
                 return false;
             }
