@@ -24,7 +24,6 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
-import pascal.taie.language.classes.Signatures;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
@@ -36,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
 
 public final class TypeUtils {
 
@@ -58,7 +59,7 @@ public final class TypeUtils {
         } else if (iTypeBinding.isArray()) {
             return getErasedName(iTypeBinding.getComponentType()) + "[]";
         }
-        return iTypeBinding.getErasure().getBinaryName();
+        return getBinaryName(iTypeBinding);
     }
 
     /**
@@ -125,7 +126,7 @@ public final class TypeUtils {
             var tm = WorldParaHolder.getTypeSystem();
             var loader = WorldParaHolder.getClassLoader();
             if (erased.isClass() || erased.isInterface() || erased.isEnum()) {
-                return tm.getType(loader, erased.getBinaryName());
+                return tm.getType(loader, getBinaryName(erased));
             } else if (erased.isArray()) {
                 return tm.getArrayType(JDTTypeToTaieType(erased.getElementType()), erased.getDimensions());
             }
@@ -134,7 +135,7 @@ public final class TypeUtils {
     }
 
     public static JClass getTaieClass(ITypeBinding binding) {
-        return World.get().getClassHierarchy().getClass(binding.getErasure().getBinaryName());
+        return World.get().getClassHierarchy().getClass(getBinaryName(binding));
     }
 
     public static Literal getRightPrimitiveLiteral(Expression e) {

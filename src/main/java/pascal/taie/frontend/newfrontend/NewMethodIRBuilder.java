@@ -50,12 +50,15 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -121,7 +124,6 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
@@ -142,6 +144,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getInitRef;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
@@ -151,6 +154,7 @@ import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getTaieClass;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getWidenType;
 
@@ -186,7 +190,7 @@ public class NewMethodIRBuilder {
         this.methodName = method.getName();
         this.jMethod = jMethod;
         this.methodSig = method.getSubSignature();
-        this.className = method.getDeclaringClass().getName();
+        this.className = jMethod.getDeclaringClass().getName();
         this.notHandle = checkIfNotHandle(method);
 
         if (!WorldParaHolder.isWorldReady()) {
@@ -255,11 +259,20 @@ public class NewMethodIRBuilder {
         this.targetMethod = preTargetMethod.get();
         try {
             var generator = new IRGenerator();
-            return Optional.of(generator.build());
+            return Optional.empty();
+            // return Optional.of(generator.build());
         } catch (NewFrontendException e) {
             logger.error(e.getMessage(), e);
             return Optional.empty();
         }
+    }
+
+    private MethodDeclaration getTargetMethod() {
+        return targetMethod;
+    }
+
+    private boolean isTargetClass(ITypeBinding binding) {
+        return getBinaryName(binding).equals(className);
     }
 
     class IRGenerator {
@@ -276,7 +289,6 @@ public class NewMethodIRBuilder {
 
         private final List<Var> params;
 
-        private final Map<IBinding, Var> bindingVarMap;
 
         private final List<Var> vars;
 
@@ -298,7 +310,6 @@ public class NewMethodIRBuilder {
             stmts = new ArrayList<>();
             params = new ArrayList<>();
             vars = new ArrayList<>();
-            bindingVarMap = Maps.newMap();
             tempCounter = 0;
             context = new VisitorContext();
             stmtVisitor = new StmtGenerateVisitor(context);
@@ -356,17 +367,9 @@ public class NewMethodIRBuilder {
             return var;
         }
 
-        private Var getBinding(IBinding binding) {
-            return bindingVarMap.computeIfAbsent(binding, (b) -> {
-                var v = newVar(b.getName(), TypeUtils.JDTTypeToTaieType(((IVariableBinding) b).getType()));
-                return v;
-            });
-        }
-
         private Type getReturnType() {
             return jMethod.getReturnType();
         }
-
 
         /**
          * @apiNote Important: {@code stmt} is illegal before use this function to convert
@@ -398,7 +401,7 @@ public class NewMethodIRBuilder {
                 var type = TypeUtils.JDTTypeToTaieType(svd.getType().resolveBinding());
                 var aVar = newVar(nameString, type);
                 params.add(aVar);
-                bindingVarMap.put(name.resolveBinding(), aVar);
+                context.putBinding((IVariableBinding) name.resolveBinding(), aVar);
             }
         }
 
@@ -422,6 +425,8 @@ public class NewMethodIRBuilder {
         }
 
         private Stmt getStmt(int i ) { return stmts.get(i); }
+
+        private Var getThisVar() { return thisVar; }
 
         record ExceptionHandler(String target, Type type, String handler) { }
 
@@ -562,7 +567,7 @@ public class NewMethodIRBuilder {
             private final Map<Integer, Var> intLiteralMap;
             private final Map<Integer, List<String>> switchMap;
             private final Map<Integer, String> switchDefaultMap;
-
+            private final Map<IVariableBinding, Exp> bindingVarMap;
             private final LinkedList<String> contextCtrlList;
 
             public VisitorContext() {
@@ -579,6 +584,7 @@ public class NewMethodIRBuilder {
                 this.intLiteralMap = Maps.newMap();
                 this.switchMap = Maps.newMap();
                 this.switchDefaultMap = Maps.newMap();
+                this.bindingVarMap = Maps.newMap();
             }
 
             public void pushStack(Exp exp) {
@@ -771,6 +777,13 @@ public class NewMethodIRBuilder {
                 }
             }
 
+            public Map<IVariableBinding, Exp> getBindingVarMap() {
+                return this.bindingVarMap;
+            }
+
+            public void putBinding(IVariableBinding binding, Var v) {
+                bindingVarMap.put(binding, v);
+            }
         }
 
         class LinenoASTVisitor extends ASTVisitor {
@@ -1240,6 +1253,91 @@ public class NewMethodIRBuilder {
                     visitStmt(i);
                 }
             }
+
+            protected Exp getNewSimpleNameBinding(IVariableBinding binding) {
+                // first, we check if it's a field
+                if (binding.isField()) {
+                    if (Modifier.isStatic(binding.getModifiers())) {
+                        // 1. if this variable is a static field
+                        return getSimpleField(binding, null);
+                    }
+                    else if (isTargetClass(binding.getDeclaringClass())) {
+                        // 2. this variable is an instance field, and this field belongs to this class instance
+                        return getSimpleField(binding, getThisVar());
+                    } else {
+                        // 3. if reach here, this variable must be an instance field of outer class
+                        return getOuterClassField(binding, getThisVar());
+                    }
+                } else {
+                    if (getTargetMethod().resolveBinding().isSubsignature(binding.getDeclaringMethod())) {
+                        // 4. this is a variable defined in local scope
+                        return newVar(binding.getName(), JDTTypeToTaieType(binding.getType()));
+                    } else {
+                        // 5. this is a variable captured by local class
+                        FieldRef ref = FieldRef.get(targetClass,
+                                InnerClassManager.getCaptureName(binding.getName()),
+                                JDTTypeToTaieType(binding.getType()), false);
+                        return new InstanceFieldAccess(ref, getThisVar());
+                    }
+                }
+            }
+
+            /**
+             * get the binding for [SimpleName]
+             */
+            protected Exp getSimpleNameBinding(IVariableBinding binding) {
+                return context.getBindingVarMap().computeIfAbsent(binding,
+                        this::getNewSimpleNameBinding);
+            }
+
+            protected FieldAccess getSimpleField(IVariableBinding binding, Var object) {
+                ITypeBinding declClass = binding.getDeclaringClass();
+                JClass jClass = getTaieClass(declClass);
+                ITypeBinding fieldType = binding.getType();
+                Type taieType = JDTTypeToTaieType(fieldType);
+                boolean isStatic = Modifier.isStatic(binding.getModifiers());
+                FieldRef ref = FieldRef.get(jClass, binding.getName(), taieType, isStatic);
+
+                if (isStatic) {
+                    return new StaticFieldAccess(ref);
+                } else {
+                    return new InstanceFieldAccess(ref, object);
+                }
+            }
+
+            protected FieldAccess getOuterClass(IVariableBinding binding, Var thisVar) {
+                return getOuterClass(binding.getDeclaringClass(), thisVar);
+            }
+
+            protected FieldAccess getOuterClass(ITypeBinding outerClass, Var thisVar) {
+                JClass targetOuterClass = getTaieClass(outerClass);
+                assert targetClass != null;
+                JClass nowClass = targetClass;
+                FieldRef ref;
+                context.pushStack(thisVar);
+                do {
+                    thisVar = popVar();
+                    ref = InnerClassManager.get().getOuterClassRef(nowClass);
+                    nowClass = nowClass.getOuterClass();
+                    if (nowClass == null || ref == null) {
+                        throw new NewFrontendException("failed to resolve outer class: " + outerClass);
+                    }
+                    context.pushStack(new InstanceFieldAccess(ref, thisVar));
+                } while (! targetOuterClass.equals(nowClass));
+                return (InstanceFieldAccess) context.popStack();
+            }
+
+            protected FieldAccess getOuterClassField(IVariableBinding binding, Var thisVar) {
+                return getSimpleField(binding, expToVar(getOuterClass(binding, thisVar)));
+            }
+
+            protected Var getOuterClassOrThis(ITypeBinding type) {
+                if (isTargetClass(type)) {
+                    return getThisVar();
+                } else {
+                    return expToVar(getOuterClass(type, getThisVar()));
+                }
+            }
         }
 
         class StmtGenerateVisitor extends LinenoASTVisitor {
@@ -1249,6 +1347,21 @@ public class NewMethodIRBuilder {
             }
 
             public boolean visit(EmptyStatement es) {
+                return false;
+            }
+
+            @Override
+            public boolean visit(TypeDeclarationStatement tds) {
+                var decl = tds.getDeclaration();
+                if (decl instanceof TypeDeclaration td) {
+                    InnerClassManager.get().addLocalClass(
+                            td,
+                            getTargetMethod().resolveBinding(),
+                            // note: this function just used to handle local variable, so it must return a [Var]
+                            (k) -> (Var) getSimpleNameBinding(k),
+                            getThisVar());
+                }
+                // if enum, not handle.
                 return false;
             }
 
@@ -1676,7 +1789,7 @@ public class NewMethodIRBuilder {
             //        +----------------+
             //        |  Switch Header |------+
             //        +----------------+<-----+
-            //        |  Defalut       |      |
+            //        |  Default       |      |
             //        +----------------+      |
             //   +----|  Goto End      |      |
             //   |    +----------------+<-----+
@@ -1790,22 +1903,6 @@ public class NewMethodIRBuilder {
                 }
             }
 
-
-            private FieldAccess handleField(IVariableBinding binding, Var object) {
-                ITypeBinding declClass = binding.getDeclaringClass();
-                JClass jClass = TypeUtils.getTaieClass(declClass);
-                ITypeBinding fieldType = binding.getType();
-                Type taieType = TypeUtils.JDTTypeToTaieType(fieldType);
-                boolean isStatic = Modifier.isStatic(binding.getModifiers());
-                FieldRef ref = FieldRef.get(jClass, binding.getName(), taieType, isStatic);
-
-                if (isStatic) {
-                    return new StaticFieldAccess(ref);
-                } else {
-                    return new InstanceFieldAccess(ref, object);
-                }
-            }
-
             private Var getThis(ITypeBinding classBinding) {
                 Type classType = TypeUtils.JDTTypeToTaieType(classBinding);
                 if (thisVar.getType().equals(classType)) {
@@ -1814,6 +1911,10 @@ public class NewMethodIRBuilder {
                     // TODO: check if it's correct for inner class
                     return newVar(THIS, classType);
                 }
+            }
+
+            private Var getThis() {
+                return thisVar;
             }
 
             private void genStringBuilderAppend(Var sb, List<Expression> exp) {
@@ -1848,12 +1949,7 @@ public class NewMethodIRBuilder {
             public boolean visit(SimpleName name) {
                 var binding = name.resolveBinding();
                 if (binding instanceof IVariableBinding binding1) {
-                    if (binding1.isField()) {
-                        context.pushStack(handleField(binding1,
-                                getThis(binding1.getDeclaringClass())));
-                    } else {
-                        context.pushStack(getBinding(binding));
-                    }
+                    context.pushStack(getSimpleNameBinding(binding1));
                     return false;
                 } else {
                     throw new NewFrontendException("Exp [ " + name + " ] can't be handled");
@@ -1867,10 +1963,10 @@ public class NewMethodIRBuilder {
                 SimpleName name1 = name.getName();
                 IBinding q = qualifier.resolveBinding();
                 if (q instanceof ITypeBinding) {
-                    context.pushStack(handleField((IVariableBinding) name1.resolveBinding(), null));
+                    context.pushStack(getSimpleField((IVariableBinding) name1.resolveBinding(), null));
                 } else if (q instanceof IVariableBinding) {
                     qualifier.accept(this);
-                    context.pushStack(handleField((IVariableBinding) name1.resolveBinding(), popVar()));
+                    context.pushStack(getSimpleField((IVariableBinding) name1.resolveBinding(), popVar()));
                 } else {
                     throw new NewFrontendException("Exp [ " + name + " ] can't be handled");
                 }
@@ -1923,10 +2019,6 @@ public class NewMethodIRBuilder {
                     default -> throw new NewFrontendException("Operator <" + exp.getOperator() + "> not implement");
                 }
             }
-
-
-
-
 
             @Override
             public boolean visit(ParenthesizedExpression exp) {
@@ -1994,16 +2086,12 @@ public class NewMethodIRBuilder {
                 }
                 // here, if [object] is [null], we can confirm it's a call to [this]
                 Var o;
-                boolean checkInterface;
-                // TODO: not correct! what if this is inner class?
+                boolean checkInterface = binding.getDeclaringClass().isInterface();
                 if (object == null) {
-                    o = thisVar;
-                    assert targetClass != null;
-                    checkInterface = targetClass.isInterface();
+                    o = getOuterClassOrThis(binding.getDeclaringClass());
                 } else {
                     object.accept(this);
                     o = popVar();
-                    checkInterface = object.resolveTypeBinding().isInterface();
                 }
                 // 2. if the type [object] is [Interface], then use [InvokeInterface]
                 // TODO: implement [JEP 181](https://openjdk.java.net/jeps/181)
@@ -2035,19 +2123,6 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
-            @Override
-            public boolean visit(ThisExpression te) {
-                Name name = te.getQualifier();
-                if (name != null) {
-                    Type t = TypeUtils.JDTTypeToTaieType(name.resolveTypeBinding());
-                    Var v = newVar(THIS, t);
-                    context.pushStack(v);
-                } else {
-                    context.pushStack(thisVar);
-                }
-                return false;
-            }
-
             @SuppressWarnings("unchecked")
             @Override
             public boolean visit(ClassInstanceCreation cic) {
@@ -2059,7 +2134,6 @@ public class NewMethodIRBuilder {
                 context.pushStack(temp);
                 return false;
             }
-
 
             private void initArr(Expression exp, LValue access) {
                 if (exp instanceof ArrayInitializer init) {
@@ -2212,6 +2286,38 @@ public class NewMethodIRBuilder {
             public boolean visit(ConditionalExpression ce) {
                 Exp e = genCondExpression(ce);
                 context.pushStack(e);
+                return false;
+            }
+
+            @Override
+            public boolean visit(org.eclipse.jdt.core.dom.FieldAccess fa) {
+                fa.getExpression().accept(this);
+                Var obj = popVar();
+                FieldAccess res = getSimpleField(fa.resolveFieldBinding(), obj);
+                context.pushStack(res);
+                return false;
+            }
+
+            @Override
+            public boolean visit(SuperFieldAccess sfa) {
+                IVariableBinding binding = sfa.resolveFieldBinding();
+                JClass c = getTaieClass(binding.getDeclaringClass());
+                JClass superClass = c.getSuperClass();
+                FieldRef ref = FieldRef.get(superClass, binding.getName(),
+                        JDTTypeToTaieType(binding.getType()), false);
+                FieldAccess res = new InstanceFieldAccess(ref, getThis());
+                context.pushStack(res);
+                return false;
+            }
+
+            @Override
+            public boolean visit(ThisExpression te) {
+                if (te.getQualifier() == null) {
+                    context.pushStack(getThisVar());
+                } else {
+                    context.pushStack(getOuterClass(
+                            te.getQualifier().resolveTypeBinding(), getThisVar()));
+                }
                 return false;
             }
         }
