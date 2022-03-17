@@ -2086,6 +2086,43 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            void genOtherAssign(Assignment ass, BiFunction<Var, Var, Exp> f) {
+                ass.getLeftHandSide().accept(this);
+                LValue l = popLValue();
+                ass.getRightHandSide().accept(this);
+                Var v1 = expToVar(l);
+                Var v2 = popVar(JDTTypeToTaieType(ass.resolveTypeBinding()));
+                newAssignment(l, f.apply(v1, v2));
+                context.pushStack(l);
+            }
+
+            void genOtherAssign(Assignment ass) {
+                switch (ass.getOperator().toString()) {
+                    case "+=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ArithmeticExp(ArithmeticExp.Op.ADD, v1, v2));
+                    case "-=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ArithmeticExp(ArithmeticExp.Op.SUB, v1, v2));
+                    case "*=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ArithmeticExp(ArithmeticExp.Op.MUL, v1, v2));
+                    case "/=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ArithmeticExp(ArithmeticExp.Op.DIV, v1, v2));
+                    case "&=" -> genOtherAssign(ass, (v1, v2) ->
+                            new BitwiseExp(BitwiseExp.Op.AND, v1, v2));
+                    case "|=" -> genOtherAssign(ass, (v1, v2) ->
+                            new BitwiseExp(BitwiseExp.Op.OR, v1, v2));
+                    case "^=" -> genOtherAssign(ass, (v1, v2) ->
+                            new BitwiseExp(BitwiseExp.Op.XOR, v1, v2));
+                    case "%=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ArithmeticExp(ArithmeticExp.Op.REM, v1, v2));
+                    case ">>=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ShiftExp(ShiftExp.Op.SHR, v1, v2));
+                    case "<<=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ShiftExp(ShiftExp.Op.SHL, v1, v2));
+                    case ">>>=" -> genOtherAssign(ass, (v1, v2) ->
+                            new ShiftExp(ShiftExp.Op.USHR, v1, v2));
+                }
+            }
+
             @Override
             public boolean visit(Assignment ass) {
                 var lExp = ass.getLeftHandSide();
@@ -2094,7 +2131,11 @@ public class NewMethodIRBuilder {
                 // tai-e ir need to put literal into result var
                 // so just visit left will not output the correct ir
                 // this need to be carefully handled
-                handleAssignment(lExp, rExp);
+                if ("=".equals(ass.getOperator().toString())) {
+                    handleAssignment(lExp, rExp);
+                } else {
+                    genOtherAssign(ass);
+                }
                 return false;
             }
 

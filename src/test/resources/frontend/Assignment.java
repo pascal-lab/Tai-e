@@ -9,4 +9,19 @@ class Assignment {
     public void g(int x, int y) {
         int x1 = x + 3, y1 = y + 2;
     }
+
+    private int a;
+    public void k() {
+        int x = 10;
+        int q = (x += 10);
+        q /= 20;
+        q -= 20;
+        q = (q += 20);
+        this.a &= 20;
+        this.a |= 20;
+        this.a %= 20;
+        this.a >>= 20;
+        this.a <<= 20;
+        this.a >>>= 20;
+    }
 }
