@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -78,6 +79,7 @@ import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
@@ -108,6 +110,7 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
@@ -1021,6 +1024,8 @@ public class NewMethodIRBuilder {
                         addStmt(new Cast(v, exp));
                     } else if (right instanceof UnaryExp u) {
                         addStmt(new Unary(v, u));
+                    } else if (right instanceof InstanceOfExp i) {
+                        addStmt(new InstanceOf(v, i));
                     }
                     else {
                         throw new NewFrontendException(right + " is not implemented");
@@ -1063,7 +1068,8 @@ public class NewMethodIRBuilder {
                         || exp instanceof FieldAccess
                         || exp instanceof ArrayAccess
                         || exp instanceof NewExp
-                        || exp instanceof CastExp) {
+                        || exp instanceof CastExp
+                        || exp instanceof InstanceOfExp) {
                     var v = newTempVar(exp.getType());
                     newAssignment(v, exp);
                     return v;
@@ -2447,6 +2453,14 @@ public class NewMethodIRBuilder {
                     context.pushStack(getOuterClass(
                             te.getQualifier().resolveTypeBinding(), getThisVar()));
                 }
+                return false;
+            }
+
+            @Override
+            public boolean visit(InstanceofExpression ie) {
+                ie.getLeftOperand().accept(this);
+                Type t = JDTTypeToTaieType(ie.getRightOperand().resolveBinding());
+                context.pushStack(new InstanceOfExp(popVar(), t));
                 return false;
             }
         }
