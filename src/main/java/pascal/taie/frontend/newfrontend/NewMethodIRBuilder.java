@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
@@ -88,12 +89,14 @@ import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
+import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
+import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -117,6 +120,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
+import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -259,8 +263,7 @@ public class NewMethodIRBuilder {
         this.targetMethod = preTargetMethod.get();
         try {
             var generator = new IRGenerator();
-            return Optional.empty();
-            // return Optional.of(generator.build());
+            return Optional.of(generator.build());
         } catch (NewFrontendException e) {
             logger.error(e.getMessage(), e);
             return Optional.empty();
@@ -564,11 +567,12 @@ public class NewMethodIRBuilder {
             private final ExceptionEntryManager exceptionManager;
             private final Map<String, Block> finallyBlockMap;
             private final Map<String, String> finallyLabelMap;
-            private final Map<Integer, Var> intLiteralMap;
             private final Map<Integer, List<String>> switchMap;
             private final Map<Integer, String> switchDefaultMap;
             private final Map<IVariableBinding, Exp> bindingVarMap;
             private final LinkedList<String> contextCtrlList;
+
+            private final Stack<Boolean> flowStack;
 
             public VisitorContext() {
                 this.blockMap = Maps.newMap();
@@ -581,10 +585,10 @@ public class NewMethodIRBuilder {
                 this.contextCtrlList = new LinkedList<>();
                 this.finallyBlockMap = Maps.newMap();
                 this.finallyLabelMap = Maps.newMap();
-                this.intLiteralMap = Maps.newMap();
                 this.switchMap = Maps.newMap();
                 this.switchDefaultMap = Maps.newMap();
                 this.bindingVarMap = Maps.newMap();
+                this.flowStack = new Stack<>();
             }
 
             public void pushStack(Exp exp) {
@@ -613,6 +617,26 @@ public class NewMethodIRBuilder {
 
             public void addSwitchDefaultMap(int stmtIdx, String label) {
                 this.switchDefaultMap.put(stmtIdx, label);
+            }
+
+            public void pushFlow(boolean b) {
+                this.flowStack.push(b);
+            }
+
+            public boolean popFlow() {
+                return this.flowStack.pop();
+            }
+
+            public boolean popFlow(int n) {
+                boolean res = false;
+                for (var i = 0; i < n; ++i) {
+                    res |= popFlow();
+                }
+                return res;
+            }
+
+            public void resolveFlow(int n) {
+                pushFlow(popFlow(n));
             }
 
             private void buildUF(UnionFind uf) {
@@ -651,7 +675,7 @@ public class NewMethodIRBuilder {
              * this function will add the return
              */
             private void confirmNoDetach() {
-                if (assocList.size() != 0) {
+                if (assocList.size() != 0 && popFlow()) {
                     Stmt stmt = addStmt(-1, new Return());
                     for (var i : assocList) {
                         context.addBlockMap(i, stmt);
@@ -767,14 +791,7 @@ public class NewMethodIRBuilder {
             }
 
             public Var getInt(LinenoASTVisitor visitor, int i) {
-                if (this.intLiteralMap.containsKey(i)) {
-                    return intLiteralMap.get(i);
-                } else {
-                    Var v = newTempConstantVar(IntLiteral.get(i));
-                    intLiteralMap.put(i, v);
-                    visitor.newAssignment(v, IntLiteral.get(i));
-                    return v;
-                }
+                return visitor.expToVar(IntLiteral.get(i));
             }
 
             public Map<IVariableBinding, Exp> getBindingVarMap() {
@@ -1002,6 +1019,8 @@ public class NewMethodIRBuilder {
                         addStmt(new New(jMethod, v, exp));
                     } else if (right instanceof CastExp exp) {
                         addStmt(new Cast(v, exp));
+                    } else if (right instanceof UnaryExp u) {
+                        addStmt(new Unary(v, u));
                     }
                     else {
                         throw new NewFrontendException(right + " is not implemented");
@@ -1049,10 +1068,6 @@ public class NewMethodIRBuilder {
                     newAssignment(v, exp);
                     return v;
                 } else if (exp instanceof Literal l) {
-                    // TODO: hook all literal
-                    if (exp instanceof IntLiteral i) {
-                        return context.getInt(this, i.getValue());
-                    }
                     var v = newTempConstantVar(l);
                     newAssignment(v, exp);
                     return v;
@@ -1231,6 +1246,19 @@ public class NewMethodIRBuilder {
                 popControlFlow(trueLabel, falseLabel, next);
             }
 
+            protected void genBlock(List<Statement> l,
+                                    String label,
+                                    String continuation,
+                                    boolean needGoto) {
+                context.assocLabel(label);
+                genAnonBlock(l);
+                boolean next = context.popFlow();
+                if (next && needGoto) {
+                    addGoto(continuation);
+                }
+                context.pushFlow(next);
+            }
+
             protected InvokeExp genSimpleInvoke(Var v,
                                                 String methodName,
                                                 List<Var> args,
@@ -1248,10 +1276,14 @@ public class NewMethodIRBuilder {
                         List.of(v2), List.of(objType), PrimitiveType.BOOLEAN);
             }
 
-            protected void genStmts(List<Statement> stmts1) {
+            protected void genAnonBlock(List<Statement> stmts1) {
+                boolean nextOuter = true;
                 for (var i : stmts1) {
                     visitStmt(i);
+                    boolean next = context.popFlow();
+                    nextOuter &= next;
                 }
+                context.pushFlow(nextOuter);
             }
 
             protected Exp getNewSimpleNameBinding(IVariableBinding binding) {
@@ -1361,6 +1393,7 @@ public class NewMethodIRBuilder {
                             (k) -> (Var) getSimpleNameBinding(k),
                             getThisVar());
                 }
+                context.pushFlow(true);
                 // if enum, not handle.
                 return false;
             }
@@ -1369,21 +1402,25 @@ public class NewMethodIRBuilder {
             @Override
             public boolean visit(Block block) {
                 var stmts = block.statements();
-                genStmts(stmts);
+                genAnonBlock(stmts);
                 return false;
             }
 
             private void genAllFinBlock(Runnable r) {
+                boolean next = true;
                 for (var i : context.getContextCtrlList()) {
                     if (BlockLabelGenerator.isTryBlock(i) || BlockLabelGenerator.isCatchBlock(i)) {
                         Block fin = context.getFinallyBlockBy(i);
                         context.getExceptionManager().pauseRecording(i);
                         if (fin != null) {
                             fin.accept(this);
+                            next &= context.popFlow();
                         }
                     }
                 }
-                r.run();
+                if (next) {
+                    r.run();
+                }
                 context.getExceptionManager().continueRecordAll();
             }
 
@@ -1399,6 +1436,7 @@ public class NewMethodIRBuilder {
                 } else {
                     genAllFinBlock(() -> addStmt(new Return()));
                 }
+                context.pushFlow(false);
                 return false;
             }
 
@@ -1412,12 +1450,14 @@ public class NewMethodIRBuilder {
                 visitExp(ass);
                 // ignore the value of this assignment
                 popSideEffect();
+                context.pushFlow(true);
                 return false;
             }
 
             @Override
             public boolean visit(SingleVariableDeclaration svd) {
                 handleSingleVarDecl(svd);
+                context.pushFlow(true);
                 return false;
             }
 
@@ -1428,6 +1468,7 @@ public class NewMethodIRBuilder {
                     var singleDecl = (VariableDeclarationFragment) i;
                     handleSingleVarDecl(singleDecl);
                 }
+                context.pushFlow(true);
                 return false;
             }
 
@@ -1454,19 +1495,10 @@ public class NewMethodIRBuilder {
                 var falseLabel = context.getNewLabel();
                 var endLabel = context.getNewLabel();
                 transformCond(exp, trueLabel, falseLabel, true);
-                context.assocLabel(trueLabel);
-                thenStmt.accept(this);
-                if (elseStmt != null) {
-                    addCheckedGoto(endLabel);
-                }
-                // here, if [else] don't exist, falseLabel will assoc to end
-                // true statement will just fall through
-                context.assocLabel(falseLabel);
-                if (elseStmt != null) {
-                    elseStmt.accept(this);
-                }
-                // assoc label here to confirm breakLabel is legal
+                genBlock(List.of(thenStmt), trueLabel, endLabel, elseStmt != null);
+                genBlock(elseStmt == null ? List.of() : List.of(elseStmt), falseLabel, endLabel, false);
                 context.assocLabel(endLabel);
+                context.resolveFlow(elseStmt == null ? 1 : 2);
                 return false;
             }
 
@@ -1482,7 +1514,7 @@ public class NewMethodIRBuilder {
             //      |     +--------------+          |
             //      |     |   Updates    |          |
             //      |     +--------------+          |
-            //      |     |  goto Branch |----------+ *This goto can be checked*
+            //      |     |  goto Branch |----------+
             //      +---->+--------------+            (Break target)
             //            |    Break     |
             //            +--------------+
@@ -1511,6 +1543,9 @@ public class NewMethodIRBuilder {
                 }
                 addCheckedGoto(contLabel);
                 context.assocLabel(breakLabel);
+                // note: we consider a loop to always reach next
+                context.popFlow();
+                context.pushFlow(true);
             }
 
             @Override
@@ -1555,6 +1590,8 @@ public class NewMethodIRBuilder {
                 context.getContextCtrlList().removeFirst();
                 transformCond(exp, contLabel, breakLabel, false);
                 context.assocLabel(breakLabel);
+                context.popFlow();
+                context.pushFlow(true);
                 return false;
             }
 
@@ -1565,6 +1602,7 @@ public class NewMethodIRBuilder {
              * @param label may be null, break/continue label
              * @param brkOrCont 0 for break, 1 for continue
              */
+            @SuppressWarnings("unchecked")
             private void genContBrk(@Nullable SimpleName label, int brkOrCont) {
                 for (var i : context.getContextCtrlList()) {
                     if (BlockLabelGenerator.isTryBlock(i) ||
@@ -1576,7 +1614,8 @@ public class NewMethodIRBuilder {
                         // Generate this [Finally] Block
                         Block fin = context.getFinallyBlockBy(i);
                         if (fin != null) {
-                            fin.accept(this);
+                            genAnonBlock(fin.statements());
+                            context.popFlow();
                         }
                     } else {
                         if (label == null) {
@@ -1586,6 +1625,7 @@ public class NewMethodIRBuilder {
                             } else {
                                 addGoto(context.getContinueLabel(i));
                             }
+                            context.pushFlow(false);
                             // Continue recording for all outer [Try] block
                             // Because there might be other path in this [Try] block
                             context.getExceptionManager().continueRecordAll();
@@ -1597,6 +1637,7 @@ public class NewMethodIRBuilder {
                             } else {
                                 addGoto(context.getContinueLabel(i));
                             }
+                            context.pushFlow(false);
                             context.getExceptionManager().continueRecordAll();
                             return;
                         }
@@ -1653,7 +1694,9 @@ public class NewMethodIRBuilder {
                 body.accept(this);
                 context.getExceptionManager().endRecording(nowLabel);
                 context.getContextCtrlList().removeFirst();
-                addGoto(finLabel2);
+                if (context.popFlow()) {
+                    addGoto(finLabel2);
+                }
                 return nowLabel;
             }
 
@@ -1722,11 +1765,13 @@ public class NewMethodIRBuilder {
                     Var e = newTempVar(TypeUtils.anyException());
                     addStmt(new Catch(e));
                     finBlock.accept(this);
+                    context.popFlow();
                     addStmt(new Throw(e));
 
                     // generate finLabel2 block
                     context.assocLabel(finLabel2);
                     finBlock.accept(this);
+                    context.popFlow();
                 } else {
                     // if [finally] don't exist, we still assoc next statement with [finLabel2]
                     context.assocLabel(finLabel2);
@@ -1739,6 +1784,7 @@ public class NewMethodIRBuilder {
                 Expression e = thr.getExpression();
                 visitExp(e);
                 addStmt(new Throw(popVar()));
+                context.pushFlow(false);
                 return false;
             }
 
@@ -1856,17 +1902,13 @@ public class NewMethodIRBuilder {
                 genSwitchCtrl(isPrimitive, v, caseExps, targets, defaultLabel);
 
                 List<Statement> defaultStmts = blocks.get(defaultLabel);
+                int n = defaultStmts.size();
                 blocks.remove(defaultLabel);
-                context.assocLabel(defaultLabel);
-                genStmts(defaultStmts);
-                addCheckedGoto(end);
+                genBlock(defaultStmts, defaultLabel, end, true);
 
-                blocks.forEach((label, stmts) -> {
-                    context.assocLabel(label);
-                    genStmts(stmts);
-                    addGoto(end);
-                });
+                blocks.forEach((label, stmts) -> genBlock(stmts, label, end, true));
 
+                context.resolveFlow(n);
                 context.getContextCtrlList().removeFirst();
                 context.assocLabel(end);
                 return false;
@@ -1877,6 +1919,7 @@ public class NewMethodIRBuilder {
                 Expression exp = es.getExpression();
                 visitExp(exp);
                 popSideEffect();
+                context.pushFlow(true);
                 return false;
             }
         }
@@ -2271,12 +2314,37 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+
+            /**
+             * this function only handle (++) (--)
+             */
+            private void genPrefixExp(Expression operand, ArithmeticExp.Op op, ITypeBinding t) {
+                operand.accept(this);
+                LValue l = popLValue();
+                Type type = JDTTypeToTaieType(t);
+                Var v = expToVar(l, type);
+                newAssignment(l, new ArithmeticExp(op, v, context.getInt(this, 1)));
+                context.pushStack(v);
+            }
+
             @Override
             public boolean visit(PrefixExpression pe) {
                 switch (pe.getOperator().toString()) {
-                    case "!" -> {
-                        collectBoolEval(pe);
-                        return false;
+                    case "!" -> collectBoolEval(pe);
+                    case "++" -> genPrefixExp(pe.getOperand(), ArithmeticExp.Op.ADD, pe.resolveTypeBinding());
+                    case "--" -> genPrefixExp(pe.getOperand(), ArithmeticExp.Op.SUB, pe.resolveTypeBinding());
+                    case "~"  -> {
+                        // JLS7 pp. 499: In all cases, ~x equals (-x)-1
+                        pe.getOperand().accept(this);
+                        Var v = popVar(JDTTypeToTaieType(pe.resolveTypeBinding()));
+                        context.pushStack(new ArithmeticExp(ArithmeticExp.Op.SUB, v, context.getInt(this, 1)));
+                    }
+                    case "+" -> // in this case, there's nothing to do
+                            pe.getOperand().accept(this);
+                    case "-" -> {
+                        pe.getOperand().accept(this);
+                        Var v = popVar(JDTTypeToTaieType(pe.resolveTypeBinding()));
+                        context.pushStack(new NegExp(v));
                     }
                 }
                 return false;
@@ -2286,6 +2354,26 @@ public class NewMethodIRBuilder {
             public boolean visit(ConditionalExpression ce) {
                 Exp e = genCondExpression(ce);
                 context.pushStack(e);
+                return false;
+            }
+
+            private void genPostExp(Expression operand, ArithmeticExp.Op op, ITypeBinding t) {
+                operand.accept(this);
+                // operand must be an Expression Name
+                LValue l = popLValue();
+                Type type = JDTTypeToTaieType(t);
+                Var v = newTempVar(type);
+                newAssignment(v, l);
+                newAssignment(l, new ArithmeticExp(op, expToVar(l), context.getInt(this, 1)));
+                context.pushStack(v);
+            }
+
+            @Override
+            public boolean visit(PostfixExpression pe) {
+                switch (pe.getOperator().toString()) {
+                    case "++" -> genPostExp(pe.getOperand(), ArithmeticExp.Op.ADD, pe.resolveTypeBinding());
+                    case "--" -> genPostExp(pe.getOperand(), ArithmeticExp.Op.SUB, pe.resolveTypeBinding());
+                }
                 return false;
             }
 
