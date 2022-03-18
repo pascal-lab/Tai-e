@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.units.qual.A;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -24,6 +25,7 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -72,6 +74,7 @@ import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.CastExp;
@@ -156,8 +159,12 @@ import java.util.function.Function;
 import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getInitRef;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
+import static pascal.taie.frontend.newfrontend.TypeUtils.HAS_NEXT;
+import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR;
+import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR_TYPE;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getIterableInner;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
@@ -166,6 +173,7 @@ import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getTaieClass;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getWidenType;
+import static pascal.taie.frontend.newfrontend.TypeUtils.searchMethod;
 
 public class NewMethodIRBuilder {
     private static final Logger logger = LogManager.getLogger(NewMethodIRBuilder.class);
@@ -1071,7 +1079,8 @@ public class NewMethodIRBuilder {
                         || exp instanceof ArrayAccess
                         || exp instanceof NewExp
                         || exp instanceof CastExp
-                        || exp instanceof InstanceOfExp) {
+                        || exp instanceof InstanceOfExp
+                        || exp instanceof UnaryExp) {
                     var v = newTempVar(exp.getType());
                     newAssignment(v, exp);
                     return v;
@@ -1294,6 +1303,24 @@ public class NewMethodIRBuilder {
                 return new InvokeVirtual(r, v, args);
             }
 
+            protected InvokeExp genSimpleInterfaceInvoke(Var v,
+                                                         String methodName,
+                                                         List<Var> args,
+                                                         List<Type> paraType,
+                                                         Type retType) {
+                ClassType t = (ClassType) v.getType();
+                MethodRef r = MethodRef.get(t.getJClass(), methodName, paraType, retType, false);
+                return new InvokeInterface(r, v, args);
+            }
+
+            protected InvokeExp genInterfaceInvoke(Var v,
+                                                   IMethodBinding binding,
+                                                   List<Var> args) {
+                ClassType t = (ClassType) v.getType();
+                MethodRef r = getMethodRef(binding);
+                return new InvokeInterface(r, v, args);
+            }
+
             protected InvokeExp genEquals(Var v1, Var v2) {
                 Type t = v1.getType();
                 Type objType = getType(ClassNames.OBJECT);
@@ -1501,11 +1528,11 @@ public class NewMethodIRBuilder {
             //            +--------------+
             //            |    Branch    |------+
             //            +--------------+      |
-            //      +-----|  goto False  |      | *No need to check this goto*
+            //      +-----|  goto False  |      |
             //      |     +--------------+<-----+
             //      |     |    True      |
             //      |     +--------------+
-            //      |     |  goto Next   |------+ *This goto can be checked*
+            //      |     |  goto Next   |------+
             //      +---->+--------------+      |
             //            |    False     |      |
             //            +--------------+<-----+  (Break target)
@@ -1548,34 +1575,53 @@ public class NewMethodIRBuilder {
                                        Expression cond,
                                        Statement body,
                                        List<Expression> updates) {
+                Runnable genInit = () -> {
+                    for (var i : inits) {
+                        visitExp(i);
+                        popSideEffect();
+                    }
+                };
+                BiConsumer<String, String> genCond = (bodyLabel, breakLabel) ->
+                        transformCond(cond, bodyLabel, breakLabel, true);
+                Runnable genBody = () -> {
+                    body.accept(this);
+                    context.popFlow();
+                };
+                Runnable genUpdates = () -> {
+                    for (var i : updates) {
+                        visitExp(i);
+                        popSideEffect();
+                    }
+                };
+                genNormalLoop(genInit, genCond, genBody, genUpdates);
+            }
+
+            private void genNormalLoop(Runnable genInit,
+                                       BiConsumer<String, String> genCond,
+                                       Runnable genBody,
+                                       Runnable genUpdates) {
                 var contLabel = context.getNewLabel();
                 var breakLabel = context.getNewLabel();
                 var bodyLabel = context.getNewLabel();
                 context.handleUserLabel(breakLabel, contLabel);
-                for (var i : inits) {
-                    visitExp(i);
-                    popSideEffect();
-                }
+                genInit.run();
                 context.assocLabel(contLabel);
                 context.getContextCtrlList().addFirst(contLabel);
                 context.assocBreakAndContinue(contLabel, breakLabel, contLabel);
-                transformCond(cond, bodyLabel, breakLabel, true);
+                genCond.accept(bodyLabel, breakLabel);
                 context.assocLabel(bodyLabel);
-                body.accept(this);
+                genBody.run();
                 context.getContextCtrlList().removeFirst();
-                for (var i : updates) {
-                    visitExp(i);
-                }
-                addCheckedGoto(contLabel);
+                genUpdates.run();
+                addGoto(contLabel);
                 context.assocLabel(breakLabel);
                 // note: we consider a loop to always reach next
-                context.popFlow();
                 context.pushFlow(true);
             }
 
             @Override
             public boolean visit(WhileStatement ws) {
-                genNormalLoop(new ArrayList<>(), ws.getExpression(),  ws.getBody(), new ArrayList<>());
+                genNormalLoop(List.of(), ws.getExpression(), ws.getBody(), List.of());
                 return false;
             }
 
@@ -1620,18 +1666,94 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            @Override
+            public boolean visit(EnhancedForStatement efs) {
+                SingleVariableDeclaration svd = efs.getParameter();
+                SimpleName id = svd.getName();
+                visitExp(id);
+                Var idVar = popVar();
+                visitExp(efs.getExpression());
+                Exp exp = context.popStack();
+                Var expVar = expToVar(exp);
+                Statement body = efs.getBody();
+
+                // see JLS7 pp. 391 to get transformation detail
+                if (! efs.getExpression().resolveTypeBinding().isArray()) {
+                    var preEleType = getIterableInner(efs.getExpression().resolveTypeBinding());
+                    if (preEleType.isEmpty()) {
+                        throw new NewFrontendException(exp + " is not array nor <: Iterable");
+                    }
+                    Type eleType = preEleType.get();
+                    IMethodBinding iteratorMethod = searchMethod(efs.getExpression().resolveTypeBinding(), ITERATOR);
+                    Type iteratorType = JDTTypeToTaieType(iteratorMethod.getReturnType());
+                    Var v = newTempVar(iteratorType);
+
+                    Runnable genInit = () -> {
+                        Exp iter = genInterfaceInvoke(expVar,
+                                iteratorMethod,
+                                List.of());
+                        newAssignment(v, iter);
+                    };
+
+                    BiConsumer<String, String> genCond = (bodyLabel, breakLabel) -> {
+                        Exp hasNext = genSimpleInterfaceInvoke(v, HAS_NEXT,
+                                List.of(), List.of(), PrimitiveType.BOOLEAN);
+                        context.pushStack(hasNext);
+                        popControlFlow(bodyLabel, breakLabel, true);
+                    };
+
+                    Runnable genBody = () -> {
+                        Exp next = genSimpleInterfaceInvoke(v, "next",
+                                List.of(), List.of(), getType(ClassNames.OBJECT));
+                        context.pushStack(next);
+                        Exp ass  = expToVar(new CastExp(popVar(), eleType), idVar.getType());
+                        newAssignment(idVar, ass);
+                        body.accept(this);
+                        context.popFlow();
+                    };
+
+                    genNormalLoop(genInit, genCond, genBody, () -> {});
+
+                } else {
+                    assert expVar.getType() instanceof pascal.taie.language.type.ArrayType;
+                    Var v = newTempVar(PrimitiveType.INT);
+                    Runnable genInit = () -> newAssignment(v, IntLiteral.get(0));
+
+                    BiConsumer<String, String> genCond = (bodyLabel, breakLabel) -> {
+                        context.pushStack(new ArrayLengthExp(expVar));
+                        context.pushStack(new ConditionExp(ConditionExp.Op.LT, v, popVar()));
+                        popControlFlow(bodyLabel, breakLabel, true);
+                    };
+
+                    Runnable genBody = () -> {
+                        Exp now = new ArrayAccess(expVar, v);
+                        Exp ass = expToVar(now, idVar.getType());
+                        newAssignment(idVar, ass);
+                        body.accept(this);
+                        context.popFlow();
+                    };
+
+                    Runnable genUpdates = () -> newAssignment(v, new ArithmeticExp(ArithmeticExp.Op.ADD, v,
+                            context.getInt(this, 1)));
+
+                    genNormalLoop(genInit, genCond, genBody, genUpdates);
+                }
+                return false;
+            }
+
             /**
              * Generate break/continue statement.
              * Because of the existence of try-catch-finally,
              * this need to be carefully handled
-             * @param label may be null, break/continue label
+             *
+             * @param label     may be null, break/continue label
              * @param brkOrCont 0 for break, 1 for continue
              */
             @SuppressWarnings("unchecked")
             private void genContBrk(@Nullable SimpleName label, int brkOrCont) {
                 for (var i : context.getContextCtrlList()) {
                     if (BlockLabelGenerator.isTryBlock(i) ||
-                        BlockLabelGenerator.isCatchBlock(i)) {
+                            BlockLabelGenerator.isCatchBlock(i)) {
                         // First, pause the record of this [Try]/[Catch] Block
                         // Because the code to be generated is not belong to this [Try]/[Catch] Block
                         // It's belong to the [Finally] of the [Try]/[Catch] Block
@@ -1791,8 +1913,9 @@ public class NewMethodIRBuilder {
 
                 if (finBlock != null) {
                     genFinallyBlock(() -> {
-                        finBlock.accept(this);
-                        context.popFlow(); },
+                                finBlock.accept(this);
+                                context.popFlow();
+                            },
                             finLabel1,
                             finLabel2,
                             tryLabel,
@@ -1893,8 +2016,7 @@ public class NewMethodIRBuilder {
                 Statement s = (Statement) i.next();
                 while (i.hasNext()) {
                     String nowLabel = context.getNewLabel();
-                    while (s instanceof SwitchCase sc)
-                    {
+                    while (s instanceof SwitchCase sc) {
                         if (sc.isDefault()) {
                             defaultLabel = nowLabel;
                         } else {
@@ -1903,16 +2025,15 @@ public class NewMethodIRBuilder {
                                 targets.add(nowLabel);
                             }
                         }
-                        if (! i.hasNext()) {
+                        if (!i.hasNext()) {
                             break;
                         }
                         s = (Statement) i.next();
                     }
                     List<Statement> nowStmt = new ArrayList<>();
-                    while (! (s instanceof SwitchCase))
-                    {
+                    while (!(s instanceof SwitchCase)) {
                         nowStmt.add(s);
-                        if (! i.hasNext()) {
+                        if (!i.hasNext()) {
                             break;
                         }
                         s = (Statement) i.next();
@@ -2054,7 +2175,11 @@ public class NewMethodIRBuilder {
                     context.pushStack(getSimpleField((IVariableBinding) name1.resolveBinding(), null));
                 } else if (q instanceof IVariableBinding) {
                     qualifier.accept(this);
-                    context.pushStack(getSimpleField((IVariableBinding) name1.resolveBinding(), popVar()));
+                    if (qualifier.resolveTypeBinding().isArray()) {
+                        context.pushStack(new ArrayLengthExp(popVar()));
+                    } else {
+                        context.pushStack(getSimpleField((IVariableBinding) name1.resolveBinding(), popVar()));
+                    }
                 } else {
                     throw new NewFrontendException("Exp [ " + name + " ] can't be handled");
                 }
@@ -2467,8 +2592,12 @@ public class NewMethodIRBuilder {
             public boolean visit(org.eclipse.jdt.core.dom.FieldAccess fa) {
                 fa.getExpression().accept(this);
                 Var obj = popVar();
-                FieldAccess res = getSimpleField(fa.resolveFieldBinding(), obj);
-                context.pushStack(res);
+                if (obj.getType() instanceof pascal.taie.language.type.ArrayType) {
+                    context.pushStack(new ArrayLengthExp(obj));
+                } else {
+                    FieldAccess res = getSimpleField(fa.resolveFieldBinding(), obj);
+                    context.pushStack(res);
+                }
                 return false;
             }
 

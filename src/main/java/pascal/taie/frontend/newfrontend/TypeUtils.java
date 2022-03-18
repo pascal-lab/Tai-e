@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import fj.Class;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -30,11 +29,15 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
+import pascal.taie.util.collection.SetQueue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
 
 import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
 
@@ -52,6 +55,11 @@ public final class TypeUtils {
 
     public static final String META_FACTORY_CLASS = "java.lang.invoke.LambdaMetafactory";
     public static final String META_FACTORY_METHOD = "metafactory";
+
+    public static final String ITERABLE = "java.lang.Iterable";
+    public static final String ITERATOR = "iterator";
+    public static final String HAS_NEXT = "hasNext";
+    public static final String ITERATOR_TYPE = "java.lang.Iterator";
 
     public static String getErasedName(ITypeBinding iTypeBinding) {
         if (iTypeBinding.isPrimitive()) {
@@ -391,5 +399,42 @@ public final class TypeUtils {
 
     public static Type getType(String name) {
         return World.get().getTypeSystem().getType(name);
+    }
+
+    public static boolean isSubTypeOf(Type superType, Type subType) {
+        return World.get().getTypeSystem().isSubtype(superType, subType);
+    }
+
+    public static Optional<Type> getIterableInner(ITypeBinding type) {
+        Queue<ITypeBinding> queue = new SetQueue<>();
+        ITypeBinding t = null;
+        queue.add(type);
+        while (! queue.isEmpty()) {
+            var now = queue.poll();
+            if (now.getErasure().getBinaryName().equals(ITERABLE)) {
+                t = now;
+                break;
+            } else {
+                var impls = now.getInterfaces();
+                Collections.addAll(queue, impls);
+                if (now.getSuperclass() != null) {
+                    queue.add(now.getSuperclass());
+                }
+            }
+        }
+        if (t == null) {
+            return Optional.empty();
+        }
+        return Optional.of(getType(getErasedName(t.getTypeArguments()[0])));
+    }
+
+    public static IMethodBinding searchMethod(ITypeBinding typeBinding, String name) {
+        var methods = typeBinding.getDeclaredMethods();
+        for (var i : methods) {
+            if (i.getName().equals(name)) {
+                return i;
+            }
+        }
+        throw new NewFrontendException("There's no such method: " + name + " in " + typeBinding);
     }
 }
