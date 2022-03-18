@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
@@ -115,6 +116,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.LookupSwitch;
+import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -678,7 +680,7 @@ public class NewMethodIRBuilder {
              * this function will add the return
              */
             private void confirmNoDetach() {
-                if (assocList.size() != 0 && popFlow()) {
+                if (popFlow()) {
                     Stmt stmt = addStmt(-1, new Return());
                     for (var i : assocList) {
                         context.addBlockMap(i, stmt);
@@ -1265,6 +1267,23 @@ public class NewMethodIRBuilder {
                 context.pushFlow(next);
             }
 
+            protected void genBlockWithRecording(List<Statement> l,
+                                                 String label,
+                                                 String continuation,
+                                                 boolean needGoto) {
+                context.getContextCtrlList().addFirst(label);
+                context.getExceptionManager().beginRecording(label);
+                context.assocLabel(label);
+                genAnonBlock(l);
+                context.getExceptionManager().endRecording(label);
+                boolean next = context.popFlow();
+                if (next && needGoto) {
+                    addGoto(continuation);
+                }
+                context.getContextCtrlList().removeFirst();
+                context.pushFlow(next);
+            }
+
             protected InvokeExp genSimpleInvoke(Var v,
                                                 String methodName,
                                                 List<Var> args,
@@ -1678,7 +1697,33 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            private void genFinallyBlock(Runnable genStmts,
+                                         String finLabel1,
+                                         String finLabel2,
+                                         String tryLabel,
+                                         List<String> catchLabels) {
+                // add exception handler
+                // ([Try Begin] [Try End])ₙ [Finally-Catch] [Any]
+                context.getExceptionManager().registerHandler(tryLabel, TypeUtils.anyException(), finLabel1);
+                // add exception handler
+                // ([Catch Begin] [Catch End])ₙ [Finally-Catch] [Any]
+                for (var i : catchLabels) {
+                    context.getExceptionManager().registerHandler(i, TypeUtils.anyException(), finLabel1);
+                }
 
+                // generate finLabel1 block
+                context.assocLabel(finLabel1);
+                Var e = newTempVar(TypeUtils.anyException());
+                addStmt(new Catch(e));
+                genStmts.run();
+                addStmt(new Throw(e));
+
+                // generate finLabel2 block
+                context.assocLabel(finLabel2);
+                genStmts.run();
+            }
+
+            @SuppressWarnings("unchecked")
             private String handleCatch(CatchClause cc, String tryLabel, String finLabel1, String finLabel2) {
                 // Here, we still need to recording
                 String nowLabel = context.labelGenerator.getNewCatchLabel();
@@ -1696,13 +1741,7 @@ public class NewMethodIRBuilder {
                 // add exception handler
                 // ([Try Begin] [Try End])ₙ [Catch Begin] [Type]
                 context.getExceptionManager().registerHandler(tryLabel, taieType, nowLabel);
-                context.getContextCtrlList().addFirst(nowLabel);
-                body.accept(this);
-                context.getExceptionManager().endRecording(nowLabel);
-                context.getContextCtrlList().removeFirst();
-                if (context.popFlow()) {
-                    addGoto(finLabel2);
-                }
+                genBlockWithRecording(body.statements(), nowLabel, finLabel2, true);
                 return nowLabel;
             }
 
@@ -1726,6 +1765,7 @@ public class NewMethodIRBuilder {
             // +---------------+<----+
             // | Finally 2     |
             // +---------------+
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(TryStatement ts) {
                 Block tryBlock = ts.getBody();
@@ -1734,22 +1774,15 @@ public class NewMethodIRBuilder {
                 String tryLabel = context.labelGenerator.getNewTryLabel();
                 String finLabel1 = context.getNewFinLabel();
                 String finLabel2 = context.getNewFinLabel();
-                context.getContextCtrlList().addFirst(tryLabel);
                 context.assocFinallyLabel(tryLabel, finLabel2);
 
                 if (finBlock != null) {
                     context.assocFinallyBlock(finLabel2, finBlock);
                 }
 
-                // first handle [Try] block
-                context.getExceptionManager().beginRecording(tryLabel);
-                context.assocLabel(tryLabel);
-                tryBlock.accept(this);
-                context.getExceptionManager().endRecording(tryLabel);
-                addGoto(finLabel2);
+                // generate try block
+                genBlockWithRecording(tryBlock.statements(), tryLabel, finLabel2, true);
 
-                // now, we are not in [Try] block
-                context.getContextCtrlList().removeFirst();
                 List<String> catchLabel = new ArrayList<>();
                 for (var i : catches) {
                     var l = handleCatch((CatchClause) i, tryLabel, finLabel1, finLabel2);
@@ -1757,27 +1790,13 @@ public class NewMethodIRBuilder {
                 }
 
                 if (finBlock != null) {
-                    // add exception handler
-                    // ([Try Begin] [Try End])ₙ [Finally-Catch] [Any]
-                    context.getExceptionManager().registerHandler(tryLabel, TypeUtils.anyException(), finLabel1);
-                    // add exception handler
-                    // ([Catch Begin] [Catch End])ₙ [Finally-Catch] [Any]
-                    for (var i : catchLabel) {
-                        context.getExceptionManager().registerHandler(i, TypeUtils.anyException(), finLabel1);
-                    }
-
-                    // generate finLabel1 block
-                    context.assocLabel(finLabel1);
-                    Var e = newTempVar(TypeUtils.anyException());
-                    addStmt(new Catch(e));
-                    finBlock.accept(this);
-                    context.popFlow();
-                    addStmt(new Throw(e));
-
-                    // generate finLabel2 block
-                    context.assocLabel(finLabel2);
-                    finBlock.accept(this);
-                    context.popFlow();
+                    genFinallyBlock(() -> {
+                        finBlock.accept(this);
+                        context.popFlow(); },
+                            finLabel1,
+                            finLabel2,
+                            tryLabel,
+                            catchLabel);
                 } else {
                     // if [finally] don't exist, we still assoc next statement with [finLabel2]
                     context.assocLabel(finLabel2);
@@ -1926,6 +1945,26 @@ public class NewMethodIRBuilder {
                 visitExp(exp);
                 popSideEffect();
                 context.pushFlow(true);
+                return false;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public boolean visit(SynchronizedStatement ss) {
+                Block body = ss.getBody();
+                Expression exp = ss.getExpression();
+                visitExp(exp);
+                Var v = popVar();
+
+                String tryLabel = context.getLabelGenerator().getNewTryLabel();
+                String finLabel1 = context.getLabelGenerator().getNewFinLabel();
+                String finLabel2 = context.getLabelGenerator().getNewFinLabel();
+
+                addStmt(new Monitor(Monitor.Op.ENTER, v));
+                genBlockWithRecording(body.statements(), tryLabel, finLabel2, true);
+                Runnable genFin = () -> addStmt(new Monitor(Monitor.Op.EXIT, v));
+
+                genFinallyBlock(genFin, finLabel1, finLabel2, tryLabel, List.of());
                 return false;
             }
         }
