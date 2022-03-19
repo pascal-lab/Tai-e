@@ -300,10 +300,7 @@ public class NewMethodIRBuilder {
 
         private final static String NULL_CONSTANT = "%nullconst";
 
-        private final List<Stmt> stmts;
-
         private final List<Var> params;
-
 
         private final List<Var> vars;
 
@@ -321,8 +318,9 @@ public class NewMethodIRBuilder {
 
         private final VisitorContext context;
 
+        private final StmtManager stmtManager;
+
         public IRGenerator() {
-            stmts = new ArrayList<>();
             params = new ArrayList<>();
             vars = new ArrayList<>();
             tempCounter = 0;
@@ -331,6 +329,11 @@ public class NewMethodIRBuilder {
             expVisitor = new ExpVisitor(context);
             exceptionList = new ArrayList<>();
             retVar = Sets.newSet();
+            stmtManager = new StmtManager();
+        }
+
+        public StmtManager getStmtManager() {
+            return stmtManager;
         }
 
         public IR build() {
@@ -338,7 +341,8 @@ public class NewMethodIRBuilder {
             buildPara();
             buildStmt();
             logger.info(exceptionList);
-            return new DefaultIR(jMethod, thisVar, params, retVar, vars, stmts, exceptionList);
+            return new DefaultIR(jMethod, thisVar, params,
+                    retVar, vars, stmtManager.getStmts(), exceptionList);
         }
 
         private int getVarIndex() {
@@ -386,17 +390,6 @@ public class NewMethodIRBuilder {
             return jMethod.getReturnType();
         }
 
-        /**
-         * @apiNote Important: {@code stmt} is illegal before use this function to convert
-         * @return right stmt
-         */
-        private Stmt addStmt(int lineNo, Stmt stmt) {
-            stmt.setLineNumber(lineNo);
-            stmt.setIndex(stmts.size());
-            stmts.add(stmt);
-            return stmt;
-        }
-
         private void addRetVar(Var v) {
             retVar.add(v);
         }
@@ -426,21 +419,17 @@ public class NewMethodIRBuilder {
             stmtVisitor.postProcess();
         }
 
-        private boolean checkEndCont() {
-            var last = stmts.get(stmts.size() - 1);
-            return last instanceof Return ||
-                    last instanceof Goto;
-        }
-
         private void visitStmt(Statement stmt) {
             stmt.accept(stmtVisitor);
         }
 
         private int nowPos() {
-            return stmts.size();
+            return stmtManager.getTop();
         }
 
-        private Stmt getStmt(int i ) { return stmts.get(i); }
+        private Stmt getStmt(int i) {
+            return stmtManager.getStmt(i);
+        }
 
         private Var getThisVar() { return thisVar; }
 
@@ -498,6 +487,9 @@ public class NewMethodIRBuilder {
                 handlerList.add(new ExceptionHandler(label, exceptionType, handlerLabel));
             }
 
+            /**
+             * this function can only be called when stmt has built
+             */
             public void resolveEntry(Map<String, Stmt> labelStmtMap) {
                 for (var now : handlerList) {
                     assert (codeRegionMap.containsKey(now.target));
@@ -572,38 +564,39 @@ public class NewMethodIRBuilder {
 
         class VisitorContext {
             private final Stack<Exp> expStack;
-            private final Map<String, Stmt> blockMap;
-            private final Map<Integer, String> patchMap;
+
             private final Map<String, Pair<String, String>> brkContMap;
-            private final List<String> assocList;
+
             private final BlockLabelGenerator labelGenerator;
+
             private final ExceptionEntryManager exceptionManager;
+
             private final Map<String, Block> finallyBlockMap;
+
             private final Map<String, String> finallyLabelMap;
-            private final Map<Integer, List<String>> switchMap;
-            private final Map<Integer, String> switchDefaultMap;
+
             private final Map<IVariableBinding, Exp> bindingVarMap;
+
             private final LinkedList<String> contextCtrlList;
+
             private final BindingManager bm;
 
             private final Stack<Boolean> flowStack;
 
+            private final Map<Literal, Var> constMap;
+
             public VisitorContext() {
-                this.blockMap = Maps.newMap();
-                this.patchMap = Maps.newMap();
                 this.brkContMap = Maps.newMap();
                 this.expStack = new Stack<>();
-                this.assocList = new ArrayList<>();
                 this.labelGenerator = new BlockLabelGenerator();
                 this.exceptionManager = new ExceptionEntryManager();
                 this.contextCtrlList = new LinkedList<>();
                 this.finallyBlockMap = Maps.newMap();
                 this.finallyLabelMap = Maps.newMap();
-                this.switchMap = Maps.newMap();
-                this.switchDefaultMap = Maps.newMap();
                 this.bindingVarMap = Maps.newMap();
                 this.flowStack = new Stack<>();
                 this.bm = new BindingManager();
+                this.constMap = Maps.newMap();
             }
 
             public void pushStack(Exp exp) {
@@ -615,23 +608,7 @@ public class NewMethodIRBuilder {
             }
 
             public void assocLabel(String label) {
-                this.assocList.add(label);
-            }
-
-            public void addPatchList(int stmtIdx, String label) {
-                this.patchMap.put(stmtIdx, label);
-            }
-
-            public void addBlockMap(String label, Stmt stmt) {
-                this.blockMap.put(label, stmt);
-            }
-
-            public void addSwitchMap(int stmtIdx, List<String> label) {
-                this.switchMap.put(stmtIdx, label);
-            }
-
-            public void addSwitchDefaultMap(int stmtIdx, String label) {
-                this.switchDefaultMap.put(stmtIdx, label);
+                getStmtManager().assocLabel(label);
             }
 
             public void pushFlow(boolean b) {
@@ -654,18 +631,6 @@ public class NewMethodIRBuilder {
                 pushFlow(popFlow(n));
             }
 
-            private void buildUF(UnionFind uf) {
-                blockMap.forEach((label, stmt) -> {
-                    var nowIdx = stmt.getIndex();
-                    var stmtReg = stmt;
-                    while (stmtReg instanceof Goto g) {
-                        var gotoIdx = patchMap.get(g.getIndex());
-                        stmtReg = blockMap.get(gotoIdx);
-                        uf.union(nowIdx, stmtReg.getIndex());
-                        nowIdx = stmtReg.getIndex();
-                    }
-                });
-            }
 
             private void setStmtTarget(Stmt stmt, Stmt target) {
                 if (stmt instanceof Goto g) {
@@ -691,47 +656,8 @@ public class NewMethodIRBuilder {
              */
             private void confirmNoDetach() {
                 if (popFlow()) {
-                    Stmt stmt = addStmt(-1, new Return());
-                    for (var i : assocList) {
-                        context.addBlockMap(i, stmt);
-                    }
-                    assocList.clear();
+                    getStmtManager().addStmt(-1, new Return());
                 }
-            }
-
-            /**
-             * Use union-find set to resolve all goto statements
-             */
-            public void resolveGoto() {
-                confirmNoDetach();
-                var uf = new UnionFind(stmts.size());
-                buildUF(uf);
-                patchMap.forEach((i, label) -> {
-                    var stmt = stmts.get(i);
-                    var labelStmt = blockMap.get(label);
-                    var tagStmt = stmts.get(uf.find(labelStmt.getIndex()));
-                    setStmtTarget(stmt, tagStmt);
-                });
-
-                switchMap.forEach((i, labels) -> {
-                    var stmt = (SwitchStmt) stmts.get(i);
-                    List<Stmt> targets = labels
-                            .stream()
-                            .map(blockMap::get)
-                            .toList();
-                    stmt.setTargets(targets);
-                });
-
-                switchDefaultMap.forEach((i, label) -> {
-                    var stmt = (SwitchStmt) stmts.get(i);
-                    Stmt now = blockMap.get(label);
-                    assert now != null;
-                    stmt.setDefaultTarget(now);
-                });
-            }
-
-            public @Nullable Stmt getStmtByLabel(String label) {
-                return blockMap.get(label);
             }
 
             public String getNewLabel() {
@@ -799,7 +725,7 @@ public class NewMethodIRBuilder {
             public void handleUserLabel(String breakLabel, String contLabel) {
                 if (contextCtrlList.size() > 0) {
                     if (BlockLabelGenerator.isUserDefinedLabel(this.contextCtrlList.getFirst())) {
-                        assert (assocList.contains(this.contextCtrlList.getFirst()));
+                        assert (getStmtManager().assocList.contains(this.contextCtrlList.getFirst()));
                         assocBreakAndContinue(this.contextCtrlList.getFirst(), breakLabel, contLabel);
                     }
                 }
@@ -819,6 +745,10 @@ public class NewMethodIRBuilder {
 
             public BindingManager getBm() {
                 return bm;
+            }
+
+            public Map<Literal, Var> getConstMap() {
+                return constMap;
             }
         }
 
@@ -844,8 +774,9 @@ public class NewMethodIRBuilder {
             }
 
             public void postProcess() {
-                context.resolveGoto();
-                context.getExceptionManager().resolveEntry(context.blockMap);
+                context.confirmNoDetach();
+                getStmtManager().resolveAll();
+                context.getExceptionManager().resolveEntry(getStmtManager().blockMap);
             }
 
             protected void visitExp(Expression expression) {
@@ -855,55 +786,34 @@ public class NewMethodIRBuilder {
             }
 
             protected void addStmt(Stmt stmt) {
-                // first use IRGenerator to get right index and lineno
-                var newStmt = IRGenerator.this.addStmt(lineno, stmt);
-                if (context.assocList.size() != 0) {
-                    for (var i : context.assocList) {
-                        context.addBlockMap(i, newStmt);
-                    }
-                }
-                context.assocList.clear();
+                getStmtManager().addStmt(lineno, stmt);
+            }
+
+            protected void addConstStmt(Stmt stmt) {
+                getStmtManager().addConst(stmt);
             }
 
             protected void addGoto(String label) {
-                var go = new Goto();
-                var top = stmts.size();
-                addStmt(go);
-                context.addPatchList(top, label);
-            }
-
-            /**
-             * <p>If stmts[end] will cover this goto
-             * (i.e. the last statement of stmts[end] is Return)
-             * we don't addGoto.</p>
-             * <p>However, this function should not be always called.
-             * Because there may exist another path to this goto statement.</p>
-             */
-            protected void addCheckedGoto(String label) {
-                if (! checkEndCont()) {
-                    addGoto(label);
-                }
+                getStmtManager().addGoto(lineno, label);
             }
 
             protected void addIf(ConditionExp exp, String label) {
-                var go = new If(exp);
-                var top = stmts.size();
-                addStmt(go);
-                context.addPatchList(top, label);
+                getStmtManager().addIf(lineno, exp, label);
             }
 
-            protected void addTableSwitch(Var v, int lowIdx, int highIdx, List<String> label, String defaultLabel) {
-                var top = stmts.size();
-                addStmt(new TableSwitch(v, lowIdx, highIdx));
-                context.addSwitchMap(top, label);
-                context.addSwitchDefaultMap(top, defaultLabel);
+            protected void addTableSwitch(Var v,
+                                          int lowIdx,
+                                          int highIdx,
+                                          List<String> label,
+                                          String defaultLabel) {
+                getStmtManager().addTableSwitch(lineno, v, lowIdx, highIdx, label, defaultLabel);
             }
 
-            protected void addLookupSwitch(Var v, List<Integer> values, List<String> label, String defaultLabel) {
-                var top = stmts.size();
-                addStmt(new LookupSwitch(v, values));
-                context.addSwitchMap(top, label);
-                context.addSwitchDefaultMap(top, defaultLabel);
+            protected void addLookupSwitch(Var v,
+                                           List<Integer> values,
+                                           List<String> label,
+                                           String defaultLabel) {
+                getStmtManager().addLookupSwitch(lineno, v, values, label, defaultLabel);
             }
 
             /**
@@ -1091,9 +1001,11 @@ public class NewMethodIRBuilder {
                     newAssignment(v, exp);
                     return v;
                 } else if (exp instanceof Literal l) {
-                    var v = newTempConstantVar(l);
-                    newAssignment(v, exp);
-                    return v;
+                    return context.getConstMap().computeIfAbsent(l, l1 -> {
+                        var v = newTempConstantVar(l1);
+                        addConstStmt(new AssignLiteral(v, l1));
+                        return v;
+                    });
                 } else {
                     throw new NewFrontendException(exp + "  is not implemented");
                 }
@@ -1286,10 +1198,17 @@ public class NewMethodIRBuilder {
                                                  String label,
                                                  String continuation,
                                                  boolean needGoto) {
+                genBlockWithRecording(() -> genAnonBlock(l), label, continuation, needGoto);
+            }
+
+            protected void genBlockWithRecording(Runnable r,
+                                                 String label,
+                                                 String continuation,
+                                                 boolean needGoto) {
                 context.getContextCtrlList().addFirst(label);
                 context.getExceptionManager().beginRecording(label);
                 context.assocLabel(label);
-                genAnonBlock(l);
+                r.run();
                 context.getExceptionManager().endRecording(label);
                 boolean next = context.popFlow();
                 if (next && needGoto) {
@@ -1852,24 +1771,22 @@ public class NewMethodIRBuilder {
             }
 
             @SuppressWarnings("unchecked")
-            private String handleCatch(CatchClause cc, String tryLabel, String finLabel1, String finLabel2) {
-                // Here, we still need to recording
+            private String handleCatch(CatchClause cc, String tryLabel, String finLabel2) {
                 String nowLabel = context.labelGenerator.getNewCatchLabel();
-                // Note: it's safe to assoc a label here
-                // because a catch block at least generate one statement: catch ...
-                context.assocLabel(nowLabel);
-                context.getExceptionManager().beginRecording(nowLabel);
-                context.assocFinallyLabel(nowLabel, finLabel2);
                 SingleVariableDeclaration decl = cc.getException();
                 Block body = cc.getBody();
                 ITypeBinding exceptionType = decl.getType().resolveBinding();
                 Type taieType = TypeUtils.JDTTypeToTaieType(exceptionType);
                 visitExp(decl.getName());
-                addStmt(new Catch(popVar()));
+                Runnable r = () -> {
+                    addStmt(new Catch(popVar()));
+                    genAnonBlock(body.statements());
+                };
+                genBlockWithRecording(r, nowLabel, finLabel2, true);
                 // add exception handler
                 // ([Try Begin] [Try End])ₙ [Catch Begin] [Type]
                 context.getExceptionManager().registerHandler(tryLabel, taieType, nowLabel);
-                genBlockWithRecording(body.statements(), nowLabel, finLabel2, true);
+                context.popFlow();
                 return nowLabel;
             }
 
@@ -1913,7 +1830,7 @@ public class NewMethodIRBuilder {
 
                 List<String> catchLabel = new ArrayList<>();
                 for (var i : catches) {
-                    var l = handleCatch((CatchClause) i, tryLabel, finLabel1, finLabel2);
+                    var l = handleCatch((CatchClause) i, tryLabel, finLabel2);
                     catchLabel.add(l);
                 }
 
@@ -2574,7 +2491,7 @@ public class NewMethodIRBuilder {
 
 
             /**
-             * this function only handle (++) (--)
+             * this function only handles (++) (--)
              */
             private void genPrefixExp(Expression operand, ArithmeticExp.Op op, ITypeBinding t) {
                 operand.accept(this);
