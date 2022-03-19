@@ -631,17 +631,6 @@ public class NewMethodIRBuilder {
                 pushFlow(popFlow(n));
             }
 
-
-            private void setStmtTarget(Stmt stmt, Stmt target) {
-                if (stmt instanceof Goto g) {
-                    g.setTarget(target);
-                } else if (stmt instanceof If i) {
-                    i.setTarget(target);
-                } else {
-                    throw new NewFrontendException(stmt + " is not goto stmt, why use this function?");
-                }
-            }
-
             /**
              * there may by no return statement in a method
              * it will cause some label detaching from ir
@@ -1473,6 +1462,8 @@ public class NewMethodIRBuilder {
                 var endLabel = context.getNewLabel();
                 transformCond(exp, trueLabel, falseLabel, true);
                 genBlock(List.of(thenStmt), trueLabel, endLabel, elseStmt != null);
+                // note: when second branch don't exist,
+                // we always concern this [if] to be able to complete normally
                 genBlock(elseStmt == null ? List.of() : List.of(elseStmt), falseLabel, endLabel, false);
                 context.assocLabel(endLabel);
                 context.resolveFlow(elseStmt == null ? 1 : 2);
@@ -1508,10 +1499,7 @@ public class NewMethodIRBuilder {
                 };
                 BiConsumer<String, String> genCond = (bodyLabel, breakLabel) ->
                         transformCond(cond, bodyLabel, breakLabel, true);
-                Runnable genBody = () -> {
-                    body.accept(this);
-                    context.popFlow();
-                };
+                Runnable genBody = () -> body.accept(this);
                 Runnable genUpdates = () -> {
                     for (var i : updates) {
                         visitExp(i);
@@ -1536,9 +1524,12 @@ public class NewMethodIRBuilder {
                 genCond.accept(bodyLabel, breakLabel);
                 context.assocLabel(bodyLabel);
                 genBody.run();
+                boolean next = context.popFlow();
                 context.getContextCtrlList().removeFirst();
                 genUpdates.run();
-                addGoto(contLabel);
+                if (next) {
+                    addGoto(contLabel);
+                }
                 context.assocLabel(breakLabel);
                 // note: we consider a loop to always reach next
                 context.pushFlow(true);
@@ -1634,7 +1625,6 @@ public class NewMethodIRBuilder {
                         Exp ass  = expToVar(new CastExp(popVar(), eleType), idVar.getType());
                         newAssignment(idVar, ass);
                         body.accept(this);
-                        context.popFlow();
                     };
 
                     genNormalLoop(genInit, genCond, genBody, () -> {});
@@ -1655,7 +1645,6 @@ public class NewMethodIRBuilder {
                         Exp ass = expToVar(now, idVar.getType());
                         newAssignment(idVar, ass);
                         body.accept(this);
-                        context.popFlow();
                     };
 
                     Runnable genUpdates = () -> newAssignment(v, new ArithmeticExp(ArithmeticExp.Op.ADD, v,
