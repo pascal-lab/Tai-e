@@ -24,6 +24,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.classes.Subsignature;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
@@ -31,6 +32,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.SetQueue;
 
+import java.lang.invoke.WrongMethodTypeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -436,5 +438,9 @@ public final class TypeUtils {
             }
         }
         throw new NewFrontendException("There's no such method: " + name + " in " + typeBinding);
+    }
+
+    public static ArrayType getArrType(Type eleType) {
+        return World.get().getTypeSystem().getArrayType(eleType, 1);
     }
 }

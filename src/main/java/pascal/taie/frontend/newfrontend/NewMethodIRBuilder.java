@@ -3,7 +3,6 @@ package pascal.taie.frontend.newfrontend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.units.qual.A;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -12,7 +11,6 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
@@ -69,6 +67,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -155,13 +154,13 @@ import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getInitRef;
 import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.HAS_NEXT;
 import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR;
-import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR_TYPE;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIterableInner;
@@ -407,14 +406,15 @@ public class NewMethodIRBuilder {
         }
 
         private void buildPara() {
-            // TODO: varargs
-            // This implementation
             var paraTree = targetMethod.parameters();
             for (var i : paraTree) {
                 SingleVariableDeclaration svd = (SingleVariableDeclaration) i;
                 var name = svd.getName();
                 var nameString = name.getIdentifier();
                 var type = TypeUtils.JDTTypeToTaieType(svd.getType().resolveBinding());
+                if (svd.isVarargs()) {
+                    type = World.get().getTypeSystem().getArrayType(type, 1);
+                }
                 var aVar = newVar(nameString, type);
                 params.add(aVar);
                 context.putBinding((IVariableBinding) name.resolveBinding(), aVar);
@@ -584,6 +584,7 @@ public class NewMethodIRBuilder {
             private final Map<Integer, String> switchDefaultMap;
             private final Map<IVariableBinding, Exp> bindingVarMap;
             private final LinkedList<String> contextCtrlList;
+            private final BindingManager bm;
 
             private final Stack<Boolean> flowStack;
 
@@ -591,7 +592,7 @@ public class NewMethodIRBuilder {
                 this.blockMap = Maps.newMap();
                 this.patchMap = Maps.newMap();
                 this.brkContMap = Maps.newMap();
-                expStack = new Stack<>();
+                this.expStack = new Stack<>();
                 this.assocList = new ArrayList<>();
                 this.labelGenerator = new BlockLabelGenerator();
                 this.exceptionManager = new ExceptionEntryManager();
@@ -602,6 +603,7 @@ public class NewMethodIRBuilder {
                 this.switchDefaultMap = Maps.newMap();
                 this.bindingVarMap = Maps.newMap();
                 this.flowStack = new Stack<>();
+                this.bm = new BindingManager();
             }
 
             public void pushStack(Exp exp) {
@@ -813,6 +815,10 @@ public class NewMethodIRBuilder {
 
             public void putBinding(IVariableBinding binding, Var v) {
                 bindingVarMap.put(binding, v);
+            }
+
+            public BindingManager getBm() {
+                return bm;
             }
         }
 
@@ -2325,14 +2331,54 @@ public class NewMethodIRBuilder {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
+            private ArrayCreation makeArrCreate(AST ast, List<Expression> exps, Type arrType) {
+                ArrayCreation ac = ast.newArrayCreation();
+                ArrayInitializer ai = ast.newArrayInitializer();
+                exps.stream().map(i -> context.getBm().copyNode(ast, i)).forEach(ai.expressions()::add);
+                ac.setInitializer(ai);
+                context.getBm().setType(ac, arrType);
+                context.getBm().setType(ai, arrType);
+                return ac;
+            }
+
+            public Pair<List<Type>, List<Expression>> makeParamAndArgs(IMethodBinding binding, List<Expression> args) {
+                if (binding.isVarargs()) {
+                    ITypeBinding[] types = binding.getParameterTypes();
+                    ITypeBinding varargType = types[types.length - 1];
+                    Type realType = JDTTypeToTaieType(varargType);
+                    int i = 0;
+                    List<Type> params = new ArrayList<>();
+                    for (; i < types.length - 1; ++i) {
+                        params.add( JDTTypeToTaieType(types[i]) );
+                    }
+                    params.add(realType);
+                    AST ast = args.get(i).getAST();
+                    List<Expression> varArgs = args.subList(i, args.size());
+                    List<Expression> beforeArgs = args.subList(0, i);
+                    return new Pair<>(
+                            params,
+                            Stream.concat(beforeArgs.stream(),
+                                    Stream.of(makeArrCreate(ast, varArgs, realType)))
+                                    .toList());
+                } else {
+                    return new Pair<>(
+                            Arrays.stream(binding.getParameterTypes())
+                                    .map(TypeUtils::JDTTypeToTaieType)
+                                    .toList(),
+                            args);
+                }
+            }
+
             public Exp makeInvoke(Expression object, IMethodBinding binding, List<Expression> args) {
                 IMethodBinding decl = binding.getMethodDeclaration();
                 int modifier = decl.getModifiers();
                 MethodRef ref = getMethodRef(binding);
                 Exp exp;
-                List<Type> paramsType = Arrays.stream(binding.getParameterTypes())
-                        .map(TypeUtils::JDTTypeToTaieType)
-                        .toList();// 1. if this method is [static], that means it has nothing to do with [object]
+                var paramsAndArgs = makeParamAndArgs(binding, args);
+                List<Type> paramsType = paramsAndArgs.first();
+                args = paramsAndArgs.second();
+                // 1. if this method is [static], that means it has nothing to do with [object]
                 //    JDT has resolved the binding of method
                 if (Modifier.isStatic(modifier)) {
                     exp = listCompute(args, paramsType, (l) -> new InvokeStatic(ref, l));
@@ -2390,6 +2436,8 @@ public class NewMethodIRBuilder {
             }
 
             private void initArr(Expression exp, LValue access) {
+                // note: exp may be generated, so use [getRealNode] to get the node with binding
+                exp = (Expression) context.getBm().getRealNode(exp);
                 if (exp instanceof ArrayInitializer init) {
                     var exps = init.expressions();
                     boolean isOneDim;
@@ -2398,16 +2446,16 @@ public class NewMethodIRBuilder {
                     } else {
                         isOneDim = !(init.expressions().get(0) instanceof ArrayInitializer);
                     }
-                    var type = (pascal.taie.language.type.ArrayType)
-                            TypeUtils.JDTTypeToTaieType(init.resolveTypeBinding());
-                    Var length = context.getInt(this, init.expressions().size());
+                    var type = (pascal.taie.language.type.ArrayType) context.getBm().getTypeOfExp(exp);
+                    Var length = context.getInt(this, exps.size());
                     List<Var> lengths = new ArrayList<>();
                     lengths.add(length);
                     newAssignment(access, isOneDim ? new NewArray(type, length) :
                             new NewMultiArray(type, lengths));
-                    for (var i = 0; i < init.expressions().size(); ++i) {
+                    for (var i = 0; i < exps.size(); ++i) {
                         context.pushStack(access);
-                        initArr((Expression) exps.get(i), new ArrayAccess(popVar(), context.getInt(this, i)));
+                        initArr((Expression) exps.get(i),
+                                new ArrayAccess(popVar(), context.getInt(this, i)));
                     }
                 } else {
                     exp.accept(this);
@@ -2416,8 +2464,7 @@ public class NewMethodIRBuilder {
             }
 
             private void handleArrInit(ArrayInitializer init) {
-                ITypeBinding typeBinding = init.resolveTypeBinding();
-                var type = (pascal.taie.language.type.ArrayType) TypeUtils.JDTTypeToTaieType(typeBinding);
+                var type = (pascal.taie.language.type.ArrayType) context.getBm().getTypeOfExp(init);
                 Var temp = newTempVar(type);
                 initArr(init, temp);
                 context.pushStack(temp);
@@ -2427,10 +2474,10 @@ public class NewMethodIRBuilder {
             @SuppressWarnings("unchecked")
             @Override
             public boolean visit(ArrayCreation ac) {
-                ArrayType t = ac.getType();
-                var taieType = (pascal.taie.language.type.ArrayType) TypeUtils.JDTTypeToTaieType(t.resolveBinding());
+                // ac may be generated
+                var taieType = (pascal.taie.language.type.ArrayType) context.getBm().getTypeOfExp(ac);
                 ArrayInitializer arrInit = ac.getInitializer();
-                if (t.getDimensions() == 1 && arrInit == null) {
+                if (taieType.dimensions() == 1 && arrInit == null) {
                     // if this is one dimension array, use [NewArray]
                     Expression exp = (Expression) ac.dimensions().get(0);
                     exp.accept(this);
