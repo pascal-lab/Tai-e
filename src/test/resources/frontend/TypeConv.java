@@ -12,4 +12,18 @@ class TypeConv {
         char c = '\u0001';
         a[c] = 1; // index expression promotion
     }
+
+    public char f(int x) {
+        char a = (char)1.1;
+        System.out.println((char)a);
+        long b = new Integer(1000);
+        float f = x;
+        Double d = (double) 100;
+        int i = (int) '\u0004';
+        return (char) x;
+    }
+
+    public void g(Object o) {
+        TypeConv t = (TypeConv) o;
+    }
 }

@@ -32,7 +32,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.SetQueue;
 
-import java.lang.invoke.WrongMethodTypeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -442,5 +441,62 @@ public final class TypeUtils {
 
     public static ArrayType getArrType(Type eleType) {
         return World.get().getTypeSystem().getArrayType(eleType, 1);
+    }
+
+    public static boolean isComputeInt(PrimitiveType t) {
+        return getIndexOfPrimitive(t) <= getIndexOfPrimitive(PrimitiveType.INT);
+    }
+
+    public static boolean computeIntWiden(PrimitiveType expType, PrimitiveType target) {
+        int t1 = getIndexOfPrimitive(expType);
+        int t2 = getIndexOfPrimitive(target);
+        int tInt = getIndexOfPrimitive(PrimitiveType.INT);
+        return t2 <= tInt && t1 <= t2;
+    }
+
+    public static Literal getLiteral(Literal l, PrimitiveType t) {
+        if (isComputeInt(t)) {
+            if (l instanceof IntLiteral) {
+                return l;
+            } else if (l instanceof DoubleLiteral d) {
+                return IntLiteral.get((int) d.getValue());
+            } else if (l instanceof FloatLiteral f) {
+                return IntLiteral.get((int) f.getValue());
+            } else if (l instanceof LongLiteral l1) {
+                return IntLiteral.get((int) l1.getValue());
+            }
+        } else if (t.equals(PrimitiveType.LONG)) {
+            if (l instanceof IntLiteral i) {
+                return LongLiteral.get(i.getValue());
+            } else if (l instanceof DoubleLiteral d) {
+                return LongLiteral.get((long) d.getValue());
+            } else if (l instanceof FloatLiteral f) {
+                return LongLiteral.get((long) f.getValue());
+            } else if (l instanceof LongLiteral l1) {
+                return l;
+            }
+        } else if (t.equals(PrimitiveType.DOUBLE)) {
+            if (l instanceof IntLiteral i) {
+                return DoubleLiteral.get(i.getValue());
+            } else if (l instanceof DoubleLiteral d) {
+                return l;
+            } else if (l instanceof FloatLiteral f) {
+                return DoubleLiteral.get(f.getValue());
+            } else if (l instanceof LongLiteral l1) {
+                return DoubleLiteral.get(l1.getValue());
+            }
+        } else if (t.equals(PrimitiveType.FLOAT)) {
+            if (l instanceof IntLiteral i) {
+                return FloatLiteral.get(i.getValue());
+            } else if (l instanceof DoubleLiteral d) {
+                return FloatLiteral.get((float) d.getValue());
+            } else if (l instanceof FloatLiteral f) {
+                return l;
+            } else if (l instanceof LongLiteral l1) {
+                return FloatLiteral.get(l1.getValue());
+            }
+        }
+
+        throw new NewFrontendException(l + " can't be converted to " + t);
     }
 }

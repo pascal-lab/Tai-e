@@ -159,8 +159,10 @@ import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.HAS_NEXT;
 import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
+import static pascal.taie.frontend.newfrontend.TypeUtils.computeIntWiden;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIterableInner;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
@@ -925,10 +927,19 @@ public class NewMethodIRBuilder {
                         List.of(v));
             }
 
-            private Exp widening(Exp exp, PrimitiveType expType, PrimitiveType targetType) {
+            private Exp convertPrimitiveType(Exp exp, PrimitiveType expType, PrimitiveType targetType) {
                 // JDT Should check correctness for us
                 assert expType != targetType;
-                if (getWidenType(expType).equals(targetType)) {
+                if (getWidenType(expType).equals(targetType) ||
+                    computeIntWiden(expType, targetType)) {
+                    return exp;
+                } else {
+                    return genNewCast(exp, targetType);
+                }
+            }
+
+            private Exp convertReferenceType(Exp exp, ReferenceType expType, ReferenceType targetType) {
+                if (World.get().getTypeSystem().isSubtype(targetType, expType)) {
                     return exp;
                 } else {
                     return genNewCast(exp, targetType);
@@ -936,12 +947,16 @@ public class NewMethodIRBuilder {
             }
 
             protected Exp preformTypeConversion(Exp exp, Type type) {
+                if (exp instanceof Literal l && type instanceof PrimitiveType p) {
+                    return getLiteral(l, p);
+                }
+
                 Type expType = exp.getType();
                 // 1. if [type] and [expType] both reference type,
                 //    then there's no need for type conversion
-                if (expType instanceof ReferenceType &&
-                        type instanceof ReferenceType) {
-                    return exp;
+                if (expType instanceof ReferenceType r1 &&
+                        type instanceof ReferenceType r2) {
+                    return convertReferenceType(exp, r1, r2);
                 }
                 // 2. if [type] is reference, and [expType] is primitive,
                 //    then try to perform boxing conversion
@@ -961,7 +976,7 @@ public class NewMethodIRBuilder {
                     //    then try to perform widening primitive conversion
                     if (expType instanceof PrimitiveType e &&
                             type instanceof PrimitiveType t) {
-                        return widening(exp, e, t);
+                        return convertPrimitiveType(exp, e, t);
                     }
                     throw new NewFrontendException("illegal state, expType is " + expType + ", type is " + type);
                 }
@@ -1672,7 +1687,7 @@ public class NewMethodIRBuilder {
                         Exp next = genSimpleInterfaceInvoke(v, "next",
                                 List.of(), List.of(), getType(ClassNames.OBJECT));
                         context.pushStack(next);
-                        Exp ass  = expToVar(new CastExp(popVar(), eleType), idVar.getType());
+                        Exp ass  = expToVar(preformTypeConversion(popVar(), eleType), idVar.getType());
                         newAssignment(idVar, ass);
                         body.accept(this);
                     };
@@ -2525,7 +2540,7 @@ public class NewMethodIRBuilder {
             public boolean visit(CastExpression cast) {
                 cast.getExpression().accept(this);
                 Exp exp = context.popStack();
-                context.pushStack(genNewCast(exp,
+                context.pushStack(preformTypeConversion(exp,
                         JDTTypeToTaieType(cast.getType().resolveBinding())));
                 return false;
             }
