@@ -112,26 +112,22 @@ import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
-import pascal.taie.ir.stmt.Goto;
-import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
-import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
-import pascal.taie.ir.stmt.SwitchStmt;
-import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
@@ -163,10 +159,8 @@ import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.HAS_NEXT;
 import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIterableInner;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
@@ -225,7 +219,7 @@ public class NewMethodIRBuilder {
 
     // Some Reason for not handle
     public boolean checkIfNotHandle(SootMethod sootMethod) {
-        var r1 = methodName.equals("<init>");
+        var r1 = methodName.equals(MethodNames.INIT);
         return r1;
     }
 
@@ -301,24 +295,54 @@ public class NewMethodIRBuilder {
 
         private final static String NULL_CONSTANT = "%nullconst";
 
+        /**
+         * params of this method
+         */
         private final List<Var> params;
 
+        /**
+         * all vars of this method. note every var need to be added in this list
+         */
         private final List<Var> vars;
 
+        /**
+         * exception entries of this method
+         */
         private final List<ExceptionEntry> exceptionList;
 
+        /**
+         * return value of this method
+         */
         private final Set<Var> retVar;
 
+        /**
+         * a var in this method represent 'this'
+         */
         private Var thisVar;
 
+        /**
+         * index counter of temp variable
+         */
         private int tempCounter;
 
+        /**
+         * instance for visit {@code Statement}
+         */
         private final StmtGenerateVisitor stmtVisitor;
 
+        /**
+         * instance for visit {@code Expression}
+         */
         private final ExpVisitor expVisitor;
 
+        /**
+         * context of {@code stmtVisitor} and {@code  expVisitor}
+         */
         private final VisitorContext context;
 
+        /**
+         * manager to manage stmts
+         */
         private final StmtManager stmtManager;
 
         public IRGenerator() {
@@ -350,6 +374,12 @@ public class NewMethodIRBuilder {
             return vars.size();
         }
 
+        /**
+         * this function return a new tai-e Var, used for variable in source
+         * @param name name of this variable
+         * @param type type of this variable
+         * @return a tai-e var for this varibable
+         */
         private Var newVar(String name, Type type) {
             var v = new Var(jMethod, name, type, getVarIndex());
             regVar(v);
@@ -360,6 +390,11 @@ public class NewMethodIRBuilder {
             vars.add(v);
         }
 
+        /**
+         * this function return a new temporary variable, used for generated variable
+         * @param type type of variable to be returned
+         * @return a new variable {@code v} with {@code v.getType()} = {@code type}
+         */
         private Var newTempVar(Type type) {
             int tempNow = tempCounter;
             tempCounter++;
@@ -564,26 +599,64 @@ public class NewMethodIRBuilder {
 
 
         class VisitorContext {
+            /**
+             * Tai-e Exp stack
+             */
             private final Stack<Exp> expStack;
 
+            /**
+             * map a [label] to its continue and break target
+             */
             private final Map<String, Pair<String, String>> brkContMap;
 
+            /**
+             * generator to generate new label
+             */
             private final BlockLabelGenerator labelGenerator;
 
+            /**
+             * manager to manage exception entry
+             */
             private final ExceptionEntryManager exceptionManager;
 
+            /**
+             * map a [label] to its block, this [label] need to be finally label
+             */
             private final Map<String, Block> finallyBlockMap;
 
+            /**
+             * map a [label] to its finally label
+             */
             private final Map<String, String> finallyLabelMap;
 
+            /**
+             * map a [IVariableBinding] to its corresponding tai-e Exp
+             */
             private final Map<IVariableBinding, Exp> bindingVarMap;
 
+            /**
+             * a list record current control context (loop, try / catch)
+             */
             private final LinkedList<String> contextCtrlList;
 
+            /**
+             * manager to manager binding for generated JDT ASTNode
+             * <p> note: for now, only {@code ArrayCreation} and
+             * {@code ArrayInitializer} could be generated  </p>
+             */
             private final BindingManager bm;
 
+            /**
+             * a stack for control flow,
+             * top of stack indicates if child Statement could complete normally
+             */
             private final Stack<Boolean> flowStack;
 
+            /**
+             * a map to record literal for temporary const variable
+             * <p>when need a new Literal, first refer to this map
+             * to check if this literal is already in const Region</p>
+             */
             private final Map<Literal, Var> constMap;
 
             public VisitorContext() {
