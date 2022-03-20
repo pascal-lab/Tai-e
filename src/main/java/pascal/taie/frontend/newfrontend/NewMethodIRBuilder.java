@@ -62,6 +62,7 @@ import org.eclipse.jdt.core.dom.TryStatement;
 
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -634,13 +635,13 @@ public class NewMethodIRBuilder {
             /**
              * there may by no return statement in a method
              * it will cause some label detaching from ir
-             * e.g.
+             * e.g. <code>
              * public void f(int x) {
              *     if (x > 0) {
              *         return;
              *     }
              *     +------------+ there is a [goto] pointed to here, but here contains nothing
-             * }
+             * }</code>
              * this function will add the return
              */
             private void confirmNoDetach() {
@@ -890,30 +891,6 @@ public class NewMethodIRBuilder {
                         return widening(exp, e, t);
                     }
                     throw new NewFrontendException("illegal state, expType is " + expType + ", type is " + type);
-                }
-            }
-
-            /**
-             * See JLS17 ch 5.6, pp. 141 for detail
-             * @param contextChoose  <p>0  for  numeric arithmetic context</p>
-             *                 <p>1  for  numeric choice context</p>
-             *                 <p>2  for  numeric array context</p>
-             * @param operands operands for Numeric Promotion
-             * @return type that operands will promote to
-             */
-            protected Type resolveNumericPromotion(int contextChoose, List<Expression> operands) {
-                var typeList = operands.stream()
-                        .map(k -> getIndexOfPrimitive(JDTTypeToTaieType(k.resolveTypeBinding())))
-                        .max(Integer::compareTo);
-                assert typeList.isPresent();
-                int maxType = typeList.get();
-                // see JLS 5.6 for detail
-                if (maxType >= getIndexOfPrimitive(PrimitiveType.LONG)) {
-                    return getPrimitiveByIndex(maxType);
-                } else if (contextChoose == 0 || contextChoose == 2) {
-                    return PrimitiveType.INT;
-                } else {
-                    return getPrimitiveByIndex(maxType);
                 }
             }
 
@@ -2009,7 +1986,7 @@ public class NewMethodIRBuilder {
             }
 
             private void binaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
-                Type t = resolveNumericPromotion(0, getAllOperands(exp));
+                Type t = JDTTypeToTaieType(exp.resolveTypeBinding());
                 exp.getLeftOperand().accept(this);
                 var lVar = popVar(t);
                 exp.getRightOperand().accept(this);
@@ -2022,6 +1999,14 @@ public class NewMethodIRBuilder {
                     var lrVarNow = popVar2(t, t);
                     context.pushStack(f.apply(lrVarNow[0], lrVarNow[1]));
                 }
+            }
+
+            private void binaryCompute2(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
+                exp.getLeftOperand().accept(this);
+                var lVar = popVar();
+                exp.getRightOperand().accept(this);
+                var rVar = popVar();
+                context.pushStack(f.apply(lVar, rVar));
             }
 
             private Var getThis(ITypeBinding classBinding) {
@@ -2131,9 +2116,15 @@ public class NewMethodIRBuilder {
                                 new BitwiseExp(TypeUtils.getBitwiseOp(op), l, r));
                         return false;
                     }
-                    case ">", ">=", "==", "<=", "<", "!=" -> {
+                    case ">", ">=", "<=", "<" -> {
                         binaryCompute(exp, (l, r) ->
                                 new ConditionExp(TypeUtils.getConditionOp(op), l, r));
+                        return false;
+                    }
+                    case "==", "!=" -> {
+                        binaryCompute2(
+                                exp,
+                                (l, r) -> new ConditionExp(TypeUtils.getConditionOp(op), l, r));
                         return false;
                     }
                     case "||", "&&" -> {
@@ -2279,7 +2270,7 @@ public class NewMethodIRBuilder {
             public Exp makeInvoke(Expression object, IMethodBinding binding, List<Expression> args) {
                 IMethodBinding decl = binding.getMethodDeclaration();
                 int modifier = decl.getModifiers();
-                MethodRef ref = getMethodRef(binding);
+                MethodRef ref = getMethodRef(decl);
                 Exp exp;
                 var paramsAndArgs = makeParamAndArgs(binding, args);
                 List<Type> paramsType = paramsAndArgs.first();
@@ -2582,6 +2573,14 @@ public class NewMethodIRBuilder {
                 ie.getLeftOperand().accept(this);
                 Type t = JDTTypeToTaieType(ie.getRightOperand().resolveBinding());
                 context.pushStack(new InstanceOfExp(popVar(), t));
+                return false;
+            }
+
+            @Override
+            public boolean visit(TypeLiteral tl) {
+                ITypeBinding typeBinding = tl.getType().resolveBinding();
+                Type taieType = JDTTypeToTaieType(typeBinding);
+                context.pushStack(ClassLiteral.get(taieType));
                 return false;
             }
         }
