@@ -450,7 +450,7 @@ public class NewMethodIRBuilder {
                 SingleVariableDeclaration svd = (SingleVariableDeclaration) i;
                 var name = svd.getName();
                 var nameString = name.getIdentifier();
-                var type = TypeUtils.JDTTypeToTaieType(svd.getType().resolveBinding());
+                var type = TypeUtils.JDTTypeToTaieType(svd.resolveBinding().getType());
                 if (svd.isVarargs()) {
                     type = World.get().getTypeSystem().getArrayType(type, 1);
                 }
@@ -983,6 +983,9 @@ public class NewMethodIRBuilder {
                 }
 
                 Type expType = exp.getType();
+                if (expType.equals(type)) {
+                    return exp;
+                }
                 // 1. if [type] and [expType] both reference type,
                 //    then there's no need for type conversion
                 if (expType instanceof ReferenceType r1 &&
@@ -2104,18 +2107,17 @@ public class NewMethodIRBuilder {
                 super(context);
             }
 
-            private void numericBinaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
-                Type t = resolveNumericPromotion(0, getAllOperands(exp));
+            private void numericBinaryCompute(InfixExpression exp, Type t1, Type t2, BiFunction<Var, Var, Exp> f) {
                 exp.getLeftOperand().accept(this);
-                var lVar = popVar(t);
+                var lVar = popVar(t1);
                 exp.getRightOperand().accept(this);
-                var rVar = popVar(t);
+                var rVar = popVar(t2);
                 context.pushStack(f.apply(lVar, rVar));
                 var extOperands = exp.extendedOperands();
                 for (var i : extOperands) {
                     var expNow = (Expression) i;
                     expNow.accept(this);
-                    var lrVarNow = popVar2(t, t);
+                    var lrVarNow = popVar2(t1, t2);
                     context.pushStack(f.apply(lrVarNow[0], lrVarNow[1]));
                 }
             }
@@ -2233,22 +2235,28 @@ public class NewMethodIRBuilder {
                 // handle arithmetic expressions
                 switch (opStr) {
                     case "+", "-", "*", "/", "%" -> {
-                        numericBinaryCompute(exp, (l, r) ->
+                        Type t = JDTTypeToTaieType(exp.resolveTypeBinding());
+                        numericBinaryCompute(exp, t, t, (l, r) ->
                                 new ArithmeticExp(TypeUtils.getArithmeticOp(op), l, r));
                         return false;
                     }
                     case "<<", ">>", ">>>" -> {
-                        numericBinaryCompute(exp, (l, r) ->
+                        Type leftType = resolveNumericPromotion(0,
+                                List.of(exp.getLeftOperand()));
+                        Type rightType = PrimitiveType.INT;
+                        numericBinaryCompute(exp, leftType, rightType, (l, r) ->
                                 new ShiftExp(TypeUtils.getShiftOp(op), l, r));
                         return false;
                     }
                     case "|", "^", "&" -> {
-                        numericBinaryCompute(exp, (l, r) ->
+                        Type t = JDTTypeToTaieType(exp.resolveTypeBinding());
+                        numericBinaryCompute(exp, t, t, (l, r) ->
                                 new BitwiseExp(TypeUtils.getBitwiseOp(op), l, r));
                         return false;
                     }
                     case ">", ">=", "<=", "<" -> {
-                        numericBinaryCompute(exp, (l, r) ->
+                        Type t = resolveNumericPromotion(0, getAllOperands(exp));
+                        numericBinaryCompute(exp, t, t, (l, r) ->
                                 new ConditionExp(TypeUtils.getConditionOp(op), l, r));
                         return false;
                     }
