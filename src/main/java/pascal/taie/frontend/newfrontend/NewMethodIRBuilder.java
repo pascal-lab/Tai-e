@@ -53,6 +53,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.SynchronizedStatement;
@@ -285,6 +286,12 @@ public class NewMethodIRBuilder {
 
     private boolean isTargetClass(ITypeBinding binding) {
         return getBinaryName(binding).equals(className);
+    }
+
+    private boolean isSuperClass(ITypeBinding binding) {
+        return World.get().getTypeSystem().isSubtype(
+                JDTTypeToTaieType(binding),
+                targetClass.getType());
     }
 
     class IRGenerator {
@@ -1395,7 +1402,7 @@ public class NewMethodIRBuilder {
             }
 
             protected Var getOuterClassOrThis(ITypeBinding type) {
-                if (isTargetClass(type)) {
+                if (isTargetClass(type) || isSuperClass(type)) {
                     return getThisVar();
                 } else {
                     return expToVar(getOuterClass(type, getThisVar()));
@@ -2355,7 +2362,9 @@ public class NewMethodIRBuilder {
                 }
             }
 
-            public Exp makeInvoke(Expression object, IMethodBinding binding, List<Expression> args) {
+            public Exp makeInvoke(@Nullable Expression object,
+                                  IMethodBinding binding,
+                                  List<Expression> args) {
                 IMethodBinding decl = binding.getMethodDeclaration();
                 int modifier = decl.getModifiers();
                 MethodRef ref = getMethodRef(decl);
@@ -2404,6 +2413,14 @@ public class NewMethodIRBuilder {
                 IMethodBinding binding = mi.resolveMethodBinding();
                 List l = mi.arguments();
                 Exp invoke = makeInvoke(object, binding, l);
+                context.pushStack(invoke);
+                return false;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public boolean visit(SuperMethodInvocation smi) {
+                Exp invoke = makeInvoke(null, smi.resolveMethodBinding(), smi.arguments());
                 context.pushStack(invoke);
                 return false;
             }
