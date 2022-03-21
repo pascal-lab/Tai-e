@@ -62,7 +62,6 @@ public class StmtManager {
 
     public void addStmt(int lineNo, Stmt stmt) {
         stmt.setLineNumber(lineNo);
-        stmt.setIndex(getTop());
         if (assocList.size() != 0) {
             for (var i : assocList) {
                 blockMap.put(i, stmt);
