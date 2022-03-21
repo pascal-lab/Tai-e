@@ -7,7 +7,6 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ConditionExp;
@@ -132,8 +131,8 @@ public final class TypeUtils {
             return NullType.NULL;
         } else {
             var erased = typeBinding.getErasure();
-            var tm = WorldParaHolder.getTypeSystem();
-            var loader = WorldParaHolder.getClassLoader();
+            var tm = World.get().getTypeSystem();
+            var loader = World.get().getClassHierarchy().getDefaultClassLoader();
             if (erased.isClass() || erased.isInterface() || erased.isEnum()) {
                 return tm.getType(loader, getBinaryName(erased));
             } else if (erased.isArray()) {
@@ -221,7 +220,7 @@ public final class TypeUtils {
     }
 
     public static Type anyException() {
-        JClass thr = WorldParaHolder.getClassHierarchy().getClass(ClassNames.THROWABLE);
+        JClass thr = World.get().getClassHierarchy().getClass(ClassNames.THROWABLE);
         if (thr != null) {
             return thr.getType();
         } else {

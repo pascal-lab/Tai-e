@@ -70,7 +70,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -207,12 +206,12 @@ public class NewMethodIRBuilder {
         this.className = jMethod.getDeclaringClass().getName();
         this.notHandle = checkIfNotHandle(method);
 
-        if (!WorldParaHolder.isWorldReady()) {
+        if (World.get() == null) {
             logger.error("NewFrontend can't get the World");
             this.targetClass = null;
             this.notHandle = true;
         } else {
-            this.targetClass = WorldParaHolder.getClassHierarchy().getClass(className);
+            this.targetClass = World.get().getClassHierarchy().getClass(className);
             if (targetClass == null) {
                 logger.error("NewFrontend can't get tai-e class for" + className);
                 this.notHandle = true;

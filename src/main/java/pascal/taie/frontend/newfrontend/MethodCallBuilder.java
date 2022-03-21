@@ -3,7 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Modifier;
-import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
+import pascal.taie.World;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.MethodNames;
@@ -16,10 +16,7 @@ public class MethodCallBuilder {
 
     public static MethodRef getMethodRef(IMethodBinding binding) {
         ITypeBinding declClass = binding.getDeclaringClass();
-        JClass jClass = WorldParaHolder
-                .getClassHierarchy()
-                .getClass(WorldParaHolder.getClassLoader(),
-                        declClass.getErasure().getBinaryName());
+        JClass jClass = TypeUtils.getTaieClass(declClass);
         Type retType = TypeUtils.JDTTypeToTaieType(binding.getReturnType());
         List<Type> paras = new ArrayList<>();
         for (var i : binding.getParameterTypes()) {
@@ -30,10 +27,7 @@ public class MethodCallBuilder {
 
     public static MethodRef getInitRef(IMethodBinding binding) {
         ITypeBinding declClass = binding.getDeclaringClass();
-        JClass jClass = WorldParaHolder
-                .getClassHierarchy()
-                .getClass(WorldParaHolder.getClassLoader(),
-                        declClass.getErasure().getBinaryName());
+        JClass jClass = TypeUtils.getTaieClass(declClass);
         Type retType = TypeUtils.JDTTypeToTaieType(binding.getReturnType());
         List<Type> paras = new ArrayList<>();
         for (var i : binding.getParameterTypes()) {
