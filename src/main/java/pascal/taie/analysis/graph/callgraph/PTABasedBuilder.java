@@ -13,6 +13,7 @@
 package pascal.taie.analysis.graph.callgraph;
 
 import pascal.taie.World;
+import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
@@ -25,15 +26,9 @@ import pascal.taie.language.classes.JMethod;
  */
 class PTABasedBuilder implements CGBuilder<Invoke, JMethod> {
 
-    private final String ptaId;
-
-    public PTABasedBuilder(String ptaId) {
-        this.ptaId = ptaId;
-    }
-
     @Override
     public CallGraph<Invoke, JMethod> build() {
-        PointerAnalysisResult result = World.get().getResult(ptaId);
+        PointerAnalysisResult result = World.get().getResult(PointerAnalysis.ID);
         return result.getCallGraph();
     }
 }

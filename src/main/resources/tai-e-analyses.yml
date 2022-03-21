@@ -15,37 +15,12 @@
     taint-config: null # path to config file of taint analysis, when this file
                        # is given, taint analysis will be enabled
 
-- description: a context-insensitive pointer analysis, only for educational purpose
-  analysisClass: pascal.taie.analysis.pta.ci.CIPTA
-  id: cipta
-  options:
-    merge-string-constants: false
-    merge-string-objects: false
-    merge-string-builders: false
-    merge-exception-objects: true
-    action: null # | dump | compare
-    file: null # path to input/output file
-
-- description: a context-sensitive pointer analysis, only for educational purpose
-  analysisClass: pascal.taie.analysis.pta.cs.CSPTA
-  id: cspta
-  options:
-    cs: ci # | k-[obj/type/call]
-    merge-string-constants: false
-    merge-string-objects: false
-    merge-string-builders: false
-    merge-exception-objects: true
-    action: null # | dump | compare
-    file: null # path to input/output file
-    taint-config: null # path to config file of taint analysis, when this file
-                       # is given, taint analysis will be enabled
-
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
   id: cg
-  requires: [ pta(algorithm=pta),cipta(algorithm=cipta),cspta(algorithm=cspta) ]
+  requires: [ pta(algorithm=pta) ]
   options:
-    algorithm: pta # | cha | cipta | cspta
+    algorithm: pta # | cha
     action: null # | dump | dump-recall
     file: null # path to output files
 
@@ -109,11 +84,10 @@
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
   id: inter-constprop
-  requires: [ icfg,pta(pta=pta),cipta(pta=cipta),cspta(pta=cspta) ]
+  requires: [ icfg, pta(alias-aware=true) ]
   options:
     edge-refine: true # refine lattice value via edge transfer
-    alias-aware: false
-    pta: null
+    alias-aware: false # leverage alias information to improve precision
 
 - description: dead code detection
   analysisClass: pascal.taie.analysis.dataflow.analysis.DeadCodeDetection

@@ -20,6 +20,7 @@ import pascal.taie.analysis.graph.icfg.CallEdge;
 import pascal.taie.analysis.graph.icfg.CallToReturnEdge;
 import pascal.taie.analysis.graph.icfg.NormalEdge;
 import pascal.taie.analysis.graph.icfg.ReturnEdge;
+import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisConfig;
@@ -117,8 +118,7 @@ public class InterConstantPropagation extends
         // collect related instance field stores and loads as well as
         // related array stores and loads via alias information
         // derived from pointer analysis
-        String ptaId = getOptions().getString("pta");
-        PointerAnalysisResult pta = World.get().getResult(ptaId);
+        PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         MultiMap<Obj, Var> pointedBy = Maps.newMultiMap();
         pta.getVars()
                 .stream()

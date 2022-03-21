@@ -51,11 +51,3 @@ task("allInOne", type = Jar::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with(tasks["jar"] as CopySpec)
 }
-
-task("assignments") {
-    dependsOn("allInOne")
-    description = "Generates assignment packages"
-    doLast {
-        pascal.taie.AssignmentMaker.run(project)
-    }
-}
