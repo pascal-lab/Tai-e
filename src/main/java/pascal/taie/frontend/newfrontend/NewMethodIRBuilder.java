@@ -160,9 +160,11 @@ import static pascal.taie.frontend.newfrontend.TypeUtils.HAS_NEXT;
 import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR;
 import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
 import static pascal.taie.frontend.newfrontend.TypeUtils.computeIntWiden;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getIterableInner;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getLiteral;
+import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
 import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
@@ -915,6 +917,29 @@ public class NewMethodIRBuilder {
 
             protected Var genNewObject(MethodRef init, List<Expression> args, Type declClassType) {
                 return (Var) listCompute(args, init.getParameterTypes(), l -> genNewObject1(init, l, declClassType));
+            }
+
+            /**
+             * See JLS17 ch 5.6, pp. 141 for detail
+             * @param contextChoose  <p>0  for  numeric arithmetic context</p>
+             *                 <p>1  for  numeric choice context</p>
+             *                 <p>2  for  numeric array context</p>
+             * @param operands operands for Numeric Promotion
+             * @return type that operands will promote to
+             */
+            protected Type resolveNumericPromotion(int contextChoose, List<Expression> operands) {
+                var typeList = operands.stream()
+                        .map(k -> getIndexOfPrimitive(JDTTypeToTaieType(k.resolveTypeBinding())))
+                        .max(Integer::compareTo);
+                assert typeList.isPresent();
+                int maxType = typeList.get();
+                if (maxType >= getIndexOfPrimitive(PrimitiveType.LONG)) {
+                    return getPrimitiveByIndex(maxType);
+                } else if (contextChoose == 0 || contextChoose == 2) {
+                    return PrimitiveType.INT;
+                } else {
+                    return getPrimitiveByIndex(maxType);
+                }
             }
 
             private Exp unboxingConversion(Exp exp, ReferenceType expType, PrimitiveType targetType) {
@@ -2079,8 +2104,8 @@ public class NewMethodIRBuilder {
                 super(context);
             }
 
-            private void binaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
-                Type t = JDTTypeToTaieType(exp.resolveTypeBinding());
+            private void numericBinaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
+                Type t = resolveNumericPromotion(0, getAllOperands(exp));
                 exp.getLeftOperand().accept(this);
                 var lVar = popVar(t);
                 exp.getRightOperand().accept(this);
@@ -2096,11 +2121,23 @@ public class NewMethodIRBuilder {
             }
 
             private void binaryCompute2(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
-                exp.getLeftOperand().accept(this);
-                var lVar = popVar();
-                exp.getRightOperand().accept(this);
-                var rVar = popVar();
-                context.pushStack(f.apply(lVar, rVar));
+                Expression lExp = exp.getLeftOperand();
+                Expression rExp = exp.getRightOperand();
+                if (lExp.resolveTypeBinding().isPrimitive() ||
+                        rExp.resolveTypeBinding().isPrimitive()) {
+                    Type t = resolveNumericPromotion(0, List.of(lExp, rExp));
+                    lExp.accept(this);
+                    var lVar = popVar(t);
+                    rExp.accept(this);
+                    var rVar = popVar(t);
+                    context.pushStack(f.apply(lVar, rVar));
+                } else {
+                    lExp.accept(this);
+                    var lVar = popVar();
+                    rExp.accept(this);
+                    var rVar = popVar();
+                    context.pushStack(f.apply(lVar, rVar));
+                }
             }
 
             private Var getThis(ITypeBinding classBinding) {
@@ -2196,22 +2233,22 @@ public class NewMethodIRBuilder {
                 // handle arithmetic expressions
                 switch (opStr) {
                     case "+", "-", "*", "/", "%" -> {
-                        binaryCompute(exp, (l, r) ->
+                        numericBinaryCompute(exp, (l, r) ->
                                 new ArithmeticExp(TypeUtils.getArithmeticOp(op), l, r));
                         return false;
                     }
                     case "<<", ">>", ">>>" -> {
-                        binaryCompute(exp, (l, r) ->
+                        numericBinaryCompute(exp, (l, r) ->
                                 new ShiftExp(TypeUtils.getShiftOp(op), l, r));
                         return false;
                     }
                     case "|", "^", "&" -> {
-                        binaryCompute(exp, (l, r) ->
+                        numericBinaryCompute(exp, (l, r) ->
                                 new BitwiseExp(TypeUtils.getBitwiseOp(op), l, r));
                         return false;
                     }
                     case ">", ">=", "<=", "<" -> {
-                        binaryCompute(exp, (l, r) ->
+                        numericBinaryCompute(exp, (l, r) ->
                                 new ConditionExp(TypeUtils.getConditionOp(op), l, r));
                         return false;
                     }
