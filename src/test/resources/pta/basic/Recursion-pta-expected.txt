@@ -1,0 +1,29 @@
+Points-to sets of all variables
+[]:<A: B foo(B)>/%this -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}]
+[]:<A: B foo(B)>/b -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<A: B foo(B)>/b1 -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<A: B foo(B)>/b2 -> []
+[]:<A: B foo(B)>/temp$0 -> []
+[]:<A: B goo(B)>/%this -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}]
+[]:<A: B goo(B)>/b -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<A: B goo(B)>/b3 -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<A: B goo(B)>/b4 -> []
+[]:<A: B goo(B)>/temp$0 -> []
+[]:<A: void <init>()>/%this -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}]
+[]:<B: void <init>()>/%this -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<Recursion: void main(java.lang.String[])>/a -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}]
+[]:<Recursion: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Recursion: void main(java.lang.String[])>}]
+[]:<Recursion: void main(java.lang.String[])>/b -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<Recursion: void main(java.lang.String[])>/b5 -> []
+[]:<Recursion: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}]
+[]:<Recursion: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+[]:<Recursion: void main(java.lang.String[])>/temp$2 -> []
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}, []:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Recursion: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <Recursion: void main(java.lang.String[])>}]
+

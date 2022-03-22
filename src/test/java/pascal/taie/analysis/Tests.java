@@ -16,6 +16,7 @@ import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
+import pascal.taie.analysis.pta.PointerAnalysis;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -86,19 +87,7 @@ public final class Tests {
     }
 
     public static void testPTA(String dir, String main, String... opts) {
-        doTestPTA("pta", dir, main, opts);
-    }
-
-    public static void testCIPTA(String dir, String main, String... opts) {
-        doTestPTA("cipta", dir, main, opts);
-    }
-
-    public static void testCSPTA(String dir, String main, String... opts) {
-        doTestPTA("cspta", dir, main, opts);
-    }
-
-    private static void doTestPTA(
-            String id, String dir, String main, String... opts) {
+        String id = PointerAnalysis.ID;
         List<String> args = new ArrayList<>();
         args.add("-pp");
         String classPath = "src/test/resources/pta/" + dir;

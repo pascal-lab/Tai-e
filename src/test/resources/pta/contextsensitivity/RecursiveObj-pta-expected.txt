@@ -1,0 +1,46 @@
+Points-to sets of all variables
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]:<RecursiveObj: int count()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]:<RecursiveObj: int count()>/temp$0 -> []
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]:<RecursiveObj: int count()>/temp$3 -> []
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/next -> []
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]:<RecursiveObj: int count()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]:<RecursiveObj: int count()>/temp$0 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]:<RecursiveObj: int count()>/temp$3 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/next -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]:<RecursiveObj: int count()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]:<RecursiveObj: int count()>/temp$0 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]:<RecursiveObj: int count()>/temp$3 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/next -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]:<RecursiveObj: int count()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]:<RecursiveObj: int count()>/temp$0 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]:<RecursiveObj: int count()>/temp$3 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]:<RecursiveObj: void <init>(RecursiveObj)>/next -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <RecursiveObj: void main(java.lang.String[])>}]
+[]:<RecursiveObj: void main(java.lang.String[])>/o1 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/o2 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/o3 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/o4 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+[]:<RecursiveObj: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}.next -> []
+[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}.next -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[0@L6] new RecursiveObj}]
+[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}.next -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[3@L7] new RecursiveObj}]
+[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[9@L9] new RecursiveObj}.next -> [[]:NewObj{<RecursiveObj: void main(java.lang.String[])>[6@L8] new RecursiveObj}]
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <RecursiveObj: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <RecursiveObj: void main(java.lang.String[])>}]
+

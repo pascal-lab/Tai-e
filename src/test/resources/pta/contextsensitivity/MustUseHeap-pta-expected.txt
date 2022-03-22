@@ -1,0 +1,28 @@
+Points-to sets of all variables
+[<MustUseHeap: A createA()>[1@L11] invokespecial temp$0.<init>(), <A: void <init>()>[0@L15] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}, [<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA(), <MustUseHeap: A createA()>[1@L11] invokespecial temp$0.<init>()]:<A: void <init>()>/%this -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:<MustUseHeap: A createA()>/temp$0 -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[<MustUseHeap: void main(java.lang.String[])>[3@L4] invokespecial temp$1.<init>(), <B: void <init>()>[0@L19] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
+[<MustUseHeap: void main(java.lang.String[])>[3@L4] invokespecial temp$1.<init>()]:<B: void <init>()>/%this -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
+[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA(), <MustUseHeap: A createA()>[1@L11] invokespecial temp$0.<init>()]:<A: void <init>()>/%this -> [[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:<MustUseHeap: A createA()>/temp$0 -> [[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[<MustUseHeap: void main(java.lang.String[])>[8@L6] invokespecial temp$3.<init>(), <B: void <init>()>[0@L19] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
+[<MustUseHeap: void main(java.lang.String[])>[8@L6] invokespecial temp$3.<init>()]:<B: void <init>()>/%this -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
+[]:<MustUseHeap: void main(java.lang.String[])>/a1 -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[]:<MustUseHeap: void main(java.lang.String[])>/a2 -> [[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[]:<MustUseHeap: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}]
+[]:<MustUseHeap: void main(java.lang.String[])>/result -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
+[]:<MustUseHeap: void main(java.lang.String[])>/temp$0 -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[]:<MustUseHeap: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
+[]:<MustUseHeap: void main(java.lang.String[])>/temp$2 -> [[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
+[]:<MustUseHeap: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.f -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
+[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.f -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <MustUseHeap: void main(java.lang.String[])>}]
+

@@ -1,0 +1,40 @@
+Points-to sets of all variables
+[MergedObj{<Merged java.lang.String>}]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]:<CSTaint$A: java.lang.String get()>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]:<CSTaint$A: java.lang.String get()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]:<CSTaint$A: void <init>()>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]:<CSTaint$A: void set(java.lang.String)>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]:<CSTaint$A: void set(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<CSTaint$A: java.lang.String get()>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<CSTaint$A: java.lang.String get()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<CSTaint$A: void <init>()>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<CSTaint$A: void set(java.lang.String)>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<CSTaint$A: void set(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+[NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
+[]:<CSTaint: void main(java.lang.String[])>/a1 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
+[]:<CSTaint: void main(java.lang.String[])>/a2 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
+[]:<CSTaint: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <CSTaint: void main(java.lang.String[])>}]
+[]:<CSTaint: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<CSTaint: void main(java.lang.String[])>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<CSTaint: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
+[]:<CSTaint: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<CSTaint: void main(java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<CSTaint: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
+[]:<CSTaint: void main(java.lang.String[])>/temp$4 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<CSTaint: void main(java.lang.String[])>/temp$5 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}.f -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}.f -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <CSTaint: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <CSTaint: void main(java.lang.String[])>}]
+
+Detected 1 taint flow(s):
+TaintFlow{<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic <SourceSink: java.lang.String source()>(); -> <CSTaint: void main(java.lang.String[])>[16@L12] invokestatic <SourceSink: void sink(java.lang.String)>(temp$5);/0}
+

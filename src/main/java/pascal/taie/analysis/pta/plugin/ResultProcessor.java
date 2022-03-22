@@ -228,7 +228,7 @@ public class ResultProcessor implements Plugin {
 
     private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {
         Set<TaintFlow> taintFlows = getTaintFlows(result);
-        out.printf("Detected %d taint flow(s):", taintFlows.size());
+        out.printf("Detected %d taint flow(s):%n", taintFlows.size());
         taintFlows.forEach(out::println);
         out.println();
     }

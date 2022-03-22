@@ -123,7 +123,7 @@ public class Options {
     @JsonProperty
     @Option(names = "--pre-build-ir",
             description = "Build Tai-e IR for all available methods before" +
-                    " starting pointer analysis (default: ${DEFAULT-VALUE})",
+                    " starting any analysis (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean preBuildIR = false;
 

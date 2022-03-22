@@ -1,0 +1,18 @@
+Points-to sets of all variables
+[]:<StaticCall: java.lang.Object bar(int,java.lang.Object)>/o -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<StaticCall: java.lang.Object bar(int,java.lang.Object)>/temp$2 -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<StaticCall: java.lang.Object foo(int,java.lang.Object)>/o -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<StaticCall: java.lang.Object foo(int,java.lang.Object)>/temp$0 -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<StaticCall: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <StaticCall: void main(java.lang.String[])>}]
+[]:<StaticCall: void main(java.lang.String[])>/o -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<StaticCall: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<StaticCall: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<StaticCall: void main(java.lang.String[])>[0@L4] new java.lang.Object}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <StaticCall: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <StaticCall: void main(java.lang.String[])>}]
+

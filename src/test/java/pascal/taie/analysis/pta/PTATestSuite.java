@@ -19,7 +19,8 @@ import pascal.taie.analysis.pta.core.cs.context.ContextTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         ContextTest.class,
-        PTATest.class,
+        BasicTestFull.class,
+        ContextSensitivityTestFull.class,
         ExceptionTest.class,
         LambdaTest.class,
         ReflectionTest.class,

@@ -1,0 +1,48 @@
+Points-to sets of all variables
+[<TwoCallOnly: void main(java.lang.String[])>[10@L5] invokespecial temp$4.<init>(), <X: void <init>()>[0@L29] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[10@L5] invokespecial temp$4.<init>()]:<X: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[11@L5] invokespecial temp$3.<init>(temp$4), <A: void <init>(X)>[0@L20] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}]
+[<TwoCallOnly: void main(java.lang.String[])>[11@L5] invokespecial temp$3.<init>(temp$4)]:<A: void <init>(X)>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}]
+[<TwoCallOnly: void main(java.lang.String[])>[11@L5] invokespecial temp$3.<init>(temp$4)]:<A: void <init>(X)>/x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[13@L6] temp$5 = invokevirtual a1.fun(b), <A: X fun(B)>[1@L25] temp$1 = invokevirtual b.get(temp$0)]:<B: X get(X)>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[<TwoCallOnly: void main(java.lang.String[])>[13@L6] temp$5 = invokevirtual a1.fun(b), <A: X fun(B)>[1@L25] temp$1 = invokevirtual b.get(temp$0)]:<B: X get(X)>/x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[13@L6] temp$5 = invokevirtual a1.fun(b)]:<A: X fun(B)>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}]
+[<TwoCallOnly: void main(java.lang.String[])>[13@L6] temp$5 = invokevirtual a1.fun(b)]:<A: X fun(B)>/b -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[<TwoCallOnly: void main(java.lang.String[])>[13@L6] temp$5 = invokevirtual a1.fun(b)]:<A: X fun(B)>/temp$0 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[13@L6] temp$5 = invokevirtual a1.fun(b)]:<A: X fun(B)>/temp$1 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[15@L7] temp$6 = invokevirtual a2.fun(b), <A: X fun(B)>[1@L25] temp$1 = invokevirtual b.get(temp$0)]:<B: X get(X)>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[<TwoCallOnly: void main(java.lang.String[])>[15@L7] temp$6 = invokevirtual a2.fun(b), <A: X fun(B)>[1@L25] temp$1 = invokevirtual b.get(temp$0)]:<B: X get(X)>/x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[15@L7] temp$6 = invokevirtual a2.fun(b)]:<A: X fun(B)>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}]
+[<TwoCallOnly: void main(java.lang.String[])>[15@L7] temp$6 = invokevirtual a2.fun(b)]:<A: X fun(B)>/b -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[<TwoCallOnly: void main(java.lang.String[])>[15@L7] temp$6 = invokevirtual a2.fun(b)]:<A: X fun(B)>/temp$0 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[15@L7] temp$6 = invokevirtual a2.fun(b)]:<A: X fun(B)>/temp$1 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[1@L3] invokespecial temp$0.<init>(), <B: void <init>()>[0@L11] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[<TwoCallOnly: void main(java.lang.String[])>[1@L3] invokespecial temp$0.<init>()]:<B: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[<TwoCallOnly: void main(java.lang.String[])>[5@L4] invokespecial temp$2.<init>(), <X: void <init>()>[0@L29] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[5@L4] invokespecial temp$2.<init>()]:<X: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[<TwoCallOnly: void main(java.lang.String[])>[6@L4] invokespecial temp$1.<init>(temp$2), <A: void <init>(X)>[0@L20] invokespecial %this.<init>()]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}]
+[<TwoCallOnly: void main(java.lang.String[])>[6@L4] invokespecial temp$1.<init>(temp$2)]:<A: void <init>(X)>/%this -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}]
+[<TwoCallOnly: void main(java.lang.String[])>[6@L4] invokespecial temp$1.<init>(temp$2)]:<A: void <init>(X)>/x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/a1 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/a2 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoCallOnly: void main(java.lang.String[])>}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/b -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[0@L3] new B}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$5 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/temp$6 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/x1 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[]:<TwoCallOnly: void main(java.lang.String[])>/x2 -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}.x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}.x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoCallOnly: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoCallOnly: void main(java.lang.String[])>}]
+

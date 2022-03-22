@@ -1,0 +1,37 @@
+Points-to sets of all variables
+[]:<Animal: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[0@L7] new Animal}, []:NewObj{<Cast2: void m()>[13@L14] new Dog}, []:NewObj{<Cast2: void m()>[17@L17] new Dog}, []:NewObj{<Cast2: void m()>[21@L20] new Pupi}, []:NewObj{<Cast2: void m()>[26@L24] new Cat}, []:NewObj{<Cast2: void m()>[30@L27] new Animal}, []:NewObj{<Cast2: void m()>[3@L8] new Dog}, []:NewObj{<Cast2: void m()>[6@L9] new Cat}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+[]:<Cast2: void m()>/animal -> [[]:NewObj{<Cast2: void m()>[0@L7] new Animal}, []:NewObj{<Cast2: void m()>[3@L8] new Dog}, []:NewObj{<Cast2: void m()>[6@L9] new Cat}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+[]:<Cast2: void m()>/animal2 -> [[]:NewObj{<Cast2: void m()>[17@L17] new Dog}]
+[]:<Cast2: void m()>/animal3 -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}]
+[]:<Cast2: void m()>/animal4 -> [[]:NewObj{<Cast2: void m()>[26@L24] new Cat}]
+[]:<Cast2: void m()>/animal5 -> [[]:NewObj{<Cast2: void m()>[30@L27] new Animal}]
+[]:<Cast2: void m()>/dog -> [[]:NewObj{<Cast2: void m()>[3@L8] new Dog}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+[]:<Cast2: void m()>/dog2 -> [[]:NewObj{<Cast2: void m()>[13@L14] new Dog}]
+[]:<Cast2: void m()>/dog4 -> [[]:NewObj{<Cast2: void m()>[17@L17] new Dog}]
+[]:<Cast2: void m()>/dog5 -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}]
+[]:<Cast2: void m()>/dog6 -> []
+[]:<Cast2: void m()>/dog7 -> []
+[]:<Cast2: void m()>/pupi -> []
+[]:<Cast2: void m()>/pupi1 -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}]
+[]:<Cast2: void m()>/temp$0 -> [[]:NewObj{<Cast2: void m()>[0@L7] new Animal}]
+[]:<Cast2: void m()>/temp$1 -> [[]:NewObj{<Cast2: void m()>[3@L8] new Dog}]
+[]:<Cast2: void m()>/temp$2 -> [[]:NewObj{<Cast2: void m()>[6@L9] new Cat}]
+[]:<Cast2: void m()>/temp$3 -> [[]:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+[]:<Cast2: void m()>/temp$4 -> [[]:NewObj{<Cast2: void m()>[13@L14] new Dog}]
+[]:<Cast2: void m()>/temp$5 -> [[]:NewObj{<Cast2: void m()>[17@L17] new Dog}]
+[]:<Cast2: void m()>/temp$6 -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}]
+[]:<Cast2: void m()>/temp$7 -> [[]:NewObj{<Cast2: void m()>[26@L24] new Cat}]
+[]:<Cast2: void m()>/temp$8 -> [[]:NewObj{<Cast2: void m()>[30@L27] new Animal}]
+[]:<Cast2: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Cast2: void main(java.lang.String[])>}]
+[]:<Cat: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[26@L24] new Cat}, []:NewObj{<Cast2: void m()>[6@L9] new Cat}]
+[]:<Dog: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[13@L14] new Dog}, []:NewObj{<Cast2: void m()>[17@L17] new Dog}, []:NewObj{<Cast2: void m()>[21@L20] new Pupi}, []:NewObj{<Cast2: void m()>[3@L8] new Dog}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+[]:<Pupi: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[0@L7] new Animal}, []:NewObj{<Cast2: void m()>[13@L14] new Dog}, []:NewObj{<Cast2: void m()>[17@L17] new Dog}, []:NewObj{<Cast2: void m()>[21@L20] new Pupi}, []:NewObj{<Cast2: void m()>[26@L24] new Cat}, []:NewObj{<Cast2: void m()>[30@L27] new Animal}, []:NewObj{<Cast2: void m()>[3@L8] new Dog}, []:NewObj{<Cast2: void m()>[6@L9] new Cat}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Cast2: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <Cast2: void main(java.lang.String[])>}]
+

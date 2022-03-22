@@ -20,7 +20,7 @@ import pascal.taie.language.classes.JClass;
 public class AnnotationTest {
 
     private static void buildWorld(String main) {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/basic", "-m", main);
+        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "-m", main);
     }
 
     @Test

@@ -1,0 +1,15 @@
+Points-to sets of all variables
+[]:<Native: void <init>()>/%this -> [[]:NewObj{<Native: void main(java.lang.String[])>[0@L4] new Native}]
+[]:<Native: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Native: void main(java.lang.String[])>}]
+[]:<Native: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Native: void main(java.lang.String[])>[0@L4] new Native}]
+[]:<Native: void main(java.lang.String[])>/x -> [[]:NewObj{<Native: void main(java.lang.String[])>[0@L4] new Native}]
+[]:<java.lang.Object: int hashCode()>/%this -> [[]:NewObj{<Native: void main(java.lang.String[])>[0@L4] new Native}]
+[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Native: void main(java.lang.String[])>[0@L4] new Native}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Native: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <Native: void main(java.lang.String[])>}]
+

@@ -1,0 +1,37 @@
+Points-to sets of all variables
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/delim -> [[]:ConstantObj{java.lang.String: ","}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/sb -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/strings -> [[]:NewObj{<ArrayTaint: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$1 -> [[]:ConstantObj{java.lang.String: ""}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$16 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$17 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$18 -> [[]:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$8 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$9 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<ArrayTaint: void main(java.lang.String[])>/%stringconst2 -> [[]:ConstantObj{java.lang.String: ","}]
+[]:<ArrayTaint: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ArrayTaint: void main(java.lang.String[])>}]
+[]:<ArrayTaint: void main(java.lang.String[])>/arr -> [[]:NewObj{<ArrayTaint: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
+[]:<ArrayTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<ArrayTaint: void main(java.lang.String[])>/temp$6 -> [[]:ConstantObj{java.lang.String: ""}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:ConstantObj{java.lang.String: ""}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<java.lang.StringBuilder: java.lang.String toString()>/$r3 -> []
+[]:<java.lang.StringBuilder: java.lang.String toString()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>/r1 -> [[]:ConstantObj{java.lang.String: ","}, []:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<java.lang.StringBuilder: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ArrayTaint: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <ArrayTaint: void main(java.lang.String[])>}]
+[]:NewObj{<ArrayTaint: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Detected 1 taint flow(s):
+TaintFlow{<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic <SourceSink: java.lang.String source()>(); -> <ArrayTaint: void main(java.lang.String[])>[17@L7] invokestatic <SourceSink: void sink(java.lang.String)>(temp$6);/0}
+
