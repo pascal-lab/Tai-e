@@ -1,0 +1,52 @@
+---------- <Try2: int f(int)> ----------
+Parameters: int x
+Variables:
+Try2 %this
+int x
+int %intconst0
+int %intconst1
+int %intconst2
+int k
+int q
+java.lang.Exception e
+int i
+java.lang.Throwable #temp$3
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 3;
+[2@L-1] %intconst2 = 10;
+[3@L3] if (x > %intconst0) goto 5;
+[4@L3] goto 22;
+[5@L4] if (x > %intconst1) goto 7;
+[6@L4] goto 21;
+[7@L6] if (x > %intconst2) goto 9;
+[8@L6] goto 11;
+[9@L14] k = 2;
+[10@L14] goto 22;
+[11@L9] q = 3;
+[12@L9] goto 19;
+[13@L9] catch e;
+[14@L12] i = 2;
+[15@L12] goto 19;
+[16@L12] catch #temp$3;
+[17@L14] k = 2;
+[18@L14] throw #temp$3;
+[19@L14] k = 2;
+[20@L14] goto 5;
+[21@L14] goto 3;
+[22@L18] return %intconst2;
+Exception entries:
+  try [7, 9), catch java.lang.Exception at 13
+  try [11, 12), catch java.lang.Exception at 13
+  try [7, 9), catch java.lang.Throwable at 16
+  try [11, 12), catch java.lang.Throwable at 16
+  try [13, 15), catch java.lang.Throwable at 16
+---------- <Try2: void <init>()> ----------
+Parameters: 
+Variables:
+Try2 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

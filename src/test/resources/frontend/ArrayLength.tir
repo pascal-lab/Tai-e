@@ -1,0 +1,18 @@
+---------- <ArrayLength: int f(int[])> ----------
+Parameters: int[] a
+Variables:
+ArrayLength %this
+int[] a
+int #temp$0
+Statements:
+[0@L2] #temp$0 = a.length;
+[1@L2] return #temp$0;
+---------- <ArrayLength: void <init>()> ----------
+Parameters: 
+Variables:
+ArrayLength %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

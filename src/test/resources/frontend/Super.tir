@@ -1,0 +1,9 @@
+---------- <Super: void <init>()> ----------
+Parameters: 
+Variables:
+Super %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

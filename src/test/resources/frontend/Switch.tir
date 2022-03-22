@@ -1,0 +1,160 @@
+---------- <Switch: int f3(int)> ----------
+Parameters: int x
+Variables:
+Switch %this
+int x
+int %intconst0
+int %intconst1
+int %intconst2
+int %intconst3
+int %intconst4
+Statements:
+[0@L-1] %intconst0 = 40;
+[1@L-1] %intconst1 = 10;
+[2@L-1] %intconst2 = 20;
+[3@L-1] %intconst3 = 30;
+[4@L-1] %intconst4 = 100;
+[5@L40] tableswitch (x) {1->7, 2->8, 3->9, 4->9, default->6};
+[6@L49] return %intconst0;
+[7@L42] return %intconst1;
+[8@L44] return %intconst2;
+[9@L47] return %intconst3;
+[10@L51] return %intconst4;
+---------- <Switch: int f4(Switch$A)> ----------
+Parameters: Switch$A x
+Variables:
+Switch %this
+Switch$A x
+Switch$A #temp$0
+boolean #temp$1
+int %intconst2
+Switch$A #temp$3
+boolean #temp$4
+int %intconst5
+int %intconst6
+int %intconst7
+Statements:
+[0@L-1] %intconst2 = 0;
+[1@L-1] %intconst5 = 100;
+[2@L-1] %intconst6 = 20;
+[3@L-1] %intconst7 = 1000;
+[4@L59] #temp$0 = <Switch$A: Switch$A SS>;
+[5@L59] #temp$1 = invokevirtual x.<Switch$A: boolean equals(java.lang.Object)>(#temp$0);
+[6@L59] if (#temp$1 == %intconst2) goto 11;
+[7@L59] #temp$3 = <Switch$A: Switch$A CC>;
+[8@L59] #temp$4 = invokevirtual x.<Switch$A: boolean equals(java.lang.Object)>(#temp$3);
+[9@L59] if (#temp$4 == %intconst2) goto 12;
+[10@L59] goto 13;
+[11@L61] return %intconst5;
+[12@L63] return %intconst6;
+[13@L65] return %intconst7;
+---------- <Switch: int[] $SwitchMap$Switch$A()> ----------
+Parameters: 
+Variables:
+int[] temp$0
+<null type> %nullconst
+Switch$A[] temp$1
+int temp$2
+int[] temp$3
+int[] temp$4
+Switch$A temp$5
+int temp$6
+int temp$8
+java.lang.NoSuchFieldError e
+int[] temp$9
+Switch$A temp$10
+int temp$11
+int temp$13
+java.lang.NoSuchFieldError e
+int[] temp$14
+Statements:
+[0@L1] temp$0 = <Switch: int[] $SwitchMap$Switch$A>;
+[1@L1] if (temp$0 == %nullconst) goto 3;
+[2@L1] goto 8;
+[3@L1] nop;
+[4@L1] temp$1 = invokestatic <Switch$A: Switch$A[] values()>();
+[5@L1] temp$2 = temp$1.length;
+[6@L1] temp$3 = newarray int[temp$2];
+[7@L1] <Switch: int[] $SwitchMap$Switch$A> = temp$3;
+[8@L1] nop;
+[9@L1] nop;
+[10@L1] temp$4 = <Switch: int[] $SwitchMap$Switch$A>;
+[11@L1] temp$5 = <Switch$A: Switch$A SS>;
+[12@L1] temp$6 = invokevirtual temp$5.<Switch$A: int ordinal()>();
+[13@L1] temp$8 = 0;
+[14@L1] temp$4[temp$6] = temp$8;
+[15@L1] goto 20;
+[16@L1] nop;
+[17@L1] catch e;
+[18@L1] nop;
+[19@L1] goto 20;
+[20@L1] nop;
+[21@L1] nop;
+[22@L1] temp$9 = <Switch: int[] $SwitchMap$Switch$A>;
+[23@L1] temp$10 = <Switch$A: Switch$A CC>;
+[24@L1] temp$11 = invokevirtual temp$10.<Switch$A: int ordinal()>();
+[25@L1] temp$13 = 0;
+[26@L1] temp$9[temp$11] = temp$13;
+[27@L1] goto 32;
+[28@L1] nop;
+[29@L1] catch e;
+[30@L1] nop;
+[31@L1] goto 32;
+[32@L1] nop;
+[33@L1] temp$14 = <Switch: int[] $SwitchMap$Switch$A>;
+[34@L1] return temp$14;
+Exception entries:
+  try [9, 16), catch java.lang.NoSuchFieldError at 17
+  try [21, 28), catch java.lang.NoSuchFieldError at 29
+---------- <Switch: java.lang.Class class$(java.lang.String)> ----------
+Parameters: java.lang.String name
+Variables:
+java.lang.String name
+java.lang.Class temp$0
+java.lang.ClassNotFoundException e
+java.lang.NoClassDefFoundError temp$1
+java.lang.String temp$2
+Statements:
+[0@L1] nop;
+[1@L1] temp$0 = invokestatic <java.lang.Class: java.lang.Class forName(java.lang.String)>(name);
+[2@L1] nop;
+[3@L1] return temp$0;
+[4@L1] nop;
+[5@L1] catch e;
+[6@L1] temp$1 = new java.lang.NoClassDefFoundError;
+[7@L1] temp$2 = invokevirtual e.<java.lang.ClassNotFoundException: java.lang.String getMessage()>();
+[8@L1] invokespecial temp$1.<java.lang.NoClassDefFoundError: void <init>(java.lang.String)>(temp$2);
+[9@L1] throw temp$1;
+Exception entries:
+  try [0, 2), catch java.lang.ClassNotFoundException at 5
+---------- <Switch: void <init>()> ----------
+Parameters: 
+Variables:
+Switch %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Switch: void f1(int)> ----------
+Parameters: int x
+Variables:
+Switch %this
+int x
+int t
+int k
+int j
+int a
+Statements:
+[0@L2] lookupswitch (x) {10->2, 100->3, 300->5, 12213->7, 5243->9, 1312->9, default->1};
+[1@L12] goto 11;
+[2@L3] return;
+[3@L5] t = 20;
+[4@L5] goto 11;
+[5@L7] k = 3000;
+[6@L7] goto 11;
+[7@L9] j = 3332;
+[8@L9] goto 11;
+[9@L16] a = 123;
+[10@L16] goto 11;
+[11@L-1] return;
+------------------------------
+

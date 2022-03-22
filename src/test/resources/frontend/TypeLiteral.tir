@@ -1,0 +1,47 @@
+---------- <TypeLiteral: java.lang.Class class$(java.lang.String)> ----------
+Parameters: java.lang.String name
+Variables:
+java.lang.String name
+java.lang.Class temp$0
+java.lang.ClassNotFoundException e
+java.lang.NoClassDefFoundError temp$1
+java.lang.String temp$2
+Statements:
+[0@L1] nop;
+[1@L1] temp$0 = invokestatic <java.lang.Class: java.lang.Class forName(java.lang.String)>(name);
+[2@L1] nop;
+[3@L1] return temp$0;
+[4@L1] nop;
+[5@L1] catch e;
+[6@L1] temp$1 = new java.lang.NoClassDefFoundError;
+[7@L1] temp$2 = invokevirtual e.<java.lang.ClassNotFoundException: java.lang.String getMessage()>();
+[8@L1] invokespecial temp$1.<java.lang.NoClassDefFoundError: void <init>(java.lang.String)>(temp$2);
+[9@L1] throw temp$1;
+Exception entries:
+  try [0, 2), catch java.lang.ClassNotFoundException at 5
+---------- <TypeLiteral: void <init>()> ----------
+Parameters: 
+Variables:
+TypeLiteral %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <TypeLiteral: void method(java.lang.Object)> ----------
+Parameters: java.lang.Object b
+Variables:
+TypeLiteral %this
+java.lang.Object b
+java.lang.Class #temp$0
+java.lang.Class %classconst1
+TypeLiteral f
+java.lang.Object #temp$2
+Statements:
+[0@L-1] %classconst1 = TypeLiteral.class;
+[1@L2] #temp$0 = invokevirtual b.<java.lang.Object: java.lang.Class getClass()>();
+[2@L2] if (#temp$0 == %classconst1) goto 4;
+[3@L2] goto 6;
+[4@L3] #temp$2 = invokevirtual %classconst1.<java.lang.Class: java.lang.Object cast(java.lang.Object)>(b);
+[5@L3] f = (TypeLiteral) #temp$2;
+[6@L-1] return;
+------------------------------
+

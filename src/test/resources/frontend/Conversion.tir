@@ -1,0 +1,50 @@
+---------- <Conversion: void <init>()> ----------
+Parameters: 
+Variables:
+Conversion %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Conversion: void f()> ----------
+Parameters: 
+Variables:
+Conversion %this
+int x
+float f
+Statements:
+[0@L2] x = 10;
+[1@L3] f = (float) x;
+[2@L-1] return;
+---------- <Conversion: void g()> ----------
+Parameters: 
+Variables:
+Conversion %this
+Conversion #temp$0
+Conversion c
+java.lang.Object o
+Statements:
+[0@L7] #temp$0 = new Conversion;
+[1@L7] invokespecial #temp$0.<Conversion: void <init>()>();
+[2@L7] c = #temp$0;
+[3@L8] o = c;
+[4@L-1] return;
+---------- <Conversion: void k()> ----------
+Parameters: 
+Variables:
+Conversion %this
+java.lang.Boolean b
+int %intconst0
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L12] b = invokestatic <java.lang.Boolean: java.lang.Boolean valueOf(boolean)>(%intconst0);
+[2@L-1] return;
+---------- <Conversion: void l()> ----------
+Parameters: 
+Variables:
+Conversion %this
+byte a
+Statements:
+[0@L16] a = 10;
+[1@L-1] return;
+------------------------------
+

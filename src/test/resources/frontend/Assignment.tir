@@ -1,0 +1,111 @@
+---------- <Assignment: int f(int,int)> ----------
+Parameters: int x, int y
+Variables:
+Assignment %this
+int x
+int y
+int %intconst0
+int #temp$1
+int %intconst2
+int x1
+int %intconst3
+int #temp$4
+int %intconst5
+int #temp$6
+int x2
+int x3
+int #temp$7
+int #temp$8
+int #temp$9
+int #temp$10
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L-1] %intconst2 = 1000;
+[2@L-1] %intconst3 = 12;
+[3@L-1] %intconst5 = 90;
+[4@L2] #temp$1 = x + %intconst0;
+[5@L2] x1 = #temp$1 * %intconst2;
+[6@L3] #temp$4 = y / %intconst3;
+[7@L3] #temp$6 = x1 * %intconst5;
+[8@L3] x2 = #temp$4 % #temp$6;
+[9@L4] x1 = 10;
+[10@L4] x3 = x1;
+[11@L5] #temp$7 = x + x1;
+[12@L5] #temp$8 = #temp$7 - y;
+[13@L5] #temp$9 = #temp$8 - x2;
+[14@L5] #temp$10 = #temp$9 - x3;
+[15@L5] return #temp$10;
+---------- <Assignment: void <init>()> ----------
+Parameters: 
+Variables:
+Assignment %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Assignment: void g(int,int)> ----------
+Parameters: int x, int y
+Variables:
+Assignment %this
+int x
+int y
+int %intconst0
+int x1
+int %intconst1
+int y1
+Statements:
+[0@L-1] %intconst0 = 3;
+[1@L-1] %intconst1 = 2;
+[2@L9] x1 = x + %intconst0;
+[3@L9] y1 = y + %intconst1;
+[4@L-1] return;
+---------- <Assignment: void k()> ----------
+Parameters: 
+Variables:
+Assignment %this
+int x
+int %intconst0
+int q
+int %intconst1
+int #temp$2
+int #temp$3
+int #temp$4
+int #temp$5
+int #temp$6
+int #temp$7
+int #temp$8
+int #temp$9
+int #temp$10
+int #temp$11
+int #temp$12
+int #temp$13
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst1 = 20;
+[2@L14] x = 10;
+[3@L15] x = x + %intconst0;
+[4@L15] q = x;
+[5@L16] q = q / %intconst1;
+[6@L17] q = q - %intconst1;
+[7@L18] q = q + %intconst1;
+[8@L18] q = q;
+[9@L19] #temp$2 = %this.<Assignment: int a>;
+[10@L19] #temp$3 = #temp$2 & %intconst1;
+[11@L19] %this.<Assignment: int a> = #temp$3;
+[12@L20] #temp$4 = %this.<Assignment: int a>;
+[13@L20] #temp$5 = #temp$4 | %intconst1;
+[14@L20] %this.<Assignment: int a> = #temp$5;
+[15@L21] #temp$6 = %this.<Assignment: int a>;
+[16@L21] #temp$7 = #temp$6 % %intconst1;
+[17@L21] %this.<Assignment: int a> = #temp$7;
+[18@L22] #temp$8 = %this.<Assignment: int a>;
+[19@L22] #temp$9 = #temp$8 >> %intconst1;
+[20@L22] %this.<Assignment: int a> = #temp$9;
+[21@L23] #temp$10 = %this.<Assignment: int a>;
+[22@L23] #temp$11 = #temp$10 << %intconst1;
+[23@L23] %this.<Assignment: int a> = #temp$11;
+[24@L24] #temp$12 = %this.<Assignment: int a>;
+[25@L24] #temp$13 = #temp$12 >>> %intconst1;
+[26@L24] %this.<Assignment: int a> = #temp$13;
+[27@L-1] return;
+------------------------------
+

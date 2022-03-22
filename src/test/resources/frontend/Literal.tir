@@ -1,0 +1,69 @@
+---------- <Literal: double g()> ----------
+Parameters: 
+Variables:
+Literal %this
+double %doubleconst0
+Statements:
+[0@L-1] %doubleconst0 = 1.00000001E8;
+[1@L7] return %doubleconst0;
+---------- <Literal: double h1()> ----------
+Parameters: 
+Variables:
+Literal %this
+double %doubleconst0
+Statements:
+[0@L-1] %doubleconst0 = 1.0;
+[1@L19] return %doubleconst0;
+---------- <Literal: int f()> ----------
+Parameters: 
+Variables:
+Literal %this
+int a
+int %intconst0
+Statements:
+[0@L-1] %intconst0 = 3;
+[1@L2] a = 3;
+[2@L3] return %intconst0;
+---------- <Literal: java.lang.Object h()> ----------
+Parameters: 
+Variables:
+Literal %this
+<null type> %nullconst
+Statements:
+[0@L-1] %nullconst = null;
+[1@L11] return %nullconst;
+---------- <Literal: java.lang.String s(java.lang.String)> ----------
+Parameters: java.lang.String h
+Variables:
+Literal %this
+java.lang.String h
+java.lang.StringBuilder #temp$0
+java.lang.String %stringconst1
+int %intconst2
+double %doubleconst3
+Literal #temp$4
+java.lang.String #temp$5
+Statements:
+[0@L-1] %stringconst1 = "123";
+[1@L-1] %intconst2 = 123;
+[2@L-1] %doubleconst3 = 123.4;
+[3@L15] #temp$0 = new java.lang.StringBuilder;
+[4@L15] invokespecial #temp$0.<java.lang.StringBuilder: void <init>()>();
+[5@L15] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>(h);
+[6@L15] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>(%stringconst1);
+[7@L15] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(int)>(%intconst2);
+[8@L15] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(double)>(%doubleconst3);
+[9@L15] #temp$4 = new Literal;
+[10@L15] invokespecial #temp$4.<Literal: void <init>()>();
+[11@L15] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>(#temp$4);
+[12@L15] #temp$5 = invokevirtual #temp$0.<java.lang.Object: java.lang.String toString()>();
+[13@L15] return #temp$5;
+---------- <Literal: void <init>()> ----------
+Parameters: 
+Variables:
+Literal %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

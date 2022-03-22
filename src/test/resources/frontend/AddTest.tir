@@ -1,0 +1,36 @@
+---------- <AddTest: int add3(int,int)> ----------
+Parameters: int x, int y
+Variables:
+AddTest %this
+int x
+int y
+int #temp$0
+int #temp$1
+int #temp$2
+Statements:
+[0@L6] #temp$0 = x - x;
+[1@L6] #temp$1 = #temp$0 - x;
+[2@L6] #temp$2 = #temp$1 - y;
+[3@L6] return #temp$2;
+---------- <AddTest: int add3(int,int,int)> ----------
+Parameters: int x, int y, int z
+Variables:
+AddTest %this
+int x
+int y
+int z
+int #temp$0
+int #temp$1
+Statements:
+[0@L2] #temp$0 = x + y;
+[1@L2] #temp$1 = #temp$0 + z;
+[2@L2] return #temp$1;
+---------- <AddTest: void <init>()> ----------
+Parameters: 
+Variables:
+AddTest %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

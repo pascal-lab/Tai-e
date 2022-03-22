@@ -1,0 +1,90 @@
+---------- <TypeConv: char f(int)> ----------
+Parameters: int x
+Variables:
+TypeConv %this
+int x
+char a
+java.io.PrintStream #temp$0
+int %intconst1
+java.lang.Integer #temp$2
+long b
+int #temp$3
+float f
+java.lang.Double d
+double %doubleconst4
+int i
+char #temp$5
+Statements:
+[0@L-1] %intconst1 = 1000;
+[1@L-1] %doubleconst4 = 100.0;
+[2@L16] a = 1;
+[3@L17] #temp$0 = <java.lang.System: java.io.PrintStream out>;
+[4@L17] invokevirtual #temp$0.<java.io.PrintStream: void println(char)>(a);
+[5@L18] #temp$2 = new java.lang.Integer;
+[6@L18] invokespecial #temp$2.<java.lang.Integer: void <init>(int)>(%intconst1);
+[7@L18] #temp$3 = invokevirtual #temp$2.<java.lang.Integer: int intValue()>();
+[8@L18] b = (long) #temp$3;
+[9@L19] f = (float) x;
+[10@L20] d = invokestatic <java.lang.Double: java.lang.Double valueOf(double)>(%doubleconst4);
+[11@L21] i = 4;
+[12@L22] #temp$5 = (char) x;
+[13@L22] return #temp$5;
+---------- <TypeConv: void <init>()> ----------
+Parameters: 
+Variables:
+TypeConv %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <TypeConv: void f(int,int)> ----------
+Parameters: int x, int y
+Variables:
+TypeConv %this
+int x
+int y
+java.lang.Boolean b
+int %intconst0
+java.lang.Integer i
+int %intconst1
+int %intconst2
+java.lang.Integer #temp$3
+int #temp$4
+java.lang.Integer k
+int #temp$5
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L-1] %intconst1 = 10;
+[2@L-1] %intconst2 = 123123;
+[3@L2] b = invokestatic <java.lang.Boolean: java.lang.Boolean valueOf(boolean)>(%intconst0);
+[4@L3] i = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(%intconst1);
+[5@L5] #temp$3 = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(%intconst2);
+[6@L5] #temp$4 = invokevirtual #temp$3.<java.lang.Integer: int intValue()>();
+[7@L5] #temp$5 = %intconst1 + #temp$4;
+[8@L5] k = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(#temp$5);
+[9@L-1] return;
+---------- <TypeConv: void g()> ----------
+Parameters: 
+Variables:
+TypeConv %this
+byte b
+int[] a
+char c
+int %intconst0
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L9] b = 2;
+[2@L10] a = newarray int[b];
+[3@L11] c = 1;
+[4@L12] a[c] = %intconst0;
+[5@L-1] return;
+---------- <TypeConv: void g(java.lang.Object)> ----------
+Parameters: java.lang.Object o
+Variables:
+TypeConv %this
+java.lang.Object o
+TypeConv t
+Statements:
+[0@L26] t = (TypeConv) o;
+[1@L-1] return;
+------------------------------
+

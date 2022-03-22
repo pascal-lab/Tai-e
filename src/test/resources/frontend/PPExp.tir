@@ -1,0 +1,60 @@
+---------- <PPExp: int f()> ----------
+Parameters: 
+Variables:
+PPExp %this
+int j
+int i
+int %intconst0
+int %intconst1
+int #temp$2
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst1 = 1;
+[2@L2] j = 10;
+[3@L3] i = 0;
+[4@L3] if (i < %intconst0) goto 6;
+[5@L3] goto 9;
+[6@L4] j = j + i;
+[7@L3] i = i + %intconst1;
+[8@L4] goto 4;
+[9@L6] #temp$2 = j;
+[10@L6] j = j - %intconst1;
+[11@L6] return #temp$2;
+---------- <PPExp: int g()> ----------
+Parameters: 
+Variables:
+PPExp %this
+char x
+int %intconst0
+int j
+int q
+int %intconst1
+int #temp$2
+int k
+java.lang.Integer #temp$3
+int #temp$4
+int qq
+int #temp$5
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L-1] %intconst1 = 123;
+[2@L10] x = 1;
+[3@L11] j = x - %intconst0;
+[4@L12] q = -j;
+[5@L13] #temp$2 = q - %intconst1;
+[6@L13] k = #temp$2 - %intconst0;
+[7@L14] #temp$3 = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(q);
+[8@L14] #temp$4 = invokevirtual #temp$3.<java.lang.Integer: int intValue()>();
+[9@L14] qq = -#temp$4;
+[10@L15] #temp$5 = j;
+[11@L15] j = j + %intconst0;
+[12@L15] return #temp$5;
+---------- <PPExp: void <init>()> ----------
+Parameters: 
+Variables:
+PPExp %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

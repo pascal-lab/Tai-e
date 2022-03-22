@@ -1,0 +1,143 @@
+---------- <If: int f(int)> ----------
+Parameters: int x
+Variables:
+If %this
+int x
+int %intconst0
+int %intconst1
+int #temp$2
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 100;
+[2@L2] if (x > %intconst0) goto 4;
+[3@L2] goto 5;
+[4@L3] return x;
+[5@L5] #temp$2 = x * %intconst1;
+[6@L5] return #temp$2;
+---------- <If: int f1(int)> ----------
+Parameters: int x
+Variables:
+If %this
+int x
+int %intconst0
+int %intconst1
+int %intconst2
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L-1] %intconst2 = 100;
+[3@L36] if (x > %intconst0) goto 5;
+[4@L36] goto 6;
+[5@L37] return x;
+[6@L38] if (x == %intconst0) goto 8;
+[7@L38] goto 9;
+[8@L39] return %intconst1;
+[9@L41] return %intconst2;
+---------- <If: int f2(int)> ----------
+Parameters: int x
+Variables:
+If %this
+int x
+int %intconst0
+int %intconst1
+int %intconst2
+boolean #temp$3
+int %intconst4
+boolean b
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 10;
+[2@L-1] %intconst2 = 20;
+[3@L-1] %intconst4 = 30;
+[4@L46] if (x > %intconst0) goto 6;
+[5@L46] goto 11;
+[6@L46] if (x < %intconst1) goto 8;
+[7@L46] goto 10;
+[8@L46] if (x > %intconst2) goto 10;
+[9@L46] goto 11;
+[10@L47] return %intconst2;
+[11@L49] if (x < %intconst1) goto 13;
+[12@L49] goto 16;
+[13@L49] if (x < %intconst2) goto 15;
+[14@L49] goto 18;
+[15@L49] if (x > %intconst4) goto 18;
+[16@L49] #temp$3 = 0;
+[17@L49] goto 19;
+[18@L49] #temp$3 = 1;
+[19@L49] b = #temp$3;
+[20@L50] return %intconst0;
+---------- <If: int g(int)> ----------
+Parameters: int x
+Variables:
+If %this
+int x
+int %intconst0
+int %intconst1
+int #temp$2
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L10] if (x > %intconst0) goto 4;
+[3@L10] goto 5;
+[4@L11] return x;
+[5@L13] #temp$2 = x - %intconst1;
+[6@L13] return #temp$2;
+---------- <If: int h(int,int)> ----------
+Parameters: int x, int y
+Variables:
+If %this
+int x
+int y
+int %intconst0
+int %intconst1
+int #temp$2
+int %intconst3
+boolean #temp$4
+int %intconst5
+int %intconst6
+boolean b
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L-1] %intconst3 = 9;
+[3@L-1] %intconst5 = 120;
+[4@L-1] %intconst6 = 328190;
+[5@L17] if (x == %intconst0) goto 8;
+[6@L17] if (y == %intconst0) goto 8;
+[7@L17] goto 10;
+[8@L18] #temp$2 = x - %intconst1;
+[9@L18] return #temp$2;
+[10@L20] if (x > %intconst3) goto 12;
+[11@L20] goto 19;
+[12@L21] if (x > %intconst5) goto 16;
+[13@L21] if (y < %intconst6) goto 16;
+[14@L21] #temp$4 = 0;
+[15@L21] goto 17;
+[16@L21] #temp$4 = 1;
+[17@L21] b = #temp$4;
+[18@L22] return y;
+[19@L24] return x;
+---------- <If: int k(int)> ----------
+Parameters: int x
+Variables:
+If %this
+int x
+int %intconst0
+int %intconst1
+int #temp$2
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L29] if (x < %intconst0) goto 5;
+[3@L30] #temp$2 = x - %intconst1;
+[4@L30] return #temp$2;
+[5@L32] return x;
+---------- <If: void <init>()> ----------
+Parameters: 
+Variables:
+If %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

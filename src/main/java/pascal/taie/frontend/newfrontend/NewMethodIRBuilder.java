@@ -265,7 +265,7 @@ public class NewMethodIRBuilder {
         // find method to be generated.
         var preTargetMethod = new MethodLocator().getMethodBySig(className, methodSig, cu);
         if (preTargetMethod.isEmpty()) {
-            logger.error("locate failed");
+            logger.error("locate failed, name: " + jMethod.getName());
             return Optional.empty();
         }
         this.targetMethod = preTargetMethod.get();
@@ -276,6 +276,7 @@ public class NewMethodIRBuilder {
             var generator = new IRGenerator();
             return Optional.of(generator.build());
         } catch (NewFrontendException e) {
+            logger.error("method " + targetMethod.getName() + " will use Soot IRGenerator");
             logger.error(e.getMessage(), e);
             return Optional.empty();
         }
@@ -375,7 +376,6 @@ public class NewMethodIRBuilder {
             buildThis();
             buildPara();
             buildStmt();
-            logger.info(exceptionList);
             return new DefaultIR(jMethod, thisVar, params,
                     retVar, vars, stmtManager.getStmts(), exceptionList);
         }
@@ -408,7 +408,7 @@ public class NewMethodIRBuilder {
         private Var newTempVar(Type type) {
             int tempNow = tempCounter;
             tempCounter++;
-            var v = new Var(jMethod, "%temp$" + tempNow, type, getVarIndex());
+            var v = new Var(jMethod, "#temp$" + tempNow, type, getVarIndex());
             regVar(v);
             return v;
         }
@@ -451,9 +451,6 @@ public class NewMethodIRBuilder {
                 var name = svd.getName();
                 var nameString = name.getIdentifier();
                 var type = TypeUtils.JDTTypeToTaieType(svd.resolveBinding().getType());
-                if (svd.isVarargs()) {
-                    type = World.get().getTypeSystem().getArrayType(type, 1);
-                }
                 var aVar = newVar(nameString, type);
                 params.add(aVar);
                 context.putBinding((IVariableBinding) name.resolveBinding(), aVar);
@@ -944,8 +941,9 @@ public class NewMethodIRBuilder {
 
             private Exp unboxingConversion(Exp exp, ReferenceType expType, PrimitiveType targetType) {
                 Var v = expToVar(exp, expType);
+                Type t = getPrimitiveByRef(expType);
                 return new InvokeVirtual(
-                        getSimpleJREMethod(expType.getName(), targetType + "Value"),
+                        getSimpleJREMethod(expType.getName(), t + "Value"),
                         v,
                         new ArrayList<>());
             }
@@ -1005,6 +1003,9 @@ public class NewMethodIRBuilder {
                             type instanceof PrimitiveType p) {
                         exp = unboxingConversion(exp, r, p);
                         expType = exp.getType();
+                        if (expType == p) {
+                            return exp;
+                        }
                     }
                     // 4. if [type] is primitive, and [expType] is primitive,
                     //    then try to perform widening primitive conversion
@@ -2698,6 +2699,7 @@ public class NewMethodIRBuilder {
             public boolean visit(SuperFieldAccess sfa) {
                 IVariableBinding binding = sfa.resolveFieldBinding();
                 JClass c = getTaieClass(binding.getDeclaringClass());
+                assert c != null;
                 JClass superClass = c.getSuperClass();
                 FieldRef ref = FieldRef.get(superClass, binding.getName(),
                         JDTTypeToTaieType(binding.getType()), false);

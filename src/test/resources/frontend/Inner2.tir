@@ -1,0 +1,18 @@
+---------- <Inner2: void <init>()> ----------
+Parameters: 
+Variables:
+Inner2 %this
+Statements:
+[0@L5] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L5] return;
+---------- <Inner2: void f()> ----------
+Parameters: 
+Variables:
+Inner2 %this
+Inner2$1Anonymous0 temp$0
+Statements:
+[0@L7] temp$0 = new Inner2$1Anonymous0;
+[1@L7] invokespecial temp$0.<Inner2$1Anonymous0: void <init>(Inner2)>(%this);
+[2@L7] return;
+------------------------------
+

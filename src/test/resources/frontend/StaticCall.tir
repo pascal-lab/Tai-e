@@ -1,0 +1,40 @@
+---------- <StaticCall: int f()> ----------
+Parameters: 
+Variables:
+StaticCall %this
+int %intconst0
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L2] return %intconst0;
+---------- <StaticCall: int g()> ----------
+Parameters: 
+Variables:
+StaticCall %this
+int x
+int %intconst0
+int %intconst1
+int #temp$2
+int #temp$3
+int %intconst4
+int #temp$5
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L-1] %intconst4 = 10;
+[3@L6] x = invokestatic <StaticCall: int f()>();
+[4@L7] if (x > %intconst0) goto 6;
+[5@L7] goto 8;
+[6@L8] #temp$2 = x + %intconst1;
+[7@L8] return #temp$2;
+[8@L10] #temp$3 = invokestatic <StaticCall: int f()>();
+[9@L10] #temp$5 = #temp$3 + %intconst4;
+[10@L10] return #temp$5;
+---------- <StaticCall: void <init>()> ----------
+Parameters: 
+Variables:
+StaticCall %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

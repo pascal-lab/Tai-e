@@ -1,0 +1,147 @@
+---------- <Loop: int g(int)> ----------
+Parameters: int x
+Variables:
+Loop %this
+int x
+int %intconst0
+boolean #temp$1
+boolean #temp$2
+boolean #temp$3
+boolean b
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L16] if (x > %intconst0) goto 4;
+[2@L16] #temp$1 = 0;
+[3@L16] goto 5;
+[4@L16] #temp$1 = 1;
+[5@L16] if (x < %intconst0) goto 8;
+[6@L16] #temp$2 = 0;
+[7@L16] goto 9;
+[8@L16] #temp$2 = 1;
+[9@L16] if (#temp$1 == #temp$2) goto 11;
+[10@L16] goto 20;
+[11@L17] if (x == %intconst0) goto 13;
+[12@L17] goto 20;
+[13@L18] if (x < %intconst0) goto 17;
+[14@L18] if (x > %intconst0) goto 17;
+[15@L18] #temp$3 = 0;
+[16@L18] goto 18;
+[17@L18] #temp$3 = 1;
+[18@L18] b = #temp$3;
+[19@L18] goto 11;
+[20@L21] return %intconst0;
+---------- <Loop: int h(int)> ----------
+Parameters: int x
+Variables:
+Loop %this
+int x
+int %intconst0
+int %intconst1
+int %intconst2
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L-1] %intconst2 = 10;
+[3@L26] if (x > %intconst0) goto 5;
+[4@L26] goto 14;
+[5@L27] x = x + %intconst1;
+[6@L28] if (x < %intconst0) goto 8;
+[7@L28] goto 13;
+[8@L29] x = x - %intconst1;
+[9@L30] if (x == %intconst0) goto 11;
+[10@L30] goto 12;
+[11@L31] goto 14;
+[12@L33] goto 3;
+[13@L33] goto 3;
+[14@L36] return %intconst2;
+---------- <Loop: void <init>()> ----------
+Parameters: 
+Variables:
+Loop %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Loop: void f(int)> ----------
+Parameters: int x
+Variables:
+Loop %this
+int x
+int temp
+int %intconst0
+int %intconst1
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 1;
+[2@L2] temp = 0;
+[3@L3] if (x > %intconst0) goto 5;
+[4@L3] goto 13;
+[5@L4] if (x == %intconst0) goto 7;
+[6@L4] goto 8;
+[7@L5] goto 13;
+[8@L7] if (temp < %intconst0) goto 10;
+[9@L7] goto 11;
+[10@L8] goto 3;
+[11@L10] temp = temp + %intconst1;
+[12@L10] goto 3;
+[13@L12] return;
+---------- <Loop: void g1()> ----------
+Parameters: 
+Variables:
+Loop %this
+int x
+int temp
+int %intconst0
+int %intconst1
+int #temp$2
+int #temp$3
+int %intconst4
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 123;
+[2@L-1] %intconst4 = 123123;
+[3@L59] x = 0;
+[4@L60] temp = 123;
+[5@L62] if (temp > %intconst0) goto 7;
+[6@L62] goto 11;
+[7@L63] #temp$2 = temp * %intconst1;
+[8@L63] #temp$3 = x - #temp$2;
+[9@L63] temp = #temp$3 + %intconst4;
+[10@L64] goto 11;
+[11@L66] goto 14;
+[12@L66] if (temp < %intconst0) goto 14;
+[13@L66] goto 5;
+[14@L68] return;
+---------- <Loop: void h1()> ----------
+Parameters: 
+Variables:
+Loop %this
+int x
+int %intconst0
+int %intconst1
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L-1] %intconst1 = 10000;
+[2@L51] x = 0;
+[3@L53] x = x + %intconst0;
+[4@L53] if (x < %intconst1) goto 3;
+[5@L55] return;
+---------- <Loop: void k()> ----------
+Parameters: 
+Variables:
+Loop %this
+int x
+int %intconst0
+int %intconst1
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %intconst1 = 10;
+[2@L40] x = 0;
+[3@L41] if (x > %intconst0) goto 5;
+[4@L41] goto 9;
+[5@L42] if (x > %intconst1) goto 7;
+[6@L42] goto 8;
+[7@L43] goto 3;
+[8@L45] goto 9;
+[9@L47] return;
+------------------------------
+

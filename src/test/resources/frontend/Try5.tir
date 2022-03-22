@@ -1,0 +1,43 @@
+---------- <Try5: void <init>()> ----------
+Parameters: 
+Variables:
+Try5 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Try5: void f()> ----------
+Parameters: 
+Variables:
+Try5 %this
+int x
+int %intconst0
+int k
+java.lang.Exception e
+int j
+java.lang.Throwable #temp$1
+int q
+int %intconst2
+Statements:
+[0@L-1] %intconst0 = 100;
+[1@L-1] %intconst2 = 1;
+[2@L2] x = 1;
+[3@L3] if (x < %intconst0) goto 5;
+[4@L3] goto 16;
+[5@L5] k = 20;
+[6@L5] goto 13;
+[7@L5] catch e;
+[8@L7] j = 30;
+[9@L8] goto 16;
+[10@L8] catch #temp$1;
+[11@L10] q = 123;
+[12@L10] throw #temp$1;
+[13@L10] q = 123;
+[14@L12] x = x + %intconst2;
+[15@L12] goto 3;
+[16@L14] return;
+Exception entries:
+  try [5, 6), catch java.lang.Exception at 7
+  try [5, 6), catch java.lang.Throwable at 10
+  try [7, 9), catch java.lang.Throwable at 10
+------------------------------
+

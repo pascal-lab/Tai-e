@@ -1,0 +1,42 @@
+---------- <If2: void <init>()> ----------
+Parameters: 
+Variables:
+If2 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <If2: void f()> ----------
+Parameters: 
+Variables:
+If2 %this
+int %intconst0
+int i
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L2] if (%intconst0 == %intconst0) goto 3;
+[2@L2] goto 6;
+[3@L3] if (%intconst0 == %intconst0) goto 5;
+[4@L3] goto 6;
+[5@L4] return;
+[6@L7] i = 2;
+[7@L-1] return;
+---------- <If2: void g()> ----------
+Parameters: 
+Variables:
+If2 %this
+int %intconst0
+int %intconst1
+int i
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L-1] %intconst1 = 0;
+[2@L11] if (%intconst0 == %intconst1) goto 4;
+[3@L11] goto 8;
+[4@L12] if (%intconst1 == %intconst1) goto 6;
+[5@L12] goto 7;
+[6@L13] goto 8;
+[7@L13] goto 2;
+[8@L16] i = 2;
+[9@L-1] return;
+------------------------------
+

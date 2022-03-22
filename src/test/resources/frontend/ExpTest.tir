@@ -1,0 +1,26 @@
+---------- <ExpTest: int remainder(int,int)> ----------
+Parameters: int dividend, int divisor
+Variables:
+ExpTest %this
+int dividend
+int divisor
+int #temp$0
+java.lang.Exception e
+int %intconst1
+Statements:
+[0@L-1] %intconst1 = 0;
+[1@L6] #temp$0 = dividend % divisor;
+[2@L6] return #temp$0;
+[3@L6] catch e;
+[4@L9] return %intconst1;
+Exception entries:
+  try [1, 2), catch java.lang.Exception at 3
+---------- <ExpTest: void <init>()> ----------
+Parameters: 
+Variables:
+ExpTest %this
+Statements:
+[0@L3] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L3] return;
+------------------------------
+

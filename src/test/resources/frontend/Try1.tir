@@ -1,0 +1,73 @@
+---------- <Try1: void <init>()> ----------
+Parameters: 
+Variables:
+Try1 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Try1: void f()> ----------
+Parameters: 
+Variables:
+Try1 %this
+int i
+int %intconst0
+java.io.PrintStream #temp$1
+java.lang.String %stringconst2
+int %intconst3
+java.lang.String %stringconst4
+java.lang.IllegalAccessException #temp$5
+java.io.PrintStream #temp$6
+java.lang.String %stringconst7
+java.lang.IllegalAccessException e1
+java.io.PrintStream #temp$8
+int %intconst9
+java.lang.Exception e2
+java.io.PrintStream #temp$10
+int %intconst11
+java.lang.Throwable #temp$12
+java.io.PrintStream #temp$13
+java.io.PrintStream #temp$14
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L-1] %stringconst2 = "asdfasfx";
+[2@L-1] %intconst3 = 1000;
+[3@L-1] %stringconst4 = "adsa";
+[4@L-1] %stringconst7 = "dsfx";
+[5@L-1] %intconst9 = 10;
+[6@L-1] %intconst11 = 100;
+[7@L2] i = 0;
+[8@L3] if (i > %intconst0) goto 10;
+[9@L3] goto 34;
+[10@L5] #temp$1 = <java.lang.System: java.io.PrintStream out>;
+[11@L5] invokevirtual #temp$1.<java.io.PrintStream: void println(java.lang.String)>(%stringconst2);
+[12@L6] if (i > %intconst3) goto 14;
+[13@L6] goto 17;
+[14@L7] #temp$5 = new java.lang.IllegalAccessException;
+[15@L7] invokespecial #temp$5.<java.lang.IllegalAccessException: void <init>(java.lang.String)>(%stringconst4);
+[16@L7] throw #temp$5;
+[17@L16] #temp$6 = <java.lang.System: java.io.PrintStream out>;
+[18@L16] invokevirtual #temp$6.<java.io.PrintStream: void println(java.lang.String)>(%stringconst7);
+[19@L16] goto 8;
+[20@L16] catch e1;
+[21@L12] #temp$8 = <java.lang.System: java.io.PrintStream out>;
+[22@L12] invokevirtual #temp$8.<java.io.PrintStream: void println(int)>(%intconst9);
+[23@L12] goto 32;
+[24@L12] catch e2;
+[25@L14] #temp$10 = <java.lang.System: java.io.PrintStream out>;
+[26@L14] invokevirtual #temp$10.<java.io.PrintStream: void println(int)>(%intconst11);
+[27@L14] goto 32;
+[28@L14] catch #temp$12;
+[29@L16] #temp$13 = <java.lang.System: java.io.PrintStream out>;
+[30@L16] invokevirtual #temp$13.<java.io.PrintStream: void println(java.lang.String)>(%stringconst7);
+[31@L16] throw #temp$12;
+[32@L16] #temp$14 = <java.lang.System: java.io.PrintStream out>;
+[33@L16] invokevirtual #temp$14.<java.io.PrintStream: void println(java.lang.String)>(%stringconst7);
+[34@L19] return;
+Exception entries:
+  try [10, 17), catch java.lang.IllegalAccessException at 20
+  try [10, 17), catch java.lang.Exception at 24
+  try [10, 17), catch java.lang.Throwable at 28
+  try [20, 23), catch java.lang.Throwable at 28
+  try [24, 27), catch java.lang.Throwable at 28
+------------------------------
+

@@ -1,0 +1,94 @@
+---------- <ForLoop: int f()> ----------
+Parameters: 
+Variables:
+ForLoop %this
+int temp
+int i
+int %intconst0
+int %intconst1
+int %intconst2
+Statements:
+[0@L-1] %intconst0 = 100;
+[1@L-1] %intconst1 = 0;
+[2@L-1] %intconst2 = 1;
+[3@L5] temp = 10;
+[4@L6] i = 0;
+[5@L6] if (i < %intconst0) goto 7;
+[6@L6] goto 13;
+[7@L7] temp = temp * i;
+[8@L8] if (temp < %intconst1) goto 10;
+[9@L8] goto 11;
+[10@L9] goto 13;
+[11@L6] i = i + %intconst2;
+[12@L9] goto 5;
+[13@L12] return temp;
+---------- <ForLoop: int g()> ----------
+Parameters: 
+Variables:
+ForLoop %this
+java.util.ArrayList #temp$0
+java.util.List l
+float i
+java.util.Iterator #temp$1
+boolean #temp$2
+int %intconst3
+java.lang.Object #temp$4
+java.lang.Integer #temp$5
+int #temp$6
+float #temp$7
+int j
+int[] #temp$8
+int %intconst9
+int %intconst10
+int %intconst11
+int[] t
+int i
+int #temp$12
+int #temp$13
+int #temp$14
+int j
+int %intconst15
+Statements:
+[0@L-1] %intconst3 = 0;
+[1@L-1] %intconst9 = 3;
+[2@L-1] %intconst10 = 1;
+[3@L-1] %intconst11 = 2;
+[4@L-1] %intconst15 = 20;
+[5@L16] #temp$0 = new java.util.ArrayList;
+[6@L16] invokespecial #temp$0.<java.util.ArrayList: void <init>()>();
+[7@L16] l = #temp$0;
+[8@L17] #temp$1 = invokeinterface l.<java.util.List: java.util.Iterator iterator()>();
+[9@L17] #temp$2 = invokeinterface #temp$1.<java.util.Iterator: boolean hasNext()>();
+[10@L17] if (#temp$2 == %intconst3) goto 12;
+[11@L17] goto 19;
+[12@L17] #temp$4 = invokeinterface #temp$1.<java.util.Iterator: java.lang.Object next()>();
+[13@L17] #temp$5 = (java.lang.Integer) #temp$4;
+[14@L17] #temp$6 = invokevirtual #temp$5.<java.lang.Integer: int intValue()>();
+[15@L17] #temp$7 = (float) #temp$6;
+[16@L17] i = #temp$7;
+[17@L18] j = (int) i;
+[18@L18] goto 9;
+[19@L21] #temp$8 = newarray int[%intconst9];
+[20@L21] #temp$8[%intconst3] = %intconst10;
+[21@L21] #temp$8[%intconst10] = %intconst11;
+[22@L21] #temp$8[%intconst11] = %intconst9;
+[23@L21] t = #temp$8;
+[24@L22] #temp$12 = 0;
+[25@L22] #temp$13 = t.length;
+[26@L22] if (#temp$12 < #temp$13) goto 28;
+[27@L22] goto 33;
+[28@L22] #temp$14 = t[#temp$12];
+[29@L22] i = #temp$14;
+[30@L23] j = i;
+[31@L23] #temp$12 = #temp$12 + %intconst10;
+[32@L23] goto 25;
+[33@L25] return %intconst15;
+---------- <ForLoop: void <init>()> ----------
+Parameters: 
+Variables:
+ForLoop %this
+Statements:
+[0@L4] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L4] return;
+------------------------------
+

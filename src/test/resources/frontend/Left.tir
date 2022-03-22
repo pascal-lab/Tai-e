@@ -1,0 +1,41 @@
+---------- <Left: B leftB(B,B)> ----------
+Parameters: B a, B b
+Variables:
+Left %this
+B a
+B b
+Statements:
+[0@L10] return b;
+---------- <Left: int[][] leftArray(int[][],int)> ----------
+Parameters: int[][] a, int b
+Variables:
+Left %this
+int[][] a
+int b
+Statements:
+[0@L14] return a;
+---------- <Left: java.lang.Object left(java.lang.Object,java.lang.Object)> ----------
+Parameters: java.lang.Object a, java.lang.Object b
+Variables:
+Left %this
+java.lang.Object a
+java.lang.Object b
+Statements:
+[0@L2] return a;
+---------- <Left: java.lang.Object leftObject(java.lang.Object,java.lang.Object)> ----------
+Parameters: java.lang.Object a, java.lang.Object b
+Variables:
+Left %this
+java.lang.Object a
+java.lang.Object b
+Statements:
+[0@L6] return a;
+---------- <Left: void <init>()> ----------
+Parameters: 
+Variables:
+Left %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

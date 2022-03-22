@@ -1,0 +1,107 @@
+---------- <Try7: int f()> ----------
+Parameters: 
+Variables:
+Try7 %this
+int %intconst0
+int i
+java.lang.Throwable #temp$1
+Statements:
+[0@L-1] %intconst0 = 20;
+[1@L5] i = 2;
+[2@L5] return %intconst0;
+[3@L5] catch #temp$1;
+[4@L5] i = 2;
+[5@L5] throw #temp$1;
+[6@L5] i = 2;
+---------- <Try7: int g()> ----------
+Parameters: 
+Variables:
+Try7 %this
+java.lang.String %stringconst0
+java.lang.Exception #temp$1
+java.lang.Exception e
+int %intconst2
+java.lang.Throwable #temp$3
+int i
+Statements:
+[0@L-1] %stringconst0 = "12312";
+[1@L-1] %intconst2 = 10;
+[2@L11] #temp$1 = new java.lang.Exception;
+[3@L11] invokespecial #temp$1.<java.lang.Exception: void <init>(java.lang.String)>(%stringconst0);
+[4@L11] throw #temp$1;
+[5@L11] catch e;
+[6@L13] return %intconst2;
+[7@L13] catch #temp$3;
+[8@L15] i = 2;
+[9@L15] throw #temp$3;
+[10@L15] i = 2;
+Exception entries:
+  try [2, 5), catch java.lang.Exception at 5
+  try [2, 5), catch java.lang.Throwable at 7
+  try [5, 6), catch java.lang.Throwable at 7
+---------- <Try7: int h(int)> ----------
+Parameters: int x
+Variables:
+Try7 %this
+int x
+int %intconst0
+int %intconst1
+int i
+int y
+java.lang.Throwable #temp$2
+int %intconst3
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst1 = 20;
+[2@L-1] %intconst3 = 30;
+[3@L21] if (x > %intconst0) goto 5;
+[4@L21] goto 7;
+[5@L26] i = 2;
+[6@L26] return %intconst1;
+[7@L24] y = 3;
+[8@L24] goto 12;
+[9@L24] catch #temp$2;
+[10@L26] i = 2;
+[11@L26] throw #temp$2;
+[12@L26] i = 2;
+[13@L28] return %intconst3;
+Exception entries:
+  try [3, 5), catch java.lang.Throwable at 9
+  try [7, 8), catch java.lang.Throwable at 9
+---------- <Try7: int k()> ----------
+Parameters: 
+Variables:
+Try7 %this
+int %intconst0
+int j
+int q
+java.lang.Throwable #temp$1
+java.lang.Throwable #temp$2
+int %intconst3
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst3 = 30;
+[2@L36] j = 3;
+[3@L39] q = 123;
+[4@L39] return %intconst0;
+[5@L39] catch #temp$1;
+[6@L36] j = 3;
+[7@L36] throw #temp$1;
+[8@L36] j = 3;
+[9@L36] catch #temp$2;
+[10@L39] q = 123;
+[11@L39] throw #temp$2;
+[12@L39] q = 123;
+[13@L41] return %intconst3;
+Exception entries:
+  try [2, 3), catch java.lang.Throwable at 9
+  try [5, 9), catch java.lang.Throwable at 9
+---------- <Try7: void <init>()> ----------
+Parameters: 
+Variables:
+Try7 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

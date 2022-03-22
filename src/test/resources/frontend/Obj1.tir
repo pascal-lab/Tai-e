@@ -1,0 +1,44 @@
+---------- <Obj1: int f()> ----------
+Parameters: 
+Variables:
+Obj1 %this
+int %intconst0
+int %intconst1
+A #temp$2
+int %intconst3
+int #temp$4
+A #temp$5
+int #temp$6
+A #temp$7
+int #temp$8
+int #temp$9
+int #temp$10
+Statements:
+[0@L-1] %intconst0 = 83000;
+[1@L-1] %intconst1 = 231;
+[2@L-1] %intconst3 = 123;
+[3@L10] %this.<Obj1: int x> = %intconst0;
+[4@L11] <A: int ASF> = %intconst1;
+[5@L12] #temp$2 = %this.<Obj1: A y>;
+[6@L12] #temp$2.<A: int h> = %intconst3;
+[7@L13] #temp$4 = %this.<Obj1: int x>;
+[8@L13] #temp$5 = %this.<Obj1: A y>;
+[9@L13] #temp$6 = invokevirtual #temp$5.<java.lang.Object: int hashCode()>();
+[10@L13] #temp$7 = %this.<Obj1: A y>;
+[11@L13] #temp$8 = #temp$4 * #temp$6;
+[12@L13] #temp$9 = invokevirtual #temp$7.<A: int f()>();
+[13@L13] #temp$10 = #temp$8 * #temp$9;
+[14@L13] return #temp$10;
+---------- <Obj1: void <init>(int,A)> ----------
+Parameters: int x, A y
+Variables:
+Obj1 %this
+int x
+A y
+Statements:
+[0@L5] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L6] %this.<Obj1: int x> = x;
+[2@L7] %this.<Obj1: A y> = y;
+[3@L7] return;
+------------------------------
+

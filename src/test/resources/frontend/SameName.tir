@@ -1,0 +1,36 @@
+---------- <SameName: int f(int)> ----------
+Parameters: int k
+Variables:
+SameName %this
+int k
+int t
+int x
+int %intconst0
+int %intconst1
+int x
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst1 = 1;
+[2@L2] t = k;
+[3@L3] x = 0;
+[4@L3] if (x < %intconst0) goto 6;
+[5@L3] goto 9;
+[6@L4] t = t + x;
+[7@L3] x = x + %intconst1;
+[8@L4] goto 4;
+[9@L6] x = 0;
+[10@L6] if (x < %intconst0) goto 12;
+[11@L6] goto 15;
+[12@L7] t = t + x;
+[13@L6] x = x + %intconst1;
+[14@L7] goto 10;
+[15@L9] return t;
+---------- <SameName: void <init>()> ----------
+Parameters: 
+Variables:
+SameName %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

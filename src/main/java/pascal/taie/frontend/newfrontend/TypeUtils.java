@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -142,7 +143,7 @@ public final class TypeUtils {
         }
     }
 
-    public static JClass getTaieClass(ITypeBinding binding) {
+    public static @Nullable JClass getTaieClass(ITypeBinding binding) {
         return World.get().getClassHierarchy().getClass(getBinaryName(binding));
     }
 
@@ -168,6 +169,8 @@ public final class TypeUtils {
                 return IntLiteral.get((int) c);
             } else if (res instanceof Boolean b) {
                 return IntLiteral.get(b ? 1 : 0);
+            } else if (res instanceof String s) {
+                return pascal.taie.ir.exp.StringLiteral.get(s);
             } else {
                 throw new NewFrontendException(e + " is not primitive literal, why use this function?");
             }

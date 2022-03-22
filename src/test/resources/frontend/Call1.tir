@@ -1,0 +1,26 @@
+---------- <Call1: int f()> ----------
+Parameters: 
+Variables:
+Call1 %this
+int %intconst0
+A #temp$1
+A a
+int %intconst2
+int #temp$3
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst2 = 100;
+[2@L2] #temp$1 = new A;
+[3@L2] invokespecial #temp$1.<A: void <init>(int)>(%intconst0);
+[4@L2] a = #temp$1;
+[5@L3] #temp$3 = invokevirtual a.<A: int f(int)>(%intconst2);
+[6@L3] return #temp$3;
+---------- <Call1: void <init>()> ----------
+Parameters: 
+Variables:
+Call1 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

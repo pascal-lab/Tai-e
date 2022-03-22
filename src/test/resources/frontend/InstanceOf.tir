@@ -1,0 +1,22 @@
+---------- <InstanceOf: void <init>()> ----------
+Parameters: 
+Variables:
+InstanceOf %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <InstanceOf: void f()> ----------
+Parameters: 
+Variables:
+InstanceOf %this
+boolean #temp$0
+int %intconst1
+Statements:
+[0@L-1] %intconst1 = 0;
+[1@L2] #temp$0 = %this instanceof java.lang.Object;
+[2@L2] if (#temp$0 == %intconst1) goto 4;
+[3@L2] goto 5;
+[4@L3] return;
+[5@L-1] return;
+------------------------------
+

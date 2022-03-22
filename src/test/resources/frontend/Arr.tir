@@ -1,0 +1,109 @@
+---------- <Arr: void <init>()> ----------
+Parameters: 
+Variables:
+Arr %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Arr: void a()> ----------
+Parameters: 
+Variables:
+Arr %this
+int %intconst0
+A[] a
+A #temp$1
+int %intconst2
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst2 = 0;
+[2@L20] a = newarray A[%intconst0];
+[3@L21] #temp$1 = new A;
+[4@L21] invokespecial #temp$1.<A: void <init>()>();
+[5@L21] a[%intconst2] = #temp$1;
+[6@L22] return;
+---------- <Arr: void f()> ----------
+Parameters: 
+Variables:
+Arr %this
+int %intconst0
+int[] a
+int %intconst1
+int %intconst2
+int %intconst3
+int %intconst4
+Statements:
+[0@L-1] %intconst0 = 3;
+[1@L-1] %intconst1 = 0;
+[2@L-1] %intconst2 = 1;
+[3@L-1] %intconst3 = 2;
+[4@L-1] %intconst4 = 10;
+[5@L2] a = newarray int[%intconst0];
+[6@L3] a[%intconst1] = %intconst2;
+[7@L4] a[%intconst3] = %intconst4;
+[8@L-1] return;
+---------- <Arr: void g()> ----------
+Parameters: 
+Variables:
+Arr %this
+int %intconst0
+int[][] a
+int[] #temp$1
+int %intconst2
+int %intconst3
+int %intconst4
+Statements:
+[0@L-1] %intconst0 = 3;
+[1@L-1] %intconst2 = 0;
+[2@L-1] %intconst3 = 1;
+[3@L-1] %intconst4 = 2;
+[4@L8] a = newmultiarray int[%intconst0][];
+[5@L9] #temp$1 = newarray int[%intconst0];
+[6@L9] #temp$1[%intconst2] = %intconst3;
+[7@L9] #temp$1[%intconst3] = %intconst4;
+[8@L9] #temp$1[%intconst4] = %intconst0;
+[9@L9] a[%intconst2] = #temp$1;
+[10@L10] return;
+---------- <Arr: void k()> ----------
+Parameters: 
+Variables:
+Arr %this
+int[][][] #temp$0
+int %intconst1
+int %intconst2
+int[][] #temp$3
+int[][] #temp$4
+int %intconst5
+int[] #temp$6
+int[] #temp$7
+int[] #temp$8
+int %intconst9
+int[] #temp$10
+int[][][] a
+int[][] #temp$11
+int[] #temp$12
+int %intconst13
+Statements:
+[0@L-1] %intconst1 = 1;
+[1@L-1] %intconst2 = 0;
+[2@L-1] %intconst5 = 3;
+[3@L-1] %intconst9 = 2;
+[4@L-1] %intconst13 = 10;
+[5@L14] #temp$0 = newmultiarray int[%intconst1][][];
+[6@L14] #temp$3 = newmultiarray int[%intconst1][];
+[7@L14] #temp$0[%intconst2] = #temp$3;
+[8@L14] #temp$4 = #temp$0[%intconst2];
+[9@L14] #temp$6 = newarray int[%intconst5];
+[10@L14] #temp$4[%intconst2] = #temp$6;
+[11@L14] #temp$7 = #temp$4[%intconst2];
+[12@L14] #temp$7[%intconst2] = %intconst1;
+[13@L14] #temp$8 = #temp$4[%intconst2];
+[14@L14] #temp$8[%intconst1] = %intconst9;
+[15@L14] #temp$10 = #temp$4[%intconst2];
+[16@L14] #temp$10[%intconst9] = %intconst5;
+[17@L14] a = #temp$0;
+[18@L15] #temp$11 = a[%intconst2];
+[19@L15] #temp$12 = #temp$11[%intconst2];
+[20@L15] #temp$12[%intconst2] = %intconst13;
+[21@L16] return;
+------------------------------
+

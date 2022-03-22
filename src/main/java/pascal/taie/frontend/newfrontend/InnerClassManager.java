@@ -61,6 +61,9 @@ public class InnerClassManager {
                               Function<IVariableBinding, Var> map,
                               Var thisVar) {
         JClass jClass = getTaieClass(td.getName().resolveTypeBinding());
+        if (jClass == null) {
+            throw new NewFrontendException("class " + td + " can't be resolved in tai-e world");
+        }
         // note: [td] can only be handled once, so it's safe to add a new object to map
         List<Var> vars = new ArrayList<>();
         vars.add(thisVar);

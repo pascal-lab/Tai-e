@@ -28,7 +28,6 @@ public class MethodLocator {
             public boolean visit(TypeDeclaration node) {
                 // if class name is not equal, visit child to check if target is inner class
                 var binName = getBinaryName(node.resolveBinding());
-                logger.info("1: " + binName + " 2: "  + node.resolveBinding().getBinaryName() + " " + node.isLocalTypeDeclaration());
                 if (! binName.equals(className)) {
                     return true;
                 }

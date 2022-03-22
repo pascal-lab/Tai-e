@@ -1,0 +1,81 @@
+---------- <Varargs: int f(int,int[])> ----------
+Parameters: int a, int[] t
+Variables:
+Varargs %this
+int a
+int[] t
+int %intconst0
+int #temp$1
+Statements:
+[0@L-1] %intconst0 = 1;
+[1@L2] #temp$1 = t[%intconst0];
+[2@L2] return #temp$1;
+---------- <Varargs: int g()> ----------
+Parameters: 
+Variables:
+Varargs %this
+int %intconst0
+int[] #temp$1
+int %intconst2
+int %intconst3
+int %intconst4
+int #temp$5
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst2 = 2;
+[2@L-1] %intconst3 = 0;
+[3@L-1] %intconst4 = 1;
+[4@L-2] #temp$1 = newarray int[%intconst2];
+[5@L6] #temp$1[%intconst3] = %intconst4;
+[6@L6] #temp$1[%intconst4] = %intconst2;
+[7@L6] #temp$5 = invokevirtual %this.<Varargs: int f(int,int[])>(%intconst0, #temp$1);
+[8@L6] return #temp$5;
+---------- <Varargs: int k(int,int[][])> ----------
+Parameters: int a, int[][] t
+Variables:
+Varargs %this
+int a
+int[][] t
+int %intconst0
+int[] #temp$1
+int #temp$2
+Statements:
+[0@L-1] %intconst0 = 0;
+[1@L10] #temp$1 = t[%intconst0];
+[2@L10] #temp$2 = #temp$1[%intconst0];
+[3@L10] return #temp$2;
+---------- <Varargs: int k2()> ----------
+Parameters: 
+Variables:
+Varargs %this
+int %intconst0
+int[][] #temp$1
+int %intconst2
+int %intconst3
+int[] #temp$4
+int %intconst5
+int[] #temp$6
+int #temp$7
+Statements:
+[0@L-1] %intconst0 = 10;
+[1@L-1] %intconst2 = 2;
+[2@L-1] %intconst3 = 0;
+[3@L-1] %intconst5 = 1;
+[4@L-2] #temp$1 = newarray int[][%intconst2];
+[5@L14] #temp$4 = newarray int[%intconst5];
+[6@L14] #temp$4[%intconst3] = %intconst5;
+[7@L14] #temp$1[%intconst3] = #temp$4;
+[8@L14] #temp$6 = newarray int[%intconst5];
+[9@L14] #temp$6[%intconst3] = %intconst2;
+[10@L14] #temp$1[%intconst5] = #temp$6;
+[11@L14] #temp$7 = invokevirtual %this.<Varargs: int k(int,int[][])>(%intconst0, #temp$1);
+[12@L14] return #temp$7;
+---------- <Varargs: void <init>()> ----------
+Parameters: 
+Variables:
+Varargs %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

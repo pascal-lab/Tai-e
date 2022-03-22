@@ -1,0 +1,33 @@
+---------- <Str: java.lang.String f()> ----------
+Parameters: 
+Variables:
+Str %this
+java.lang.String %stringconst0
+Statements:
+[0@L-1] %stringconst0 = "11213123412";
+[1@L2] return %stringconst0;
+---------- <Str: java.lang.String f(java.lang.String)> ----------
+Parameters: java.lang.String a
+Variables:
+Str %this
+java.lang.String a
+java.lang.StringBuilder #temp$0
+int %intconst1
+java.lang.String #temp$2
+Statements:
+[0@L-1] %intconst1 = 1;
+[1@L6] #temp$0 = new java.lang.StringBuilder;
+[2@L6] invokespecial #temp$0.<java.lang.StringBuilder: void <init>()>();
+[3@L6] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(int)>(%intconst1);
+[4@L6] invokevirtual #temp$0.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>(a);
+[5@L6] #temp$2 = invokevirtual #temp$0.<java.lang.Object: java.lang.String toString()>();
+[6@L6] return #temp$2;
+---------- <Str: void <init>()> ----------
+Parameters: 
+Variables:
+Str %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+

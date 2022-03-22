@@ -1,0 +1,27 @@
+---------- <Synchronized: void <init>()> ----------
+Parameters: 
+Variables:
+Synchronized %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+---------- <Synchronized: void onlyMe(java.lang.Object)> ----------
+Parameters: java.lang.Object f
+Variables:
+Synchronized %this
+java.lang.Object f
+int i
+java.lang.Throwable #temp$0
+Statements:
+[0@L2] monitorenter f;
+[1@L3] i = 2;
+[2@L3] goto 6;
+[3@L3] catch #temp$0;
+[4@L3] monitorexit f;
+[5@L3] throw #temp$0;
+[6@L3] monitorexit f;
+[7@L-1] return;
+Exception entries:
+  try [1, 2), catch java.lang.Throwable at 3
+------------------------------
+

@@ -1,0 +1,17 @@
+---------- <Locate1: java.lang.Integer f(java.lang.Integer,java.lang.Object)> ----------
+Parameters: java.lang.Integer t1, java.lang.Object t2
+Variables:
+Locate1 %this
+java.lang.Integer t1
+java.lang.Object t2
+Statements:
+[0@L2] return t1;
+---------- <Locate1: void <init>()> ----------
+Parameters: 
+Variables:
+Locate1 %this
+Statements:
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>();
+[1@L1] return;
+------------------------------
+
