@@ -109,6 +109,18 @@ public class Options {
         return mainClass;
     }
 
+    @JsonProperty
+    @Option(names = {"-ap", "--allow-phantom"},
+            description = "Allow Tai-e to process phantom references, i.e.," +
+                    " the referenced classes that are not found in the class paths" +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
+    private boolean allowPhantom;
+
+    public boolean isAllowPhantom() {
+        return allowPhantom;
+    }
+
     // ---------- general analysis options ----------
     @JsonProperty
     @Option(names = "--world-builder",
@@ -270,18 +282,21 @@ public class Options {
     @Override
     public String toString() {
         return "Options{" +
-                "help=" + printHelp +
+                "optionsFile=" + optionsFile +
+                ", printHelp=" + printHelp +
                 ", javaVersion=" + javaVersion +
                 ", prependJVM=" + prependJVM +
                 ", classPath='" + classPath + '\'' +
                 ", mainClass='" + mainClass + '\'' +
+                ", allowPhantom=" + allowPhantom +
                 ", worldBuilderClass=" + worldBuilderClass +
                 ", preBuildIR=" + preBuildIR +
+                ", scope='" + scope + '\'' +
                 ", nativeModel=" + nativeModel +
                 ", dumpClasses=" + dumpClasses +
-                ", planFile='" + planFile + '\'' +
+                ", planFile=" + planFile +
                 ", analyses=" + analyses +
-                ", genPlanFile=" + onlyGenPlan +
+                ", onlyGenPlan=" + onlyGenPlan +
                 '}';
     }
 }

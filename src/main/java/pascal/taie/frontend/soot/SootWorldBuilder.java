@@ -81,6 +81,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
+        if (options.isAllowPhantom()) {
+            // TODO: provide comprehensive handling for phantom classes
+            soot.options.Options.v().set_allow_phantom_refs(true);
+        }
         if (options.isPreBuildIR()) {
             // we need to set this option to false when pre-building IRs,
             // otherwise Soot throws RuntimeException saying
