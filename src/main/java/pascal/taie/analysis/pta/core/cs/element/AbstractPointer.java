@@ -17,6 +17,7 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.Sets.newHybridSet;
 
@@ -34,6 +35,17 @@ abstract class AbstractPointer implements Pointer {
     @Override
     public void setPointsToSet(PointsToSet pointsToSet) {
         this.pointsToSet = pointsToSet;
+    }
+
+    @Override
+    public Set<CSObj> getObjects() {
+        PointsToSet pts = getPointsToSet();
+        return pts == null ? Set.of() : pts.getObjects();
+    }
+
+    @Override
+    public Stream<CSObj> objects() {
+        return getObjects().stream();
     }
 
     @Override

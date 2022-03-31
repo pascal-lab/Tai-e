@@ -71,11 +71,6 @@ public interface PointerAnalysisResult extends ResultHolder {
     Collection<Obj> getObjects();
 
     /**
-     * @return context-sensitive points-to set of context-sensitive variable var.
-     */
-    Set<CSObj> getPointsToSet(CSVar var);
-
-    /**
      * @return set of Obj pointed to by var.
      */
     Set<Obj> getPointsToSet(Var var);

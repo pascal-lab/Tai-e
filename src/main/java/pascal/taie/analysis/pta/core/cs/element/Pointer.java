@@ -16,7 +16,9 @@ import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.type.Type;
 
+import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Represents all pointers (nodes) in context-sensitive
@@ -27,12 +29,31 @@ public interface Pointer {
     /**
      * @return the points-to set associated with the pointer.
      */
+    @Nullable
     PointsToSet getPointsToSet();
 
     /**
      * Sets the associated points-to set of the pointer.
      */
     void setPointsToSet(PointsToSet pointsToSet);
+
+    /**
+     * Safely retrieves context-sensitive objects pointed to by this pointer.
+     *
+     * @return an empty set if {@code pointer} has not been associated
+     * a {@code PointsToSet}; otherwise, returns set of objects in the
+     * {@code PointsToSet}.
+     */
+    Set<CSObj> getObjects();
+
+    /**
+     * Safely retrieves context-sensitive objects pointed to by this pointer.
+     *
+     * @return an empty stream if {@code pointer} has not been associated
+     * a {@code PointsToSet}; otherwise, returns stream of objects in the
+     * {@code PointsToSet}.
+     */
+    Stream<CSObj> objects();
 
     /**
      * @param edge an out edge of this pointer

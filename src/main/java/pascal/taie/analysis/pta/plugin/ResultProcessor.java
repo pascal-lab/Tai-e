@@ -18,7 +18,6 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
-import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Lists;
@@ -104,7 +103,7 @@ public class ResultProcessor implements Plugin {
         int varInsens = result.getVars().size();
         int varSens = result.getCSVars().size();
         int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
-        ToIntFunction<Pointer> getSize = p -> p.getPointsToSet().size();
+        ToIntFunction<Pointer> getSize = p -> p.getObjects().size();
         int vptSizeSens = sum(result.getCSVars(), getSize);
         int sfptSizeSens = sum(result.getStaticFields(), getSize);
         int ifptSizeSens = sum(result.getInstanceFields(), getSize);
@@ -166,7 +165,7 @@ public class ResultProcessor implements Plugin {
         out.println(HEADER + desc);
         pointers.stream()
                 .sorted(Comparator.comparing(Pointer::toString))
-                .forEach(p -> out.println(p + SEP + toString(p.getPointsToSet())));
+                .forEach(p -> out.println(p + SEP + Streams.toString(p.objects())));
         out.println();
     }
 
@@ -180,7 +179,7 @@ public class ResultProcessor implements Plugin {
         addPointers(pointers, result.getArrayIndexes());
         List<String> mismatches = new ArrayList<>();
         pointers.forEach((pointerStr, pointer) -> {
-            String given = toString(pointer.getPointsToSet());
+            String given = Streams.toString(pointer.objects());
             String expected = inputs.get(pointerStr);
             if (!given.equals(expected)) {
                 mismatches.add(String.format("%s, expected: %s, given: %s",
@@ -220,10 +219,6 @@ public class ResultProcessor implements Plugin {
         pointers.stream()
                 .sorted(Comparator.comparing(Pointer::toString))
                 .forEach(p -> map.put(p.toString(), p));
-    }
-
-    private static String toString(PointsToSet pts) {
-        return Streams.toString(pts.objects());
     }
 
     private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {

@@ -24,9 +24,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PointerAnalysisResultImpl extends AbstractResultHolder
         implements PointerAnalysisResult {
@@ -104,25 +105,15 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Collection<Obj> getObjects() {
-        return getCSObjects()
-                .stream()
-                .map(CSObj::getObject)
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public Set<CSObj> getPointsToSet(CSVar var) {
-        return var.getPointsToSet().getObjects();
+        return removeContexts(getCSObjects().stream());
     }
 
     @Override
     public Set<Obj> getPointsToSet(Var var) {
         return varPointsTo.computeIfAbsent(var, v ->
-                csManager.getCSVarsOf(var)
+                removeContexts(csManager.getCSVarsOf(var)
                         .stream()
-                        .flatMap(csVar -> csVar.getPointsToSet().objects())
-                        .map(CSObj::getObject)
-                        .collect(Collectors.toUnmodifiableSet()));
+                        .flatMap(Pointer::objects)));
     }
 
     @Override
@@ -134,11 +125,10 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             Set<Obj> pts = Sets.newHybridSet();
             csManager.getCSVarsOf(base)
                     .stream()
-                    .flatMap(csVar -> csVar.getPointsToSet().objects())
+                    .flatMap(Pointer::objects)
                     .forEach(o -> {
                         InstanceField ifield = csManager.getInstanceField(o, field);
-                        ifield.getPointsToSet()
-                                .objects()
+                        ifield.objects()
                                 .map(CSObj::getObject)
                                 .forEach(pts::add);
                     });
@@ -151,16 +141,15 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         if (!field.isStatic()) {
             logger.warn("{} is not static field", field);
         }
-        return removeContexts(
-                csManager.getStaticField(field).getPointsToSet());
+        return removeContexts(csManager.getStaticField(field).objects());
     }
 
     /**
      * Removes contexts of a context-sensitive points-to set and
      * returns a new resulting set.
      */
-    private static Set<Obj> removeContexts(PointsToSet pts) {
-        return pts.objects().map(CSObj::getObject)
+    private static Set<Obj> removeContexts(Stream<CSObj> objects) {
+        return objects.map(CSObj::getObject)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
