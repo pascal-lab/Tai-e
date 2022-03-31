@@ -27,7 +27,7 @@ public class PointsToSetFactory {
     }
 
     public PointsToSet make() {
-        return new HybridArrayHashPointsToSet();
+        return new HybridArrayBitPointsToSet(objIndexer);
     }
 
     /**

@@ -45,17 +45,17 @@ public abstract class AbstractHybridSet<E> extends AbstractSet<E> {
     /**
      * The singleton value. Null if not a singleton.
      */
-    private E singleton;
+    protected E singleton;
 
     /**
      * The set containing the elements. Null if the set is not used.
      */
-    private Set<E> set;
+    protected Set<E> set;
 
     /**
      * Whether the set implementation is the one for large set.
      */
-    private boolean isLargeSet = false;
+    protected boolean isLargeSet = false;
 
     /**
      * Constructs a new hybrid set.
@@ -80,11 +80,8 @@ public abstract class AbstractHybridSet<E> extends AbstractSet<E> {
 
     /**
      * Creates a small set.
-     *
-     * @param initialCapacity initial capacity of the resulting set.
-     *                        Usually this is the same as the threshold.
      */
-    protected abstract Set<E> newSmallSet(int initialCapacity);
+    protected abstract Set<E> newSmallSet();
 
     /**
      * Creates a large set.
@@ -113,7 +110,7 @@ public abstract class AbstractHybridSet<E> extends AbstractSet<E> {
     }
 
     private void upgradeToSmallSet() {
-        set = newSmallSet(getThreshold());
+        set = newSmallSet();
         if (singleton != null) {
             set.add(singleton);
             singleton = null;

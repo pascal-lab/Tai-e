@@ -102,6 +102,8 @@ public class ResultProcessor implements Plugin {
     private static void logStatistics(PointerAnalysisResult result) {
         int varInsens = result.getVars().size();
         int varSens = result.getCSVars().size();
+        int objInsens = result.getObjects().size();
+        int objSens = result.getCSObjects().size();
         int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
         ToIntFunction<Pointer> getSize = p -> p.getObjects().size();
         int vptSizeSens = sum(result.getCSVars(), getSize);
@@ -115,6 +117,8 @@ public class ResultProcessor implements Plugin {
         logger.info("-------------- Pointer analysis statistics: --------------");
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var pointers:",
                 format(varInsens), format(varSens)));
+        logger.info(String.format("%-30s%s (insens) / %s (sens)", "#objects:",
+                format(objInsens), format(objSens)));
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var points-to:",
                 format(vptSizeInsens), format(vptSizeSens)));
         logger.info(String.format("%-30s%s (sens)", "#static field points-to:",

@@ -39,8 +39,12 @@ final class WorkList {
     }
 
     void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        pointerEntries.computeIfAbsent(pointer, unused -> pointsToSet.copy())
-                .addAll(pointsToSet);
+        PointsToSet set = pointerEntries.get(pointer);
+        if (set != null) {
+            set.addAll(pointsToSet);
+        } else {
+            pointerEntries.put(pointer, pointsToSet.copy());
+        }
     }
 
     Entry pollPointerEntry() {

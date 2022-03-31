@@ -12,10 +12,7 @@
 
 package pascal.taie.analysis.pta.pts;
 
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.collection.Sets;
-
-import java.util.Set;
 
 public class HybridArrayHashPointsToSet extends DelegatePointsToSet {
 
@@ -23,12 +20,10 @@ public class HybridArrayHashPointsToSet extends DelegatePointsToSet {
         super(Sets.newHybridSet());
     }
 
-    private HybridArrayHashPointsToSet(Set<CSObj> set) {
-        super(set);
-    }
-
     @Override
-    public PointsToSet copy() {
-        return new HybridArrayHashPointsToSet(Sets.newHybridSet(set));
+    public HybridArrayHashPointsToSet copy() {
+        var copy = new HybridArrayHashPointsToSet();
+        copy.addAll(this);
+        return copy;
     }
 }

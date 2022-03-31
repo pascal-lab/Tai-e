@@ -35,12 +35,16 @@ abstract class DelegatePointsToSet implements PointsToSet {
     }
 
     @Override
-    public boolean addAll(PointsToSet pts) {
-        boolean changed = false;
-        for (CSObj o : pts) {
-            changed |= addObject(o);
+    public boolean addAll(PointsToSet other) {
+        if (other instanceof DelegatePointsToSet pts) {
+            return set.addAll(pts.set);
+        } else {
+            boolean changed = false;
+            for (CSObj o : other) {
+                changed |= addObject(o);
+            }
+            return changed;
         }
-        return changed;
     }
 
     @Override

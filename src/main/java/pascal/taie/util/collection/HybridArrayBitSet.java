@@ -12,19 +12,23 @@
 
 package pascal.taie.util.collection;
 
-import java.util.LinkedHashSet;
+import pascal.taie.util.Indexer;
+
 import java.util.Set;
 
-/**
- * Hybrid of array set (for small set) and linked hash set (for large set).
- */
-public final class HybridArrayLinkedHashSet<E> extends AbstractHybridSet<E> {
+public class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
 
     /**
      * Default threshold for the number of items necessary for the array set
      * to become a hash set.
      */
     private static final int ARRAY_SET_SIZE = 8;
+
+    private final Indexer<E> indexer;
+
+    public HybridArrayBitSet(Indexer<E> indexer) {
+        this.indexer = indexer;
+    }
 
     @Override
     protected int getThreshold() {
@@ -37,7 +41,22 @@ public final class HybridArrayLinkedHashSet<E> extends AbstractHybridSet<E> {
     }
 
     @Override
-    protected Set<E> newLargeSet(int initialCapacity) {
-        return new LinkedHashSet<>(initialCapacity);
+    protected Set<E> newLargeSet(int unused) {
+        return new IndexerBitSet<>(indexer);
+    }
+
+    public HybridArrayBitSet<E> copy() {
+        HybridArrayBitSet<E> copy = new HybridArrayBitSet<>(indexer);
+        copy.singleton = singleton;
+        copy.isLargeSet = isLargeSet;
+        if (set != null) {
+            if (isLargeSet) {
+                copy.set = ((IndexerBitSet<E>) set).copy();
+            } else {
+                copy.set = newSmallSet();
+                copy.set.addAll(set);
+            }
+        }
+        return copy;
     }
 }

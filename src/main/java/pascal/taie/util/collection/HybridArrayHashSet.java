@@ -47,8 +47,8 @@ public final class HybridArrayHashSet<E> extends AbstractHybridSet<E> {
     }
 
     @Override
-    protected Set<E> newSmallSet(int initialCapacity) {
-        return new ArraySet<>(initialCapacity);
+    protected Set<E> newSmallSet() {
+        return new ArraySet<>(getThreshold());
     }
 
     @Override
