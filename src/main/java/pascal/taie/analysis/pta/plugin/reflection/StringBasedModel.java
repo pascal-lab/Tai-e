@@ -19,7 +19,6 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
@@ -50,7 +49,7 @@ class StringBasedModel extends MetaObjModel {
     private void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet ctorObjs = PointsToSetFactory.make();
+            PointsToSet ctorObjs = solver.makePointsToSet();
             pts.forEach(obj -> {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
@@ -71,7 +70,7 @@ class StringBasedModel extends MetaObjModel {
     private void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet ctorObjs = PointsToSetFactory.make();
+            PointsToSet ctorObjs = solver.makePointsToSet();
             pts.forEach(obj -> {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
@@ -95,7 +94,7 @@ class StringBasedModel extends MetaObjModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
-            PointsToSet mtdObjs = PointsToSetFactory.make();
+            PointsToSet mtdObjs = solver.makePointsToSet();
             clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
@@ -124,7 +123,7 @@ class StringBasedModel extends MetaObjModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
-            PointsToSet mtdObjs = PointsToSetFactory.make();
+            PointsToSet mtdObjs = solver.makePointsToSet();
             clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {

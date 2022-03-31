@@ -19,7 +19,6 @@ import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -62,7 +61,7 @@ class LookupModel extends AbstractModel {
     private void findConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet mhObjs = PointsToSetFactory.make();
+            PointsToSet mhObjs = solver.makePointsToSet();
             pts.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
@@ -108,7 +107,7 @@ class LookupModel extends AbstractModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
-            PointsToSet mhObjs = PointsToSetFactory.make();
+            PointsToSet mhObjs = solver.makePointsToSet();
             clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {

@@ -18,7 +18,6 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -57,7 +56,7 @@ class MethodTypeModel extends AbstractModel {
     private void methodType1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet mtObjs = PointsToSetFactory.make();
+            PointsToSet mtObjs = solver.makePointsToSet();
             pts.forEach(obj -> {
                 Type retType = CSObjs.toType(obj);
                 if (retType != null) {
@@ -81,7 +80,7 @@ class MethodTypeModel extends AbstractModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet retObjs = args.get(0);
             PointsToSet paramObjs = args.get(1);
-            PointsToSet mtObjs = PointsToSetFactory.make();
+            PointsToSet mtObjs = solver.makePointsToSet();
             retObjs.forEach(retObj -> {
                 Type retType = CSObjs.toType(retObj);
                 if (retType != null) {
@@ -110,7 +109,7 @@ class MethodTypeModel extends AbstractModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet retObjs = args.get(0);
             PointsToSet mtObjs = args.get(1);
-            PointsToSet resultMTObjs = PointsToSetFactory.make();
+            PointsToSet resultMTObjs = solver.makePointsToSet();
             retObjs.forEach(retObj -> {
                 Type retType = CSObjs.toType(retObj);
                 if (retType != null) {

@@ -27,7 +27,6 @@ import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -56,6 +55,11 @@ public interface Solver {
 
     PointsToSet getPointsToSetOf(Pointer pointer);
 
+    /**
+     * Creates a new empty points-to set.
+     */
+    PointsToSet makePointsToSet();
+
     void setPlugin(Plugin plugin);
 
     /**
@@ -67,7 +71,9 @@ public interface Solver {
     void addPointsTo(Pointer pointer, PointsToSet pts);
 
     default void addPointsTo(Pointer pointer, CSObj csObj) {
-        addPointsTo(pointer, PointsToSetFactory.make(csObj));
+        PointsToSet pts = makePointsToSet();
+        pts.addObject(csObj);
+        addPointsTo(pointer, pts);
     }
 
     // convenient APIs for adding var-points-to relations

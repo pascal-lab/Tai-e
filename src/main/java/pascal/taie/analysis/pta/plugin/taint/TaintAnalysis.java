@@ -27,7 +27,6 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
@@ -132,7 +131,7 @@ public class TaintAnalysis implements Plugin {
     }
 
     private void transferTaint(PointsToSet pts, Context ctx, Var to, Type type) {
-        PointsToSet newTaints = PointsToSetFactory.make();
+        PointsToSet newTaints = solver.makePointsToSet();
         pts.objects()
                 .map(CSObj::getObject)
                 .filter(manager::isTaint)

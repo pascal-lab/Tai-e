@@ -14,7 +14,6 @@ package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
@@ -48,8 +47,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public CSVar getCSVar(Context context, Var var) {
-        return vars.computeIfAbsent(var, context,
-                (v, c) -> initializePointsToSet(new CSVar(v, c)));
+        return vars.computeIfAbsent(var, context, CSVar::new);
     }
 
     @Override
@@ -69,20 +67,17 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public StaticField getStaticField(JField field) {
-        return staticFields.computeIfAbsent(field,
-                (f) -> initializePointsToSet(new StaticField(f)));
+        return staticFields.computeIfAbsent(field, StaticField::new);
     }
 
     @Override
     public InstanceField getInstanceField(CSObj base, JField field) {
-        return instanceFields.computeIfAbsent(base, field,
-                (b, f) -> initializePointsToSet(new InstanceField(b, f)));
+        return instanceFields.computeIfAbsent(base, field, InstanceField::new);
     }
 
     @Override
     public ArrayIndex getArrayIndex(CSObj array) {
-        return arrayIndexes.computeIfAbsent(array,
-                (a) -> initializePointsToSet(new ArrayIndex(a)));
+        return arrayIndexes.computeIfAbsent(array, ArrayIndex::new);
     }
 
     @Override
@@ -119,11 +114,6 @@ public class MapBasedCSManager implements CSManager {
     @Override
     public Collection<ArrayIndex> getArrayIndexes() {
         return Collections.unmodifiableCollection(arrayIndexes.values());
-    }
-
-    private <P extends Pointer> P initializePointsToSet(P pointer) {
-        pointer.setPointsToSet(PointsToSetFactory.make());
-        return pointer;
     }
 
     @Override

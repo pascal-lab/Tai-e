@@ -20,7 +20,6 @@ import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
@@ -46,18 +45,22 @@ public class ThreadHandler implements Plugin {
      * This variable of Thread.start().
      */
     private Var threadStartThis;
+
     /**
      * Set of running threads.
      */
-    private final PointsToSet runningThreads = PointsToSetFactory.make();
+    private PointsToSet runningThreads;
+
     /**
      * Represent Thread.currentThread.
      */
     private JMethod currentThread;
+
     /**
      * Return variable of Thread.currentThread().
      */
     private Var currentThreadReturn;
+
     /**
      * Contexts of Thread.currentThread().
      */
@@ -66,6 +69,7 @@ public class ThreadHandler implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
+        runningThreads = solver.makePointsToSet();
         hierarchy = World.get().getClassHierarchy();
         threadStartThis = hierarchy.getJREMethod(
                         "<java.lang.Thread: void start()>")

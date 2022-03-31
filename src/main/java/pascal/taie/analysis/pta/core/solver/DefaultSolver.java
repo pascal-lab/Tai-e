@@ -106,6 +106,8 @@ public class DefaultSolver implements Solver {
 
     private final NativeObjs nativeObjs;
 
+    private final PointsToSetFactory ptsFactory;
+
     /**
      * Whether only analyzes application code.
      */
@@ -139,6 +141,7 @@ public class DefaultSolver implements Solver {
         hierarchy = World.get().getClassHierarchy();
         typeSystem = World.get().getTypeSystem();
         nativeObjs = new NativeObjs(typeSystem);
+        ptsFactory = new PointsToSetFactory(csManager.getObjectIndexer());
     }
 
     @Override
@@ -183,7 +186,17 @@ public class DefaultSolver implements Solver {
 
     @Override
     public PointsToSet getPointsToSetOf(Pointer pointer) {
-        return pointer.getPointsToSet();
+        PointsToSet pts = pointer.getPointsToSet();
+        if (pts == null) {
+            pts = ptsFactory.make();
+            pointer.setPointsToSet(pts);
+        }
+        return pts;
+    }
+
+    @Override
+    public PointsToSet makePointsToSet() {
+        return ptsFactory.make();
     }
 
     @Override
@@ -282,9 +295,9 @@ public class DefaultSolver implements Solver {
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         logger.trace("Propagate {} to {}", pointsToSet, pointer);
-        final PointsToSet diff = PointsToSetFactory.make();
+        final PointsToSet diff = ptsFactory.make();
         pointsToSet.forEach(obj -> {
-            if (pointer.getPointsToSet().addObject(obj)) {
+            if (getPointsToSetOf(pointer).addObject(obj)) {
                 diff.addObject(obj);
             }
         });
@@ -305,7 +318,7 @@ public class DefaultSolver implements Solver {
      * which can be assigned to t.
      */
     private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
-        PointsToSet result = PointsToSetFactory.make();
+        PointsToSet result = ptsFactory.make();
         pts.objects()
                 .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
                 .forEach(result::addObject);
@@ -581,10 +594,10 @@ public class DefaultSolver implements Solver {
         }
 
         /**
-         * Call Finalizer.register() at allocation sites of objects which override
-         * Object.finalize() method.
-         * NOTE: finalize() has been deprecated starting with Java 9, and will
-         * eventually be removed.
+         * Call Finalizer.register() at allocation sites of objects
+         * which override Object.finalize() method.
+         * NOTE: finalize() has been deprecated since Java 9, and
+         * will eventually be removed.
          */
         private void processFinalizer(New stmt) {
             Invoke registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
@@ -690,7 +703,6 @@ public class DefaultSolver implements Solver {
         workList.addPointerEntry(pointer, pts);
     }
 
-
     @Override
     public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
         addVarPointsTo(context, var, csManager.getCSObj(heapContext, obj));
@@ -724,8 +736,8 @@ public class DefaultSolver implements Solver {
     public void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind) {
         if (pointerFlowGraph.addEdge(source, target, type, kind)) {
             PointsToSet sourceSet = type == null ?
-                    source.getPointsToSet() :
-                    getAssignablePointsToSet(source.getPointsToSet(), type);
+                    getPointsToSetOf(source) :
+                    getAssignablePointsToSet(getPointsToSetOf(source), type);
             if (!sourceSet.isEmpty()) {
                 workList.addPointerEntry(target, sourceSet);
             }
