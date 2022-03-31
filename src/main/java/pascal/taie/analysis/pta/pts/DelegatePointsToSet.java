@@ -21,9 +21,9 @@ import java.util.stream.Stream;
 /**
  * Delegates points-to set to a concrete set implementation.
  */
-class DelegatePointsToSet implements PointsToSet {
+abstract class DelegatePointsToSet implements PointsToSet {
 
-    private final Set<CSObj> set;
+    protected final Set<CSObj> set;
 
     DelegatePointsToSet(Set<CSObj> set) {
         this.set = set;

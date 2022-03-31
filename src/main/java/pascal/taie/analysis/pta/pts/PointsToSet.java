@@ -45,6 +45,11 @@ public interface PointsToSet extends Iterable<CSObj> {
     boolean contains(CSObj obj);
 
     /**
+     * @return a copy of this set.
+     */
+    PointsToSet copy();
+
+    /**
      * @return whether this set if empty.
      */
     boolean isEmpty();

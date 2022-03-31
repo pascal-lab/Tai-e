@@ -13,26 +13,27 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.util.collection.Sets;
-
-import java.util.Set;
-import java.util.function.Supplier;
+import pascal.taie.util.Indexer;
 
 /**
  * Provides static factory methods for {@link PointsToSet}.
  */
 public class PointsToSetFactory {
 
-    private static final Supplier<Set<CSObj>> setFactory = Sets::newHybridSet;
+    private final Indexer<CSObj> objIndexer;
 
-    public static PointsToSet make() {
-        return new DelegatePointsToSet(setFactory.get());
+    public PointsToSetFactory(Indexer<CSObj> objIndexer) {
+        this.objIndexer = objIndexer;
+    }
+
+    public PointsToSet make() {
+        return new HybridArrayHashPointsToSet();
     }
 
     /**
      * Convenient method for making one-element points-to set.
      */
-    public static PointsToSet make(CSObj obj) {
+    public PointsToSet make(CSObj obj) {
         PointsToSet set = make();
         set.addObject(obj);
         return set;

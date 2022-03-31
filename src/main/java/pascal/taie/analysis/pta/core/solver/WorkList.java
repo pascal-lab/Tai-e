@@ -17,7 +17,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 
 import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
@@ -40,8 +39,7 @@ final class WorkList {
     }
 
     void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        pointerEntries.computeIfAbsent(pointer,
-                        unused -> PointsToSetFactory.make())
+        pointerEntries.computeIfAbsent(pointer, unused -> pointsToSet.copy())
                 .addAll(pointsToSet);
     }
 
