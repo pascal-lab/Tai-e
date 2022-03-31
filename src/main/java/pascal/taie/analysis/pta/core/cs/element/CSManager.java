@@ -18,6 +18,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Indexer;
 
 import java.util.Collection;
 
@@ -96,4 +97,10 @@ public interface CSManager {
      * @return all array index pointers.
      */
     Collection<ArrayIndex> getArrayIndexes();
+
+    /**
+     * @return {@link Indexer} for {@link CSObj} maintained by this manager.
+     * The indexer is useful for creating efficient points-to sets.
+     */
+    Indexer<CSObj> getObjectIndexer();
 }

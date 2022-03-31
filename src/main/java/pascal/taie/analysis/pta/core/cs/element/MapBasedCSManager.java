@@ -19,6 +19,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
@@ -34,12 +35,16 @@ import java.util.Set;
 public class MapBasedCSManager implements CSManager {
 
     private final TwoKeyMap<Var, Context, CSVar> vars = Maps.newTwoKeyMap();
-    private final TwoKeyMap<Obj, Context, CSObj> objs = Maps.newTwoKeyMap();
     private final TwoKeyMap<Invoke, Context, CSCallSite> callSites = Maps.newTwoKeyMap();
     private final TwoKeyMap<JMethod, Context, CSMethod> methods = Maps.newTwoKeyMap();
     private final Map<JField, StaticField> staticFields = Maps.newMap();
     private final TwoKeyMap<CSObj, JField, InstanceField> instanceFields = Maps.newTwoKeyMap();
     private final Map<CSObj, ArrayIndex> arrayIndexes = Maps.newMap();
+
+    /**
+     * Delegates implementation of CSObj-related API to CSObjManager.
+     */
+    private final CSObjManager objManager = new CSObjManager();
 
     @Override
     public CSVar getCSVar(Context context, Var var) {
@@ -49,7 +54,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public CSObj getCSObj(Context heapContext, Obj obj) {
-        return objs.computeIfAbsent(obj, heapContext, CSObj::new);
+        return objManager.getCSObj(heapContext, obj);
     }
 
     @Override
@@ -98,7 +103,7 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public Collection<CSObj> getObjects() {
-        return objs.values();
+        return objManager.getObjects();
     }
 
     @Override
@@ -119,5 +124,10 @@ public class MapBasedCSManager implements CSManager {
     private <P extends Pointer> P initializePointsToSet(P pointer) {
         pointer.setPointsToSet(PointsToSetFactory.make());
         return pointer;
+    }
+
+    @Override
+    public Indexer<CSObj> getObjectIndexer() {
+        return objManager;
     }
 }

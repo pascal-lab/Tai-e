@@ -22,9 +22,12 @@ public class CSObj extends AbstractCSElement {
 
     private final Obj obj;
 
-    CSObj(Obj obj, Context context) {
+    private final int index;
+
+    CSObj(Obj obj, Context context, int index) {
         super(context);
         this.obj = obj;
+        this.index = index;
     }
 
     /**
@@ -32,6 +35,10 @@ public class CSObj extends AbstractCSElement {
      */
     public Obj getObject() {
         return obj;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override
