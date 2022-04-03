@@ -22,7 +22,7 @@ public class BitSetTest {
 
     @Test
     public void testSet() {
-        BitSet s = new BitSet();
+        BitSet s = new SimpleBitSet();
         assertTrue(s.set(1));
         assertFalse(s.set(1));
         assertTrue(s.set(10000));
@@ -71,7 +71,7 @@ public class BitSetTest {
     @Test
     public void testXor() {
         BitSet s = BitSet.of(1, 2, 300);
-        assertTrue(s.xor(new BitSet(s)));
+        assertTrue(s.xor(new SimpleBitSet(s)));
         assertTrue(s.isEmpty());
     }
 

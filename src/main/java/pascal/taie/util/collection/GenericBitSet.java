@@ -46,11 +46,11 @@ public abstract class GenericBitSet<E> extends AbstractSet<E> {
     protected final BitSet bitSet;
 
     protected GenericBitSet() {
-        bitSet = new BitSet();
+        bitSet = new SimpleBitSet();
     }
 
     protected GenericBitSet(GenericBitSet<E> s) {
-        bitSet = new BitSet(s.bitSet);
+        bitSet = new SimpleBitSet(s.bitSet);
     }
 
     @Override

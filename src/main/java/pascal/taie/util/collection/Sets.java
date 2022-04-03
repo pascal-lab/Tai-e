@@ -59,10 +59,10 @@ public final class Sets {
     }
 
     public static BitSet newBitSet() {
-        return new BitSet();
+        return new SimpleBitSet();
     }
 
     public static BitSet newBitSet(int nbits) {
-        return new BitSet(nbits);
+        return new SimpleBitSet(nbits);
     }
 }
