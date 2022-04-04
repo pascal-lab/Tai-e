@@ -236,8 +236,7 @@ public interface BitSet {
     default <R> R iterateBits(Action<R> action) {
         int i = nextSetBit(0);
         while (i != -1) {
-            action.accept(i);
-            if (action.isBreak()) {
+            if (!action.accept(i)) {
                 break;
             }
             i = nextSetBit(i + 1);
@@ -247,10 +246,18 @@ public interface BitSet {
 
     interface Action<R> {
 
-        void accept(int index);
+        /**
+         * Performs this operation on given bit index.
+         *
+         * @param bitIndex the input bit index.
+         * @return {@code true} if the iteration should keep going after
+         * processing {@code bitIndex}.
+         */
+        boolean accept(int bitIndex);
 
-        boolean isBreak();
-
+        /**
+         * @return the final result of the iteration.
+         */
         R getResult();
     }
 

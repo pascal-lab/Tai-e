@@ -22,22 +22,33 @@ public abstract class AbstractBitSet implements BitSet {
     protected static final int ADDRESS_BITS_PER_WORD = 6;
     protected static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
 
-    /**
-     * Checks that fromIndex ... toIndex is a valid range of bit indices.
-     */
-    protected static void checkRange(int fromIndex, int toIndex) {
-        if (fromIndex < 0)
-            throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
-        if (toIndex < 0)
-            throw new IndexOutOfBoundsException("toIndex < 0: " + toIndex);
-        if (fromIndex > toIndex)
-            throw new IndexOutOfBoundsException("fromIndex: " + fromIndex +
-                    " > toIndex: " + toIndex);
-    }
-
     @Override
     public boolean set(int bitIndex, boolean value) {
         return value ? set(bitIndex) : clear(bitIndex);
+    }
+
+    @Override
+    public boolean intersects(BitSet set) {
+        return set.iterateBits(new IntersectsAction());
+    }
+
+    private class IntersectsAction implements Action<Boolean> {
+
+        private boolean intersects = false;
+
+        @Override
+        public boolean accept(int bitIndex) {
+            if (get(bitIndex)) {
+                intersects = true;
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public Boolean getResult() {
+            return intersects;
+        }
     }
 
     @Override
@@ -50,9 +61,46 @@ public abstract class AbstractBitSet implements BitSet {
         return set.iterateBits(new ContainsAction());
     }
 
+    private class ContainsAction implements Action<Boolean> {
+
+        private boolean contains = true;
+
+        @Override
+        public boolean accept(int bitIndex) {
+            if (!get(bitIndex)) {
+                contains = false;
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public Boolean getResult() {
+            return contains;
+        }
+    }
+
     @Override
     public boolean or(BitSet set) {
         return set.iterateBits(new OrAction());
+    }
+
+    private class OrAction implements Action<Boolean> {
+
+        private boolean changed = false;
+
+        @Override
+        public boolean accept(int bitIndex) {
+            if (set(bitIndex)) {
+                changed = true;
+            }
+            return true;
+        }
+
+        @Override
+        public Boolean getResult() {
+            return changed;
+        }
     }
 
     @Override
@@ -107,49 +155,5 @@ public abstract class AbstractBitSet implements BitSet {
 
         b.append('}');
         return b.toString();
-    }
-
-    private class ContainsAction implements Action<Boolean> {
-
-        private boolean contains = true;
-
-        @Override
-        public void accept(int index) {
-            if (!get(index)) {
-                contains = false;
-            }
-        }
-
-        @Override
-        public boolean isBreak() {
-            return !contains;
-        }
-
-        @Override
-        public Boolean getResult() {
-            return contains;
-        }
-    }
-
-    private class OrAction implements Action<Boolean> {
-
-        private boolean changed = false;
-
-        @Override
-        public void accept(int index) {
-            if (set(index)) {
-                changed = true;
-            }
-        }
-
-        @Override
-        public boolean isBreak() {
-            return false;
-        }
-
-        @Override
-        public Boolean getResult() {
-            return changed;
-        }
     }
 }

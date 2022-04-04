@@ -293,19 +293,27 @@ public class SimpleBitSet extends AbstractBitSet {
         }
     }
 
-    private static SimpleBitSet asSimpleBitSet(BitSet set) {
+    private enum Op {
+        AND, AND_NOT, XOR
+    }
+
+    private static SimpleBitSet asSimpleBitSet(BitSet set, Op op) {
         if (set instanceof SimpleBitSet simpleBitSet) {
             return simpleBitSet;
         }
         throw new UnsupportedOperationException(
-                SimpleBitSet.class + " does not support set operations with " +
-                        set.getClass() +
-                        " (only operations between the same type are allowed)");
+                String.format("%s does not support %s with %s",
+                        SimpleBitSet.class, op, set.getClass()));
     }
 
     @Override
     public boolean intersects(BitSet set) {
-        SimpleBitSet other = asSimpleBitSet(set);
+        if (this == set) {
+            return true;
+        }
+        if (!(set instanceof SimpleBitSet other)) {
+            return super.intersects(set);
+        }
         for (int i = Math.min(wordsInUse, other.wordsInUse) - 1; i >= 0; i--)
             if ((words[i] & other.words[i]) != 0)
                 return true;
@@ -339,15 +347,14 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public boolean and(BitSet set) {
-        SimpleBitSet other = asSimpleBitSet(set);
-        if (this == other)
+        if (this == set)
             return false;
 
+        SimpleBitSet other = asSimpleBitSet(set, Op.AND);
         boolean changed = false;
         if (wordsInUse > other.wordsInUse) {
-            while (wordsInUse > other.wordsInUse) {
-                words[--wordsInUse] = 0;
-            }
+            Arrays.fill(words, other.wordsInUse, wordsInUse, 0);
+            wordsInUse = other.wordsInUse;
             changed = true;
         }
 
@@ -373,8 +380,14 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public boolean andNot(BitSet set) {
-        SimpleBitSet other = asSimpleBitSet(set);
         boolean changed = false;
+        if (this == set) {
+            changed = wordsInUse > 0;
+            clear();
+            return changed;
+        }
+
+        SimpleBitSet other = asSimpleBitSet(set, Op.AND_NOT);
         // Perform logical (a & !b) on words in common
         int wordsInCommon = Math.min(wordsInUse, other.wordsInUse);
         for (int i = wordsInCommon - 1; i >= 0; i--) {
@@ -442,7 +455,7 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public boolean xor(BitSet set) {
-        SimpleBitSet other = asSimpleBitSet(set);
+        SimpleBitSet other = asSimpleBitSet(set, Op.XOR);
         int wordsInCommon = Math.min(wordsInUse, other.wordsInUse);
 
         boolean changed = false;
@@ -502,8 +515,8 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public void clear() {
-        while (wordsInUse > 0)
-            words[--wordsInUse] = 0;
+        Arrays.fill(words, 0, wordsInUse, 0);
+        wordsInUse = 0;
     }
 
     @Override
