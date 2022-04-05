@@ -10,18 +10,12 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.collection;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import pascal.taie.util.collection.CollectionTestSuite;
-import pascal.taie.util.graph.GraphTest;
+public class SimpleBitSetTest extends BitSetTest {
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        CollectionTestSuite.class,
-        GraphTest.class,
-        IndexerTest.class,
-})
-public class UtilTestSuite {
+    @Override
+    protected BitSet of(int... indexes) {
+        return BitSet.of(indexes);
+    }
 }

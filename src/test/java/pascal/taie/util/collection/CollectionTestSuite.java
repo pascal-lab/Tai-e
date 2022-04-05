@@ -10,18 +10,26 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.collection;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import pascal.taie.util.collection.CollectionTestSuite;
-import pascal.taie.util.graph.GraphTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        CollectionTestSuite.class,
-        GraphTest.class,
-        IndexerTest.class,
+        GenericBitSetTest.class,
+        ArraySetTest.class,
+        ArrayMapTest.class,
+        HybridArrayHashMapTest.class,
+        HybridArrayHashSetTest.class,
+        IndexMapTest.class,
+        MultiMapTest.class,
+        SetQueueTest.class,
+        SimpleBitSetTest.class,
+        SparseBitSetTest.class,
+        StreamsTest.class,
+        TwoKeyMapTest.class,
+        ViewsTest.class,
 })
-public class UtilTestSuite {
+public class CollectionTestSuite {
 }

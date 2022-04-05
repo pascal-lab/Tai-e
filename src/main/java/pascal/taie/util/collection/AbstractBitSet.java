@@ -22,6 +22,13 @@ public abstract class AbstractBitSet implements BitSet {
     protected static final int ADDRESS_BITS_PER_WORD = 6;
     protected static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
 
+    /**
+     * Given a bit index, return word index containing it.
+     */
+    protected static int wordIndex(int bitIndex) {
+        return bitIndex >> ADDRESS_BITS_PER_WORD;
+    }
+
     @Override
     public boolean set(int bitIndex, boolean value) {
         return value ? set(bitIndex) : clear(bitIndex);

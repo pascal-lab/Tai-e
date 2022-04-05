@@ -76,13 +76,6 @@ public class SimpleBitSet extends AbstractBitSet {
     }
 
     /**
-     * Given a bit index, return word index containing it.
-     */
-    private static int wordIndex(int bitIndex) {
-        return bitIndex >> ADDRESS_BITS_PER_WORD;
-    }
-
-    /**
      * Every public method must preserve these invariants.
      */
     private void checkInvariants() {
