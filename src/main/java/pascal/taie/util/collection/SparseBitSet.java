@@ -123,14 +123,6 @@ public class SparseBitSet extends AbstractBitSet {
      */
     private static final int LENGTH2_SIZE = LENGTH2 - 1;
 
-    /** An empty level 3 block is kept for use when scanning. When a source block
-     *  is needed, and there is not already one in the corresponding bit set, the
-     *  ZERO_BLOCK is used (as a read-only block). It is a source of zero values
-     *  so that code does not have to test for a null level3 block. This is a
-     *  static block shared everywhere.
-     */
-    private static final long[] ZERO_BLOCK = new long[LENGTH3];
-
     // ------------------------------------------------------------------------
     // instance fields
     // ------------------------------------------------------------------------
@@ -154,17 +146,7 @@ public class SparseBitSet extends AbstractBitSet {
      */
     private transient int bitsLength;
 
-    /**
-     *  A spare level 3 block is kept for use when scanning. When a target block
-     *  is needed, and there is not already one in the bit set, the spare is
-     *  provided. If non-zero values are placed into this block, it is moved to the
-     *  resulting set, and a new spare is acquired. Note: a new spare needs to
-     *  be allocated when the set is cloned (so that the spare is not shared
-     *  between two sets).
-     */
-    private transient long[] spareBlock;
-
-    private transient State state;
+    private final transient State state;
 
     public SparseBitSet() {
         this(1);
@@ -175,7 +157,6 @@ public class SparseBitSet extends AbstractBitSet {
             throw new NegativeArraySizeException("nbits < 0: " + nbits);
         }
         resize(nbits - 1);
-        spareBlock = new long[LENGTH3];
         state = new State();
         updateState();
     }
@@ -191,15 +172,8 @@ public class SparseBitSet extends AbstractBitSet {
 
         final int w = wordIndex(bitIndex);
         final int w1 = level1Index(w);
-        long[][] a2;
-        if ((a2 = table[w1]) == null) {
-            a2 = table[w1] = new long[LENGTH2][];
-        }
         final int w2 = level2Index(w);
-        long[] a3;
-        if ((a3 = a2[w2]) == null) {
-            a3 = a2[w2] = new long[LENGTH3];
-        }
+        long[] a3 = getOrCreateBlock(w1, w2);
         int w3 = level3Index(w);
         long oldWord = a3[w3];
         long newWord = oldWord | (1L << bitIndex);
@@ -261,19 +235,13 @@ public class SparseBitSet extends AbstractBitSet {
         if ((bitIndex + 1) < 1) {
             throw new IndexOutOfBoundsException("bitIndex=" + bitIndex);
         }
-        final int w = wordIndex(bitIndex);
-        final int w1 = level1Index(w);
-        final int w2 = level2Index(w);
-
         if (bitIndex >= bitsLength) {
             resize(bitIndex);
         }
-        long[][] a2;
-        if ((a2 = table[w1]) == null)
-            a2 = table[w1] = new long[LENGTH2][];
-        long[] a3;
-        if ((a3 = a2[w2]) == null)
-            a3 = a2[w2] = new long[LENGTH3];
+        final int w = wordIndex(bitIndex);
+        final int w1 = level1Index(w);
+        final int w2 = level2Index(w);
+        long[] a3 = getOrCreateBlock(w1, w2);
         a3[level3Index(w)] ^= (1L << bitIndex); // Flip the designated bit
         invalidateState();
     }
@@ -598,6 +566,137 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
+    public boolean andNot(BitSet set) {
+        if (this == set) {
+            boolean changed = !isEmpty();
+            clear();
+            return changed;
+        }
+        if (!(set instanceof SparseBitSet other)) {
+            return super.andNot(set);
+        }
+        return iterateBlocks(this, other, new AndNotAction(this));
+    }
+
+    private static class AndNotAction extends ChangeAction {
+
+        private AndNotAction(SparseBitSet self) {
+            super(self);
+        }
+
+        @Override
+        boolean accept(int w1, int w2, long[] selfBlock, long[] iteratedBlock) {
+            boolean isZero = true;
+            boolean changed = false;
+            if (selfBlock != null) {
+                for (int w3 = 0; w3 < LENGTH3; ++w3) {
+                    long selfWord = selfBlock[w3];
+                    if (selfWord != 0) {
+                        long newWord = selfWord & ~iteratedBlock[w3];
+                        if (newWord != selfWord) {
+                            selfBlock[w3] = newWord;
+                            changed = true;
+                        }
+                        if (newWord != 0) {
+                            isZero = false;
+                        }
+                    }
+                }
+            }
+            this.changed |= changed;
+            return isZero;
+        }
+    }
+
+    @Override
+    public boolean or(BitSet set) {
+        if (this == set) {
+            return false;
+        }
+        if (!(set instanceof SparseBitSet other)) {
+            return super.or(set);
+        }
+        return iterateBlocks(this, other, new OrAction(this));
+    }
+
+    private static class OrAction extends ChangeAction {
+
+        private OrAction(SparseBitSet self) {
+            super(self);
+        }
+
+        @Override
+        boolean accept(int w1, int w2, long[] selfBlock, long[] iteratedBlock) {
+            boolean isZero = true;
+            boolean changed = false;
+            for (int w3 = 0; w3 < LENGTH3; ++w3) {
+                long iteratedWord = iteratedBlock[w3];
+                if (iteratedWord != 0) {
+                    isZero = false;
+                    if (selfBlock == null) {
+                        selfBlock = self.getOrCreateBlock(w1, w2);
+                    }
+                    long selfWord = selfBlock[w3];
+                    long newWord = selfWord | iteratedWord;
+                    if (selfWord != newWord) {
+                        selfBlock[w3] = newWord;
+                        changed = true;
+                    }
+                } else if (selfBlock != null && selfBlock[w3] != 0) {
+                    isZero = false;
+                }
+            }
+            this.changed |= changed;
+            return isZero;
+        }
+    }
+
+    @Override
+    public boolean xor(BitSet set) {
+        if (this == set) {
+            boolean changed = !isEmpty();
+            clear();
+            return changed;
+        }
+        if (!(set instanceof SparseBitSet other)) {
+            return super.xor(set);
+        }
+        return iterateBlocks(this, other, new XorAction(this));
+    }
+
+    private static class XorAction extends ChangeAction {
+
+        private XorAction(SparseBitSet self) {
+            super(self);
+        }
+
+        @Override
+        boolean accept(int w1, int w2, long[] selfBlock, long[] iteratedBlock) {
+            boolean isZero = true;
+            boolean changed = false;
+            for (int w3 = 0; w3 < LENGTH3; ++w3) {
+                long iteratedWord = iteratedBlock[w3];
+                if (iteratedWord != 0) {
+                    isZero = false;
+                    if (selfBlock == null) {
+                        selfBlock = self.getOrCreateBlock(w1, w2);
+                    }
+                    long selfWord = selfBlock[w3];
+                    long newWord = selfWord ^ iteratedWord;
+                    if (selfWord != newWord) {
+                        selfBlock[w3] = newWord;
+                        changed = true;
+                    }
+                } else if (selfBlock != null && selfBlock[w3] != 0) {
+                    isZero = false;
+                }
+            }
+            this.changed |= changed;
+            return isZero;
+        }
+    }
+
+    @Override
     public void clear() {
         clearTable(0);
     }
@@ -626,6 +725,24 @@ public class SparseBitSet extends AbstractBitSet {
         return state.cardinality;
     }
 
+    @Override
+    public int hashCode() {
+        updateState();
+        return state.hash;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SparseBitSet that = (SparseBitSet) o;
+        return cardinality() == that.cardinality() && contains(that);
+    }
+
     // ------------------------------------------------------------------------
     // utility methods and classes
     // ------------------------------------------------------------------------
@@ -651,7 +768,22 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     private static @Nullable long[] getBlock(long[][][] table, int w1, int w2) {
-        return table[w1] != null ? table[w1][w2] : null;
+        return w1 < table.length && table[w1] != null ? table[w1][w2] : null;
+    }
+
+    private long[] getOrCreateBlock(int w1, int w2) {
+        if (w1 >= table.length) {
+            resize(bitIndex(w1, /* only highest one bit matters */ 0, 0));
+        }
+        long[][] area;
+        if ((area = table[w1]) == null) {
+            area = table[w1] = new long[LENGTH2][];
+        }
+        long[] block;
+        if ((block = area[w2]) == null) {
+            block = area[w2] = new long[LENGTH3];
+        }
+        return block;
     }
 
     /**
@@ -716,16 +848,16 @@ public class SparseBitSet extends AbstractBitSet {
         assert self == action.self;
         long[][][] selfTable = self.table;
         long[][][] iteratedTable = iterated.table;
-        if (iterated != self) {
-            iterated.updateState(); // normalize the other set
-        }
         action.start(iterated);
+        boolean canIterateBothSets = action.canIterateBothSets();
         outer:
         for (int w1 = 0; w1 < iteratedTable.length; ++w1) {
+            // search for non-null areas in iteratedTable
             long[][] iteratedArea = iteratedTable[w1];
             if (iteratedArea != null) {
                 boolean isZeroArea = true;
                 for (int w2 = 0; w2 < LENGTH2; ++w2) {
+                    // search for non-null blocks in iteratedTable
                     long[] iteratedBlock = iteratedArea[w2];
                     if (iteratedBlock != null) {
                         long[] selfBlock = getBlock(selfTable, w1, w2);
@@ -735,6 +867,7 @@ public class SparseBitSet extends AbstractBitSet {
                             if (selfBlock != null) {
                                 // clear zero block in self
                                 selfTable[w1][w2] = null;
+                                self.invalidateState();
                             }
                         } else { // found non-zero block, then the area is not zero
                             isZeroArea = false;
@@ -744,9 +877,12 @@ public class SparseBitSet extends AbstractBitSet {
                         }
                     }
                 }
-                if (isZeroArea && selfTable[w1] != null) {
+                if (isZeroArea &&
+                        canIterateBothSets &&
+                        w1 < selfTable.length && selfTable[w1] != null) {
                     // clear zero area in self
                     selfTable[w1] = null;
+                    self.invalidateState();
                 }
             }
         }
@@ -771,12 +907,8 @@ public class SparseBitSet extends AbstractBitSet {
          */
         abstract boolean accept(int w1, int w2, long[] selfBlock, long[] iteratedBlock);
 
-        boolean canAcceptNullBlock() {
+        boolean canIterateBothSets() {
             return false;
-        }
-
-        boolean acceptNullBlock(int w1, int w2, long[] selfBlock) {
-            throw new UnsupportedOperationException();
         }
 
         boolean canBreak() {
@@ -788,6 +920,32 @@ public class SparseBitSet extends AbstractBitSet {
 
         R getResult() {
             return null;
+        }
+    }
+
+    private static abstract class ChangeAction extends BlockAction<Boolean> {
+
+        boolean changed;
+
+        private ChangeAction(SparseBitSet self) {
+            super(self);
+        }
+
+        @Override
+        void start(SparseBitSet iterated) {
+            changed = false;
+        }
+
+        @Override
+        void finish() {
+            if (changed) {
+                self.invalidateState();
+            }
+        }
+
+        @Override
+        Boolean getResult() {
+            return changed;
         }
     }
 
@@ -811,27 +969,15 @@ public class SparseBitSet extends AbstractBitSet {
 
         /**
          *  Working space for find the size and length of the bit set. Holds the
-         *  index of the first non-empty word in the set.
-         */
-        private transient int wMin;
-
-        /**
-         *  Working space for find the size and length of the bit set. Holds copy of
-         *  the first non-empty word in the set.
-         */
-        private transient long wordMin;
-
-        /**
-         *  Working space for find the size and length of the bit set. Holds the
          *  index of the last non-empty word in the set.
          */
-        private transient int wMax;
+        private transient int maxWordIndex;
 
         /**
          *  Working space for find the size and length of the bit set. Holds a copy
          *  of the last non-empty word in the set.
          */
-        private transient long wordMax;
+        private transient long maxWord;
 
         /**
          *  Working space for find the hash value of the bit set. Holds the
@@ -872,10 +1018,8 @@ public class SparseBitSet extends AbstractBitSet {
         @Override
         void start(SparseBitSet iterated) {
             hash = 1234L; // Magic number
-            wMin = -1; // index of first non-zero word
-            wordMin = 0L; // word at that index
-            wMax = 0; // index of last non-zero word
-            wordMax = 0L; // word at that index
+            maxWordIndex = 0; // index of last non-zero word
+            maxWord = 0L; // word at that index
             count = 0; // count of non-zero words in whole set
             blockCount = 0; // count of blocks actually use in whole set
             cardinality = 0; // count of non-zero bits in the whole set
@@ -912,18 +1056,17 @@ public class SparseBitSet extends AbstractBitSet {
             ++count;
             // Continue to accumulate the hash value of the set.
             hash ^= word * (long) (index + 1);
-            // The first non-zero word contains the first actual bit of the
-            // set. The location of this bit is used to compute the set size.
-            if (wMin < 0) {
-                wMin = index;
-                wordMin = word;
-            }
             // The last non-zero word contains the last actual bit of the set.
             // The location of this bit is used to compute the set length.
-            wMax = index;
-            wordMax = word;
+            maxWordIndex = index;
+            maxWord = word;
             // Count the actual bits, so as to get the cardinality of the set.
             cardinality += Long.bitCount(word);
+        }
+
+        @Override
+        boolean canIterateBothSets() {
+            return true;
         }
 
         @Override
@@ -931,7 +1074,7 @@ public class SparseBitSet extends AbstractBitSet {
             State state = self.state;
             state.count = count;
             state.cardinality = cardinality;
-            state.length = (wMax + 1) * LENGTH4 - Long.numberOfLeadingZeros(wordMax);
+            state.length = (maxWordIndex + 1) * LENGTH4 - Long.numberOfLeadingZeros(maxWord);
             state.size = blockCount * LENGTH3 * BITS_PER_WORD;
             state.hash = (int) ((hash >> Integer.SIZE) ^ hash);
             state.valid = true;
@@ -963,16 +1106,6 @@ public class SparseBitSet extends AbstractBitSet {
 
     @Override
     public boolean and(BitSet set) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean andNot(BitSet set) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean xor(BitSet set) {
         throw new UnsupportedOperationException();
     }
 }

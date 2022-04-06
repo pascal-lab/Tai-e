@@ -88,13 +88,27 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
+    public boolean andNot(BitSet set) {
+        return set.iterateBits(new AndNotAction());
+    }
+
+    private class AndNotAction extends ChangeAction {
+
+        @Override
+        public boolean accept(int bitIndex) {
+            if (clear(bitIndex)) {
+                changed = true;
+            }
+            return true;
+        }
+    }
+
+    @Override
     public boolean or(BitSet set) {
         return set.iterateBits(new OrAction());
     }
 
-    private class OrAction implements Action<Boolean> {
-
-        private boolean changed = false;
+    private class OrAction extends ChangeAction {
 
         @Override
         public boolean accept(int bitIndex) {
@@ -103,6 +117,26 @@ public abstract class AbstractBitSet implements BitSet {
             }
             return true;
         }
+    }
+
+    @Override
+    public boolean xor(BitSet set) {
+        return set.iterateBits(new XorAction());
+    }
+
+    private class XorAction extends ChangeAction {
+
+        @Override
+        public boolean accept(int bitIndex) {
+            flip(bitIndex);
+            changed = true;
+            return true;
+        }
+    }
+
+    private static abstract class ChangeAction implements Action<Boolean> {
+
+        boolean changed = false;
 
         @Override
         public Boolean getResult() {

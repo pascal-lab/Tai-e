@@ -286,19 +286,6 @@ public class SimpleBitSet extends AbstractBitSet {
         }
     }
 
-    private enum Op {
-        AND, AND_NOT, XOR
-    }
-
-    private static SimpleBitSet asSimpleBitSet(BitSet set, Op op) {
-        if (set instanceof SimpleBitSet simpleBitSet) {
-            return simpleBitSet;
-        }
-        throw new UnsupportedOperationException(
-                String.format("%s does not support %s with %s",
-                        SimpleBitSet.class, op, set.getClass()));
-    }
-
     @Override
     public boolean intersects(BitSet set) {
         if (this == set) {
@@ -340,10 +327,15 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public boolean and(BitSet set) {
-        if (this == set)
+        if (this == set) {
             return false;
+        }
+        if (!(set instanceof SimpleBitSet other)) {
+            throw new UnsupportedOperationException(
+                    String.format("%s does not support AND with %s",
+                            SimpleBitSet.class, set.getClass()));
+        }
 
-        SimpleBitSet other = asSimpleBitSet(set, Op.AND);
         boolean changed = false;
         if (wordsInUse > other.wordsInUse) {
             Arrays.fill(words, other.wordsInUse, wordsInUse, 0);
@@ -375,12 +367,14 @@ public class SimpleBitSet extends AbstractBitSet {
     public boolean andNot(BitSet set) {
         boolean changed = false;
         if (this == set) {
-            changed = wordsInUse > 0;
+            changed = !isEmpty();
             clear();
             return changed;
         }
+        if (!(set instanceof SimpleBitSet other)) {
+            return super.andNot(set);
+        }
 
-        SimpleBitSet other = asSimpleBitSet(set, Op.AND_NOT);
         // Perform logical (a & !b) on words in common
         int wordsInCommon = Math.min(wordsInUse, other.wordsInUse);
         for (int i = wordsInCommon - 1; i >= 0; i--) {
@@ -406,7 +400,6 @@ public class SimpleBitSet extends AbstractBitSet {
         if (this == set) {
             return false;
         }
-
         if (!(set instanceof SimpleBitSet other)) {
             return super.or(set);
         }
@@ -448,10 +441,18 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public boolean xor(BitSet set) {
-        SimpleBitSet other = asSimpleBitSet(set, Op.XOR);
+        boolean changed = false;
+        if (this == set) {
+            changed = !isEmpty();
+            clear();
+            return changed;
+        }
+        if (!(set instanceof SimpleBitSet other)) {
+            return super.xor(set);
+        }
+
         int wordsInCommon = Math.min(wordsInUse, other.wordsInUse);
 
-        boolean changed = false;
         if (wordsInUse < other.wordsInUse) {
             ensureCapacity(other.wordsInUse);
             wordsInUse = other.wordsInUse;

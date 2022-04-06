@@ -66,9 +66,16 @@ public abstract class BitSetTest {
         assertTrue(of(1, 2, 3).contains(of()));
         assertTrue(of(1, 2, 3).contains(of(1)));
         assertTrue(of(1, 2, 3).contains(of(1, 2, 3)));
-        assertFalse(of(1, 2, 3).contains(of(11111)));
-        assertTrue(of(1, 2, 3, 11111).contains(of(11111)));
         assertFalse(of(1).contains(of(1, 2, 3)));
+
+        BitSet s = of(1, 2, 3);
+        int cardinality = s.cardinality();
+        assertFalse(s.contains(of(11111)));
+        assertEquals(cardinality, s.cardinality());
+        s = of(1, 2, 3, 11111);
+        cardinality = s.cardinality();
+        assertTrue(s.contains(of(11111)));
+        assertEquals(cardinality, s.cardinality());
     }
 
     @Test
@@ -85,14 +92,23 @@ public abstract class BitSetTest {
 
     @Test
     public void testAndNot() {
-        BitSet s = of(1, 2, 3);
-        s.andNot(of(1, 2, 3));
+        BitSet s = of(1, 2, 3, 6666);
+        assertFalse(s.andNot(of()));
+        assertTrue(s.andNot(of(1, 2, 3, 6666)));
         assertTrue(s.isEmpty());
-        s.andNot(of(1, 2, 3));
-        assertTrue(s.isEmpty());
-        s.or(of(1, 1, 1));
-        s.andNot(of(2));
+        s = of(1, 2, 3, 6666);
+        assertTrue(s.andNot(of(6666)));
+        assertFalse(s.isEmpty());
+
+        s = of();
+        assertTrue(s.or(of(1, 1, 1)));
+        assertFalse(s.andNot(of(2)));
         assertEquals(1, s.cardinality());
+        assertTrue(s.or(of(1, 333, 5555, 777, 99999)));
+        assertFalse(s.andNot(of(222, 444, 666, 888, 10000)));
+        assertEquals(5, s.cardinality());
+        assertTrue(s.andNot(of(333, 777, 99999)));
+        assertEquals(2, s.cardinality());
         System.out.println(s);
     }
 
@@ -102,10 +118,25 @@ public abstract class BitSetTest {
         assertFalse(s.or(of(1, 2, 3)));
         assertFalse(s.or(of(1)));
         assertEquals(3, s.cardinality());
-        assertTrue(s.or(of(1, 11111, 22222, 33333)));
-        assertFalse(s.or(of(11111, 22222, 33333)));
+        assertTrue(s.or(of(1, 11111, 22222, 333333)));
+        assertFalse(s.or(of(11111, 22222, 333333)));
         assertEquals(6, s.cardinality());
         System.out.println(s);
+    }
+
+    @Test
+    public void testClearOr() {
+        BitSet s = of(1, 555, 66666);
+        BitSet s2 = of(1, 555, 66666);
+        s2.clear(66666);
+        assertFalse(s.or(s2));
+        assertEquals(3, s.cardinality());
+
+        s = of();
+        s2.clear(1);
+        s2.clear(555);
+        assertFalse(s.or(s2));
+        assertTrue(s.isEmpty());
     }
 
     @Test
@@ -113,6 +144,13 @@ public abstract class BitSetTest {
         BitSet s = of(1, 2, 300);
         assertTrue(s.xor(s));
         assertTrue(s.isEmpty());
+        s = of(1, 444, 7777);
+        assertTrue(s.xor(of(1, 444, 7777)));
+        assertTrue(s.isEmpty());
+        s = of(22, 333, 4444, 55555);
+        assertTrue(s.xor(of(333, 2222, 55555, 66666)));
+        assertEquals(4, s.cardinality());
+        System.out.println(s);
     }
 
     @Test
