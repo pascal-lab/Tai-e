@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static pascal.taie.util.collection.SparseBitSet.SHIFT1;
 import static pascal.taie.util.collection.SparseBitSet.SHIFT2;
@@ -202,6 +203,15 @@ public abstract class BitSetTest {
         assertEquals(s, of(11111));
     }
 
+    @Test
+    public void testCopy() {
+        BitSet s = of(1, 3333, 66666);
+        BitSet copy = s.copy();
+        assertEquals(s, copy);
+        s.set(7777);
+        assertNotEquals(s, copy);
+    }
+
     // ------------------------------------------------------------------------
     // test initial with zero
     // ------------------------------------------------------------------------
@@ -231,11 +241,6 @@ public abstract class BitSetTest {
     public void testNextClearBit() {
         assertEquals(0, set.nextClearBit(0));
     }
-
-//    @Test
-//    public void testClone() {
-//        assertEquals(-1, set.clone().nextSetBit(0));
-//    }
 
     // ------------------------------------------------------------------------
     // test previousClearBit(int)

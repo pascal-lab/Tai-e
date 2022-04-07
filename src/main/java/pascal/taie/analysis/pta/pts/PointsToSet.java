@@ -13,6 +13,7 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.util.Copyable;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -21,7 +22,7 @@ import java.util.stream.Stream;
 /**
  * Representation of points-to sets that consist of {@link CSObj}.
  */
-public interface PointsToSet extends Iterable<CSObj> {
+public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
 
     /**
      * Adds an object to this set.
@@ -43,11 +44,6 @@ public interface PointsToSet extends Iterable<CSObj> {
      * @return true if this set contains given object, otherwise false.
      */
     boolean contains(CSObj obj);
-
-    /**
-     * @return a copy of this set.
-     */
-    PointsToSet copy();
 
     /**
      * @return whether this set if empty.

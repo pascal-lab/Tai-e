@@ -12,7 +12,9 @@
 
 package pascal.taie.util.collection;
 
-public interface BitSet {
+import pascal.taie.util.Copyable;
+
+public interface BitSet extends Copyable<BitSet> {
 
     // ------------------------------------------------------------------------
     // single-bit operations

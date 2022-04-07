@@ -842,6 +842,13 @@ public class SparseBitSet extends AbstractBitSet {
         return cardinality() == that.cardinality() && contains(that);
     }
 
+    @Override
+    public SparseBitSet copy() {
+        SparseBitSet copy = new SparseBitSet();
+        copy.or(this);
+        return copy;
+    }
+
     // ------------------------------------------------------------------------
     // utility methods and classes
     // ------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 
 package pascal.taie.util.collection;
 
+import pascal.taie.util.Copyable;
 import pascal.taie.util.Hashes;
 
 import javax.annotation.Nonnull;
@@ -41,16 +42,21 @@ import java.util.NoSuchElementException;
  *
  * @param <E> type of elements
  */
-public abstract class GenericBitSet<E> extends AbstractSet<E> {
+public abstract class GenericBitSet<E> extends AbstractSet<E>
+        implements Copyable<GenericBitSet<E>> {
 
     protected final BitSet bitSet;
 
     protected GenericBitSet() {
-        bitSet = new SimpleBitSet();
+        this(false);
+    }
+
+    protected GenericBitSet(boolean sparse) {
+        bitSet = sparse ? new SparseBitSet() : new SimpleBitSet();
     }
 
     protected GenericBitSet(GenericBitSet<E> s) {
-        bitSet = new SimpleBitSet(s.bitSet);
+        bitSet = s.bitSet.copy();
     }
 
     @Override
@@ -206,11 +212,6 @@ public abstract class GenericBitSet<E> extends AbstractSet<E> {
     public int hashCode() {
         return Hashes.hash(getContext(), bitSet);
     }
-
-    /**
-     * Creates a copy of this set.
-     */
-    public abstract GenericBitSet<E> copy();
 
     /**
      * @return the context for the objects represented by the bits in this set.

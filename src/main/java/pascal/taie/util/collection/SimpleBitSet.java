@@ -58,19 +58,6 @@ public class SimpleBitSet extends AbstractBitSet {
         initWords(nbits);
     }
 
-    /**
-     * Creates a bit set with the same content of {@code set}.
-     */
-    public SimpleBitSet(BitSet set) {
-        if (set instanceof SimpleBitSet other) {
-            wordsInUse = other.wordsInUse;
-            words = Arrays.copyOf(other.words, wordsInUse);
-        } else {
-            initWords(BITS_PER_WORD);
-            or(set);
-        }
-    }
-
     private void initWords(int nbits) {
         words = new long[wordIndex(nbits-1) + 1];
     }
@@ -600,5 +587,13 @@ public class SimpleBitSet extends AbstractBitSet {
                 return false;
 
         return true;
+    }
+
+    @Override
+    public SimpleBitSet copy() {
+        SimpleBitSet copy = new SimpleBitSet();
+        copy.wordsInUse = wordsInUse;
+        copy.words = Arrays.copyOf(words, wordsInUse);
+        return copy;
     }
 }

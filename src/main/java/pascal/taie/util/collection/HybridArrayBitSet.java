@@ -16,7 +16,7 @@ import pascal.taie.util.Indexer;
 
 import java.util.Set;
 
-public class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
+public final class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
 
     /**
      * Default threshold for the number of items necessary for the array set
