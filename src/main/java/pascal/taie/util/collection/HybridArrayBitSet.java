@@ -42,7 +42,7 @@ public final class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
 
     @Override
     protected Set<E> newLargeSet(int unused) {
-        return new IndexerBitSet<>(indexer);
+        return new IndexerBitSet<>(indexer, true);
     }
 
     public HybridArrayBitSet<E> copy() {
