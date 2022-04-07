@@ -427,6 +427,38 @@ public class SimpleBitSet extends AbstractBitSet {
     }
 
     @Override
+    public BitSet orDiff(BitSet set) {
+        SimpleBitSet diff = new SimpleBitSet();
+        if (this == set) {
+            return diff;
+        }
+        if (!(set instanceof SimpleBitSet other)) {
+            return super.orDiff(set);
+        }
+        if (wordsInUse < other.wordsInUse) {
+            ensureCapacity(other.wordsInUse);
+            wordsInUse = other.wordsInUse;
+        }
+        boolean foundNonZero = false;
+        for (int i = other.wordsInUse - 1; i >= 0; --i) {
+            long oldWord = words[i];
+            long otherWord = other.words[i];
+            words[i] = oldWord | otherWord;
+            // compute diff
+            long diffWord = otherWord & ~oldWord;
+            if (diffWord != 0) {
+                if (!foundNonZero) {
+                    diff.ensureCapacity(i + 1);
+                    diff.wordsInUse = i + 1;
+                    foundNonZero = true;
+                }
+                diff.words[i] = diffWord;
+            }
+        }
+        return diff;
+    }
+
+    @Override
     public boolean xor(BitSet set) {
         boolean changed = false;
         if (this == set) {

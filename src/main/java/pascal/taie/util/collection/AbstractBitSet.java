@@ -120,6 +120,29 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
+    public BitSet orDiff(BitSet set) {
+        return set.iterateBits(new OrDiffAction());
+    }
+
+    private class OrDiffAction implements Action<BitSet> {
+
+        private final BitSet diff = BitSet.of();
+
+        @Override
+        public boolean accept(int bitIndex) {
+            if (set(bitIndex)) {
+                diff.set(bitIndex);
+            }
+            return true;
+        }
+
+        @Override
+        public BitSet getResult() {
+            return diff;
+        }
+    }
+
+    @Override
     public boolean xor(BitSet set) {
         return set.iterateBits(new XorAction());
     }

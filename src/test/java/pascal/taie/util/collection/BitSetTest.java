@@ -177,6 +177,21 @@ public abstract class BitSetTest {
     }
 
     @Test
+    public void testOrDiff() {
+        BitSet s = of();
+        BitSet diff = s.orDiff(of(1, 333, 66666));
+        assertEquals(of(1, 333, 66666), diff);
+        diff = s.orDiff(of(5555, 333, 777));
+        assertEquals(of(5555, 777), diff);
+        diff = s.orDiff(s);
+        assertTrue(diff.isEmpty());
+        diff = s.orDiff(of());
+        assertTrue(diff.isEmpty());
+        diff = s.orDiff(of(200000, 300000, 300001));
+        assertEquals(of(200000, 300000, 300001), diff);
+    }
+
+    @Test
     public void testXor() {
         BitSet s = of(1, 2, 300);
         assertTrue(s.xor(s));

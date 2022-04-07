@@ -751,6 +751,77 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
+    public BitSet orDiff(BitSet set) {
+        if (this == set) {
+            return new SparseBitSet();
+        }
+        if (!(set instanceof SparseBitSet other)) {
+            return super.orDiff(set);
+        }
+        return iterateBlocks(this, other, new OrDiffAction(this));
+    }
+
+    private static class OrDiffAction extends BlockAction<BitSet> {
+
+        private SparseBitSet diff;
+
+        private boolean changed;
+
+        private OrDiffAction(SparseBitSet self) {
+            super(self);
+        }
+
+        @Override
+        void start(SparseBitSet iterated) {
+            diff = new SparseBitSet();
+            changed = false;
+        }
+
+        @Override
+        boolean accept(int w1, int w2, long[] selfBlock, long[] iteratedBlock) {
+            boolean isZero = true;
+            boolean changed = false;
+            for (int w3 = 0; w3 < LENGTH3; ++w3) {
+                long iteratedWord = iteratedBlock[w3];
+                if (iteratedWord != 0) {
+                    isZero = false;
+                    if (selfBlock == null) {
+                        selfBlock = self.getOrCreateBlock(w1, w2);
+                    }
+                    long selfWord = selfBlock[w3];
+                    long newWord = selfWord | iteratedWord;
+                    if (selfWord != newWord) {
+                        selfBlock[w3] = newWord;
+                        changed = true;
+                    }
+                    long diffWord = iteratedWord & ~selfWord;
+                    if (diffWord != 0) {
+                        long[] diffBlock = diff.getOrCreateBlock(w1, w2);
+                        diffBlock[w3] = diffWord;
+                    }
+                } else if (selfBlock != null && selfBlock[w3] != 0) {
+                    isZero = false;
+                }
+            }
+            this.changed |= changed;
+            return isZero;
+        }
+
+        @Override
+        void finish() {
+            if (changed) {
+                self.invalidateState();
+                diff.invalidateState();
+            }
+        }
+
+        @Override
+        BitSet getResult() {
+            return diff;
+        }
+    }
+
+    @Override
     public boolean xor(BitSet set) {
         if (this == set) {
             boolean changed = !isEmpty();

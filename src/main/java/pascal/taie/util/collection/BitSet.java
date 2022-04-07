@@ -204,6 +204,17 @@ public interface BitSet extends Copyable<BitSet> {
     boolean or(BitSet set);
 
     /**
+     * Performs a logical <b>OR</b> of this bit set with the bit set argument,
+     * computes and returns the difference set between given bit set and
+     * this set (before performing logical <b>OR</b>).
+     *
+     * @param set a bit set.
+     * @return a new bit set of bit values that are present in the bit set
+     * argument and were absent in this bit set before.
+     */
+    BitSet orDiff(BitSet set);
+
+    /**
      * Performs a logical <b>XOR</b> of this bit set with the bit set
      * argument. This bit set is modified so that a bit in it has the
      * value {@code true} if and only if one of the following
