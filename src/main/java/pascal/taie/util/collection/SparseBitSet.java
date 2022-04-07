@@ -16,6 +16,12 @@ import javax.annotation.Nullable;
 
 public class SparseBitSet extends AbstractBitSet {
 
+    // TODO: comment me; unify level1/2/3 and table/area/block
+    // Currently:
+    // w1/level1 = table
+    // w2/level2 = area
+    // w3/level3 = block
+
     //==============================================================================
     //  The critical parameters. These are set up so that the compiler may
     //  pre-compute all the values as compile-time constants.
@@ -26,22 +32,6 @@ public class SparseBitSet extends AbstractBitSet {
      *  of a bit in the bit set.
      */
     private static final int INDEX_SIZE = Integer.SIZE - 1;
-
-    /**
-     *  The number of bits in a long value.
-     */
-    private static final int LENGTH4 = Long.SIZE;
-
-    /**
-     *  The label (index) of a bit in the bit set is essentially broken into
-     *  4 "levels". Respectively (from the least significant end), level4, the
-     *  address within word, the address within a level3 block, the address within
-     *  a level2 area, and the level1 address of that area within the set.
-     *
-     *  LEVEL4 is the number of bits of the level4 address (number of bits need
-     *  to address the bits in a long)
-     */
-    private static final int LEVEL4 = 6;
 
     /**
      *  LEVEL3 is the number of bits of the level3 address.
@@ -56,7 +46,7 @@ public class SparseBitSet extends AbstractBitSet {
     /**
      *  LEVEL1 is the number of bits of the level1 address.
      */
-    private static final int LEVEL1 = INDEX_SIZE - LEVEL2 - LEVEL3 - LEVEL4;
+    private static final int LEVEL1 = INDEX_SIZE - LEVEL2 - LEVEL3 - ADDRESS_BITS_PER_WORD;
 
     /**
      *  MAX_LENGTH1 is the maximum number of entries in the level1 set array.
@@ -76,7 +66,7 @@ public class SparseBitSet extends AbstractBitSet {
     /**
      *  The shift to create the word index. (I.e., move it to the right end)
      */
-    private static final int SHIFT3 = LEVEL4;
+    static final int SHIFT3 = ADDRESS_BITS_PER_WORD;
 
     /**
      *  MASK3 is the mask to extract the LEVEL3 address from a word index
@@ -88,7 +78,7 @@ public class SparseBitSet extends AbstractBitSet {
      *  SHIFT2 is the shift to bring the level2 address (from the word index) to
      *  the right end (i.e., after shifting by SHIFT3).
      */
-    private static final int SHIFT2 = LEVEL3;
+    static final int SHIFT2 = LEVEL3;
 
     /**
      *  MASK2 is the mask to extract the LEVEL2 address from a word index
@@ -100,18 +90,18 @@ public class SparseBitSet extends AbstractBitSet {
      *  SHIFT1 is the shift to bring the level1 address (from the word index) to
      *  the right end (i.e., after shifting by SHIFT3).
      */
-    private static final int SHIFT1 = LEVEL2 + LEVEL3;
+    static final int SHIFT1 = LEVEL2 + LEVEL3;
 
     /**
      *  UNIT is the greatest number of bits that can be held in one level1 entry.
      *  That is, bits per word by words per level3 block by blocks per level2 area.
      */
-    private static final int UNIT = LENGTH2 * LENGTH3 * LENGTH4;
+    private static final int UNIT = LENGTH2 * LENGTH3 * BITS_PER_WORD;
 
     /**
-     *  LENGTH4_SIZE is maximum index of a bit in a LEVEL4 word.
+     *  BITS_PER_WORD_SIZE is maximum index of a bit in a ADDRESS_BITS_PER_WORD word.
      */
-    private static final int LENGTH4_SIZE = LENGTH4 - 1;
+    private static final int WORD_SIZE = BITS_PER_WORD - 1;
 
     /**
      *  LENGTH3_SIZE is maximum index of a LEVEL3 page.
@@ -377,11 +367,11 @@ public class SparseBitSet extends AbstractBitSet {
             w1 = tableSize;
             w2 = LENGTH2_SIZE;
             w3 = LENGTH3_SIZE;
-            w4 = LENGTH4_SIZE;
+            w4 = WORD_SIZE;
         } else {
             w2 = level2Index(w);
             w3 = level3Index(w);
-            w4 = fromIndex % LENGTH4;
+            w4 = fromIndex % BITS_PER_WORD;
         }
         long word;
         long[][] a2;
@@ -398,16 +388,16 @@ public class SparseBitSet extends AbstractBitSet {
                                     }
                                 }
                             }
-                            w4 = LENGTH4_SIZE;
+                            w4 = WORD_SIZE;
                         }
                     }
                     w3 = LENGTH3_SIZE;
-                    w4 = LENGTH4_SIZE;
+                    w4 = WORD_SIZE;
                 }
             }
             w2 = LENGTH2_SIZE;
             w3 = LENGTH3_SIZE;
-            w4 = LENGTH4_SIZE;
+            w4 = WORD_SIZE;
         }
         return -1;
     }
@@ -431,7 +421,7 @@ public class SparseBitSet extends AbstractBitSet {
         }
         int w2 = level2Index(w);
         int w3 = level3Index(w);
-        int w4 = fromIndex % LENGTH4;
+        int w4 = fromIndex % BITS_PER_WORD;
 
         long word;
         long[][] a2;
@@ -454,7 +444,7 @@ public class SparseBitSet extends AbstractBitSet {
                             return bitIndex(w1, w2, w3) + offset;
                         }
                     }
-                    w4 = LENGTH4_SIZE;
+                    w4 = WORD_SIZE;
                 }
                 w3 = LENGTH3_SIZE;
             }
@@ -555,7 +545,7 @@ public class SparseBitSet extends AbstractBitSet {
 
         @Override
         boolean canBreak() {
-            // already found not-contain bits, can break the itereation
+            // already found not-contain bits, can break the iteration
             return !contains;
         }
 
@@ -563,6 +553,115 @@ public class SparseBitSet extends AbstractBitSet {
         Boolean getResult() {
             return contains;
         }
+    }
+
+    @Override
+    public boolean and(BitSet set) {
+        if (this == set) {
+            return false;
+        }
+        if (!(set instanceof SparseBitSet other)) {
+            throw new UnsupportedOperationException(
+                    String.format("%s does not support AND with %s",
+                            this.getClass(), set.getClass()));
+        }
+        // Unlike other set operations, AND requires iteration on
+        // non-null blocks of both this and other sets.
+        boolean changed = false;
+        long[][][] thisTable = this.table;
+        long[][][] otherTable = other.table;
+        int w1InCommon = Math.min(thisTable.length, otherTable.length);
+        // process common part
+        for (int w1 = 0; w1 < w1InCommon; ++w1) {
+            long[][] otherArea = otherTable[w1];
+            long[][] thisArea = thisTable[w1];
+            if (otherArea != null) {
+                if (thisArea != null) {
+                    // both areas are present
+                    boolean isZeroArea = true;
+                    for (int w2 = 0; w2 < LENGTH2; ++w2) {
+                        long[] thisBlock = thisArea[w2];
+                        long[] otherBlock = otherArea[w2];
+                        if (otherBlock != null) {
+                            if (thisBlock != null) {
+                                // both blocks are present
+                                boolean isZeroBlock = true;
+                                // perform AND on each words
+                                for (int w3 = 0; w3 < LENGTH3; ++w3) {
+                                    long oldWord = thisBlock[w3];
+                                    long newWord = oldWord & otherBlock[w3];
+                                    if (oldWord != newWord) {
+                                        thisBlock[w3] = newWord;
+                                        changed = true;
+                                    }
+                                    if (newWord != 0) {
+                                        isZeroBlock = false;
+                                    }
+                                }
+                                if (isZeroBlock) {
+                                    thisArea[w2] = null;
+                                } else {
+                                    isZeroArea = false;
+                                }
+                            }
+                        } else if (isNonZeroBlock(thisBlock)) {
+                            // otherBlock is null and thisBlock is not zero,
+                            // then clear thisBlock and mark changed
+                            thisArea[w2] = null;
+                            changed = true;
+                        }
+                    }
+                    if (isZeroArea) {
+                        // iterate all thisBlocks and found they are all zero,
+                        // then clear thisArea
+                        thisTable[w1] = null;
+                    }
+                }
+            } else if (isNonZeroArea(thisArea)) {
+                // otherArea is null and thisArea is not zero,
+                // then clear thisArea and mark changed
+                thisTable[w1] = null;
+                changed = true;
+            }
+        }
+        // process extra part of this table
+        if (w1InCommon < thisTable.length) {
+            if (!changed) { // check whether extra areas are zero
+                for (int w1 = w1InCommon; w1 < thisTable.length; ++w1) {
+                    if (isNonZeroArea(thisTable[w1])) {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            clearTable(w1InCommon);
+        }
+        if (changed) {
+            invalidateState();
+        }
+        return changed;
+    }
+
+    private static boolean isNonZeroArea(long[][] area) {
+        if (area != null) {
+            for (long[] block : area) {
+                if (isNonZeroBlock(block)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isNonZeroBlock(long[] block) {
+        if (block != null) {
+            for (long word : block) {
+                if (word != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -773,7 +872,7 @@ public class SparseBitSet extends AbstractBitSet {
 
     private long[] getOrCreateBlock(int w1, int w2) {
         if (w1 >= table.length) {
-            resize(bitIndex(w1, /* only highest one bit matters */ 0, 0));
+            resize(bitIndex(w1, /* only the highest one bit matters */ 0, 0));
         }
         long[][] area;
         if ((area = table[w1]) == null) {
@@ -878,7 +977,8 @@ public class SparseBitSet extends AbstractBitSet {
                     }
                 }
                 if (isZeroArea &&
-                        canIterateBothSets &&
+                        canIterateBothSets && // we can confirm the area is zero
+                        // only when non-null blocks of both sets were iterated
                         w1 < selfTable.length && selfTable[w1] != null) {
                     // clear zero area in self
                     selfTable[w1] = null;
@@ -1074,7 +1174,7 @@ public class SparseBitSet extends AbstractBitSet {
             State state = self.state;
             state.count = count;
             state.cardinality = cardinality;
-            state.length = (maxWordIndex + 1) * LENGTH4 - Long.numberOfLeadingZeros(maxWord);
+            state.length = (maxWordIndex + 1) * BITS_PER_WORD - Long.numberOfLeadingZeros(maxWord);
             state.size = blockCount * LENGTH3 * BITS_PER_WORD;
             state.hash = (int) ((hash >> Integer.SIZE) ^ hash);
             state.valid = true;
@@ -1098,14 +1198,5 @@ public class SparseBitSet extends AbstractBitSet {
         private transient int length;
 
         private transient int count;
-    }
-
-    // ------------------------------------------------------------------------
-    // not implemented methods
-    // ------------------------------------------------------------------------
-
-    @Override
-    public boolean and(BitSet set) {
-        throw new UnsupportedOperationException();
     }
 }

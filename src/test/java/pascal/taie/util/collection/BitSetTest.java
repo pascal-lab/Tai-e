@@ -12,20 +12,33 @@
 
 package pascal.taie.util.collection;
 
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static pascal.taie.util.collection.SparseBitSet.SHIFT1;
+import static pascal.taie.util.collection.SparseBitSet.SHIFT2;
+import static pascal.taie.util.collection.SparseBitSet.SHIFT3;
 
 public abstract class BitSetTest {
 
     protected abstract BitSet of(int... indexes);
-    
+
+    // ------------------------------------------------------------------------
+    // test set operations
+    // ------------------------------------------------------------------------
     @Test
-    public void testSet() {
+    public void test() {
         BitSet s = of();
         assertTrue(s.set(1));
         assertFalse(s.set(1));
@@ -84,8 +97,8 @@ public abstract class BitSetTest {
         assertFalse(s.and(of(1, 2, 3)));
         assertTrue(s.and(of(1)));
         assertEquals(1, s.cardinality());
-        assertFalse(s.and(of(1, 11111, 22222, 33333)));
-        assertTrue(s.and(of(11111, 22222, 33333)));
+        assertFalse(s.and(of(1, 11111, 22222, 333333)));
+        assertTrue(s.and(of(11111, 22222)));
         assertTrue(s.isEmpty());
         System.out.println(s);
     }
@@ -122,6 +135,29 @@ public abstract class BitSetTest {
         assertFalse(s.or(of(11111, 22222, 333333)));
         assertEquals(6, s.cardinality());
         System.out.println(s);
+    }
+
+    @Test
+    @Ignore
+    public void testRandomOr() {
+        final int MAX = 80000, TIMES = 100;
+        final Random random = new Random(0);
+        int bits = 0;
+        int values = 0;
+        for (int i = 0; i < 1000; ++i) {
+            BitSet big = of();
+            for (int j = 0; j < 1000; ++j) {
+                BitSet small = of();
+                for (int k = 0; k < TIMES; ++k) {
+                    small.set(Math.abs(random.nextInt() + 1) % MAX);
+                }
+                big.or(small);
+            }
+            bits += big.size();
+            values += big.cardinality();
+        }
+        System.out.printf("%s: %d KB for %d values%n",
+                of().getClass(), bits / 8 / 1024, values);
     }
 
     @Test
@@ -164,5 +200,457 @@ public abstract class BitSetTest {
         assertEquals(s, of(1));
         s.setTo(of(11111));
         assertEquals(s, of(11111));
+    }
+
+    // ------------------------------------------------------------------------
+    // test initial with zero
+    // ------------------------------------------------------------------------
+    private BitSet set;
+
+    @Before
+    public void setUp() {
+        set = of();
+    }
+
+    @Test
+    public void testPreviousSetBit() {
+        assertEquals(-1, set.previousSetBit(0));
+    }
+
+    @Test
+    public void testPreviousClearBit() {
+        assertEquals(0, set.previousClearBit(0));
+    }
+
+    @Test
+    public void testNextSetBit() {
+        assertEquals(-1, set.nextSetBit(0));
+    }
+
+    @Test
+    public void testNextClearBit() {
+        assertEquals(0, set.nextClearBit(0));
+    }
+
+//    @Test
+//    public void testClone() {
+//        assertEquals(-1, set.clone().nextSetBit(0));
+//    }
+
+    // ------------------------------------------------------------------------
+    // test previousClearBit(int)
+    // ------------------------------------------------------------------------
+    @Test
+    public void minusOne() {
+        final int ret = set.previousClearBit(-1);
+
+        assertEquals(-1, ret);
+    }
+
+    @Test
+    public void empty() {
+        final int ret = set.previousClearBit(0);
+
+        assertEquals(0, ret);
+    }
+
+    @Test
+    public void bottomBit() {
+        final int ret = set.previousClearBit(1);
+
+        assertEquals(1, ret);
+    }
+
+    @Test
+    public void sameBit() {
+        set.set(12345);
+        final int ret = set.previousClearBit(12345);
+
+        assertEquals(12344, ret);
+    }
+
+    @Test
+    public void level1Miss() {
+        final int i = (1 << (SHIFT1 + SHIFT3));
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level1MissPlus1() {
+        final int i = (1 << (SHIFT1 + SHIFT3)) + 1;
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level1MissMinus1() {
+        final int i = (1 << (SHIFT1 + SHIFT3)) - 1;
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level2Miss() {
+        final int i = (1 << (SHIFT3 + SHIFT2));
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level2MissPlus1() {
+        final int i = (1 << (SHIFT3 + SHIFT2)) + 1;
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level2MissMinus1() {
+        final int i = (1 << (SHIFT3 + SHIFT2)) - 1;
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level3Miss() {
+        final int i = (1 << SHIFT3);
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level3MissPlus1() {
+        final int i = (1 << SHIFT3) + 1;
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void level3MissMinus1() {
+        final int i = (1 << SHIFT3) - 1;
+        set.set(i);
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void noneBelow() {
+        set.set(1);
+        final int ret = set.previousClearBit(1);
+
+        assertEquals(0, ret);
+    }
+
+    @Test
+    public void oneBelow() {
+        set.set(1);
+        final int ret = set.previousClearBit(2);
+
+        assertEquals(2, ret);
+    }
+
+    @Test
+    public void threeNo() {
+        set.set(1);
+        final int ret = set.previousClearBit(3);
+
+        assertEquals(3, ret);
+    }
+
+    @Test
+    public void three() {
+        set.set(3);
+        final int ret = set.previousClearBit(3);
+
+        assertEquals(2, ret);
+    }
+
+    @Test
+    public void topBit() {
+        final int i = Integer.MAX_VALUE - 1;
+        final int ret = set.previousClearBit(i);
+
+        assertEquals(i, ret);
+    }
+
+    @Test
+    public void randomSingleEntry() {
+        final Random random = new Random(0);
+        for (int i = 0; i < 10000; ++i) {
+            set = of();
+            final int x = Math.abs(random.nextInt() + 1);
+            final int ret = set.previousClearBit(x);
+            assertEquals("Failed on i = " + i, x, ret);
+        }
+    }
+
+    @Test
+    public void bug15() {
+        set.set(1);
+        set.set(64);
+        assertEquals(63, set.previousClearBit(64));
+        set.clear(0);
+        set.set(1);
+        assertEquals(63, set.previousClearBit(64));
+    }
+
+    @Test
+    public void randomMultiEntry() {
+        if (getClass() != SparseBitSetTest.class) {
+            // skip this for non-sparse bit set test
+            return;
+        }
+        final Random random = new Random(0);
+        final Set<Integer> values = new HashSet<>();
+        for (int i = 0; i < 10000; ++i) {
+            BitSet set = of();
+            for (int j = 0; j < 1000; ++j) {
+                final int x = Math.abs(random.nextInt() + 1);
+                set.set(x);
+                values.add(x);
+            }
+            final int x = Math.abs(random.nextInt() + 1);
+            int expected = x;
+            while (values.contains(expected)) {
+                --expected;
+            }
+            final int ret = set.previousClearBit(x);
+            assertEquals("Failed on i = " + i + " x = " + x, expected, ret);
+            values.clear();
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // test previousSetBit(int)
+    // ------------------------------------------------------------------------
+    @Test
+    public void setEmpty() {
+        final int ret = set.previousSetBit(0);
+
+        assertEquals(-1, ret);
+    }
+
+    @Test
+    public void setBottomBit() {
+        set.set(0);
+        final int ret = set.previousSetBit(0);
+
+        assertEquals(0, ret);
+    }
+
+    @Test
+    public void setBetweenTwo() {
+        set.set(4);
+        set.set(8);
+        final int ret = set.previousSetBit(5);
+
+        assertEquals(4, ret);
+    }
+
+    @Test
+    public void setInRun() {
+        set.set(4);
+        set.set(8);
+        set.set(13);
+        set.set(25);
+        set.set(268);
+        final int ret = set.previousSetBit(22);
+
+        assertEquals(13, ret);
+    }
+
+    @Test
+    public void setSameBit() {
+        set.set(12345);
+        final int ret = set.previousSetBit(12345);
+
+        assertEquals(12345, ret);
+    }
+
+    @Test
+    public void setNoneBelow() {
+        set.set(1);
+        final int ret = set.previousSetBit(0);
+
+        assertEquals(-1, ret);
+    }
+
+    @Test
+    public void setOneBelow() {
+        set.set(1);
+        final int ret = set.previousSetBit(2);
+
+        assertEquals(1, ret);
+    }
+
+    @Test
+    public void setTwoBelow() {
+        set.set(1);
+        final int ret = set.previousSetBit(3);
+
+        assertEquals(1, ret);
+    }
+
+    @Test
+    public void setTopBit() {
+        final int i = Integer.MAX_VALUE - 1;
+        set.set(i);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i, ret);
+    }
+
+    @Test
+    public void setLevel1Miss() {
+        final int i = (1 << (SHIFT1 + SHIFT3));
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel1MissPlus1() {
+        final int i = (1 << (SHIFT1 + SHIFT3)) + 1;
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel1MissMinus1() {
+        final int i = (1 << (SHIFT1 + SHIFT3)) - 1;
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel2Miss() {
+        final int i = (1 << (SHIFT3 + SHIFT2));
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel2MissPlus1() {
+        final int i = (1 << (SHIFT3 + SHIFT2)) + 1;
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel2MissMinus1() {
+        final int i = (1 << (SHIFT3 + SHIFT2)) - 1;
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel3Miss() {
+        final int i = (1 << SHIFT3);
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel3MissPlus1() {
+        final int i = (1 << SHIFT3) + 1;
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setLevel3MissMinus1() {
+        final int i = (1 << SHIFT3) - 1;
+        set.set(i - 1);
+        final int ret = set.previousSetBit(i);
+
+        assertEquals(i - 1, ret);
+    }
+
+    @Test
+    public void setRandomSingleEntry() {
+        if (getClass() != SparseBitSetTest.class) {
+            // skip this for non-sparse bit set test
+            return;
+        }
+        final int max = Integer.MAX_VALUE - 1;
+        final Random random = new Random(0);
+        for (int i = 0; i < 10000; ++i) {
+            set = of();
+            final int x = Math.abs(random.nextInt() + 1);
+            set.set(x);
+            final int ret = set.previousSetBit(max);
+            assertEquals("Failed on i = " + i, x, ret);
+        }
+    }
+
+    @Test
+    public void setRandomMultiEntry() {
+        if (getClass() != SparseBitSetTest.class) {
+            // skip this for non-sparse bit set test
+            return;
+        }
+        setRandomMultiEntry(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void setRandomMultiEntryTight() {
+        setRandomMultiEntry(2000);
+    }
+
+    public void setRandomMultiEntry(final int max) {
+        final Random random = new Random(0);
+        final List<Integer> values = new ArrayList<>();
+        for (int i = 0; i < 10000; ++i) {
+            set = of();
+            for (int j = 0; j < 1000; ++j) {
+                final int x = Math.abs(random.nextInt() + 1) % max;
+                set.set(x);
+                values.add(x);
+            }
+            final int x = Math.abs(random.nextInt() + 1) % max;
+            Collections.sort(values);
+            int expected = -1;
+            for (final Integer val : values) {
+                if (val > x) {
+                    break;
+                }
+                expected = val;
+            }
+            final int ret = set.previousSetBit(x);
+            assertEquals("Failed on i = " + i, expected, ret);
+            values.clear();
+        }
     }
 }

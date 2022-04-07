@@ -333,7 +333,7 @@ public class SimpleBitSet extends AbstractBitSet {
         if (!(set instanceof SimpleBitSet other)) {
             throw new UnsupportedOperationException(
                     String.format("%s does not support AND with %s",
-                            SimpleBitSet.class, set.getClass()));
+                            this.getClass(), set.getClass()));
         }
 
         boolean changed = false;
