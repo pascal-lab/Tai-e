@@ -95,11 +95,12 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
             // current reference handler doesn't support Java 9+
             plugin.addPlugin(new ReferenceHandler());
         }
-        if (InvokeDynamicAnalysis.useMethodHandle()) {
-            plugin.addPlugin(new InvokeDynamicAnalysis());
-        }
         if (World.get().getOptions().getJavaVersion() >= 8) {
             plugin.addPlugin(new LambdaAnalysis());
+        }
+        if (options.getBoolean("handle-invokedynamic") &&
+                InvokeDynamicAnalysis.useMethodHandle()) {
+            plugin.addPlugin(new InvokeDynamicAnalysis());
         }
         if (options.getString("taint-config") != null) {
             plugin.addPlugin(new TaintAnalysis());
