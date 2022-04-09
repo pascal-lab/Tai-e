@@ -15,7 +15,6 @@ package pascal.taie.util.collection;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
@@ -59,7 +58,7 @@ public class ArraySet<E> extends AbstractEnhancedSet<E> {
      * no duplicate elements.
      */
     public ArraySet(ArrayList<E> elements, boolean fixedCapacity) {
-        assert new HashSet<>(elements).size() == elements.size();
+        // assert new java.util.HashSet<>(elements).size() == elements.size();
         this.elements = elements;
         this.initialCapacity = elements.size();
         this.fixedCapacity = fixedCapacity;
