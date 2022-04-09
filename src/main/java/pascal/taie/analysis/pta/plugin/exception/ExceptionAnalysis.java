@@ -7,7 +7,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -24,7 +23,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -32,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class ExceptionAnalysis implements Plugin {
 
@@ -40,6 +39,8 @@ public class ExceptionAnalysis implements Plugin {
     private CSManager csManager;
 
     private TypeSystem typeSystem;
+
+    private Supplier<PointsToSet> setFactory;
 
     /**
      * Map from thrown variables to the corresponding throw statements.
@@ -60,7 +61,7 @@ public class ExceptionAnalysis implements Plugin {
     /**
      * Work-list entries.
      */
-    private record Entry(CSMethod csMethod, Stmt stmt, Set<CSObj> exceptions) {
+    private record Entry(CSMethod csMethod, Stmt stmt, PointsToSet exceptions) {
     }
 
     @Override
@@ -68,6 +69,7 @@ public class ExceptionAnalysis implements Plugin {
         this.solver = solver;
         this.csManager = solver.getCSManager();
         this.typeSystem = solver.getTypeSystem();
+        this.setFactory = solver::makePointsToSet;
     }
 
     /**
@@ -106,7 +108,7 @@ public class ExceptionAnalysis implements Plugin {
             JMethod currentMethod = exceptionRef.getMethod();
             CSMethod currentCSMethod = csManager.getCSMethod(ctx, currentMethod);
             throwStmts.forEach(throwStmt -> workList.add(
-                    new Entry(currentCSMethod, throwStmt, pts.getObjects())));
+                    new Entry(currentCSMethod, throwStmt, pts)));
             propagateExceptions();
         }
     }
@@ -128,7 +130,7 @@ public class ExceptionAnalysis implements Plugin {
             csResult.ifPresent(result -> {
                 CSMethod caller = edge.getCallSite().getContainer();
                 Invoke invoke = edge.getCallSite().getCallSite();
-                Set<CSObj> exceptions = result.mayThrowUncaught();
+                PointsToSet exceptions = result.mayThrowUncaught();
                 workList.add(new Entry(caller, invoke, exceptions));
                 propagateExceptions();
             });
@@ -147,12 +149,12 @@ public class ExceptionAnalysis implements Plugin {
             Entry entry = workList.poll();
             CSMethod csMethod = entry.csMethod();
             Stmt stmt = entry.stmt();
-            Set<CSObj> exceptions = entry.exceptions();
-            CSMethodThrowResult result = csMethod.getResult(
-                    getClass().getName(), CSMethodThrowResult::new);
-            Set<CSObj> diff = result.propagate(stmt, exceptions);
+            PointsToSet exceptions = entry.exceptions();
+            CSMethodThrowResult result = csMethod.getResult(getClass().getName(),
+                    () -> new CSMethodThrowResult(setFactory));
+            PointsToSet diff = result.propagate(stmt, exceptions);
             if (!diff.isEmpty()) {
-                Set<CSObj> uncaught = analyzeIntraUncaught(
+                PointsToSet uncaught = analyzeIntraUncaught(
                         stmt, diff, csMethod);
                 if (!uncaught.isEmpty()) {
                     result.addUncaughtExceptions(uncaught);
@@ -180,16 +182,16 @@ public class ExceptionAnalysis implements Plugin {
      * @param csMethod      the csMethod containing currentStmt
      * @return the exceptions thrown by currentStmt but not caught by csMethod
      */
-    private Set<CSObj> analyzeIntraUncaught(
+    private PointsToSet analyzeIntraUncaught(
             Stmt currentStmt,
-            Set<CSObj> newExceptions,
+            PointsToSet newExceptions,
             CSMethod csMethod) {
         List<ExceptionEntry> entries = catchers.get(csMethod.getMethod())
                 .get(currentStmt);
         if (entries != null) {
             Context ctx = csMethod.getContext();
             for (ExceptionEntry entry : entries) {
-                Set<CSObj> uncaughtExceptions = Sets.newHybridSet();
+                PointsToSet uncaughtExceptions = setFactory.get();
                 newExceptions.forEach(newException -> {
                     Obj exObj = newException.getObject();
                     if (typeSystem.isSubtype(entry.catchType(), exObj.getType())) {
@@ -197,7 +199,7 @@ public class ExceptionAnalysis implements Plugin {
                         Var exceptionRef = catchStmt.getExceptionRef();
                         solver.addVarPointsTo(ctx, exceptionRef, newException);
                     } else {
-                        uncaughtExceptions.add(newException);
+                        uncaughtExceptions.addObject(newException);
                     }
                 });
                 newExceptions = uncaughtExceptions;

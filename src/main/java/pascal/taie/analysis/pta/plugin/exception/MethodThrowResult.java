@@ -35,15 +35,15 @@ public class MethodThrowResult {
     }
 
     void addCSMethodThrowResult(CSMethodThrowResult csMethodThrowResult) {
-        method.getIR().forEach(stmt ->
-                csMethodThrowResult.mayThrowExplicitly(stmt)
-                        .stream()
-                        .map(CSObj::getObject)
-                        .forEach(exception ->
-                                explicitExceptions.put(stmt, exception))
-        );
+        for (Stmt stmt : method.getIR()) {
+            csMethodThrowResult.mayThrowExplicitly(stmt)
+                    .objects()
+                    .map(CSObj::getObject)
+                    .forEach(exception ->
+                            explicitExceptions.put(stmt, exception));
+        }
         csMethodThrowResult.mayThrowUncaught()
-                .stream()
+                .objects()
                 .map(CSObj::getObject)
                 .forEach(uncaughtExceptions::add);
     }
