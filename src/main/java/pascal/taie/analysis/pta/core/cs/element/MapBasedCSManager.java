@@ -118,6 +118,11 @@ public class MapBasedCSManager implements CSManager {
         return mtdManager.getCSMethod(context, method);
     }
 
+    @Override
+    public Indexer<CSMethod> getMethodIndexer() {
+        return mtdManager;
+    }
+
     private static class PointerManager {
 
         private final TwoKeyMap<Var, Context, CSVar> vars = Maps.newTwoKeyMap();
@@ -216,18 +221,33 @@ public class MapBasedCSManager implements CSManager {
         }
     }
 
-    private static class CSMethodManager {
+    private static class CSMethodManager implements Indexer<CSMethod> {
 
-        private final TwoKeyMap<JMethod, Context, CSMethod> methods = Maps.newTwoKeyMap();
+        private final TwoKeyMap<JMethod, Context, CSMethod> methodMap = Maps.newTwoKeyMap();
 
         /**
          * Counter for assigning unique indexes to CSMethods.
          */
         private int counter = 0;
 
+        private final List<CSMethod> methods = new ArrayList<>(65536);
+
         private CSMethod getCSMethod(Context context, JMethod method) {
-            return methods.computeIfAbsent(method, context,
-                    (m, c) -> new CSMethod(m, c, counter++));
+            return methodMap.computeIfAbsent(method, context, (m, c) -> {
+                CSMethod csMethod = new CSMethod(m, c, counter++);
+                methods.add(csMethod);
+                return csMethod;
+            });
+        }
+
+        @Override
+        public int getIndex(CSMethod m) {
+            return m.getIndex();
+        }
+
+        @Override
+        public CSMethod getObject(int index) {
+            return methods.get(index);
         }
     }
 }

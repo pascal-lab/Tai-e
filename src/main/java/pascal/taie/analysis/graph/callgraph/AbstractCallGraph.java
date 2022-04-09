@@ -40,7 +40,7 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected final Map<CallSite, Method> callSiteToContainer = Maps.newMap();
     protected final MultiMap<Method, CallSite> callSitesIn = Maps.newMultiMap(Sets::newHybridOrderedSet);
     protected final Set<Method> entryMethods = Sets.newSet();
-    protected final Set<Method> reachableMethods = Sets.newSet();
+    protected Set<Method> reachableMethods = Sets.newSet();
 
     @Override
     public Set<CallSite> getCallersOf(Method callee) {

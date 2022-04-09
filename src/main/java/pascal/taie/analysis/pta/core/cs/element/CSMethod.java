@@ -18,8 +18,9 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Indexable;
 import pascal.taie.util.ResultHolder;
-import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.ArraySet;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class CSMethod extends AbstractCSElement implements Indexable {
     /**
      * Call edges to this CS method.
      */
-    private final Set<Edge<CSCallSite, CSMethod>> edges = Sets.newHybridSet();
+    private final ArrayList<Edge<CSCallSite, CSMethod>> edges = new ArrayList<>(4);
 
     private final ResultHolder resultHolder = new AbstractResultHolder() {};
 
@@ -55,11 +56,12 @@ public class CSMethod extends AbstractCSElement implements Indexable {
     }
 
     public void addEdge(Edge<CSCallSite, CSMethod> edge) {
+        // The caller has ensured that each edge added to CSMethod is unique
         edges.add(edge);
     }
 
     public Set<Edge<CSCallSite, CSMethod>> getEdges() {
-        return Collections.unmodifiableSet(edges);
+        return Collections.unmodifiableSet(new ArraySet<>(edges, true));
     }
 
     public <R> R getResult(String id, Supplier<R> supplier) {

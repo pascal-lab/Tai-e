@@ -14,12 +14,13 @@ package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.util.collection.ArraySet;
+import pascal.taie.util.collection.HybridArrayIndexableSet;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static pascal.taie.util.collection.Sets.newHybridSet;
 
 abstract class AbstractPointer implements Pointer {
 
@@ -27,7 +28,9 @@ abstract class AbstractPointer implements Pointer {
 
     private final int index;
 
-    private final Set<PointerFlowEdge> outEdges = newHybridSet();
+    private final Set<Pointer> successors = new HybridArrayIndexableSet<>(true);
+
+    private final ArrayList<PointerFlowEdge> outEdges = new ArrayList<>(4);
 
     protected AbstractPointer(int index) {
         this.index = index;
@@ -61,12 +64,15 @@ abstract class AbstractPointer implements Pointer {
 
     @Override
     public boolean addOutEdge(PointerFlowEdge edge) {
-        return outEdges.add(edge);
+        if (successors.add(edge.getTarget())) {
+            return outEdges.add(edge);
+        }
+        return false;
     }
 
     @Override
     public Set<PointerFlowEdge> getOutEdges() {
-        return Collections.unmodifiableSet(outEdges);
+        return Collections.unmodifiableSet(new ArraySet<>(outEdges, true));
     }
 
     @Override

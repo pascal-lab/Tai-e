@@ -21,9 +21,13 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.ArraySet;
+import pascal.taie.util.collection.IndexableSet;
+import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -37,6 +41,7 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     public CSCallGraph(CSManager csManager) {
         this.csManager = csManager;
+        this.reachableMethods = new IndexerBitSet<>(csManager.getMethodIndexer(), false);
     }
 
     /**
@@ -97,14 +102,16 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     public Set<CSCallSite> getCallSitesIn(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
-        Set<CSCallSite> callSites = Sets.newHybridOrderedSet();
+        ArrayList<CSCallSite> callSites = new ArrayList<>();
         for (Stmt s : method.getIR()) {
             if (s instanceof Invoke) {
                 CSCallSite csCallSite = csManager.getCSCallSite(context, (Invoke) s);
+                // each Invoke is iterated once, that we can ensure that
+                // callSites contain no duplicate Invokes
                 callSites.add(csCallSite);
             }
         }
-        return Collections.unmodifiableSet(callSites);
+        return Collections.unmodifiableSet(new ArraySet<>(callSites, true));
     }
 
     @Override
