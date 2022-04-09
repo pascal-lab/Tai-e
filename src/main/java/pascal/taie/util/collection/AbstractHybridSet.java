@@ -142,26 +142,28 @@ public abstract class AbstractHybridSet<E> extends AbstractEnhancedSet<E> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends E> c) {
-        int c_size = c.size();
-        if (c_size == 0) {
-            return false;
-        }
-        int max_new_size = c_size + size();
-        int threshold = getThreshold();
-        if (set == null) {
-            if (max_new_size == 1) {
-                assert singleton == null;
-                E e = CollectionUtils.getOne(c);
-                singleton = Objects.requireNonNull(e, NULL_MESSAGE);
-                return true;
-            } else if (max_new_size <= threshold) {
-                upgradeToSmallSet();
-            } else {
+    public boolean addAll(@Nonnull Collection<? extends E> c) {
+        if (!isLargeSet) {
+            int c_size = c.size();
+            if (c_size == 0) {
+                return false;
+            }
+            int max_new_size = c_size + size();
+            int threshold = getThreshold();
+            if (set == null) {
+                if (max_new_size == 1) {
+                    assert singleton == null;
+                    E e = CollectionUtils.getOne(c);
+                    singleton = Objects.requireNonNull(e, NULL_MESSAGE);
+                    return true;
+                } else if (max_new_size <= threshold) {
+                    upgradeToSmallSet();
+                } else {
+                    upgradeToLargeSet(max_new_size + threshold);
+                }
+            } else if (max_new_size > threshold) {
                 upgradeToLargeSet(max_new_size + threshold);
             }
-        } else if (!isLargeSet && max_new_size > threshold) {
-            upgradeToLargeSet(max_new_size + threshold);
         }
         if (!(c instanceof AbstractHybridSet)) {
             c.forEach(e -> Objects.requireNonNull(e, NULL_MESSAGE));
