@@ -68,7 +68,7 @@ public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
 
         @Override
         public SetFact<Var> newInitialFact() {
-            return new SetFact<>(new IndexerBitSet<>(varIndexer));
+            return new SetFact<>(new IndexerBitSet<>(varIndexer, false));
         }
 
         @Override

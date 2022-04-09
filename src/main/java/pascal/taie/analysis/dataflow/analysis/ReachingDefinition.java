@@ -90,7 +90,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         @Override
         public SetFact<Stmt> newInitialFact() {
-            return new SetFact<>(new IndexerBitSet<>(stmtIndexer));
+            return new SetFact<>(new IndexerBitSet<>(stmtIndexer, false));
         }
 
         @Override

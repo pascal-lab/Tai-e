@@ -24,8 +24,12 @@ public class GenericBitSetTest {
 
     private static class StringSet extends GenericBitSet<String> {
 
+        private StringSet() {
+            super(false);
+        }
+
         @Override
-        public GenericBitSet<String> copy() {
+        protected GenericBitSet<String> newSet() {
             throw new UnsupportedOperationException();
         }
 

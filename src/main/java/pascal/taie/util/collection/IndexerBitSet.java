@@ -26,18 +26,9 @@ public class IndexerBitSet<E> extends GenericBitSet<E> {
 
     private final Indexer<E> indexer;
 
-    public IndexerBitSet(Indexer<E> indexer) {
-        this(indexer, false);
-    }
-
-    public IndexerBitSet(Indexer<E> indexer, boolean sparse) {
-        super(sparse);
+    public IndexerBitSet(Indexer<E> indexer, boolean isSparse) {
+        super(isSparse);
         this.indexer = indexer;
-    }
-
-    private IndexerBitSet(IndexerBitSet<E> set) {
-        super(set);
-        this.indexer = set.indexer;
     }
 
     @Override
@@ -56,7 +47,7 @@ public class IndexerBitSet<E> extends GenericBitSet<E> {
     }
 
     @Override
-    public IndexerBitSet<E> copy() {
-        return new IndexerBitSet<>(this);
+    protected GenericBitSet<E> newSet() {
+        return new IndexerBitSet<>(indexer, isSparse());
     }
 }

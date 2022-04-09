@@ -10,17 +10,14 @@
  * Distribution of Tai-e is disallowed without the approval.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.collection;
 
-/**
- * @param <T> type of copy object
- */
-public interface Copyable<T> {
+import pascal.taie.util.Copyable;
 
-    /**
-     * Creates and returns a copy of this object.
-     *
-     * @return a copy of this object.
-     */
-    T copy();
+import java.util.Collection;
+import java.util.Set;
+
+public interface EnhancedSet<E> extends Set<E>, Copyable<EnhancedSet<E>> {
+
+    EnhancedSet<E> addAllDiff(Collection<? extends E> c);
 }

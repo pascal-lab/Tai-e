@@ -19,28 +19,30 @@ public class LambdaTest {
 
     private static final String DIR = "lambda";
 
+    private static final String ARG = "handle-invokedynamic:true";
+
     @Test
     public void testArgs() {
-        Tests.testPTA(DIR, "Args");
+        Tests.testPTA(DIR, "Args", ARG);
     }
 
     @Test
     public void testConstructor() {
-        Tests.testPTA(DIR, "LambdaConstructor");
+        Tests.testPTA(DIR, "LambdaConstructor", ARG);
     }
 
     @Test
     public void testInstanceMethod() {
-        Tests.testPTA(DIR, "LambdaInstanceMethod");
+        Tests.testPTA(DIR, "LambdaInstanceMethod", ARG);
     }
 
     @Test
     public void testStaticMethod() {
-        Tests.testPTA(DIR, "LambdaStaticMethod");
+        Tests.testPTA(DIR, "LambdaStaticMethod", ARG);
     }
 
     @Test
     public void testImpreciseLambdas() {
-        Tests.testPTA(DIR, "ImpreciseLambdas");
+        Tests.testPTA(DIR, "ImpreciseLambdas", ARG);
     }
 }

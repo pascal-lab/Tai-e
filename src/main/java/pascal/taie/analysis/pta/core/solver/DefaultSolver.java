@@ -295,12 +295,7 @@ public class DefaultSolver implements Solver {
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         logger.trace("Propagate {} to {}", pointsToSet, pointer);
-        final PointsToSet diff = ptsFactory.make();
-        pointsToSet.forEach(obj -> {
-            if (getPointsToSetOf(pointer).addObject(obj)) {
-                diff.addObject(obj);
-            }
-        });
+        PointsToSet diff = getPointsToSetOf(pointer).addAllDiff(pointsToSet);
         if (!diff.isEmpty()) {
             pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge -> {
                 Pointer target = edge.getTarget();

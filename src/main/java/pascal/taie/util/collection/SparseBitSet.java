@@ -793,11 +793,8 @@ public class SparseBitSet extends AbstractBitSet {
                     if (selfWord != newWord) {
                         selfBlock[w3] = newWord;
                         changed = true;
-                    }
-                    long diffWord = iteratedWord & ~selfWord;
-                    if (diffWord != 0) {
                         long[] diffBlock = diff.getOrCreateBlock(w1, w2);
-                        diffBlock[w3] = diffWord;
+                        diffBlock[w3] = iteratedWord & ~selfWord;
                     }
                 } else if (selfBlock != null && selfBlock[w3] != 0) {
                     isZero = false;

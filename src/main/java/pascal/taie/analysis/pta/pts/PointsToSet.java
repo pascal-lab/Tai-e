@@ -41,6 +41,13 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
     boolean addAll(PointsToSet pts);
 
     /**
+     * Adds all objects in given pts to this set.
+     *
+     * @return the difference between {@code pts} and this set.
+     */
+    PointsToSet addAllDiff(PointsToSet pts);
+
+    /**
      * @return true if this set contains given object, otherwise false.
      */
     boolean contains(CSObj obj);

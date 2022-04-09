@@ -14,23 +14,21 @@ package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.Indexer;
+import pascal.taie.util.collection.EnhancedSet;
 import pascal.taie.util.collection.HybridArrayBitSet;
-
-import java.util.Set;
 
 class HybridArrayBitPointsToSet extends DelegatePointsToSet {
 
     public HybridArrayBitPointsToSet(Indexer<CSObj> indexer) {
-        this(new HybridArrayBitSet<>(indexer));
+        this(new HybridArrayBitSet<>(indexer, true));
     }
 
-    private HybridArrayBitPointsToSet(Set<CSObj> set) {
+    private HybridArrayBitPointsToSet(EnhancedSet<CSObj> set) {
         super(set);
     }
 
     @Override
-    public HybridArrayBitPointsToSet copy() {
-        return new HybridArrayBitPointsToSet(
-                ((HybridArrayBitSet<CSObj>) set).copy());
+    protected PointsToSet newSet(EnhancedSet<CSObj> set) {
+        return new HybridArrayBitPointsToSet(set);
     }
 }

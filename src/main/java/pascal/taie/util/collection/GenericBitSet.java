@@ -12,11 +12,9 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.Copyable;
 import pascal.taie.util.Hashes;
 
 import javax.annotation.Nonnull;
-import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -42,21 +40,12 @@ import java.util.NoSuchElementException;
  *
  * @param <E> type of elements
  */
-public abstract class GenericBitSet<E> extends AbstractSet<E>
-        implements Copyable<GenericBitSet<E>> {
+public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
 
-    protected final BitSet bitSet;
+    protected BitSet bitSet;
 
-    protected GenericBitSet() {
-        this(false);
-    }
-
-    protected GenericBitSet(boolean sparse) {
-        bitSet = sparse ? new SparseBitSet() : new SimpleBitSet();
-    }
-
-    protected GenericBitSet(GenericBitSet<E> s) {
-        bitSet = s.bitSet.copy();
+    protected GenericBitSet(boolean isSparse) {
+        bitSet = isSparse ? new SparseBitSet() : new SimpleBitSet();
     }
 
     @Override
@@ -212,6 +201,35 @@ public abstract class GenericBitSet<E> extends AbstractSet<E>
     public int hashCode() {
         return Hashes.hash(getContext(), bitSet);
     }
+
+    @Override
+    public EnhancedSet<E> copy() {
+        GenericBitSet<E> copy = newSet();
+        copy.bitSet = bitSet.copy();
+        return copy;
+    }
+
+    @Override
+    public EnhancedSet<E> addAllDiff(Collection<? extends E> c) {
+        if (c instanceof GenericBitSet s) {
+            checkContext(s);
+            GenericBitSet<E> diff = newSet();
+            diff.bitSet = bitSet.orDiff(s.bitSet);
+            return diff;
+        } else {
+            return super.addAllDiff(c);
+        }
+    }
+
+    /**
+     * @return {@code true} if the backing bit set is sparse.
+     */
+    protected boolean isSparse() {
+        return bitSet instanceof SparseBitSet;
+    }
+
+    @Override
+    protected abstract GenericBitSet<E> newSet();
 
     /**
      * @return the context for the objects represented by the bits in this set.

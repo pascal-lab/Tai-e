@@ -14,7 +14,6 @@ package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
-import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,7 +35,7 @@ import java.util.Set;
  *
  * @param <E> type of elements
  */
-public abstract class AbstractHybridSet<E> extends AbstractSet<E> {
+public abstract class AbstractHybridSet<E> extends AbstractEnhancedSet<E> {
 
     // invariant: at most one of singleton and set is non-null
 

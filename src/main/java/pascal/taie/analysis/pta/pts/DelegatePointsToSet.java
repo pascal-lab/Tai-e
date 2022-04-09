@@ -13,6 +13,7 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.util.collection.EnhancedSet;
 
 import java.util.Collections;
 import java.util.Set;
@@ -23,9 +24,9 @@ import java.util.stream.Stream;
  */
 abstract class DelegatePointsToSet implements PointsToSet {
 
-    protected final Set<CSObj> set;
+    protected final EnhancedSet<CSObj> set;
 
-    DelegatePointsToSet(Set<CSObj> set) {
+    DelegatePointsToSet(EnhancedSet<CSObj> set) {
         this.set = set;
     }
 
@@ -35,12 +36,12 @@ abstract class DelegatePointsToSet implements PointsToSet {
     }
 
     @Override
-    public boolean addAll(PointsToSet other) {
-        if (other instanceof DelegatePointsToSet pts) {
-            return set.addAll(pts.set);
+    public boolean addAll(PointsToSet pts) {
+        if (pts instanceof DelegatePointsToSet other) {
+            return set.addAll(other.set);
         } else {
             boolean changed = false;
-            for (CSObj o : other) {
+            for (CSObj o : pts) {
                 changed |= addObject(o);
             }
             return changed;
@@ -76,4 +77,18 @@ abstract class DelegatePointsToSet implements PointsToSet {
     public String toString() {
         return set.toString();
     }
+
+    @Override
+    public PointsToSet addAllDiff(PointsToSet pts) {
+        Set<CSObj> otherSet = pts instanceof DelegatePointsToSet other ?
+                other.set : pts.getObjects();
+        return newSet(set.addAllDiff(otherSet));
+    }
+
+    @Override
+    public PointsToSet copy() {
+        return newSet(set.copy());
+    }
+
+    protected abstract PointsToSet newSet(EnhancedSet<CSObj> set);
 }

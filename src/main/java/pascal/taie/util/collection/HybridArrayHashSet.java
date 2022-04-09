@@ -55,4 +55,9 @@ public final class HybridArrayHashSet<E> extends AbstractHybridSet<E> {
     protected Set<E> newLargeSet(int initialCapacity) {
         return new HashSet<>(initialCapacity);
     }
+
+    @Override
+    protected EnhancedSet<E> newSet() {
+        return new HybridArrayHashSet<>();
+    }
 }
