@@ -24,7 +24,8 @@ public class InstanceField extends AbstractPointer {
 
     private final JField field;
 
-    InstanceField(CSObj base, JField field) {
+    InstanceField(CSObj base, JField field, int index) {
+        super(index);
         this.base = base;
         this.field = field;
     }

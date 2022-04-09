@@ -22,7 +22,8 @@ public class ArrayIndex extends AbstractPointer {
 
     private final CSObj array;
 
-    ArrayIndex(CSObj array) {
+    ArrayIndex(CSObj array, int index) {
+        super(index);
         this.array = array;
     }
 

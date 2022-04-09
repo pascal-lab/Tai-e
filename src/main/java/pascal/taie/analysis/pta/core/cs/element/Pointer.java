@@ -15,6 +15,7 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Indexable;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -24,7 +25,7 @@ import java.util.stream.Stream;
  * Represents all pointers (nodes) in context-sensitive
  * pointer analysis (pointer flow graph).
  */
-public interface Pointer {
+public interface Pointer extends Indexable {
 
     /**
      * @return the points-to set associated with the pointer.

@@ -22,8 +22,10 @@ import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,26 +35,77 @@ import java.util.Set;
  */
 public class MapBasedCSManager implements CSManager {
 
-    private final TwoKeyMap<Var, Context, CSVar> vars = Maps.newTwoKeyMap();
-    private final TwoKeyMap<Invoke, Context, CSCallSite> callSites = Maps.newTwoKeyMap();
-    private final TwoKeyMap<JMethod, Context, CSMethod> methods = Maps.newTwoKeyMap();
-    private final Map<JField, StaticField> staticFields = Maps.newMap();
-    private final TwoKeyMap<CSObj, JField, InstanceField> instanceFields = Maps.newTwoKeyMap();
-    private final Map<CSObj, ArrayIndex> arrayIndexes = Maps.newMap();
+    private final PointerManager ptrManager = new PointerManager();
 
-    /**
-     * Delegates implementation of CSObj-related API to CSObjManager.
-     */
     private final CSObjManager objManager = new CSObjManager();
+
+    private final CSMethodManager mtdManager = new CSMethodManager();
+
+    private final TwoKeyMap<Invoke, Context, CSCallSite> callSites = Maps.newTwoKeyMap();
 
     @Override
     public CSVar getCSVar(Context context, Var var) {
-        return vars.computeIfAbsent(var, context, CSVar::new);
+        return ptrManager.getCSVar(context, var);
+    }
+
+    @Override
+    public StaticField getStaticField(JField field) {
+        return ptrManager.getStaticField(field);
+    }
+
+    @Override
+    public InstanceField getInstanceField(CSObj base, JField field) {
+        return ptrManager.getInstanceField(base, field);
+    }
+
+    @Override
+    public ArrayIndex getArrayIndex(CSObj array) {
+        return ptrManager.getArrayIndex(array);
+    }
+
+    @Override
+    public Collection<Var> getVars() {
+        return ptrManager.getVars();
+    }
+
+    @Override
+    public Collection<CSVar> getCSVars() {
+        return ptrManager.getCSVars();
+    }
+
+    @Override
+    public Collection<CSVar> getCSVarsOf(Var var) {
+        return ptrManager.getCSVarsOf(var);
+    }
+
+    @Override
+    public Collection<StaticField> getStaticFields() {
+        return ptrManager.getStaticFields();
+    }
+
+    @Override
+    public Collection<InstanceField> getInstanceFields() {
+        return ptrManager.getInstanceFields();
+    }
+
+    @Override
+    public Collection<ArrayIndex> getArrayIndexes() {
+        return ptrManager.getArrayIndexes();
     }
 
     @Override
     public CSObj getCSObj(Context heapContext, Obj obj) {
         return objManager.getCSObj(heapContext, obj);
+    }
+
+    @Override
+    public Collection<CSObj> getObjects() {
+        return objManager.getObjects();
+    }
+
+    @Override
+    public Indexer<CSObj> getObjectIndexer() {
+        return objManager;
     }
 
     @Override
@@ -62,62 +115,119 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public CSMethod getCSMethod(Context context, JMethod method) {
-        return methods.computeIfAbsent(method, context, CSMethod::new);
+        return mtdManager.getCSMethod(context, method);
     }
 
-    @Override
-    public StaticField getStaticField(JField field) {
-        return staticFields.computeIfAbsent(field, StaticField::new);
+    private static class PointerManager {
+
+        private final TwoKeyMap<Var, Context, CSVar> vars = Maps.newTwoKeyMap();
+
+        private final Map<JField, StaticField> staticFields = Maps.newMap();
+
+        private final TwoKeyMap<CSObj, JField, InstanceField> instanceFields = Maps.newTwoKeyMap();
+
+        private final Map<CSObj, ArrayIndex> arrayIndexes = Maps.newMap();
+
+        /**
+         * Counter for assigning unique indexes to Pointers.
+         */
+        private int counter = 0;
+
+        private CSVar getCSVar(Context context, Var var) {
+            return vars.computeIfAbsent(var, context,
+                    (v, c) -> new CSVar(v, c, counter++));
+        }
+
+        private StaticField getStaticField(JField field) {
+            return staticFields.computeIfAbsent(field,
+                    f -> new StaticField(f, counter++));
+        }
+
+        private InstanceField getInstanceField(CSObj base, JField field) {
+            return instanceFields.computeIfAbsent(base, field,
+                    (b, f) -> new InstanceField(b, f, counter++));
+        }
+
+        private ArrayIndex getArrayIndex(CSObj array) {
+            return arrayIndexes.computeIfAbsent(array,
+                    a -> new ArrayIndex(a, counter++));
+        }
+
+        private Collection<Var> getVars() {
+            return vars.keySet();
+        }
+
+        private Collection<CSVar> getCSVars() {
+            return vars.values();
+        }
+
+        private Collection<CSVar> getCSVarsOf(Var var) {
+            var csVars = vars.get(var);
+            return csVars != null ? csVars.values() : Set.of();
+        }
+
+        private Collection<StaticField> getStaticFields() {
+            return Collections.unmodifiableCollection(staticFields.values());
+        }
+
+        private Collection<InstanceField> getInstanceFields() {
+            return instanceFields.values();
+        }
+
+        private Collection<ArrayIndex> getArrayIndexes() {
+            return Collections.unmodifiableCollection(arrayIndexes.values());
+        }
     }
 
-    @Override
-    public InstanceField getInstanceField(CSObj base, JField field) {
-        return instanceFields.computeIfAbsent(base, field, InstanceField::new);
+    private static class CSObjManager implements Indexer<CSObj> {
+
+        private final TwoKeyMap<Obj, Context, CSObj> objMap = Maps.newTwoKeyMap();
+
+        /**
+         * Counter for assigning unique indexes to CSObjs.
+         */
+        private int counter = 0;
+
+        /**
+         * Maps index to CSObj.
+         */
+        private final List<CSObj> objs = new ArrayList<>(65536);
+
+        CSObj getCSObj(Context heapContext, Obj obj) {
+            return objMap.computeIfAbsent(obj, heapContext, (o, c) -> {
+                CSObj csObj = new CSObj(o, c, counter++);
+                objs.add(csObj);
+                return csObj;
+            });
+        }
+
+        Collection<CSObj> getObjects() {
+            return Collections.unmodifiableList(objs);
+        }
+
+        @Override
+        public int getIndex(CSObj o) {
+            return o.getIndex();
+        }
+
+        @Override
+        public CSObj getObject(int index) {
+            return objs.get(index);
+        }
     }
 
-    @Override
-    public ArrayIndex getArrayIndex(CSObj array) {
-        return arrayIndexes.computeIfAbsent(array, ArrayIndex::new);
-    }
+    private static class CSMethodManager {
 
-    @Override
-    public Collection<Var> getVars() {
-        return vars.keySet();
-    }
+        private final TwoKeyMap<JMethod, Context, CSMethod> methods = Maps.newTwoKeyMap();
 
-    @Override
-    public Collection<CSVar> getCSVars() {
-        return vars.values();
-    }
+        /**
+         * Counter for assigning unique indexes to CSMethods.
+         */
+        private int counter = 0;
 
-    @Override
-    public Collection<CSVar> getCSVarsOf(Var var) {
-        var csVars = vars.get(var);
-        return csVars != null ? csVars.values() : Set.of();
-    }
-
-    @Override
-    public Collection<CSObj> getObjects() {
-        return objManager.getObjects();
-    }
-
-    @Override
-    public Collection<StaticField> getStaticFields() {
-        return Collections.unmodifiableCollection(staticFields.values());
-    }
-
-    @Override
-    public Collection<InstanceField> getInstanceFields() {
-        return instanceFields.values();
-    }
-
-    @Override
-    public Collection<ArrayIndex> getArrayIndexes() {
-        return Collections.unmodifiableCollection(arrayIndexes.values());
-    }
-
-    @Override
-    public Indexer<CSObj> getObjectIndexer() {
-        return objManager;
+        private CSMethod getCSMethod(Context context, JMethod method) {
+            return methods.computeIfAbsent(method, context,
+                    (m, c) -> new CSMethod(m, c, counter++));
+        }
     }
 }

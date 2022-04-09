@@ -22,7 +22,8 @@ public class StaticField extends AbstractPointer {
 
     private final JField field;
 
-    StaticField(JField field) {
+    StaticField(JField field, int index) {
+        super(index);
         this.field = field;
     }
 

@@ -25,7 +25,18 @@ abstract class AbstractPointer implements Pointer {
 
     private PointsToSet pointsToSet;
 
+    private final int index;
+
     private final Set<PointerFlowEdge> outEdges = newHybridSet();
+
+    protected AbstractPointer(int index) {
+        this.index = index;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
+    }
 
     @Override
     public PointsToSet getPointsToSet() {

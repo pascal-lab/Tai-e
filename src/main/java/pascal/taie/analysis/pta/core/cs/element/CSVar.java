@@ -25,7 +25,8 @@ public class CSVar extends AbstractPointer implements CSElement {
 
     private final Context context;
 
-    CSVar(Var var, Context context) {
+    CSVar(Var var, Context context, int index) {
+        super(index);
         this.var = var;
         this.context = context;
     }
