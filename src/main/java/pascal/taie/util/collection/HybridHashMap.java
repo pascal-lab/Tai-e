@@ -16,38 +16,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Hybrid of array map (for small map) and hash map (for large map).
+ * Hybrid map that uses hash map for large map.
  */
-public final class HybridArrayHashMap<K, V> extends AbstractHybridMap<K, V> {
-
-    /**
-     * Threshold for the number of items necessary for the array map
-     * to become a hash map.
-     */
-    private static final int ARRAY_MAP_SIZE = 8;
+public final class HybridHashMap<K, V> extends AbstractHybridMap<K, V> {
 
     /**
      * Constructs a new empty hybrid map.
      */
-    public HybridArrayHashMap() {
-        // do nothing
+    public HybridHashMap() {
     }
 
     /**
      * Constructs a new hybrid map from the given map.
      */
-    public HybridArrayHashMap(Map<K, V> m) {
+    public HybridHashMap(Map<K, V> m) {
         super(m);
-    }
-
-    @Override
-    protected int getThreshold() {
-        return ARRAY_MAP_SIZE;
-    }
-
-    @Override
-    protected Map<K, V> newSmallMap(int initialCapacity) {
-        return new ArrayMap<>(initialCapacity);
     }
 
     @Override

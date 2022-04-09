@@ -12,11 +12,19 @@
 
 package pascal.taie.util.collection;
 
-import java.util.Map;
+import org.junit.Test;
 
-public class HybridArrayHashMapTest extends AbstractMapTest {
+import java.util.Set;
 
-    protected <K, V> Map<K, V> newMap() {
-        return new HybridArrayHashMap<>();
+public class HybridHashSetTest extends AbstractSetTest {
+
+    @Override
+    protected <E> Set<E> newSet() {
+        return new HybridHashSet<>();
+    }
+
+    @Test
+    public void testAdd20() {
+        testAddNElements(newSet(), 20);
     }
 }

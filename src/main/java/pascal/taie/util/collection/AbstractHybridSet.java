@@ -32,6 +32,8 @@ import java.util.Set;
  * represented with just a reference.
  * <p>
  * Elements added to this set cannot be null.
+ * <p>
+ * By default, this set uses {@link ArraySet} for small set.
  *
  * @param <E> type of elements
  */
@@ -40,6 +42,12 @@ public abstract class AbstractHybridSet<E> extends AbstractEnhancedSet<E> {
     // invariant: at most one of singleton and set is non-null
 
     private static final String NULL_MESSAGE = "HybridSet does not permit null values";
+
+    /**
+     * Default size of small set, which acts as the threshold for
+     * the number of items necessary for the small set to become a large set.
+     */
+    private static final int SMALL_SIZE = 8;
 
     /**
      * The singleton value. Null if not a singleton.
@@ -60,7 +68,6 @@ public abstract class AbstractHybridSet<E> extends AbstractEnhancedSet<E> {
      * Constructs a new hybrid set.
      */
     protected AbstractHybridSet() {
-        // do nothing
     }
 
     /**
@@ -75,12 +82,16 @@ public abstract class AbstractHybridSet<E> extends AbstractEnhancedSet<E> {
      * When number of elements exceeds the threshold, set should be upgraded
      * to large set.
      */
-    protected abstract int getThreshold();
+    protected int getThreshold() {
+        return SMALL_SIZE;
+    }
 
     /**
      * Creates a small set.
      */
-    protected abstract Set<E> newSmallSet();
+    protected Set<E> newSmallSet() {
+        return new ArraySet<>(getThreshold());
+    }
 
     /**
      * Creates a large set.

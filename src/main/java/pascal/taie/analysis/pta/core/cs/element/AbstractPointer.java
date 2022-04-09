@@ -15,7 +15,7 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.util.collection.ArraySet;
-import pascal.taie.util.collection.HybridArrayIndexableSet;
+import pascal.taie.util.collection.HybridIndexableSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ abstract class AbstractPointer implements Pointer {
 
     private final int index;
 
-    private final Set<Pointer> successors = new HybridArrayIndexableSet<>(true);
+    private final Set<Pointer> successors = new HybridIndexableSet<>(true);
 
     private final ArrayList<PointerFlowEdge> outEdges = new ArrayList<>(4);
 

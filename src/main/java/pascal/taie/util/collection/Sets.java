@@ -43,15 +43,15 @@ public final class Sets {
     }
 
     public static <E> Set<E> newHybridSet() {
-        return new HybridArrayHashSet<>();
+        return new HybridHashSet<>();
     }
 
     public static <E> Set<E> newHybridSet(Collection<E> c) {
-        return new HybridArrayHashSet<>(c);
+        return new HybridHashSet<>(c);
     }
 
     public static <E> Set<E> newHybridOrderedSet() {
-        return new HybridArrayLinkedHashSet<>();
+        return new HybridLinkedHashSet<>();
     }
 
     public static <E> Set<E> newConcurrentSet() {

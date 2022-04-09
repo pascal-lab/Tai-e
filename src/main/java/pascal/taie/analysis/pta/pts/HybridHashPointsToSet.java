@@ -14,20 +14,20 @@ package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.collection.EnhancedSet;
-import pascal.taie.util.collection.HybridArrayHashSet;
+import pascal.taie.util.collection.HybridHashSet;
 
-public class HybridArrayHashPointsToSet extends DelegatePointsToSet {
+public class HybridHashPointsToSet extends DelegatePointsToSet {
 
-    HybridArrayHashPointsToSet() {
-        this(new HybridArrayHashSet<>());
+    HybridHashPointsToSet() {
+        this(new HybridHashSet<>());
     }
 
-    private HybridArrayHashPointsToSet(EnhancedSet<CSObj> set) {
+    private HybridHashPointsToSet(EnhancedSet<CSObj> set) {
         super(set);
     }
 
     @Override
     protected PointsToSet newSet(EnhancedSet<CSObj> set) {
-        return new HybridArrayHashPointsToSet(set);
+        return new HybridHashPointsToSet(set);
     }
 }

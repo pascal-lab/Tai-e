@@ -17,31 +17,18 @@ import pascal.taie.util.Indexer;
 import java.util.Collection;
 import java.util.Set;
 
-public final class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
-
-    /**
-     * Default threshold for the number of items necessary for the array set
-     * to become a hash set.
-     */
-    private static final int ARRAY_SET_SIZE = 8;
+/**
+ * Hybrid set that uses bit set for large set.
+ */
+public final class HybridBitSet<E> extends AbstractHybridSet<E> {
 
     private final Indexer<E> indexer;
 
     private final boolean isSparse;
 
-    public HybridArrayBitSet(Indexer<E> indexer, boolean isSparse) {
+    public HybridBitSet(Indexer<E> indexer, boolean isSparse) {
         this.indexer = indexer;
         this.isSparse = isSparse;
-    }
-
-    @Override
-    protected int getThreshold() {
-        return ARRAY_SET_SIZE;
-    }
-
-    @Override
-    protected Set<E> newSmallSet() {
-        return new ArraySet<>(getThreshold());
     }
 
     @Override
@@ -50,9 +37,9 @@ public final class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
     }
 
     @Override
-    public HybridArrayBitSet<E> addAllDiff(Collection<? extends E> c) {
-        HybridArrayBitSet<E> diff = new HybridArrayBitSet<>(indexer, isSparse);
-        if (c instanceof HybridArrayBitSet other && other.isLargeSet) {
+    public HybridBitSet<E> addAllDiff(Collection<? extends E> c) {
+        HybridBitSet<E> diff = new HybridBitSet<>(indexer, isSparse);
+        if (c instanceof HybridBitSet other && other.isLargeSet) {
             //noinspection unchecked
             EnhancedSet<E> otherSet = (EnhancedSet<E>) other.set;
             Set<E> diffSet;
@@ -88,8 +75,8 @@ public final class HybridArrayBitSet<E> extends AbstractHybridSet<E> {
     }
 
     @Override
-    public HybridArrayBitSet<E> copy() {
-        HybridArrayBitSet<E> copy = new HybridArrayBitSet<>(indexer, isSparse);
+    public HybridBitSet<E> copy() {
+        HybridBitSet<E> copy = new HybridBitSet<>(indexer, isSparse);
         copy.singleton = singleton;
         copy.isLargeSet = isLargeSet;
         if (set != null) {

@@ -22,9 +22,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.ArraySet;
-import pascal.taie.util.collection.IndexableSet;
 import pascal.taie.util.collection.IndexerBitSet;
-import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 
 import java.util.ArrayList;

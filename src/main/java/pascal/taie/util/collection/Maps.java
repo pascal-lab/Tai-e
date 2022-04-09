@@ -45,11 +45,11 @@ public final class Maps {
     }
 
     public static <K, V> Map<K, V> newHybridMap() {
-        return new HybridArrayHashMap<>();
+        return new HybridHashMap<>();
     }
 
     public static <K, V> Map<K, V> newHybridMap(Map<K, V> map) {
-        return new HybridArrayHashMap<>(map);
+        return new HybridHashMap<>(map);
     }
 
     public static <K, V> ConcurrentMap<K, V> newConcurrentMap() {
@@ -61,7 +61,7 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap() {
-        return new MapSetMultiMap<>(newMap(), HybridArrayHashSet::new);
+        return new MapSetMultiMap<>(newMap(), HybridHashSet::new);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Supplier<Set<V>> setFactory) {
@@ -69,15 +69,15 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map) {
-        return new MapSetMultiMap<>(map, HybridArrayHashSet::new);
+        return new MapSetMultiMap<>(map, HybridHashSet::new);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(int initialCapacity) {
         return new MapSetMultiMap<>(
-                newMap(initialCapacity), HybridArrayHashSet::new);
+                newMap(initialCapacity), HybridHashSet::new);
     }
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
-        return new MapMapTwoKeyMap<>(newMap(), HybridArrayHashMap::new);
+        return new MapMapTwoKeyMap<>(newMap(), HybridHashMap::new);
     }
 }

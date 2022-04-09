@@ -16,7 +16,7 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.util.collection.ArraySet;
-import pascal.taie.util.collection.HybridArrayIndexableSet;
+import pascal.taie.util.collection.HybridIndexableSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,7 @@ public class CSCallSite extends AbstractCSElement {
      */
     private CSMethod container;
 
-    private final Set<CSMethod> callees = new HybridArrayIndexableSet<>(true);
+    private final Set<CSMethod> callees = new HybridIndexableSet<>(true);
 
     /**
      * Call edges from this call site.

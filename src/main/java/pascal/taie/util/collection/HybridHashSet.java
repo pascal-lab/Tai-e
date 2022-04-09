@@ -17,38 +17,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Hybrid of array set (for small set) and hash set (for large set).
+ * Hybrid set that uses hash set for large set.
  */
-public final class HybridArrayHashSet<E> extends AbstractHybridSet<E> {
-
-    /**
-     * Default threshold for the number of items necessary for the array set
-     * to become a hash set.
-     */
-    private static final int ARRAY_SET_SIZE = 8;
+public final class HybridHashSet<E> extends AbstractHybridSet<E> {
 
     /**
      * Constructs a new hybrid set.
      */
-    public HybridArrayHashSet() {
-        // do nothing
+    public HybridHashSet() {
     }
 
     /**
      * Constructs a new hybrid set from the given collection.
      */
-    public HybridArrayHashSet(Collection<E> c) {
+    public HybridHashSet(Collection<E> c) {
         super(c);
-    }
-
-    @Override
-    protected int getThreshold() {
-        return ARRAY_SET_SIZE;
-    }
-
-    @Override
-    protected Set<E> newSmallSet() {
-        return new ArraySet<>(getThreshold());
     }
 
     @Override
@@ -58,6 +41,6 @@ public final class HybridArrayHashSet<E> extends AbstractHybridSet<E> {
 
     @Override
     protected EnhancedSet<E> newSet() {
-        return new HybridArrayHashSet<>();
+        return new HybridHashSet<>();
     }
 }

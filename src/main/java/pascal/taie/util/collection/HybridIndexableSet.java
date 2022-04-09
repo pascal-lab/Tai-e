@@ -16,29 +16,16 @@ import pascal.taie.util.Indexable;
 
 import java.util.Set;
 
-public class HybridArrayIndexableSet<E extends Indexable>
+/**
+ * Hybrid set that uses indexable set for large set.
+ */
+public class HybridIndexableSet<E extends Indexable>
         extends AbstractHybridSet<E> {
-
-    /**
-     * Default threshold for the number of items necessary for the array set
-     * to become a hash set.
-     */
-    private static final int ARRAY_SET_SIZE = 8;
 
     private final boolean isSparse;
 
-    public HybridArrayIndexableSet(boolean isSparse) {
+    public HybridIndexableSet(boolean isSparse) {
         this.isSparse = isSparse;
-    }
-
-    @Override
-    protected int getThreshold() {
-        return ARRAY_SET_SIZE;
-    }
-
-    @Override
-    protected Set<E> newSmallSet() {
-        return new ArraySet<>(getThreshold());
     }
 
     @Override

@@ -36,6 +36,8 @@ import java.util.Set;
  * represented with just a reference.
  * <p>
  * Keys added to this map cannot be null.
+  <p>
+ * By default, this set use {@link ArrayMap} for small map.
  *
  * @param <K> type of keys
  * @param <V> type of values
@@ -45,6 +47,12 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
     // invariant: at most one of singleton_key and map is non-null
 
     private static final String NULL_KEY = "HybridMap does not permit null keys";
+
+    /**
+     * Default size of small map, which acts as the threshold for
+     * the number of items necessary for the small map to become a large map.
+     */
+    private static final int SMALL_SIZE = 8;
 
     /**
      * The key for singletons. Null if not singleton.
@@ -85,15 +93,16 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
      * When number of mappings exceeds the threshold, map should be upgraded
      * to large map.
      */
-    protected abstract int getThreshold();
+    protected int getThreshold() {
+        return SMALL_SIZE;
+    }
 
     /**
      * Creates a small map.
-     *
-     * @param initialCapacity initial capacity of the resulting map.
-     *                        Usually this is the same as the threshold.
      */
-    protected abstract Map<K, V> newSmallMap(int initialCapacity);
+    protected Map<K, V> newSmallMap() {
+        return new ArrayMap<>(getThreshold());
+    }
 
     /**
      * Creates a large map.
@@ -171,7 +180,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
     }
 
     private void upgradeToSmallMap() {
-        map = newSmallMap(getThreshold());
+        map = newSmallMap();
         if (singleton_key != null) {
             map.put(singleton_key, singleton_value);
             singleton_key = null;
