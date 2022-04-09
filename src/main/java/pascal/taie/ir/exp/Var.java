@@ -20,6 +20,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.Indexable;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.List;
  * Representation of method/constructor parameters, lambda parameters,
  * exception parameters, and local variables.
  */
-public class Var implements LValue, RValue {
+public class Var implements LValue, RValue, Indexable {
 
     /**
      * The method containing this Var.
@@ -86,6 +87,7 @@ public class Var implements LValue, RValue {
     /**
      * @return the index of this variable in the container IR.
      */
+    @Override
     public int getIndex() {
         return index;
     }

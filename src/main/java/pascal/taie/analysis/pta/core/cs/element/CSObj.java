@@ -14,11 +14,12 @@ package pascal.taie.analysis.pta.core.cs.element;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.util.Indexable;
 
 /**
  * Represents context-sensitive objects.
  */
-public class CSObj extends AbstractCSElement {
+public class CSObj extends AbstractCSElement implements Indexable {
 
     private final Obj obj;
 
@@ -37,6 +38,7 @@ public class CSObj extends AbstractCSElement {
         return obj;
     }
 
+    @Override
     public int getIndex() {
         return index;
     }
