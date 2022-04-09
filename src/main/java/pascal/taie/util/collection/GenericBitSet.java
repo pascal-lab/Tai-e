@@ -45,7 +45,7 @@ public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
     protected BitSet bitSet;
 
     protected GenericBitSet(boolean isSparse) {
-        bitSet = isSparse ? new SparseBitSet() : new SimpleBitSet();
+        bitSet = Sets.newBitSet(isSparse);
     }
 
     @Override
@@ -219,13 +219,6 @@ public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
         } else {
             return super.addAllDiff(c);
         }
-    }
-
-    /**
-     * @return {@code true} if the backing bit set is sparse.
-     */
-    protected boolean isSparse() {
-        return bitSet instanceof SparseBitSet;
     }
 
     @Override

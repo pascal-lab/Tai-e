@@ -58,11 +58,14 @@ public final class Sets {
         return ConcurrentHashMap.newKeySet();
     }
 
-    public static BitSet newBitSet() {
-        return new SimpleBitSet();
+    public static BitSet newBitSet(boolean isSparse) {
+        return isSparse ? new SparseBitSet() : new SimpleBitSet();
     }
 
-    public static BitSet newBitSet(int nbits) {
-        return new SimpleBitSet(nbits);
+    /**
+     * @return {@code true} if the given bit set is sparse.
+     */
+    public static boolean isSparse(BitSet set) {
+        return set instanceof SparseBitSet;
     }
 }
