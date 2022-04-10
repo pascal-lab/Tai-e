@@ -76,11 +76,4 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
     default Iterator<CSObj> iterator() {
         return getObjects().iterator();
     }
-
-    /**
-     * @return an immutable empty points-to set.
-     */
-    static PointsToSet emptySet() {
-        return EmptyPointsToSet.INSTANCE;
-    }
 }

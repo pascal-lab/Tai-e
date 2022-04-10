@@ -37,13 +37,13 @@ public class MethodThrowResult {
     void addCSMethodThrowResult(CSMethodThrowResult csMethodThrowResult) {
         for (Stmt stmt : method.getIR()) {
             csMethodThrowResult.mayThrowExplicitly(stmt)
-                    .objects()
+                    .stream()
                     .map(CSObj::getObject)
                     .forEach(exception ->
                             explicitExceptions.put(stmt, exception));
         }
         csMethodThrowResult.mayThrowUncaught()
-                .objects()
+                .stream()
                 .map(CSObj::getObject)
                 .forEach(uncaughtExceptions::add);
     }

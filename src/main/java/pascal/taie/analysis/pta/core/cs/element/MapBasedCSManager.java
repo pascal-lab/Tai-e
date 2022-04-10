@@ -12,12 +12,16 @@
 
 package pascal.taie.analysis.pta.core.cs.element;
 
+import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -188,26 +192,66 @@ public class MapBasedCSManager implements CSManager {
 
         private final TwoKeyMap<Obj, Context, CSObj> objMap = Maps.newTwoKeyMap();
 
+        private final TypeSystem typeSystem = World.get().getTypeSystem();
+
+        private final Type throwable = typeSystem.getClassType(ClassNames.THROWABLE);
+
         /**
-         * Counter for assigning unique indexes to CSObjs.
+         * Counter for assign unique indexes to throwable objects.
          */
-        private int counter = 0;
+        private int throwableCounter = 0;
+
+        /**
+         * Number of indexes reserved for throwable objects.
+         */
+        private static final int THROWABLE_BUDGET = 2048;
+
+        /**
+         * Counter for assigning unique indexes to other CSObjs.
+         */
+        private int counter = THROWABLE_BUDGET;
 
         /**
          * Maps index to CSObj.
+         * Since there are empty slots, using array (instead of List)
+         * is more convenient.
          */
-        private final List<CSObj> objs = new ArrayList<>(65536);
+        private CSObj[] objs = new CSObj[65536];
 
         CSObj getCSObj(Context heapContext, Obj obj) {
             return objMap.computeIfAbsent(obj, heapContext, (o, c) -> {
-                CSObj csObj = new CSObj(o, c, counter++);
-                objs.add(csObj);
+                int index = getCSObjIndex(c, o);
+                CSObj csObj = new CSObj(o, c, index);
+                storeCSObj(csObj, index);
                 return csObj;
             });
         }
 
+        private int getCSObjIndex(Context heapContext, Obj obj) {
+            if (typeSystem.isSubtype(throwable, obj.getType()) &&
+                    throwableCounter < THROWABLE_BUDGET) {
+                return throwableCounter++;
+            } else {
+                return counter++;
+            }
+        }
+
+        /**
+         * Stores {@code csObj} to the {@code objs} array with the position
+         * specified by {@code index}.
+         */
+        private void storeCSObj(CSObj csObj, int index) {
+            if (index >= objs.length) {
+                int newLength = Math.max(index, (int) (objs.length * 1.5));
+                CSObj[] oldArray = objs;
+                objs = new CSObj[newLength];
+                System.arraycopy(oldArray, 0, objs, 0, oldArray.length);
+            }
+            objs[index] = csObj;
+        }
+
         Collection<CSObj> getObjects() {
-            return Collections.unmodifiableList(objs);
+            return objMap.values();
         }
 
         @Override
@@ -217,7 +261,7 @@ public class MapBasedCSManager implements CSManager {
 
         @Override
         public CSObj getObject(int index) {
-            return objs.get(index);
+            return objs[index];
         }
     }
 
