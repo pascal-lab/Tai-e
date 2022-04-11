@@ -12,6 +12,13 @@
 
 package pascal.taie.util.collection;
 
+/**
+ * Provides common functionality for {@link BitSet} implementations.
+ * <p>
+ * Especially, based on {@link BitSet.Action}, it implements some operations
+ * on {@link BitSet} without the need to knowing its concrete type, so that
+ * it support operations between bit sets of different types.
+ */
 public abstract class AbstractBitSet implements BitSet {
 
     /*
@@ -20,6 +27,7 @@ public abstract class AbstractBitSet implements BitSet {
      * The choice of word size is determined purely by performance concerns.
      */
     protected static final int ADDRESS_BITS_PER_WORD = 6;
+
     protected static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
 
     /**
@@ -157,8 +165,14 @@ public abstract class AbstractBitSet implements BitSet {
         }
     }
 
+    /**
+     * Abstract class for the actions that may change this set.
+     */
     private static abstract class ChangeAction implements Action<Boolean> {
 
+        /**
+         * Boolean value indicating whether this set changed by the action.
+         */
         boolean changed = false;
 
         @Override

@@ -45,7 +45,7 @@ public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
     protected BitSet bitSet;
 
     protected GenericBitSet(boolean isSparse) {
-        bitSet = Sets.newBitSet(isSparse);
+        bitSet = BitSet.newBitSet(isSparse);
     }
 
     @Override

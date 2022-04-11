@@ -17,7 +17,7 @@ import java.util.Arrays;
 /**
  * Simple bit set implementation.
  * This implementation is very similar to {@link java.util.Set} which uses
- * a {@code long[]} to store the bits.
+ * a {@code long[]} to store all the set bits.
  */
 public class SimpleBitSet extends AbstractBitSet {
 

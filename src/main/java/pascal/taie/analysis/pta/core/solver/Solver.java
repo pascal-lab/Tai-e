@@ -53,6 +53,11 @@ public interface Solver {
 
     CallGraph<CSCallSite, CSMethod> getCallGraph();
 
+    /**
+     * Returns the points-to set of given pointer. If the pointer has not
+     * been associated with a points-to set, this method will create a
+     * new set and associate it with the pointer.
+     */
     PointsToSet getPointsToSetOf(Pointer pointer);
 
     /**
@@ -147,5 +152,8 @@ public interface Solver {
 
     // ---------- side-effect APIs (end) ----------
 
+    /**
+     * @return pointer analysis result.
+     */
     PointerAnalysisResult getResult();
 }

@@ -14,9 +14,18 @@ package pascal.taie.util.collection;
 
 import javax.annotation.Nullable;
 
+/**
+ * Sparse bit set. This implementation groups bits into blocks, and it could
+ * avoid allocating words to represent continuous zero bits when possible.
+ * This design saves memory and improves efficiency of set iterations.
+ *
+ * This implementation uses core design and some code from
+ * https://github.com/brettwooldridge/SparseBitSet, and we rewrite most code
+ * to support the operations that we need and improve the readability.
+ */
 public class SparseBitSet extends AbstractBitSet {
 
-    // TODO: comment me; unify level1/2/3 and table/area/block
+    // TODO: unify level1/2/3 and table/area/block
     // Currently:
     // w1/level1 = table
     // w2/level2 = area
@@ -555,6 +564,14 @@ public class SparseBitSet extends AbstractBitSet {
         }
     }
 
+    /**
+     * Performs a logical <b>AND</b> of this target bit set with the
+     * argument bit set. This operation cannot skip zero blocks in the
+     * other set, thus we cannot implement it via {@link #iterateBlocks}.
+     *
+     * @param set a bit set
+     * @return {@code true} if this bit set changed as a result of the call
+     */
     @Override
     public boolean and(BitSet set) {
         if (this == set) {
@@ -921,30 +938,60 @@ public class SparseBitSet extends AbstractBitSet {
     // utility methods and classes
     // ------------------------------------------------------------------------
 
+    /**
+     * Extracts level 1 index (i.e., area index) from {@code wordIndex}.
+     */
     private static int level1Index(int wordIndex) {
         return wordIndex >> SHIFT1;
     }
 
+    /**
+     * Extracts level 2 index (i.e., block index) from {@code wordIndex}.
+     */
     private static int level2Index(int wordIndex) {
         return (wordIndex >> SHIFT2) & MASK2;
     }
 
+    /**
+     * Extracts level 3 index (i.e., word index in the block) from {@code wordIndex}.
+     */
     private static int level3Index(int wordIndex) {
         return wordIndex & MASK3;
     }
 
+    /**
+     * Combines level 1/2/3 indexes to compute the corresponding word index.
+     */
     private static int wordIndex(int w1, int w2, int w3) {
         return (w1 << SHIFT1) + (w2 << SHIFT2) + w3;
     }
 
+    /**
+     * Combines level 1/2/3 indexes to compute the corresponding bit index.
+     *
+     * @return index of the first bit in the word specified by the combined word index
+     */
     private static int bitIndex(int w1, int w2, int w3) {
         return wordIndex(w1, w2, w3) << SHIFT3;
     }
 
+    /**
+     * Retrieves the block of specified position in the given table.
+     *
+     * @param table the table
+     * @param w1    level 1 index
+     * @param w2    level 2 index
+     * @return the block if it is present in the table, or {@code null} if absent.
+     */
     private static @Nullable long[] getBlock(long[][][] table, int w1, int w2) {
         return w1 < table.length && table[w1] != null ? table[w1][w2] : null;
     }
 
+    /**
+     * Retrieves the block of specified position in the table of this set.
+     * If the block is absent (i.e., {@code null}), this method will create
+     * the block, and resize table and create new area, if necessary.
+     */
     private long[] getOrCreateBlock(int w1, int w2) {
         if (w1 >= table.length) {
             resize(bitIndex(w1, /* only the highest one bit matters */ 0, 0));
@@ -1017,13 +1064,24 @@ public class SparseBitSet extends AbstractBitSet {
         }
     }
 
+    /**
+     * Core method for set operations. This method operates on two sets,
+     * a self set and an iterated set.
+     * Note that it ONLY iterates non-null blocks in the iterated set.
+     *
+     * @param self     the self set
+     * @param iterated the other set, whose non-null blocks are iterated
+     * @param action   the action to be taken during iteration
+     * @param <R>      type of returned value
+     * @return result of the action
+     */
     private static <R> R iterateBlocks(SparseBitSet self, SparseBitSet iterated,
                                        BlockAction<R> action) {
         assert self == action.self;
         long[][][] selfTable = self.table;
         long[][][] iteratedTable = iterated.table;
         action.start(iterated);
-        boolean canIterateBothSets = action.canIterateBothSets();
+        boolean canIterateBothSets = action.isIterateBothSets();
         outer:
         for (int w1 = 0; w1 < iteratedTable.length; ++w1) {
             // search for non-null areas in iteratedTable
@@ -1065,6 +1123,11 @@ public class SparseBitSet extends AbstractBitSet {
         return action.getResult();
     }
 
+    /**
+     * Actions that are performed during iterating non-null blocks.
+     *
+     * @param <R> type of return valued
+     */
     private static abstract class BlockAction<R> {
 
         final SparseBitSet self;
@@ -1073,6 +1136,9 @@ public class SparseBitSet extends AbstractBitSet {
             this.self = self;
         }
 
+        /**
+         * Operation needs to be performed before the iteration.
+         */
         void start(SparseBitSet iterated) {
         }
 
@@ -1082,22 +1148,37 @@ public class SparseBitSet extends AbstractBitSet {
          */
         abstract boolean accept(int w1, int w2, long[] selfBlock, long[] iteratedBlock);
 
-        boolean canIterateBothSets() {
+        /**
+         * @return whether this action iterates both self set and the other set.
+         */
+        boolean isIterateBothSets() {
             return false;
         }
 
+        /**
+         * @return whether the iteration can be broken.
+         */
         boolean canBreak() {
             return false;
         }
 
+        /**
+         * Operation needs to be performed after the iteration.
+         */
         void finish() {
         }
 
+        /**
+         * @return the result of iteration.
+         */
         R getResult() {
             return null;
         }
     }
 
+    /**
+     * Abstract class for the actions that may change {@code self} set.
+     */
     private static abstract class ChangeAction extends BlockAction<Boolean> {
 
         boolean changed;
@@ -1240,7 +1321,7 @@ public class SparseBitSet extends AbstractBitSet {
         }
 
         @Override
-        boolean canIterateBothSets() {
+        boolean isIterateBothSets() {
             return true;
         }
 

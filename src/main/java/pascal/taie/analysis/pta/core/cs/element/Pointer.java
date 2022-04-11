@@ -28,13 +28,20 @@ import java.util.stream.Stream;
 public interface Pointer extends Indexable {
 
     /**
-     * @return the points-to set associated with the pointer.
+     * Retrieves the points-to set associated with this pointer.
+     * <p>
+     * This method may return {@code null}.
+     * We recommend use {@link #getObjects()} and {@link #objects()}
+     * for accessing the objects pointed by this pointer after
+     * the pointer analysis finishes.
+     *
+     * @return the points-to set associated with this pointer.
      */
     @Nullable
     PointsToSet getPointsToSet();
 
     /**
-     * Sets the associated points-to set of the pointer.
+     * Sets the associated points-to set of this pointer.
      */
     void setPointsToSet(PointsToSet pointsToSet);
 

@@ -20,12 +20,15 @@ import java.util.Iterator;
  * An efficient set implementation for {@link Indexable} objects.
  *
  * <p>
- * NOTE: this set does not support iterations on its elements because
- * it does not actually store the elements but their indexes instead.
- * If you need a fully-functional bit set, please use {@link IndexerBitSet}.
+ * NOTE: this set is not a fully-functional set.
+ * It does not actually store the elements (it only stores the indexes),
+ * so it cannot support operations on the elements, e.g., iterations.
+ * This set is suitable for fast check on presence/absence of certain elements.
+ * If you need a fully-functional set backing by bit set,
+ * please use {@link IndexerBitSet}.
  * <p>
  * This set extend {@link AbstractEnhancedSet} so that it can be used
- * to construct hybrid set.
+ * (as large set) to construct hybrid set.
  *
  * @param <E> type of elements whose indexes are stored in this set
  *
@@ -36,7 +39,7 @@ public class IndexableSet<E extends Indexable> extends AbstractEnhancedSet<E> {
     private final BitSet bitSet;
 
     public IndexableSet(boolean isSparse) {
-        this.bitSet = Sets.newBitSet(isSparse);
+        this.bitSet = BitSet.newBitSet(isSparse);
     }
 
     @Override

@@ -40,6 +40,11 @@ public abstract class AbstractCallGraph<CallSite, Method>
     protected final Map<CallSite, Method> callSiteToContainer = Maps.newMap();
     protected final MultiMap<Method, CallSite> callSitesIn = Maps.newMultiMap(Sets::newHybridOrderedSet);
     protected final Set<Method> entryMethods = Sets.newSet();
+
+    /**
+     * Set of reachable methods. This field is not final so that
+     * it allows subclasses choose more efficient data structure.
+     */
     protected Set<Method> reachableMethods = Sets.newSet();
 
     @Override

@@ -220,14 +220,14 @@ public class MapBasedCSManager implements CSManager {
 
         CSObj getCSObj(Context heapContext, Obj obj) {
             return objMap.computeIfAbsent(obj, heapContext, (o, c) -> {
-                int index = getCSObjIndex(c, o);
+                int index = getCSObjIndex(o);
                 CSObj csObj = new CSObj(o, c, index);
                 storeCSObj(csObj, index);
                 return csObj;
             });
         }
 
-        private int getCSObjIndex(Context heapContext, Obj obj) {
+        private int getCSObjIndex(Obj obj) {
             if (typeSystem.isSubtype(throwable, obj.getType()) &&
                     throwableCounter < THROWABLE_BUDGET) {
                 return throwableCounter++;
@@ -242,7 +242,7 @@ public class MapBasedCSManager implements CSManager {
          */
         private void storeCSObj(CSObj csObj, int index) {
             if (index >= objs.length) {
-                int newLength = Math.max(index, (int) (objs.length * 1.5));
+                int newLength = Math.max(index + 1, (int) (objs.length * 1.5));
                 CSObj[] oldArray = objs;
                 objs = new CSObj[newLength];
                 System.arraycopy(oldArray, 0, objs, 0, oldArray.length);

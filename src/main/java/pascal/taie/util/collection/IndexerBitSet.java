@@ -48,6 +48,6 @@ public class IndexerBitSet<E> extends GenericBitSet<E> {
 
     @Override
     protected GenericBitSet<E> newSet() {
-        return new IndexerBitSet<>(indexer, Sets.isSparse(bitSet));
+        return new IndexerBitSet<>(indexer, BitSet.isSparse(bitSet));
     }
 }

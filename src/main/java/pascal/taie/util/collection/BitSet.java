@@ -14,6 +14,18 @@ package pascal.taie.util.collection;
 
 import pascal.taie.util.Copyable;
 
+/**
+ * Interface for different bit set implementations.
+ * <p>
+ * This interface is similar to {@link java.util.Set}. The main motivation
+ * to reinvent a bit set is that the APIs of {@link java.util.Set}
+ * do not fulfill the requirements of program analysis.
+ * <p>
+ * For APIs that may modify a bit set, such {@link #set(int)},
+ * {@link #and(BitSet)}, and {@link #or(BitSet)}, this implementation
+ * returns whether the bit set changed. In addition, it provides some
+ * useful operations that are absent in {@link java.util.Set}.
+ */
 public interface BitSet extends Copyable<BitSet> {
 
     // ------------------------------------------------------------------------
@@ -257,10 +269,15 @@ public interface BitSet extends Copyable<BitSet> {
         return action.getResult();
     }
 
+    /**
+     * Action on set bits.
+     *
+     * @param <R> type of final result of the action
+     */
     interface Action<R> {
 
         /**
-         * Performs this operation on given bit index.
+         * Performs this action on given bit index.
          *
          * @param bitIndex the input bit index.
          * @return {@code true} if the iteration should keep going after
@@ -314,15 +331,25 @@ public interface BitSet extends Copyable<BitSet> {
     // utilities
     // ------------------------------------------------------------------------
     /**
-     * Creates a bit set from given indexes.
+     * Creates a new set.
      */
-    static BitSet of(int... indexes) {
-        int max = -1;
-        for (int i : indexes) {
-            max = Math.max(max, i);
-        }
-        BitSet result = new SimpleBitSet(max + 1);
-        for (int i : indexes) {
+    static BitSet newBitSet(boolean isSparse) {
+        return isSparse ? new SparseBitSet() : new SimpleBitSet();
+    }
+
+    /**
+     * @return {@code true} if the given bit set is sparse.
+     */
+    static boolean isSparse(BitSet set) {
+        return set instanceof SparseBitSet;
+    }
+
+    /**
+     * Creates a bit set that contains given bits.
+     */
+    static BitSet of(int... bits) {
+        BitSet result = newBitSet(false);
+        for (int i : bits) {
             result.set(i);
         }
         return result;
