@@ -33,7 +33,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ICFGBuilder extends ProgramAnalysis {
+public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
 
     public static final String ID = "icfg";
 

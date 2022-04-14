@@ -16,7 +16,7 @@ import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 
-public class ThrowAnalysis extends MethodAnalysis {
+public class ThrowAnalysis extends MethodAnalysis<ThrowResult> {
 
     public static final String ID = "throw";
 

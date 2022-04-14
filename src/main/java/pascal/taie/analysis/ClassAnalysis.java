@@ -17,8 +17,10 @@ import pascal.taie.language.classes.JClass;
 
 /**
  * Abstract base class for all class analyses, or say, intra-class analyses.
+ *
+ * @param <R> result type
  */
-public abstract class ClassAnalysis extends Analysis {
+public abstract class ClassAnalysis<R> extends Analysis {
 
     protected ClassAnalysis(AnalysisConfig config) {
         super(config);
@@ -32,5 +34,5 @@ public abstract class ClassAnalysis extends Analysis {
      * @param jclass the class to be analyzed
      * @return the analysis result for given class.
      */
-    public abstract Object analyze(JClass jclass);
+    public abstract R analyze(JClass jclass);
 }

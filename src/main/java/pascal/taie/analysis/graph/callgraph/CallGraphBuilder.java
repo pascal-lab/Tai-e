@@ -23,7 +23,7 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 
-public class CallGraphBuilder extends ProgramAnalysis {
+public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>> {
 
     public static final String ID = "cg";
 

@@ -16,8 +16,10 @@ import pascal.taie.config.AnalysisConfig;
 
 /**
  * Abstract base class for all whole-program analyses.
+ *
+ * @param <R> result type
  */
-public abstract class ProgramAnalysis extends Analysis {
+public abstract class ProgramAnalysis<R> extends Analysis {
 
     protected ProgramAnalysis(AnalysisConfig config) {
         super(config);
@@ -31,5 +33,5 @@ public abstract class ProgramAnalysis extends Analysis {
      * @return the analysis result for the whole program.
      * The result will be stored in {@link pascal.taie.World}.
      */
-    public abstract Object analyze();
+    public abstract R analyze();
 }

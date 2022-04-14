@@ -32,7 +32,7 @@ import pascal.taie.config.AnalysisConfig;
  * @param <Fact>   type of data-flow facts
  */
 public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
-        extends ProgramAnalysis
+        extends ProgramAnalysis<DataflowResult<Node, Fact>>
         implements InterDataflowAnalysis<Node, Fact> {
 
     protected ICFG<Method, Node> icfg;
@@ -108,7 +108,7 @@ public abstract class AbstractInterDataflowAnalysis<Method, Node, Fact>
     // ----------------------------------------------------------------
 
     @Override
-    public Object analyze() {
+    public DataflowResult<Node, Fact> analyze() {
         icfg = World.get().getResult(ICFGBuilder.ID);
         initialize();
         solver = new InterSolver<>(this, icfg);

@@ -27,7 +27,7 @@ In [ClassAnalysis](../src/main/java/pascal/taie/analysis/ClassAnalysis.java), yo
 
 In [ProgramAnalysis](../src/main/java/pascal/taie/analysis/ProgramAnalysis.java), you need to implement the analysis logic in method `analyze()`. Inter-procedural analyses typically require whole-program information, which can be accessed by the static methods of [World](../src/main/java/pascal/taie/World.java), thus we do not pass argument to the `analyze()` method.
 
-Below we provide some tips which may be useful for developing new analysis.
+Note that above `*Analysis` are generic classes whose type parameter is the type that represents the analysis result. This type should be the same as the return type of corresponding `analyze` method. Below we provide some tips which may be useful for developing new analysis.
 
 #### Obtain options
 Global options are available at `World.get().getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `analysis.getOptions()`.

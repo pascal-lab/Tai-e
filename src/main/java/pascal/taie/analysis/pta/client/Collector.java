@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * Collects statements in program that the client wants.
  */
-abstract class Collector extends ProgramAnalysis {
+abstract class Collector extends ProgramAnalysis<StmtResult<Boolean>> {
 
     private static final Logger logger = LogManager.getLogger(Collector.class);
 

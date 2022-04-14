@@ -98,7 +98,7 @@
   analysisClass: pascal.taie.analysis.ResultProcessor
   id: process-result
   options:
-    analyses: [ ]
+    analyses: [ ] # IDs of analyses whose results are to be processed
     only-app: true # | false # only process results of application code
     action: dump # | compare
     file: null

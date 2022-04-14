@@ -32,7 +32,7 @@ import pascal.taie.language.type.ClassType;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class CFGBuilder extends MethodAnalysis {
+public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
 
     public static final String ID = "cfg";
 

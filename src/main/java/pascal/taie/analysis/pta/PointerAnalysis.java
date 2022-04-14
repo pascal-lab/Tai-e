@@ -38,7 +38,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.Timer;
 
-public class PointerAnalysis extends ProgramAnalysis {
+public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
 
     public static final String ID = "pta";
 

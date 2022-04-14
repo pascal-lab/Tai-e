@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 /**
  * Dumps out classes.
  */
-public class ClassDumper extends ProgramAnalysis {
+public class ClassDumper extends ProgramAnalysis<Void> {
 
     public static final String ID = "class-dumper";
 
@@ -58,7 +58,7 @@ public class ClassDumper extends ProgramAnalysis {
     }
 
     @Override
-    public Object analyze() {
+    public Void analyze() {
         List<JClass> classes = World.get()
                 .getClassHierarchy()
                 .applicationClasses()

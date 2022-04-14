@@ -47,7 +47,7 @@ import java.util.TreeSet;
 /**
  * Detects dead code in an IR.
  */
-public class DeadCodeDetection extends MethodAnalysis {
+public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
 
     public static final String ID = "deadcode";
 

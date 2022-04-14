@@ -17,8 +17,10 @@ import pascal.taie.ir.IR;
 
 /**
  * Abstract base class for all method analyses, or say, intra-procedural analyses.
+ *
+ * @param <R> result type
  */
-public abstract class MethodAnalysis extends Analysis {
+public abstract class MethodAnalysis<R> extends Analysis {
 
     // private boolean isParallel;
 
@@ -34,5 +36,5 @@ public abstract class MethodAnalysis extends Analysis {
      * @param ir IR of the method to be analyzed
      * @return the analysis result for given ir.
      */
-    public abstract Object analyze(IR ir);
+    public abstract R analyze(IR ir);
 }

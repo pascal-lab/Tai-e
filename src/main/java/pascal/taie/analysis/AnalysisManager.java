@@ -58,11 +58,11 @@ public class AnalysisManager {
             Object analysis = ctor.newInstance(config);
             // Run the analysis
             if (analysis instanceof ProgramAnalysis) {
-                runProgramAnalysis((ProgramAnalysis) analysis);
+                runProgramAnalysis((ProgramAnalysis<?>) analysis);
             } else if (analysis instanceof ClassAnalysis) {
-                runClassAnalysis((ClassAnalysis) analysis);
+                runClassAnalysis((ClassAnalysis<?>) analysis);
             } else if (analysis instanceof MethodAnalysis) {
-                runMethodAnalysis((MethodAnalysis) analysis);
+                runMethodAnalysis((MethodAnalysis<?>) analysis);
             } else {
                 logger.warn(clazz + " is not an analysis");
             }
@@ -74,14 +74,14 @@ public class AnalysisManager {
         }
     }
 
-    private void runProgramAnalysis(ProgramAnalysis analysis) {
+    private void runProgramAnalysis(ProgramAnalysis<?> analysis) {
         Object result = analysis.analyze();
         if (result != null) {
             World.get().storeResult(analysis.getId(), result);
         }
     }
 
-    private void runClassAnalysis(ClassAnalysis analysis) {
+    private void runClassAnalysis(ClassAnalysis<?> analysis) {
         getClassScope().parallelStream()
                 .forEach(c -> {
                     Object result = analysis.analyze(c);
@@ -119,8 +119,9 @@ public class AnalysisManager {
         return classScope;
     }
 
-    private void runMethodAnalysis(MethodAnalysis analysis) {
-        getMethodScope().parallelStream()
+    private void runMethodAnalysis(MethodAnalysis<?> analysis) {
+        getMethodScope()
+                .parallelStream()
                 .forEach(m -> {
                     IR ir = m.getIR();
                     Object result = analysis.analyze(ir);
