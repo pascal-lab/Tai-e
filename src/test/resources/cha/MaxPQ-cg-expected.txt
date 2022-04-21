@@ -34,5 +34,5 @@
 -------------------- <MaxPQ: void main(java.lang.String[])> (cg) --------------------
 [1@L178] invokespecial temp$0.<MaxPQ: void <init>()>(); [<MaxPQ: void <init>()>]
 [4@L179] invokevirtual pq.<MaxPQ: void insert(int)>(%intconst0); [<MaxPQ: void insert(int)>]
-[5@L180] temp$1 = invokevirtual pq.<MaxPQ: int delMax()>(); [<MaxPQ: int delMax()>]
+[5@L180] invokevirtual pq.<MaxPQ: int delMax()>(); [<MaxPQ: int delMax()>]
 

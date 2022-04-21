@@ -14,6 +14,7 @@ Points-to sets of all variables
 []:<A: A f()>/temp$7 -> [[]:MultiArrayObj{alloc=arr = newmultiarray A[%intconst1][%intconst1][%intconst1],type=A[] in <A: A f()>}]
 []:<A: A f()>/temp$9 -> [[]:NewObj{<A: A f()>[11@L15] new A}]
 []:<A: void <init>()>/%this -> [[]:NewObj{<A: A f()>[11@L15] new A}, []:NewObj{<MultiArray: void main(java.lang.String[])>[0@L4] new A}]
+[]:<MultiArray: void main(java.lang.String[])>/a -> [[]:NewObj{<A: A f()>[11@L15] new A}]
 []:<MultiArray: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <MultiArray: void main(java.lang.String[])>}]
 []:<MultiArray: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<MultiArray: void main(java.lang.String[])>[0@L4] new A}]
 []:<MultiArray: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<A: A f()>[11@L15] new A}]

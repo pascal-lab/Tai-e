@@ -1,7 +1,7 @@
 class MultiArray {
 
     public static void main(String[] args) {
-        new A().f();
+        A a = new A().f();
     }
 }
 
