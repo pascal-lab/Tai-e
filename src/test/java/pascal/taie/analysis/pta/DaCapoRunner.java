@@ -16,23 +16,34 @@ import pascal.taie.Main;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class DaCapoRunner {
 
     private static final String SEP = File.separator;
-    private static final List<String> BENCHMARK06
-            = List.of("antlr", /*"bloat",*/ "chart", "eclipse", "fop",
-            "hsqldb", /*"jython",*/ "luindex", "lusearch", "pmd", "xalan");
     private static final String PATH06 = "java-benchmarks" + SEP + "dacapo-2006";
+    private static final Set<String> DACAPO06 = Set.of(
+            "antlr", "bloat", "chart", "eclipse", "fop",
+            "hsqldb", "jython", "luindex", "lusearch", "pmd", "xalan");
+
+    private static final Set<String> ANALYSES = Set.of(
+            "ci", "1-call", "2-type", "2-obj");
+    private static String PTA = "ci";
+    private static String JDK = "-java=6";
 
     public static void main(String[] args) {
         DaCapoRunner runner = new DaCapoRunner();
-        String[] benchmarks;
-        if (args.length > 0) {
-            benchmarks = args;
-        } else {
-            benchmarks = BENCHMARK06.toArray(new String[0]);
+        List<String> benchmarks = new ArrayList<>();
+        for (String arg : args) {
+            if (ANALYSES.contains(arg)) {
+                PTA = arg;
+            } else if (arg.startsWith("-java=")) {
+                JDK = arg;
+            } else if (DACAPO06.contains(arg)) {
+                benchmarks.add(arg);
+            }
         }
         //runner.warmUpJVM();
         for (String bm : benchmarks) {
@@ -46,13 +57,22 @@ public class DaCapoRunner {
     }
 
     private String[] compose06Args(String benchmark) {
-        return new String[]{
-                "-a", "pta=merge-string-constants:true;cs:2-obj",
-                "-java=6",
-                "--pre-build-ir",
+        List<String> args = new ArrayList<>();
+        String ptaArg = String.format("pta=merge-string-constants:true;" +
+                "merge-string-objects:false;cs:%s;reflection-log:%s",
+                PTA, PATH06 + SEP + benchmark + "-refl.log");
+        Collections.addAll(args,
+                "-a", ptaArg,
+                "-a", "may-fail-cast",
+                "-a", "poly-call",
+                JDK,
+                // "--pre-build-ir",
                 "-cp", buildCP(benchmark),
-                "-m", "dacapo." + benchmark + ".Main"
-        };
+                "-m", "Harness");
+        if (benchmark.equals("eclipse")) {
+            args.add("--allow-phantom");
+        }
+        return args.toArray(new String[0]);
     }
 
     private String buildCP(String benchmark) {
