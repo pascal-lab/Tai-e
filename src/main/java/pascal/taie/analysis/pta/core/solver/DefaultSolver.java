@@ -363,8 +363,8 @@ public class DefaultSolver implements Solver {
         Var var = baseVar.getVar();
         for (LoadField load : var.getLoadFields()) {
             Var toVar = load.getLValue();
-            JField field = load.getFieldRef().resolveNullable();
-            if (isConcerned(toVar) && field != null) {
+            JField field = load.getFieldRef().resolve();
+            if (isConcerned(toVar)) {
                 CSVar to = csManager.getCSVar(context, toVar);
                 pts.forEach(baseObj -> {
                     InstanceField instField = csManager.getInstanceField(

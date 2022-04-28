@@ -23,6 +23,8 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
@@ -128,6 +130,16 @@ public final class StringReps {
         }
     }
 
+    /**
+     * @return {@code true} if {@code typeName} represents array type.
+     */
+    public static boolean isArrayType(String typeName) {
+        return typeName.endsWith("[]");
+    }
+
+    /**
+     * Given a array type name, returns the type name of base type of the array.
+     */
     public static String getBaseTypeNameOf(String arrayTypeName) {
         return arrayTypeName.replace("[]", "");
     }

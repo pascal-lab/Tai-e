@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
@@ -38,6 +39,7 @@ import pascal.taie.util.collection.TwoKeyMap;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -117,8 +119,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                     directSubinterfaces.put(iface, jclass));
         } else {
             // add direct implementors
-            jclass.getInterfaces().forEach(iface ->
-                    directImplementors.put(iface, jclass));
+            jclass.getInterfaces()
+                .stream()
+                .filter(Objects::nonNull)
+                .forEach(iface -> directImplementors.put(iface, jclass));
             // add direct subclasses
             JClass superClass = jclass.getSuperClass();
             if (superClass != null) {
@@ -243,11 +247,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     private JField resolveField(JClass jclass, String name, Type type) {
+        JField field;
+        // 0. First, check and handle phantom fields
+        if (jclass.isPhantom()) {
+            field = jclass.getPhantomField(name);
+            if (field == null) {
+                field = new JField(jclass, name, Set.of(),
+                    type, AnnotationHolder.emptyHolder());
+                jclass.addPhantomField(name, field);
+            }
+            return field;
+        }
         // JVM Spec. (11 Ed.), 5.4.3.2 Field Resolution
         // 1. If C declares a field with the name and descriptor specified
         // by the field reference, field lookup succeeds. The declared field
         // is the result of the field lookup.
-        JField field = jclass.getDeclaredField(name);
+        field = jclass.getDeclaredField(name);
         if (field != null && field.getType().equals(type)) {
             return field;
         }
@@ -264,12 +279,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         if (jclass.getSuperClass() != null) {
             return resolveField(jclass.getSuperClass(), name, type);
         }
-        // 4. Otherwise, field lookup fails.
+        // 5. Otherwise, field lookup fails.
         return null;
         // TODO:
         //  1. check accessibility
         //  2. handle erroneous cases (e.g., multiple fields with same name)
-        //  3. handle phantom fields
     }
 
     @Override

@@ -58,4 +58,9 @@ public interface JClassBuilder {
      * @return true if this class is application class, otherwise false.
      */
     boolean isApplication();
+
+    /**
+     * @return true if this class is phantom class, otherwise false.
+     */
+    boolean isPhantom();
 }

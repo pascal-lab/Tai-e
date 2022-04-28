@@ -22,11 +22,13 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.World;
 import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -67,6 +69,10 @@ public class JClass extends AbstractResultHolder implements Annotated {
 
     private AnnotationHolder annotationHolder;
 
+    private boolean isPhantom;
+
+    private Map<String, JField> phantomFields = Maps.newHybridMap();
+
     /**
      * If this class is application class.
      */
@@ -89,23 +95,36 @@ public class JClass extends AbstractResultHolder implements Annotated {
         simpleName = builder.getSimpleName();
         type = builder.getClassType();
         modifiers = builder.getModifiers();
-        superClass = builder.getSuperClass();
-        interfaces = builder.getInterfaces();
-        outerClass = builder.getOuterClass();
-        declaredFields = Collections.unmodifiableMap(
-                builder.getDeclaredFields()
-                        .stream()
-                        .collect(Collectors.toMap(JField::getName, f -> f,
-                                (oldV, newV) -> oldV, LinkedHashMap::new))
-        );
-        declaredMethods = Collections.unmodifiableMap(
-                builder.getDeclaredMethods()
-                        .stream()
-                        .collect(Collectors.toMap(JMethod::getSubsignature, m -> m,
-                                (oldV, newV) -> oldV, LinkedHashMap::new))
-        );
         annotationHolder = builder.getAnnotationHolder();
         isApplication = builder.isApplication();
+        isPhantom = builder.isPhantom();
+        try {
+            superClass = builder.getSuperClass();
+            interfaces = builder.getInterfaces();
+            outerClass = builder.getOuterClass();
+            declaredFields = Collections.unmodifiableMap(
+                builder.getDeclaredFields()
+                    .stream()
+                    .collect(Collectors.toMap(JField::getName, f -> f,
+                        (oldV, newV) -> oldV, LinkedHashMap::new))
+            );
+            declaredMethods = Collections.unmodifiableMap(
+                builder.getDeclaredMethods()
+                    .stream()
+                    .collect(Collectors.toMap(JMethod::getSubsignature, m -> m,
+                        (oldV, newV) -> oldV, LinkedHashMap::new))
+            );
+        } catch (Exception e) {
+            if (World.get().getOptions().isAllowPhantom()) {
+                superClass = getClassLoader().loadClass(ClassNames.OBJECT);
+                interfaces = Collections.emptySet();
+                outerClass = null;
+                declaredFields = Map.of();
+                declaredMethods = Map.of();
+            } else {
+                throw e;
+            }
+        }
     }
 
     public JClassLoader getClassLoader() {
@@ -252,6 +271,23 @@ public class JClass extends AbstractResultHolder implements Annotated {
 
     public boolean isApplication() {
         return isApplication;
+    }
+
+    public boolean isPhantom() {
+        return isPhantom;
+    }
+
+    public JField getPhantomField(String name) {
+        assert isPhantom();
+        return phantomFields.get(name);
+    }
+
+    public void addPhantomField(String name, JField field) {
+        assert isPhantom();
+        if (phantomFields.put(name, field) != null) {
+            throw new IllegalStateException(String.format(
+                "'%s' already has phantom field '%s'", this, name));
+        }
     }
 
     @Override

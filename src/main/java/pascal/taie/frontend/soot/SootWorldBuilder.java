@@ -36,6 +36,7 @@ import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
 import soot.G;
@@ -163,7 +164,12 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                         } else {
                             targetClass = target;
                         }
-                        scene.addBasicClass(targetClass);
+                        if (StringReps.isArrayType(targetClass)) {
+                            targetClass = StringReps.getBaseTypeNameOf(target);
+                        }
+                        if (!PrimitiveType.isPrimitiveType(targetClass)) {
+                            scene.addBasicClass(targetClass);
+                        }
                     });
                 }
             }
@@ -180,7 +186,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         world.setOptions(options);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
-        SootClassLoader loader = new SootClassLoader(scene, hierarchy);
+        SootClassLoader loader = new SootClassLoader(
+            scene, hierarchy, options.isAllowPhantom());
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);

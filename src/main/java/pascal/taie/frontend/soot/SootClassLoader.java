@@ -41,13 +41,16 @@ class SootClassLoader implements JClassLoader {
 
     private final ClassHierarchy hierarchy;
 
+    private final boolean allowPhantom;
+
     private Converter converter;
 
     private final Map<String, JClass> classes = new HashMap<>(1024);
 
-    SootClassLoader(Scene scene, ClassHierarchy hierarchy) {
+    SootClassLoader(Scene scene, ClassHierarchy hierarchy, boolean allowPhantom) {
         this.scene = scene;
         this.hierarchy = hierarchy;
+        this.allowPhantom = allowPhantom;
     }
 
     @Override
@@ -56,7 +59,7 @@ class SootClassLoader implements JClassLoader {
         if (jclass == null) {
             // TODO: confirm if this API is suitable
             SootClass sootClass = scene.getSootClassUnsafe(name, false);
-            if (sootClass != null && !sootClass.isPhantom()) {
+            if (sootClass != null && (!sootClass.isPhantom() || allowPhantom)) {
                 // TODO: handle phantom class appropriately
                 jclass = new JClass(this, sootClass.getName(),
                         sootClass.moduleName);

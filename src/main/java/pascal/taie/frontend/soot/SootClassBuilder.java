@@ -108,4 +108,9 @@ class SootClassBuilder implements JClassBuilder {
     public boolean isApplication() {
         return sootClass.isApplicationClass();
     }
+
+    @Override
+    public boolean isPhantom() {
+        return sootClass.isPhantom();
+    }
 }
