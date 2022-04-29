@@ -34,6 +34,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.TriConsumer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -56,6 +57,8 @@ public abstract class AbstractModel implements Model {
 
     protected final ClassHierarchy hierarchy;
 
+    protected final TypeSystem typeSystem;
+
     protected final CSManager csManager;
 
     protected final HeapModel heapModel;
@@ -76,6 +79,7 @@ public abstract class AbstractModel implements Model {
     protected AbstractModel(Solver solver) {
         this.solver = solver;
         hierarchy = solver.getHierarchy();
+        typeSystem = solver.getTypeSystem();
         csManager = solver.getCSManager();
         heapModel = solver.getHeapModel();
         defaultHctx = solver.getContextSelector().getEmptyContext();

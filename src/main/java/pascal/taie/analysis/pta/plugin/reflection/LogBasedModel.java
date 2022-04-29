@@ -39,9 +39,11 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
@@ -76,13 +78,25 @@ class LogBasedModel extends MetaObjModel {
 
     private final Set<JMethod> relevantMethods = Sets.newSet();
 
+    /**
+     * Targets for Class.forName(...).
+     */
     private final MultiMap<Invoke, JClass> forNameTargets = Maps.newMultiMap();
 
-    private final MultiMap<Invoke, ClassType> arrayTypeTargets = Maps.newMultiMap();
-
+    /**
+     * Targets for Class.newInstance().
+     */
     private final MultiMap<Invoke, JClass> classTargets = Maps.newMultiMap();
 
+    /**
+     * Targets for Constructor.newInstance(...), Method.invoke(...), and Field.get/set(...).
+     */
     private final MultiMap<Invoke, ClassMember> memberTargets = Maps.newMultiMap();
+
+    /**
+     * Targets for Array.newInstance(...).
+     */
+    private final MultiMap<Invoke, ClassType> arrayTypeTargets = Maps.newMultiMap();
 
     private final ContextSelector selector;
 
@@ -100,21 +114,17 @@ class LogBasedModel extends MetaObjModel {
         }
         // obtain reflective target
         Object target = switch (item.api) {
-            case "Class.forName", "Class.newInstance" ->
-                    hierarchy.getClass(item.target);
-            case "Constructor.newInstance", "Method.invoke" ->
-                    hierarchy.getMethod(item.target);
-            case "Field.get", "Field.set" ->
-                    hierarchy.getField(item.target);
-            case "Array.newInstance" -> {
-                // Note that currently we only support Array.newInstance(Class,int),
-                // and ignore primitive arrays.
-                String baseName = StringReps.getBaseTypeNameOf(item.target);
-                JClass baseClass = hierarchy.getClass(baseName);
-                yield baseClass != null ? baseClass.getType() : null;
-            }
+            case "Class.forName", "Class.newInstance" -> hierarchy.getClass(item.target);
+            case "Constructor.newInstance", "Method.invoke" -> hierarchy.getMethod(item.target);
+            case "Field.get", "Field.set" -> hierarchy.getField(item.target);
+            case "Array.newInstance" -> typeSystem.getType(item.target);
             default -> null;
         };
+        // ignore get/set of fields of primitive types
+        if (target instanceof JField field &&
+            field.getType() instanceof PrimitiveType) {
+            return;
+        }
         // add target specified in the item
         if (target != null) {
             List<Invoke> invokes = getMatchedInvokes(item);
@@ -132,16 +142,20 @@ class LogBasedModel extends MetaObjModel {
                 for (Invoke invoke : invokes) {
                     memberTargets.put(invoke, (ClassMember) target);
                 }
-            } else {
-                for (Invoke invoke : invokes) {
-                    arrayTypeTargets.put(invoke, (ClassType) target);
+            } else if (target instanceof ArrayType arrayType) {
+                // Note that currently we only support Array.newInstance(Class,int),
+                // and ignore primitive arrays.
+                if (arrayType.baseType() instanceof ClassType baseClass) {
+                    for (Invoke invoke : invokes) {
+                        arrayTypeTargets.put(invoke, baseClass);
+                    }
                 }
             }
             invokes.stream()
                     .map(Invoke::getContainer)
                     .forEach(relevantMethods::add);
         } else {
-            logger.warn("Target '{}' is not found", item.target);
+            logger.warn("Target '{}' for {} is not found", item.target, item.api);
         }
     }
 
