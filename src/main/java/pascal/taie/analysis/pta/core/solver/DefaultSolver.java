@@ -310,9 +310,8 @@ public class DefaultSolver implements Solver {
             pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge -> {
                 Pointer target = edge.getTarget();
                 edge.getType().ifPresentOrElse(
-                        type -> workList.addPointerEntry(target,
-                                getAssignablePointsToSet(diff, type)),
-                        () -> workList.addPointerEntry(target, diff));
+                        type -> addPointsTo(target, getAssignablePointsToSet(diff, type)),
+                        () -> addPointsTo(target, diff));
             });
         }
         return diff;
@@ -441,8 +440,8 @@ public class DefaultSolver implements Solver {
                             csCallSite, recvObj, callee);
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                    workList.addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
-                            csCallSite, csCallee));
+                    addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
+                        csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     addVarPointsTo(calleeContext, callee.getIR().getThis(),
                             recvObj);
@@ -621,9 +620,7 @@ public class DefaultSolver implements Solver {
                 CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
                 Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
                 CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-                Edge<CSCallSite, CSMethod> edge =
-                        new Edge<>(CallKind.STATIC, csCallSite, csCallee);
-                workList.addCallEdge(edge);
+                addCallEdge(new Edge<>(CallKind.STATIC, csCallSite, csCallee));
             }
         }
 
@@ -744,7 +741,7 @@ public class DefaultSolver implements Solver {
                     getPointsToSetOf(source) :
                     getAssignablePointsToSet(getPointsToSetOf(source), type);
             if (!sourceSet.isEmpty()) {
-                workList.addPointerEntry(target, sourceSet);
+                addPointsTo(target, sourceSet);
             }
         }
     }
