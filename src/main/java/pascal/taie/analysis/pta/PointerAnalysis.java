@@ -44,6 +44,7 @@ import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.analysis.pta.toolkit.scaler.Scaler;
+import pascal.taie.analysis.pta.toolkit.zipper.Zipper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.Timer;
@@ -60,18 +61,32 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
     public PointerAnalysisResult analyze() {
         AnalysisOptions options = getOptions();
         HeapModel heapModel = new AllocationSiteBasedModel(options);
-        ContextSelector selector;
+        ContextSelector selector = null;
+        String pre = options.getString("pre");
         String cs = options.getString("cs");
-        if (cs.equals("scaler")) {
-            // run pre-analysis for scaler
+        if (pre != null) {
+            // run context-insensitive analysis as pre-analysis
             PointerAnalysisResult preResult = runAnalysis(heapModel,
-                    ContextSelectorFactory.makeCISelector());
-            selector = Timer.runAndCount(() -> {
-                Scaler scaler = new Scaler(preResult);
-                return ContextSelectorFactory.makeGuidedSelector(
-                        scaler.selectContext());
-            }, "Scaler", Level.INFO);
-        } else {
+                ContextSelectorFactory.makeCISelector());
+            switch (pre) {
+                case "scaler" -> {
+                    selector = Timer.runAndCount(() -> {
+                        Scaler scaler = new Scaler(preResult);
+                        return ContextSelectorFactory.makeGuidedSelector(
+                            scaler.selectContext());
+                    }, "Scaler", Level.INFO);
+                }
+                case "zipper", "zipper-e" -> {
+                    selector = Timer.runAndCount(() -> {
+                        boolean isExpress = pre.equals("zipper-e");
+                        Zipper zipper = new Zipper(preResult, isExpress);
+                        return ContextSelectorFactory.makeSelectiveSelector(
+                            cs, zipper.selectPrecisionCriticalMethods());
+                    }, "Zipper", Level.INFO);
+                }
+            }
+        }
+        if (selector == null) {
             selector = ContextSelectorFactory.makePlainSelector(cs);
         }
         return runAnalysis(heapModel, selector);

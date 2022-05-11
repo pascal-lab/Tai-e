@@ -2,7 +2,7 @@
   analysisClass: pascal.taie.analysis.pta.PointerAnalysis
   id: pta
   options:
-    cs: ci # | k-[obj/type/call] | scaler
+    cs: ci # | k-[obj/type/call]
     implicit-entries: true # analyze implicit entries
     only-app: false # only analyze application code
     merge-string-constants: false
@@ -10,6 +10,7 @@
     merge-string-builders: true
     merge-exception-objects: true
     handle-invokedynamic: false
+    pre: null # | scaler | zipper # specify pre-analysis
     action: null # | dump | compare
     file: null # path to input/output file
     reflection-log: null # path to reflection log
