@@ -23,8 +23,6 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 

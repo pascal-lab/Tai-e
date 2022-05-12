@@ -26,6 +26,7 @@ import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
@@ -54,13 +55,13 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final TypeSystem typeSystem;
 
-    private final Type string;
+    private final ClassType string;
 
-    private final Type stringBuilder;
+    private final ClassType stringBuilder;
 
-    private final Type stringBuffer;
+    private final ClassType stringBuffer;
 
-    private final Type throwable;
+    private final ClassType throwable;
 
     private final Map<New, NewObj> objs = newMap();
 

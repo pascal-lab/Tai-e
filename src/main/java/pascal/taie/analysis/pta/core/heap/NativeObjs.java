@@ -23,7 +23,8 @@
 package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
-import pascal.taie.language.type.Type;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeSystem;
 
 import static pascal.taie.language.classes.ClassNames.STRING;
@@ -57,8 +58,8 @@ public class NativeObjs {
                 typeSystem.getClassType(THREAD_GROUP));
         mainThreadGroup = new MockObj(NATIVE_DESC, "<main-thread-group>",
                 typeSystem.getClassType(THREAD_GROUP));
-        Type string = typeSystem.getClassType(STRING);
-        Type stringArray = typeSystem.getArrayType(string, 1);
+        ClassType string = typeSystem.getClassType(STRING);
+        ArrayType stringArray = typeSystem.getArrayType(string, 1);
         mainArgs = new MockObj(NATIVE_DESC, "<main-arguments>",
                 stringArray, World.get().getMainMethod());
         mainArgsElem = new MockObj(NATIVE_DESC, "<main-arguments-element>",
