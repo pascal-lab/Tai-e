@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.toolkit;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 
 import java.util.Set;
 
@@ -56,4 +57,9 @@ public interface PointerAnalysisResultEx {
      * @return the objects that are allocated in given method.
      */
     Set<Obj> getObjectsAllocatedIn(JMethod method);
+
+    /**
+     * @return the objects of given type.
+     */
+    Set<Obj> getObjectsOf(Type type);
 }

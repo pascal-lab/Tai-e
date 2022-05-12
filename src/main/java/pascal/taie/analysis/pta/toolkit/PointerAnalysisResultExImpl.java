@@ -26,6 +26,7 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
@@ -45,7 +46,7 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     }
 
     /**
-     * Map from receiver objects to the methods invoked on them.
+     * Map from each receiver object to the methods invoked on it.
      */
     private MultiMap<Obj, JMethod> recv2Methods;
 
@@ -56,7 +57,7 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     }
 
     /**
-     * Map from methods to their receiver objects.
+     * Map from each method to its receiver objects.
      */
     private MultiMap<JMethod, Obj> method2Recvs;
 
@@ -83,7 +84,7 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     }
 
     /**
-     * Map from methods to the objects allocated in them.
+     * Map from each method to the objects allocated in it.
      */
     private MultiMap<JMethod, Obj> method2Objs;
 
@@ -99,6 +100,24 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
             base.getObjects().forEach(obj ->
                     obj.getContainerMethod().ifPresent(m ->
                             method2Objs.put(m, obj)));
+        }
+    }
+
+    /**
+     * Map from each type to the objects of the type.
+     */
+    private MultiMap<Type, Obj> type2Objs;
+
+    @Override
+    public Set<Obj> getObjectsOf(Type type) {
+        computeType2Objects();
+        return type2Objs.get(type);
+    }
+
+    private void computeType2Objects() {
+        if (type2Objs == null) {
+            type2Objs = Maps.newMultiMap();
+            base.getObjects().forEach(obj -> type2Objs.put(obj.getType(), obj));
         }
     }
 }

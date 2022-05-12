@@ -43,6 +43,10 @@ public class Zipper {
 
     private final float expressThreshold;
 
+    private ObjectAllocationGraph oag;
+
+    private PotentialContextElement pce;
+
     public Zipper(PointerAnalysisResult ptaBase, boolean isExpress) {
         this(ptaBase, isExpress, DEFAULT_THRESHOLD);
     }
@@ -52,7 +56,8 @@ public class Zipper {
         this.pta = new PointerAnalysisResultExImpl(ptaBase);
         this.isExpress = isExpress;
         this.expressThreshold = expressThreshold;
-
+        this.oag = new ObjectAllocationGraph(pta);
+        this.pce = new PotentialContextElement(pta, oag);
     }
 
     /**
