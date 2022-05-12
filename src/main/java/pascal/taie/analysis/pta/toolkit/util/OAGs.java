@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.scaler;
+package pascal.taie.analysis.pta.toolkit.util;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
@@ -35,14 +35,20 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-class OAGBuilder {
+/**
+ * Provides utility methods for object allocation graph.
+ */
+public class OAGs {
+
+    private OAGs() {
+    }
 
     /**
      * Builds object allocation graph.
      *
      * @return the object allocation graph for the program.
      */
-    static Graph<Obj> build(PointerAnalysisResultEx pta) {
+    public static Graph<Obj> build(PointerAnalysisResultEx pta) {
         SimpleGraph<Obj> oag = new SimpleGraph<>();
         computeInvokedMethods(pta).forEach((obj, methods) -> methods.stream()
                 .map(pta::getObjectsAllocatedIn)
@@ -57,21 +63,21 @@ class OAGBuilder {
      * we find the first instance method on the chain, say m' , and
      * consider that m is invoked on the receiver object of m'.
      */
-    private static Map<Obj, Set<JMethod>> computeInvokedMethods(
+    public static Map<Obj, Set<JMethod>> computeInvokedMethods(
             PointerAnalysisResultEx pta) {
         Map<Obj, Set<JMethod>> invokedMethods = Maps.newMap();
         pta.getBase().getObjects().forEach(obj -> {
             Set<JMethod> methods = Sets.newHybridSet();
-            Queue<JMethod> queue = new ArrayDeque<>(
+            Queue<JMethod> workList = new ArrayDeque<>(
                     pta.getMethodsInvokedOn(obj));
-            while (!queue.isEmpty()) {
-                JMethod method = queue.poll();
+            while (!workList.isEmpty()) {
+                JMethod method = workList.poll();
                 methods.add(method);
                 pta.getBase().getCallGraph()
                         .getCalleesOfM(method)
                         .stream()
                         .filter(m -> m.isStatic() && !methods.contains(m))
-                        .forEach(queue::add);
+                        .forEach(workList::add);
             }
             invokedMethods.put(obj, methods);
         });

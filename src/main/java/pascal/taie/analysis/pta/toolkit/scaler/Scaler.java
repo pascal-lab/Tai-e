@@ -28,6 +28,7 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
+import pascal.taie.analysis.pta.toolkit.util.OAGs;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
@@ -81,7 +82,7 @@ public class Scaler {
         this.tst = tst;
         bottomLine = new _InsensitiveContextComputer(pta);
         // From the most precise analysis to the least precise analysis
-        Graph<Obj> oag = OAGBuilder.build(pta);
+        Graph<Obj> oag = OAGs.build(pta);
         // TODO - make ctxComputers configurable
         ctxComputers = List.of(
                 new _2ObjContextComputer(pta, oag),
