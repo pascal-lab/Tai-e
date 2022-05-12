@@ -52,6 +52,7 @@ class PotentialContextElement {
         pta.getBase().getObjects()
             .stream()
             .map(Obj::getType)
+            .distinct()
             .forEach(type -> {
                 Set<JMethod> methods = Sets.newHybridSet();
                 // add invoked methods on objects of type

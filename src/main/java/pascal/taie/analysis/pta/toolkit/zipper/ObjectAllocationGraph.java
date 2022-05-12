@@ -48,15 +48,17 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
     private final Map<Type, Set<Obj>> type2Allocatees = Maps.newMap();
 
     ObjectAllocationGraph(PointerAnalysisResultEx pta) {
-        OAGs.computeInvokedMethods(pta).forEach((obj, methods) -> methods.stream()
-            .map(pta::getObjectsAllocatedIn)
-            .flatMap(Set::stream)
-            .forEach(succ -> {
-                if (!(obj.getType() instanceof ArrayType)) {
-                    addEdge(obj, succ);
-                }
-            })
-        );
+        OAGs.computeInvokedMethods(pta).forEach((obj, methods) ->  {
+            addNode(obj);
+            methods.stream()
+                .map(pta::getObjectsAllocatedIn)
+                .flatMap(Set::stream)
+                .forEach(succ -> {
+                    if (!(obj.getType() instanceof ArrayType)) {
+                        addEdge(obj, succ);
+                    }
+                });
+        });
         computeAllocatees();
         getNodes().forEach(obj -> {
             Type type = obj.getType();

@@ -22,12 +22,14 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Timer;
 
 import java.util.Set;
 
@@ -43,9 +45,11 @@ public class Zipper {
 
     private final float expressThreshold;
 
-    private ObjectAllocationGraph oag;
+    private final ObjectAllocationGraph oag;
 
-    private PotentialContextElement pce;
+    private final PotentialContextElement pce;
+
+    private final ObjectFlowGraph ofg;
 
     public Zipper(PointerAnalysisResult ptaBase, boolean isExpress) {
         this(ptaBase, isExpress, DEFAULT_THRESHOLD);
@@ -56,8 +60,12 @@ public class Zipper {
         this.pta = new PointerAnalysisResultExImpl(ptaBase);
         this.isExpress = isExpress;
         this.expressThreshold = expressThreshold;
-        this.oag = new ObjectAllocationGraph(pta);
-        this.pce = new PotentialContextElement(pta, oag);
+        this.oag = Timer.runAndCount(() -> new ObjectAllocationGraph(pta),
+            "Building OAG", Level.INFO);
+        this.pce = Timer.runAndCount(() -> new PotentialContextElement(pta, oag),
+            "Building PCE", Level.INFO);
+        this.ofg = Timer.runAndCount(() -> new ObjectFlowGraph(ptaBase),
+            "Building OFG", Level.INFO);
     }
 
     /**
