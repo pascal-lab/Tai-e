@@ -60,12 +60,12 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     private final CSManager csManager;
 
-    private final Map<Var, Set<Obj>> varPointsTo = Maps.newMap();
+    private final Map<Var, Set<Obj>> varPointsTo = Maps.newConcurrentMap(4096);
 
     /**
      * Points-to sets of field expressions, e.g., v.f.
      */
-    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = Maps.newMap();
+    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = Maps.newConcurrentMap(1024);
 
     /**
      * Context-sensitive call graph.

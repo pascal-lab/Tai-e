@@ -126,7 +126,8 @@ public class Zipper {
             .map(Obj::getType)
             .distinct()
             .collect(Collectors.toList());
-        types.forEach(this::analyze);
+        Timer.runAndCount(() -> types.parallelStream().forEach(this::analyze),
+            "Building and analyzing PFG", Level.INFO);
 
         logger.info("#classes: {}", types.size());
         logger.info("#avg. nodes in PFG: {}", totalPFGNodes.get() / types.size());
