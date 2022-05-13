@@ -53,13 +53,16 @@ public class Zipper {
 
     private static final Logger logger = LogManager.getLogger(Zipper.class);
 
-    private static final float DEFAULT_THRESHOLD = 0.05f;
+    private static final float DEFAULT_PV = 0.05f;
 
     private final PointerAnalysisResultEx pta;
 
     private final boolean isExpress;
 
-    private final float expressThreshold;
+    /**
+     * Percentage value, i.e., the threshold for Zipper-e.
+     */
+    private final float pv;
 
     private final ObjectAllocationGraph oag;
 
@@ -75,15 +78,32 @@ public class Zipper {
 
     private Map<Type, Collection<JMethod>> pcmMap;
 
-    public Zipper(PointerAnalysisResult ptaBase, boolean isExpress) {
-        this(ptaBase, isExpress, DEFAULT_THRESHOLD);
+    /**
+     * Parses Zipper argument and runs Zipper.
+     */
+    public static Set<JMethod> run(PointerAnalysisResult pta, String arg) {
+        boolean isExpress;
+        float pv;
+        if (arg.equals("zipper")) {
+            isExpress = false;
+            pv = 1;
+        } else if (arg.equals("zipper-e")) {
+            isExpress = true;
+            pv = DEFAULT_PV;
+        } else if (arg.startsWith("zipper-e=")) { // zipper-e=pv
+            isExpress = true;
+            pv = Float.parseFloat(arg.split("=")[1]);
+        } else {
+            throw new IllegalArgumentException("Illegal Zipper argument: " + arg);
+        }
+        return new Zipper(pta, isExpress, pv)
+            .selectPrecisionCriticalMethods();
     }
 
-    public Zipper(PointerAnalysisResult ptaBase,
-                  boolean isExpress, float expressThreshold) {
+    public Zipper(PointerAnalysisResult ptaBase, boolean isExpress, float pv) {
         this.pta = new PointerAnalysisResultExImpl(ptaBase);
         this.isExpress = isExpress;
-        this.expressThreshold = expressThreshold;
+        this.pv = pv;
         this.oag = Timer.runAndCount(() -> new ObjectAllocationGraph(pta),
             "Building OAG", Level.INFO);
         this.pce = Timer.runAndCount(() -> new PotentialContextElement(pta, oag),
@@ -97,9 +117,6 @@ public class Zipper {
      * context-sensitively.
      */
     public Set<JMethod> selectPrecisionCriticalMethods() {
-//        FlowGraphDumper.dump(ofg,
-//            "output/" + World.get().getMainMethod().getDeclaringClass() + "-ofg.dot");
-
         analyzedClasses = new AtomicInteger(0);
         totalPFGNodes = new AtomicInteger(0);
         totalPFGEdges = new AtomicInteger(0);
@@ -125,8 +142,6 @@ public class Zipper {
             .stream()
             .mapToInt(pfg::getOutDegreeOf)
             .sum());
-//        FlowGraphDumper.dump(pfg,
-//            "output/" + World.get().getMainMethod().getDeclaringClass() + "-" + type + "-pfg.dot");
         pcmMap.put(type, getPrecisionCriticalMethods(pfg));
     }
 
@@ -164,6 +179,7 @@ public class Zipper {
         int totalPts = 0, pcmThreshold = 0;
         Map<JMethod, MutableInt> methodPts = null;
         if (isExpress) { // collect points-to sizes
+            logger.info("Zipper-e PV: {}", pv);
             PointerAnalysisResult pta = this.pta.getBase();
             methodPts = Maps.newMap(pta.getCallGraph().getNumberOfMethods());
             for (Var var : pta.getVars()) {
@@ -175,11 +191,11 @@ public class Zipper {
                         .add(size);
                 }
             }
-            pcmThreshold = (int) (expressThreshold * totalPts);
+            pcmThreshold = (int) (pv * totalPts);
         }
         Set<JMethod> pcm = Sets.newSet();
         for (Collection<JMethod> pcms : pcmMap.values()) {
-            if (isExpress) {
+            if (isExpress) { // Zipper-e is enabled
                 int accPts = 0;
                 for (JMethod m : pcms) {
                     accPts += methodPts.get(m).get();

@@ -50,7 +50,7 @@ public class Scaler {
 
     private static final Logger logger = LogManager.getLogger(Scaler.class);
 
-    private static final int DEFAULT_TST = 30000000;
+    private static final long DEFAULT_TST = 30000000;
 
     private final PointerAnalysisResultEx pta;
 
@@ -73,8 +73,19 @@ public class Scaler {
      */
     private final Map<JMethod, Integer> ptsSize = Maps.newMap();
 
-    public Scaler(PointerAnalysisResult ptaBase) {
-        this(ptaBase, DEFAULT_TST);
+    /**
+     * Parses Scaler argument and runs Scaler.
+     */
+    public static Map<JMethod, String> run(PointerAnalysisResult pta, String arg) {
+        long tst;
+        if (arg.equals("scaler")) {
+            tst = DEFAULT_TST;
+        } else if (arg.startsWith("scaler=")) { // scaler=tst
+            tst = Integer.parseInt(arg.split("=")[1]);
+        } else {
+            throw new IllegalArgumentException("Illegal Scaler argument: " + arg);
+        }
+        return new Scaler(pta, tst).selectContext();
     }
 
     public Scaler(PointerAnalysisResult ptaBase, long tst) {
@@ -98,6 +109,7 @@ public class Scaler {
      * @return a map from methods to their selected context sensitivity variants.
      */
     public Map<JMethod, String> selectContext() {
+        logger.info("Scaler TST: {}", tst);
         Set<JMethod> instanceMethods = pta.getBase()
                 .getCallGraph()
                 .reachableMethods()

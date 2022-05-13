@@ -68,22 +68,16 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
             // run context-insensitive analysis as pre-analysis
             PointerAnalysisResult preResult = runAnalysis(heapModel,
                 ContextSelectorFactory.makeCISelector());
-            switch (pre) {
-                case "scaler" -> {
-                    selector = Timer.runAndCount(() -> {
-                        Scaler scaler = new Scaler(preResult);
-                        return ContextSelectorFactory.makeGuidedSelector(
-                            scaler.selectContext());
-                    }, "Scaler", Level.INFO);
-                }
-                case "zipper", "zipper-e" -> {
-                    selector = Timer.runAndCount(() -> {
-                        boolean isExpress = pre.equals("zipper-e");
-                        Zipper zipper = new Zipper(preResult, isExpress);
-                        return ContextSelectorFactory.makeSelectiveSelector(
-                            cs, zipper.selectPrecisionCriticalMethods());
-                    }, "Zipper", Level.INFO);
-                }
+            if (pre.startsWith("scaler")) {
+                selector = Timer.runAndCount(() -> ContextSelectorFactory
+                        .makeGuidedSelector(Scaler.run(preResult, pre)),
+                    "Scaler", Level.INFO);
+            } else if (pre.startsWith("zipper")) {
+                selector = Timer.runAndCount(() -> ContextSelectorFactory
+                        .makeSelectiveSelector(cs, Zipper.run(preResult, pre)),
+                    "Zipper", Level.INFO);
+            } else {
+                throw new IllegalArgumentException("Illegal pre-analysis argument: " + pre);
             }
         }
         if (selector == null) {

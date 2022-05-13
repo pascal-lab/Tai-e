@@ -10,7 +10,9 @@
     merge-string-builders: true
     merge-exception-objects: true
     handle-invokedynamic: false
-    pre: null # | scaler | zipper # specify pre-analysis
+    pre: null # specify pre-analysis
+      # scaler | scaler=TST
+      # zipper | zipper-e | zipper-e=PV
     action: null # | dump | compare
     file: null # path to input/output file
     reflection-log: null # path to reflection log
