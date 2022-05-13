@@ -59,8 +59,7 @@ class PrecisionFlowGraph extends SimpleGraph<OFGNode> {
     }
 
     void addEdge(OFGEdge edge) {
-        addNode(edge.source());
-        addNode(edge.target());
+        addEdge(edge.source(), edge.target());
         outEdges.put(edge.source(), edge);
     }
 
