@@ -31,7 +31,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
 import pascal.taie.util.graph.DotDumper;
 
-import java.util.Map;
+import java.util.stream.Stream;
 
 public class ZipperTest {
 
@@ -39,13 +39,15 @@ public class ZipperTest {
 
     private static final String BASIC = "basic";
 
+    private static final String MISC = "misc";
+
     @Test
     public void testOAG() {
         dumpOAG(CS, "TwoObject", "cs:2-obj");
     }
 
     private static void dumpOAG(String dir, String main, String opts) {
-        Tests.testPTA(dir, main,  opts);
+        Tests.testPTA(false, dir, main,  opts);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectAllocationGraph oag = new ObjectAllocationGraph(
             new PointerAnalysisResultExImpl(pta));
@@ -54,36 +56,19 @@ public class ZipperTest {
 
     @Test
     public void testOFG() {
-        dumpOFG(BASIC, "Cast");
-        dumpOFG(BASIC, "StoreLoad");
-        dumpOFG(BASIC, "Array");
-        dumpOFG(BASIC, "CallParamRet");
+        Stream.of("Cast", "StoreLoad", "Array", "CallParamRet", "Cycle")
+            .forEach(main -> dumpOFG(BASIC, main));
     }
 
     private static void dumpOFG(String dir, String main) {
-        Tests.testPTA(dir, main);
+        Tests.testPTA(false, dir, main);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectFlowGraph ofg = new ObjectFlowGraph(pta);
-        new DotDumper<OFGNode>()
-            .setNodeAttributes(n -> {
-                if (n instanceof InstanceFieldNode) {
-                    return Map.of("shape", "box");
-                } else if (n instanceof ArrayIndexNode) {
-                    return Map.of("shape", "box",
-                        "style", "filled", "color", "grey");
-                } else { // VarNode
-                    return Map.of();
-                }
-            })
-            .setEdgeAttrs(e -> {
-                OFGEdge edge = (OFGEdge) e;
-                return switch (edge.kind()) {
-                    case INTERPROCEDURAL_ASSIGN -> Map.of("color", "blue");
-                    case INSTANCE_STORE -> Map.of("color", "red");
-                    case INSTANCE_LOAD -> Map.of("style", "dashed", "color", "red");
-                    default -> Map.of();
-                };
-            })
-            .dump(ofg, "output/" + main + "-ofg.dot");
+        FlowGraphDumper.dump(ofg, "output/" + main + "-ofg.dot");
+    }
+
+    @Test
+    public void testPFGBuilder() {
+        Tests.testPTA(false, MISC, "Zipper", "pre:zipper");
     }
 }

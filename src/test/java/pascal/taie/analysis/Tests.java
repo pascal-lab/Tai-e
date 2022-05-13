@@ -97,6 +97,10 @@ public final class Tests {
     }
 
     public static void testPTA(String dir, String main, String... opts) {
+        testPTA(true, dir, main, opts);
+    }
+
+    public static void testPTA(boolean processResult, String dir, String main, String... opts) {
         String id = PointerAnalysis.ID;
         List<String> args = new ArrayList<>();
         args.add("-pp");
@@ -105,10 +109,12 @@ public final class Tests {
         Collections.addAll(args, "-m", main);
         List<String> ptaArgs = new ArrayList<>();
         ptaArgs.add("implicit-entries:false");
-        String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
-        ptaArgs.add("action:" + action);
-        String file = getExpectedFile(classPath, main, id);
-        ptaArgs.add("file:" + file);
+        if (processResult) {
+            String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
+            ptaArgs.add("action:" + action);
+            String file = getExpectedFile(classPath, main, id);
+            ptaArgs.add("file:" + file);
+        }
         boolean specifyOnlyApp = false;
         for (String opt : opts) {
             ptaArgs.add(opt);
