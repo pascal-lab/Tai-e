@@ -51,6 +51,7 @@ import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -204,7 +205,7 @@ class ObjectFlowGraph implements Graph<OFGNode> {
                             .forEach(retNode -> retNode.addOutEdge(
                                 new OFGEdge(INTERPROCEDURAL_ASSIGN, retNode, lhsNode)));
                     }
-                    // add this-pass edge
+                    // add receiver-passing edge
                     if (invoke.getInvokeExp() instanceof InvokeInstanceExp invokeExp) {
                         VarNode baseNode = getOrCreateVarNode(invokeExp.getBase());
                         VarNode thisNode = getOrCreateVarNode(ir.getThis());
@@ -275,7 +276,7 @@ class ObjectFlowGraph implements Graph<OFGNode> {
         return nodes;
     }
 
-    VarNode getVarNode(Var var) {
+    @Nullable VarNode getVarNode(Var var) {
         return var2Node.get(var);
     }
 }

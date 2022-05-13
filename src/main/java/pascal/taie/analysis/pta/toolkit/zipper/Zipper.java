@@ -25,13 +25,20 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.Timer;
+import pascal.taie.util.graph.Graph;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Zipper {
 
@@ -73,6 +80,21 @@ public class Zipper {
      * context-sensitively.
      */
     public Set<JMethod> selectPrecisionCriticalMethods() {
+        FlowGraphDumper.dump(ofg,
+            "output/" + World.get().getMainMethod().getDeclaringClass() + "-ofg.dot");
+        List<Type> types = pta.getBase().getObjects()
+            .stream()
+            .map(Obj::getType)
+            .distinct()
+            .sorted(Comparator.comparing(Type::toString))
+            .collect(Collectors.toList());
+        types.forEach(t -> {
+            PFGBuilder builder = new PFGBuilder(pta, ofg, oag, pce, t);
+            Graph<OFGNode> pfg = Timer.runAndCount(builder::build,
+                "Building PFG for " + t, Level.INFO);
+            FlowGraphDumper.dump(pfg,
+                "output/" + World.get().getMainMethod().getDeclaringClass() + "-" + t + "-pfg.dot");
+        });
         return Set.of();
     }
 }

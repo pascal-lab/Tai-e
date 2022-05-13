@@ -149,6 +149,9 @@ public class Var implements LValue, RValue, Indexable {
         relevantStmts.addLoadField(loadField);
     }
 
+    /**
+     * @return {@link LoadField}s whose base variable is this Var.
+     */
     public List<LoadField> getLoadFields() {
         return relevantStmts.getLoadFields();
     }
@@ -158,6 +161,9 @@ public class Var implements LValue, RValue, Indexable {
         relevantStmts.addStoreField(storeField);
     }
 
+    /**
+     * @return {@link StoreField}s whose base variable is this Var.
+     */
     public List<StoreField> getStoreFields() {
         return relevantStmts.getStoreFields();
     }
@@ -167,6 +173,9 @@ public class Var implements LValue, RValue, Indexable {
         relevantStmts.addLoadArray(loadArray);
     }
 
+    /**
+     * @return {@link LoadArray}s whose base variable is this Var.
+     */
     public List<LoadArray> getLoadArrays() {
         return relevantStmts.getLoadArrays();
     }
@@ -176,6 +185,9 @@ public class Var implements LValue, RValue, Indexable {
         relevantStmts.addStoreArray(storeArray);
     }
 
+    /**
+     * @return {@link StoreArray}s whose base variable is this Var.
+     */
     public List<StoreArray> getStoreArrays() {
         return relevantStmts.getStoreArrays();
     }
@@ -185,6 +197,9 @@ public class Var implements LValue, RValue, Indexable {
         relevantStmts.addInvoke(invoke);
     }
 
+    /**
+     * @return {@link Invoke}s whose base variable is this Var.
+     */
     public List<Invoke> getInvokes() {
         return relevantStmts.getInvokes();
     }
