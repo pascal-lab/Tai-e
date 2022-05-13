@@ -24,21 +24,15 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 
-class ArrayIndexNode extends OFGNode {
+class ArrayIndexNode extends InstanceNode {
 
-    private final Obj array;
-
-    ArrayIndexNode(Obj array) {
-        this.array = array;
-    }
-
-    Obj getArray() {
-        return array;
+    ArrayIndexNode(Obj base) {
+        super(base);
     }
 
     @Override
     public int hashCode() {
-        return array.hashCode();
+        return base.hashCode();
     }
 
     @Override
@@ -49,11 +43,11 @@ class ArrayIndexNode extends OFGNode {
         if (!(other instanceof ArrayIndexNode otherNode)) {
             return false;
         }
-        return array.equals(otherNode.array);
+        return base.equals(otherNode.base);
     }
 
     @Override
     public String toString() {
-        return "ArrayIndexNode{" + array + "}";
+        return "ArrayIndexNode{" + base + "}";
     }
 }

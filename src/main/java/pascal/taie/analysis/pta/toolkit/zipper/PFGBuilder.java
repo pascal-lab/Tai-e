@@ -36,9 +36,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.Views;
-import pascal.taie.util.graph.Graph;
-import pascal.taie.util.graph.SimpleGraph;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -106,15 +103,16 @@ class PFGBuilder {
             .collect(Collectors.toUnmodifiableSet());
     }
 
-    Graph<OFGNode> build() {
-        pfg = new PrecisionFlowGraph();
-        wuEdges = Maps.newMultiMap();
-        visitedNodes = Sets.newSet();
+    PrecisionFlowGraph build() {
         inNodes = obtainInNodes();
         outNodes = obtainOutNodes();
+        pfg = new PrecisionFlowGraph(type);
+        visitedNodes = Sets.newSet();
+        wuEdges = Maps.newMultiMap();
         for (VarNode inNode : inNodes) {
             dfs(inNode);
         }
+        pfg.setOutNodes(outNodes);
         return pfg;
     }
 
@@ -178,7 +176,7 @@ class PFGBuilder {
     }
 
     private void dfs(OFGNode node) {
-        logger.info("dfs on {}", node);
+        logger.trace("dfs on {}", node);
         if (visitedNodes.contains(node)) {
             return;
         }
@@ -212,7 +210,7 @@ class PFGBuilder {
                 }
                 case INTERPROCEDURAL_ASSIGN, INSTANCE_LOAD, WRAPPED_FLOW -> {
                     // target node must be a VarNode
-                    VarNode toNode = (VarNode) edge.getTarget();
+                    VarNode toNode = (VarNode) edge.target();
                     Var toVar = toNode.getVar();
                     // Optimization: filter out some potential spurious flows due to
                     // the imprecision of context-insensitive pre-analysis, which
@@ -222,7 +220,7 @@ class PFGBuilder {
                     }
                 }
                 case INSTANCE_STORE -> {
-                    InstanceFieldNode toNode = (InstanceFieldNode) edge.getTarget();
+                    InstanceNode toNode = (InstanceNode) edge.target();
                     Obj base = toNode.getBase();
                     if (base.getType().equals(type)) {
                         // add wrapped flow edges to this variable
@@ -274,26 +272,5 @@ class PFGBuilder {
             .map(Invoke::getLValue)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
-    }
-
-    private static class PrecisionFlowGraph extends SimpleGraph<OFGNode> {
-
-        private final MultiMap<OFGNode, OFGEdge> outEdges = Maps.newMultiMap();
-
-        void addEdge(OFGEdge edge) {
-            addNode(edge.source());
-            addNode(edge.target());
-            outEdges.put(edge.source(), edge);
-        }
-
-        @Override
-        public Set<OFGEdge> getOutEdgesOf(OFGNode node) {
-            return outEdges.get(node);
-        }
-
-        @Override
-        public Set<OFGNode> getSuccsOf(OFGNode node) {
-            return Views.toMappedSet(getOutEdgesOf(node), OFGEdge::target);
-        }
     }
 }

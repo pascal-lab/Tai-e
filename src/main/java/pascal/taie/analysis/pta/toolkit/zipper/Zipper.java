@@ -30,14 +30,21 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Timer;
-import pascal.taie.util.graph.Graph;
+import pascal.taie.util.collection.Sets;
+import pascal.taie.util.graph.Reachability;
 
-import java.util.Comparator;
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Zipper {
@@ -57,6 +64,15 @@ public class Zipper {
     private final PotentialContextElement pce;
 
     private final ObjectFlowGraph ofg;
+
+    private AtomicInteger analyzedClasses;
+
+    private AtomicInteger totalPFGNodes;
+
+    private AtomicInteger totalPFGEdges;
+
+    private Map<Type, Collection<JMethod>> pcmMap;
+
 
     public Zipper(PointerAnalysisResult ptaBase, boolean isExpress) {
         this(ptaBase, isExpress, DEFAULT_THRESHOLD);
@@ -80,21 +96,71 @@ public class Zipper {
      * context-sensitively.
      */
     public Set<JMethod> selectPrecisionCriticalMethods() {
-        FlowGraphDumper.dump(ofg,
-            "output/" + World.get().getMainMethod().getDeclaringClass() + "-ofg.dot");
+//        FlowGraphDumper.dump(ofg,
+//            "output/" + World.get().getMainMethod().getDeclaringClass() + "-ofg.dot");
+
+        analyzedClasses = new AtomicInteger(0);
+        totalPFGNodes = new AtomicInteger(0);
+        totalPFGEdges = new AtomicInteger(0);
+        pcmMap = new ConcurrentHashMap<>(1024);
         List<Type> types = pta.getBase().getObjects()
             .stream()
             .map(Obj::getType)
             .distinct()
-            .sorted(Comparator.comparing(Type::toString))
             .collect(Collectors.toList());
-        types.forEach(t -> {
-            PFGBuilder builder = new PFGBuilder(pta, ofg, oag, pce, t);
-            Graph<OFGNode> pfg = Timer.runAndCount(builder::build,
-                "Building PFG for " + t, Level.INFO);
-            FlowGraphDumper.dump(pfg,
-                "output/" + World.get().getMainMethod().getDeclaringClass() + "-" + t + "-pfg.dot");
+        types.forEach(this::analyze);
+        return collectAllPrecisionCriticalMethods();
+    }
+
+    private void analyze(Type type) {
+        PrecisionFlowGraph pfg = new PFGBuilder(pta, ofg, oag, pce, type).build();
+//        FlowGraphDumper.dump(pfg,
+//            "output/" + World.get().getMainMethod().getDeclaringClass() + "-" + type + "-pfg.dot");
+        pcmMap.put(type, getPrecisionCriticalMethods(pfg));
+    }
+
+    private Set<JMethod> getPrecisionCriticalMethods(PrecisionFlowGraph pfg) {
+        return getFlowNodes(pfg).stream()
+            .map(this::node2Method)
+            .filter(Objects::nonNull)
+            .filter(pce.PCEMethodsOf(pfg.getType())::contains)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static Set<OFGNode> getFlowNodes(PrecisionFlowGraph pfg) {
+        Reachability<OFGNode> reachability = new Reachability<>(pfg);
+        Set<OFGNode> nodes = Sets.newSet();
+        for (VarNode outNode : pfg.getOutNodes()) {
+            nodes.addAll(reachability.nodesReach(outNode));
+        }
+        return nodes;
+    }
+
+    /**
+     * @return containing method of {@code node}.
+     */
+    private @Nullable JMethod node2Method(OFGNode node) {
+        if (node instanceof VarNode varNode) {
+            return varNode.getVar().getMethod();
+        } else {
+            Obj base = ((InstanceNode) node).getBase();
+            if (base.getAllocation() instanceof New newStmt) {
+                return newStmt.getContainer();
+            }
+        }
+        return null;
+    }
+
+    private Set<JMethod> collectAllPrecisionCriticalMethods() {
+        Set<JMethod> pcm = Sets.newSet();
+        pcmMap.forEach((unused, pcms) -> {
+//            if (isExpress &&
+//                getAccumulativePointsToSetSize(pcms) > pcmThreshold) {
+//                return;
+//            }
+            pcm.addAll(pcms);
         });
-        return Set.of();
+        logger.info("#precision-critical methods: {}", pcm.size());
+        return pcm;
     }
 }
