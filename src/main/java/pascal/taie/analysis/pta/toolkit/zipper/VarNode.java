@@ -37,22 +37,6 @@ class VarNode extends OFGNode {
     }
 
     @Override
-    public int hashCode() {
-        return var.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof VarNode otherNode)) {
-            return false;
-        }
-        return var.equals(otherNode.var);
-    }
-
-    @Override
     public String toString() {
         return "VarNode{" + var.getMethod() + "/" + var.getName() + "}";
     }

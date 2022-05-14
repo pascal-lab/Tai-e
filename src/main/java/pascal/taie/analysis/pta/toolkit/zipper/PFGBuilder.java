@@ -73,11 +73,6 @@ class PFGBuilder {
     private final Set<JMethod> invokeMethods;
 
     /**
-     * The current precision flow graph being built.
-     */
-    private PrecisionFlowGraph pfg;
-
-    /**
      * Stores wrapped and unwrapped flow edges.
      */
     private MultiMap<OFGNode, OFGEdge> wuEdges;
@@ -106,14 +101,12 @@ class PFGBuilder {
     PrecisionFlowGraph build() {
         inNodes = obtainInNodes();
         outNodes = obtainOutNodes();
-        pfg = new PrecisionFlowGraph(type);
         visitedNodes = Sets.newSet();
         wuEdges = Maps.newMultiMap();
         for (VarNode inNode : inNodes) {
             dfs(inNode);
         }
-        pfg.setOutNodes(outNodes);
-        return pfg;
+        return new PrecisionFlowGraph(type, ofg, visitedNodes, outNodes, wuEdges);
     }
 
     private Set<JMethod> obtainMethods() {
@@ -181,7 +174,6 @@ class PFGBuilder {
             return;
         }
         visitedNodes.add(node);
-        pfg.addNode(node);
         // add unwrapped flow edges
         if (node instanceof VarNode varNode) {
             Var var = varNode.getVar();
@@ -244,7 +236,6 @@ class PFGBuilder {
             }
         }
         for (OFGEdge nextEdge : nextEdges) {
-            pfg.addEdge(nextEdge);
             dfs(nextEdge.target());
         }
     }

@@ -31,22 +31,6 @@ class ArrayIndexNode extends InstanceNode {
     }
 
     @Override
-    public int hashCode() {
-        return base.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof ArrayIndexNode otherNode)) {
-            return false;
-        }
-        return base.equals(otherNode.base);
-    }
-
-    @Override
     public String toString() {
         return "ArrayIndexNode{" + base + "}";
     }

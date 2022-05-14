@@ -28,6 +28,8 @@ import java.util.Set;
 
 abstract class OFGNode {
 
+    private Set<OFGEdge> inEdges = Set.of();
+
     private Set<OFGEdge> outEdges = Set.of();
 
     void addOutEdge(OFGEdge edge) {
@@ -35,6 +37,18 @@ abstract class OFGNode {
             outEdges = Sets.newHybridSet();
         }
         outEdges.add(edge);
+        edge.target().addInEdge(edge);
+    }
+
+    private void addInEdge(OFGEdge edge) {
+        if (inEdges.isEmpty()) {
+            inEdges = Sets.newHybridSet();
+        }
+        inEdges.add(edge);
+    }
+
+    Set<OFGEdge> getInEdges() {
+        return inEdges;
     }
 
     Set<OFGEdge> getOutEdges() {

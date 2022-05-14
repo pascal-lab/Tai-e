@@ -24,7 +24,6 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JField;
-import pascal.taie.util.Hashes;
 
 class InstanceFieldNode extends InstanceNode {
 
@@ -37,23 +36,6 @@ class InstanceFieldNode extends InstanceNode {
 
     JField getField() {
         return field;
-    }
-
-    @Override
-    public int hashCode() {
-        return Hashes.hash(base, field);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof InstanceFieldNode otherNode)) {
-            return false;
-        }
-        return base.equals(otherNode.base) &&
-            field.equals(otherNode.field);
     }
 
     @Override

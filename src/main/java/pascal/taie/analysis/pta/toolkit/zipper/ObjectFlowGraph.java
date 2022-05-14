@@ -258,7 +258,12 @@ class ObjectFlowGraph implements Graph<OFGNode> {
 
     @Override
     public Set<OFGNode> getPredsOf(OFGNode node) {
-        throw new UnsupportedOperationException();
+        return Views.toMappedSet(getInEdgesOf(node), OFGEdge::source);
+    }
+
+    @Override
+    public Set<OFGEdge> getInEdgesOf(OFGNode node) {
+        return node.getInEdges();
     }
 
     @Override

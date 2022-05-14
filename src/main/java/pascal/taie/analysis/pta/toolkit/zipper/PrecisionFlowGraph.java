@@ -26,50 +26,91 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Views;
-import pascal.taie.util.graph.SimpleGraph;
+import pascal.taie.util.graph.Graph;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class PrecisionFlowGraph extends SimpleGraph<OFGNode> {
+class PrecisionFlowGraph implements Graph<OFGNode> {
 
     private final Type type;
 
-    private Set<VarNode> outNodes;
+    private final ObjectFlowGraph ofg;
 
-    private final MultiMap<OFGNode, OFGEdge> outEdges = Maps.newMultiMap();
+    private final Set<OFGNode> nodes;
 
-    PrecisionFlowGraph(Type type) {
+    private final Set<VarNode> outNodes;
+
+    private final MultiMap<OFGNode, OFGEdge> inWUEdges;
+
+    private final MultiMap<OFGNode, OFGEdge> outWUEdges;
+
+    PrecisionFlowGraph(Type type, ObjectFlowGraph ofg,
+                       Set<OFGNode> nodes, Set<VarNode> outNodes,
+                       MultiMap<OFGNode, OFGEdge> outWUEdges) {
         this.type = type;
+        this.ofg = ofg;
+        this.nodes = nodes;
+        this.outNodes = outNodes
+            .stream()
+            .filter(nodes::contains)
+            .collect(Collectors.toUnmodifiableSet());
+        this.outWUEdges = outWUEdges;
+        this.inWUEdges = Maps.newMultiMap();
+        outWUEdges.values()
+            .forEach(edge -> inWUEdges.put(edge.target(), edge));
     }
 
     Type getType() {
         return type;
     }
 
-    void setOutNodes(Collection<VarNode> outNodes) {
-        this.outNodes = outNodes.stream()
-            .filter(this::hasNode)
-            .collect(Collectors.toUnmodifiableSet());
-    }
-
     Set<VarNode> getOutNodes() {
         return outNodes;
     }
 
-    void addEdge(OFGEdge edge) {
-        addEdge(edge.source(), edge.target());
-        outEdges.put(edge.source(), edge);
+    @Override
+    public boolean hasNode(OFGNode node) {
+        return nodes.contains(node);
     }
 
     @Override
-    public Set<OFGEdge> getOutEdgesOf(OFGNode node) {
-        return outEdges.get(node);
+    public boolean hasEdge(OFGNode source, OFGNode target) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<OFGNode> getPredsOf(OFGNode node) {
+        return Views.toMappedSet(getInEdgesOf(node), OFGEdge::source);
+    }
+
+    @Override
+    public Set<OFGEdge> getInEdgesOf(OFGNode node) {
+        Set<OFGEdge> inEdges = ofg.getInEdgesOf(node)
+            .stream()
+            .filter(e -> nodes.contains(e.source()))
+            .collect(Collectors.toSet());
+        inEdges.addAll(inWUEdges.get(node));
+        return inEdges;
     }
 
     @Override
     public Set<OFGNode> getSuccsOf(OFGNode node) {
         return Views.toMappedSet(getOutEdgesOf(node), OFGEdge::target);
+    }
+
+    @Override
+    public Set<OFGEdge> getOutEdgesOf(OFGNode node) {
+        Set<OFGEdge> outEdges = ofg.getOutEdgesOf(node)
+            .stream()
+            .filter(e -> nodes.contains(e.target()))
+            .collect(Collectors.toSet());
+        outEdges.addAll(outWUEdges.get(node));
+        return outEdges;
+    }
+
+    @Override
+    public Set<OFGNode> getNodes() {
+        return nodes;
     }
 }
