@@ -143,6 +143,16 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
         return map.get(type);
     }
 
+    @Override
+    public Set<Type> getObjectTypes() {
+        MultiMap<Type, Obj> map = type2Objs;
+        if (map == null) {
+            initType2Objects();
+            map = type2Objs;
+        }
+        return map.keySet();
+    }
+
     private void initType2Objects() {
         MultiMap<Type, Obj> map = Maps.newMultiMap();
         for (Obj obj : base.getObjects()) {

@@ -22,27 +22,51 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import pascal.taie.util.graph.Edge;
+import pascal.taie.util.Indexable;
+import pascal.taie.util.collection.Sets;
 
-record OFGEdge(Kind kind, OFGNode source, OFGNode target)
-    implements Edge<OFGNode> {
+import java.util.Set;
 
-    enum Kind {
-        LOCAL_ASSIGN,
-        INTERPROCEDURAL_ASSIGN,
-        INSTANCE_LOAD,
-        INSTANCE_STORE,
-        WRAPPED_FLOW,
-        UNWRAPPED_FLOW,
+/**
+ * Nodes in object/precision flow graph.
+ */
+abstract class FGNode implements Indexable {
+
+    private final int index;
+
+    private Set<FGEdge> inEdges = Set.of();
+
+    private Set<FGEdge> outEdges = Set.of();
+
+    FGNode(int index) {
+        this.index = index;
     }
 
     @Override
-    public OFGNode getSource() {
-        return source;
+    public int getIndex() {
+        return index;
     }
 
-    @Override
-    public OFGNode getTarget() {
-        return target;
+    void addOutEdge(FGEdge edge) {
+        if (outEdges.isEmpty()) {
+            outEdges = Sets.newHybridSet();
+        }
+        outEdges.add(edge);
+        edge.target().addInEdge(edge);
+    }
+
+    private void addInEdge(FGEdge edge) {
+        if (inEdges.isEmpty()) {
+            inEdges = Sets.newHybridSet();
+        }
+        inEdges.add(edge);
+    }
+
+    Set<FGEdge> getInEdges() {
+        return inEdges;
+    }
+
+    Set<FGEdge> getOutEdges() {
+        return outEdges;
     }
 }

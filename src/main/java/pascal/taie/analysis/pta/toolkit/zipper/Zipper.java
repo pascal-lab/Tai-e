@@ -42,7 +42,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -72,13 +71,15 @@ public class Zipper {
 
     private final ObjectFlowGraph ofg;
 
-    private AtomicInteger analyzedClasses;
-
     private AtomicInteger totalPFGNodes;
 
     private AtomicInteger totalPFGEdges;
 
     private Map<Type, Collection<JMethod>> pcmMap;
+
+    private int pcmThreshold;
+
+    private Map<JMethod, MutableInt> methodPts;
 
     /**
      * Parses Zipper argument and runs Zipper.
@@ -119,51 +120,85 @@ public class Zipper {
      * context-sensitively.
      */
     public Set<JMethod> selectPrecisionCriticalMethods() {
-        analyzedClasses = new AtomicInteger(0);
         totalPFGNodes = new AtomicInteger(0);
         totalPFGEdges = new AtomicInteger(0);
         pcmMap = new ConcurrentHashMap<>(1024);
-        List<Type> types = pta.getBase().getObjects()
-            .stream()
-            .map(Obj::getType)
-            .distinct()
-            .collect(Collectors.toList());
+
+        // prepare information for Zipper-e
+        if (isExpress) {
+            PointerAnalysisResult pta = this.pta.getBase();
+            int totalPts = 0;
+            methodPts = Maps.newMap(pta.getCallGraph().getNumberOfMethods());
+            for (Var var : pta.getVars()) {
+                int size = pta.getPointsToSet(var).size();
+                if (size > 0) {
+                    totalPts += size;
+                    methodPts.computeIfAbsent(var.getMethod(),
+                            unused -> new MutableInt(0))
+                        .add(size);
+                }
+            }
+            pcmThreshold = (int) (pv * totalPts);
+        }
+
+        // build and analyze precision-flow graphs
+        Set<Type> types = pta.getObjectTypes();
         Timer.runAndCount(() -> types.parallelStream().forEach(this::analyze),
             "Building and analyzing PFG", Level.INFO);
-
-        logger.info("#classes: {}", types.size());
+        logger.info("#types: {}", types.size());
         logger.info("#avg. nodes in PFG: {}", totalPFGNodes.get() / types.size());
         logger.info("#avg. edges in PFG: {}", totalPFGEdges.get() / types.size());
-        return collectAllPrecisionCriticalMethods();
+
+        // collect all precision-critical methods
+        Set<JMethod> pcms = pcmMap.values()
+            .stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toUnmodifiableSet());
+        logger.info("#precision-critical methods: {}", pcms.size());
+        return pcms;
     }
 
     private void analyze(Type type) {
         PrecisionFlowGraph pfg = new PFGBuilder(pta, ofg, oag, pce, type).build();
-        analyzedClasses.incrementAndGet();
         totalPFGNodes.addAndGet(pfg.getNumberOfNodes());
         totalPFGEdges.addAndGet(pfg.getNodes()
             .stream()
             .mapToInt(pfg::getOutDegreeOf)
             .sum());
-        pcmMap.put(type, getPrecisionCriticalMethods(pfg));
+        Set<JMethod> pcms = getPrecisionCriticalMethods(pfg);
+        if (!pcms.isEmpty()) {
+            pcmMap.put(type, pcms);
+        }
     }
 
     private Set<JMethod> getPrecisionCriticalMethods(PrecisionFlowGraph pfg) {
-        return getFlowNodes(pfg)
+        Set<JMethod> pcms = getFlowNodes(pfg)
             .stream()
             .map(Zipper::node2Method)
             .filter(Objects::nonNull)
             .filter(pce.PCEMethodsOf(pfg.getType())::contains)
             .collect(Collectors.toUnmodifiableSet());
+        if (isExpress) {
+            int accPts = 0;
+            for (JMethod m : pcms) {
+                accPts += methodPts.get(m).get();
+            }
+            if (accPts > pcmThreshold) {
+                // clear precision-critical method group whose accumulative
+                // points-to size exceeds the threshold
+                pcms = Set.of();
+            }
+        }
+        return pcms;
     }
 
-    private static Set<OFGNode> getFlowNodes(PrecisionFlowGraph pfg) {
-        Set<OFGNode> visited = Sets.newSet();
+    private static Set<FGNode> getFlowNodes(PrecisionFlowGraph pfg) {
+        Set<FGNode> visited = Sets.newSet();
         for (VarNode outNode : pfg.getOutNodes()) {
-            Deque<OFGNode> workList = new ArrayDeque<>();
+            Deque<FGNode> workList = new ArrayDeque<>();
             workList.add(outNode);
             while (!workList.isEmpty()) {
-                OFGNode node = workList.poll();
+                FGNode node = workList.poll();
                 if (visited.add(node)) {
                     pfg.getPredsOf(node)
                         .stream()
@@ -178,7 +213,7 @@ public class Zipper {
     /**
      * @return containing method of {@code node}.
      */
-    private static @Nullable JMethod node2Method(OFGNode node) {
+    private static @Nullable JMethod node2Method(FGNode node) {
         if (node instanceof VarNode varNode) {
             return varNode.getVar().getMethod();
         } else {
@@ -188,40 +223,5 @@ public class Zipper {
             }
         }
         return null;
-    }
-
-    private Set<JMethod> collectAllPrecisionCriticalMethods() {
-        int totalPts = 0, pcmThreshold = 0;
-        Map<JMethod, MutableInt> methodPts = null;
-        if (isExpress) { // collect points-to sizes
-            logger.info("Zipper-e PV: {}", pv);
-            PointerAnalysisResult pta = this.pta.getBase();
-            methodPts = Maps.newMap(pta.getCallGraph().getNumberOfMethods());
-            for (Var var : pta.getVars()) {
-                int size = pta.getPointsToSet(var).size();
-                if (size > 0) {
-                    totalPts += size;
-                    methodPts.computeIfAbsent(var.getMethod(),
-                            unused -> new MutableInt(0))
-                        .add(size);
-                }
-            }
-            pcmThreshold = (int) (pv * totalPts);
-        }
-        Set<JMethod> pcm = Sets.newSet();
-        for (Collection<JMethod> pcms : pcmMap.values()) {
-            if (isExpress) { // Zipper-e is enabled
-                int accPts = 0;
-                for (JMethod m : pcms) {
-                    accPts += methodPts.get(m).get();
-                }
-                if (accPts > pcmThreshold) {
-                    continue;
-                }
-            }
-            pcm.addAll(pcms);
-        }
-        logger.info("#precision-critical methods: {}", pcm.size());
-        return pcm;
     }
 }

@@ -24,7 +24,7 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 
-abstract class InstanceNode extends OFGNode {
+abstract class InstanceNode extends FGNode {
 
     protected final Obj base;
 

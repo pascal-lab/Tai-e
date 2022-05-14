@@ -24,7 +24,7 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 
 import pascal.taie.ir.exp.Var;
 
-class VarNode extends OFGNode {
+class VarNode extends FGNode {
 
     private final Var var;
 

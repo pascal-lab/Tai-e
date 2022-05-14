@@ -62,4 +62,9 @@ public interface PointerAnalysisResultEx {
      * @return the objects of given type.
      */
     Set<Obj> getObjectsOf(Type type);
+
+    /**
+     * @return types of all reachable objects in pointer analysis.
+     */
+    Set<Type> getObjectTypes();
 }

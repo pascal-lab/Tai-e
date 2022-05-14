@@ -33,7 +33,6 @@ import pascal.taie.util.SimpleIndexer;
 import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,25 +53,20 @@ class PotentialContextElement {
         Canonicalizer<Set<JMethod>> canonicalizer = new Canonicalizer<>();
         Indexer<JMethod> methodIndexer = new SimpleIndexer<>(
             pta.getBase().getCallGraph().getNodes());
-        List<Type> types = pta.getBase().getObjects()
-            .stream()
-            .map(Obj::getType)
-            .distinct()
-            .toList();
+        Set<Type> types = pta.getObjectTypes();
         type2PCEMethods = Maps.newConcurrentMap(types.size());
-        types.parallelStream()
-            .forEach(type -> {
-                Set<JMethod> methods = new IndexerBitSet<>(methodIndexer, true);
-                // add invoked methods on objects of type
-                for (Obj obj : pta.getObjectsOf(type)) {
-                    methods.addAll(invokedMethods.get(obj));
-                }
-                // add invoked methods on allocated objects of type
-                for (Obj allocatee : oag.getAllocateesOf(type)) {
-                    methods.addAll(invokedMethods.get(allocatee));
-                }
-                type2PCEMethods.put(type, canonicalizer.get(methods));
-            });
+        types.parallelStream().forEach(type -> {
+            Set<JMethod> methods = new IndexerBitSet<>(methodIndexer, true);
+            // add invoked methods on objects of type
+            for (Obj obj : pta.getObjectsOf(type)) {
+                methods.addAll(invokedMethods.get(obj));
+            }
+            // add invoked methods on allocated objects of type
+            for (Obj allocatee : oag.getAllocateesOf(type)) {
+                methods.addAll(invokedMethods.get(allocatee));
+            }
+            type2PCEMethods.put(type, canonicalizer.get(methods));
+        });
     }
 
     Set<JMethod> PCEMethodsOf(Type type) {

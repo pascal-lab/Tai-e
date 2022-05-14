@@ -28,11 +28,11 @@ import pascal.taie.util.graph.Graph;
 import java.util.Map;
 
 /**
- * Dumper for object flow graph and precision flow graph.
+ * Dumper for object/precision flow graph.
  */
-class FlowGraphDumper {
+class FGDumper {
 
-    private static final DotDumper<OFGNode> dumper = new DotDumper<OFGNode>()
+    private static final DotDumper<FGNode> dumper = new DotDumper<FGNode>()
         .setNodeAttributes(n -> {
             if (n instanceof InstanceFieldNode) {
                 return Map.of("shape", "box");
@@ -44,7 +44,7 @@ class FlowGraphDumper {
             }
         })
         .setEdgeAttrs(e -> {
-            OFGEdge edge = (OFGEdge) e;
+            FGEdge edge = (FGEdge) e;
             return switch (edge.kind()) {
                 case LOCAL_ASSIGN -> Map.of();
                 case INTERPROCEDURAL_ASSIGN -> Map.of("color", "blue");
@@ -55,7 +55,7 @@ class FlowGraphDumper {
             };
         });
 
-    static void dump(Graph<OFGNode> graph, String filePath) {
+    static void dump(Graph<FGNode> graph, String filePath) {
         dumper.dump(graph, filePath);
     }
 }

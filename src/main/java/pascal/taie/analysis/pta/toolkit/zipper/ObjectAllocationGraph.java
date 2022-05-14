@@ -28,8 +28,10 @@ import pascal.taie.analysis.pta.toolkit.util.OAGs;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Canonicalizer;
+import pascal.taie.util.Indexer;
+import pascal.taie.util.SimpleIndexer;
+import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
 import pascal.taie.util.graph.SimpleGraph;
@@ -45,7 +47,9 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
 
     private final Map<Obj, Set<Obj>> obj2Allocatees = Maps.newMap();
 
-    private final Map<Type, Set<Obj>> type2Allocatees = Maps.newMap();
+    private final Map<Type, Set<Obj>> type2Allocatees = Maps.newConcurrentMap();
+
+    private Indexer<Obj> objIndexer;
 
     ObjectAllocationGraph(PointerAnalysisResultEx pta) {
         OAGs.computeInvokedMethods(pta).forEach((obj, methods) ->  {
@@ -59,13 +63,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
                     }
                 });
         });
-        computeAllocatees();
-        getNodes().forEach(obj -> {
-            Type type = obj.getType();
-            type2Allocatees.computeIfAbsent(type,
-                    unused -> Sets.newHybridSet())
-                .addAll(getAllocateesOf(obj));
-        });
+        computeAllocatees(pta);
         assert getNumberOfNodes() == pta.getBase().getObjects().size();
     }
 
@@ -77,19 +75,30 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
         return obj2Allocatees.get(obj);
     }
 
-    private void computeAllocatees() {
+    private void computeAllocatees(PointerAnalysisResultEx pta) {
+        // compute allocatees of objects
         MergedSCCGraph<Obj> mg = new MergedSCCGraph<>(this);
         TopoSorter<MergedNode<Obj>> sorter = new TopoSorter<>(mg, true);
+        objIndexer = new SimpleIndexer<>(getNodes().size());
         Canonicalizer<Set<Obj>> canonicalizer = new Canonicalizer<>();
         sorter.get().forEach(node -> {
+            node.getNodes().forEach(objIndexer::getIndex); // index Objs
             Set<Obj> allocatees = canonicalizer.get(getAllocatees(node, mg));
             node.getNodes().forEach(obj -> obj2Allocatees.put(obj, allocatees));
         });
+        // compute allocatees of types
+        pta.getObjectTypes().parallelStream().forEach(type -> {
+            Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
+            pta.getObjectsOf(type)
+                .forEach(o -> allocatees.addAll(getAllocateesOf(o)));
+            type2Allocatees.put(type, canonicalizer.get(allocatees));
+        });
+
     }
 
     private Set<Obj> getAllocatees(
         MergedNode<Obj> node, MergedSCCGraph<Obj> mg) {
-        Set<Obj> allocatees = Sets.newHybridSet();
+        Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
         mg.getSuccsOf(node).forEach(n -> {
             // direct allocatees
             allocatees.addAll(n.getNodes());
