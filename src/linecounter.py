@@ -16,14 +16,14 @@ def notExcluded(path, excludes):
 		return True
 
 if __name__ == '__main__':
-	excludes = [ 'test', 'Test', ] + sys.argv[1:]
+	excludes = sys.argv[1:] + [ 'test', 'Test', ]
 	total = 0
 	nFile = 0
 	for root, dirs, files in os.walk(os.getcwd()):
 		for f in files:
 			path = os.path.join(root, f)
 			ext = os.path.splitext(path)[1]
-			if ext == '.java': 
+			if ext == '.java':
 				if notExcluded(path, excludes):
 					l = countLine(path)
 					print('%s: %d' % (path, l))

@@ -27,8 +27,8 @@ import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.util.OAGs;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Canonicalizer;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.SetCanonicalizer;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
@@ -80,7 +80,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
     private void computeAllocatees() {
         MergedSCCGraph<Obj> mg = new MergedSCCGraph<>(this);
         TopoSorter<MergedNode<Obj>> sorter = new TopoSorter<>(mg, true);
-        SetCanonicalizer<Obj> canonicalizer = new SetCanonicalizer<>();
+        Canonicalizer<Set<Obj>> canonicalizer = new Canonicalizer<>();
         sorter.get().forEach(node -> {
             Set<Obj> allocatees = canonicalizer.get(getAllocatees(node, mg));
             node.getNodes().forEach(obj -> obj2Allocatees.put(obj, allocatees));

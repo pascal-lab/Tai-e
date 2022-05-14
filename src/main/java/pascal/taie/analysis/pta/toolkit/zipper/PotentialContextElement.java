@@ -27,10 +27,13 @@ import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.analysis.pta.toolkit.util.OAGs;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Canonicalizer;
+import pascal.taie.util.Indexer;
+import pascal.taie.util.SimpleIndexer;
+import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.SetCanonicalizer;
-import pascal.taie.util.collection.Sets;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,28 +46,30 @@ class PotentialContextElement {
     /**
      * Map from each type to PCE methods of the objects of the type.
      */
-    private final Map<Type, Set<JMethod>> type2PCEMethods = Maps.newMap();
+    private final Map<Type, Set<JMethod>> type2PCEMethods = Maps.newConcurrentMap();
 
     PotentialContextElement(PointerAnalysisResultEx pta,
                             ObjectAllocationGraph oag) {
         Map<Obj, Set<JMethod>> invokedMethods = OAGs.computeInvokedMethods(pta);
-        SetCanonicalizer<JMethod> canonicalizer = new SetCanonicalizer<>();
-        pta.getBase().getObjects()
+        Canonicalizer<Set<JMethod>> canonicalizer = new Canonicalizer<>();
+        Indexer<JMethod> methodIndexer = new SimpleIndexer<>(
+            pta.getBase().getCallGraph().getNodes());
+        List<Type> types = pta.getBase().getObjects()
             .stream()
             .map(Obj::getType)
             .distinct()
+            .toList();
+        types.parallelStream()
             .forEach(type -> {
-                Set<JMethod> methods = Sets.newHybridSet();
+                Set<JMethod> methods = new IndexerBitSet<>(methodIndexer, true);
                 // add invoked methods on objects of type
-                pta.getObjectsOf(type)
-                    .stream()
-                    .map(invokedMethods::get)
-                    .forEach(methods::addAll);
+                for (Obj obj : pta.getObjectsOf(type)) {
+                    methods.addAll(invokedMethods.get(obj));
+                }
                 // add invoked methods on allocated objects of type
-                oag.getAllocateesOf(type)
-                    .stream()
-                    .map(invokedMethods::get)
-                    .forEach(methods::addAll);
+                for (Obj allocatee : oag.getAllocateesOf(type)) {
+                    methods.addAll(invokedMethods.get(allocatee));
+                }
                 type2PCEMethods.put(type, canonicalizer.get(methods));
             });
     }

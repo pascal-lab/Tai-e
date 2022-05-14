@@ -106,18 +106,27 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
     /**
      * Map from each type to the objects of the type.
      */
-    private MultiMap<Type, Obj> type2Objs;
+    private volatile MultiMap<Type, Obj> type2Objs;
 
     @Override
     public Set<Obj> getObjectsOf(Type type) {
-        computeType2Objects();
-        return type2Objs.get(type);
+        MultiMap<Type, Obj> map = type2Objs;
+        if (map == null) {
+            synchronized (this) {
+                if (type2Objs == null) {
+                    type2Objs = computeType2Objects();
+                }
+            }
+            map = type2Objs;
+        }
+        return map.get(type);
     }
 
-    private void computeType2Objects() {
-        if (type2Objs == null) {
-            type2Objs = Maps.newMultiMap();
-            base.getObjects().forEach(obj -> type2Objs.put(obj.getType(), obj));
+    private MultiMap<Type, Obj> computeType2Objects() {
+        MultiMap<Type, Obj> map = Maps.newMultiMap();
+        for (Obj obj : base.getObjects()) {
+            map.put(obj.getType(), obj);
         }
+        return map;
     }
 }

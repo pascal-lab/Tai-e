@@ -20,24 +20,30 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.util.collection;
+package pascal.taie.util;
+
+import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
- * This class helps eliminate redundant equivalent sets.
+ * This class helps eliminate redundant equivalent elements.
  *
- * @param <T> type of elements in the sets.
+ * @param <T> type of canonicalized elements.
  */
-public class SetCanonicalizer<T> {
+public class Canonicalizer<T> {
 
-    private final Map<Set<T>, Set<T>> sets = Maps.newMap();
+    private final Map<T, T> map = Maps.newConcurrentMap();
 
-    public Set<T> get(Set<T> set) {
-        if (!sets.containsKey(set)) {
-            sets.put(set, set);
+    public T get(T item) {
+        T result = map.get(item);
+        if (result == null) {
+            result = map.putIfAbsent(item, item);
+            if (result == null) {
+                result = item;
+            }
         }
-        return sets.get(set);
+        return result;
     }
 }
