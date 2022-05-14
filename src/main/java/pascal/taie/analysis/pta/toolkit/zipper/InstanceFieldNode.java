@@ -29,8 +29,8 @@ class InstanceFieldNode extends InstanceNode {
 
     private final JField field;
 
-    InstanceFieldNode(Obj base, JField field) {
-        super(base);
+    InstanceFieldNode(Obj base, JField field, int index) {
+        super(base, index);
         this.field = field;
     }
 

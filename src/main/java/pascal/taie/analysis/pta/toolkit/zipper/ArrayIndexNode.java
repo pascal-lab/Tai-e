@@ -26,8 +26,8 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 
 class ArrayIndexNode extends InstanceNode {
 
-    ArrayIndexNode(Obj base) {
-        super(base);
+    ArrayIndexNode(Obj base, int index) {
+        super(base, index);
     }
 
     @Override

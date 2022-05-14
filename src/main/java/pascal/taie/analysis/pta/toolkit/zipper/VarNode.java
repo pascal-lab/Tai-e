@@ -28,7 +28,8 @@ class VarNode extends OFGNode {
 
     private final Var var;
 
-    public VarNode(Var var) {
+    public VarNode(Var var, int index) {
+        super(index);
         this.var = var;
     }
 

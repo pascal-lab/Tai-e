@@ -22,15 +22,27 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import pascal.taie.util.Indexable;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
 
-abstract class OFGNode {
+abstract class OFGNode implements Indexable {
+
+    private final int index;
 
     private Set<OFGEdge> inEdges = Set.of();
 
     private Set<OFGEdge> outEdges = Set.of();
+
+    OFGNode(int index) {
+        this.index = index;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
+    }
 
     void addOutEdge(OFGEdge edge) {
         if (outEdges.isEmpty()) {

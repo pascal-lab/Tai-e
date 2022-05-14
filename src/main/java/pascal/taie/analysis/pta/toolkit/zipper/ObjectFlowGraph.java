@@ -44,14 +44,15 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ReferenceType;
+import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,21 +62,24 @@ import static pascal.taie.analysis.pta.toolkit.zipper.OFGEdge.Kind.INSTANCE_STOR
 import static pascal.taie.analysis.pta.toolkit.zipper.OFGEdge.Kind.INTERPROCEDURAL_ASSIGN;
 import static pascal.taie.analysis.pta.toolkit.zipper.OFGEdge.Kind.LOCAL_ASSIGN;
 
-class ObjectFlowGraph implements Graph<OFGNode> {
+class ObjectFlowGraph implements Graph<OFGNode>, Indexer<OFGNode> {
 
     private static final Logger logger = LogManager.getLogger(ObjectFlowGraph.class);
 
-    private final Set<OFGNode> nodes = Sets.newSet();
+    private int nodeCounter;
 
-    private final Map<Var, VarNode> var2Node = Maps.newMap();
+    private final List<OFGNode> nodes = new ArrayList<>(4096);
+
+    private final Map<Var, VarNode> var2Node = Maps.newMap(4096);
 
     private final TwoKeyMap<Obj, JField, InstanceFieldNode> field2Node = Maps.newTwoKeyMap();
 
-    private final Map<Obj, ArrayIndexNode> array2Node = Maps.newMap();
+    private final Map<Obj, ArrayIndexNode> array2Node = Maps.newMap(1024);
 
     ObjectFlowGraph(PointerAnalysisResult pta) {
         CallGraph<Invoke, JMethod> callGraph = pta.getCallGraph();
         EdgeBuilder edgeBuilder = new EdgeBuilder(pta);
+        nodeCounter = 0;
         callGraph.forEach(method ->
             method.getIR().forEach(s -> s.accept(edgeBuilder)));
         // log statistics
@@ -224,7 +228,7 @@ class ObjectFlowGraph implements Graph<OFGNode> {
 
     private VarNode getOrCreateVarNode(Var var) {
         return var2Node.computeIfAbsent(var, v -> {
-            VarNode node = new VarNode(v);
+            VarNode node = new VarNode(v, nodeCounter++);
             nodes.add(node);
             return node;
         });
@@ -232,7 +236,7 @@ class ObjectFlowGraph implements Graph<OFGNode> {
 
     private InstanceFieldNode getOrCreateInstanceFieldNode(Obj base, JField field) {
         return field2Node.computeIfAbsent(base, field, (o, f) -> {
-            InstanceFieldNode node = new InstanceFieldNode(o, f);
+            InstanceFieldNode node = new InstanceFieldNode(o, f, nodeCounter++);
             nodes.add(node);
             return node;
         });
@@ -240,7 +244,7 @@ class ObjectFlowGraph implements Graph<OFGNode> {
 
     private ArrayIndexNode getOrCreateArrayIndexNode(Obj array) {
         return array2Node.computeIfAbsent(array, a -> {
-            ArrayIndexNode node = new ArrayIndexNode(a);
+            ArrayIndexNode node = new ArrayIndexNode(a, nodeCounter++);
             nodes.add(node);
             return node;
         });
@@ -278,7 +282,18 @@ class ObjectFlowGraph implements Graph<OFGNode> {
 
     @Override
     public Set<OFGNode> getNodes() {
-        return nodes;
+        return Views.toMappedSet(nodes, node -> node,
+            o -> o instanceof OFGNode node && hasNode(node));
+    }
+
+    @Override
+    public int getIndex(OFGNode o) {
+        return o.getIndex();
+    }
+
+    @Override
+    public OFGNode getObject(int index) {
+        return nodes.get(index);
     }
 
     @Nullable VarNode getVarNode(Var var) {

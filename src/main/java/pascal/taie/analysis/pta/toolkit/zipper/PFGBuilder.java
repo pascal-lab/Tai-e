@@ -33,9 +33,9 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -101,7 +101,7 @@ class PFGBuilder {
     PrecisionFlowGraph build() {
         inNodes = obtainInNodes();
         outNodes = obtainOutNodes();
-        visitedNodes = Sets.newSet();
+        visitedNodes = new IndexerBitSet<>(ofg, true);
         wuEdges = Maps.newMultiMap();
         for (VarNode inNode : inNodes) {
             dfs(inNode);

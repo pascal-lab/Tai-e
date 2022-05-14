@@ -28,7 +28,8 @@ abstract class InstanceNode extends OFGNode {
 
     protected final Obj base;
 
-    InstanceNode(Obj base) {
+    InstanceNode(Obj base, int index) {
+        super(index);
         this.base = base;
     }
 
