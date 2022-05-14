@@ -36,8 +36,22 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
 
     private final PointerAnalysisResult base;
 
-    public PointerAnalysisResultExImpl(PointerAnalysisResult base) {
+    /**
+     * Constructs an extended pointer analysis result.
+     *
+     * @param base      base pointer analysis result
+     * @param eagerInit whether initialize all fields eagerly; if this result
+     *                  will be accessed in concurrent setting, then the caller
+     *                  should give {@code true}.
+     */
+    public PointerAnalysisResultExImpl(
+        PointerAnalysisResult base, boolean eagerInit) {
         this.base = base;
+        if (eagerInit) {
+            initMethodReceiverObjects();
+            initAllocatedObjects();
+            initType2Objects();
+        }
     }
 
     @Override
@@ -52,8 +66,12 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
 
     @Override
     public Set<JMethod> getMethodsInvokedOn(Obj obj) {
-        computeMethodReceiverObjects();
-        return recv2Methods.get(obj);
+        MultiMap<Obj, JMethod> map = recv2Methods;
+        if (map == null) {
+            initMethodReceiverObjects();
+            map = recv2Methods;
+        }
+        return map.get(obj);
     }
 
     /**
@@ -63,24 +81,28 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
 
     @Override
     public Set<Obj> getReceiverObjectsOf(JMethod method) {
-        computeMethodReceiverObjects();
-        return method2Recvs.get(method);
+        MultiMap<JMethod, Obj> map = method2Recvs;
+        if (map == null) {
+            initMethodReceiverObjects();
+            map = method2Recvs;
+        }
+        return map.get(method);
     }
 
-    private void computeMethodReceiverObjects() {
-        if (recv2Methods == null && method2Recvs == null) {
-            recv2Methods = Maps.newMultiMap();
-            method2Recvs = Maps.newMultiMap();
-            base.getCallGraph().forEach(method -> {
-                if (!method.isStatic()) {
-                    Var thisVar = method.getIR().getThis();
-                    base.getPointsToSet(thisVar).forEach(recv -> {
-                        recv2Methods.put(recv, method);
-                        method2Recvs.put(method, recv);
-                    });
+    private void initMethodReceiverObjects() {
+        MultiMap<Obj, JMethod> r2m = Maps.newMultiMap();
+        MultiMap<JMethod, Obj> m2r = Maps.newMultiMap();
+        for (JMethod method : base.getCallGraph()) {
+            if (!method.isStatic()) {
+                Var thisVar = method.getIR().getThis();
+                for (Obj recv : base.getPointsToSet(thisVar)) {
+                    r2m.put(recv, method);
+                    m2r.put(method, recv);
                 }
-            });
+            }
         }
+        recv2Methods = r2m;
+        method2Recvs = m2r;
     }
 
     /**
@@ -90,43 +112,42 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
 
     @Override
     public Set<Obj> getObjectsAllocatedIn(JMethod method) {
-        computeAllocatedObjects();
-        return method2Objs.get(method);
+        MultiMap<JMethod, Obj> map = method2Objs;
+        if (map == null) {
+            initAllocatedObjects();
+            map = method2Objs;
+        }
+        return map.get(method);
     }
 
-    private void computeAllocatedObjects() {
-        if (method2Objs == null) {
-            method2Objs = Maps.newMultiMap();
-            base.getObjects().forEach(obj ->
-                    obj.getContainerMethod().ifPresent(m ->
-                            method2Objs.put(m, obj)));
+    private void initAllocatedObjects() {
+        MultiMap<JMethod, Obj> map = Maps.newMultiMap();
+        for (Obj obj : base.getObjects()) {
+            obj.getContainerMethod().ifPresent(m -> map.put(m, obj));
         }
+        method2Objs = map;
     }
 
     /**
      * Map from each type to the objects of the type.
      */
-    private volatile MultiMap<Type, Obj> type2Objs;
+    private MultiMap<Type, Obj> type2Objs;
 
     @Override
     public Set<Obj> getObjectsOf(Type type) {
         MultiMap<Type, Obj> map = type2Objs;
         if (map == null) {
-            synchronized (this) {
-                if (type2Objs == null) {
-                    type2Objs = computeType2Objects();
-                }
-            }
+            initType2Objects();
             map = type2Objs;
         }
         return map.get(type);
     }
 
-    private MultiMap<Type, Obj> computeType2Objects() {
+    private void initType2Objects() {
         MultiMap<Type, Obj> map = Maps.newMultiMap();
         for (Obj obj : base.getObjects()) {
             map.put(obj.getType(), obj);
         }
-        return map;
+        type2Objs = map;
     }
 }

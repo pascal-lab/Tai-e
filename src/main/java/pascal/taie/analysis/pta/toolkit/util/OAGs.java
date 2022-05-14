@@ -65,22 +65,25 @@ public class OAGs {
      */
     public static Map<Obj, Set<JMethod>> computeInvokedMethods(
             PointerAnalysisResultEx pta) {
-        Map<Obj, Set<JMethod>> invokedMethods = Maps.newMap();
-        pta.getBase().getObjects().forEach(obj -> {
-            Set<JMethod> methods = Sets.newHybridSet();
-            Queue<JMethod> workList = new ArrayDeque<>(
+        Map<Obj, Set<JMethod>> invokedMethods = Maps.newConcurrentMap();
+        pta.getBase()
+            .getObjects()
+            .parallelStream()
+            .forEach(obj -> {
+                Set<JMethod> methods = Sets.newHybridSet();
+                Queue<JMethod> workList = new ArrayDeque<>(
                     pta.getMethodsInvokedOn(obj));
-            while (!workList.isEmpty()) {
-                JMethod method = workList.poll();
-                methods.add(method);
-                pta.getBase().getCallGraph()
+                while (!workList.isEmpty()) {
+                    JMethod method = workList.poll();
+                    methods.add(method);
+                    pta.getBase().getCallGraph()
                         .getCalleesOfM(method)
                         .stream()
                         .filter(m -> m.isStatic() && !methods.contains(m))
                         .forEach(workList::add);
-            }
-            invokedMethods.put(obj, methods);
-        });
+                }
+                invokedMethods.put(obj, methods);
+            });
         return invokedMethods;
     }
 }

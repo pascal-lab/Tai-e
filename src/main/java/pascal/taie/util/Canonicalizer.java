@@ -25,7 +25,6 @@ package pascal.taie.util;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This class helps eliminate redundant equivalent elements.

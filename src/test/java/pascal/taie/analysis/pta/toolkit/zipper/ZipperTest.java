@@ -50,7 +50,7 @@ public class ZipperTest {
         Tests.testPTA(false, dir, main,  opts);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectAllocationGraph oag = new ObjectAllocationGraph(
-            new PointerAnalysisResultExImpl(pta));
+            new PointerAnalysisResultExImpl(pta, true));
         new DotDumper<Obj>().dump(oag, "output/" + main + "-oag.dot");
     }
 

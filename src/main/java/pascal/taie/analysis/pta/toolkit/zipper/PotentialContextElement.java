@@ -46,7 +46,7 @@ class PotentialContextElement {
     /**
      * Map from each type to PCE methods of the objects of the type.
      */
-    private final Map<Type, Set<JMethod>> type2PCEMethods = Maps.newConcurrentMap();
+    private final Map<Type, Set<JMethod>> type2PCEMethods;
 
     PotentialContextElement(PointerAnalysisResultEx pta,
                             ObjectAllocationGraph oag) {
@@ -59,6 +59,7 @@ class PotentialContextElement {
             .map(Obj::getType)
             .distinct()
             .toList();
+        type2PCEMethods = Maps.newConcurrentMap(types.size());
         types.parallelStream()
             .forEach(type -> {
                 Set<JMethod> methods = new IndexerBitSet<>(methodIndexer, true);

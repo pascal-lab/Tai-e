@@ -103,7 +103,7 @@ public class Zipper {
     }
 
     public Zipper(PointerAnalysisResult ptaBase, boolean isExpress, float pv) {
-        this.pta = new PointerAnalysisResultExImpl(ptaBase);
+        this.pta = new PointerAnalysisResultExImpl(ptaBase, true);
         this.isExpress = isExpress;
         this.pv = pv;
         this.oag = Timer.runAndCount(() -> new ObjectAllocationGraph(pta),

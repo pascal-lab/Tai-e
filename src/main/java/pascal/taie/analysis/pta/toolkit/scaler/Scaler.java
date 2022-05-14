@@ -89,7 +89,7 @@ public class Scaler {
     }
 
     public Scaler(PointerAnalysisResult ptaBase, long tst) {
-        this.pta = new PointerAnalysisResultExImpl(ptaBase);
+        this.pta = new PointerAnalysisResultExImpl(ptaBase, true);
         this.tst = tst;
         bottomLine = new _InsensitiveContextComputer(pta);
         // From the most precise analysis to the least precise analysis
