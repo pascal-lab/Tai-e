@@ -553,11 +553,10 @@ public class SparseBitSet extends AbstractBitSet {
                     long iteratedWord = iteratedBlock[w3];
                     if ((selfWord | iteratedWord) != selfWord) {
                         contains = false;
-                        break;
                     }
                 }
             } else {
-                contains = false;
+                contains = !isNonZeroBlock(iteratedBlock);
             }
             return isZero;
         }

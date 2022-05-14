@@ -103,6 +103,22 @@ public abstract class BitSetTest {
     }
 
     @Test
+    public void testContains2() {
+        BitSet s1 = of(762);
+        BitSet s2 = of(188);
+        assertFalse(s1.contains(s2));
+        assertFalse(s1.isEmpty());
+    }
+
+    @Test
+    public void testContains3() {
+        BitSet s1 = of(1000);
+        BitSet s2 = of(1000, 3000);
+        s2.clear(3000);
+        assertTrue(s1.contains(s2));
+    }
+
+    @Test
     public void testAnd() {
         BitSet s = of(1, 2, 3);
         assertFalse(s.and(of(1, 2, 3)));
