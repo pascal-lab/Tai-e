@@ -37,16 +37,18 @@ import pascal.taie.util.MutableInt;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.graph.Reachability;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Zipper {
@@ -147,18 +149,30 @@ public class Zipper {
     }
 
     private Set<JMethod> getPrecisionCriticalMethods(PrecisionFlowGraph pfg) {
-        // compute flow nodes
-        Reachability<OFGNode> reachability = new Reachability<>(pfg);
-        Set<OFGNode> nodes = Sets.newSet();
-        for (VarNode outNode : pfg.getOutNodes()) {
-            nodes.addAll(reachability.nodesReach(outNode));
-        }
-        // compute precision-critical methods
-        return nodes.stream()
+        return getFlowNodes(pfg)
+            .stream()
             .map(Zipper::node2Method)
             .filter(Objects::nonNull)
             .filter(pce.PCEMethodsOf(pfg.getType())::contains)
             .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static Set<OFGNode> getFlowNodes(PrecisionFlowGraph pfg) {
+        Set<OFGNode> visited = Sets.newSet();
+        for (VarNode outNode : pfg.getOutNodes()) {
+            Deque<OFGNode> workList = new ArrayDeque<>();
+            workList.add(outNode);
+            while (!workList.isEmpty()) {
+                OFGNode node = workList.poll();
+                if (visited.add(node)) {
+                    pfg.getPredsOf(node)
+                        .stream()
+                        .filter(Predicate.not(visited::contains))
+                        .forEach(workList::add);
+                }
+            }
+        }
+        return visited;
     }
 
     /**
