@@ -32,6 +32,7 @@ import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -50,10 +51,17 @@ public class MethodRef extends MemberRef {
     private static final Logger logger = LogManager.getLogger(MethodRef.class);
 
     private static final ConcurrentMap<Key, MethodRef> map =
-            Maps.newConcurrentMap(4096);
+        Maps.newConcurrentMap(4096);
+
+    /**
+     * Records the MethodRef that fails to be resolved.
+     */
+    private static final Set<MethodRef> resolveFailures =
+        Sets.newConcurrentSet();
 
     static {
         World.registerResetCallback(map::clear);
+        World.registerResetCallback(resolveFailures::clear);
     }
 
     // Method names of polymorphic signature methods.
@@ -182,7 +190,7 @@ public class MethodRef extends MemberRef {
         if (method == null) {
             method = World.get().getClassHierarchy()
                     .resolveMethod(this);
-            if (method == null) {
+            if (method == null && resolveFailures.add(this)) {
                 logger.warn("Failed to resolve {}", this);
             }
         }

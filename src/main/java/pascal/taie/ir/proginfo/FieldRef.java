@@ -31,8 +31,10 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -44,10 +46,17 @@ public class FieldRef extends MemberRef {
     private static final Logger logger = LogManager.getLogger(FieldRef.class);
 
     private static final ConcurrentMap<Key, FieldRef> map =
-            Maps.newConcurrentMap(4096);
+        Maps.newConcurrentMap(4096);
+
+    /**
+     * Records the FieldRef that fails to be resolved.
+     */
+    private static final Set<FieldRef> resolveFailures =
+        Sets.newConcurrentSet();
 
     static {
         World.registerResetCallback(map::clear);
+        World.registerResetCallback(resolveFailures::clear);
     }
 
     private final Type type;
@@ -92,7 +101,7 @@ public class FieldRef extends MemberRef {
         if (field == null) {
             field = World.get().getClassHierarchy()
                     .resolveField(this);
-            if (field == null) {
+            if (field == null && resolveFailures.add(this)) {
                 logger.warn("Failed to resolve {}", this);
             }
         }

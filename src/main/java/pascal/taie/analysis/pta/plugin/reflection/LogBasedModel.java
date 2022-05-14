@@ -98,6 +98,11 @@ class LogBasedModel extends MetaObjModel {
      */
     private final MultiMap<Invoke, ClassType> arrayTypeTargets = Maps.newMultiMap();
 
+    /**
+     * Callers or targets that are absent in the closed world.
+     */
+    private final Set<String> missingItems = Sets.newSet();
+
     private final ContextSelector selector;
 
     LogBasedModel(Solver solver) {
@@ -154,8 +159,8 @@ class LogBasedModel extends MetaObjModel {
             invokes.stream()
                     .map(Invoke::getContainer)
                     .forEach(relevantMethods::add);
-        } else {
-            logger.warn("Target '{}' for {} is not found", item.target, item.api);
+        } else if (missingItems.add(item.target)) {
+            logger.warn("Reflective target '{}' for {} is not found", item.target, item.api);
         }
     }
 
@@ -165,7 +170,9 @@ class LogBasedModel extends MetaObjModel {
         String callerMethod = item.caller.substring(lastDot + 1);
         JClass klass = hierarchy.getClass(callerClass);
         if (klass == null) {
-            logger.warn("Class '{}' is absent", callerClass);
+            if (missingItems.add(callerClass)) {
+                logger.warn("Reflective caller class '{}' is absent", callerClass);
+            }
             return List.of();
         }
         List<Invoke> invokes = new ArrayList<>();
