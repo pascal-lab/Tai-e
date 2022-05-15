@@ -44,7 +44,6 @@ import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
-import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -114,8 +113,6 @@ public class DefaultSolver implements Solver {
 
     private final TypeSystem typeSystem;
 
-    private final NativeObjs nativeObjs;
-
     private final PointsToSetFactory ptsFactory;
 
     /**
@@ -150,7 +147,6 @@ public class DefaultSolver implements Solver {
         this.csManager = csManager;
         hierarchy = World.get().getClassHierarchy();
         typeSystem = World.get().getTypeSystem();
-        nativeObjs = new NativeObjs(typeSystem);
         ptsFactory = new PointsToSetFactory(csManager.getObjectIndexer());
     }
 
@@ -182,11 +178,6 @@ public class DefaultSolver implements Solver {
     @Override
     public TypeSystem getTypeSystem() {
         return typeSystem;
-    }
-
-    @Override
-    public NativeObjs getNativeObjs() {
-        return nativeObjs;
     }
 
     @Override
@@ -247,8 +238,8 @@ public class DefaultSolver implements Solver {
             processNewCSMethod(csMethod);
         }
         // setup main arguments
-        Obj args = nativeObjs.getMainArgs();
-        Obj argsElem = nativeObjs.getMainArgsElem();
+        Obj args = heapModel.getMainArgs();
+        Obj argsElem = heapModel.getMainArgsElem();
         addArrayPointsTo(defContext, args, defContext, argsElem);
         JMethod main = World.get().getMainMethod();
         addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);

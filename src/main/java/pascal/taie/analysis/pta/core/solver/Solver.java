@@ -33,7 +33,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
-import pascal.taie.analysis.pta.core.heap.NativeObjs;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -52,8 +51,6 @@ public interface Solver {
     ClassHierarchy getHierarchy();
 
     TypeSystem getTypeSystem();
-
-    NativeObjs getNativeObjs();
 
     CSManager getCSManager();
 

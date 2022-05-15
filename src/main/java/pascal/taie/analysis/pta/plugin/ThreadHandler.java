@@ -26,7 +26,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.NativeObjs;
+import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -97,12 +97,12 @@ public class ThreadHandler implements Plugin {
         if (!solver.getOptions().getBoolean("implicit-entries")) {
             return;
         }
-        NativeObjs nativeObjs = solver.getNativeObjs();
+        HeapModel heapModel = solver.getHeapModel();
         Context context = solver.getContextSelector().getEmptyContext();
 
         // setup system thread group
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
-        Obj systemThreadGroup = nativeObjs.getSystemThreadGroup();
+        Obj systemThreadGroup = heapModel.getSystemThreadGroup();
         IR threadGroupInitIR = hierarchy.getJREMethod(
                         "<java.lang.ThreadGroup: void <init>()>")
                 .getIR();
@@ -112,7 +112,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread group
         // propagate <main-thread-group> to <java.lang.ThreadGroup: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThreadGroup = nativeObjs.getMainThreadGroup();
+        Obj mainThreadGroup = heapModel.getMainThreadGroup();
         threadGroupInitIR = hierarchy.getJREMethod(
                         "<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
@@ -130,7 +130,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread
         // propagate <main-thread> to <java.lang.Thread: void
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThread = nativeObjs.getMainThread();
+        Obj mainThread = heapModel.getMainThread();
         IR threadInitIR = hierarchy.getJREMethod(
                         "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>")
                 .getIR();
