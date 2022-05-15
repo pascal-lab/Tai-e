@@ -32,7 +32,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
-import pascal.taie.analysis.pta.core.heap.MockObj;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -51,7 +51,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ClassType;
@@ -65,6 +64,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static java.util.Objects.requireNonNull;
+import static pascal.taie.language.classes.ClassNames.CALL_SITE;
+import static pascal.taie.language.classes.ClassNames.LOOKUP;
+import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
 
 public class InvokeDynamicAnalysis implements Plugin {
 
@@ -147,7 +151,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     /**
      * Map from class type to corresponding Method.Lookup object.
      */
-    private final Map<ClassType, MockObj> lookupObjs = Maps.newMap();
+    private final Map<ClassType, Obj> lookupObjs = Maps.newMap();
 
     /**
      * @return true if java.lang.invoke.MethodHandle is used by
@@ -156,7 +160,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     public static boolean useMethodHandle() {
         // if MethodHandle is not loaded, we consider it as unused.
         return World.get().getClassHierarchy()
-                .getJREClass(ClassNames.METHOD_HANDLE) != null;
+                .getJREClass(METHOD_HANDLE) != null;
     }
 
     @Override
@@ -169,9 +173,9 @@ public class InvokeDynamicAnalysis implements Plugin {
         typeSystem = solver.getTypeSystem();
 
         defContext = selector.getEmptyContext();
-        lookup = hierarchy.getJREClass(ClassNames.LOOKUP).getType();
-        methodHandle = hierarchy.getJREClass(ClassNames.METHOD_HANDLE).getType();
-        callSite = hierarchy.getJREClass(ClassNames.CALL_SITE).getType();
+        lookup = requireNonNull(hierarchy.getJREClass(LOOKUP)).getType();
+        methodHandle = requireNonNull(hierarchy.getJREClass(METHOD_HANDLE)).getType();
+        callSite = requireNonNull(hierarchy.getJREClass(CALL_SITE)).getType();
         // TODO: add option to enable MethodTypeModel
         methodTypeModel = DummyModel.get();
         lookupModel = new LookupModel(solver);
@@ -333,10 +337,10 @@ public class InvokeDynamicAnalysis implements Plugin {
      * Each Lookup object is associate with a lookup class which contains the
      * invokedynamic invocation site, and will be used for access checking.
      */
-    private MockObj getLookupObj(Invoke invoke) {
+    private Obj getLookupObj(Invoke invoke) {
         ClassType type = invoke.getContainer().getDeclaringClass().getType();
         return lookupObjs.computeIfAbsent(type,
-                t -> new MockObj(LOOKUP_DESC, t, lookup));
+                t -> heapModel.getMockObj(LOOKUP_DESC, t, lookup));
     }
 
     @Override

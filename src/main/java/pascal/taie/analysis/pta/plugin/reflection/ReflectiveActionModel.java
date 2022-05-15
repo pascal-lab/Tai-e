@@ -29,7 +29,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
-import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -49,8 +48,6 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -81,12 +78,6 @@ class ReflectiveActionModel extends AbstractModel {
     private final ContextSelector selector;
 
     private final TypeSystem typeSystem;
-
-    /**
-     * Map from Invoke (of Class/Constructor/Array.newInstance()) and type
-     * to the reflectively-created objects.
-     */
-    private final TwoKeyMap<Invoke, ReferenceType, MockObj> newObjs = Maps.newTwoKeyMap();
 
     ReflectiveActionModel(Solver solver) {
         super(solver);
@@ -185,13 +176,8 @@ class ReflectiveActionModel extends AbstractModel {
     }
 
     private CSObj newReflectiveObj(Context context, Invoke invoke, ReferenceType type) {
-        MockObj newObj = newObjs.get(invoke, type);
-        if (newObj == null) {
-            newObj = new MockObj(REF_OBJ_DESC, invoke, type,
-                    invoke.getContainer());
-            // TODO: process newObj by heapModel?
-            newObjs.put(invoke, type, newObj);
-        }
+        Obj newObj = heapModel.getMockObj(REF_OBJ_DESC,
+            invoke, type, invoke.getContainer());
         // TODO: double-check if the heap context is proper
         CSObj csNewObj = csManager.getCSObj(context, newObj);
         Var result = invoke.getResult();

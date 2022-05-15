@@ -53,8 +53,6 @@ public class TaintAnalysis implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
 
-    private final TaintManager manager = new TaintManager();
-
     /**
      * Map from method (which is source method) to set of types of
      * taint objects returned by the method calls.
@@ -74,19 +72,22 @@ public class TaintAnalysis implements Plugin {
      */
     private final MultiMap<Var, Pair<Var, Type>> varTransfers = Maps.newMultiMap();
 
-    private TaintConfig config;
-
     private Solver solver;
 
     private CSManager csManager;
 
     private Context emptyContext;
 
+    private TaintManager manager;
+
+    private TaintConfig config;
+
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
+        manager = new TaintManager(solver.getHeapModel());
         config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),

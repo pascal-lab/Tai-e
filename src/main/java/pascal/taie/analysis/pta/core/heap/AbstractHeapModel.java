@@ -170,7 +170,6 @@ abstract class AbstractHeapModel implements HeapModel {
      */
     protected abstract Obj doGetObj(New allocSite);
 
-
     @Override
     public Obj getConstantObj(ReferenceLiteral value) {
         Obj obj = doGetConstantObj(value);

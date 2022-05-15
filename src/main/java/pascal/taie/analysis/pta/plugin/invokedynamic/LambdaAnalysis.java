@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
@@ -50,7 +51,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -70,6 +70,8 @@ public class LambdaAnalysis implements Plugin {
 
     private Solver solver;
 
+    private HeapModel heapModel;
+
     private ContextSelector selector;
 
     private ClassHierarchy hierarchy;
@@ -79,12 +81,7 @@ public class LambdaAnalysis implements Plugin {
     /**
      * Map from method to the lambda functional objects created in the method.
      */
-    private final MultiMap<JMethod, MockObj> lambdaObjs = Maps.newMultiMap();
-
-    /**
-     * Map from Invoke (of invokedynamic) and type to mock obj to avoid mocking same objects
-     */
-    private final TwoKeyMap<Invoke, ClassType, MockObj> newObjs = Maps.newTwoKeyMap();
+    private final MultiMap<JMethod, Obj> lambdaObjs = Maps.newMultiMap();
 
     /**
      * Map from receiver variable to the information about the related
@@ -96,6 +93,7 @@ public class LambdaAnalysis implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
+        this.heapModel = solver.getHeapModel();
         this.selector = solver.getContextSelector();
         this.hierarchy = solver.getHierarchy();
         this.csManager = solver.getCSManager();
@@ -109,7 +107,7 @@ public class LambdaAnalysis implements Plugin {
             JMethod container = invoke.getContainer();
             // record lambda meta factories of new reachable methods
             lambdaObjs.put(container,
-                    new MockObj(LAMBDA_DESC, invoke, type, container));
+                heapModel.getMockObj(LAMBDA_DESC, invoke, type, container));
         });
     }
 
@@ -171,13 +169,8 @@ public class LambdaAnalysis implements Plugin {
                 // the newly-allocated object. Note that here we use the
                 // *invokedynamic* to represent the *allocation site*,
                 // instead of the actual invocation site of the constructor.
-                MockObj newObj = newObjs.get(indyInvoke, type);
-                if (newObj == null) {
-                    // TODO: use heapModel to process mock obj?
-                    newObj = new MockObj(LAMBDA_NEW_DESC, indyInvoke, type,
-                            indyInvoke.getContainer());
-                    newObjs.put(indyInvoke, type, newObj);
-                }
+                Obj newObj = heapModel.getMockObj(LAMBDA_NEW_DESC,
+                    indyInvoke, type, indyInvoke.getContainer());
                 // pass the mock object to result variable (if present)
                 // TODO: double-check if the heap context is proper
                 CSObj csNewObj = csManager.getCSObj(context, newObj);

@@ -526,7 +526,7 @@ public class DefaultSolver implements Solver {
 
         private Context context;
 
-        private final Map<NewMultiArray, MockObj[]> newArrays = Maps.newMap();
+        private final Map<NewMultiArray, Obj[]> newArrays = Maps.newMap();
 
         private final Map<New, Invoke> registerInvokes = Maps.newMap();
 
@@ -563,18 +563,17 @@ public class DefaultSolver implements Solver {
         private void processNewMultiArray(
                 New allocSite, Context arrayContext, Obj array) {
             NewMultiArray newMultiArray = (NewMultiArray) allocSite.getRValue();
-            MockObj[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
+            Obj[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
                 ArrayType type = nma.getType();
-                MockObj[] newArrays = new MockObj[nma.getLengthCount() - 1];
+                Obj[] newArrays = new MockObj[nma.getLengthCount() - 1];
                 for (int i = 1; i < nma.getLengthCount(); ++i) {
                     type = (ArrayType) type.elementType();
-                    newArrays[i - 1] = new MockObj(MULTI_ARRAY_DESC,
+                    newArrays[i - 1] = heapModel.getMockObj(MULTI_ARRAY_DESC,
                             allocSite, type, allocSite.getContainer());
                 }
                 return newArrays;
             });
-            for (MockObj newArray : arrays) {
-                // TODO: process the newArray by heapModel?
+            for (Obj newArray : arrays) {
                 Context elemContext = contextSelector
                         .selectHeapContext(csMethod, newArray);
                 addArrayPointsTo(arrayContext, array, elemContext, newArray);

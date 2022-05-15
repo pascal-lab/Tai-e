@@ -30,8 +30,9 @@ import javax.annotation.Nullable;
  * This design saves memory and improves efficiency of set iterations.
  *
  * This implementation uses core design and some code from
- * https://github.com/brettwooldridge/SparseBitSet, and we rewrite most code
- * to support the operations that we need and improve the readability.
+ * https://github.com/brettwooldridge/SparseBitSet
+ * We rewrite most code to support the operations that we need
+ * and improve the readability.
  */
 public class SparseBitSet extends AbstractBitSet {
 

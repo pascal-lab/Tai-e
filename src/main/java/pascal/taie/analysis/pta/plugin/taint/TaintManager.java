@@ -22,13 +22,12 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.TwoKeyMap;
 
 /**
  * Manages taint objects.
@@ -37,7 +36,11 @@ class TaintManager {
 
     private static final String TAINT_DESC = "TaintObj";
 
-    private final TwoKeyMap<Invoke, Type, Obj> taints = Maps.newTwoKeyMap();
+    private final HeapModel heapModel;
+
+    TaintManager(HeapModel heapModel) {
+        this.heapModel = heapModel;
+    }
 
     /**
      * Makes a taint object for given source and type.
@@ -47,8 +50,7 @@ class TaintManager {
      * @return the taint object for given source and type.
      */
     Obj makeTaint(Invoke source, Type type) {
-        return taints.computeIfAbsent(source, type,
-                (s, t) -> new MockObj(TAINT_DESC, s, t));
+        return heapModel.getMockObj(TAINT_DESC, source, type);
     }
 
     /**
