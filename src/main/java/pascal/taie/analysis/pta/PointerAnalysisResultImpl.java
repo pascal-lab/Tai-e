@@ -37,20 +37,23 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.Canonicalizer;
+import pascal.taie.util.Indexer;
+import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PointerAnalysisResultImpl extends AbstractResultHolder
@@ -60,12 +63,30 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     private final CSManager csManager;
 
+    /**
+     * Points-to set of local variables.
+     */
     private final Map<Var, Set<Obj>> varPointsTo = Maps.newConcurrentMap(4096);
 
     /**
-     * Points-to sets of field expressions, e.g., v.f.
+     * Points-to sets of instance field expressions, e.g., v.f.
      */
-    private final Map<Pair<Var, JField>, Set<Obj>> fieldPointsTo = Maps.newConcurrentMap(1024);
+    private final Map<Pair<Var, JField>, Set<Obj>> ifieldPointsTo = Maps.newConcurrentMap(1024);
+
+    /**
+     * Points-to set of static field expressions, e.g., T.f.
+     */
+    private final Map<JField, Set<Obj>> sfieldPointsTo = Maps.newConcurrentMap(512);
+
+    /**
+     * Set of all (reachable) objects in the program.
+     */
+    private final Set<Obj> objects;
+
+    /**
+     * Canonicalizes (context-insensitive) points-to set.
+     */
+    private final Canonicalizer<Set<Obj>> canonicalizer = new Canonicalizer<>();
 
     /**
      * Context-sensitive call graph.
@@ -73,14 +94,22 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     private final CallGraph<CSCallSite, CSMethod> csCallGraph;
 
     /**
+     * Obj indexer.
+     */
+    private final Indexer<Obj> objIndexer;
+
+    /**
      * Call graph (context projected out).
      */
     private CallGraph<Invoke, JMethod> callGraph;
 
     public PointerAnalysisResultImpl(CSManager csManager,
+                                     Indexer<Obj> objIndexer,
                                      CallGraph<CSCallSite, CSMethod> csCallGraph) {
         this.csManager = csManager;
+        this.objIndexer = objIndexer;
         this.csCallGraph = csCallGraph;
+        this.objects = removeContexts(getCSObjects().stream());
     }
 
     @Override
@@ -115,7 +144,12 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Collection<Obj> getObjects() {
-        return removeContexts(getCSObjects().stream());
+        return objects;
+    }
+
+    @Override
+    public Indexer<Obj> getObjectIndexer() {
+        return objIndexer;
     }
 
     @Override
@@ -127,23 +161,30 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
+    public Set<Obj> getPointsToSet(InstanceFieldAccess access) {
+        Var base = access.getBase();
+        JField field = access.getFieldRef().resolveNullable();
+        return field != null ? getPointsToSet(base, field) : Set.of();
+    }
+
+    @Override
     public Set<Obj> getPointsToSet(Var base, JField field) {
         if (field.isStatic()) {
             logger.warn("{} is not instance field", field);
         }
-        return fieldPointsTo.computeIfAbsent(new Pair<>(base, field), p -> {
-            Set<Obj> pts = Sets.newHybridSet();
-            csManager.getCSVarsOf(base)
-                    .stream()
-                    .flatMap(Pointer::objects)
-                    .forEach(o -> {
-                        InstanceField ifield = csManager.getInstanceField(o, field);
-                        ifield.objects()
-                                .map(CSObj::getObject)
-                                .forEach(pts::add);
-                    });
-            return Collections.unmodifiableSet(pts);
-        });
+        // TODO - properly handle non-exist base.field
+        return ifieldPointsTo.computeIfAbsent(new Pair<>(base, field), p ->
+            removeContexts(csManager.getCSVarsOf(base)
+                .stream()
+                .flatMap(Pointer::objects)
+                .map(o -> csManager.getInstanceField(o, field))
+                .flatMap(InstanceField::objects)));
+    }
+
+    @Override
+    public Set<Obj> getPointsToSet(StaticFieldAccess access) {
+        JField field = access.getFieldRef().resolveNullable();
+        return field != null ? getPointsToSet(field) : Set.of();
     }
 
     @Override
@@ -151,16 +192,18 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         if (!field.isStatic()) {
             logger.warn("{} is not static field", field);
         }
-        return removeContexts(csManager.getStaticField(field).objects());
+        return sfieldPointsTo.computeIfAbsent(field, f ->
+            removeContexts(csManager.getStaticField(field).objects()));
     }
 
     /**
      * Removes contexts of a context-sensitive points-to set and
      * returns a new resulting set.
      */
-    private static Set<Obj> removeContexts(Stream<CSObj> objects) {
-        return objects.map(CSObj::getObject)
-                .collect(Collectors.toUnmodifiableSet());
+    private Set<Obj> removeContexts(Stream<CSObj> objects) {
+        Set<Obj> set = new HybridBitSet<>(objIndexer, true);
+        objects.map(CSObj::getObject).forEach(set::add);
+        return canonicalizer.get(Collections.unmodifiableSet(set));
     }
 
     @Override

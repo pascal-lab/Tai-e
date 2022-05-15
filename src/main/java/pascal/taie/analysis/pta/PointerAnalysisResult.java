@@ -31,10 +31,14 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Indexer;
 import pascal.taie.util.ResultHolder;
 
 import java.util.Collection;
@@ -81,14 +85,40 @@ public interface PointerAnalysisResult extends ResultHolder {
     Collection<Obj> getObjects();
 
     /**
+     * @return indexer for Obj in the program.
+     */
+    Indexer<Obj> getObjectIndexer();
+
+    /**
      * @return set of Obj pointed to by var.
      */
     Set<Obj> getPointsToSet(Var var);
 
     /**
+     * @return set of Obj pointed to by field access.
+     */
+    default Set<Obj> getPointsToSet(FieldAccess access) {
+        if (access instanceof InstanceFieldAccess ifaccess) {
+            return getPointsToSet(ifaccess);
+        } else {
+            return getPointsToSet((StaticFieldAccess) access);
+        }
+    }
+
+    /**
+     * @return @return set of Obj pointed to by given instance field access.
+     */
+    Set<Obj> getPointsToSet(InstanceFieldAccess access);
+
+    /**
      * @return set of Obj pointed to by base.field.
      */
     Set<Obj> getPointsToSet(Var base, JField field);
+
+    /**
+     * @return set of Obj pointed to by given static field access.
+     */
+    Set<Obj> getPointsToSet(StaticFieldAccess access);
 
     /**
      * @return points-to set of given field. The field is supposed to be static.

@@ -773,7 +773,7 @@ public class DefaultSolver implements Solver {
     @Override
     public PointerAnalysisResult getResult() {
         if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, callGraph);
+            result = new PointerAnalysisResultImpl(csManager, heapModel, callGraph);
         }
         return result;
     }
