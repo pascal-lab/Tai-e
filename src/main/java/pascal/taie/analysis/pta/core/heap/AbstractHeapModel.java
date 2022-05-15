@@ -26,18 +26,26 @@ import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.TwoKeyMap;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
 import static pascal.taie.language.classes.ClassNames.STRING_BUILDER;
+import static pascal.taie.language.classes.ClassNames.THREAD;
+import static pascal.taie.language.classes.ClassNames.THREAD_GROUP;
 import static pascal.taie.language.classes.ClassNames.THROWABLE;
-import static pascal.taie.util.collection.Maps.newHybridMap;
-import static pascal.taie.util.collection.Maps.newMap;
 
 /**
  * All heap models should inherit this class, and we can define
@@ -63,17 +71,38 @@ abstract class AbstractHeapModel implements HeapModel {
 
     private final ClassType throwable;
 
-    private final Map<New, NewObj> objs = newMap();
+    private final Map<New, NewObj> newObjs = Maps.newMap();
 
-    private final Map<Type, Map<ReferenceLiteral, ConstantObj>> constantObjs
-            = newHybridMap();
+    private final TwoKeyMap<Type, ReferenceLiteral, ConstantObj> constantObjs
+            = Maps.newTwoKeyMap();
 
     /**
      * The merged object representing string constants.
      */
     private final MergedObj mergedSC;
 
-    private final Map<Type, MergedObj> mergedObjs = newMap();
+    private final Map<Type, MergedObj> mergedObjs = Maps.newMap();
+
+    private final Map<MockObj, MockObj> mockObjs = Maps.newMap();
+
+    /**
+     * Counter for indexing Objs.
+     */
+    private int counter = 0;
+
+    private final List<Obj> objs = new ArrayList<>(1024);
+
+    private static final String ENV_DESC = "EnvObj";
+
+    private final Obj systemThreadGroup;
+
+    private final Obj mainThread;
+
+    private final Obj mainThreadGroup;
+
+    private final Obj mainArgs; // main(String[] args)
+
+    private final Obj mainArgsElem; // Element in args
 
     protected AbstractHeapModel(AnalysisOptions options) {
         isMergeStringConstants = options.getBoolean("merge-string-constants");
@@ -85,7 +114,20 @@ abstract class AbstractHeapModel implements HeapModel {
         stringBuilder = typeSystem.getClassType(STRING_BUILDER);
         stringBuffer = typeSystem.getClassType(STRING_BUFFER);
         throwable = typeSystem.getClassType(THROWABLE);
-        mergedSC = new MergedObj(string, "<Merged string constants>");
+
+        mergedSC = add(new MergedObj(string, "<Merged string constants>"));
+
+        systemThreadGroup = getMockObj(ENV_DESC, "<system-thread-group>",
+            typeSystem.getClassType(THREAD_GROUP));
+        mainThread = getMockObj(ENV_DESC, "<main-thread>",
+            typeSystem.getClassType(THREAD));
+        mainThreadGroup = getMockObj(ENV_DESC, "<main-thread-group>",
+            typeSystem.getClassType(THREAD_GROUP));
+        ArrayType stringArray = typeSystem.getArrayType(string, 1);
+        mainArgs = getMockObj(ENV_DESC, "<main-arguments>", stringArray,
+            World.get().getMainMethod());
+        mainArgsElem = getMockObj(ENV_DESC, "<main-arguments-element>", string,
+            World.get().getMainMethod());
     }
 
     @Override
@@ -104,6 +146,31 @@ abstract class AbstractHeapModel implements HeapModel {
         return doGetObj(allocSite);
     }
 
+    /**
+     * Merges given object given by its type.
+     *
+     * @param allocSite the allocation site of the object
+     * @return the merged object
+     */
+    protected MergedObj getMergedObj(New allocSite) {
+        MergedObj mergedObj = mergedObjs.computeIfAbsent(
+            allocSite.getRValue().getType(),
+            t -> add(new MergedObj(t, "<Merged " + t + ">")));
+        mergedObj.addRepresentedObj(getNewObj(allocSite));
+        return mergedObj;
+    }
+
+    protected NewObj getNewObj(New allocSite) {
+        return newObjs.computeIfAbsent(allocSite,
+            site -> add(new NewObj(site)));
+    }
+
+    /**
+     * The method which controls the heap modeling for normal objects.
+     */
+    protected abstract Obj doGetObj(New allocSite);
+
+
     @Override
     public Obj getConstantObj(ReferenceLiteral value) {
         Obj obj = doGetConstantObj(value);
@@ -115,30 +182,63 @@ abstract class AbstractHeapModel implements HeapModel {
     }
 
     protected Obj doGetConstantObj(ReferenceLiteral value) {
-        return constantObjs.computeIfAbsent(value.getType(), t -> newMap())
-                .computeIfAbsent(value, ConstantObj::new);
+        return constantObjs.computeIfAbsent(value.getType(), value,
+            (t, v) -> add(new ConstantObj(v)));
+    }
+
+    @Override
+    public Obj getMockObj(String desc, Object alloc, Type type, JMethod container) {
+        MockObj mockObj = new MockObj(desc, alloc, type, container);
+        return mockObjs.computeIfAbsent(mockObj, this::add);
     }
 
     /**
-     * Merges given object given by its type.
-     *
-     * @param allocSite the allocation site of the object
-     * @return the merged object
+     * Adds an obj to this model. This method also sets index for given obj.
+     * Each obj should be passed to this method only once.
      */
-    protected MergedObj getMergedObj(New allocSite) {
-        MergedObj mergedObj = mergedObjs.computeIfAbsent(
-                allocSite.getRValue().getType(),
-                t -> new MergedObj(t, "<Merged " + t + ">"));
-        mergedObj.addRepresentedObj(getNewObj(allocSite));
-        return mergedObj;
+    protected <T extends Obj> T add(T obj) {
+        objs.add(obj);
+        obj.setIndex(counter++);
+        return obj;
     }
 
-    protected NewObj getNewObj(New allocSite) {
-        return objs.computeIfAbsent(allocSite, NewObj::new);
+    @Override
+    public Obj getSystemThreadGroup() {
+        return systemThreadGroup;
     }
 
-    /**
-     * The method which controls the heap modeling for normal objects.
-     */
-    protected abstract Obj doGetObj(New allocSite);
+    @Override
+    public Obj getMainThread() {
+        return mainThread;
+    }
+
+    @Override
+    public Obj getMainThreadGroup() {
+        return mainThreadGroup;
+    }
+
+    @Override
+    public Obj getMainArgs() {
+        return mainArgs;
+    }
+
+    @Override
+    public Obj getMainArgsElem() {
+        return mainArgsElem;
+    }
+
+    @Override
+    public Collection<Obj> getObjects() {
+        return Collections.unmodifiableList(objs);
+    }
+
+    @Override
+    public int getIndex(Obj o) {
+        return o.getIndex();
+    }
+
+    @Override
+    public Obj getObject(int index) {
+        return objs.get(index);
+    }
 }

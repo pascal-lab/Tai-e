@@ -31,11 +31,11 @@ import java.util.Optional;
 /**
  * Objects that are created by new statements.
  */
-public class NewObj implements Obj {
+public class NewObj extends Obj {
 
     private final New allocSite;
 
-    public NewObj(New allocSite) {
+    NewObj(New allocSite) {
         this.allocSite = allocSite;
     }
 

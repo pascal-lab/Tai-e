@@ -31,11 +31,11 @@ import java.util.Optional;
 /**
  * Objects that represent constants.
  */
-public class ConstantObj implements Obj {
+public class ConstantObj extends Obj {
 
     private final ReferenceLiteral value;
 
-    public ConstantObj(ReferenceLiteral value) {
+    ConstantObj(ReferenceLiteral value) {
         this.value = value;
     }
 

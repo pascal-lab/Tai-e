@@ -24,11 +24,19 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
+import pascal.taie.util.Indexer;
+
+import java.util.Collection;
 
 /**
  * Represents of heap models for heap objects.
+ * Pointer analysis should ALWAYS obtain {@link Obj} via this interface.
+ *
+ * @see Obj
  */
-public interface HeapModel {
+public interface HeapModel extends Indexer<Obj> {
 
     /**
      * @return the abstract object for given new statement.
@@ -39,4 +47,50 @@ public interface HeapModel {
      * @return the constant object for given value.
      */
     Obj getConstantObj(ReferenceLiteral value);
+
+    /**
+     * @return the mock object for given arguments.
+     */
+    Obj getMockObj(String desc, Object alloc, Type type, JMethod container);
+
+    /**
+     * @return the mock object for given arguments.
+     */
+    default Obj getMockObj(String desc, Object alloc, Type type) {
+        return getMockObj(desc, alloc, type, null);
+    }
+
+    // ------------------------------------------------------------------------
+    // APIs for retrieving specific runtime environment objects
+    // ------------------------------------------------------------------------
+    /**
+     * @return the system ThreadGroup object.
+     */
+    Obj getSystemThreadGroup();
+
+    /**
+     * @return the main ThreadGroup object.
+     */
+    Obj getMainThreadGroup();
+
+    /**
+     * @return the main Thread object.
+     */
+    Obj getMainThread();
+
+    /**
+     * @return args in main(String[] args).
+     */
+    Obj getMainArgs();
+
+    /**
+     * @return element(s) in args.
+     */
+    Obj getMainArgsElem();
+    // ---------- runtime environment objects (end) ----------
+
+    /**
+     * @return all objects in this heap model.
+     */
+    Collection<Obj> getObjects();
 }

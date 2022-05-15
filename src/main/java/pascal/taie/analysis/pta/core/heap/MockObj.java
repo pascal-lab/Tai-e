@@ -32,7 +32,7 @@ import java.util.Optional;
  * Represents the objects whose allocation sites are not explicitly
  * written in the program.
  */
-public class MockObj implements Obj {
+public class MockObj extends Obj {
 
     private final String desc;
 
