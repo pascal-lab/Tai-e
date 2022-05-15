@@ -29,8 +29,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Canonicalizer;
 import pascal.taie.util.Indexer;
-import pascal.taie.util.SimpleIndexer;
-import pascal.taie.util.collection.IndexerBitSet;
+import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
@@ -63,7 +62,9 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
                     }
                 });
         });
+        objIndexer = pta.getBase().getObjectIndexer();
         computeAllocatees(pta);
+        objIndexer = null;
         assert getNumberOfNodes() == pta.getBase().getObjects().size();
     }
 
@@ -79,26 +80,23 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
         // compute allocatees of objects
         MergedSCCGraph<Obj> mg = new MergedSCCGraph<>(this);
         TopoSorter<MergedNode<Obj>> sorter = new TopoSorter<>(mg, true);
-        objIndexer = new SimpleIndexer<>(getNodes().size());
         Canonicalizer<Set<Obj>> canonicalizer = new Canonicalizer<>();
         sorter.get().forEach(node -> {
-            node.getNodes().forEach(objIndexer::getIndex); // index Objs
             Set<Obj> allocatees = canonicalizer.get(getAllocatees(node, mg));
             node.getNodes().forEach(obj -> obj2Allocatees.put(obj, allocatees));
         });
         // compute allocatees of types
         pta.getObjectTypes().parallelStream().forEach(type -> {
-            Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
+            Set<Obj> allocatees = new HybridBitSet<>(objIndexer, true);
             pta.getObjectsOf(type)
                 .forEach(o -> allocatees.addAll(getAllocateesOf(o)));
             type2Allocatees.put(type, canonicalizer.get(allocatees));
         });
-
     }
 
     private Set<Obj> getAllocatees(
         MergedNode<Obj> node, MergedSCCGraph<Obj> mg) {
-        Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
+        Set<Obj> allocatees = new HybridBitSet<>(objIndexer, true);
         mg.getSuccsOf(node).forEach(n -> {
             // direct allocatees
             allocatees.addAll(n.getNodes());
