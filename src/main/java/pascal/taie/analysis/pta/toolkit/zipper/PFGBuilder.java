@@ -38,8 +38,10 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -168,75 +170,80 @@ class PFGBuilder {
         return false;
     }
 
-    private void dfs(FGNode node) {
-        logger.trace("dfs on {}", node);
-        if (visitedNodes.contains(node)) {
-            return;
-        }
-        visitedNodes.add(node);
-        // add unwrapped flow edges
-        if (node instanceof VarNode varNode) {
-            Var var = varNode.getVar();
-            Set<Obj> varPts = pta.getBase().getPointsToSet(var);
-            // Optimization: approximate unwrapped flows to make
-            // Zipper and pointer analysis run faster
-            getReturnToVariablesOf(var).forEach(toVar -> {
-                VarNode toNode = ofg.getVarNode(toVar);
-                if (toNode != null && outNodes.contains(toNode)) {
-                    for (VarNode inNode : inNodes) {
-                        Var inVar = inNode.getVar();
-                        if (!Collections.disjoint(
-                            pta.getBase().getPointsToSet(inVar), varPts)) {
-                            wuEdges.put(node, new FGEdge(UNWRAPPED_FLOW, node, toNode));
-                            break;
+    private void dfs(FGNode startNode) {
+        Deque<FGNode> stack = new ArrayDeque<>();
+        stack.push(startNode);
+        while (!stack.isEmpty()) {
+            FGNode node = stack.pop();
+            if (visitedNodes.contains(node)) {
+                continue;
+            }
+            logger.trace("dfs on {}", node);
+            visitedNodes.add(node);
+            // add unwrapped flow edges
+            if (node instanceof VarNode varNode) {
+                Var var = varNode.getVar();
+                Set<Obj> varPts = pta.getBase().getPointsToSet(var);
+                // Optimization: approximate unwrapped flows to make
+                // Zipper and pointer analysis run faster
+                getReturnToVariablesOf(var).forEach(toVar -> {
+                    VarNode toNode = ofg.getVarNode(toVar);
+                    if (toNode != null && outNodes.contains(toNode)) {
+                        for (VarNode inNode : inNodes) {
+                            Var inVar = inNode.getVar();
+                            if (!Collections.disjoint(
+                                pta.getBase().getPointsToSet(inVar), varPts)) {
+                                wuEdges.put(node, new FGEdge(UNWRAPPED_FLOW, node, toNode));
+                                break;
+                            }
                         }
                     }
-                }
-            });
-        }
-        List<FGEdge> nextEdges = new ArrayList<>();
-        for (FGEdge edge : getOutEdgesOf(node)) {
-            switch (edge.kind()) {
-                case LOCAL_ASSIGN, UNWRAPPED_FLOW -> {
-                    nextEdges.add(edge);
-                }
-                case INTERPROCEDURAL_ASSIGN, INSTANCE_LOAD, WRAPPED_FLOW -> {
-                    // target node must be a VarNode
-                    VarNode toNode = (VarNode) edge.target();
-                    Var toVar = toNode.getVar();
-                    // Optimization: filter out some potential spurious flows due to
-                    // the imprecision of context-insensitive pre-analysis, which
-                    // helps improve the performance of Zipper and pointer analysis.
-                    if (pce.PCEMethodsOf(type).contains(toVar.getMethod())) {
+                });
+            }
+            List<FGEdge> nextEdges = new ArrayList<>();
+            for (FGEdge edge : getOutEdgesOf(node)) {
+                switch (edge.kind()) {
+                    case LOCAL_ASSIGN, UNWRAPPED_FLOW -> {
                         nextEdges.add(edge);
                     }
-                }
-                case INSTANCE_STORE -> {
-                    InstanceNode toNode = (InstanceNode) edge.target();
-                    Obj base = toNode.getBase();
-                    if (base.getType().equals(type)) {
-                        // add wrapped flow edges to this variable
-                        invokeMethods.stream()
-                            .map(m -> m.getIR().getThis())
-                            .map(ofg::getVarNode)
-                            .filter(Objects::nonNull) // filter this variable of native methods
-                            .forEach(nextNode -> wuEdges.put(toNode,
-                                new FGEdge(WRAPPED_FLOW, toNode, nextNode)));
-                        nextEdges.add(edge);
-                    } else if (oag.getAllocateesOf(type).contains(base)) {
-                        // Optimization, similar as above.
-                        VarNode assignedNode = getAssignedNode(base);
-                        if (assignedNode != null) {
-                            wuEdges.put(toNode,
-                                new FGEdge(WRAPPED_FLOW, toNode, assignedNode));
+                    case INTERPROCEDURAL_ASSIGN, INSTANCE_LOAD, WRAPPED_FLOW -> {
+                        // target node must be a VarNode
+                        VarNode toNode = (VarNode) edge.target();
+                        Var toVar = toNode.getVar();
+                        // Optimization: filter out some potential spurious flows due to
+                        // the imprecision of context-insensitive pre-analysis, which
+                        // helps improve the performance of Zipper and pointer analysis.
+                        if (pce.PCEMethodsOf(type).contains(toVar.getMethod())) {
+                            nextEdges.add(edge);
                         }
-                        nextEdges.add(edge);
+                    }
+                    case INSTANCE_STORE -> {
+                        InstanceNode toNode = (InstanceNode) edge.target();
+                        Obj base = toNode.getBase();
+                        if (base.getType().equals(type)) {
+                            // add wrapped flow edges to this variable
+                            invokeMethods.stream()
+                                .map(m -> m.getIR().getThis())
+                                .map(ofg::getVarNode)
+                                .filter(Objects::nonNull) // filter this variable of native methods
+                                .forEach(nextNode -> wuEdges.put(toNode,
+                                    new FGEdge(WRAPPED_FLOW, toNode, nextNode)));
+                            nextEdges.add(edge);
+                        } else if (oag.getAllocateesOf(type).contains(base)) {
+                            // Optimization, similar as above.
+                            VarNode assignedNode = getAssignedNode(base);
+                            if (assignedNode != null) {
+                                wuEdges.put(toNode,
+                                    new FGEdge(WRAPPED_FLOW, toNode, assignedNode));
+                            }
+                            nextEdges.add(edge);
+                        }
                     }
                 }
             }
-        }
-        for (FGEdge nextEdge : nextEdges) {
-            dfs(nextEdge.target());
+            for (FGEdge nextEdge : nextEdges) {
+                stack.push(nextEdge.target());
+            }
         }
     }
 

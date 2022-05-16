@@ -29,7 +29,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Canonicalizer;
 import pascal.taie.util.Indexer;
-import pascal.taie.util.collection.HybridBitSet;
+import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
@@ -87,7 +87,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
         });
         // compute allocatees of types
         pta.getObjectTypes().parallelStream().forEach(type -> {
-            Set<Obj> allocatees = new HybridBitSet<>(objIndexer, true);
+            Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
             pta.getObjectsOf(type)
                 .forEach(o -> allocatees.addAll(getAllocateesOf(o)));
             type2Allocatees.put(type, canonicalizer.get(allocatees));
@@ -96,7 +96,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
 
     private Set<Obj> getAllocatees(
         MergedNode<Obj> node, MergedSCCGraph<Obj> mg) {
-        Set<Obj> allocatees = new HybridBitSet<>(objIndexer, true);
+        Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
         mg.getSuccsOf(node).forEach(n -> {
             // direct allocatees
             allocatees.addAll(n.getNodes());
