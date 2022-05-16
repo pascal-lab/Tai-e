@@ -118,7 +118,7 @@ public class DefaultSolver implements Solver {
     /**
      * Whether only analyzes application code.
      */
-    private boolean onlyApp;
+    private final boolean onlyApp;
 
     private Plugin plugin;
 
@@ -135,6 +135,11 @@ public class DefaultSolver implements Solver {
      */
     private Set<JClass> initializedClasses;
 
+    /**
+     * Set of methods to be intercepted and ignored.
+     */
+    private Set<JMethod> ignoredMethods;
+
     private StmtProcessor stmtProcessor;
 
     private PointerAnalysisResult result;
@@ -148,6 +153,7 @@ public class DefaultSolver implements Solver {
         hierarchy = World.get().getClassHierarchy();
         typeSystem = World.get().getTypeSystem();
         ptsFactory = new PointsToSetFactory(csManager.getObjectIndexer());
+        onlyApp = options.getBoolean("only-app");
     }
 
     @Override
@@ -220,12 +226,12 @@ public class DefaultSolver implements Solver {
      * Initializes pointer analysis.
      */
     private void initialize() {
-        onlyApp = options.getBoolean("only-app");
         callGraph = new CSCallGraph(csManager);
         pointerFlowGraph = new PointerFlowGraph();
         workList = new WorkList();
         reachableMethods = Sets.newSet();
         initializedClasses = Sets.newSet();
+        ignoredMethods = Sets.newSet();
         stmtProcessor = new StmtProcessor();
         plugin.onStart();
 
@@ -265,10 +271,6 @@ public class DefaultSolver implements Solver {
                 PointsToSet pts = entry.pointsToSet();
                 PointsToSet diff = propagate(p, pts);
                 if (p instanceof CSVar v) {
-                    if (onlyApp && !v.getVar().getMethod()
-                            .getDeclaringClass().isApplication()) {
-                        continue;
-                    }
                     processInstanceStore(v, diff);
                     processInstanceLoad(v, diff);
                     processArrayStore(v, diff);
@@ -315,8 +317,8 @@ public class DefaultSolver implements Solver {
     private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
         PointsToSet result = ptsFactory.make();
         pts.objects()
-                .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
-                .forEach(result::addObject);
+            .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
+            .forEach(result::addObject);
         return result;
     }
 
@@ -434,8 +436,10 @@ public class DefaultSolver implements Solver {
                     addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
                         csCallSite, csCallee));
                     // pass receiver object to *this* variable
-                    addVarPointsTo(calleeContext, callee.getIR().getThis(),
+                    if (!isIgnored(callee)) {
+                        addVarPointsTo(calleeContext, callee.getIR().getThis(),
                             recvObj);
+                    }
                 } else {
                     plugin.onUnresolvedCall(recvObj, context, callSite);
                 }
@@ -450,7 +454,8 @@ public class DefaultSolver implements Solver {
         if (callGraph.addEdge(edge)) {
             CSMethod csCallee = edge.getCallee();
             processNewCSMethod(csCallee);
-            if (edge.getKind() != CallKind.OTHER) {
+            if (edge.getKind() != CallKind.OTHER
+                && !isIgnored(csCallee.getMethod())) {
                 Context callerCtx = edge.getCallSite().getContext();
                 Invoke callSite = edge.getCallSite().getCallSite();
                 Context calleeCtx = csCallee.getContext();
@@ -488,15 +493,19 @@ public class DefaultSolver implements Solver {
     private void processNewCSMethod(CSMethod csMethod) {
         if (callGraph.addReachableMethod(csMethod)) {
             JMethod method = csMethod.getMethod();
-            if (onlyApp && !method.getDeclaringClass().isApplication()) {
+            if (isIgnored(method)) {
                 return;
             }
             processNewMethod(method);
             stmtProcessor.setCSMethod(csMethod);
-            method.getIR()
-                    .forEach(s -> s.accept(stmtProcessor));
+            method.getIR().forEach(s -> s.accept(stmtProcessor));
             plugin.onNewCSMethod(csMethod);
         }
+    }
+
+    private boolean isIgnored(JMethod method) {
+        return ignoredMethods.contains(method) ||
+            onlyApp && !method.getDeclaringClass().isApplication();
     }
 
     /**
@@ -768,6 +777,11 @@ public class DefaultSolver implements Solver {
                     contextSelector.getEmptyContext(), clinit);
             addCSMethod(csMethod);
         }
+    }
+
+    @Override
+    public void addIgnoredMethod(JMethod method) {
+        ignoredMethods.add(method);
     }
 
     @Override

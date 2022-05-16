@@ -41,6 +41,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
@@ -52,9 +53,9 @@ public interface Solver {
 
     TypeSystem getTypeSystem();
 
-    CSManager getCSManager();
-
     HeapModel getHeapModel();
+
+    CSManager getCSManager();
 
     ContextSelector getContextSelector();
 
@@ -72,6 +73,9 @@ public interface Solver {
      */
     PointsToSet makePointsToSet();
 
+    /**
+     * Sets plugin to this solver.
+     */
     void setPlugin(Plugin plugin);
 
     /**
@@ -156,6 +160,19 @@ public interface Solver {
      * @param cls the class to be initialized.
      */
     void initializeClass(JClass cls);
+
+    /**
+     * If a plugin takes over the analysis of a method, and wants this solver
+     * to ignore the method (for precision and/or efficiency reasons),
+     * then it could call this API with the method.
+     * After that, this solver will not process the method.
+     * <p>
+     * Typically, this API should be called at the initial stage of
+     * pointer analysis, i.e., in {@link Plugin#onStart()}.
+     *
+     * @param method the method to be ignored.
+     */
+    void addIgnoredMethod(JMethod method);
 
     // ---------- side-effect APIs (end) ----------
 
