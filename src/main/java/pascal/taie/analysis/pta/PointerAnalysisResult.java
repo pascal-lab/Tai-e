@@ -106,7 +106,7 @@ public interface PointerAnalysisResult extends ResultHolder {
     }
 
     /**
-     * @return @return set of Obj pointed to by given instance field access.
+     * @return set of Obj pointed to by given instance field access.
      */
     Set<Obj> getPointsToSet(InstanceFieldAccess access);
 

@@ -66,7 +66,9 @@ public class AnalysisOptions {
 
     /**
      * Copies all the options from the specified AnalysisOptions
-     * to this AnalysisOptions.
+     * to this AnalysisOptions. If the given AnalysisOptions contain
+     * value for the key that already exists in this AnalysisOptions,
+     * then the old value will be overwritten.
      */
     void update(AnalysisOptions options) {
         this.options.putAll(options.options);
@@ -82,10 +84,6 @@ public class AnalysisOptions {
 
     public boolean getBoolean(String key) {
         return (Boolean) get(key);
-    }
-
-    public boolean getBooleanOrDefault(String key, boolean defaultValue) {
-        return (Boolean) options.getOrDefault(key, defaultValue);
     }
 
     public int getInt(String key) {

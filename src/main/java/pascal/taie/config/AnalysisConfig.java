@@ -118,12 +118,12 @@ public class AnalysisConfig {
     }
 
     /**
-     * Convenient constructor for creating an AnalysisConfig by merely
+     * Convenient static factory for creating an AnalysisConfig by merely
      * specifying id and options. The given options should be an array
      * of key-value pairs, e.g., [k1, v1, k2, v2, ...].
      */
-    public AnalysisConfig(String id, Object... options) {
-        this(null, null, id, null, convertOptions(options));
+    public static AnalysisConfig of(String id, Object... options) {
+        return new AnalysisConfig(null, null, id, null, convertOptions(options));
     }
 
     /**
