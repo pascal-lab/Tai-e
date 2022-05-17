@@ -181,7 +181,7 @@ class LogBasedModel extends MetaObjModel {
             .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
             .forEach(caller ->
                 caller.getIR()
-                    .invokes()
+                    .invokes(false)
                     .filter(invoke -> isMatched(item, invoke))
                     .forEach(invokes::add));
         if (invokes.isEmpty()) {
@@ -192,9 +192,6 @@ class LogBasedModel extends MetaObjModel {
     }
 
     private boolean isMatched(LogItem item, Invoke invoke) {
-        if (invoke.isDynamic()) {
-            return false;
-        }
         int lastDot = item.api.lastIndexOf('.');
         String apiClass = fullNames.get(item.api.substring(0, lastDot));
         String apiMethod = item.api.substring(lastDot + 1);
@@ -210,7 +207,7 @@ class LogBasedModel extends MetaObjModel {
         JMethod method = csMethod.getMethod();
         if (relevantMethods.contains(method)) {
             method.getIR()
-                .invokes()
+                .invokes(false)
                 .forEach(invoke -> {
                     handleForName(csMethod, invoke);
                     passTargetToBase(classTargets, csMethod, invoke);

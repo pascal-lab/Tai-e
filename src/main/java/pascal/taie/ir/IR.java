@@ -97,12 +97,16 @@ public interface IR extends Iterable<Stmt>, ResultHolder {
     }
 
     /**
-     * Convenient method to return all Invokes in this IR.
+     * Convenient method to obtain Invokes in this IR.
      *
+     * @param includeIndy whether include invokedynamic in the result.
      * @return a stream of Invokes in this IR.
      */
-    default Stream<Invoke> invokes() {
-        return stmts().filter(s -> s instanceof Invoke).map(s -> (Invoke) s);
+    default Stream<Invoke> invokes(boolean includeIndy) {
+        return stmts()
+            .filter(s -> s instanceof Invoke)
+            .map(s -> (Invoke) s)
+            .filter(i -> includeIndy || !i.isDynamic());
     }
 
     /**

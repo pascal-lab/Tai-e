@@ -183,28 +183,26 @@ public class InvokeDynamicAnalysis implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR().forEach(stmt -> {
-            if (stmt instanceof Invoke invoke) {
-                if (!invoke.isDynamic()) {
-                    methodTypeModel.handleNewInvoke(invoke);
-                    lookupModel.handleNewInvoke(invoke);
-                }
-                InvokeDynamic indy = getInvokeDynamic(invoke);
-                if (indy != null) {
-                    // if new reachable method contains invokedynamic,
-                    // then we record necessary information
-                    method2indys.put(method, invoke);
-                    JMethod bsm = indy.getBootstrapMethodRef().resolve();
-                    // we associate the variables in bootstrap method to
-                    // the invokedynamic, where the variables may point to
-                    // the MethodHandle for the invokedynamic,
-                    // so that when MethodHandle objects reach these variables,
-                    // we can associate them to the invokedynamic.
-                    extractMHVars(bsm).forEach(mhVar ->
-                            mhVar2indys.put(mhVar, invoke));
-                    // add call edge to BSM
-                    addBSMCallEdge(invoke, bsm);
-                }
+        method.getIR().invokes(true).forEach(invoke -> {
+            if (!invoke.isDynamic()) {
+                methodTypeModel.handleNewInvoke(invoke);
+                lookupModel.handleNewInvoke(invoke);
+            }
+            InvokeDynamic indy = getInvokeDynamic(invoke);
+            if (indy != null) {
+                // if new reachable method contains invokedynamic,
+                // then we record necessary information
+                method2indys.put(method, invoke);
+                JMethod bsm = indy.getBootstrapMethodRef().resolve();
+                // we associate the variables in bootstrap method to
+                // the invokedynamic, where the variables may point to
+                // the MethodHandle for the invokedynamic,
+                // so that when MethodHandle objects reach these variables,
+                // we can associate them to the invokedynamic.
+                extractMHVars(bsm).forEach(mhVar ->
+                    mhVar2indys.put(mhVar, invoke));
+                // add call edge to BSM
+                addBSMCallEdge(invoke, bsm);
             }
         });
     }
@@ -232,7 +230,7 @@ public class InvokeDynamicAnalysis implements Plugin {
      */
     private Stream<Var> extractMHVars(JMethod bsm) {
         return bsm.getIR()
-            .invokes()
+            .invokes(true)
             .map(Invoke::getInvokeExp)
             .map(ie -> {
                 MethodRef ref = ie.getMethodRef();

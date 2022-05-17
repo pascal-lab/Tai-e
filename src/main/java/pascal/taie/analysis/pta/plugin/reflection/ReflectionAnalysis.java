@@ -43,8 +43,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.util.function.Predicate;
-
 public class ReflectionAnalysis implements Plugin {
 
     private Model classModel;
@@ -75,8 +73,7 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         method.getIR()
-            .invokes()
-            .filter(Predicate.not(Invoke::isDynamic))
+            .invokes(false)
             .forEach(invoke -> {
                 classModel.handleNewInvoke(invoke);
                 metaObjModel.handleNewInvoke(invoke);
@@ -148,7 +145,7 @@ public class ReflectionAnalysis implements Plugin {
     }
 
     /**
-     * TODO: merge with SolverImpl.isConcerned(Exp)
+     * TODO: merge with DefaultSolver.isConcerned(Exp)
      */
     private static boolean isConcerned(Type type) {
         return type instanceof ClassType || type instanceof ArrayType;

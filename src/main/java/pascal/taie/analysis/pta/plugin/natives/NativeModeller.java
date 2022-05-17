@@ -51,7 +51,7 @@ public class NativeModeller implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR().invokes().forEach(model::handleNewInvoke);
+        method.getIR().invokes(false).forEach(model::handleNewInvoke);
     }
 
     @Override
