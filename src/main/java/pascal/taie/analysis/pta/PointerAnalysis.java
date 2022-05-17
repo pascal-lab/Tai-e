@@ -35,6 +35,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
+import pascal.taie.analysis.pta.plugin.natives.NativeModeller;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
@@ -104,11 +105,12 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         // To record elapsed time precisely, AnalysisTimer should be added at first.
         // TODO: remove such order dependency?
         plugin.addPlugin(
-                new AnalysisTimer(),
-                new ClassInitializer(),
-                new ThreadHandler(),
-                new ExceptionAnalysis(),
-                new ReflectionAnalysis()
+            new AnalysisTimer(),
+            new ClassInitializer(),
+            new ThreadHandler(),
+            new NativeModeller(),
+            new ExceptionAnalysis(),
+            new ReflectionAnalysis()
         );
         if (World.get().getOptions().getJavaVersion() < 9) {
             // current reference handler doesn't support Java 9+

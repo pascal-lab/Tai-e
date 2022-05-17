@@ -146,4 +146,11 @@ public final class CSObjs {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodHandle ? (MethodHandle) alloc : null;
     }
+
+    /**
+     * @return {@code true} if given csObj is an array object.
+     */
+    public static boolean isArray(CSObj csObj) {
+        return csObj.getObject().getType() instanceof ArrayType;
+    }
 }
