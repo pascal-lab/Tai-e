@@ -11,7 +11,6 @@ Points-to sets of all variables
 []:<New: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<New: void main(java.lang.String[])>[3@L5] new B}]
 []:<New: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<New: void main(java.lang.String[])>[6@L6] new C}]
 []:<New: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<New: void main(java.lang.String[])>[9@L7] new C}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<New: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<New: void main(java.lang.String[])>[3@L5] new B}, []:NewObj{<New: void main(java.lang.String[])>[6@L6] new C}, []:NewObj{<New: void main(java.lang.String[])>[9@L7] new C}]
 
 Points-to sets of all static fields
 

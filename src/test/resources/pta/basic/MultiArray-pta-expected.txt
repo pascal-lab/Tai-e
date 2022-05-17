@@ -18,7 +18,6 @@ Points-to sets of all variables
 []:<MultiArray: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <MultiArray: void main(java.lang.String[])>}]
 []:<MultiArray: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<MultiArray: void main(java.lang.String[])>[0@L4] new A}]
 []:<MultiArray: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<A: A f()>[11@L15] new A}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<A: A f()>[11@L15] new A}, []:NewObj{<MultiArray: void main(java.lang.String[])>[0@L4] new A}]
 
 Points-to sets of all static fields
 

@@ -11,7 +11,6 @@ Points-to sets of all variables
 []:<MultiReturn: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<MultiReturn: void main(java.lang.String[])>[0@L11] new MultiReturn}]
 []:<MultiReturn: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<MultiReturn: void main(java.lang.String[])>[3@L12] new A}]
 []:<MultiReturn: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<MultiReturn: A foo(A)>[8@L4] new A}, []:NewObj{<MultiReturn: void main(java.lang.String[])>[3@L12] new A}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<MultiReturn: A foo(A)>[8@L4] new A}, []:NewObj{<MultiReturn: void main(java.lang.String[])>[0@L11] new MultiReturn}, []:NewObj{<MultiReturn: void main(java.lang.String[])>[3@L12] new A}]
 
 Points-to sets of all static fields
 

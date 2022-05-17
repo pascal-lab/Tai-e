@@ -7,7 +7,6 @@ Points-to sets of all variables
 []:<CycleTaint: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CycleTaint: void main(java.lang.String[])>[7@L10] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CycleTaint: void main(java.lang.String[])>[7@L10] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
 
 Points-to sets of all static fields
 

@@ -51,7 +51,6 @@ Points-to sets of all variables
 []:<LinkedQueue: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 []:<LinkedQueue: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 []:<Node: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.Object)>[1@L33] new Node}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.Object)>[1@L33] new Node}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L89] new LinkedQueue}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 
 Points-to sets of all static fields
 

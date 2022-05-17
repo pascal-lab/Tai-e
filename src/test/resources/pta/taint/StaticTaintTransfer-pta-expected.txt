@@ -21,8 +21,6 @@ Points-to sets of all variables
 []:<StaticTaintTransfer: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[5@L6] new StaticTaintTransfer$1Anonymous0}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>[1@L20] newarray java.lang.String[temp$0]}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[5@L6] new StaticTaintTransfer$1Anonymous0}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
 
 Points-to sets of all static fields
 

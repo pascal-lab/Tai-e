@@ -25,20 +25,6 @@ Points-to sets of all variables
 []:<StringAppend: void stringBuilder()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<StringAppend: void stringBuilder()>/temp$1 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
 []:<StringAppend: void stringBuilder()>/temp$5 -> [[]:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<java.lang.StringBuffer: java.lang.String toString()>/$r2 -> []
-[]:<java.lang.StringBuffer: java.lang.String toString()>/$r6 -> []
-[]:<java.lang.StringBuffer: java.lang.String toString()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuffer>}, []:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuffer}, []:TaintObj{alloc=<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuffer}]
-[]:<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>/%this -> [[]:MergedObj{<Merged java.lang.StringBuffer>}, []:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuffer}]
-[]:<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>/r1 -> [[]:ConstantObj{java.lang.String: "abc"}, []:ConstantObj{java.lang.String: "xyz"}, []:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>/%this -> [[]:MergedObj{<Merged java.lang.StringBuffer>}, []:TaintObj{alloc=<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuffer}]
-[]:<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>/r1 -> [[]:ConstantObj{java.lang.String: "abc"}, []:ConstantObj{java.lang.String: "xyz"}, []:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.StringBuffer: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuffer>}, []:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuffer}]
-[]:<java.lang.StringBuilder: java.lang.String toString()>/$r3 -> []
-[]:<java.lang.StringBuilder: java.lang.String toString()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
-[]:<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
-[]:<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>/r1 -> [[]:ConstantObj{java.lang.String: "abc"}, []:ConstantObj{java.lang.String: "xyz"}, []:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.StringBuilder: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
 
 Points-to sets of all static fields
 

@@ -15,7 +15,6 @@ Points-to sets of all variables
 []:<TaintTransferEdge: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[0@L3] new B}]
 []:<TaintTransferEdge: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<TaintTransferEdge: A getSource()>[0@L21] new C}, []:TaintObj{alloc=<TaintTransferEdge: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic TaintTransferEdge.getSource(),type=C}]
 []:<TaintTransferEdge: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[6@L7] new C}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<TaintTransferEdge: A getSource()>[0@L21] new C}, []:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[0@L3] new B}, []:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[6@L7] new C}]
 
 Points-to sets of all static fields
 

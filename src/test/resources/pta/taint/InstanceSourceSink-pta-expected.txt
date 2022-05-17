@@ -11,8 +11,6 @@ Points-to sets of all variables
 []:<InstanceSourceSink: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource(),type=java.lang.String}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}, []:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
 
 Points-to sets of all static fields
 

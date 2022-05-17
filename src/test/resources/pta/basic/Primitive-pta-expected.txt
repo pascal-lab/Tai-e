@@ -5,7 +5,6 @@ Points-to sets of all variables
 []:<Primitive: void main(java.lang.String[])>/a -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
 []:<Primitive: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}]
 []:<Primitive: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
 
 Points-to sets of all static fields
 

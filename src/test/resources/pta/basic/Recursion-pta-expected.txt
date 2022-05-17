@@ -18,7 +18,6 @@ Points-to sets of all variables
 []:<Recursion: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}]
 []:<Recursion: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
 []:<Recursion: void main(java.lang.String[])>/temp$2 -> []
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Recursion: void main(java.lang.String[])>[0@L3] new A}, []:NewObj{<Recursion: void main(java.lang.String[])>[3@L4] new B}]
 
 Points-to sets of all static fields
 

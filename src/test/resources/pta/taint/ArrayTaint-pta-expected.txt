@@ -14,12 +14,6 @@ Points-to sets of all variables
 []:<ArrayTaint: void main(java.lang.String[])>/temp$6 -> [[]:ConstantObj{java.lang.String: ""}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:ConstantObj{java.lang.String: ""}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<java.lang.StringBuilder: java.lang.String toString()>/$r3 -> []
-[]:<java.lang.StringBuilder: java.lang.String toString()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
-[]:<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
-[]:<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>/r1 -> [[]:ConstantObj{java.lang.String: ","}, []:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.StringBuilder: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
 
 Points-to sets of all static fields
 

@@ -4,7 +4,6 @@ Points-to sets of all variables
 []:<Interface: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
 []:<One: int get()>/%this -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
 []:<One: void <init>()>/%this -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
 
 Points-to sets of all static fields
 

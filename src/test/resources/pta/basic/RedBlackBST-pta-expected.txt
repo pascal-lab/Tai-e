@@ -180,7 +180,6 @@ Points-to sets of all variables
 []:<RedBlackBST: void put(int,java.lang.Object)>/temp$1 -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
 []:<RedBlackBST: void put(int,java.lang.Object)>/temp$2 -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
 []:<RedBlackBST: void put(int,java.lang.Object)>/val -> [[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[3@L413] new java.lang.Object}, []:NewObj{<RedBlackBST: void main(java.lang.String[])>[7@L414] new java.lang.Object}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}, []:NewObj{<RedBlackBST: void main(java.lang.String[])>[0@L412] new RedBlackBST}, []:NewObj{<RedBlackBST: void main(java.lang.String[])>[3@L413] new java.lang.Object}, []:NewObj{<RedBlackBST: void main(java.lang.String[])>[7@L414] new java.lang.Object}]
 
 Points-to sets of all static fields
 

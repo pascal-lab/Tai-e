@@ -10,11 +10,6 @@ Points-to sets of all variables
 []:<CharArray: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CharArray: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.String: char[] toCharArray()>/$r3 -> []
-[]:<java.lang.String: char[] toCharArray()>/%this -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CharArray: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<java.lang.String: void <init>(char[])>/%this -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CharArray: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.String: void <init>(char[])>/r1 -> [[]:TaintObj{alloc=<CharArray: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=char[]}]
 
 Points-to sets of all static fields
 

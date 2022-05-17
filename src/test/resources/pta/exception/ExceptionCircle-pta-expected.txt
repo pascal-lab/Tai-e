@@ -4,9 +4,6 @@ Points-to sets of all variables
 []:<ExceptionCircle: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionCircle: void main(java.lang.String[])>}]
 []:<ExceptionCircle: void main(java.lang.String[])>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionCircle: void main(java.lang.String[])>/e2 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<java.lang.ArithmeticException: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
-[]:<java.lang.IllegalStateException: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<java.lang.Throwable: java.lang.String getMessage()>/%this -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}, []:MergedObj{<Merged java.lang.IllegalStateException>}]
 
 Points-to sets of all static fields
 

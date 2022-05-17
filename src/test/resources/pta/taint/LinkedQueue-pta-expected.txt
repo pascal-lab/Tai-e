@@ -29,8 +29,6 @@ Points-to sets of all variables
 []:<Node: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[3@L56] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<LinkedQueue: void main(java.lang.String[])>[5@L57] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.String)>[1@L33] new Node}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L55] new LinkedQueue}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
 
 Points-to sets of all static fields
 

@@ -13,7 +13,6 @@ Points-to sets of all variables
 []:<Cycle: void cycle()>/temp$4 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
 []:<Cycle: void cycle()>/temp$5 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
 []:<Cycle: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}]
-[]:<java.lang.Object: void <init>()>/%this -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}, []:NewObj{<Cycle: void cycle()>[6@L9] new A}, []:NewObj{<Cycle: void cycle()>[9@L10] new A}]
 
 Points-to sets of all static fields
 

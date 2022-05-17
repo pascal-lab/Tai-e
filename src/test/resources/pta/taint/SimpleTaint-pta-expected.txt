@@ -12,7 +12,6 @@ Points-to sets of all variables
 []:<SourceSink: void sink(java.lang.String,int)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<SourceSink: void sink(java.lang.String,java.lang.String)>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<SourceSink: void sink(java.lang.String,java.lang.String)>/s2 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<java.lang.String: void <init>()>/%this -> [[]:MergedObj{<Merged java.lang.String>}]
 
 Points-to sets of all static fields
 
