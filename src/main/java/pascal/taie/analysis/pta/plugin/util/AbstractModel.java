@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin.util;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -59,6 +60,8 @@ public abstract class AbstractModel implements Model {
 
     protected final TypeSystem typeSystem;
 
+    protected final ContextSelector selector;
+
     protected final CSManager csManager;
 
     protected final HeapModel heapModel;
@@ -80,6 +83,7 @@ public abstract class AbstractModel implements Model {
         this.solver = solver;
         hierarchy = solver.getHierarchy();
         typeSystem = solver.getTypeSystem();
+        selector = solver.getContextSelector();
         csManager = solver.getCSManager();
         heapModel = solver.getHeapModel();
         defaultHctx = solver.getContextSelector().getEmptyContext();

@@ -4,22 +4,22 @@ import java.security.PrivilegedAction;
 class NativeModel {
 
     public static void main(String[] args) throws Exception {
-        objectClone();
         arraycopy();
         doPrivileged();
     }
 
-    static void objectClone() throws Exception {
-        A a = new A();
-        Object o = a.callClone();
-    }
-
     static void arraycopy() {
-        Object[] src = new Object[5];
-        src[0] = new Object();
-        Object[] dest = new Object[5];
-        System.arraycopy(src, 0, dest, 0, 5);
-        Object o = dest[0];
+        Object[] src1 = new Object[5];
+        src1[0] = new Object();
+        Object[] dest1 = new Object[5];
+        System.arraycopy(src1, 0, dest1, 0, 5);
+        Object o = dest1[0];
+
+        Object[] src2 = new Object[5];
+        src2[0] = new String();
+        String[] dest2 = new String[5];
+        System.arraycopy(src2, 0, dest2, 0, 5);
+        String s = (String) dest2[0];
     }
 
     static void doPrivileged() {
@@ -33,7 +33,4 @@ class NativeModel {
 }
 
 class A {
-    Object callClone() throws CloneNotSupportedException {
-        return clone();
-    }
 }

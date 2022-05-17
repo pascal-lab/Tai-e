@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
 
@@ -85,8 +84,7 @@ public class BasicTestFull extends BasicTest {
     }
 
     @Test
-    @Ignore // FIXME: this test cases take long time after updating to Java 17
     public void testNativeModel() {
-        Tests.testPTA(DIR, "NativeModel", "only-app:false");
+        Tests.testPTA(DIR, "NativeModel");
     }
 }

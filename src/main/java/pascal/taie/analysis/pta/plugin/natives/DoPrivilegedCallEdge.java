@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.invokedynamic;
+package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -28,11 +28,12 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 
 /**
- * Represents call edge from invokedynamic to actual target method.
+ * Represents call edge from AccessController.doPrivileged(...)
+ * to the privileged action.
  */
-class InvokeDynamicCallEdge extends Edge<CSCallSite, CSMethod> {
+class DoPrivilegedCallEdge extends Edge<CSCallSite, CSMethod> {
 
-    InvokeDynamicCallEdge(CSCallSite csCallSite, CSMethod callee) {
+    DoPrivilegedCallEdge(CSCallSite csCallSite, CSMethod callee) {
         super(CallKind.OTHER, csCallSite, callee);
     }
 }
