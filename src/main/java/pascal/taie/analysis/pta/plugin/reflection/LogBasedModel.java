@@ -177,19 +177,13 @@ class LogBasedModel extends MetaObjModel {
         }
         List<Invoke> invokes = new ArrayList<>();
         klass.getDeclaredMethods()
-                .stream()
-                .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
-                .forEach(caller ->
-                        caller.getIR()
-                                .stmts()
-                                .filter(s -> s instanceof Invoke)
-                                .forEach(s -> {
-                                    Invoke invoke = (Invoke) s;
-                                    if (isMatched(item, invoke)) {
-                                        invokes.add(invoke);
-                                    }
-                                })
-                );
+            .stream()
+            .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
+            .forEach(caller ->
+                caller.getIR()
+                    .invokes()
+                    .filter(invoke -> isMatched(item, invoke))
+                    .forEach(invokes::add));
         if (invokes.isEmpty()) {
             logger.warn("No matched invokes found for {}/{}",
                     item.caller, item.lineNumber);
@@ -216,15 +210,13 @@ class LogBasedModel extends MetaObjModel {
         JMethod method = csMethod.getMethod();
         if (relevantMethods.contains(method)) {
             method.getIR()
-                    .stmts()
-                    .filter(s -> s instanceof Invoke)
-                    .map(s -> (Invoke) s)
-                    .forEach(invoke -> {
-                        handleForName(csMethod, invoke);
-                        passTargetToBase(classTargets, csMethod, invoke);
-                        passTargetToBase(memberTargets, csMethod, invoke);
-                        passTargetToArg0(arrayTypeTargets, csMethod, invoke);
-                    });
+                .invokes()
+                .forEach(invoke -> {
+                    handleForName(csMethod, invoke);
+                    passTargetToBase(classTargets, csMethod, invoke);
+                    passTargetToBase(memberTargets, csMethod, invoke);
+                    passTargetToArg0(arrayTypeTargets, csMethod, invoke);
+                });
         }
     }
 

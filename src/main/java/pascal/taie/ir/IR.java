@@ -24,6 +24,7 @@ package pascal.taie.ir;
 
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.ResultHolder;
@@ -93,6 +94,15 @@ public interface IR extends Iterable<Stmt>, ResultHolder {
      */
     default Stream<Stmt> stmts() {
         return getStmts().stream();
+    }
+
+    /**
+     * Convenient method to return all Invokes in this IR.
+     *
+     * @return a stream of Invokes in this IR.
+     */
+    default Stream<Invoke> invokes() {
+        return stmts().filter(s -> s instanceof Invoke).map(s -> (Invoke) s);
     }
 
     /**

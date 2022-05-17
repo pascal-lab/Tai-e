@@ -109,11 +109,9 @@ public class InvokeDynamicTest {
     }
 
     private static Stream<InvokeDynamic> extractInvokeDynamics(IR ir) {
-        return ir.stmts()
-                .filter(s -> s instanceof Invoke)
-                .map(s -> (Invoke) s)
-                .filter(s -> s.getInvokeExp() instanceof InvokeDynamic)
-                .map(s -> (InvokeDynamic) s.getInvokeExp());
+        return ir.invokes()
+            .filter(Invoke::isDynamic)
+            .map(s -> (InvokeDynamic) s.getInvokeExp());
     }
 
     private static void printIR(IR ir) {

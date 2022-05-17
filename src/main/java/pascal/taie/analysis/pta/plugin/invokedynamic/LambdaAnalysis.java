@@ -112,11 +112,9 @@ public class LambdaAnalysis implements Plugin {
     }
 
     private static Stream<Invoke> extractLambdaMetaFactories(IR ir) {
-        return ir.stmts()
-                .filter(s -> s instanceof Invoke)
-                .map(s -> (Invoke) s)
-                .filter(Invoke::isDynamic)
-                .filter(LambdaAnalysis::isLambdaMetaFactory);
+        return ir.invokes()
+            .filter(Invoke::isDynamic)
+            .filter(LambdaAnalysis::isLambdaMetaFactory);
     }
 
     static boolean isLambdaMetaFactory(Invoke invoke) {

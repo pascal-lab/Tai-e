@@ -75,15 +75,13 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         method.getIR()
-                .stmts()
-                .filter(s -> s instanceof Invoke)
-                .map(s -> (Invoke) s)
-                .filter(Predicate.not(Invoke::isDynamic))
-                .forEach(invoke -> {
-                    classModel.handleNewInvoke(invoke);
-                    metaObjModel.handleNewInvoke(invoke);
-                    reflectiveActionModel.handleNewInvoke(invoke);
-                });
+            .invokes()
+            .filter(Predicate.not(Invoke::isDynamic))
+            .forEach(invoke -> {
+                classModel.handleNewInvoke(invoke);
+                metaObjModel.handleNewInvoke(invoke);
+                reflectiveActionModel.handleNewInvoke(invoke);
+            });
     }
 
     @Override
