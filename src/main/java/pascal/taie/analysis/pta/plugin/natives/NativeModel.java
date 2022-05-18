@@ -36,16 +36,31 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 class NativeModel extends AbstractModel {
+
+    private final MethodRef arrayCopy;
+
+    private final ClassType object;
+
+    private final Map<Invoke, Var> arrayCopyVars = Maps.newMap();
+
+    private final Map<Var, Var> arrayCopySrcs = Maps.newMap();
+
+    private final Map<Var, Var> arrayCopyDests = Maps.newMap();
 
     private final MethodRef privilegedActionRun;
 
@@ -55,6 +70,11 @@ class NativeModel extends AbstractModel {
 
     NativeModel(Solver solver) {
         super(solver);
+        arrayCopy = Objects.requireNonNull(
+            hierarchy.getJREMethod("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>"))
+            .getRef();
+        object = Objects.requireNonNull(hierarchy.getJREClass(ClassNames.OBJECT))
+            .getType();
         privilegedActionRun = Objects.requireNonNull(
             hierarchy.getJREMethod("<java.security.PrivilegedAction: java.lang.Object run()>"))
             .getRef();
@@ -71,10 +91,8 @@ class NativeModel extends AbstractModel {
     protected void registerVarAndHandler() {
         nativeMethods = Sets.newSet();
 
-        JMethod arraycopy = hierarchy.getJREMethod("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>");
-        registerRelevantVarIndexes(arraycopy, 0, 2);
-        registerAPIHandler(arraycopy, this::arrayCopy);
-        nativeMethods.add(arraycopy);
+        nativeMethods.add(
+            hierarchy.getJREMethod("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>"));
 
         JMethod doPrivileged1 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>");
         registerRelevantVarIndexes(doPrivileged1, 0);
@@ -97,6 +115,61 @@ class NativeModel extends AbstractModel {
         nativeMethods.add(doPrivileged4);
     }
 
+    int arraycopyEdges = 0;
+
+    int primitivearraycopy = 0;
+
+    int typematches = 0;
+
+    @Override
+    public void handleNewInvoke(Invoke invoke) {
+        super.handleNewInvoke(invoke);
+        // handle System.arraycopy(...)
+        if (invoke.getMethodRef().equals(arrayCopy)) {
+            Var src = invoke.getInvokeExp().getArg(0);
+            Var dest = invoke.getInvokeExp().getArg(2);
+            Var tmp = getNewArrayCopyVar(invoke);
+            arrayCopySrcs.put(src, tmp);
+            arrayCopyDests.put(dest, tmp);
+        }
+    }
+
+    private Var getNewArrayCopyVar(Invoke invoke) {
+        String name = "%native-arraycopy-tmp" + arrayCopyVars.size();
+        return arrayCopyVars.computeIfAbsent(invoke,
+            i -> new Var(i.getContainer(), name, object, -1));
+    }
+
+    @Override
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        super.handleNewPointsToSet(csVar, pts);
+        // handle System.arraycopy(...)
+        if (arrayCopySrcs.containsKey(csVar.getVar())) {
+            Var tmp = arrayCopySrcs.get(csVar.getVar());
+            CSVar csTmp = csManager.getCSVar(csVar.getContext(), tmp);
+            pts.objects()
+                .filter(CSObjs::isArray)
+                .map(csManager::getArrayIndex)
+                .forEach(srcIndex -> {
+                    solver.addPFGEdge(srcIndex, csTmp,
+                        PointerFlowEdge.Kind.ARRAY_LOAD);
+                    ++arraycopyEdges;
+                });
+        }
+        if (arrayCopyDests.containsKey(csVar.getVar())) {
+            Var tmp = arrayCopyDests.get(csVar.getVar());
+            CSVar csTmp = csManager.getCSVar(csVar.getContext(), tmp);
+            pts.objects()
+                .filter(CSObjs::isArray)
+                .map(csManager::getArrayIndex)
+                .forEach(destIndex -> {
+                    solver.addPFGEdge(csTmp, destIndex,
+                        destIndex.getType(), PointerFlowEdge.Kind.ARRAY_STORE);
+                    ++arraycopyEdges;
+                });
+        }
+    }
+
     /**
      * Model for System.arraycopy(...).
      */
@@ -112,8 +185,18 @@ class NativeModel extends AbstractModel {
                     .filter(CSObjs::isArray)
                     .forEach(destArray -> {
                         ArrayIndex dest = csManager.getArrayIndex(destArray);
-                        solver.addPFGEdge(src, dest, dest.getType(),
-                            PointerFlowEdge.Kind.ARRAY_STORE);
+                        if (typeSystem.isSubtype(src.getType(), dest.getType()) ||
+                            typeSystem.isSubtype(dest.getType(), src.getType())) {
+                            ++typematches;
+//                        System.out.println(src + " -> " + dest);
+                            solver.addPFGEdge(src, dest, dest.getType(),
+                                PointerFlowEdge.Kind.ARRAY_STORE);
+                        }
+                        ++arraycopyEdges;
+                        if (src.getType() instanceof PrimitiveType
+                            && dest.getType() instanceof PrimitiveType) {
+                            ++primitivearraycopy;
+                        }
                     });
             });
     }

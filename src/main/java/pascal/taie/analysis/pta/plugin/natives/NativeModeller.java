@@ -60,4 +60,11 @@ public class NativeModeller implements Plugin {
             model.handleNewPointsToSet(csVar, pts);
         }
     }
+
+    @Override
+    public void onFinish() {
+        System.out.println("#arraycopy edges: " + model.arraycopyEdges);
+        System.out.println("#primitive arraycopy edges: " + model.primitivearraycopy);
+        System.out.println("#type matches: " + model.typematches);
+    }
 }
