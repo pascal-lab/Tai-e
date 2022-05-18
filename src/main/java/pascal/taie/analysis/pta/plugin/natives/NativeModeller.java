@@ -36,35 +36,40 @@ public class NativeModeller implements Plugin {
 
     private Solver solver;
 
-    private NativeModel model;
+    private ArrayCopyModel arrayCopyModel;
+
+    private DoPriviledgedModel doPrivilegedModel;
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        model = new NativeModel(solver);
+        arrayCopyModel = new ArrayCopyModel(solver);
+        doPrivilegedModel = new DoPriviledgedModel(solver);
     }
 
     @Override
     public void onStart() {
-        model.getNativeMethods().forEach(solver::addIgnoredMethod);
+        solver.addIgnoredMethod(arrayCopyModel.getArraycopy());
+        doPrivilegedModel.getDoPrivilegeds().forEach(solver::addIgnoredMethod);
     }
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR().invokes(false).forEach(model::handleNewInvoke);
+        method.getIR()
+            .invokes(false)
+            .forEach(invoke -> {
+                arrayCopyModel.handleNewInvoke(invoke);
+                doPrivilegedModel.handleNewInvoke(invoke);
+            });
     }
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (model.isRelevantVar(csVar.getVar())) {
-            model.handleNewPointsToSet(csVar, pts);
+        if (arrayCopyModel.isRelevantVar(csVar.getVar())) {
+            arrayCopyModel.handleNewPointsToSet(csVar, pts);
         }
-    }
-
-    @Override
-    public void onFinish() {
-        System.out.println("#arraycopy edges: " + model.arraycopyEdges);
-        System.out.println("#primitive arraycopy edges: " + model.primitivearraycopy);
-        System.out.println("#type matches: " + model.typematches);
+        if (doPrivilegedModel.isRelevantVar(csVar.getVar())) {
+            doPrivilegedModel.handleNewPointsToSet(csVar, pts);
+        }
     }
 }
