@@ -43,7 +43,7 @@ public abstract class Obj implements Indexable {
         }
         if (index < 0) {
             throw new IllegalArgumentException(
-                "index must be 0 or positive number, give " + index);
+                "index must be 0 or positive number, given: " + index);
         }
         this.index = index;
     }

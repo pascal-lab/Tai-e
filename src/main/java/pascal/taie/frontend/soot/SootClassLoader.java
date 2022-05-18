@@ -68,8 +68,7 @@ class SootClassLoader implements JClassLoader {
                 // the new created class. Not putting the class into classes
                 // may cause infinite recursion.
                 classes.put(name, jclass);
-                new SootClassBuilder(converter, sootClass)
-                        .build(jclass);
+                new SootClassBuilder(converter, sootClass).build(jclass);
                 hierarchy.addClass(jclass);
                 if (World.get().getOptions().isDumpClasses()) {
                     classDumper.dump(sootClass);

@@ -31,13 +31,15 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -55,6 +57,10 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     private final Map<String, JClassLoader> loaders = Maps.newSmallMap();
 
     private JClass JavaLangObject;
+
+    private final List<JClass> classes = new ArrayList<>(1024);
+
+    private int classCounter = 0;
 
     /**
      * Map from each interface to its direct subinterfaces.
@@ -80,6 +86,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
      * Cache results of method dispatch.
      */
     private final TwoKeyMap<JClass, Subsignature, JMethod> dispatchTable = Maps.newTwoKeyMap();
+
+    /**
+     * Cache results of {@link #getAllSubclassesOf(JClass)}.
+     */
+    private final Map<JClass, Set<JClass>> allSubclasses = Maps.newConcurrentMap();
 
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
@@ -134,15 +145,27 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         if (outer != null) {
             directInnerClasses.put(outer, jclass);
         }
+        // set index
+        jclass.setIndex(classCounter++);
+        classes.add(jclass);
+        // invalidate global hierarchy information
+        // TODO - make this elegant
+        allSubclasses.clear();
+    }
+
+    @Override
+    public int getIndex(JClass jclass) {
+        return jclass.getIndex();
+    }
+
+    @Override
+    public JClass getObject(int index) {
+        return classes.get(index);
     }
 
     @Override
     public Stream<JClass> allClasses() {
-        return loaders.values()
-                .stream()
-                .distinct()
-                .map(JClassLoader::getLoadedClasses)
-                .flatMap(Collection::stream);
+        return classes.stream();
     }
 
     @Override
@@ -371,11 +394,13 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             return true;
         } else if (superclass == getObjectClass()) {
             return true;
-        } else if (subclass.isInterface()) {
+        } /*else if (subclass.isInterface()) {
             return superclass.isInterface() &&
                     isSubinterface(superclass, subclass);
         } else {
             return isSubclass0(superclass, subclass);
+        }*/ else {
+            return getAllSubclassesOf(superclass).contains(subclass);
         }
     }
 
@@ -438,25 +463,24 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude) {
-        // TODO: cache results?
-        Set<JClass> subclasses = Sets.newHybridSet();
-        getAllSubclassesOf0(jclass, subclasses, selfInclude);
-        return subclasses;
+    public Collection<JClass> getAllSubclassesOf(JClass jclass) {
+        return allSubclasses.computeIfAbsent(jclass, c -> {
+            Set<JClass> subclasses = new HybridBitSet<>(this, true);
+            getAllSubclassesOf0(c, subclasses);
+            return subclasses;
+        });
     }
 
-    private void getAllSubclassesOf0(JClass jclass, Set<JClass> result, boolean selfInclude) {
-        if (selfInclude) {
-            result.add(jclass);
-        }
+    private void getAllSubclassesOf0(JClass jclass, Set<JClass> result) {
+        result.add(jclass);
         if (jclass.isInterface()) {
             getDirectSubinterfacesOf(jclass).forEach(subiface ->
-                    getAllSubclassesOf0(subiface, result, true));
+                    getAllSubclassesOf0(subiface, result));
             getDirectImplementorsOf(jclass).forEach(impl ->
-                    getAllSubclassesOf0(impl, result, true));
+                    getAllSubclassesOf0(impl, result));
         } else {
             getDirectSubclassesOf(jclass).forEach(subclass ->
-                    getAllSubclassesOf0(subclass, result, true));
+                    getAllSubclassesOf0(subclass, result));
         }
     }
 

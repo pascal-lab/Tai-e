@@ -28,6 +28,7 @@ import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.Indexable;
 import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
@@ -43,7 +44,8 @@ import java.util.stream.Collectors;
  * information of a class, including class name, modifiers, declared
  * methods and fields, etc.
  */
-public class JClass extends AbstractResultHolder implements Annotated {
+public class JClass extends AbstractResultHolder
+    implements Annotated, Indexable {
 
     private final JClassLoader loader;
 
@@ -77,6 +79,8 @@ public class JClass extends AbstractResultHolder implements Annotated {
      * If this class is application class.
      */
     private boolean isApplication;
+
+    private int index = -1;
 
     public JClass(JClassLoader loader, String name) {
         this(loader, name, null);
@@ -288,6 +292,22 @@ public class JClass extends AbstractResultHolder implements Annotated {
             throw new IllegalStateException(String.format(
                 "'%s' already has phantom field '%s'", this, name));
         }
+    }
+
+    void setIndex(int index) {
+        if (this.index != -1) {
+            throw new IllegalStateException("index already set");
+        }
+        if (index < 0) {
+            throw new IllegalArgumentException(
+                "index must be 0 or positive number, given: " + index);
+        }
+        this.index = index;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     @Override

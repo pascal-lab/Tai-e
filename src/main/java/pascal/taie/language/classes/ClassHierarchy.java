@@ -25,6 +25,7 @@ package pascal.taie.language.classes;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Indexer;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -33,7 +34,7 @@ import java.util.stream.Stream;
 /**
  * Manages the classes and class-related resolution of the program being analyzed.
  */
-public interface ClassHierarchy {
+public interface ClassHierarchy extends Indexer<JClass> {
 
     void setDefaultClassLoader(JClassLoader loader);
 
@@ -171,15 +172,15 @@ public interface ClassHierarchy {
     boolean isSubclass(JClass superclass, JClass subclass);
 
     /**
-     * Returns all subclasses of the given class.
+     * Returns all subclasses of the given class (including itself).
      * If the given class is an interface, then return all its
      * direct/indirect subinterfaces and their all direct/indirect implementors;
      * otherwise, return all its direct/indirect subclasses.
      *
-     * @param jclass      the given class.
-     * @param selfInclude whether the result contains jclass itself
+     * @param jclass the given class.
+     * @return all subclasses of given class (including itself).
      */
-    Collection<JClass> getAllSubclassesOf(JClass jclass, boolean selfInclude);
+    Collection<JClass> getAllSubclassesOf(JClass jclass);
 
     /**
      * @return the direct inner classes of {@code jclass}. If {@code jclass}

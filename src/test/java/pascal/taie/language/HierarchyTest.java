@@ -274,10 +274,8 @@ public class HierarchyTest {
     public void testSubclasses() {
         Collection<JClass> subclasses;
         JClass C = getClass("C");
-        subclasses = getAllSubclasses(C, true);
+        subclasses = getAllSubclasses(C);
         Assert.assertTrue(subclasses.contains(C));
-        subclasses = getAllSubclasses(C, false);
-        Assert.assertFalse(subclasses.contains(C));
     }
 
     /**
@@ -286,7 +284,7 @@ public class HierarchyTest {
     @Test
     public void testInterfaceSubclasses() {
         JClass I = getClass("I");
-        Collection<JClass> subclasses = getAllSubclasses(I, true);
+        Collection<JClass> subclasses = getAllSubclasses(I);
 
         Assert.assertTrue(subclasses.contains(getClass("IIII")));
         Assert.assertTrue(subclasses.contains(getClass("E")));
@@ -297,9 +295,8 @@ public class HierarchyTest {
         Assert.assertFalse(subclasses.contains(getClass("C")));
     }
 
-    private static Collection<JClass> getAllSubclasses(
-            JClass jclass, boolean selfInclude) {
+    private static Collection<JClass> getAllSubclasses(JClass jclass) {
         return World.get().getClassHierarchy()
-                .getAllSubclassesOf(jclass, selfInclude);
+                .getAllSubclassesOf(jclass);
     }
 }

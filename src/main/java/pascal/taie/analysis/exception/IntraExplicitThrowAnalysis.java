@@ -104,7 +104,7 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
             throwType = (ClassType) throwStmt.getExceptionRef().getType();
             return World.get()
                     .getClassHierarchy()
-                    .getAllSubclassesOf(throwType.getJClass(), true)
+                    .getAllSubclassesOf(throwType.getJClass())
                     .stream()
                     .filter(Predicate.not(JClass::isAbstract))
                     .map(JClass::getType)

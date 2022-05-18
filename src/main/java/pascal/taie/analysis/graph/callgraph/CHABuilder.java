@@ -98,7 +98,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                 JClass cls = methodRef.getDeclaringClass();
                 Set<JMethod> callees = resolveTable.get(cls, methodRef);
                 if (callees == null) {
-                    callees = hierarchy.getAllSubclassesOf(cls, true)
+                    callees = hierarchy.getAllSubclassesOf(cls)
                             .stream()
                             .filter(Predicate.not(JClass::isAbstract))
                             .map(c -> hierarchy.dispatch(c, methodRef))
