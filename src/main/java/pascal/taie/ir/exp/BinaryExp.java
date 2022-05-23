@@ -22,6 +22,8 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.PrimitiveType;
+
 /**
  * Representation of binary expression.
  */
@@ -47,4 +49,7 @@ public interface BinaryExp extends RValue {
      * @return the second operand.
      */
     Var getOperand2();
+
+    @Override
+    PrimitiveType getType();
 }

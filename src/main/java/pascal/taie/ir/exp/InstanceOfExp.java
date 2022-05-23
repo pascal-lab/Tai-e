@@ -24,7 +24,6 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
-import pascal.taie.language.type.Type;
 
 import java.util.List;
 
@@ -38,19 +37,18 @@ public class InstanceOfExp implements RValue {
      */
     private final Var value;
 
-    private final Type checkedType;
+    private final ReferenceType checkedType;
 
-    public InstanceOfExp(Var value, Type checkedType) {
+    public InstanceOfExp(Var value, ReferenceType checkedType) {
         this.value = value;
         this.checkedType = checkedType;
-        assert checkedType instanceof ReferenceType;
     }
 
     public Var getValue() {
         return value;
     }
 
-    public Type getCheckedType() {
+    public ReferenceType getCheckedType() {
         return checkedType;
     }
 

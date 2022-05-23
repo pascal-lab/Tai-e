@@ -91,6 +91,7 @@ import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Lists;
@@ -861,8 +862,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     private void buildInstanceOf(Local lhs, InstanceOfExpr rhs) {
         InstanceOfExp instanceOfExp = new InstanceOfExp(
-                getLocalOrConstant(rhs.getOp()),
-                converter.convertType(rhs.getCheckType()));
+            getLocalOrConstant(rhs.getOp()),
+            (ReferenceType) converter.convertType(rhs.getCheckType()));
         addStmt(new InstanceOf(getVar(lhs), instanceOfExp));
     }
 
