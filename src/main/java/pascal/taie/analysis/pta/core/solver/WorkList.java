@@ -22,65 +22,41 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 
-import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 
 /**
- * Represented work list in pointer analysis. This class actually contains
- * two work lists, one for pointer entries and one for call edges.
+ * Represents work list in pointer analysis.
  */
 final class WorkList {
 
-    private final Map<Pointer, PointsToSet> pointerEntries = new LinkedHashMap<>();
+    private final Map<Pointer, PointsToSet> entries = new LinkedHashMap<>();
 
-    private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new ArrayDeque<>();
-
-    boolean hasPointerEntries() {
-        return !pointerEntries.isEmpty();
-    }
-
-    void addPointerEntry(Pointer pointer, PointsToSet pointsToSet) {
-        PointsToSet set = pointerEntries.get(pointer);
+    void addEntry(Pointer pointer, PointsToSet pointsToSet) {
+        PointsToSet set = entries.get(pointer);
         if (set != null) {
             set.addAll(pointsToSet);
         } else {
-            pointerEntries.put(pointer, pointsToSet.copy());
+            entries.put(pointer, pointsToSet.copy());
         }
     }
 
-    Entry pollPointerEntry() {
-        if (pointerEntries.isEmpty()) {
+    Entry pollEntry() {
+        if (entries.isEmpty()) {
             throw new NoSuchElementException();
         }
-        var it = pointerEntries.entrySet().iterator();
+        var it = entries.entrySet().iterator();
         var e = it.next();
         it.remove();
         return new Entry(e.getKey(), e.getValue());
     }
 
-    boolean hasCallEdges() {
-        return !callEdges.isEmpty();
-    }
-
-    void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        callEdges.add(edge);
-    }
-
-    Edge<CSCallSite, CSMethod> pollCallEdge() {
-        return callEdges.poll();
-    }
-
     boolean isEmpty() {
-        return pointerEntries.isEmpty() && callEdges.isEmpty();
+        return entries.isEmpty();
     }
 
     record Entry(Pointer pointer, PointsToSet pointsToSet) {

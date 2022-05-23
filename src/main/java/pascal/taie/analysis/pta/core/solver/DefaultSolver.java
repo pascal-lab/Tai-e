@@ -66,6 +66,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
@@ -241,7 +242,7 @@ public class DefaultSolver implements Solver {
             // initialize class type of entry methods
             CSMethod csMethod = csManager.getCSMethod(defContext, entry);
             callGraph.addEntryMethod(csMethod);
-            processNewCSMethod(csMethod);
+            addCSMethod(csMethod);
         }
         // setup main arguments
         Obj args = heapModel.getMainArgs();
@@ -265,28 +266,17 @@ public class DefaultSolver implements Solver {
      */
     private void analyze() {
         while (!workList.isEmpty()) {
-            while (workList.hasPointerEntries()) {
-                WorkList.Entry entry = workList.pollPointerEntry();
-                Pointer p = entry.pointer();
-                PointsToSet pts = entry.pointsToSet();
-                PointsToSet diff = propagate(p, pts);
-                if (p instanceof CSVar v) {
-                    processInstanceStore(v, diff);
-                    processInstanceLoad(v, diff);
-                    processArrayStore(v, diff);
-                    processArrayLoad(v, diff);
-                    processCall(v, diff);
-                    plugin.onNewPointsToSet(v, diff);
-                }
-            }
-            while (workList.hasCallEdges()) {
-                // We store new-added call edges in work list and process them
-                // one by one, instead of processing them immediately. This is
-                // to avoid recursion (processCallEdge()->processNewCSMethod->
-                // StmtProcessor.processInvokeStatic()->processCallEdge());
-                // otherwise, long call chain of static methods in the analyzed
-                // program may cause stack overflow.
-                processCallEdge(workList.pollCallEdge());
+            WorkList.Entry entry = workList.pollEntry();
+            Pointer p = entry.pointer();
+            PointsToSet pts = entry.pointsToSet();
+            PointsToSet diff = propagate(p, pts);
+            if (p instanceof CSVar v) {
+                processInstanceStore(v, diff);
+                processInstanceLoad(v, diff);
+                processArrayStore(v, diff);
+                processArrayLoad(v, diff);
+                processCall(v, diff);
+                plugin.onNewPointsToSet(v, diff);
             }
         }
         plugin.onFinish();
@@ -447,62 +437,6 @@ public class DefaultSolver implements Solver {
         }
     }
 
-    /**
-     * Processes the call edges in work list.
-     */
-    private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (callGraph.addEdge(edge)) {
-            CSMethod csCallee = edge.getCallee();
-            processNewCSMethod(csCallee);
-            if (edge.getKind() != CallKind.OTHER
-                && !isIgnored(csCallee.getMethod())) {
-                Context callerCtx = edge.getCallSite().getContext();
-                Invoke callSite = edge.getCallSite().getCallSite();
-                Context calleeCtx = csCallee.getContext();
-                JMethod callee = csCallee.getMethod();
-                InvokeExp invokeExp = callSite.getInvokeExp();
-                // pass arguments to parameters
-                for (int i = 0; i < invokeExp.getArgCount(); ++i) {
-                    Var arg = invokeExp.getArg(i);
-                    if (isConcerned(arg)) {
-                        Var param = callee.getIR().getParam(i);
-                        CSVar argVar = csManager.getCSVar(callerCtx, arg);
-                        CSVar paramVar = csManager.getCSVar(calleeCtx, param);
-                        addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
-                    }
-                }
-                // pass results to LHS variable
-                Var lhs = callSite.getResult();
-                if (lhs != null && isConcerned(lhs)) {
-                    CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
-                    for (Var ret : callee.getIR().getReturnVars()) {
-                        if (isConcerned(ret)) {
-                            CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                            addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
-                        }
-                    }
-                }
-            }
-            plugin.onNewCallEdge(edge);
-        }
-    }
-
-    /**
-     * Processes new reachable context-sensitive method.
-     */
-    private void processNewCSMethod(CSMethod csMethod) {
-        if (callGraph.addReachableMethod(csMethod)) {
-            JMethod method = csMethod.getMethod();
-            if (isIgnored(method)) {
-                return;
-            }
-            processNewMethod(method);
-            stmtProcessor.setCSMethod(csMethod);
-            method.getIR().forEach(s -> s.accept(stmtProcessor));
-            plugin.onNewCSMethod(csMethod);
-        }
-    }
-
     private boolean isIgnored(JMethod method) {
         return ignoredMethods.contains(method) ||
             onlyApp && !method.getDeclaringClass().isApplication();
@@ -526,174 +460,189 @@ public class DefaultSolver implements Solver {
         return type instanceof ReferenceType && !(type instanceof NullType);
     }
 
-    /**
-     * Processes the statements in context-sensitive new reachable methods.
-     */
-    private class StmtProcessor implements StmtVisitor<Void> {
+    private class StmtProcessor {
 
-        private CSMethod csMethod;
-
-        private Context context;
-
+        /**
+         * Information shared by all visitors.
+         */
         private final Map<NewMultiArray, Obj[]> newArrays = Maps.newMap();
 
         private final Map<New, Invoke> registerInvokes = Maps.newMap();
 
         private final JMethod finalize = Objects.requireNonNull(
-                hierarchy.getJREMethod(FINALIZE));
+            hierarchy.getJREMethod(FINALIZE));
 
         private final MethodRef finalizeRef = finalize.getRef();
 
         private final MethodRef registerRef = Objects.requireNonNull(
-                        hierarchy.getJREMethod(FINALIZER_REGISTER))
-                .getRef();
+            hierarchy.getJREMethod(FINALIZER_REGISTER)).getRef();
 
-        private void setCSMethod(CSMethod csMethod) {
-            this.csMethod = csMethod;
-            this.context = csMethod.getContext();
-        }
-
-        @Override
-        public Void visit(New stmt) {
-            // obtain context-sensitive heap object
-            NewExp rvalue = stmt.getRValue();
-            Obj obj = heapModel.getObj(stmt);
-            Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
-            addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
-            if (rvalue instanceof NewMultiArray) {
-                processNewMultiArray(stmt, heapContext, obj);
+        /**
+         * Processes all Stmts in given CSMethod.
+         */
+        private void process(CSMethod csMethod) {
+            StmtVisitor<Void> visitor = new Visitor(csMethod);
+            for (Stmt stmt : csMethod.getMethod().getIR()) {
+                stmt.accept(visitor);
             }
-            if (hasOverriddenFinalize(rvalue)) {
-                processFinalizer(stmt);
-            }
-            return null;
-        }
-
-        private void processNewMultiArray(
-                New allocSite, Context arrayContext, Obj array) {
-            NewMultiArray newMultiArray = (NewMultiArray) allocSite.getRValue();
-            Obj[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
-                ArrayType type = nma.getType();
-                Obj[] newArrays = new MockObj[nma.getLengthCount() - 1];
-                for (int i = 1; i < nma.getLengthCount(); ++i) {
-                    type = (ArrayType) type.elementType();
-                    newArrays[i - 1] = heapModel.getMockObj(MULTI_ARRAY_DESC,
-                            allocSite, type, allocSite.getContainer());
-                }
-                return newArrays;
-            });
-            for (Obj newArray : arrays) {
-                Context elemContext = contextSelector
-                        .selectHeapContext(csMethod, newArray);
-                addArrayPointsTo(arrayContext, array, elemContext, newArray);
-                array = newArray;
-                arrayContext = elemContext;
-            }
-        }
-
-        private boolean hasOverriddenFinalize(NewExp newExp) {
-            return !finalize.equals(
-                    hierarchy.dispatch(newExp.getType(), finalizeRef));
         }
 
         /**
-         * Call Finalizer.register() at allocation sites of objects
-         * which override Object.finalize() method.
-         * NOTE: finalize() has been deprecated since Java 9, and
-         * will eventually be removed.
+         * Visitor that contains actual processing logics.
          */
-        private void processFinalizer(New stmt) {
-            Invoke registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
-                InvokeStatic callSite = new InvokeStatic(registerRef,
-                        Collections.singletonList(s.getLValue()));
-                Invoke invoke = new Invoke(csMethod.getMethod(), callSite);
-                invoke.setLineNumber(stmt.getLineNumber());
-                return invoke;
-            });
-            processInvokeStatic(registerInvoke);
-        }
+        private class Visitor implements StmtVisitor<Void> {
 
-        private void processInvokeStatic(Invoke callSite) {
-            JMethod callee = CallGraphs.resolveCallee(null, callSite);
-            if (callee != null) {
-                CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
-                Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
-                CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-                addCallEdge(new Edge<>(CallKind.STATIC, csCallSite, csCallee));
+            private final CSMethod csMethod;
+
+            private final Context context;
+
+            private Visitor(CSMethod csMethod) {
+                this.csMethod = csMethod;
+                this.context = csMethod.getContext();
             }
-        }
 
-        @Override
-        public Void visit(AssignLiteral stmt) {
-            Literal literal = stmt.getRValue();
-            if (isConcerned(literal)) {
-                Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
-                Context heapContext = contextSelector
-                        .selectHeapContext(csMethod, obj);
+            @Override
+            public Void visit(New stmt) {
+                // obtain context-sensitive heap object
+                NewExp rvalue = stmt.getRValue();
+                Obj obj = heapModel.getObj(stmt);
+                Context heapContext = contextSelector.selectHeapContext(csMethod, obj);
                 addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
+                if (rvalue instanceof NewMultiArray) {
+                    processNewMultiArray(stmt, heapContext, obj);
+                }
+                if (hasOverriddenFinalize(rvalue)) {
+                    processFinalizer(stmt);
+                }
+                return null;
             }
-            return null;
-        }
 
-        @Override
-        public Void visit(Copy stmt) {
-            Var rvalue = stmt.getRValue();
-            if (isConcerned(rvalue)) {
-                CSVar from = csManager.getCSVar(context, rvalue);
-                CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+            private void processNewMultiArray(
+                New allocSite, Context arrayContext, Obj array) {
+                NewMultiArray newMultiArray = (NewMultiArray) allocSite.getRValue();
+                Obj[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
+                    ArrayType type = nma.getType();
+                    Obj[] newArrays = new MockObj[nma.getLengthCount() - 1];
+                    for (int i = 1; i < nma.getLengthCount(); ++i) {
+                        type = (ArrayType) type.elementType();
+                        newArrays[i - 1] = heapModel.getMockObj(MULTI_ARRAY_DESC,
+                            allocSite, type, allocSite.getContainer());
+                    }
+                    return newArrays;
+                });
+                for (Obj newArray : arrays) {
+                    Context elemContext = contextSelector
+                        .selectHeapContext(csMethod, newArray);
+                    addArrayPointsTo(arrayContext, array, elemContext, newArray);
+                    array = newArray;
+                    arrayContext = elemContext;
+                }
             }
-            return null;
-        }
 
-        @Override
-        public Void visit(Cast stmt) {
-            CastExp cast = stmt.getRValue();
-            if (isConcerned(cast.getValue())) {
-                CSVar from = csManager.getCSVar(context, cast.getValue());
-                CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+            private boolean hasOverriddenFinalize(NewExp newExp) {
+                return !finalize.equals(
+                    hierarchy.dispatch(newExp.getType(), finalizeRef));
             }
-            return null;
-        }
 
-        /**
-         * Processes static load.
-         */
-        @Override
-        public Void visit(LoadField stmt) {
-            if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
-                JField field = stmt.getFieldRef().resolve();
-                StaticField sfield = csManager.getStaticField(field);
-                CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+            /**
+             * Call Finalizer.register() at allocation sites of objects
+             * which override Object.finalize() method.
+             * NOTE: finalize() has been deprecated since Java 9, and
+             * will eventually be removed.
+             */
+            private void processFinalizer(New stmt) {
+                Invoke registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
+                    InvokeStatic callSite = new InvokeStatic(registerRef,
+                        Collections.singletonList(s.getLValue()));
+                    Invoke invoke = new Invoke(csMethod.getMethod(), callSite);
+                    invoke.setLineNumber(stmt.getLineNumber());
+                    return invoke;
+                });
+                processInvokeStatic(registerInvoke);
             }
-            return null;
-        }
 
-        /**
-         * Processes static store.
-         */
-        @Override
-        public Void visit(StoreField stmt) {
-            if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
-                JField field = stmt.getFieldRef().resolve();
-                StaticField sfield = csManager.getStaticField(field);
-                CSVar from = csManager.getCSVar(context, stmt.getRValue());
-                addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+            private void processInvokeStatic(Invoke callSite) {
+                JMethod callee = CallGraphs.resolveCallee(null, callSite);
+                if (callee != null) {
+                    CSCallSite csCallSite = csManager.getCSCallSite(context, callSite);
+                    Context calleeCtx = contextSelector.selectContext(csCallSite, callee);
+                    CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
+                    addCallEdge(new Edge<>(CallKind.STATIC, csCallSite, csCallee));
+                }
             }
-            return null;
-        }
 
-        /**
-         * Processes static invocation.
-         */
-        @Override
-        public Void visit(Invoke stmt) {
-            if (stmt.isStatic()) {
-                processInvokeStatic(stmt);
+            @Override
+            public Void visit(AssignLiteral stmt) {
+                Literal literal = stmt.getRValue();
+                if (isConcerned(literal)) {
+                    Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
+                    Context heapContext = contextSelector
+                        .selectHeapContext(csMethod, obj);
+                    addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
+                }
+                return null;
             }
-            return null;
+
+            @Override
+            public Void visit(Copy stmt) {
+                Var rvalue = stmt.getRValue();
+                if (isConcerned(rvalue)) {
+                    CSVar from = csManager.getCSVar(context, rvalue);
+                    CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                    addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+                }
+                return null;
+            }
+
+            @Override
+            public Void visit(Cast stmt) {
+                CastExp cast = stmt.getRValue();
+                if (isConcerned(cast.getValue())) {
+                    CSVar from = csManager.getCSVar(context, cast.getValue());
+                    CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                    addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+                }
+                return null;
+            }
+
+            /**
+             * Processes static load.
+             */
+            @Override
+            public Void visit(LoadField stmt) {
+                if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
+                    JField field = stmt.getFieldRef().resolve();
+                    StaticField sfield = csManager.getStaticField(field);
+                    CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                    addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+                }
+                return null;
+            }
+
+            /**
+             * Processes static store.
+             */
+            @Override
+            public Void visit(StoreField stmt) {
+                if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
+                    JField field = stmt.getFieldRef().resolve();
+                    StaticField sfield = csManager.getStaticField(field);
+                    CSVar from = csManager.getCSVar(context, stmt.getRValue());
+                    addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+                }
+                return null;
+            }
+
+            /**
+             * Processes static invocation.
+             */
+            @Override
+            public Void visit(Invoke stmt) {
+                if (stmt.isStatic()) {
+                    processInvokeStatic(stmt);
+                }
+                return null;
+            }
         }
     }
 
@@ -701,7 +650,7 @@ public class DefaultSolver implements Solver {
 
     @Override
     public void addPointsTo(Pointer pointer, PointsToSet pts) {
-        workList.addPointerEntry(pointer, pts);
+        workList.addEntry(pointer, pts);
     }
 
     @Override
@@ -747,12 +696,55 @@ public class DefaultSolver implements Solver {
 
     @Override
     public void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        workList.addCallEdge(edge);
+        if (callGraph.addEdge(edge)) {
+            // process new call edge
+            CSMethod csCallee = edge.getCallee();
+            addCSMethod(csCallee);
+            if (edge.getKind() != CallKind.OTHER
+                && !isIgnored(csCallee.getMethod())) {
+                Context callerCtx = edge.getCallSite().getContext();
+                Invoke callSite = edge.getCallSite().getCallSite();
+                Context calleeCtx = csCallee.getContext();
+                JMethod callee = csCallee.getMethod();
+                InvokeExp invokeExp = callSite.getInvokeExp();
+                // pass arguments to parameters
+                for (int i = 0; i < invokeExp.getArgCount(); ++i) {
+                    Var arg = invokeExp.getArg(i);
+                    if (isConcerned(arg)) {
+                        Var param = callee.getIR().getParam(i);
+                        CSVar argVar = csManager.getCSVar(callerCtx, arg);
+                        CSVar paramVar = csManager.getCSVar(calleeCtx, param);
+                        addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+                    }
+                }
+                // pass results to LHS variable
+                Var lhs = callSite.getResult();
+                if (lhs != null && isConcerned(lhs)) {
+                    CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
+                    for (Var ret : callee.getIR().getReturnVars()) {
+                        if (isConcerned(ret)) {
+                            CSVar csRet = csManager.getCSVar(calleeCtx, ret);
+                            addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                        }
+                    }
+                }
+            }
+            plugin.onNewCallEdge(edge);
+        }
     }
 
     @Override
     public void addCSMethod(CSMethod csMethod) {
-        processNewCSMethod(csMethod);
+        if (callGraph.addReachableMethod(csMethod)) {
+            // process new reachable context-sensitive method
+            JMethod method = csMethod.getMethod();
+            if (isIgnored(method)) {
+                return;
+            }
+            processNewMethod(method);
+            stmtProcessor.process(csMethod);
+            plugin.onNewCSMethod(csMethod);
+        }
     }
 
     @Override
@@ -769,8 +761,8 @@ public class DefaultSolver implements Solver {
         //  declare default methods
         JMethod clinit = cls.getClinit();
         if (clinit != null) {
-            // processNewCSMethod() may trigger initialization of more
-            // classes. So cls must be added before processNewCSMethod(),
+            // addCSMethod() may trigger initialization of more
+            // classes. So cls must be added before addCSMethod(),
             // otherwise, infinite recursion may occur.
             initializedClasses.add(cls);
             CSMethod csMethod = csManager.getCSMethod(
