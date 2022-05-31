@@ -82,10 +82,7 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -236,29 +233,21 @@ public class DefaultSolver implements Solver {
         stmtProcessor = new StmtProcessor();
         plugin.onStart();
 
-        // process program entries (including implicit entries)
         Context defContext = contextSelector.getEmptyContext();
-        for (JMethod entry : computeEntries()) {
-            // initialize class type of entry methods
-            CSMethod csMethod = csManager.getCSMethod(defContext, entry);
-            callGraph.addEntryMethod(csMethod);
-            addCSMethod(csMethod);
+        // process program main method entry and set up its arguments
+        JMethod mainMethod = World.get().getMainMethod();
+        if (mainMethod != null) {
+            addEntryMethod(csManager.getCSMethod(defContext, mainMethod));
+            // initialize parameters of main method
+            Obj args = heapModel.getMainArgs();
+            Obj argsElem = heapModel.getMainArgsElem();
+            addArrayPointsTo(defContext, args, defContext, argsElem);
+            addVarPointsTo(defContext, mainMethod.getIR().getParam(0), defContext, args);
         }
-        // setup main arguments
-        Obj args = heapModel.getMainArgs();
-        Obj argsElem = heapModel.getMainArgsElem();
-        addArrayPointsTo(defContext, args, defContext, argsElem);
-        JMethod main = World.get().getMainMethod();
-        addVarPointsTo(defContext, main.getIR().getParam(0), defContext, args);
-    }
-
-    private Collection<JMethod> computeEntries() {
-        List<JMethod> entries = new ArrayList<>();
-        entries.add(World.get().getMainMethod());
-        if (options.getBoolean("implicit-entries")) {
-            entries.addAll(World.get().getImplicitEntries());
+        // process program implicit entries
+        for (JMethod entry : World.get().getImplicitEntries()) {
+            addEntryMethod(csManager.getCSMethod(defContext, entry));
         }
-        return entries;
     }
 
     /**
@@ -745,6 +734,12 @@ public class DefaultSolver implements Solver {
             stmtProcessor.process(csMethod);
             plugin.onNewCSMethod(csMethod);
         }
+    }
+
+    @Override
+    public void addEntryMethod(CSMethod entryMethod) {
+        callGraph.addEntryMethod(entryMethod);
+        addCSMethod(entryMethod);
     }
 
     @Override
