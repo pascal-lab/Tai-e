@@ -36,6 +36,7 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,6 +118,17 @@ public class Options {
 
     public String getMainClass() {
         return mainClass;
+    }
+
+    @JsonProperty
+    @Option(names = {"--input-classes"},
+            description = "The classes should be included in the World of analyzed program" +
+                " (the classes can be split by ',')",
+            split = ",")
+    private List<String> inputClasses = List.of();
+
+    public List<String> getInputClasses() {
+        return inputClasses;
     }
 
     @JsonProperty

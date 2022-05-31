@@ -107,6 +107,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
         addReflectionLogClasses(plan, scene);
+        // add the included classes to the basic classes of Soot
+        for (String includedClass : options.getInputClasses()) {
+            scene.addBasicClass(includedClass, HIERARCHY);
+        }
 
         // Configure Soot transformer
         Transform transform = new Transform(
