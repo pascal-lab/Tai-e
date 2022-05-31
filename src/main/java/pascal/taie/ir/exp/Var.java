@@ -64,8 +64,9 @@ public class Var implements LValue, RValue, Indexable {
     private final int index;
 
     /**
-     * If this variable is a temporary variable generated to hold a constant value,
-     * then this field holds that constant value; otherwise, this field is null.
+     * If this variable is a (temporary) variable generated for holding
+     * a constant value, then this field holds that constant value;
+     * otherwise, this field is null.
      */
     private final Literal constValue;
 
@@ -115,21 +116,21 @@ public class Var implements LValue, RValue, Indexable {
     }
 
     /**
-     * @return true if this variable is a temporary variable for holding
-     * constant value, otherwise false.
+     * @return true if this variable is a (temporary) variable
+     * generated for holding constant value, otherwise false.
      */
-    public boolean isTempConst() {
+    public boolean isConst() {
         return constValue != null;
     }
 
     /**
-     * @return the constant value held by this temporary variable.
-     * @throws AnalysisException if this variable is not temporary variable
+     * @return the constant value held by this variable.
+     * @throws AnalysisException if this variable does not hold const value
      */
-    public Literal getTempConstValue() {
-        if (!isTempConst()) {
-            throw new AnalysisException(this + " is not a temporary variable" +
-                    " that holds const value");
+    public Literal getConstValue() {
+        if (!isConst()) {
+            throw new AnalysisException(this
+                + " is not a (temporary) variable for holding const value");
         }
         return constValue;
     }

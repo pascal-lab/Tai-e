@@ -64,8 +64,8 @@ public class CPFact extends MapFact<Var, Value> {
      */
     @Override
     public Value get(Var var) {
-        if (var.isTempConst() &&
-                var.getTempConstValue() instanceof IntLiteral i) {
+        if (var.isConst() &&
+                var.getConstValue() instanceof IntLiteral i) {
             // for temporary constant variable, directly return
             // the associated value
             return Value.makeConstant(i.getValue());
@@ -76,7 +76,7 @@ public class CPFact extends MapFact<Var, Value> {
 
     @Override
     public boolean update(Var var, Value value) {
-        if (var.isTempConst()) {
+        if (var.isConst()) {
             // do not store temporary constant variables
             return false;
         } else if (value.isUndef()) {

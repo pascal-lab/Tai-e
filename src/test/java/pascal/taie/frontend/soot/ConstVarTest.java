@@ -30,11 +30,11 @@ import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JClass;
 
-public class TempConstVarTest {
+public class ConstVarTest {
 
     @Test
     public void test() {
-        String main = "TempConst";
+        String main = "ConstVar";
         Main.buildWorld("-pp", "-cp", "src/test/resources/world", "-m", main);
         JClass jclass = World.get().getClassHierarchy().getClass(main);
         jclass.getDeclaredMethods().forEach(m -> {
@@ -42,8 +42,8 @@ public class TempConstVarTest {
             IRPrinter.print(ir, System.out);
             ir.getVars()
                     .stream()
-                    .filter(Var::isTempConst)
-                    .forEach(v -> System.out.println(v + " -> " + v.getTempConstValue()));
+                    .filter(Var::isConst)
+                    .forEach(v -> System.out.println(v + " -> " + v.getConstValue()));
         });
     }
 }

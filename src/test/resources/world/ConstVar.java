@@ -1,4 +1,4 @@
-class TempConst {
+class ConstVar {
 
     int primitiveConst() {
         int x = 1 + 2;
