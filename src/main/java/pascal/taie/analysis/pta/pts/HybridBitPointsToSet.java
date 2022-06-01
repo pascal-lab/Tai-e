@@ -29,8 +29,8 @@ import pascal.taie.util.collection.HybridBitSet;
 
 class HybridBitPointsToSet extends DelegatePointsToSet {
 
-    public HybridBitPointsToSet(Indexer<CSObj> indexer) {
-        this(new HybridBitSet<>(indexer, true));
+    public HybridBitPointsToSet(Indexer<CSObj> indexer, boolean isSparse) {
+        this(new HybridBitSet<>(indexer, isSparse));
     }
 
     private HybridBitPointsToSet(EnhancedSet<CSObj> set) {

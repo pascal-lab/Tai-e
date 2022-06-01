@@ -25,19 +25,21 @@ package pascal.taie.analysis.pta.pts;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.Indexer;
 
+import java.util.function.Supplier;
+
 /**
  * Provides static factory methods for {@link PointsToSet}.
  */
 public class PointsToSetFactory {
 
-    private final Indexer<CSObj> objIndexer;
+    private final Supplier<PointsToSet> factory;
 
     public PointsToSetFactory(Indexer<CSObj> objIndexer) {
-        this.objIndexer = objIndexer;
+        factory = () -> new HybridBitPointsToSet(objIndexer, true);
     }
 
     public PointsToSet make() {
-        return new HybridBitPointsToSet(objIndexer);
+        return factory.get();
     }
 
     /**

@@ -26,7 +26,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.collection.EnhancedSet;
 import pascal.taie.util.collection.HybridHashSet;
 
-public class HybridHashPointsToSet extends DelegatePointsToSet {
+class HybridHashPointsToSet extends DelegatePointsToSet {
 
     HybridHashPointsToSet() {
         this(new HybridHashSet<>());
