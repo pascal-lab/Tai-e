@@ -32,7 +32,7 @@ public abstract class AbstractEnhancedSet<E> extends AbstractSet<E>
     public EnhancedSet<E> copy() {
         EnhancedSet<E> copy = newSet();
         copy.addAll(this);
-        return this;
+        return copy;
     }
 
     @Override
