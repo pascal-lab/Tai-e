@@ -22,10 +22,10 @@
 
 package pascal.taie.analysis.pta.core.cs.context;
 
+import pascal.taie.util.collection.Maps;
+
 import java.util.Arrays;
 import java.util.Map;
-
-import static pascal.taie.util.collection.Maps.newHybridMap;
 
 /**
  * An implementation of {@link Context}, which organizes contexts like a tree.
@@ -35,18 +35,16 @@ import static pascal.taie.util.collection.Maps.newHybridMap;
  * {@link TreeContext.Factory} ensures that the contexts with the same elements
  * will be created at most once. Thus, we can avoid creating redundant
  * context objects, and test their equality by efficient ==.
- *
- * @param <T> type of context elements.
  */
-public class TreeContext<T> implements Context {
+public class TreeContext implements Context {
 
-    private final TreeContext<T> parent;
+    private final TreeContext parent;
 
-    private final T elem;
+    private final Object elem;
 
     private final int length;
 
-    private Map<T, TreeContext<T>> children;
+    private Map<Object, TreeContext> children;
 
     private TreeContext() {
         parent = null;
@@ -54,7 +52,7 @@ public class TreeContext<T> implements Context {
         length = 0;
     }
 
-    private TreeContext(TreeContext<T> parent, T elem) {
+    private TreeContext(TreeContext parent, Object elem) {
         this.parent = parent;
         this.elem = elem;
         this.length = parent.getLength() + 1;
@@ -66,7 +64,7 @@ public class TreeContext<T> implements Context {
     }
 
     @Override
-    public T getElementAt(int i) {
+    public Object getElementAt(int i) {
         assert 0 <= i && i < length;
         if (i == length - 1) {
             return elem;
@@ -75,26 +73,26 @@ public class TreeContext<T> implements Context {
         }
     }
 
-    TreeContext<T> getParent() {
+    TreeContext getParent() {
         return parent;
     }
 
-    TreeContext<T> getChild(T elem) {
+    TreeContext getChild(Object elem) {
         if (children == null) {
-            children = newHybridMap();
+            children = Maps.newHybridMap();
         }
         return children.computeIfAbsent(elem,
-                e -> new TreeContext<>(this, e));
+            e -> new TreeContext(this, e));
     }
 
-    T getElem() {
+    Object getElem() {
         return elem;
     }
 
     @Override
     public String toString() {
         Object[] elems = new Object[length];
-        TreeContext<T> c = this;
+        TreeContext c = this;
         for (int i = length - 1; i >= 0; --i) {
             elems[i] = c.getElem();
             c = c.getParent();
@@ -108,10 +106,10 @@ public class TreeContext<T> implements Context {
          * Root context of all tree contexts produced by this factory.
          * It also acts as the default context.
          */
-        private final TreeContext<T> rootContext = new TreeContext<>();
+        private final TreeContext rootContext = new TreeContext();
 
         @Override
-        public TreeContext<T> getEmptyContext() {
+        public TreeContext getEmptyContext() {
             return rootContext;
         }
 
@@ -121,8 +119,8 @@ public class TreeContext<T> implements Context {
         }
 
         @Override
-        public TreeContext<T> make(T... elems) {
-            TreeContext<T> result = rootContext;
+        public TreeContext make(T... elems) {
+            TreeContext result = rootContext;
             for (T elem : elems) {
                 result = result.getChild(elem);
             }
@@ -130,11 +128,11 @@ public class TreeContext<T> implements Context {
         }
 
         @Override
-        public TreeContext<T> makeLastK(Context context, int k) {
+        public TreeContext makeLastK(Context context, int k) {
             if (k == 0) {
                 return rootContext;
             }
-            TreeContext<T> c = (TreeContext<T>) context;
+            TreeContext c = (TreeContext) context;
             if (c.getLength() <= k) {
                 return c;
             }
@@ -147,8 +145,8 @@ public class TreeContext<T> implements Context {
         }
 
         @Override
-        public TreeContext<T> append(Context parent, T elem, int limit) {
-            TreeContext<T> p = (TreeContext<T>) parent;
+        public TreeContext append(Context parent, T elem, int limit) {
+            TreeContext p = (TreeContext) parent;
             if (parent.getLength() < limit) {
                 return p.getChild(elem);
             } else {

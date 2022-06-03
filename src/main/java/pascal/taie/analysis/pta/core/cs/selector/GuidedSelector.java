@@ -38,8 +38,7 @@ import java.util.Set;
 /**
  * Guided context selector.
  */
-@SuppressWarnings("ALL")
-class GuidedSelector extends AbstractContextSelector {
+class GuidedSelector extends AbstractContextSelector<Object> {
 
     /**
      * Default context sensitivity variant for the methods that are not specified.
@@ -112,8 +111,8 @@ class GuidedSelector extends AbstractContextSelector {
             Object ctxElem1 = hctx.getElementAt(hctx.getLength() - 1);
             if (ctxElem1 instanceof Type) {
                 return factory.make(ctxElem1, ctxElem2);
-            } else if (ctxElem1 instanceof Obj) {
-                return factory.make(((Obj) ctxElem1).getContainerType(), ctxElem2);
+            } else if (ctxElem1 instanceof Obj obj1) {
+                return factory.make(obj1.getContainerType(), ctxElem2);
             } else {
                 throw new AnalysisException("Unexpected context element: " + ctxElem1);
             }

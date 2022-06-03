@@ -22,27 +22,46 @@
 
 package pascal.taie.analysis.pta.core.cs.context;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class ContextTest {
 
     @Test
-    public void testLinkedContext() {
+    public void testTreeContext() {
+        testContext(new TreeContext.Factory<>());
+    }
+
+    @Test
+    public void testTreeContext2() {
         TreeContext.Factory<String> factory = new TreeContext.Factory<>();
+        Context abc = factory.make("A", "B", "C");
+        TreeContext bcd = factory.append(abc, "D", 3);
+        Context bc = factory.make("B", "C");
+        assertEquals(bc, bcd.getParent());
+        TreeContext cde = factory.append(bcd, "E", 3);
+        Context cd = factory.make("C", "D");
+        assertEquals(cde.getParent(), cd);
+    }
+
+    private static void testContext(ContextFactory<String> factory) {
         Context a = factory.make("A");
+        Context empty1 = factory.getEmptyContext();
+        Context empty2 = factory.makeLastK(a, 0);
+        assertEquals(empty1, empty2);
+
         Context ab1 = factory.append(a, "B", 2);
         Context ab2 = factory.append(a, "B", 3);
-        Assert.assertEquals(ab1, ab2);
+        assertEquals(ab1, ab2);
+
         Context b1 = factory.make("B");
         Context b2 = factory.append(a, "B", 1);
-        Assert.assertEquals(b1, b2);
-        Context bc = factory.append(ab1, "C", 2);
-        Context abc = factory.append(ab1, "C", 3);
-        TreeContext<String> bcd = factory.append(abc, "D", 3);
-        Assert.assertEquals(bc, bcd.getParent());
-        TreeContext<String> cde = factory.append(bcd, "E", 3);
-        Context cd = factory.make("C", "D");
-        Assert.assertEquals(cde.getParent(), cd);
+        assertEquals(b1, b2);
+
+        Context pqrstuvw = factory.make("P", "Q", "R", "S", "T", "U", "V", "W");
+        Context uvw1 = factory.makeLastK(pqrstuvw, 3);
+        Context uvw2 = factory.make("U", "V", "W");
+        assertEquals(uvw1, uvw2);
     }
 }
