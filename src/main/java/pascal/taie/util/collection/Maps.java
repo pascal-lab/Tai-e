@@ -71,7 +71,7 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap() {
-        return new MapSetMultiMap<>(newMap(), HybridHashSet::new);
+        return new MapSetMultiMap<>(newMap(), Sets::newHybridSet);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Supplier<Set<V>> setFactory) {
@@ -79,15 +79,15 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map) {
-        return new MapSetMultiMap<>(map, HybridHashSet::new);
+        return new MapSetMultiMap<>(map, Sets::newHybridSet);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(int initialCapacity) {
         return new MapSetMultiMap<>(
-                newMap(initialCapacity), HybridHashSet::new);
+                newMap(initialCapacity), Sets::newHybridSet);
     }
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
-        return new MapMapTwoKeyMap<>(newMap(), HybridHashMap::new);
+        return new MapMapTwoKeyMap<>(newMap(), Maps::newHybridMap);
     }
 }
