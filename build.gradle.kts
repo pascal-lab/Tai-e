@@ -25,7 +25,8 @@ application {
     mainClass.set("pascal.taie.Main")
 }
 
-task("allInOne", type = Jar::class) {
+task("fatJar", type = Jar::class) {
+    group = "build"
     description = "Creates a single jar file including Tai-e and all dependencies"
     manifest {
         attributes["Main-Class"] = "pascal.taie.Main"
@@ -36,6 +37,13 @@ task("allInOne", type = Jar::class) {
             if (it.isDirectory) it else zipTree(it)
         }
     )
+    from("COPYING", "COPYING.LESSER")
+    doLast {
+        copy {
+            from(archiveFile)
+            into(rootProject.buildDir)
+        }
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with(tasks["jar"] as CopySpec)
 }
