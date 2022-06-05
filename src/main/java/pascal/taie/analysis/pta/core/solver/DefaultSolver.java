@@ -245,8 +245,10 @@ public class DefaultSolver implements Solver {
             addVarPointsTo(defContext, mainMethod.getIR().getParam(0), defContext, args);
         }
         // process program implicit entries
-        for (JMethod entry : World.get().getImplicitEntries()) {
-            addEntryMethod(csManager.getCSMethod(defContext, entry));
+        if (options.getBoolean("implicit-entries")) {
+            for (JMethod entry : World.get().getImplicitEntries()) {
+                addEntryMethod(csManager.getCSMethod(defContext, entry));
+            }
         }
     }
 
