@@ -261,7 +261,7 @@ public class DefaultSolver implements Solver {
             Pointer p = entry.pointer();
             PointsToSet pts = entry.pointsToSet();
             PointsToSet diff = propagate(p, pts);
-            if (p instanceof CSVar v) {
+            if (!diff.isEmpty() && p instanceof CSVar v) {
                 processInstanceStore(v, diff);
                 processInstanceLoad(v, diff);
                 processArrayStore(v, diff);
