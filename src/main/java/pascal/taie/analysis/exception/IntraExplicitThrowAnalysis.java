@@ -22,11 +22,14 @@
 
 package pascal.taie.analysis.exception;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.MethodResolutionFailedException;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Throw;
@@ -43,6 +46,8 @@ import static pascal.taie.util.collection.Maps.newHybridMap;
 import static pascal.taie.util.collection.Maps.newMap;
 
 class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
+
+    private static final Logger logger = LogManager.getLogger(IntraExplicitThrowAnalysis.class);
 
     @Override
     public void analyze(IR ir, ThrowResult result) {
@@ -113,8 +118,13 @@ class IntraExplicitThrowAnalysis implements ExplicitThrowAnalysis {
     }
 
     private static Collection<ClassType> mayThrowExplicitly(Invoke invoke) {
-        return invoke.isDynamic() ?
+        try {
+            return invoke.isDynamic() ?
                 List.of() : // InvokeDynamic.getMethodRef() is unavailable
                 invoke.getMethodRef().resolve().getExceptions();
+        } catch (MethodResolutionFailedException e) {
+            logger.warn(e.getMessage());
+            return List.of();
+        }
     }
 }
