@@ -206,6 +206,8 @@ public class MapBasedCSManager implements CSManager {
 
         private final Type throwable = typeSystem.getClassType(ClassNames.THROWABLE);
 
+        private final Type string = typeSystem.getClassType(ClassNames.STRING);
+
         /**
          * Counter for assign unique indexes to throwable objects.
          */
@@ -217,9 +219,19 @@ public class MapBasedCSManager implements CSManager {
         private static final int THROWABLE_BUDGET = 2048;
 
         /**
+         * Counter for assign unique indexes to string objects.
+         */
+        private int stringCounter = THROWABLE_BUDGET;
+
+        /**
+         * Number of indexes reserved for string objects.
+         */
+        private static final int STRING_BUDGET = 4096;
+
+        /**
          * Counter for assigning unique indexes to other CSObjs.
          */
-        private int counter = THROWABLE_BUDGET;
+        private int counter = THROWABLE_BUDGET + STRING_BUDGET;
 
         /**
          * Maps index to CSObj.
@@ -239,8 +251,11 @@ public class MapBasedCSManager implements CSManager {
 
         private int getCSObjIndex(Obj obj) {
             if (typeSystem.isSubtype(throwable, obj.getType()) &&
-                    throwableCounter < THROWABLE_BUDGET) {
+                throwableCounter < THROWABLE_BUDGET) {
                 return throwableCounter++;
+            } else if (obj.getType().equals(string) &&
+                stringCounter < THROWABLE_BUDGET + STRING_BUDGET) {
+                return stringCounter++;
             } else {
                 return counter++;
             }
