@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -35,16 +34,16 @@ import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 import static pascal.taie.util.collection.CollectionUtils.getOne;
-import static pascal.taie.util.collection.Sets.newHybridSet;
 
 /**
- * Models initialization of main thread, system thread group,
- * and some Thread APIs.
+ * Models initialization of system thread group, main thread group,
+ * main thread, and some Thread APIs.
  */
 public class ThreadHandler implements Plugin {
 
@@ -75,13 +74,13 @@ public class ThreadHandler implements Plugin {
     /**
      * Contexts of Thread.currentThread().
      */
-    private final Set<Context> currentThreadContexts = newHybridSet();
+    private final Set<Context> currentThreadContexts = Sets.newHybridSet();
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         runningThreads = solver.makePointsToSet();
-        hierarchy = World.get().getClassHierarchy();
+        hierarchy = solver.getHierarchy();
         threadStartThis = requireNonNull(
             hierarchy.getJREMethod("<java.lang.Thread: void start()>"))
             .getIR()

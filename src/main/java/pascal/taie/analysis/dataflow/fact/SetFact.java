@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
+import pascal.taie.util.Copyable;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.GenericBitSet;
 import pascal.taie.util.collection.Sets;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
  *
  * @param <E> type of elements
  */
-public class SetFact<E> {
+public class SetFact<E> implements Copyable<SetFact<E>> {
 
     protected final Set<E> set;
 
@@ -148,6 +149,7 @@ public class SetFact<E> {
     /**
      * Creates and returns a copy of this fact.
      */
+    @Override
     public SetFact<E> copy() {
         return new SetFact<>(this.set);
     }

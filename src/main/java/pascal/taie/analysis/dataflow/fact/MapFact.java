@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
+import pascal.taie.util.Copyable;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Comparator;
@@ -39,7 +40,7 @@ import java.util.stream.Stream;
  * @param <K> type of keys
  * @param <V> type of values
  */
-public class MapFact<K, V> {
+public class MapFact<K, V> implements Copyable<MapFact<K, V>> {
 
     /**
      * The map holding the mappings of this MapFact.
@@ -98,6 +99,7 @@ public class MapFact<K, V> {
     /**
      * Creates and returns a copy of this fact.
      */
+    @Override
     public MapFact<K, V> copy() {
         return new MapFact<>(this.map);
     }

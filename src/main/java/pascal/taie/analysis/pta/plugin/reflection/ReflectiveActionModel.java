@@ -278,7 +278,8 @@ class ReflectiveActionModel extends AbstractModel {
             }
             if (field.isStatic()) {
                 StaticField sfield = csManager.getStaticField(field);
-                solver.addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+                solver.addPFGEdge(from, sfield, sfield.getType(),
+                    PointerFlowEdge.Kind.STATIC_STORE);
             } else {
                 Type declType = field.getDeclaringClass().getType();
                 baseObjs.forEach(baseObj -> {
@@ -286,7 +287,7 @@ class ReflectiveActionModel extends AbstractModel {
                     if (typeSystem.isSubtype(declType, objType)) {
                         InstanceField ifield = csManager.getInstanceField(baseObj, field);
                         solver.addPFGEdge(from, ifield, ifield.getType(),
-                                PointerFlowEdge.Kind.INSTANCE_STORE);
+                            PointerFlowEdge.Kind.INSTANCE_STORE);
                     }
                 });
             }

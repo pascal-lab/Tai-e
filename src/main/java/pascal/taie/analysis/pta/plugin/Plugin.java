@@ -35,10 +35,11 @@ import pascal.taie.language.classes.JMethod;
 
 /**
  * Analysis plugin interface.
+ *
  * This interface contains callbacks for pointer analysis events.
  * It is supposed to provide a mechanism for extending functionalities
- * of the analysis, so its implementations would have side effects
- * on pointer analysis and should be thread-safe.
+ * of the analysis, so its implementations may have side effects
+ * on pointer analysis.
  */
 public interface Plugin {
 
@@ -50,7 +51,6 @@ public interface Plugin {
 
     /**
      * Invoked when pointer analysis starts.
-     * Thread-safe.
      */
     default void onStart() {
     }
@@ -59,14 +59,12 @@ public interface Plugin {
      * Invoked when pointer analysis finishes.
      * Pointer analysis is supposed to have been finished at this stage,
      * thus this call back should NOT modify pointer analysis results.
-     * Thread-safe.
      */
     default void onFinish() {
     }
 
     /**
      * Invoked when set of new objects flow to a context-sensitive variable.
-     * Not thread-safe, but single-thread on csVar.
      *
      * @param csVar variable whose points-to set changes
      * @param pts   set of new objects
@@ -76,7 +74,6 @@ public interface Plugin {
 
     /**
      * Invoked when a new call graph edge is discovered.
-     * Not thread-safe, but single-thread on edge.
      *
      * @param edge new call graph edge
      */
@@ -85,7 +82,6 @@ public interface Plugin {
 
     /**
      * Invoked when a new reachable method is discovered.
-     * Not thread-safe, but single-thread on method.
      *
      * @param method new reachable method
      */
@@ -94,7 +90,6 @@ public interface Plugin {
 
     /**
      * Invoked when a new reachable context-sensitive method is discovered.
-     * Not thread-safe, but single-thread on csMethod.
      *
      * @param csMethod new reachable context-sensitive method
      */
@@ -104,7 +99,7 @@ public interface Plugin {
     /**
      * Invoked when pointer analysis failed to resolve callee (i.e., resolve
      * to null) on a receiver object. Some plugins take over such cases to
-     * do their analysis.
+     * do their analyses.
      *
      * @param recv    the receiver object
      * @param context the context of the invocation
