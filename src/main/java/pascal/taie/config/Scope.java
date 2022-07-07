@@ -22,14 +22,21 @@
 
 package pascal.taie.config;
 
-public final class Scope {
+public enum Scope {
 
-    private Scope() {
-    }
+    /**
+     * Only analyzes application code.
+     */
+    APP,
 
-    public static final String APP = "app";
+    /**
+     * Only analyzes the code reachable in the call graph.
+     * This scope requires to perform a call graph construction in advance.
+     */
+    REACHABLE,
 
-    public static final String REACHABLE = "reachable";
-
-    public static final String ALL = "all";
+    /**
+     * Analyzes all code.
+     */
+    ALL,
 }

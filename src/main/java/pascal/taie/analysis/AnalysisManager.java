@@ -28,7 +28,6 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.ConfigException;
 import pascal.taie.config.Scope;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
@@ -103,25 +102,23 @@ public class AnalysisManager {
 
     private List<JClass> getClassScope() {
         if (classScope == null) {
-            String scope = World.get().getOptions().getScope();
+            Scope scope = World.get().getOptions().getScope();
             classScope = switch (scope) {
-                case Scope.APP -> World.get()
+                case APP -> World.get()
                         .getClassHierarchy()
                         .applicationClasses()
                         .toList();
-                case Scope.ALL -> World.get()
+                case ALL -> World.get()
                         .getClassHierarchy()
                         .allClasses()
                         .toList();
-                case Scope.REACHABLE -> {
+                case REACHABLE -> {
                     CallGraph<?, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
                     yield callGraph.reachableMethods()
                             .map(JMethod::getDeclaringClass)
                             .distinct()
                             .toList();
                 }
-                default -> throw new ConfigException(
-                        "Unexpected scope option: " + scope);
             };
             logger.info("{} classes in scope ({}) of class analyses",
                     classScope.size(), scope);
@@ -143,20 +140,18 @@ public class AnalysisManager {
 
     private List<JMethod> getMethodScope() {
         if (methodScope == null) {
-            String scope = World.get().getOptions().getScope();
+            Scope scope = World.get().getOptions().getScope();
             methodScope = switch (scope) {
-                case Scope.APP, Scope.ALL -> getClassScope()
+                case APP, ALL -> getClassScope()
                         .stream()
                         .map(JClass::getDeclaredMethods)
                         .flatMap(Collection::stream)
                         .filter(m -> !m.isAbstract() && !m.isNative())
                         .toList();
-                case Scope.REACHABLE -> {
+                case REACHABLE -> {
                     CallGraph<?, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
                     yield callGraph.reachableMethods().toList();
                 }
-                default -> throw new ConfigException(
-                        "Unexpected scope option: " + scope);
             };
             logger.info("{} methods in scope ({}) of method analyses",
                     methodScope.size(), scope);

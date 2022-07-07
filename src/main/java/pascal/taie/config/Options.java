@@ -156,7 +156,7 @@ public class Options {
 
     @JsonProperty
     @Option(names = "--pre-build-ir",
-            description = "Build Tai-e IR for all available methods before" +
+            description = "Build IR for all available methods before" +
                     " starting any analysis (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean preBuildIR = false;
@@ -167,11 +167,12 @@ public class Options {
 
     @JsonProperty
     @Option(names = "-scope",
-            description = "Scope for intra-procedural analyses (default: ${DEFAULT-VALUE})",
-            defaultValue = Scope.APP)
-    private String scope;
+            description = "Scope for method/class analyses (default: ${DEFAULT-VALUE}," +
+                " valid values: ${COMPLETION-CANDIDATES})",
+            defaultValue = "APP")
+    private Scope scope;
 
-    public String getScope() {
+    public Scope getScope() {
         return scope;
     }
 
