@@ -24,14 +24,14 @@ package pascal.taie.analysis.pta.core.cs.selector;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.context.ContextFactory;
-import pascal.taie.analysis.pta.core.cs.context.TreeContext;
+import pascal.taie.analysis.pta.core.cs.context.TrieContext;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.heap.NewObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 
 abstract class AbstractContextSelector<T> implements ContextSelector {
 
-    protected final ContextFactory<T> factory = new TreeContext.Factory<>();
+    protected final ContextFactory<T> factory = new TrieContext.Factory<>();
 
     @Override
     public Context getEmptyContext() {

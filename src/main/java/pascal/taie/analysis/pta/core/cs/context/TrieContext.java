@@ -28,31 +28,25 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * An implementation of {@link Context}, which organizes contexts like a tree.
- * Each context has a parent context and zero or more children contexts.
- * For example, for Context[A, B], its parent is Context@[A], and its children
- * may be Context@[A, B, C] or Context@[A, B, D].
- * {@link TreeContext.Factory} ensures that the contexts with the same elements
- * will be created at most once. Thus, we can avoid creating redundant
- * context objects, and test their equality by efficient ==.
+ * An implementation of {@link Context}, which organizes contexts as Trie.
  */
-public class TreeContext implements Context {
+public class TrieContext implements Context {
 
-    private final TreeContext parent;
+    private final TrieContext parent;
 
     private final Object elem;
 
     private final int length;
 
-    private Map<Object, TreeContext> children;
+    private Map<Object, TrieContext> children;
 
-    private TreeContext() {
+    private TrieContext() {
         parent = null;
         elem = null;
         length = 0;
     }
 
-    private TreeContext(TreeContext parent, Object elem) {
+    private TrieContext(TrieContext parent, Object elem) {
         this.parent = parent;
         this.elem = elem;
         this.length = parent.getLength() + 1;
@@ -73,16 +67,16 @@ public class TreeContext implements Context {
         }
     }
 
-    TreeContext getParent() {
+    TrieContext getParent() {
         return parent;
     }
 
-    TreeContext getChild(Object elem) {
+    TrieContext getChild(Object elem) {
         if (children == null) {
             children = Maps.newHybridMap();
         }
         return children.computeIfAbsent(elem,
-            e -> new TreeContext(this, e));
+            e -> new TrieContext(this, e));
     }
 
     Object getElem() {
@@ -92,7 +86,7 @@ public class TreeContext implements Context {
     @Override
     public String toString() {
         Object[] elems = new Object[length];
-        TreeContext c = this;
+        TrieContext c = this;
         for (int i = length - 1; i >= 0; --i) {
             elems[i] = c.getElem();
             c = c.getParent();
@@ -106,10 +100,10 @@ public class TreeContext implements Context {
          * Root context of all tree contexts produced by this factory.
          * It also acts as the default context.
          */
-        private final TreeContext rootContext = new TreeContext();
+        private final TrieContext rootContext = new TrieContext();
 
         @Override
-        public TreeContext getEmptyContext() {
+        public TrieContext getEmptyContext() {
             return rootContext;
         }
 
@@ -119,8 +113,8 @@ public class TreeContext implements Context {
         }
 
         @Override
-        public TreeContext make(T... elems) {
-            TreeContext result = rootContext;
+        public TrieContext make(T... elems) {
+            TrieContext result = rootContext;
             for (T elem : elems) {
                 result = result.getChild(elem);
             }
@@ -128,11 +122,11 @@ public class TreeContext implements Context {
         }
 
         @Override
-        public TreeContext makeLastK(Context context, int k) {
+        public TrieContext makeLastK(Context context, int k) {
             if (k == 0) {
                 return rootContext;
             }
-            TreeContext c = (TreeContext) context;
+            TrieContext c = (TrieContext) context;
             if (c.getLength() <= k) {
                 return c;
             }
@@ -145,8 +139,8 @@ public class TreeContext implements Context {
         }
 
         @Override
-        public TreeContext append(Context parent, T elem, int limit) {
-            TreeContext p = (TreeContext) parent;
+        public TrieContext append(Context parent, T elem, int limit) {
+            TrieContext p = (TrieContext) parent;
             if (parent.getLength() < limit) {
                 return p.getChild(elem);
             } else {

@@ -30,17 +30,17 @@ public class ContextTest {
 
     @Test
     public void testTreeContext() {
-        testContext(new TreeContext.Factory<>());
+        testContext(new TrieContext.Factory<>());
     }
 
     @Test
     public void testTreeContext2() {
-        TreeContext.Factory<String> factory = new TreeContext.Factory<>();
+        TrieContext.Factory<String> factory = new TrieContext.Factory<>();
         Context abc = factory.make("A", "B", "C");
-        TreeContext bcd = factory.append(abc, "D", 3);
+        TrieContext bcd = factory.append(abc, "D", 3);
         Context bc = factory.make("B", "C");
         assertEquals(bc, bcd.getParent());
-        TreeContext cde = factory.append(bcd, "E", 3);
+        TrieContext cde = factory.append(bcd, "E", 3);
         Context cd = factory.make("C", "D");
         assertEquals(cde.getParent(), cd);
     }
