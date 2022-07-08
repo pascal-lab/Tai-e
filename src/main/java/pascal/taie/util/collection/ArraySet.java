@@ -36,7 +36,7 @@ import java.util.Set;
  * TODO: if necessary, optimize remove(Object) and let add(Object) add
  *  element to empty hole of the array.
  */
-public class ArraySet<E> extends AbstractEnhancedSet<E> {
+public class ArraySet<E> extends AbstractSetEx<E> {
 
     public static final int DEFAULT_CAPACITY = 8;
 
@@ -150,14 +150,14 @@ public class ArraySet<E> extends AbstractEnhancedSet<E> {
     }
 
     @Override
-    public EnhancedSet<E> copy() {
+    public SetEx<E> copy() {
         ArraySet<E> copy = new ArraySet<>(initialCapacity, fixedCapacity);
         copy.elements.addAll(elements);
         return copy;
     }
 
     @Override
-    public EnhancedSet<E> addAllDiff(Collection<? extends E> c) {
+    public SetEx<E> addAllDiff(Collection<? extends E> c) {
         ArrayList<E> diff;
         if (c instanceof Set) {
             diff = new ArrayList<>();

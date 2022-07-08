@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Bit set based implementation of {@link java.util.Set}.
@@ -50,7 +51,7 @@ import java.util.NoSuchElementException;
  *
  * @param <E> type of elements
  */
-public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
+public abstract class GenericBitSet<E> extends AbstractSetEx<E> {
 
     protected BitSet bitSet;
 
@@ -213,14 +214,14 @@ public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
     }
 
     @Override
-    public EnhancedSet<E> copy() {
+    public SetEx<E> copy() {
         GenericBitSet<E> copy = newSet();
         copy.bitSet = bitSet.copy();
         return copy;
     }
 
     @Override
-    public EnhancedSet<E> addAllDiff(Collection<? extends E> c) {
+    public SetEx<E> addAllDiff(Collection<? extends E> c) {
         if (c instanceof GenericBitSet s) {
             checkContext(s);
             GenericBitSet<E> diff = newSet();
@@ -233,6 +234,16 @@ public abstract class GenericBitSet<E> extends AbstractEnhancedSet<E> {
 
     @Override
     protected abstract GenericBitSet<E> newSet();
+
+    @Override
+    public boolean hasOverlapWith(Set<E> other) {
+        if (other instanceof GenericBitSet s) {
+            checkContext(s);
+            return bitSet.intersects(s.bitSet);
+        } else {
+            return super.hasOverlapWith(other);
+        }
+    }
 
     /**
      * @return the context for the objects represented by the bits in this set.

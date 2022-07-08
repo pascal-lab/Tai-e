@@ -47,7 +47,7 @@ import java.util.Set;
  *
  * @param <E> type of elements
  */
-public abstract class AbstractHybridSet<E> extends AbstractEnhancedSet<E> {
+public abstract class AbstractHybridSet<E> extends AbstractSetEx<E> {
 
     // invariant: at most one of singleton and set is non-null
 

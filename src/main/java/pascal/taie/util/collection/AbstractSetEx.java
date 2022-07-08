@@ -24,20 +24,21 @@ package pascal.taie.util.collection;
 
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Set;
 
-public abstract class AbstractEnhancedSet<E> extends AbstractSet<E>
-        implements EnhancedSet<E> {
+public abstract class AbstractSetEx<E> extends AbstractSet<E>
+        implements SetEx<E> {
 
     @Override
-    public EnhancedSet<E> copy() {
-        EnhancedSet<E> copy = newSet();
+    public SetEx<E> copy() {
+        SetEx<E> copy = newSet();
         copy.addAll(this);
         return copy;
     }
 
     @Override
-    public EnhancedSet<E> addAllDiff(Collection<? extends E> c) {
-        EnhancedSet<E> diff = newSet();
+    public SetEx<E> addAllDiff(Collection<? extends E> c) {
+        SetEx<E> diff = newSet();
         for (E e : c) {
             if (add(e)) {
                 diff.add(e);
@@ -53,7 +54,12 @@ public abstract class AbstractEnhancedSet<E> extends AbstractSet<E>
      * and {@link #addAllDiff(Collection)}. If a subclass overwrites
      * above two methods, it does not need to re-implement this method.
      */
-    protected EnhancedSet<E> newSet() {
+    protected SetEx<E> newSet() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasOverlapWith(Set<E> other) {
+        return Sets.haveOverlap(this, other);
     }
 }

@@ -37,14 +37,14 @@ import java.util.Iterator;
  * If you need a fully-functional set backing by bit set,
  * please use {@link IndexerBitSet}.
  * <p>
- * This set extend {@link AbstractEnhancedSet} so that it can be used
+ * This set extend {@link AbstractSetEx} so that it can be used
  * (as large set) to construct hybrid set.
  *
  * @param <E> type of elements whose indexes are stored in this set
  *
  * @see Indexable
  */
-public class IndexableSet<E extends Indexable> extends AbstractEnhancedSet<E> {
+public class IndexableSet<E extends Indexable> extends AbstractSetEx<E> {
 
     private final BitSet bitSet;
 

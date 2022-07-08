@@ -23,7 +23,7 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.util.collection.EnhancedSet;
+import pascal.taie.util.collection.SetEx;
 
 import java.util.Collections;
 import java.util.Set;
@@ -34,9 +34,9 @@ import java.util.stream.Stream;
  */
 abstract class DelegatePointsToSet implements PointsToSet {
 
-    protected final EnhancedSet<CSObj> set;
+    protected final SetEx<CSObj> set;
 
-    DelegatePointsToSet(EnhancedSet<CSObj> set) {
+    DelegatePointsToSet(SetEx<CSObj> set) {
         this.set = set;
     }
 
@@ -100,5 +100,5 @@ abstract class DelegatePointsToSet implements PointsToSet {
         return newSet(set.copy());
     }
 
-    protected abstract PointsToSet newSet(EnhancedSet<CSObj> set);
+    protected abstract PointsToSet newSet(SetEx<CSObj> set);
 }

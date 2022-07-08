@@ -51,7 +51,7 @@ public final class HybridBitSet<E> extends AbstractHybridSet<E> {
         HybridBitSet<E> diff = new HybridBitSet<>(indexer, isSparse);
         if (c instanceof HybridBitSet other && other.isLargeSet) {
             //noinspection unchecked
-            EnhancedSet<E> otherSet = (EnhancedSet<E>) other.set;
+            SetEx<E> otherSet = (SetEx<E>) other.set;
             Set<E> diffSet;
             if (set == null) {
                 set = otherSet.copy();
@@ -70,7 +70,7 @@ public final class HybridBitSet<E> extends AbstractHybridSet<E> {
                 diffSet.removeAll(oldSet);
             } else {
                 // current set is already a large set
-                diffSet = ((EnhancedSet<E>) set).addAllDiff(otherSet);
+                diffSet = ((SetEx<E>) set).addAllDiff(otherSet);
             }
             diff.set = diffSet;
             diff.isLargeSet = isLargeSet = true;
@@ -90,7 +90,7 @@ public final class HybridBitSet<E> extends AbstractHybridSet<E> {
         copy.singleton = singleton;
         copy.isLargeSet = isLargeSet;
         if (set != null) {
-            copy.set = ((EnhancedSet<E>) set).copy();
+            copy.set = ((SetEx<E>) set).copy();
         }
         return copy;
     }

@@ -24,8 +24,8 @@ package pascal.taie.analysis.pta.plugin.exception;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.util.collection.EnhancedSet;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.SetEx;
 
 import java.util.Collections;
 import java.util.Map;
@@ -34,13 +34,13 @@ import java.util.function.Supplier;
 
 public class CSMethodThrowResult {
 
-    private final Supplier<EnhancedSet<CSObj>> setFactory;
+    private final Supplier<SetEx<CSObj>> setFactory;
 
-    private final Map<Stmt, EnhancedSet<CSObj>> explicitExceptions;
+    private final Map<Stmt, SetEx<CSObj>> explicitExceptions;
 
-    private final EnhancedSet<CSObj> uncaughtExceptions;
+    private final SetEx<CSObj> uncaughtExceptions;
 
-    CSMethodThrowResult(Supplier<EnhancedSet<CSObj>> setFactory) {
+    CSMethodThrowResult(Supplier<SetEx<CSObj>> setFactory) {
         this.setFactory = setFactory;
         explicitExceptions = Maps.newHybridMap();
         uncaughtExceptions = setFactory.get();

@@ -32,7 +32,7 @@ import java.util.Set;
  *
  * @param <E> type of elements in this set
  */
-public interface EnhancedSet<E> extends Set<E>, Copyable<EnhancedSet<E>> {
+public interface SetEx<E> extends Set<E>, Copyable<SetEx<E>> {
 
     /**
      * Adds all elements in collection {@code c}, and returns the difference set
@@ -41,5 +41,11 @@ public interface EnhancedSet<E> extends Set<E>, Copyable<EnhancedSet<E>> {
      * @return a set of elements that are contained in {@code c} but
      * not in this set before the call.
      */
-    EnhancedSet<E> addAllDiff(Collection<? extends E> c);
+    SetEx<E> addAllDiff(Collection<? extends E> c);
+
+    /**
+     * @return {@code true} if this set has at least one element
+     * contained in the given set.
+     */
+    boolean hasOverlapWith(Set<E> other);
 }

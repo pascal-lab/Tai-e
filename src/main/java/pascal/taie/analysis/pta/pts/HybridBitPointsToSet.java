@@ -24,8 +24,8 @@ package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.util.Indexer;
-import pascal.taie.util.collection.EnhancedSet;
 import pascal.taie.util.collection.HybridBitSet;
+import pascal.taie.util.collection.SetEx;
 
 class HybridBitPointsToSet extends DelegatePointsToSet {
 
@@ -33,12 +33,12 @@ class HybridBitPointsToSet extends DelegatePointsToSet {
         this(new HybridBitSet<>(indexer, isSparse));
     }
 
-    private HybridBitPointsToSet(EnhancedSet<CSObj> set) {
+    private HybridBitPointsToSet(SetEx<CSObj> set) {
         super(set);
     }
 
     @Override
-    protected PointsToSet newSet(EnhancedSet<CSObj> set) {
+    protected PointsToSet newSet(SetEx<CSObj> set) {
         return new HybridBitPointsToSet(set);
     }
 }

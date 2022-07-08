@@ -44,10 +44,10 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeSystem;
-import pascal.taie.util.collection.EnhancedSet;
 import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.SetEx;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
@@ -66,7 +66,7 @@ public class ExceptionAnalysis implements Plugin {
 
     private TypeSystem typeSystem;
 
-    private Supplier<EnhancedSet<CSObj>> setFactory;
+    private Supplier<SetEx<CSObj>> setFactory;
 
     /**
      * Map from thrown variables to the corresponding throw statements.

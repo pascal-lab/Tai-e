@@ -71,8 +71,8 @@ public final class Sets {
     /**
      * @return {@code true} if two sets have at least one overlapped element.
      */
-    public static boolean haveOverlap(Set<?> s1, Set<?> s2) {
-        Set<?> small, large;
+    public static <E> boolean haveOverlap(Set<E> s1, Set<E> s2) {
+        Set<E> small, large;
         if (s1.size() <= s2.size()) {
             small = s1;
             large = s2;
@@ -80,7 +80,7 @@ public final class Sets {
             small = s2;
             large = s1;
         }
-        for (Object o : small) {
+        for (E o : small) {
             if (large.contains(o)) {
                 return true;
             }

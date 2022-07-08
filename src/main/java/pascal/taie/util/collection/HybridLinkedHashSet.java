@@ -36,7 +36,7 @@ public final class HybridLinkedHashSet<E> extends AbstractHybridSet<E> {
     }
 
     @Override
-    protected EnhancedSet<E> newSet() {
+    protected SetEx<E> newSet() {
         return new HybridLinkedHashSet<>();
     }
 }

@@ -23,8 +23,8 @@
 package pascal.taie.analysis.pta.pts;
 
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.util.collection.EnhancedSet;
 import pascal.taie.util.collection.HybridHashSet;
+import pascal.taie.util.collection.SetEx;
 
 class HybridHashPointsToSet extends DelegatePointsToSet {
 
@@ -32,12 +32,12 @@ class HybridHashPointsToSet extends DelegatePointsToSet {
         this(new HybridHashSet<>());
     }
 
-    private HybridHashPointsToSet(EnhancedSet<CSObj> set) {
+    private HybridHashPointsToSet(SetEx<CSObj> set) {
         super(set);
     }
 
     @Override
-    protected PointsToSet newSet(EnhancedSet<CSObj> set) {
+    protected PointsToSet newSet(SetEx<CSObj> set) {
         return new HybridHashPointsToSet(set);
     }
 }
