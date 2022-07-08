@@ -22,12 +22,15 @@
 
 package pascal.taie.analysis.pta.plugin;
 
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
 
+import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.STATIC_STORE;
 import static pascal.taie.language.classes.Signatures.REFERENCE_INIT;
 import static pascal.taie.language.classes.Signatures.REFERENCE_PENDING;
 
@@ -37,16 +40,18 @@ import static pascal.taie.language.classes.Signatures.REFERENCE_PENDING;
  * The ReferenceHandler takes care of enqueueing the references in a
  * reference queue. If we do not model this GC behavior, Reference.pending
  * points to nothing, and finalize() methods won't get invoked.
- * TODO: update it for Java 9+ (current model doesn't work since Java 9).
+ * TODO: update it for Java 9+ (current model doesn't work for Java 9+).
  */
 public class ReferenceHandler implements Plugin {
 
     private Solver solver;
 
+    private CSManager csManager;
+
     /**
      * This variable of Reference.<init>.
      */
-    private Var referenceInitThis;
+    private JMethod referenceInit;
 
     /**
      * The static field Reference.pending.
@@ -57,18 +62,20 @@ public class ReferenceHandler implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        referenceInitThis = solver.getHierarchy()
-                .getJREMethod(REFERENCE_INIT)
-                .getIR().getThis();
+        csManager = solver.getCSManager();
+        referenceInit = solver.getHierarchy()
+            .getJREMethod(REFERENCE_INIT);
         referencePending = solver.getHierarchy()
-                .getJREField(REFERENCE_PENDING);
+            .getJREField(REFERENCE_PENDING);
     }
 
     @Override
-    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        // Let Reference.pending points to every reference.
-        if (csVar.getVar().equals(referenceInitThis)) {
-            solver.addStaticFieldPointsTo(referencePending, pts);
+    public void onNewCSMethod(CSMethod csMethod) {
+        if (csMethod.getMethod().equals(referenceInit)) {
+            CSVar initThis = csManager.getCSVar(
+                csMethod.getContext(), referenceInit.getIR().getThis());
+            StaticField pending = csManager.getStaticField(referencePending);
+            solver.addPFGEdge(initThis, pending, STATIC_STORE);
         }
     }
 }

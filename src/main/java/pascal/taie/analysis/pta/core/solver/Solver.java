@@ -40,7 +40,6 @@ import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -84,47 +83,20 @@ public interface Solver {
     void solve();
 
     // ---------- side-effect APIs (begin) ----------
+
+    // APIs for adding points-to relations
     void addPointsTo(Pointer pointer, PointsToSet pts);
 
-    default void addPointsTo(Pointer pointer, CSObj csObj) {
-        PointsToSet pts = makePointsToSet();
-        pts.addObject(csObj);
-        addPointsTo(pointer, pts);
-    }
+    void addPointsTo(Pointer pointer, CSObj csObj);
+
+    void addPointsTo(Pointer pointer, Context heapContext, Obj obj);
 
     // convenient APIs for adding var-points-to relations
-
-    /**
-     * Adds a context-sensitive variable points-to relation.
-     *
-     * @param context     context of the method which contains the variable
-     * @param var         the variable
-     * @param heapContext heap context for the object
-     * @param obj         the object to be added
-     */
-    void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj);
+    void addVarPointsTo(Context context, Var var, PointsToSet pts);
 
     void addVarPointsTo(Context context, Var var, CSObj csObj);
 
-    void addVarPointsTo(Context context, Var var, PointsToSet pts);
-
-    /**
-     * Adds a context-sensitive array index points-to relation.
-     *
-     * @param arrayContext heap context of the array object
-     * @param array        the array object
-     * @param heapContext  heap context for the element
-     * @param obj          the element to be stored into the array
-     */
-    void addArrayPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj);
-
-    /**
-     * Adds static field points-to relations.
-     *
-     * @param field the static field
-     * @param pts   the objects to be added to the points-to set of the field.
-     */
-    void addStaticFieldPointsTo(JField field, PointsToSet pts);
+    void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj);
 
     /**
      * Adds an edge "source -> target" to the PFG.
@@ -166,7 +138,7 @@ public interface Solver {
     void addEntryMethod(CSMethod entryMethod);
 
     /**
-     * Analyzes the initializer of given class.
+     * Analyzes the static initializer (i.e., <clinit>) of given class.
      *
      * @param cls the class to be initialized.
      */
@@ -176,7 +148,7 @@ public interface Solver {
      * If a plugin takes over the analysis of a method, and wants this solver
      * to ignore the method (for precision and/or efficiency reasons),
      * then it could call this API with the method.
-     * After that, this solver will not process the method.
+     * After that, this solver will not process the method body.
      * <p>
      * Typically, this API should be called at the initial stage of
      * pointer analysis, i.e., in {@link Plugin#onStart()}.

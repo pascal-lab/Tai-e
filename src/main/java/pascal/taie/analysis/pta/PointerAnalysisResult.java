@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.StaticFieldAccess;
@@ -106,7 +107,7 @@ public interface PointerAnalysisResult extends ResultHolder {
     }
 
     /**
-     * @return set of Obj pointed to by given instance field access.
+     * @return set of Obj pointed to by given instance field access, e.g., o.f.
      */
     Set<Obj> getPointsToSet(InstanceFieldAccess access);
 
@@ -116,7 +117,7 @@ public interface PointerAnalysisResult extends ResultHolder {
     Set<Obj> getPointsToSet(Var base, JField field);
 
     /**
-     * @return set of Obj pointed to by given static field access.
+     * @return set of Obj pointed to by given static field access, e.g., T.f.
      */
     Set<Obj> getPointsToSet(StaticFieldAccess access);
 
@@ -124,6 +125,32 @@ public interface PointerAnalysisResult extends ResultHolder {
      * @return points-to set of given field. The field is supposed to be static.
      */
     Set<Obj> getPointsToSet(JField field);
+
+    /**
+     * @return set of Obj pointed to by given array access, e.g., a[i].
+     */
+    Set<Obj> getPointsToSet(ArrayAccess access);
+
+    /**
+     * @return points-to set of given array index.
+     * The base is supposed to be of array type; parameter index is unused.
+     */
+    Set<Obj> getPointsToSet(Var base, Var index);
+
+    /**
+     * @return {@code true} if two variables may be aliases.
+     */
+    boolean mayAlias(Var v1, Var v2);
+
+    /**
+     * @return {@code true} if two instance field accesses may be aliases.
+     */
+    boolean mayAlias(InstanceFieldAccess if1, InstanceFieldAccess if2);
+
+    /**
+     * @return {@code true} if two array accesses may be aliases.
+     */
+    boolean mayAlias(ArrayAccess a1, ArrayAccess a2);
 
     /**
      * @return the resulting context-sensitive call graph.

@@ -37,22 +37,26 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Canonicalizer;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -77,6 +81,11 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
      * Points-to set of static field expressions, e.g., T.f.
      */
     private final Map<JField, Set<Obj>> sfieldPointsTo = Maps.newConcurrentMap(512);
+
+    /**
+     * Points-to set of array expressions, e.g., a[i].
+     */
+    private final Map<Var, Set<Obj>> arrayPointsTo = Maps.newConcurrentMap(1024);
 
     /**
      * Set of all (reachable) objects in the program.
@@ -170,7 +179,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     @Override
     public Set<Obj> getPointsToSet(Var base, JField field) {
         if (field.isStatic()) {
-            logger.warn("{} is not instance field", field);
+            logger.warn("{} is not an instance field", field);
+            return Set.of();
         }
         // TODO - properly handle non-exist base.field
         return ifieldPointsTo.computeIfAbsent(new Pair<>(base, field), p ->
@@ -190,10 +200,50 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     @Override
     public Set<Obj> getPointsToSet(JField field) {
         if (!field.isStatic()) {
-            logger.warn("{} is not static field", field);
+            logger.warn("{} is not a static field", field);
+            return Set.of();
         }
         return sfieldPointsTo.computeIfAbsent(field, f ->
             removeContexts(csManager.getStaticField(field).objects()));
+    }
+
+    @Override
+    public Set<Obj> getPointsToSet(ArrayAccess access) {
+        return getPointsToSet(access.getBase(), access.getIndex());
+    }
+
+    @Override
+    public Set<Obj> getPointsToSet(Var base, Var index) {
+        if (!(base.getType() instanceof ArrayType)) {
+            logger.warn("{} is not an array", base);
+            return Set.of();
+        }
+        return arrayPointsTo.computeIfAbsent(base, b ->
+            removeContexts(csManager.getCSVarsOf(b)
+                .stream()
+                .flatMap(Pointer::objects)
+                .map(csManager::getArrayIndex)
+                .flatMap(ArrayIndex::objects)));
+    }
+
+    @Override
+    public boolean mayAlias(Var v1, Var v2) {
+        Set<Obj> s1 = getPointsToSet(v1);
+        Set<Obj> s2 = getPointsToSet(v2);
+        return Sets.haveOverlap(s1, s2);
+    }
+
+    @Override
+    public boolean mayAlias(InstanceFieldAccess if1, InstanceFieldAccess if2) {
+        return Objects.equals(
+            if1.getFieldRef().resolveNullable(),
+            if2.getFieldRef().resolveNullable())
+            && mayAlias(if1.getBase(), if2.getBase());
+    }
+
+    @Override
+    public boolean mayAlias(ArrayAccess a1, ArrayAccess a2) {
+        return mayAlias(a1.getBase(), a2.getBase());
     }
 
     /**

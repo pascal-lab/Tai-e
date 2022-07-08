@@ -241,7 +241,9 @@ public class DefaultSolver implements Solver {
             // initialize parameters of main method
             Obj args = heapModel.getMainArgs();
             Obj argsElem = heapModel.getMainArgsElem();
-            addArrayPointsTo(defContext, args, defContext, argsElem);
+            CSObj array = csManager.getCSObj(defContext, args);
+            ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+            addPointsTo(arrayIndex, defContext, argsElem);
             addVarPointsTo(defContext, mainMethod.getIR().getParam(0), defContext, args);
         }
         // process program implicit entries
@@ -524,7 +526,9 @@ public class DefaultSolver implements Solver {
                 for (Obj newArray : arrays) {
                     Context elemContext = contextSelector
                         .selectHeapContext(csMethod, newArray);
-                    addArrayPointsTo(arrayContext, array, elemContext, newArray);
+                    CSObj arrayObj = csManager.getCSObj(arrayContext, array);
+                    ArrayIndex arrayIndex = csManager.getArrayIndex(arrayObj);
+                    addPointsTo(arrayIndex, elemContext, newArray);
                     array = newArray;
                     arrayContext = elemContext;
                 }
@@ -645,13 +649,15 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
-    public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
-        addVarPointsTo(context, var, csManager.getCSObj(heapContext, obj));
+    public void addPointsTo(Pointer pointer, CSObj csObj) {
+        PointsToSet pts = makePointsToSet();
+        pts.addObject(csObj);
+        addPointsTo(pointer, pts);
     }
 
     @Override
-    public void addVarPointsTo(Context context, Var var, CSObj csObj) {
-        addPointsTo(csManager.getCSVar(context, var), csObj);
+    public void addPointsTo(Pointer pointer, Context heapContext, Obj obj) {
+        addPointsTo(pointer, csManager.getCSObj(heapContext, obj));
     }
 
     @Override
@@ -660,17 +666,13 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
-    public void addArrayPointsTo(Context arrayContext, Obj array, Context heapContext, Obj obj) {
-        CSObj csArray = csManager.getCSObj(arrayContext, array);
-        ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
-        CSObj elem = csManager.getCSObj(heapContext, obj);
-        addPointsTo(arrayIndex, elem);
+    public void addVarPointsTo(Context context, Var var, CSObj csObj) {
+        addPointsTo(csManager.getCSVar(context, var), csObj);
     }
 
     @Override
-    public void addStaticFieldPointsTo(JField field, PointsToSet pts) {
-        assert field.isStatic();
-        addPointsTo(csManager.getStaticField(field), pts);
+    public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
+        addPointsTo(csManager.getCSVar(context, var), heapContext, obj);
     }
 
     @Override
