@@ -23,7 +23,6 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Edge;
@@ -40,13 +39,8 @@ public class PointerFlowGraph implements Graph<Pointer> {
     private final Set<Pointer> pointers = Sets.newSet();
 
     public boolean addEdge(Pointer source, Pointer target,
-                           PointerFlowEdge.Kind kind) {
-        return addEdge(source, target, null, kind);
-    }
-
-    public boolean addEdge(Pointer source, Pointer target, Type type,
-                           PointerFlowEdge.Kind kind) {
-        if (source.addOutEdge(new PointerFlowEdge(kind, source, target, type))) {
+                           PointerFlowEdge.Kind kind, Transfer transfer) {
+        if (source.addOutEdge(new PointerFlowEdge(kind, source, target, transfer))) {
             pointers.add(source);
             pointers.add(target);
             return true;

@@ -102,15 +102,22 @@ public interface Solver {
      * Adds an edge "source -> target" to the PFG.
      */
     default void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind) {
-        addPFGEdge(source, target, null, kind);
+        addPFGEdge(source, target, kind, Identity.get());
     }
 
     /**
      * Adds an edge "source -> target" to the PFG.
-     * If type is not null, then we need to filter out assignable objects
-     * in source points-to set.
+     * For the objects pointed to by "source", only the ones whose types
+     * are subtypes of given type are propagated to "target".
      */
-    void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind);
+    default void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind, Type type) {
+        addPFGEdge(source, target, kind, new TypeFilter(type, this));
+    }
+
+    /**
+     * Adds an edge "source -> target" (with edge transfer) to the PFG.
+     */
+    void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind, Transfer transfer);
 
     /**
      * Adds a call edge.

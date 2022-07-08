@@ -283,26 +283,10 @@ public class DefaultSolver implements Solver {
         logger.trace("Propagate {} to {}", pointsToSet, pointer);
         PointsToSet diff = getPointsToSetOf(pointer).addAllDiff(pointsToSet);
         if (!diff.isEmpty()) {
-            pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge -> {
-                Pointer target = edge.getTarget();
-                edge.getType().ifPresentOrElse(
-                        type -> addPointsTo(target, getAssignablePointsToSet(diff, type)),
-                        () -> addPointsTo(target, diff));
-            });
+            pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge ->
+                addPointsTo(edge.getTarget(), edge.getTransfer().apply(diff)));
         }
         return diff;
-    }
-
-    /**
-     * Given a points-to set pts and a type t, returns the objects of pts
-     * which can be assigned to t.
-     */
-    private PointsToSet getAssignablePointsToSet(PointsToSet pts, Type type) {
-        PointsToSet result = ptsFactory.make();
-        pts.objects()
-            .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
-            .forEach(result::addObject);
-        return result;
     }
 
     /**
@@ -367,8 +351,8 @@ public class DefaultSolver implements Solver {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
                     // we need type guard for array stores as Java arrays
                     // are covariant
-                    addPFGEdge(from, arrayIndex, arrayIndex.getType(),
-                            PointerFlowEdge.Kind.ARRAY_STORE);
+                    addPFGEdge(from, arrayIndex,
+                        PointerFlowEdge.Kind.ARRAY_STORE, arrayIndex.getType());
                 });
             }
         }
@@ -595,7 +579,7 @@ public class DefaultSolver implements Solver {
                 if (isConcerned(cast.getValue())) {
                     CSVar from = csManager.getCSVar(context, cast.getValue());
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                    addPFGEdge(from, to, cast.getType(), PointerFlowEdge.Kind.CAST);
+                    addPFGEdge(from, to, PointerFlowEdge.Kind.CAST, cast.getType());
                 }
                 return null;
             }
@@ -676,13 +660,12 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
-    public void addPFGEdge(Pointer source, Pointer target, Type type, PointerFlowEdge.Kind kind) {
-        if (pointerFlowGraph.addEdge(source, target, type, kind)) {
-            PointsToSet sourceSet = type == null ?
-                    getPointsToSetOf(source) :
-                    getAssignablePointsToSet(getPointsToSetOf(source), type);
-            if (!sourceSet.isEmpty()) {
-                addPointsTo(target, sourceSet);
+    public void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind,
+                           Transfer transfer) {
+        if (pointerFlowGraph.addEdge(source, target, kind, transfer)) {
+            PointsToSet targetSet = transfer.apply(getPointsToSetOf(source));
+            if (!targetSet.isEmpty()) {
+                addPointsTo(target, targetSet);
             }
         }
     }

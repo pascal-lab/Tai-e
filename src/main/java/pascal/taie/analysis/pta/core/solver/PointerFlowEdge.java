@@ -23,37 +23,30 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.graph.AbstractEdge;
-
-import java.util.Objects;
-import java.util.Optional;
 
 public class PointerFlowEdge extends AbstractEdge<Pointer> {
 
     private final Kind kind;
 
     /**
-     * Type of "source" node. This type is useful for handling some cases,
-     * e.g., type casting and reflective assignment.
-     * If this field is null, it means that this PFG edge does not have
-     * type constraint between "source" and "target" nodes.
+     * Transfer function on this edge.
      */
-    private final Type type;
+    private final Transfer transfer;
 
-    public PointerFlowEdge(Kind kind, Pointer source, Pointer target, Type type) {
+    public PointerFlowEdge(Kind kind, Pointer source, Pointer target, Transfer transfer) {
         super(source, target);
         this.kind = kind;
-        this.type = type;
+        this.transfer = transfer;
     }
 
     public Kind getKind() {
         return kind;
     }
 
-    public Optional<Type> getType() {
-        return Optional.ofNullable(type);
+    public Transfer getTransfer() {
+        return transfer;
     }
 
     @Override
@@ -64,12 +57,12 @@ public class PointerFlowEdge extends AbstractEdge<Pointer> {
         return kind == that.kind &&
                 source.equals(that.source) &&
                 target.equals(that.target) &&
-                Objects.equals(type, that.type);
+            transfer.equals(that.transfer);
     }
 
     @Override
     public int hashCode() {
-        return Hashes.safeHash(kind, source, target, type);
+        return Hashes.safeHash(kind, source, target, transfer);
     }
 
     @Override

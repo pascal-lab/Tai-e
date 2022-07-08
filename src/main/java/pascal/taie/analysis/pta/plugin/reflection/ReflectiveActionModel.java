@@ -52,6 +52,9 @@ import pascal.taie.language.type.VoidType;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.INSTANCE_STORE;
+import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.STATIC_STORE;
+
 /**
  * Models reflective-action methods, currently supports
  * <ul>
@@ -278,16 +281,14 @@ class ReflectiveActionModel extends AbstractModel {
             }
             if (field.isStatic()) {
                 StaticField sfield = csManager.getStaticField(field);
-                solver.addPFGEdge(from, sfield, sfield.getType(),
-                    PointerFlowEdge.Kind.STATIC_STORE);
+                solver.addPFGEdge(from, sfield, STATIC_STORE, sfield.getType());
             } else {
                 Type declType = field.getDeclaringClass().getType();
                 baseObjs.forEach(baseObj -> {
                     Type objType = baseObj.getObject().getType();
                     if (typeSystem.isSubtype(declType, objType)) {
                         InstanceField ifield = csManager.getInstanceField(baseObj, field);
-                        solver.addPFGEdge(from, ifield, ifield.getType(),
-                            PointerFlowEdge.Kind.INSTANCE_STORE);
+                        solver.addPFGEdge(from, ifield, INSTANCE_STORE, ifield.getType());
                     }
                 });
             }

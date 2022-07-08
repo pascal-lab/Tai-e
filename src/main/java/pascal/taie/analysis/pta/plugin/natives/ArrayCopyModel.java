@@ -109,7 +109,7 @@ class ArrayCopyModel implements Model {
                 .filter(CSObjs::isArray)
                 .map(csManager::getArrayIndex)
                 .forEach(destIndex -> solver.addPFGEdge(csTemp, destIndex,
-                    destIndex.getType(), PointerFlowEdge.Kind.ARRAY_STORE));
+                    PointerFlowEdge.Kind.ARRAY_STORE, destIndex.getType()));
         }
     }
 }

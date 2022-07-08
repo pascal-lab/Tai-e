@@ -29,7 +29,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.Model;
@@ -42,6 +41,9 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+
+import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.PARAMETER_PASSING;
+import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.RETURN;
 
 public class ReflectionAnalysis implements Plugin {
 
@@ -122,7 +124,7 @@ public class ReflectionAnalysis implements Plugin {
                 CSVar csResult = csManager.getCSVar(callerCtx, result);
                 callee.getIR().getReturnVars().forEach(ret -> {
                     CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                    solver.addPFGEdge(csRet, csResult, PointerFlowEdge.Kind.RETURN);
+                    solver.addPFGEdge(csRet, csResult, RETURN);
                 });
             }
         }
@@ -137,8 +139,7 @@ public class ReflectionAnalysis implements Plugin {
                 Type paramType = param.getType();
                 if (isConcerned(paramType)) {
                     CSVar csParam = csManager.getCSVar(calleeCtx, param);
-                    solver.addPFGEdge(elems, csParam, paramType,
-                            PointerFlowEdge.Kind.PARAMETER_PASSING);
+                    solver.addPFGEdge(elems, csParam, PARAMETER_PASSING, paramType);
                 }
             });
         });
