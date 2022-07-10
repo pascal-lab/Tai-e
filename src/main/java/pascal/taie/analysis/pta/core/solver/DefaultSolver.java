@@ -82,6 +82,7 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -455,13 +456,11 @@ public class DefaultSolver implements Solver {
             hierarchy.getJREMethod(FINALIZER_REGISTER)).getRef();
 
         /**
-         * Processes all Stmts in given CSMethod.
+         * Processes given Stmts in given CSMethod.
          */
-        private void process(CSMethod csMethod) {
+        private void process(CSMethod csMethod, Collection<Stmt> stmts) {
             StmtVisitor<Void> visitor = new Visitor(csMethod);
-            for (Stmt stmt : csMethod.getMethod().getIR()) {
-                stmt.accept(visitor);
-            }
+            stmts.forEach(stmt -> stmt.accept(visitor));
         }
 
         /**
@@ -718,7 +717,7 @@ public class DefaultSolver implements Solver {
                 return;
             }
             processNewMethod(method);
-            stmtProcessor.process(csMethod);
+            addStmts(csMethod, method.getIR().getStmts());
             plugin.onNewCSMethod(csMethod);
         }
     }
@@ -727,6 +726,11 @@ public class DefaultSolver implements Solver {
     public void addEntryMethod(CSMethod entryMethod) {
         callGraph.addEntryMethod(entryMethod);
         addCSMethod(entryMethod);
+    }
+
+    @Override
+    public void addStmts(CSMethod csMethod, Collection<Stmt> stmts) {
+        stmtProcessor.process(csMethod, stmts);
     }
 
     @Override

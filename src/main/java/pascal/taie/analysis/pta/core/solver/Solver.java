@@ -38,11 +38,14 @@ import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
+
+import java.util.Collection;
 
 public interface Solver {
 
@@ -143,6 +146,14 @@ public interface Solver {
      * @see #addVarPointsTo(Context, Var, Context, Obj)
      */
     void addEntryMethod(CSMethod entryMethod);
+
+    /**
+     * Adds stmts to the analyzed program. Solver will process given stmts.
+     *
+     * @param csMethod the container method of the stmts
+     * @param stmts    the added stmts
+     */
+    void addStmts(CSMethod csMethod, Collection<Stmt> stmts);
 
     /**
      * Analyzes the static initializer (i.e., <clinit>) of given class.

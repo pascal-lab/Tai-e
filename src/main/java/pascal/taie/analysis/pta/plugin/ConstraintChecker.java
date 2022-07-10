@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
@@ -36,9 +37,12 @@ import java.util.Set;
  * This class is for debugging/testing purpose.
  *
  * {@link pascal.taie.analysis.pta.core.solver.Solver} needs to satisfy
- * an important constraint that onNewMethod(m) must happen before
- * onNewPointsToSet(v, pts) for any variables in m. This class checks
- * the constraint and issues warnings when it is unsatisfied.
+ * some important constraints:
+ * (1) onNewMethod(m) must happen before onNewPointsToSet(v, pts)
+ * for any variables in m, and
+ * (2) onNewMethod(m) must happen before onNewCSMethod(csM)
+ * for any context-sensitive methods for m.
+ * This class checks the constraints and issues warnings when they are unsatisfied.
  */
 public class ConstraintChecker implements Plugin {
 
@@ -47,16 +51,24 @@ public class ConstraintChecker implements Plugin {
     private final Set<JMethod> reached = Sets.newSet(4096);
 
     @Override
+    public void onNewMethod(JMethod method) {
+        reached.add(method);
+    }
+
+    @Override
+    public void onNewCSMethod(CSMethod csMethod) {
+        if (!reached.contains(csMethod.getMethod())) {
+            logger.warn("Warning: hit {} before processing {}",
+                csMethod, csMethod.getMethod());
+        }
+    }
+
+    @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Var var = csVar.getVar();
         if (!reached.contains(var.getMethod())) {
             logger.warn("Warning: hit {} before processing {}",
                 var, var.getMethod());
         }
-    }
-
-    @Override
-    public void onNewMethod(JMethod method) {
-        reached.add(method);
     }
 }
