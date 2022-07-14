@@ -38,11 +38,10 @@ public class PointerFlowGraph implements Graph<Pointer> {
 
     private final Set<Pointer> pointers = Sets.newSet();
 
-    public boolean addEdge(Pointer source, Pointer target,
-                           PointerFlowEdge.Kind kind, Transfer transfer) {
-        if (source.addOutEdge(new PointerFlowEdge(kind, source, target, transfer))) {
-            pointers.add(source);
-            pointers.add(target);
+    public boolean addEdge(PointerFlowEdge edge) {
+        if (edge.getSource().addOutEdge(edge)) {
+            pointers.add(edge.getSource());
+            pointers.add(edge.getTarget());
             return true;
         } else {
             return false;

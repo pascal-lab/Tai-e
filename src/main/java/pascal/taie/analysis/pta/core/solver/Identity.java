@@ -33,7 +33,7 @@ public enum Identity implements Transfer {
     }
 
     @Override
-    public PointsToSet apply(PointsToSet input) {
+    public PointsToSet apply(PointerFlowEdge edge, PointsToSet input) {
         return input;
     }
 }

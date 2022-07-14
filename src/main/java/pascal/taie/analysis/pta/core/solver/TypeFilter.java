@@ -50,7 +50,7 @@ public class TypeFilter implements Transfer {
     }
 
     @Override
-    public PointsToSet apply(PointsToSet input) {
+    public PointsToSet apply(PointerFlowEdge edge, PointsToSet input) {
         PointsToSet result = ptsFactory.get();
         input.objects()
             .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))

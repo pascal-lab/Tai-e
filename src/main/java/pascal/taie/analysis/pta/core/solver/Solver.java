@@ -86,6 +86,8 @@ public interface Solver {
     void solve();
 
     // ---------- side-effect APIs (begin) ----------
+    // These side-effect APIs could be used by Plugins to update
+    // points-to information.
 
     // APIs for adding points-to relations
     void addPointsTo(Pointer pointer, PointsToSet pts);

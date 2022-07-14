@@ -82,8 +82,6 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                 });
             });
         }
-        hierarchy = null;
-        resolveTable = null;
         return callGraph;
     }
 
