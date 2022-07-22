@@ -33,27 +33,27 @@ import java.util.Map;
 class FGDumper {
 
     private static final DotDumper<FGNode> dumper = new DotDumper<FGNode>()
-        .setNodeAttributes(n -> {
-            if (n instanceof InstanceFieldNode) {
-                return Map.of("shape", "box");
-            } else if (n instanceof ArrayIndexNode) {
-                return Map.of("shape", "box",
-                    "style", "filled", "color", "grey");
-            } else { // VarNode
-                return Map.of();
-            }
-        })
-        .setEdgeAttrs(e -> {
-            FGEdge edge = (FGEdge) e;
-            return switch (edge.kind()) {
-                case LOCAL_ASSIGN -> Map.of();
-                case INTERPROCEDURAL_ASSIGN -> Map.of("color", "blue");
-                case INSTANCE_STORE -> Map.of("color", "red");
-                case INSTANCE_LOAD -> Map.of( "color", "red", "style", "dashed");
-                case WRAPPED_FLOW -> Map.of("color", "green3");
-                case UNWRAPPED_FLOW -> Map.of("color", "green3", "style", "dashed");
-            };
-        });
+            .setNodeAttributes(n -> {
+                if (n instanceof InstanceFieldNode) {
+                    return Map.of("shape", "box");
+                } else if (n instanceof ArrayIndexNode) {
+                    return Map.of("shape", "box",
+                            "style", "filled", "color", "grey");
+                } else { // VarNode
+                    return Map.of();
+                }
+            })
+            .setEdgeAttrs(e -> {
+                FGEdge edge = (FGEdge) e;
+                return switch (edge.kind()) {
+                    case LOCAL_ASSIGN -> Map.of();
+                    case INTERPROCEDURAL_ASSIGN -> Map.of("color", "blue");
+                    case INSTANCE_STORE -> Map.of("color", "red");
+                    case INSTANCE_LOAD -> Map.of("color", "red", "style", "dashed");
+                    case WRAPPED_FLOW -> Map.of("color", "green3");
+                    case UNWRAPPED_FLOW -> Map.of("color", "green3", "style", "dashed");
+                };
+            });
 
     static void dump(Graph<FGNode> graph, String filePath) {
         dumper.dump(graph, filePath);

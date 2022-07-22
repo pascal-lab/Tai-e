@@ -104,9 +104,9 @@ public interface IR extends Iterable<Stmt>, ResultHolder {
      */
     default Stream<Invoke> invokes(boolean includeIndy) {
         return stmts()
-            .filter(s -> s instanceof Invoke)
-            .map(s -> (Invoke) s)
-            .filter(i -> includeIndy || !i.isDynamic());
+                .filter(s -> s instanceof Invoke)
+                .map(s -> (Invoke) s)
+                .filter(i -> includeIndy || !i.isDynamic());
     }
 
     /**

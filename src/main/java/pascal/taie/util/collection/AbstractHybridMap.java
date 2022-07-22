@@ -46,7 +46,7 @@ import java.util.Set;
  * represented with just a reference.
  * <p>
  * Keys added to this map cannot be null.
-  <p>
+ * <p>
  * By default, this set use {@link ArrayMap} for small map.
  *
  * @param <K> type of keys

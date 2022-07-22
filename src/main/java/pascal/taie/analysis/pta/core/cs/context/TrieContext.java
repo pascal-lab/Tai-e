@@ -76,7 +76,7 @@ public class TrieContext implements Context {
             children = Maps.newHybridMap();
         }
         return children.computeIfAbsent(elem,
-            e -> new TrieContext(this, e));
+                e -> new TrieContext(this, e));
     }
 
     Object getElem() {

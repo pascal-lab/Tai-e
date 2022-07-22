@@ -57,7 +57,7 @@ public class PointerFlowEdge extends AbstractEdge<Pointer> {
         return kind == that.kind &&
                 source.equals(that.source) &&
                 target.equals(that.target) &&
-            transfer.equals(that.transfer);
+                transfer.equals(that.transfer);
     }
 
     @Override

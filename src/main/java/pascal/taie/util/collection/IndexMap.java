@@ -52,9 +52,8 @@ import java.util.Set;
  *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
- *
  * @see Indexer
- *
+ * <p>
  * TODO: add mod count
  */
 public class IndexMap<K, V> extends AbstractMap<K, V> {
@@ -147,7 +146,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        Set<Map.Entry<K,V>> es;
+        Set<Map.Entry<K, V>> es;
         return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
     }
 
@@ -296,7 +295,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
                 public Iterator<K> iterator() {
                     return new Iterator<>() {
 
-                        private final Iterator<Entry<K,V>> i = entrySet().iterator();
+                        private final Iterator<Entry<K, V>> i = entrySet().iterator();
 
                         @Override
                         public boolean hasNext() {

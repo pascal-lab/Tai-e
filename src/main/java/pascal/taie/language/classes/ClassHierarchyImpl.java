@@ -131,9 +131,9 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         } else {
             // add direct implementors
             jclass.getInterfaces()
-                .stream()
-                .filter(Objects::nonNull)
-                .forEach(iface -> directImplementors.put(iface, jclass));
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(iface -> directImplementors.put(iface, jclass));
             // add direct subclasses
             JClass superClass = jclass.getSuperClass();
             if (superClass != null) {
@@ -276,7 +276,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             field = jclass.getPhantomField(name);
             if (field == null) {
                 field = new JField(jclass, name, Set.of(),
-                    type, AnnotationHolder.emptyHolder());
+                        type, AnnotationHolder.emptyHolder());
                 jclass.addPhantomField(name, field);
             }
             return field;

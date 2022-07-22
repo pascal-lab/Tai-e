@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
  * Sparse bit set. This implementation groups bits into blocks, and it could
  * avoid allocating words to represent continuous zero bits when possible.
  * This design saves memory and improves efficiency of set iterations.
- *
+ * <p>
  * This implementation uses core design and some code from
  * https://github.com/brettwooldridge/SparseBitSet
  * We rewrite most code to support the operations that we need
@@ -48,88 +48,88 @@ public class SparseBitSet extends AbstractBitSet {
     //==============================================================================
 
     /**
-     *  The number of bits in a positive integer, and the size of permitted index
-     *  of a bit in the bit set.
+     * The number of bits in a positive integer, and the size of permitted index
+     * of a bit in the bit set.
      */
     private static final int INDEX_SIZE = Integer.SIZE - 1;
 
     /**
-     *  LEVEL3 is the number of bits of the level3 address.
+     * LEVEL3 is the number of bits of the level3 address.
      */
     private static final int LEVEL3 = 5; // Do not change!
 
     /**
-     *  LEVEL2 is the number of bits of the level2 address.
+     * LEVEL2 is the number of bits of the level2 address.
      */
     private static final int LEVEL2 = 5; // Do not change!
 
     /**
-     *  LEVEL1 is the number of bits of the level1 address.
+     * LEVEL1 is the number of bits of the level1 address.
      */
     private static final int LEVEL1 = INDEX_SIZE - LEVEL2 - LEVEL3 - ADDRESS_BITS_PER_WORD;
 
     /**
-     *  MAX_LENGTH1 is the maximum number of entries in the level1 set array.
+     * MAX_LENGTH1 is the maximum number of entries in the level1 set array.
      */
     private static final int MAX_LENGTH1 = 1 << LEVEL1;
 
     /**
-     *  LENGTH2 is the number of entries in the any level2 area.
+     * LENGTH2 is the number of entries in the any level2 area.
      */
     private static final int LENGTH2 = 1 << LEVEL2;
 
     /**
-     *  LENGTH3 is the number of entries in the any level3 block.
+     * LENGTH3 is the number of entries in the any level3 block.
      */
     private static final int LENGTH3 = 1 << LEVEL3;
 
     /**
-     *  The shift to create the word index. (I.e., move it to the right end)
+     * The shift to create the word index. (I.e., move it to the right end)
      */
     static final int SHIFT3 = ADDRESS_BITS_PER_WORD;
 
     /**
-     *  MASK3 is the mask to extract the LEVEL3 address from a word index
-     *  (after shifting by SHIFT3).
+     * MASK3 is the mask to extract the LEVEL3 address from a word index
+     * (after shifting by SHIFT3).
      */
     private static final int MASK3 = LENGTH3 - 1;
 
     /**
-     *  SHIFT2 is the shift to bring the level2 address (from the word index) to
-     *  the right end (i.e., after shifting by SHIFT3).
+     * SHIFT2 is the shift to bring the level2 address (from the word index) to
+     * the right end (i.e., after shifting by SHIFT3).
      */
     static final int SHIFT2 = LEVEL3;
 
     /**
-     *  MASK2 is the mask to extract the LEVEL2 address from a word index
-     *  (after shifting by SHIFT3 and SHIFT2).
+     * MASK2 is the mask to extract the LEVEL2 address from a word index
+     * (after shifting by SHIFT3 and SHIFT2).
      */
     private static final int MASK2 = LENGTH2 - 1;
 
     /**
-     *  SHIFT1 is the shift to bring the level1 address (from the word index) to
-     *  the right end (i.e., after shifting by SHIFT3).
+     * SHIFT1 is the shift to bring the level1 address (from the word index) to
+     * the right end (i.e., after shifting by SHIFT3).
      */
     static final int SHIFT1 = LEVEL2 + LEVEL3;
 
     /**
-     *  UNIT is the greatest number of bits that can be held in one level1 entry.
-     *  That is, bits per word by words per level3 block by blocks per level2 area.
+     * UNIT is the greatest number of bits that can be held in one level1 entry.
+     * That is, bits per word by words per level3 block by blocks per level2 area.
      */
     private static final int UNIT = LENGTH2 * LENGTH3 * BITS_PER_WORD;
 
     /**
-     *  BITS_PER_WORD_SIZE is maximum index of a bit in a ADDRESS_BITS_PER_WORD word.
+     * BITS_PER_WORD_SIZE is maximum index of a bit in a ADDRESS_BITS_PER_WORD word.
      */
     private static final int WORD_SIZE = BITS_PER_WORD - 1;
 
     /**
-     *  LENGTH3_SIZE is maximum index of a LEVEL3 page.
+     * LENGTH3_SIZE is maximum index of a LEVEL3 page.
      */
     private static final int LENGTH3_SIZE = LENGTH3 - 1;
 
     /**
-     *  LENGTH2_SIZE is maximum index of a LEVEL2 page.
+     * LENGTH2_SIZE is maximum index of a LEVEL2 page.
      */
     private static final int LENGTH2_SIZE = LENGTH2 - 1;
 
@@ -137,20 +137,21 @@ public class SparseBitSet extends AbstractBitSet {
     // instance fields
     // ------------------------------------------------------------------------
     /**
-     *  The storage for this SparseBitSet. The <i>i</i>th bit is stored in a word
-     *  represented by a long value, and is at bit position <code>i % 64</code>
-     *  within that word (where bit position 0 refers to the least significant bit
-     *  and 63 refers to the most significant bit).
-     *  <p>
-     *  The words are organized into blocks, and the blocks are accessed by two
-     *  additional levels of array indexing.
+     * The storage for this SparseBitSet. The <i>i</i>th bit is stored in a word
+     * represented by a long value, and is at bit position <code>i % 64</code>
+     * within that word (where bit position 0 refers to the least significant bit
+     * and 63 refers to the most significant bit).
+     * <p>
+     * The words are organized into blocks, and the blocks are accessed by two
+     * additional levels of array indexing.
      */
     private transient long[][][] table;
 
     /**
-     *  For the current size of the bits array, this is the maximum possible
-     *  length of the bit set, i.e., the index of the last possible bit, plus one.
-     *  Note: this not the value returned by <i>length</i>().
+     * For the current size of the bits array, this is the maximum possible
+     * length of the bit set, i.e., the index of the last possible bit, plus one.
+     * Note: this not the value returned by <i>length</i>().
+     *
      * @see #resize(int)
      * @see #length()
      */
@@ -1018,12 +1019,12 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     /**
-     *  Resize the bit array. Moves the entries in the bits array of this
-     *  SparseBitSet into an array whose size (which may be larger or smaller)
-     *  is the given bit size (<i>i.e.</i>, includes the bit whose bitIndex is
-     *  one less that the given value). If the new array is smaller, the excess
-     *  entries in the set array are discarded. If the new array is bigger,
-     *  it is filled with nulls.
+     * Resize the bit array. Moves the entries in the bits array of this
+     * SparseBitSet into an array whose size (which may be larger or smaller)
+     * is the given bit size (<i>i.e.</i>, includes the bit whose bitIndex is
+     * one less that the given value). If the new array is smaller, the excess
+     * entries in the set array are discarded. If the new array is bigger,
+     * it is filled with nulls.
      *
      * @param bitIndex the desired bit index to be included in the set
      */
@@ -1058,9 +1059,9 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     /**
-     *  Clears out a part of the set array with nulls, from the given
-     *  fromAreaIndex to the end of the array. If the given parameter
-     *  is beyond the end of the bits array, nothing is changed.
+     * Clears out a part of the set array with nulls, from the given
+     * fromAreaIndex to the end of the array. If the given parameter
+     * is beyond the end of the bits array, nothing is changed.
      *
      * @param fromAreaIndex word index at which to start (inclusive)
      */
@@ -1234,30 +1235,30 @@ public class SparseBitSet extends AbstractBitSet {
     private static class UpdateAction extends BlockAction<Void> {
 
         /**
-         *  Working space for find the size and length of the bit set. Holds the
-         *  index of the last non-empty word in the set.
+         * Working space for find the size and length of the bit set. Holds the
+         * index of the last non-empty word in the set.
          */
         private transient int maxWordIndex;
 
         /**
-         *  Working space for find the size and length of the bit set. Holds a copy
-         *  of the last non-empty word in the set.
+         * Working space for find the size and length of the bit set. Holds a copy
+         * of the last non-empty word in the set.
          */
         private transient long maxWord;
 
         /**
-         *  Working space for find the hash value of the bit set. Holds the
-         *  current state of the computation of the hash value. This value is
-         *  ultimately transferred to the Cache object.
+         * Working space for find the hash value of the bit set. Holds the
+         * current state of the computation of the hash value. This value is
+         * ultimately transferred to the Cache object.
          *
          * @see State
          */
         private transient long hash;
 
         /**
-         *  Working space for keeping count of the number of non-zero words in the
-         *  bit set. Holds the current state of the computation of the count. This
-         *  value is ultimately transferred to the Cache object.
+         * Working space for keeping count of the number of non-zero words in the
+         * bit set. Holds the current state of the computation of the count. This
+         * value is ultimately transferred to the Cache object.
          *
          * @see State
          */
@@ -1269,9 +1270,9 @@ public class SparseBitSet extends AbstractBitSet {
         private transient int blockCount;
 
         /**
-         *  Working space for counting the number of non-zero bits in the bit set.
-         *  Holds the current state of the computation of the cardinality.This
-         *  value is ultimately transferred to the Cache object.
+         * Working space for counting the number of non-zero bits in the bit set.
+         * Holds the current state of the computation of the cardinality.This
+         * value is ultimately transferred to the Cache object.
          *
          * @see State
          */
@@ -1306,13 +1307,13 @@ public class SparseBitSet extends AbstractBitSet {
         }
 
         /**
-         *  This method does the accumulation of the statistics. It must be called
-         *  in sequential order of the words in the set for which the statistics
-         *  are being accumulated, and only for non-null values of the second
-         *  parameter.
-         *
-         *  Two of the values (a2Count and a3Count) are not updated here,
-         *  but are done in the code near where this method is called.
+         * This method does the accumulation of the statistics. It must be called
+         * in sequential order of the words in the set for which the statistics
+         * are being accumulated, and only for non-null values of the second
+         * parameter.
+         * <p>
+         * Two of the values (a2Count and a3Count) are not updated here,
+         * but are done in the code near where this method is called.
          *
          * @param index the word index of the word supplied
          * @param word  the long non-zero word from the set

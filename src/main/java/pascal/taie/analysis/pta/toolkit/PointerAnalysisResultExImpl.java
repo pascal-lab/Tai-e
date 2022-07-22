@@ -45,7 +45,7 @@ public class PointerAnalysisResultExImpl implements PointerAnalysisResultEx {
      *                  should give {@code true}.
      */
     public PointerAnalysisResultExImpl(
-        PointerAnalysisResult base, boolean eagerInit) {
+            PointerAnalysisResult base, boolean eagerInit) {
         this.base = base;
         if (eagerInit) {
             initMethodReceiverObjects();

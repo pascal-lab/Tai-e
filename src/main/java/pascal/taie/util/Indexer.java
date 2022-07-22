@@ -39,7 +39,7 @@ package pascal.taie.util;
 public interface Indexer<E> {
 
     /**
-     *@return the index of the given object.
+     * @return the index of the given object.
      */
     int getIndex(E o);
 

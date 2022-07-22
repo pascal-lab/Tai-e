@@ -46,13 +46,13 @@ public class FieldRef extends MemberRef {
     private static final Logger logger = LogManager.getLogger(FieldRef.class);
 
     private static final ConcurrentMap<Key, FieldRef> map =
-        Maps.newConcurrentMap(4096);
+            Maps.newConcurrentMap(4096);
 
     /**
      * Records the FieldRef that fails to be resolved.
      */
     private static final Set<FieldRef> resolveFailures =
-        Sets.newConcurrentSet();
+            Sets.newConcurrentSet();
 
     static {
         World.registerResetCallback(map::clear);

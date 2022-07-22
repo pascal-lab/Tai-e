@@ -48,7 +48,7 @@ public class CSMethodThrowResult {
 
     Set<CSObj> propagate(Stmt stmt, Set<CSObj> exceptions) {
         return explicitExceptions.computeIfAbsent(
-                stmt, unused -> setFactory.get())
+                        stmt, unused -> setFactory.get())
                 .addAllDiff(exceptions);
     }
 

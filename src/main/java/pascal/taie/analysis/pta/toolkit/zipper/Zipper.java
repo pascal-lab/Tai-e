@@ -100,7 +100,7 @@ public class Zipper {
             throw new IllegalArgumentException("Illegal Zipper argument: " + arg);
         }
         return new Zipper(pta, isExpress, pv)
-            .selectPrecisionCriticalMethods();
+                .selectPrecisionCriticalMethods();
     }
 
     public Zipper(PointerAnalysisResult ptaBase, boolean isExpress, float pv) {
@@ -108,11 +108,11 @@ public class Zipper {
         this.isExpress = isExpress;
         this.pv = pv;
         this.oag = Timer.runAndCount(() -> new ObjectAllocationGraph(pta),
-            "Building OAG", Level.INFO);
+                "Building OAG", Level.INFO);
         this.pce = Timer.runAndCount(() -> new PotentialContextElement(pta, oag),
-            "Building PCE", Level.INFO);
+                "Building PCE", Level.INFO);
         this.ofg = Timer.runAndCount(() -> new ObjectFlowGraph(ptaBase),
-            "Building OFG", Level.INFO);
+                "Building OFG", Level.INFO);
     }
 
     /**
@@ -134,8 +134,8 @@ public class Zipper {
                 if (size > 0) {
                     totalPts += size;
                     methodPts.computeIfAbsent(var.getMethod(),
-                            unused -> new MutableInt(0))
-                        .add(size);
+                                    unused -> new MutableInt(0))
+                            .add(size);
                 }
             }
             pcmThreshold = (int) (pv * totalPts);
@@ -144,16 +144,16 @@ public class Zipper {
         // build and analyze precision-flow graphs
         Set<Type> types = pta.getObjectTypes();
         Timer.runAndCount(() -> types.parallelStream().forEach(this::analyze),
-            "Building and analyzing PFG", Level.INFO);
+                "Building and analyzing PFG", Level.INFO);
         logger.info("#types: {}", types.size());
         logger.info("#avg. nodes in PFG: {}", totalPFGNodes.get() / types.size());
         logger.info("#avg. edges in PFG: {}", totalPFGEdges.get() / types.size());
 
         // collect all precision-critical methods
         Set<JMethod> pcms = pcmMap.values()
-            .stream()
-            .flatMap(Collection::stream)
-            .collect(Collectors.toUnmodifiableSet());
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toUnmodifiableSet());
         logger.info("#precision-critical methods: {}", pcms.size());
         return pcms;
     }
@@ -162,9 +162,9 @@ public class Zipper {
         PrecisionFlowGraph pfg = new PFGBuilder(pta, ofg, oag, pce, type).build();
         totalPFGNodes.addAndGet(pfg.getNumberOfNodes());
         totalPFGEdges.addAndGet(pfg.getNodes()
-            .stream()
-            .mapToInt(pfg::getOutDegreeOf)
-            .sum());
+                .stream()
+                .mapToInt(pfg::getOutDegreeOf)
+                .sum());
         Set<JMethod> pcms = getPrecisionCriticalMethods(pfg);
         if (!pcms.isEmpty()) {
             pcmMap.put(type, pcms);
@@ -173,11 +173,11 @@ public class Zipper {
 
     private Set<JMethod> getPrecisionCriticalMethods(PrecisionFlowGraph pfg) {
         Set<JMethod> pcms = getFlowNodes(pfg)
-            .stream()
-            .map(Zipper::node2Method)
-            .filter(Objects::nonNull)
-            .filter(pce.PCEMethodsOf(pfg.getType())::contains)
-            .collect(Collectors.toUnmodifiableSet());
+                .stream()
+                .map(Zipper::node2Method)
+                .filter(Objects::nonNull)
+                .filter(pce.PCEMethodsOf(pfg.getType())::contains)
+                .collect(Collectors.toUnmodifiableSet());
         if (isExpress) {
             int accPts = 0;
             for (JMethod m : pcms) {
@@ -201,9 +201,9 @@ public class Zipper {
                 FGNode node = workList.poll();
                 if (visited.add(node)) {
                     pfg.getPredsOf(node)
-                        .stream()
-                        .filter(Predicate.not(visited::contains))
-                        .forEach(workList::add);
+                            .stream()
+                            .filter(Predicate.not(visited::contains))
+                            .forEach(workList::add);
                 }
             }
         }

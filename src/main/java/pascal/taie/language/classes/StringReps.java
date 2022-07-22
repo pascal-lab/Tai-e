@@ -152,7 +152,7 @@ public final class StringReps {
             desc = desc.substring(i + 1);
         }
         String baseType;
-        if (desc.charAt(0)  == 'L' &&
+        if (desc.charAt(0) == 'L' &&
                 desc.charAt(desc.length() - 1) == ';') {
             baseType = desc.substring(1, desc.length() - 1)
                     .replace('/', '.');

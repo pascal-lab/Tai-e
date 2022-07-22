@@ -35,7 +35,7 @@ public class InterCPAliasTest {
                 "edge-refine:false;alias-aware:true",
                 "-a", "pta=cs:2-obj;implicit-entries:false"
                 //, "-a", "icfg=dump:true" // <-- uncomment this code if you want
-                                           // to output ICFGs for the test cases
+                // to output ICFGs for the test cases
         );
     }
 

@@ -53,8 +53,8 @@ public class TypeFilter implements Transfer {
     public PointsToSet apply(PointerFlowEdge edge, PointsToSet input) {
         PointsToSet result = ptsFactory.get();
         input.objects()
-            .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
-            .forEach(result::addObject);
+                .filter(o -> typeSystem.isSubtype(type, o.getObject().getType()))
+                .forEach(result::addObject);
         return result;
     }
 

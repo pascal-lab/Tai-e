@@ -73,7 +73,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
         /**
          * Pre-computes all definitions of all variables in given ir.
          */
-        private  Map<Var, SetFact<Stmt>> computeDefs(IR ir) {
+        private Map<Var, SetFact<Stmt>> computeDefs(IR ir) {
             Map<Var, SetFact<Stmt>> defs = new IndexMap<>(
                     new LocalVarIndexer(ir),
                     ir.getVars().size());

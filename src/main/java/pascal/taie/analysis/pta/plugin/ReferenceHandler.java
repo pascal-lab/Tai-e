@@ -64,16 +64,16 @@ public class ReferenceHandler implements Plugin {
         this.solver = solver;
         csManager = solver.getCSManager();
         referenceInit = solver.getHierarchy()
-            .getJREMethod(REFERENCE_INIT);
+                .getJREMethod(REFERENCE_INIT);
         referencePending = solver.getHierarchy()
-            .getJREField(REFERENCE_PENDING);
+                .getJREField(REFERENCE_PENDING);
     }
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         if (csMethod.getMethod().equals(referenceInit)) {
             CSVar initThis = csManager.getCSVar(
-                csMethod.getContext(), referenceInit.getIR().getThis());
+                    csMethod.getContext(), referenceInit.getIR().getThis());
             StaticField pending = csManager.getStaticField(referencePending);
             solver.addPFGEdge(initThis, pending, STATIC_STORE);
         }

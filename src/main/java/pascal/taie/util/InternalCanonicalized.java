@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * If a class is annotated by this annotation, it means that the class
  * applies internal canonicalization and the instances of the class
  * are canonicalized by the class internally.
- *
+ * <p>
  * The annotated classes use the following pattern to canonicalize
  * their instances:
  * <ol>

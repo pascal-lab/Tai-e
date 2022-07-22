@@ -46,7 +46,7 @@ import java.util.Set;
  * by the bits in the set. We consider set operations (e.g., {@link #addAll}
  * and {@link #containsAll}) meaningful only when the two bit sets have
  * the equivalent context object.
- *
+ * <p>
  * TODO: add mod count
  *
  * @param <E> type of elements

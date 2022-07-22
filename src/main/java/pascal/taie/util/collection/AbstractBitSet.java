@@ -236,7 +236,9 @@ public abstract class AbstractBitSet implements BitSet {
                 if (++i < 0) break;
                 if ((i = nextSetBit(i)) < 0) break;
                 int endOfRun = nextClearBit(i);
-                do { b.append(", ").append(i); }
+                do {
+                    b.append(", ").append(i);
+                }
                 while (++i != endOfRun);
             }
         }

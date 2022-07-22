@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * methods and fields, etc.
  */
 public class JClass extends AbstractResultHolder
-    implements Annotated, Indexable {
+        implements Annotated, Indexable {
 
     private final JClassLoader loader;
 
@@ -73,7 +73,7 @@ public class JClass extends AbstractResultHolder
 
     private boolean isPhantom;
 
-    private Map<String, JField> phantomFields = Maps.newHybridMap();
+    private final Map<String, JField> phantomFields = Maps.newHybridMap();
 
     /**
      * If this class is application class.
@@ -107,16 +107,16 @@ public class JClass extends AbstractResultHolder
             interfaces = builder.getInterfaces();
             outerClass = builder.getOuterClass();
             declaredFields = Collections.unmodifiableMap(
-                builder.getDeclaredFields()
-                    .stream()
-                    .collect(Collectors.toMap(JField::getName, f -> f,
-                        (oldV, newV) -> oldV, LinkedHashMap::new))
+                    builder.getDeclaredFields()
+                            .stream()
+                            .collect(Collectors.toMap(JField::getName, f -> f,
+                                    (oldV, newV) -> oldV, LinkedHashMap::new))
             );
             declaredMethods = Collections.unmodifiableMap(
-                builder.getDeclaredMethods()
-                    .stream()
-                    .collect(Collectors.toMap(JMethod::getSubsignature, m -> m,
-                        (oldV, newV) -> oldV, LinkedHashMap::new))
+                    builder.getDeclaredMethods()
+                            .stream()
+                            .collect(Collectors.toMap(JMethod::getSubsignature, m -> m,
+                                    (oldV, newV) -> oldV, LinkedHashMap::new))
             );
         } catch (Exception e) {
             if (World.get().getOptions().isAllowPhantom()) {
@@ -290,7 +290,7 @@ public class JClass extends AbstractResultHolder
         assert isPhantom();
         if (phantomFields.put(name, field) != null) {
             throw new IllegalStateException(String.format(
-                "'%s' already has phantom field '%s'", this, name));
+                    "'%s' already has phantom field '%s'", this, name));
         }
     }
 
@@ -300,7 +300,7 @@ public class JClass extends AbstractResultHolder
         }
         if (index < 0) {
             throw new IllegalArgumentException(
-                "index must be 0 or positive number, given: " + index);
+                    "index must be 0 or positive number, given: " + index);
         }
         this.index = index;
     }

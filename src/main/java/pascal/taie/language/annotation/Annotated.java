@@ -27,12 +27,12 @@ import java.util.Collection;
 
 /**
  * Represents objects that can be attached annotations.
- *
+ * <p>
  * Currently, only {@code JClass}, {@code JMethod}, and {@code JField}
  * implements this interface. Besides, annotations on parameters
  * are supported, and they are stored in {@code JMethod} instead of
  * parameters in IR.
- *
+ * <p>
  * TODO: let other program elements (e.g., {@code Var} implements
  *  this interface.
  */

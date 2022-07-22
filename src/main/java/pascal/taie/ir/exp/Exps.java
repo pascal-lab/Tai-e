@@ -44,7 +44,6 @@ public final class Exps {
      * @return {@code true} if {@code exp} can hold int values.
      * Note that expressions of some primitive types other than int,
      * whose computational type is int, can also hold int values.
-     *
      * @see PrimitiveType#asInt()
      */
     public static boolean holdsInt(Exp exp) {

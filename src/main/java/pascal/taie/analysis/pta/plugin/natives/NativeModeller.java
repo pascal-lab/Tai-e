@@ -56,11 +56,11 @@ public class NativeModeller implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         method.getIR()
-            .invokes(false)
-            .forEach(invoke -> {
-                arrayCopyModel.handleNewInvoke(invoke);
-                doPrivilegedModel.handleNewInvoke(invoke);
-            });
+                .invokes(false)
+                .forEach(invoke -> {
+                    arrayCopyModel.handleNewInvoke(invoke);
+                    doPrivilegedModel.handleNewInvoke(invoke);
+                });
     }
 
     @Override

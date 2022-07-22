@@ -35,7 +35,7 @@ import java.util.Set;
 
 /**
  * This class is for debugging/testing purpose.
- *
+ * <p>
  * {@link pascal.taie.analysis.pta.core.solver.Solver} needs to satisfy
  * some important constraints:
  * (1) onNewMethod(m) must happen before onNewPointsToSet(v, pts)
@@ -59,7 +59,7 @@ public class ConstraintChecker implements Plugin {
     public void onNewCSMethod(CSMethod csMethod) {
         if (!reached.contains(csMethod.getMethod())) {
             logger.warn("Warning: hit {} before processing {}",
-                csMethod, csMethod.getMethod());
+                    csMethod, csMethod.getMethod());
         }
     }
 
@@ -68,7 +68,7 @@ public class ConstraintChecker implements Plugin {
         Var var = csVar.getVar();
         if (!reached.contains(var.getMethod())) {
             logger.warn("Warning: hit {} before processing {}",
-                var, var.getMethod());
+                    var, var.getMethod());
         }
     }
 }

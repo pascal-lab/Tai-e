@@ -278,7 +278,7 @@ public final class Views {
     /**
      * Given two sets, creates an immutable view set consisting of elements
      * of the two sets.
-     *
+     * <p>
      * WARNING: this implementation simply treats two sets as one set and
      * does not guarantee the uniqueness of elements. It is responsibility of
      * the client code to guarantee that the elements in {@code set1} and
@@ -287,8 +287,8 @@ public final class Views {
      * @param set1 the first set to combine
      * @param set2 the second set to combine
      * @param <T>  type of elements
-     * @return     an immutable view set containing elements of {@code set1}
-     *             and {@code set2}
+     * @return an immutable view set containing elements of {@code set1}
+     * and {@code set2}
      */
     public static <T> Set<T> toCombinedSet(
             Set<? extends T> set1, Set<? extends T> set2) {

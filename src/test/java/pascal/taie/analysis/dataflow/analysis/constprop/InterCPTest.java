@@ -34,7 +34,7 @@ public class InterCPTest {
         Tests.test(inputClass, CLASS_PATH, InterConstantPropagation.ID,
                 "edge-refine:false;alias-aware:false", "-a", "cg=algorithm:cha"
                 // , "-a", "icfg=dump:true" // <-- uncomment this code if you want
-                                            // to output ICFGs for the test cases
+                // to output ICFGs for the test cases
         );
     }
 

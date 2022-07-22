@@ -51,13 +51,13 @@ public class MethodRef extends MemberRef {
     private static final Logger logger = LogManager.getLogger(MethodRef.class);
 
     private static final ConcurrentMap<Key, MethodRef> map =
-        Maps.newConcurrentMap(4096);
+            Maps.newConcurrentMap(4096);
 
     /**
      * Records the MethodRef that fails to be resolved.
      */
     private static final Set<MethodRef> resolveFailures =
-        Sets.newConcurrentSet();
+            Sets.newConcurrentSet();
 
     static {
         World.registerResetCallback(map::clear);

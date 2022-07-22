@@ -28,9 +28,8 @@ import pascal.taie.util.Indexer;
  * This implementation leverages {@link Indexer} to take care of the mappings
  * between objects and indexes. The indexer itself acts as the context object.
  *
- * @see Indexer
- *
  * @param <E> type of elements
+ * @see Indexer
  */
 public class IndexerBitSet<E> extends GenericBitSet<E> {
 

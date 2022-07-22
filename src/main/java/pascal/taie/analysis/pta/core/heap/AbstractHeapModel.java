@@ -118,16 +118,16 @@ abstract class AbstractHeapModel implements HeapModel {
         mergedSC = add(new MergedObj(string, "<Merged string constants>"));
 
         systemThreadGroup = getMockObj(ENV_DESC, "<system-thread-group>",
-            typeSystem.getClassType(THREAD_GROUP));
+                typeSystem.getClassType(THREAD_GROUP));
         mainThread = getMockObj(ENV_DESC, "<main-thread>",
-            typeSystem.getClassType(THREAD));
+                typeSystem.getClassType(THREAD));
         mainThreadGroup = getMockObj(ENV_DESC, "<main-thread-group>",
-            typeSystem.getClassType(THREAD_GROUP));
+                typeSystem.getClassType(THREAD_GROUP));
         ArrayType stringArray = typeSystem.getArrayType(string, 1);
         mainArgs = getMockObj(ENV_DESC, "<main-arguments>", stringArray,
-            World.get().getMainMethod());
+                World.get().getMainMethod());
         mainArgsElem = getMockObj(ENV_DESC, "<main-arguments-element>", string,
-            World.get().getMainMethod());
+                World.get().getMainMethod());
     }
 
     @Override
@@ -154,15 +154,15 @@ abstract class AbstractHeapModel implements HeapModel {
      */
     protected MergedObj getMergedObj(New allocSite) {
         MergedObj mergedObj = mergedObjs.computeIfAbsent(
-            allocSite.getRValue().getType(),
-            t -> add(new MergedObj(t, "<Merged " + t + ">")));
+                allocSite.getRValue().getType(),
+                t -> add(new MergedObj(t, "<Merged " + t + ">")));
         mergedObj.addRepresentedObj(getNewObj(allocSite));
         return mergedObj;
     }
 
     protected NewObj getNewObj(New allocSite) {
         return newObjs.computeIfAbsent(allocSite,
-            site -> add(new NewObj(site)));
+                site -> add(new NewObj(site)));
     }
 
     /**
@@ -182,7 +182,7 @@ abstract class AbstractHeapModel implements HeapModel {
 
     protected Obj doGetConstantObj(ReferenceLiteral value) {
         return constantObjs.computeIfAbsent(value.getType(), value,
-            (t, v) -> add(new ConstantObj(v)));
+                (t, v) -> add(new ConstantObj(v)));
     }
 
     @Override

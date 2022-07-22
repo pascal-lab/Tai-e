@@ -200,7 +200,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 // so that when MethodHandle objects reach these variables,
                 // we can associate them to the invokedynamic.
                 extractMHVars(bsm).forEach(mhVar ->
-                    mhVar2indys.put(mhVar, invoke));
+                        mhVar2indys.put(mhVar, invoke));
                 // add call edge to BSM
                 addBSMCallEdge(invoke, bsm);
             }
@@ -230,25 +230,25 @@ public class InvokeDynamicAnalysis implements Plugin {
      */
     private Stream<Var> extractMHVars(JMethod bsm) {
         return bsm.getIR()
-            .invokes(true)
-            .map(Invoke::getInvokeExp)
-            .map(ie -> {
-                MethodRef ref = ie.getMethodRef();
-                ClassType declType = ref.getDeclaringClass().getType();
-                if (typeSystem.isSubtype(callSite, declType)) {
-                    // new [Constant|Mutable|Volatile]CallSite(target);
-                    if (ref.getName().equals(MethodNames.INIT) ||
-                        // callSite.setTarget(target);
-                        ref.getName().equals("setTarget")) {
-                        Var tgt = ie.getArg(0);
-                        if (tgt.getType().equals(methodHandle)) {
-                            return tgt;
+                .invokes(true)
+                .map(Invoke::getInvokeExp)
+                .map(ie -> {
+                    MethodRef ref = ie.getMethodRef();
+                    ClassType declType = ref.getDeclaringClass().getType();
+                    if (typeSystem.isSubtype(callSite, declType)) {
+                        // new [Constant|Mutable|Volatile]CallSite(target);
+                        if (ref.getName().equals(MethodNames.INIT) ||
+                                // callSite.setTarget(target);
+                                ref.getName().equals("setTarget")) {
+                            Var tgt = ie.getArg(0);
+                            if (tgt.getType().equals(methodHandle)) {
+                                return tgt;
+                            }
                         }
                     }
-                }
-                return null;
-            })
-            .filter(Objects::nonNull);
+                    return null;
+                })
+                .filter(Objects::nonNull);
     }
 
     private void addBSMCallEdge(Invoke invoke, JMethod bsm) {

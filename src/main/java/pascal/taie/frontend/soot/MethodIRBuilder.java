@@ -862,8 +862,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
     private void buildInstanceOf(Local lhs, InstanceOfExpr rhs) {
         InstanceOfExp instanceOfExp = new InstanceOfExp(
-            getLocalOrConstant(rhs.getOp()),
-            (ReferenceType) converter.convertType(rhs.getCheckType()));
+                getLocalOrConstant(rhs.getOp()),
+                (ReferenceType) converter.convertType(rhs.getCheckType()));
         addStmt(new InstanceOf(getVar(lhs), instanceOfExp));
     }
 

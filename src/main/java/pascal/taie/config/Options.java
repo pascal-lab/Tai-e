@@ -123,7 +123,7 @@ public class Options {
     @JsonProperty
     @Option(names = {"--input-classes"},
             description = "The classes should be included in the World of analyzed program" +
-                " (the classes can be split by ',')",
+                    " (the classes can be split by ',')",
             split = ",")
     private List<String> inputClasses = List.of();
 
@@ -168,7 +168,7 @@ public class Options {
     @JsonProperty
     @Option(names = "-scope",
             description = "Scope for method/class analyses (default: ${DEFAULT-VALUE}," +
-                " valid values: ${COMPLETION-CANDIDATES})",
+                    " valid values: ${COMPLETION-CANDIDATES})",
             defaultValue = "APP")
     private Scope scope;
 

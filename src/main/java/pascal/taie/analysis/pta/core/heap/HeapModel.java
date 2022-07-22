@@ -63,6 +63,7 @@ public interface HeapModel extends Indexer<Obj> {
     // ------------------------------------------------------------------------
     // APIs for retrieving specific runtime environment objects
     // ------------------------------------------------------------------------
+
     /**
      * @return the system ThreadGroup object.
      */

@@ -75,12 +75,12 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         method.getIR()
-            .invokes(false)
-            .forEach(invoke -> {
-                classModel.handleNewInvoke(invoke);
-                metaObjModel.handleNewInvoke(invoke);
-                reflectiveActionModel.handleNewInvoke(invoke);
-            });
+                .invokes(false)
+                .forEach(invoke -> {
+                    classModel.handleNewInvoke(invoke);
+                    metaObjModel.handleNewInvoke(invoke);
+                    reflectiveActionModel.handleNewInvoke(invoke);
+                });
     }
 
     @Override

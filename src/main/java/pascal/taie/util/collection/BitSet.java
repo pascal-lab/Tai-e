@@ -41,10 +41,11 @@ public interface BitSet extends Copyable<BitSet> {
     // ------------------------------------------------------------------------
     // single-bit operations
     // ------------------------------------------------------------------------
+
     /**
      * Sets the bit at the specified index to {@code true}.
      *
-     * @param  bitIndex a bit index
+     * @param bitIndex a bit index
      * @return {@code true} if this BitSet changed as a result of the call
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
@@ -53,8 +54,8 @@ public interface BitSet extends Copyable<BitSet> {
     /**
      * Sets the bit at the specified index to the specified value.
      *
-     * @param  bitIndex a bit index
-     * @param  value a boolean value to set
+     * @param bitIndex a bit index
+     * @param value    a boolean value to set
      * @return {@code true} if this BitSet changed as a result of the call
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
@@ -63,7 +64,7 @@ public interface BitSet extends Copyable<BitSet> {
     /**
      * Sets the bit specified by the index to {@code false}.
      *
-     * @param  bitIndex the index of the bit to be cleared
+     * @param bitIndex the index of the bit to be cleared
      * @return {@code true} if this BitSet changed as a result of the call
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
@@ -75,7 +76,7 @@ public interface BitSet extends Copyable<BitSet> {
      * is currently set in this {@code BitSet}; otherwise, the result
      * is {@code false}.
      *
-     * @param  bitIndex   the bit index
+     * @param bitIndex the bit index
      * @return the value of the bit with the specified index
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
@@ -85,7 +86,7 @@ public interface BitSet extends Copyable<BitSet> {
      * Sets the bit at the specified index to the complement of its
      * current value. This operation must modify the BitSet.
      *
-     * @param  bitIndex the index of the bit to flip
+     * @param bitIndex the index of the bit to flip
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
     void flip(int bitIndex);
@@ -98,7 +99,7 @@ public interface BitSet extends Copyable<BitSet> {
      * <p>To iterate over the {@code true} bits in a {@code BitSet},
      * use the following loop:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * for (int i = bs.nextSetBit(0); i >= 0; i = bs.nextSetBit(i+1)) {
      *     // operate on index i here
      *     if (i == Integer.MAX_VALUE) {
@@ -106,9 +107,9 @@ public interface BitSet extends Copyable<BitSet> {
      *     }
      * }}</pre>
      *
-     * @param  fromIndex the index to start checking from (inclusive)
+     * @param fromIndex the index to start checking from (inclusive)
      * @return the index of the next set bit, or {@code -1} if there
-     *         is no such bit
+     * is no such bit
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
     int nextSetBit(int fromIndex);
@@ -117,7 +118,7 @@ public interface BitSet extends Copyable<BitSet> {
      * Returns the index of the first bit that is set to {@code false}
      * that occurs on or after the specified starting index.
      *
-     * @param  fromIndex the index to start checking from (inclusive)
+     * @param fromIndex the index to start checking from (inclusive)
      * @return the index of the next clear bit
      * @throws IndexOutOfBoundsException if the specified index is negative
      */
@@ -132,16 +133,16 @@ public interface BitSet extends Copyable<BitSet> {
      * <p>To iterate over the {@code true} bits in a {@code BitSet},
      * use the following loop:
      *
-     *  <pre> {@code
+     * <pre> {@code
      * for (int i = bs.length(); (i = bs.previousSetBit(i-1)) >= 0; ) {
      *     // operate on index i here
      * }}</pre>
      *
-     * @param  fromIndex the index to start checking from (inclusive)
+     * @param fromIndex the index to start checking from (inclusive)
      * @return the index of the previous set bit, or {@code -1} if there
-     *         is no such bit
+     * is no such bit
      * @throws IndexOutOfBoundsException if the specified index is less
-     *         than {@code -1}
+     *                                   than {@code -1}
      */
     int previousSetBit(int fromIndex);
 
@@ -151,24 +152,25 @@ public interface BitSet extends Copyable<BitSet> {
      * If no such bit exists, or if {@code -1} is given as the
      * starting index, then {@code -1} is returned.
      *
-     * @param  fromIndex the index to start checking from (inclusive)
+     * @param fromIndex the index to start checking from (inclusive)
      * @return the index of the previous clear bit, or {@code -1} if there
-     *         is no such bit
+     * is no such bit
      * @throws IndexOutOfBoundsException if the specified index is less
-     *         than {@code -1}
+     *                                   than {@code -1}
      */
     int previousClearBit(int fromIndex);
 
     // ------------------------------------------------------------------------
     // bulk operations
     // ------------------------------------------------------------------------
+
     /**
      * Returns {@code true} if the specified {@code BitSet} has any bits set to
      * {@code true} that are also set to {@code true} in this {@code BitSet}.
      *
-     * @param  set {@code BitSet} to intersect with
+     * @param set {@code BitSet} to intersect with
      * @return boolean indicating whether this {@code BitSet} intersects
-     *         the specified {@code BitSet}
+     * the specified {@code BitSet}
      */
     boolean intersects(BitSet set);
 
@@ -176,9 +178,9 @@ public interface BitSet extends Copyable<BitSet> {
      * Returns {@code false} if the specified {@code BitSet} has any bits set to
      * {@code true} that are also set to {@code true} in this {@code BitSet}.
      *
-     * @param  set {@code BitSet} to disjoint with
+     * @param set {@code BitSet} to disjoint with
      * @return boolean indicating whether this {@code BitSet} disjoints
-     *         the specified {@code BitSet}
+     * the specified {@code BitSet}
      */
     boolean disjoints(BitSet set);
 
@@ -208,7 +210,7 @@ public interface BitSet extends Copyable<BitSet> {
      * Clears all of the bits in this {@code BitSet} whose corresponding
      * bit is set in the specified {@code BitSet}.
      *
-     * @param  set the {@code BitSet} with which to mask this {@code BitSet}
+     * @param set the {@code BitSet} with which to mask this {@code BitSet}
      * @return {@code true} if this bit set changed as a result of the call
      */
     boolean andNot(BitSet set);
@@ -248,7 +250,7 @@ public interface BitSet extends Copyable<BitSet> {
      *     corresponding bit in the argument has the value {@code true}.
      * </ul>
      *
-     * @param  set a bit set
+     * @param set a bit set
      * @return {@code true} if this bit set changed as a result of the call
      */
     boolean xor(BitSet set);
@@ -304,6 +306,7 @@ public interface BitSet extends Copyable<BitSet> {
     // ------------------------------------------------------------------------
     // state queries
     // ------------------------------------------------------------------------
+
     /**
      * Returns true if this {@code BitSet} contains no bits that are set
      * to {@code true}.
@@ -340,6 +343,7 @@ public interface BitSet extends Copyable<BitSet> {
     // ------------------------------------------------------------------------
     // utilities
     // ------------------------------------------------------------------------
+
     /**
      * Creates a new set.
      */

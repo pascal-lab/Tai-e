@@ -52,7 +52,7 @@ class PotentialContextElement {
         Map<Obj, Set<JMethod>> invokedMethods = OAGs.computeInvokedMethods(pta);
         Canonicalizer<Set<JMethod>> canonicalizer = new Canonicalizer<>();
         Indexer<JMethod> methodIndexer = new SimpleIndexer<>(
-            pta.getBase().getCallGraph().getNodes());
+                pta.getBase().getCallGraph().getNodes());
         Set<Type> types = pta.getObjectTypes();
         type2PCEMethods = Maps.newConcurrentMap(types.size());
         types.parallelStream().forEach(type -> {

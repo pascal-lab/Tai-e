@@ -81,11 +81,11 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
         EdgeBuilder edgeBuilder = new EdgeBuilder(pta);
         nodeCounter = 0;
         callGraph.forEach(method ->
-            method.getIR().forEach(s -> s.accept(edgeBuilder)));
+                method.getIR().forEach(s -> s.accept(edgeBuilder)));
         // log statistics
         logger.info("{} nodes in OFG", nodes.size());
         logger.info("{} edges in OFG",
-            nodes.stream().mapToInt(this::getOutDegreeOf).sum());
+                nodes.stream().mapToInt(this::getOutDegreeOf).sum());
     }
 
     private class EdgeBuilder implements StmtVisitor<Void> {
@@ -123,7 +123,7 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
         @Override
         public Void visit(LoadField load) {
             if (isRelevant(load) &&
-                load.getFieldAccess() instanceof InstanceFieldAccess access) {
+                    load.getFieldAccess() instanceof InstanceFieldAccess access) {
                 Var to = load.getLValue();
                 VarNode toNode = getOrCreateVarNode(to);
                 Var base = access.getBase();
@@ -139,7 +139,7 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
         @Override
         public Void visit(StoreField store) {
             if (isRelevant(store) &&
-                store.getFieldAccess() instanceof InstanceFieldAccess access) {
+                    store.getFieldAccess() instanceof InstanceFieldAccess access) {
                 Var base = access.getBase();
                 JField field = access.getFieldRef().resolve();
                 Var from = store.getRValue();
@@ -175,7 +175,7 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
                 pta.getPointsToSet(base).forEach(array -> {
                     ArrayIndexNode toNode = getOrCreateArrayIndexNode(array);
                     fromNode.addOutEdge(
-                        new FGEdge(INSTANCE_STORE, fromNode, toNode));
+                            new FGEdge(INSTANCE_STORE, fromNode, toNode));
                 });
             }
             return null;
@@ -185,9 +185,9 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
         public Void visit(Invoke invoke) {
             Var lhs = invoke.getLValue();
             VarNode lhsNode = lhs != null && lhs.getType() instanceof ReferenceType
-                ? getOrCreateVarNode(lhs) : null;
+                    ? getOrCreateVarNode(lhs) : null;
             List<VarNode> argNodes = Lists.map(invoke.getInvokeExp().getArgs(),
-                ObjectFlowGraph.this::getOrCreateVarNode);
+                    ObjectFlowGraph.this::getOrCreateVarNode);
             pta.getCallGraph().edgesOutOf(invoke).forEach(edge -> {
                 if (edge.getKind() != CallKind.OTHER) {
                     IR ir = edge.getCallee().getIR();
@@ -198,23 +198,23 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
                             VarNode paramNode = getOrCreateVarNode(param);
                             VarNode argNode = argNodes.get(i);
                             argNode.addOutEdge(
-                                new FGEdge(INTERPROCEDURAL_ASSIGN, argNode, paramNode));
+                                    new FGEdge(INTERPROCEDURAL_ASSIGN, argNode, paramNode));
                         }
                     }
                     // add return-value edges
                     if (lhsNode != null) {
                         ir.getReturnVars()
-                            .stream()
-                            .map(ObjectFlowGraph.this::getOrCreateVarNode)
-                            .forEach(retNode -> retNode.addOutEdge(
-                                new FGEdge(INTERPROCEDURAL_ASSIGN, retNode, lhsNode)));
+                                .stream()
+                                .map(ObjectFlowGraph.this::getOrCreateVarNode)
+                                .forEach(retNode -> retNode.addOutEdge(
+                                        new FGEdge(INTERPROCEDURAL_ASSIGN, retNode, lhsNode)));
                     }
                     // add receiver-passing edge
                     if (invoke.getInvokeExp() instanceof InvokeInstanceExp invokeExp) {
                         VarNode baseNode = getOrCreateVarNode(invokeExp.getBase());
                         VarNode thisNode = getOrCreateVarNode(ir.getThis());
                         baseNode.addOutEdge(
-                            new FGEdge(INTERPROCEDURAL_ASSIGN, baseNode, thisNode));
+                                new FGEdge(INTERPROCEDURAL_ASSIGN, baseNode, thisNode));
                     }
                 }
             });
@@ -283,7 +283,7 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
     @Override
     public Set<FGNode> getNodes() {
         return Views.toMappedSet(nodes, node -> node,
-            o -> o instanceof FGNode node && hasNode(node));
+                o -> o instanceof FGNode node && hasNode(node));
     }
 
     @Override

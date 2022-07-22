@@ -31,13 +31,13 @@ import java.util.Set;
 /**
  * Represents annotations in the program.
  * Each annotation contains 0 or more named elements.
- *
+ * <p>
  * Currently, we use {@code String} (instead of {@code JClass}
  * or {@code ClassType}) to represent the type of an annotation.
  * This makes it easier for the frontends to extract annotations
  * from the program (The type string is ready in the program,
  * and the frontends do not need to resolve the string to {@code JClass}).
- *
+ * <p>
  * TODO: add ElementType and RetentionPolicy.
  */
 public class Annotation {

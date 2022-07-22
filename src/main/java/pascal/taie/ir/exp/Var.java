@@ -130,7 +130,7 @@ public class Var implements LValue, RValue, Indexable {
     public Literal getConstValue() {
         if (!isConst()) {
             throw new AnalysisException(this
-                + " is not a (temporary) variable for holding const value");
+                    + " is not a (temporary) variable for holding const value");
         }
         return constValue;
     }

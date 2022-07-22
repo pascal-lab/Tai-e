@@ -51,16 +51,16 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
     private Indexer<Obj> objIndexer;
 
     ObjectAllocationGraph(PointerAnalysisResultEx pta) {
-        OAGs.computeInvokedMethods(pta).forEach((obj, methods) ->  {
+        OAGs.computeInvokedMethods(pta).forEach((obj, methods) -> {
             addNode(obj);
             methods.stream()
-                .map(pta::getObjectsAllocatedIn)
-                .flatMap(Set::stream)
-                .forEach(succ -> {
-                    if (!(obj.getType() instanceof ArrayType)) {
-                        addEdge(obj, succ);
-                    }
-                });
+                    .map(pta::getObjectsAllocatedIn)
+                    .flatMap(Set::stream)
+                    .forEach(succ -> {
+                        if (!(obj.getType() instanceof ArrayType)) {
+                            addEdge(obj, succ);
+                        }
+                    });
         });
         objIndexer = pta.getBase().getObjectIndexer();
         computeAllocatees(pta);
@@ -89,13 +89,13 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
         pta.getObjectTypes().parallelStream().forEach(type -> {
             Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
             pta.getObjectsOf(type)
-                .forEach(o -> allocatees.addAll(getAllocateesOf(o)));
+                    .forEach(o -> allocatees.addAll(getAllocateesOf(o)));
             type2Allocatees.put(type, canonicalizer.get(allocatees));
         });
     }
 
     private Set<Obj> getAllocatees(
-        MergedNode<Obj> node, MergedSCCGraph<Obj> mg) {
+            MergedNode<Obj> node, MergedSCCGraph<Obj> mg) {
         Set<Obj> allocatees = new IndexerBitSet<>(objIndexer, true);
         mg.getSuccsOf(node).forEach(n -> {
             // direct allocatees
@@ -106,7 +106,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
         });
         Obj obj = node.getNodes().get(0);
         if (node.getNodes().size() > 1 ||
-            getSuccsOf(obj).contains(obj)) { // self-loop
+                getSuccsOf(obj).contains(obj)) { // self-loop
             // The merged node is a true SCC
             allocatees.addAll(node.getNodes());
         }

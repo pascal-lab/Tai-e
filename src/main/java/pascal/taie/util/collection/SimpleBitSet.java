@@ -56,9 +56,9 @@ public class SimpleBitSet extends AbstractBitSet {
      * represent bits with indices in the range {@code 0} through
      * {@code nbits-1}. All bits are initially {@code false}.
      *
-     * @param  nbits the initial size of the bit set
+     * @param nbits the initial size of the bit set
      * @throws NegativeArraySizeException if the specified initial size
-     *         is negative
+     *                                    is negative
      */
     public SimpleBitSet(int nbits) {
         // nbits can't be negative; size 0 is OK
@@ -69,16 +69,16 @@ public class SimpleBitSet extends AbstractBitSet {
     }
 
     private void initWords(int nbits) {
-        words = new long[wordIndex(nbits-1) + 1];
+        words = new long[wordIndex(nbits - 1) + 1];
     }
 
     /**
      * Every public method must preserve these invariants.
      */
     private void checkInvariants() {
-        assert(wordsInUse == 0 || words[wordsInUse - 1] != 0);
-        assert(wordsInUse >= 0 && wordsInUse <= words.length);
-        assert(wordsInUse == words.length || words[wordsInUse] == 0);
+        assert (wordsInUse == 0 || words[wordsInUse - 1] != 0);
+        assert (wordsInUse >= 0 && wordsInUse <= words.length);
+        assert (wordsInUse == words.length || words[wordsInUse] == 0);
     }
 
     /**
@@ -89,15 +89,16 @@ public class SimpleBitSet extends AbstractBitSet {
     private void recalculateWordsInUse() {
         // Traverse the bitset until a used word is found
         int i;
-        for (i = wordsInUse-1; i >= 0; i--)
+        for (i = wordsInUse - 1; i >= 0; i--)
             if (words[i] != 0)
                 break;
 
-        wordsInUse = i+1; // The new logical size
+        wordsInUse = i + 1; // The new logical size
     }
 
     /**
      * Ensures that the BitSet can hold enough words.
+     *
      * @param wordsRequired the minimum acceptable number of words.
      */
     private void ensureCapacity(int wordsRequired) {
@@ -113,10 +114,11 @@ public class SimpleBitSet extends AbstractBitSet {
      * temporarily violating the invariants.  The caller must
      * restore the invariants before returning to the user,
      * possibly using recalculateWordsInUse().
+     *
      * @param wordIndex the index to be accommodated.
      */
     private void expandTo(int wordIndex) {
-        int wordsRequired = wordIndex+1;
+        int wordsRequired = wordIndex + 1;
         if (wordsInUse < wordsRequired) {
             ensureCapacity(wordsRequired);
             wordsInUse = wordsRequired;
@@ -246,11 +248,11 @@ public class SimpleBitSet extends AbstractBitSet {
         if (u >= wordsInUse)
             return length() - 1;
 
-        long word = words[u] & (WORD_MASK >>> -(fromIndex+1));
+        long word = words[u] & (WORD_MASK >>> -(fromIndex + 1));
 
         while (true) {
             if (word != 0)
-                return (u+1) * BITS_PER_WORD - 1 - Long.numberOfLeadingZeros(word);
+                return (u + 1) * BITS_PER_WORD - 1 - Long.numberOfLeadingZeros(word);
             if (u-- == 0)
                 return -1;
             word = words[u];
@@ -272,11 +274,11 @@ public class SimpleBitSet extends AbstractBitSet {
         if (u >= wordsInUse)
             return fromIndex;
 
-        long word = ~words[u] & (WORD_MASK >>> -(fromIndex+1));
+        long word = ~words[u] & (WORD_MASK >>> -(fromIndex + 1));
 
         while (true) {
             if (word != 0)
-                return (u+1) * BITS_PER_WORD -1 - Long.numberOfLeadingZeros(word);
+                return (u + 1) * BITS_PER_WORD - 1 - Long.numberOfLeadingZeros(word);
             if (u-- == 0)
                 return -1;
             word = ~words[u];
@@ -575,7 +577,7 @@ public class SimpleBitSet extends AbstractBitSet {
      *
      * <p>The hash code is defined to be the result of the following
      * calculation:
-     *  <pre> {@code
+     * <pre> {@code
      * public int hashCode() {
      *     long h = 1234;
      *     long[] words = toLongArray();
@@ -593,7 +595,7 @@ public class SimpleBitSet extends AbstractBitSet {
         for (int i = wordsInUse; --i >= 0; )
             h ^= words[i] * (i + 1);
 
-        return (int)((h >> 32) ^ h);
+        return (int) ((h >> 32) ^ h);
     }
 
     /**
@@ -605,10 +607,10 @@ public class SimpleBitSet extends AbstractBitSet {
      * <pre>((BitSet)obj).get(k) == this.get(k)</pre>
      * must be true. The current sizes of the two bit sets are not compared.
      *
-     * @param  obj the object to compare with
+     * @param obj the object to compare with
      * @return {@code true} if the objects are the same;
-     *         {@code false} otherwise
-     * @see    #size()
+     * {@code false} otherwise
+     * @see #size()
      */
     @Override
     public boolean equals(Object obj) {

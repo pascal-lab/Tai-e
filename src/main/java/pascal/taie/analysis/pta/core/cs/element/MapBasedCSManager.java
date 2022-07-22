@@ -251,10 +251,10 @@ public class MapBasedCSManager implements CSManager {
 
         private int getCSObjIndex(Obj obj) {
             if (typeSystem.isSubtype(throwable, obj.getType()) &&
-                throwableCounter < THROWABLE_BUDGET) {
+                    throwableCounter < THROWABLE_BUDGET) {
                 return throwableCounter++;
             } else if (obj.getType().equals(string) &&
-                stringCounter < THROWABLE_BUDGET + STRING_BUDGET) {
+                    stringCounter < THROWABLE_BUDGET + STRING_BUDGET) {
                 return stringCounter++;
             } else {
                 return counter++;

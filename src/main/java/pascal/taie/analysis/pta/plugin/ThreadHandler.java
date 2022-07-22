@@ -82,14 +82,14 @@ public class ThreadHandler implements Plugin {
         runningThreads = solver.makePointsToSet();
         hierarchy = solver.getHierarchy();
         threadStartThis = requireNonNull(
-            hierarchy.getJREMethod("<java.lang.Thread: void start()>"))
-            .getIR()
-            .getThis();
+                hierarchy.getJREMethod("<java.lang.Thread: void start()>"))
+                .getIR()
+                .getThis();
         currentThread = hierarchy.getJREMethod(
-            "<java.lang.Thread: java.lang.Thread currentThread()>");
+                "<java.lang.Thread: java.lang.Thread currentThread()>");
         currentThreadReturn = getOne(requireNonNull(currentThread)
-            .getIR()
-            .getReturnVars());
+                .getIR()
+                .getReturnVars());
     }
 
     @Override
@@ -104,8 +104,8 @@ public class ThreadHandler implements Plugin {
         // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
         Obj systemThreadGroup = heapModel.getSystemThreadGroup();
         IR threadGroupInitIR = requireNonNull(
-            hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>()>"))
-            .getIR();
+                hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>()>"))
+                .getIR();
         Var initThis = threadGroupInitIR.getThis();
         solver.addVarPointsTo(context, initThis, context, systemThreadGroup);
 
@@ -114,17 +114,17 @@ public class ThreadHandler implements Plugin {
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThreadGroup = heapModel.getMainThreadGroup();
         threadGroupInitIR = requireNonNull(
-            hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>"))
-            .getIR();
+                hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>"))
+                .getIR();
 
         initThis = threadGroupInitIR.getThis();
         solver.addVarPointsTo(context, initThis, context, mainThreadGroup);
         // propagate <system-thread-group> to param0
         solver.addVarPointsTo(context, threadGroupInitIR.getParam(0),
-            context, systemThreadGroup);
+                context, systemThreadGroup);
         // propagate "main" to param1
         Obj main = solver.getHeapModel()
-            .getConstantObj(StringLiteral.get("main"));
+                .getConstantObj(StringLiteral.get("main"));
         solver.addVarPointsTo(context, threadGroupInitIR.getParam(1), context, main);
 
         // setup main thread
@@ -132,20 +132,20 @@ public class ThreadHandler implements Plugin {
         //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
         Obj mainThread = heapModel.getMainThread();
         IR threadInitIR = requireNonNull(
-            hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"))
-            .getIR();
+                hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"))
+                .getIR();
         initThis = threadInitIR.getThis();
         solver.addVarPointsTo(context, initThis, context, mainThread);
         // propagate <main-thread-group> to param0
         solver.addVarPointsTo(context, threadInitIR.getParam(0),
-            context, mainThreadGroup);
+                context, mainThreadGroup);
         // propagate "main" to param1
         solver.addVarPointsTo(context, threadInitIR.getParam(1), context, main);
 
         // The main thread is never explicitly started, which would make it a
         // RunningThread. Therefore, we make it a running thread explicitly.
         runningThreads.addObject(
-            solver.getCSManager().getCSObj(context, mainThread));
+                solver.getCSManager().getCSObj(context, mainThread));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class ThreadHandler implements Plugin {
             synchronized (this) {
                 if (runningThreads.addAll(pts)) {
                     currentThreadContexts.forEach(context ->
-                        solver.addVarPointsTo(context, currentThreadReturn, pts));
+                            solver.addVarPointsTo(context, currentThreadReturn, pts));
                 }
             }
         }

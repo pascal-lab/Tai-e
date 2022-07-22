@@ -80,7 +80,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         // set Soot options
         soot.options.Options.v().set_output_dir(
-            new File(Configs.getOutputDir(), "sootOutput").toString());
+                new File(Configs.getOutputDir(), "sootOutput").toString());
         soot.options.Options.v().set_output_format(
                 soot.options.Options.output_format_jimple);
         soot.options.Options.v().set_keep_line_number(true);
@@ -152,7 +152,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      * Tai-e's ClassHierarchy depends on Soot's Scene, which does not change
      * after hierarchy's construction, thus we need to add the classes
      * in the reflection log before starting Soot.
-     *
+     * <p>
      * TODO: this is a tentative solution. We should remove it and use other
      *  way to load basic classes in the reflection log, so that world builder
      *  does not depend on analysis plan.
@@ -194,7 +194,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         SootClassLoader loader = new SootClassLoader(
-            scene, hierarchy, options.isAllowPhantom());
+                scene, hierarchy, options.isAllowPhantom());
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);

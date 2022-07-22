@@ -94,10 +94,10 @@ class PFGBuilder {
         this.pce = pce;
         this.type = type;
         this.invokeMethods = pta.getObjectsOf(type)
-            .stream()
-            .map(pta::getMethodsInvokedOn)
-            .flatMap(Set::stream)
-            .collect(Collectors.toUnmodifiableSet());
+                .stream()
+                .map(pta::getMethodsInvokedOn)
+                .flatMap(Set::stream)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     PrecisionFlowGraph build() {
@@ -113,21 +113,21 @@ class PFGBuilder {
 
     private Set<JMethod> obtainMethods() {
         return pta.getObjectsOf(type)
-            .stream()
-            .map(pta::getMethodsInvokedOn)
-            .flatMap(Set::stream)
-            .filter(Predicate.not(JMethod::isPrivate))
-            .collect(Collectors.toUnmodifiableSet());
+                .stream()
+                .map(pta::getMethodsInvokedOn)
+                .flatMap(Set::stream)
+                .filter(Predicate.not(JMethod::isPrivate))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     private Set<VarNode> obtainInNodes() {
         return obtainMethods()
-            .stream()
-            .flatMap(method -> method.getIR().getParams().stream())
-            .filter(param -> !pta.getBase().getPointsToSet(param).isEmpty())
-            .map(ofg::getVarNode)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toUnmodifiableSet());
+                .stream()
+                .flatMap(method -> method.getIR().getParams().stream())
+                .filter(param -> !pta.getBase().getPointsToSet(param).isEmpty())
+                .map(ofg::getVarNode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     private Set<VarNode> obtainOutNodes() {
@@ -135,22 +135,22 @@ class PFGBuilder {
         // OUT methods of inner classes and special access$ methods
         // are also considered as the OUT methods of current type
         pce.PCEMethodsOf(type)
-            .stream()
-            .filter(m -> !m.isPrivate() && !m.isStatic())
-            .filter(m -> isInnerClass(m.getDeclaringClass()))
-            .forEach(outMethods::add);
+                .stream()
+                .filter(m -> !m.isPrivate() && !m.isStatic())
+                .filter(m -> isInnerClass(m.getDeclaringClass()))
+                .forEach(outMethods::add);
         pce.PCEMethodsOf(type)
-            .stream()
-            .filter(m -> !m.isPrivate() && m.isStatic())
-            .filter(m -> m.getDeclaringClass().getType().equals(type)
-                && m.getName().startsWith("access$"))
-            .forEach(outMethods::add);
+                .stream()
+                .filter(m -> !m.isPrivate() && m.isStatic())
+                .filter(m -> m.getDeclaringClass().getType().equals(type)
+                        && m.getName().startsWith("access$"))
+                .forEach(outMethods::add);
         return outMethods.stream()
-            .flatMap(method -> method.getIR().getReturnVars().stream())
-            .filter(ret -> !pta.getBase().getPointsToSet(ret).isEmpty())
-            .map(ofg::getVarNode)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toUnmodifiableSet());
+                .flatMap(method -> method.getIR().getReturnVars().stream())
+                .filter(ret -> !pta.getBase().getPointsToSet(ret).isEmpty())
+                .map(ofg::getVarNode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     private boolean isInnerClass(JClass jclass) {
@@ -192,7 +192,7 @@ class PFGBuilder {
                         for (VarNode inNode : inNodes) {
                             Var inVar = inNode.getVar();
                             if (!Collections.disjoint(
-                                pta.getBase().getPointsToSet(inVar), varPts)) {
+                                    pta.getBase().getPointsToSet(inVar), varPts)) {
                                 wuEdges.put(node, new FGEdge(UNWRAPPED_FLOW, node, toNode));
                                 break;
                             }
@@ -223,18 +223,18 @@ class PFGBuilder {
                         if (base.getType().equals(type)) {
                             // add wrapped flow edges to this variable
                             invokeMethods.stream()
-                                .map(m -> m.getIR().getThis())
-                                .map(ofg::getVarNode)
-                                .filter(Objects::nonNull) // filter this variable of native methods
-                                .forEach(nextNode -> wuEdges.put(toNode,
-                                    new FGEdge(WRAPPED_FLOW, toNode, nextNode)));
+                                    .map(m -> m.getIR().getThis())
+                                    .map(ofg::getVarNode)
+                                    .filter(Objects::nonNull) // filter this variable of native methods
+                                    .forEach(nextNode -> wuEdges.put(toNode,
+                                            new FGEdge(WRAPPED_FLOW, toNode, nextNode)));
                             nextEdges.add(edge);
                         } else if (oag.getAllocateesOf(type).contains(base)) {
                             // Optimization, similar as above.
                             VarNode assignedNode = getAssignedNode(base);
                             if (assignedNode != null) {
                                 wuEdges.put(toNode,
-                                    new FGEdge(WRAPPED_FLOW, toNode, assignedNode));
+                                        new FGEdge(WRAPPED_FLOW, toNode, assignedNode));
                             }
                             nextEdges.add(edge);
                         }
@@ -266,9 +266,9 @@ class PFGBuilder {
 
     private static List<Var> getReturnToVariablesOf(Var var) {
         return var.getInvokes()
-            .stream()
-            .map(Invoke::getLValue)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .stream()
+                .map(Invoke::getLValue)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

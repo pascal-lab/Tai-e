@@ -35,13 +35,13 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.natives.NativeModeller;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
+import pascal.taie.analysis.pta.plugin.natives.NativeModeller;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.analysis.pta.toolkit.scaler.Scaler;
@@ -68,15 +68,15 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         if (pre != null) {
             // run context-insensitive analysis as pre-analysis
             PointerAnalysisResult preResult = runAnalysis(heapModel,
-                ContextSelectorFactory.makeCISelector());
+                    ContextSelectorFactory.makeCISelector());
             if (pre.startsWith("scaler")) {
                 selector = Timer.runAndCount(() -> ContextSelectorFactory
-                        .makeGuidedSelector(Scaler.run(preResult, pre)),
-                    "Scaler", Level.INFO);
+                                .makeGuidedSelector(Scaler.run(preResult, pre)),
+                        "Scaler", Level.INFO);
             } else if (pre.startsWith("zipper")) {
                 selector = Timer.runAndCount(() -> ContextSelectorFactory
-                        .makeSelectiveSelector(cs, Zipper.run(preResult, pre)),
-                    "Zipper", Level.INFO);
+                                .makeSelectiveSelector(cs, Zipper.run(preResult, pre)),
+                        "Zipper", Level.INFO);
             } else {
                 throw new IllegalArgumentException("Illegal pre-analysis argument: " + pre);
             }
@@ -105,12 +105,12 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         // To record elapsed time precisely, AnalysisTimer should be added at first.
         // TODO: remove such order dependency?
         plugin.addPlugin(
-            new AnalysisTimer(),
-            new ClassInitializer(),
-            new ThreadHandler(),
-            new NativeModeller(),
-            new ExceptionAnalysis(),
-            new ReflectionAnalysis()
+                new AnalysisTimer(),
+                new ClassInitializer(),
+                new ThreadHandler(),
+                new NativeModeller(),
+                new ExceptionAnalysis(),
+                new ReflectionAnalysis()
         );
         if (World.get().getOptions().getJavaVersion() < 9) {
             // current reference handler doesn't support Java 9+

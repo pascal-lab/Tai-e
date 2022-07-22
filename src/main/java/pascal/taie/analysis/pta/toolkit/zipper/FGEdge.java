@@ -28,7 +28,7 @@ import pascal.taie.util.graph.Edge;
  * Edges in object/precision flow graph.
  */
 record FGEdge(Kind kind, FGNode source, FGNode target)
-    implements Edge<FGNode> {
+        implements Edge<FGNode> {
 
     enum Kind {
         LOCAL_ASSIGN,

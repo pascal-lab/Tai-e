@@ -107,14 +107,14 @@ public class LambdaAnalysis implements Plugin {
             JMethod container = invoke.getContainer();
             // record lambda meta factories of new reachable methods
             lambdaObjs.put(container,
-                heapModel.getMockObj(LAMBDA_DESC, invoke, type, container));
+                    heapModel.getMockObj(LAMBDA_DESC, invoke, type, container));
         });
     }
 
     private static Stream<Invoke> extractLambdaMetaFactories(IR ir) {
         return ir.invokes(true)
-            .filter(Invoke::isDynamic)
-            .filter(LambdaAnalysis::isLambdaMetaFactory);
+                .filter(Invoke::isDynamic)
+                .filter(LambdaAnalysis::isLambdaMetaFactory);
     }
 
     static boolean isLambdaMetaFactory(Invoke invoke) {
@@ -168,7 +168,7 @@ public class LambdaAnalysis implements Plugin {
                 // *invokedynamic* to represent the *allocation site*,
                 // instead of the actual invocation site of the constructor.
                 Obj newObj = heapModel.getMockObj(LAMBDA_NEW_DESC,
-                    indyInvoke, type, indyInvoke.getContainer());
+                        indyInvoke, type, indyInvoke.getContainer());
                 // pass the mock object to result variable (if present)
                 // TODO: double-check if the heap context is proper
                 CSObj csNewObj = csManager.getCSObj(context, newObj);
@@ -273,11 +273,11 @@ public class LambdaAnalysis implements Plugin {
             int j = 0;
             for (int i = shiftC; i < capturedArgs.size(); ++i, ++j) {
                 solver.addPFGEdge(
-                    csManager.getCSVar(lambdaContext, capturedArgs.get(i)),
-                    csManager.getCSVar(calleeContext, targetParams.get(j)),
-                    // filter spurious objects caused by imprecise lambda objects
-                    PointerFlowEdge.Kind.PARAMETER_PASSING,
-                    targetParams.get(j).getType());
+                        csManager.getCSVar(lambdaContext, capturedArgs.get(i)),
+                        csManager.getCSVar(calleeContext, targetParams.get(j)),
+                        // filter spurious objects caused by imprecise lambda objects
+                        PointerFlowEdge.Kind.PARAMETER_PASSING,
+                        targetParams.get(j).getType());
             }
             // pass arguments from actual invocation site
             int shiftA; // shift of actual arguments
@@ -299,7 +299,7 @@ public class LambdaAnalysis implements Plugin {
                         csManager.getCSVar(callerContext, actualArgs.get(i)),
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
                         // filter spurious objects caused by imprecise lambda objects
-                    PointerFlowEdge.Kind.PARAMETER_PASSING, targetParams.get(j).getType()
+                        PointerFlowEdge.Kind.PARAMETER_PASSING, targetParams.get(j).getType()
                 );
             }
             // pass return value
@@ -310,7 +310,7 @@ public class LambdaAnalysis implements Plugin {
                     CSVar csRet = csManager.getCSVar(calleeContext, ret);
                     solver.addPFGEdge(csRet, csResult,
                             // filter spurious objects caused by imprecise lambda objects
-                        PointerFlowEdge.Kind.RETURN, result.getType());
+                            PointerFlowEdge.Kind.RETURN, result.getType());
                 });
             }
         }

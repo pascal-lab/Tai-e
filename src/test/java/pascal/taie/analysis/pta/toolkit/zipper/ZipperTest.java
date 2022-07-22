@@ -47,17 +47,17 @@ public class ZipperTest {
     }
 
     private static void dumpOAG(String dir, String main, String opts) {
-        Tests.testPTA(false, dir, main,  opts);
+        Tests.testPTA(false, dir, main, opts);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectAllocationGraph oag = new ObjectAllocationGraph(
-            new PointerAnalysisResultExImpl(pta, true));
+                new PointerAnalysisResultExImpl(pta, true));
         new DotDumper<Obj>().dump(oag, "output/" + main + "-oag.dot");
     }
 
     @Test
     public void testOFG() {
         Stream.of("Cast", "StoreLoad", "Array", "CallParamRet", "Cycle")
-            .forEach(main -> dumpOFG(BASIC, main));
+                .forEach(main -> dumpOFG(BASIC, main));
     }
 
     private static void dumpOFG(String dir, String main) {

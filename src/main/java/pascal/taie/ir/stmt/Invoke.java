@@ -78,13 +78,11 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
     }
 
     @Override
-    public @Nullable
-    Var getLValue() {
+    public @Nullable Var getLValue() {
         return result;
     }
 
-    public @Nullable
-    Var getResult() {
+    public @Nullable Var getResult() {
         return result;
     }
 

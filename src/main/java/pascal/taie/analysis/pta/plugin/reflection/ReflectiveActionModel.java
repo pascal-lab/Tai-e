@@ -180,7 +180,7 @@ class ReflectiveActionModel extends AbstractModel {
 
     private CSObj newReflectiveObj(Context context, Invoke invoke, ReferenceType type) {
         Obj newObj = heapModel.getMockObj(REF_OBJ_DESC,
-            invoke, type, invoke.getContainer());
+                invoke, type, invoke.getContainer());
         // TODO: double-check if the heap context is proper
         CSObj csNewObj = csManager.getCSObj(context, newObj);
         Var result = invoke.getResult();

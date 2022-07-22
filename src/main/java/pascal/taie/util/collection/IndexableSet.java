@@ -41,7 +41,6 @@ import java.util.Iterator;
  * (as large set) to construct hybrid set.
  *
  * @param <E> type of elements whose indexes are stored in this set
- *
  * @see Indexable
  */
 public class IndexableSet<E extends Indexable> extends AbstractSetEx<E> {

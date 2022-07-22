@@ -28,7 +28,7 @@
  * (1) Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis.
  * Precision-Guided Context Sensitivity for Pointer Analysis.
  * In OOPSLA 2018, and
- *
+ * <p>
  * (2) Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis.
  * A Principled Approach to Selective Context Sensitivity for Pointer Analysis.
  * In TOPLAS 2020.

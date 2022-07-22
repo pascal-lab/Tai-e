@@ -285,7 +285,7 @@ public class DefaultSolver implements Solver {
         PointsToSet diff = getPointsToSetOf(pointer).addAllDiff(pointsToSet);
         if (!diff.isEmpty()) {
             pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge ->
-                addPointsTo(edge.getTarget(), edge.getTransfer().apply(edge, diff)));
+                    addPointsTo(edge.getTarget(), edge.getTransfer().apply(edge, diff)));
         }
         return diff;
     }
@@ -353,7 +353,7 @@ public class DefaultSolver implements Solver {
                     // we need type guard for array stores as Java arrays
                     // are covariant
                     addPFGEdge(from, arrayIndex,
-                        PointerFlowEdge.Kind.ARRAY_STORE, arrayIndex.getType());
+                            PointerFlowEdge.Kind.ARRAY_STORE, arrayIndex.getType());
                 });
             }
         }
@@ -402,11 +402,11 @@ public class DefaultSolver implements Solver {
                     // build call edge
                     CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
                     addCallEdge(new Edge<>(CallGraphs.getCallKind(callSite),
-                        csCallSite, csCallee));
+                            csCallSite, csCallee));
                     // pass receiver object to *this* variable
                     if (!isIgnored(callee)) {
                         addVarPointsTo(calleeContext, callee.getIR().getThis(),
-                            recvObj);
+                                recvObj);
                     }
                 } else {
                     plugin.onUnresolvedCall(recvObj, context, callSite);
@@ -417,7 +417,7 @@ public class DefaultSolver implements Solver {
 
     private boolean isIgnored(JMethod method) {
         return ignoredMethods.contains(method) ||
-            onlyApp && !method.getDeclaringClass().isApplication();
+                onlyApp && !method.getDeclaringClass().isApplication();
     }
 
     /**
@@ -448,12 +448,12 @@ public class DefaultSolver implements Solver {
         private final Map<New, Invoke> registerInvokes = Maps.newMap();
 
         private final JMethod finalize = Objects.requireNonNull(
-            hierarchy.getJREMethod(FINALIZE));
+                hierarchy.getJREMethod(FINALIZE));
 
         private final MethodRef finalizeRef = finalize.getRef();
 
         private final MethodRef registerRef = Objects.requireNonNull(
-            hierarchy.getJREMethod(FINALIZER_REGISTER)).getRef();
+                hierarchy.getJREMethod(FINALIZER_REGISTER)).getRef();
 
         /**
          * Processes given Stmts in given CSMethod.
@@ -494,7 +494,7 @@ public class DefaultSolver implements Solver {
             }
 
             private void processNewMultiArray(
-                New allocSite, Context arrayContext, Obj array) {
+                    New allocSite, Context arrayContext, Obj array) {
                 NewMultiArray newMultiArray = (NewMultiArray) allocSite.getRValue();
                 Obj[] arrays = newArrays.computeIfAbsent(newMultiArray, nma -> {
                     ArrayType type = nma.getType();
@@ -502,13 +502,13 @@ public class DefaultSolver implements Solver {
                     for (int i = 1; i < nma.getLengthCount(); ++i) {
                         type = (ArrayType) type.elementType();
                         newArrays[i - 1] = heapModel.getMockObj(MULTI_ARRAY_DESC,
-                            allocSite, type, allocSite.getContainer());
+                                allocSite, type, allocSite.getContainer());
                     }
                     return newArrays;
                 });
                 for (Obj newArray : arrays) {
                     Context elemContext = contextSelector
-                        .selectHeapContext(csMethod, newArray);
+                            .selectHeapContext(csMethod, newArray);
                     CSObj arrayObj = csManager.getCSObj(arrayContext, array);
                     ArrayIndex arrayIndex = csManager.getArrayIndex(arrayObj);
                     addPointsTo(arrayIndex, elemContext, newArray);
@@ -519,7 +519,7 @@ public class DefaultSolver implements Solver {
 
             private boolean hasOverriddenFinalize(NewExp newExp) {
                 return !finalize.equals(
-                    hierarchy.dispatch(newExp.getType(), finalizeRef));
+                        hierarchy.dispatch(newExp.getType(), finalizeRef));
             }
 
             /**
@@ -531,7 +531,7 @@ public class DefaultSolver implements Solver {
             private void processFinalizer(New stmt) {
                 Invoke registerInvoke = registerInvokes.computeIfAbsent(stmt, s -> {
                     InvokeStatic callSite = new InvokeStatic(registerRef,
-                        Collections.singletonList(s.getLValue()));
+                            Collections.singletonList(s.getLValue()));
                     Invoke invoke = new Invoke(csMethod.getMethod(), callSite);
                     invoke.setLineNumber(stmt.getLineNumber());
                     return invoke;
@@ -555,7 +555,7 @@ public class DefaultSolver implements Solver {
                 if (isConcerned(literal)) {
                     Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
                     Context heapContext = contextSelector
-                        .selectHeapContext(csMethod, obj);
+                            .selectHeapContext(csMethod, obj);
                     addVarPointsTo(context, stmt.getLValue(), heapContext, obj);
                 }
                 return null;
@@ -677,7 +677,7 @@ public class DefaultSolver implements Solver {
             CSMethod csCallee = edge.getCallee();
             addCSMethod(csCallee);
             if (edge.getKind() != CallKind.OTHER
-                && !isIgnored(csCallee.getMethod())) {
+                    && !isIgnored(csCallee.getMethod())) {
                 Context callerCtx = edge.getCallSite().getContext();
                 Invoke callSite = edge.getCallSite().getCallSite();
                 Context calleeCtx = csCallee.getContext();

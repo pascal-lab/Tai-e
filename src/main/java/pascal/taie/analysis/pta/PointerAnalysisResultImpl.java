@@ -184,11 +184,11 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         }
         // TODO - properly handle non-exist base.field
         return ifieldPointsTo.computeIfAbsent(new Pair<>(base, field), p ->
-            removeContexts(csManager.getCSVarsOf(base)
-                .stream()
-                .flatMap(Pointer::objects)
-                .map(o -> csManager.getInstanceField(o, field))
-                .flatMap(InstanceField::objects)));
+                removeContexts(csManager.getCSVarsOf(base)
+                        .stream()
+                        .flatMap(Pointer::objects)
+                        .map(o -> csManager.getInstanceField(o, field))
+                        .flatMap(InstanceField::objects)));
     }
 
     @Override
@@ -204,7 +204,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             return Set.of();
         }
         return sfieldPointsTo.computeIfAbsent(field, f ->
-            removeContexts(csManager.getStaticField(field).objects()));
+                removeContexts(csManager.getStaticField(field).objects()));
     }
 
     @Override
@@ -219,11 +219,11 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             return Set.of();
         }
         return arrayPointsTo.computeIfAbsent(base, b ->
-            removeContexts(csManager.getCSVarsOf(b)
-                .stream()
-                .flatMap(Pointer::objects)
-                .map(csManager::getArrayIndex)
-                .flatMap(ArrayIndex::objects)));
+                removeContexts(csManager.getCSVarsOf(b)
+                        .stream()
+                        .flatMap(Pointer::objects)
+                        .map(csManager::getArrayIndex)
+                        .flatMap(ArrayIndex::objects)));
     }
 
     @Override
@@ -236,9 +236,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     @Override
     public boolean mayAlias(InstanceFieldAccess if1, InstanceFieldAccess if2) {
         return Objects.equals(
-            if1.getFieldRef().resolveNullable(),
-            if2.getFieldRef().resolveNullable())
-            && mayAlias(if1.getBase(), if2.getBase());
+                if1.getFieldRef().resolveNullable(),
+                if2.getFieldRef().resolveNullable())
+                && mayAlias(if1.getBase(), if2.getBase());
     }
 
     @Override

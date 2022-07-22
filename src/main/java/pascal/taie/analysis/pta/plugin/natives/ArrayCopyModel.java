@@ -83,13 +83,13 @@ class ArrayCopyModel implements Model {
     private Var getTempVar(Invoke invoke) {
         String name = "%native-arraycopy-temp" + tempVars.size();
         return tempVars.computeIfAbsent(invoke,
-            i -> new Var(i.getContainer(), name, object, -1));
+                i -> new Var(i.getContainer(), name, object, -1));
     }
 
     @Override
     public boolean isRelevantVar(Var var) {
         return srcVars.containsKey(var)
-            || destVars.containsKey(var);
+                || destVars.containsKey(var);
     }
 
     @Override
@@ -98,18 +98,18 @@ class ArrayCopyModel implements Model {
         if ((temp = srcVars.get(csVar.getVar())) != null) {
             CSVar csTemp = csManager.getCSVar(csVar.getContext(), temp);
             pts.objects()
-                .filter(CSObjs::isArray)
-                .map(csManager::getArrayIndex)
-                .forEach(srcIndex -> solver.addPFGEdge(srcIndex, csTemp,
-                    PointerFlowEdge.Kind.ARRAY_LOAD));
+                    .filter(CSObjs::isArray)
+                    .map(csManager::getArrayIndex)
+                    .forEach(srcIndex -> solver.addPFGEdge(srcIndex, csTemp,
+                            PointerFlowEdge.Kind.ARRAY_LOAD));
         }
         if ((temp = destVars.get(csVar.getVar())) != null) {
             CSVar csTemp = csManager.getCSVar(csVar.getContext(), temp);
             pts.objects()
-                .filter(CSObjs::isArray)
-                .map(csManager::getArrayIndex)
-                .forEach(destIndex -> solver.addPFGEdge(csTemp, destIndex,
-                    PointerFlowEdge.Kind.ARRAY_STORE, destIndex.getType()));
+                    .filter(CSObjs::isArray)
+                    .map(csManager::getArrayIndex)
+                    .forEach(destIndex -> solver.addPFGEdge(csTemp, destIndex,
+                            PointerFlowEdge.Kind.ARRAY_STORE, destIndex.getType()));
         }
     }
 }

@@ -53,11 +53,11 @@ class DoPriviledgedModel extends AbstractModel {
     DoPriviledgedModel(Solver solver) {
         super(solver);
         privilegedActionRun = Objects.requireNonNull(
-            hierarchy.getJREMethod("<java.security.PrivilegedAction: java.lang.Object run()>"))
-            .getRef();
+                        hierarchy.getJREMethod("<java.security.PrivilegedAction: java.lang.Object run()>"))
+                .getRef();
         privilegedExceptionActionRun = Objects.requireNonNull(
-            hierarchy.getJREMethod("<java.security.PrivilegedExceptionAction: java.lang.Object run()>"))
-            .getRef();
+                        hierarchy.getJREMethod("<java.security.PrivilegedExceptionAction: java.lang.Object run()>"))
+                .getRef();
     }
 
     Collection<JMethod> getDoPrivilegeds() {
@@ -107,7 +107,7 @@ class DoPriviledgedModel extends AbstractModel {
             }
             // select callee context
             Context calleeCtx = selector.selectContext(
-                csCallSite, recvObj, callee);
+                    csCallSite, recvObj, callee);
             // pass receiver object
             solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recvObj);
             // pass return value

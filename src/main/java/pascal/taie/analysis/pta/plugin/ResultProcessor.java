@@ -115,32 +115,32 @@ public class ResultProcessor implements Plugin {
         int varInsens = result.getVars().size();
         int varSens = result.getCSVars().size();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var pointers:",
-            format(varInsens), format(varSens)));
+                format(varInsens), format(varSens)));
         int objInsens = result.getObjects().size();
         int objSens = result.getCSObjects().size();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#objects:",
-            format(objInsens), format(objSens)));
+                format(objInsens), format(objSens)));
         int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
         int vptSizeSens = sum(result.getCSVars(), getSize);
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var points-to:",
-            format(vptSizeInsens), format(vptSizeSens)));
+                format(vptSizeInsens), format(vptSizeSens)));
         int sfptSizeSens = sum(result.getStaticFields(), getSize);
         logger.info(String.format("%-30s%s (sens)", "#static field points-to:",
-            format(sfptSizeSens)));
+                format(sfptSizeSens)));
         int ifptSizeSens = sum(result.getInstanceFields(), getSize);
         logger.info(String.format("%-30s%s (sens)", "#instance field points-to:",
-            format(ifptSizeSens)));
+                format(ifptSizeSens)));
         int aptSizeSens = sum(result.getArrayIndexes(), getSize);
         logger.info(String.format("%-30s%s (sens)", "#array points-to:",
-            format(aptSizeSens)));
+                format(aptSizeSens)));
         int reachableInsens = result.getCallGraph().getNumberOfMethods();
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#reachable methods:",
-            format(reachableInsens), format(reachableSens)));
+                format(reachableInsens), format(reachableSens)));
         int callEdgeInsens = (int) result.getCallGraph().edges().count();
         int callEdgeSens = (int) result.getCSCallGraph().edges().count();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#call graph edges:",
-            format(callEdgeInsens), format(callEdgeSens)));
+                format(callEdgeInsens), format(callEdgeSens)));
         logger.info("----------------------------------------");
     }
 
@@ -175,11 +175,11 @@ public class ResultProcessor implements Plugin {
     }
 
     private static void dumpPointers(
-        PrintStream out, Collection<? extends Pointer> pointers, String desc) {
+            PrintStream out, Collection<? extends Pointer> pointers, String desc) {
         out.println(HEADER + desc);
         pointers.stream()
-            .sorted(Comparator.comparing(Pointer::toString))
-            .forEach(p -> out.println(p + SEP + Streams.toString(p.objects())));
+                .sorted(Comparator.comparing(Pointer::toString))
+                .forEach(p -> out.println(p + SEP + Streams.toString(p.objects())));
         out.println();
     }
 
@@ -197,20 +197,20 @@ public class ResultProcessor implements Plugin {
             String expected = inputs.get(pointerStr);
             if (!given.equals(expected)) {
                 mismatches.add(String.format("%s, expected: %s, given: %s",
-                    pointerStr, expected, given));
+                        pointerStr, expected, given));
             }
         });
         inputs.keySet()
-            .stream()
-            .filter(Predicate.not(pointers::containsKey))
-            .forEach(pointerStr -> {
-                String expected = inputs.get(pointerStr);
-                mismatches.add(String.format("%s, expected: %s, given: null",
-                    pointerStr, expected));
-            });
+                .stream()
+                .filter(Predicate.not(pointers::containsKey))
+                .forEach(pointerStr -> {
+                    String expected = inputs.get(pointerStr);
+                    mismatches.add(String.format("%s, expected: %s, given: null",
+                            pointerStr, expected));
+                });
         if (!mismatches.isEmpty()) {
             throw new AnalysisException("Mismatches of points-to set\n" +
-                String.join("\n", mismatches));
+                    String.join("\n", mismatches));
         }
     }
 
@@ -218,21 +218,21 @@ public class ResultProcessor implements Plugin {
         try {
             Map<String, String> result = new LinkedHashMap<>();
             Files.lines(Path.of(input))
-                .filter(line -> line.contains(SEP))
-                .map(line -> line.split(SEP))
-                .forEach(s -> result.put(s[0], s[1]));
+                    .filter(line -> line.contains(SEP))
+                    .map(line -> line.split(SEP))
+                    .forEach(s -> result.put(s[0], s[1]));
             return result;
         } catch (IOException e) {
             throw new AnalysisException(
-                "Failed to read points-to set from " + input, e);
+                    "Failed to read points-to set from " + input, e);
         }
     }
 
     private static void addPointers(Map<String, Pointer> map,
                                     Collection<? extends Pointer> pointers) {
         pointers.stream()
-            .sorted(Comparator.comparing(Pointer::toString))
-            .forEach(p -> map.put(p.toString(), p));
+                .sorted(Comparator.comparing(Pointer::toString))
+                .forEach(p -> map.put(p.toString(), p));
     }
 
     private static void dumpTaintFlows(PrintStream out, PointerAnalysisResult result) {
@@ -258,7 +258,7 @@ public class ResultProcessor implements Plugin {
         logger.info("Comparing taint flows with {} ...", input);
         List<String> inputs = readTaintFlows(input);
         List<String> taintFlows = Lists.map(getTaintFlows(result),
-            TaintFlow::toString);
+                TaintFlow::toString);
         List<String> mismatches = new ArrayList<>();
         taintFlows.forEach(taintFlow -> {
             if (!inputs.contains(taintFlow)) {
@@ -272,7 +272,7 @@ public class ResultProcessor implements Plugin {
         });
         if (!mismatches.isEmpty()) {
             throw new AnalysisException("Mismatches of taint flow(s)\n" +
-                String.join("\n", mismatches));
+                    String.join("\n", mismatches));
         }
     }
 
@@ -280,12 +280,12 @@ public class ResultProcessor implements Plugin {
         try {
             List<String> taintFlows = new ArrayList<>();
             Files.lines(Path.of(input))
-                .filter(line -> line.startsWith("TaintFlow{") && line.contains(SEP))
-                .forEach(taintFlows::add);
+                    .filter(line -> line.startsWith("TaintFlow{") && line.contains(SEP))
+                    .forEach(taintFlows::add);
             return taintFlows;
         } catch (IOException e) {
             throw new AnalysisException(
-                "Failed to read taint flows from " + input, e);
+                    "Failed to read taint flows from " + input, e);
         }
     }
 }
