@@ -32,6 +32,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.Configs;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
@@ -46,6 +47,7 @@ import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -77,6 +79,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         G.reset();
 
         // set Soot options
+        soot.options.Options.v().set_output_dir(
+            new File(Configs.getOutputDir(), "sootOutput").toString());
         soot.options.Options.v().set_output_format(
                 soot.options.Options.output_format_jimple);
         soot.options.Options.v().set_keep_line_number(true);
@@ -93,7 +97,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             soot.options.Options.v().set_prepend_classpath(true);
         }
         if (options.isAllowPhantom()) {
-            // TODO: provide comprehensive handling for phantom classes
             soot.options.Options.v().set_allow_phantom_refs(true);
         }
         if (options.isPreBuildIR()) {

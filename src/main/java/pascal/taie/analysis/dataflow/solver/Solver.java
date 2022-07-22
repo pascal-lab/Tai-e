@@ -37,7 +37,7 @@ public interface Solver<Node, Fact> {
      * The default solver.
      */
     @SuppressWarnings("rawtypes")
-    Solver SOLVER = new FastSolver<>();
+    Solver SOLVER = new WorkListSolver<>();
 
     /**
      * Static factory method for obtaining a solver.

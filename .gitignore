@@ -1,9 +1,9 @@
 .gradle/
 .idea/
+bin/
 build/
-sootOutput/
-output/
 out/
+output/
 
 # MacOS hidden file
 .DS_Store

@@ -34,7 +34,7 @@ import java.util.TreeSet;
 /**
  * Work-list solver with optimization.
  */
-class FastSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
+class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
 
     @Override
     protected void initializeForward(DataflowAnalysis<Node, Fact> analysis,

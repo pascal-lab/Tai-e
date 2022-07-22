@@ -47,7 +47,8 @@ class _1TypeContextComputer extends ContextComputer {
             logger.debug("Empty receiver: {}", method);
             return 1;
         }
-        return (int) pta.getReceiverObjectsOf(method).stream()
+        return (int) pta.getReceiverObjectsOf(method)
+                .stream()
                 .map(Obj::getContainerType)
                 .distinct()
                 .count();
