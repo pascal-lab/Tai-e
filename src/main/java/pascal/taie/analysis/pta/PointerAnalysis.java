@@ -23,6 +23,8 @@
 package pascal.taie.analysis.pta;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
@@ -35,6 +37,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
@@ -50,9 +53,15 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.Timer;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
 public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
 
     public static final String ID = "pta";
+
+    private static final Logger logger = LogManager.getLogger(PointerAnalysis.class);
 
     public PointerAnalysis(AnalysisConfig config) {
         super(config);
@@ -102,8 +111,8 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
 
     private static void setPlugin(Solver solver, AnalysisOptions options) {
         CompositePlugin plugin = new CompositePlugin();
+        // add builtin plugins
         // To record elapsed time precisely, AnalysisTimer should be added at first.
-        // TODO: remove such order dependency?
         plugin.addPlugin(
                 new AnalysisTimer(),
                 new ClassInitializer(),
@@ -127,7 +136,30 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
             plugin.addPlugin(new TaintAnalysis());
         }
         plugin.addPlugin(new ResultProcessor());
+        // add plugins specified in options
+        //noinspection unchecked
+        addPlugins(plugin, (List<String>) options.get("plugins"));
+        // connects plugins and solver
         plugin.setSolver(solver);
         solver.setPlugin(plugin);
+    }
+
+    private static void addPlugins(CompositePlugin plugin,
+                                   List<String> pluginClasses) {
+        for (String pluginClass : pluginClasses) {
+            try {
+                Class<?> clazz = Class.forName(pluginClass);
+                Constructor<?> ctor = clazz.getConstructor();
+                Plugin newPlugin = (Plugin) ctor.newInstance();
+                plugin.addPlugin(newPlugin);
+            } catch (ClassNotFoundException e) {
+                logger.warn("Plugin class {} is not found", pluginClass);
+            } catch (InvocationTargetException | NoSuchMethodException |
+                    InstantiationException | IllegalAccessException e) {
+                logger.warn("Failed to create plugin instance for {}, " +
+                        "does the plugin class provide a public non-arg constructor?",
+                        pluginClass);
+            }
+        }
     }
 }

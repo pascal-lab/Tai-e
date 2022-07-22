@@ -2,9 +2,9 @@
   analysisClass: pascal.taie.analysis.pta.PointerAnalysis
   id: pta
   options:
-    cs: ci # | k-[obj/type/call]
-    implicit-entries: true # analyze implicit entries
     only-app: false # only analyze application code
+    implicit-entries: true # analyze implicit entries
+    cs: ci # | k-[obj/type/call]
     merge-string-constants: false
     merge-string-objects: true
     merge-string-builders: true
@@ -18,6 +18,7 @@
     reflection-log: null # path to reflection log
     taint-config: null # path to config file of taint analysis, when this file
                        # is given, taint analysis will be enabled
+    plugins: [] # | [ pluginClass, ... ]
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
