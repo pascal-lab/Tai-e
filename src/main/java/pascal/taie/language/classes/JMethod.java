@@ -118,7 +118,8 @@ public class JMethod extends ClassMember {
      * @return the annotation attached on the {@code i}-th parameter that is
      * of {@code type}. If such annotation is absent, {@code null} is returned.
      */
-    public @Nullable Annotation getParamAnnotation(int i, String type) {
+    @Nullable
+    public Annotation getParamAnnotation(int i, String type) {
         return paramAnnotations == null ? null :
                 paramAnnotations.get(i).getAnnotation(type);
     }

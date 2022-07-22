@@ -296,7 +296,8 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
         return nodes.get(index);
     }
 
-    @Nullable VarNode getVarNode(Var var) {
+    @Nullable
+    VarNode getVarNode(Var var) {
         return var2Node.get(var);
     }
 }

@@ -70,8 +70,8 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
             return false;
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<Map.Entry<K, V>> iterator() {
             return entryIterator();
         }

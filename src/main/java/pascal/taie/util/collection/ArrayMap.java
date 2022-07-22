@@ -119,8 +119,8 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
         return null;
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Set<Entry<K, V>> entrySet() {
         Set<Map.Entry<K, V>> es;
         return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
@@ -143,8 +143,8 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
 
     private class EntrySet extends AbstractSet<Entry<K, V>> {
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<Entry<K, V>> iterator() {
             return entries.iterator();
         }

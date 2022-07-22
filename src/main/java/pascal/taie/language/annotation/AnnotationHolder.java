@@ -49,7 +49,8 @@ public class AnnotationHolder {
         return annotations.containsKey(annotationType);
     }
 
-    public @Nullable Annotation getAnnotation(String annotationType) {
+    @Nullable
+    public Annotation getAnnotation(String annotationType) {
         return annotations.get(annotationType);
     }
 

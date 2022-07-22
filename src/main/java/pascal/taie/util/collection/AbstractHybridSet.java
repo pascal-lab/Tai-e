@@ -234,8 +234,8 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E> {
         return 0;
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Iterator<E> iterator() {
         if (singleton != null) {
             return new Iterator<>() {
@@ -308,8 +308,8 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E> {
         return changed;
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Object[] toArray() {
         if (singleton != null) {
             Object[] a = new Object[1];
@@ -322,8 +322,8 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E> {
         return new Object[0];
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(@Nonnull T[] a) {
         if (singleton != null) {

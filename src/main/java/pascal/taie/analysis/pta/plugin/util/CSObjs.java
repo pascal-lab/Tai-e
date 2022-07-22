@@ -50,8 +50,8 @@ public final class CSObjs {
      * Converts a CSObj of string constant to corresponding String.
      * If the object is not a string constant, then return null.
      */
-    public static @Nullable
-    String toString(CSObj csObj) {
+    @Nullable
+    public static String toString(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof StringLiteral ?
                 ((StringLiteral) alloc).getString() : null;
@@ -61,8 +61,8 @@ public final class CSObjs {
      * Converts a CSObj of class to corresponding JClass. If the object is
      * not a class constant, then return null.
      */
-    public static @Nullable
-    JClass toClass(CSObj csObj) {
+    @Nullable
+    public static JClass toClass(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         if (alloc instanceof ClassLiteral klass) {
             Type type = klass.getTypeValue();
@@ -80,8 +80,8 @@ public final class CSObjs {
      * Converts a CSObj of java.lang.reflect.Constructor to corresponding JMethod.
      * If the object does not represent a Constructor, then return null.
      */
-    public static @Nullable
-    JMethod toConstructor(CSObj csObj) {
+    @Nullable
+    public static JMethod toConstructor(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         if (alloc instanceof JMethod method) {
             if (method.isConstructor()) {
@@ -95,8 +95,8 @@ public final class CSObjs {
      * Converts a CSObj of java.lang.reflect.Method to corresponding JMethod.
      * If the object does not represent a Method, then return null.
      */
-    public static @Nullable
-    JMethod toMethod(CSObj csObj) {
+    @Nullable
+    public static JMethod toMethod(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         if (alloc instanceof JMethod method) {
             if (!method.isConstructor()) {
@@ -110,8 +110,8 @@ public final class CSObjs {
      * Converts a CSObj of java.lang.reflect.Method to corresponding JMethod.
      * If the object does not represent a Method, then return null.
      */
-    public static @Nullable
-    JField toField(CSObj csObj) {
+    @Nullable
+    public static JField toField(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof JField ? (JField) alloc : null;
     }
@@ -120,8 +120,8 @@ public final class CSObjs {
      * Converts a CSObj of class to corresponding type. If the object is
      * not a class constant, then return null.
      */
-    public static @Nullable
-    Type toType(CSObj csObj) {
+    @Nullable
+    public static Type toType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof ClassLiteral ?
                 ((ClassLiteral) alloc).getTypeValue() : null;
@@ -131,8 +131,8 @@ public final class CSObjs {
      * Converts a CSObj of MethodType to corresponding MethodType.
      * If the object is not a MethodType, then return null.
      */
-    public static @Nullable
-    MethodType toMethodType(CSObj csObj) {
+    @Nullable
+    public static MethodType toMethodType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodType ? (MethodType) alloc : null;
     }
@@ -141,8 +141,8 @@ public final class CSObjs {
      * Converts a CSObj of MethodHandle constant to corresponding MethodHandle.
      * If the object is not a MethodHandle constant, then return null.
      */
-    public static @Nullable
-    MethodHandle toMethodHandle(CSObj csObj) {
+    @Nullable
+    public static MethodHandle toMethodHandle(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodHandle ? (MethodHandle) alloc : null;
     }

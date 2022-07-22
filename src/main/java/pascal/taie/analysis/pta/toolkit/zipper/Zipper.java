@@ -213,7 +213,8 @@ public class Zipper {
     /**
      * @return containing method of {@code node}.
      */
-    private static @Nullable JMethod node2Method(FGNode node) {
+    @Nullable
+    private static JMethod node2Method(FGNode node) {
         if (node instanceof VarNode varNode) {
             return varNode.getVar().getMethod();
         } else {

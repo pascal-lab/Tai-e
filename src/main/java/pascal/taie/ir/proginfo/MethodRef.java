@@ -185,8 +185,8 @@ public class MethodRef extends MemberRef {
     }
 
     @Override
-    public @Nullable
-    JMethod resolveNullable() {
+    @Nullable
+    public JMethod resolveNullable() {
         if (method == null) {
             method = World.get().getClassHierarchy()
                     .resolveMethod(this);

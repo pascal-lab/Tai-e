@@ -191,8 +191,8 @@ public class JClass extends AbstractResultHolder
         return Modifier.hasSynthetic(modifiers);
     }
 
-    public @Nullable
-    JClass getSuperClass() {
+    @Nullable
+    public JClass getSuperClass() {
         return superClass;
     }
 
@@ -204,7 +204,8 @@ public class JClass extends AbstractResultHolder
         return outerClass != null;
     }
 
-    public @Nullable JClass getOuterClass() {
+    @Nullable
+    public JClass getOuterClass() {
         return outerClass;
     }
 
@@ -212,8 +213,8 @@ public class JClass extends AbstractResultHolder
         return declaredFields.values();
     }
 
-    public @Nullable
-    JField getDeclaredField(String fieldName) {
+    @Nullable
+    public JField getDeclaredField(String fieldName) {
         return declaredFields.get(fieldName);
     }
 
@@ -227,8 +228,8 @@ public class JClass extends AbstractResultHolder
      * @throws AmbiguousMethodException if this class has multiple methods
      *                                  with the given name.
      */
-    public @Nullable
-    JMethod getDeclaredMethod(String methodName) {
+    @Nullable
+    public JMethod getDeclaredMethod(String methodName) {
         JMethod result = null;
         for (JMethod method : declaredMethods.values()) {
             if (method.getName().equals(methodName)) {
@@ -247,13 +248,13 @@ public class JClass extends AbstractResultHolder
      * If the class has declared a method that has the same subsignature
      * as the given one, then returns the method; otherwise, returns null.
      */
-    public @Nullable
-    JMethod getDeclaredMethod(Subsignature subSignature) {
+    @Nullable
+    public JMethod getDeclaredMethod(Subsignature subSignature) {
         return declaredMethods.get(subSignature);
     }
 
-    public @Nullable
-    JMethod getClinit() {
+    @Nullable
+    public JMethod getClinit() {
         return getDeclaredMethod(Subsignature.getClinit());
     }
 
@@ -262,8 +263,8 @@ public class JClass extends AbstractResultHolder
         return annotationHolder.hasAnnotation(annotationType);
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Annotation getAnnotation(String annotationType) {
         return annotationHolder.getAnnotation(annotationType);
     }

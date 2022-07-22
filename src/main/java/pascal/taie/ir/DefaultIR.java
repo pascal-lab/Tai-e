@@ -71,7 +71,8 @@ public class DefaultIR extends AbstractResultHolder implements IR {
     }
 
     @Override
-    public @Nullable Var getThis() {
+    @Nullable
+    public Var getThis() {
         return thisVar;
     }
 

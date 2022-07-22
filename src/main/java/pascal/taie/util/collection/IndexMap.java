@@ -183,8 +183,8 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
             IndexMap.this.clear();
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<Entry<K, V>> iterator() {
             return new EntryIterator();
         }

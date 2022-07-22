@@ -281,20 +281,20 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
         return true;
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Collection<V> values() {
         return new Values();
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Set<Entry<K, V>> entrySet() {
         return new EntrySet();
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Set<K> keySet() {
         return new KeySet();
     }
@@ -341,13 +341,13 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
             AbstractHybridMap.this.clear();
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<K> iterator() {
             if (singleton_key != null) {
                 return new SingletonIterator<K>() {
-                    @Nonnull
                     @Override
+                    @Nonnull
                     public K next() {
                         return nextKey();
                     }
@@ -376,8 +376,8 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
             AbstractHybridMap.this.clear();
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<V> iterator() {
             if (singleton_key != null) {
                 return new SingletonIterator<V>() {
@@ -400,13 +400,13 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
     }
 
     private final class EntrySet extends AbstractSet<Entry<K, V>> {
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<Entry<K, V>> iterator() {
             if (singleton_key != null) {
                 return new SingletonIterator<Entry<K, V>>() {
-                    @Nonnull
                     @Override
+                    @Nonnull
                     public Entry<K, V> next() {
                         return nextEntry();
                     }

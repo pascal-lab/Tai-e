@@ -81,13 +81,15 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return the value to which the specified keys is mapped, or {@code null}
      * if this map contains no mapping for the keys.
      */
-    @Nullable V get(K1 key1, K2 key2);
+    @Nullable
+    V get(K1 key1, K2 key2);
 
     /**
      * @return an unmodifiable view of the second-level map for {@code key1},
      * or {@code null} if this map contains no mapping for the key.
      */
-    @Nullable Map<K2, V> get(K1 key1);
+    @Nullable
+    Map<K2, V> get(K1 key1);
 
     /**
      * Associates the specified value with the specified two-key pair in this map.
@@ -97,7 +99,8 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return the previous value associated with {@code key1} and {@code key2},
      * or {@code null} if there was no mapping for key2.
      */
-    @Nullable V put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value);
+    @Nullable
+    V put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value);
 
     /**
      * Copies all the mappings from the specified map to second-level map
@@ -116,7 +119,8 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return the value to which this map previously associated the key pair,
      * or {@code null} if the map contained no mapping for the key pair.
      */
-    @Nullable V remove(K1 key1, K2 key2);
+    @Nullable
+    V remove(K1 key1, K2 key2);
 
     /**
      * Removes all mappings with {@code key1} as the first key in this map.

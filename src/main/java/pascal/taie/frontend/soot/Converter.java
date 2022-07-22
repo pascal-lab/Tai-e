@@ -275,7 +275,8 @@ class Converter {
      *
      * @see VisibilityParameterAnnotationTag
      */
-    private static @Nullable List<AnnotationHolder> convertParamAnnotations(
+    @Nullable
+    private static List<AnnotationHolder> convertParamAnnotations(
             SootMethod sootMethod) {
         // in Soot, each VisibilityParameterAnnotationTag contains
         // the annotations for all parameters in the SootMethod

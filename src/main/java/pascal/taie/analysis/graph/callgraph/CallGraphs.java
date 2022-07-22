@@ -83,8 +83,8 @@ public final class CallGraphs {
         return getCallKind(invoke.getInvokeExp());
     }
 
-    public static @Nullable
-    JMethod resolveCallee(Type type, Invoke callSite) {
+    @Nullable
+    public static JMethod resolveCallee(Type type, Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         if (callSite.isInterface() || callSite.isVirtual()) {
             return World.get().getClassHierarchy()

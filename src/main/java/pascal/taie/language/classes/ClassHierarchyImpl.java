@@ -174,21 +174,21 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JClass getClass(JClassLoader loader, String name) {
+    @Nullable
+    public JClass getClass(JClassLoader loader, String name) {
         return loader.loadClass(name);
     }
 
     @Override
-    public @Nullable
-    JClass getClass(String name) {
+    @Nullable
+    public JClass getClass(String name) {
         // TODO: add warning for missing class loader
         return getClass(getDefaultClassLoader(), name);
     }
 
     @Override
-    public @Nullable
-    JMethod getMethod(String methodSig) {
+    @Nullable
+    public JMethod getMethod(String methodSig) {
         // TODO: add warning for ambiguous methods (due to classes
         //  with the same name)
         String className = StringReps.getClassNameOf(methodSig);
@@ -202,8 +202,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JField getField(String fieldSig) {
+    @Nullable
+    public JField getField(String fieldSig) {
         // TODO: add warning for ambiguous fields (due to classes
         //  with the same name)
         String className = StringReps.getClassNameOf(fieldSig);
@@ -216,14 +216,14 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JClass getJREClass(String name) {
+    @Nullable
+    public JClass getJREClass(String name) {
         return getClass(getBootstrapClassLoader(), name);
     }
 
     @Override
-    public @Nullable
-    JMethod getJREMethod(String methodSig) {
+    @Nullable
+    public JMethod getJREMethod(String methodSig) {
         String className = StringReps.getClassNameOf(methodSig);
         JClass jclass = getJREClass(className);
         if (jclass != null) {
@@ -235,8 +235,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JField getJREField(String fieldSig) {
+    @Nullable
+    public JField getJREField(String fieldSig) {
         String className = StringReps.getClassNameOf(fieldSig);
         JClass jclass = getJREClass(className);
         if (jclass != null) {
@@ -247,8 +247,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JMethod resolveMethod(MethodRef methodRef) {
+    @Nullable
+    public JMethod resolveMethod(MethodRef methodRef) {
         JClass declaringClass = methodRef.getDeclaringClass();
         JMethod method = lookupMethod(declaringClass,
                 methodRef.getSubsignature(), true);
@@ -263,8 +263,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JField resolveField(FieldRef fieldRef) {
+    @Nullable
+    public JField resolveField(FieldRef fieldRef) {
         return resolveField(fieldRef.getDeclaringClass(),
                 fieldRef.getName(), fieldRef.getType());
     }
@@ -310,8 +310,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JMethod dispatch(Type receiverType, MethodRef methodRef) {
+    @Nullable
+    public JMethod dispatch(Type receiverType, MethodRef methodRef) {
         JClass cls;
         if (receiverType instanceof ClassType) {
             cls = ((ClassType) receiverType).getJClass();
@@ -324,8 +324,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    public @Nullable
-    JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
+    @Nullable
+    public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.get(receiverClass, subsignature);
         if (target == null) {

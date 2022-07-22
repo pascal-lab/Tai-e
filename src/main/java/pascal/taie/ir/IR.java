@@ -49,7 +49,8 @@ public interface IR extends Iterable<Stmt>, ResultHolder {
      * @return the "this" variable in this IR.
      * If the method is static, then returns null.
      */
-    @Nullable Var getThis();
+    @Nullable
+    Var getThis();
 
     /**
      * @return the parameters in this IR ("this" variable is excluded).

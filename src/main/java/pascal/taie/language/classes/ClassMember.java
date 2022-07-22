@@ -93,8 +93,8 @@ public abstract class ClassMember implements Annotated {
         return annotationHolder.hasAnnotation(annotationType);
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Annotation getAnnotation(String annotationType) {
         return annotationHolder.getAnnotation(annotationType);
     }

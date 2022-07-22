@@ -106,8 +106,8 @@ public final class Views {
             return contains.test(o);
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<R> iterator() {
             return new Iterator<>() {
 
@@ -219,8 +219,8 @@ public final class Views {
             return backing.contains(o) && filter.test((T) o);
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<T> iterator() {
             return new FilteredIterator();
         }
@@ -312,7 +312,8 @@ public final class Views {
         }
 
         @Override
-        public @Nonnull Iterator<T> iterator() {
+        @Nonnull
+        public Iterator<T> iterator() {
             return new Iterator<>() {
 
                 private final Iterator<? extends T> it1 = set1.iterator();

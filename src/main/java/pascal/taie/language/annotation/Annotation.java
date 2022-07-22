@@ -66,7 +66,8 @@ public class Annotation {
         return elements.containsKey(name);
     }
 
-    public @Nullable Element getElement(String name) {
+    @Nullable
+    public Element getElement(String name) {
         return elements.get(name);
     }
 

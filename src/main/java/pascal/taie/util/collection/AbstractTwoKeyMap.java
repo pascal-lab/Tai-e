@@ -60,8 +60,8 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
         return false;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public V get(K1 key1, K2 key2) {
         Map<K2, V> map = get(key1);
         return map == null ? null : map.get(key2);
@@ -92,8 +92,8 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
             return false;
         }
 
-        @Nonnull
         @Override
+        @Nonnull
         public Iterator<TwoKeyMap.Entry<K1, K2, V>> iterator() {
             return entryIterator();
         }

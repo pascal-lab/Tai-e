@@ -70,6 +70,6 @@ public abstract class MemberRef {
      * @return the concrete class member pointed by this reference,
      * or null if the member cannot be resolved.
      */
-    public abstract @Nullable
-    ClassMember resolveNullable();
+    @Nullable
+    public abstract ClassMember resolveNullable();
 }

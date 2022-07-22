@@ -84,14 +84,14 @@ public class ArraySet<E> extends AbstractSetEx<E> {
         return elements.contains(o);
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Object[] toArray() {
         return elements.toArray();
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public <T> T[] toArray(@Nonnull T[] a) {
         //noinspection SuspiciousToArrayCall
         return elements.toArray(a);
@@ -138,8 +138,8 @@ public class ArraySet<E> extends AbstractSetEx<E> {
         elements.clear();
     }
 
-    @Nonnull
     @Override
+    @Nonnull
     public Iterator<E> iterator() {
         return elements.iterator();
     }

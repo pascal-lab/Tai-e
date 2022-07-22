@@ -120,8 +120,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
      * kind, source, and target of the given edge, returns the existing edge,
      * otherwise returns null.
      */
-    private @Nullable
-    Edge<N> getExistingEdge(Edge<N> edge) {
+    @Nullable
+    private Edge<N> getExistingEdge(Edge<N> edge) {
         for (Edge<N> outEdge : outEdges.get(edge.getSource())) {
             if (outEdge.getTarget().equals(edge.getTarget()) &&
                     outEdge.getKind() == edge.getKind()) {

@@ -48,7 +48,8 @@ public interface Annotated {
      * @return the {@link Annotation} of type {@code annotationType} if
      * it is present in this annotated; otherwise, {@code null} is returned.
      */
-    @Nullable Annotation getAnnotation(String annotationType);
+    @Nullable
+    Annotation getAnnotation(String annotationType);
 
     /**
      * @return all annotations in this annotated object.

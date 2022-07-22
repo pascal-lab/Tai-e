@@ -256,7 +256,8 @@ class PFGBuilder {
         return outEdges;
     }
 
-    private @Nullable VarNode getAssignedNode(Obj obj) {
+    @Nullable
+    private VarNode getAssignedNode(Obj obj) {
         if (obj.getAllocation() instanceof New newStmt) {
             Var lhs = newStmt.getLValue();
             return ofg.getVarNode(lhs);

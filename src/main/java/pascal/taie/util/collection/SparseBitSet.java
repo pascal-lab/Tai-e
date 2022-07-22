@@ -994,7 +994,8 @@ public class SparseBitSet extends AbstractBitSet {
      * @param w2    level 2 index
      * @return the block if it is present in the table, or {@code null} if absent.
      */
-    private static @Nullable long[] getBlock(long[][][] table, int w1, int w2) {
+    @Nullable
+    private static long[] getBlock(long[][][] table, int w1, int w2) {
         return w1 < table.length && table[w1] != null ? table[w1][w2] : null;
     }
 

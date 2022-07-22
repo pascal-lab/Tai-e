@@ -43,8 +43,8 @@ public class Return extends AbstractStmt {
         this(null);
     }
 
-    public @Nullable
-    Var getValue() {
+    @Nullable
+    public Var getValue() {
         return value;
     }
 
