@@ -52,7 +52,7 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
 
     public CFGBuilder(AnalysisConfig config) {
         super(config);
-        noException = getOptions().getString("exception").equals("none");
+        noException = getOptions().getString("exception") == null;
         isDump = getOptions().getBoolean("dump");
     }
 

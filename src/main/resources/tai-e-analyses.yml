@@ -2,9 +2,9 @@
   analysisClass: pascal.taie.analysis.pta.PointerAnalysis
   id: pta
   options:
+    cs: ci # | k-[obj/type/call]
     only-app: false # only analyze application code
     implicit-entries: true # analyze implicit entries
-    cs: ci # | k-[obj/type/call]
     merge-string-constants: false
     merge-string-objects: true
     merge-string-builders: true
@@ -52,7 +52,7 @@
   id: cfg
   requires: [ throw(exception=explicit|all) ]
   options:
-    exception: explicit # | none | all (includes implicit and explicit exceptions)
+    exception: explicit # | null | all (includes implicit and explicit exceptions)
     dump: false # dump control-flow graph
 
 - description: interprocedural control-flow graph

@@ -28,6 +28,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.config.ConfigException;
 import pascal.taie.config.Scope;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
@@ -73,11 +74,16 @@ public class AnalysisManager {
             } else if (analysis instanceof MethodAnalysis) {
                 runMethodAnalysis((MethodAnalysis<?>) analysis);
             } else {
-                logger.warn(clazz + " is not an analysis");
+                throw new ConfigException(clazz + " is not an analysis class");
             }
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                InstantiationException | IllegalAccessException |
-                InvocationTargetException e) {
+        } catch (ClassNotFoundException  e) {
+            throw new AnalysisException("Analysis class " +
+                    config.getAnalysisClass() + " is not found", e);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new AnalysisException("Failed to get constructor " +
+                    config.getAnalysisClass() + "(AnalysisConfig), " +
+                    "thus the analysis cannot be executed by Tai-e", e);
+        } catch (InstantiationException | InvocationTargetException e) {
             throw new AnalysisException("Failed to initialize " +
                     config.getAnalysisClass(), e);
         }

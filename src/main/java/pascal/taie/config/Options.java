@@ -81,28 +81,6 @@ public class Options {
 
     // ---------- program options ----------
     @JsonProperty
-    @Option(names = "-java",
-            description = "Java version used by the program being analyzed" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "6")
-    private int javaVersion = 6;
-
-    public int getJavaVersion() {
-        return javaVersion;
-    }
-
-    @JsonProperty
-    @Option(names = {"-pp", "--prepend-JVM"},
-            description = "Prepend class path of current JVM to Tai-e's class path" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "false")
-    private boolean prependJVM = false;
-
-    public boolean isPrependJVM() {
-        return prependJVM;
-    }
-
-    @JsonProperty
     @Option(names = {"-cp", "--class-path"},
             description = "Class path, multiple paths can be split by ';'",
             split = ";")
@@ -129,6 +107,28 @@ public class Options {
 
     public List<String> getInputClasses() {
         return inputClasses;
+    }
+
+    @JsonProperty
+    @Option(names = "-java",
+            description = "Java version used by the program being analyzed" +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "6")
+    private int javaVersion = 6;
+
+    public int getJavaVersion() {
+        return javaVersion;
+    }
+
+    @JsonProperty
+    @Option(names = {"-pp", "--prepend-JVM"},
+            description = "Prepend class path of current JVM to Tai-e's class path" +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
+    private boolean prependJVM = false;
+
+    public boolean isPrependJVM() {
+        return prependJVM;
     }
 
     @JsonProperty
@@ -184,16 +184,6 @@ public class Options {
 
     public boolean enableNativeModel() {
         return nativeModel;
-    }
-
-    @JsonProperty
-    @Option(names = "--dump-classes",
-            description = "Dump classes  (default: ${DEFAULT-VALUE})",
-            defaultValue = "false")
-    private boolean dumpClasses = false;
-
-    public boolean isDumpClasses() {
-        return dumpClasses;
     }
 
     // ---------- specific analysis options ----------
@@ -302,21 +292,20 @@ public class Options {
         }
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "Options{" +
                 "optionsFile=" + optionsFile +
                 ", printHelp=" + printHelp +
+                ", classPath=" + classPath +
+                ", mainClass='" + mainClass + '\'' +
+                ", inputClasses=" + inputClasses +
                 ", javaVersion=" + javaVersion +
                 ", prependJVM=" + prependJVM +
-                ", classPath='" + classPath + '\'' +
-                ", mainClass='" + mainClass + '\'' +
                 ", allowPhantom=" + allowPhantom +
                 ", worldBuilderClass=" + worldBuilderClass +
                 ", preBuildIR=" + preBuildIR +
-                ", scope='" + scope + '\'' +
+                ", scope=" + scope +
                 ", nativeModel=" + nativeModel +
-                ", dumpClasses=" + dumpClasses +
                 ", planFile=" + planFile +
                 ", analyses=" + analyses +
                 ", onlyGenPlan=" + onlyGenPlan +

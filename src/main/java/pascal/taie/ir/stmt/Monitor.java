@@ -32,10 +32,6 @@ import java.util.List;
  */
 public class Monitor extends AbstractStmt {
 
-    // TODO: hide Op? To achieve this, we can replace the constructors
-    //  to static factory methods, e.g., Monitor.newEnter(var).
-    //  But for consistency, we also need to modify all other Stmt
-    //  and replace their constructors by static factory methods.
     public enum Op {
         ENTER("enter"), EXIT("exit");
 

@@ -36,6 +36,8 @@ import java.util.List;
 
 /**
  * Manages the whole-program information of the program being analyzed.
+ * Note that the setters of this class are protected: they are supposed
+ * to be called (once) by the world builder, not analysis classes.
  */
 public final class World extends AbstractResultHolder {
 

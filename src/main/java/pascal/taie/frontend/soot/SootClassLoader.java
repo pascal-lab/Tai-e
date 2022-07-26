@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.soot;
 
-import pascal.taie.World;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
@@ -34,8 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 class SootClassLoader implements JClassLoader {
-
-    private static final ClassDumper classDumper = new ClassDumper();
 
     private final Scene scene;
 
@@ -57,10 +54,9 @@ class SootClassLoader implements JClassLoader {
     public JClass loadClass(String name) {
         JClass jclass = classes.get(name);
         if (jclass == null) {
-            // TODO: confirm if this API is suitable
             SootClass sootClass = scene.getSootClassUnsafe(name, false);
             if (sootClass != null && (!sootClass.isPhantom() || allowPhantom)) {
-                // TODO: handle phantom class appropriately
+                // TODO: handle phantom class more comprehensively
                 jclass = new JClass(this, sootClass.getName(),
                         sootClass.moduleName);
                 // New class must be put into classes map at first,
@@ -70,9 +66,6 @@ class SootClassLoader implements JClassLoader {
                 classes.put(name, jclass);
                 new SootClassBuilder(converter, sootClass).build(jclass);
                 hierarchy.addClass(jclass);
-                if (World.get().getOptions().isDumpClasses()) {
-                    classDumper.dump(sootClass);
-                }
             }
         }
         // TODO: add warning for missing classes

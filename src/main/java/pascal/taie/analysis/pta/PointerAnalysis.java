@@ -23,8 +23,6 @@
 package pascal.taie.analysis.pta;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;
@@ -51,6 +49,8 @@ import pascal.taie.analysis.pta.toolkit.scaler.Scaler;
 import pascal.taie.analysis.pta.toolkit.zipper.Zipper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
+import pascal.taie.config.ConfigException;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Timer;
 
 import java.lang.reflect.Constructor;
@@ -60,8 +60,6 @@ import java.util.List;
 public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
 
     public static final String ID = "pta";
-
-    private static final Logger logger = LogManager.getLogger(PointerAnalysis.class);
 
     public PointerAnalysis(AnalysisConfig config) {
         super(config);
@@ -137,7 +135,7 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         }
         plugin.addPlugin(new ResultProcessor());
         // add plugins specified in options
-        //noinspection unchecked
+        // noinspection unchecked
         addPlugins(plugin, (List<String>) options.get("plugins"));
         // connects plugins and solver
         plugin.setSolver(solver);
@@ -153,12 +151,15 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 Plugin newPlugin = (Plugin) ctor.newInstance();
                 plugin.addPlugin(newPlugin);
             } catch (ClassNotFoundException e) {
-                logger.warn("Plugin class {} is not found", pluginClass);
-            } catch (InvocationTargetException | NoSuchMethodException |
-                    InstantiationException | IllegalAccessException e) {
-                logger.warn("Failed to create plugin instance for {}, " +
-                        "does the plugin class provide a public non-arg constructor?",
-                        pluginClass);
+                throw new ConfigException(
+                        "Plugin class " + pluginClass + " is not found");
+            } catch (IllegalAccessException | NoSuchMethodException e) {
+                throw new AnalysisException("Failed to get constructor of " +
+                        pluginClass + ", does the plugin class" +
+                        " provide a public non-arg constructor?");
+            } catch (InvocationTargetException | InstantiationException e) {
+                throw new AnalysisException(
+                        "Failed to create plugin instance for " + pluginClass, e);
             }
         }
     }
