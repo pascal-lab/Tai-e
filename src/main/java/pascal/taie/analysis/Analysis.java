@@ -22,11 +22,10 @@
 
 package pascal.taie.analysis;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
+import pascal.taie.util.AnalysisException;
 
 import java.lang.reflect.Field;
 
@@ -34,8 +33,6 @@ import java.lang.reflect.Field;
  * Abstract base class for all analyses.
  */
 public abstract class Analysis {
-
-    private static final Logger logger = LogManager.getLogger(Analysis.class);
 
     /**
      * Configuration of this analysis.
@@ -58,11 +55,8 @@ public abstract class Analysis {
     }
 
     /**
-     * Checks if the ID in the config file and the ID in the program
-     * of an analysis are consistent.
-     * <p>
-     * We assume that each analysis class has a static field named "ID",
-     * which is its analysis id used in Tai-e.
+     * Checks if this analysis class declares a public static field "ID"
+     * and its value is identical to the analysis id in the configuration.
      */
     private void validateId() {
         Class<?> analysisClass = getClass();
@@ -75,7 +69,9 @@ public abstract class Analysis {
                         getId(), id, analysisClass));
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            logger.warn("Failed to obtain analysis ID of {}", analysisClass);
+            throw new AnalysisException(String.format("Failed to get analysis ID of %s," +
+                    " please add public static field 'ID' in %s" +
+                    analysisClass, analysisClass));
         }
     }
 }
