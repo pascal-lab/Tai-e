@@ -69,19 +69,17 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
     private static void processOptions(CallGraph<Invoke, JMethod> callGraph,
                                        AnalysisOptions options) {
         String action = options.getString("action");
-        if (action == null) {
-            return;
+        if ("dump".equals(action)) {
+            String file = options.getString("file");
+            CallGraphs.dumpCallGraph(callGraph, file);
         }
-        switch (action) {
-            case "dump" -> {
-                String file = options.getString("file");
-                CallGraphs.dumpCallGraph(callGraph, file);
-            }
-            case "dump-recall" -> {
-                List<String> files = (List<String>) options.get("file");
-                CallGraphs.dumpMethods(callGraph, files.get(0));
-                CallGraphs.dumpCallEdges(callGraph, files.get(1));
-            }
+        String methodsFile = options.getString("dump-methods");
+        if (methodsFile != null) {
+            CallGraphs.dumpMethods(callGraph, methodsFile);
+        }
+        String callEdgesFile = options.getString("dump-call-edges");
+        if (callEdgesFile != null) {
+            CallGraphs.dumpCallEdges(callGraph, callEdgesFile);
         }
     }
 }

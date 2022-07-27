@@ -28,6 +28,8 @@
     algorithm: pta # | cha
     action: null # | dump | dump-recall
     file: null # path to output files
+    dump-methods: null # path to reachable methods output file
+    dump-call-edges: null # path to call edges output file
 
 - description: identify casts that may fail
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast
