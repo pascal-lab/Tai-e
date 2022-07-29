@@ -74,7 +74,23 @@ public class AnalysisOptions {
         this.options.putAll(options.options);
     }
 
+    /**
+     * @return {@code true} if this AnalysisOptions contains value
+     * for given option key.
+     */
+    public boolean has(String key) {
+        return options.containsKey(key);
+    }
+
+    /**
+     * @return value for given option key.
+     * @throws ConfigException if this AnalysisOptions do not contain the key.
+     */
     public Object get(String key) {
+        if (!has(key)) {
+            throw new ConfigException("Cannot find option '" + key + "'," +
+                    " please check your configuration and option key");
+        }
         return options.get(key);
     }
 
