@@ -29,6 +29,7 @@ import pascal.taie.language.natives.EmptyNativeModel;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeSystem;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +63,15 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
         if (options.isPrependJVM()) {
             return options.getClassPath();
         } else { // when prependJVM is not set, we manually specify JRE jars
+            // check existence of JREs
+            File jreDir = new File(JREs);
+            if (!jreDir.exists()) {
+                throw new RuntimeException("""
+                        Failed to locate Java library.
+                        Please clone submodule 'java-benchmarks' by command:
+                        git submodule update --init --recursive
+                        and put it in Tai-e's working directory.""");
+            }
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
@@ -70,8 +80,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                                 options.getClassPath().stream())
                         .toList();
             } catch (IOException e) {
-                throw new RuntimeException("Analysis on Java " + options.getJavaVersion() +
-                        " is not supported yet", e);
+                throw new RuntimeException("Analysis on Java " +
+                        options.getJavaVersion() + " library is not supported yet", e);
             }
         }
     }
