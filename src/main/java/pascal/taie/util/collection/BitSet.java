@@ -348,7 +348,7 @@ public interface BitSet extends Copyable<BitSet> {
      * Creates a new set.
      */
     static BitSet newBitSet(boolean isSparse) {
-        return isSparse ? new SparseBitSet() : new SimpleBitSet();
+        return isSparse ? new SparseBitSet() : new RegularBitSet();
     }
 
     /**

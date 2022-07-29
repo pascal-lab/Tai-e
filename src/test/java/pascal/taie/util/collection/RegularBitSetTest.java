@@ -22,7 +22,7 @@
 
 package pascal.taie.util.collection;
 
-public class SimpleBitSetTest extends BitSetTest {
+public class RegularBitSetTest extends BitSetTest {
 
     @Override
     protected BitSet of(int... indexes) {

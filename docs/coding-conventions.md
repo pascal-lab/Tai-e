@@ -1,8 +1,6 @@
-## License Header
+## Style
+TODO: apply style tool
 
-## Naming
-
-## Style (TODO: use style tool)
 ### Import
 - Wildcard imports (`import x.y.*`) should not be used.
 - Imports should be sorted (use `Ctrl+Alt+o` in IntelliJ IDEA)
@@ -26,17 +24,17 @@ class Graph {
 }
 ```
 
-### Output (use Logger)
-
+### Output via Logger
+Always use logger to output messages.
 
 ### Annotation (@Override, @Nullable, @Nonnull, ...)
 Always add `@Override` annotation for overridden methods.
 
-For the methods that may return `null`, add `@Nullable` annotation to their return values. For example, `public @Nullable X getX()`.
+For the methods that may return `null`, annotate them with `@Nullable`.
 
 For the methods that require non-`null` arguments, add `@Nonnull` annotation to the specific parameters, For example, `void setX(@Nonnull x)`.
 
-### Use Tai-e Library
+### Use Tai-e Util
 - Use `Sets`/`Maps` to create Sets/Maps.
 When creating Set/Map, use proper `Sets.newSet`/`Maps.newMap()` factory methods instead of `new HashSet/Map<>()`.
 

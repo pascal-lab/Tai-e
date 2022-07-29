@@ -31,8 +31,6 @@ import pascal.taie.config.ConfigException;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.List;
-
 public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>> {
 
     public static final String ID = "cg";
@@ -68,10 +66,9 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
 
     private static void processOptions(CallGraph<Invoke, JMethod> callGraph,
                                        AnalysisOptions options) {
-        String action = options.getString("action");
-        if ("dump".equals(action)) {
-            String file = options.getString("file");
-            CallGraphs.dumpCallGraph(callGraph, file);
+        String dumpFile = options.getString("dump");
+        if (dumpFile != null) {
+            CallGraphs.dumpCallGraph(callGraph, dumpFile);
         }
         String methodsFile = options.getString("dump-methods");
         if (methodsFile != null) {

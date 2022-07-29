@@ -10,11 +10,11 @@
     merge-string-builders: true
     merge-exception-objects: true
     handle-invokedynamic: false
-    pre: null # specify pre-analysis
+    advanced: null # specify advanced analysis
       # scaler | scaler=TST
       # zipper | zipper-e | zipper-e=PV
     action: null # | dump | compare
-    file: null # path to input/output file
+    action-file: null # path of file to dump/compare
     reflection-log: null # path to reflection log
     taint-config: null # path to config file of taint analysis, when this file
                        # is given, taint analysis will be enabled
@@ -26,10 +26,9 @@
   requires: [ pta(algorithm=pta) ]
   options:
     algorithm: pta # | cha
-    action: null # | dump | dump-recall
-    file: null # path to output files
-    dump-methods: null # path to reachable methods output file
-    dump-call-edges: null # path to call edges output file
+    dump: null # path of file to dump reachable methods and call edges
+    dump-methods: null # path of file to dump reachable methods
+    dump-call-edges: null # path of file to dump to call edges
 
 - description: identify casts that may fail
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast
@@ -106,9 +105,9 @@
   id: process-result
   options:
     analyses: [ ] # IDs of analyses whose results are to be processed
-    only-app: true # | false # only process results of application code
+    only-app: true # only process results of application code
     action: dump # | compare
-    file: null
+    action-file: null # path of file to dump/compare
     log-mismatches: false # | whether log mismatched items
 
 - description: dump classes

@@ -84,7 +84,7 @@ public final class Tests {
         // set up result processor
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
         String file = getExpectedFile(classPath, main, id);
-        String processArg = String.format("%s=analyses:[%s];action:%s;file:%s",
+        String processArg = String.format("%s=analyses:[%s];action:%s;action-file:%s",
                 ResultProcessor.ID, id, action, file);
         Collections.addAll(args, "-a", processArg);
         Main.main(args.toArray(new String[0]));
@@ -113,7 +113,7 @@ public final class Tests {
             String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
             ptaArgs.add("action:" + action);
             String file = getExpectedFile(classPath, main, id);
-            ptaArgs.add("file:" + file);
+            ptaArgs.add("action-file:" + file);
         }
         boolean specifyOnlyApp = false;
         for (String opt : opts) {

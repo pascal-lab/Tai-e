@@ -25,11 +25,11 @@ package pascal.taie.util.collection;
 import java.util.Arrays;
 
 /**
- * Simple bit set implementation.
+ * Regular bit set implementation.
  * This implementation is very similar to {@link java.util.Set} which uses
  * a {@code long[]} to store all the set bits.
  */
-public class SimpleBitSet extends AbstractBitSet {
+public class RegularBitSet extends AbstractBitSet {
 
     /* Used to shift left or right for a partial word mask */
     private static final long WORD_MASK = 0xffffffffffffffffL;
@@ -47,7 +47,7 @@ public class SimpleBitSet extends AbstractBitSet {
     /**
      * Creates a new bit set. All bits are initially {@code false}.
      */
-    public SimpleBitSet() {
+    public RegularBitSet() {
         initWords(BITS_PER_WORD);
     }
 
@@ -60,7 +60,7 @@ public class SimpleBitSet extends AbstractBitSet {
      * @throws NegativeArraySizeException if the specified initial size
      *                                    is negative
      */
-    public SimpleBitSet(int nbits) {
+    public RegularBitSet(int nbits) {
         // nbits can't be negative; size 0 is OK
         if (nbits < 0)
             throw new NegativeArraySizeException("nbits < 0: " + nbits);
@@ -290,7 +290,7 @@ public class SimpleBitSet extends AbstractBitSet {
         if (this == set) {
             return true;
         }
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             return super.intersects(set);
         }
         for (int i = Math.min(wordsInUse, other.wordsInUse) - 1; i >= 0; i--)
@@ -305,7 +305,7 @@ public class SimpleBitSet extends AbstractBitSet {
             return true;
         }
 
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             return super.contains(set);
         }
 
@@ -329,7 +329,7 @@ public class SimpleBitSet extends AbstractBitSet {
         if (this == set) {
             return false;
         }
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             throw new UnsupportedOperationException(
                     String.format("%s does not support AND with %s",
                             this.getClass(), set.getClass()));
@@ -370,7 +370,7 @@ public class SimpleBitSet extends AbstractBitSet {
             clear();
             return changed;
         }
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             return super.andNot(set);
         }
 
@@ -399,7 +399,7 @@ public class SimpleBitSet extends AbstractBitSet {
         if (this == set) {
             return false;
         }
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             return super.or(set);
         }
 
@@ -440,11 +440,11 @@ public class SimpleBitSet extends AbstractBitSet {
 
     @Override
     public BitSet orDiff(BitSet set) {
-        SimpleBitSet diff = new SimpleBitSet();
+        RegularBitSet diff = new RegularBitSet();
         if (this == set) {
             return diff;
         }
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             return super.orDiff(set);
         }
         if (wordsInUse < other.wordsInUse) {
@@ -478,7 +478,7 @@ public class SimpleBitSet extends AbstractBitSet {
             clear();
             return changed;
         }
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             return super.xor(set);
         }
 
@@ -522,7 +522,7 @@ public class SimpleBitSet extends AbstractBitSet {
             return;
         }
 
-        if (!(set instanceof SimpleBitSet other)) {
+        if (!(set instanceof RegularBitSet other)) {
             super.setTo(set);
             return;
         }
@@ -614,7 +614,7 @@ public class SimpleBitSet extends AbstractBitSet {
      */
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof SimpleBitSet set))
+        if (!(obj instanceof RegularBitSet set))
             return false;
         if (this == obj)
             return true;
@@ -634,8 +634,8 @@ public class SimpleBitSet extends AbstractBitSet {
     }
 
     @Override
-    public SimpleBitSet copy() {
-        SimpleBitSet copy = new SimpleBitSet();
+    public RegularBitSet copy() {
+        RegularBitSet copy = new RegularBitSet();
         copy.wordsInUse = wordsInUse;
         copy.words = Arrays.copyOf(words, wordsInUse);
         return copy;

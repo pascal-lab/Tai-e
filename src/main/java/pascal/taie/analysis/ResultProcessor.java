@@ -118,7 +118,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
     }
 
     private void setOutput() {
-        String output = getOptions().getString("file");
+        String output = getOptions().getString("action-file");
         if (output != null) {
             try {
                 out = new PrintStream(output);
@@ -131,7 +131,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
     }
 
     private void readInputs() {
-        String input = getOptions().getString("file");
+        String input = getOptions().getString("action-file");
         Path path = Path.of(input);
         try {
             inputs = Maps.newMultiMap();

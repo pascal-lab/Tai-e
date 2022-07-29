@@ -91,7 +91,7 @@ public class ResultProcessor implements Plugin {
         if (action == null) {
             return;
         }
-        String file = options.getString("file");
+        String file = options.getString("action-file");
         boolean taintEnabled = options.getString("taint-config") != null;
         switch (action) {
             case "dump":

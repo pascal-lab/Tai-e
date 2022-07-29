@@ -70,22 +70,23 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         AnalysisOptions options = getOptions();
         HeapModel heapModel = new AllocationSiteBasedModel(options);
         ContextSelector selector = null;
-        String pre = options.getString("pre");
+        String advanced = options.getString("advanced");
         String cs = options.getString("cs");
-        if (pre != null) {
+        if (advanced != null) {
             // run context-insensitive analysis as pre-analysis
             PointerAnalysisResult preResult = runAnalysis(heapModel,
                     ContextSelectorFactory.makeCISelector());
-            if (pre.startsWith("scaler")) {
+            if (advanced.startsWith("scaler")) {
                 selector = Timer.runAndCount(() -> ContextSelectorFactory
-                                .makeGuidedSelector(Scaler.run(preResult, pre)),
+                                .makeGuidedSelector(Scaler.run(preResult, advanced)),
                         "Scaler", Level.INFO);
-            } else if (pre.startsWith("zipper")) {
+            } else if (advanced.startsWith("zipper")) {
                 selector = Timer.runAndCount(() -> ContextSelectorFactory
-                                .makeSelectiveSelector(cs, Zipper.run(preResult, pre)),
+                                .makeSelectiveSelector(cs, Zipper.run(preResult, advanced)),
                         "Zipper", Level.INFO);
             } else {
-                throw new IllegalArgumentException("Illegal pre-analysis argument: " + pre);
+                throw new IllegalArgumentException(
+                        "Illegal advanced analysis argument: " + advanced);
             }
         }
         if (selector == null) {
