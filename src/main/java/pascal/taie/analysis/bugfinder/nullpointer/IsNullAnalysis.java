@@ -1,4 +1,26 @@
-package pascal.taie.analysis.bugfinder.dataflow;
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package pascal.taie.analysis.bugfinder.nullpointer;
 
 import pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis;
 import pascal.taie.analysis.dataflow.analysis.AnalysisDriver;
@@ -7,12 +29,34 @@ import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.*;
-import pascal.taie.ir.stmt.*;
+import pascal.taie.ir.exp.ArrayLengthExp;
+import pascal.taie.ir.exp.ConditionExp;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.ReferenceLiteral;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.DefinitionStmt;
+import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Monitor;
+import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.Throw;
+import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.*;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.ReferenceType;
 
 public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
@@ -46,9 +90,9 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
         public IsNullFact newBoundaryFact(IR ir) {
             IsNullFact entryFact = newInitialFact();
             ir.getParams()
-                .stream()
-                .filter(var -> var.getType() instanceof ReferenceType)
-                .forEach(p -> entryFact.update(p, IsNullValue.nonReportingNotNullValue()));
+                    .stream()
+                    .filter(var -> var.getType() instanceof ReferenceType)
+                    .forEach(p -> entryFact.update(p, IsNullValue.nonReportingNotNullValue()));
 
             if (ir.getThis() != null) {
                 entryFact.update(ir.getThis(), IsNullValue.nonNullValue());
@@ -63,7 +107,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
                 IsNullValue value = null;
                 NullnessAnnotation nullnessAnnotation =
-                    NullnessAnnotation.resolveParameterAnnotation(method, paramIndex);
+                        NullnessAnnotation.resolveParameterAnnotation(method, paramIndex);
                 if (nullnessAnnotation == NullnessAnnotation.CHECK_FOR_NULL) {
                     value = IsNullValue.nullOnSimplePathValue();
                 } else if (nullnessAnnotation == NullnessAnnotation.NONNULL) {
@@ -94,7 +138,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 return;
             }
             fact.forEach((var, value) ->
-                target.update(var, IsNullValue.merge(value, target.get(var))));
+                    target.update(var, IsNullValue.merge(value, target.get(var))));
         }
 
         @Override
@@ -114,7 +158,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 public Boolean visit(AssignLiteral stmt) {
                     Var lValue = stmt.getLValue();
                     if (lValue.getType() instanceof ReferenceType
-                        && stmt.getRValue() instanceof ReferenceLiteral) {
+                            && stmt.getRValue() instanceof ReferenceLiteral) {
                         IsNullFact oldOut = out.copy();
                         out.copyFrom(in);
                         if (stmt.getRValue() instanceof NullLiteral) {
@@ -165,14 +209,14 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     out.copyFrom(in);
                     if (isAssertionCall(invokeMethod)) {// downgrade null value after an assertion call
                         out.entries()
-                            .filter(entry -> entry.getValue().isNullOnSomePath()
-                                || entry.getValue().isDefinitelyNull())
-                            .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
+                                .filter(entry -> entry.getValue().isNullOnSomePath()
+                                        || entry.getValue().isDefinitelyNull())
+                                .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
                         return !out.equals(oldOut);
                     } else { // use parameter annotation info
                         for (int paramIndex = 0; paramIndex < invokeMethod.getParamCount(); ++paramIndex) {
                             NullnessAnnotation nullnessAnnotation =
-                                NullnessAnnotation.resolveParameterAnnotation(invokeMethod, paramIndex);
+                                    NullnessAnnotation.resolveParameterAnnotation(invokeMethod, paramIndex);
                             if (nullnessAnnotation == NullnessAnnotation.NONNULL) {
                                 // todo: if arg is definitely null, should take special care for this case?
                                 out.update(stmt.getInvokeExp().getArg(paramIndex), IsNullValue.nonNullValue());
@@ -343,10 +387,10 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 resultFact = nodeFact.copy();
                 for (ClassType classType : edge.getExceptions()) {
                     if (classType.getName().equals(ClassNames.CLONE_NOT_SUPPORTED_EXCEPTION)
-                        || classType.getName().equals(ClassNames.INTERRUPTED_EXCEPTION)) {
+                            || classType.getName().equals(ClassNames.INTERRUPTED_EXCEPTION)) {
                         resultFact.entries()
-                            .filter(entry -> entry.getValue().isDefinitelyNull() || entry.getValue().isNullOnSomePath())
-                            .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
+                                .filter(entry -> entry.getValue().isDefinitelyNull() || entry.getValue().isNullOnSomePath())
+                                .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
                     }
                 }
             } else if (edge.getKind() == Edge.Kind.IF_TRUE || edge.getKind() == Edge.Kind.IF_FALSE) {
@@ -378,14 +422,14 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 Stmt target = edge.getTarget();
                 Var derefVar = target.accept(new NPEVarVisitor());
 
-                if(derefVar != null){
+                if (derefVar != null) {
                     IsNullValue derefVal = nodeFact.get(derefVar);
 
                     if (derefVal.isDefinitelyNull()) {
                         // then this edge is infeasible
                         resultFact = nodeFact.copy();
                         resultFact.setInvalid();
-                    } else if(!derefVal.isDefinitelyNotNull()){
+                    } else if (!derefVal.isDefinitelyNotNull()) {
                         // update the null value for the dereferenced value.
                         resultFact = nodeFact.copy();
                         // todo: use pta to update more Var
@@ -405,18 +449,18 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             String methodNameLC = methodName.toLowerCase();
 
             return className.endsWith("Assert") && methodName.startsWith("is")
-                || (returnType.equals("void") || returnType.equals("boolean"))
-                && (classNameLC.contains("assert") || methodNameLC.startsWith("throw")
-                || methodName.startsWith("affirm") || methodName.startsWith("panic")
-                || "logTerminal".equals(methodName) || methodName.startsWith("logAndThrow")
-                || "insist".equals(methodNameLC) || "usage".equals(methodNameLC)
-                || "exit".equals(methodNameLC) || methodNameLC.startsWith("fail")
-                || methodNameLC.startsWith("fatal") || methodNameLC.contains("assert")
-                || methodNameLC.contains("legal") || methodNameLC.contains("error")
-                || methodNameLC.contains("abort")
-                // || methodNameLC.indexOf("check") >= 0
-                || methodNameLC.contains("failed"))
-                || "addOrThrowException".equals(methodName);
+                    || (returnType.equals("void") || returnType.equals("boolean"))
+                    && (classNameLC.contains("assert") || methodNameLC.startsWith("throw")
+                    || methodName.startsWith("affirm") || methodName.startsWith("panic")
+                    || "logTerminal".equals(methodName) || methodName.startsWith("logAndThrow")
+                    || "insist".equals(methodNameLC) || "usage".equals(methodNameLC)
+                    || "exit".equals(methodNameLC) || methodNameLC.startsWith("fail")
+                    || methodNameLC.startsWith("fatal") || methodNameLC.contains("assert")
+                    || methodNameLC.contains("legal") || methodNameLC.contains("error")
+                    || methodNameLC.contains("abort")
+                    // || methodNameLC.indexOf("check") >= 0
+                    || methodNameLC.contains("failed"))
+                    || "addOrThrowException".equals(methodName);
         }
 
 
@@ -433,10 +477,10 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     if (subsignature.equals("boolean equals(java.lang.Object)")) {
                         return NullnessAnnotation.CHECK_FOR_NULL;
                     } else if (subsignature.equals("void main(java.lang.String[])")
-                        && method.isStatic()) {
+                            && method.isStatic()) {
                         return NullnessAnnotation.NONNULL;
                     } else if (method.getName().equals("compareTo")
-                        && method.getReturnType().getName().equals("boolean")) {
+                            && method.getReturnType().getName().equals("boolean")) {
                         return NullnessAnnotation.NONNULL;
                     }
                 }
@@ -463,18 +507,18 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             private static NullnessAnnotation parse(Annotation a) {
                 String className = a.getType();
                 if ("android.support.annotation.Nullable".equals(className)
-                    || "androidx.annotation.Nullable".equals(className)
-                    || "com.google.common.base.Nullable".equals(className)
-                    || "org.eclipse.jdt.annotation.Nullable".equals(className)
-                    || "org.jetbrains.annotations.Nullable".equals(className)
-                    || "org.checkerframework.checker.nullness.qual.Nullable".equals(className)
-                    || "org.checkerframework.checker.nullness.compatqual.NullableDecl".equals(className)
-                    || className.endsWith("PossiblyNull")
-                    || className.endsWith("CheckForNull")) {
+                        || "androidx.annotation.Nullable".equals(className)
+                        || "com.google.common.base.Nullable".equals(className)
+                        || "org.eclipse.jdt.annotation.Nullable".equals(className)
+                        || "org.jetbrains.annotations.Nullable".equals(className)
+                        || "org.checkerframework.checker.nullness.qual.Nullable".equals(className)
+                        || "org.checkerframework.checker.nullness.compatqual.NullableDecl".equals(className)
+                        || className.endsWith("PossiblyNull")
+                        || className.endsWith("CheckForNull")) {
                     return CHECK_FOR_NULL;
                 } else if ("org.jetbrains.annotations.NotNull".equals(className)
-                    || className.endsWith("Nonnull")
-                    || className.endsWith("NonNull")) {
+                        || className.endsWith("Nonnull")
+                        || className.endsWith("NonNull")) {
                     return NONNULL;
                 } else if (className.endsWith("Nullable")) {
                     return NULLABLE;
@@ -485,6 +529,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
         }
 
     }
+
     public static class NPEVarVisitor implements StmtVisitor<Var> {
         @Override
         public Var visitDefault(Stmt stmt) {
@@ -494,25 +539,25 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
         @Override
         public Var visit(LoadField stmt) {
             return stmt.isStatic() ?
-                null : ((InstanceFieldAccess) stmt.getFieldAccess()).getBase();
+                    null : ((InstanceFieldAccess) stmt.getFieldAccess()).getBase();
         }
 
         @Override
         public Var visit(StoreField stmt) {
             return stmt.isStatic() ?
-                null : ((InstanceFieldAccess) stmt.getFieldAccess()).getBase();
+                    null : ((InstanceFieldAccess) stmt.getFieldAccess()).getBase();
         }
 
         @Override
         public Var visit(Unary stmt) {
             return stmt.getRValue() instanceof ArrayLengthExp ?
-                ((ArrayLengthExp) stmt.getRValue()).getBase() : null;
+                    ((ArrayLengthExp) stmt.getRValue()).getBase() : null;
         }
 
         @Override
         public Var visit(Invoke stmt) {
             return stmt.isStatic() ?
-                null : ((InvokeInstanceExp) stmt.getInvokeExp()).getBase();
+                    null : ((InvokeInstanceExp) stmt.getInvokeExp()).getBase();
         }
 
         @Override

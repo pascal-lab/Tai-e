@@ -11,25 +11,13 @@
  */
 package pascal.taie.analysis.bugfinder;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import pascal.taie.Main;
-import pascal.taie.World;
 import pascal.taie.analysis.Tests;
-import pascal.taie.analysis.bugfinder.detector.DroppedException;
-import pascal.taie.ir.IRPrinter;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 public class DroppedExceptionTest {
 
     @Test
-    public void test(){
+    public void test() {
         Tests.test("DroppedException", "src/test/resources/bugfinder",
                 DroppedException.ID);
     }

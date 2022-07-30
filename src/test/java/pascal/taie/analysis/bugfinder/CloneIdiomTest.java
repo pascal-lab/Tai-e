@@ -3,37 +3,38 @@ package pascal.taie.analysis.bugfinder;
 import org.junit.Test;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
-import pascal.taie.analysis.bugfinder.detector.CloneIdiom;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
 
 public class CloneIdiomTest {
 
-    private void test(String mainClass){
+    private void test(String mainClass) {
         Tests.test(mainClass, "src/test/resources/bugfinder/CloneIdiom", CloneIdiom.ID);
         Set<BugInstance> bugInstances = Sets.newSet();
-        World.get().getClassHierarchy().applicationClasses().toList().forEach(jClass -> bugInstances.addAll(jClass.getResult(CloneIdiom.ID)));
-        return;
+        World.get()
+                .getClassHierarchy()
+                .applicationClasses()
+                .forEach(jClass -> bugInstances.addAll(jClass.getResult(CloneIdiom.ID)));
     }
 
     @Test
-    public void test1(){
+    public void test1() {
         test("CloneIdiom1");
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         test("CloneIdiom2");
     }
 
     @Test
-    public void test3(){
+    public void test3() {
         test("CloneIdiom3");
     }
 
     @Test
-    public void test4(){
+    public void test4() {
         test("CloneIdiom4");
     }
 }

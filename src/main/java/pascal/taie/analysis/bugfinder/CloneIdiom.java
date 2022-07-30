@@ -1,16 +1,34 @@
-package pascal.taie.analysis.bugfinder.detector;
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package pascal.taie.analysis.bugfinder;
 
 import pascal.taie.World;
 import pascal.taie.analysis.ClassAnalysis;
-import pascal.taie.analysis.bugfinder.BugInstance;
-import pascal.taie.analysis.bugfinder.Severity;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
@@ -21,7 +39,7 @@ import java.util.Set;
 
 public class CloneIdiom extends ClassAnalysis<Set<BugInstance>> {
 
-    public static String ID = "cloneidiom";
+    public static String ID = "clone-idiom";
 
     public CloneIdiom(AnalysisConfig config) {
         super(config);
@@ -78,11 +96,11 @@ public class CloneIdiom extends ClassAnalysis<Set<BugInstance>> {
         }
 
         //generate analysis result
-        if(implementsCloneableDirectly && !hasCloneMethod){
+        if (implementsCloneableDirectly && !hasCloneMethod) {
             bugInstances.add(new BugInstance("CN_IDIOM", Severity.MINOR).setClass(jclass));
         }
 
-        if(hasCloneMethod && isCloneable && !invokesSuperClone && !isFinal && jclass.isPublic()) {
+        if (hasCloneMethod && isCloneable && !invokesSuperClone && !isFinal && jclass.isPublic()) {
             bugInstances.add(new BugInstance("CN_IDIOM_NO_SUPER_CALL", Severity.MINOR).setClass(jclass));
         } else if (hasCloneMethod && !isCloneable && !cloneIsDeprecated && !jclass.isAbstract()) {
             bugInstances.add(new BugInstance("CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE", Severity.MINOR).setClass(jclass));

@@ -22,18 +22,15 @@
 
 package pascal.taie.analysis.bugfinder;
 
-public enum Severity {
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-    BLOCKER("High", "High"),
-    CRITICAL("High", "Low"),
-    MAJOR("Low", "High"),
-    MINOR("Low", "Low");
-
-    private final String impact;
-    private final String likelihood;
-
-    Severity(String impact, String likelihood) {
-        this.impact = impact;
-        this.likelihood = likelihood;
-    }
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+        CloneIdiomTest.class,
+        DroppedExceptionTest.class,
+        IsNullTest.class,
+        NullPointerDetectionTest.class,
+})
+public class BugFinderTestSuite {
 }

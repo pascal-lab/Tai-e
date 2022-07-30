@@ -1,15 +1,32 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package pascal.taie.analysis.bugfinder;
 
-import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
 import javax.annotation.Nonnull;
-
 import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 //TODO: refactor it with more precise context information.
 public class BugInstance {
@@ -40,29 +57,29 @@ public class BugInstance {
     }
 
     private String getString(Object o) {
-        return o == null ? "empty" :o.toString();
+        return o == null ? "empty" : o.toString();
     }
 
     @Override
     public String toString() {
         String sourcelineRange = "empty";
-        if(sourceLineStart >= 0){
+        if (sourceLineStart >= 0) {
             sourcelineRange = sourceLineStart == sourceLineEnd ? String.valueOf(sourceLineStart) :
-                sourceLineStart + "---" + sourceLineEnd;
+                    sourceLineStart + "---" + sourceLineEnd;
         }
         return String.format("Class: %s, Method: %s, LineNumber: %s. \nbug type: %s, severity: %s",
-            getString(jClass), getString(jMethod), sourcelineRange, type, severity
-            );
+                getString(jClass), getString(jMethod), sourcelineRange, type, severity
+        );
     }
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) return true;
-        if(!(o instanceof BugInstance bugInstance)) return false;
+        if (o == this) return true;
+        if (!(o instanceof BugInstance bugInstance)) return false;
 
         return type.equals(bugInstance.type) && jClass == bugInstance.jClass
-            && jMethod == bugInstance.jMethod && sourceLineStart == bugInstance.sourceLineStart
-            && sourceLineEnd == bugInstance.sourceLineEnd;
+                && jMethod == bugInstance.jMethod && sourceLineStart == bugInstance.sourceLineStart
+                && sourceLineEnd == bugInstance.sourceLineEnd;
     }
 
     @Override
@@ -75,7 +92,7 @@ public class BugInstance {
         return result;
     }
 
-    public static BugInstance newBugInstance(String type, Severity severity, JMethod method, int lineNum){
+    public static BugInstance newBugInstance(String type, Severity severity, JMethod method, int lineNum) {
         return new BugInstance(type, severity).setClassAndMethod(method).setSourceLine(lineNum);
     }
 

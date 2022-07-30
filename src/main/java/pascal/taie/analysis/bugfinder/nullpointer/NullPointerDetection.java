@@ -1,24 +1,39 @@
-package pascal.taie.analysis.bugfinder.detector;
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package pascal.taie.analysis.bugfinder.nullpointer;
 
 import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.bugfinder.BugInstance;
 import pascal.taie.analysis.bugfinder.Severity;
-import pascal.taie.analysis.bugfinder.dataflow.IsNullAnalysis;
-import pascal.taie.analysis.bugfinder.dataflow.IsNullConditionDecision;
-import pascal.taie.analysis.bugfinder.dataflow.IsNullFact;
-import pascal.taie.analysis.bugfinder.dataflow.IsNullValue;
 import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.graph.cfg.Edge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Sets;
 
@@ -26,7 +41,7 @@ import java.util.Set;
 
 public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
 
-    public static String ID = "nullpointer";
+    public static String ID = "null-pointer";
 
     public NullPointerDetection(AnalysisConfig config) {
         super(config);
@@ -50,21 +65,21 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
             Var derefVar = stmt.accept(new IsNullAnalysis.NPEVarVisitor());
             if (derefVar != null) {
                 IsNullFact prevFact = null;
-                for(Edge<Stmt> inEdge: cfg.getInEdgesOf(stmt)){
-                    if(inEdge.getKind() == Edge.Kind.FALL_THROUGH){
+                for (Edge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
+                    if (inEdge.getKind() == Edge.Kind.FALL_THROUGH) {
                         prevFact = nullValues.getOutFact(inEdge.getSource());
                     }
                 }
 
-                if(prevFact != null && prevFact.isValid()){
+                if (prevFact != null && prevFact.isValid()) {
                     IsNullValue derefVarValue = prevFact.get(derefVar);
-                    if(derefVarValue.isDefinitelyNull()){
+                    if (derefVarValue.isDefinitelyNull()) {
                         nullDerefs.add(
-                            BugInstance.newBugInstance("NP_ALWAYS_NULL", Severity.BLOCKER, ir.getMethod(), stmt.getLineNumber())
+                                BugInstance.newBugInstance("NP_ALWAYS_NULL", Severity.BLOCKER, ir.getMethod(), stmt.getLineNumber())
                         );
-                    } else if(derefVarValue.isNullOnSomePath()){
+                    } else if (derefVarValue.isNullOnSomePath()) {
                         nullDerefs.add(
-                            BugInstance.newBugInstance("NP_MAY_NULL", Severity.CRITICAL, ir.getMethod(), stmt.getLineNumber())
+                                BugInstance.newBugInstance("NP_MAY_NULL", Severity.CRITICAL, ir.getMethod(), stmt.getLineNumber())
                         );
                     }
                 }
@@ -80,7 +95,7 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
         for (Stmt stmt : ir.getStmts()) {
             if (stmt instanceof If ifStmt) {
                 IsNullFact fact = nullValues.getOutFact(stmt);
-                if(!fact.isValid()) {
+                if (!fact.isValid()) {
                     continue;
                 }
                 IsNullConditionDecision decision = fact.getDecision();
@@ -116,7 +131,7 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
 
                     if (bugType != null) {
                         redundantComparisons.add(
-                            BugInstance.newBugInstance(bugType, Severity.MAJOR, ir.getMethod(), stmt.getLineNumber())
+                                BugInstance.newBugInstance(bugType, Severity.MAJOR, ir.getMethod(), stmt.getLineNumber())
                         );
                     }
                 }

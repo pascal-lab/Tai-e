@@ -12,13 +12,13 @@
     handle-invokedynamic: false
     advanced: null # specify advanced analysis
       # scaler | scaler=TST
-      # zipper | zipper-e | zipper-e=PV
+    # zipper | zipper-e | zipper-e=PV
     action: null # | dump | compare
     action-file: null # path of file to dump/compare
     reflection-log: null # path to reflection log
     taint-config: null # path to config file of taint analysis, when this file
-                       # is given, taint analysis will be enabled
-    plugins: [] # | [ pluginClass, ... ]
+    # is given, taint analysis will be enabled
+    plugins: [ ] # | [ pluginClass, ... ]
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
@@ -120,14 +120,14 @@
   requires: [ throw,cfg ]
 
 - description: Null pointer and redundant comparison detector
-  analysisClass: pascal.taie.analysis.bugfinder.detector.NullPointerDetection
-  id: nullpointer
+  analysisClass: pascal.taie.analysis.bugfinder.nullpointer.NullPointerDetection
+  id: null-pointer
   requires: [ isnull ]
 
 - description: find clone() related problems
-  analysisClass: pascal.taie.analysis.bugfinder.detector.CloneIdiom
-  id: cloneidiom
+  analysisClass: pascal.taie.analysis.bugfinder.CloneIdiom
+  id: clone-idiom
 
-- description: find the method that may drop or ignore exception
-  analysisClass: pascal.taie.analysis.bugfinder.detector.DroppedException
+- description: find the method that may drop or ignore exceptions
+  analysisClass: pascal.taie.analysis.bugfinder.DroppedException
   id: dropped-exception

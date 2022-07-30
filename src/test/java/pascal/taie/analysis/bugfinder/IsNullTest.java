@@ -3,7 +3,7 @@ package pascal.taie.analysis.bugfinder;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
-import pascal.taie.analysis.bugfinder.dataflow.IsNullAnalysis;
+import pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,11 +11,10 @@ import java.util.List;
 
 public class IsNullTest {
 
-    String folderPath = "src/test/resources/bugfinder";
+    private static final String folderPath = "src/test/resources/bugfinder";
 
     void testIsNullValue(String inputClass) {
-        Tests.test(inputClass, folderPath,
-            IsNullAnalysis.ID);
+        Tests.test(inputClass, folderPath, IsNullAnalysis.ID);
     }
 
     @Test
