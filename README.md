@@ -1,14 +1,12 @@
 <div align="center">
-  <a href="https://tai-e.pascal-lab.net/">
-    <img src="tai-e-logo.png" height="200">
-  </a>
+  <img src="tai-e-logo.png" height="200">
 
 ## Tai-e
 </div>
 
 ## What is Tai-e?
 
-Tai-e (Chinese: 太阿; pronunciation: [ˈtaɪə:]) is a new static analysis framework for Java (please see [our technique report](http://cs.nju.edu.cn/tiantan/taie.pdf) for details), which features arguably the "best" designs from both the novel ones we proposed and those of classic frameworks such as Soot, WALA, Doop, and SpotBugs. Tai-e is easy-to-learn, easy-to-use, efficient, and highly extensible, allowing you to easily develop new analyses on top of it.
+Tai-e (Chinese: 太阿; pronunciation: [ˈtaɪə:]) is a new static analysis framework for Java (please see [our technical report](http://cs.nju.edu.cn/tiantan/taie.pdf) for details), which features arguably the "best" designs from both the novel ones we proposed and those of classic frameworks such as Soot, WALA, Doop, and SpotBugs. Tai-e is easy-to-learn, easy-to-use, efficient, and highly extensible, allowing you to easily develop new analyses on top of it.
 
 Currently, Tai-e provides the following major analysis components (and more analyses are on the way):
 - Powerful pointer analysis framework
