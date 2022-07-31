@@ -1,87 +1,48 @@
-# Tai-e: An Easy-to-Learn/Use Static Analysis Framework for Java
+<div align="center">
+  <a href="https://tai-e.pascal-lab.net/">
+    <img src="https://cs.nju.edu.cn/tiantan/img/tai-e.png" height="200">
+  </a>
 
-## Description
-Tai-e is an easy-to-learn, easy-to-use, efficient and extensible static analysis framework for Java.
+## Tai-e
+</div>
 
----
-## How to Run Tai-e?
+## What is Tai-e?
 
-### Prerequisites
-Before running Tai-e, please finish following steps:
+Tai-e (Chinese: 太阿; pronunciation: [ˈtaɪə:]) is a new static analysis framework for Java (please see [our technique report](http://cs.nju.edu.cn/tiantan/taie.pdf) for details), which features arguably the "best" designs from both the novel ones we proposed and those of classic frameworks such as Soot, WALA, Doop, and SpotBugs. Tai-e is easy-to-learn, easy-to-use, and highly extensible, allowing you to easily develop new analyses on top of it.
 
-- Install **Java 17** on your system (Tai-e is developed in pure Java, and it runs on all major operating systems including Windows/Linux/MacOS).
-- Clone submodule `java-benchmarks` (it contains the Java libraries used by the analysis):
-```
-  git submodule update --init --recursive
-```
+Currently, Tai-e provides the following major analysis components (and more analyses are on the way):
+- Powerful pointer analysis framework
+    - On-the-fly call graph construction
+    - Various classic and advanced heap abstraction and context sensitivity for pointer analysis
+    - Extensible analysis plugin system (allows to conveniently develop and add new analyses that interact with pointer analysis)
+- Various fundamental/client/utility analyses
+    - Fundamental analyses, e.g., reflection analysis and exception analysis
+    - Modern language feature analyses, e.g., lambda and method reference analysis, and invokedynamic analysis
+    - Clients, e.g., configurable taint analysis (allowing to configure sources, sinks and taint transfers)
+    - Utility tools like analysis timer, constraint checker (for debugging), and various graph dumpers
+- Control/Data-flow analysis framework
+    - Control-flow graph construction
+    - Classic data-flow analyses, e.g., live variable analysis, constant propagation
+    - Your data-flow analyses
+- SpotBugs-like bug detection system
+    - Bug detectors, e.g., null pointer detector, incorrect `clone()` detector
+    - Your bug detectors
 
----
-The main class (entry) of Tai-e is `pascal.taie.Main`. Below we introduce its main options.
+Tai-e is developed in Java, and it can run on major operating systems including Windows, Linux, and macOS.
 
-### Program Options
-These options specify the program (say *P*) and Java library to be analyzed.
 
-#### Class paths (-cp, --class-path): `-cp <path>;<path>;...`
-Class paths for Tai-e to locate the classes of *P*. Currently, Tai-e supports following types of paths:
+## How to Obtain Runnable Jar of Tai-e?
 
-- relative/absolute path to a jar file
-- relative/absolute path to a directory which contains `.class` files
+The simplest way is to download it from [GitHub Releases](https://github.com/pascal-lab/Tai-e/releases).
 
-Multiple paths are separated by path separator. Note that the path separator varies on different systems: it is `;` on Windows, and `:` on Unix-like systems.
+Alternatively, you might build Tai-e yourself from the source code. This can be simply done via Gradle (be sure that Java 17 (or higher version) is available on your system). You just need to run command `gradlew fatJar`, and then the runnable jar will be generated in `tai-e/build/`, which includes Tai-e and all its dependencies.
 
-#### Main class (-m, --main-class): `-m <main-class>`
-The main class (entry) of *P*. This class must declare a method with signature `public static void main(String[])`.
 
-#### Java version (-java): `-java <version>`
-Specify the version of Java library used in the analyses. When this option is given, Tai-e will locate the corresponding Java library in submodule `java-benchmarks` and add it to the class paths. Currently, we provide libraries for Java version 3, 4, 5, 6, 7, 8.
+## Documentation
 
-#### Prepend JVM Class Path (-pp, --prepend-JVM)
-Prepend the class path of the JVM (which runs Tai-e) to the analysis class path. This option will disable `-java` option, i.e., when `-pp` is enabled, Tai-e always analyzes the Java library of the JVM, no matter what `-java` is.
+We are hosting the documentation of Tai-e on [the GitHub wiki](https://github.com/pascal-lab/Tai-e/wiki), where you could find more information about Tai-e such as [Setup in IntelliJ IDEA](https://github.com/pascal-lab/Tai-e/wiki/Setup-Tai%E2%80%90e-in-IntelliJ-IDEA), [Command-Line Options](TODO:link), and [Development of New Analysis](TODO:link).
 
-### Analysis Options
-These options specify the analyses to be executed by Tai-e. To execute an analysis, you need to specify its *id* and *options* (if necessary). All available analyses in Tai-e and their information (e.g., *id* and available *options*) are listed in [the analysis configuration file](src/main/resources/tai-e-analyses.yml).
 
-There are two mutually-exclusive approaches to specify the analyses, by options or by file, as described below.
+## Tai-e Assignments
 
-#### Analyses (-a, --analysis): `-a <id>[=<key>:<value>;...]`
-Specify analyses by options. If you need to run an analysis `A`, just use `-a A`. If you need to specify some analysis options for `A`, just append them to analysis id (connected by `=`), and separate them by `;`, for example:
-```
--a A=enableX:true;threshold:100;log-level:info
-```
-The option system is flexible, and it supports various types of option values, such as boolean, integer, and string.
-
-Option `-a` is repeatable, so that if you need to execute multiple analyses in one run of Tai-e, for example, analysis `A2` requires the result of analysis `A1`, just repeat `-a` like: `-a A1 -a A2`.
-
-#### Plan file (-p, --plan-file): `-p <file-path>`
-Specify analyses by file. You can specify the analyses to be executed (called an analysis plan) in a plan file, and use `-p` to process the file. Similar to `-a`, you need to specify the *id* and *options* (if necessary) for each analysis in the file. The plan file should be written in YAML.
-
-Note that options `-a` and `-p` are mutually-exclusive, thus you *cannot* specify them simultaneously.
-
-(*TODO: elaborate more details about analysis system*)
-
-### Other Options
-#### Help (-h, --help)
-Print help information for all available options. This option will disable all other options, i.e., when it is enabled, Tai-e ignores other given options.
-
-#### Options file (--options-file): `--options-file <file-path>`
-You can specify the options in a options file and use `--options-file` to process the file. When this option is given, Tai-e ignores all other command-line options, and only processes the options in the file. The options file should be written in YAML.
-
-### Putting It Together
-We give an example of how to analyze a program by Tai-e. Suppose we want to analyze a program *P* as described below:
-
-- *P* consists of two jar files: `foo.jar` and `bar.jar`
-- *P*'s main class is `baz.Main`
-- *P* is analyzed together with Java 8
-- we run 2-object-sensitive pointer analysis and merge all string constants in *P*
-- we run Tai-e on Windows
-
-Then the options would be:
-```
-java pascal.taie.Main -cp foo.jar;bar.jar -m baz.Main -java 8 -a pta=cs:2-obj;merge-string-constants:true
-```
-(for simplicity, we omit the Java options for Tai-e)
-
----
-## How to Develop New Analyses Based on Tai-e?
-
-Please refer to [development guide](docs/development-guide.md).
+In addition, we have developed an [educational version of Tai-e](http://tai-e.pascal-lab.net/en/intro/overview.html) where eight programming assignments are carefully designed for systematically training learners to implement various static analysis techniques to analyze real Java programs. The educational version shares a large amount of code with Tai-e, thus doing the assignments would be a good way to get familiar with Tai-e.
