@@ -38,7 +38,7 @@ Alternatively, you might build Tai-e yourself from the source code. This can be 
 
 ## Documentation
 
-We are hosting the documentation of Tai-e on [the GitHub wiki](https://github.com/pascal-lab/Tai-e/wiki), where you could find more information about Tai-e such as [Setup in IntelliJ IDEA](https://github.com/pascal-lab/Tai-e/wiki/Setup-Tai%E2%80%90e-in-IntelliJ-IDEA), [Command-Line Options](TODO:link), and [Development of New Analysis](TODO:link).
+We are hosting the documentation of Tai-e on [the GitHub wiki](https://github.com/pascal-lab/Tai-e/wiki), where you could find more information about Tai-e such as [Setup in IntelliJ IDEA](https://github.com/pascal-lab/Tai-e/wiki/Setup-Tai%E2%80%90e-in-IntelliJ-IDEA), [Command-Line Options](https://github.com/pascal-lab/Tai-e/wiki/How-to-Run-Tai%E2%80%90e%3F-(command%E2%80%90line-options)), and [Development of New Analysis](https://github.com/pascal-lab/Tai-e/wiki/How-to-Develop-A-New-Analysis-on-Tai%E2%80%90e%3F).
 
 
 ## Tai-e Assignments
