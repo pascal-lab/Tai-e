@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -59,7 +60,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
     );
 
-    protected static List<String> getClassPath(Options options) {
+    protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
             return options.getClassPath();
         } else { // when prependJVM is not set, we manually specify JRE jars
@@ -77,8 +78,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Stream.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                options.getClassPath().stream())
-                        .toList();
+                                Stream.of(options.getClassPath()))
+                        .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " +
                         options.getJavaVersion() + " library is not supported yet", e);

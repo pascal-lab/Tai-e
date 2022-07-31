@@ -82,11 +82,10 @@ public class Options {
     // ---------- program options ----------
     @JsonProperty
     @Option(names = {"-cp", "--class-path"},
-            description = "Class path, multiple paths can be split by ';'",
-            split = ";")
-    private List<String> classPath = List.of();
+            description = "Class path. Multiple paths are split by system path separator.")
+    private String classPath;
 
-    public List<String> getClassPath() {
+    public String getClassPath() {
         return classPath;
     }
 
@@ -101,8 +100,8 @@ public class Options {
     @JsonProperty
     @Option(names = {"--input-classes"},
             description = "The classes should be included in the World of analyzed program" +
-                    " (the classes can be split by ';')",
-            split = ";")
+                    " (the classes can be split by ',')",
+            split = ",")
     private List<String> inputClasses = List.of();
 
     public List<String> getInputClasses() {

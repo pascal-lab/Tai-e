@@ -70,10 +70,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     @Override
     public void build(Options options, List<AnalysisConfig> plan) {
         initSoot(options, plan, this);
-        runSoot(new String[]{
-                "-cp", String.join(File.pathSeparator, getClassPath(options)),
-                options.getMainClass()
-        });
+        runSoot(new String[]{"-cp", getClassPath(options), options.getMainClass()});
     }
 
     private static void initSoot(Options options, List<AnalysisConfig> plan,
