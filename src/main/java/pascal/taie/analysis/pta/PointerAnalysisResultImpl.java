@@ -38,6 +38,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.Var;
@@ -45,6 +46,9 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Canonicalizer;
 import pascal.taie.util.Indexer;
@@ -122,6 +126,15 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
+    public boolean isConcerned(Exp exp) {
+        return isConcerned(exp.getType());
+    }
+
+    private static boolean isConcerned(Type type) {
+        return type instanceof ReferenceType && !(type instanceof NullType);
+    }
+
+    @Override
     public Collection<CSVar> getCSVars() {
         return csManager.getCSVars();
     }
@@ -163,6 +176,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Set<Obj> getPointsToSet(Var var) {
+        if (!isConcerned(var)) {
+            return Set.of();
+        }
         return varPointsTo.computeIfAbsent(var, v ->
                 removeContexts(csManager.getCSVarsOf(var)
                         .stream()
@@ -171,6 +187,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Set<Obj> getPointsToSet(InstanceFieldAccess access) {
+        if (!isConcerned(access)) {
+            return Set.of();
+        }
         Var base = access.getBase();
         JField field = access.getFieldRef().resolveNullable();
         return field != null ? getPointsToSet(base, field) : Set.of();
@@ -178,6 +197,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Set<Obj> getPointsToSet(Var base, JField field) {
+        if (!isConcerned(field.getType())) {
+            return Set.of();
+        }
         if (field.isStatic()) {
             logger.warn("{} is not an instance field", field);
             return Set.of();
@@ -193,12 +215,18 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Set<Obj> getPointsToSet(StaticFieldAccess access) {
+        if (!isConcerned(access)) {
+            return Set.of();
+        }
         JField field = access.getFieldRef().resolveNullable();
         return field != null ? getPointsToSet(field) : Set.of();
     }
 
     @Override
     public Set<Obj> getPointsToSet(JField field) {
+        if (!isConcerned(field.getType())) {
+            return Set.of();
+        }
         if (!field.isStatic()) {
             logger.warn("{} is not a static field", field);
             return Set.of();
@@ -209,12 +237,19 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Set<Obj> getPointsToSet(ArrayAccess access) {
+        if (!isConcerned(access)) {
+            return Set.of();
+        }
         return getPointsToSet(access.getBase(), access.getIndex());
     }
 
     @Override
     public Set<Obj> getPointsToSet(Var base, Var index) {
-        if (!(base.getType() instanceof ArrayType)) {
+        if (base.getType() instanceof ArrayType baseType) {
+            if (!isConcerned(baseType.elementType())) {
+                return Set.of();
+            }
+        } else {
             logger.warn("{} is not an array", base);
             return Set.of();
         }

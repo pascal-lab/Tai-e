@@ -10,14 +10,14 @@
     merge-string-builders: true
     merge-exception-objects: true
     handle-invokedynamic: false
-    advanced: null # specify advanced analysis
+    advanced: null # specify advanced analysis2
       # scaler | scaler=TST
     # zipper | zipper-e | zipper-e=PV
     action: null # | dump | compare
     action-file: null # path of file to dump/compare
     reflection-log: null # path to reflection log
-    taint-config: null # path to config file of taint analysis, when this file
-    # is given, taint analysis will be enabled
+    taint-config: null # path to config file of taint analysis,
+    # when this file is given, taint analysis will be enabled
     plugins: [ ] # | [ pluginClass, ... ]
 
 - description: call graph construction
