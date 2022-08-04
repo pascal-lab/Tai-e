@@ -168,6 +168,15 @@ public interface TwoKeyMap<K1, K2, V> {
     }
 
     /**
+     * @return the k2-value map to which the specified key is mapped,
+     * or {@code defaultValue} if this map contains no mapping for the key.
+     */
+    default Map<K2, V> getOrDefault(K1 key1, Map<K2, V> defaultValue) {
+        Map<K2, V> v;
+        return (v = get(key1)) != null ? v : defaultValue;
+    }
+
+    /**
      * @return the value to which the specified key-pair is mapped,
      * or {@code defaultValue} if this map contains no mapping for the key-pair.
      */

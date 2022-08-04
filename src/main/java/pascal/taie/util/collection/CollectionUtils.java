@@ -25,7 +25,9 @@ package pascal.taie.util.collection;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
@@ -95,5 +97,16 @@ public final class CollectionUtils {
      */
     public static <T> String toString(Collection<T> c) {
         return Streams.toString(c.stream());
+    }
+
+    /**
+     * Converts a collection to a set.
+     */
+    public static <T> Set<T> toSet(Collection<T> c) {
+        if (c instanceof Set) {
+            return Collections.unmodifiableSet((Set<T>) c);
+        } else {
+            return Collections.unmodifiableSet(Sets.newHybridSet(c));
+        }
     }
 }
