@@ -22,43 +22,65 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 
+import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Queue;
 
 /**
  * Represents work list in pointer analysis.
  */
 final class WorkList {
 
-    private final Map<Pointer, PointsToSet> entries = new LinkedHashMap<>();
+    private final Map<Pointer, PointsToSet> pointerEntries = new LinkedHashMap<>();
+
+    private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new ArrayDeque<>();
 
     void addEntry(Pointer pointer, PointsToSet pointsToSet) {
-        PointsToSet set = entries.get(pointer);
+        PointsToSet set = pointerEntries.get(pointer);
         if (set != null) {
             set.addAll(pointsToSet);
         } else {
-            entries.put(pointer, pointsToSet.copy());
+            pointerEntries.put(pointer, pointsToSet.copy());
         }
+    }
+
+    void addEntry(Edge<CSCallSite, CSMethod> edge) {
+        callEdges.add(edge);
     }
 
     Entry pollEntry() {
-        if (entries.isEmpty()) {
+        if (!callEdges.isEmpty()) {
+            return new CallEdgeEntry(callEdges.poll());
+        } else if (!pointerEntries.isEmpty()) {
+            var it = pointerEntries.entrySet().iterator();
+            var e = it.next();
+            it.remove();
+            return new PointerEntry(e.getKey(), e.getValue());
+        } else {
             throw new NoSuchElementException();
         }
-        var it = entries.entrySet().iterator();
-        var e = it.next();
-        it.remove();
-        return new Entry(e.getKey(), e.getValue());
     }
 
     boolean isEmpty() {
-        return entries.isEmpty();
+        return pointerEntries.isEmpty() && callEdges.isEmpty();
     }
 
-    record Entry(Pointer pointer, PointsToSet pointsToSet) {
+    interface Entry {
+    }
+
+    record PointerEntry(Pointer pointer, PointsToSet pointsToSet)
+            implements Entry {
+    }
+
+    record CallEdgeEntry(Edge<CSCallSite, CSMethod> edge)
+            implements Entry {
     }
 }

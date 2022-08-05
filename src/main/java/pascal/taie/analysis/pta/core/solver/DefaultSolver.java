@@ -256,21 +256,25 @@ public class DefaultSolver implements Solver {
     }
 
     /**
-     * Processes worklist entries until the worklist is empty.
+     * Processes work list entries until the work list is empty.
      */
     private void analyze() {
         while (!workList.isEmpty()) {
             WorkList.Entry entry = workList.pollEntry();
-            Pointer p = entry.pointer();
-            PointsToSet pts = entry.pointsToSet();
-            PointsToSet diff = propagate(p, pts);
-            if (!diff.isEmpty() && p instanceof CSVar v) {
-                processInstanceStore(v, diff);
-                processInstanceLoad(v, diff);
-                processArrayStore(v, diff);
-                processArrayLoad(v, diff);
-                processCall(v, diff);
-                plugin.onNewPointsToSet(v, diff);
+            if (entry instanceof WorkList.PointerEntry pEntry) {
+                Pointer p = pEntry.pointer();
+                PointsToSet pts = pEntry.pointsToSet();
+                PointsToSet diff = propagate(p, pts);
+                if (!diff.isEmpty() && p instanceof CSVar v) {
+                    processInstanceStore(v, diff);
+                    processInstanceLoad(v, diff);
+                    processArrayStore(v, diff);
+                    processArrayLoad(v, diff);
+                    processCall(v, diff);
+                    plugin.onNewPointsToSet(v, diff);
+                }
+            } else if (entry instanceof WorkList.CallEdgeEntry eEntry) {
+                processCallEdge(eEntry.edge());
             }
         }
         plugin.onFinish();
@@ -412,6 +416,44 @@ public class DefaultSolver implements Solver {
                     plugin.onUnresolvedCall(recvObj, context, callSite);
                 }
             });
+        }
+    }
+
+    private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        if (callGraph.addEdge(edge)) {
+            // process new call edge
+            CSMethod csCallee = edge.getCallee();
+            addCSMethod(csCallee);
+            if (edge.getKind() != CallKind.OTHER
+                    && !isIgnored(csCallee.getMethod())) {
+                Context callerCtx = edge.getCallSite().getContext();
+                Invoke callSite = edge.getCallSite().getCallSite();
+                Context calleeCtx = csCallee.getContext();
+                JMethod callee = csCallee.getMethod();
+                InvokeExp invokeExp = callSite.getInvokeExp();
+                // pass arguments to parameters
+                for (int i = 0; i < invokeExp.getArgCount(); ++i) {
+                    Var arg = invokeExp.getArg(i);
+                    if (isConcerned(arg)) {
+                        Var param = callee.getIR().getParam(i);
+                        CSVar argVar = csManager.getCSVar(callerCtx, arg);
+                        CSVar paramVar = csManager.getCSVar(calleeCtx, param);
+                        addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+                    }
+                }
+                // pass results to LHS variable
+                Var lhs = callSite.getResult();
+                if (lhs != null && isConcerned(lhs)) {
+                    CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
+                    for (Var ret : callee.getIR().getReturnVars()) {
+                        if (isConcerned(ret)) {
+                            CSVar csRet = csManager.getCSVar(calleeCtx, ret);
+                            addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                        }
+                    }
+                }
+            }
+            plugin.onNewCallEdge(edge);
         }
     }
 
@@ -672,41 +714,7 @@ public class DefaultSolver implements Solver {
 
     @Override
     public void addCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (callGraph.addEdge(edge)) {
-            // process new call edge
-            CSMethod csCallee = edge.getCallee();
-            addCSMethod(csCallee);
-            if (edge.getKind() != CallKind.OTHER
-                    && !isIgnored(csCallee.getMethod())) {
-                Context callerCtx = edge.getCallSite().getContext();
-                Invoke callSite = edge.getCallSite().getCallSite();
-                Context calleeCtx = csCallee.getContext();
-                JMethod callee = csCallee.getMethod();
-                InvokeExp invokeExp = callSite.getInvokeExp();
-                // pass arguments to parameters
-                for (int i = 0; i < invokeExp.getArgCount(); ++i) {
-                    Var arg = invokeExp.getArg(i);
-                    if (isConcerned(arg)) {
-                        Var param = callee.getIR().getParam(i);
-                        CSVar argVar = csManager.getCSVar(callerCtx, arg);
-                        CSVar paramVar = csManager.getCSVar(calleeCtx, param);
-                        addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
-                    }
-                }
-                // pass results to LHS variable
-                Var lhs = callSite.getResult();
-                if (lhs != null && isConcerned(lhs)) {
-                    CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
-                    for (Var ret : callee.getIR().getReturnVars()) {
-                        if (isConcerned(ret)) {
-                            CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                            addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
-                        }
-                    }
-                }
-            }
-            plugin.onNewCallEdge(edge);
-        }
+        workList.addEntry(edge);
     }
 
     @Override
