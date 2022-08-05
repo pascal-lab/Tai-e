@@ -42,7 +42,7 @@ public class MockObj extends Obj {
 
     private final JMethod container;
 
-    MockObj(String desc, Object alloc, Type type, JMethod container) {
+    public MockObj(String desc, Object alloc, Type type, JMethod container) {
         this.desc = desc;
         this.alloc = alloc;
         this.type = type;
