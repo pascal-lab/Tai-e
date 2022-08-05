@@ -48,4 +48,9 @@ public class ExceptionTest {
     public void testExceptionTreeAndRecursion() {
         Tests.testPTA(DIR, "ExceptionTreeAndRecursion");
     }
+
+    @Test
+    public void testExceptionFromClinit() {
+        Tests.testPTA(DIR, "ExceptionFromClinit", "cs:1-call");
+    }
 }
