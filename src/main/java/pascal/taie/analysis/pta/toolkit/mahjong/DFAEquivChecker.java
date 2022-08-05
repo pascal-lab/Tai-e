@@ -58,8 +58,8 @@ class DFAEquivChecker {
             Stream.concat(dfa.outEdgesOf(q1).stream(),
                             dfa.outEdgesOf(q2).stream())
                     .forEach(field -> {
-                        DFAState r1 = uf.find(dfa.nextState(q1, field));
-                        DFAState r2 = uf.find(dfa.nextState(q2, field));
+                        DFAState r1 = uf.findRoot(dfa.nextState(q1, field));
+                        DFAState r2 = uf.findRoot(dfa.nextState(q2, field));
                         if (r1 != r2) {
                             uf.union(r1, r2);
                             stack.push(new Pair<>(r1, r2));

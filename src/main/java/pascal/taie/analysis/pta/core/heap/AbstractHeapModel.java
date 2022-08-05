@@ -51,7 +51,7 @@ import static pascal.taie.language.classes.ClassNames.THROWABLE;
  * All heap models should inherit this class, and we can define
  * some uniform behaviors of heap modeling here.
  */
-abstract class AbstractHeapModel implements HeapModel {
+public abstract class AbstractHeapModel implements HeapModel {
 
     private final boolean isMergeStringConstants;
 

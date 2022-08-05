@@ -24,14 +24,111 @@ package pascal.taie.analysis.pta.toolkit.mahjong;
 
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.config.AnalysisOptions;
+import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.UnionFindSet;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public class Mahjong {
 
-    public static HeapModel run(PointerAnalysisResult pta, HeapModel origin) {
-        // 1. use Field to represent JField and ArrayIndex
-        // 2. do not add new APIs to PointerAnalysisResult? (iterates
-        //    x = var.field/x = var[i], check the loaded objects?)
-        // 3. perform merging for which objects? (NewObj? all Objs? MockObj?)
-        throw new UnsupportedOperationException();
+    private static final DFAEquivChecker dfaEqChecker = new DFAEquivChecker();
+
+    private DFAFactory dfaFactory;
+
+    /**
+     * This map may be manipulated by multiple threads simultaneously.
+     */
+    private ConcurrentMap<Obj, Boolean> canMerged;
+
+    public static HeapModel run(PointerAnalysisResult pta,
+                                AnalysisOptions options) {
+        return new Mahjong().buildHeapModel(pta, options);
+    }
+
+    HeapModel buildHeapModel(PointerAnalysisResult pta,
+                             AnalysisOptions options) {
+        FieldPointsToGraph fpg = new FieldPointsToGraph(pta);
+        dfaFactory = new DFAFactory(fpg);
+        Set<Obj> allObjs = fpg.getObjects();
+        canMerged = Maps.newConcurrentMap(allObjs.size());
+        UnionFindSet<Obj> uf = new UnionFindSet<>(allObjs);
+        // group the objects by their types
+        Map<Type, Set<Obj>> groupedObjs = allObjs.stream()
+                .collect(Collectors.groupingBy(
+                        Obj::getType, Collectors.toSet()));
+        // compute object merging, and store results in a union-find set
+        groupedObjs.entrySet()
+                .parallelStream()
+                .forEach(entry -> {
+                    Set<Obj> objs = entry.getValue();
+                    DFAMap dfaMap = new DFAMap();
+                    for (Obj o1 : objs) {
+                        if (canBeMerged(o1, dfaMap)) {
+                            for (Obj o2 : objs) {
+                                if (canBeMerged(o2, dfaMap)) {
+                                    if (o1.getIndex() <= o2.getIndex()
+                                            && !uf.isConnected(o1, o2)
+                                            && canBeMerged(o1, o2, dfaMap)) {
+                                        uf.union(o1, o2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+        // build resulting heap model based on merge map
+        return new MahjongHeapModel(options, uf.getDisjointSets());
+    }
+
+    /**
+     * @return {@code true} if o1 and o2 can be merged.
+     */
+    private boolean canBeMerged(Obj o1, Obj o2, DFAMap dfaMap) {
+        if (o1 == o2) {
+            return true;
+        }
+        DFA dfa1 = dfaMap.getDFA(o1);
+        DFA dfa2 = dfaMap.getDFA(o2);
+        return dfaEqChecker.isEquivalent(dfa1, dfa2);
+    }
+
+    /**
+     * @return {@code true} if o can be merged with other objects.
+     */
+    private boolean canBeMerged(Obj o, DFAMap dfaMap) {
+        if (!canMerged.containsKey(o)) {
+            boolean result = true;
+            // Check whether the types of objects pointed (directly/indirectly)
+            // by o are single.
+            DFA dfa = dfaMap.getDFA(o);
+            for (DFAState s : dfa.getStates()) {
+                if (dfa.outputOf(s).size() > 1) {
+                    // o (directly/indirectly) points to objects of multiple types
+                    result = false;
+                    break;
+                }
+            }
+            canMerged.put(o, result);
+        }
+        return canMerged.get(o);
+    }
+
+    /**
+     * During equivalence check, each thread holds a DFAMap which contains
+     * the DFA of the objects of the type.
+     */
+    private class DFAMap {
+
+        private final Map<Obj, DFA> map = Maps.newMap();
+
+        private DFA getDFA(Obj o) {
+            return map.computeIfAbsent(o, dfaFactory::getDFA);
+        }
     }
 }

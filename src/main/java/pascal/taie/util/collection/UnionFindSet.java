@@ -45,9 +45,15 @@ public class UnionFindSet<E> {
         setCount = entries.size();
     }
 
+    /**
+     * Unions the sets which e1 and e2 belong to, respectively.
+     *
+     * @return {@code true} if this union-find set changed as a result
+     * of this call.
+     */
     public boolean union(E e1, E e2) {
-        Entry root1 = findRoot(entries.get(e1));
-        Entry root2 = findRoot(entries.get(e2));
+        Entry root1 = findRootEntry(entries.get(e1));
+        Entry root2 = findRootEntry(entries.get(e2));
         if (root1 == root2) {
             return false;
         } else { // union by rank
@@ -64,31 +70,42 @@ public class UnionFindSet<E> {
         }
     }
 
+    /**
+     * @return {@code true} if e1 and e2 belong to the same set.
+     */
     public boolean isConnected(E e1, E e2) {
-        Entry root1 = findRoot(entries.get(e1));
-        Entry root2 = findRoot(entries.get(e2));
+        Entry root1 = findRootEntry(entries.get(e1));
+        Entry root2 = findRootEntry(entries.get(e2));
         return root1 == root2;
     }
 
-    public E find(E e) {
-        Entry ent = findRoot(entries.get(e));
-        return ent.elem;
+    /**
+     * @return the root element of the set which e belongs to.
+     */
+    public E findRoot(E e) {
+        return findRootEntry(entries.get(e)).elem;
     }
 
+    /**
+     * @return number of disjoint sets in this union-find set.
+     */
     public int numberOfSets() {
         return setCount;
     }
 
+    /**
+     * @return a collection of all disjoint sets in this union-find set.
+     */
     public Collection<Set<E>> getDisjointSets() {
         return entries.keySet()
                 .stream()
-                .collect(Collectors.groupingBy(this::find, Collectors.toSet()))
+                .collect(Collectors.groupingBy(this::findRoot, Collectors.toSet()))
                 .values();
     }
 
-    private Entry findRoot(Entry ent) {
+    private Entry findRootEntry(Entry ent) {
         if (ent.parent != ent) { // path compression
-            ent.parent = findRoot(ent.parent);
+            ent.parent = findRootEntry(ent.parent);
         }
         return ent.parent;
     }

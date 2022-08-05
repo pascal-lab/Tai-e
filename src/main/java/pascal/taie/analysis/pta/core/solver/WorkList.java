@@ -39,8 +39,14 @@ import java.util.Queue;
  */
 final class WorkList {
 
+    /**
+     * Pointer entries to be processed.
+     */
     private final Map<Pointer, PointsToSet> pointerEntries = new LinkedHashMap<>();
 
+    /**
+     * Call edges to be processed.
+     */
     private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new ArrayDeque<>();
 
     void addEntry(Pointer pointer, PointsToSet pointsToSet) {
@@ -58,6 +64,8 @@ final class WorkList {
 
     Entry pollEntry() {
         if (!callEdges.isEmpty()) {
+            // for correctness, we need to ensure that any call edges in
+            // the work list must be processed prior to the pointer entries
             return new CallEdgeEntry(callEdges.poll());
         } else if (!pointerEntries.isEmpty()) {
             var it = pointerEntries.entrySet().iterator();

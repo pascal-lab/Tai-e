@@ -50,12 +50,12 @@ public class MergedObj extends Obj {
      */
     private Obj representative;
 
-    MergedObj(Type type, String name) {
+    public MergedObj(Type type, String name) {
         this.type = type;
         this.name = name;
     }
 
-    void addRepresentedObj(Obj obj) {
+    public void addRepresentedObj(Obj obj) {
         setRepresentative(obj);
         representedObjs.add(obj);
     }
