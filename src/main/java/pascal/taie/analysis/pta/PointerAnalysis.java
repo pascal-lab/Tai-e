@@ -45,6 +45,7 @@ import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
 import pascal.taie.analysis.pta.plugin.natives.NativeModeller;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
+import pascal.taie.analysis.pta.toolkit.mahjong.Mahjong;
 import pascal.taie.analysis.pta.toolkit.scaler.Scaler;
 import pascal.taie.analysis.pta.toolkit.zipper.Zipper;
 import pascal.taie.config.AnalysisConfig;
@@ -84,6 +85,9 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 selector = Timer.runAndCount(() -> ContextSelectorFactory
                                 .makeSelectiveSelector(cs, Zipper.run(preResult, advanced)),
                         "Zipper", Level.INFO);
+            } else if (advanced.equals("mahjong")) {
+                heapModel = Timer.runAndCount(() -> Mahjong.run(preResult, options),
+                        "Mahjong", Level.INFO);
             } else {
                 throw new IllegalArgumentException(
                         "Illegal advanced analysis argument: " + advanced);

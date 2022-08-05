@@ -50,12 +50,13 @@ class MahjongHeapModel extends AbstractHeapModel {
         Map<New, MergedObj> mergedObjs = Maps.newMap();
         objGroups.forEach(objs -> {
             Type type = CollectionUtils.getOne(objs).getType();
-            MergedObj mergedObj = new MergedObj(type,
-                    "<Mahjong Merged + " + type + " >");
+            MergedObj mergedObj = add(new MergedObj(type,
+                    "<Mahjong Merged + " + type + " >"));
             objs.forEach(obj -> {
                 if (obj instanceof NewObj newObj) {
-                    mergedObjs.put(newObj.getAllocation(), mergedObj);
-                    mergedObj.addRepresentedObj(obj);
+                    New allocSite = newObj.getAllocation();
+                    mergedObjs.put(allocSite, mergedObj);
+                    mergedObj.addRepresentedObj(getNewObj(allocSite));
                 }
             });
         });
