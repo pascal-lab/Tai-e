@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.Sets.newSet;
 
@@ -68,7 +69,9 @@ public class AnalysisPlanner {
      * Converts a list of PlanConfigs to the list of corresponding AnalysisConfigs.
      */
     private List<AnalysisConfig> covertConfigs(List<PlanConfig> planConfigs) {
-        return Lists.map(planConfigs, pc -> manager.getConfig(pc.getId()));
+        return planConfigs.stream()
+                .map(pc -> manager.getConfig(pc.getId()))
+                .collect(Collectors.toList());
     }
 
     /**
