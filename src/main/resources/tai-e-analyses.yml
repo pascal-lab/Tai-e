@@ -2,7 +2,7 @@
   analysisClass: pascal.taie.analysis.pta.PointerAnalysis
   id: pta
   options:
-    cs: ci # | k-[obj/type/call]
+    cs: ci # | k-[obj|type|call][-k'h]
     only-app: false # only analyze application code
     implicit-entries: true # analyze implicit entries
     merge-string-constants: false
@@ -10,9 +10,10 @@
     merge-string-builders: true
     merge-exception-objects: true
     handle-invokedynamic: false
-    advanced: null # specify advanced analysis2
-      # scaler | scaler=TST
+    advanced: null # specify advanced analysis:
     # zipper | zipper-e | zipper-e=PV
+    # scaler | scaler=TST
+    # mahjong
     action: null # | dump | compare
     action-file: null # path of file to dump/compare
     reflection-log: null # path to reflection log

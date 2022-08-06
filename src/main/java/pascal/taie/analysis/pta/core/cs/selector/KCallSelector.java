@@ -34,10 +34,6 @@ class KCallSelector extends KLimitingSelector<Invoke> {
         super(k, hk);
     }
 
-    public KCallSelector(int k) {
-        this(k, k - 1);
-    }
-
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
         return factory.append(

@@ -47,7 +47,7 @@ public class DaCapoRunner {
         DaCapoRunner runner = new DaCapoRunner();
         List<String> benchmarks = new ArrayList<>();
         for (String arg : args) {
-            if (ANALYSES.contains(arg)) {
+            if (ANALYSES.stream().anyMatch(arg::startsWith)) {
                 PTA = arg;
             } else if (arg.startsWith("-java=")) {
                 JDK = arg;

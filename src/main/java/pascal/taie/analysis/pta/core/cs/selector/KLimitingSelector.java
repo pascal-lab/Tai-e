@@ -41,7 +41,7 @@ abstract class KLimitingSelector<T> extends AbstractContextSelector<T> {
     /**
      * Limit of heap context length.
      */
-    protected final int hlimit;
+    protected final int hLimit;
 
     /**
      * @param k  k-limit for method contexts.
@@ -49,11 +49,11 @@ abstract class KLimitingSelector<T> extends AbstractContextSelector<T> {
      */
     KLimitingSelector(int k, int hk) {
         this.limit = k;
-        this.hlimit = hk;
+        this.hLimit = hk;
     }
 
     @Override
     protected Context selectNewObjContext(CSMethod method, NewObj obj) {
-        return factory.makeLastK(method.getContext(), hlimit);
+        return factory.makeLastK(method.getContext(), hLimit);
     }
 }

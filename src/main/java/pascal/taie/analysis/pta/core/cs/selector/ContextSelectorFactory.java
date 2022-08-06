@@ -60,11 +60,18 @@ public class ContextSelectorFactory {
                 String[] splits = cs.split("-");
                 int k = Integer.parseInt(splits[0]);
                 String kind = Strings.capitalize(splits[1]);
+                int hk;
+                if (splits.length < 3) { // if limit of heap contexts is not given,
+                    // then we use k -1 as default limit
+                    hk = k - 1;
+                } else { // we expect that splits[2] is "k'h"
+                    hk = Integer.parseInt(splits[2].replace("h", ""));
+                }
                 String selectorName = ContextSelectorFactory.class.getPackageName() +
                         ".K" + kind + "Selector";
                 Class<?> c = Class.forName(selectorName);
-                Constructor<?> ctor = c.getConstructor(int.class);
-                return (ContextSelector) ctor.newInstance(k);
+                Constructor<?> ctor = c.getConstructor(int.class, int.class);
+                return (ContextSelector) ctor.newInstance(k, hk);
             } catch (RuntimeException e) {
                 throw new ConfigException("Unexpected context-sensitivity variants: " + cs, e);
             } catch (ClassNotFoundException | NoSuchMethodException |

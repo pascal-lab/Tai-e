@@ -55,7 +55,7 @@ class GuidedSelector extends AbstractContextSelector<Object> {
     /**
      * Default limit for heap contexts.
      */
-    private static final int DEFAULT_HLIMIT = 1;
+    private static final int DEFAULT_H_LIMIT = 1;
 
     /**
      * Guide for context sensitivity variant selection.
@@ -65,15 +65,15 @@ class GuidedSelector extends AbstractContextSelector<Object> {
     /**
      * Limit for heap contexts.
      */
-    private final int hlimit;
+    private final int hLimit;
 
-    GuidedSelector(Map<JMethod, String> csMap, int hlimit) {
+    GuidedSelector(Map<JMethod, String> csMap, int hLimit) {
         this.csMap = csMap;
-        this.hlimit = hlimit;
+        this.hLimit = hLimit;
     }
 
     GuidedSelector(Map<JMethod, String> csMap) {
-        this(csMap, DEFAULT_HLIMIT);
+        this(csMap, DEFAULT_H_LIMIT);
     }
 
     @Override
@@ -132,6 +132,6 @@ class GuidedSelector extends AbstractContextSelector<Object> {
 
     @Override
     protected Context selectNewObjContext(CSMethod method, NewObj obj) {
-        return factory.makeLastK(method.getContext(), hlimit);
+        return factory.makeLastK(method.getContext(), hLimit);
     }
 }

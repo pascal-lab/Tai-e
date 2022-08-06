@@ -34,10 +34,6 @@ class KTypeSelector extends KLimitingSelector<Type> {
         super(k, hk);
     }
 
-    public KTypeSelector(int k) {
-        this(k, k - 1);
-    }
-
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
         return callSite.getContext();

@@ -34,10 +34,6 @@ class KObjSelector extends KLimitingSelector<Obj> {
         super(k, hk);
     }
 
-    public KObjSelector(int k) {
-        this(k, k - 1);
-    }
-
     @Override
     public Context selectContext(CSCallSite callSite, JMethod callee) {
         return callSite.getContext();
