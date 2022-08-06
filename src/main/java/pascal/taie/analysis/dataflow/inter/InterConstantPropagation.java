@@ -35,6 +35,7 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -328,15 +329,21 @@ public class InterConstantPropagation extends
         // Passing arguments at call site to parameters of the callee
         InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
         JMethod callee = edge.getCallee();
-        List<Var> args = invokeExp.getArgs();
-        List<Var> params = callee.getIR().getParams();
         CPFact result = newInitialFact();
-        for (int i = 0; i < args.size(); ++i) {
-            Var arg = args.get(i);
-            Var param = params.get(i);
-            if (holdsInt(param)) {
-                Value argValue = callSiteOut.get(arg);
-                result.update(param, argValue);
+        if (!(invokeExp instanceof InvokeDynamic) &&
+                invokeExp.getMethodRef().getSubsignature()
+                        .equals(callee.getSubsignature())) {
+            // skip invokedynamic and the special call edges
+            // whose call-site subsignature does not equal to callee's
+            List<Var> args = invokeExp.getArgs();
+            List<Var> params = callee.getIR().getParams();
+            for (int i = 0; i < args.size(); ++i) {
+                Var arg = args.get(i);
+                Var param = params.get(i);
+                if (holdsInt(param)) {
+                    Value argValue = callSiteOut.get(arg);
+                    result.update(param, argValue);
+                }
             }
         }
         return result;
