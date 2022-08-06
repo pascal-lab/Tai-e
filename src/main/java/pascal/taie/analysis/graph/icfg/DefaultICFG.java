@@ -65,7 +65,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
             CFG<Stmt> cfg = getCFGOf(method);
             if (cfg == null) {
                 logger.warn("CFG of {} is absent, try to fix this" +
-                        " by adding option -scope=reachable", method);
+                        " by adding option: -scope REACHABLE", method);
                 return;
             }
             cfg.forEach(stmt -> {

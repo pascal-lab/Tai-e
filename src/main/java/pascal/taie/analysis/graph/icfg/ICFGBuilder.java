@@ -41,7 +41,6 @@ import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
 
@@ -67,11 +66,14 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
     }
 
     private static void dumpICFG(ICFG<JMethod, Stmt> icfg) {
-        String dotPath = new File(Configs.getOutputDir(),
-                icfg.entryMethods()
-                        .map(m -> m.getDeclaringClass() + "." + m.getName())
-                        .collect(Collectors.joining("-")) + "-icfg.dot")
-                .toString();
+        JMethod mainMethod;
+        String fileName;
+        if ((mainMethod = World.get().getMainMethod()) != null) {
+            fileName = mainMethod.getDeclaringClass() + "-icfg.dot";
+        } else {
+            fileName = "icfg.dot";
+        }
+        String dotPath = new File(Configs.getOutputDir(), fileName).toString();
         logger.info("Dumping ICFG to {} ...", dotPath);
         Indexer<Stmt> indexer = new SimpleIndexer<>();
         new DotDumper<Stmt>()
