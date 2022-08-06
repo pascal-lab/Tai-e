@@ -22,11 +22,13 @@
 
 package pascal.taie.analysis.pta.toolkit.mahjong;
 
+import org.apache.logging.log4j.Level;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.UnionFindSet;
 
@@ -53,8 +55,19 @@ public class Mahjong {
 
     HeapModel buildHeapModel(PointerAnalysisResult pta,
                              AnalysisOptions options) {
-        FieldPointsToGraph fpg = new FieldPointsToGraph(pta);
-        dfaFactory = new DFAFactory(fpg);
+        FieldPointsToGraph fpg = Timer.runAndCount(
+                () -> new FieldPointsToGraph(pta),
+                "Building field points-to graph", Level.INFO);
+        dfaFactory = Timer.runAndCount(() -> new DFAFactory(fpg),
+                "Building DFA", Level.INFO);
+        UnionFindSet<Obj> uf = Timer.runAndCount(
+                () -> mergeTypeConsistentObjects(fpg),
+                "Merging type-consistent objects", Level.INFO);
+        // build resulting heap model based on merge map
+        return new MahjongHeapModel(options, uf.getDisjointSets());
+    }
+
+    private UnionFindSet<Obj> mergeTypeConsistentObjects(FieldPointsToGraph fpg) {
         Set<Obj> allObjs = fpg.getObjects();
         canMerged = Maps.newConcurrentMap(allObjs.size());
         UnionFindSet<Obj> uf = new UnionFindSet<>(allObjs);
@@ -82,8 +95,7 @@ public class Mahjong {
                         }
                     }
                 });
-        // build resulting heap model based on merge map
-        return new MahjongHeapModel(options, uf.getDisjointSets());
+        return uf;
     }
 
     /**

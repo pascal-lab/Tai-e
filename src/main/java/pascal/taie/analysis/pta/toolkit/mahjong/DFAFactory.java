@@ -24,37 +24,34 @@ package pascal.taie.analysis.pta.toolkit.mahjong;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 class DFAFactory {
 
     private final FieldPointsToGraph fpg;
-    protected Set<DFAState> states, visited;
-    private Map<Set<Obj>, DFAState> stateMap;
+
+    private Set<DFAState> states, visited;
+
+    private ConcurrentMap<Set<Obj>, DFAState> stateMap;
 
     DFAFactory(FieldPointsToGraph fpg) {
         this.fpg = fpg;
         buildAllDFA();
     }
 
-    DFA getDFA(Obj obj) {
-        DFAState q0 = stateMap.get(Set.of(obj));
-        return new DFA(q0);
-    }
-
     private void buildAllDFA() {
-        stateMap = new HashMap<>();
-        states = new HashSet<>();
-        visited = new HashSet<>();
-        fpg.getObjects().forEach(this::buildDFA);
+        stateMap = Maps.newConcurrentMap();
+        states = Sets.newConcurrentSet();
+        visited = Sets.newConcurrentSet();
+        fpg.getObjects().parallelStream().forEach(this::buildDFA);
     }
 
     /**
@@ -70,11 +67,11 @@ class DFAFactory {
         if (!stateMap.containsKey(q0Set)) {
             NFA nfa = new NFA(obj, fpg);
             DFAState startState = getDFAState(q0Set, nfa);
-            Queue<DFAState> worklist = new LinkedList<>();
+            Queue<DFAState> workList = new ArrayDeque<>();
             states.add(startState);
-            worklist.add(startState);
-            while (!worklist.isEmpty()) {
-                DFAState s = worklist.poll();
+            workList.add(startState);
+            while (!workList.isEmpty()) {
+                DFAState s = workList.poll();
                 if (!visited.contains(s)) {
                     visited.add(s);
                     Set<Field> fields = fields(nfa, s.getObjects());
@@ -83,7 +80,7 @@ class DFAFactory {
                         DFAState nextState = getDFAState(nextNFAStates, nfa);
                         if (!states.contains(nextState)) {
                             states.add(nextState);
-                            worklist.add(nextState);
+                            workList.add(nextState);
                         }
                         addTransition(s, f, nextState);
                     });
@@ -93,13 +90,12 @@ class DFAFactory {
     }
 
     private DFAState getDFAState(Set<Obj> objs, NFA nfa) {
-        if (!stateMap.containsKey(objs)) {
-            Set<Type> output = objs.stream()
+        return stateMap.computeIfAbsent(objs, objects -> {
+            Set<Type> output = objects.stream()
                     .map(nfa::outputOf)
                     .collect(Collectors.toSet());
-            stateMap.put(objs, new DFAState(objs, output));
-        }
-        return stateMap.get(objs);
+            return new DFAState(objects, output);
+        });
     }
 
     private Set<Obj> move(NFA nfa, Set<Obj> objs, Field f) {
@@ -118,5 +114,10 @@ class DFAFactory {
 
     private void addTransition(DFAState s, Field f, DFAState nextState) {
         s.addTransition(f, nextState);
+    }
+
+    DFA getDFA(Obj obj) {
+        DFAState q0 = stateMap.get(Set.of(obj));
+        return new DFA(q0);
     }
 }

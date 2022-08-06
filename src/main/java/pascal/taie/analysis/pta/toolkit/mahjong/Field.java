@@ -26,8 +26,8 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Represents edge labels of a field points-to graph, i.e., a JField or
@@ -53,7 +53,7 @@ class Field {
 
         private static final Field ARRAY_INDEX = new Field(null);
 
-        private final Map<JField, Field> fields = Maps.newMap();
+        private final ConcurrentMap<JField, Field> fields = Maps.newConcurrentMap();
 
         Field get(JField field) {
             Objects.requireNonNull(field);

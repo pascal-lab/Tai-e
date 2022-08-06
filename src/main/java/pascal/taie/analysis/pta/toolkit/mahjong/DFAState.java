@@ -24,11 +24,12 @@ package pascal.taie.analysis.pta.toolkit.mahjong;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 class DFAState {
@@ -37,14 +38,14 @@ class DFAState {
 
     private final Set<Type> output;
 
-    private final Map<Field, DFAState> nextMap;
+    private final ConcurrentMap<Field, DFAState> nextMap;
 
     private int hashCode = 0;
 
     DFAState(Set<Obj> objs, Set<Type> output) {
         this.objs = objs;
         this.output = output;
-        this.nextMap = new HashMap<>();
+        this.nextMap = Maps.newConcurrentMap();
     }
 
     Set<Obj> getObjects() {

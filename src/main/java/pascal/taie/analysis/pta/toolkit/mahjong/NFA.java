@@ -73,20 +73,12 @@ class NFA {
         return q0;
     }
 
-    Obj getDeadState() {
-        return DEAD_STATE;
-    }
-
     Set<Obj> nextStates(Obj obj, Field f) {
         if (isDeadState(obj) || !fpg.hasPointer(obj, f)) {
             return Set.of(DEAD_STATE);
         } else {
             return fpg.pointsTo(obj, f);
         }
-    }
-
-    boolean isDeadState(Obj obj) {
-        return DEAD_STATE == obj;
     }
 
     Set<Field> outEdgesOf(Obj obj) {
@@ -99,5 +91,13 @@ class NFA {
 
     Type outputOf(Obj obj) {
         return obj.getType();
+    }
+
+    static Obj getDeadState() {
+        return DEAD_STATE;
+    }
+
+    static boolean isDeadState(Obj obj) {
+        return DEAD_STATE == obj;
     }
 }
