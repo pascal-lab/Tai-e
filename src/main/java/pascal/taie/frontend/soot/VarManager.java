@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 class VarManager {
 
@@ -86,7 +87,14 @@ class VarManager {
     }
 
     void addParams(List<Local> paramLocals) {
-        paramLocals.forEach(p -> params.add(getVar(p)));
+        for (int i = 0; i < paramLocals.size(); i++) {
+            Local paramLocal = paramLocals.get(i);
+            String paramName = Objects.requireNonNullElseGet(
+                    method.getParamName(i), paramLocal::getName);
+            Var param = varMap.computeIfAbsent(paramLocal, l ->
+                    newVar(paramName, getTypeOf(l)));
+            params.add(param);
+        }
     }
 
     Var getVar(Local local) {

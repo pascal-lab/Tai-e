@@ -78,6 +78,7 @@ import soot.tagkit.AnnotationIntElem;
 import soot.tagkit.AnnotationLongElem;
 import soot.tagkit.AnnotationStringElem;
 import soot.tagkit.AnnotationTag;
+import soot.tagkit.ParamNamesTag;
 import soot.tagkit.VisibilityAnnotationTag;
 import soot.tagkit.VisibilityParameterAnnotationTag;
 
@@ -175,6 +176,7 @@ class Converter {
                     paramTypes, returnType, exceptions,
                     convertAnnotations(sootMethod),
                     convertParamAnnotations(sootMethod),
+                    convertParamNames(sootMethod),
                     sootMethod
             );
         });
@@ -284,5 +286,18 @@ class Converter {
                 sootMethod.getTag(VisibilityParameterAnnotationTag.NAME);
         return tag == null ? null :
                 Lists.map(tag.getVisibilityAnnotations(), Converter::convertAnnotations);
+    }
+
+    /**
+     * Converts all names of parameters of {@code sootMethod} to a list.
+     *
+     * @see ParamNamesTag
+     */
+    @Nullable
+    private static List<String> convertParamNames(
+            SootMethod sootMethod) {
+        // in Soot, each ParamNamesTag contains the names of all parameters in the SootMethod
+        var tag = (ParamNamesTag) sootMethod.getTag(ParamNamesTag.NAME);
+        return tag == null || tag.getNames().isEmpty() ? null : tag.getNames();
     }
 }

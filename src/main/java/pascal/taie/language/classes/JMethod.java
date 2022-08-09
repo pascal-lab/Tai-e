@@ -54,6 +54,9 @@ public class JMethod extends ClassMember {
     @Nullable
     private final List<AnnotationHolder> paramAnnotations;
 
+    @Nullable
+    private final List<String> paramNames;
+
     /**
      * Source of the body (and/or other information) of this method.
      * IRBuilder can use this to build method IR.
@@ -66,6 +69,7 @@ public class JMethod extends ClassMember {
                    List<Type> paramTypes, Type returnType, List<ClassType> exceptions,
                    AnnotationHolder annotationHolder,
                    @Nullable List<AnnotationHolder> paramAnnotations,
+                   @Nullable List<String> paramNames,
                    Object methodSource) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.paramTypes = List.copyOf(paramTypes);
@@ -74,6 +78,7 @@ public class JMethod extends ClassMember {
         this.signature = StringReps.getSignatureOf(this);
         this.subsignature = Subsignature.get(name, paramTypes, returnType);
         this.paramAnnotations = paramAnnotations;
+        this.paramNames = paramNames;
         this.methodSource = methodSource;
     }
 
@@ -131,6 +136,11 @@ public class JMethod extends ClassMember {
     public Collection<Annotation> getParamAnnotations(int i) {
         return paramAnnotations == null ? Set.of() :
                 paramAnnotations.get(i).getAnnotations();
+    }
+
+    @Nullable
+    public String getParamName(int i) {
+        return paramNames == null ? null : paramNames.get(i);
     }
 
     public Type getReturnType() {
