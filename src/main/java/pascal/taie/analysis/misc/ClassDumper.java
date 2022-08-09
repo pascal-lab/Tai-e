@@ -24,8 +24,7 @@ package pascal.taie.analysis.misc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.World;
-import pascal.taie.analysis.ProgramAnalysis;
+import pascal.taie.analysis.ClassAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Configs;
 import pascal.taie.ir.IR;
@@ -50,9 +49,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Dumps out classes.
+ * Dumps classes and Tai-e IR
  */
-public class ClassDumper extends ProgramAnalysis<Void> {
+public class ClassDumper extends ClassAnalysis<Void> {
 
     public static final String ID = "class-dumper";
 
@@ -67,15 +66,8 @@ public class ClassDumper extends ProgramAnalysis<Void> {
     }
 
     @Override
-    public Void analyze() {
-        List<JClass> classes = World.get()
-                .getClassHierarchy()
-                .applicationClasses()
-                .toList();
-        logger.info("Dumping {} classes to {} ...",
-                classes.size(), Configs.getOutputDir());
-        classes.parallelStream()
-                .forEach(c -> new Dumper(c).dump());
+    public Void analyze(JClass jclass) {
+        new Dumper(jclass).dump();
         return null;
     }
 

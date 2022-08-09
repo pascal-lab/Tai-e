@@ -111,7 +111,7 @@
     action-file: null # path of file to dump/compare
     log-mismatches: false # | whether log mismatched items
 
-- description: dump classes
+- description: dump classes and Tai-e IR
   analysisClass: pascal.taie.analysis.misc.ClassDumper
   id: class-dumper
 
