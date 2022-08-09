@@ -89,8 +89,9 @@ class VarManager {
     void addParams(List<Local> paramLocals) {
         for (int i = 0; i < paramLocals.size(); i++) {
             Local paramLocal = paramLocals.get(i);
-            String paramName = Objects.requireNonNullElseGet(
-                    method.getParamName(i), paramLocal::getName);
+            // soot frontend cannot ensure availability of all parameter names
+            String paramName = Objects.requireNonNullElse(
+                    method.getParamName(i), paramLocal.getName());
             Var param = varMap.computeIfAbsent(paramLocal, l ->
                     newVar(paramName, getTypeOf(l)));
             params.add(param);

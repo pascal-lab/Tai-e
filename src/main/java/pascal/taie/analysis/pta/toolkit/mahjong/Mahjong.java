@@ -85,7 +85,7 @@ public class Mahjong {
                         if (canBeMerged(o1, dfaMap)) {
                             for (Obj o2 : objs) {
                                 if (canBeMerged(o2, dfaMap)) {
-                                    if (o1.getIndex() <= o2.getIndex()
+                                    if (o1.getIndex() < o2.getIndex()
                                             && !uf.isConnected(o1, o2)
                                             && canBeMerged(o1, o2, dfaMap)) {
                                         uf.union(o1, o2);
@@ -102,9 +102,6 @@ public class Mahjong {
      * @return {@code true} if o1 and o2 can be merged.
      */
     private boolean canBeMerged(Obj o1, Obj o2, DFAMap dfaMap) {
-        if (o1 == o2) {
-            return true;
-        }
         DFA dfa1 = dfaMap.getDFA(o1);
         DFA dfa2 = dfaMap.getDFA(o2);
         return dfaEqChecker.isEquivalent(dfa1, dfa2);
