@@ -3,7 +3,7 @@ public class NullDeref3{
 
     void foo() {
         NullDeref3 n = new NullDeref3();
-        if (n != null)
+        if (n != null) // report a RCN warning
             System.out.println("Not null");
         System.out.println(n.hashCode());
     }
@@ -27,15 +27,15 @@ public class NullDeref3{
         if (o != null)
             return o;
 
-        if (o == null)
+        if (o == null) // report a RCN warning
             System.out.println("Got null");
 
         // Should get high priority
         System.out.println(o.hashCode());
-        // Redundant
+        // Redundant but unreachable
         if (o == null)
             return o;
-        // Unreachable code
+
         return o.getClass();
     }
 }

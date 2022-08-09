@@ -29,11 +29,6 @@ public enum Severity {
     MAJOR("Low", "High"),
     MINOR("Low", "Low");
 
-    private final String impact;
-    private final String likelihood;
-
     Severity(String impact, String likelihood) {
-        this.impact = impact;
-        this.likelihood = likelihood;
     }
 }

@@ -74,11 +74,6 @@ public class IsNullFact extends MapFact<Var, IsNullValue> {
                 .stream()
                 .filter(entry -> entry.getValue().isNullOnSomePath())
                 .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
-//            forEach((var, value) -> {
-//            if (value.isNullOnSomePath()) {
-//                update(var, IsNullValue.nullOnComplexPathValue());
-//            }
-//        });
     }
 
     public void setInvalid() {
@@ -86,7 +81,9 @@ public class IsNullFact extends MapFact<Var, IsNullValue> {
         isValid = false;
     }
 
-    public void setValid() {isValid = true;}
+    public void setValid() {
+        isValid = true;
+    }
 
     public boolean isValid() {
         return isValid;

@@ -120,9 +120,9 @@
     # dumped to Tai-e's default output directory
 
 - description: null value analysis
-  analysisClass: pascal.taie.analysis.bugfinder.dataflow.IsNullAnalysis
+  analysisClass: pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis
   id: isnull
-  requires: [ throw,cfg ]
+  requires: [ cfg ]
 
 - description: Null pointer and redundant comparison detector
   analysisClass: pascal.taie.analysis.bugfinder.nullpointer.NullPointerDetection

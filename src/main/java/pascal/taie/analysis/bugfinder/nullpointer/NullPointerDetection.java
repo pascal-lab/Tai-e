@@ -47,22 +47,11 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
         super(config);
     }
 
-    @Override
-    public Set<BugInstance> analyze(IR ir) {
-        NodeResult<Stmt, IsNullFact> nullValues = ir.getResult(IsNullAnalysis.ID);
-        Set<BugInstance> bugInstances = Sets.newSet();
-
-        bugInstances.addAll(findNullDeref(ir, nullValues));
-        bugInstances.addAll(findRedundantComparison(ir, nullValues));
-
-        return bugInstances;
-    }
-
     private Set<BugInstance> findNullDeref(IR ir, NodeResult<Stmt, IsNullFact> nullValues) {
-        Set<BugInstance> nullDerefs = Sets.newSet();
+        Set<BugInstance> nullDerefs = Sets.newHybridOrderedSet();
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
         for (Stmt stmt : cfg.getNodes()) {
-            Var derefVar = stmt.accept(new IsNullAnalysis.NPEVarVisitor());
+            Var derefVar = stmt.accept(new NPEVarVisitor());
             if (derefVar != null) {
                 IsNullFact prevFact = null;
                 for (Edge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
@@ -75,11 +64,11 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                     IsNullValue derefVarValue = prevFact.get(derefVar);
                     if (derefVarValue.isDefinitelyNull()) {
                         nullDerefs.add(
-                                BugInstance.newBugInstance("NP_ALWAYS_NULL", Severity.BLOCKER, ir.getMethod(), stmt.getLineNumber())
+                                BugInstance.newBugInstance(BugType.NP_ALWAYS_NULL, Severity.BLOCKER, ir.getMethod(), stmt.getLineNumber())
                         );
                     } else if (derefVarValue.isNullOnSomePath()) {
                         nullDerefs.add(
-                                BugInstance.newBugInstance("NP_MAY_NULL", Severity.CRITICAL, ir.getMethod(), stmt.getLineNumber())
+                                BugInstance.newBugInstance(BugType.NP_MAY_NULL, Severity.CRITICAL, ir.getMethod(), stmt.getLineNumber())
                         );
                     }
                 }
@@ -87,6 +76,17 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
         }
 
         return nullDerefs;
+    }
+
+    @Override
+    public Set<BugInstance> analyze(IR ir) {
+        NodeResult<Stmt, IsNullFact> nullValues = ir.getResult(IsNullAnalysis.ID);
+        Set<BugInstance> bugInstances = Sets.newSet();
+
+        bugInstances.addAll(findNullDeref(ir, nullValues));
+        bugInstances.addAll(findRedundantComparison(ir, nullValues));
+
+        return bugInstances;
     }
 
     private Set<BugInstance> findRedundantComparison(IR ir, NodeResult<Stmt, IsNullFact> nullValues) {
@@ -105,27 +105,27 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                     IsNullValue varTestedValue = fact.get(varTested);
                     Var var1 = ifStmt.getCondition().getOperand1();
                     Var var2 = ifStmt.getCondition().getOperand2();
-                    String bugType = null;
+                    BugType bugType = null;
 
                     Var anotherVar = varTested == var1 ? var2 : var1;
                     if (anotherVar.getType() instanceof NullType) {
                         if (varTestedValue.isAKaBoom()) {
-                            bugType = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE";
+                            bugType = BugType.RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE;
                         } else if (varTestedValue.isDefinitelyNotNull()) {
-                            bugType = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE";
+                            bugType = BugType.RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE;
                         } else if (varTestedValue.isDefinitelyNull()) {
-                            bugType = "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE";
+                            bugType = BugType.RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE;
                         }
                     } else {
                         IsNullValue anotherVarValue = fact.get(anotherVar);
                         if (varTestedValue.isDefinitelyNull()) {
                             if (anotherVarValue.isDefinitelyNull()) {
-                                bugType = "RCN_REDUNDANT_COMPARISON_TWO_NULL_VALUES";
+                                bugType = BugType.RCN_REDUNDANT_COMPARISON_TWO_NULL_VALUES;
                             } else if (anotherVarValue.isDefinitelyNotNull()) {
-                                bugType = "RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE";
+                                bugType = BugType.RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE;
                             }
                         } else if (varTestedValue.isDefinitelyNotNull() && anotherVarValue.isDefinitelyNull()) {
-                            bugType = "RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE";
+                            bugType = BugType.RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE;
                         }
                     }
 
@@ -139,5 +139,15 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
         }
 
         return redundantComparisons;
+    }
+
+    private enum BugType implements pascal.taie.analysis.bugfinder.BugType {
+        NP_ALWAYS_NULL,
+        NP_MAY_NULL,
+        RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE,
+        RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE,
+        RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE,
+        RCN_REDUNDANT_COMPARISON_TWO_NULL_VALUES,
+        RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE
     }
 }

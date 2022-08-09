@@ -29,22 +29,20 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 //TODO: refactor it with more precise context information.
-public class BugInstance {
+public class BugInstance implements Comparable<BugInstance> {
 
-    private final String type;
+    private final BugType type;
 
-    private Severity severity;
+    private final Severity severity;
 
     private JClass jClass;
 
     private JMethod jMethod;
 
-
     private int sourceLineStart = -1, sourceLineEnd = -2;
-//    private final ArrayList<BugAnnotation> annotationList;
 
-    public BugInstance(@Nonnull String type, Severity severity) {
-        this.type = type.intern();
+    public BugInstance(@Nonnull BugType type, Severity severity) {
+        this.type = type;
         this.severity = severity;
     }
 
@@ -52,12 +50,12 @@ public class BugInstance {
         return severity;
     }
 
-    public String getType() {
-        return type;
+    private static String getString(Object o) {
+        return o == null ? "empty" : o.toString();
     }
 
-    private String getString(Object o) {
-        return o == null ? "empty" : o.toString();
+    public static BugInstance newBugInstance(BugType type, Severity severity, JMethod method, int lineNum) {
+        return new BugInstance(type, severity).setClassAndMethod(method).setSourceLine(lineNum);
     }
 
     @Override
@@ -72,28 +70,28 @@ public class BugInstance {
         );
     }
 
+    public BugType getType() {
+        return type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof BugInstance bugInstance)) return false;
 
-        return type.equals(bugInstance.type) && jClass == bugInstance.jClass
-                && jMethod == bugInstance.jMethod && sourceLineStart == bugInstance.sourceLineStart
+        return type.equals(bugInstance.type) && Objects.equals(jClass, bugInstance.jClass)
+                && Objects.equals(jMethod, bugInstance.jMethod) && sourceLineStart == bugInstance.sourceLineStart
                 && sourceLineEnd == bugInstance.sourceLineEnd;
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(type);
-        result = 31 * result + Objects.hashCode(jClass);
-        result = 31 * result + Objects.hashCode(jMethod);
-        result = 31 * result + sourceLineStart;
-        result = 31 * result + sourceLineEnd;
-        return result;
+        return Objects.hash(type, jClass, jMethod, sourceLineStart, sourceLineEnd);
     }
 
-    public static BugInstance newBugInstance(String type, Severity severity, JMethod method, int lineNum) {
-        return new BugInstance(type, severity).setClassAndMethod(method).setSourceLine(lineNum);
+    @Override
+    public int compareTo(BugInstance o) {
+        return Integer.compare(sourceLineStart, o.sourceLineStart);
     }
 
     public BugInstance setClassAndMethod(JMethod method) {

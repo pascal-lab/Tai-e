@@ -69,11 +69,14 @@ public class DroppedException extends MethodAnalysis<Set<BugInstance>> {
                     }
                 }
                 Severity severity = Severity.MINOR;
-                if (exceptionName.equals(ClassNames.ERROR) || exceptionName.equals(ClassNames.EXCEPTION)
-                        || exceptionName.equals(ClassNames.THROWABLE) || exceptionName.equals(ClassNames.RUNTIME_EXCEPTION)) {
+                if (exceptionName.equals(ClassNames.ERROR)
+                        || exceptionName.equals(ClassNames.EXCEPTION)
+                        || exceptionName.equals(ClassNames.THROWABLE)
+                        || exceptionName.equals(ClassNames.RUNTIME_EXCEPTION)) {
                     severity = Severity.CRITICAL;
                 }
-                BugInstance bugInstance = new BugInstance(exitInTryBlock ? "DE_MIGHT_DROP" : "DE_MIGHT_IGNORE", severity)
+                BugInstance bugInstance = new BugInstance(
+                        exitInTryBlock ? BugType.DE_MIGHT_DROP : BugType.DE_MIGHT_IGNORE, severity)
                         .setClassAndMethod(ir.getMethod())
                         .setSourceLine(catchHandler.getLineNumber());
                 bugInstanceSet.add(bugInstance);
@@ -81,5 +84,10 @@ public class DroppedException extends MethodAnalysis<Set<BugInstance>> {
         }
 
         return bugInstanceSet;
+    }
+
+    private enum BugType implements pascal.taie.analysis.bugfinder.BugType {
+        DE_MIGHT_DROP,
+        DE_MIGHT_IGNORE
     }
 }

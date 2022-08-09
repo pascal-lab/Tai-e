@@ -1,3 +1,0 @@
-public class NullDeref4{
-
-}

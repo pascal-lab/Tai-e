@@ -2,14 +2,14 @@ public class NullDeref2 {
 
     void possibleNullOnSplit() {
         Object a = null;
-        if (a == null) {// report warning
+        if (a == null) {// report a RCN warning
             try {
                 System.out.println(1);
             } catch (RuntimeException e) {
                 a = "notNull";
             }
 
-            System.out.println(a.getClass());// report warning
+            System.out.println(a.getClass());// report an NP warning
         }
     }
 
@@ -35,14 +35,14 @@ public class NullDeref2 {
     }
 
     static boolean same2(Object a, Object b) {
-        if ((null == a && null == b) || a.equals(b))
+        if ((null == a && null == b) || a.equals(b)) // report a RCN warning
             return true;
         else
             return false;
     }
 
     static boolean same3(Object a, Object b) {
-        if ((a == null && b == null) || a.equals(b))
+        if ((a == null && b == null) || a.equals(b)) // report a RCN warning
             return true;
         else
             return false;

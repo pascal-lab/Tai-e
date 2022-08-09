@@ -97,14 +97,24 @@ public class CloneIdiom extends ClassAnalysis<Set<BugInstance>> {
 
         //generate analysis result
         if (implementsCloneableDirectly && !hasCloneMethod) {
-            bugInstances.add(new BugInstance("CN_IDIOM", Severity.MINOR).setClass(jclass));
+            bugInstances.add(new BugInstance(BugType.CN_IDIOM, Severity.MINOR).setClass(jclass));
         }
 
         if (hasCloneMethod && isCloneable && !invokesSuperClone && !isFinal && jclass.isPublic()) {
-            bugInstances.add(new BugInstance("CN_IDIOM_NO_SUPER_CALL", Severity.MINOR).setClass(jclass));
+            bugInstances.add(
+                    new BugInstance(BugType.CN_IDIOM_NO_SUPER_CALL, Severity.MINOR)
+                            .setClass(jclass));
         } else if (hasCloneMethod && !isCloneable && !cloneIsDeprecated && !jclass.isAbstract()) {
-            bugInstances.add(new BugInstance("CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE", Severity.MINOR).setClass(jclass));
+            bugInstances.add(
+                    new BugInstance(BugType.CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE, Severity.MINOR)
+                            .setClass(jclass));
         }
         return bugInstances;
+    }
+
+    private enum BugType implements pascal.taie.analysis.bugfinder.BugType {
+        CN_IDIOM,
+        CN_IDIOM_NO_SUPER_CALL,
+        CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE
     }
 }
