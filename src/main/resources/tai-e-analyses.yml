@@ -114,6 +114,10 @@
 - description: dump classes and Tai-e IR
   analysisClass: pascal.taie.analysis.misc.ClassDumper
   id: class-dumper
+  options:
+    dump-dir: null # path of directory to dump classes;
+    # if this is not given (i.e., null), classes will be
+    # dumped to Tai-e's default output directory
 
 - description: null value analysis
   analysisClass: pascal.taie.analysis.bugfinder.dataflow.IsNullAnalysis

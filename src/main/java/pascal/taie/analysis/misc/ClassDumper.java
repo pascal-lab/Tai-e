@@ -40,6 +40,7 @@ import pascal.taie.language.type.Type;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -61,30 +62,49 @@ public class ClassDumper extends ClassAnalysis<Void> {
 
     private static final String INDENT = "    ";
 
+    /**
+     * Directory to dump classes.
+     */
+    private final File dumpDir;
+
     public ClassDumper(AnalysisConfig config) {
         super(config);
+        String path = getOptions().getString("dump-dir");
+        dumpDir = path != null ? new File(path) : Configs.getOutputDir();
+        if (!dumpDir.exists()) {
+            dumpDir.mkdirs();
+        }
+        try {
+            logger.info("Dump directory: {}", dumpDir.getCanonicalPath());
+        } catch (IOException e) { // would this happen after dumpDir.mkdirs()?
+            logger.warn("Failed to get canonical path of dump-dir", e);
+            logger.info("Dump directory: {}", dumpDir.getAbsolutePath());
+        }
     }
 
     @Override
     public Void analyze(JClass jclass) {
-        new Dumper(jclass).dump();
+        new Dumper(dumpDir, jclass).dump();
         return null;
     }
 
     private static class Dumper {
 
+        private final File dumpDir;
+
         private final JClass jclass;
 
         private PrintStream out;
 
-        private Dumper(JClass jclass) {
+        private Dumper(File dumpDir, JClass jclass) {
+            this.dumpDir = dumpDir;
             this.jclass = jclass;
         }
 
         private void dump() {
             String fileName = jclass.getName() + SUFFIX;
             try (PrintStream out = new PrintStream(new FileOutputStream(
-                    new File(Configs.getOutputDir(), fileName)))) {
+                    new File(dumpDir, fileName)))) {
                 this.out = out;
                 dumpClassDeclaration();
                 out.println(" {");
