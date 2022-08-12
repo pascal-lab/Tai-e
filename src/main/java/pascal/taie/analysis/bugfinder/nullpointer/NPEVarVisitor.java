@@ -4,7 +4,15 @@ import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.*;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Monitor;
+import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.Throw;
+import pascal.taie.ir.stmt.Unary;
 
 public class NPEVarVisitor implements StmtVisitor<Var> {
     @Override
