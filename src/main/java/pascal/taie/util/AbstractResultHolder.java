@@ -44,6 +44,11 @@ public abstract class AbstractResultHolder implements ResultHolder {
     }
 
     @Override
+    public boolean hasResult(String key) {
+        return results.containsKey(key);
+    }
+
+    @Override
     public <R> R getResult(String key) {
         return (R) results.get(key);
     }

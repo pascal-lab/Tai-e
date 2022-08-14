@@ -37,6 +37,11 @@ public interface ResultHolder {
     <R> void storeResult(String key, R result);
 
     /**
+     * @return {@code true} if the holder contains the result for given id.
+     */
+    boolean hasResult(String id);
+
+    /**
      * Given a key, returns the corresponding results.
      */
     <R> R getResult(String key);
