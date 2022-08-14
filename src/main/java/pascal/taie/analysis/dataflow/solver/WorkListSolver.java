@@ -193,7 +193,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                 Edge<Node> outEdge = CollectionUtils.getOne(cfg.getOutEdgesOf(node));
                 if (analysis.needTransferEdge(outEdge)) {
                     out = analysis.transferEdge(outEdge,
-                            result.getOutFact(outEdge.getTarget()));
+                            result.getInFact(outEdge.getTarget()));
                     result.setOutFact(node, out);
                 } else {
                     out = result.getOutFact(node);
