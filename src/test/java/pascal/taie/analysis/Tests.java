@@ -26,6 +26,7 @@ import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
+import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
 
 import java.nio.file.Paths;

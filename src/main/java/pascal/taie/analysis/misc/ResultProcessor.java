@@ -20,11 +20,13 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis;
+package pascal.taie.analysis.misc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.ProgramAnalysis;
+import pascal.taie.analysis.StmtResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
@@ -33,8 +35,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionUtils;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
@@ -44,8 +44,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.getOne;
 
@@ -61,7 +62,7 @@ import static pascal.taie.util.collection.CollectionUtils.getOne;
  * Special class for process the results of other analyses after they finish.
  * This class is designed mainly for testing purpose. Currently, it supports
  * input/output analysis results from/to file, and compare analysis results
- * with input results. This analysis should be placed after the other analyses.
+ * with input results. This analysis should be specified as the last analysis.
  */
 public class ResultProcessor extends ProgramAnalysis<Set<String>> {
 
@@ -75,7 +76,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
 
     private PrintStream out;
 
-    private MultiMap<Pair<String, String>, String> inputs;
+    private Map<Pair<String, String>, List<String>> inputs;
 
     private Set<String> mismatches;
 
@@ -93,19 +94,20 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
             case "compare" -> readInputs();
         }
         mismatches = new LinkedHashSet<>();
-        // Classify given analysis IDs into two groups, one for inter-procedural
-        // and the another one for intra-procedural analysis.
-        // If an ID has result in World, then it is classified as
-        // inter-procedural analysis, and others are intra-procedural analyses.
+        // Classify given analysis IDs into two groups,
+        // one for ProgramAnalysis if present in the World,
+        // and another for Class/MethodAnalysis otherwise.
         @SuppressWarnings("unchecked")
-        Map<Boolean, List<String>> groups = ((List<String>) getOptions().get("analyses"))
-                .stream()
-                .collect(Collectors.groupingBy(id -> World.get().getResult(id) != null));
-        if (groups.containsKey(true)) {
-            processProgramAnalysisResult(groups.get(true));
+        List<String> analyses = (List<String>) getOptions().get("analyses");
+        Map<Boolean, List<String>> groups = analyses.stream()
+                .collect(Collectors.groupingBy(World.get()::hasResult));
+        List<String> programAnalyses = groups.get(true);
+        if (programAnalyses != null) {
+            processProgramAnalysisResult(programAnalyses);
         }
-        if (groups.containsKey(false)) {
-            processMethodAnalysisResult(groups.get(false));
+        List<String> classMethodAnalyses = groups.get(false);
+        if (classMethodAnalyses != null) {
+            processClassMethodAnalysisResult(classMethodAnalyses);
         }
         if (getOptions().getBoolean("log-mismatches")) {
             mismatches.forEach(logger::info);
@@ -133,9 +135,8 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
     private void readInputs() {
         String input = getOptions().getString("action-file");
         Path path = Path.of(input);
-        try {
-            inputs = Maps.newMultiMap();
-            BufferedReader reader = Files.newBufferedReader(path);
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            inputs = new LinkedHashMap<>();
             String line;
             Pair<String, String> currentKey = null;
             while ((line = reader.readLine()) != null) {
@@ -143,7 +144,10 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
                 if (key != null) {
                     currentKey = key;
                 } else if (!line.isBlank()) {
-                    inputs.put(currentKey, line);
+                    assert currentKey != null;
+                    inputs.computeIfAbsent(currentKey,
+                                    unused -> new ArrayList<>())
+                            .add(line);
                 }
             }
         } catch (IOException e) {
@@ -153,13 +157,18 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
 
     private static Pair<String, String> extractKey(String line) {
         if (line.startsWith("----------") && line.endsWith("----------")) {
-            int ms = line.indexOf('<'); // method start
-            int me = line.indexOf("> "); // method end
-            String method = line.substring(ms, me + 1);
-            int as = line.lastIndexOf('('); // analysis start
-            int ae = line.lastIndexOf(')'); // analysis end
+            int es = line.indexOf('<'); // entity (method) start
+            int ee = line.lastIndexOf('>'); // entity (method) end
+            if (es == -1 && ee == -1) { // method start/end not found,
+                // so this should be a class analysis
+                es = line.indexOf(' ') + 1; // entity (class) start
+                ee = line.indexOf(' ', es) - 1; // entity (class) end
+            }
+            String entity = line.substring(es, ee + 1);
+            int as = line.lastIndexOf('('); // analysis ID start
+            int ae = line.lastIndexOf(')'); // analysis ID end
             String analysis = line.substring(as + 1, ae);
-            return new Pair<>(method, analysis);
+            return new Pair<>(entity, analysis);
         } else {
             return null;
         }
@@ -179,41 +188,54 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
     };
 
     private void processProgramAnalysisResult(List<String> analyses) {
+        // TODO: support class-level analysis?
         CallGraph<?, JMethod> cg = World.get().getResult(CallGraphBuilder.ID);
-        Stream<JMethod> methodStream = onlyApp ?
-                cg.reachableMethods().filter(m -> m.getDeclaringClass().isApplication()) :
-                cg.reachableMethods();
-        // TODO: cache methods?
-        List<JMethod> methods = methodStream
+        List<JMethod> methods = cg.reachableMethods()
+                .filter(m -> !onlyApp || m.getDeclaringClass().isApplication())
                 .sorted(methodComp)
                 .toList();
         processResults(methods, analyses, (m, id) -> World.get().getResult(id));
     }
 
-    private void processMethodAnalysisResult(List<String> analyses) {
-        Stream<JClass> classStream = onlyApp ?
-                World.get().getClassHierarchy().applicationClasses() :
-                World.get().getClassHierarchy().allClasses();
-        // TODO: cache methods?
-        List<JMethod> methods = classStream
-                .map(JClass::getDeclaredMethods)
-                .flatMap(Collection::stream)
-                .filter(m -> !m.isAbstract() && !m.isNative())
-                .sorted(methodComp)
+    private void processClassMethodAnalysisResult(List<String> analyses) {
+        List<JClass> classes = World.get().getClassHierarchy()
+                .allClasses()
+                .filter(c -> !onlyApp || c.isApplication())
+                .sorted(Comparator.comparing(JClass::toString))
                 .toList();
-        processResults(methods, analyses, (m, id) -> m.getIR().getResult(id));
+        // Classify given analysis IDs into two groups,
+        // one for ClassAnalysis if present in an arbitrarily-picked class c,
+        // and another for MethodAnalysis otherwise.
+        JClass c = CollectionUtils.getOne(classes);
+        Map<Boolean, List<String>> groups = analyses.stream()
+                .collect(Collectors.groupingBy(c::hasResult));
+        List<String> classAnalyses = groups.get(true);
+        if (classAnalyses != null) {
+            processResults(classes, classAnalyses, JClass::getResult);
+        }
+        List<String> methodAnalyses = groups.get(false);
+        if (methodAnalyses != null) {
+            List<JMethod> methods = classes.stream()
+                    .map(JClass::getDeclaredMethods)
+                    .flatMap(Collection::stream)
+                    .filter(m -> !m.isAbstract() && !m.isNative())
+                    .sorted(methodComp)
+                    .toList();
+            processResults(methods, methodAnalyses,
+                    (m, id) -> m.getIR().getResult(id));
+        }
     }
 
-    private void processResults(List<JMethod> methods, List<String> analyses,
-                                BiFunction<JMethod, String, ?> resultGetter) {
+    private <E> void processResults(List<E> entities, List<String> analyses,
+                                    BiFunction<E, String, ?> resultGetter) {
         Set<Pair<String, String>> processed = Sets.newSet();
-        for (JMethod method : methods) {
+        for (E entity : entities) {
             for (String id : analyses) {
                 switch (action) {
-                    case "dump" -> dumpResult(method, id, resultGetter);
-                    case "compare" -> compareResult(method, id, resultGetter);
+                    case "dump" -> dumpResult(entity, id, resultGetter);
+                    case "compare" -> compareResult(entity, id, resultGetter);
                 }
-                processed.add(new Pair<>(method.toString(), id));
+                processed.add(new Pair<>(entity.toString(), id));
             }
         }
         if (action.equals("compare")) {
@@ -229,13 +251,14 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         }
     }
 
-    private void dumpResult(JMethod method, String id,
-                            BiFunction<JMethod, String, ?> resultGetter) {
-        out.printf("-------------------- %s (%s) --------------------%n", method, id);
-        Object result = resultGetter.apply(method, id);
-        if (result instanceof Set<?> set) {
-            set.forEach(e -> out.println(toString(e)));
+    private <E> void dumpResult(
+            E entity, String id, BiFunction<E, String, ?> resultGetter) {
+        out.printf("-------------------- %s (%s) --------------------%n", entity, id);
+        Object result = resultGetter.apply(entity, id);
+        if (result instanceof Collection<?> c) {
+            c.forEach(e -> out.println(toString(e)));
         } else if (result instanceof StmtResult<?> stmtResult) {
+            JMethod method = (JMethod) entity;
             method.getIR()
                     .stmts()
                     .filter(stmtResult::isRelevant)
@@ -268,61 +291,63 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         return toString(stmt) + " " + toString(result.getResult(stmt));
     }
 
-    private void compareResult(JMethod method, String id,
-                               BiFunction<JMethod, String, ?> resultGetter) {
-        Set<String> inputResult = inputs.get(new Pair<>(method.toString(), id));
-        Object result = resultGetter.apply(method, id);
-        if (result instanceof Set<?> set) {
-            Set<String> given = set.stream()
+    private <E> void compareResult(
+            E entity, String id, BiFunction<E, String, ?> resultGetter) {
+        List<String> inputResult = inputs.getOrDefault(
+                new Pair<>(entity.toString(), id), List.of());
+        Object result = resultGetter.apply(entity, id);
+        if (result instanceof Collection<?> c) {
+            Set<String> given = c.stream()
                     .map(ResultProcessor::toString)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             given.forEach(s -> {
                 if (!inputResult.contains(s)) {
-                    mismatches.add(method + " " + s +
+                    mismatches.add(entity + " " + s +
                             " should NOT be included");
                 }
             });
             inputResult.forEach(s -> {
                 if (!given.contains(s)) {
-                    mismatches.add(method + " " + s +
+                    mismatches.add(entity + " " + s +
                             " should be included");
                 }
             });
         } else if (result instanceof StmtResult<?> stmtResult) {
-            Set<String> lines = inputs.get(new Pair<>(method.toString(), id));
-            method.getIR()
-                    .stmts()
-                    .filter(stmtResult::isRelevant)
-                    .forEach(stmt -> {
-                        String stmtStr = toString(stmt);
-                        String given = toString(stmt, stmtResult);
-                        boolean foundExpeceted = false;
-                        for (String line : lines) {
-                            if (line.startsWith(stmtStr)) {
-                                foundExpeceted = true;
-                                if (!line.equals(given)) {
-                                    int idx = stmtStr.length();
-                                    mismatches.add(String.format("%s %s expected: %s, given: %s",
-                                            method, stmtStr, line.substring(idx + 1),
-                                            given.substring(idx + 1)));
-                                }
+            JMethod method = (JMethod) entity;
+            List<String> lines = inputs.getOrDefault(
+                    new Pair<>(method.toString(), id), List.of());
+            for (Stmt stmt : method.getIR()) {
+                if (stmtResult.isRelevant(stmt)) {
+                    String stmtStr = toString(stmt);
+                    String given = toString(stmt, stmtResult);
+                    boolean foundExpected = false;
+                    for (String line : lines) {
+                        if (line.startsWith(stmtStr)) {
+                            foundExpected = true;
+                            if (!line.equals(given)) {
+                                int idx = stmtStr.length();
+                                mismatches.add(String.format("%s %s expected: %s, given: %s",
+                                        method, stmtStr, line.substring(idx + 1),
+                                        given.substring(idx + 1)));
                             }
                         }
-                        if (!foundExpeceted) {
-                            int idx = stmtStr.length();
-                            mismatches.add(String.format("%s %s expected: null, given: %s",
-                                    method, stmtStr, given.substring(idx + 1)));
-                        }
-                    });
+                    }
+                    if (!foundExpected) {
+                        int idx = stmtStr.length();
+                        mismatches.add(String.format("%s %s expected: null, given: %s",
+                                method, stmtStr, given.substring(idx + 1)));
+                    }
+                }
+            }
         } else if (inputResult.size() == 1) {
             if (!toString(result).equals(getOne(inputResult))) {
                 mismatches.add(String.format("%s expected: %s, given: %s",
-                        method, getOne(inputResult), toString(result)));
+                        entity, getOne(inputResult), toString(result)));
             }
         } else {
             logger.warn("Cannot compare result of analysis {} for {}," +
                             " expected: {}, given: {}",
-                    id, method, inputResult, result);
+                    id, entity, inputResult, result);
         }
     }
 }

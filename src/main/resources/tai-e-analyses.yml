@@ -102,7 +102,7 @@
   requires: [ cfg,constprop,livevar ]
 
 - description: process results of previously-run analyses
-  analysisClass: pascal.taie.analysis.ResultProcessor
+  analysisClass: pascal.taie.analysis.misc.ResultProcessor
   id: process-result
   options:
     analyses: [ ] # IDs of analyses whose results are to be processed
