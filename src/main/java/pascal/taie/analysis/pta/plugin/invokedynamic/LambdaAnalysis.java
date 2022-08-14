@@ -158,7 +158,7 @@ public class LambdaAnalysis implements Plugin {
         Context indyCtx = recv.getContext();
         CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
         MethodHandle mh = getMethodHandle(indy);
-        final MethodRef targetRef = getMethodHandle(indy).getMethodRef();
+        final MethodRef targetRef = mh.getMethodRef();
 
         switch (mh.getKind()) {
             case REF_newInvokeSpecial -> { // targetRef is constructor
@@ -212,8 +212,8 @@ public class LambdaAnalysis implements Plugin {
     }
 
     private static boolean isLambdaObj(Obj obj) {
-        return obj instanceof MockObj &&
-                ((MockObj) obj).getDescription().equals(LAMBDA_DESC);
+        return obj instanceof MockObj mockObj &&
+                mockObj.getDescription().equals(LAMBDA_DESC);
     }
 
     /**

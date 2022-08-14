@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 
 import static pascal.taie.util.collection.CollectionUtils.sum;
 
@@ -215,10 +216,9 @@ public class ResultProcessor implements Plugin {
     }
 
     private static Map<String, String> readPointsToSets(String input) {
-        try {
+        try (Stream<String> lines = Files.lines(Path.of(input))) {
             Map<String, String> result = new LinkedHashMap<>();
-            Files.lines(Path.of(input))
-                    .filter(line -> line.contains(SEP))
+            lines.filter(line -> line.contains(SEP))
                     .map(line -> line.split(SEP))
                     .forEach(s -> result.put(s[0], s[1]));
             return result;
@@ -277,10 +277,9 @@ public class ResultProcessor implements Plugin {
     }
 
     private static List<String> readTaintFlows(String input) {
-        try {
+        try (Stream<String> lines = Files.lines(Path.of(input))) {
             List<String> taintFlows = new ArrayList<>();
-            Files.lines(Path.of(input))
-                    .filter(line -> line.startsWith("TaintFlow{") && line.contains(SEP))
+            lines.filter(line -> line.startsWith("TaintFlow{") && line.contains(SEP))
                     .forEach(taintFlows::add);
             return taintFlows;
         } catch (IOException e) {
