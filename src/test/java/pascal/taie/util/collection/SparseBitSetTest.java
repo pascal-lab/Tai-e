@@ -22,11 +22,11 @@
 
 package pascal.taie.util.collection;
 
-public class SparseBitSetTest extends BitSetTest {
+public class SparseBitSetTest extends IBitSetTest {
 
     @Override
-    protected BitSet of(int... indexes) {
-        BitSet result = new SparseBitSet();
+    protected IBitSet of(int... indexes) {
+        IBitSet result = new SparseBitSet();
         for (int i : indexes) {
             result.set(i);
         }

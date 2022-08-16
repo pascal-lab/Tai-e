@@ -53,10 +53,10 @@ import java.util.Set;
  */
 public abstract class GenericBitSet<E> extends AbstractSetEx<E> {
 
-    protected BitSet bitSet;
+    protected IBitSet bitSet;
 
     protected GenericBitSet(boolean isSparse) {
-        bitSet = BitSet.newBitSet(isSparse);
+        bitSet = IBitSet.newBitSet(isSparse);
     }
 
     @Override

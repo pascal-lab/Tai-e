@@ -286,7 +286,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean intersects(BitSet set) {
+    public boolean intersects(IBitSet set) {
         if (this == set) {
             return true;
         }
@@ -300,7 +300,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean contains(BitSet set) {
+    public boolean contains(IBitSet set) {
         if (this == set) {
             return true;
         }
@@ -325,7 +325,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean and(BitSet set) {
+    public boolean and(IBitSet set) {
         if (this == set) {
             return false;
         }
@@ -363,7 +363,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean andNot(BitSet set) {
+    public boolean andNot(IBitSet set) {
         boolean changed = false;
         if (this == set) {
             changed = !isEmpty();
@@ -395,7 +395,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean or(BitSet set) {
+    public boolean or(IBitSet set) {
         if (this == set) {
             return false;
         }
@@ -439,7 +439,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public BitSet orDiff(BitSet set) {
+    public IBitSet orDiff(IBitSet set) {
         RegularBitSet diff = new RegularBitSet();
         if (this == set) {
             return diff;
@@ -471,7 +471,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean xor(BitSet set) {
+    public boolean xor(IBitSet set) {
         boolean changed = false;
         if (this == set) {
             changed = !isEmpty();
@@ -517,7 +517,7 @@ public class RegularBitSet extends AbstractBitSet {
     }
 
     @Override
-    public void setTo(BitSet set) {
+    public void setTo(IBitSet set) {
         if (this == set) {
             return;
         }

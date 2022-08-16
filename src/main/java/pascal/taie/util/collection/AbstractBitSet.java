@@ -23,13 +23,13 @@
 package pascal.taie.util.collection;
 
 /**
- * Provides common functionality for {@link BitSet} implementations.
+ * Provides common functionality for {@link IBitSet} implementations.
  * <p>
- * Especially, based on {@link BitSet.Action}, it implements some operations
- * on {@link BitSet} without the need to knowing its concrete type, so that
+ * Especially, based on {@link IBitSet.Action}, it implements some operations
+ * on {@link IBitSet} without the need to knowing its concrete type, so that
  * it support operations between bit sets of different types.
  */
-public abstract class AbstractBitSet implements BitSet {
+public abstract class AbstractBitSet implements IBitSet {
 
     /*
      * BitSets are packed into arrays of "words."  Currently, a word is
@@ -53,7 +53,7 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
-    public boolean intersects(BitSet set) {
+    public boolean intersects(IBitSet set) {
         return set.iterateBits(new IntersectsAction());
     }
 
@@ -77,12 +77,12 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
-    public boolean disjoints(BitSet set) {
+    public boolean disjoints(IBitSet set) {
         return !intersects(set);
     }
 
     @Override
-    public boolean contains(BitSet set) {
+    public boolean contains(IBitSet set) {
         return set.iterateBits(new ContainsAction());
     }
 
@@ -106,7 +106,7 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
-    public boolean andNot(BitSet set) {
+    public boolean andNot(IBitSet set) {
         return set.iterateBits(new AndNotAction());
     }
 
@@ -122,7 +122,7 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
-    public boolean or(BitSet set) {
+    public boolean or(IBitSet set) {
         return set.iterateBits(new OrAction());
     }
 
@@ -138,13 +138,13 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
-    public BitSet orDiff(BitSet set) {
+    public IBitSet orDiff(IBitSet set) {
         return set.iterateBits(new OrDiffAction());
     }
 
-    private class OrDiffAction implements Action<BitSet> {
+    private class OrDiffAction implements Action<IBitSet> {
 
-        private final BitSet diff = BitSet.of();
+        private final IBitSet diff = IBitSet.of();
 
         @Override
         public boolean accept(int bitIndex) {
@@ -155,13 +155,13 @@ public abstract class AbstractBitSet implements BitSet {
         }
 
         @Override
-        public BitSet getResult() {
+        public IBitSet getResult() {
             return diff;
         }
     }
 
     @Override
-    public boolean xor(BitSet set) {
+    public boolean xor(IBitSet set) {
         return set.iterateBits(new XorAction());
     }
 
@@ -192,7 +192,7 @@ public abstract class AbstractBitSet implements BitSet {
     }
 
     @Override
-    public void setTo(BitSet set) {
+    public void setTo(IBitSet set) {
         clear();
         or(set);
     }

@@ -45,10 +45,10 @@ import java.util.Iterator;
  */
 public class IndexableSet<E extends Indexable> extends AbstractSetEx<E> {
 
-    private final BitSet bitSet;
+    private final IBitSet bitSet;
 
     public IndexableSet(boolean isSparse) {
-        this.bitSet = BitSet.newBitSet(isSparse);
+        this.bitSet = IBitSet.newBitSet(isSparse);
     }
 
     @Override

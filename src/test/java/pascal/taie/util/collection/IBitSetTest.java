@@ -41,16 +41,16 @@ import static pascal.taie.util.collection.SparseBitSet.SHIFT1;
 import static pascal.taie.util.collection.SparseBitSet.SHIFT2;
 import static pascal.taie.util.collection.SparseBitSet.SHIFT3;
 
-public abstract class BitSetTest {
+public abstract class IBitSetTest {
 
-    protected abstract BitSet of(int... indexes);
+    protected abstract IBitSet of(int... indexes);
 
     // ------------------------------------------------------------------------
     // test set operations
     // ------------------------------------------------------------------------
     @Test
     public void test() {
-        BitSet s = of();
+        IBitSet s = of();
         assertTrue(s.set(1));
         assertFalse(s.set(1));
         assertTrue(s.set(10000));
@@ -61,7 +61,7 @@ public abstract class BitSetTest {
 
     @Test
     public void testClear() {
-        BitSet s = of(1, 10000);
+        IBitSet s = of(1, 10000);
         assertEquals(2, s.cardinality());
         s.clear(1);
         assertEquals(1, s.cardinality());
@@ -71,8 +71,8 @@ public abstract class BitSetTest {
 
     @Test
     public void testIntersects() {
-        BitSet s1 = of();
-        BitSet s2 = of();
+        IBitSet s1 = of();
+        IBitSet s2 = of();
         assertFalse(s1.intersects(s2));
         s2 = of(1, 233, 666);
         assertFalse(s1.intersects(s2));
@@ -92,7 +92,7 @@ public abstract class BitSetTest {
         assertTrue(of(1, 2, 3).contains(of(1, 2, 3)));
         assertFalse(of(1).contains(of(1, 2, 3)));
 
-        BitSet s = of(1, 2, 3);
+        IBitSet s = of(1, 2, 3);
         int cardinality = s.cardinality();
         assertFalse(s.contains(of(11111)));
         assertEquals(cardinality, s.cardinality());
@@ -104,23 +104,23 @@ public abstract class BitSetTest {
 
     @Test
     public void testContains2() {
-        BitSet s1 = of(762);
-        BitSet s2 = of(188);
+        IBitSet s1 = of(762);
+        IBitSet s2 = of(188);
         assertFalse(s1.contains(s2));
         assertFalse(s1.isEmpty());
     }
 
     @Test
     public void testContains3() {
-        BitSet s1 = of(1000);
-        BitSet s2 = of(1000, 3000);
+        IBitSet s1 = of(1000);
+        IBitSet s2 = of(1000, 3000);
         s2.clear(3000);
         assertTrue(s1.contains(s2));
     }
 
     @Test
     public void testAnd() {
-        BitSet s = of(1, 2, 3);
+        IBitSet s = of(1, 2, 3);
         assertFalse(s.and(of(1, 2, 3)));
         assertTrue(s.and(of(1)));
         assertEquals(1, s.cardinality());
@@ -132,7 +132,7 @@ public abstract class BitSetTest {
 
     @Test
     public void testAndNot() {
-        BitSet s = of(1, 2, 3, 6666);
+        IBitSet s = of(1, 2, 3, 6666);
         assertFalse(s.andNot(of()));
         assertTrue(s.andNot(of(1, 2, 3, 6666)));
         assertTrue(s.isEmpty());
@@ -154,7 +154,7 @@ public abstract class BitSetTest {
 
     @Test
     public void testOr() {
-        BitSet s = of(1, 2, 3);
+        IBitSet s = of(1, 2, 3);
         assertFalse(s.or(of(1, 2, 3)));
         assertFalse(s.or(of(1)));
         assertEquals(3, s.cardinality());
@@ -172,9 +172,9 @@ public abstract class BitSetTest {
         int bits = 0;
         int values = 0;
         for (int i = 0; i < 1000; ++i) {
-            BitSet big = of();
+            IBitSet big = of();
             for (int j = 0; j < 1000; ++j) {
-                BitSet small = of();
+                IBitSet small = of();
                 for (int k = 0; k < TIMES; ++k) {
                     small.set(Math.abs(random.nextInt() + 1) % MAX);
                 }
@@ -189,8 +189,8 @@ public abstract class BitSetTest {
 
     @Test
     public void testClearOr() {
-        BitSet s = of(1, 555, 66666);
-        BitSet s2 = of(1, 555, 66666);
+        IBitSet s = of(1, 555, 66666);
+        IBitSet s2 = of(1, 555, 66666);
         s2.clear(66666);
         assertFalse(s.or(s2));
         assertEquals(3, s.cardinality());
@@ -204,8 +204,8 @@ public abstract class BitSetTest {
 
     @Test
     public void testOrDiff() {
-        BitSet s = of();
-        BitSet diff = s.orDiff(of(1, 333, 66666));
+        IBitSet s = of();
+        IBitSet diff = s.orDiff(of(1, 333, 66666));
         assertEquals(of(1, 333, 66666), diff);
         diff = s.orDiff(of(5555, 333, 777));
         assertEquals(of(5555, 777), diff);
@@ -219,7 +219,7 @@ public abstract class BitSetTest {
 
     @Test
     public void testXor() {
-        BitSet s = of(1, 2, 300);
+        IBitSet s = of(1, 2, 300);
         assertTrue(s.xor(s));
         assertTrue(s.isEmpty());
         s = of(1, 444, 7777);
@@ -233,7 +233,7 @@ public abstract class BitSetTest {
 
     @Test
     public void testSetTo() {
-        BitSet s = of(1, 2, 300);
+        IBitSet s = of(1, 2, 300);
         s.setTo(of());
         assertTrue(s.isEmpty());
         s.setTo(of(111, 222, 333));
@@ -246,8 +246,8 @@ public abstract class BitSetTest {
 
     @Test
     public void testCopy() {
-        BitSet s = of(1, 3333, 66666);
-        BitSet copy = s.copy();
+        IBitSet s = of(1, 3333, 66666);
+        IBitSet copy = s.copy();
         assertEquals(s, copy);
         s.set(7777);
         assertNotEquals(s, copy);
@@ -256,7 +256,7 @@ public abstract class BitSetTest {
     // ------------------------------------------------------------------------
     // test initial with zero
     // ------------------------------------------------------------------------
-    private BitSet set;
+    private IBitSet set;
 
     @Before
     public void setUp() {
@@ -466,7 +466,7 @@ public abstract class BitSetTest {
         final Random random = new Random(0);
         final Set<Integer> values = new HashSet<>();
         for (int i = 0; i < 10000; ++i) {
-            BitSet set = of();
+            IBitSet set = of();
             for (int j = 0; j < 1000; ++j) {
                 final int x = Math.abs(random.nextInt() + 1);
                 set.set(x);

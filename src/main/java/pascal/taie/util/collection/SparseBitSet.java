@@ -475,7 +475,7 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean intersects(BitSet set) {
+    public boolean intersects(IBitSet set) {
         if (this == set) {
             return true;
         }
@@ -525,7 +525,7 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean contains(BitSet set) {
+    public boolean contains(IBitSet set) {
         if (this == set) {
             return true;
         }
@@ -584,7 +584,7 @@ public class SparseBitSet extends AbstractBitSet {
      * @return {@code true} if this bit set changed as a result of the call
      */
     @Override
-    public boolean and(BitSet set) {
+    public boolean and(IBitSet set) {
         if (this == set) {
             return false;
         }
@@ -693,7 +693,7 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean andNot(BitSet set) {
+    public boolean andNot(IBitSet set) {
         if (this == set) {
             boolean changed = !isEmpty();
             clear();
@@ -736,7 +736,7 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
-    public boolean or(BitSet set) {
+    public boolean or(IBitSet set) {
         if (this == set) {
             return false;
         }
@@ -779,7 +779,7 @@ public class SparseBitSet extends AbstractBitSet {
     }
 
     @Override
-    public BitSet orDiff(BitSet set) {
+    public IBitSet orDiff(IBitSet set) {
         if (this == set) {
             return new SparseBitSet();
         }
@@ -789,7 +789,7 @@ public class SparseBitSet extends AbstractBitSet {
         return iterateBlocks(this, other, new OrDiffAction(this));
     }
 
-    private static class OrDiffAction extends BlockAction<BitSet> {
+    private static class OrDiffAction extends BlockAction<IBitSet> {
 
         private SparseBitSet diff;
 
@@ -841,13 +841,13 @@ public class SparseBitSet extends AbstractBitSet {
         }
 
         @Override
-        BitSet getResult() {
+        IBitSet getResult() {
             return diff;
         }
     }
 
     @Override
-    public boolean xor(BitSet set) {
+    public boolean xor(IBitSet set) {
         if (this == set) {
             boolean changed = !isEmpty();
             clear();

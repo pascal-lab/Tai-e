@@ -32,11 +32,11 @@ import pascal.taie.util.Copyable;
  * do not fulfill the requirements of program analysis.
  * <p>
  * For APIs that may modify a bit set, such {@link #set(int)},
- * {@link #and(BitSet)}, and {@link #or(BitSet)}, this implementation
+ * {@link #and(IBitSet)}, and {@link #or(IBitSet)}, this implementation
  * returns whether the bit set changed. In addition, it provides some
  * useful operations that are absent in {@link java.util.Set}.
  */
-public interface BitSet extends Copyable<BitSet> {
+public interface IBitSet extends Copyable<IBitSet> {
 
     // ------------------------------------------------------------------------
     // single-bit operations
@@ -172,7 +172,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @return boolean indicating whether this {@code BitSet} intersects
      * the specified {@code BitSet}
      */
-    boolean intersects(BitSet set);
+    boolean intersects(IBitSet set);
 
     /**
      * Returns {@code false} if the specified {@code BitSet} has any bits set to
@@ -182,7 +182,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @return boolean indicating whether this {@code BitSet} disjoints
      * the specified {@code BitSet}
      */
-    boolean disjoints(BitSet set);
+    boolean disjoints(IBitSet set);
 
     /**
      * Returns {@code true} if this {@code BitSet} contains all set bits in
@@ -192,7 +192,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @return boolean indicating whether this {@code BitSet} contains all
      * set bits in the specified {@code BitSet}
      */
-    boolean contains(BitSet set);
+    boolean contains(IBitSet set);
 
     /**
      * Performs a logical <b>AND</b> of this target bit set with the
@@ -204,7 +204,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @param set a bit set
      * @return {@code true} if this bit set changed as a result of the call
      */
-    boolean and(BitSet set);
+    boolean and(IBitSet set);
 
     /**
      * Clears all of the bits in this {@code BitSet} whose corresponding
@@ -213,7 +213,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @param set the {@code BitSet} with which to mask this {@code BitSet}
      * @return {@code true} if this bit set changed as a result of the call
      */
-    boolean andNot(BitSet set);
+    boolean andNot(IBitSet set);
 
     /**
      * Performs a logical <b>OR</b> of this bit set with the bit set
@@ -225,7 +225,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @param set a bit set
      * @return {@code true} if this bit set changed as a result of the call
      */
-    boolean or(BitSet set);
+    boolean or(IBitSet set);
 
     /**
      * Performs a logical <b>OR</b> of this bit set with the bit set argument,
@@ -236,7 +236,7 @@ public interface BitSet extends Copyable<BitSet> {
      * @return a new bit set of bit values that are present in the bit set
      * argument and were absent in this bit set before.
      */
-    BitSet orDiff(BitSet set);
+    IBitSet orDiff(IBitSet set);
 
     /**
      * Performs a logical <b>XOR</b> of this bit set with the bit set
@@ -253,14 +253,14 @@ public interface BitSet extends Copyable<BitSet> {
      * @param set a bit set
      * @return {@code true} if this bit set changed as a result of the call
      */
-    boolean xor(BitSet set);
+    boolean xor(IBitSet set);
 
     /**
      * Sets the content of this bit set to the same as specified bit set.
      *
      * @param set a bit set
      */
-    void setTo(BitSet set);
+    void setTo(IBitSet set);
 
     /**
      * Sets all of the bits in this BitSet to {@code false}.
@@ -347,22 +347,22 @@ public interface BitSet extends Copyable<BitSet> {
     /**
      * Creates a new set.
      */
-    static BitSet newBitSet(boolean isSparse) {
+    static IBitSet newBitSet(boolean isSparse) {
         return isSparse ? new SparseBitSet() : new RegularBitSet();
     }
 
     /**
      * @return {@code true} if the given bit set is sparse.
      */
-    static boolean isSparse(BitSet set) {
+    static boolean isSparse(IBitSet set) {
         return set instanceof SparseBitSet;
     }
 
     /**
      * Creates a bit set that contains given bits.
      */
-    static BitSet of(int... bits) {
-        BitSet result = newBitSet(false);
+    static IBitSet of(int... bits) {
+        IBitSet result = newBitSet(false);
         for (int i : bits) {
             result.set(i);
         }
