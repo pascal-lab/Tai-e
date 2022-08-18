@@ -8,7 +8,7 @@ Points-to sets of all variables
 []:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
 []:<ArrayTaint: java.lang.String join(java.lang.String,java.lang.String[])>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<ArrayTaint: void main(java.lang.String[])>/%stringconst2 -> [[]:ConstantObj{java.lang.String: ","}]
-[]:<ArrayTaint: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ArrayTaint: void main(java.lang.String[])>}]
+[]:<ArrayTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ArrayTaint: void main(java.lang.String[])>}]
 []:<ArrayTaint: void main(java.lang.String[])>/arr -> [[]:NewObj{<ArrayTaint: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
 []:<ArrayTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
 []:<ArrayTaint: void main(java.lang.String[])>/temp$6 -> [[]:ConstantObj{java.lang.String: ""}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
@@ -20,7 +20,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <ArrayTaint: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <ArrayTaint: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ArrayTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ArrayTaint: void main(java.lang.String[])>}]
 []:NewObj{<ArrayTaint: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArrayTaint: void main(java.lang.String[])>[8@L5] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
 
 Detected 1 taint flow(s):

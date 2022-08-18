@@ -3,7 +3,7 @@ Points-to sets of all variables
 []:<MergeParam: A foo(A)>/a -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
 []:<MergeParam: void main(java.lang.String[])>/a1 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}]
 []:<MergeParam: void main(java.lang.String[])>/a2 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
-[]:<MergeParam: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <MergeParam: void main(java.lang.String[])>}]
+[]:<MergeParam: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MergeParam: void main(java.lang.String[])>}]
 []:<MergeParam: void main(java.lang.String[])>/result -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
 []:<MergeParam: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}]
 []:<MergeParam: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
@@ -15,5 +15,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <MergeParam: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <MergeParam: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MergeParam: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <MergeParam: void main(java.lang.String[])>}]
 

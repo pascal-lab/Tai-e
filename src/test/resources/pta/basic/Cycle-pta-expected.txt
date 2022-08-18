@@ -12,7 +12,7 @@ Points-to sets of all variables
 []:<Cycle: void cycle()>/temp$3 -> [[]:NewObj{<Cycle: void cycle()>[9@L10] new A}]
 []:<Cycle: void cycle()>/temp$4 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
 []:<Cycle: void cycle()>/temp$5 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
-[]:<Cycle: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}]
+[]:<Cycle: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
@@ -21,5 +21,5 @@ Points-to sets of all instance fields
 []:NewObj{<Cycle: void cycle()>[9@L10] new A}.b -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <Cycle: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Cycle: void main(java.lang.String[])>}]
 

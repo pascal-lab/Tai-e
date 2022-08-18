@@ -4,7 +4,7 @@ Points-to sets of all variables
 []:<C: void <clinit>()>/temp$0 -> [[]:NewObj{<C: void <clinit>()>[0@L40] new java.lang.Object}]
 []:<C: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[4@L13] new D}]
 []:<Clinit: void <clinit>()>/temp$0 -> [[]:NewObj{<Clinit: void <clinit>()>[0@L7] new java.lang.Object}]
-[]:<Clinit: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}]
+[]:<Clinit: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}]
 []:<Clinit: void main(java.lang.String[])>/barr -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[3@L12] newmultiarray B[%intconst0][%intconst0][%intconst0]}]
 []:<Clinit: void main(java.lang.String[])>/o -> []
 []:<Clinit: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[0@L11] new A}]
@@ -31,7 +31,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <Clinit: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Clinit: void main(java.lang.String[])>}]
 []:MultiArrayObj{alloc=barr = newmultiarray B[%intconst0][%intconst0][%intconst0],type=B[][] in <Clinit: void main(java.lang.String[])>}[*] -> [[]:MultiArrayObj{alloc=barr = newmultiarray B[%intconst0][%intconst0][%intconst0],type=B[] in <Clinit: void main(java.lang.String[])>}]
 []:NewObj{<Clinit: void main(java.lang.String[])>[3@L12] newmultiarray B[%intconst0][%intconst0][%intconst0]}[*] -> [[]:MultiArrayObj{alloc=barr = newmultiarray B[%intconst0][%intconst0][%intconst0],type=B[][] in <Clinit: void main(java.lang.String[])>}]
 

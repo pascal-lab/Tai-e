@@ -7,7 +7,7 @@ Points-to sets of all variables
 []:<C: void sink(A)>/%this -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[6@L7] new C}, []:TaintObj{alloc=<TaintTransferEdge: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic TaintTransferEdge.getSource(),type=C}]
 []:<C: void sink(A)>/a -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[6@L7] new C}, []:TaintObj{alloc=<TaintTransferEdge: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic TaintTransferEdge.getSource(),type=C}]
 []:<TaintTransferEdge: A getSource()>/temp$0 -> [[]:NewObj{<TaintTransferEdge: A getSource()>[0@L21] new C}]
-[]:<TaintTransferEdge: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}]
+[]:<TaintTransferEdge: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}]
 []:<TaintTransferEdge: void main(java.lang.String[])>/b -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[0@L3] new B}]
 []:<TaintTransferEdge: void main(java.lang.String[])>/c -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[6@L7] new C}]
 []:<TaintTransferEdge: void main(java.lang.String[])>/merge -> [[]:NewObj{<TaintTransferEdge: void main(java.lang.String[])>[6@L7] new C}, []:TaintObj{alloc=<TaintTransferEdge: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic TaintTransferEdge.getSource(),type=C}]
@@ -21,7 +21,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintTransferEdge: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintTransferEdge: void main(java.lang.String[])>}]
 
 Detected 0 taint flow(s):
 

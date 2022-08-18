@@ -14,7 +14,7 @@ Points-to sets of all variables
 []:<LambdaInstanceMethod$C: void foo()>/%this -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>[0@L12] new LambdaInstanceMethod$C}]
 []:<LambdaInstanceMethod: void interfaze()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod: void interfaze()>[0@L12] new LambdaInstanceMethod$C}]
 []:<LambdaInstanceMethod: void interfaze()>/$r1 -> [[]:LambdaObj{alloc=<LambdaInstanceMethod: void interfaze()>[3@L13] $r1 = invokedynamic <java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)> "run" <MethodType: java.lang.Runnable (LambdaInstanceMethod$I)>[MethodType: void (),MethodHandle[REF_invokeInterface]: <LambdaInstanceMethod$I: void foo()>,MethodType: void ()]($r0),type=java.lang.Runnable in <LambdaInstanceMethod: void interfaze()>}]
-[]:<LambdaInstanceMethod: void main(java.lang.String[])>/r0 -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <LambdaInstanceMethod: void main(java.lang.String[])>}]
+[]:<LambdaInstanceMethod: void main(java.lang.String[])>/r0 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LambdaInstanceMethod: void main(java.lang.String[])>}]
 []:<LambdaInstanceMethod: void special()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod: void special()>[0@L24] new LambdaInstanceMethod$C}]
 []:<LambdaInstanceMethod: void virtual()>/$r0 -> [[]:NewObj{<LambdaInstanceMethod: void virtual()>[0@L18] new LambdaInstanceMethod$B}]
 []:<LambdaInstanceMethod: void virtual()>/$r1 -> [[]:LambdaObj{alloc=<LambdaInstanceMethod: void virtual()>[3@L19] $r1 = invokedynamic <java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)> "run" <MethodType: java.lang.Runnable (LambdaInstanceMethod$A)>[MethodType: void (),MethodHandle[REF_invokeVirtual]: <LambdaInstanceMethod$A: void bar()>,MethodType: void ()]($r0),type=java.lang.Runnable in <LambdaInstanceMethod: void virtual()>}]
@@ -30,5 +30,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <LambdaInstanceMethod: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <LambdaInstanceMethod: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LambdaInstanceMethod: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <LambdaInstanceMethod: void main(java.lang.String[])>}]
 

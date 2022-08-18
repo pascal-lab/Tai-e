@@ -20,14 +20,14 @@ Points-to sets of all variables
 []:<NativeModel: void doPrivileged()>/temp$0 -> [[]:NewObj{<NativeModel: void doPrivileged()>[0@L26] new NativeModel$1Anonymous0}]
 []:<NativeModel: void doPrivileged()>/temp$1 -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>[0@L27] new A}]
 []:<NativeModel: void doPrivileged()>/temp$2 -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>[0@L27] new A}]
-[]:<NativeModel: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}]
+[]:<NativeModel: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <NativeModel: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <NativeModel: void main(java.lang.String[])>}]
 []:NewObj{<NativeModel: void arraycopy()>[11@L18] newarray java.lang.Object[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}]
 []:NewObj{<NativeModel: void arraycopy()>[16@L20] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}]
 []:NewObj{<NativeModel: void arraycopy()>[1@L12] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<NativeModel: void arraycopy()>[2@L13] new java.lang.Object}]

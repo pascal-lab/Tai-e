@@ -1,7 +1,7 @@
 Points-to sets of all variables
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<StringAppend: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}]
+[]:<StringAppend: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}]
 []:<StringAppend: void stringAdd()>/%stringconst0 -> [[]:ConstantObj{java.lang.String: "abc"}]
 []:<StringAppend: void stringAdd()>/%stringconst1 -> [[]:ConstantObj{java.lang.String: "xyz"}]
 []:<StringAppend: void stringAdd()>/s -> [[]:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
@@ -31,7 +31,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <StringAppend: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <StringAppend: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
 TaintFlow{<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <StringAppend: void stringAdd()>[11@L12] invokestatic <SourceSink: void sink(java.lang.String)>(s);/0}

@@ -4,7 +4,7 @@ Points-to sets of all variables
 []:<InstanceSourceSink: void <init>()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}, []:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
 []:<InstanceSourceSink: void instanceSink(java.lang.String)>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
 []:<InstanceSourceSink: void instanceSink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource(),type=java.lang.String}]
-[]:<InstanceSourceSink: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/sink -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/source -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/taint -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource(),type=java.lang.String}]
@@ -17,7 +17,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <InstanceSourceSink: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <InstanceSourceSink: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
 TaintFlow{<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.<InstanceSourceSink: java.lang.String instanceSource()>(); -> <InstanceSourceSink: void main(java.lang.String[])>[8@L7] invokevirtual sink.<InstanceSourceSink: void instanceSink(java.lang.String)>(taint);/0}

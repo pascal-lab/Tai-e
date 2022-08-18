@@ -9,7 +9,7 @@ Points-to sets of all variables
 []:<C: T foo()>/temp$0 -> [[]:NewObj{<C: T foo()>[0@L23] new T}]
 []:<C: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
 []:<Dispatch: void main(java.lang.String[])>/a -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L3] new A}, []:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}, []:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
-[]:<Dispatch: void main(java.lang.String[])>/args -> [[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Dispatch: void main(java.lang.String[])>}]
+[]:<Dispatch: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Dispatch: void main(java.lang.String[])>}]
 []:<Dispatch: void main(java.lang.String[])>/t -> [[]:NewObj{<A: T foo()>[0@L11] new T}, []:NewObj{<B: T foo()>[0@L17] new T}, []:NewObj{<C: T foo()>[0@L23] new T}]
 []:<Dispatch: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L3] new A}]
 []:<Dispatch: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}]
@@ -22,5 +22,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EnvObj{alloc=<main-arguments>,type=java.lang.String[] in <Dispatch: void main(java.lang.String[])>}[*] -> [[]:EnvObj{alloc=<main-arguments-element>,type=java.lang.String in <Dispatch: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Dispatch: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Dispatch: void main(java.lang.String[])>}]
 
