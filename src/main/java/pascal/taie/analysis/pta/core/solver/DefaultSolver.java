@@ -49,6 +49,7 @@ import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeExp;
@@ -708,6 +709,31 @@ public class DefaultSolver implements Solver {
             PointsToSet targetSet = transfer.apply(edge, getPointsToSetOf(source));
             if (!targetSet.isEmpty()) {
                 addPointsTo(target, targetSet);
+            }
+        }
+    }
+
+    @Override
+    public void addEntryPoint(EntryPoint entryPoint) {
+        Context entryCtx = contextSelector.getEmptyContext();
+        JMethod entryMethod = entryPoint.getMethod();
+        CSMethod csEntryMethod = csManager.getCSMethod(entryCtx, entryMethod);
+        callGraph.addEntryMethod(csEntryMethod);
+        addCSMethod(csEntryMethod);
+        IR ir = entryMethod.getIR();
+        // pass this objects
+        if (!entryMethod.isStatic()) {
+            for (Obj thisObj : entryPoint.getThis()) {
+                addVarPointsTo(entryCtx, ir.getThis(), entryCtx, thisObj);
+            }
+        }
+        // pass parameter objects
+        for (int i = 0; i < entryMethod.getParamCount(); ++i) {
+            Var param = ir.getParam(i);
+            if (isConcerned(param)) {
+                for (Obj paramObj : entryPoint.getParam(i)) {
+                    addVarPointsTo(entryCtx, param, entryCtx, paramObj);
+                }
             }
         }
     }

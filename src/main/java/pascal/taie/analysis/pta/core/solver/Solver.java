@@ -125,6 +125,11 @@ public interface Solver {
     void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind, Transfer transfer);
 
     /**
+     * Adds an entry point.
+     */
+    void addEntryPoint(EntryPoint entryPoint);
+
+    /**
      * Adds a call edge.
      *
      * @param edge the added edge.
