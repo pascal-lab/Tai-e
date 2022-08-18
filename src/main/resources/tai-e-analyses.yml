@@ -13,7 +13,7 @@
     advanced: null # specify advanced analysis:
     # zipper | zipper-e | zipper-e=PV
     # scaler | scaler=TST
-    # mahjong
+    # mahjong | collection
     action: null # | dump | compare
     action-file: null # path of file to dump/compare
     reflection-log: null # path to reflection log

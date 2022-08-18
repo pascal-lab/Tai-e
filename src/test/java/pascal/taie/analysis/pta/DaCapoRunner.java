@@ -39,7 +39,7 @@ public class DaCapoRunner {
             "hsqldb", "jython", "luindex", "lusearch", "pmd", "xalan");
 
     private static final Set<String> ANALYSES = Set.of(
-            "ci", "1-call", "2-type", "2-obj");
+            "ci", "1-call", "2-type", "2-obj", "3-obj");
     private static String PTA = "ci";
     private static String JDK = "-java=6";
 
