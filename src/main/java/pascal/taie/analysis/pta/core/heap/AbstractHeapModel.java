@@ -27,7 +27,6 @@ import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -100,10 +99,6 @@ public abstract class AbstractHeapModel implements HeapModel {
 
     private final Obj mainThreadGroup;
 
-    private final Obj mainArgs; // main(String[] args)
-
-    private final Obj mainArgsElem; // Element in args
-
     protected AbstractHeapModel(AnalysisOptions options) {
         isMergeStringConstants = options.getBoolean("merge-string-constants");
         isMergeStringObjects = options.getBoolean("merge-string-objects");
@@ -123,11 +118,6 @@ public abstract class AbstractHeapModel implements HeapModel {
                 typeSystem.getClassType(THREAD));
         mainThreadGroup = getMockObj(ENV_DESC, "<main-thread-group>",
                 typeSystem.getClassType(THREAD_GROUP));
-        ArrayType stringArray = typeSystem.getArrayType(string, 1);
-        mainArgs = getMockObj(ENV_DESC, "<main-arguments>", stringArray,
-                World.get().getMainMethod());
-        mainArgsElem = getMockObj(ENV_DESC, "<main-arguments-element>", string,
-                World.get().getMainMethod());
     }
 
     @Override
@@ -214,16 +204,6 @@ public abstract class AbstractHeapModel implements HeapModel {
     @Override
     public Obj getMainThreadGroup() {
         return mainThreadGroup;
-    }
-
-    @Override
-    public Obj getMainArgs() {
-        return mainArgs;
-    }
-
-    @Override
-    public Obj getMainArgsElem() {
-        return mainArgsElem;
     }
 
     @Override

@@ -78,16 +78,6 @@ public interface HeapModel extends Indexer<Obj> {
      * @return the main Thread object.
      */
     Obj getMainThread();
-
-    /**
-     * @return args in main(String[] args).
-     */
-    Obj getMainArgs();
-
-    /**
-     * @return element(s) in args.
-     */
-    Obj getMainArgsElem();
     // ---------- runtime environment objects (end) ----------
 
     /**

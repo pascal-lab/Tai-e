@@ -236,17 +236,10 @@ public class DefaultSolver implements Solver {
         plugin.onStart();
 
         Context defContext = contextSelector.getEmptyContext();
-        // process program main method entry and set up its arguments
+        // process program main method
         JMethod mainMethod = World.get().getMainMethod();
         if (mainMethod != null) {
-            addEntryMethod(csManager.getCSMethod(defContext, mainMethod));
-            // initialize parameters of main method
-            Obj args = heapModel.getMainArgs();
-            Obj argsElem = heapModel.getMainArgsElem();
-            CSObj array = csManager.getCSObj(defContext, args);
-            ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-            addPointsTo(arrayIndex, defContext, argsElem);
-            addVarPointsTo(defContext, mainMethod.getIR().getParam(0), defContext, args);
+            addEntryPoint(new MainEntryPoint(mainMethod, this));
         }
         // process program implicit entries
         if (options.getBoolean("implicit-entries")) {
