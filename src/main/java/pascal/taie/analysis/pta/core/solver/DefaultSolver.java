@@ -703,7 +703,7 @@ public class DefaultSolver implements Solver {
         IR ir = entryMethod.getIR();
         // pass this objects
         if (!entryMethod.isStatic()) {
-            for (Obj thisObj : entryPoint.getThis()) {
+            for (Obj thisObj : entryPoint.getThisObjs()) {
                 addVarPointsTo(entryCtx, ir.getThis(), entryCtx, thisObj);
             }
         }
@@ -711,7 +711,7 @@ public class DefaultSolver implements Solver {
         for (int i = 0; i < entryMethod.getParamCount(); ++i) {
             Var param = ir.getParam(i);
             if (isConcerned(param)) {
-                for (Obj paramObj : entryPoint.getParam(i)) {
+                for (Obj paramObj : entryPoint.getParamObjs(i)) {
                     addVarPointsTo(entryCtx, param, entryCtx, paramObj);
                 }
             }

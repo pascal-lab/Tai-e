@@ -45,7 +45,8 @@ public class CompositePlugin implements Plugin {
 
     private final List<Plugin> allPlugins = new ArrayList<>();
 
-    // Use separate lists to store plugins that overwrite specific method.
+    // Use separate lists to store plugins that overwrite
+    // frequently-invoked methods.
 
     private final List<Plugin> onNewPointsToSetPlugins = new ArrayList<>();
 
@@ -75,7 +76,7 @@ public class CompositePlugin implements Plugin {
         try {
             Method method = plugin.getClass().getMethod(name, parameterTypes);
             if (!method.getDeclaringClass().equals(Plugin.class)) {
-                // the plugin overwrites the specific method
+                // the plugin does overwrite the specific method
                 plugins.add(plugin);
             }
         } catch (NoSuchMethodException e) {

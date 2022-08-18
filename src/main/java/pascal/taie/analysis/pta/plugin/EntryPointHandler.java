@@ -40,7 +40,7 @@ import pascal.taie.language.type.TypeSystem;
 import java.util.Set;
 
 /**
- * Initializes entry points for pointer analysis
+ * Initializes standard entry points for pointer analysis.
  */
 public class EntryPointHandler implements Plugin {
 
@@ -76,12 +76,12 @@ public class EntryPointHandler implements Plugin {
         }
 
         @Override
-        public Set<Obj> getThis() {
+        public Set<Obj> getThisObjs() {
             return Set.of();
         }
 
         @Override
-        public Set<Obj> getParam(int i) {
+        public Set<Obj> getParamObjs(int i) {
             assert i == 0; // main method has only one parameter
             return Set.of(getMainArgs());
         }

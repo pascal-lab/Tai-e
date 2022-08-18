@@ -55,12 +55,12 @@ public abstract class EntryPoint {
     /**
      * @return the objects for this variable.
      */
-    public abstract Set<Obj> getThis();
+    public abstract Set<Obj> getThisObjs();
 
     /**
-     * @return the objects for i-th parameter.
+     * @return the objects for i-th parameter (starting from 0).
      */
-    public abstract Set<Obj> getParam(int i);
+    public abstract Set<Obj> getParamObjs(int i);
 
     @Override
     public String toString() {

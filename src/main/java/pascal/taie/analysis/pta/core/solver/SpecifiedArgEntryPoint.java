@@ -26,71 +26,78 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Sets;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
- * This entry point returns specified objects. For non-specified this variable
- * or parameters, an empty set is returned.
+ * This entry point returns this/parameter objects specified via its builder.
+ * For non-specified this variable or parameters, an empty set is returned.
  */
 public class SpecifiedArgEntryPoint extends EntryPoint {
 
     private final Set<Obj> thisObjs;
 
-    private final Set<Obj>[] params;
+    private final Set<Obj>[] paramObjs;
 
     private SpecifiedArgEntryPoint(
-            JMethod method, Set<Obj> thisObjs, Set<Obj>[] params) {
+            JMethod method, Set<Obj> thisObjs, Set<Obj>[] paramObjs) {
         super(method);
         this.thisObjs = thisObjs;
-        this.params = params;
+        this.paramObjs = paramObjs;
     }
 
     @Override
-    public Set<Obj> getThis() {
+    public Set<Obj> getThisObjs() {
         return thisObjs;
     }
 
     @Override
-    public Set<Obj> getParam(int i) {
-        return params[i];
+    public Set<Obj> getParamObjs(int i) {
+        return paramObjs[i];
     }
 
-    // TODO: validate added this/param objects?
+    // TODO: validate input this/param objects?
     public static class Builder {
 
         private final JMethod method;
 
         private final Set<Obj> thisObjs = Sets.newHybridSet();
 
-        private final Set<Obj>[] params;
+        private final Set<Obj>[] paramObjs;
 
         @SuppressWarnings("unchecked")
         public Builder(JMethod method) {
             this.method = method;
-            this.params = (Set<Obj>[]) new Set[method.getParamCount()];
+            this.paramObjs = (Set<Obj>[]) new Set[method.getParamCount()];
         }
 
-        public Builder addThis(Obj thisObj) {
+        public Builder addThisObj(Obj thisObj) {
             thisObjs.add(thisObj);
             return this;
         }
 
-        public Builder addParam(int i, Obj param) {
-            if (params[i] == null) {
-                params[i] = Sets.newHybridSet();
+        public Builder addParamObj(int i, Obj paramObj) {
+            if (paramObjs[i] == null) {
+                paramObjs[i] = Sets.newHybridSet();
             }
-            params[i].add(param);
+            paramObjs[i].add(paramObj);
             return this;
         }
 
         public SpecifiedArgEntryPoint build() {
-            // fill empty set to non-specified parameters
             for (int i = 0; i < method.getParamCount(); ++i) {
-                if (params[i] == null) {
-                    params[i] = Set.of();
-                }
+                paramObjs[i] = normalize(paramObjs[i]);
             }
-            return new SpecifiedArgEntryPoint(method, thisObjs, params);
+            return new SpecifiedArgEntryPoint(
+                    method, normalize(thisObjs), paramObjs);
+        }
+
+        private static Set<Obj> normalize(Set<Obj> set) {
+            if (set == null || set.isEmpty()) {
+                return Set.of();
+            } else {
+                return Collections.unmodifiableSet(set);
+            }
         }
     }
 }

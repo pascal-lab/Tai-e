@@ -45,32 +45,32 @@ public class DeclaredArgEntryPoint extends EntryPoint {
     }
 
     @Override
-    public Set<Obj> getThis() {
+    public Set<Obj> getThisObjs() {
         if (method.isStatic() || method.getDeclaringClass().isAbstract()) {
             return Set.of();
         } else {
-            return Set.of(heapModel.getMockObj(getThisDesc(), this,
+            return Set.of(heapModel.getMockObj(getThisObjDesc(), this,
                     method.getDeclaringClass().getType(), method));
         }
     }
 
-    private String getThisDesc() {
+    private String getThisObjDesc() {
         return "EntryPointObj-" + method + "/this";
     }
 
     @Override
-    public Set<Obj> getParam(int i) {
+    public Set<Obj> getParamObjs(int i) {
         if (method.getParamType(i) instanceof ReferenceType refType) {
             if (refType instanceof ClassType cType &&
                     !cType.getJClass().isAbstract()) {
                 return Set.of(heapModel.getMockObj(
-                        getParamDesc(i), this, refType, method));
+                        getParamObjDesc(i), this, refType, method));
             }
         }
         return Set.of();
     }
 
-    private String getParamDesc(int i) {
+    private String getParamObjDesc(int i) {
         return "EntryPointObj-" + method + '/' + i;
     }
 }

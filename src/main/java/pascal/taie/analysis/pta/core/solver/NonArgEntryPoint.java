@@ -37,12 +37,12 @@ public class NonArgEntryPoint extends EntryPoint {
     }
 
     @Override
-    public Set<Obj> getThis() {
+    public Set<Obj> getThisObjs() {
         return Set.of();
     }
 
     @Override
-    public Set<Obj> getParam(int i) {
+    public Set<Obj> getParamObjs(int i) {
         return Set.of();
     }
 }

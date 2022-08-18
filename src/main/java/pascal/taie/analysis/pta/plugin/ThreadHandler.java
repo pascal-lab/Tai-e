@@ -110,7 +110,7 @@ public class ThreadHandler implements Plugin {
         Obj systemThreadGroup = heapModel.getMockObj(
                 "EntryPointObj", "<system-thread-group>", threadGroup);
         solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit)
-                .addThis(systemThreadGroup)
+                .addThisObj(systemThreadGroup)
                 .build());
 
         // setup main thread group
@@ -120,9 +120,9 @@ public class ThreadHandler implements Plugin {
                 "EntryPointObj", "<main-thread-group>", threadGroup);
         Obj main = heapModel.getConstantObj(StringLiteral.get("main"));
         solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit2)
-                .addThis(mainThreadGroup)
-                .addParam(0, systemThreadGroup)
-                .addParam(1, main)
+                .addThisObj(mainThreadGroup)
+                .addParamObj(0, systemThreadGroup)
+                .addParamObj(1, main)
                 .build());
 
         // setup main thread
@@ -131,9 +131,9 @@ public class ThreadHandler implements Plugin {
         Obj mainThread = heapModel.getMockObj("EntryPointObj", "<main-thread>",
                 typeSystem.getClassType(ClassNames.THREAD));
         solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadInit)
-                .addThis(mainThread)
-                .addParam(0, mainThreadGroup)
-                .addParam(1, main)
+                .addThisObj(mainThread)
+                .addParamObj(0, mainThreadGroup)
+                .addParamObj(1, main)
                 .build());
 
         // The main thread is never explicitly started, which would make it a
