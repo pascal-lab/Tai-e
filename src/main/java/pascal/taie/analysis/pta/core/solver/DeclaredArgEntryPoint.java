@@ -55,7 +55,7 @@ public class DeclaredArgEntryPoint extends EntryPoint {
     }
 
     private String getThisDesc() {
-        return "<EntryPointObj-" + method + "/this>";
+        return "EntryPointObj-" + method + "/this";
     }
 
     @Override
@@ -71,6 +71,6 @@ public class DeclaredArgEntryPoint extends EntryPoint {
     }
 
     private String getParamDesc(int i) {
-        return "<EntryPointObj-" + method + '/' + i + '>';
+        return "EntryPointObj-" + method + '/' + i;
     }
 }

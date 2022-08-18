@@ -144,17 +144,6 @@ public interface Solver {
     void addCSMethod(CSMethod csMethod);
 
     /**
-     * Adds an entry method. <br>
-     * The parameter of the entry method can be set up by the {@link #addVarPointsTo} method. <br>
-     *
-     * @param entryMethod added entry method.
-     * @see #addVarPointsTo(Context, Var, CSObj)
-     * @see #addVarPointsTo(Context, Var, PointsToSet)
-     * @see #addVarPointsTo(Context, Var, Context, Obj)
-     */
-    void addEntryMethod(CSMethod entryMethod);
-
-    /**
      * Adds stmts to the analyzed program. Solver will process given stmts.
      *
      * @param csMethod the container method of the stmts

@@ -35,6 +35,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
+import pascal.taie.analysis.pta.plugin.EntryPointHandler;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
@@ -118,6 +119,7 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         // To record elapsed time precisely, AnalysisTimer should be added at first.
         plugin.addPlugin(
                 new AnalysisTimer(),
+                new EntryPointHandler(),
                 new ClassInitializer(),
                 new ThreadHandler(),
                 new NativeModeller(),

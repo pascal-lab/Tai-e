@@ -108,7 +108,7 @@ public class ThreadHandler implements Plugin {
                 hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>()>"));
         ClassType threadGroup = typeSystem.getClassType(ClassNames.THREAD_GROUP);
         Obj systemThreadGroup = heapModel.getMockObj(
-                "<system-thread-group>", "<system-thread-group>", threadGroup);
+                "EntryPointObj", "<system-thread-group>", threadGroup);
         solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit)
                 .addThis(systemThreadGroup)
                 .build());
@@ -117,7 +117,7 @@ public class ThreadHandler implements Plugin {
         JMethod threadGroupInit2 = requireNonNull(
                 hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
         Obj mainThreadGroup = heapModel.getMockObj(
-                "<main-thread-group>", "<main-thread-group>", threadGroup);
+                "EntryPointObj", "<main-thread-group>", threadGroup);
         Obj main = heapModel.getConstantObj(StringLiteral.get("main"));
         solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit2)
                 .addThis(mainThreadGroup)
@@ -128,7 +128,7 @@ public class ThreadHandler implements Plugin {
         // setup main thread
         JMethod threadInit = requireNonNull(
                 hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
-        Obj mainThread = heapModel.getMockObj("<main-thread>", "<main-thread>",
+        Obj mainThread = heapModel.getMockObj("EntryPointObj", "<main-thread>",
                 typeSystem.getClassType(ClassNames.THREAD));
         solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadInit)
                 .addThis(mainThread)

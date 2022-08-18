@@ -234,19 +234,6 @@ public class DefaultSolver implements Solver {
         ignoredMethods = Sets.newSet();
         stmtProcessor = new StmtProcessor();
         plugin.onStart();
-
-        Context defContext = contextSelector.getEmptyContext();
-        // process program main method
-        JMethod mainMethod = World.get().getMainMethod();
-        if (mainMethod != null) {
-            addEntryPoint(new MainEntryPoint(mainMethod, this));
-        }
-        // process program implicit entries
-        if (options.getBoolean("implicit-entries")) {
-            for (JMethod entry : World.get().getImplicitEntries()) {
-                addEntryMethod(csManager.getCSMethod(defContext, entry));
-            }
-        }
     }
 
     /**
@@ -748,12 +735,6 @@ public class DefaultSolver implements Solver {
             addStmts(csMethod, method.getIR().getStmts());
             plugin.onNewCSMethod(csMethod);
         }
-    }
-
-    @Override
-    public void addEntryMethod(CSMethod entryMethod) {
-        callGraph.addEntryMethod(entryMethod);
-        addCSMethod(entryMethod);
     }
 
     @Override
