@@ -28,12 +28,15 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.core.solver.SpecifiedArgEntryPoint;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
@@ -97,55 +100,47 @@ public class ThreadHandler implements Plugin {
         if (!solver.getOptions().getBoolean("implicit-entries")) {
             return;
         }
+        TypeSystem typeSystem = solver.getTypeSystem();
         HeapModel heapModel = solver.getHeapModel();
-        Context context = solver.getContextSelector().getEmptyContext();
 
         // setup system thread group
-        // propagate <system-thread-group> to <java.lang.ThreadGroup: void <init>()>/this
-        Obj systemThreadGroup = heapModel.getSystemThreadGroup();
-        IR threadGroupInitIR = requireNonNull(
-                hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>()>"))
-                .getIR();
-        Var initThis = threadGroupInitIR.getThis();
-        solver.addVarPointsTo(context, initThis, context, systemThreadGroup);
+        JMethod threadGroupInit = requireNonNull(
+                hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>()>"));
+        ClassType threadGroup = typeSystem.getClassType(ClassNames.THREAD_GROUP);
+        Obj systemThreadGroup = heapModel.getMockObj(
+                "<system-thread-group>", "<system-thread-group>", threadGroup);
+        solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit)
+                .addThis(systemThreadGroup)
+                .build());
 
         // setup main thread group
-        // propagate <main-thread-group> to <java.lang.ThreadGroup: void
-        //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThreadGroup = heapModel.getMainThreadGroup();
-        threadGroupInitIR = requireNonNull(
-                hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>"))
-                .getIR();
-
-        initThis = threadGroupInitIR.getThis();
-        solver.addVarPointsTo(context, initThis, context, mainThreadGroup);
-        // propagate <system-thread-group> to param0
-        solver.addVarPointsTo(context, threadGroupInitIR.getParam(0),
-                context, systemThreadGroup);
-        // propagate "main" to param1
-        Obj main = solver.getHeapModel()
-                .getConstantObj(StringLiteral.get("main"));
-        solver.addVarPointsTo(context, threadGroupInitIR.getParam(1), context, main);
+        JMethod threadGroupInit2 = requireNonNull(
+                hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
+        Obj mainThreadGroup = heapModel.getMockObj(
+                "<main-thread-group>", "<main-thread-group>", threadGroup);
+        Obj main = heapModel.getConstantObj(StringLiteral.get("main"));
+        solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit2)
+                .addThis(mainThreadGroup)
+                .addParam(0, systemThreadGroup)
+                .addParam(1, main)
+                .build());
 
         // setup main thread
-        // propagate <main-thread> to <java.lang.Thread: void
-        //   <init>(java.lang.ThreadGroup,java.lang.String)>/this
-        Obj mainThread = heapModel.getMainThread();
-        IR threadInitIR = requireNonNull(
-                hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"))
-                .getIR();
-        initThis = threadInitIR.getThis();
-        solver.addVarPointsTo(context, initThis, context, mainThread);
-        // propagate <main-thread-group> to param0
-        solver.addVarPointsTo(context, threadInitIR.getParam(0),
-                context, mainThreadGroup);
-        // propagate "main" to param1
-        solver.addVarPointsTo(context, threadInitIR.getParam(1), context, main);
+        JMethod threadInit = requireNonNull(
+                hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
+        Obj mainThread = heapModel.getMockObj("<main-thread>", "<main-thread>",
+                typeSystem.getClassType(ClassNames.THREAD));
+        solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadInit)
+                .addThis(mainThread)
+                .addParam(0, mainThreadGroup)
+                .addParam(1, main)
+                .build());
 
         // The main thread is never explicitly started, which would make it a
         // RunningThread. Therefore, we make it a running thread explicitly.
+        Context ctx = solver.getContextSelector().getEmptyContext();
         runningThreads.addObject(
-                solver.getCSManager().getCSObj(context, mainThread));
+                solver.getCSManager().getCSObj(ctx, mainThread));
     }
 
     @Override

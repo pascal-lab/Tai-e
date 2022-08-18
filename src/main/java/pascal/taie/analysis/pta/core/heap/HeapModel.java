@@ -60,26 +60,6 @@ public interface HeapModel extends Indexer<Obj> {
         return getMockObj(desc, alloc, type, null);
     }
 
-    // ------------------------------------------------------------------------
-    // APIs for retrieving specific runtime environment objects
-    // ------------------------------------------------------------------------
-
-    /**
-     * @return the system ThreadGroup object.
-     */
-    Obj getSystemThreadGroup();
-
-    /**
-     * @return the main ThreadGroup object.
-     */
-    Obj getMainThreadGroup();
-
-    /**
-     * @return the main Thread object.
-     */
-    Obj getMainThread();
-    // ---------- runtime environment objects (end) ----------
-
     /**
      * @return all objects in this heap model.
      */

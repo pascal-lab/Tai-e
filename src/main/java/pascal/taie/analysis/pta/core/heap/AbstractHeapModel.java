@@ -42,8 +42,6 @@ import java.util.Map;
 import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
 import static pascal.taie.language.classes.ClassNames.STRING_BUILDER;
-import static pascal.taie.language.classes.ClassNames.THREAD;
-import static pascal.taie.language.classes.ClassNames.THREAD_GROUP;
 import static pascal.taie.language.classes.ClassNames.THROWABLE;
 
 /**
@@ -91,14 +89,6 @@ public abstract class AbstractHeapModel implements HeapModel {
 
     private final List<Obj> objs = new ArrayList<>(1024);
 
-    private static final String ENV_DESC = "EnvObj";
-
-    private final Obj systemThreadGroup;
-
-    private final Obj mainThread;
-
-    private final Obj mainThreadGroup;
-
     protected AbstractHeapModel(AnalysisOptions options) {
         isMergeStringConstants = options.getBoolean("merge-string-constants");
         isMergeStringObjects = options.getBoolean("merge-string-objects");
@@ -109,15 +99,7 @@ public abstract class AbstractHeapModel implements HeapModel {
         stringBuilder = typeSystem.getClassType(STRING_BUILDER);
         stringBuffer = typeSystem.getClassType(STRING_BUFFER);
         throwable = typeSystem.getClassType(THROWABLE);
-
         mergedSC = add(new MergedObj(string, "<Merged string constants>"));
-
-        systemThreadGroup = getMockObj(ENV_DESC, "<system-thread-group>",
-                typeSystem.getClassType(THREAD_GROUP));
-        mainThread = getMockObj(ENV_DESC, "<main-thread>",
-                typeSystem.getClassType(THREAD));
-        mainThreadGroup = getMockObj(ENV_DESC, "<main-thread-group>",
-                typeSystem.getClassType(THREAD_GROUP));
     }
 
     @Override
@@ -189,21 +171,6 @@ public abstract class AbstractHeapModel implements HeapModel {
         objs.add(obj);
         obj.setIndex(counter++);
         return obj;
-    }
-
-    @Override
-    public Obj getSystemThreadGroup() {
-        return systemThreadGroup;
-    }
-
-    @Override
-    public Obj getMainThread() {
-        return mainThread;
-    }
-
-    @Override
-    public Obj getMainThreadGroup() {
-        return mainThreadGroup;
     }
 
     @Override
