@@ -326,6 +326,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     @Nullable
     public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
+        // check the subclass relation between the receiver class and
+        // the class of method reference to avoid the unexpected method found
+        if (!isSubclass(methodRef.getDeclaringClass(), receiverClass)) {
+            return null;
+        }
         Subsignature subsignature = methodRef.getSubsignature();
         JMethod target = dispatchTable.get(receiverClass, subsignature);
         if (target == null) {

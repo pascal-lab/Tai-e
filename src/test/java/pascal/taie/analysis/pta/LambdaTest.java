@@ -55,4 +55,9 @@ public class LambdaTest {
     public void testImpreciseLambdas() {
         Tests.testPTA(DIR, "ImpreciseLambdas", ARG);
     }
+
+    @Test
+    public void testDispatchBugDueToLackOfSubclassCheck() {
+        Tests.testPTA(DIR, "DispatchBugDueToLackOfSubclassCheck", ARG);
+    }
 }
