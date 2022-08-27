@@ -28,7 +28,7 @@ public enum NullType implements ReferenceType {
 
     @Override
     public String getName() {
-        return "<null type>";
+        return "null-type";
     }
 
     @Override
