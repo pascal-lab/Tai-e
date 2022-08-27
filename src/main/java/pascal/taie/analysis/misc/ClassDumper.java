@@ -30,11 +30,11 @@ import pascal.taie.config.Configs;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
-import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 
 import java.io.File;
@@ -47,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -111,7 +112,6 @@ public class ClassDumper extends ClassAnalysis<Void> {
                 out.println();
                 if (!jclass.getDeclaredFields().isEmpty()) {
                     jclass.getDeclaredFields().forEach(this::dumpField);
-                    out.println();
                 }
                 jclass.getDeclaredMethods().forEach(this::dumpMethod);
                 out.println("}");
@@ -121,6 +121,8 @@ public class ClassDumper extends ClassAnalysis<Void> {
         }
 
         private void dumpClassDeclaration() {
+            // dump annotations
+            jclass.getAnnotations().forEach(out::println);
             // dump class modifiers
             jclass.getModifiers()
                     .stream()
@@ -129,18 +131,22 @@ public class ClassDumper extends ClassAnalysis<Void> {
                     .filter(m -> !jclass.isInterface() ||
                             (m != Modifier.INTERFACE && m != Modifier.ABSTRACT))
                     .forEach(m -> out.print(m + " "));
+            // dump class type
             if (jclass.isInterface()) {
                 out.print("interface");
             } else {
                 out.print("class");
             }
             out.print(' ');
+            // dump class name
             out.print(jclass.getName());
+            // dump super class
             JClass superClass = jclass.getSuperClass();
             if (superClass != null) {
                 out.print(" extends ");
                 out.print(superClass.getName());
             }
+            // dump interfaces
             if (!jclass.getInterfaces().isEmpty()) {
                 out.print(" implements ");
                 out.print(jclass.getInterfaces()
@@ -151,9 +157,13 @@ public class ClassDumper extends ClassAnalysis<Void> {
         }
 
         private void dumpField(JField field) {
+            for (Annotation annotation : field.getAnnotations()) {
+                out.print(INDENT);
+                out.println(annotation);
+            }
             out.print(INDENT);
             dumpModifiers(field.getModifiers());
-            out.printf("%s %s;%n", field.getType().getName(), field.getName());
+            out.printf("%s %s;%n%n", field.getType().getName(), field.getName());
         }
 
         private void dumpModifiers(Set<Modifier> mods) {
@@ -161,6 +171,10 @@ public class ClassDumper extends ClassAnalysis<Void> {
         }
 
         private void dumpMethod(JMethod method) {
+            for (Annotation annotation : method.getAnnotations()) {
+                out.print(INDENT);
+                out.println(annotation);
+            }
             out.print(INDENT);
             dumpMethodDeclaration(method);
             if (hasIR(method)) {
@@ -186,24 +200,25 @@ public class ClassDumper extends ClassAnalysis<Void> {
 
         private void dumpMethodDeclaration(JMethod method) {
             dumpModifiers(method.getModifiers());
-            out.printf("%s %s(", method.getReturnType(), method.getName());
+            out.printf("%s %s", method.getReturnType(), method.getName());
             // dump parameters
-            if (method.getParamCount() > 0) {
-                if (hasIR(method)) {
-                    // if the method has IR, then dump parameter names
-                    IR ir = method.getIR();
-                    out.print(ir.getParams()
-                            .stream()
-                            .map(p -> p.getType().getName() + " " + p.getName())
-                            .collect(Collectors.joining(", ")));
-                } else {
-                    out.print(method.getParamTypes()
-                            .stream()
-                            .map(Type::getName)
-                            .collect(Collectors.joining(", ")));
+            StringJoiner paramsJoiner = new StringJoiner(", ", "(", ")");
+            for (int i = 0; i < method.getParamCount(); ++i) {
+                StringJoiner joiner = new StringJoiner(" ");
+                method.getParamAnnotations(i)
+                        .forEach(anno -> joiner.add(anno.toString()));
+                joiner.add(method.getParamType(i).getName());
+                // if the method has explicit parameter names
+                // or the method has IR, then dump parameter names
+                String paramName = method.getParamName(i);
+                if (paramName != null) {
+                    joiner.add(paramName);
+                } else if (hasIR(method)) {
+                    joiner.add(method.getIR().getParam(i).getName());
                 }
+                paramsJoiner.add(joiner.toString());
             }
-            out.print(')');
+            out.print(paramsJoiner);
         }
 
         private static boolean hasIR(JMethod method) {
@@ -216,7 +231,6 @@ public class ClassDumper extends ClassAnalysis<Void> {
             ir.getVars().stream()
                     .filter(v -> v != ir.getThis())
                     .filter(v -> !ir.getParams().contains(v))
-                    .filter(v -> !v.getType().equals(NullType.NULL))
                     .forEach(v -> vars.computeIfAbsent(v.getType(),
                                     (unused) -> new ArrayList<>())
                             .add(v));
