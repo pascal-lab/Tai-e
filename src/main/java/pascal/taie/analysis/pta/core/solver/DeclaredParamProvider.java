@@ -31,16 +31,18 @@ import pascal.taie.language.type.ReferenceType;
 import java.util.Set;
 
 /**
- * This entry point creates parameter objects of the declared types.
+ * This {@link ParamProvider} creates parameter objects of the declared types.
  * For this variable/parameter of abstract class or non-reference type,
  * an empty set is returned.
  */
-public class DeclaredArgEntryPoint extends EntryPoint {
+public class DeclaredParamProvider implements ParamProvider {
+
+    private final JMethod method;
 
     private final HeapModel heapModel;
 
-    public DeclaredArgEntryPoint(JMethod method, HeapModel heapModel) {
-        super(method);
+    public DeclaredParamProvider(JMethod jMethod, HeapModel heapModel) {
+        this.method = jMethod;
         this.heapModel = heapModel;
     }
 

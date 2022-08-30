@@ -23,17 +23,18 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
 
 /**
- * This entry point ignored all arguments.
+ * This {@link ParamProvider} ignored all parameters.
  */
-public class NonArgEntryPoint extends EntryPoint {
+public enum EmptyParamProvider implements ParamProvider {
 
-    public NonArgEntryPoint(JMethod method) {
-        super(method);
+    INSTANCE;
+
+    public static EmptyParamProvider get() {
+        return INSTANCE;
     }
 
     @Override

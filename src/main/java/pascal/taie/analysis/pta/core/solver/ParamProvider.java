@@ -22,59 +22,27 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
 
 /**
- * Represents entry points in pointer analysis. Each entry specifies:
- * <ol>
- *     <li>an entry method
- *     <li>the parameter objects provider for this variable/parameters of the entry method.
- * </ol>
- * @see ParamProvider
+ * The parameter objects provider for this variable/parameters of the entry method.
+ *
+ * @see EmptyParamProvider
+ * @see DeclaredParamProvider
+ * @see SpecifiedParamProvider
  */
-public class EntryPoint {
-
-    /**
-     * The entry method.
-     */
-    private final JMethod method;
-
-    /**
-     * The provider of objects for this variable/parameters of the entry method.
-     */
-    private final ParamProvider paramProvider;
-
-    public EntryPoint(JMethod method, ParamProvider paramProvider) {
-        this.method = method;
-        this.paramProvider = paramProvider;
-    }
-
-    /**
-     * @return the entry method.
-     */
-    public JMethod getMethod() {
-        return method;
-    }
+public interface ParamProvider {
 
     /**
      * @return the objects for this variable.
      */
-    public Set<Obj> getThisObjs() {
-        return paramProvider.getThisObjs();
-    }
+    Set<Obj> getThisObjs();
 
     /**
      * @return the objects for i-th parameter (starting from 0).
      */
-    public Set<Obj> getParamObjs(int i) {
-        return paramProvider.getParamObjs(i);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + '{' + method + '}';
-    }
+    Set<Obj> getParamObjs(int i);
 }

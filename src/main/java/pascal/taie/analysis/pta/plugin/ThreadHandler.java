@@ -27,8 +27,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.solver.EntryPoint;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.core.solver.SpecifiedArgEntryPoint;
+import pascal.taie.analysis.pta.core.solver.SpecifiedParamProvider;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
@@ -109,9 +110,10 @@ public class ThreadHandler implements Plugin {
         ClassType threadGroup = typeSystem.getClassType(ClassNames.THREAD_GROUP);
         Obj systemThreadGroup = heapModel.getMockObj(
                 "EntryPointObj", "<system-thread-group>", threadGroup);
-        solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit)
-                .addThisObj(systemThreadGroup)
-                .build());
+        solver.addEntryPoint(new EntryPoint(threadGroupInit,
+                new SpecifiedParamProvider.Builder(threadGroupInit)
+                        .addThisObj(systemThreadGroup)
+                        .build()));
 
         // setup main thread group
         JMethod threadGroupInit2 = requireNonNull(
@@ -119,22 +121,24 @@ public class ThreadHandler implements Plugin {
         Obj mainThreadGroup = heapModel.getMockObj(
                 "EntryPointObj", "<main-thread-group>", threadGroup);
         Obj main = heapModel.getConstantObj(StringLiteral.get("main"));
-        solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadGroupInit2)
-                .addThisObj(mainThreadGroup)
-                .addParamObj(0, systemThreadGroup)
-                .addParamObj(1, main)
-                .build());
+        solver.addEntryPoint(new EntryPoint(threadGroupInit2,
+                new SpecifiedParamProvider.Builder(threadGroupInit2)
+                        .addThisObj(mainThreadGroup)
+                        .addParamObj(0, systemThreadGroup)
+                        .addParamObj(1, main)
+                        .build()));
 
         // setup main thread
         JMethod threadInit = requireNonNull(
                 hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
         Obj mainThread = heapModel.getMockObj("EntryPointObj", "<main-thread>",
                 typeSystem.getClassType(ClassNames.THREAD));
-        solver.addEntryPoint(new SpecifiedArgEntryPoint.Builder(threadInit)
-                .addThisObj(mainThread)
-                .addParamObj(0, mainThreadGroup)
-                .addParamObj(1, main)
-                .build());
+        solver.addEntryPoint(new EntryPoint(threadInit,
+                new SpecifiedParamProvider.Builder(threadInit)
+                        .addThisObj(mainThread)
+                        .addParamObj(0, mainThreadGroup)
+                        .addParamObj(1, main)
+                        .build()));
 
         // The main thread is never explicitly started, which would make it a
         // RunningThread. Therefore, we make it a running thread explicitly.

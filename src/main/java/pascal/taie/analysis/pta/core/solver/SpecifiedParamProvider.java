@@ -30,18 +30,17 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * This entry point returns this/parameter objects specified via its builder.
- * For non-specified this variable or parameters, an empty set is returned.
+ * This {@link ParamProvider} returns this/parameter objects specified via its builder.
+ * For non-specified this variable or parameters,
+ * the {@link Builder#delegate}'s result will be returned.
  */
-public class SpecifiedArgEntryPoint extends EntryPoint {
+public class SpecifiedParamProvider implements ParamProvider {
 
     private final Set<Obj> thisObjs;
 
     private final Set<Obj>[] paramObjs;
 
-    private SpecifiedArgEntryPoint(
-            JMethod method, Set<Obj> thisObjs, Set<Obj>[] paramObjs) {
-        super(method);
+    private SpecifiedParamProvider(Set<Obj> thisObjs, Set<Obj>[] paramObjs) {
         this.thisObjs = thisObjs;
         this.paramObjs = paramObjs;
     }
@@ -59,19 +58,30 @@ public class SpecifiedArgEntryPoint extends EntryPoint {
     // TODO: validate input this/param objects?
     public static class Builder {
 
+        private ParamProvider delegate;
+
         private final JMethod method;
 
-        private final Set<Obj> thisObjs = Sets.newHybridSet();
+        private Set<Obj> thisObjs;
 
         private final Set<Obj>[] paramObjs;
 
         @SuppressWarnings("unchecked")
         public Builder(JMethod method) {
+            this.delegate = EmptyParamProvider.get();
             this.method = method;
             this.paramObjs = (Set<Obj>[]) new Set[method.getParamCount()];
         }
 
+        public Builder setDelegate(ParamProvider delegate) {
+            this.delegate = delegate;
+            return this;
+        }
+
         public Builder addThisObj(Obj thisObj) {
+            if (thisObjs == null) {
+                thisObjs = Sets.newHybridSet();
+            }
             thisObjs.add(thisObj);
             return this;
         }
@@ -84,20 +94,18 @@ public class SpecifiedArgEntryPoint extends EntryPoint {
             return this;
         }
 
-        public SpecifiedArgEntryPoint build() {
+        public SpecifiedParamProvider build() {
+            if (thisObjs == null) {
+                thisObjs = delegate.getThisObjs();
+            }
+            thisObjs = Collections.unmodifiableSet(thisObjs);
             for (int i = 0; i < method.getParamCount(); ++i) {
-                paramObjs[i] = normalize(paramObjs[i]);
+                if (paramObjs[i] == null) {
+                    paramObjs[i] = delegate.getParamObjs(i);
+                }
+                paramObjs[i] = Collections.unmodifiableSet(paramObjs[i]);
             }
-            return new SpecifiedArgEntryPoint(
-                    method, normalize(thisObjs), paramObjs);
-        }
-
-        private static Set<Obj> normalize(Set<Obj> set) {
-            if (set == null || set.isEmpty()) {
-                return Set.of();
-            } else {
-                return Collections.unmodifiableSet(set);
-            }
+            return new SpecifiedParamProvider(thisObjs, paramObjs);
         }
     }
 }

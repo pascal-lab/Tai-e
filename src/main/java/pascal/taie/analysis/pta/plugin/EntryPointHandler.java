@@ -28,8 +28,9 @@ import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.solver.EmptyParamProvider;
 import pascal.taie.analysis.pta.core.solver.EntryPoint;
-import pascal.taie.analysis.pta.core.solver.NonArgEntryPoint;
+import pascal.taie.analysis.pta.core.solver.ParamProvider;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
@@ -56,22 +57,25 @@ public class EntryPointHandler implements Plugin {
         // process program main method
         JMethod mainMethod = World.get().getMainMethod();
         if (mainMethod != null) {
-            solver.addEntryPoint(new MainEntryPoint(mainMethod, solver));
+            solver.addEntryPoint(new EntryPoint(mainMethod,
+                    new MainEntryPointParamProvider(mainMethod, solver)));
         }
         // process implicit entries
         if (solver.getOptions().getBoolean("implicit-entries")) {
             for (JMethod entry : World.get().getImplicitEntries()) {
-                solver.addEntryPoint(new NonArgEntryPoint(entry));
+                solver.addEntryPoint(new EntryPoint(entry, EmptyParamProvider.get()));
             }
         }
     }
 
-    private static class MainEntryPoint extends EntryPoint {
+    private static class MainEntryPointParamProvider implements ParamProvider {
+
+        private final JMethod method;
 
         private final Solver solver;
 
-        MainEntryPoint(JMethod method, Solver solver) {
-            super(method);
+        MainEntryPointParamProvider(JMethod method, Solver solver) {
+            this.method = method;
             this.solver = solver;
         }
 
