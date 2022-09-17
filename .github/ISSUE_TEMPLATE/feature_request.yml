@@ -1,0 +1,32 @@
+name: 🚀 Feature Request
+description: Request a new feature
+labels: ["type: enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in the project and taking the time to fill out this feature report!
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Clear and concise description of the problem
+      description: 'As a developer using Tai-e I want [goal / wish] so that [benefit]. If you intend to submit a PR for this issue, tell us in the description. Thanks!'
+    validations:
+      required: true
+  - type: textarea
+    id: suggested-solution
+    attributes:
+      label: Suggested solution
+      description: 'In module [xy] we could provide following implementation...'
+    validations:
+      required: true
+  - type: textarea
+    id: alternative
+    attributes:
+      label: Alternative
+      description: Clear and concise description of any alternative solutions or features you've considered.
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Any other context or screenshots about the feature request here.
