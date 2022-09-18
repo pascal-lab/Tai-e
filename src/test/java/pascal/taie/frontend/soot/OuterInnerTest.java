@@ -38,7 +38,7 @@ public class OuterInnerTest {
     @BeforeClass
     public static void beforeClass() {
         Main.buildWorld("-pp", "-cp", "src/test/resources/world",
-                "-m", "OuterInner");
+                "--input-classes", "OuterInner");
         hierarchy = World.get().getClassHierarchy();
     }
 

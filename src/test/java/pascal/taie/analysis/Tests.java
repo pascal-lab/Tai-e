@@ -56,17 +56,47 @@ public final class Tests {
 
     /**
      * Starts an analysis for a specific test case.
+     * Requires a main method in the given class.
      *
-     * @param main      the main class to be analyzed
+     * @param mainClass the main class to be analyzed
      * @param classPath where the main class is located
      * @param id        ID of the analysis to be executed
      * @param opts      options for the analysis
      */
-    public static void test(String main, String classPath, String id, String... opts) {
+    public static void testMain(String mainClass, String classPath,
+                                String id, String... opts) {
+        test(mainClass, true, classPath, id, opts);
+    }
+
+    /**
+     * Starts an analysis for a specific test case.
+     * Do not require a main method in the given class.
+     *
+     * @param inputClass the input class to be analyzed
+     * @param classPath  where the input class is located
+     * @param id         ID of the analysis to be executed
+     * @param opts       options for the analysis
+     */
+    public static void testInput(String inputClass, String classPath,
+                                 String id, String... opts) {
+        test(inputClass, false, classPath, id, opts);
+    }
+
+    /**
+     * Starts an analysis for a specific test case.
+     *
+     * @param clz         the class to be analyzed
+     * @param isMainClass if the class contains main method
+     * @param classPath   where the main class is located
+     * @param id          ID of the analysis to be executed
+     * @param opts        options for the analysis
+     */
+    private static void test(String clz, boolean isMainClass,
+                             String classPath, String id, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);
-        Collections.addAll(args, "-m", main);
+        Collections.addAll(args, isMainClass ? "-m" : "--input-classes", clz);
         if (DUMP_CFG) {
             // dump control-flow graphs
             Collections.addAll(args, "-a",
@@ -84,7 +114,7 @@ public final class Tests {
         }
         // set up result processor
         String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
-        String file = getExpectedFile(classPath, main, id);
+        String file = getExpectedFile(classPath, clz, id);
         String processArg = String.format("%s=analyses:[%s];action:%s;action-file:%s",
                 ResultProcessor.ID, id, action, file);
         Collections.addAll(args, "-a", processArg);

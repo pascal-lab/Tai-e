@@ -35,7 +35,7 @@ public class ConstVarTest {
     @Test
     public void test() {
         String main = "ConstVar";
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "-m", main);
+        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", main);
         JClass jclass = World.get().getClassHierarchy().getClass(main);
         jclass.getDeclaredMethods().forEach(m -> {
             IR ir = m.getIR();

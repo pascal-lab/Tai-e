@@ -48,7 +48,7 @@ public class HierarchyTest {
 
     @BeforeClass
     public static void buildWorld() {
-        Main.buildWorld("-cp", "src/test/resources/world", "-m", "Hierarchy");
+        Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", "Hierarchy");
     }
 
     // ---------- Test subclass checking Subclass() ----------

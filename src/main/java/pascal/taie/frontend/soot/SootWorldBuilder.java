@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,7 +71,18 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     @Override
     public void build(Options options, List<AnalysisConfig> plan) {
         initSoot(options, plan, this);
-        runSoot(new String[]{"-cp", getClassPath(options), options.getMainClass()});
+        // set arguments and run soot
+        List<String> args = new ArrayList<>();
+        // set class path
+        Collections.addAll(args, "-cp", getClassPath(options));
+        // set main class
+        String mainClass = options.getMainClass();
+        if (mainClass != null) {
+            Collections.addAll(args, "-main-class", mainClass, mainClass);
+        }
+        // set input classes
+        args.addAll(options.getInputClasses());
+        runSoot(args.toArray(new String[0]));
     }
 
     private static void initSoot(Options options, List<AnalysisConfig> plan,
@@ -110,10 +122,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
         addReflectionLogClasses(plan, scene);
-        // add the included classes to the basic classes of Soot
-        for (String includedClass : options.getInputClasses()) {
-            scene.addBasicClass(includedClass, HIERARCHY);
-        }
 
         // Configure Soot transformer
         Transform transform = new Transform(

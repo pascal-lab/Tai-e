@@ -28,7 +28,7 @@ import pascal.taie.analysis.Tests;
 public class LiveVarTest {
 
     void testLV(String inputClass) {
-        Tests.test(inputClass, "src/test/resources/dataflow/livevar",
+        Tests.testInput(inputClass, "src/test/resources/dataflow/livevar",
                 LiveVariable.ID, "strongly:false");
     }
 

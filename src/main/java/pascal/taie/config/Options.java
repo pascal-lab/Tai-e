@@ -101,7 +101,8 @@ public class Options {
     @Option(names = {"--input-classes"},
             description = "The classes should be included in the World of analyzed program" +
                     " (the classes can be split by ',')",
-            split = ",")
+            split = ",",
+            paramLabel="<inputClass>")
     private List<String> inputClasses = List.of();
 
     public List<String> getInputClasses() {
@@ -243,6 +244,11 @@ public class Options {
             throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
+        if (options.getClassPath() != null
+                && options.mainClass == null && options.inputClasses.isEmpty()) {
+            throw new ConfigException("Missing options: " +
+                    "at least one of --main-class and --input-classes should be specified");
+        }
         // TODO: turn off output in testing?
         if (options.optionsFile == null) {
             // write options to file only when it is not given
@@ -291,7 +297,8 @@ public class Options {
         }
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "Options{" +
                 "optionsFile=" + optionsFile +
                 ", printHelp=" + printHelp +

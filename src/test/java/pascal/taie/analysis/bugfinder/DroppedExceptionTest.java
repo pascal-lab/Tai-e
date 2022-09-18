@@ -18,7 +18,7 @@ public class DroppedExceptionTest {
 
     @Test
     public void test() {
-        Tests.test("DroppedException", "src/test/resources/bugfinder",
+        Tests.testInput("DroppedException", "src/test/resources/bugfinder",
                 DroppedException.ID);
     }
 }

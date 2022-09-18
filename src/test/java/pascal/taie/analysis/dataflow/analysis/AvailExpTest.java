@@ -30,7 +30,7 @@ public class AvailExpTest {
 
     @Test
     public void test() {
-        Tests.test("AvailExp", "src/test/resources/dataflow/",
+        Tests.testInput("AvailExp", "src/test/resources/dataflow/",
                 AvailableExpression.ID);
     }
 }

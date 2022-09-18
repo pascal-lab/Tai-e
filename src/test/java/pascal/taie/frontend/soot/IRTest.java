@@ -37,7 +37,7 @@ public class IRTest {
     private static final List<String> targets = List.of("AllInOne");
 
     private static void buildWorld(String mainClass) {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "-m", mainClass);
+        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", mainClass);
     }
 
     @Test

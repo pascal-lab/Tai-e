@@ -40,7 +40,7 @@ public class CFGTest {
 
     private static void test(String main, String exception) {
         String[] args = new String[]{
-                "-pp", "-cp", "src/test/resources/controlflow", "-m", main,
+                "-pp", "-cp", "src/test/resources/controlflow", "--input-classes", main,
                 "-a", ThrowAnalysis.ID + "=exception:" + exception,
                 "-a", CFGBuilder.ID + "=exception:" + exception + ";dump:true"
         };

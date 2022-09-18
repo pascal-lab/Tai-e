@@ -14,7 +14,7 @@ public class IsNullTest {
     private static final String folderPath = "src/test/resources/bugfinder";
 
     void testIsNullValue(String inputClass) {
-        Tests.test(inputClass, folderPath, IsNullAnalysis.ID);
+        Tests.testInput(inputClass, folderPath, IsNullAnalysis.ID);
     }
 
     @Test
@@ -31,7 +31,7 @@ public class IsNullTest {
     public void testAnnotation() {
         List<String> args = new ArrayList<>();
         Collections.addAll(args, "-cp", folderPath + ";" + folderPath + "/jsr305-3.0.2.jar");
-        Collections.addAll(args, "-m", "NullAnnotation");
+        Collections.addAll(args, "--input-classes", "NullAnnotation");
         Collections.addAll(args, "-a", IsNullAnalysis.ID);
         Main.main(args.toArray(new String[0]));
 //        Tests.test("NullAnnotation", folderPath + ";" + folderPath + "/jsr305-3.0.2.jar", IsNullAnalysis.ID);

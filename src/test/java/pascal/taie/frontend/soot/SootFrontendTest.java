@@ -41,7 +41,7 @@ public class SootFrontendTest {
 
     @Test
     public void testWorldBuilder() {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "-m", "AllInOne");
+        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", "AllInOne");
         World.get()
                 .getClassHierarchy()
                 .allClasses()

@@ -30,8 +30,8 @@ public class InterCPTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/inter";
 
-    void test(String inputClass) {
-        Tests.test(inputClass, CLASS_PATH, InterConstantPropagation.ID,
+    void test(String mainClass) {
+        Tests.testMain(mainClass, CLASS_PATH, InterConstantPropagation.ID,
                 "edge-refine:false;alias-aware:false", "-a", "cg=algorithm:cha"
                 // , "-a", "icfg=dump:true" // <-- uncomment this code if you want
                 // to output ICFGs for the test cases

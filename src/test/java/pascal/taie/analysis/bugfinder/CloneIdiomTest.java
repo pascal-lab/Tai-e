@@ -9,8 +9,8 @@ import java.util.Set;
 
 public class CloneIdiomTest {
 
-    private void test(String mainClass) {
-        Tests.test(mainClass, "src/test/resources/bugfinder/CloneIdiom", CloneIdiom.ID);
+    private void test(String inputClass) {
+        Tests.testInput(inputClass, "src/test/resources/bugfinder/CloneIdiom", CloneIdiom.ID);
         Set<BugInstance> bugInstances = Sets.newSet();
         World.get()
                 .getClassHierarchy()

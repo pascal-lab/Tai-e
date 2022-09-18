@@ -29,7 +29,7 @@ public class EdgeRefineTest {
 
     @Test
     public void test() {
-        Tests.test("EdgeRefine", "src/test/resources/dataflow/constprop/",
+        Tests.testInput("EdgeRefine", "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID, "edge-refine:true");
     }
 }

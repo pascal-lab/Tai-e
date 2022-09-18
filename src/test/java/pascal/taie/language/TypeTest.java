@@ -40,7 +40,7 @@ public class TypeTest {
 
     @BeforeClass
     public static void initTypeManager() {
-        Main.buildWorld("-cp", "src/test/resources/world", "-m", "Types");
+        Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", "Types");
         typeSystem = World.get().getTypeSystem();
     }
 

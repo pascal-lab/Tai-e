@@ -9,7 +9,7 @@ public class NullPointerDetectionTest {
     private static final String folderPath = "src/test/resources/bugfinder";
 
     void testNullPointerException(String inputClass) {
-        Tests.test(inputClass, folderPath, NullPointerDetection.ID);
+        Tests.testInput(inputClass, folderPath, NullPointerDetection.ID);
     }
 
     @Test

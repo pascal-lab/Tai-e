@@ -29,7 +29,7 @@ public class ReachDefTest {
 
     @Test
     public void test() {
-        Tests.test("ReachDef", "src/test/resources/dataflow/",
+        Tests.testInput("ReachDef", "src/test/resources/dataflow/",
                 ReachingDefinition.ID);
     }
 }

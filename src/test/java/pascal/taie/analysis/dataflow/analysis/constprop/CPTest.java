@@ -28,7 +28,7 @@ import pascal.taie.analysis.Tests;
 public class CPTest {
 
     void testCP(String inputClass) {
-        Tests.test(inputClass, "src/test/resources/dataflow/constprop/",
+        Tests.testInput(inputClass, "src/test/resources/dataflow/constprop/",
                 ConstantPropagation.ID, "edge-refine:false");
     }
 
