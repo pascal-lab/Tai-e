@@ -1,0 +1,99 @@
+-------------------- <NullDeref: void nullObject()> (isnull) --------------------
+[0@L6] n = null; {%this=NN, n=NULL}
+[1@L8] %intconst0 = 1; {%this=NN, n=NULL}
+[2@L8] invokevirtual n.<NullDeref: void f(int)>(%intconst0); {}
+[3@L9] temp$0 = n.<NullDeref: int y>; {}
+[4@L9] invokevirtual %this.<NullDeref: void f(int)>(temp$0); {}
+[5@L9] return; {}
+
+-------------------- <NullDeref: void main(java.lang.String[])> (isnull) --------------------
+[0@L12] return; {args=NN}
+
+-------------------- <NullDeref: void <init>()> (isnull) --------------------
+[0@L15] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NN}
+[1@L15] return; {%this=NN}
+
+-------------------- <NullDeref: void f(int)> (isnull) --------------------
+[0@L18] return; {%this=NN}
+
+-------------------- <NullDeref: java.lang.Object getAObject()> (isnull) --------------------
+[0@L21] temp$0 = new java.lang.Object; {%this=NN, temp$0=NN}
+[1@L22] invokespecial temp$0.<java.lang.Object: void <init>()>(); {%this=NN, temp$0=NN}
+[2@L22] return temp$0; {%this=NN, temp$0=NN}
+
+-------------------- <NullDeref: void allStmts(java.lang.Object)> (isnull) --------------------
+[0@L26] temp$0 = new java.lang.Object; {%this=NN, o=UNKNOWN, temp$0=NN}
+[1@L26] invokespecial temp$0.<java.lang.Object: void <init>()>(); {%this=NN, o=UNKNOWN, temp$0=NN}
+[2@L26] n = temp$0; {%this=NN, n=NN, o=UNKNOWN, temp$0=NN}
+[3@L27] temp$1 = %this.<NullDeref: java.lang.Object field>; {%this=NN, n=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[4@L27] n = temp$1; {%this=NN, n=NCP, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[5@L28] n = null; {%this=NN, n=NULL, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[6@L29] n = "nonNull"; {%this=NN, n=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[7@L30] %this.<NullDeref: java.lang.Object field> = n; {%this=NN, n=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[8@L32] n2 = n; {%this=NN, n=NN, n2=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[9@L33] n2 = %this; {%this=NN, n=NN, n2=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[10@L35] %intconst0 = 10; {%this=NN, n=NN, n2=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[11@L35] array = newarray java.lang.Object[%intconst0]; {%this=NN, array=NN, n=NN, n2=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[12@L36] temp$5 = 0; {%this=NN, array=NN, n=NN, n2=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP}
+[13@L36] temp$6 = array[temp$5]; {%this=NN, array=NN, n=NN, n2=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP}
+[14@L36] n2 = temp$6; {%this=NN, array=NN, n=NN, n2=NCP, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP}
+[15@L37] temp$7 = invokevirtual %this.<NullDeref: java.lang.Object getAObject()>(); {%this=NN, array=NN, n=NN, n2=NCP, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN}
+[16@L37] n2 = temp$7; {%this=NN, array=NN, n=NN, n2=UNKNOWN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN}
+[17@L39] temp$8 = new NullDeref; {%this=NN, array=NN, n=NN, n2=UNKNOWN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN, temp$8=NN}
+[18@L39] invokespecial temp$8.<NullDeref: void <init>()>(); {%this=NN, array=NN, n=NN, n2=UNKNOWN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN, temp$8=NN}
+[19@L39] nd = temp$8; {%this=NN, array=NN, n=NN, n2=UNKNOWN, nd=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN, temp$8=NN}
+[20@L40] n3 = nd; {%this=NN, array=NN, n=NN, n2=UNKNOWN, n3=NN, nd=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN, temp$8=NN}
+[21@L41] n3 = null; {%this=NN, array=NN, n=NN, n2=UNKNOWN, n3=NULL, nd=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN, temp$8=NN}
+[22@L41] return; {%this=NN, array=NN, n=NN, n2=UNKNOWN, n3=NULL, nd=NN, o=UNKNOWN, temp$0=NN, temp$1=NCP, temp$6=NCP, temp$7=UNKNOWN, temp$8=NN}
+
+-------------------- <NullDeref: void nullArray()> (isnull) --------------------
+[0@L45] a = null; {%this=NN, a=NULL}
+[1@L46] b = a.length; {}
+[2@L47] temp$2 = a[b]; {}
+[3@L47] invokevirtual temp$2.<NullDeref: void f(int)>(b); {}
+[4@L47] return; {}
+
+-------------------- <NullDeref: boolean equals(java.lang.Object)> (isnull) --------------------
+[0@L50] temp$0 = 0; {%this=NN, o=NSP}
+[1@L51] return temp$0; {%this=NN, o=NSP}
+
+-------------------- <NullDeref: void throwNull()> (isnull) --------------------
+[0@L55] a = null; {%this=NN, a=NULL}
+[1@L56] throw a; {}
+[2@L56] return; {}
+
+-------------------- <NullDeref: void nullComparison()> (isnull) --------------------
+[0@L60] a = null; {%this=NN, a=NULL}
+[1@L61] array = null; {%this=NN, a=NULL, array=NULL}
+[2@L62] if (a == %nullconst) goto 4; {%this=NN, a=NULL, array=NULL}
+[3@L62] goto 6; {}
+[4@L62] nop; {%this=NN, a=CHECKED_NULL, array=NULL}
+[5@L63] invokevirtual %this.<NullDeref: void nullArray()>(); {%this=NN, a=CHECKED_NULL, array=NULL}
+[6@L63] nop; {%this=NN, a=CHECKED_NULL, array=NULL}
+[7@L65] if (array != %nullconst) goto 9; {%this=NN, a=CHECKED_NULL, array=NULL}
+[8@L65] goto 11; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL}
+[9@L65] nop; {}
+[10@L66] invokevirtual %this.<NullDeref: void nullArray()>(); {}
+[11@L66] nop; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL}
+[12@L68] if (%nullconst != a) goto 14; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL}
+[13@L68] goto 16; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL}
+[14@L68] nop; {}
+[15@L69] invokevirtual %this.<NullDeref: void nullArray()>(); {}
+[16@L69] nop; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL}
+[17@L71] temp$0 = new java.lang.Object; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL, temp$0=NN}
+[18@L71] invokespecial temp$0.<java.lang.Object: void <init>()>(); {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL, temp$0=NN}
+[19@L71] b = temp$0; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL, b=NN, temp$0=NN}
+[20@L72] if (a != b) goto 22; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL, b=NN, temp$0=NN}
+[21@L72] goto 24; {}
+[22@L72] nop; {%this=NN, a=CHECKED_NULL, array=CHECKED_NULL, b=CHECKED_NN, temp$0=NN}
+[23@L73] invokevirtual %this.<NullDeref: void throwNull()>(); {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[24@L73] nop; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[25@L75] temp$1 = a instanceof NullDeref; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[26@L75] %intconst0 = 0; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[27@L75] if (temp$1 == %intconst0) goto 31; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[28@L75] goto 29; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[29@L75] nop; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[30@L76] invokevirtual %this.<NullDeref: void throwNull()>(); {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[31@L76] nop; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+[32@L76] return; {%this=NN, a=NCP, array=NCP, b=CHECKED_NN, temp$0=NN}
+

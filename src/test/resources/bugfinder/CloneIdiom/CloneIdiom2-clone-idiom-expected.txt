@@ -1,0 +1,4 @@
+-------------------- CloneIdiom2 (clone-idiom) --------------------
+Class: CloneIdiom2, Method: empty, LineNumber: empty. 
+bug type: CN_IDIOM_NO_SUPER_CALL, severity: MINOR
+
