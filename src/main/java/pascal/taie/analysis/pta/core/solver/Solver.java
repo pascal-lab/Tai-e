@@ -126,6 +126,7 @@ public interface Solver {
 
     /**
      * Adds an entry point.
+     * Notes that the method in entry point will be set as an entry in {@link CallGraph}
      */
     void addEntryPoint(EntryPoint entryPoint);
 
