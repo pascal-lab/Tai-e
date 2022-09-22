@@ -24,7 +24,6 @@ package pascal.taie.util.collection;
 
 import pascal.taie.util.Hashes;
 
-import java.io.Serializable;
 import java.util.Map.Entry;
 import java.util.Objects;
 
@@ -32,7 +31,7 @@ import java.util.Objects;
  * Map entry.
  * Pair of a key and a value.
  */
-public class MapEntry<K, V> implements Entry<K, V>, Serializable {
+public class MapEntry<K, V> implements Entry<K, V> {
 
     private final K key;
 
