@@ -9,7 +9,7 @@ public interface AnalysisFile {
     Resource getResource();
 
     /**
-     * @return file name of this file, without extension name
+     * @return file name of this file (with extension name)
      */
     String getFileName();
 

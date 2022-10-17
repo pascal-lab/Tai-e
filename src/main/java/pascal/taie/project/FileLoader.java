@@ -52,6 +52,10 @@ public class FileLoader {
         return getExt(p).equals("jar");
     }
 
+    private boolean isJavaSourceFile(Path p) {
+        return getExt(p).equals("java");
+    }
+
     private Resource mkResource(Parent p, Path path) throws IOException {
         // fs is default means it's a file on the disk
         if (p.fs() == FileSystems.getDefault()) {
@@ -101,11 +105,7 @@ public class FileLoader {
                 loadChildren(parent, path, files, fileContainers);
                 FileTime time = Files.getLastModifiedTime(path);
                 containerWorker.apply(new DirContainer(fileContainers, files, time));
-            } else if (isClassFile(path)) {
-                Resource r = mkResource(parent, path);
-                FileTime time = Files.getLastModifiedTime(path);
-                fileWorker.apply(new ClassFile(getName(path), time, r));
-            } else if (isZipFile(path)) {
+            }  else if (isZipFile(path)) {
                 try (FileSystem fs = FileSystems.newFileSystem(path)) {
                     Parent newParent = new Parent(fs, path);
                     List<FileContainer> fileContainers = new ArrayList<>();
@@ -120,6 +120,16 @@ public class FileLoader {
                     } else {
                         containerWorker.apply(new ZipContainer(files, fileContainers, time));
                     }
+                }
+            } else {
+                Resource r = mkResource(parent, path);
+                FileTime time = Files.getLastModifiedTime(path);
+                if (isClassFile(path)) {
+                    fileWorker.apply(new ClassFile(getName(path), time, r));
+                } else if (isJavaSourceFile(path)) {
+                    fileWorker.apply(new JavaSourceFile(getName(path), time, r));
+                } else {
+                    fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r));
                 }
             }
         }

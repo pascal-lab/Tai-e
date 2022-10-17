@@ -2,23 +2,23 @@ package pascal.taie.project;
 
 import java.nio.file.attribute.FileTime;
 
-public class ClassFile implements AnalysisFile {
+public class JavaSourceFile implements AnalysisFile {
 
     private final String className;
 
-    private final FileTime time;
+    private final FileTime timeStamp;
 
     private final Resource resource;
 
-    public ClassFile(String fileName, FileTime time, Resource resource) {
-        this.className = fileName;
-        this.time = time;
+    JavaSourceFile(String className, FileTime timeStamp, Resource resource) {
+        this.className = className;
+        this.timeStamp = timeStamp;
         this.resource = resource;
     }
 
     @Override
     public FileTime getTimeStamp() {
-        return time;
+        return timeStamp;
     }
 
     @Override
