@@ -4,7 +4,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
 
-public class DirContainer implements FileContainer{
+public class DirContainer implements FileContainer {
 
     final private List<FileContainer> containers;
 

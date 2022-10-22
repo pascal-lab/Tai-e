@@ -2,7 +2,10 @@ package pascal.taie.project;
 
 import java.util.List;
 
-public class ProjectRep {
+/**
+ * Representation of a Java project.
+ */
+public class Project {
 
     final private String mainClass;
 
@@ -10,16 +13,16 @@ public class ProjectRep {
 
     final private List<String> inputClasses;
 
-    final private FileContainer rootContainer;
+    final private List<FileContainer> rootContainers;
 
-    ProjectRep(String mainClass,
-               int javaVersion,
-               List<String> inputClasses,
-               FileContainer rootContainer) {
+    Project(String mainClass,
+            int javaVersion,
+            List<String> inputClasses,
+            List<FileContainer> rootContainer) {
         this.mainClass = mainClass;
         this.javaVersion = javaVersion;
         this.inputClasses = inputClasses;
-        this.rootContainer = rootContainer;
+        this.rootContainers = rootContainer;
     }
 
     public String getMainClass() {
@@ -34,7 +37,7 @@ public class ProjectRep {
         return inputClasses;
     }
 
-    public FileContainer getRootContainer() {
-        return rootContainer;
+    public List<FileContainer> getRootContainers() {
+        return rootContainers;
     }
 }

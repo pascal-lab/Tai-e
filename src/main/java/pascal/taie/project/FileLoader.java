@@ -16,7 +16,7 @@ import java.util.jar.Manifest;
 
 public class FileLoader {
 
-    private static Logger logger = LogManager.getLogger(FileLoader.class);
+    private static final Logger logger = LogManager.getLogger(FileLoader.class);
 
     private static FileLoader obj;
 
@@ -26,6 +26,7 @@ public class FileLoader {
 
     /**
      * for this class only
+     *
      * @return ext name of p
      */
     private String getExt(Path p) {
@@ -85,17 +86,17 @@ public class FileLoader {
         }
     }
 
-    public<T> void loadFile(
+    public <T> void loadFile(
             Path path,
-            Function<AnalysisFile,  T> fileWorker,
+            Function<AnalysisFile, T> fileWorker,
             Function<FileContainer, T> containerWorker) throws IOException {
         loadFile(new Parent(FileSystems.getDefault(), path), path, fileWorker, containerWorker);
     }
 
-     public<T> void loadFile(Parent parent,
-             Path path,
-             Function<AnalysisFile,  T> fileWorker,
-             Function<FileContainer, T> containerWorker) throws IOException {
+    public <T> void loadFile(Parent parent,
+                             Path path,
+                             Function<AnalysisFile, T> fileWorker,
+                             Function<FileContainer, T> containerWorker) throws IOException {
         if (!Files.exists(path)) {
             logger.warn(path + " is not exist");
         } else {
@@ -105,7 +106,7 @@ public class FileLoader {
                 loadChildren(parent, path, files, fileContainers);
                 FileTime time = Files.getLastModifiedTime(path);
                 containerWorker.apply(new DirContainer(fileContainers, files, time));
-            }  else if (isZipFile(path)) {
+            } else if (isZipFile(path)) {
                 try (FileSystem fs = FileSystems.newFileSystem(path)) {
                     Parent newParent = new Parent(fs, path);
                     List<FileContainer> fileContainers = new ArrayList<>();
@@ -143,4 +144,3 @@ public class FileLoader {
     }
 }
 
-record Parent(FileSystem fs, Path p) { }
