@@ -33,9 +33,9 @@ public class TestAll {
         });
 
         Assert.assertNotNull(c[0]);
-        for (var i : c[0].getFiles()) {
-            if (i.getFileName().equals("Cards.class")) {
-                Assert.assertArrayEquals(i.getResource().getContent(),
+        for (var i : c[0].files()) {
+            if (i.fileName().equals("Cards.class")) {
+                Assert.assertArrayEquals(i.resource().getContent(),
                         Files.readAllBytes(Paths.get(cards)));
                 return;
             }
@@ -51,23 +51,23 @@ public class TestAll {
         byte[] Card1 = null;
         byte[] Card2 = null;
 
-        for (var i : c.getContainers()) {
-            if (i.getFileName().equals("a.zip")) {
-                for (var z : i.getContainers()) {
-                    if (z.getFileName().equals("classes.jar")) {
-                        for (var t : z.getFiles()) {
-                            if (t.getFileName().equals("Cards.class")) {
-                                Card1 = t.getResource().getContent();
+        for (var i : c.containers()) {
+            if (i.fileName().equals("a.zip")) {
+                for (var z : i.containers()) {
+                    if (z.fileName().equals("classes.jar")) {
+                        for (var t : z.files()) {
+                            if (t.fileName().equals("Cards.class")) {
+                                Card1 = t.resource().getContent();
                             }
                         }
                     }
                 }
             }
 
-            if (i.getFileName().equals("classes.jar")) {
-                for (var z : i.getFiles()) {
-                    if (z.getFileName().equals("Cards.class")) {
-                        Card2 = z.getResource().getContent();
+            if (i.fileName().equals("classes.jar")) {
+                for (var z : i.files()) {
+                    if (z.fileName().equals("Cards.class")) {
+                        Card2 = z.resource().getContent();
                     }
                 }
             }

@@ -4,13 +4,13 @@ import java.nio.file.attribute.FileTime;
 
 public interface AnalysisFile {
 
-    FileTime getTimeStamp();
+    FileTime timeStamp();
 
-    Resource getResource();
+    Resource resource();
 
     /**
      * @return file name of this file (with extension name)
      */
-    String getFileName();
+    String fileName();
 
 }

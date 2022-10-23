@@ -24,27 +24,27 @@ public class DirContainer implements FileContainer {
     }
 
     @Override
-    public List<AnalysisFile> getFiles() {
+    public List<AnalysisFile> files() {
         return files;
     }
 
     @Override
-    public List<FileContainer> getContainers() {
+    public List<FileContainer> containers() {
         return containers;
     }
 
     @Override
-    public FileTime getTimeStamp() {
+    public FileTime timeStamp() {
         return time;
     }
 
     @Override
-    public String getFileName() {
+    public String fileName() {
         return name;
     }
 
     @Override
-    public String getClassName() {
+    public String className() {
         return name;
     }
 }

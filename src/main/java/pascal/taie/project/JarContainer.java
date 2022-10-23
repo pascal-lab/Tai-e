@@ -22,7 +22,7 @@ public class JarContainer extends ZipContainer {
     }
 
     @Override
-    public String getFileName() {
+    public String fileName() {
         return this.name + ".jar";
     }
 }

@@ -5,22 +5,22 @@ import java.util.List;
 
 public interface FileContainer {
 
-    List<AnalysisFile> getFiles();
+    List<AnalysisFile> files();
 
-    List<FileContainer> getContainers();
+    List<FileContainer> containers();
 
-    FileTime getTimeStamp();
+    FileTime timeStamp();
 
     /**
      * Return FileName (with extension name)
      * e.g. a.jar --> a.jar
      */
-    String getFileName();
+    String fileName();
 
     /**
      * Return name (without extension name)
      * e.g. a.jar --> a
      */
-    String getClassName();
+    String className();
 
 }
