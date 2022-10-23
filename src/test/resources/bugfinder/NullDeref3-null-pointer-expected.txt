@@ -1,16 +1,12 @@
 -------------------- <NullDeref3: void <init>()> (null-pointer) --------------------
 
 -------------------- <NullDeref3: void foo()> (null-pointer) --------------------
-Class: NullDeref3, Method: <NullDeref3: void foo()>, LineNumber: 6. 
-bug type: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, severity: MAJOR
+Class: NullDeref3, Method: <NullDeref3: void foo()>, LineNumber: 6. bug type: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, severity: MAJOR
 
 -------------------- <NullDeref3: java.lang.Object foo2(java.lang.Object)> (null-pointer) --------------------
-Class: NullDeref3, Method: <NullDeref3: java.lang.Object foo2(java.lang.Object)>, LineNumber: 19. 
-bug type: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, severity: MAJOR
+Class: NullDeref3, Method: <NullDeref3: java.lang.Object foo2(java.lang.Object)>, LineNumber: 19. bug type: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, severity: MAJOR
 
 -------------------- <NullDeref3: java.lang.Object bar(java.lang.Object)> (null-pointer) --------------------
-Class: NullDeref3, Method: <NullDeref3: java.lang.Object bar(java.lang.Object)>, LineNumber: 34. 
-bug type: NP_ALWAYS_NULL, severity: BLOCKER
-Class: NullDeref3, Method: <NullDeref3: java.lang.Object bar(java.lang.Object)>, LineNumber: 30. 
-bug type: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, severity: MAJOR
+Class: NullDeref3, Method: <NullDeref3: java.lang.Object bar(java.lang.Object)>, LineNumber: 34. bug type: NP_ALWAYS_NULL, severity: BLOCKER
+Class: NullDeref3, Method: <NullDeref3: java.lang.Object bar(java.lang.Object)>, LineNumber: 30. bug type: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, severity: MAJOR
 

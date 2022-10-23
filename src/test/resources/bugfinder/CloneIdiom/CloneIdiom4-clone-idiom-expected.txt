@@ -1,4 +1,3 @@
 -------------------- CloneIdiom4 (clone-idiom) --------------------
-Class: CloneIdiom4, Method: empty, LineNumber: empty. 
-bug type: CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE, severity: MINOR
+Class: CloneIdiom4, Method: empty, LineNumber: empty. bug type: CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE, severity: MINOR
 

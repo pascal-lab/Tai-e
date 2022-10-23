@@ -1,13 +1,8 @@
 package pascal.taie.analysis.bugfinder;
 
 import org.junit.Test;
-import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class IsNullTest {
 
@@ -25,15 +20,5 @@ public class IsNullTest {
     @Test
     public void test2() {
         testIsNullValue("NullDeref2");
-    }
-
-    @Test
-    public void testAnnotation() {
-        List<String> args = new ArrayList<>();
-        Collections.addAll(args, "-cp", folderPath + ";" + folderPath + "/jsr305-3.0.2.jar");
-        Collections.addAll(args, "--input-classes", "NullAnnotation");
-        Collections.addAll(args, "-a", IsNullAnalysis.ID);
-        Main.main(args.toArray(new String[0]));
-//        Tests.test("NullAnnotation", folderPath + ";" + folderPath + "/jsr305-3.0.2.jar", IsNullAnalysis.ID);
     }
 }

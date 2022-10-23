@@ -65,7 +65,7 @@ public class BugInstance implements Comparable<BugInstance> {
             sourcelineRange = sourceLineStart == sourceLineEnd ? String.valueOf(sourceLineStart) :
                     sourceLineStart + "---" + sourceLineEnd;
         }
-        return String.format("Class: %s, Method: %s, LineNumber: %s. \nbug type: %s, severity: %s",
+        return String.format("Class: %s, Method: %s, LineNumber: %s. bug type: %s, severity: %s",
                 getString(jClass), getString(jMethod), sourcelineRange, type, severity
         );
     }
