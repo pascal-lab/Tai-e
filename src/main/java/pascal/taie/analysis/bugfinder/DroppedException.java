@@ -76,8 +76,8 @@ public class DroppedException extends MethodAnalysis<Set<BugInstance>> {
                     severity = Severity.CRITICAL;
                 }
                 BugInstance bugInstance = new BugInstance(
-                        exitInTryBlock ? BugType.DE_MIGHT_DROP : BugType.DE_MIGHT_IGNORE, severity)
-                        .setClassAndMethod(ir.getMethod())
+                        exitInTryBlock ? BugType.DE_MIGHT_DROP : BugType.DE_MIGHT_IGNORE,
+                        severity, ir.getMethod())
                         .setSourceLine(catchHandler.getLineNumber());
                 bugInstanceSet.add(bugInstance);
             }

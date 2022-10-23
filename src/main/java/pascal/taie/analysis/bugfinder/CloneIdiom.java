@@ -97,17 +97,15 @@ public class CloneIdiom extends ClassAnalysis<Set<BugInstance>> {
 
         //generate analysis result
         if (implementsCloneableDirectly && !hasCloneMethod) {
-            bugInstances.add(new BugInstance(BugType.CN_IDIOM, Severity.MINOR).setClass(jclass));
+            bugInstances.add(new BugInstance(BugType.CN_IDIOM, Severity.MINOR, jclass));
         }
 
         if (hasCloneMethod && isCloneable && !invokesSuperClone && !isFinal && jclass.isPublic()) {
-            bugInstances.add(
-                    new BugInstance(BugType.CN_IDIOM_NO_SUPER_CALL, Severity.MINOR)
-                            .setClass(jclass));
+            bugInstances.add(new BugInstance(
+                    BugType.CN_IDIOM_NO_SUPER_CALL, Severity.MINOR, jclass));
         } else if (hasCloneMethod && !isCloneable && !cloneIsDeprecated && !jclass.isAbstract()) {
-            bugInstances.add(
-                    new BugInstance(BugType.CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE, Severity.MINOR)
-                            .setClass(jclass));
+            bugInstances.add(new BugInstance(
+                    BugType.CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE, Severity.MINOR, jclass));
         }
         return bugInstances;
     }

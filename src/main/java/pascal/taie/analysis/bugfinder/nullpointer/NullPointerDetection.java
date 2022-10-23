@@ -63,13 +63,13 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                 if (prevFact != null && prevFact.isValid()) {
                     IsNullValue derefVarValue = prevFact.get(derefVar);
                     if (derefVarValue.isDefinitelyNull()) {
-                        nullDerefs.add(
-                                BugInstance.newBugInstance(BugType.NP_ALWAYS_NULL, Severity.BLOCKER, ir.getMethod(), stmt.getLineNumber())
-                        );
+                        nullDerefs.add(new BugInstance(
+                                BugType.NP_ALWAYS_NULL, Severity.BLOCKER, ir.getMethod())
+                                .setSourceLine(stmt.getLineNumber()));
                     } else if (derefVarValue.isNullOnSomePath()) {
-                        nullDerefs.add(
-                                BugInstance.newBugInstance(BugType.NP_MAY_NULL, Severity.CRITICAL, ir.getMethod(), stmt.getLineNumber())
-                        );
+                        nullDerefs.add(new BugInstance(
+                                BugType.NP_MAY_NULL, Severity.CRITICAL, ir.getMethod())
+                                .setSourceLine(stmt.getLineNumber()));
                     }
                 }
             }
@@ -91,7 +91,6 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
 
     private Set<BugInstance> findRedundantComparison(IR ir, NodeResult<Stmt, IsNullFact> nullValues) {
         Set<BugInstance> redundantComparisons = Sets.newSet();
-
         for (Stmt stmt : ir.getStmts()) {
             if (stmt instanceof If ifStmt) {
                 IsNullFact fact = nullValues.getOutFact(stmt);
@@ -130,14 +129,13 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                     }
 
                     if (bugType != null) {
-                        redundantComparisons.add(
-                                BugInstance.newBugInstance(bugType, Severity.MAJOR, ir.getMethod(), stmt.getLineNumber())
-                        );
+                        redundantComparisons.add(new BugInstance(
+                                bugType, Severity.MAJOR, ir.getMethod())
+                                .setSourceLine(stmt.getLineNumber()));
                     }
                 }
             }
         }
-
         return redundantComparisons;
     }
 

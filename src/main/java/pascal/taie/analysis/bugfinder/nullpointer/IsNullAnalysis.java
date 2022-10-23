@@ -101,7 +101,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     continue;
                 }
 
-                IsNullValue value = null;
+                IsNullValue value;
                 NullnessAnnotation nullnessAnnotation =
                         NullnessAnnotation.resolveParameterAnnotation(method, paramIndex);
                 if (nullnessAnnotation == NullnessAnnotation.CHECK_FOR_NULL) {
@@ -173,7 +173,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 resultFact.downgradeOnControlSplit();
             }
             // 2. downgrade NULL&NSP to do_not_report value for two special exceptions
-            // todo: should our null value add an exception property?
+            // TODO: should our null value add an exception property?
             if (edge.getKind() == Edge.Kind.CAUGHT_EXCEPTION) {
                 resultFact = nodeFact.copy();
                 for (ClassType classType : edge.getExceptions()) {
@@ -186,7 +186,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 }
             } else if (edge.getKind() == Edge.Kind.IF_TRUE || edge.getKind() == Edge.Kind.IF_FALSE) {
                 // 3. use null comparison information
-                // todo: handle instanceof operand?
+                // TODO: handle instanceof operand?
                 IsNullConditionDecision decision = nodeFact.getDecision();
                 if (decision != null) {
                     if (!decision.isEdgeFeasible(edge.getKind())) {
@@ -200,7 +200,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                             assert decisionValue != null;
 
                             resultFact = nodeFact.copy();
-                            // todo: use pta to update more variable
+                            // TODO: use pta to update more variable
                             resultFact.update(varTested, decisionValue);
 //                            if (decisionValue.isDefinitelyNull()) {
 //
@@ -223,7 +223,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     } else if (!derefVal.isDefinitelyNotNull()) {
                         // update the null value for the dereferenced value.
                         resultFact = nodeFact.copy();
-                        // todo: use pta to update more Var
+                        // TODO: use pta to update more Var
                         resultFact.update(derefVar, IsNullValue.noKaboomNonNullValue());
                     }
                 }
@@ -274,7 +274,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                             "org.checkerframework.checker.nullness.compatqual.NullableDecl");
 
             public static NullnessAnnotation resolveParameterAnnotation(JMethod method, int index) {
-                // todo: make this resolve process as a independent analysis?
+                // TODO: make this resolve process as a independent analysis?
                 if (index == 0) {
                     Subsignature subsignature = method.getSubsignature();
                     if (subsignature.equals(equals) && !method.isStatic()) {
@@ -385,7 +385,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     return false;
                 }
                 JMethod invokeMethod = stmt.getInvokeExp().getMethodRef().resolveNullable();
-                // todo: develop and use Unconditional dereference analysis
+                // TODO: develop and use Unconditional dereference analysis
                 if (invokeMethod == null) {
                     return visitDefault(stmt);
                 }
@@ -403,7 +403,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                         NullnessAnnotation nullnessAnnotation =
                                 NullnessAnnotation.resolveParameterAnnotation(invokeMethod, paramIndex);
                         if (nullnessAnnotation == NullnessAnnotation.NONNULL) {
-                            // todo: if arg is definitely null, should take special care for this case?
+                            // TODO: if arg is definitely null, should take special care for this case?
                             out.update(stmt.getInvokeExp().getArg(paramIndex), IsNullValue.nonNullValue());
                         }
                     }
