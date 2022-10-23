@@ -105,21 +105,23 @@ public class FileLoader {
                 List<AnalysisFile> files = new ArrayList<>();
                 loadChildren(parent, path, files, fileContainers);
                 FileTime time = Files.getLastModifiedTime(path);
-                containerWorker.apply(new DirContainer(fileContainers, files, time));
-            } else if (isZipFile(path)) {
+                String name = path.getFileName().toString();
+                containerWorker.apply(new DirContainer(fileContainers, files, time, name));
+            }  else if (isZipFile(path)) {
                 try (FileSystem fs = FileSystems.newFileSystem(path)) {
                     Parent newParent = new Parent(fs, path);
                     List<FileContainer> fileContainers = new ArrayList<>();
                     List<AnalysisFile> files = new ArrayList<>();
                     loadChildren(newParent, fs.getPath("/"), files, fileContainers);
                     FileTime time = Files.getLastModifiedTime(path);
+                    String name = getName(path);
 
                     if (isJarFile(path)) {
                         Manifest manifest = new Manifest(Files.newInputStream(getManifest(fs)));
                         containerWorker.apply(
-                                new JarContainer(files, fileContainers, time, manifest));
+                                new JarContainer(files, fileContainers, time, manifest, name));
                     } else {
-                        containerWorker.apply(new ZipContainer(files, fileContainers, time));
+                        containerWorker.apply(new ZipContainer(files, fileContainers, time, name));
                     }
                 }
             } else {
@@ -134,6 +136,16 @@ public class FileLoader {
                 }
             }
         }
+    }
+
+    public FileContainer loadRootContainer(List<Path> paths) throws IOException {
+        List<AnalysisFile> files = new ArrayList<>();
+        List<FileContainer> containers = new ArrayList<>();
+        for (var p : paths) {
+            loadFile(p, files::add, containers::add);
+        }
+
+        return new DirContainer(containers, files, null, "/");
     }
 
     public static FileLoader get() {

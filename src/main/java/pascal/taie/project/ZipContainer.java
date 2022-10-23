@@ -2,7 +2,6 @@ package pascal.taie.project;
 
 import java.nio.file.attribute.FileTime;
 import java.util.List;
-import java.util.Optional;
 
 public class ZipContainer implements FileContainer {
 
@@ -12,13 +11,17 @@ public class ZipContainer implements FileContainer {
 
     private final FileTime time;
 
+    protected final String name;
+
 
     public ZipContainer(List<AnalysisFile> files,
                         List<FileContainer> containers,
-                        FileTime time) {
+                        FileTime time,
+                        String name) {
         this.files = files;
         this.containers = containers;
         this.time = time;
+        this.name = name;
     }
 
     @Override
@@ -32,12 +35,17 @@ public class ZipContainer implements FileContainer {
     }
 
     @Override
-    public Optional<AnalysisFile> searchFile(String fileName) {
-        return Optional.empty();
+    public FileTime getTimeStamp() {
+        return time;
     }
 
     @Override
-    public FileTime getTimeStamp() {
-        return time;
+    public String getFileName() {
+        return name + ".zip";
+    }
+
+    @Override
+    public String getClassName() {
+        return name;
     }
 }

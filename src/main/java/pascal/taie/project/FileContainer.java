@@ -2,7 +2,6 @@ package pascal.taie.project;
 
 import java.nio.file.attribute.FileTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface FileContainer {
 
@@ -10,8 +9,18 @@ public interface FileContainer {
 
     List<FileContainer> getContainers();
 
-    Optional<AnalysisFile> searchFile(String fileName);
-
     FileTime getTimeStamp();
+
+    /**
+     * Return FileName (with extension name)
+     * e.g. a.jar --> a.jar
+     */
+    String getFileName();
+
+    /**
+     * Return name (without extension name)
+     * e.g. a.jar --> a
+     */
+    String getClassName();
 
 }

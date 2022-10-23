@@ -11,12 +11,18 @@ public class JarContainer extends ZipContainer {
     public JarContainer(List<AnalysisFile> files,
                         List<FileContainer> containers,
                         FileTime time,
-                        Manifest manifest) {
-        super(files, containers, time);
+                        Manifest manifest,
+                        String name) {
+        super(files, containers, time, name);
         this.manifest = manifest;
     }
 
     public Manifest getManifest() {
         return manifest;
+    }
+
+    @Override
+    public String getFileName() {
+        return this.name + ".jar";
     }
 }

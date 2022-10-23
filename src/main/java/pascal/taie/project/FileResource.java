@@ -9,7 +9,7 @@ import java.nio.file.StandardOpenOption;
 
 public class FileResource implements Resource {
 
-    final private Path path;
+    private final Path path;
     private byte[] readCache;
 
     public FileResource(Path path) {

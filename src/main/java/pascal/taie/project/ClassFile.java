@@ -28,7 +28,7 @@ public class ClassFile implements AnalysisFile {
 
     @Override
     public String getFileName() {
-        return className + ".java";
+        return className + ".class";
     }
 
     public String getClassName() {
