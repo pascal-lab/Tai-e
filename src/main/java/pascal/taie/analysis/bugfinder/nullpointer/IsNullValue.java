@@ -22,32 +22,26 @@
 
 package pascal.taie.analysis.bugfinder.nullpointer;
 
-public class IsNullValue {
+enum IsNullValue {
 
-    private static final IsNullValue NULL = new IsNullValue(Kind.NULL);
+    // TODO: comment values
+    NULL(0),
+    CHECKED_NULL(1),
+    NN(2),
+    CHECKED_NN(3),
+    NO_KABOOM_NN(4),
+    NSP(5),
+    UNKNOWN(6),
+    NCP(7),
+    UNDEF(8);
 
-    private static final IsNullValue CHECKED_NULL = new IsNullValue(Kind.CHECKED_NULL);
+    private final int index;
 
-    private static final IsNullValue NN = new IsNullValue(Kind.NN);
-
-    private static final IsNullValue CHECKED_NN = new IsNullValue(Kind.CHECKED_NN);
-
-    private static final IsNullValue NO_KABOOM_NN = new IsNullValue(Kind.NO_KABOOM_NN);
-
-    private static final IsNullValue NSP = new IsNullValue(Kind.NSP);
-
-    private static final IsNullValue UNKNOWN = new IsNullValue(Kind.UNKNOWN);
-
-    private static final IsNullValue NCP = new IsNullValue(Kind.NCP);
-
-    private static final IsNullValue UNDEF = new IsNullValue(Kind.UNDEF);
-
-    private final Kind kind;
-
-    private IsNullValue(Kind kind) {
-        this.kind = kind;
+    IsNullValue(int index) {
+        this.index = index;
     }
 
+    // TODO: replace static accessors by enum values
     public static IsNullValue nullValue() {
         return NULL;
     }
@@ -83,19 +77,19 @@ public class IsNullValue {
     public static IsNullValue undefValue() {return UNDEF;}
 
     public boolean isDefinitelyNull() {
-        return kind == Kind.CHECKED_NULL || kind == Kind.NULL;
+        return this == CHECKED_NULL || this == NULL;
     }
 
     public boolean isNullOnSomePath() {
-        return kind == Kind.NSP;
+        return this == NSP;
     }
 
     public boolean isAKaBoom() {
-        return kind == Kind.NO_KABOOM_NN;
+        return this == NO_KABOOM_NN;
     }
 
     public boolean isNullOnComplicatedPath() {
-        return kind == Kind.NCP || kind == Kind.UNKNOWN;
+        return this == NCP || this == UNKNOWN;
     }
 
     public boolean mightBeNull() {
@@ -103,7 +97,7 @@ public class IsNullValue {
     }
 
     public boolean isDefinitelyNotNull() {
-        return kind == Kind.NN || kind == Kind.CHECKED_NN || kind == Kind.NO_KABOOM_NN;
+        return this == NN || this == CHECKED_NN || this == NO_KABOOM_NN;
     }
 
     private static final IsNullValue[][] mergeMatrix = {
@@ -120,38 +114,13 @@ public class IsNullValue {
     };
 
     public static IsNullValue merge(IsNullValue a, IsNullValue b) {
-        int index1 = a.kind.val;
-        int index2 = b.kind.val;
-
+        int index1 = a.index;
+        int index2 = b.index;
         if (index1 < index2) {
             int tmp = index1;
             index1 = index2;
             index2 = tmp;
         }
-
         return mergeMatrix[index1][index2];
-    }
-
-    @Override
-    public String toString() {
-        return kind.toString();
-    }
-
-    private enum Kind {
-        NULL(0),
-        CHECKED_NULL(1),
-        NN(2),
-        CHECKED_NN(3),
-        NO_KABOOM_NN(4),
-        NSP(5),
-        UNKNOWN(6),
-        NCP(7),
-        UNDEF(8);
-
-        public final int val;
-
-        Kind(int v) {
-            val = v;
-        }
     }
 }

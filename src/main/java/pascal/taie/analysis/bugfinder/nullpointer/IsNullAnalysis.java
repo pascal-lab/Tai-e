@@ -47,7 +47,6 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
@@ -180,8 +179,10 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     if (classType.getName().equals(ClassNames.CLONE_NOT_SUPPORTED_EXCEPTION)
                             || classType.getName().equals(ClassNames.INTERRUPTED_EXCEPTION)) {
                         resultFact.entries()
-                                .filter(entry -> entry.getValue().isDefinitelyNull() || entry.getValue().isNullOnSomePath())
-                                .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
+                                .filter(entry -> entry.getValue().isDefinitelyNull()
+                                        || entry.getValue().isNullOnSomePath())
+                                .forEach(entry ->
+                                        entry.setValue(IsNullValue.nullOnComplexPathValue()));
                     }
                 }
             } else if (edge.getKind() == Edge.Kind.IF_TRUE || edge.getKind() == Edge.Kind.IF_FALSE) {
@@ -190,7 +191,8 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 IsNullConditionDecision decision = nodeFact.getDecision();
                 if (decision != null) {
                     if (!decision.isEdgeFeasible(edge.getKind())) {
-                        // set this target basic block invalid, their facts should not affect analysis process
+                        // set this target basic block invalid,
+                        // their facts should not affect analysis process
                         resultFact = nodeFact.copy();
                         resultFact.setInvalid();
                     } else {
@@ -253,18 +255,19 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
 
         private enum NullnessAnnotation {
+
             CHECK_FOR_NULL,
             NONNULL,
             NULLABLE,
             NN_UNKNOWN;
 
-            private final static Subsignature equals = Subsignature.get("boolean equals(java.lang.Object)");
+            private static final String EQUALS = "boolean equals(java.lang.Object)";
+            private static final String MAIN = "void main(java.lang.String[])";
+            private static final String CLONE = "java.lang.Object clone()";
+            private static final String TO_STRING = "java.lang.String toString()";
+            private static final String READ_RESOLVE = "java.lang.Object readResolve()";
 
-            private final static Subsignature main = Subsignature.get("void main(java.lang.String[])");
-            private final static Subsignature clone = Subsignature.get("java.lang.Object clone()");
-            private final static Subsignature toString = Subsignature.get("java.lang.String toString()");
-            private final static Subsignature readResolve = Subsignature.get("java.lang.Object readResolve()");
-            private final static List<String> checkForNullClasses =
+            private static final List<String> checkForNullClasses =
                     List.of("android.support.annotation.Nullable",
                             "androidx.annotation.Nullable",
                             "com.google.common.base.Nullable",
@@ -276,10 +279,10 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             public static NullnessAnnotation resolveParameterAnnotation(JMethod method, int index) {
                 // TODO: make this resolve process as a independent analysis?
                 if (index == 0) {
-                    Subsignature subsignature = method.getSubsignature();
-                    if (subsignature.equals(equals) && !method.isStatic()) {
+                    String subSignature = method.getSubsignature().toString();
+                    if (subSignature.equals(EQUALS) && !method.isStatic()) {
                         return NullnessAnnotation.CHECK_FOR_NULL;
-                    } else if (subsignature.equals(main)
+                    } else if (subSignature.equals(MAIN)
                             && method.isStatic()
                             && method.isPublic()) {
                         return NullnessAnnotation.NONNULL;
@@ -307,11 +310,11 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     }
                 }
 
-                Subsignature subsignature = method.getSubsignature();
+                String subSignature = method.getSubsignature().toString();
                 if (!method.isStatic() &&
-                        (subsignature.equals(clone)
-                                || subsignature.equals(toString)
-                                || (subsignature.equals(readResolve) && method.isPrivate()))) {
+                        (subSignature.equals(CLONE)
+                                || subSignature.equals(TO_STRING)
+                                || (subSignature.equals(READ_RESOLVE) && method.isPrivate()))) {
                     return NONNULL;
                 }
                 return NN_UNKNOWN;

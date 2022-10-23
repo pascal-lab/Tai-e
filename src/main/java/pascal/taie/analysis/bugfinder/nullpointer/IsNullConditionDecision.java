@@ -29,21 +29,22 @@ import pascal.taie.language.type.ReferenceType;
 
 import javax.annotation.CheckForNull;
 
-public class IsNullConditionDecision {
+class IsNullConditionDecision {
 
-    If conditionStmt;
+    private final If conditionStmt;
 
-    Var varTested;
+    private final Var varTested;
 
-    IsNullValue ifTrueDecision;
+    private final IsNullValue ifTrueDecision;
 
-    IsNullValue ifFalseDecision;
+    private final IsNullValue ifFalseDecision;
 
-    public IsNullConditionDecision(If stmt, Var varTested, IsNullValue ifTrueDecision, IsNullValue ifFalseDecision) {
+    public IsNullConditionDecision(
+            If stmt, Var varTested,
+            IsNullValue ifTrueDecision, IsNullValue ifFalseDecision) {
         assert varTested.getType() instanceof ReferenceType;
         assert !(ifTrueDecision == null && ifFalseDecision == null);
-
-        conditionStmt = stmt;
+        this.conditionStmt = stmt;
         this.varTested = varTested;
         this.ifTrueDecision = ifTrueDecision;
         this.ifFalseDecision = ifFalseDecision;
@@ -61,14 +62,12 @@ public class IsNullConditionDecision {
         return getDecision(edgeKind) != null;
     }
 
-    public @CheckForNull
-    IsNullValue getDecision(Edge.Kind edgeKind) {
-        if (edgeKind == Edge.Kind.IF_TRUE) {
-            return ifTrueDecision;
-        } else if (edgeKind == Edge.Kind.IF_FALSE) {
-            return ifFalseDecision;
-        } else {
-            throw new UnsupportedOperationException("Incorrect edge kind: " + edgeKind);
-        }
+    @CheckForNull
+    public IsNullValue getDecision(Edge.Kind edgeKind) {
+        return switch (edgeKind) {
+            case IF_TRUE -> ifTrueDecision;
+            case IF_FALSE -> ifFalseDecision;
+            default -> throw new UnsupportedOperationException("Incorrect edge kind: " + edgeKind);
+        };
     }
 }

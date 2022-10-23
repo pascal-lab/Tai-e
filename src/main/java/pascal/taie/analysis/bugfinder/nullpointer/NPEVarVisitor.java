@@ -14,7 +14,8 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 
-public class NPEVarVisitor implements StmtVisitor<Var> {
+class NPEVarVisitor implements StmtVisitor<Var> {
+
     @Override
     public Var visit(LoadField stmt) {
         return stmt.isStatic() ?

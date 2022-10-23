@@ -30,7 +30,8 @@ import pascal.taie.language.type.ClassType;
 import java.util.Collections;
 import java.util.Map;
 
-public class IsNullFact extends MapFact<Var, IsNullValue> {
+class IsNullFact extends MapFact<Var, IsNullValue> {
+
     public IsNullFact() {
         this(Collections.emptyMap());
     }
