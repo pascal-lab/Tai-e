@@ -9,18 +9,18 @@
 -------------------- <DroppedException: DroppedException cloneException()> (dropped-exception) --------------------
 
 -------------------- <DroppedException: void emptyCatchBlock1()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: void emptyCatchBlock1()>, LineNumber: 43. bug type: DE_MIGHT_IGNORE, severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: void emptyCatchBlock1()>, LineNumber: 43, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 
 -------------------- <DroppedException: void emptyCatchBlock2()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: void emptyCatchBlock2()>, LineNumber: 50. bug type: DE_MIGHT_IGNORE, severity: CRITICAL
-Class: DroppedException, Method: <DroppedException: void emptyCatchBlock2()>, LineNumber: 51. bug type: DE_MIGHT_IGNORE, severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: void emptyCatchBlock2()>, LineNumber: 50, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: void emptyCatchBlock2()>, LineNumber: 51, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 
 -------------------- <DroppedException: void emptyCatchBlockWithFinally1()> (dropped-exception) --------------------
 
 -------------------- <DroppedException: void emptyCatchBlockWithFinally2()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: void emptyCatchBlockWithFinally2()>, LineNumber: 72. bug type: DE_MIGHT_IGNORE, severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: void emptyCatchBlockWithFinally2()>, LineNumber: 72, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 
 -------------------- <DroppedException: int exitInTryBlock()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 81. bug type: DE_MIGHT_IGNORE, severity: CRITICAL
-Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 86. bug type: DE_MIGHT_IGNORE, severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 81, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 86, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 

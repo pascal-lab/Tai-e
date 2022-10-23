@@ -1,5 +1,6 @@
 import java.util.Set;
-public class NullDeref3{
+
+public class NullDeref3 {
 
     void foo() {
         NullDeref3 n = new NullDeref3();

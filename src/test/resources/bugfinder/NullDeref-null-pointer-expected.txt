@@ -1,5 +1,5 @@
 -------------------- <NullDeref: void nullObject()> (null-pointer) --------------------
-Class: NullDeref, Method: <NullDeref: void nullObject()>, LineNumber: 8. bug type: NP_ALWAYS_NULL, severity: BLOCKER
+Class: NullDeref, Method: <NullDeref: void nullObject()>, LineNumber: 9, BugType: NP_ALWAYS_NULL, Severity: BLOCKER
 
 -------------------- <NullDeref: void main(java.lang.String[])> (null-pointer) --------------------
 
@@ -12,16 +12,16 @@ Class: NullDeref, Method: <NullDeref: void nullObject()>, LineNumber: 8. bug typ
 -------------------- <NullDeref: void allStmts(java.lang.Object)> (null-pointer) --------------------
 
 -------------------- <NullDeref: void nullArray()> (null-pointer) --------------------
-Class: NullDeref, Method: <NullDeref: void nullArray()>, LineNumber: 46. bug type: NP_ALWAYS_NULL, severity: BLOCKER
+Class: NullDeref, Method: <NullDeref: void nullArray()>, LineNumber: 47, BugType: NP_ALWAYS_NULL, Severity: BLOCKER
 
 -------------------- <NullDeref: boolean equals(java.lang.Object)> (null-pointer) --------------------
 
 -------------------- <NullDeref: void throwNull()> (null-pointer) --------------------
-Class: NullDeref, Method: <NullDeref: void throwNull()>, LineNumber: 56. bug type: NP_ALWAYS_NULL, severity: BLOCKER
+Class: NullDeref, Method: <NullDeref: void throwNull()>, LineNumber: 57, BugType: NP_ALWAYS_NULL, Severity: BLOCKER
 
 -------------------- <NullDeref: void nullComparison()> (null-pointer) --------------------
-Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 72. bug type: RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE, severity: MAJOR
-Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 62. bug type: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, severity: MAJOR
-Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 65. bug type: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, severity: MAJOR
-Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 68. bug type: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, severity: MAJOR
+Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 73, BugType: RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE, Severity: MAJOR
+Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 63, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
+Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 66, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
+Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 69, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
 

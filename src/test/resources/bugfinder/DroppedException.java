@@ -1,15 +1,15 @@
-public class DroppedException implements Cloneable{
-    public static int x(int i) throws Exception{
-        if(i > 0){
+public class DroppedException implements Cloneable {
+    public static int x(int i) throws Exception {
+        if (i > 0) {
             throw new Exception();
         }
         return i;
     }
 
-    public void commonPractice(){ // right case
-        try{
+    public void commonPractice() { // right case
+        try {
             x(1);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             try {
                 x(-1);
@@ -19,20 +19,20 @@ public class DroppedException implements Cloneable{
         }
     }
 
-    public void commonPracticeWithFinally(){
-        try{
+    public void commonPracticeWithFinally() {
+        try {
             x(1);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             int i = 0;
         }
     }
 
-    public DroppedException cloneException(){ // should ignore CloneNotSupportedException and InterruptedException
-        try{
+    public DroppedException cloneException() { // should ignore CloneNotSupportedException and InterruptedException
+        try {
             return (DroppedException) clone();
-        } catch (CloneNotSupportedException e){
+        } catch (CloneNotSupportedException e) {
         }
         return new DroppedException();
     }
@@ -45,10 +45,10 @@ public class DroppedException implements Cloneable{
     }
 
     public static void emptyCatchBlock2() {
-        try{
+        try {
             x(0);
-        } catch (Exception e2){
-        } catch (Throwable e3){
+        } catch (Exception e2) {
+        } catch (Throwable e3) {
         }
     }
 
@@ -61,29 +61,29 @@ public class DroppedException implements Cloneable{
         }
     }
 
-    public static void emptyCatchBlockWithFinally2(){
-        try{
+    public static void emptyCatchBlockWithFinally2() {
+        try {
             x(0);
-        } catch(Exception e1){
+        } catch (Exception e1) {
             // empty catch block with finally block
         } finally {
             try {
                 x(1);
-            } catch (Exception e2){
+            } catch (Exception e2) {
             }
         }
     }
 
-    public int exitInTryBlock(){
-        try{
+    public int exitInTryBlock() {
+        try {
             x(0);
             return 1;
-        } catch(Exception e){
+        } catch (Exception e) {
         }
 
-        try{
+        try {
             return x(2);
-        } catch (Exception e){
+        } catch (Exception e) {
         }
         return 0;
     }

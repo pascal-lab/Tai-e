@@ -1,2 +1,2 @@
-class CloneIdiom1 implements Cloneable{
+class CloneIdiom1 implements Cloneable {
 }

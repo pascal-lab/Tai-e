@@ -1,4 +1,5 @@
 class NullDeref {
+
     int y;
     Object field;
 
@@ -76,5 +77,4 @@ class NullDeref {
             throwNull();
         }
     }
-
 }
