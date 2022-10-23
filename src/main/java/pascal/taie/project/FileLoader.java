@@ -138,14 +138,15 @@ public class FileLoader {
         }
     }
 
-    public FileContainer loadRootContainer(List<Path> paths) throws IOException {
-        List<AnalysisFile> files = new ArrayList<>();
+    public List<FileContainer> loadRootContainers(List<Path> paths) throws IOException {
         List<FileContainer> containers = new ArrayList<>();
         for (var p : paths) {
-            loadFile(p, files::add, containers::add);
+            loadFile(p,
+                    i -> {
+                        throw new IllegalArgumentException("no file in classPaths");},
+                    containers::add);
         }
-
-        return new DirContainer(containers, files, null, "/");
+        return containers;
     }
 
     public static FileLoader get() {
