@@ -38,6 +38,7 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
 
@@ -47,8 +48,17 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
         super(config);
     }
 
+    @Override
+    public Set<BugInstance> analyze(IR ir) {
+        NodeResult<Stmt, IsNullFact> nullValues = ir.getResult(IsNullAnalysis.ID);
+        Set<BugInstance> bugInstances = new TreeSet<>();
+        bugInstances.addAll(findNullDeref(ir, nullValues));
+        bugInstances.addAll(findRedundantComparison(ir, nullValues));
+        return bugInstances;
+    }
+
     private Set<BugInstance> findNullDeref(IR ir, NodeResult<Stmt, IsNullFact> nullValues) {
-        Set<BugInstance> nullDerefs = Sets.newHybridOrderedSet();
+        Set<BugInstance> nullDerefs = Sets.newHybridSet();
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
         for (Stmt stmt : cfg.getNodes()) {
             Var derefVar = stmt.accept(new NPEVarVisitor());
@@ -59,7 +69,6 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                         prevFact = nullValues.getOutFact(inEdge.getSource());
                     }
                 }
-
                 if (prevFact != null && prevFact.isValid()) {
                     IsNullValue derefVarValue = prevFact.get(derefVar);
                     if (derefVarValue.isDefinitelyNull()) {
@@ -74,23 +83,11 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                 }
             }
         }
-
         return nullDerefs;
     }
 
-    @Override
-    public Set<BugInstance> analyze(IR ir) {
-        NodeResult<Stmt, IsNullFact> nullValues = ir.getResult(IsNullAnalysis.ID);
-        Set<BugInstance> bugInstances = Sets.newSet();
-
-        bugInstances.addAll(findNullDeref(ir, nullValues));
-        bugInstances.addAll(findRedundantComparison(ir, nullValues));
-
-        return bugInstances;
-    }
-
     private Set<BugInstance> findRedundantComparison(IR ir, NodeResult<Stmt, IsNullFact> nullValues) {
-        Set<BugInstance> redundantComparisons = Sets.newSet();
+        Set<BugInstance> redundantComparisons = Sets.newHybridSet();
         for (Stmt stmt : ir.getStmts()) {
             if (stmt instanceof If ifStmt) {
                 IsNullFact fact = nullValues.getOutFact(stmt);
@@ -123,7 +120,8 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                             } else if (anotherVarValue.isDefinitelyNotNull()) {
                                 bugType = BugType.RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE;
                             }
-                        } else if (varTestedValue.isDefinitelyNotNull() && anotherVarValue.isDefinitelyNull()) {
+                        } else if (varTestedValue.isDefinitelyNotNull()
+                                && anotherVarValue.isDefinitelyNull()) {
                             bugType = BugType.RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE;
                         }
                     }

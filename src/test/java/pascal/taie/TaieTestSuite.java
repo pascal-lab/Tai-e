@@ -24,6 +24,7 @@ package pascal.taie;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import pascal.taie.analysis.bugfinder.BugFinderTestSuite;
 import pascal.taie.analysis.dataflow.DataflowTestSuite;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.PTATestSuite;
@@ -45,6 +46,7 @@ import pascal.taie.util.UtilTestSuite;
         DataflowTestSuite.class,
         CHATestFull.class,
         PTATestSuite.class,
+        BugFinderTestSuite.class,
         // util
         OptionsTest.class,
         UtilTestSuite.class,

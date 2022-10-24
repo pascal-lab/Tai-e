@@ -24,15 +24,50 @@ package pascal.taie.analysis.bugfinder.nullpointer;
 
 enum IsNullValue {
 
-    NULL(0), // the variable is definitely null
-    CHECKED_NULL(1), // the variable is definitely null due to a null check
-    NONNULL(2), // the variable is definitely not null
-    CHECKED_NN(3), // the variable is definitely not null due to a null check
-    NO_KABOOM_NN(4), // the variable is definitely not null since it has been dereferenced before
-    NSP(5), // the variable is null on a simple path, i.e. has a @Check_For_Null annotation
-    UNKNOWN(6), // nullness of the variable is unknown
-    NCP(7), // the variable is null on a complex path
-    UNDEF(8); // the variable is undefined
+    /**
+     * the variable is definitely null
+     */
+    NULL(0),
+
+    /**
+     * the variable is definitely null due to a null check
+     */
+    CHECKED_NULL(1),
+
+    /**
+     * the variable is definitely not null
+     */
+    NONNULL(2),
+
+    /**
+     * the variable is definitely not null due to a null check
+     */
+    CHECKED_NN(3),
+
+    /**
+     * the variable is definitely not null since it has been dereferenced before
+     */
+    NO_KABOOM_NN(4),
+
+    /**
+     * the variable is null on a simple path, i.e. has a @Check_For_Null annotation
+     */
+    NSP(5),
+
+    /**
+     * nullness of the variable is unknown
+     */
+    UNKNOWN(6),
+
+    /**
+     * the variable is null on a complex path
+     */
+    NCP(7),
+
+    /**
+     * the variable is undefined
+     */
+    UNDEF(8);
 
     private final int index;
 

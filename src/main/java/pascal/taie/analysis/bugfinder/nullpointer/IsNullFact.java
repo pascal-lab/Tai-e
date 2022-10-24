@@ -51,7 +51,8 @@ class IsNullFact extends MapFact<Var, IsNullValue> {
 
     @Override
     public boolean update(Var key, IsNullValue value) {
-        if (key.getType() instanceof ClassType || key.getType() instanceof ArrayType) {
+        if (key.getType() instanceof ClassType
+                || key.getType() instanceof ArrayType) {
             return super.update(key, value);
         }
         throw new UnsupportedOperationException();
