@@ -87,10 +87,10 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             ir.getParams()
                     .stream()
                     .filter(var -> var.getType() instanceof ReferenceType)
-                    .forEach(p -> entryFact.update(p, IsNullValue.nonReportingNotNullValue()));
+                    .forEach(p -> entryFact.update(p, IsNullValue.UNKNOWN));
 
             if (ir.getThis() != null) {
-                entryFact.update(ir.getThis(), IsNullValue.nonNullValue());
+                entryFact.update(ir.getThis(), IsNullValue.NONNULL);
             }
 
             // use annotation info
@@ -104,11 +104,11 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 NullnessAnnotation nullnessAnnotation =
                         NullnessAnnotation.resolveParameterAnnotation(method, paramIndex);
                 if (nullnessAnnotation == NullnessAnnotation.CHECK_FOR_NULL) {
-                    value = IsNullValue.nullOnSimplePathValue();
+                    value = IsNullValue.NSP;
                 } else if (nullnessAnnotation == NullnessAnnotation.NONNULL) {
-                    value = IsNullValue.nonNullValue();
+                    value = IsNullValue.NONNULL;
                 } else {
-                    value = IsNullValue.nonReportingNotNullValue();
+                    value = IsNullValue.UNKNOWN;
                 }
 
                 entryFact.update(ir.getParam(paramIndex), value);
@@ -182,7 +182,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                                 .filter(entry -> entry.getValue().isDefinitelyNull()
                                         || entry.getValue().isNullOnSomePath())
                                 .forEach(entry ->
-                                        entry.setValue(IsNullValue.nullOnComplexPathValue()));
+                                        entry.setValue(IsNullValue.NCP));
                     }
                 }
             } else if (edge.getKind() == Edge.Kind.IF_TRUE || edge.getKind() == Edge.Kind.IF_FALSE) {
@@ -226,7 +226,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                         // update the null value for the dereferenced value.
                         resultFact = nodeFact.copy();
                         // TODO: use pta to update more Var
-                        resultFact.update(derefVar, IsNullValue.noKaboomNonNullValue());
+                        resultFact.update(derefVar, IsNullValue.NO_KABOOM_NN);
                     }
                 }
             }
@@ -349,15 +349,15 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
             @Override
             public Boolean visit(New stmt) {
-                return updateLValueIfReferenceType(stmt, IsNullValue.nonNullValue());
+                return updateLValueIfReferenceType(stmt, IsNullValue.NONNULL);
             }
 
             @Override
             public Boolean visit(AssignLiteral stmt) {
                 if (stmt.getRValue() instanceof NullLiteral) {
-                    return updateLValueIfReferenceType(stmt, IsNullValue.nullValue());
+                    return updateLValueIfReferenceType(stmt, IsNullValue.NULL);
                 } else if (stmt.getRValue() instanceof ReferenceLiteral) {
-                    return updateLValueIfReferenceType(stmt, IsNullValue.nonNullValue());
+                    return updateLValueIfReferenceType(stmt, IsNullValue.NONNULL);
                 }
                 return out.copyFrom(in);
             }
@@ -374,12 +374,12 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
             @Override
             public Boolean visit(LoadArray stmt) {
-                return updateLValueIfReferenceType(stmt, IsNullValue.nullOnComplexPathValue());
+                return updateLValueIfReferenceType(stmt, IsNullValue.NCP);
             }
 
             @Override
             public Boolean visit(LoadField stmt) {
-                return updateLValueIfReferenceType(stmt, IsNullValue.nullOnComplexPathValue());
+                return updateLValueIfReferenceType(stmt, IsNullValue.NCP);
             }
 
             @Override
@@ -399,7 +399,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                     out.entries()
                             .filter(entry -> entry.getValue().isNullOnSomePath()
                                     || entry.getValue().isDefinitelyNull())
-                            .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
+                            .forEach(entry -> entry.setValue(IsNullValue.NCP));
                     return !out.equals(oldOut);
                 } else { // use parameter annotation info
                     for (int paramIndex = 0; paramIndex < invokeMethod.getParamCount(); ++paramIndex) {
@@ -407,7 +407,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                                 NullnessAnnotation.resolveParameterAnnotation(invokeMethod, paramIndex);
                         if (nullnessAnnotation == NullnessAnnotation.NONNULL) {
                             // TODO: if arg is definitely null, should take special care for this case?
-                            out.update(stmt.getInvokeExp().getArg(paramIndex), IsNullValue.nonNullValue());
+                            out.update(stmt.getInvokeExp().getArg(paramIndex), IsNullValue.NONNULL);
                         }
                     }
                 }
@@ -417,11 +417,11 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 }
 
                 NullnessAnnotation returnAnnotation = NullnessAnnotation.resolveReturnValueAnnotation(invokeMethod);
-                IsNullValue value = IsNullValue.nonReportingNotNullValue();
+                IsNullValue value = IsNullValue.UNKNOWN;
                 if (returnAnnotation == NullnessAnnotation.CHECK_FOR_NULL) {
-                    value = IsNullValue.nullOnSimplePathValue();
+                    value = IsNullValue.NSP;
                 } else if (returnAnnotation == NullnessAnnotation.NONNULL) {
-                    value = IsNullValue.nonNullValue();
+                    value = IsNullValue.NONNULL;
                 }
 
                 return updateLValueIfReferenceType(stmt, value);
@@ -477,9 +477,9 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
                         if (nullVal1.isDefinitelyNull() && nullVal2.isDefinitelyNull()) {
                             if (ifEq) {
-                                ifTrueDecision = IsNullValue.checkedNullValue();
+                                ifTrueDecision = IsNullValue.CHECKED_NULL;
                             } else {
-                                ifFalseDecision = IsNullValue.checkedNullValue();
+                                ifFalseDecision = IsNullValue.CHECKED_NULL;
                             }
                             out.setDecision(new IsNullConditionDecision(stmt, testedVar, ifTrueDecision, ifFalseDecision));
                         } else if (nullVal1.isDefinitelyNull()) {
@@ -520,23 +520,23 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
                 if (referenceVal.isDefinitelyNull()) {
                     if (ifnull) {
-                        ifTrueDecision = IsNullValue.checkedNullValue();
+                        ifTrueDecision = IsNullValue.CHECKED_NULL;
                     } else {
-                        ifFalseDecision = IsNullValue.checkedNullValue();
+                        ifFalseDecision = IsNullValue.CHECKED_NULL;
                     }
                 } else if (referenceVal.isDefinitelyNotNull()) {
                     if (ifnull) {
-                        ifFalseDecision = referenceVal.isAKaBoom() ? referenceVal : IsNullValue.checkedNonNullValue();
+                        ifFalseDecision = referenceVal.isAKaBoom() ? referenceVal : IsNullValue.CHECKED_NN;
                     } else {
-                        ifTrueDecision = referenceVal.isAKaBoom() ? referenceVal : IsNullValue.checkedNonNullValue();
+                        ifTrueDecision = referenceVal.isAKaBoom() ? referenceVal : IsNullValue.CHECKED_NN;
                     }
                 } else { // both branches feasible
                     if (ifnull) {
-                        ifTrueDecision = IsNullValue.checkedNullValue();
-                        ifFalseDecision = IsNullValue.checkedNonNullValue();
+                        ifTrueDecision = IsNullValue.CHECKED_NULL;
+                        ifFalseDecision = IsNullValue.CHECKED_NN;
                     } else {
-                        ifTrueDecision = IsNullValue.checkedNonNullValue();
-                        ifFalseDecision = IsNullValue.checkedNullValue();
+                        ifTrueDecision = IsNullValue.CHECKED_NN;
+                        ifFalseDecision = IsNullValue.CHECKED_NULL;
                     }
                 }
                 return new IsNullConditionDecision(stmt, referenceVar, ifTrueDecision, ifFalseDecision);

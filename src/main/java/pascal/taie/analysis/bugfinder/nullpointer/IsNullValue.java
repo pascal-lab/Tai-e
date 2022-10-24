@@ -24,57 +24,21 @@ package pascal.taie.analysis.bugfinder.nullpointer;
 
 enum IsNullValue {
 
-    // TODO: comment values
-    NULL(0),
-    CHECKED_NULL(1),
-    NN(2),
-    CHECKED_NN(3),
-    NO_KABOOM_NN(4),
-    NSP(5),
-    UNKNOWN(6),
-    NCP(7),
-    UNDEF(8);
+    NULL(0), // the variable is definitely null
+    CHECKED_NULL(1), // the variable is definitely null due to a null check
+    NONNULL(2), // the variable is definitely not null
+    CHECKED_NN(3), // the variable is definitely not null due to a null check
+    NO_KABOOM_NN(4), // the variable is definitely not null since it has been dereferenced before
+    NSP(5), // the variable is null on a simple path, i.e. has a @Check_For_Null annotation
+    UNKNOWN(6), // nullness of the variable is unknown
+    NCP(7), // the variable is null on a complex path
+    UNDEF(8); // the variable is undefined
 
     private final int index;
 
     IsNullValue(int index) {
         this.index = index;
     }
-
-    // TODO: replace static accessors by enum values
-    public static IsNullValue nullValue() {
-        return NULL;
-    }
-
-    public static IsNullValue checkedNullValue() {
-        return CHECKED_NULL;
-    }
-
-    public static IsNullValue nonNullValue() {
-        return NN;
-    }
-
-    public static IsNullValue checkedNonNullValue() {
-        return CHECKED_NN;
-    }
-
-    public static IsNullValue noKaboomNonNullValue() {
-        return NO_KABOOM_NN;
-    }
-
-    public static IsNullValue nullOnSimplePathValue() {
-        return NSP;
-    }
-
-    public static IsNullValue nonReportingNotNullValue() {
-        return UNKNOWN;
-    }
-
-    public static IsNullValue nullOnComplexPathValue() {
-        return NCP;
-    }
-
-    public static IsNullValue undefValue() {return UNDEF;}
 
     public boolean isDefinitelyNull() {
         return this == CHECKED_NULL || this == NULL;
@@ -97,20 +61,20 @@ enum IsNullValue {
     }
 
     public boolean isDefinitelyNotNull() {
-        return this == NN || this == CHECKED_NN || this == NO_KABOOM_NN;
+        return this == NONNULL || this == CHECKED_NN || this == NO_KABOOM_NN;
     }
 
     private static final IsNullValue[][] mergeMatrix = {
             // NULL, CHECKED_NULL, NN, CHECKED_NN, NO_KABOOM_NN, NSP, UNKNOWN, NCP, UNDEF
             {NULL}, // NULL
             {NULL, CHECKED_NULL,}, // CHECKED_NULL
-            {NSP, NSP, NN}, // NN
-            {NSP, NSP, NN, CHECKED_NN,}, // CHECKED_NN
-            {NSP, NSP, NN, NN, NO_KABOOM_NN}, // NO_KABOOM_NN
+            {NSP, NSP, NONNULL}, // NN
+            {NSP, NSP, NONNULL, CHECKED_NN,}, // CHECKED_NN
+            {NSP, NSP, NONNULL, NONNULL, NO_KABOOM_NN}, // NO_KABOOM_NN
             {NSP, NSP, NSP, NSP, NSP, NSP}, // NSP
             {NSP, NSP, UNKNOWN, UNKNOWN, UNKNOWN, NSP, UNKNOWN,}, // UNKNOWN
             {NSP, NSP, NCP, NCP, NCP, NSP, NCP, NCP,}, // NCP
-            {NULL, CHECKED_NULL, NN, CHECKED_NN, NO_KABOOM_NN, NSP, UNKNOWN, NCP, UNDEF}
+            {NULL, CHECKED_NULL, NONNULL, CHECKED_NN, NO_KABOOM_NN, NSP, UNKNOWN, NCP, UNDEF}
     };
 
     public static IsNullValue merge(IsNullValue a, IsNullValue b) {

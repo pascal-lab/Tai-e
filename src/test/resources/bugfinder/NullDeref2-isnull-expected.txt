@@ -1,28 +1,28 @@
 -------------------- <NullDeref2: void <init>()> (isnull) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NN}
-[1@L1] return; {%this=NN}
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NONNULL}
+[1@L1] return; {%this=NONNULL}
 
 -------------------- <NullDeref2: void possibleNullOnSplit()> (isnull) --------------------
-[0@L4] a = null; {%this=NN, a=NULL}
-[1@L5] if (a == %nullconst) goto 3; {%this=NN, a=NULL}
+[0@L4] a = null; {%this=NONNULL, a=NULL}
+[1@L5] if (a == %nullconst) goto 3; {%this=NONNULL, a=NULL}
 [2@L5] goto 18; {}
-[3@L5] nop; {%this=NN, a=CHECKED_NULL}
-[4@L5] nop; {%this=NN, a=CHECKED_NULL}
-[5@L7] temp$0 = <java.lang.System: java.io.PrintStream out>; {%this=NN, a=CHECKED_NULL, temp$0=NCP}
-[6@L7] %intconst0 = 1; {%this=NN, a=CHECKED_NULL, temp$0=NCP}
-[7@L7] invokevirtual temp$0.<java.io.PrintStream: void println(int)>(%intconst0); {%this=NN, a=CHECKED_NULL, temp$0=NO_KABOOM_NN}
-[8@L6] goto 14; {%this=NN, a=CHECKED_NULL, temp$0=NO_KABOOM_NN}
+[3@L5] nop; {%this=NONNULL, a=CHECKED_NULL}
+[4@L5] nop; {%this=NONNULL, a=CHECKED_NULL}
+[5@L7] temp$0 = <java.lang.System: java.io.PrintStream out>; {%this=NONNULL, a=CHECKED_NULL, temp$0=NCP}
+[6@L7] %intconst0 = 1; {%this=NONNULL, a=CHECKED_NULL, temp$0=NCP}
+[7@L7] invokevirtual temp$0.<java.io.PrintStream: void println(int)>(%intconst0); {%this=NONNULL, a=CHECKED_NULL, temp$0=NO_KABOOM_NN}
+[8@L6] goto 14; {%this=NONNULL, a=CHECKED_NULL, temp$0=NO_KABOOM_NN}
 [9@L6] nop; {}
 [10@L8] catch e; {}
-[11@L9] a = "notNull"; {a=NN}
-[12@L8] nop; {a=NN}
-[13@L8] goto 14; {a=NN}
-[14@L8] nop; {%this=NN, a=NSP, temp$0=NO_KABOOM_NN}
-[15@L12] temp$2 = <java.lang.System: java.io.PrintStream out>; {%this=NN, a=NSP, temp$0=NO_KABOOM_NN, temp$2=NCP}
-[16@L12] temp$3 = invokevirtual a.<java.lang.Object: java.lang.Class getClass()>(); {%this=NN, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NCP, temp$3=UNKNOWN}
-[17@L12] invokevirtual temp$2.<java.io.PrintStream: void println(java.lang.Object)>(temp$3); {%this=NN, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
-[18@L12] nop; {%this=NN, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
-[19@L12] return; {%this=NN, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
+[11@L9] a = "notNull"; {a=NONNULL}
+[12@L8] nop; {a=NONNULL}
+[13@L8] goto 14; {a=NONNULL}
+[14@L8] nop; {%this=NONNULL, a=NSP, temp$0=NO_KABOOM_NN}
+[15@L12] temp$2 = <java.lang.System: java.io.PrintStream out>; {%this=NONNULL, a=NSP, temp$0=NO_KABOOM_NN, temp$2=NCP}
+[16@L12] temp$3 = invokevirtual a.<java.lang.Object: java.lang.Class getClass()>(); {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NCP, temp$3=UNKNOWN}
+[17@L12] invokevirtual temp$2.<java.io.PrintStream: void println(java.lang.Object)>(temp$3); {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
+[18@L12] nop; {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
+[19@L12] return; {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
 
 -------------------- <NullDeref2: boolean same0(java.lang.Object,java.lang.Object)> (isnull) --------------------
 [0@L17] if (a == %nullconst) goto 2; {a=UNKNOWN, b=UNKNOWN}

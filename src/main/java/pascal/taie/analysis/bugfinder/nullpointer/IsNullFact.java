@@ -46,7 +46,7 @@ class IsNullFact extends MapFact<Var, IsNullValue> {
 
     @Override
     public IsNullValue get(Var var) {
-        return map.getOrDefault(var, IsNullValue.undefValue());
+        return map.getOrDefault(var, IsNullValue.UNDEF);
     }
 
     @Override
@@ -74,7 +74,7 @@ class IsNullFact extends MapFact<Var, IsNullValue> {
         map.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isNullOnSomePath())
-                .forEach(entry -> entry.setValue(IsNullValue.nullOnComplexPathValue()));
+                .forEach(entry -> entry.setValue(IsNullValue.NCP));
     }
 
     public void setInvalid() {
