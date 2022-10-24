@@ -13,4 +13,6 @@ public interface AnalysisFile {
      */
     String fileName();
 
+    FileContainer rootContainer();
+
 }

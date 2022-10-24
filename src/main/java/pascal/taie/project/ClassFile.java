@@ -5,7 +5,8 @@ import java.nio.file.attribute.FileTime;
 public record ClassFile(
         String className,
         FileTime timeStamp,
-        Resource resource
+        Resource resource,
+        FileContainer rootContainer
 ) implements AnalysisFile {
 
     @Override

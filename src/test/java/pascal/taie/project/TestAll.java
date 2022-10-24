@@ -18,7 +18,7 @@ public class TestAll {
     FileContainer loadContainer(String path) throws IOException {
         FileContainer[] c = new FileContainer[1];
         FileLoader loader = FileLoader.get();
-        loader.loadFile(Paths.get(path), (a) -> null, a -> {
+        loader.loadFile(Paths.get(path), null,(a) -> null, a -> {
             c[0] = a; return null;
         });
         return c[0];
@@ -28,7 +28,7 @@ public class TestAll {
     public void loadZip() throws IOException {
         FileContainer[] c = new FileContainer[1];
         FileLoader loader = FileLoader.get();
-        loader.loadFile(Paths.get(classes), (a) -> null, a -> {
+        loader.loadFile(Paths.get(classes), null, (a) -> null, a -> {
             c[0] = a; return null;
         });
 

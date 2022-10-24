@@ -77,24 +77,27 @@ public class FileLoader {
 
     private void loadChildren(Parent parent,
                               Path path,
+                              FileContainer rootContainer,
                               List<AnalysisFile> files,
                               List<FileContainer> containers) throws IOException {
         try (var s = Files.list(path)) {
             for (var i : s.toList()) {
-                loadFile(parent, i, files::add, containers::add);
+                loadFile(parent, i, rootContainer, files::add, containers::add);
             }
         }
     }
 
     public <T> void loadFile(
             Path path,
+            FileContainer rootContainer,
             Function<AnalysisFile, T> fileWorker,
             Function<FileContainer, T> containerWorker) throws IOException {
-        loadFile(new Parent(FileSystems.getDefault(), path), path, fileWorker, containerWorker);
+        loadFile(new Parent(FileSystems.getDefault(), path), path, rootContainer, fileWorker, containerWorker);
     }
 
     public <T> void loadFile(Parent parent,
                              Path path,
+                             FileContainer rootContainer,
                              Function<AnalysisFile, T> fileWorker,
                              Function<FileContainer, T> containerWorker) throws IOException {
         if (!Files.exists(path)) {
@@ -103,36 +106,50 @@ public class FileLoader {
             if (Files.isDirectory(path)) {
                 List<FileContainer> fileContainers = new ArrayList<>();
                 List<AnalysisFile> files = new ArrayList<>();
-                loadChildren(parent, path, files, fileContainers);
                 FileTime time = Files.getLastModifiedTime(path);
                 String name = path.getFileName().toString();
-                containerWorker.apply(new DirContainer(fileContainers, files, time, name));
+                FileContainer currentContainer = new DirContainer(fileContainers, files, time, name);
+                if (rootContainer == null) {
+                    // rootContainer == null means that the container currently
+                    // being processed is a root.
+                    rootContainer = currentContainer;
+                }
+                loadChildren(parent, path, rootContainer, files, fileContainers);
+                containerWorker.apply(currentContainer);
             }  else if (isZipFile(path)) {
                 try (FileSystem fs = FileSystems.newFileSystem(path)) {
                     Parent newParent = new Parent(fs, path);
                     List<FileContainer> fileContainers = new ArrayList<>();
                     List<AnalysisFile> files = new ArrayList<>();
-                    loadChildren(newParent, fs.getPath("/"), files, fileContainers);
                     FileTime time = Files.getLastModifiedTime(path);
                     String name = getName(path);
 
+                    FileContainer currentContainer;
                     if (isJarFile(path)) {
                         Manifest manifest = new Manifest(Files.newInputStream(getManifest(fs)));
-                        containerWorker.apply(
-                                new JarContainer(files, fileContainers, time, manifest, name));
+                        currentContainer = new JarContainer(files, fileContainers, time, manifest, name);
                     } else {
-                        containerWorker.apply(new ZipContainer(files, fileContainers, time, name));
+                        currentContainer = new ZipContainer(files, fileContainers, time, name);
                     }
+                    if (rootContainer == null) {
+                        // rootContainer == null means that the container currently
+                        // being processed is a root.
+                        rootContainer = currentContainer;
+                    }
+
+                    loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
+
+                    containerWorker.apply(currentContainer);
                 }
             } else {
                 Resource r = mkResource(parent, path);
                 FileTime time = Files.getLastModifiedTime(path);
                 if (isClassFile(path)) {
-                    fileWorker.apply(new ClassFile(getName(path), time, r));
+                    fileWorker.apply(new ClassFile(getName(path), time, r, rootContainer));
                 } else if (isJavaSourceFile(path)) {
-                    fileWorker.apply(new JavaSourceFile(getName(path), time, r));
+                    fileWorker.apply(new JavaSourceFile(getName(path), time, r, rootContainer));
                 } else {
-                    fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r));
+                    fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r, rootContainer));
                 }
             }
         }
@@ -141,7 +158,7 @@ public class FileLoader {
     public List<FileContainer> loadRootContainers(List<Path> paths) throws IOException {
         List<FileContainer> containers = new ArrayList<>();
         for (var p : paths) {
-            loadFile(p,
+            loadFile(p, null,
                     i -> {
                         throw new IllegalArgumentException("no file in classPaths");},
                     containers::add);
