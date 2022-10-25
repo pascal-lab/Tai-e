@@ -48,4 +48,8 @@ public class Project {
     public List<FileContainer> getLibRootContainers() {
         return libRootContainers;
     }
+
+    public AnalysisFile locate(String className) {
+        return null;
+    }
 }
