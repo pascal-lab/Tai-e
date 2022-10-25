@@ -41,7 +41,10 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     options.getJavaVersion(),
                     options.getInputClasses(),
                     FileLoader.get().loadRootContainers(
-                            List.of(Paths.get(options.getClassPath()))));
+                            List.of(Paths.get(options.getClassPath()))),  // TODO: change to options.getAppClassPath() after modifying Options
+                    FileLoader.get().loadRootContainers(
+                            List.of(Paths.get(null))) // TODO: change null to options.getLibClassPath() after modifying Options
+            );
         } catch (IOException e) {
             // TODO: more info
             e.printStackTrace();
