@@ -37,6 +37,6 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
     @Override
     public Project build() {
         return new Project(getMainClass(), getJavaVersion(),
-                getInputClasses(), getRootContainers());
+                getInputClasses(), getRootContainers(), null);
     }
 }

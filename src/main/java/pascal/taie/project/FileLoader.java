@@ -114,12 +114,13 @@ public class FileLoader {
                     // being processed is a root.
                     rootContainer = currentContainer;
                 }
+
                 loadChildren(parent, path, rootContainer, files, fileContainers);
                 containerWorker.apply(currentContainer);
             }  else if (isZipFile(path)) {
                 try (FileSystem fs = FileSystems.newFileSystem(path)) {
-                    Parent newParent = new Parent(fs, path);
                     List<FileContainer> fileContainers = new ArrayList<>();
+                    Parent newParent = new Parent(fs, path);
                     List<AnalysisFile> files = new ArrayList<>();
                     FileTime time = Files.getLastModifiedTime(path);
                     String name = getName(path);
@@ -138,7 +139,6 @@ public class FileLoader {
                     }
 
                     loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
-
                     containerWorker.apply(currentContainer);
                 }
             } else {
@@ -158,9 +158,9 @@ public class FileLoader {
     public List<FileContainer> loadRootContainers(List<Path> paths) throws IOException {
         List<FileContainer> containers = new ArrayList<>();
         for (var p : paths) {
-            loadFile(p, null,
-                    i -> {
-                        throw new IllegalArgumentException("no file in classPaths");},
+            loadFile(p,
+                    null,
+                    i -> {throw new IllegalArgumentException("no file in classPaths");},
                     containers::add);
         }
         return containers;
