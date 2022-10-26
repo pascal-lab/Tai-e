@@ -3,7 +3,7 @@ package pascal.taie.project;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 
-public class ZipContainer implements FileContainer {
+public class ZipContainer extends AbstractFileContainer {
 
     private final List<AnalysisFile> files;
 

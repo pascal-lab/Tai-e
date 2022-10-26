@@ -23,4 +23,5 @@ public interface FileContainer {
      */
     String className();
 
+    AnalysisFile locate(ClassLocation restPath);
 }

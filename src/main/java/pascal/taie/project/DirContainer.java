@@ -3,7 +3,7 @@ package pascal.taie.project;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 
-public class DirContainer implements FileContainer {
+public class DirContainer extends AbstractFileContainer {
 
     private final List<FileContainer> containers;
 
