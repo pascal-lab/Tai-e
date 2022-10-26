@@ -62,6 +62,11 @@ public class CPTestFull extends CPTest {
     }
 
     @Test
+    public void testMultiplyByZero() {
+        testCP("MultiplyByZero");
+    }
+
+    @Test
     public void testConditionOp() {
         testCP("ConditionOp");
     }

@@ -69,7 +69,14 @@ public final class Evaluator {
                 int i1 = v1.getConstant();
                 int i2 = v2.getConstant();
                 return Value.makeConstant(evaluate(op, i1, i2));
-            } else if (v1.isNAC() || v2.isNAC()) {
+            }
+            // handle zero * NAC by returning 0
+            if (op == ArithmeticExp.Op.MUL
+                    && (v1.isConstant() && v1.getConstant() == 0 && v2.isNAC() || // 0 * NAC
+                    v2.isConstant() && v2.getConstant() == 0 && v1.isNAC())) { // NAC * 0
+                return Value.makeConstant(0);
+            }
+            if (v1.isNAC() || v2.isNAC()) {
                 return Value.getNAC();
             }
             return Value.getUndef();
