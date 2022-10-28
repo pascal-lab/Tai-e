@@ -64,8 +64,6 @@ public class Project {
         ClassLocation classLocation = new ClassLocation(className);
         assert classLocation.hasNext();
 
-        String root = classLocation.next();
-
         List<List<FileContainer>> rootContainersList = new ArrayList<>();
         rootContainersList.add(appRootContainers);
         rootContainersList.add(libRootContainers);
@@ -73,11 +71,9 @@ public class Project {
         for (List<FileContainer> rootContainers : rootContainersList) {
             for (FileContainer container : rootContainers) {
                 // make sure to keep the order.
-                if (container.className().equals(root)) {
-                    AnalysisFile result = container.locate(classLocation);
-                    if (result != null) {
-                        return result;
-                    }
+                AnalysisFile result = container.locate(classLocation);
+                if (result != null) {
+                    return result;
                 }
             }
         }
