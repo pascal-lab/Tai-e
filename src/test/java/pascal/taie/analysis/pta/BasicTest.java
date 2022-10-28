@@ -109,6 +109,11 @@ public class BasicTest {
     }
 
     @Test
+    public void testDispatch2() {
+        Tests.testPTA(DIR, "Dispatch2");
+    }
+
+    @Test
     public void testInterface() {
         Tests.testPTA(DIR, "Interface");
     }
