@@ -4,6 +4,7 @@ import pascal.taie.config.Options;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 public class OptionsProjectBuilder extends AbstractProjectBuilder {
@@ -41,9 +42,9 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     options.getJavaVersion(),
                     options.getInputClasses(),
                     FileLoader.get().loadRootContainers(
-                            List.of(Paths.get(options.getClassPath()))),  // TODO: change to options.getAppClassPath() after modifying Options
+                            Arrays.stream(options.getClassPath().split(";")).map(Paths::get).toList()),  // TODO: change to options.getAppClassPath() after modifying Options
                     FileLoader.get().loadRootContainers(
-                            List.of(Paths.get(null))) // TODO: change null to options.getLibClassPath() after modifying Options
+                            Arrays.stream(new String[]{}).map(Paths::get).toList()) // TODO: change to options.getLibClassPath() after modifying Options
             );
         } catch (IOException e) {
             // TODO: more info
