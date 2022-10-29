@@ -88,21 +88,18 @@ public class Project {
     public List<AnalysisFile> locateFiles(String className) {
         List<AnalysisFile> results = new ArrayList<>();
 
-        ClassLocation classLocation = new ClassLocation(className);
-        assert classLocation.hasNext();
-
-        String root = classLocation.next();
-
         Consumer<FileContainer> get = c -> {
+            ClassLocation classLocation = new ClassLocation(className);
+            assert classLocation.hasNext();
             AnalysisFile result = c.locate(classLocation);
             if (result != null) {
                 results.add(result);
             }
         };
 
-        appRootContainers.stream().filter(c -> c.className().equals(root)).forEach(get);
+        appRootContainers.forEach(get);
 
-        libRootContainers.stream().filter(c -> c.className().equals(root)).forEach(get);
+        libRootContainers.forEach(get);
 
         return results;
     }
