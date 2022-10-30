@@ -89,7 +89,10 @@ public final class CallGraphs {
         if (callSite.isInterface() || callSite.isVirtual()) {
             return World.get().getClassHierarchy()
                     .dispatch(type, methodRef);
-        } else if (callSite.isSpecial() || callSite.isStatic()) {
+        } else if (callSite.isSpecial()) {
+            return World.get().getClassHierarchy()
+                    .dispatch(methodRef.getDeclaringClass(), methodRef);
+        } else if (callSite.isStatic()) {
             return methodRef.resolveNullable();
         } else {
             throw new AnalysisException("Cannot resolve Invoke: " + callSite);

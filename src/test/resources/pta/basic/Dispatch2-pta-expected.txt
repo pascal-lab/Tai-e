@@ -1,0 +1,14 @@
+Points-to sets of all variables
+[]:<Dispatch2$C1: void <init>()>/%this -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
+[]:<Dispatch2$C1: void bar()>/%this -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
+[]:<Dispatch2$I3: void foo()>/%this -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
+[]:<Dispatch2: void main(java.lang.String[])>/$r0 -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
+[]:<Dispatch2: void main(java.lang.String[])>/r1 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Dispatch2: void main(java.lang.String[])>}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Dispatch2: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Dispatch2: void main(java.lang.String[])>}]
+
