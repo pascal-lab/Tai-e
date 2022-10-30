@@ -238,7 +238,12 @@ public class LambdaAnalysis implements Plugin {
             // pass receiver object to 'this' variable of callee
             solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recvObj);
         } else { // otherwise, callee is static method
-            callee = targetRef.resolve();
+            callee = targetRef.resolveNullable();
+            if (callee == null) {
+                // this may happen in special cases, e.g.,
+                // when the declaring class of targetRef is phantom class
+                return;
+            }
             calleeCtx = selector.selectContext(csCallSite, callee);
         }
         LambdaCallEdge callEdge = new LambdaCallEdge(csCallSite,
