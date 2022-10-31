@@ -10,14 +10,14 @@ public abstract class AbstractFileContainer implements FileContainer {
             // There should exist at most 1 container with the same name.
             var fileContainer = containers().stream()
                     .filter(c -> c.className().equals(current))
-                    .findFirst();
+                    .findAny();
             return fileContainer.map(c -> c.locate(restLocation)).orElse(null);
         } else {
             // else then current is a class name.
             // There should exist at most 1 file with the same name.
             var file = files().stream().
                     filter(f -> isTarget(f, current))
-                    .findFirst();
+                    .findAny();
             return file.orElse(null);
         }
     }
