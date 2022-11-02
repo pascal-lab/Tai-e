@@ -2,13 +2,10 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.project.Project;
 
+import java.util.Collection;
+
 public interface ClosedWorldBuilder {
 
-    /**
-     * Get Class Source of a given binary name
-     * @param binaryName e.g. a.b.C$D
-     */
-    ClassSource getClassSource(String binaryName);
 
     /**
      * Get the number of total Classes in the closed-world
@@ -16,7 +13,12 @@ public interface ClosedWorldBuilder {
     int getTotalClasses();
 
     /**
+     * Get the closed-world, i.e., all classes needed in analysis
+     */
+    Collection<ClassSource> getClosedWorld();
+
+    /**
      * make the closed-world
      */
-    void resolve(Project p);
+    void build(Project p);
 }

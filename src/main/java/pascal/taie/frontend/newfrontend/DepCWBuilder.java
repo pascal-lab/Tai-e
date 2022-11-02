@@ -9,6 +9,7 @@ import pascal.taie.util.collection.Maps;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -23,17 +24,17 @@ public class DepCWBuilder implements ClosedWorldBuilder {
     }
 
     @Override
-    public ClassSource getClassSource(String binaryName) {
-        return sourceMap.get(binaryName);
-    }
-
-    @Override
     public int getTotalClasses() {
         return sourceMap.size();
     }
 
     @Override
-    public void resolve(Project p) {
+    public Collection<ClassSource> getClosedWorld() {
+        return sourceMap.values();
+    }
+
+    @Override
+    public void build(Project p) {
         String entry = p.getMainClass();
         this.project = p;
         try {
