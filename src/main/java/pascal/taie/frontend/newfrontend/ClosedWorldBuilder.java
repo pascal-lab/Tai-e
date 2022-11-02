@@ -2,7 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.project.Project;
 
-public interface ClassResolver {
+public interface ClosedWorldBuilder {
 
     /**
      * Get Class Source of a given binary name

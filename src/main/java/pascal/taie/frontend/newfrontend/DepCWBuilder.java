@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class DepResolver implements ClassResolver {
+public class DepCWBuilder implements ClosedWorldBuilder {
 
     private final Map<String, ClassSource> sourceMap;
 
     private Project project;
 
-    public DepResolver() {
+    public DepCWBuilder() {
         sourceMap = Maps.newHybridMap();
     }
 
