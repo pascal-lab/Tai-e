@@ -47,3 +47,9 @@ task("fatJar", type = Jar::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with(tasks["jar"] as CopySpec)
 }
+
+tasks.test {
+    // Increases the maximum heap memory of JUnit test process. The default is 512M.
+    // (see org.gradle.process.internal.worker.DefaultWorkerProcessBuilder.build)
+    maxHeapSize = "2G"
+}
