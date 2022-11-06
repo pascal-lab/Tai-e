@@ -1,8 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.ClassHierarchyImpl;
-import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.*;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
@@ -20,9 +18,13 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             m.put(name, new JClass(dcl, name));
         });
 
-        m.values().parallelStream().forEach(i -> {
-            AsmClassBuilder asb = new AsmClassBuilder();
-            i.build(asb);
+        sources.parallelStream().forEach(i -> {
+            JClass klass = m.getOrDefault(i.getClassName(), null);
+            if (klass == null) {
+                throw new IllegalStateException();
+            }
+            JClassBuilder asb = getClassBuilder(i, dcl, m, klass);
+            asb.build(klass);
         });
 
         for (var i : m.values()) {
@@ -30,5 +32,16 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
         }
 
         return ch;
+    }
+
+    private JClassBuilder getClassBuilder(
+            ClassSource source, JClassLoader loader,
+            Map<String, JClass> jClassMap, JClass jClass) {
+        if (source instanceof AsmSource i) {
+            return new AsmClassBuilder(i, loader, jClassMap, jClass);
+        } else{
+            // TODO: fill in here
+            throw new IllegalStateException();
+        }
     }
 }
