@@ -74,6 +74,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         byte[] content = cFile.resource().getContent();
         ClassReader reader = new ClassReader(content);
         DepClassVisitor v = new DepClassVisitor();
+        sourceMap.put(cFile.className(), new AsmSource(reader));
         reader.accept(v, ClassReader.SKIP_CODE);
         return v.getBinaryNames().stream().toList();
     }
