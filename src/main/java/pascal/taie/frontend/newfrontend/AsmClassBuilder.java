@@ -1,13 +1,26 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import pascal.taie.language.annotation.AnnotationHolder;
-import pascal.taie.language.classes.*;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static pascal.taie.frontend.newfrontend.Utils.fromAsmModifier;
 import static pascal.taie.frontend.newfrontend.Utils.getBinaryName;

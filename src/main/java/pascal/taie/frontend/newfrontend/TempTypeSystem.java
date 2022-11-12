@@ -2,7 +2,13 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.type.*;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
+import pascal.taie.language.type.VoidType;
 import pascal.taie.util.AnalysisException;
 
 import java.util.Map;

@@ -3,7 +3,11 @@ package pascal.taie.frontend.newfrontend;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.*;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
+import pascal.taie.language.type.VoidType;
 
 import java.util.Map;
 
