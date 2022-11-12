@@ -4,16 +4,16 @@ import org.objectweb.asm.*;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.classes.*;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 
 import java.util.*;
+
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmModifier;
+import static pascal.taie.frontend.newfrontend.Utils.getBinaryName;
 
 public class AsmClassBuilder implements JClassBuilder {
 
     private final AsmSource source;
-
-    private final JClassLoader loader;
-
-    private final Map<String, JClass> classMap;
 
     private final JClass jClass;
 
@@ -27,15 +27,13 @@ public class AsmClassBuilder implements JClassBuilder {
 
     private JClass outerClass;
 
-    private List<JField> fields;
+    private final List<JField> fields;
 
     public AsmClassBuilder(
-            AsmSource source, JClassLoader loader,
-            Map<String, JClass> classMap, JClass jClass) {
+            AsmSource source, JClass jClass) {
         this.source = source;
-        this.loader = loader;
-        this.classMap = classMap;
         this.jClass = jClass;
+        this.fields = new ArrayList<>();
     }
 
     @Override
@@ -59,7 +57,9 @@ public class AsmClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
-        return new ClassType(loader, source.getClassName());
+        return BuildContext.get()
+                .getTypeSystem()
+                .getClassType(source.getClassName());
     }
 
     @Override
@@ -112,8 +112,10 @@ public class AsmClassBuilder implements JClassBuilder {
         return binaryName.substring(binaryName.indexOf("."));
     }
 
-    private JClass getClassByName(String internalName) {
-        return classMap.get(Utils.getBinaryName(internalName));
+    private static JClass getClassByName(String internalName) {
+        return BuildContext.get()
+                .getClassMap()
+                .get(getBinaryName(internalName));
     }
 
     class BuildVisitor extends ClassVisitor {
@@ -135,10 +137,10 @@ public class AsmClassBuilder implements JClassBuilder {
             }
 
             AsmClassBuilder.this.interfaces = Arrays.stream(interfaces)
-                    .map(AsmClassBuilder.this::getClassByName)
+                    .map(AsmClassBuilder::getClassByName)
                     .toList();
 
-            modifiers = Utils.fromAsmModifier(access);
+            modifiers = fromAsmModifier(access);
         }
 
         @Override
@@ -153,12 +155,11 @@ public class AsmClassBuilder implements JClassBuilder {
                 String descriptor,
                 String signature,
                 Object value) {
-            // TODO: complete it
+            Type type = BuildContext.get().fromAsmType(descriptor);
             fields.add(new JField(jClass, name,
-                    Utils.fromAsmModifier(access), null, null));
+                    fromAsmModifier(access), type, null));
             return null;
         }
-
 
     }
 }

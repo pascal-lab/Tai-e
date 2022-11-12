@@ -3,9 +3,6 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import pascal.taie.language.classes.Modifier;
-import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.VoidType;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -47,23 +44,5 @@ public class Utils {
         return Arrays.stream(Modifier.values())
                 .filter(i -> hasAsmModifier(opcodes, toAsmModifier(i)))
                 .collect(Collectors.toSet());
-    }
-
-    /**
-     * Get a Tai-e type from Primitive Asm Type
-     * @param descriptor asm Type, should be a primitive type
-     * @return the corresponding Tai-e Type
-     */
-    static pascal.taie.language.type.Type fromPrimitiveAsmType(String descriptor) {
-        Type t = Type.getType(descriptor);
-
-        if (t.getSort() == Type.VOID) {
-            return VoidType.VOID;
-        }
-        else if (t.getSort() < Type.ARRAY) {
-            return PrimitiveType.get(StringReps.toTaieTypeDesc(descriptor));
-        } else {
-            throw new IllegalArgumentException();
-        }
     }
 }
