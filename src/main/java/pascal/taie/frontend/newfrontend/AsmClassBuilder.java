@@ -6,6 +6,7 @@ import pascal.taie.language.classes.*;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static pascal.taie.frontend.newfrontend.Utils.fromAsmModifier;
@@ -23,17 +24,18 @@ public class AsmClassBuilder implements JClassBuilder {
 
     private List<JClass> interfaces;
 
-    private JClass innerClass;
-
     private JClass outerClass;
 
     private final List<JField> fields;
+
+    private final List<JMethod> methods;
 
     public AsmClassBuilder(
             AsmSource source, JClass jClass) {
         this.source = source;
         this.jClass = jClass;
         this.fields = new ArrayList<>();
+        this.methods = new ArrayList<>();
     }
 
     @Override
@@ -84,7 +86,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
     @Override
     public Collection<JMethod> getDeclaredMethods() {
-        return null;
+        return methods;
     }
 
     @Override
@@ -104,7 +106,7 @@ public class AsmClassBuilder implements JClassBuilder {
     }
 
     private void buildAll() {
-        BuildVisitor visitor = new BuildVisitor();
+        CVisitor visitor = new CVisitor();
         source.r().accept(visitor, ClassReader.SKIP_FRAMES);
     }
 
@@ -118,9 +120,9 @@ public class AsmClassBuilder implements JClassBuilder {
                 .get(getBinaryName(internalName));
     }
 
-    class BuildVisitor extends ClassVisitor {
+    class CVisitor extends ClassVisitor {
 
-        public BuildVisitor() {
+        public CVisitor() {
             super(Opcodes.ASM9);
         }
 
@@ -144,6 +146,11 @@ public class AsmClassBuilder implements JClassBuilder {
         }
 
         @Override
+        public void visitOuterClass(String owner, String name, String descriptor) {
+            AsmClassBuilder.this.outerClass = getClassByName(owner);
+        }
+
+        @Override
         public void visitAttribute(Attribute attribute) {
             // TODO: check what attribute is needed.
         }
@@ -159,6 +166,65 @@ public class AsmClassBuilder implements JClassBuilder {
             fields.add(new JField(jClass, name,
                     fromAsmModifier(access), type, null));
             return null;
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
+            return new MVisitor(fromAsmModifier(access),
+                    name,
+                    Arrays.stream(exceptions)
+                            .map(BuildContext.get()::classTypeFromAsmType)
+                            .toList(),
+                    Arrays.stream(t.getArgumentTypes())
+                            .map(BuildContext.get()::fromAsmType)
+                            .toList(),
+                    BuildContext.get().fromAsmType(t.getReturnType()));
+        }
+
+    }
+
+    class MVisitor extends MethodVisitor {
+
+        private final Set<Modifier> modifiers;
+
+        private final String methodName;
+
+        private final List<ClassType> exceptions;
+
+        private final List<Type> paramTypes;
+
+        private final Type retType;
+
+        @Nullable
+        private List<String> paramName;
+
+        public MVisitor(Set<Modifier> modifiers, String methodName,
+                        List<ClassType> exceptions, List<Type> paramTypes, Type retType) {
+            super(Opcodes.ASM9);
+            this.modifiers = modifiers;
+            this.methodName = methodName;
+            this.exceptions = exceptions;
+            this.paramTypes = paramTypes;
+            this.retType = retType;
+        }
+
+        @Override
+        public void visitParameter(String name, int access) {
+            if (paramName == null) {
+                paramName = new ArrayList<>();
+            }
+            paramName.add(name);
+        }
+
+        @Override
+        public void visitEnd() {
+           AsmClassBuilder.this.methods.add(
+                   new JMethod(jClass, methodName, modifiers, paramTypes,
+                           retType, exceptions,
+                           null, null,
+                           paramName, null)
+           );
         }
 
     }

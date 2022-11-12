@@ -3,10 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeSystem;
-import pascal.taie.language.type.VoidType;
+import pascal.taie.language.type.*;
 
 import java.util.Map;
 
@@ -47,7 +44,7 @@ public class BuildContext {
         return fromAsmType(t);
     }
 
-    private Type fromAsmType(org.objectweb.asm.Type t) {
+    public Type fromAsmType(org.objectweb.asm.Type t) {
         if (t.getSort() == org.objectweb.asm.Type.VOID) {
             return VoidType.VOID;
         } else if (t.getSort() < org.objectweb.asm.Type.ARRAY) {
@@ -61,5 +58,9 @@ public class BuildContext {
             // t maybe a function ? error
             throw new IllegalArgumentException();
         }
+    }
+
+    public ClassType classTypeFromAsmType(String descriptor) {
+        return (ClassType) fromAsmType(descriptor);
     }
 }
