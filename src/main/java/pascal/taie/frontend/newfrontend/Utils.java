@@ -2,6 +2,14 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.BooleanElement;
+import pascal.taie.language.annotation.ClassElement;
+import pascal.taie.language.annotation.DoubleElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.IntElement;
+import pascal.taie.language.annotation.LongElement;
+import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.Modifier;
 
 import java.util.Arrays;
@@ -44,5 +52,37 @@ public class Utils {
         return Arrays.stream(Modifier.values())
                 .filter(i -> hasAsmModifier(opcodes, toAsmModifier(i)))
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Convert object to tai-e Annotation rep.
+     * @param ele object, should be boxed primitive type OR string OR array OR asm type
+     */
+    static Element toElement(Object ele) {
+        if (ele instanceof Boolean b) {
+            return new BooleanElement(b);
+        } else if (ele instanceof Character c) {
+            return new IntElement(c);
+        } else if (ele instanceof Short s) {
+            return new IntElement(s);
+        } else if (ele instanceof Integer i) {
+            return new IntElement(i);
+        } else if (ele instanceof Long l) {
+            return new LongElement(l);
+        } else if (ele instanceof Float f) {
+            return new DoubleElement(f);
+        } else if (ele instanceof Double d) {
+            return new DoubleElement(d);
+        } else if (ele instanceof String s) {
+            return new StringElement(s);
+        } else if (ele instanceof Object[] a) {
+            return new ArrayElement(
+                    Arrays.stream(a).map(Utils::toElement).toList());
+        } else if (ele instanceof Type c) {
+            // TODO: Does ClassElement really hold asm descriptor ?
+            return new ClassElement(c.getDescriptor());
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 }

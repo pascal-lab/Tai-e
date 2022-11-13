@@ -1,29 +1,38 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.AnnotationElement;
 import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.EnumElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
-import static pascal.taie.frontend.newfrontend.Utils.fromAsmModifier;
-import static pascal.taie.frontend.newfrontend.Utils.getBinaryName;
+import static pascal.taie.frontend.newfrontend.Utils.*;
 
 public class AsmClassBuilder implements JClassBuilder {
 
@@ -43,12 +52,18 @@ public class AsmClassBuilder implements JClassBuilder {
 
     private final List<JMethod> methods;
 
+    /**
+     * annotations for this class
+     */
+    private final List<Annotation> annotations;
+
     public AsmClassBuilder(
             AsmSource source, JClass jClass) {
         this.source = source;
         this.jClass = jClass;
         this.fields = new ArrayList<>();
         this.methods = new ArrayList<>();
+        this.annotations = new ArrayList<>();
     }
 
     @Override
@@ -104,7 +119,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
     @Override
     public AnnotationHolder getAnnotationHolder() {
-        return null;
+        return AnnotationHolder.make(annotations);
     }
 
     @Override
@@ -164,6 +179,11 @@ public class AsmClassBuilder implements JClassBuilder {
         }
 
         @Override
+        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+            return new AnnoVisitor(descriptor, annotations::add);
+        }
+
+        @Override
         public void visitAttribute(Attribute attribute) {
             // TODO: check what attribute is needed.
         }
@@ -176,9 +196,8 @@ public class AsmClassBuilder implements JClassBuilder {
                 String signature,
                 Object value) {
             Type type = BuildContext.get().fromAsmType(descriptor);
-            fields.add(new JField(jClass, name,
-                    fromAsmModifier(access), type, null));
-            return null;
+            return new FVisitor(annotations -> fields.add(new JField(jClass, name,
+                fromAsmModifier(access), type, AnnotationHolder.make(annotations))));
         }
 
         @Override
@@ -195,6 +214,28 @@ public class AsmClassBuilder implements JClassBuilder {
                     BuildContext.get().fromAsmType(t.getReturnType()));
         }
 
+    }
+
+    class FVisitor extends FieldVisitor {
+        private final List<Annotation> annotations;
+
+        private final Consumer<List<Annotation>> consumer;
+
+        protected FVisitor(Consumer<List<Annotation>> consumer) {
+            super(Opcodes.ASM9);
+            this.consumer = consumer;
+            this.annotations = new ArrayList<>();
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+            return new AnnoVisitor(descriptor, annotations::add);
+        }
+
+        @Override
+        public void visitEnd() {
+            consumer.accept(annotations);
+        }
     }
 
     class MVisitor extends MethodVisitor {
@@ -232,6 +273,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
         @Override
         public void visitEnd() {
+            // TODO: handle method annotation
            AsmClassBuilder.this.methods.add(
                    new JMethod(jClass, methodName, modifiers, paramTypes,
                            retType, exceptions,
@@ -239,6 +281,96 @@ public class AsmClassBuilder implements JClassBuilder {
                            paramName, null)
            );
         }
+    }
 
+    /**
+     * Annotation visitor to build annotations
+     */
+    class AnnoVisitor extends AnnotationVisitor {
+
+        private final String type;
+
+        private final Map<String, Element> pairs;
+
+        private final Consumer<Annotation> consumer;
+
+        public AnnoVisitor(String descriptor, Consumer<Annotation> consumer) {
+            super(Opcodes.ASM9);
+            this.type = descriptor;
+            this.pairs = Maps.newHybridMap();
+            this.consumer = consumer;
+        }
+
+        /**
+         * primitive array will use this method
+         */
+        @Override
+        public void visit(String name, Object value) {
+            pairs.put(name, toElement(value));
+        }
+
+        @Override
+        public void visitEnum(String name, String descriptor, String value) {
+            // TODO: check string rep here
+            pairs.put(name, new EnumElement(StringReps.toTaieTypeDesc(descriptor), value));
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String name, String descriptor) {
+            return new AnnoVisitor(descriptor,
+                    i -> pairs.put(name, new AnnotationElement(i)));
+        }
+
+        /**
+         * Non-primitive array will use this method
+         */
+        @Override
+        public AnnotationVisitor visitArray(String name) {
+            return new AnnoArrayVisitor(i ->
+                    pairs.put(name, new ArrayElement(i)));
+        }
+
+        @Override
+        public void visitEnd() {
+            consumer.accept(new Annotation(type, pairs));
+            super.visitEnd();
+        }
+    }
+
+    class AnnoArrayVisitor extends AnnotationVisitor {
+        private final List<Element> collector;
+
+        private final Consumer<List<Element>> consumer;
+
+        public AnnoArrayVisitor(Consumer<List<Element>> consumer) {
+            super(Opcodes.ASM9);
+            this.collector = new ArrayList<>();
+            this.consumer = consumer;
+        }
+
+
+        @Override
+        public void visit(String name, Object value) {
+            collector.add(toElement(value));
+        }
+
+        @Override
+        public void visitEnum(String name, String descriptor, String value) {
+            collector.add(new EnumElement(StringReps.toTaieTypeDesc(descriptor), value));
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation(String name, String descriptor) {
+            return new AnnoVisitor(descriptor, this::add);
+        }
+
+        @Override
+        public void visitEnd() {
+            consumer.accept(collector);
+        }
+
+        private void add(Annotation a) {
+            collector.add(new AnnotationElement(a));
+        }
     }
 }
