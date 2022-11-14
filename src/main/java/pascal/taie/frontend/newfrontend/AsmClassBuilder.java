@@ -250,6 +250,10 @@ public class AsmClassBuilder implements JClassBuilder {
 
         private final Type retType;
 
+        private final List<Annotation> annotations;
+
+        private final Map<Integer, List<Annotation>> paramAnnotations;
+
         @Nullable
         private List<String> paramName;
 
@@ -261,6 +265,8 @@ public class AsmClassBuilder implements JClassBuilder {
             this.exceptions = exceptions;
             this.paramTypes = paramTypes;
             this.retType = retType;
+            this.annotations = new ArrayList<>();
+            this.paramAnnotations = Maps.newMap(paramTypes.size());
         }
 
         @Override
@@ -272,14 +278,32 @@ public class AsmClassBuilder implements JClassBuilder {
         }
 
         @Override
+        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+            return new AnnoVisitor(descriptor, annotations::add);
+        }
+
+        @Override
+        public AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
+            // Note: this handle may cause problem for <init>()
+            // of inner class (check doc of this function)
+            return new AnnoVisitor(descriptor, paramAnnotations
+                    .computeIfAbsent(parameter, i -> new ArrayList<>())::add);
+        }
+
+        @Override
         public void visitEnd() {
-            // TODO: handle method annotation
-           AsmClassBuilder.this.methods.add(
-                   new JMethod(jClass, methodName, modifiers, paramTypes,
-                           retType, exceptions,
-                           null, null,
-                           paramName, null)
-           );
+            List<AnnotationHolder> l = new ArrayList<>();
+            for (int i = 0; i < paramTypes.size(); ++i) {
+                List<Annotation> annotations1 = paramAnnotations.getOrDefault(i, null);
+                AnnotationHolder h = annotations1 == null ?
+                        null : AnnotationHolder.make(annotations1);
+                l.add(h);
+            }
+            AsmClassBuilder.this.methods.add(
+                    new JMethod(jClass, methodName, modifiers, paramTypes,
+                            retType, exceptions,
+                            AnnotationHolder.make(annotations), l,
+                            paramName, null));
         }
     }
 
