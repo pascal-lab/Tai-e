@@ -64,9 +64,8 @@ public class Project {
         ClassLocation classLocation = new ClassLocation(className);
         assert classLocation.hasNext();
 
-        List<List<FileContainer>> rootContainersList = new ArrayList<>();
-        rootContainersList.add(appRootContainers);
-        rootContainersList.add(libRootContainers);
+        List<List<FileContainer>> rootContainersList =
+                List.of(appRootContainers, libRootContainers);
 
         for (List<FileContainer> rootContainers : rootContainersList) {
             for (FileContainer container : rootContainers) {
