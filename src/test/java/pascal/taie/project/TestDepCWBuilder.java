@@ -23,4 +23,15 @@ public class TestDepCWBuilder {
 
         System.out.println("haha");
     }
+
+    @Test
+    public void test2() {
+        String classPath = "src/test/resources/world;java-benchmarks/JREs/jre1.8/rt.jar";
+        String mainClass = "CollectionTest";
+        Project project = createProject(classPath, mainClass);
+        DepCWBuilder depCWBuilder = new DepCWBuilder();
+        depCWBuilder.build(project);
+
+        System.out.println("haha");
+    }
 }
