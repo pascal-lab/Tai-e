@@ -42,4 +42,11 @@ class ClassLocation {
         }
         return result;
     }
+
+    /**
+     * set the index to 0
+     */
+    public void clear() {
+        this.index = 0;
+    }
 }

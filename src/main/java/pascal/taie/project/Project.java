@@ -74,6 +74,7 @@ public class Project {
                 if (result != null) {
                     return result;
                 }
+                classLocation.clear();
             }
         }
 
