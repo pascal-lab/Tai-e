@@ -2,14 +2,15 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
-
 import pascal.taie.util.collection.Sets;
 
 import java.util.Arrays;
@@ -19,7 +20,6 @@ import java.util.Set;
 //       2. Check generic
 public class DepClassVisitor extends ClassVisitor {
 
-    // TODO: handle Ldc
     private class DepMethodVisitor extends MethodVisitor {
 
         public DepMethodVisitor() {
@@ -90,7 +90,19 @@ public class DepClassVisitor extends ClassVisitor {
                 String name,
                 String descriptor,
                 boolean isInterface) {
+            addInternalName(owner);
             addDescriptor(descriptor);
+        }
+
+        @Override
+        public void visitLdcInsn(Object value) {
+            if (value instanceof Type t) {
+                addType(t);
+            } else if (value instanceof Handle handle) {
+                addInternalName(handle.getOwner());
+            } else if (value instanceof ConstantDynamic cd) {
+                addDescriptor(cd.getDescriptor());
+            }
         }
 
         @Override
@@ -111,7 +123,7 @@ public class DepClassVisitor extends ClassVisitor {
         public void	visitTryCatchBlock(
                 Label start, Label end, Label handler,
                 String type) {
-            addBinaryName(type);
+            addInternalName(type);
         }
 
         @Override
@@ -126,7 +138,7 @@ public class DepClassVisitor extends ClassVisitor {
 
         @Override
         public void visitTypeInsn(int opCode, String type) {
-            addBinaryName(type);
+            addInternalName(type);
         }
 
     }
@@ -140,6 +152,15 @@ public class DepClassVisitor extends ClassVisitor {
     public DepClassVisitor() {
         super(Opcodes.ASM9);
         binaryNames = Sets.newSet();
+    }
+
+    @Override
+    public void visit(int version, int access, String name,
+                      String signature, String superName, String[] interfaces) {
+        addInternalName(superName);
+        for (var i : interfaces) {
+            addInternalName(i);
+        }
     }
 
     @Override
@@ -160,7 +181,7 @@ public class DepClassVisitor extends ClassVisitor {
             String descriptor,
             String signature,
             String[] exceptions) {
-        addMethodDescriptor(descriptor);
+        addDescriptor(descriptor);
 
         if (exceptions != null) {
             binaryNames.addAll(Arrays.asList(exceptions));
@@ -209,19 +230,23 @@ public class DepClassVisitor extends ClassVisitor {
     }
 
     private void addDescriptor(String descriptor) {
-        binaryNames.add(getBinaryName(descriptor));
+        addType(Type.getType(descriptor));
     }
 
-    private void addMethodDescriptor(String descriptor) {
-        Type type = Type.getType(descriptor);
+    private void addInternalName(String internalName) {
+        addBinaryName(Utils.getBinaryName(internalName));
+    }
 
-        for (var i : type.getArgumentTypes()) {
-            binaryNames.add(i.getClassName());
+    private void addType(Type t) {
+        if (t.getSort() == Type.ARRAY) {
+            addBinaryName(t.getElementType().getClassName());
+        } else if (t.getSort() == Type.OBJECT) {
+            addBinaryName(t.getClassName());
+        } else if (t.getSort() == Type.METHOD) {
+            for (var i : t.getArgumentTypes()) {
+                addType(i);
+            }
+            addType(t.getReturnType());
         }
-        binaryNames.add(type.getReturnType().getClassName());
-    }
-
-    private static String getBinaryName(String descriptor) {
-        return Type.getType(descriptor).getClassName();
     }
 }
