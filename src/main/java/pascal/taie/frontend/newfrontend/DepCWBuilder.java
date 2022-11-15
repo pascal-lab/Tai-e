@@ -60,7 +60,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         if (f instanceof JavaSourceFile jFile) {
             // TODO: fill here
         } else if (f instanceof ClassFile cFile) {
-            deps = buildClassDeps(cFile);
+            deps = buildClassDeps(binaryName, cFile);
         } else {
             throw new IllegalStateException();
         }
@@ -70,11 +70,11 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         }
     }
 
-    private List<String> buildClassDeps(ClassFile cFile) throws IOException {
+    private List<String> buildClassDeps(String binaryName, ClassFile cFile) throws IOException {
         byte[] content = cFile.resource().getContent();
         ClassReader reader = new ClassReader(content);
         DepClassVisitor v = new DepClassVisitor();
-        sourceMap.put(cFile.className(), new AsmSource(reader));
+        sourceMap.put(binaryName, new AsmSource(reader));
         reader.accept(v, ClassReader.SKIP_FRAMES);
         return v.getBinaryNames().stream().toList();
     }
