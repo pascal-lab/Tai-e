@@ -13,11 +13,11 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
 import pascal.taie.util.collection.Sets;
 
-import java.util.Arrays;
 import java.util.Set;
 
 // TODO: 1. Add AnnotationVisitor
 //       2. Check generic
+//       3. Check inner class
 public class DepClassVisitor extends ClassVisitor {
 
     private class DepMethodVisitor extends MethodVisitor {
@@ -184,7 +184,9 @@ public class DepClassVisitor extends ClassVisitor {
         addDescriptor(descriptor);
 
         if (exceptions != null) {
-            binaryNames.addAll(Arrays.asList(exceptions));
+            for (var i : exceptions) {
+                addInternalName(i);
+            }
         }
 
         return new DepMethodVisitor();
@@ -217,12 +219,12 @@ public class DepClassVisitor extends ClassVisitor {
 
     @Override
     public void visitNestHost(String nestHost) {
-        binaryNames.add(nestHost);
+        addInternalName(nestHost);
     }
 
     @Override
     public void visitNestMember(String member) {
-        binaryNames.add(member);
+        addInternalName(member);
     }
 
     private void addBinaryName(String binaryName) {
@@ -234,12 +236,15 @@ public class DepClassVisitor extends ClassVisitor {
     }
 
     private void addInternalName(String internalName) {
+        if (internalName == null) {
+            return;
+        }
         addBinaryName(Utils.getBinaryName(internalName));
     }
 
     private void addType(Type t) {
         if (t.getSort() == Type.ARRAY) {
-            addBinaryName(t.getElementType().getClassName());
+            addType(t.getElementType());
         } else if (t.getSort() == Type.OBJECT) {
             addBinaryName(t.getClassName());
         } else if (t.getSort() == Type.METHOD) {
