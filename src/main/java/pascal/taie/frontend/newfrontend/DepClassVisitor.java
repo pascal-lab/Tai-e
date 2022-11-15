@@ -239,7 +239,7 @@ public class DepClassVisitor extends ClassVisitor {
         if (internalName == null) {
             return;
         }
-        addBinaryName(Utils.getBinaryName(internalName));
+        addType(Type.getObjectType(internalName));
     }
 
     private void addType(Type t) {

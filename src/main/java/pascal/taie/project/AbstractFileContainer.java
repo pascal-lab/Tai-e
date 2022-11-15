@@ -27,11 +27,7 @@ public abstract class AbstractFileContainer implements FileContainer {
             return false;
         }
 
-        // For inner class file, its class name is after $
-        int dollarIndex = file.fileName().lastIndexOf('$');
-        int startIndex = dollarIndex == -1 ? 0 : dollarIndex;
         int endIndex = file.fileName().indexOf('.');
-
-        return file.fileName().substring(startIndex, endIndex).equals(className);
+        return file.fileName().substring(0, endIndex).equals(className);
     }
 }
