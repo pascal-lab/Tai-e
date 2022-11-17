@@ -61,20 +61,18 @@ public class Project {
      * (QUESTION: how to define priority between different rootContainers?)
      */
     public AnalysisFile locate(String className) {
-        ClassLocation classLocation = new ClassLocation(className);
-        assert classLocation.hasNext();
-
         List<List<FileContainer>> rootContainersList =
                 List.of(appRootContainers, libRootContainers);
 
         for (List<FileContainer> rootContainers : rootContainersList) {
             for (FileContainer container : rootContainers) {
                 // make sure to keep the order.
+                ClassLocation classLocation = new ClassLocation(className);
+                assert classLocation.hasNext();
                 AnalysisFile result = container.locate(classLocation);
                 if (result != null) {
                     return result;
                 }
-                classLocation.clear();
             }
         }
 
