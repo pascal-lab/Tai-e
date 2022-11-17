@@ -60,4 +60,9 @@ public class LambdaTest {
     public void testDispatchBugDueToLackOfSubclassCheck() {
         Tests.testPTA(DIR, "DispatchBugDueToLackOfSubclassCheck", ARG);
     }
+
+    @Test
+    public void testNativeModelWithLambda() {
+        Tests.testPTA(DIR, "NativeModelWithLambda", ARG);
+    }
 }

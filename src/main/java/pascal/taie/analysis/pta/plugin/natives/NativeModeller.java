@@ -22,6 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.natives;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -59,17 +62,24 @@ public class NativeModeller implements Plugin {
                 .invokes(false)
                 .forEach(invoke -> {
                     arrayCopyModel.handleNewInvoke(invoke);
-                    doPrivilegedModel.handleNewInvoke(invoke);
                 });
+        doPrivilegedModel.handleNewMethod(method);
+    }
+
+    @Override
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        doPrivilegedModel.handleNewCallEdge(edge);
+    }
+
+    @Override
+    public void onNewCSMethod(CSMethod csMethod) {
+        doPrivilegedModel.handleNewCSMethod(csMethod);
     }
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         if (arrayCopyModel.isRelevantVar(csVar.getVar())) {
             arrayCopyModel.handleNewPointsToSet(csVar, pts);
-        }
-        if (doPrivilegedModel.isRelevantVar(csVar.getVar())) {
-            doPrivilegedModel.handleNewPointsToSet(csVar, pts);
         }
     }
 }

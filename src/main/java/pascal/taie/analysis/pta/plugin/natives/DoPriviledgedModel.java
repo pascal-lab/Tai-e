@@ -24,104 +24,130 @@ package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractModel;
-import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-class DoPriviledgedModel extends AbstractModel {
+class DoPriviledgedModel {
 
-    private final MethodRef privilegedActionRun;
+    private static final String[] DO_PRIVILEGED_ACTION_METHODS = {
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>",
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>",
+    };
 
-    private final MethodRef privilegedExceptionActionRun;
+    private static final String[] DO_PRIVILEGED_EXCEPTION_ACTION_METHODS = {
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>",
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>",
+    };
 
-    private Set<JMethod> doPrivilegeds;
+    private final Solver solver;
+
+    private final CSManager csManager;
+
+    /**
+     * Maps the doPrivileged method to the corresponding action method.
+     */
+    private final Map<JMethod, MethodRef> doPrivileged2ActionRun;
+
+    /**
+     * Caches the fake invokes in the method.
+     */
+    private final MultiMap<JMethod, Invoke> method2FakeActionInvokes;
+
+    /**
+     * Caches the original doPrivileged method of the fake invoke.
+     */
+    private final Map<Invoke, Invoke> fakeActionInvoke2DoPrivilegedInvoke;
 
     DoPriviledgedModel(Solver solver) {
-        super(solver);
-        privilegedActionRun = Objects.requireNonNull(
+        this.solver = solver;
+        this.csManager = solver.getCSManager();
+        this.doPrivileged2ActionRun = Maps.newMap();
+        this.method2FakeActionInvokes = Maps.newMultiMap();
+        this.fakeActionInvoke2DoPrivilegedInvoke = Maps.newMap();
+
+        ClassHierarchy hierarchy = solver.getHierarchy();
+
+        MethodRef privilegedActionRun = Objects.requireNonNull(
                         hierarchy.getJREMethod("<java.security.PrivilegedAction: java.lang.Object run()>"))
                 .getRef();
-        privilegedExceptionActionRun = Objects.requireNonNull(
+        Arrays.stream(DO_PRIVILEGED_ACTION_METHODS)
+                .map(hierarchy::getJREMethod)
+                .filter(Objects::nonNull)
+                .forEach(m -> doPrivileged2ActionRun.put(m, privilegedActionRun));
+
+        MethodRef privilegedExceptionActionRun = Objects.requireNonNull(
                         hierarchy.getJREMethod("<java.security.PrivilegedExceptionAction: java.lang.Object run()>"))
                 .getRef();
+        Arrays.stream(DO_PRIVILEGED_EXCEPTION_ACTION_METHODS)
+                .map(hierarchy::getJREMethod)
+                .filter(Objects::nonNull)
+                .forEach(m -> doPrivileged2ActionRun.put(m, privilegedExceptionActionRun));
     }
 
     Collection<JMethod> getDoPrivilegeds() {
-        return doPrivilegeds;
-    }
-
-    @Override
-    protected void registerVarAndHandler() {
-        JMethod doPrivileged1 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>");
-        registerRelevantVarIndexes(doPrivileged1, 0);
-        registerAPIHandler(doPrivileged1, this::doPrivileged);
-
-        JMethod doPrivileged2 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>");
-        registerRelevantVarIndexes(doPrivileged2, 0);
-        registerAPIHandler(doPrivileged2, this::doPrivileged);
-
-        JMethod doPrivileged3 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>");
-        registerRelevantVarIndexes(doPrivileged3, 0);
-        registerAPIHandler(doPrivileged3, this::doPrivilegedException);
-
-        JMethod doPrivileged4 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>");
-        registerRelevantVarIndexes(doPrivileged4, 0);
-        registerAPIHandler(doPrivileged4, this::doPrivilegedException);
-
-        //noinspection ConstantConditions
-        doPrivilegeds = Set.of(doPrivileged1, doPrivileged2, doPrivileged3, doPrivileged4);
-    }
-
-    private void doPrivileged(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        doPrivileged(csVar, pts, invoke, privilegedActionRun);
-    }
-
-    private void doPrivilegedException(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        doPrivileged(csVar, pts, invoke, privilegedExceptionActionRun);
+        return doPrivileged2ActionRun.keySet();
     }
 
     /**
-     * Model for AccessController.doPrivileged(...).
+     * Finds all doPrivileged invokes in the method, and makes fakes invokes for them.
      */
-    private void doPrivileged(CSVar csVar, PointsToSet pts, Invoke invoke, MethodRef run) {
-        Context callerCtx = csVar.getContext();
-        CSCallSite csCallSite = csManager.getCSCallSite(callerCtx, invoke);
-        for (CSObj recvObj : pts) {
-            JMethod callee = hierarchy.dispatch(recvObj.getObject().getType(), run);
-            if (callee == null) {
-                return;
-            }
-            // select callee context
-            Context calleeCtx = selector.selectContext(
-                    csCallSite, recvObj, callee);
-            // pass receiver object
-            solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recvObj);
-            // pass return value
-            Var lhs = invoke.getResult();
-            if (lhs != null) {
-                CSVar csLhs = csManager.getCSVar(callerCtx, lhs);
-                for (Var ret : callee.getIR().getReturnVars()) {
-                    CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                    solver.addPFGEdge(csRet, csLhs, PointerFlowEdge.Kind.RETURN);
+    public void handleNewMethod(JMethod method) {
+        method.getIR().invokes(false).forEach(invoke -> {
+            JMethod target = invoke.getMethodRef().resolveNullable();
+            if (target != null) {
+                MethodRef actionRun = doPrivileged2ActionRun.get(target);
+                if (actionRun != null) {
+                    Invoke run = new Invoke(invoke.getContainer(),
+                            new InvokeInterface(actionRun,
+                                    invoke.getInvokeExp().getArg(0), List.of()),
+                            invoke.getResult());
+                    ;
+                    method2FakeActionInvokes.put(method, run);
+                    fakeActionInvoke2DoPrivilegedInvoke.put(run, invoke);
                 }
             }
-            // add call edge
-            CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-            solver.addCallEdge(new DoPrivilegedCallEdge(csCallSite, csCallee));
+        });
+    }
+
+    /**
+     * Adds all fake invokes into the method.
+     */
+    @SuppressWarnings("unchecked")
+    public void handleNewCSMethod(CSMethod csMethod) {
+        Set<?> fakeInvokes = method2FakeActionInvokes.get(csMethod.getMethod());
+        if (!fakeInvokes.isEmpty()) {
+            solver.addStmts(csMethod, (Collection<Stmt>) fakeInvokes);
+        }
+    }
+
+    /**
+     * Connects the doPrivileged method to the corresponding action method
+     * which is the callee of the fake invoke.
+     */
+    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        Invoke invoke = edge.getCallSite().getCallSite();
+        Invoke doPrivilegedInvoke = fakeActionInvoke2DoPrivilegedInvoke.get(invoke);
+        if (doPrivilegedInvoke != null) {
+            solver.addCallEdge(new DoPrivilegedCallEdge(
+                    csManager.getCSCallSite(edge.getCallSite().getContext(), doPrivilegedInvoke),
+                    edge.getCallee()));
         }
     }
 
