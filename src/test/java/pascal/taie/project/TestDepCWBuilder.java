@@ -3,6 +3,8 @@ package pascal.taie.project;
 import org.junit.Test;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
 
+import java.util.List;
+
 public class TestDepCWBuilder {
 
     Project createProject(String classPath, String mainClass) {
@@ -13,25 +15,32 @@ public class TestDepCWBuilder {
         return builder.build();
     }
 
+    String worldPath = "src/test/resources/world";
+    String classPath = "java-benchmarks/JREs/jre1.8/rt.jar";
+    String jcePath = "java-benchmarks/JREs/jre1.8/jce.jar";
+    String jssePath = "java-benchmarks/JREs/jre1.8/jsse.jar";
+
+    List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
+    String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
+
+
     @Test
     public void test1() {
-        String classPath = "src/test/resources/world;java-benchmarks/JREs/jre1.8/rt.jar";
         String mainClass = "PrintClassPath";
-        Project project = createProject(classPath, mainClass);
+        Project project = createProject(path, mainClass);
         DepCWBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
-
-        System.out.println("haha");
+        var w = depCWBuilder.getClosedWorld();
+        System.out.println("All Classes:" + w.size());
     }
 
     @Test
     public void test2() {
-        String classPath = "src/test/resources/world;java-benchmarks/JREs/jre1.8/rt.jar";
         String mainClass = "CollectionTest";
-        Project project = createProject(classPath, mainClass);
+        Project project = createProject(path, mainClass);
         DepCWBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
-
-        System.out.println("haha");
+        var w = depCWBuilder.getClosedWorld();
+        System.out.println("All Classes:" + w.size());
     }
 }

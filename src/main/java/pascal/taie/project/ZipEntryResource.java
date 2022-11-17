@@ -18,10 +18,13 @@ public class ZipEntryResource implements Resource {
 
     private final String path;
 
-    public ZipEntryResource(Path parent, byte[] cache, String path) {
+    private final FileSystem fs;
+
+    public ZipEntryResource(Path parent, byte[] cache, String path, FileSystem fs) {
         this.parent = parent;
         this.cache = cache;
         this.path = path;
+        this.fs = fs;
     }
 
     @Override
@@ -38,14 +41,10 @@ public class ZipEntryResource implements Resource {
 
     @Override
     public byte[] getContent() throws IOException {
-        if (cache != null) {
-            return cache;
-        } else {
+        if (cache == null) {
             // note: if reach here, parent must be on the disk
-            try (FileSystem fs = FileSystems.newFileSystem(parent)) {
-                cache = Files.readAllBytes(fs.getPath(path));
-                return cache;
-            }
+            cache = Files.readAllBytes(fs.getPath(path));
         }
+        return cache;
     }
 }

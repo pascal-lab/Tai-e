@@ -66,11 +66,11 @@ public class FileLoader {
         else {
             // path of [p] is on the disk, use lazy load
             if (p.p().getFileSystem() == FileSystems.getDefault()) {
-                return new ZipEntryResource(p.p(), null, path.toString());
+                return new ZipEntryResource(p.p(), null, path.toString(), p.fs());
             } else {
                 // path of [p] is an entry of a zip file, unzip the file of [path]
                 byte[] cache = Files.readAllBytes(path);
-                return new ZipEntryResource(p.p(), cache, path.toString());
+                return new ZipEntryResource(p.p(), cache, path.toString(), null);
             }
         }
     }
@@ -118,29 +118,28 @@ public class FileLoader {
                 loadChildren(parent, path, rootContainer, files, fileContainers);
                 containerWorker.apply(currentContainer);
             }  else if (isZipFile(path)) {
-                try (FileSystem fs = FileSystems.newFileSystem(path)) {
-                    List<FileContainer> fileContainers = new ArrayList<>();
-                    Parent newParent = new Parent(fs, path);
-                    List<AnalysisFile> files = new ArrayList<>();
-                    FileTime time = Files.getLastModifiedTime(path);
-                    String name = getName(path);
+                FileSystem fs = FSManager.get().newZipFS(path);
+                List<FileContainer> fileContainers = new ArrayList<>();
+                Parent newParent = new Parent(fs, path);
+                List<AnalysisFile> files = new ArrayList<>();
+                FileTime time = Files.getLastModifiedTime(path);
+                String name = getName(path);
 
-                    FileContainer currentContainer;
-                    if (isJarFile(path)) {
-                        Manifest manifest = new Manifest(Files.newInputStream(getManifest(fs)));
-                        currentContainer = new JarContainer(files, fileContainers, time, manifest, name);
-                    } else {
-                        currentContainer = new ZipContainer(files, fileContainers, time, name);
-                    }
-                    if (rootContainer == null) {
-                        // rootContainer == null means that the container currently
-                        // being processed is a root.
-                        rootContainer = currentContainer;
-                    }
-
-                    loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
-                    containerWorker.apply(currentContainer);
+                FileContainer currentContainer;
+                if (isJarFile(path)) {
+                    Manifest manifest = new Manifest(Files.newInputStream(getManifest(fs)));
+                    currentContainer = new JarContainer(files, fileContainers, time, manifest, name);
+                } else {
+                    currentContainer = new ZipContainer(files, fileContainers, time, name);
                 }
+                if (rootContainer == null) {
+                    // rootContainer == null means that the container currently
+                    // being processed is a root.
+                    rootContainer = currentContainer;
+                }
+
+                loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
+                containerWorker.apply(currentContainer);
             } else {
                 Resource r = mkResource(parent, path);
                 FileTime time = Files.getLastModifiedTime(path);

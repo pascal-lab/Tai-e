@@ -10,8 +10,10 @@ import pascal.taie.util.collection.Maps;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 public class DepCWBuilder implements ClosedWorldBuilder {
 
@@ -47,26 +49,28 @@ public class DepCWBuilder implements ClosedWorldBuilder {
     }
 
     private void buildClosure(String binaryName) throws IOException {
-        if (sourceMap.containsKey(binaryName)) {
-            return;
-        }
+        Queue<String> workList = new LinkedList<>();
+        workList.add(binaryName);
+        while (! workList.isEmpty()) {
+            binaryName = workList.poll();
+            if (sourceMap.containsKey(binaryName)) {
+                continue;
+            }
 
-        AnalysisFile f = project.locate(binaryName);
-        if (f == null) {
-            throw new FileNotFoundException(binaryName);
-        }
+            AnalysisFile f = project.locate(binaryName);
+            if (f == null) {
+                throw new FileNotFoundException(binaryName);
+            }
 
-        List<String> deps = null;
-        if (f instanceof JavaSourceFile jFile) {
-            // TODO: fill here
-        } else if (f instanceof ClassFile cFile) {
-            deps = buildClassDeps(binaryName, cFile);
-        } else {
-            throw new IllegalStateException();
-        }
-
-        for (var i : deps) {
-            buildClosure(i);
+            List<String> deps = null;
+            if (f instanceof JavaSourceFile jFile) {
+                // TODO: fill here
+            } else if (f instanceof ClassFile cFile) {
+                deps = buildClassDeps(binaryName, cFile);
+            } else {
+                throw new IllegalStateException();
+            }
+            workList.addAll(deps);
         }
     }
 
