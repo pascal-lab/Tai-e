@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
-import static pascal.taie.util.collection.Maps.newMap;
 
 /**
  * Temporary Type System for frontend,
@@ -79,6 +78,7 @@ public class TempTypeSystem implements TypeSystem {
                 return getClassType(loader, typeName);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new AnalysisException("Invalid type name: " + typeName, e);
         }
     }
@@ -90,9 +90,7 @@ public class TempTypeSystem implements TypeSystem {
 
     @Override
     public ClassType getClassType(JClassLoader loader, String className) {
-        // FIXME: given a non-exist class name, this method will still return
-        //  a ClassType with null JClass. This case should return null.
-        return classTypes.computeIfAbsent(loader, l -> newMap())
+        return classTypes.computeIfAbsent(loader, l -> newConcurrentMap())
                 .computeIfAbsent(className, name -> new ClassType(loader, name));
     }
 

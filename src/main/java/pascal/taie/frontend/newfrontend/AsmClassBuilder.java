@@ -139,7 +139,11 @@ public class AsmClassBuilder implements JClassBuilder {
     }
 
     private String getSimpleName(String binaryName) {
-        return binaryName.substring(binaryName.indexOf("."));
+        int lastIndex = binaryName.lastIndexOf(".");
+        if (lastIndex == -1) {
+            return binaryName;
+        }
+        return binaryName.substring(lastIndex);
     }
 
     private static JClass getClassByName(String internalName) {
@@ -205,8 +209,8 @@ public class AsmClassBuilder implements JClassBuilder {
             org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
             return new MVisitor(fromAsmModifier(access),
                     name,
-                    Arrays.stream(exceptions)
-                            .map(BuildContext.get()::classTypeFromAsmType)
+                    exceptions == null ? List.of() : Arrays.stream(exceptions)
+                            .map(BuildContext.get()::fromAsmInternalName)
                             .toList(),
                     Arrays.stream(t.getArgumentTypes())
                             .map(BuildContext.get()::fromAsmType)

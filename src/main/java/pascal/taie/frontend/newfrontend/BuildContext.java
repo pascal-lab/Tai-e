@@ -43,6 +43,11 @@ public class BuildContext {
         return classMap;
     }
 
+    public ClassType fromAsmInternalName(String internalName) {
+        return (ClassType) fromAsmType(
+                org.objectweb.asm.Type.getObjectType(internalName));
+    }
+
     public Type fromAsmType(String descriptor) {
         org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
         return fromAsmType(t);
@@ -64,7 +69,4 @@ public class BuildContext {
         }
     }
 
-    public ClassType classTypeFromAsmType(String descriptor) {
-        return (ClassType) fromAsmType(descriptor);
-    }
 }
