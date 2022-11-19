@@ -25,10 +25,8 @@ package pascal.taie.analysis.pta.plugin.natives;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
-import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.classes.JMethod;
 
 /**
@@ -52,34 +50,24 @@ public class NativeModeller implements Plugin {
 
     @Override
     public void onStart() {
-        solver.addIgnoredMethod(arrayCopyModel.getArraycopy());
+        arrayCopyModel.getModeledAPIs().forEach(solver::addIgnoredMethod);
         doPrivilegedModel.getModeledAPIs().forEach(solver::addIgnoredMethod);
     }
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR()
-                .invokes(false)
-                .forEach(invoke -> {
-                    arrayCopyModel.handleNewInvoke(invoke);
-                });
+        arrayCopyModel.handleNewMethod(method);
         doPrivilegedModel.handleNewMethod(method);
+    }
+
+    @Override
+    public void onNewCSMethod(CSMethod csMethod) {
+        arrayCopyModel.handleNewCSMethod(csMethod);
+        doPrivilegedModel.handleNewCSMethod(csMethod);
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         doPrivilegedModel.handleNewCallEdge(edge);
-    }
-
-    @Override
-    public void onNewCSMethod(CSMethod csMethod) {
-        doPrivilegedModel.handleNewCSMethod(csMethod);
-    }
-
-    @Override
-    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (arrayCopyModel.isRelevantVar(csVar.getVar())) {
-            arrayCopyModel.handleNewPointsToSet(csVar, pts);
-        }
     }
 }

@@ -22,94 +22,59 @@
 
 package pascal.taie.analysis.pta.plugin.natives;
 
-import pascal.taie.analysis.pta.core.cs.element.CSManager;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.CSObjs;
-import pascal.taie.analysis.pta.plugin.util.Model;
-import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.analysis.pta.plugin.util.AbstractIRModel;
+import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.util.collection.Maps;
+import pascal.taie.language.type.Type;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-class ArrayCopyModel implements Model {
+class ArrayCopyModel extends AbstractIRModel {
 
-    private final Solver solver;
+    private final Type objType;
 
-    private final CSManager csManager;
+    private final Type objArrayType;
 
-    private final JMethod arraycopy;
-
-    private final ClassType object;
-
-    private final Map<Invoke, Var> tempVars = Maps.newMap();
-
-    private final Map<Var, Var> srcVars = Maps.newMap();
-
-    private final Map<Var, Var> destVars = Maps.newMap();
+    private int counter = 0;
 
     ArrayCopyModel(Solver solver) {
-        this.solver = solver;
-        csManager = solver.getCSManager();
-        ClassHierarchy hierarchy = solver.getHierarchy();
-        arraycopy = hierarchy.getJREMethod("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>");
-        //noinspection ConstantConditions
-        object = hierarchy.getJREClass(ClassNames.OBJECT).getType();
-    }
-
-    JMethod getArraycopy() {
-        return arraycopy;
+        super(solver);
+        objType = typeSystem.getClassType(ClassNames.OBJECT);
+        objArrayType = typeSystem.getArrayType(objType, 1);
     }
 
     @Override
-    public void handleNewInvoke(Invoke invoke) {
-        JMethod target = invoke.getMethodRef().resolveNullable();
-        if (arraycopy.equals(target)) {
-            Var src = invoke.getInvokeExp().getArg(0);
-            Var dest = invoke.getInvokeExp().getArg(2);
-            Var temp = getTempVar(invoke);
-            srcVars.put(src, temp);
-            destVars.put(dest, temp);
-        }
+    protected void registerIRGens() {
+        JMethod arraycopy = hierarchy.getJREMethod("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>");
+        registerIRGen(arraycopy, this::arraycopy);
     }
 
-    private Var getTempVar(Invoke invoke) {
-        String name = "%native-arraycopy-temp" + tempVars.size();
-        return tempVars.computeIfAbsent(invoke,
-                i -> new Var(i.getContainer(), name, object, -1));
+    private List<Stmt> arraycopy(Invoke invoke) {
+        JMethod container = invoke.getContainer();
+        Var src = getTempVar(container, "src", objArrayType);
+        Var dest = getTempVar(container, "dest", objArrayType);
+        Var temp = getTempVar(container, "temp", objType);
+        List<Stmt> stmts = new ArrayList<>();
+        List<Var> args = invoke.getInvokeExp().getArgs();
+        stmts.add(new Cast(src, new CastExp(args.get(0), objArrayType)));
+        stmts.add(new Cast(dest, new CastExp(args.get(2), objArrayType)));
+        stmts.add(new LoadArray(temp, new ArrayAccess(src, args.get(1))));
+        stmts.add(new StoreArray(new ArrayAccess(dest, args.get(3)), temp));
+        return stmts;
     }
 
-    @Override
-    public boolean isRelevantVar(Var var) {
-        return srcVars.containsKey(var)
-                || destVars.containsKey(var);
-    }
-
-    @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        Var temp;
-        if ((temp = srcVars.get(csVar.getVar())) != null) {
-            CSVar csTemp = csManager.getCSVar(csVar.getContext(), temp);
-            pts.objects()
-                    .filter(CSObjs::isArray)
-                    .map(csManager::getArrayIndex)
-                    .forEach(srcIndex -> solver.addPFGEdge(srcIndex, csTemp,
-                            PointerFlowEdge.Kind.ARRAY_LOAD));
-        }
-        if ((temp = destVars.get(csVar.getVar())) != null) {
-            CSVar csTemp = csManager.getCSVar(csVar.getContext(), temp);
-            pts.objects()
-                    .filter(CSObjs::isArray)
-                    .map(csManager::getArrayIndex)
-                    .forEach(destIndex -> solver.addPFGEdge(csTemp, destIndex,
-                            PointerFlowEdge.Kind.ARRAY_STORE, destIndex.getType()));
-        }
+    private Var getTempVar(JMethod container, String name, Type type) {
+        String varName = "%native-arraycopy-" + name + counter++;
+        return new Var(container, varName, type, -1);
     }
 }
