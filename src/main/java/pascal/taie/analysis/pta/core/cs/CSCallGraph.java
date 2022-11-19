@@ -66,13 +66,7 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
      * otherwise false.
      */
     public boolean addReachableMethod(CSMethod csMethod) {
-        if (reachableMethods.add(csMethod)) {
-            callSitesIn(csMethod).forEach(csCallSite ->
-                    csCallSite.setContainer(csMethod));
-            return true;
-        } else {
-            return false;
-        }
+        return reachableMethods.add(csMethod);
     }
 
     /**
@@ -108,6 +102,8 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     @Override
     public Set<CSCallSite> getCallSitesIn(CSMethod csMethod) {
+        // Note: this method does not return the artificial Invokes
+        // added to csMethod.getMethod().
         JMethod method = csMethod.getMethod();
         Context context = csMethod.getContext();
         ArrayList<CSCallSite> callSites = new ArrayList<>();
