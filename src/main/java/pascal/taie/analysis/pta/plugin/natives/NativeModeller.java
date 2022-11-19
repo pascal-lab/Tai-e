@@ -53,7 +53,7 @@ public class NativeModeller implements Plugin {
     @Override
     public void onStart() {
         solver.addIgnoredMethod(arrayCopyModel.getArraycopy());
-        doPrivilegedModel.getDoPrivilegeds().forEach(solver::addIgnoredMethod);
+        doPrivilegedModel.getModeledAPIs().forEach(solver::addIgnoredMethod);
     }
 
     @Override
