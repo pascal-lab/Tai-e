@@ -53,3 +53,9 @@ tasks.test {
     // (see org.gradle.process.internal.worker.DefaultWorkerProcessBuilder.build)
     maxHeapSize = "2G"
 }
+
+// Automatically agree the Gradle ToS when running gradle with '--scan' option
+extensions.findByName("buildScan")?.withGroovyBuilder {
+    setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
+    setProperty("termsOfServiceAgree", "yes")
+}

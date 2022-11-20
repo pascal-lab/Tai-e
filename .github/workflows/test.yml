@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # add manually button
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Run Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            test --tests pascal.taie.TaieTestSuite
+            --scan
