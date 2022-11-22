@@ -642,8 +642,6 @@ public class DefaultSolver implements Solver {
                 if (stmt.isStatic()) {
                     processInvokeStatic(stmt);
                 }
-                CSCallSite csCallSite = csManager.getCSCallSite(context, stmt);
-                csCallSite.setContainer(csMethod);
                 return null;
             }
         }

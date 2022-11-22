@@ -124,7 +124,10 @@ public class MapBasedCSManager implements CSManager {
 
     @Override
     public CSCallSite getCSCallSite(Context context, Invoke callSite) {
-        return callSites.computeIfAbsent(callSite, context, CSCallSite::new);
+        return callSites.computeIfAbsent(callSite, context, (cs, ctx) -> {
+            CSMethod container = mtdManager.getCSMethod(ctx, cs.getContainer());
+            return new CSCallSite(cs, ctx, container);
+        });
     }
 
     @Override

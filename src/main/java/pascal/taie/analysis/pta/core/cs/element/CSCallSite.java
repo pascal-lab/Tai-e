@@ -42,7 +42,7 @@ public class CSCallSite extends AbstractCSElement {
     /**
      * Context-sensitive method which contains this CS call site.
      */
-    private CSMethod container;
+    private final CSMethod container;
 
     private final Set<CSMethod> callees = new HybridIndexableSet<>(true);
 
@@ -51,9 +51,10 @@ public class CSCallSite extends AbstractCSElement {
      */
     private final ArrayList<Edge<CSCallSite, CSMethod>> edges = new ArrayList<>(4);
 
-    CSCallSite(Invoke callSite, Context context) {
+    CSCallSite(Invoke callSite, Context context, CSMethod container) {
         super(context);
         this.callSite = callSite;
+        this.container = container;
     }
 
     /**
@@ -61,11 +62,6 @@ public class CSCallSite extends AbstractCSElement {
      */
     public Invoke getCallSite() {
         return callSite;
-    }
-
-    public void setContainer(CSMethod container) {
-        assert this.container == null; // should be set only once
-        this.container = container;
     }
 
     public CSMethod getContainer() {
