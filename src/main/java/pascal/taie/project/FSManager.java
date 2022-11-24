@@ -16,14 +16,14 @@ public class FSManager {
         fsMap = Maps.newMap();
     }
 
-    public FileSystem newZipFS(Path path) {
-        return fsMap.computeIfAbsent(path, p -> {
-            try {
-                return FileSystems.newFileSystem(p);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+    public FileSystem newZipFS(Path path) throws IOException {
+        if (fsMap.containsKey(path)) {
+            return fsMap.get(path);
+        } else {
+            FileSystem fs = FileSystems.newFileSystem(path);
+            fsMap.put(path, fs);
+            return fs;
+        }
     }
 
     static FSManager manager;

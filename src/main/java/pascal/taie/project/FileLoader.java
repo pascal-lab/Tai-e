@@ -3,6 +3,7 @@ package pascal.taie.project;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.jar.Manifest;
+import java.util.zip.ZipException;
 
 public class FileLoader {
 
@@ -20,8 +22,17 @@ public class FileLoader {
 
     private static FileLoader obj;
 
-    private Path getManifest(FileSystem fs) {
-        return fs.getPath("META-INF/MANIFEST.MF");
+    /**
+     * Get the manifest of a jar file
+     * @return may be null (no Manifest include)
+     */
+    private @Nullable Manifest getManifest(FileSystem fs) throws IOException {
+        Path p = fs.getPath("META-INF/MANIFEST.MF");
+        if (Files.exists(p)) {
+            return new Manifest(Files.newInputStream(p));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -118,7 +129,14 @@ public class FileLoader {
                 loadChildren(parent, path, rootContainer, files, fileContainers);
                 containerWorker.apply(currentContainer);
             }  else if (isZipFile(path)) {
-                FileSystem fs = FSManager.get().newZipFS(path);
+                FileSystem fs;
+                try {
+                    fs = FSManager.get().newZipFS(path);
+                } catch (ZipException e) {
+                    // Some error occur (maybe empty file, ...)
+                    // skip this zip file
+                    return;
+                }
                 List<FileContainer> fileContainers = new ArrayList<>();
                 Parent newParent = new Parent(fs, path);
                 List<AnalysisFile> files = new ArrayList<>();
@@ -127,7 +145,7 @@ public class FileLoader {
 
                 FileContainer currentContainer;
                 if (isJarFile(path)) {
-                    Manifest manifest = new Manifest(Files.newInputStream(getManifest(fs)));
+                    Manifest manifest = getManifest(fs);
                     currentContainer = new JarContainer(files, fileContainers, time, manifest, name);
                 } else {
                     currentContainer = new ZipContainer(files, fileContainers, time, name);
