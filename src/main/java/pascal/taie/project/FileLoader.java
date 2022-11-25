@@ -23,6 +23,11 @@ public class FileLoader {
     private static FileLoader obj;
 
     /**
+     * temp solution to handle non-root jar (e.g. b.jar in a.zip),
+     */
+    private List<FileContainer> auxContainers = new ArrayList<>();
+
+    /**
      * Get the manifest of a jar file
      * @return may be null (no Manifest include)
      */
@@ -147,6 +152,7 @@ public class FileLoader {
                 if (isJarFile(path)) {
                     Manifest manifest = getManifest(fs);
                     currentContainer = new JarContainer(files, fileContainers, time, manifest, name);
+                    auxContainers.add(currentContainer);
                 } else {
                     currentContainer = new ZipContainer(files, fileContainers, time, name);
                 }
@@ -173,6 +179,7 @@ public class FileLoader {
     }
 
     public List<FileContainer> loadRootContainers(List<Path> paths) throws IOException {
+        this.auxContainers = new ArrayList<>();
         List<FileContainer> containers = new ArrayList<>();
         for (var p : paths) {
             loadFile(p,
@@ -180,6 +187,7 @@ public class FileLoader {
                     i -> {throw new IllegalArgumentException("no file in classPaths");},
                     containers::add);
         }
+        containers.addAll(auxContainers);
         return containers;
     }
 
