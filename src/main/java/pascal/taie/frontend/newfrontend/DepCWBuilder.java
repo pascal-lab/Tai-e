@@ -41,9 +41,11 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         this.project = p;
         try {
             buildClosure(entry);
+            for (var i : p.getInputClasses()) {
+                buildClosure(i);
+            }
         } catch (IOException e) {
             // TODO: fail info
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
