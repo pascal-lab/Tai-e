@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class GraphTest {
 
@@ -83,6 +84,28 @@ public class GraphTest {
         Graph<Integer> g = readGraph("src/test/resources/util/graph-scc.txt");
         MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(g);
         Assert.assertEquals(7, mg.getNumberOfNodes());
+    }
+
+    @Test
+    public void testDominator() {
+        Graph<Integer> g = readGraph("src/test/resources/util/graph-dominator.txt");
+        DominatorFinder<Integer> domFinder = new DominatorFinder<>(g);
+        Assert.assertTrue(domFinder.isDominatedBy(2, 1));
+        Assert.assertFalse(domFinder.isDominatedBy(1, 2));
+
+        Assert.assertEquals(domFinder.getDominatorsOf(1), Set.of(1));
+        Assert.assertEquals(domFinder.getDominatorsOf(3), Set.of(1, 3));
+        Assert.assertEquals(domFinder.getDominatorsOf(5), Set.of(1, 3, 4, 5));
+        Assert.assertEquals(domFinder.getDominatorsOf(7), Set.of(1, 3, 4, 7));
+        Assert.assertEquals(domFinder.getDominatorsOf(9), Set.of(1, 3, 4, 7, 8, 9));
+
+        Assert.assertEquals(domFinder.getNodesDominatedBy(1),
+                Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+        Assert.assertEquals(domFinder.getNodesDominatedBy(3),
+                Set.of(3, 4, 5, 6, 7, 8, 9, 10));
+        Assert.assertEquals(domFinder.getNodesDominatedBy(5), Set.of(5));
+        Assert.assertEquals(domFinder.getNodesDominatedBy(7), Set.of(7, 8, 9, 10));
+        Assert.assertEquals(domFinder.getNodesDominatedBy(9), Set.of(9));
     }
 
     private static Graph<Integer> readGraph(String filePath) {
