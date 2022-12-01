@@ -80,8 +80,8 @@ public final class CollectionUtils {
      * Maps each element in given collection to an integer and computes
      * the sum of the integers.
      */
-    public static <T> int sum(Collection<? extends T> c, ToIntFunction<T> toInt) {
-        int sum = 0;
+    public static <T> long sum(Collection<? extends T> c, ToIntFunction<T> toInt) {
+        long sum = 0;
         for (var e : c) {
             sum += toInt.applyAsInt(e);
         }

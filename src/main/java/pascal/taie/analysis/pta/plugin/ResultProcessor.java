@@ -121,31 +121,31 @@ public class ResultProcessor implements Plugin {
         int objSens = result.getCSObjects().size();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#objects:",
                 format(objInsens), format(objSens)));
-        int vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
-        int vptSizeSens = sum(result.getCSVars(), getSize);
+        long vptSizeInsens = sum(result.getVars(), v -> result.getPointsToSet(v).size());
+        long vptSizeSens = sum(result.getCSVars(), getSize);
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#var points-to:",
                 format(vptSizeInsens), format(vptSizeSens)));
-        int sfptSizeSens = sum(result.getStaticFields(), getSize);
+        long sfptSizeSens = sum(result.getStaticFields(), getSize);
         logger.info(String.format("%-30s%s (sens)", "#static field points-to:",
                 format(sfptSizeSens)));
-        int ifptSizeSens = sum(result.getInstanceFields(), getSize);
+        long ifptSizeSens = sum(result.getInstanceFields(), getSize);
         logger.info(String.format("%-30s%s (sens)", "#instance field points-to:",
                 format(ifptSizeSens)));
-        int aptSizeSens = sum(result.getArrayIndexes(), getSize);
+        long aptSizeSens = sum(result.getArrayIndexes(), getSize);
         logger.info(String.format("%-30s%s (sens)", "#array points-to:",
                 format(aptSizeSens)));
         int reachableInsens = result.getCallGraph().getNumberOfMethods();
         int reachableSens = result.getCSCallGraph().getNumberOfMethods();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#reachable methods:",
                 format(reachableInsens), format(reachableSens)));
-        int callEdgeInsens = (int) result.getCallGraph().edges().count();
-        int callEdgeSens = (int) result.getCSCallGraph().edges().count();
+        long callEdgeInsens = result.getCallGraph().edges().count();
+        long callEdgeSens = result.getCSCallGraph().edges().count();
         logger.info(String.format("%-30s%s (insens) / %s (sens)", "#call graph edges:",
                 format(callEdgeInsens), format(callEdgeSens)));
         logger.info("----------------------------------------");
     }
 
-    private static String format(int i) {
+    private static String format(long i) {
         return formatter.format(i);
     }
 
