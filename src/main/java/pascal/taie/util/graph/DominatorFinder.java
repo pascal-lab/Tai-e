@@ -24,7 +24,6 @@ package pascal.taie.util.graph;
 
 import pascal.taie.util.Indexer;
 import pascal.taie.util.SimpleIndexer;
-import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.SetEx;
@@ -67,8 +66,14 @@ public class DominatorFinder<N> {
      */
     private Map<N, SetEx<N>> dom2Nodes;
 
+    private final boolean isSparse;
+
     public DominatorFinder(Graph<N> graph) {
-        this(graph, new SimpleIndexer<>());
+        this(graph, true);
+    }
+
+    public DominatorFinder(Graph<N> graph, boolean isSparse) {
+        this(graph, new SimpleIndexer<>(), isSparse);
     }
 
     /**
@@ -76,9 +81,10 @@ public class DominatorFinder<N> {
      * Note that {@code indexer} must assign continuous indexes for nodes in
      * {@code graph}, starting from 0, otherwise the finder may throw exception.
      */
-    public DominatorFinder(Graph<N> graph, Indexer<N> indexer) {
+    public DominatorFinder(Graph<N> graph, Indexer<N> indexer, boolean isSparse) {
         this.graph = graph;
         this.indexer = indexer;
+        this.isSparse = isSparse;
         this.heads = new HashSet<>();
         this.node2Doms = new IndexMap<>(indexer, graph.getNumberOfNodes());
         findDominators();
@@ -86,7 +92,7 @@ public class DominatorFinder<N> {
 
     private void findDominators() {
         // build full set
-        SetEx<N> fullSet = new IndexerBitSet<>(indexer, false);
+        SetEx<N> fullSet = new IndexerBitSet<>(indexer, this.isSparse);
         fullSet.addAll(graph.getNodes());
         // initialize dominators
         Deque<N> workList = new ArrayDeque<>();
@@ -96,11 +102,13 @@ public class DominatorFinder<N> {
                 // node is head
                 heads.add(node);
                 // head nodes are only dominated by themselves
-                doms = new HybridBitSet<>(indexer, false);
+                doms = new IndexerBitSet<>(indexer, this.isSparse);
                 doms.add(node);
             } else {
                 // other nodes are initially dominated by all nodes
-                doms = fullSet.copy();
+                // make it a reference of fullSet to save time and memory
+                // notes that it should not be updated in place
+                doms = fullSet;
                 // add to work-list for further processing
                 workList.add(node);
             }
@@ -110,10 +118,15 @@ public class DominatorFinder<N> {
         while (!workList.isEmpty()) {
             N node = workList.pop();
             SetEx<N> oldDoms = node2Doms.get(node);
-            SetEx<N> newDoms = fullSet.copy();
+            SetEx<N> newDoms = fullSet;
             // intersect dominators of all predecessors
             for (N pred : graph.getPredsOf(node)) {
-                newDoms.retainAll(node2Doms.get(pred));
+                SetEx<N> doms = node2Doms.get(pred);
+                if (newDoms != fullSet) {
+                    newDoms.retainAll(doms);
+                } else if (doms != fullSet) {
+                    newDoms = doms.copy();
+                }
             }
             // each node dominates itself
             newDoms.add(node);
@@ -145,7 +158,7 @@ public class DominatorFinder<N> {
         dom2Nodes = new IndexMap<>(indexer, graph.getNumberOfNodes());
         for (N node : graph) {
             for (N dom : node2Doms.get(node)) {
-                dom2Nodes.computeIfAbsent(dom, d -> new IndexerBitSet<>(indexer, false))
+                dom2Nodes.computeIfAbsent(dom, d -> new IndexerBitSet<>(indexer, this.isSparse))
                         .add(node);
             }
         }
