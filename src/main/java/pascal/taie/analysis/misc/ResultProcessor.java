@@ -218,7 +218,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
             List<JMethod> methods = classes.stream()
                     .map(JClass::getDeclaredMethods)
                     .flatMap(Collection::stream)
-                    .filter(m -> !m.isAbstract() && !m.isNative())
+                    .filter(m -> !m.isAbstract())
                     .sorted(methodComp)
                     .toList();
             processResults(methods, methodAnalyses,

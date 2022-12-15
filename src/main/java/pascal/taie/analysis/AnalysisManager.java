@@ -152,7 +152,7 @@ public class AnalysisManager {
                         .stream()
                         .map(JClass::getDeclaredMethods)
                         .flatMap(Collection::stream)
-                        .filter(m -> !m.isAbstract() && !m.isNative())
+                        .filter(m -> !m.isAbstract())
                         .toList();
                 case REACHABLE -> {
                     CallGraph<?, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
