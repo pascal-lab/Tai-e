@@ -36,17 +36,24 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -76,6 +83,22 @@ public class TaintAnalysis implements Plugin {
      * to be transferred to "value" variable with specified type.
      */
     private final MultiMap<Var, Pair<Var, Type>> varTransfers = Maps.newMultiMap();
+
+    /**
+     * Whether enable taint back propagation to handle aliases about
+     * tainted mutable objects, e.g., char[].
+     */
+    private final boolean enableBackPropagate = true;
+
+    /**
+     * Cache statements generated for back propagation.
+     */
+    private final Map<Var, List<Stmt>> backPropStmts = Maps.newMap();
+
+    /**
+     * Counter for generating temporary variables.
+     */
+    private int counter = 0;
 
     private Solver solver;
 
@@ -131,6 +154,20 @@ public class TaintAnalysis implements Plugin {
                 Context ctx = edge.getCallSite().getContext();
                 CSVar csFrom = csManager.getCSVar(ctx, from);
                 transferTaint(solver.getPointsToSetOf(csFrom), ctx, to, type);
+
+                // If the taint is transferred to base or argument, it means
+                // that the objects pointed to by "to" were mutated
+                // by the invocation. For such cases, we need to propagate the
+                // taint to the pointers aliased with "to". The pointers
+                // whose objects come from "to" will be naturally handled by
+                // pointer analysis, and we just need to specially handle the
+                // pointers whose objects flow to "to", i.e., back propagation.
+                if (enableBackPropagate
+                        && transfer.to() != TaintTransfer.RESULT
+                        && !(transfer.to() == TaintTransfer.BASE
+                        && transfer.method().isConstructor())) {
+                    backPropagateTaint(to, ctx);
+                }
             }
         });
     }
@@ -159,6 +196,55 @@ public class TaintAnalysis implements Plugin {
         if (!newTaints.isEmpty()) {
             solver.addVarPointsTo(ctx, to, newTaints);
         }
+    }
+
+    private void backPropagateTaint(Var to, Context ctx) {
+        CSMethod csMethod = csManager.getCSMethod(ctx, to.getMethod());
+        solver.addStmts(csMethod,
+                backPropStmts.computeIfAbsent(to, this::getBackPropagateStmts));
+    }
+
+    private List<Stmt> getBackPropagateStmts(Var var) {
+        // Currently, we handle one case, i.e., var = base.field where
+        // var is tainted, and we back propagate taint from var to base.field.
+        // For simplicity, we add artificial statement like base.field = var
+        // for back propagation.
+        JMethod container = var.getMethod();
+        List<Stmt> stmts = new ArrayList<>();
+        container.getIR().forEach(stmt -> {
+            if (stmt instanceof LoadField load) {
+                FieldAccess fieldAccess = load.getFieldAccess();
+                if (fieldAccess instanceof InstanceFieldAccess ifa) {
+                    // found var = base.field;
+                    Var base = ifa.getBase();
+                    // generate a temp base to avoid polluting original base
+                    Var taintBase = getTempVar(container, base.getType());
+                    stmts.add(new Copy(taintBase, base)); // %taint-temp = base;
+                    // generate field store statements to back propagate taint
+                    Var from;
+                    Type fieldType = ifa.getType();
+                    // since var may point to the objects that are not from
+                    // base.field, we use type to filter some spurious objects
+                    if (fieldType.equals(var.getType())) {
+                        from = var;
+                    } else {
+                        Var tempFrom = getTempVar(container, fieldType);
+                        stmts.add(new Cast(tempFrom, new CastExp(var, fieldType)));
+                        from = tempFrom;
+                    }
+                    // back propagate taint from var to base.field
+                    stmts.add(new StoreField(
+                            new InstanceFieldAccess(ifa.getFieldRef(), taintBase),
+                            from)); // %taint-temp.field = from;
+                }
+            }
+        });
+        return stmts.isEmpty() ? List.of() : stmts;
+    }
+
+    private Var getTempVar(JMethod container, Type type) {
+        String varName = "%taint-temp-" + counter++;
+        return new Var(container, varName, type, -1);
     }
 
     @Override

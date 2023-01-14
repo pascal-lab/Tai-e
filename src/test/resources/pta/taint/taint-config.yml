@@ -13,6 +13,7 @@ transfers:
   - { method: "<java.lang.String: java.lang.String concat(java.lang.String)>", from: 0, to: result, type: "java.lang.String" }
   - { method: "<java.lang.String: char[] toCharArray()>", from: base, to: result, type: "char[]" }
   - { method: "<java.lang.String: void <init>(char[])>", from: 0, to: base, type: "java.lang.String" }
+  - { method: "<java.lang.String: void getChars(int,int,char[],int)>", from: base, to: 2, type: "char[]" }
   - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>", from: 0, to: base, type: "java.lang.StringBuffer" }
   - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>", from: 0, to: base, type: "java.lang.StringBuffer" }
   - { method: "<java.lang.StringBuffer: java.lang.String toString()>", from: base, to: result, type: "java.lang.String" }
