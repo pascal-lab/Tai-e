@@ -145,6 +145,18 @@ public class TaintTest {
     }
 
     @Test
+    public void testBackPropagation() {
+        Tests.testPTA(DIR, "BackPropagation",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
+    public void testCSBackPropagation() {
+        Tests.testPTA(DIR, "CSBackPropagation",
+                "cs:1-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
+    }
+
+    @Test
     public void testTaintParam() {
         Tests.testPTA(DIR, "TaintParam",
                 "taint-config:src/test/resources/pta/taint/taint-config-param-source.yml");

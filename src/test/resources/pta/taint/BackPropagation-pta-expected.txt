@@ -1,0 +1,56 @@
+Points-to sets of all variables
+[]:<BackPropagation: void <init>()>/%this -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void <init>()>/temp$0 -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
+[]:<BackPropagation: void <init>()>/temp$1 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
+[]:<BackPropagation: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}]
+[]:<BackPropagation: void main(java.lang.String[])>/bp -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintCharArrayField()>/%taint-temp-0 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintCharArrayField()>/%taint-temp-1 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintCharArrayField()>/%this -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintCharArrayField()>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayField()>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayField()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayField()>/temp$2 -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=char[]}]
+[]:<BackPropagation: void taintCharArrayField()>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayField()>/temp$4 -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=char[]}]
+[]:<BackPropagation: void taintCharArrayVar()>/%this -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintCharArrayVar()>/chars -> [[]:NewObj{<BackPropagation: void taintCharArrayVar()>[3@L17] newarray char[%intconst0]}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=char[]}]
+[]:<BackPropagation: void taintCharArrayVar()>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayVar()>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayVar()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintCharArrayVar()>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderField()>/%taint-temp-2 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintStringBuilderField()>/%taint-temp-3 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintStringBuilderField()>/%this -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintStringBuilderField()>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderField()>/s2 -> [[]:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderField()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderField()>/temp$1 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<BackPropagation: void taintStringBuilderField()>/temp$3 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<BackPropagation: void taintStringBuilderField()>/temp$4 -> [[]:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderVar()>/%this -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
+[]:<BackPropagation: void taintStringBuilderVar()>/builder -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+[]:<BackPropagation: void taintStringBuilderVar()>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderVar()>/s2 -> [[]:TaintObj{alloc=<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderVar()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<BackPropagation: void taintStringBuilderVar()>/temp$1 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
+[]:<BackPropagation: void taintStringBuilderVar()>/temp$3 -> [[]:TaintObj{alloc=<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source(),type=java.lang.String}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.buffer -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source(),type=char[]}]
+[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.sb -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source(),type=java.lang.StringBuilder}]
+
+Points-to sets of all array indexes
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <BackPropagation: void main(java.lang.String[])>}]
+
+Detected 4 taint flow(s):
+TaintFlow{<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source() -> <BackPropagation: void taintCharArrayField()>[10@L27] invokestatic SourceSink.sink(s2)/0}
+TaintFlow{<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source() -> <BackPropagation: void taintCharArrayVar()>[10@L20] invokestatic SourceSink.sink(s2)/0}
+TaintFlow{<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source() -> <BackPropagation: void taintStringBuilderField()>[7@L42] invokestatic SourceSink.sink(s2)/0}
+TaintFlow{<BackPropagation: void taintStringBuilderVar()>[0@L31] temp$0 = invokestatic SourceSink.source() -> <BackPropagation: void taintStringBuilderVar()>[8@L35] invokestatic SourceSink.sink(s2)/0}
+

@@ -36,6 +36,10 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
@@ -163,8 +167,8 @@ public class TaintAnalysis implements Plugin {
                 // pointer analysis, and we just need to specially handle the
                 // pointers whose objects flow to "to", i.e., back propagation.
                 if (enableBackPropagate
-                        && transfer.to() != TaintTransfer.RESULT
-                        && !(transfer.to() == TaintTransfer.BASE
+                        && transfer.to() != IndexUtils.RESULT
+                        && !(transfer.to() == IndexUtils.BASE
                         && transfer.method().isConstructor())) {
                     backPropagateTaint(to, ctx);
                 }
