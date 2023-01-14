@@ -268,7 +268,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 throw new RuntimeException("""
                         Soot frontend failed to parse input Java source file(s).
                         This exception may be caused by:
-                        1. syntax errors in the source code. In this case, please fix the errors.
+                        1. syntax or semantic errors in the source code. In this case, please fix the errors.
                         2. language features introduced by Java 8+ in the source code.
                            In this case, you could either compile the source code to bytecode (*.class)
                            or rewrite the code by using old features.""", e);

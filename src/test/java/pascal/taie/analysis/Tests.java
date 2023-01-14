@@ -26,6 +26,7 @@ import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
+import pascal.taie.analysis.misc.ClassDumper;
 import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
 
@@ -48,6 +49,11 @@ public final class Tests {
      * Whether generate expected results or not.
      */
     private static final boolean GENERATE_EXPECTED_RESULTS = false;
+
+    /**
+     * Whether dump IR or not.
+     */
+    private static final boolean DUMP_IR = false;
 
     /**
      * Whether dump control-flow graphs or not.
@@ -97,6 +103,10 @@ public final class Tests {
         args.add("-pp");
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, isMainClass ? "-m" : "--input-classes", clz);
+        if (DUMP_IR) {
+            // dump IR
+            Collections.addAll(args, "-a", ClassDumper.ID);
+        }
         if (DUMP_CFG) {
             // dump control-flow graphs
             Collections.addAll(args, "-a",
@@ -138,6 +148,10 @@ public final class Tests {
         String classPath = "src/test/resources/pta/" + dir;
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
+        if (DUMP_IR) {
+            // dump IR
+            Collections.addAll(args, "-a", ClassDumper.ID);
+        }
         List<String> ptaArgs = new ArrayList<>();
         ptaArgs.add("implicit-entries:false");
         if (processResult) {
