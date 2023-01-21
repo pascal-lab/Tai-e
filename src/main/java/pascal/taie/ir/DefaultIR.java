@@ -27,6 +27,7 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.Indexer;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -48,6 +49,8 @@ public class DefaultIR extends AbstractResultHolder implements IR {
 
     private final List<Var> returnVars;
 
+    private final Indexer<Var> varIndexer;
+
     private final List<Stmt> stmts;
 
     private final List<ExceptionEntry> exceptionEntries;
@@ -61,6 +64,7 @@ public class DefaultIR extends AbstractResultHolder implements IR {
         this.params = List.copyOf(params);
         this.returnVars = List.copyOf(returnVars);
         this.vars = List.copyOf(vars);
+        this.varIndexer = new VarIndexer();
         this.stmts = List.copyOf(stmts);
         this.exceptionEntries = List.copyOf(exceptionEntries);
     }
@@ -99,6 +103,24 @@ public class DefaultIR extends AbstractResultHolder implements IR {
     @Override
     public List<Var> getVars() {
         return vars;
+    }
+
+    @Override
+    public Indexer<Var> getVarIndexer() {
+        return varIndexer;
+    }
+
+    private class VarIndexer implements Indexer<Var> {
+
+        @Override
+        public int getIndex(Var v) {
+            return v.getIndex();
+        }
+
+        @Override
+        public Var getObject(int i) {
+            return getVar(i);
+        }
     }
 
     @Override
