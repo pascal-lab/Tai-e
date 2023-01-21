@@ -112,6 +112,16 @@ public class DefaultIR extends AbstractResultHolder implements IR {
     }
 
     @Override
+    public int getIndex(Stmt s) {
+        return s.getIndex();
+    }
+
+    @Override
+    public Stmt getObject(int i) {
+        return getStmt(i);
+    }
+
+    @Override
     public List<ExceptionEntry> getExceptionEntries() {
         return exceptionEntries;
     }
