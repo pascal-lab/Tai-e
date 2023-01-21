@@ -101,6 +101,11 @@ public class DefaultSolver implements Solver {
      */
     private static final String MULTI_ARRAY_DESC = "MultiArrayObj";
 
+    /**
+     * Number that represents unlimited elapsed time.
+     */
+    private static final long UNLIMITED = -1;
+
     private final AnalysisOptions options;
 
     private final HeapModel heapModel;
@@ -119,6 +124,16 @@ public class DefaultSolver implements Solver {
      * Whether only analyzes application code.
      */
     private final boolean onlyApp;
+
+    /**
+     * Time limit for pointer analysis (in seconds).
+     */
+    private final long timeLimit;
+
+    /**
+     * Whether the analysis has reached time limit.
+     */
+    private volatile boolean isTimeout;
 
     private Plugin plugin;
 
@@ -154,6 +169,7 @@ public class DefaultSolver implements Solver {
         typeSystem = World.get().getTypeSystem();
         ptsFactory = new PointsToSetFactory(csManager.getObjectIndexer());
         onlyApp = options.getBoolean("only-app");
+        timeLimit = options.getInt("time-limit");
     }
 
     @Override
@@ -233,14 +249,40 @@ public class DefaultSolver implements Solver {
         initializedClasses = Sets.newSet();
         ignoredMethods = Sets.newSet();
         stmtProcessor = new StmtProcessor();
+        isTimeout = false;
+        if (timeLimit != UNLIMITED) {
+            new TimeLimiter().countDown(timeLimit);
+        }
         plugin.onStart();
+    }
+
+    private class TimeLimiter {
+
+        private static final long MILLIS_FACTOR = 1000;
+
+        /**
+         * Starts count down.
+         *
+         * @param seconds the time limit.
+         */
+        private void countDown(long seconds) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(seconds * MILLIS_FACTOR);
+                    isTimeout = true;
+                } catch (InterruptedException e) {
+                    // this should rarely happen
+                    throw new RuntimeException(e);
+                }
+            }).start();
+        }
     }
 
     /**
      * Processes work list entries until the work list is empty.
      */
     private void analyze() {
-        while (!workList.isEmpty()) {
+        while (!workList.isEmpty() && !isTimeout) {
             WorkList.Entry entry = workList.pollEntry();
             if (entry instanceof WorkList.PointerEntry pEntry) {
                 Pointer p = pEntry.pointer();
@@ -257,6 +299,10 @@ public class DefaultSolver implements Solver {
             } else if (entry instanceof WorkList.CallEdgeEntry eEntry) {
                 processCallEdge(eEntry.edge());
             }
+        }
+        if (!workList.isEmpty() && isTimeout) {
+            logger.warn("Pointer analysis stops early as it reaches time limit ({} seconds)," +
+                    " and the result may be unsound!", timeLimit);
         }
         plugin.onFinish();
     }
