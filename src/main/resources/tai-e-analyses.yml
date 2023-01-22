@@ -90,6 +90,14 @@
   options:
     edge-refine: true # refine lattice value via edge transfer
 
+- description: def-use analysis
+  analysisClass: pascal.taie.analysis.defuse.DefUseAnalysis
+  id: def-use
+  requires: [ reachdef ]
+  options:
+    compute-defs: true # whether compute definitions of variables
+    compute-uses: false # whether compute uses of variables
+
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
   id: inter-constprop
