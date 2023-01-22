@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.defuse;
 
+import pascal.taie.analysis.StmtResult;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -36,7 +37,7 @@ import java.util.Set;
  * Represents the analysis result of {@link DefUseAnalysis}, i.e.,
  * both def-use chain and use-def chain.
  */
-public class DefUse {
+public class DefUse implements StmtResult<Map<Var, Set<Stmt>>> {
 
     private static final String NULL_DEFS = "defs is null (not computed)" +
             " as it is disabled in def-use analysis";
@@ -76,5 +77,20 @@ public class DefUse {
         Objects.requireNonNull(uses, NULL_USES);
         Set<Stmt> uses = this.uses.get(stmt);
         return uses != null ? Collections.unmodifiableSet(uses) : Set.of();
+    }
+
+    @Override
+    public boolean isRelevant(Stmt stmt) {
+        return true;
+    }
+
+    /**
+     * {@link StmtResult} for def-use analysis. Note that this result only
+     * contains use-def chain, and it is mainly for testing purpose.
+     */
+    @Override
+    public Map<Var, Set<Stmt>> getResult(Stmt stmt) {
+        Objects.requireNonNull(defs, NULL_DEFS);
+        return defs.getOrDefault(stmt, Map.of());
     }
 }
