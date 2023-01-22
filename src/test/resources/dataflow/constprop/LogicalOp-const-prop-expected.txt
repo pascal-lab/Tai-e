@@ -1,0 +1,36 @@
+-------------------- <LogicalOp: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <LogicalOp: void logicalOp()> (const-prop) --------------------
+[0@L4] bTrue = 1; {bTrue=1}
+[1@L5] bFalse = 0; {bFalse=0, bTrue=1}
+[2@L6] %intconst0 = 0; {bFalse=0, bTrue=1}
+[3@L6] if (bTrue == %intconst0) goto 5; {bFalse=0, bTrue=1}
+[4@L6] goto 12; {bFalse=0, bTrue=1}
+[5@L6] nop; {bFalse=0, bTrue=1}
+[6@L6] if (bFalse == %intconst0) goto 9; {bFalse=0, bTrue=1}
+[7@L6] goto 12; {bFalse=0, bTrue=1}
+[8@L6] goto 9; {}
+[9@L6] nop; {bFalse=0, bTrue=1}
+[10@L6] temp$0 = 0; {bFalse=0, bTrue=1, temp$0=0}
+[11@L6] goto 14; {bFalse=0, bTrue=1, temp$0=0}
+[12@L6] nop; {bFalse=0, bTrue=1}
+[13@L6] temp$0 = 1; {bFalse=0, bTrue=1, temp$0=1}
+[14@L6] nop; {bFalse=0, bTrue=1, temp$0=NAC}
+[15@L6] b1 = temp$0; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[16@L7] if (bTrue == %intconst0) goto 22; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[17@L7] goto 18; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[18@L7] nop; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[19@L7] if (bFalse == %intconst0) goto 22; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[20@L7] goto 25; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[21@L7] goto 25; {}
+[22@L7] nop; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[23@L7] temp$1 = 0; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=0}
+[24@L7] goto 27; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=0}
+[25@L7] nop; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC}
+[26@L7] temp$1 = 1; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=1}
+[27@L7] nop; {b1=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
+[28@L7] b2 = temp$1; {b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
+[29@L7] return; {b1=NAC, b2=NAC, bFalse=0, bTrue=1, temp$0=NAC, temp$1=NAC}
+

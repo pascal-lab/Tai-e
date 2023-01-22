@@ -1,0 +1,19 @@
+-------------------- <SimpleBoolean: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <SimpleBoolean: void constant()> (const-prop) --------------------
+[0@L4] t = 1; {t=1}
+[1@L5] f = 0; {f=0, t=1}
+[2@L5] return; {f=0, t=1}
+
+-------------------- <SimpleBoolean: void undefined()> (const-prop) --------------------
+[0@L10] z = 1; {z=1}
+[1@L10] return; {z=1}
+
+-------------------- <SimpleBoolean: void propagation()> (const-prop) --------------------
+[0@L14] a = 1; {a=1}
+[1@L15] b = a; {a=1, b=1}
+[2@L16] c = b; {a=1, b=1, c=1}
+[3@L16] return; {a=1, b=1, c=1}
+

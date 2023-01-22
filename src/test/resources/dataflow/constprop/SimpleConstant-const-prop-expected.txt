@@ -1,0 +1,16 @@
+-------------------- <SimpleConstant: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <SimpleConstant: void constant()> (const-prop) --------------------
+[0@L4] x = 1; {x=1}
+[1@L5] y = 2; {x=1, y=2}
+[2@L6] z = 3; {x=1, y=2, z=3}
+[3@L6] return; {x=1, y=2, z=3}
+
+-------------------- <SimpleConstant: void propagation()> (const-prop) --------------------
+[0@L10] x = 10; {x=10}
+[1@L11] y = x; {x=10, y=10}
+[2@L12] z = y; {x=10, y=10, z=10}
+[3@L12] return; {x=10, y=10, z=10}
+

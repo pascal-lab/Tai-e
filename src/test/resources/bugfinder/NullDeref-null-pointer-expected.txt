@@ -20,8 +20,8 @@ Class: NullDeref, Method: <NullDeref: void nullArray()>, LineNumber: 47, BugType
 Class: NullDeref, Method: <NullDeref: void throwNull()>, LineNumber: 57, BugType: NP_ALWAYS_NULL, Severity: BLOCKER
 
 -------------------- <NullDeref: void nullComparison()> (null-pointer) --------------------
-Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 73, BugType: RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE, Severity: MAJOR
 Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 63, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
 Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 66, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
 Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 69, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
+Class: NullDeref, Method: <NullDeref: void nullComparison()>, LineNumber: 73, BugType: RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE, Severity: MAJOR
 

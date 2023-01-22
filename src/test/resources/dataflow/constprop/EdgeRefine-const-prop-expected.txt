@@ -1,0 +1,16 @@
+-------------------- <EdgeRefine: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <EdgeRefine: int branch(int)> (const-prop) --------------------
+[0@L5] %intconst0 = 1; {x=NAC}
+[1@L5] if (x == %intconst0) goto 3; {x=NAC}
+[2@L5] goto 6; {x=NAC}
+[3@L5] nop; {x=1}
+[4@L6] y = x + %intconst0; {x=1, y=2}
+[5@L5] goto 8; {x=1, y=2}
+[6@L5] nop; {x=NAC}
+[7@L8] y = 2; {x=NAC, y=2}
+[8@L8] nop; {x=NAC, y=2}
+[9@L10] return y; {x=NAC, y=2}
+

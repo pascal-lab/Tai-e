@@ -1,0 +1,70 @@
+-------------------- <ArrayLoops: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] invokestatic <ArrayLoops: void loopConst()>(); {}
+[1@L5] invokestatic <ArrayLoops: void loopMix()>(); {}
+[2@L6] invokestatic <ArrayLoops: void loopNAC()>(); {}
+[3@L6] return; {}
+
+-------------------- <ArrayLoops: void loopConst()> (inter-const-prop) --------------------
+[0@L10] %intconst0 = 5; {}
+[1@L10] a = newarray int[%intconst0]; {}
+[2@L11] i = 0; {i=0}
+[3@L11] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[4@L11] temp$0 = a.length; {i=NAC, temp$0=NAC, temp$3=666}
+[5@L11] if (i < temp$0) goto 7; {i=NAC, temp$0=NAC, temp$3=666}
+[6@L11] goto 14; {i=NAC, temp$0=NAC, temp$3=666}
+[7@L11] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[8@L12] temp$3 = 666; {i=NAC, temp$0=NAC, temp$3=666}
+[9@L12] a[i] = temp$3; {i=NAC, temp$0=NAC, temp$3=666}
+[10@L12] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[11@L11] %intconst1 = 1; {i=NAC, temp$0=NAC, temp$3=666}
+[12@L11] i = i + %intconst1; {i=NAC, temp$0=NAC, temp$3=666}
+[13@L11] goto 3; {i=NAC, temp$0=NAC, temp$3=666}
+[14@L11] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[15@L14] temp$6 = 3; {i=NAC, temp$0=NAC, temp$3=666, temp$6=3}
+[16@L14] x = a[temp$6]; {i=NAC, temp$0=NAC, temp$3=666, temp$6=3, x=666}
+[17@L14] return; {i=NAC, temp$0=NAC, temp$3=666, temp$6=3, x=666}
+
+-------------------- <ArrayLoops: void loopMix()> (inter-const-prop) --------------------
+[0@L18] %intconst0 = 5; {}
+[1@L18] a = newarray int[%intconst0]; {}
+[2@L19] i = 0; {i=0}
+[3@L19] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[4@L19] temp$0 = a.length; {i=NAC, temp$0=NAC, temp$3=666}
+[5@L19] if (i < temp$0) goto 7; {i=NAC, temp$0=NAC, temp$3=666}
+[6@L19] goto 14; {i=NAC, temp$0=NAC, temp$3=666}
+[7@L19] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[8@L20] temp$3 = 666; {i=NAC, temp$0=NAC, temp$3=666}
+[9@L20] a[i] = temp$3; {i=NAC, temp$0=NAC, temp$3=666}
+[10@L20] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[11@L19] %intconst1 = 1; {i=NAC, temp$0=NAC, temp$3=666}
+[12@L19] i = i + %intconst1; {i=NAC, temp$0=NAC, temp$3=666}
+[13@L19] goto 3; {i=NAC, temp$0=NAC, temp$3=666}
+[14@L19] nop; {i=NAC, temp$0=NAC, temp$3=666}
+[15@L22] temp$6 = 4; {i=NAC, temp$0=NAC, temp$3=666, temp$6=4}
+[16@L22] temp$7 = 777; {i=NAC, temp$0=NAC, temp$3=666, temp$6=4, temp$7=777}
+[17@L22] a[temp$6] = temp$7; {i=NAC, temp$0=NAC, temp$3=666, temp$6=4, temp$7=777}
+[18@L23] temp$9 = 3; {i=NAC, temp$0=NAC, temp$3=666, temp$6=4, temp$7=777, temp$9=3}
+[19@L23] x = a[temp$9]; {i=NAC, temp$0=NAC, temp$3=666, temp$6=4, temp$7=777, temp$9=3, x=666}
+[20@L24] temp$11 = 4; {i=NAC, temp$0=NAC, temp$11=4, temp$3=666, temp$6=4, temp$7=777, temp$9=3, x=666}
+[21@L24] y = a[temp$11]; {i=NAC, temp$0=NAC, temp$11=4, temp$3=666, temp$6=4, temp$7=777, temp$9=3, x=666, y=NAC}
+[22@L24] return; {i=NAC, temp$0=NAC, temp$11=4, temp$3=666, temp$6=4, temp$7=777, temp$9=3, x=666, y=NAC}
+
+-------------------- <ArrayLoops: void loopNAC()> (inter-const-prop) --------------------
+[0@L28] %intconst0 = 5; {}
+[1@L28] a = newarray int[%intconst0]; {}
+[2@L29] i = 0; {i=0}
+[3@L29] nop; {i=NAC, temp$0=NAC}
+[4@L29] temp$0 = a.length; {i=NAC, temp$0=NAC}
+[5@L29] if (i < temp$0) goto 7; {i=NAC, temp$0=NAC}
+[6@L29] goto 13; {i=NAC, temp$0=NAC}
+[7@L29] nop; {i=NAC, temp$0=NAC}
+[8@L30] a[i] = i; {i=NAC, temp$0=NAC}
+[9@L30] nop; {i=NAC, temp$0=NAC}
+[10@L29] %intconst1 = 1; {i=NAC, temp$0=NAC}
+[11@L29] i = i + %intconst1; {i=NAC, temp$0=NAC}
+[12@L29] goto 3; {i=NAC, temp$0=NAC}
+[13@L29] nop; {i=NAC, temp$0=NAC}
+[14@L32] temp$5 = 3; {i=NAC, temp$0=NAC, temp$5=3}
+[15@L32] x = a[temp$5]; {i=NAC, temp$0=NAC, temp$5=3, x=NAC}
+[16@L32] return; {i=NAC, temp$0=NAC, temp$5=3, x=NAC}
+

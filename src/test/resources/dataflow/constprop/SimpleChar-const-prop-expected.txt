@@ -1,0 +1,19 @@
+-------------------- <SimpleChar: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <SimpleChar: void constant()> (const-prop) --------------------
+[0@L4] a = 97; {a=97}
+[1@L5] x = 120; {a=97, x=120}
+[2@L5] return; {a=97, x=120}
+
+-------------------- <SimpleChar: void undefined()> (const-prop) --------------------
+[0@L10] z = 122; {z=122}
+[1@L10] return; {z=122}
+
+-------------------- <SimpleChar: void propagation()> (const-prop) --------------------
+[0@L14] a = 97; {a=97}
+[1@L15] b = a; {a=97, b=97}
+[2@L16] c = b; {a=97, b=97, c=97}
+[3@L16] return; {a=97, b=97, c=97}
+

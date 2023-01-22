@@ -1,8 +1,0 @@
--------------------- <DeadAssignment: void <init>()> (deadcode) --------------------
-
--------------------- <DeadAssignment: void deadAssign()> (deadcode) --------------------
-[2@L5] y = x + %intconst0;
-[6@L8] a = x;
-
--------------------- <DeadAssignment: void use(int)> (deadcode) --------------------
-

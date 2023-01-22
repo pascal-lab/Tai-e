@@ -1,0 +1,56 @@
+-------------------- <Loop: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <Loop: void whileConstant()> (const-prop) --------------------
+[0@L3] b = 1; {b=1}
+[1@L3] c = 1; {b=1, c=1}
+[2@L4] i = 0; {b=1, c=1, i=0}
+[3@L4] nop; {a=1, b=1, c=1, i=NAC}
+[4@L5] %intconst0 = 10; {a=1, b=1, c=1, i=NAC}
+[5@L5] if (i < %intconst0) goto 7; {a=1, b=1, c=1, i=NAC}
+[6@L5] goto 14; {a=1, b=1, c=1, i=NAC}
+[7@L5] nop; {a=1, b=1, c=1, i=NAC}
+[8@L6] a = b; {a=1, b=1, c=1, i=NAC}
+[9@L7] b = c; {a=1, b=1, c=1, i=NAC}
+[10@L8] c = 1; {a=1, b=1, c=1, i=NAC}
+[11@L9] %intconst1 = 1; {a=1, b=1, c=1, i=NAC}
+[12@L9] i = i + %intconst1; {a=1, b=1, c=1, i=NAC}
+[13@L5] goto 3; {a=1, b=1, c=1, i=NAC}
+[14@L5] nop; {a=1, b=1, c=1, i=NAC}
+[15@L5] return; {a=1, b=1, c=1, i=NAC}
+
+-------------------- <Loop: void whileNAC()> (const-prop) --------------------
+[0@L14] b = 0; {b=0}
+[1@L14] c = 0; {b=0, c=0}
+[2@L15] i = 0; {b=0, c=0, i=0}
+[3@L15] nop; {a=NAC, b=NAC, c=NAC, i=NAC}
+[4@L16] %intconst0 = 10; {a=NAC, b=NAC, c=NAC, i=NAC}
+[5@L16] if (i < %intconst0) goto 7; {a=NAC, b=NAC, c=NAC, i=NAC}
+[6@L16] goto 14; {a=NAC, b=NAC, c=NAC, i=NAC}
+[7@L16] nop; {a=NAC, b=NAC, c=NAC, i=NAC}
+[8@L17] a = b; {a=NAC, b=NAC, c=NAC, i=NAC}
+[9@L18] b = c; {a=NAC, b=NAC, c=NAC, i=NAC}
+[10@L19] c = 1; {a=NAC, b=NAC, c=1, i=NAC}
+[11@L20] %intconst1 = 1; {a=NAC, b=NAC, c=1, i=NAC}
+[12@L20] i = i + %intconst1; {a=NAC, b=NAC, c=1, i=NAC}
+[13@L16] goto 3; {a=NAC, b=NAC, c=1, i=NAC}
+[14@L16] nop; {a=NAC, b=NAC, c=NAC, i=NAC}
+[15@L16] return; {a=NAC, b=NAC, c=NAC, i=NAC}
+
+-------------------- <Loop: void whileUndefinedConstant()> (const-prop) --------------------
+[0@L26] i = 0; {i=0}
+[1@L26] nop; {a=1, b=1, c=1, i=NAC}
+[2@L27] %intconst0 = 10; {a=1, b=1, c=1, i=NAC}
+[3@L27] if (i < %intconst0) goto 5; {a=1, b=1, c=1, i=NAC}
+[4@L27] goto 12; {a=1, b=1, c=1, i=NAC}
+[5@L27] nop; {a=1, b=1, c=1, i=NAC}
+[6@L28] a = b; {a=1, b=1, c=1, i=NAC}
+[7@L29] b = c; {a=1, b=1, c=1, i=NAC}
+[8@L30] c = 1; {a=1, b=1, c=1, i=NAC}
+[9@L31] %intconst1 = 1; {a=1, b=1, c=1, i=NAC}
+[10@L31] i = i + %intconst1; {a=1, b=1, c=1, i=NAC}
+[11@L27] goto 1; {a=1, b=1, c=1, i=NAC}
+[12@L27] nop; {a=1, b=1, c=1, i=NAC}
+[13@L27] return; {a=1, b=1, c=1, i=NAC}
+

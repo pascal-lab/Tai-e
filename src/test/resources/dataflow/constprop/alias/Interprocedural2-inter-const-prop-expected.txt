@@ -1,0 +1,41 @@
+-------------------- <Interprocedural2: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] temp$0 = new Interprocedural2$X; {}
+[1@L3] invokespecial temp$0.<Interprocedural2$X: void <init>()>(); {}
+[2@L3] x = temp$0; {}
+[3@L4] %intconst0 = 123; {}
+[4@L4] invokevirtual x.<Interprocedural2$X: void setF(int)>(%intconst0); {}
+[5@L5] temp$1 = invokevirtual x.<Interprocedural2$X: int getF()>(); {}
+[6@L5] a = temp$1; {a=123, temp$1=123}
+[7@L6] temp$2 = new Interprocedural2$Y; {a=123, temp$1=123}
+[8@L6] invokespecial temp$2.<Interprocedural2$Y: void <init>()>(); {a=123, temp$1=123}
+[9@L6] y = temp$2; {a=123, temp$1=123}
+[10@L7] %intconst1 = 789; {a=123, temp$1=123}
+[11@L7] invokevirtual y.<Interprocedural2$Y: void setG(int)>(%intconst1); {a=123, temp$1=123}
+[12@L8] temp$3 = invokevirtual y.<Interprocedural2$Y: int getG()>(); {a=123, temp$1=123}
+[13@L8] b = temp$3; {a=123, b=789, temp$1=123, temp$3=789}
+[14@L8] return; {a=123, b=789, temp$1=123, temp$3=789}
+
+-------------------- <Interprocedural2$X: void <init>()> (inter-const-prop) --------------------
+[0@L11] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L11] return; {}
+
+-------------------- <Interprocedural2$X: int getF()> (inter-const-prop) --------------------
+[0@L15] temp$0 = %this.<Interprocedural2$X: int f>; {temp$0=123}
+[1@L15] return temp$0; {temp$0=123}
+
+-------------------- <Interprocedural2$X: void setF(int)> (inter-const-prop) --------------------
+[0@L19] %this.<Interprocedural2$X: int f> = f; {f=123}
+[1@L19] return; {f=123}
+
+-------------------- <Interprocedural2$Y: void <init>()> (inter-const-prop) --------------------
+[0@L23] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L23] return; {}
+
+-------------------- <Interprocedural2$Y: int getG()> (inter-const-prop) --------------------
+[0@L27] temp$0 = %this.<Interprocedural2$Y: int g>; {temp$0=789}
+[1@L27] return temp$0; {temp$0=789}
+
+-------------------- <Interprocedural2$Y: void setG(int)> (inter-const-prop) --------------------
+[0@L31] %this.<Interprocedural2$Y: int g> = g; {g=789}
+[1@L31] return; {g=789}
+

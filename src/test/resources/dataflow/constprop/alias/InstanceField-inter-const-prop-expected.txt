@@ -1,0 +1,19 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L13] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L13] return; {}
+
+-------------------- <InstanceField: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] temp$0 = new A; {}
+[1@L4] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L4] a1 = temp$0; {}
+[3@L5] temp$1 = 111; {temp$1=111}
+[4@L5] a1.<A: int f> = temp$1; {temp$1=111}
+[5@L6] x = a1.<A: int f>; {temp$1=111, x=111}
+[6@L7] temp$2 = new A; {temp$1=111, x=111}
+[7@L7] invokespecial temp$2.<A: void <init>()>(); {temp$1=111, x=111}
+[8@L7] a2 = temp$2; {temp$1=111, x=111}
+[9@L8] temp$3 = 222; {temp$1=111, temp$3=222, x=111}
+[10@L8] a2.<A: int f> = temp$3; {temp$1=111, temp$3=222, x=111}
+[11@L9] y = a2.<A: int f>; {temp$1=111, temp$3=222, x=111, y=222}
+[12@L9] return; {temp$1=111, temp$3=222, x=111, y=222}
+

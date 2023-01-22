@@ -1,0 +1,8 @@
+-------------------- <NotDead: void <init>()> (dead-code) --------------------
+
+-------------------- <NotDead: void foo(int,int)> (dead-code) --------------------
+
+-------------------- <NotDead: int bar()> (dead-code) --------------------
+
+-------------------- <NotDead: void use(int)> (dead-code) --------------------
+

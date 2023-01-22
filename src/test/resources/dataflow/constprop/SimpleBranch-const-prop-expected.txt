@@ -1,0 +1,17 @@
+-------------------- <SimpleBranch: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <SimpleBranch: void NAC(int)> (const-prop) --------------------
+[0@L5] %intconst0 = 0; {p=NAC}
+[1@L5] if (p > %intconst0) goto 3; {p=NAC}
+[2@L5] goto 6; {p=NAC}
+[3@L5] nop; {p=NAC}
+[4@L6] x = 1; {p=NAC, x=1}
+[5@L5] goto 8; {p=NAC, x=1}
+[6@L5] nop; {p=NAC}
+[7@L8] x = 2; {p=NAC, x=2}
+[8@L8] nop; {p=NAC, x=NAC}
+[9@L10] y = x; {p=NAC, x=NAC, y=NAC}
+[10@L10] return; {p=NAC, x=NAC, y=NAC}
+

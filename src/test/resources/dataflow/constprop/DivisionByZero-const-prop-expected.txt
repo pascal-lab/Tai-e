@@ -1,0 +1,17 @@
+-------------------- <DivisionByZero: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <DivisionByZero: void divideNACByZero(int)> (const-prop) --------------------
+[0@L4] zero = 0; {p=NAC, zero=0}
+[1@L5] undef1 = p / zero; {p=NAC, zero=0}
+[2@L6] undef2 = p % zero; {p=NAC, zero=0}
+[3@L6] return; {p=NAC, zero=0}
+
+-------------------- <DivisionByZero: void divideConstantByZero()> (const-prop) --------------------
+[0@L10] one = 1; {one=1}
+[1@L11] zero = 0; {one=1, zero=0}
+[2@L12] undef1 = one / zero; {one=1, zero=0}
+[3@L13] undef2 = one % zero; {one=1, zero=0}
+[4@L13] return; {one=1, zero=0}
+

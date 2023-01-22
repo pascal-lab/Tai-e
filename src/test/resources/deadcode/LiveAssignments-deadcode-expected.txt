@@ -1,6 +1,0 @@
--------------------- <LiveAssignments: void <init>()> (deadcode) --------------------
-
--------------------- <LiveAssignments: void foo(int[],LiveAssignments$C)> (deadcode) --------------------
-
--------------------- <LiveAssignments$C: void <init>()> (deadcode) --------------------
-

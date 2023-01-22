@@ -1,9 +1,0 @@
--------------------- <AllReachableIfBranch: void <init>()> (deadcode) --------------------
-
--------------------- <AllReachableIfBranch: int branch(int,int)> (deadcode) --------------------
-[0@L3] z = x + y;
-
--------------------- <AllReachableIfBranch: int branch2(int,int)> (deadcode) --------------------
-[0@L13] z = x + y;
-[7@L17] z = 100;
-

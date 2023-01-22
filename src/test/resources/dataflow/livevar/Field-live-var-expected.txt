@@ -1,0 +1,23 @@
+-------------------- <Field: void <init>()> (live-var) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <Field: int timeFlies(int)> (live-var) --------------------
+[0@L6] temp$0 = %this.<Field: int age>; [%this, temp$0, years]
+[1@L6] temp$1 = temp$0 + years; [%this, temp$1, years]
+[2@L6] %this.<Field: int age> = temp$1; [%this, years]
+[3@L7] temp$2 = <java.lang.System: java.io.PrintStream out>; [%this, temp$2, years]
+[4@L7] temp$3 = new java.lang.StringBuffer; [%this, temp$2, temp$3, years]
+[5@L7] invokespecial temp$3.<java.lang.StringBuffer: void <init>()>(); [%this, temp$2, temp$3, years]
+[6@L7] temp$4 = %this.<Field: java.lang.String name>; [%this, temp$2, temp$3, temp$4, years]
+[7@L7] invokevirtual temp$3.<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>(temp$4); [%this, temp$2, temp$3, years]
+[8@L7] %stringconst0 = "is "; [%stringconst0, %this, temp$2, temp$3, years]
+[9@L7] invokevirtual temp$3.<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>(%stringconst0); [%this, temp$2, temp$3, years]
+[10@L7] invokevirtual temp$3.<java.lang.StringBuffer: java.lang.StringBuffer append(int)>(years); [%this, temp$2, temp$3]
+[11@L7] %stringconst1 = " years older."; [%stringconst1, %this, temp$2, temp$3]
+[12@L7] invokevirtual temp$3.<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>(%stringconst1); [%this, temp$2, temp$3]
+[13@L7] temp$5 = invokevirtual temp$3.<java.lang.StringBuffer: java.lang.String toString()>(); [%this, temp$2, temp$5]
+[14@L7] invokevirtual temp$2.<java.io.PrintStream: void println(java.lang.String)>(temp$5); [%this]
+[15@L8] temp$6 = %this.<Field: int age>; [temp$6]
+[16@L8] return temp$6; []
+

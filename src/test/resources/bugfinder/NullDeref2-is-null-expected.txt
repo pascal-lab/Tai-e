@@ -1,0 +1,129 @@
+-------------------- <NullDeref2: void <init>()> (is-null) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {%this=NONNULL}
+[1@L1] return; {%this=NONNULL}
+
+-------------------- <NullDeref2: void possibleNullOnSplit()> (is-null) --------------------
+[0@L4] a = null; {%this=NONNULL, a=NULL}
+[1@L5] if (a == %nullconst) goto 3; {%this=NONNULL, a=NULL}
+[2@L5] goto 18; {}
+[3@L5] nop; {%this=NONNULL, a=CHECKED_NULL}
+[4@L5] nop; {%this=NONNULL, a=CHECKED_NULL}
+[5@L7] temp$0 = <java.lang.System: java.io.PrintStream out>; {%this=NONNULL, a=CHECKED_NULL, temp$0=NCP}
+[6@L7] %intconst0 = 1; {%this=NONNULL, a=CHECKED_NULL, temp$0=NCP}
+[7@L7] invokevirtual temp$0.<java.io.PrintStream: void println(int)>(%intconst0); {%this=NONNULL, a=CHECKED_NULL, temp$0=NO_KABOOM_NN}
+[8@L6] goto 14; {%this=NONNULL, a=CHECKED_NULL, temp$0=NO_KABOOM_NN}
+[9@L6] nop; {}
+[10@L8] catch e; {}
+[11@L9] a = "notNull"; {a=NONNULL}
+[12@L8] nop; {a=NONNULL}
+[13@L8] goto 14; {a=NONNULL}
+[14@L8] nop; {%this=NONNULL, a=NSP, temp$0=NO_KABOOM_NN}
+[15@L12] temp$2 = <java.lang.System: java.io.PrintStream out>; {%this=NONNULL, a=NSP, temp$0=NO_KABOOM_NN, temp$2=NCP}
+[16@L12] temp$3 = invokevirtual a.<java.lang.Object: java.lang.Class getClass()>(); {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NCP, temp$3=UNKNOWN}
+[17@L12] invokevirtual temp$2.<java.io.PrintStream: void println(java.lang.Object)>(temp$3); {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
+[18@L12] nop; {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
+[19@L12] return; {%this=NONNULL, a=NO_KABOOM_NN, temp$0=NO_KABOOM_NN, temp$2=NO_KABOOM_NN, temp$3=UNKNOWN}
+
+-------------------- <NullDeref2: boolean same0(java.lang.Object,java.lang.Object)> (is-null) --------------------
+[0@L17] if (a == %nullconst) goto 2; {a=UNKNOWN, b=UNKNOWN}
+[1@L17] goto 6; {a=CHECKED_NN, b=UNKNOWN}
+[2@L17] nop; {a=CHECKED_NULL, b=UNKNOWN}
+[3@L17] if (b == %nullconst) goto 12; {a=CHECKED_NULL, b=UNKNOWN}
+[4@L17] goto 6; {a=CHECKED_NULL, b=CHECKED_NN}
+[5@L17] goto 12; {}
+[6@L17] nop; {a=NSP, b=UNKNOWN}
+[7@L17] temp$0 = invokevirtual b.<java.lang.Object: boolean equals(java.lang.Object)>(a); {a=NSP, b=NO_KABOOM_NN}
+[8@L17] %intconst0 = 0; {a=NSP, b=NO_KABOOM_NN}
+[9@L17] if (temp$0 == %intconst0) goto 15; {a=NCP, b=NO_KABOOM_NN}
+[10@L17] goto 12; {a=NCP, b=NO_KABOOM_NN}
+[11@L17] goto 15; {}
+[12@L17] nop; {a=NSP, b=NSP}
+[13@L17] temp$1 = 1; {a=NSP, b=NSP}
+[14@L18] return temp$1; {a=NSP, b=NSP}
+[15@L18] nop; {a=NCP, b=NO_KABOOM_NN}
+[16@L18] temp$2 = 0; {a=NCP, b=NO_KABOOM_NN}
+[17@L20] return temp$2; {a=NCP, b=NO_KABOOM_NN}
+
+-------------------- <NullDeref2: boolean same1(int[],int[])> (is-null) --------------------
+[0@L24] if (a == %nullconst) goto 2; {a=UNKNOWN, b=UNKNOWN}
+[1@L24] goto 15; {a=CHECKED_NN, b=UNKNOWN}
+[2@L24] nop; {a=CHECKED_NULL, b=UNKNOWN}
+[3@L25] if (b == %nullconst) goto 11; {a=CHECKED_NULL, b=UNKNOWN}
+[4@L25] goto 5; {a=CHECKED_NULL, b=CHECKED_NN}
+[5@L25] nop; {a=CHECKED_NULL, b=CHECKED_NN}
+[6@L25] temp$0 = b.length; {a=CHECKED_NULL, b=CHECKED_NN}
+[7@L25] %intconst0 = 0; {a=CHECKED_NULL, b=CHECKED_NN}
+[8@L25] if (temp$0 == %intconst0) goto 11; {a=CHECKED_NULL, b=CHECKED_NN}
+[9@L25] goto 14; {a=CHECKED_NULL, b=CHECKED_NN}
+[10@L25] goto 14; {}
+[11@L25] nop; {a=CHECKED_NULL, b=NSP}
+[12@L25] temp$1 = 1; {a=CHECKED_NULL, b=NSP}
+[13@L26] return temp$1; {a=CHECKED_NULL, b=NSP}
+[14@L26] nop; {a=CHECKED_NULL, b=CHECKED_NN}
+[15@L26] nop; {a=NSP, b=UNKNOWN}
+[16@L27] if (b == %nullconst) goto 18; {a=NCP, b=UNKNOWN}
+[17@L27] goto 30; {a=NCP, b=CHECKED_NN}
+[18@L27] nop; {a=NCP, b=CHECKED_NULL}
+[19@L28] if (a == %nullconst) goto 26; {a=NCP, b=CHECKED_NULL}
+[20@L28] goto 21; {a=CHECKED_NN, b=CHECKED_NULL}
+[21@L28] nop; {a=CHECKED_NN, b=CHECKED_NULL}
+[22@L28] temp$2 = a.length; {a=CHECKED_NN, b=CHECKED_NULL}
+[23@L28] if (temp$2 == %intconst0) goto 26; {a=CHECKED_NN, b=CHECKED_NULL}
+[24@L28] goto 29; {a=CHECKED_NN, b=CHECKED_NULL}
+[25@L28] goto 29; {}
+[26@L28] nop; {a=NSP, b=CHECKED_NULL}
+[27@L28] temp$3 = 1; {a=NSP, b=CHECKED_NULL}
+[28@L29] return temp$3; {a=NSP, b=CHECKED_NULL}
+[29@L29] nop; {a=CHECKED_NN, b=CHECKED_NULL}
+[30@L29] nop; {a=NCP, b=NSP}
+[31@L32] temp$4 = a.length; {a=NO_KABOOM_NN, b=NSP}
+[32@L32] temp$5 = b.length; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[33@L32] if (temp$4 != temp$5) goto 35; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[34@L32] goto 38; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[35@L32] nop; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[36@L32] temp$6 = 0; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[37@L33] return temp$6; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[38@L33] nop; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[39@L33] temp$7 = 1; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+[40@L34] return temp$7; {a=NO_KABOOM_NN, b=NO_KABOOM_NN}
+
+-------------------- <NullDeref2: boolean same2(java.lang.Object,java.lang.Object)> (is-null) --------------------
+[0@L38] if (%nullconst == a) goto 2; {a=UNKNOWN, b=UNKNOWN}
+[1@L38] goto 6; {a=CHECKED_NN, b=UNKNOWN}
+[2@L38] nop; {a=CHECKED_NULL, b=UNKNOWN}
+[3@L38] if (%nullconst == b) goto 12; {a=CHECKED_NULL, b=UNKNOWN}
+[4@L38] goto 6; {a=CHECKED_NULL, b=CHECKED_NN}
+[5@L38] goto 12; {}
+[6@L38] nop; {a=NSP, b=UNKNOWN}
+[7@L38] temp$0 = invokevirtual a.<java.lang.Object: boolean equals(java.lang.Object)>(b); {a=NO_KABOOM_NN, b=UNKNOWN}
+[8@L38] %intconst0 = 0; {a=NO_KABOOM_NN, b=UNKNOWN}
+[9@L38] if (temp$0 == %intconst0) goto 15; {a=NO_KABOOM_NN, b=UNKNOWN}
+[10@L38] goto 12; {a=NO_KABOOM_NN, b=UNKNOWN}
+[11@L38] goto 15; {}
+[12@L38] nop; {a=NSP, b=NSP}
+[13@L38] temp$1 = 1; {a=NSP, b=NSP}
+[14@L39] return temp$1; {a=NSP, b=NSP}
+[15@L39] nop; {a=NO_KABOOM_NN, b=UNKNOWN}
+[16@L39] temp$2 = 0; {a=NO_KABOOM_NN, b=UNKNOWN}
+[17@L41] return temp$2; {a=NO_KABOOM_NN, b=UNKNOWN}
+
+-------------------- <NullDeref2: boolean same3(java.lang.Object,java.lang.Object)> (is-null) --------------------
+[0@L45] if (a == %nullconst) goto 2; {a=UNKNOWN, b=UNKNOWN}
+[1@L45] goto 6; {a=CHECKED_NN, b=UNKNOWN}
+[2@L45] nop; {a=CHECKED_NULL, b=UNKNOWN}
+[3@L45] if (b == %nullconst) goto 12; {a=CHECKED_NULL, b=UNKNOWN}
+[4@L45] goto 6; {a=CHECKED_NULL, b=CHECKED_NN}
+[5@L45] goto 12; {}
+[6@L45] nop; {a=NSP, b=UNKNOWN}
+[7@L45] temp$0 = invokevirtual a.<java.lang.Object: boolean equals(java.lang.Object)>(b); {a=NO_KABOOM_NN, b=UNKNOWN}
+[8@L45] %intconst0 = 0; {a=NO_KABOOM_NN, b=UNKNOWN}
+[9@L45] if (temp$0 == %intconst0) goto 15; {a=NO_KABOOM_NN, b=UNKNOWN}
+[10@L45] goto 12; {a=NO_KABOOM_NN, b=UNKNOWN}
+[11@L45] goto 15; {}
+[12@L45] nop; {a=NSP, b=NSP}
+[13@L45] temp$1 = 1; {a=NSP, b=NSP}
+[14@L46] return temp$1; {a=NSP, b=NSP}
+[15@L46] nop; {a=NO_KABOOM_NN, b=UNKNOWN}
+[16@L46] temp$2 = 0; {a=NO_KABOOM_NN, b=UNKNOWN}
+[17@L48] return temp$2; {a=NO_KABOOM_NN, b=UNKNOWN}
+

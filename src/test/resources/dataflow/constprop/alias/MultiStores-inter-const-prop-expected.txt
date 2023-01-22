@@ -1,0 +1,23 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L13] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L13] return; {}
+
+-------------------- <MultiStores: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] temp$0 = new A; {}
+[1@L3] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L3] a = temp$0; {}
+[3@L4] temp$1 = args.length; {temp$1=NAC}
+[4@L4] %intconst0 = 0; {temp$1=NAC}
+[5@L4] if (temp$1 > %intconst0) goto 7; {temp$1=NAC}
+[6@L4] goto 11; {temp$1=NAC}
+[7@L4] nop; {temp$1=NAC}
+[8@L5] temp$2 = 0; {temp$1=NAC, temp$2=0}
+[9@L5] a.<A: int f> = temp$2; {temp$1=NAC, temp$2=0}
+[10@L4] goto 14; {temp$1=NAC, temp$2=0}
+[11@L4] nop; {temp$1=NAC}
+[12@L7] temp$3 = 1; {temp$1=NAC, temp$3=1}
+[13@L7] a.<A: int f> = temp$3; {temp$1=NAC, temp$3=1}
+[14@L7] nop; {temp$1=NAC, temp$2=0, temp$3=1}
+[15@L9] x = a.<A: int f>; {temp$1=NAC, temp$2=0, temp$3=1, x=NAC}
+[16@L9] return; {temp$1=NAC, temp$2=0, temp$3=1, x=NAC}
+

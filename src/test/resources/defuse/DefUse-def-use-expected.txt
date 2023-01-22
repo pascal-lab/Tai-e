@@ -1,0 +1,38 @@
+-------------------- <DefUse: void <init>()> (def-use) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <DefUse: int assign()> (def-use) --------------------
+[0@L4] x = 1; {}
+[1@L5] %intconst0 = 111; {}
+[2@L5] y = x + %intconst0; {x=[x = 1], %intconst0=[%intconst0 = 111]}
+[3@L6] x = 2; {}
+[4@L7] z = x + y; {x=[x = 2], y=[y = x + %intconst0]}
+[5@L8] return z; {z=[z = x + y]}
+
+-------------------- <DefUse: int branch(int,int,int)> (def-use) --------------------
+[0@L13] %intconst0 = 0; {}
+[1@L13] if (a > %intconst0) goto 3; {%intconst0=[%intconst0 = 0]}
+[2@L13] goto 6; {}
+[3@L13] nop; {}
+[4@L14] x = a; {}
+[5@L13] goto 8; {}
+[6@L13] nop; {}
+[7@L16] x = b; {}
+[8@L16] nop; {}
+[9@L18] y = x; {x=[x = a, x = b]}
+[10@L19] x = c; {}
+[11@L20] return x; {x=[x = c]}
+
+-------------------- <DefUse: int loop(int,int)> (def-use) --------------------
+[0@L24] nop; {}
+[1@L25] if (a > b) goto 3; {a=[a = a + %intconst0]}
+[2@L25] goto 8; {}
+[3@L25] nop; {}
+[4@L26] c = b; {}
+[5@L27] %intconst0 = -1; {}
+[6@L27] a = a + %intconst0; {a=[a = a + %intconst0], %intconst0=[%intconst0 = -1]}
+[7@L25] goto 0; {}
+[8@L25] nop; {}
+[9@L29] return c; {c=[c = b]}
+

@@ -1,0 +1,12 @@
+-------------------- <Assign: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <Assign: void assign()> (const-prop) --------------------
+[0@L4] x = 1; {x=1}
+[1@L5] x = 2; {x=2}
+[2@L6] x = 3; {x=3}
+[3@L7] x = 4; {x=4}
+[4@L8] y = x; {x=4, y=4}
+[5@L8] return; {x=4, y=4}
+

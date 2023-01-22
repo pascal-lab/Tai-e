@@ -1,0 +1,21 @@
+-------------------- <Array: void <init>()> (live-var) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <Array: int sum(int[])> (live-var) --------------------
+[0@L4] result = 0; [arr, result]
+[1@L5] i = 0; [arr, i, result]
+[2@L5] nop; [arr, i, result]
+[3@L5] temp$0 = arr.length; [arr, i, result, temp$0]
+[4@L5] if (i < temp$0) goto 6; [arr, i, result]
+[5@L5] goto 13; [result]
+[6@L5] nop; [arr, i, result]
+[7@L6] temp$4 = arr[i]; [arr, i, result, temp$4]
+[8@L6] result = result + temp$4; [arr, i, result]
+[9@L6] nop; [arr, i, result]
+[10@L5] %intconst0 = 1; [%intconst0, arr, i, result]
+[11@L5] i = i + %intconst0; [arr, i, result]
+[12@L5] goto 2; [arr, i, result]
+[13@L5] nop; [result]
+[14@L8] return result; []
+

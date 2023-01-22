@@ -1,0 +1,18 @@
+-------------------- <ArrayInter2: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] %intconst0 = 1; {}
+[1@L4] a = newarray int[%intconst0]; {}
+[2@L5] %intconst1 = 0; {}
+[3@L5] %intconst2 = 777; {}
+[4@L5] invokestatic <ArrayInter2: void set(int[],int,int)>(a, %intconst1, %intconst2); {}
+[5@L6] temp$0 = invokestatic <ArrayInter2: int get(int[],int)>(a, %intconst1); {}
+[6@L6] x = temp$0; {temp$0=777, x=777}
+[7@L6] return; {temp$0=777, x=777}
+
+-------------------- <ArrayInter2: void set(int[],int,int)> (inter-const-prop) --------------------
+[0@L10] arr[i] = v; {i=0, v=777}
+[1@L10] return; {i=0, v=777}
+
+-------------------- <ArrayInter2: int get(int[],int)> (inter-const-prop) --------------------
+[0@L13] temp$2 = arr[i]; {i=0, temp$2=777}
+[1@L14] return temp$2; {i=0, temp$2=777}
+

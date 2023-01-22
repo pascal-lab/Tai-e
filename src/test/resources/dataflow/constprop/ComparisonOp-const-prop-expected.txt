@@ -1,0 +1,78 @@
+-------------------- <ComparisonOp: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <ComparisonOp: int fcmp(float,float)> (const-prop) --------------------
+[0@L5] temp$0 = f1 cmpg f2; {temp$0=NAC}
+[1@L5] %intconst0 = 0; {temp$0=NAC}
+[2@L5] if (temp$0 >= %intconst0) goto 7; {temp$0=NAC}
+[3@L5] goto 4; {temp$0=NAC}
+[4@L5] nop; {temp$0=NAC}
+[5@L5] temp$1 = -1; {temp$0=NAC, temp$1=-1}
+[6@L6] return temp$1; {temp$0=NAC, temp$1=-1}
+[7@L6] nop; {temp$0=NAC}
+[8@L8] temp$2 = f1 cmpl f2; {temp$0=NAC, temp$2=NAC}
+[9@L8] if (temp$2 <= %intconst0) goto 14; {temp$0=NAC, temp$2=NAC}
+[10@L8] goto 11; {temp$0=NAC, temp$2=NAC}
+[11@L8] nop; {temp$0=NAC, temp$2=NAC}
+[12@L8] temp$3 = 1; {temp$0=NAC, temp$2=NAC, temp$3=1}
+[13@L9] return temp$3; {temp$0=NAC, temp$2=NAC, temp$3=1}
+[14@L9] nop; {temp$0=NAC, temp$2=NAC}
+[15@L11] temp$4 = f1 cmpg f2; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[16@L11] if (temp$4 != %intconst0) goto 21; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[17@L11] goto 18; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[18@L11] nop; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[19@L11] temp$5 = 0; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$5=0}
+[20@L12] return temp$5; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$5=0}
+[21@L12] nop; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[22@L12] temp$6 = 666; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$6=666}
+[23@L14] return temp$6; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$6=666}
+
+-------------------- <ComparisonOp: int dcmp(double,double)> (const-prop) --------------------
+[0@L19] temp$0 = d1 cmpg d2; {temp$0=NAC}
+[1@L19] %intconst0 = 0; {temp$0=NAC}
+[2@L19] if (temp$0 >= %intconst0) goto 7; {temp$0=NAC}
+[3@L19] goto 4; {temp$0=NAC}
+[4@L19] nop; {temp$0=NAC}
+[5@L19] temp$1 = -1; {temp$0=NAC, temp$1=-1}
+[6@L20] return temp$1; {temp$0=NAC, temp$1=-1}
+[7@L20] nop; {temp$0=NAC}
+[8@L22] temp$2 = d1 cmpl d2; {temp$0=NAC, temp$2=NAC}
+[9@L22] if (temp$2 <= %intconst0) goto 14; {temp$0=NAC, temp$2=NAC}
+[10@L22] goto 11; {temp$0=NAC, temp$2=NAC}
+[11@L22] nop; {temp$0=NAC, temp$2=NAC}
+[12@L22] temp$3 = 1; {temp$0=NAC, temp$2=NAC, temp$3=1}
+[13@L23] return temp$3; {temp$0=NAC, temp$2=NAC, temp$3=1}
+[14@L23] nop; {temp$0=NAC, temp$2=NAC}
+[15@L25] temp$4 = d1 cmpg d2; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[16@L25] if (temp$4 != %intconst0) goto 21; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[17@L25] goto 18; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[18@L25] nop; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[19@L25] temp$5 = 0; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$5=0}
+[20@L26] return temp$5; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$5=0}
+[21@L26] nop; {temp$0=NAC, temp$2=NAC, temp$4=NAC}
+[22@L26] temp$6 = 0; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$6=0}
+[23@L28] return temp$6; {temp$0=NAC, temp$2=NAC, temp$4=NAC, temp$6=0}
+
+-------------------- <ComparisonOp: int acmp(java.lang.Object,java.lang.Object)> (const-prop) --------------------
+[0@L32] if (o1 == %nullconst) goto 2; {}
+[1@L32] goto 5; {}
+[2@L32] nop; {}
+[3@L32] temp$0 = 0; {temp$0=0}
+[4@L33] return temp$0; {temp$0=0}
+[5@L33] nop; {}
+[6@L35] if (o1 == o2) goto 8; {}
+[7@L35] goto 11; {}
+[8@L35] nop; {}
+[9@L35] temp$1 = 1; {temp$1=1}
+[10@L36] return temp$1; {temp$1=1}
+[11@L36] nop; {}
+[12@L38] if (o1 != o2) goto 14; {}
+[13@L38] goto 17; {}
+[14@L38] nop; {}
+[15@L38] temp$2 = -1; {temp$2=-1}
+[16@L39] return temp$2; {temp$2=-1}
+[17@L39] nop; {}
+[18@L39] temp$3 = 666; {temp$3=666}
+[19@L41] return temp$3; {temp$3=666}
+

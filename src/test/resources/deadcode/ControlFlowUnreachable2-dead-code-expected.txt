@@ -1,0 +1,9 @@
+-------------------- <ControlFlowUnreachable2: void <init>()> (dead-code) --------------------
+
+-------------------- <ControlFlowUnreachable2: void foo()> (dead-code) --------------------
+[5@L9] z = 3;
+[6@L10] invokestatic <ControlFlowUnreachable2: void use(int)>(z);
+[7@L10] return;
+
+-------------------- <ControlFlowUnreachable2: void use(int)> (dead-code) --------------------
+

@@ -1,0 +1,18 @@
+-------------------- <ComplexAssign: void <init>()> (live-var) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <ComplexAssign: int complexAssign(int,int)> (live-var) --------------------
+[0@L4] x = 1; []
+[1@L5] x = 2; [x]
+[2@L6] a = x; [a, x]
+[3@L7] %intconst0 = 1; [%intconst0, a, x]
+[4@L7] a = a - %intconst0; [%intconst0, a, x]
+[5@L8] x = x - %intconst0; [%intconst0, a]
+[6@L9] x = 2; [%intconst0, a, x]
+[7@L10] b = a; [%intconst0, b, x]
+[8@L11] b = b - %intconst0; [x]
+[9@L12] %intconst1 = 2; [%intconst1, x]
+[10@L12] b = x - %intconst1; [b]
+[11@L13] return b; []
+

@@ -1,0 +1,42 @@
+-------------------- <SimpleBinary: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <SimpleBinary: int arithmetic()> (const-prop) --------------------
+[0@L4] x = 1; {x=1}
+[1@L4] y = 2; {x=1, y=2}
+[2@L5] z = x + y; {x=1, y=2, z=3}
+[3@L6] return z; {x=1, y=2, z=3}
+
+-------------------- <SimpleBinary: boolean condition()> (const-prop) --------------------
+[0@L10] x = 1; {x=1}
+[1@L10] y = 2; {x=1, y=2}
+[2@L11] if (x == y) goto 7; {x=1, y=2}
+[3@L11] goto 4; {x=1, y=2}
+[4@L11] nop; {x=1, y=2}
+[5@L11] temp$0 = 0; {temp$0=0, x=1, y=2}
+[6@L11] goto 9; {temp$0=0, x=1, y=2}
+[7@L11] nop; {x=1, y=2}
+[8@L11] temp$0 = 1; {temp$0=1, x=1, y=2}
+[9@L11] nop; {temp$0=NAC, x=1, y=2}
+[10@L11] z = temp$0; {temp$0=NAC, x=1, y=2, z=NAC}
+[11@L12] return z; {temp$0=NAC, x=1, y=2, z=NAC}
+
+-------------------- <SimpleBinary: int shift()> (const-prop) --------------------
+[0@L16] x = 1; {x=1}
+[1@L16] y = 2; {x=1, y=2}
+[2@L17] z = x << y; {x=1, y=2, z=4}
+[3@L18] return z; {x=1, y=2, z=4}
+
+-------------------- <SimpleBinary: int bitwise()> (const-prop) --------------------
+[0@L22] x = 1; {x=1}
+[1@L22] y = 2; {x=1, y=2}
+[2@L23] z = x | y; {x=1, y=2, z=3}
+[3@L24] return z; {x=1, y=2, z=3}
+
+-------------------- <SimpleBinary: int nac(int)> (const-prop) --------------------
+[0@L28] x = 1; {p=NAC, x=1}
+[1@L28] y = p; {p=NAC, x=1, y=NAC}
+[2@L29] z = x * y; {p=NAC, x=1, y=NAC, z=NAC}
+[3@L30] return z; {p=NAC, x=1, y=NAC, z=NAC}
+

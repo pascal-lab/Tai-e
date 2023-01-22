@@ -1,0 +1,59 @@
+-------------------- <BinaryOp: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <BinaryOp: void constant1()> (const-prop) --------------------
+[0@L4] i0 = 0; {i0=0}
+[1@L4] i1 = 1; {i0=0, i1=1}
+[2@L4] i2 = 2; {i0=0, i1=1, i2=2}
+[3@L5] x = 3; {i0=0, i1=1, i2=2, x=3}
+[4@L6] %intconst0 = 3; {i0=0, i1=1, i2=2, x=3}
+[5@L6] y = i0 + %intconst0; {i0=0, i1=1, i2=2, x=3, y=3}
+[6@L7] z = i1 + i2; {i0=0, i1=1, i2=2, x=3, y=3, z=3}
+[7@L7] return; {i0=0, i1=1, i2=2, x=3, y=3, z=3}
+
+-------------------- <BinaryOp: void constant2()> (const-prop) --------------------
+[0@L11] i1 = 1; {i1=1}
+[1@L12] %intconst0 = 10; {i1=1}
+[2@L12] x = i1 + %intconst0; {i1=1, x=11}
+[3@L13] %intconst1 = 5; {i1=1, x=11}
+[4@L13] y = x * %intconst1; {i1=1, x=11, y=55}
+[5@L14] %intconst2 = 12; {i1=1, x=11, y=55}
+[6@L14] z = y - %intconst2; {i1=1, x=11, y=55, z=43}
+[7@L14] return; {i1=1, x=11, y=55, z=43}
+
+-------------------- <BinaryOp: void constant3()> (const-prop) --------------------
+[0@L18] i5 = 5; {i5=5}
+[1@L19] %intconst0 = 77; {i5=5}
+[2@L19] x = i5 * %intconst0; {i5=5, x=385}
+[3@L20] %intconst1 = 6; {i5=5, x=385}
+[4@L20] y = x / %intconst1; {i5=5, x=385, y=64}
+[5@L21] %intconst2 = 5; {i5=5, x=385, y=64}
+[6@L21] z = y % %intconst2; {i5=5, x=385, y=64, z=4}
+[7@L21] return; {i5=5, x=385, y=64, z=4}
+
+-------------------- <BinaryOp: void NAC(int)> (const-prop) --------------------
+[0@L25] x = p; {p=NAC, x=NAC}
+[1@L26] temp$0 = 1; {p=NAC, temp$0=1, x=NAC}
+[2@L26] y = temp$0 + x; {p=NAC, temp$0=1, x=NAC, y=NAC}
+[3@L26] return; {p=NAC, temp$0=1, x=NAC, y=NAC}
+
+-------------------- <BinaryOp: void undefined()> (const-prop) --------------------
+[0@L31] %intconst0 = 1; {}
+[1@L31] y = x + %intconst0; {}
+[2@L31] return; {}
+
+-------------------- <BinaryOp: void longExpressions()> (const-prop) --------------------
+[0@L35] x = 1; {x=1}
+[1@L35] y = 2; {x=1, y=2}
+[2@L35] z = 3; {x=1, y=2, z=3}
+[3@L36] temp$1 = y * z; {temp$1=6, x=1, y=2, z=3}
+[4@L36] a = x + temp$1; {a=7, temp$1=6, x=1, y=2, z=3}
+[5@L37] temp$2 = x - y; {a=7, temp$1=6, temp$2=-1, x=1, y=2, z=3}
+[6@L37] b = temp$2 * z; {a=7, b=-3, temp$1=6, temp$2=-1, x=1, y=2, z=3}
+[7@L38] temp$4 = x - y; {a=7, b=-3, temp$1=6, temp$2=-1, temp$4=-1, x=1, y=2, z=3}
+[8@L38] c = temp$4 / z; {a=7, b=-3, c=0, temp$1=6, temp$2=-1, temp$4=-1, x=1, y=2, z=3}
+[9@L39] temp$7 = x + y; {a=7, b=-3, c=0, temp$1=6, temp$2=-1, temp$4=-1, temp$7=3, x=1, y=2, z=3}
+[10@L39] d = temp$7 % z; {a=7, b=-3, c=0, d=0, temp$1=6, temp$2=-1, temp$4=-1, temp$7=3, x=1, y=2, z=3}
+[11@L39] return; {a=7, b=-3, c=0, d=0, temp$1=6, temp$2=-1, temp$4=-1, temp$7=3, x=1, y=2, z=3}
+

@@ -1,0 +1,36 @@
+-------------------- <Array: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] %intconst0 = 6; {}
+[1@L4] temp$0 = newarray int[%intconst0]; {}
+[2@L4] %intconst1 = 0; {}
+[3@L4] %intconst2 = 1; {}
+[4@L4] temp$0[%intconst1] = %intconst2; {}
+[5@L4] %intconst3 = 2; {}
+[6@L4] temp$0[%intconst2] = %intconst3; {}
+[7@L4] %intconst4 = 3; {}
+[8@L4] temp$0[%intconst3] = %intconst4; {}
+[9@L4] %intconst5 = 5; {}
+[10@L4] temp$0[%intconst4] = %intconst5; {}
+[11@L4] %intconst6 = 4; {}
+[12@L4] %intconst7 = 7; {}
+[13@L4] temp$0[%intconst6] = %intconst7; {}
+[14@L4] %intconst8 = 9; {}
+[15@L4] temp$0[%intconst5] = %intconst8; {}
+[16@L4] a1 = temp$0; {}
+[17@L5] temp$2 = 3; {temp$2=3}
+[18@L5] x = a1[temp$2]; {temp$2=3, x=5}
+[19@L6] a2 = newarray int[%intconst4]; {temp$2=3, x=5}
+[20@L7] temp$4 = 0; {temp$2=3, temp$4=0, x=5}
+[21@L7] temp$5 = 666; {temp$2=3, temp$4=0, temp$5=666, x=5}
+[22@L7] a2[temp$4] = temp$5; {temp$2=3, temp$4=0, temp$5=666, x=5}
+[23@L8] temp$7 = 1; {temp$2=3, temp$4=0, temp$5=666, temp$7=1, x=5}
+[24@L8] temp$8 = 888; {temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5}
+[25@L8] a2[temp$7] = temp$8; {temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5}
+[26@L9] temp$10 = 2; {temp$10=2, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5}
+[27@L9] temp$11 = 999; {temp$10=2, temp$11=999, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5}
+[28@L9] a2[temp$10] = temp$11; {temp$10=2, temp$11=999, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5}
+[29@L10] temp$13 = 1; {temp$10=2, temp$11=999, temp$13=1, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5}
+[30@L10] y = a2[temp$13]; {temp$10=2, temp$11=999, temp$13=1, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5, y=888}
+[31@L11] temp$15 = 2; {temp$10=2, temp$11=999, temp$13=1, temp$15=2, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5, y=888}
+[32@L11] z = a2[temp$15]; {temp$10=2, temp$11=999, temp$13=1, temp$15=2, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5, y=888, z=999}
+[33@L11] return; {temp$10=2, temp$11=999, temp$13=1, temp$15=2, temp$2=3, temp$4=0, temp$5=666, temp$7=1, temp$8=888, x=5, y=888, z=999}
+

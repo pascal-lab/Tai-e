@@ -1,0 +1,45 @@
+-------------------- <UnreachableSwitchBranch2: void <init>()> (dead-code) --------------------
+
+-------------------- <UnreachableSwitchBranch2: void tableSwitch()> (dead-code) --------------------
+[4@L6] nop;
+[5@L8] %intconst1 = 1;
+[6@L8] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst1);
+[7@L9] goto 23;
+[8@L9] nop;
+[9@L11] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst0);
+[10@L12] goto 23;
+[11@L12] nop;
+[12@L14] %intconst2 = 3;
+[13@L14] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst2);
+[14@L15] goto 23;
+[19@L6] goto 23;
+
+-------------------- <UnreachableSwitchBranch2: void fallThrough()> (dead-code) --------------------
+[4@L25] nop;
+[5@L27] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst0);
+[13@L32] nop;
+[14@L34] %intconst3 = 666;
+[15@L34] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst3);
+[16@L35] goto 21;
+[17@L25] goto 21;
+
+-------------------- <UnreachableSwitchBranch2: void defaultCase()> (dead-code) --------------------
+[4@L42] nop;
+[5@L44] %intconst1 = 2;
+[6@L44] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst1);
+[7@L45] goto 24;
+[8@L45] nop;
+[9@L47] %intconst2 = 4;
+[10@L47] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst2);
+[11@L48] goto 24;
+[12@L48] nop;
+[13@L50] %intconst3 = 8;
+[14@L50] invokevirtual %this.<UnreachableSwitchBranch2: void use(int)>(%intconst3);
+[15@L51] goto 24;
+[20@L42] goto 24;
+
+-------------------- <UnreachableSwitchBranch2: void allReach(int)> (dead-code) --------------------
+[17@L59] goto 21;
+
+-------------------- <UnreachableSwitchBranch2: void use(int)> (dead-code) --------------------
+

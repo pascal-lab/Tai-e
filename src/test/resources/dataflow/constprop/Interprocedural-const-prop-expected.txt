@@ -1,0 +1,26 @@
+-------------------- <Interprocedural: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <Interprocedural: void param(int,boolean)> (const-prop) --------------------
+[0@L4] x = i; {b=NAC, i=NAC, x=NAC}
+[1@L5] %intconst0 = 10; {b=NAC, i=NAC, x=NAC}
+[2@L5] y = i + %intconst0; {b=NAC, i=NAC, x=NAC, y=NAC}
+[3@L6] p = b; {b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+[4@L6] return; {b=NAC, i=NAC, p=NAC, x=NAC, y=NAC}
+
+-------------------- <Interprocedural: void invoke()> (const-prop) --------------------
+[0@L10] temp$0 = invokevirtual %this.<Interprocedural: int ten()>(); {temp$0=NAC}
+[1@L10] x = temp$0; {temp$0=NAC, x=NAC}
+[2@L11] %intconst0 = 10; {temp$0=NAC, x=NAC}
+[3@L11] temp$1 = invokevirtual %this.<Interprocedural: int id(int)>(%intconst0); {temp$0=NAC, temp$1=NAC, x=NAC}
+[4@L11] y = temp$1; {temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+[5@L11] return; {temp$0=NAC, temp$1=NAC, x=NAC, y=NAC}
+
+-------------------- <Interprocedural: int ten()> (const-prop) --------------------
+[0@L14] temp$0 = 10; {temp$0=10}
+[1@L15] return temp$0; {temp$0=10}
+
+-------------------- <Interprocedural: int id(int)> (const-prop) --------------------
+[0@L19] return x; {x=NAC}
+

@@ -1,0 +1,13 @@
+-------------------- <UnreachableIfBranch2: void <init>()> (dead-code) --------------------
+
+-------------------- <UnreachableIfBranch2: void branch()> (dead-code) --------------------
+[3@L7] goto 8;
+[8@L10] nop;
+[9@L12] z = 200;
+[10@L14] a = x;
+[11@L15] invokevirtual %this.<UnreachableIfBranch2: void use(int)>(a);
+[12@L16] invokevirtual %this.<UnreachableIfBranch2: void use(int)>(z);
+[13@L16] return;
+
+-------------------- <UnreachableIfBranch2: void use(int)> (dead-code) --------------------
+

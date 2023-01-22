@@ -1,0 +1,12 @@
+-------------------- <Invoke: void <init>()> (live-var) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <Invoke: int invoke(int,int,int)> (live-var) --------------------
+[0@L4] x = a - b; [%this, a, x]
+[1@L5] y = a - x; [%this, x]
+[2@L6] z = x; [%this, z]
+[3@L7] %intconst0 = 0; [%intconst0, %this, z]
+[4@L7] invokevirtual %this.<Invoke: int invoke(int,int,int)>(%intconst0, %intconst0, %intconst0); [z]
+[5@L8] return z; []
+

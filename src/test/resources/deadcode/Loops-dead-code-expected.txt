@@ -1,0 +1,12 @@
+-------------------- <Loops: void <init>()> (dead-code) --------------------
+
+-------------------- <Loops: void deadLoop()> (dead-code) --------------------
+[5@L7] goto 9;
+[9@L7] nop;
+[10@L10] invokevirtual %this.<Loops: void dead()>();
+[11@L10] return;
+
+-------------------- <Loops: void dead()> (dead-code) --------------------
+
+-------------------- <Loops: void use(int)> (dead-code) --------------------
+

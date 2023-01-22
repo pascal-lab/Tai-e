@@ -1,0 +1,20 @@
+-------------------- <Loop: void <init>()> (live-var) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <Loop: int loop(int)> (live-var) --------------------
+[0@L4] y = 0; [x, y]
+[1@L5] i = 0; [i, x, y]
+[2@L5] nop; [i, x, y]
+[3@L5] if (i < x) goto 5; [i, x, y]
+[4@L5] goto 12; [y]
+[5@L5] nop; [i, x, y]
+[6@L6] %intconst0 = 20; [%intconst0, i, x, y]
+[7@L6] y = y + %intconst0; [i, x, y]
+[8@L6] nop; [i, x, y]
+[9@L5] %intconst1 = 1; [%intconst1, i, x, y]
+[10@L5] i = i + %intconst1; [i, x, y]
+[11@L5] goto 2; [i, x, y]
+[12@L5] nop; [y]
+[13@L8] return y; []
+

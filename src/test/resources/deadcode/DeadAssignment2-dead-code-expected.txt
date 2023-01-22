@@ -1,0 +1,22 @@
+-------------------- <DeadAssignment2: void <init>()> (dead-code) --------------------
+
+-------------------- <DeadAssignment2: void use(int)> (dead-code) --------------------
+
+-------------------- <DeadAssignment2: void deadAssign1()> (dead-code) --------------------
+[2@L7] o = temp$0;
+[4@L8] b = temp$1;
+
+-------------------- <DeadAssignment2: void deadAssign2()> (dead-code) --------------------
+[2@L13] y = x + %intconst0;
+[6@L16] a = x;
+
+-------------------- <DeadAssignment2: void deadAssign3(int,int)> (dead-code) --------------------
+[4@L23] y = 10;
+[9@L27] y = 200;
+
+-------------------- <DeadAssignment2: int deadAssign4()> (dead-code) --------------------
+[0@L33] x = 0;
+[1@L34] x = 1;
+
+-------------------- <DeadAssignment2: int ten()> (dead-code) --------------------
+

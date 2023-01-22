@@ -1,0 +1,19 @@
+-------------------- <UnreachableSwitchBranch: void <init>()> (dead-code) --------------------
+
+-------------------- <UnreachableSwitchBranch: void lookupSwitch()> (dead-code) --------------------
+[4@L6] nop;
+[5@L8] %intconst1 = 2;
+[6@L8] invokevirtual %this.<UnreachableSwitchBranch: void use(int)>(%intconst1);
+[7@L9] goto 24;
+[8@L9] nop;
+[9@L11] %intconst2 = 4;
+[10@L11] invokevirtual %this.<UnreachableSwitchBranch: void use(int)>(%intconst2);
+[11@L12] goto 24;
+[16@L15] nop;
+[17@L17] %intconst4 = 666;
+[18@L17] invokevirtual %this.<UnreachableSwitchBranch: void use(int)>(%intconst4);
+[19@L18] goto 24;
+[20@L6] goto 24;
+
+-------------------- <UnreachableSwitchBranch: void use(int)> (dead-code) --------------------
+

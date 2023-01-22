@@ -1,0 +1,23 @@
+-------------------- <ForLoops: void <init>()> (dead-code) --------------------
+
+-------------------- <ForLoops: void dead1()> (dead-code) --------------------
+[6@L6] nop;
+[7@L7] invokevirtual %this.<ForLoops: void use(int)>(y);
+[8@L8] return;
+[9@L8] nop;
+[10@L6] %intconst0 = 1;
+[11@L6] i = i + %intconst0;
+[12@L6] goto 3;
+
+-------------------- <ForLoops: void dead2()> (dead-code) --------------------
+[5@L16] goto 13;
+[9@L18] nop;
+[10@L16] %intconst0 = 1;
+[11@L16] i = i + %intconst0;
+[12@L16] goto 3;
+[13@L16] nop;
+[14@L20] invokevirtual %this.<ForLoops: void use(int)>(y);
+[15@L20] return;
+
+-------------------- <ForLoops: void use(int)> (dead-code) --------------------
+

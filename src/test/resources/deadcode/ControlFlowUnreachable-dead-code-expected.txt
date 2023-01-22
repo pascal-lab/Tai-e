@@ -1,0 +1,7 @@
+-------------------- <ControlFlowUnreachable: void <init>()> (dead-code) --------------------
+
+-------------------- <ControlFlowUnreachable: int foo()> (dead-code) --------------------
+[2@L6] invokestatic <ControlFlowUnreachable: void dead()>();
+
+-------------------- <ControlFlowUnreachable: void dead()> (dead-code) --------------------
+

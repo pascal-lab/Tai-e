@@ -1,7 +1,0 @@
--------------------- <UnreachableIfBranch: void <init>()> (deadcode) --------------------
-
--------------------- <UnreachableIfBranch: int branch()> (deadcode) --------------------
-[3@L7] goto 7;
-[7@L7] nop;
-[8@L10] z = 200;
-

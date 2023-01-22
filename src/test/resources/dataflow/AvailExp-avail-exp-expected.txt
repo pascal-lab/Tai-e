@@ -1,0 +1,34 @@
+-------------------- <AvailExp: void <init>()> (avail-exp) --------------------
+[0@L4] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L4] return; []
+
+-------------------- <AvailExp: int foo(int,int,int)> (avail-exp) --------------------
+[0@L7] p = a; [a]
+[1@L7] q = b; [a, b]
+[2@L9] %intconst0 = 0; [a, b]
+[3@L9] if (a > %intconst0) goto 5; [a, b]
+[4@L9] goto 12; [a, b]
+[5@L9] nop; [a, b]
+[6@L10] temp$0 = (long) a; [(long) a, a, b]
+[7@L10] l = temp$0; [(long) a, a, b, temp$0]
+[8@L11] p = a + b; [(long) a, a, a + b, b, temp$0]
+[9@L12] q = b - c; [(long) a, a, a + b, b, b - c, temp$0]
+[10@L13] r = q; [(long) a, a, a + b, b, b - c, q, temp$0]
+[11@L9] goto 18; [(long) a, a, a + b, b, b - c, q, temp$0]
+[12@L9] nop; [a, b]
+[13@L15] temp$4 = (long) a; [(long) a, a, b]
+[14@L15] l = temp$4; [(long) a, a, b, temp$4]
+[15@L16] q = a + b; [(long) a, a, a + b, b, temp$4]
+[16@L17] r = b - c; [(long) a, a, a + b, b, b - c, temp$4]
+[17@L18] c = r; [(long) a, a, a + b, b, r, temp$4]
+[18@L18] nop; [(long) a, a, a + b, b]
+[19@L20] r = p; [(long) a, a, a + b, b, p]
+[20@L21] invokevirtual %this.<AvailExp: void use(int,int,int)>(a, b, c); [(long) a, a, a + b, b, p]
+[21@L22] temp$8 = (int) l; [(int) l, (long) a, a, a + b, b, p]
+[22@L22] invokevirtual %this.<AvailExp: void use(int,int,int)>(temp$8, r, q); [(int) l, (long) a, a, a + b, b, p]
+[23@L22] temp$10 = r + q; [(int) l, (long) a, a, a + b, b, p, r + q]
+[24@L23] return temp$10; [(int) l, (long) a, a, a + b, b, p, r + q]
+
+-------------------- <AvailExp: void use(int,int,int)> (avail-exp) --------------------
+[0@L26] return; []
+

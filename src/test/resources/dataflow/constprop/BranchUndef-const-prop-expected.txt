@@ -1,0 +1,23 @@
+-------------------- <BranchUndef: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <BranchUndef: void undefined1(boolean)> (const-prop) --------------------
+[0@L5] %intconst0 = 0; {b=NAC}
+[1@L5] if (b == %intconst0) goto 6; {b=NAC}
+[2@L5] goto 3; {b=NAC}
+[3@L5] nop; {b=NAC}
+[4@L6] x = undef; {b=NAC}
+[5@L5] goto 8; {b=NAC}
+[6@L5] nop; {b=NAC}
+[7@L8] x = 10; {b=NAC, x=10}
+[8@L8] nop; {b=NAC, x=10}
+[9@L10] y = x; {b=NAC, x=10, y=10}
+[10@L10] return; {b=NAC, x=10, y=10}
+
+-------------------- <BranchUndef: void undefined2(boolean)> (const-prop) --------------------
+[0@L15] x = undef; {b=NAC}
+[1@L16] x = 20; {b=NAC, x=20}
+[2@L17] a = x; {a=20, b=NAC, x=20}
+[3@L17] return; {a=20, b=NAC, x=20}
+

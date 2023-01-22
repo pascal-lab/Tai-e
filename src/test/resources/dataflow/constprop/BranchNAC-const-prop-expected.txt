@@ -1,0 +1,45 @@
+-------------------- <BranchNAC: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <BranchNAC: void NAC1(boolean)> (const-prop) --------------------
+[0@L5] %intconst0 = 0; {b=NAC}
+[1@L5] if (b == %intconst0) goto 6; {b=NAC}
+[2@L5] goto 3; {b=NAC}
+[3@L5] nop; {b=NAC}
+[4@L6] x = 10; {b=NAC, x=10}
+[5@L5] goto 8; {b=NAC, x=10}
+[6@L5] nop; {b=NAC}
+[7@L8] x = 20; {b=NAC, x=20}
+[8@L8] nop; {b=NAC, x=NAC}
+[9@L10] y = x; {b=NAC, x=NAC, y=NAC}
+[10@L10] return; {b=NAC, x=NAC, y=NAC}
+
+-------------------- <BranchNAC: void NAC2(boolean,int)> (const-prop) --------------------
+[0@L15] %intconst0 = 0; {b=NAC, p=NAC}
+[1@L15] if (b == %intconst0) goto 6; {b=NAC, p=NAC}
+[2@L15] goto 3; {b=NAC, p=NAC}
+[3@L15] nop; {b=NAC, p=NAC}
+[4@L16] x = undef; {b=NAC, p=NAC}
+[5@L15] goto 8; {b=NAC, p=NAC}
+[6@L15] nop; {b=NAC, p=NAC}
+[7@L18] x = p; {b=NAC, p=NAC, x=NAC}
+[8@L18] nop; {b=NAC, p=NAC, x=NAC}
+[9@L20] y = x; {b=NAC, p=NAC, x=NAC, y=NAC}
+[10@L20] return; {b=NAC, p=NAC, x=NAC, y=NAC}
+
+-------------------- <BranchNAC: void nonDistributivity(boolean)> (const-prop) --------------------
+[0@L25] %intconst0 = 0; {b=NAC}
+[1@L25] if (b == %intconst0) goto 7; {b=NAC}
+[2@L25] goto 3; {b=NAC}
+[3@L25] nop; {b=NAC}
+[4@L26] x = 2; {b=NAC, x=2}
+[5@L27] y = 3; {b=NAC, x=2, y=3}
+[6@L25] goto 10; {b=NAC, x=2, y=3}
+[7@L25] nop; {b=NAC}
+[8@L29] x = 3; {b=NAC, x=3}
+[9@L30] y = 2; {b=NAC, x=3, y=2}
+[10@L30] nop; {b=NAC, x=NAC, y=NAC}
+[11@L32] z = x + y; {b=NAC, x=NAC, y=NAC, z=NAC}
+[12@L32] return; {b=NAC, x=NAC, y=NAC, z=NAC}
+

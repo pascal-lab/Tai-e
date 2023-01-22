@@ -1,0 +1,24 @@
+-------------------- <Fibonacci: void <init>()> (live-var) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
+-------------------- <Fibonacci: int getFibonacci(int)> (live-var) --------------------
+[0@L3] %intconst0 = 0; [%intconst0, %this, n]
+[1@L3] if (n == %intconst0) goto 8; [%this, n]
+[2@L3] goto 3; [%this, n]
+[3@L3] nop; [%this, n]
+[4@L3] %intconst1 = 1; [%intconst1, %this, n]
+[5@L3] if (n == %intconst1) goto 8; [%intconst1, %this, n]
+[6@L3] goto 10; [%intconst1, %this, n]
+[7@L3] goto 10; [%intconst1, %this, n]
+[8@L3] nop; [n]
+[9@L4] return n; []
+[10@L4] nop; [%intconst1, %this, n]
+[11@L6] temp$0 = n - %intconst1; [%this, n, temp$0]
+[12@L6] temp$1 = invokevirtual %this.<Fibonacci: int getFibonacci(int)>(temp$0); [%this, n, temp$1]
+[13@L6] %intconst2 = 2; [%intconst2, %this, n, temp$1]
+[14@L6] temp$3 = n - %intconst2; [%this, temp$1, temp$3]
+[15@L6] temp$4 = invokevirtual %this.<Fibonacci: int getFibonacci(int)>(temp$3); [temp$1, temp$4]
+[16@L6] temp$5 = temp$1 + temp$4; [temp$5]
+[17@L6] return temp$5; []
+
