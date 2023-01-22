@@ -56,6 +56,35 @@ public class GraphTest {
     }
 
     @Test
+    public void testSimpleGraphCopy() {
+        Graph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
+        SimpleGraph<Integer> copy = new SimpleGraph<>(g);
+        Assert.assertEquals(g.getNumberOfNodes(), copy.getNumberOfNodes());
+        for (Integer node : g) {
+            for (Integer succ : g.getSuccsOf(node)) {
+                Assert.assertTrue(copy.hasEdge(node, succ));
+            }
+        }
+    }
+
+    @Test
+    public void testSimpleGraphRemove() {
+        SimpleGraph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
+        Assert.assertEquals(6, g.getNumberOfNodes());
+        Assert.assertTrue(g.hasEdge(1, 3));
+        Assert.assertTrue(g.hasEdge(1, 5));
+
+        g.removeNode(1);
+        Assert.assertEquals(5, g.getNumberOfNodes());
+        Assert.assertFalse(g.hasEdge(1, 3));
+        Assert.assertFalse(g.hasEdge(1, 5));
+
+        Assert.assertTrue(g.hasEdge(3, 6));
+        g.removeEdge(3, 6);
+        Assert.assertFalse(g.hasEdge(3, 6));
+    }
+
+    @Test
     public void testTopsort() {
         Graph<Integer> g = readGraph("src/test/resources/util/graph-topsort.txt");
         List<Integer> l = new TopoSorter<>(g).get();
@@ -108,7 +137,7 @@ public class GraphTest {
         Assert.assertEquals(domFinder.getNodesDominatedBy(9), Set.of(9));
     }
 
-    private static Graph<Integer> readGraph(String filePath) {
+    private static SimpleGraph<Integer> readGraph(String filePath) {
         SimpleGraph<Integer> graph = new SimpleGraph<>();
         try {
             Files.readAllLines(Path.of(filePath)).forEach(line -> {
