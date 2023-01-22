@@ -29,7 +29,9 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -38,7 +40,7 @@ import java.util.stream.Stream;
  *
  * @param <E> type of elements
  */
-public class SetFact<E> implements Copyable<SetFact<E>> {
+public class SetFact<E> implements Copyable<SetFact<E>>, Iterable<E> {
 
     protected final Set<E> set;
 
@@ -167,6 +169,15 @@ public class SetFact<E> implements Copyable<SetFact<E>> {
 
     public Stream<E> stream() {
         return set.stream();
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return set.iterator();
+    }
+
+    public void forEach(Consumer<? super E> action) {
+        set.forEach(action);
     }
 
     public int size() {
