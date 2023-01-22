@@ -20,9 +20,10 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.dataflow.analysis;
+package pascal.taie.analysis.deadcode;
 
 import pascal.taie.analysis.MethodAnalysis;
+import pascal.taie.analysis.dataflow.analysis.LiveVariable;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPFact;
 import pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation;
 import pascal.taie.analysis.dataflow.analysis.constprop.Evaluator;

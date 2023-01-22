@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import pascal.taie.analysis.bugfinder.BugFinderTestSuite;
 import pascal.taie.analysis.dataflow.DataflowTestSuite;
+import pascal.taie.analysis.deadcode.DeadCodeTestFull;
 import pascal.taie.analysis.defuse.DefUseTest;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.PTATestSuite;
@@ -44,11 +45,12 @@ import pascal.taie.util.UtilTestSuite;
         HierarchyTest.class,
         DefaultMethodTest.class,
         // analysis
+        BugFinderTestSuite.class,
         DataflowTestSuite.class,
+        DeadCodeTestFull.class,
         DefUseTest.class,
         CHATestFull.class,
         PTATestSuite.class,
-        BugFinderTestSuite.class,
         // util
         OptionsTest.class,
         UtilTestSuite.class,

@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.dataflow.analysis;
+package pascal.taie.analysis.deadcode;
 
 import org.junit.Test;
 

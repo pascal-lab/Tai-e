@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.dataflow.analysis;
+package pascal.taie.analysis.deadcode;
 
 import org.junit.Test;
 import pascal.taie.analysis.Tests;
@@ -28,7 +28,7 @@ import pascal.taie.analysis.Tests;
 public class DeadCodeTest {
 
     void testDCD(String inputClass) {
-        Tests.testInput(inputClass, "src/test/resources/dataflow/deadcode/",
+        Tests.testInput(inputClass, "src/test/resources/deadcode/",
                 DeadCodeDetection.ID,
                 "-a", "livevar=strongly:false",
                 "-a", "constprop=edge-refine:false");

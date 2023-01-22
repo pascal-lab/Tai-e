@@ -107,7 +107,7 @@
     alias-aware: false # leverage alias information to improve precision
 
 - description: dead code detection
-  analysisClass: pascal.taie.analysis.dataflow.analysis.DeadCodeDetection
+  analysisClass: pascal.taie.analysis.deadcode.DeadCodeDetection
   id: deadcode
   requires: [ cfg,constprop,livevar ]
 
