@@ -60,7 +60,7 @@ import java.util.TreeSet;
  */
 public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
 
-    public static final String ID = "deadcode";
+    public static final String ID = "dead-code";
 
     public DeadCodeDetection(AnalysisConfig config) {
         super(config);

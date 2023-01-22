@@ -48,7 +48,7 @@ import pascal.taie.ir.stmt.Stmt;
  */
 public class AvailableExpression extends AnalysisDriver<Stmt, SetFact<ExpWrapper>> {
 
-    public static final String ID = "availexp";
+    public static final String ID = "avail-exp";
 
     public AvailableExpression(AnalysisConfig config) {
         super(config);

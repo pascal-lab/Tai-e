@@ -55,7 +55,7 @@ import java.util.List;
 
 public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
-    public static final String ID = "isnull";
+    public static final String ID = "is-null";
 
     public IsNullAnalysis(AnalysisConfig config) {
         super(config);

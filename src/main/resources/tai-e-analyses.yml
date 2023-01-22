@@ -68,24 +68,24 @@
 
 - description: live variable analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariable
-  id: livevar
+  id: live-var
   requires: [ cfg ]
   options:
     strongly: true # enable strongly live variable analysis
 
 - description: available expression analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpression
-  id: availexp
+  id: avail-exp
   requires: [ cfg ]
 
 - description: reaching definition analysis
   analysisClass: pascal.taie.analysis.dataflow.analysis.ReachingDefinition
-  id: reachdef
+  id: reach-def
   requires: [ cfg ]
 
 - description: constant propagation
   analysisClass: pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
-  id: constprop
+  id: const-prop
   requires: [ cfg ]
   options:
     edge-refine: true # refine lattice value via edge transfer
@@ -93,14 +93,14 @@
 - description: def-use analysis
   analysisClass: pascal.taie.analysis.defuse.DefUseAnalysis
   id: def-use
-  requires: [ reachdef ]
+  requires: [ reach-def ]
   options:
     compute-defs: true # whether compute definitions of variables
     compute-uses: false # whether compute uses of variables
 
 - description: inter-procedural constant propagation
   analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
-  id: inter-constprop
+  id: inter-const-prop
   requires: [ icfg, pta(alias-aware=true) ]
   options:
     edge-refine: true # refine lattice value via edge transfer
@@ -108,8 +108,8 @@
 
 - description: dead code detection
   analysisClass: pascal.taie.analysis.deadcode.DeadCodeDetection
-  id: deadcode
-  requires: [ cfg,constprop,livevar ]
+  id: dead-code
+  requires: [ cfg,const-prop,live-var ]
 
 - description: process results of previously-run analyses
   analysisClass: pascal.taie.analysis.misc.ResultProcessor
@@ -131,13 +131,13 @@
 
 - description: null value analysis
   analysisClass: pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis
-  id: isnull
+  id: is-null
   requires: [ cfg ]
 
 - description: Null pointer and redundant comparison detector
   analysisClass: pascal.taie.analysis.bugfinder.nullpointer.NullPointerDetection
   id: null-pointer
-  requires: [ isnull ]
+  requires: [ is-null ]
 
 - description: find clone() related problems
   analysisClass: pascal.taie.analysis.bugfinder.CloneIdiom

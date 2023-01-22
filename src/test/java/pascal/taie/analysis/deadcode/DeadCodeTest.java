@@ -30,8 +30,8 @@ public class DeadCodeTest {
     void testDCD(String inputClass) {
         Tests.testInput(inputClass, "src/test/resources/deadcode/",
                 DeadCodeDetection.ID,
-                "-a", "livevar=strongly:false",
-                "-a", "constprop=edge-refine:false");
+                "-a", "live-var=strongly:false",
+                "-a", "const-prop=edge-refine:false");
     }
 
     @Test

@@ -36,7 +36,7 @@ import pascal.taie.util.collection.IndexerBitSet;
  */
 public class LiveVariable extends AnalysisDriver<Stmt, SetFact<Var>> {
 
-    public static final String ID = "livevar";
+    public static final String ID = "live-var";
 
     public LiveVariable(AnalysisConfig config) {
         super(config);

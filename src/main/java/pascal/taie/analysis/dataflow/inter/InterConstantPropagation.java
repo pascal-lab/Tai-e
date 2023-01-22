@@ -60,7 +60,7 @@ import static pascal.taie.ir.exp.Exps.holdsInt;
 public class InterConstantPropagation extends
         AbstractInterDataflowAnalysis<JMethod, Stmt, CPFact> {
 
-    public static final String ID = "inter-constprop";
+    public static final String ID = "inter-const-prop";
 
     private final ConstantPropagation.Analysis cp;
 

@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
-    public static final String ID = "reachdef";
+    public static final String ID = "reach-def";
 
     public ReachingDefinition(AnalysisConfig config) {
         super(config);

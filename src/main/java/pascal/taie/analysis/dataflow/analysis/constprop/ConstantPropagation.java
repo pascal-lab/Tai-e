@@ -42,7 +42,7 @@ import pascal.taie.ir.stmt.SwitchStmt;
  */
 public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
 
-    public static final String ID = "constprop";
+    public static final String ID = "const-prop";
 
     public ConstantPropagation(AnalysisConfig config) {
         super(config);
