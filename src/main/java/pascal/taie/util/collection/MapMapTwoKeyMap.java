@@ -22,6 +22,8 @@
 
 package pascal.taie.util.collection;
 
+import pascal.taie.util.TriFunction;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -117,6 +119,12 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void replaceALl(TriFunction<? super K1, ? super K2, ? super V, ? extends V> function) {
+        map.forEach((k1, map2) ->
+                map2.replaceAll((k2, v) -> function.apply(k1, k2, v)));
     }
 
     @Override

@@ -88,6 +88,12 @@ public final class Maps {
     }
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
-        return new MapMapTwoKeyMap<>(newMap(), Maps::newHybridMap);
+        return newTwoKeyMap(Maps::newMap, Maps::newHybridMap);
+    }
+
+    public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap(
+            Supplier<Map<K1, Map<K2, V>>> map1Factory,
+            Supplier<Map<K2, V>> map2Factory) {
+        return new MapMapTwoKeyMap<>(map1Factory.get(), map2Factory);
     }
 }

@@ -23,6 +23,7 @@
 package pascal.taie.util.collection;
 
 import pascal.taie.util.TriConsumer;
+import pascal.taie.util.TriFunction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -128,6 +129,13 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return {@code true} if the two-key map changed.
      */
     boolean removeAll(K1 key1);
+
+    /**
+     * Replaces each entry's value with the result of invoking the given function
+     * on that entry until all entries have been processed or the function throws
+     * an exception.
+     */
+    void replaceALl(TriFunction<? super K1, ? super K2, ? super V, ? extends V> function);
 
     /**
      * @return an unmodifiable view of all <i>distinct</i> two-key pairs
