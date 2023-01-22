@@ -31,6 +31,7 @@ import pascal.taie.util.Indexer;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -88,6 +89,16 @@ public class DefaultIR extends AbstractResultHolder implements IR {
     @Override
     public Var getParam(int i) {
         return params.get(i);
+    }
+
+    @Override
+    public boolean isParam(Var var) {
+        return params.contains(var);
+    }
+
+    @Override
+    public boolean isThisOrParam(Var var) {
+        return Objects.equals(thisVar, var) || isParam(var);
     }
 
     @Override

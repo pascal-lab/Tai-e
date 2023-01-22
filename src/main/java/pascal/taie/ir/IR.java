@@ -66,6 +66,17 @@ public interface IR extends Iterable<Stmt>, Indexer<Stmt>, ResultHolder {
     Var getParam(int i);
 
     /**
+     * @return {@code true} if {@code var} is a parameter of this IR.
+     */
+    boolean isParam(Var var);
+
+    /**
+     * @return {@code true} if {@code var} is "this" variable or a parameter
+     * of this IR.
+     */
+    boolean isThisOrParam(Var var);
+
+    /**
      * @return all returned variables. If the method return type is void,
      * then returns empty list.
      */
