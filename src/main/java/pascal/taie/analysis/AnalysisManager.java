@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
@@ -36,9 +37,11 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Timer;
+import pascal.taie.util.graph.SimpleGraph;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -51,28 +54,67 @@ public class AnalysisManager {
 
     private final Plan plan;
 
+    /**
+     * Whether keep results of all analyses. If the value is {@code false},
+     * this manager will clear unused results after it finishes each analysis.
+     */
+    private final boolean keepAllResults;
+
+    /**
+     * Graph that describes the dependencies among analyses (represented
+     * by their IDs) in the plan. This graph is used to check whether
+     * certain analysis results are useful.
+     */
+    private SimpleGraph<String> dependenceGraph;
+
+    /**
+     * List of analyses that have been executed. For an element in this list,
+     * once its result is clear, it will also be removed from this list.
+     */
+    private List<Analysis> executedAnalyses;
+
     private List<JClass> classScope;
 
     private List<JMethod> methodScope;
 
     public AnalysisManager(Plan plan) {
         this.plan = plan;
+        this.keepAllResults = plan.keepResult().contains(Plan.KEEP_ALL);
     }
 
     /**
      * Executes the analysis plan.
      */
     public void execute() {
-        plan.analyses().forEach(config -> Timer.runAndCount(
-                () -> runAnalysis(config), config.getId()));
+        // initialize
+        if (!keepAllResults) {
+            dependenceGraph = new SimpleGraph<>();
+            for (AnalysisConfig c : plan.dependenceGraph()) {
+                for (AnalysisConfig succ : plan.dependenceGraph().getSuccsOf(c)) {
+                    dependenceGraph.addEdge(c.getId(), succ.getId());
+                }
+            }
+            executedAnalyses = new ArrayList<>();
+        }
+        classScope = null;
+        methodScope = null;
+        // execute analyses
+        plan.analyses().forEach(config -> {
+            Analysis analysis = Timer.runAndCount(
+                    () -> runAnalysis(config), config.getId(), Level.INFO);
+            if (!keepAllResults) {
+                executedAnalyses.add(analysis);
+                clearUnusedResults(analysis);
+            }
+        });
     }
 
-    private void runAnalysis(AnalysisConfig config) {
+    private Analysis runAnalysis(AnalysisConfig config) {
         try {
             // Create analysis instance
             Class<?> clazz = Class.forName(config.getAnalysisClass());
             Constructor<?> ctor = clazz.getConstructor(AnalysisConfig.class);
-            Object analysis = ctor.newInstance(config);
+            Analysis analysis = (Analysis) ctor.newInstance(config);
             // Run the analysis
             if (analysis instanceof ProgramAnalysis) {
                 runProgramAnalysis((ProgramAnalysis<?>) analysis);
@@ -81,9 +123,11 @@ public class AnalysisManager {
             } else if (analysis instanceof MethodAnalysis) {
                 runMethodAnalysis((MethodAnalysis<?>) analysis);
             } else {
-                throw new ConfigException(clazz + " is not an analysis class");
+                throw new ConfigException(clazz +
+                        " is not a supported analysis class");
             }
-        } catch (ClassNotFoundException  e) {
+            return analysis;
+        } catch (ClassNotFoundException e) {
             throw new AnalysisException("Analysis class " +
                     config.getAnalysisClass() + " is not found", e);
         } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -93,6 +137,9 @@ public class AnalysisManager {
         } catch (InstantiationException | InvocationTargetException e) {
             throw new AnalysisException("Failed to initialize " +
                     config.getAnalysisClass(), e);
+        } catch (ClassCastException e) {
+            throw new ConfigException(config.getAnalysisClass() +
+                    " is not an analysis class");
         }
     }
 
@@ -170,5 +217,43 @@ public class AnalysisManager {
                     methodScope.size(), scope);
         }
         return methodScope;
+    }
+
+    /**
+     * @param analysis the analysis that just finished.
+     */
+    private void clearUnusedResults(Analysis analysis) {
+        // analysis has finished, we can remove its dependencies
+        // copy in-edges to a new list to avoid concurrent modifications
+        var edgesToRemove = new ArrayList<>(
+                dependenceGraph.getInEdgesOf(analysis.getId()));
+        edgesToRemove.forEach(e ->
+                dependenceGraph.removeEdge(e.getSource(), e.getTarget()));
+        // select the analyses whose results are unused and not in keepResult
+        List<String> unused = executedAnalyses.stream()
+                .map(Analysis::getId)
+                .filter(id -> dependenceGraph.getOutDegreeOf(id) == 0)
+                .filter(id -> !plan.keepResult().contains(id))
+                .toList();
+        if (!unused.isEmpty()) {
+            logger.info("Clearing unused results of {} ...", unused);
+            for (String id : unused) {
+                int i;
+                for (i = 0; i < executedAnalyses.size(); ++i) {
+                    Analysis a = executedAnalyses.get(i);
+                    if (a.getId().equals(id)) {
+                        if (a instanceof ProgramAnalysis) {
+                            World.get().clearResult(id);
+                        } else if (a instanceof ClassAnalysis) {
+                            getClassScope().forEach(c -> c.clearResult(id));
+                        } else if (a instanceof MethodAnalysis) {
+                            getMethodScope().forEach(m -> m.getIR().clearResult(id));
+                        }
+                        break;
+                    }
+                }
+                executedAnalyses.remove(i);
+            }
+        }
     }
 }

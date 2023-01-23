@@ -46,6 +46,9 @@ public class AnalysisPlanner {
 
     private final ConfigManager manager;
 
+    /**
+     * Set of IDs for the analyses whose results are kept.
+     */
     private final Set<String> keepResult;
 
     public AnalysisPlanner(ConfigManager manager, Set<String> keepResult) {

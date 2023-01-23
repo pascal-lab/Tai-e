@@ -28,18 +28,21 @@ import pascal.taie.util.graph.SimpleGraph;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Contains information about analysis execution plan.
+ *
+ * @param analyses        list of analyses to be executed.
+ * @param dependenceGraph graph that describes dependencies among analyses.
+ *                        This graph is used to clear unused analysis results.
+ * @param keepResult      set of IDs for the analyses whose results are kept.
+ */
 public record Plan(
-        // List of analyses to be executed.
         List<AnalysisConfig> analyses,
-
-        // Graph that describes dependence among analyses.
         Graph<AnalysisConfig> dependenceGraph,
-
-        // Set of analyses whose results are kept.
-        Set<String> keptAnalyses) {
+        Set<String> keepResult) {
 
     /**
-     * Special element for {@link #keptAnalyses}, which means
+     * Special element for {@link #keepResult}, which means
      * to keep results of all analyses.
      */
     public static final String KEEP_ALL = "$KEEP-ALL";
