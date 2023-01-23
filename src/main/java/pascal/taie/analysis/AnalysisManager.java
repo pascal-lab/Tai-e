@@ -29,6 +29,7 @@ import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.ConfigException;
+import pascal.taie.config.Plan;
 import pascal.taie.config.Scope;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
@@ -48,15 +49,21 @@ public class AnalysisManager {
 
     private static final Logger logger = LogManager.getLogger(AnalysisManager.class);
 
+    private final Plan plan;
+
     private List<JClass> classScope;
 
     private List<JMethod> methodScope;
 
+    public AnalysisManager(Plan plan) {
+        this.plan = plan;
+    }
+
     /**
      * Executes the analysis plan.
      */
-    public void execute(List<AnalysisConfig> analysisPlan) {
-        analysisPlan.forEach(config -> Timer.runAndCount(
+    public void execute() {
+        plan.analyses().forEach(config -> Timer.runAndCount(
                 () -> runAnalysis(config), config.getId()));
     }
 

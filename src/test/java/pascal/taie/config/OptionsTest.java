@@ -22,9 +22,11 @@
 
 package pascal.taie.config;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -80,5 +82,13 @@ public class OptionsTest {
         PlanConfig pta = configs.get(1);
         assertEquals(1800, pta.getOptions().get("timeout"));
         assertFalse((Boolean) pta.getOptions().get("merge-string-objects"));
+    }
+
+    @Test
+    public void testKeepResult() {
+        Options options = Options.parse();
+        Assert.assertEquals(Set.of(Plan.KEEP_ALL), options.getKeepResult());
+        options = Options.parse("-kr", "pta,def-use");
+        Assert.assertEquals(Set.of("pta", "def-use"), options.getKeepResult());
     }
 }

@@ -30,6 +30,7 @@ import pascal.taie.config.AnalysisPlanner;
 import pascal.taie.config.ConfigManager;
 import pascal.taie.config.Configs;
 import pascal.taie.config.Options;
+import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 import pascal.taie.util.Timer;
@@ -47,12 +48,12 @@ public class Main {
     public static void main(String[] args) {
         Timer.runAndCount(() -> {
             Options options = processArgs(args);
-            List<AnalysisConfig> plan = processConfigs(options);
-            if (plan.isEmpty()) {
+            Plan plan = processConfigs(options);
+            if (plan.analyses().isEmpty()) {
                 logger.info("No analyses are specified");
                 System.exit(0);
             }
-            buildWorld(options, plan);
+            buildWorld(options, plan.analyses());
             executePlan(plan);
         }, "Tai-e");
     }
@@ -70,25 +71,26 @@ public class Main {
         return options;
     }
 
-    private static List<AnalysisConfig> processConfigs(Options options) {
+    private static Plan processConfigs(Options options) {
         InputStream content = Configs.getAnalysisConfig();
         List<AnalysisConfig> analysisConfigs = AnalysisConfig.parseConfigs(content);
         ConfigManager manager = new ConfigManager(analysisConfigs);
-        AnalysisPlanner planner = new AnalysisPlanner(manager);
+        AnalysisPlanner planner = new AnalysisPlanner(
+                manager, options.getKeepResult());
         boolean reachableScope = options.getScope().equals(Scope.REACHABLE);
         if (!options.getAnalyses().isEmpty()) {
             // Analyses are specified by options
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
             manager.overwriteOptions(planConfigs);
-            List<AnalysisConfig> plan = planner.expandPlan(
+            Plan plan = planner.expandPlan(
                     planConfigs, reachableScope);
             // Output analysis plan to file.
             // For outputting purpose, we first convert AnalysisConfigs
             // in the expanded plan to PlanConfigs
-            List<PlanConfig> configs = Lists.map(plan,
+            planConfigs = Lists.map(plan.analyses(),
                     ac -> new PlanConfig(ac.getId(), ac.getOptions()));
             // TODO: turn off output in testing?
-            PlanConfig.writeConfigs(configs, Configs.getDefaultPlan());
+            PlanConfig.writeConfigs(planConfigs, Configs.getDefaultPlan());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it
                 return plan;
@@ -100,7 +102,7 @@ public class Main {
             return planner.makePlan(planConfigs, reachableScope);
         }
         // No analyses are specified
-        return List.of();
+        return Plan.emptyPlan();
     }
 
     /**
@@ -108,17 +110,17 @@ public class Main {
      */
     public static void buildWorld(String... args) {
         Options options = Options.parse(args);
-        List<AnalysisConfig> plan = processConfigs(options);
-        buildWorld(options, plan);
+        Plan plan = processConfigs(options);
+        buildWorld(options, plan.analyses());
     }
 
-    private static void buildWorld(Options options, List<AnalysisConfig> plan) {
+    private static void buildWorld(Options options, List<AnalysisConfig> analyses) {
         Timer.runAndCount(() -> {
             try {
                 Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
                 Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();
                 WorldBuilder builder = builderCtor.newInstance();
-                builder.build(options, plan);
+                builder.build(options, analyses);
                 logger.info("{} classes with {} methods in the world",
                         World.get()
                                 .getClassHierarchy()
@@ -137,8 +139,7 @@ public class Main {
         }, "WorldBuilder");
     }
 
-    private static void executePlan(List<AnalysisConfig> plan) {
-        AnalysisManager analysisManager = new AnalysisManager();
-        analysisManager.execute(plan);
+    private static void executePlan(Plan plan) {
+        new AnalysisManager(plan).execute();
     }
 }

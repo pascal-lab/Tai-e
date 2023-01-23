@@ -20,25 +20,36 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie;
+package pascal.taie.config;
 
-import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.Options;
+import pascal.taie.util.graph.Graph;
+import pascal.taie.util.graph.SimpleGraph;
 
 import java.util.List;
+import java.util.Set;
 
-/**
- * Interface for {@link World} builder.
- */
-public interface WorldBuilder {
+public record Plan(
+        // List of analyses to be executed.
+        List<AnalysisConfig> analyses,
+
+        // Graph that describes dependence among analyses.
+        Graph<AnalysisConfig> dependenceGraph,
+
+        // Set of analyses whose results are kept.
+        Set<String> keptAnalyses) {
 
     /**
-     * Builds a new instance of {@link World} and make it globally accessible
-     * through static methods of {@link World}.
-     * TODO: remove {@code analyses}.
-     *
-     * @param options  the options
-     * @param analyses the analyses to be executed
+     * Special element for {@link #keptAnalyses}, which means
+     * to keep results of all analyses.
      */
-    void build(Options options, List<AnalysisConfig> analyses);
+    public static final String KEEP_ALL = "$KEEP-ALL";
+
+    private static final Plan EMPTY = new Plan(List.of(), new SimpleGraph<>(), Set.of());
+
+    /**
+     * @return an empty plan.
+     */
+    public static Plan emptyPlan() {
+        return EMPTY;
+    }
 }

@@ -46,8 +46,11 @@ public class AnalysisPlanner {
 
     private final ConfigManager manager;
 
-    public AnalysisPlanner(ConfigManager manager) {
+    private final Set<String> keepResult;
+
+    public AnalysisPlanner(ConfigManager manager, Set<String> keepResult) {
         this.manager = manager;
+        this.keepResult = keepResult;
     }
 
     /**
@@ -58,11 +61,13 @@ public class AnalysisPlanner {
      * @return the analysis plan consists of a list of analysis config.
      * @throws ConfigException if the given planConfigs are invalid.
      */
-    public List<AnalysisConfig> makePlan(List<PlanConfig> planConfigs,
-                                         boolean reachableScope) {
-        List<AnalysisConfig> plan = covertConfigs(planConfigs);
-        validatePlan(plan, reachableScope);
-        return plan;
+    public Plan makePlan(List<PlanConfig> planConfigs,
+                         boolean reachableScope) {
+        List<AnalysisConfig> analyses = covertConfigs(planConfigs);
+        validateAnalyses(analyses, reachableScope);
+        Graph<AnalysisConfig> graph = buildDependenceGraph(analyses);
+        validateDependenceGraph(graph);
+        return new Plan(analyses, graph, keepResult);
     }
 
     /**
@@ -75,19 +80,19 @@ public class AnalysisPlanner {
     }
 
     /**
-     * Checks if the given analysis plan is valid.
+     * Checks if the given analysis sequence is valid.
      *
-     * @param plan           the given analysis plan
+     * @param analyses       the given analysis sequence
      * @param reachableScope whether the analysis scope is set to reachable
-     * @throws ConfigException if the given plan is invalid
+     * @throws ConfigException if the given analyses is invalid
      */
-    private void validatePlan(List<AnalysisConfig> plan, boolean reachableScope) {
+    private void validateAnalyses(List<AnalysisConfig> analyses, boolean reachableScope) {
         // check if all required analyses are placed in front of
         // their requiring analyses
-        for (int i = 0; i < plan.size(); ++i) {
-            AnalysisConfig config = plan.get(i);
+        for (int i = 0; i < analyses.size(); ++i) {
+            AnalysisConfig config = analyses.get(i);
             for (AnalysisConfig required : manager.getRequiredConfigs(config)) {
-                int rindex = plan.indexOf(required);
+                int rindex = analyses.indexOf(required);
                 if (rindex == -1) {
                     // required analysis is missing
                     throw new ConfigException(String.format(
@@ -104,16 +109,16 @@ public class AnalysisPlanner {
         }
         if (reachableScope) { // analysis scope is set to reachable
             // check if given analyses include call graph builder
-            AnalysisConfig cg = CollectionUtils.findFirst(plan,
+            AnalysisConfig cg = CollectionUtils.findFirst(analyses,
                     AnalysisPlanner::isCG);
             if (cg == null) {
                 throw new ConfigException(String.format("Scope is reachable" +
-                                " but call graph builder (%s) is not given in plan",
+                                " but call graph builder (%s) is not given in analyses",
                         CallGraphBuilder.ID));
             }
             // check if call graph builder is executed as early as possible
             Set<AnalysisConfig> cgRequired = manager.getAllRequiredConfigs(cg);
-            for (AnalysisConfig config : plan) {
+            for (AnalysisConfig config : analyses) {
                 if (config.equals(cg)) {
                     break;
                 }
@@ -140,8 +145,8 @@ public class AnalysisPlanner {
      * @return the analysis plan consisting of a list of analysis config.
      * @throws ConfigException if the specified planConfigs is invalid.
      */
-    public List<AnalysisConfig> expandPlan(List<PlanConfig> planConfigs,
-                                           boolean reachableScope) {
+    public Plan expandPlan(List<PlanConfig> planConfigs,
+                           boolean reachableScope) {
         List<AnalysisConfig> configs = covertConfigs(planConfigs);
         if (reachableScope) { // complete call graph builder
             AnalysisConfig cg = CollectionUtils.findFirst(configs,
@@ -152,23 +157,26 @@ public class AnalysisPlanner {
                 configs.add(manager.getConfig(CallGraphBuilder.ID));
             }
         }
-        Graph<AnalysisConfig> graph = buildRequireGraph(configs);
-        validateRequireGraph(graph);
-        List<AnalysisConfig> plan = new TopoSorter<>(graph, configs).get();
-        return reachableScope ? shiftCG(plan) : plan;
+        Graph<AnalysisConfig> graph = buildDependenceGraph(configs);
+        validateDependenceGraph(graph);
+        List<AnalysisConfig> analyses = new TopoSorter<>(graph, configs).get();
+        if (reachableScope) {
+            analyses = shiftCG(analyses);
+        }
+        return new Plan(analyses, graph, keepResult);
     }
 
     /**
-     * Shifts call graph builder (cg) in given plan to ensure that
+     * Shifts call graph builder (cg) in given sequence to ensure that
      * it will run before all the analyses that it does not require.
      */
-    private List<AnalysisConfig> shiftCG(List<AnalysisConfig> plan) {
-        AnalysisConfig cg = CollectionUtils.findFirst(plan,
+    private List<AnalysisConfig> shiftCG(List<AnalysisConfig> analyses) {
+        AnalysisConfig cg = CollectionUtils.findFirst(analyses,
                 AnalysisPlanner::isCG);
         Set<AnalysisConfig> required = manager.getAllRequiredConfigs(cg);
         List<AnalysisConfig> notRequired = new ArrayList<>();
         // obtain the analyses that run before cg but not required by cg
-        for (AnalysisConfig c : plan) {
+        for (AnalysisConfig c : analyses) {
             if (c.equals(cg)) {
                 break;
             }
@@ -176,9 +184,9 @@ public class AnalysisPlanner {
                 notRequired.add(c);
             }
         }
-        List<AnalysisConfig> result = new ArrayList<>(plan.size());
+        List<AnalysisConfig> result = new ArrayList<>(analyses.size());
         // add analyses that are required by cg
-        for (AnalysisConfig c : plan) {
+        for (AnalysisConfig c : analyses) {
             if (required.contains(c)) {
                 result.add(c);
             }
@@ -188,17 +196,17 @@ public class AnalysisPlanner {
         }
         result.add(cg); // add cg
         // add analyses that are not required by cg but placed before cg
-        // in the original plan
+        // in the original sequence
         result.addAll(notRequired);
         // add remaining analyses
-        for (int i = plan.indexOf(cg) + 1; i < plan.size(); ++i) {
-            result.add(plan.get(i));
+        for (int i = analyses.indexOf(cg) + 1; i < analyses.size(); ++i) {
+            result.add(analyses.get(i));
         }
         return result;
     }
 
     /**
-     * Builds a require graph for AnalysisConfigs.
+     * Builds a dependence graph for AnalysisConfigs.
      * This method traverses relevant AnalysisConfigs starting from the ones
      * specified by given configs. During the traversal, if it finds that
      * analysis A1 is required by A2, then it adds an edge A1 -> A2 and
@@ -207,7 +215,7 @@ public class AnalysisPlanner {
      * The resulting graph contains the given analyses (planConfigs) and
      * all their (directly and indirectly) required analyses.
      */
-    private Graph<AnalysisConfig> buildRequireGraph(List<AnalysisConfig> configs) {
+    private Graph<AnalysisConfig> buildDependenceGraph(List<AnalysisConfig> configs) {
         SimpleGraph<AnalysisConfig> graph = new SimpleGraph<>();
         Set<AnalysisConfig> visited = newSet();
         Queue<AnalysisConfig> workList = new ArrayDeque<>(configs);
@@ -226,13 +234,13 @@ public class AnalysisPlanner {
     }
 
     /**
-     * Checks if the given require graph is valid.
+     * Checks if the given dependence graph is valid.
      *
      * @throws ConfigException if the given plan is invalid
      */
-    private void validateRequireGraph(Graph<AnalysisConfig> graph) {
-        // Check if the require graph is self-contained, i.e., every required
-        // analysis is included in the graph
+    private void validateDependenceGraph(Graph<AnalysisConfig> graph) {
+        // Check if the dependence graph is self-contained, i.e.,
+        // every required analysis is included in the graph
         graph.forEach(config -> {
             List<AnalysisConfig> missing = Lists.filter(
                     manager.getRequiredConfigs(config),
@@ -242,7 +250,7 @@ public class AnalysisPlanner {
                         missing + " are missing");
             }
         });
-        // Check if the require graph contains cycles
+        // Check if the dependence graph contains cycles
         SCC<AnalysisConfig> scc = new SCC<>(graph);
         if (!scc.getTrueComponents().isEmpty()) {
             throw new ConfigException("Invalid analysis plan: " +
