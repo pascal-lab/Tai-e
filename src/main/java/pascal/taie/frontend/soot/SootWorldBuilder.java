@@ -50,11 +50,14 @@ import soot.Transform;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -80,8 +83,11 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         if (mainClass != null) {
             Collections.addAll(args, "-main-class", mainClass, mainClass);
         }
-        // set input classes
-        args.addAll(options.getInputClasses());
+        // set directly-specified input classes
+        options.getInputClasses()
+                .stream()
+                .filter(s -> !isInputClassFile(s))
+                .forEach(args::add);
         runSoot(args.toArray(new String[0]));
     }
 
@@ -121,6 +127,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
+        addInputClasses(scene, options.getInputClasses());
         addReflectionLogClasses(analyses, scene);
 
         // Configure Soot transformer
@@ -153,6 +160,19 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         } catch (IOException e) {
             throw new SootFrontendException("Failed to read Soot basic classes", e);
         }
+    }
+
+    private static void addInputClasses(Scene scene, List<String> inputClasses) {
+        inputClasses.stream()
+                .filter(AbstractWorldBuilder::isInputClassFile)
+                .forEach(filePath -> {
+                    try (Stream<String> lines = Files.lines(Path.of(filePath))) {
+                        lines.forEach(scene::addBasicClass);
+                    } catch (IOException e) {
+                        logger.warn("Failed to read input class file {} due to {}",
+                                filePath, e);
+                    }
+                });
     }
 
     /**

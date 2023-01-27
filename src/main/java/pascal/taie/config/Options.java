@@ -98,10 +98,11 @@ public class Options {
 
     @JsonProperty
     @Option(names = {"--input-classes"},
-            description = "The classes should be included in the World of analyzed program" +
-                    " (multiple classes are split by ',')",
+            description = "The classes should be included in the World of analyzed program." +
+                    " You can specify class names or paths to input files (.txt)." +
+                    " Multiple entries are split by ','",
             split = ",",
-            paramLabel="<inputClass>")
+            paramLabel = "<inputClass|inputFile>")
     private List<String> inputClasses = List.of();
 
     public List<String> getInputClasses() {

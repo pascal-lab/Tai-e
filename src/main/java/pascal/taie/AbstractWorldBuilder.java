@@ -93,4 +93,12 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                 new DefaultNativeModel(typeSystem, hierarchy) :
                 new EmptyNativeModel();
     }
+
+    /**
+     * @return {@code true} if {@code s} is a path to a file that contains
+     * names of input classes.
+     */
+    protected static boolean isInputClassFile(String s) {
+        return s.endsWith(".txt");
+    }
 }
