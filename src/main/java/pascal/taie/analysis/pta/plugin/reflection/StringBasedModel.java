@@ -135,8 +135,4 @@ class StringBasedModel extends MetaObjModel {
             });
         }
     }
-
-    @Override
-    void handleNewCSMethod(CSMethod csMethod) {
-    }
 }

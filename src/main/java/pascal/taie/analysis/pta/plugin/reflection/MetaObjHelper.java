@@ -22,38 +22,44 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.ClassNames;
-import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeSystem;
 
-abstract class MetaObjModel extends AbstractModel {
+class MetaObjHelper {
 
-    private final MetaObjHelper helper;
+    private final static String META_DESC = "ReflectionMetaObj";
 
-    private JClass klass;
+    private final ClassType constructor;
 
-    MetaObjModel(Solver solver) {
-        super(solver);
-        helper = new MetaObjHelper(solver);
+    private final ClassType method;
+
+    private final ClassType field;
+
+    private final HeapModel heapModel;
+
+    MetaObjHelper(Solver solver) {
+        TypeSystem typeSystem = solver.getTypeSystem();
+        constructor = typeSystem.getClassType(ClassNames.CONSTRUCTOR);
+        method = typeSystem.getClassType(ClassNames.METHOD);
+        field = typeSystem.getClassType(ClassNames.FIELD);
+        heapModel = solver.getHeapModel();
     }
 
-    protected JMethod get(String methodName) {
-        if (klass == null) {
-            klass = hierarchy.getJREClass(ClassNames.CLASS);
+    Obj getReflectionObj(ClassMember member) {
+        if (member instanceof JMethod mtd) {
+            if (mtd.isConstructor()) {
+                return heapModel.getMockObj(META_DESC, member, constructor);
+            } else {
+                return heapModel.getMockObj(META_DESC, member, method);
+            }
+        } else {
+            return heapModel.getMockObj(META_DESC, member, field);
         }
-        assert klass != null;
-        return klass.getDeclaredMethod(methodName);
-    }
-
-    protected Obj getReflectionObj(ClassMember member) {
-        return helper.getReflectionObj(member);
-    }
-
-    void handleNewCSMethod(CSMethod csMethod) {
     }
 }
