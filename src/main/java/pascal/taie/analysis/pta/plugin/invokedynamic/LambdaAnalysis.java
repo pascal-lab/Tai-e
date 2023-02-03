@@ -118,11 +118,20 @@ public class LambdaAnalysis implements Plugin {
     }
 
     static boolean isLambdaMetaFactory(Invoke invoke) {
+        // Declaring class of bootstrap method reference may be phantom
+        // (looks like an issue of current (soot-based) front end),
+        // thus we use resolveNullable() to avoid exception.
+        // TODO: change to resolve() after using new front end
         JMethod bsm = ((InvokeDynamic) invoke.getInvokeExp())
-                .getBootstrapMethodRef().resolve();
-        String bsmSig = bsm.getSignature();
-        return bsmSig.equals(Signatures.LAMBDA_METAFACTORY) ||
-                bsmSig.equals(Signatures.LAMBDA_ALTMETAFACTORY);
+                .getBootstrapMethodRef()
+                .resolveNullable();
+        if (bsm != null) {
+            String bsmSig = bsm.getSignature();
+            return bsmSig.equals(Signatures.LAMBDA_METAFACTORY) ||
+                    bsmSig.equals(Signatures.LAMBDA_ALTMETAFACTORY);
+        } else {
+            return false;
+        }
     }
 
     @Override
