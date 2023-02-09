@@ -3,22 +3,21 @@ plugins {
     id("tai-e.conventions")
 }
 
-
 dependencies {
     // Process options
-    implementation("info.picocli:picocli:4.6.1")
+    implementation("info.picocli:picocli:4.7.1")
     // Logger
-    implementation("org.apache.logging.log4j:log4j-api:2.16.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.16.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.19.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.19.0")
     // Process YAML configuration files
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2")
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
-    implementation("org.soot-oss:soot:4.3.0-20211223.212205-256")
+    implementation("org.soot-oss:soot:4.4.1")
     // Eliminate SLF4J warning
-    implementation("org.slf4j:slf4j-nop:1.7.5")
+    implementation("org.slf4j:slf4j-nop:2.0.6")
 
-    testImplementation("junit:junit:4.13")
+    testImplementation("junit:junit:4.13.2")
 }
 
 application {
