@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -33,7 +34,7 @@ import pascal.taie.language.type.TypeSystem;
 
 class MetaObjHelper {
 
-    private final static String META_DESC = "ReflectionMetaObj";
+    private final static Descriptor META_DESC = () -> "ReflectionMetaObj";
 
     private final ClassType constructor;
 

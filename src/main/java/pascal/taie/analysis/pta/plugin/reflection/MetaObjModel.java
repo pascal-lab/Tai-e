@@ -33,7 +33,7 @@ import pascal.taie.language.classes.JMethod;
 
 abstract class MetaObjModel extends AbstractModel {
 
-    private final MetaObjHelper helper;
+    protected final MetaObjHelper helper;
 
     private JClass klass;
 

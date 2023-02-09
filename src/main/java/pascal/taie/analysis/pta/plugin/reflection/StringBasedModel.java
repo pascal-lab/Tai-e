@@ -64,7 +64,7 @@ class StringBasedModel extends MetaObjModel {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
                     Reflections.getConstructors(jclass)
-                            .map(this::getReflectionObj)
+                            .map(helper::getReflectionObj)
                             .forEach(ctorObj ->
                                     solver.addVarPointsTo(context, result, ctorObj));
                 }
@@ -80,7 +80,7 @@ class StringBasedModel extends MetaObjModel {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
                     Reflections.getDeclaredConstructors(jclass)
-                            .map(this::getReflectionObj)
+                            .map(helper::getReflectionObj)
                             .forEach(ctorObj ->
                                     solver.addVarPointsTo(context, result, ctorObj));
                 }
@@ -102,7 +102,7 @@ class StringBasedModel extends MetaObjModel {
                         String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             Reflections.getMethods(cls, name)
-                                    .map(this::getReflectionObj)
+                                    .map(helper::getReflectionObj)
                                     .forEach(mtdObj ->
                                             solver.addVarPointsTo(context, result, mtdObj));
                         }
@@ -126,7 +126,7 @@ class StringBasedModel extends MetaObjModel {
                         String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             Reflections.getDeclaredMethods(cls, name)
-                                    .map(this::getReflectionObj)
+                                    .map(helper::getReflectionObj)
                                     .forEach(mtdObj ->
                                             solver.addVarPointsTo(context, result, mtdObj));
                         }
