@@ -1,5 +1,5 @@
 sources:
-  - { method: "<TaintTransferEdge: A getSource()>", type: "C" }
+  - { kind: result, method: "<TaintTransferEdge: A getSource()>", type: "C" }
 
 sinks:
   - { method: "<B: void sink(A)>", index: 0 }

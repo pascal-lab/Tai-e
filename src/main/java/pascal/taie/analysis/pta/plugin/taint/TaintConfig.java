@@ -39,6 +39,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -146,26 +147,58 @@ record TaintConfig(List<ResultSource> resultSources,
             if (node instanceof ArrayNode arrayNode) {
                 List<Source> sources = new ArrayList<>(arrayNode.size());
                 for (JsonNode elem : arrayNode) {
-                    String methodSig = elem.get("method").asText();
-                    JMethod method = hierarchy.getMethod(methodSig);
-                    if (method != null) {
-                        // if the method (given in config file) is absent in
-                        // the class hierarchy, just ignore it.
-                        Type type = typeSystem.getType(elem.get("type").asText());
-                        if (elem.has("index")) {
-                            int index = IndexUtils.toInt(elem.get("index").asText());
-                            sources.add(new ParamSource(method, index, type));
-                        } else {
-                            sources.add(new ResultSource(method, type));
-                        }
+                    JsonNode sourceKind = elem.get("kind");
+                    Source source;
+                    if (sourceKind != null) {
+                        source = switch (sourceKind.asText()) {
+                            case "result" -> deserializeResultSource(elem);
+                            case "param" -> deserializeParamSource(elem);
+                            default -> null;
+                        };
                     } else {
-                        logger.warn("Cannot find source method '{}'", methodSig);
+                        logger.warn("\"kind\" is missing in {}," +
+                                " use default \"kind\": \"result\"", elem.toString());
+                        source = deserializeResultSource(elem);
+                    }
+                    if (source != null) {
+                        sources.add(source);
                     }
                 }
                 return Collections.unmodifiableList(sources);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();
+            }
+        }
+
+        @Nullable
+        private ResultSource deserializeResultSource(JsonNode node) {
+            String methodSig = node.get("method").asText();
+            JMethod method = hierarchy.getMethod(methodSig);
+            if (method != null) {
+                Type type = typeSystem.getType(node.get("type").asText());
+                return new ResultSource(method, type);
+            } else {
+                // if the method (given in config file) is absent in
+                // the class hierarchy, just ignore it.
+                logger.warn("Cannot find source method '{}'", methodSig);
+                return null;
+            }
+        }
+
+        @Nullable
+        private ParamSource deserializeParamSource(JsonNode node) {
+            String methodSig = node.get("method").asText();
+            JMethod method = hierarchy.getMethod(methodSig);
+            if (method != null) {
+                int index = IndexUtils.toInt(node.get("index").asText());
+                Type type = typeSystem.getType(node.get("type").asText());
+                return new ParamSource(method, index, type);
+            } else {
+                // if the method (given in config file) is absent in
+                // the class hierarchy, just ignore it.
+                logger.warn("Cannot find source method '{}'", methodSig);
+                return null;
             }
         }
 

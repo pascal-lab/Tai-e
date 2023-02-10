@@ -1,5 +1,5 @@
 sources:
-  - { method: "<SourceSink: java.lang.String source()>", type: "java.lang.String" }
+  - { kind: result, method: "<SourceSink: java.lang.String source()>", type: "java.lang.String" }
 
 sinks:
   - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }

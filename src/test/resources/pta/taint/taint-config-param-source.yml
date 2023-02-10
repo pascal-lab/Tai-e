@@ -1,5 +1,5 @@
 sources:
-  - { method: "<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>", index: 0, type: "java.lang.String[]" }
+  - { kind: param, method: "<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>", index: 0, type: "java.lang.String[]" }
 
 sinks:
   - { method: "<TaintParam: void sink(java.lang.String[])>", index: 0 }
