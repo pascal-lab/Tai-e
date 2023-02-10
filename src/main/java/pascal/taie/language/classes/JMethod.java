@@ -31,6 +31,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +42,7 @@ import java.util.Set;
  * information of a method, including method name, signature, declaring class,
  * method body (IR), etc.
  */
-public class JMethod extends ClassMember {
+public class JMethod extends ClassMember implements Comparable<JMethod> {
 
     private final List<Type> paramTypes;
 
@@ -180,5 +181,13 @@ public class JMethod extends ClassMember {
     public MethodRef getRef() {
         return MethodRef.get(declaringClass, name,
                 paramTypes, returnType, isStatic());
+    }
+
+    /**
+     * Compares to other method by alphabet order of their signatures.
+     */
+    @Override
+    public int compareTo(@Nonnull JMethod m) {
+        return equals(m) ? 0 : signature.compareTo(m.signature);
     }
 }

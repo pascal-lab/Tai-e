@@ -25,7 +25,6 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
@@ -43,14 +42,14 @@ class TaintManager {
     }
 
     /**
-     * Makes a taint object for given source and type.
+     * Makes a taint object for given source point and type.
      *
-     * @param source invocation to the source method, i.e., source call
-     * @param type   type of the taint object
+     * @param sourcePoint where the taint is generated
+     * @param type        type of the taint object
      * @return the taint object for given source and type.
      */
-    Obj makeTaint(Invoke source, Type type) {
-        return heapModel.getMockObj(TAINT_DESC, source, type);
+    Obj makeTaint(SourcePoint sourcePoint, Type type) {
+        return heapModel.getMockObj(TAINT_DESC, sourcePoint, type);
     }
 
     /**
@@ -62,12 +61,12 @@ class TaintManager {
     }
 
     /**
-     * @return the source call of given taint object.
+     * @return the source point of given taint object.
      * @throws AnalysisException if given object is not a taint object.
      */
-    Invoke getSourceCall(Obj obj) {
+    SourcePoint getSourcePoint(Obj obj) {
         if (isTaint(obj)) {
-            return (Invoke) obj.getAllocation();
+            return (SourcePoint) obj.getAllocation();
         }
         throw new AnalysisException(obj + " is not a taint object");
     }

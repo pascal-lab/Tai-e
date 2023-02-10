@@ -22,8 +22,20 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.language.classes.JMethod;
+
 /**
  * Represents program location where the taint object is generated.
  */
 interface SourcePoint extends Comparable<SourcePoint> {
+
+    static int compare(ResultSourcePoint rsp, ParamSourcePoint psp) {
+        JMethod rspMethod = rsp.sourceCall().getContainer();
+        JMethod pspMethod = psp.sourceMethod();
+        if (rspMethod.equals(pspMethod)) {
+            return 1;
+        } else {
+            return rspMethod.compareTo(pspMethod);
+        }
+    }
 }

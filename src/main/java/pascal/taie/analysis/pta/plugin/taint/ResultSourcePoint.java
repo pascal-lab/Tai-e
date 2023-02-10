@@ -24,25 +24,24 @@ package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.ir.stmt.Invoke;
 
-/**
- * Each instance represents a taint flow from source to sink.
- */
-public record TaintFlow(SourcePoint sourcePoint, Invoke sinkCall, int index)
-        implements Comparable<TaintFlow> {
+import javax.annotation.Nonnull;
+
+record ResultSourcePoint(Invoke sourceCall) implements SourcePoint {
 
     @Override
-    public int compareTo(TaintFlow other) {
-        int source = sourcePoint.compareTo(other.sourcePoint);
-        if (source != 0) {
-            return source;
+    public int compareTo(@Nonnull SourcePoint sp) {
+        if (sp instanceof ResultSourcePoint rsp) {
+            return sourceCall.compareTo(rsp.sourceCall);
+        } else if (sp instanceof ParamSourcePoint psp) {
+            return SourcePoint.compare(this, psp);
+        } else {
+            throw new IllegalArgumentException(
+                    "ResultSourcePoint cannot compare to " + sp);
         }
-        int sink = sinkCall.compareTo(other.sinkCall);
-        return sink != 0 ? sink : index - other.index;
     }
 
     @Override
     public String toString() {
-        return String.format("TaintFlow{%s -> %s/%d}",
-                sourcePoint, sinkCall, index);
+        return sourceCall.toString();
     }
 }

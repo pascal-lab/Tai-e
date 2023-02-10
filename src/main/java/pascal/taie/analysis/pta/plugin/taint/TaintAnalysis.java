@@ -36,6 +36,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
@@ -54,9 +55,14 @@ public class TaintAnalysis implements Plugin {
     private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
 
     /**
-     * Map from source method to its result source.
+     * Map from a source method to its result sources.
      */
     private final MultiMap<JMethod, ResultSource> resultSources = Maps.newMultiMap();
+
+    /**
+     * Map from a source method to its parameter sources.
+     */
+    private final MultiMap<JMethod, ParamSource> paramSources = Maps.newMultiMap();
 
     /**
      * Map from method (which causes taint transfer) to set of relevant
@@ -93,19 +99,22 @@ public class TaintAnalysis implements Plugin {
                 solver.getTypeSystem());
         logger.info(config);
         config.resultSources().forEach(s -> resultSources.put(s.method(), s));
+        config.paramSources().forEach(s -> paramSources.put(s.method(), s));
         config.transfers().forEach(t -> transfers.put(t.method(), t));
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        // process ResultSource and taint transfer
         Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
         Var lhs = callSite.getLValue();
         if (lhs != null && resultSources.containsKey(callee)) {
             resultSources.get(callee).forEach(source -> {
+                SourcePoint sourcePoint = new ResultSourcePoint(callSite);
                 Type type = source.type();
-                Obj taint = manager.makeTaint(callSite, type);
+                Obj taint = manager.makeTaint(sourcePoint, type);
                 solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
                         emptyContext, taint);
             });
@@ -143,7 +152,7 @@ public class TaintAnalysis implements Plugin {
         pts.objects()
                 .map(CSObj::getObject)
                 .filter(manager::isTaint)
-                .map(manager::getSourceCall)
+                .map(manager::getSourcePoint)
                 .map(source -> manager.makeTaint(source, type))
                 .map(taint -> csManager.getCSObj(emptyContext, taint))
                 .forEach(newTaints::addObject);
@@ -153,7 +162,26 @@ public class TaintAnalysis implements Plugin {
     }
 
     @Override
+    public void onNewCSMethod(CSMethod csMethod) {
+        // process ParamSource
+        JMethod method = csMethod.getMethod();
+        if (paramSources.containsKey(method)) {
+            Context context = csMethod.getContext();
+            IR ir = method.getIR();
+            paramSources.get(method).forEach(source -> {
+                int index = source.index();
+                Var param = ir.getParam(index);
+                SourcePoint sourcePoint = new ParamSourcePoint(method, index);
+                Type type = source.type();
+                Obj taint = manager.makeTaint(sourcePoint, type);
+                solver.addVarPointsTo(context, param, emptyContext, taint);
+            });
+        }
+    }
+
+    @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        // process taint transfer
         varTransfers.get(csVar.getVar()).forEach(p -> {
             Var to = p.first();
             Type type = p.second();
@@ -179,7 +207,7 @@ public class TaintAnalysis implements Plugin {
                         result.getPointsToSet(arg)
                                 .stream()
                                 .filter(manager::isTaint)
-                                .map(manager::getSourceCall)
+                                .map(manager::getSourcePoint)
                                 .map(sourceCall -> new TaintFlow(sourceCall, sinkCall, i))
                                 .forEach(taintFlows::add);
                     });
