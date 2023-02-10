@@ -143,4 +143,10 @@ public class TaintTest {
         Tests.testPTA(DIR, "TaintInList",
                 "cs:2-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
+
+    @Test
+    public void testTaintParam() {
+        Tests.testPTA(DIR, "TaintParam",
+                "taint-config:src/test/resources/pta/taint/taint-config-param-source.yml");
+    }
 }
