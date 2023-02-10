@@ -34,7 +34,7 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <StringAppend: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
-TaintFlow{<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <StringAppend: void stringAdd()>[11@L12] invokestatic <SourceSink: void sink(java.lang.String)>(s);/0}
-TaintFlow{<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <StringAppend: void stringBuffer()>[12@L22] invokestatic <SourceSink: void sink(java.lang.String)>(s);/0}
-TaintFlow{<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <StringAppend: void stringBuilder()>[12@L32] invokestatic <SourceSink: void sink(java.lang.String)>(s);/0}
+TaintFlow{<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source() -> <StringAppend: void stringAdd()>[11@L12] invokestatic SourceSink.sink(s)/0}
+TaintFlow{<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic SourceSink.source() -> <StringAppend: void stringBuffer()>[12@L22] invokestatic SourceSink.sink(s)/0}
+TaintFlow{<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source() -> <StringAppend: void stringBuilder()>[12@L32] invokestatic SourceSink.sink(s)/0}
 

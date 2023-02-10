@@ -26,6 +26,6 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintCorner: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintCorner: void main(java.lang.String[])>}]
 
 Detected 2 taint flow(s):
-TaintFlow{<TaintCorner: void corner2()>[0@L15] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <TaintCorner: void corner2()>[5@L17] temp$2 = invokestatic <SourceSink: java.lang.String sourceAndSink(java.lang.String,java.lang.String)>(s1, s2);/0}
-TaintFlow{<TaintCorner: void corner2()>[5@L17] temp$2 = invokestatic <SourceSink: java.lang.String sourceAndSink(java.lang.String,java.lang.String)>(s1, s2); -> <TaintCorner: void corner2()>[7@L18] invokestatic <SourceSink: void sink(java.lang.String)>(taint);/0}
+TaintFlow{<TaintCorner: void corner2()>[0@L15] temp$0 = invokestatic SourceSink.source() -> <TaintCorner: void corner2()>[5@L17] temp$2 = invokestatic SourceSink.sourceAndSink(s1, s2)/0}
+TaintFlow{<TaintCorner: void corner2()>[5@L17] temp$2 = invokestatic SourceSink.sourceAndSink(s1, s2) -> <TaintCorner: void corner2()>[7@L18] invokestatic SourceSink.sink(taint)/0}
 

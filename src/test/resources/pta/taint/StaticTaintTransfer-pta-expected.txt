@@ -32,5 +32,5 @@ Points-to sets of all array indexes
 []:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[1@L4] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
 
 Detected 1 taint flow(s):
-TaintFlow{<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic <SourceSink: java.lang.String source()>(); -> <StaticTaintTransfer: void main(java.lang.String[])>[11@L12] invokestatic <SourceSink: void sink(java.lang.String)>(temp$7);/0}
+TaintFlow{<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source() -> <StaticTaintTransfer: void main(java.lang.String[])>[11@L12] invokestatic SourceSink.sink(temp$7)/0}
 

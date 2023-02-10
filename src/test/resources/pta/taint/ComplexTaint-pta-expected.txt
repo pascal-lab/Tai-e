@@ -23,7 +23,7 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ComplexTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ComplexTaint: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
-TaintFlow{<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <ComplexTaint: void main(java.lang.String[])>[7@L7] invokestatic <SourceSink: void sink(java.lang.String)>(s3);/0}
-TaintFlow{<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <ComplexTaint: void main(java.lang.String[])>[15@L14] invokestatic <SourceSink: void sink(java.lang.String)>(s6);/0}
-TaintFlow{<ComplexTaint: void main(java.lang.String[])>[12@L12] temp$3 = invokestatic <SourceSink: java.lang.String source()>(); -> <ComplexTaint: void main(java.lang.String[])>[15@L14] invokestatic <SourceSink: void sink(java.lang.String)>(s6);/0}
+TaintFlow{<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source() -> <ComplexTaint: void main(java.lang.String[])>[7@L7] invokestatic SourceSink.sink(s3)/0}
+TaintFlow{<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source() -> <ComplexTaint: void main(java.lang.String[])>[15@L14] invokestatic SourceSink.sink(s6)/0}
+TaintFlow{<ComplexTaint: void main(java.lang.String[])>[12@L12] temp$3 = invokestatic SourceSink.source() -> <ComplexTaint: void main(java.lang.String[])>[15@L14] invokestatic SourceSink.sink(s6)/0}
 

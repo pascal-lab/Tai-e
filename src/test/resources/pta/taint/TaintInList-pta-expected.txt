@@ -57,5 +57,5 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintInList: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintInList: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
-TaintFlow{<TaintInList: void main(java.lang.String[])>[3@L5] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <TaintInList: void main(java.lang.String[])>[8@L7] invokestatic <SourceSink: void sink(java.lang.String)>(s1);/0}
+TaintFlow{<TaintInList: void main(java.lang.String[])>[3@L5] temp$1 = invokestatic SourceSink.source() -> <TaintInList: void main(java.lang.String[])>[8@L7] invokestatic SourceSink.sink(s1)/0}
 

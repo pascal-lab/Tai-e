@@ -21,8 +21,8 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <SimpleTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <SimpleTaint: void main(java.lang.String[])>}]
 
 Detected 4 taint flow(s):
-TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[2@L5] invokestatic <SourceSink: void sink(java.lang.String)>(s1);/0}
-TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic <SourceSink: void sink(java.lang.String,int)>(s3, %intconst0);/0}
-TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[5@L8] invokestatic <SourceSink: void sink(java.lang.String)>(s2);/0}
-TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic <SourceSink: void sink(java.lang.String,int)>(s3, %intconst0);/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source() -> <SimpleTaint: void main(java.lang.String[])>[2@L5] invokestatic SourceSink.sink(s1)/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source() -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic SourceSink.sink(s3, %intconst0)/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source() -> <SimpleTaint: void main(java.lang.String[])>[5@L8] invokestatic SourceSink.sink(s2)/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source() -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic SourceSink.sink(s3, %intconst0)/0}
 

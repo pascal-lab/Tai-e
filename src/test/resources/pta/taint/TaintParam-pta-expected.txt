@@ -1,0 +1,18 @@
+Points-to sets of all variables
+[]:<TaintParam: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}]
+[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/noTaint -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}]
+[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/sa1 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/sa2 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/taint -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void sink(java.lang.String[])>/sa -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintParam: void main(java.lang.String[])>}]
+
+Detected 1 taint flow(s):
+TaintFlow{<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0 -> <TaintParam: void paramSource(java.lang.String[],java.lang.String[])>[2@L10] invokestatic TaintParam.sink(sa2)/0}
+

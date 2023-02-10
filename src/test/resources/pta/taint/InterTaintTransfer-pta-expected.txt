@@ -35,7 +35,7 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InterTaintTransfer: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <InterTaintTransfer: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
-TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic <SourceSink: java.lang.String source()>(); -> <InterTaintTransfer: void main(java.lang.String[])>[10@L8] invokestatic <SourceSink: void sink(java.lang.String)>(temp$4);/0}
-TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[2@L5] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <InterTaintTransfer: void main(java.lang.String[])>[12@L9] invokestatic <SourceSink: void sink(java.lang.String)>(temp$5);/0}
-TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[4@L6] temp$2 = invokestatic <SourceSink: java.lang.String source()>(); -> <InterTaintTransfer: void main(java.lang.String[])>[14@L10] invokestatic <SourceSink: void sink(java.lang.String)>(temp$6);/0}
+TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source() -> <InterTaintTransfer: void main(java.lang.String[])>[10@L8] invokestatic SourceSink.sink(temp$4)/0}
+TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[2@L5] temp$1 = invokestatic SourceSink.source() -> <InterTaintTransfer: void main(java.lang.String[])>[12@L9] invokestatic SourceSink.sink(temp$5)/0}
+TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[4@L6] temp$2 = invokestatic SourceSink.source() -> <InterTaintTransfer: void main(java.lang.String[])>[14@L10] invokestatic SourceSink.sink(temp$6)/0}
 

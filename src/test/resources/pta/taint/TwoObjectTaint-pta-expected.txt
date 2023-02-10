@@ -47,6 +47,6 @@ Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObjectTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoObjectTaint: void main(java.lang.String[])>}]
 
 Detected 2 taint flow(s):
-TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic <SourceSink: java.lang.String source()>(); -> <TwoObjectTaint: void main(java.lang.String[])>[13@L13] invokestatic <SourceSink: void sink(java.lang.String)>(temp$5);/0}
-TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic <SourceSink: java.lang.String source()>(); -> <TwoObjectTaint: void main(java.lang.String[])>[17@L15] invokestatic <SourceSink: void sink(java.lang.String)>(temp$7);/0}
+TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source() -> <TwoObjectTaint: void main(java.lang.String[])>[13@L13] invokestatic SourceSink.sink(temp$5)/0}
+TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source() -> <TwoObjectTaint: void main(java.lang.String[])>[17@L15] invokestatic SourceSink.sink(temp$7)/0}
 
