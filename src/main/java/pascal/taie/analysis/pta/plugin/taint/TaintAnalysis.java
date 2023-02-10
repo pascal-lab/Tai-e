@@ -92,9 +92,8 @@ public class TaintAnalysis implements Plugin {
                 solver.getHierarchy(),
                 solver.getTypeSystem());
         logger.info(config);
-        config.getResultSources().forEach(s -> resultSources.put(s.method(), s));
-        config.getTransfers().forEach(t ->
-                transfers.put(t.method(), t));
+        config.resultSources().forEach(s -> resultSources.put(s.method(), s));
+        config.transfers().forEach(t -> transfers.put(t.method(), t));
     }
 
     @Override
@@ -133,8 +132,8 @@ public class TaintAnalysis implements Plugin {
     private static Var getVar(Invoke callSite, int index) {
         InvokeExp invokeExp = callSite.getInvokeExp();
         return switch (index) {
-            case TaintTransfer.BASE -> ((InvokeInstanceExp) invokeExp).getBase();
-            case TaintTransfer.RESULT -> callSite.getResult();
+            case IndexUtils.BASE -> ((InvokeInstanceExp) invokeExp).getBase();
+            case IndexUtils.RESULT -> callSite.getResult();
             default -> invokeExp.getArg(index);
         };
     }
@@ -171,7 +170,7 @@ public class TaintAnalysis implements Plugin {
     private Set<TaintFlow> collectTaintFlows() {
         PointerAnalysisResult result = solver.getResult();
         Set<TaintFlow> taintFlows = new TreeSet<>();
-        config.getSinks().forEach(sink -> {
+        config.sinks().forEach(sink -> {
             int i = sink.index();
             result.getCallGraph()
                     .getCallersOf(sink.method())
