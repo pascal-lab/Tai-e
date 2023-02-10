@@ -26,6 +26,9 @@ import pascal.taie.ir.stmt.Invoke;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A {@code ResultSourcePoint} is an invocation site.
+ */
 record ResultSourcePoint(Invoke sourceCall) implements SourcePoint {
 
     @Override

@@ -25,6 +25,14 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
+/**
+ * Represents sources which generate taint objects on method parameters.
+ *
+ * @param method the method whose parameter are tainted. Usually, such methods
+ *               are program entry points that receive inputs (treated as taints).
+ * @param index  the index of the tainted parameter.
+ * @param type   the type of the generated taint object.
+ */
 record ParamSource(JMethod method, int index, Type type) implements Source {
 
     @Override

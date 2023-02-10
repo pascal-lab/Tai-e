@@ -25,6 +25,13 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
+/**
+ * Represents sources which generates taint objects as results
+ * of the invocations.
+ *
+ * @param method the method that generates taint object as result after invocation.
+ * @param type   type of the generated taint object.
+ */
 record ResultSource(JMethod method, Type type) implements Source {
 
     @Override

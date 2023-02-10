@@ -27,16 +27,19 @@ import pascal.taie.language.classes.JMethod;
 import javax.annotation.Nonnull;
 import java.util.Comparator;
 
+/**
+ * A {@code ParamSourcePoint} is a parameter of a method.
+ */
 record ParamSourcePoint(JMethod sourceMethod, int index) implements SourcePoint {
 
-    private static final Comparator<ParamSourcePoint> comparator =
+    private static final Comparator<ParamSourcePoint> COMPARATOR =
             Comparator.comparing(ParamSourcePoint::sourceMethod)
                     .thenComparingInt(ParamSourcePoint::index);
 
     @Override
     public int compareTo(@Nonnull SourcePoint sp) {
         if (sp instanceof ParamSourcePoint psp) {
-            return comparator.compare(this, psp);
+            return COMPARATOR.compare(this, psp);
         } else if (sp instanceof ResultSourcePoint rsp) {
             return -SourcePoint.compare(rsp, this);
         } else {
