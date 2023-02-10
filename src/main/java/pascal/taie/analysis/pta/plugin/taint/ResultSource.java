@@ -25,6 +25,10 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-record ResultSource(JMethod method, Type type) implements Source2 {
+record ResultSource(JMethod method, Type type) implements Source {
 
+    @Override
+    public String toString() {
+        return method + "(" + type + ")";
+    }
 }

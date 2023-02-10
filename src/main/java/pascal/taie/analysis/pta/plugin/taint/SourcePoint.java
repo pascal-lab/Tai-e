@@ -22,5 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+/**
+ * Represents program location where the taint object is generated.
+ */
 interface SourcePoint extends Comparable<SourcePoint> {
 }

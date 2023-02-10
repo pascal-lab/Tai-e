@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Configuration for taint analysis.
@@ -53,9 +54,9 @@ class TaintConfig {
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
     /**
-     * Set of sources.
+     * Set of result sources.
      */
-    private final Set<Source> sources;
+    private final Set<ResultSource> resultSources;
 
     /**
      * Set of sinks.
@@ -67,9 +68,9 @@ class TaintConfig {
      */
     private final Set<TaintTransfer> transfers;
 
-    private TaintConfig(Set<Source> sources, Set<Sink> sinks,
+    private TaintConfig(Set<ResultSource> resultSources, Set<Sink> sinks,
                         Set<TaintTransfer> transfers) {
-        this.sources = sources;
+        this.resultSources = resultSources;
         this.sinks = sinks;
         this.transfers = transfers;
     }
@@ -101,8 +102,8 @@ class TaintConfig {
     /**
      * @return sources in the configuration.
      */
-    Set<Source> getSources() {
-        return sources;
+    Set<ResultSource> getResultSources() {
+        return resultSources;
     }
 
     /**
@@ -122,9 +123,9 @@ class TaintConfig {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("TaintConfig:");
-        if (!sources.isEmpty()) {
+        if (!resultSources.isEmpty()) {
             sb.append("\nsources:\n");
-            sources.forEach(source ->
+            resultSources.forEach(source ->
                     sb.append("  ").append(source).append("\n"));
         }
         if (!sinks.isEmpty()) {
@@ -160,9 +161,13 @@ class TaintConfig {
             ObjectCodec oc = p.getCodec();
             JsonNode node = oc.readTree(p);
             Set<Source> sources = deserializeSources(node.get("sources"));
+            Set<ResultSource> resultSources = sources.stream()
+                    .filter(s -> s instanceof ResultSource)
+                    .map(s -> (ResultSource) s)
+                    .collect(Collectors.toUnmodifiableSet());
             Set<Sink> sinks = deserializeSinks(node.get("sinks"));
             Set<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
-            return new TaintConfig(sources, sinks, transfers);
+            return new TaintConfig(resultSources, sinks, transfers);
         }
 
         /**
@@ -181,9 +186,12 @@ class TaintConfig {
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        Type type = typeSystem.getType(
-                                elem.get("type").asText());
-                        sources.add(new Source(method, type));
+                        Type type = typeSystem.getType(elem.get("type").asText());
+                        if (elem.has("index")) {
+                            // TODO: convert to ParamSource
+                        } else {
+                            sources.add(new ResultSource(method, type));
+                        }
                     } else {
                         logger.warn("Cannot find source method '{}'", methodSig);
                     }

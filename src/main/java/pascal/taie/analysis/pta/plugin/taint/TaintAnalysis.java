@@ -54,10 +54,9 @@ public class TaintAnalysis implements Plugin {
     private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
 
     /**
-     * Map from method (which is source method) to set of types of
-     * taint objects returned by the method calls.
+     * Map from source method to its result source.
      */
-    private final MultiMap<JMethod, Type> sources = Maps.newMultiMap();
+    private final MultiMap<JMethod, ResultSource> resultSources = Maps.newMultiMap();
 
     /**
      * Map from method (which causes taint transfer) to set of relevant
@@ -93,8 +92,7 @@ public class TaintAnalysis implements Plugin {
                 solver.getHierarchy(),
                 solver.getTypeSystem());
         logger.info(config);
-        config.getSources().forEach(s ->
-                sources.put(s.method(), s.type()));
+        config.getResultSources().forEach(s -> resultSources.put(s.method(), s));
         config.getTransfers().forEach(t ->
                 transfers.put(t.method(), t));
     }
@@ -105,8 +103,9 @@ public class TaintAnalysis implements Plugin {
         JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
         Var lhs = callSite.getLValue();
-        if (lhs != null && sources.containsKey(callee)) {
-            sources.get(callee).forEach(type -> {
+        if (lhs != null && resultSources.containsKey(callee)) {
+            resultSources.get(callee).forEach(source -> {
+                Type type = source.type();
                 Obj taint = manager.makeTaint(callSite, type);
                 solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
                         emptyContext, taint);

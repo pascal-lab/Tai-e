@@ -22,17 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-/**
- * Represents a source that consists of a source method and
- * type of taint object.
- */
-record Source(JMethod method, Type type) {
+interface Source {
 
-    @Override
-    public String toString() {
-        return method + "(" + type + ")";
-    }
+    Type type();
 }
