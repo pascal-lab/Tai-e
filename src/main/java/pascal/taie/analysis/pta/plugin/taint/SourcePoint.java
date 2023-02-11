@@ -35,7 +35,7 @@ interface SourcePoint extends Comparable<SourcePoint> {
         if (rspMethod.equals(pspMethod)) {
             return 1;
         } else {
-            return rspMethod.compareTo(pspMethod);
+            return rspMethod.toString().compareTo(pspMethod.toString());
         }
     }
 }

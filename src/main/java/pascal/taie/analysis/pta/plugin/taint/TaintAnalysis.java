@@ -298,7 +298,7 @@ public class TaintAnalysis implements Plugin {
                                 .stream()
                                 .filter(manager::isTaint)
                                 .map(manager::getSourcePoint)
-                                .map(sourceCall -> new TaintFlow(sourceCall, sinkCall, i))
+                                .map(sourcePoint -> new TaintFlow(sourcePoint, sinkCall, i))
                                 .forEach(taintFlows::add);
                     });
         });

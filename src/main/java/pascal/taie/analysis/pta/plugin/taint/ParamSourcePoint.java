@@ -33,7 +33,7 @@ import java.util.Comparator;
 record ParamSourcePoint(JMethod sourceMethod, int index) implements SourcePoint {
 
     private static final Comparator<ParamSourcePoint> COMPARATOR =
-            Comparator.comparing(ParamSourcePoint::sourceMethod)
+            Comparator.comparing((ParamSourcePoint psp) -> psp.sourceMethod.toString())
                     .thenComparingInt(ParamSourcePoint::index);
 
     @Override

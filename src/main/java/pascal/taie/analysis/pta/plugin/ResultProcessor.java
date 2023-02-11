@@ -95,10 +95,8 @@ public class ResultProcessor implements Plugin {
         String file = options.getString("action-file");
         boolean taintEnabled = options.getString("taint-config") != null;
         switch (action) {
-            case "dump":
-                dumpPointsToSet(result, file, taintEnabled);
-                break;
-            case "compare":
+            case "dump" -> dumpPointsToSet(result, file, taintEnabled);
+            case "compare" -> {
                 if (taintEnabled) {
                     // when taint analysis is enabled, we only compare
                     // detected taint flows
@@ -106,7 +104,7 @@ public class ResultProcessor implements Plugin {
                 } else {
                     comparePointsToSet(result, file);
                 }
-                break;
+            }
         }
     }
 
