@@ -218,7 +218,7 @@ record TaintConfig(List<ResultSource> resultSources,
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int index = elem.get("index").asInt();
+                        int index = IndexUtils.toInt(elem.get("index").asText());
                         sinks.add(new Sink(method, index));
                     } else {
                         logger.warn("Cannot find sink method '{}'", methodSig);

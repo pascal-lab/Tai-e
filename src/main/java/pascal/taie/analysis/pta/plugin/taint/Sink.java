@@ -25,13 +25,16 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 
 /**
- * Represents a sink that consists of a sink method and
- * a sensitive index.
+ * Represents a sink in taint analysis.
+ *
+ * @param method the sink method.
+ * @param index  the specific index used to locate the sensitive argument
+ *               at the call site of {@code method}.
  */
 record Sink(JMethod method, int index) {
 
     @Override
     public String toString() {
-        return method + "/" + index;
+        return method + "/" + IndexUtils.toString(index);
     }
 }

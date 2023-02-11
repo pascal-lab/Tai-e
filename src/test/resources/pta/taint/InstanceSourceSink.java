@@ -4,7 +4,9 @@ class InstanceSourceSink {
         InstanceSourceSink source = new InstanceSourceSink();
         String taint = source.instanceSource();
         InstanceSourceSink sink = new InstanceSourceSink();
-        sink.instanceSink(taint);
+        sink.instanceSink(taint); // taint
+
+        new ProcessBuilder(args).start();
     }
 
     public String instanceSource() {
@@ -12,7 +14,18 @@ class InstanceSourceSink {
     }
 
     public void instanceSink(String s) {
-
     }
 
+}
+
+class ProcessBuilder {
+
+    private String[] cmd;
+
+    ProcessBuilder(String[] cmd) {
+        this.cmd = cmd;
+    }
+
+    public void start() {
+    }
 }

@@ -40,8 +40,6 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
-import pascal.taie.ir.exp.InvokeExp;
-import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
@@ -148,8 +146,8 @@ public class TaintAnalysis implements Plugin {
         }
         // process taint transfer
         transfers.get(callee).forEach(transfer -> {
-            Var from = getVar(callSite, transfer.from());
-            Var to = getVar(callSite, transfer.to());
+            Var from = IndexUtils.getVar(callSite, transfer.from());
+            Var to = IndexUtils.getVar(callSite, transfer.to());
             // when transfer to result variable, and the call site
             // does not have result variable, then "to" is null.
             if (to != null) {
@@ -174,18 +172,6 @@ public class TaintAnalysis implements Plugin {
                 }
             }
         });
-    }
-
-    /**
-     * Retrieves variable from a call site and index.
-     */
-    private static Var getVar(Invoke callSite, int index) {
-        InvokeExp invokeExp = callSite.getInvokeExp();
-        return switch (index) {
-            case IndexUtils.BASE -> ((InvokeInstanceExp) invokeExp).getBase();
-            case IndexUtils.RESULT -> callSite.getResult();
-            default -> invokeExp.getArg(index);
-        };
     }
 
     private void transferTaint(PointsToSet pts, Context ctx, Var to, Type type) {
@@ -293,7 +279,7 @@ public class TaintAnalysis implements Plugin {
             result.getCallGraph()
                     .getCallersOf(sink.method())
                     .forEach(sinkCall -> {
-                        Var arg = sinkCall.getInvokeExp().getArg(i);
+                        Var arg = IndexUtils.getVar(sinkCall, i);
                         result.getPointsToSet(arg)
                                 .stream()
                                 .filter(manager::isTaint)

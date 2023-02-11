@@ -45,7 +45,7 @@ public record TaintFlow(SourcePoint sourcePoint, Invoke sinkCall, int index)
 
     @Override
     public String toString() {
-        return String.format("TaintFlow{%s -> %s/%d}",
-                sourcePoint, sinkCall, index);
+        return String.format("TaintFlow{%s -> %s/%s}",
+                sourcePoint, sinkCall, IndexUtils.toString(index));
     }
 }

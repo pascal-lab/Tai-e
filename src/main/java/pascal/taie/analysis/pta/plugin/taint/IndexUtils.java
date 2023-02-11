@@ -22,6 +22,11 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Invoke;
+
 /**
  * Utility class to handle method indexes in taint analysis.
  */
@@ -70,6 +75,18 @@ final class IndexUtils {
             case BASE -> BASE_STR;
             case RESULT -> RESULT_STR;
             default -> Integer.toString(index);
+        };
+    }
+
+    /**
+     * Retrieves variable from a call site and index.
+     */
+    static Var getVar(Invoke callSite, int index) {
+        InvokeExp invokeExp = callSite.getInvokeExp();
+        return switch (index) {
+            case BASE -> ((InvokeInstanceExp) invokeExp).getBase();
+            case RESULT -> callSite.getResult();
+            default -> invokeExp.getArg(index);
         };
     }
 }
