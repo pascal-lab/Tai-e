@@ -22,20 +22,30 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.language.classes.JMethod;
+import pascal.taie.ir.stmt.Invoke;
+
+import javax.annotation.Nonnull;
+import java.util.Comparator;
 
 /**
- * Represents a program location where the taint object is generated.
+ * Represents a program location where taint objects flow to a sink.
+ *
+ * @param sinkCall call site of the sink method.
+ * @param index    index of the sensitive argument at {@code sinkCall}.
  */
-interface SourcePoint extends Comparable<SourcePoint> {
+record SinkPoint(Invoke sinkCall, int index) implements Comparable<SinkPoint> {
 
-    static int compare(ResultSourcePoint rsp, ParamSourcePoint psp) {
-        JMethod rspMethod = rsp.sourceCall().getContainer();
-        JMethod pspMethod = psp.sourceMethod();
-        if (rspMethod.equals(pspMethod)) {
-            return 1;
-        } else {
-            return rspMethod.toString().compareTo(pspMethod.toString());
-        }
+    private static final Comparator<SinkPoint> COMPARATOR =
+            Comparator.comparing(SinkPoint::sinkCall)
+                    .thenComparingInt(SinkPoint::index);
+
+    @Override
+    public int compareTo(@Nonnull SinkPoint other) {
+        return COMPARATOR.compare(this, other);
+    }
+
+    @Override
+    public String toString() {
+        return sinkCall + "/" + IndexUtils.toString(index);
     }
 }

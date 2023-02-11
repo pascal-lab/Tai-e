@@ -280,11 +280,12 @@ public class TaintAnalysis implements Plugin {
                     .getCallersOf(sink.method())
                     .forEach(sinkCall -> {
                         Var arg = IndexUtils.getVar(sinkCall, i);
+                        SinkPoint sinkPoint = new SinkPoint(sinkCall, i);
                         result.getPointsToSet(arg)
                                 .stream()
                                 .filter(manager::isTaint)
                                 .map(manager::getSourcePoint)
-                                .map(sourcePoint -> new TaintFlow(sourcePoint, sinkCall, i))
+                                .map(sourcePoint -> new TaintFlow(sourcePoint, sinkPoint))
                                 .forEach(taintFlows::add);
                     });
         });
