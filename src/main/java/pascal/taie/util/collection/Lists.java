@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 /**
  * Utility methods for {@link List}.
@@ -52,5 +53,12 @@ public final class Lists {
                                      Predicate<? super T> predicate) {
         List<T> result = c.stream().filter(predicate).toList();
         return result.isEmpty() ? List.of() : result;
+    }
+
+    /**
+     * Converts an iterable object to a list.
+     */
+    public static <T> List<T> asList(Iterable<T> iterable) {
+        return StreamSupport.stream(iterable.spliterator(), false).toList();
     }
 }
