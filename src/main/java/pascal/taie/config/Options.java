@@ -89,6 +89,16 @@ public class Options {
     }
 
     @JsonProperty
+    @Option(names = {"-acp", "--app-class-path"},
+            description = "Application class path." +
+                    " Multiple paths are split by system path separator.")
+    private String appClassPath;
+
+    public String getAppClassPath() {
+        return appClassPath;
+    }
+
+    @JsonProperty
     @Option(names = {"-m", "--main-class"}, description = "Main class")
     private String mainClass;
 
@@ -258,9 +268,12 @@ public class Options {
                     "--analysis and --plan-file should not be used simultaneously");
         }
         if (options.getClassPath() != null
-                && options.mainClass == null && options.inputClasses.isEmpty()) {
+                && options.mainClass == null
+                && options.inputClasses.isEmpty()
+                && options.getAppClassPath() == null) {
             throw new ConfigException("Missing options: " +
-                    "at least one of --main-class and --input-classes should be specified");
+                    "at least one of --main-class, --input-classes " +
+                    "or --app-class-path should be specified");
         }
         // TODO: turn off output in testing?
         if (options.optionsFile == null) {
@@ -316,6 +329,7 @@ public class Options {
                 "optionsFile=" + optionsFile +
                 ", printHelp=" + printHelp +
                 ", classPath='" + classPath + '\'' +
+                ", appClassPath='" + appClassPath + '\'' +
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
                 ", javaVersion=" + javaVersion +

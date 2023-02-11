@@ -40,6 +40,7 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
+import pascal.taie.util.ClassNameExtractor;
 import soot.G;
 import soot.PackManager;
 import soot.Scene;
@@ -127,6 +128,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
+        addAppClasses(scene, options.getAppClassPath());
         addInputClasses(scene, options.getInputClasses());
         addReflectionLogClasses(analyses, scene);
 
@@ -159,6 +161,18 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             classNames.forEach(name -> scene.addBasicClass(name, HIERARCHY));
         } catch (IOException e) {
             throw new SootFrontendException("Failed to read Soot basic classes", e);
+        }
+    }
+
+    /**
+     * Adds all classes in {@code appClassPath} to the scene.
+     */
+    private static void addAppClasses(Scene scene, String appClassPath) {
+        if (appClassPath != null) {
+            for (String path : appClassPath.split(File.pathSeparator)) {
+                ClassNameExtractor.extract(path)
+                        .forEach(scene::addBasicClass);
+            }
         }
     }
 

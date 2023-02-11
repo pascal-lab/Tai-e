@@ -28,6 +28,7 @@ import pascal.taie.language.natives.DefaultNativeModel;
 import pascal.taie.language.natives.EmptyNativeModel;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.collection.Streams;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,9 +77,10 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
-                return Stream.concat(
+                return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                Stream.of(options.getClassPath()))
+                                Stream.ofNullable(options.getAppClassPath()),
+                                Stream.ofNullable(options.getClassPath()))
                         .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " +
