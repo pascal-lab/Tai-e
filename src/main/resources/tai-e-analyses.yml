@@ -31,7 +31,8 @@
     algorithm: pta # | cha
     dump: null # path of file to dump reachable methods and call edges
     dump-methods: null # path of file to dump reachable methods
-    dump-call-edges: null # path of file to dump to call edges
+    dump-call-edges: null # path of file to dump call edges
+    dump-dot: null # path of dot file to dump call graph
 
 - description: identify casts that may fail
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast

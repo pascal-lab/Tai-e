@@ -78,5 +78,9 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
         if (callEdgesFile != null) {
             CallGraphs.dumpCallEdges(callGraph, callEdgesFile);
         }
+        String dotFile = options.getString("dump-dot");
+        if (dotFile != null) {
+            CallGraphs.dumpDot(callGraph, dotFile);
+        }
     }
 }
