@@ -122,12 +122,12 @@
     action-file: null # path of file to dump/compare
     log-mismatches: false # | whether log mismatched items
 
-- description: dump classes and Tai-e IR
-  analysisClass: pascal.taie.analysis.misc.ClassDumper
-  id: class-dumper
+- description: dump Tai-e IR for classes of input program
+  analysisClass: pascal.taie.analysis.misc.IRDumper
+  id: ir-dumper
   options:
-    dump-dir: null # path of directory to dump classes;
-    # if this is not given (i.e., null), classes will be
+    dump-dir: null # path of directory to dump IR;
+    # if this is not given (i.e., null), IR will be
     # dumped to Tai-e's default output directory
 
 - description: null value analysis

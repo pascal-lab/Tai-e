@@ -26,7 +26,7 @@ import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
-import pascal.taie.analysis.misc.ClassDumper;
+import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
 
@@ -105,7 +105,7 @@ public final class Tests {
         Collections.addAll(args, isMainClass ? "-m" : "--input-classes", clz);
         if (DUMP_IR) {
             // dump IR
-            Collections.addAll(args, "-a", ClassDumper.ID);
+            Collections.addAll(args, "-a", IRDumper.ID);
         }
         if (DUMP_CFG) {
             // dump control-flow graphs
@@ -150,7 +150,7 @@ public final class Tests {
         Collections.addAll(args, "-m", main);
         if (DUMP_IR) {
             // dump IR
-            Collections.addAll(args, "-a", ClassDumper.ID);
+            Collections.addAll(args, "-a", IRDumper.ID);
         }
         List<String> ptaArgs = new ArrayList<>();
         ptaArgs.add("implicit-entries:false");

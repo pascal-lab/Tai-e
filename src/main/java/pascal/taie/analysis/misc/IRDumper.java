@@ -51,24 +51,24 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
- * Dumps classes and Tai-e IR
+ * Dumps Tai-e IR for classes of input program.
  */
-public class ClassDumper extends ClassAnalysis<Void> {
+public class IRDumper extends ClassAnalysis<Void> {
 
-    public static final String ID = "class-dumper";
+    public static final String ID = "ir-dumper";
 
-    private static final Logger logger = LogManager.getLogger(ClassDumper.class);
+    private static final Logger logger = LogManager.getLogger(IRDumper.class);
 
     private static final String SUFFIX = ".tir";
 
     private static final String INDENT = "    ";
 
     /**
-     * Directory to dump classes.
+     * Directory to dump IR.
      */
     private final File dumpDir;
 
-    public ClassDumper(AnalysisConfig config) {
+    public IRDumper(AnalysisConfig config) {
         super(config);
         String path = getOptions().getString("dump-dir");
         dumpDir = path != null ? new File(path) : Configs.getOutputDir();
