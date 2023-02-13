@@ -22,18 +22,22 @@
 
 package pascal.taie;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.natives.DefaultNativeModel;
 import pascal.taie.language.natives.EmptyNativeModel;
 import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.collection.Streams;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,6 +46,8 @@ import java.util.stream.Stream;
  * Common functionality for {@link WorldBuilder} implementations.
  */
 public abstract class AbstractWorldBuilder implements WorldBuilder {
+
+    private static final Logger logger = LogManager.getLogger(AbstractWorldBuilder.class);
 
     protected static final String JREs = "java-benchmarks/JREs";
 
@@ -97,10 +103,32 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
     }
 
     /**
-     * @return {@code true} if {@code s} is a path to a file that contains
-     * names of input classes.
+     * Obtains all input classes specified in {@code options}.
      */
-    protected static boolean isInputClassFile(String s) {
-        return s.endsWith(".txt");
+    protected static List<String> getInputClasses(Options options) {
+        List<String> classes = new ArrayList<>();
+        // process --input-classes
+        options.getInputClasses().forEach(value -> {
+            if (value.endsWith(".txt")) {
+                // value is a path to a file that contains class names
+                try (Stream<String> lines = Files.lines(Path.of(value))) {
+                    lines.forEach(classes::add);
+                } catch (IOException e) {
+                    logger.warn("Failed to read input class file {} due to {}",
+                            value, e);
+                }
+            } else {
+                // value is a class name
+                classes.add(value);
+            }
+        });
+        // process --app-class-path
+        String appClassPath = options.getAppClassPath();
+        if (appClassPath != null) {
+            for (String path : appClassPath.split(File.pathSeparator)) {
+                classes.addAll(ClassNameExtractor.extract(path));
+            }
+        }
+        return classes;
     }
 }
