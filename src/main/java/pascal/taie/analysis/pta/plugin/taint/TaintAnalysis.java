@@ -269,6 +269,8 @@ public class TaintAnalysis implements Plugin {
     public void onFinish() {
         Set<TaintFlow> taintFlows = collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
+        logger.info("Detected {} taint flow(s):", taintFlows.size());
+        taintFlows.forEach(logger::info);
     }
 
     private Set<TaintFlow> collectTaintFlows() {
