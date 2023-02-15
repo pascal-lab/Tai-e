@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.taint;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -145,6 +146,12 @@ public class TaintAnalysis implements Plugin {
             });
         }
         // process taint transfer
+        if (edge.getKind() == CallKind.OTHER) {
+            // skip other call edges, e.g., reflective call edges,
+            // which currently cannot be handled for transfer methods
+            // TODO: handle other call edges
+            return;
+        }
         transfers.get(callee).forEach(transfer -> {
             Var from = IndexUtils.getVar(callSite, transfer.from());
             Var to = IndexUtils.getVar(callSite, transfer.to());
@@ -279,7 +286,10 @@ public class TaintAnalysis implements Plugin {
         config.sinks().forEach(sink -> {
             int i = sink.index();
             result.getCallGraph()
-                    .getCallersOf(sink.method())
+                    .edgesInTo(sink.method())
+                    // TODO: handle other call edges
+                    .filter(e -> e.getKind() != CallKind.OTHER)
+                    .map(Edge::getCallSite)
                     .forEach(sinkCall -> {
                         Var arg = IndexUtils.getVar(sinkCall, i);
                         SinkPoint sinkPoint = new SinkPoint(sinkCall, i);
