@@ -132,10 +132,11 @@ public class IndexMapTest {
         Assert.assertTrue(m.isEmpty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidIndex() {
-        var m = makeMap();
-        m.put(20, "");
+    @Test
+    public void testMapExpansion() {
+        var m = new IndexMap<Integer, String>(indexer, 3);
+        m.put(20, "20");
+        Assert.assertEquals("20", m.get(20));
     }
 
     @Test(expected = NullPointerException.class)
