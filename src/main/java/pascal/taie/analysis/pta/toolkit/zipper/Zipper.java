@@ -25,6 +25,9 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.graph.flowgraph.InstanceNode;
+import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
@@ -192,13 +195,13 @@ public class Zipper {
         return pcms;
     }
 
-    private static Set<FGNode> getFlowNodes(PrecisionFlowGraph pfg) {
-        Set<FGNode> visited = Sets.newSet();
+    private static Set<Node> getFlowNodes(PrecisionFlowGraph pfg) {
+        Set<Node> visited = Sets.newSet();
         for (VarNode outNode : pfg.getOutNodes()) {
-            Deque<FGNode> workList = new ArrayDeque<>();
+            Deque<Node> workList = new ArrayDeque<>();
             workList.add(outNode);
             while (!workList.isEmpty()) {
-                FGNode node = workList.poll();
+                Node node = workList.poll();
                 if (visited.add(node)) {
                     pfg.getPredsOf(node)
                             .stream()
@@ -214,7 +217,7 @@ public class Zipper {
      * @return containing method of {@code node}.
      */
     @Nullable
-    private static JMethod node2Method(FGNode node) {
+    private static JMethod node2Method(Node node) {
         if (node instanceof VarNode varNode) {
             return varNode.getVar().getMethod();
         } else {

@@ -20,23 +20,18 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.util.Indexable;
+import pascal.taie.analysis.pta.core.heap.Obj;
 
-/**
- * Nodes in flow graph.
- */
-abstract class FGNode implements Indexable {
+public class ArrayIndexNode extends InstanceNode {
 
-    private final int index;
-
-    FGNode(int index) {
-        this.index = index;
+    ArrayIndexNode(Obj base, int index) {
+        super(base, index);
     }
 
     @Override
-    public int getIndex() {
-        return index;
+    public String toString() {
+        return "ArrayIndexNode{" + base + "}";
     }
 }

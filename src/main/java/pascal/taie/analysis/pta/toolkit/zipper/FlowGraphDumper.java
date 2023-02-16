@@ -22,6 +22,9 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import pascal.taie.analysis.graph.flowgraph.ArrayIndexNode;
+import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
+import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.util.graph.DotDumper;
 import pascal.taie.util.graph.Graph;
 
@@ -31,9 +34,9 @@ import java.util.Map;
 /**
  * Dumper for object/precision flow graph.
  */
-class FGDumper {
+class FlowGraphDumper {
 
-    private static final DotDumper<FGNode> dumper = new DotDumper<FGNode>()
+    private static final DotDumper<Node> dumper = new DotDumper<Node>()
             .setNodeAttributes(n -> {
                 if (n instanceof InstanceFieldNode) {
                     return Map.of("shape", "box");
@@ -45,7 +48,7 @@ class FGDumper {
                 }
             })
             .setEdgeAttrs(e -> {
-                FGEdge edge = (FGEdge) e;
+                Edge edge = (Edge) e;
                 return switch (edge.kind()) {
                     case LOCAL_ASSIGN -> Map.of();
                     case INTERPROCEDURAL_ASSIGN -> Map.of("color", "blue");
@@ -56,7 +59,7 @@ class FGDumper {
                 };
             });
 
-    static void dump(Graph<FGNode> graph, File file) {
+    static void dump(Graph<Node> graph, File file) {
         dumper.dump(graph, file);
     }
 }

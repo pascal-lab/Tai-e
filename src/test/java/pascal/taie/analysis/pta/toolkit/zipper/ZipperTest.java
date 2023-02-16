@@ -67,7 +67,7 @@ public class ZipperTest {
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectFlowGraph ofg = new ObjectFlowGraph(pta);
         File output = new File(World.get().getOptions().getOutputDir(), main + "-ofg.dot");
-        FGDumper.dump(ofg, output);
+        FlowGGraphDumper.dump(ofg, output);
     }
 
     @Test

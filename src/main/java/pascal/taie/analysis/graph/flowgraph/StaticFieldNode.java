@@ -20,20 +20,25 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.language.classes.JField;
 
-abstract class InstanceNode extends FGNode {
+public class StaticFieldNode extends Node {
 
-    protected final Obj base;
+    private final JField field;
 
-    InstanceNode(Obj base, int index) {
+    StaticFieldNode(JField field, int index) {
         super(index);
-        this.base = base;
+        this.field = field;
     }
 
-    Obj getBase() {
-        return base;
+    public JField getField() {
+        return field;
+    }
+
+    @Override
+    public String toString() {
+        return "StaticFieldNode{" + field + '}';
     }
 }

@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -31,23 +33,23 @@ import pascal.taie.util.graph.Graph;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class PrecisionFlowGraph implements Graph<FGNode> {
+class PrecisionFlowGraph implements Graph<Node> {
 
     private final Type type;
 
     private final ObjectFlowGraph ofg;
 
-    private final Set<FGNode> nodes;
+    private final Set<Node> nodes;
 
     private final Set<VarNode> outNodes;
 
-    private final MultiMap<FGNode, FGEdge> inWUEdges;
+    private final MultiMap<Node, Edge> inWUEdges;
 
-    private final MultiMap<FGNode, FGEdge> outWUEdges;
+    private final MultiMap<Node, Edge> outWUEdges;
 
     PrecisionFlowGraph(Type type, ObjectFlowGraph ofg,
-                       Set<FGNode> nodes, Set<VarNode> outNodes,
-                       MultiMap<FGNode, FGEdge> outWUEdges) {
+                       Set<Node> nodes, Set<VarNode> outNodes,
+                       MultiMap<Node, Edge> outWUEdges) {
         this.type = type;
         this.ofg = ofg;
         this.nodes = nodes;
@@ -70,23 +72,23 @@ class PrecisionFlowGraph implements Graph<FGNode> {
     }
 
     @Override
-    public boolean hasNode(FGNode node) {
+    public boolean hasNode(Node node) {
         return nodes.contains(node);
     }
 
     @Override
-    public boolean hasEdge(FGNode source, FGNode target) {
+    public boolean hasEdge(Node source, Node target) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Set<FGNode> getPredsOf(FGNode node) {
-        return Views.toMappedSet(getInEdgesOf(node), FGEdge::source);
+    public Set<Node> getPredsOf(Node node) {
+        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
     }
 
     @Override
-    public Set<FGEdge> getInEdgesOf(FGNode node) {
-        Set<FGEdge> inEdges = ofg.getInEdgesOf(node)
+    public Set<Edge> getInEdgesOf(Node node) {
+        Set<Edge> inEdges = ofg.getInEdgesOf(node)
                 .stream()
                 .filter(e -> nodes.contains(e.source()))
                 .collect(Collectors.toSet());
@@ -95,13 +97,13 @@ class PrecisionFlowGraph implements Graph<FGNode> {
     }
 
     @Override
-    public Set<FGNode> getSuccsOf(FGNode node) {
-        return Views.toMappedSet(getOutEdgesOf(node), FGEdge::target);
+    public Set<Node> getSuccsOf(Node node) {
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
     }
 
     @Override
-    public Set<FGEdge> getOutEdgesOf(FGNode node) {
-        Set<FGEdge> outEdges = ofg.getOutEdgesOf(node)
+    public Set<Edge> getOutEdgesOf(Node node) {
+        Set<Edge> outEdges = ofg.getOutEdgesOf(node)
                 .stream()
                 .filter(e -> nodes.contains(e.target()))
                 .collect(Collectors.toSet());
@@ -110,7 +112,7 @@ class PrecisionFlowGraph implements Graph<FGNode> {
     }
 
     @Override
-    public Set<FGNode> getNodes() {
+    public Set<Node> getNodes() {
         return nodes;
     }
 }

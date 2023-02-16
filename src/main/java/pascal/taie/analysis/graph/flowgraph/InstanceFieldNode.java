@@ -20,18 +20,26 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.language.classes.JField;
 
-class ArrayIndexNode extends InstanceNode {
+public class InstanceFieldNode extends InstanceNode {
 
-    ArrayIndexNode(Obj base, int index) {
+    private final JField field;
+
+    InstanceFieldNode(Obj base, JField field, int index) {
         super(base, index);
+        this.field = field;
+    }
+
+    JField getField() {
+        return field;
     }
 
     @Override
     public String toString() {
-        return "ArrayIndexNode{" + base + "}";
+        return "InstanceFieldNode{" + base + "." + field + "}";
     }
 }

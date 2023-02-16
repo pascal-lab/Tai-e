@@ -20,32 +20,25 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.util.graph.Edge;
+import pascal.taie.ir.exp.Var;
 
-/**
- * Edges in object/precision flow graph.
- */
-record FGEdge(Kind kind, FGNode source, FGNode target)
-        implements Edge<FGNode> {
+public class VarNode extends Node {
 
-    enum Kind {
-        LOCAL_ASSIGN,
-        INTERPROCEDURAL_ASSIGN,
-        INSTANCE_LOAD,
-        INSTANCE_STORE,
-        WRAPPED_FLOW,
-        UNWRAPPED_FLOW,
+    private final Var var;
+
+    VarNode(Var var, int index) {
+        super(index);
+        this.var = var;
+    }
+
+    public Var getVar() {
+        return var;
     }
 
     @Override
-    public FGNode getSource() {
-        return source;
-    }
-
-    @Override
-    public FGNode getTarget() {
-        return target;
+    public String toString() {
+        return "VarNode{" + var.getMethod() + "/" + var.getName() + "}";
     }
 }

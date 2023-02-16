@@ -242,7 +242,7 @@ public class MapBasedCSManager implements CSManager {
          * Since there are empty slots, using array (instead of List)
          * is more convenient.
          */
-        private CSObj[] objs = new CSObj[4096];
+        private CSObj[] objs = new CSObj[65536];
 
         CSObj getCSObj(Context heapContext, Obj obj) {
             return objMap.computeIfAbsent(obj, heapContext, (o, c) -> {

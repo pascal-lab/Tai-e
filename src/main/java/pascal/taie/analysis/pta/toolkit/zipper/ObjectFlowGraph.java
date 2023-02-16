@@ -26,8 +26,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
+import pascal.taie.analysis.graph.flowgraph.ArrayIndexNode;
+import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
+import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.NodeManager;
+import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
@@ -49,55 +53,41 @@ import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import static pascal.taie.analysis.pta.toolkit.zipper.FGEdge.Kind.INSTANCE_LOAD;
-import static pascal.taie.analysis.pta.toolkit.zipper.FGEdge.Kind.INSTANCE_STORE;
-import static pascal.taie.analysis.pta.toolkit.zipper.FGEdge.Kind.INTERPROCEDURAL_ASSIGN;
-import static pascal.taie.analysis.pta.toolkit.zipper.FGEdge.Kind.LOCAL_ASSIGN;
+import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.INSTANCE_LOAD;
+import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.INSTANCE_STORE;
+import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.INTERPROCEDURAL_ASSIGN;
+import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.LOCAL_ASSIGN;
 
-class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
+class ObjectFlowGraph extends NodeManager
+        implements Graph<Node>, Indexer<Node> {
 
     private static final Logger logger = LogManager.getLogger(ObjectFlowGraph.class);
 
-    private int nodeCounter;
-
-    private final List<FGNode> nodes = new ArrayList<>(4096);
-
-    private final Map<Var, VarNode> var2Node = Maps.newMap(4096);
-
-    private final TwoKeyMap<Obj, JField, InstanceFieldNode> field2Node = Maps.newTwoKeyMap();
-
-    private final Map<Obj, ArrayIndexNode> array2Node = Maps.newMap(1024);
-
-    private final MultiMap<FGNode, FGEdge> inEdges = Maps.newMultiMap(
+    private final MultiMap<Node, Edge> inEdges = Maps.newMultiMap(
             new IndexMap<>(this, 4096));
 
-    private final MultiMap<FGNode, FGEdge> outEdges = Maps.newMultiMap(
+    private final MultiMap<Node, Edge> outEdges = Maps.newMultiMap(
             new IndexMap<>(this, 4096));
 
     ObjectFlowGraph(PointerAnalysisResult pta) {
         CallGraph<Invoke, JMethod> callGraph = pta.getCallGraph();
         EdgeBuilder edgeBuilder = new EdgeBuilder(pta);
-        nodeCounter = 0;
         callGraph.forEach(method ->
                 method.getIR().forEach(s -> s.accept(edgeBuilder)));
         // log statistics
-        logger.info("{} nodes in OFG", nodes.size());
+        logger.info("{} nodes in OFG", getNodes().size());
         logger.info("{} edges in OFG",
-                nodes.stream().mapToInt(this::getOutDegreeOf).sum());
+                getNodes().stream().mapToInt(this::getOutDegreeOf).sum());
     }
 
-    private void addEdge(FGEdge.Kind kind, FGNode source, FGNode target) {
-        FGEdge edge = new FGEdge(kind, source, target);
+    private void addEdge(Edge.Kind kind, Node source, Node target) {
+        Edge edge = new Edge(kind, source, target);
         outEdges.put(source, edge);
         inEdges.put(target, edge);
     }
@@ -237,78 +227,28 @@ class ObjectFlowGraph implements Graph<FGNode>, Indexer<FGNode> {
         }
     }
 
-    private VarNode getOrCreateVarNode(Var var) {
-        return var2Node.computeIfAbsent(var, v -> {
-            VarNode node = new VarNode(v, nodeCounter++);
-            nodes.add(node);
-            return node;
-        });
-    }
-
-    private InstanceFieldNode getOrCreateInstanceFieldNode(Obj base, JField field) {
-        return field2Node.computeIfAbsent(base, field, (o, f) -> {
-            InstanceFieldNode node = new InstanceFieldNode(o, f, nodeCounter++);
-            nodes.add(node);
-            return node;
-        });
-    }
-
-    private ArrayIndexNode getOrCreateArrayIndexNode(Obj array) {
-        return array2Node.computeIfAbsent(array, a -> {
-            ArrayIndexNode node = new ArrayIndexNode(a, nodeCounter++);
-            nodes.add(node);
-            return node;
-        });
-    }
-
     @Override
-    public boolean hasNode(FGNode node) {
-        return nodes.contains(node);
-    }
-
-    @Override
-    public boolean hasEdge(FGNode source, FGNode target) {
+    public boolean hasEdge(Node source, Node target) {
         return getSuccsOf(source).contains(target);
     }
 
     @Override
-    public Set<FGNode> getPredsOf(FGNode node) {
-        return Views.toMappedSet(getInEdgesOf(node), FGEdge::source);
+    public Set<Node> getPredsOf(Node node) {
+        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
     }
 
     @Override
-    public Set<FGEdge> getInEdgesOf(FGNode node) {
+    public Set<Edge> getInEdgesOf(Node node) {
         return inEdges.get(node);
     }
 
     @Override
-    public Set<FGNode> getSuccsOf(FGNode node) {
-        return Views.toMappedSet(getOutEdgesOf(node), FGEdge::target);
+    public Set<Node> getSuccsOf(Node node) {
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
     }
 
     @Override
-    public Set<FGEdge> getOutEdgesOf(FGNode node) {
+    public Set<Edge> getOutEdgesOf(Node node) {
         return outEdges.get(node);
-    }
-
-    @Override
-    public Set<FGNode> getNodes() {
-        return Views.toMappedSet(nodes, node -> node,
-                o -> o instanceof FGNode node && hasNode(node));
-    }
-
-    @Override
-    public int getIndex(FGNode o) {
-        return o.getIndex();
-    }
-
-    @Override
-    public FGNode getObject(int index) {
-        return nodes.get(index);
-    }
-
-    @Nullable
-    VarNode getVarNode(Var var) {
-        return var2Node.get(var);
     }
 }

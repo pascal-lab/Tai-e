@@ -22,23 +22,30 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import pascal.taie.ir.exp.Var;
+import pascal.taie.analysis.graph.flowgraph.Node;
 
-class VarNode extends FGNode {
+/**
+ * Edges in object/precision flow graph.
+ */
+record Edge(Kind kind, Node source, Node target)
+        implements pascal.taie.util.graph.Edge<Node> {
 
-    private final Var var;
-
-    public VarNode(Var var, int index) {
-        super(index);
-        this.var = var;
-    }
-
-    public Var getVar() {
-        return var;
+    enum Kind {
+        LOCAL_ASSIGN,
+        INTERPROCEDURAL_ASSIGN,
+        INSTANCE_LOAD,
+        INSTANCE_STORE,
+        WRAPPED_FLOW,
+        UNWRAPPED_FLOW,
     }
 
     @Override
-    public String toString() {
-        return "VarNode{" + var.getMethod() + "/" + var.getName() + "}";
+    public Node getSource() {
+        return source;
+    }
+
+    @Override
+    public Node getTarget() {
+        return target;
     }
 }

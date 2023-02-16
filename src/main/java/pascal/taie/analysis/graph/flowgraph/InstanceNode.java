@@ -20,34 +20,20 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.JField;
-import pascal.taie.util.Indexer;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.TwoKeyMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+public abstract class InstanceNode extends Node {
 
-public abstract class NodeManager implements Indexer<FGNode> {
+    final Obj base;
 
-    private static final Logger logger = LogManager.getLogger(ObjectFlowGraph.class);
+    InstanceNode(Obj base, int index) {
+        super(index);
+        this.base = base;
+    }
 
-    private int nodeCounter;
-
-    private final List<FGNode> nodes = new ArrayList<>(4096);
-
-    private final Map<Var, VarNode> var2Node = Maps.newMap(4096);
-
-    private final TwoKeyMap<Obj, JField, InstanceFieldNode> field2Node = Maps.newTwoKeyMap();
-
-    private final Map<Obj, ArrayIndexNode> array2Node = Maps.newMap(1024);
-
-
+    public Obj getBase() {
+        return base;
+    }
 }
