@@ -37,6 +37,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -241,7 +242,7 @@ public class MapBasedCSManager implements CSManager {
          * Since there are empty slots, using array (instead of List)
          * is more convenient.
          */
-        private CSObj[] objs = new CSObj[65536];
+        private CSObj[] objs = new CSObj[4096];
 
         CSObj getCSObj(Context heapContext, Obj obj) {
             return objMap.computeIfAbsent(obj, heapContext, (o, c) -> {
@@ -271,9 +272,7 @@ public class MapBasedCSManager implements CSManager {
         private void storeCSObj(CSObj csObj, int index) {
             if (index >= objs.length) {
                 int newLength = Math.max(index + 1, (int) (objs.length * 1.5));
-                CSObj[] oldArray = objs;
-                objs = new CSObj[newLength];
-                System.arraycopy(oldArray, 0, objs, 0, oldArray.length);
+                objs = Arrays.copyOf(objs, newLength);
             }
             objs[index] = csObj;
         }
