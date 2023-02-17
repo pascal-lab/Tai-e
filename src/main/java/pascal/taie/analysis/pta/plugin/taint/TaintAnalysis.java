@@ -135,17 +135,18 @@ public class TaintAnalysis implements Plugin {
         Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
-        Var lhs = callSite.getLValue();
-        if (lhs != null && callSources.containsKey(callee)) {
-            callSources.get(callee).forEach(source -> {
-                SourcePoint sourcePoint = new CallSourcePoint(
-                        callSite, source.index());
-                Type type = source.type();
-                Obj taint = manager.makeTaint(sourcePoint, type);
-                solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,
-                        emptyContext, taint);
-            });
-        }
+        callSources.get(callee).forEach(source -> {
+            int index = source.index();
+            if (IndexUtils.RESULT == index && callSite.getLValue() == null ||
+                    IndexUtils.RESULT != index && edge.getKind() == CallKind.OTHER) {
+                return;
+            }
+            Var var = IndexUtils.getVar(callSite, index);
+            SourcePoint sourcePoint = new CallSourcePoint(callSite, index);
+            Obj taint = manager.makeTaint(sourcePoint, source.type());
+            solver.addVarPointsTo(edge.getCallSite().getContext(), var,
+                    emptyContext, taint);
+        });
         // process taint transfer
         if (edge.getKind() == CallKind.OTHER) {
             // skip other call edges, e.g., reflective call edges,

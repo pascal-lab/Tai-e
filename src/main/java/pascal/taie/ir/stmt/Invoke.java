@@ -36,7 +36,9 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -148,14 +150,16 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
         return visitor.visit(this);
     }
 
+    private static final Comparator<Invoke> COMPARATOR =
+            Comparator.comparing((Invoke invoke) ->
+                            invoke.getContainer().getDeclaringClass().toString())
+                    .thenComparingInt(Stmt::getLineNumber)
+                    .thenComparing(invoke -> invoke.getContainer().toString())
+                    .thenComparingInt(Stmt::getIndex);
+
     @Override
-    public int compareTo(Invoke other) {
-        // first compare container methods in alphabet order
-        int container = this.container.toString()
-                .compareTo(other.container.toString());
-        // if both invokes are in the same container method,
-        // then compare their indexes
-        return container != 0 ? container : index - other.index;
+    public int compareTo(@Nonnull Invoke other) {
+        return COMPARATOR.compare(this, other);
     }
 
     @Override

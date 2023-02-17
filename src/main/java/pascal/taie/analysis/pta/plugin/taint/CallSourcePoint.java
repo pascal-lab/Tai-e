@@ -33,7 +33,7 @@ import java.util.Comparator;
 record CallSourcePoint(Invoke sourceCall, int index) implements SourcePoint {
 
     private static final Comparator<CallSourcePoint> COMPARATOR =
-            Comparator.comparing((CallSourcePoint csp) -> csp.sourceCall.toString())
+            Comparator.comparing((CallSourcePoint csp) -> csp.sourceCall)
                     .thenComparingInt(CallSourcePoint::index);
 
     @Override

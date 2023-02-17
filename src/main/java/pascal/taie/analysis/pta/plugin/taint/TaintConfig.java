@@ -160,7 +160,7 @@ record TaintConfig(List<CallSource> callSources,
                             }
                         };
                     } else {
-                        logger.warn("\"kind\" is missing in {}, ignore it",
+                        logger.warn("Ignore {} due to missing source \"kind\"",
                                 elem.toString());
                         source = null;
                     }
