@@ -42,10 +42,7 @@ import java.util.Objects;
 public class AnalysisOptions {
 
     /**
-     * Uses Collections.emptyMap() instead of Map.of() to avoid
-     * UnsupportedOperationException: {@link ConfigManager#overwriteOptions}
-     * unconditionally updates this map, thus we uses emptyMap() here
-     * for empty options to avoid UOE.
+     * The empty AnalysisOptions.
      */
     private static final AnalysisOptions EMPTY_OPTIONS =
             new AnalysisOptions(Collections.emptyMap());
@@ -66,11 +63,22 @@ public class AnalysisOptions {
 
     /**
      * Copies all the options from the specified AnalysisOptions
-     * to this AnalysisOptions. If the given AnalysisOptions contain
+     * to this AnalysisOptions. Only the given AnalysisOptions contain
      * value for the key that already exists in this AnalysisOptions,
-     * then the old value will be overwritten.
+     * then the old value can be overwritten, otherwise, exception
+     * will be thrown.
+     *
+     * @throws IllegalArgumentException if exists a key of given AnalysisOptions
+     *                                  not in this AnalysisOptions.
      */
     void update(AnalysisOptions options) {
+        for (String key : options.options.keySet()) {
+            if (!this.options.containsKey(key)) {
+                throw new IllegalArgumentException("Illegal key of option '"
+                        + key + ":" + options.options.get(key) + "'"
+                        + ", you should specify a key that exists in the configuration");
+            }
+        }
         this.options.putAll(options.options);
     }
 
