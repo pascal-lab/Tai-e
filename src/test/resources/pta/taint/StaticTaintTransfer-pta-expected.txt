@@ -1,26 +1,26 @@
 Points-to sets of all variables
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<StaticTaintTransfer$1Anonymous0: java.lang.String map(java.lang.String)>/%stringconst0 -> [[]:ConstantObj{java.lang.String: "hello, "}]
 []:<StaticTaintTransfer$1Anonymous0: java.lang.String map(java.lang.String)>/%this -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[5@L6] new StaticTaintTransfer$1Anonymous0}]
-[]:<StaticTaintTransfer$1Anonymous0: java.lang.String map(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<StaticTaintTransfer$1Anonymous0: java.lang.String map(java.lang.String)>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<StaticTaintTransfer$1Anonymous0: java.lang.String map(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:<StaticTaintTransfer$1Anonymous0: java.lang.String map(java.lang.String)>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<StaticTaintTransfer$1Anonymous0: void <init>()>/%this -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[5@L6] new StaticTaintTransfer$1Anonymous0}]
 []:<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>/lhs -> [[]:ConstantObj{java.lang.String: "hello, "}]
-[]:<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>/rhs -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>/rhs -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/arr -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[1@L4] newarray java.lang.String[%intconst0]}]
 []:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/mapper -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[5@L6] new StaticTaintTransfer$1Anonymous0}]
 []:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/result -> [[]:NewObj{<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>[1@L20] newarray java.lang.String[temp$0]}]
-[]:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/temp$6 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/temp$6 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StaticTaintTransfer: void main(java.lang.String[])>}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/arr -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[1@L4] newarray java.lang.String[%intconst0]}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/result -> [[]:NewObj{<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>[1@L20] newarray java.lang.String[temp$0]}]
-[]:<StaticTaintTransfer: void main(java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<StaticTaintTransfer: void main(java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[5@L6] new StaticTaintTransfer$1Anonymous0}]
 []:<StaticTaintTransfer: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>[1@L20] newarray java.lang.String[temp$0]}]
-[]:<StaticTaintTransfer: void main(java.lang.String[])>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<StaticTaintTransfer: void main(java.lang.String[])>/temp$7 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 
 Points-to sets of all static fields
 
@@ -28,9 +28,9 @@ Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StaticTaintTransfer: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <StaticTaintTransfer: void main(java.lang.String[])>}]
-[]:NewObj{<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>[1@L20] newarray java.lang.String[temp$0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
-[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[1@L4] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:NewObj{<StaticTaintTransfer: java.lang.String[] mapString(java.lang.String[],Mapper)>[1@L20] newarray java.lang.String[temp$0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:NewObj{<StaticTaintTransfer: void main(java.lang.String[])>[1@L4] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 
 Detected 1 taint flow(s):
-TaintFlow{<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source() -> <StaticTaintTransfer: void main(java.lang.String[])>[11@L12] invokestatic SourceSink.sink(temp$7)/0}
+TaintFlow{<StaticTaintTransfer: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic SourceSink.source()/result -> <StaticTaintTransfer: void main(java.lang.String[])>[11@L12] invokestatic SourceSink.sink(temp$7)/0}
 

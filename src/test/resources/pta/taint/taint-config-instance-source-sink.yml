@@ -6,6 +6,7 @@ sources:
 
 sinks:
   - { method: "<InstanceSourceSink: void instanceSink(java.lang.String)>", index: 0 }
+  - { method: "<InstanceSourceSink: void instanceSink(Taint)>", index: 0 }
   - { method: "<ProcessBuilder: void start()>", index: base }
 
 transfers:

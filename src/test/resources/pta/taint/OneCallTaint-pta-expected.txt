@@ -1,17 +1,17 @@
 Points-to sets of all variables
 [<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 [<OneCallTaint: void main(java.lang.String[])>[5@L6] temp$2 = invokestatic OneCallTaint.identity(s1)]:<OneCallTaint: java.lang.String identity(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}]
-[<OneCallTaint: void main(java.lang.String[])>[7@L7] temp$3 = invokestatic OneCallTaint.identity(s2)]:<OneCallTaint: java.lang.String identity(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[<OneCallTaint: void main(java.lang.String[])>[7@L7] temp$3 = invokestatic OneCallTaint.identity(s2)]:<OneCallTaint: java.lang.String identity(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 [<OneCallTaint: void main(java.lang.String[])>[9@L9] invokestatic SourceSink.sink(ss1)]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<OneCallTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <OneCallTaint: void main(java.lang.String[])>}]
 []:<OneCallTaint: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<OneCallTaint: void main(java.lang.String[])>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<OneCallTaint: void main(java.lang.String[])>/ss1 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<OneCallTaint: void main(java.lang.String[])>/ss2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/ss2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<OneCallTaint: void main(java.lang.String[])>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<OneCallTaint: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<OneCallTaint: void main(java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<OneCallTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<OneCallTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<OneCallTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 
 Points-to sets of all static fields
 

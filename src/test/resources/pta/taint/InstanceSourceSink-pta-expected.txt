@@ -2,19 +2,29 @@ Points-to sets of all variables
 []:<InstanceSourceSink: java.lang.String instanceSource()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}]
 []:<InstanceSourceSink: java.lang.String instanceSource()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<InstanceSourceSink: void <init>()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}, []:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
+[]:<InstanceSourceSink: void instanceSink(Taint)>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
+[]:<InstanceSourceSink: void instanceSink(Taint)>/t -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[17@L14] invokevirtual t2.becomeTainted()/base,type=Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[20@L18] invokevirtual t2.becomeTainted(t3)/0,type=Taint}]
 []:<InstanceSourceSink: void instanceSink(java.lang.String)>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
-[]:<InstanceSourceSink: void instanceSink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource(),type=java.lang.String}]
+[]:<InstanceSourceSink: void instanceSink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource()/result,type=java.lang.String}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=java.lang.String[]}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/sink -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/source -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}]
-[]:<InstanceSourceSink: void main(java.lang.String[])>/taint -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource(),type=java.lang.String}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/t1 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/t2 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[17@L14] invokevirtual t2.becomeTainted()/base,type=Taint}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/t3 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[20@L18] invokevirtual t2.becomeTainted(t3)/0,type=Taint}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/taint -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource()/result,type=java.lang.String}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[0@L4] new InstanceSourceSink}]
-[]:<InstanceSourceSink: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource(),type=java.lang.String}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource()/result,type=java.lang.String}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[5@L6] new InstanceSourceSink}]
 []:<InstanceSourceSink: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[9@L9] new ProcessBuilder}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=ProcessBuilder}]
+[]:<InstanceSourceSink: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}]
 []:<ProcessBuilder: void <init>(java.lang.String[])>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[9@L9] new ProcessBuilder}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=ProcessBuilder}]
 []:<ProcessBuilder: void <init>(java.lang.String[])>/cmd -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=java.lang.String[]}]
 []:<ProcessBuilder: void start()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[9@L9] new ProcessBuilder}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=ProcessBuilder}]
+[]:<Taint: void <init>()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}]
+[]:<Taint: void becomeTainted()>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[17@L14] invokevirtual t2.becomeTainted()/base,type=Taint}]
+[]:<Taint: void becomeTainted(Taint)>/%this -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[17@L14] invokevirtual t2.becomeTainted()/base,type=Taint}]
+[]:<Taint: void becomeTainted(Taint)>/t -> [[]:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[12@L11] new Taint}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>[20@L18] invokevirtual t2.becomeTainted(t3)/0,type=Taint}]
 
 Points-to sets of all static fields
 
@@ -25,7 +35,9 @@ Points-to sets of all instance fields
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <InstanceSourceSink: void main(java.lang.String[])>}]
 
-Detected 2 taint flow(s):
+Detected 4 taint flow(s):
 TaintFlow{<InstanceSourceSink: void main(java.lang.String[])>/0 -> <InstanceSourceSink: void main(java.lang.String[])>[11@L9] invokevirtual temp$3.start()/base}
-TaintFlow{<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource() -> <InstanceSourceSink: void main(java.lang.String[])>[8@L7] invokevirtual sink.instanceSink(taint)/0}
+TaintFlow{<InstanceSourceSink: void main(java.lang.String[])>[3@L5] temp$1 = invokevirtual source.instanceSource()/result -> <InstanceSourceSink: void main(java.lang.String[])>[8@L7] invokevirtual sink.instanceSink(taint)/0}
+TaintFlow{<InstanceSourceSink: void main(java.lang.String[])>[17@L14] invokevirtual t2.becomeTainted()/base -> <InstanceSourceSink: void main(java.lang.String[])>[18@L15] invokevirtual sink.instanceSink(t2)/0}
+TaintFlow{<InstanceSourceSink: void main(java.lang.String[])>[20@L18] invokevirtual t2.becomeTainted(t3)/0 -> <InstanceSourceSink: void main(java.lang.String[])>[21@L19] invokevirtual sink.instanceSink(t3)/0}
 

@@ -3,26 +3,26 @@ Points-to sets of all variables
 []:<FieldTaint$B: void <init>()>/%this -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}]
 []:<FieldTaint: void foo(FieldTaint$B)>/b -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}]
 []:<FieldTaint: void foo(FieldTaint$B)>/temp$0 -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
-[]:<FieldTaint: void foo(FieldTaint$B)>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<FieldTaint: void foo(FieldTaint$B)>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<FieldTaint: void main(java.lang.String[])>/a -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
 []:<FieldTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <FieldTaint: void main(java.lang.String[])>}]
 []:<FieldTaint: void main(java.lang.String[])>/b -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}]
 []:<FieldTaint: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
 []:<FieldTaint: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}]
 []:<FieldTaint: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
-[]:<FieldTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<FieldTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}.f -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source(),type=java.lang.String}]
+[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}.f -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}.g -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <FieldTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <FieldTaint: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
-TaintFlow{<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source() -> <FieldTaint: void foo(FieldTaint$B)>[2@L12] invokestatic SourceSink.sink(temp$1)/0}
+TaintFlow{<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result -> <FieldTaint: void foo(FieldTaint$B)>[2@L12] invokestatic SourceSink.sink(temp$1)/0}
 
