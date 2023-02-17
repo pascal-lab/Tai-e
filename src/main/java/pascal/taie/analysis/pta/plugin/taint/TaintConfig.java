@@ -49,7 +49,7 @@ import java.util.List;
 /**
  * Configuration for taint analysis.
  */
-record TaintConfig(List<ResultSource> resultSources,
+record TaintConfig(List<CallSource> callSources,
                    List<ParamSource> paramSources,
                    List<Sink> sinks,
                    List<TaintTransfer> transfers) {
@@ -83,9 +83,9 @@ record TaintConfig(List<ResultSource> resultSources,
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("TaintConfig:");
-        if (!resultSources.isEmpty() || !paramSources.isEmpty()) {
+        if (!callSources.isEmpty() || !paramSources.isEmpty()) {
             sb.append("\nsources:\n");
-            resultSources.forEach(source ->
+            callSources.forEach(source ->
                     sb.append("  ").append(source).append("\n"));
             paramSources.forEach(source ->
                     sb.append("  ").append(source).append("\n"));
@@ -123,9 +123,9 @@ record TaintConfig(List<ResultSource> resultSources,
             ObjectCodec oc = p.getCodec();
             JsonNode node = oc.readTree(p);
             List<Source> sources = deserializeSources(node.get("sources"));
-            List<ResultSource> resultSources = sources.stream()
-                    .filter(s -> s instanceof ResultSource)
-                    .map(s -> (ResultSource) s)
+            List<CallSource> callSources = sources.stream()
+                    .filter(s -> s instanceof CallSource)
+                    .map(s -> (CallSource) s)
                     .toList();
             List<ParamSource> paramSources = sources.stream()
                     .filter(s -> s instanceof ParamSource)
@@ -133,7 +133,7 @@ record TaintConfig(List<ResultSource> resultSources,
                     .toList();
             List<Sink> sinks = deserializeSinks(node.get("sinks"));
             List<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
-            return new TaintConfig(resultSources, paramSources, sinks, transfers);
+            return new TaintConfig(callSources, paramSources, sinks, transfers);
         }
 
         /**
@@ -151,14 +151,18 @@ record TaintConfig(List<ResultSource> resultSources,
                     Source source;
                     if (sourceKind != null) {
                         source = switch (sourceKind.asText()) {
-                            case "result" -> deserializeResultSource(elem);
+                            case "call" -> deserializeCallSource(elem);
                             case "param" -> deserializeParamSource(elem);
-                            default -> null;
+                            default -> {
+                                logger.warn("Unknown source kind \"{}\" in {}",
+                                        sourceKind.asText(), elem.toString());
+                                yield null;
+                            }
                         };
                     } else {
-                        logger.warn("\"kind\" is missing in {}," +
-                                " use default \"kind\": \"result\"", elem.toString());
-                        source = deserializeResultSource(elem);
+                        logger.warn("\"kind\" is missing in {}, ignore it",
+                                elem.toString());
+                        source = null;
                     }
                     if (source != null) {
                         sources.add(source);
@@ -172,12 +176,13 @@ record TaintConfig(List<ResultSource> resultSources,
         }
 
         @Nullable
-        private ResultSource deserializeResultSource(JsonNode node) {
+        private CallSource deserializeCallSource(JsonNode node) {
             String methodSig = node.get("method").asText();
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
+                int index = IndexUtils.toInt(node.get("index").asText());
                 Type type = typeSystem.getType(node.get("type").asText());
-                return new ResultSource(method, type);
+                return new CallSource(method, index, type);
             } else {
                 // if the method (given in config file) is absent in
                 // the class hierarchy, just ignore it.

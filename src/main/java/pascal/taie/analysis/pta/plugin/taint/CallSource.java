@@ -26,16 +26,17 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
 /**
- * Represents sources which generates taint objects as results
- * of the invocations.
+ * Represents sources which generates taint objects at method calls.
  *
- * @param method the method that generates taint object as result after invocation.
+ * @param method the method that generates taint object for variable at call site.
+ * @param index  the index of the tainted variable at the call site.
  * @param type   type of the generated taint object.
  */
-record ResultSource(JMethod method, Type type) implements Source {
+record CallSource(JMethod method, int index, Type type) implements Source {
 
     @Override
     public String toString() {
-        return method + "(" + type + ")";
+        return String.format("CallSource{%s/%s(%s)}",
+                method, IndexUtils.toString(index), type);
     }
 }

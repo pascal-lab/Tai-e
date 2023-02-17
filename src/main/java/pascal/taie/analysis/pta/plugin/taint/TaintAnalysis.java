@@ -67,7 +67,7 @@ public class TaintAnalysis implements Plugin {
     /**
      * Map from a source method to its result sources.
      */
-    private final MultiMap<JMethod, ResultSource> resultSources = Maps.newMultiMap();
+    private final MultiMap<JMethod, CallSource> callSources = Maps.newMultiMap();
 
     /**
      * Map from a source method to its parameter sources.
@@ -124,7 +124,7 @@ public class TaintAnalysis implements Plugin {
                 solver.getHierarchy(),
                 solver.getTypeSystem());
         logger.info(config);
-        config.resultSources().forEach(s -> resultSources.put(s.method(), s));
+        config.callSources().forEach(s -> callSources.put(s.method(), s));
         config.paramSources().forEach(s -> paramSources.put(s.method(), s));
         config.transfers().forEach(t -> transfers.put(t.method(), t));
     }
@@ -136,9 +136,10 @@ public class TaintAnalysis implements Plugin {
         JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
         Var lhs = callSite.getLValue();
-        if (lhs != null && resultSources.containsKey(callee)) {
-            resultSources.get(callee).forEach(source -> {
-                SourcePoint sourcePoint = new ResultSourcePoint(callSite);
+        if (lhs != null && callSources.containsKey(callee)) {
+            callSources.get(callee).forEach(source -> {
+                SourcePoint sourcePoint = new CallSourcePoint(
+                        callSite, source.index());
                 Type type = source.type();
                 Obj taint = manager.makeTaint(sourcePoint, type);
                 solver.addVarPointsTo(edge.getCallSite().getContext(), lhs,

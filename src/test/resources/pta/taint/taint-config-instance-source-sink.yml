@@ -1,5 +1,7 @@
 sources:
-  - { kind: result, method: "<InstanceSourceSink: java.lang.String instanceSource()>", type: "java.lang.String" }
+  - { kind: call, method: "<InstanceSourceSink: java.lang.String instanceSource()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<Taint: void becomeTainted()>", index: base, type: "Taint" }
+  - { kind: call, method: "<Taint: void becomeTainted(Taint)>", index: 0, type: "Taint" }
   - { kind: param, method: "<InstanceSourceSink: void main(java.lang.String[])>", index: 0, type: "java.lang.String[]" }
 
 sinks:

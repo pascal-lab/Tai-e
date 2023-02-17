@@ -25,16 +25,21 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.ir.stmt.Invoke;
 
 import javax.annotation.Nonnull;
+import java.util.Comparator;
 
 /**
- * A {@code ResultSourcePoint} is an invocation site.
+ * A {@code ResultSourcePoint} is variable at an invocation site.
  */
-record ResultSourcePoint(Invoke sourceCall) implements SourcePoint {
+record CallSourcePoint(Invoke sourceCall, int index) implements SourcePoint {
+
+    private static final Comparator<CallSourcePoint> COMPARATOR =
+            Comparator.comparing((CallSourcePoint csp) -> csp.sourceCall.toString())
+                    .thenComparingInt(CallSourcePoint::index);
 
     @Override
     public int compareTo(@Nonnull SourcePoint sp) {
-        if (sp instanceof ResultSourcePoint rsp) {
-            return sourceCall.compareTo(rsp.sourceCall);
+        if (sp instanceof CallSourcePoint csp) {
+            return COMPARATOR.compare(this, csp);
         } else if (sp instanceof ParamSourcePoint psp) {
             return SourcePoint.compare(this, psp);
         } else {
@@ -45,6 +50,6 @@ record ResultSourcePoint(Invoke sourceCall) implements SourcePoint {
 
     @Override
     public String toString() {
-        return sourceCall.toString();
+        return sourceCall.toString() + "/" + IndexUtils.toString(index);
     }
 }

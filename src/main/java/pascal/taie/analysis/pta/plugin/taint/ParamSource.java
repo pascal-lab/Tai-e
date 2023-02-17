@@ -37,6 +37,7 @@ record ParamSource(JMethod method, int index, Type type) implements Source {
 
     @Override
     public String toString() {
-        return method + "/" + index + "(" + type + ")";
+        return String.format("ParamSource{%s/%s(%s)}",
+                method, IndexUtils.toString(index), type);
     }
 }

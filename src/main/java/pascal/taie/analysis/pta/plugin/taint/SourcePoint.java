@@ -29,8 +29,8 @@ import pascal.taie.language.classes.JMethod;
  */
 interface SourcePoint extends Comparable<SourcePoint> {
 
-    static int compare(ResultSourcePoint rsp, ParamSourcePoint psp) {
-        JMethod rspMethod = rsp.sourceCall().getContainer();
+    static int compare(CallSourcePoint csp, ParamSourcePoint psp) {
+        JMethod rspMethod = csp.sourceCall().getContainer();
         JMethod pspMethod = psp.sourceMethod();
         if (rspMethod.equals(pspMethod)) {
             return 1;
