@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.flowgraph.ArrayIndexNode;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.NodeManager;
@@ -59,11 +60,6 @@ import pascal.taie.util.graph.Graph;
 import java.util.List;
 import java.util.Set;
 
-import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.INSTANCE_LOAD;
-import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.INSTANCE_STORE;
-import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.INTERPROCEDURAL_ASSIGN;
-import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.LOCAL_ASSIGN;
-
 class ObjectFlowGraph extends NodeManager
         implements Graph<Node>, Indexer<Node> {
 
@@ -86,8 +82,8 @@ class ObjectFlowGraph extends NodeManager
                 getNodes().stream().mapToInt(this::getOutDegreeOf).sum());
     }
 
-    private void addEdge(Edge.Kind kind, Node source, Node target) {
-        Edge edge = new Edge(kind, source, target);
+    private void addEdge(FlowKind kind, Node source, Node target) {
+        BasicEdge edge = new BasicEdge(kind, source, target);
         outEdges.put(source, edge);
         inEdges.put(target, edge);
     }
@@ -107,7 +103,7 @@ class ObjectFlowGraph extends NodeManager
                 Var from = copy.getRValue();
                 VarNode toNode = getOrCreateVarNode(to);
                 VarNode fromNode = getOrCreateVarNode(from);
-                addEdge(LOCAL_ASSIGN, fromNode, toNode);
+                addEdge(FlowKind.LOCAL_ASSIGN, fromNode, toNode);
             }
             return null;
         }
@@ -119,7 +115,7 @@ class ObjectFlowGraph extends NodeManager
                 Var from = cast.getRValue().getValue();
                 VarNode toNode = getOrCreateVarNode(to);
                 VarNode fromNode = getOrCreateVarNode(from);
-                addEdge(LOCAL_ASSIGN, fromNode, toNode);
+                addEdge(FlowKind.CAST, fromNode, toNode);
             }
             return null;
         }
@@ -134,7 +130,7 @@ class ObjectFlowGraph extends NodeManager
                 JField field = access.getFieldRef().resolve();
                 pta.getPointsToSet(base).forEach(obj -> {
                     InstanceFieldNode fromNode = getOrCreateInstanceFieldNode(obj, field);
-                    addEdge(INSTANCE_LOAD, fromNode, toNode);
+                    addEdge(FlowKind.INSTANCE_LOAD, fromNode, toNode);
                 });
             }
             return null;
@@ -150,7 +146,7 @@ class ObjectFlowGraph extends NodeManager
                 VarNode fromNode = getOrCreateVarNode(from);
                 pta.getPointsToSet(base).forEach(obj -> {
                     InstanceFieldNode toNode = getOrCreateInstanceFieldNode(obj, field);
-                    addEdge(INSTANCE_STORE, fromNode, toNode);
+                    addEdge(FlowKind.INSTANCE_STORE, fromNode, toNode);
                 });
             }
             return null;
@@ -164,7 +160,7 @@ class ObjectFlowGraph extends NodeManager
                 Var base = load.getRValue().getBase();
                 pta.getPointsToSet(base).forEach(array -> {
                     ArrayIndexNode fromNode = getOrCreateArrayIndexNode(array);
-                    addEdge(INSTANCE_LOAD, fromNode, toNode);
+                    addEdge(FlowKind.ARRAY_LOAD, fromNode, toNode);
                 });
             }
             return null;
@@ -178,7 +174,7 @@ class ObjectFlowGraph extends NodeManager
                 VarNode fromNode = getOrCreateVarNode(from);
                 pta.getPointsToSet(base).forEach(array -> {
                     ArrayIndexNode toNode = getOrCreateArrayIndexNode(array);
-                    addEdge(INSTANCE_STORE, fromNode, toNode);
+                    addEdge(FlowKind.ARRAY_STORE, fromNode, toNode);
                 });
             }
             return null;
@@ -200,7 +196,7 @@ class ObjectFlowGraph extends NodeManager
                         if (param.getType() instanceof ReferenceType) {
                             VarNode paramNode = getOrCreateVarNode(param);
                             VarNode argNode = argNodes.get(i);
-                            addEdge(INTERPROCEDURAL_ASSIGN, argNode, paramNode);
+                            addEdge(FlowKind.PARAMETER_PASSING, argNode, paramNode);
                         }
                     }
                     // add return-value edges
@@ -209,13 +205,13 @@ class ObjectFlowGraph extends NodeManager
                                 .stream()
                                 .map(ObjectFlowGraph.this::getOrCreateVarNode)
                                 .forEach(retNode ->
-                                        addEdge(INTERPROCEDURAL_ASSIGN, retNode, lhsNode));
+                                        addEdge(FlowKind.RETURN, retNode, lhsNode));
                     }
                     // add receiver-passing edge
                     if (invoke.getInvokeExp() instanceof InvokeInstanceExp invokeExp) {
                         VarNode baseNode = getOrCreateVarNode(invokeExp.getBase());
                         VarNode thisNode = getOrCreateVarNode(ir.getThis());
-                        addEdge(INTERPROCEDURAL_ASSIGN, baseNode, thisNode);
+                        addEdge(FlowKind.THIS_PASSING, baseNode, thisNode);
                     }
                 }
             });
@@ -234,7 +230,7 @@ class ObjectFlowGraph extends NodeManager
 
     @Override
     public Set<Node> getPredsOf(Node node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
+        return Views.toMappedSet(getInEdgesOf(node), Edge::getSource);
     }
 
     @Override
@@ -244,7 +240,7 @@ class ObjectFlowGraph extends NodeManager
 
     @Override
     public Set<Node> getSuccsOf(Node node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::getTarget);
     }
 
     @Override

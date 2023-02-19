@@ -52,9 +52,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.UNWRAPPED_FLOW;
-import static pascal.taie.analysis.pta.toolkit.zipper.Edge.Kind.WRAPPED_FLOW;
-
 class PFGBuilder {
 
     private static final Logger logger = LogManager.getLogger(PFGBuilder.class);
@@ -196,7 +193,7 @@ class PFGBuilder {
                             Var inVar = inNode.getVar();
                             if (!Collections.disjoint(
                                     pta.getBase().getPointsToSet(inVar), varPts)) {
-                                wuEdges.put(node, new Edge(UNWRAPPED_FLOW, node, toNode));
+                                wuEdges.put(node, new UnwrappedEdge(node, toNode));
                                 break;
                             }
                         }
@@ -206,12 +203,13 @@ class PFGBuilder {
             List<Edge> nextEdges = new ArrayList<>();
             for (Edge edge : getOutEdgesOf(node)) {
                 switch (edge.kind()) {
-                    case LOCAL_ASSIGN, UNWRAPPED_FLOW -> {
+                    case LOCAL_ASSIGN, CAST -> {
                         nextEdges.add(edge);
                     }
-                    case INTERPROCEDURAL_ASSIGN, INSTANCE_LOAD, WRAPPED_FLOW -> {
+                    case INSTANCE_LOAD, ARRAY_LOAD,
+                            THIS_PASSING, PARAMETER_PASSING, RETURN -> {
                         // target node must be a VarNode
-                        VarNode toNode = (VarNode) edge.target();
+                        VarNode toNode = (VarNode) edge.getTarget();
                         Var toVar = toNode.getVar();
                         // Optimization: filter out some potential spurious flows due to
                         // the imprecision of context-insensitive pre-analysis, which
@@ -220,8 +218,8 @@ class PFGBuilder {
                             nextEdges.add(edge);
                         }
                     }
-                    case INSTANCE_STORE -> {
-                        InstanceNode toNode = (InstanceNode) edge.target();
+                    case INSTANCE_STORE, ARRAY_STORE -> {
+                        InstanceNode toNode = (InstanceNode) edge.getTarget();
                         Obj base = toNode.getBase();
                         if (base.getType().equals(type)) {
                             // add wrapped flow edges to this variable
@@ -230,22 +228,39 @@ class PFGBuilder {
                                     .map(ofg::getVarNode)
                                     .filter(Objects::nonNull) // filter this variable of native methods
                                     .forEach(nextNode -> wuEdges.put(toNode,
-                                            new Edge(WRAPPED_FLOW, toNode, nextNode)));
+                                            new WrappedEdge(toNode, nextNode)));
                             nextEdges.add(edge);
                         } else if (oag.getAllocateesOf(type).contains(base)) {
                             // Optimization, similar as above.
                             VarNode assignedNode = getAssignedNode(base);
                             if (assignedNode != null) {
                                 wuEdges.put(toNode,
-                                        new Edge(WRAPPED_FLOW, toNode, assignedNode));
+                                        new WrappedEdge(toNode, assignedNode));
                             }
+                            nextEdges.add(edge);
+                        }
+                    }
+                    case OTHER -> {
+                        if (edge instanceof WrappedEdge) {
+                            // same as INSTANCE_STORE
+                            // target node must be a VarNode
+                            VarNode toNode = (VarNode) edge.getTarget();
+                            Var toVar = toNode.getVar();
+                            // Optimization: filter out some potential spurious flows due to
+                            // the imprecision of context-insensitive pre-analysis, which
+                            // helps improve the performance of Zipper and pointer analysis.
+                            if (pce.PCEMethodsOf(type).contains(toVar.getMethod())) {
+                                nextEdges.add(edge);
+                            }
+                        } else if (edge instanceof UnwrappedEdge) {
+                            // same as LOCAL_ASSIGN
                             nextEdges.add(edge);
                         }
                     }
                 }
             }
             for (Edge nextEdge : nextEdges) {
-                stack.push(nextEdge.target());
+                stack.push(nextEdge.getTarget());
             }
         }
     }

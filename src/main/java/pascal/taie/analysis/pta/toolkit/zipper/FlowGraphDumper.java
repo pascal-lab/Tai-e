@@ -50,12 +50,15 @@ class FlowGraphDumper {
             .setEdgeAttrs(e -> {
                 Edge edge = (Edge) e;
                 return switch (edge.kind()) {
-                    case LOCAL_ASSIGN -> Map.of();
-                    case INTERPROCEDURAL_ASSIGN -> Map.of("color", "blue");
-                    case INSTANCE_STORE -> Map.of("color", "red");
-                    case INSTANCE_LOAD -> Map.of("color", "red", "style", "dashed");
-                    case WRAPPED_FLOW -> Map.of("color", "green3");
-                    case UNWRAPPED_FLOW -> Map.of("color", "green3", "style", "dashed");
+                    case LOCAL_ASSIGN, CAST -> Map.of();
+                    case THIS_PASSING, PARAMETER_PASSING, RETURN -> Map.of("color", "blue");
+                    case INSTANCE_STORE, ARRAY_STORE -> Map.of("color", "red");
+                    case INSTANCE_LOAD, ARRAY_LOAD -> Map.of("color", "red", "style", "dashed");
+                    case OTHER -> e instanceof WrappedEdge ?
+                            Map.of("color", "green3") :
+                            Map.of("color", "green3", "style", "dashed");
+                    default -> throw new IllegalArgumentException(
+                            "Unsupported edge kind: " + edge.kind());
                 };
             });
 

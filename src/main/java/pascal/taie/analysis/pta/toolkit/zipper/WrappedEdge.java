@@ -25,7 +25,20 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.flowgraph.Node;
 
-interface Edge extends pascal.taie.util.graph.Edge<Node> {
+record WrappedEdge(Node source, Node target) implements Edge {
 
-    FlowKind kind();
+    @Override
+    public FlowKind kind() {
+        return FlowKind.OTHER;
+    }
+
+    @Override
+    public Node getSource() {
+        return source;
+    }
+
+    @Override
+    public Node getTarget() {
+        return target;
+    }
 }
