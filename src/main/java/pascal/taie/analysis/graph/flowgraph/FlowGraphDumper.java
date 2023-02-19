@@ -20,11 +20,8 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.analysis.graph.flowgraph.ArrayIndexNode;
-import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
-import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.util.graph.DotDumper;
 import pascal.taie.util.graph.Graph;
 
@@ -32,9 +29,9 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * Dumper for object/precision flow graph.
+ * Dumper for flow graph.
  */
-class FlowGraphDumper {
+public class FlowGraphDumper {
 
     private static final DotDumper<Node> dumper = new DotDumper<Node>()
             .setNodeAttributes(n -> {
@@ -49,20 +46,23 @@ class FlowGraphDumper {
             })
             .setEdgeAttrs(e -> {
                 Edge edge = (Edge) e;
-                return switch (edge.kind()) {
+                return switch (edge.getKind()) {
                     case LOCAL_ASSIGN, CAST -> Map.of();
                     case THIS_PASSING, PARAMETER_PASSING, RETURN -> Map.of("color", "blue");
                     case INSTANCE_STORE, ARRAY_STORE -> Map.of("color", "red");
                     case INSTANCE_LOAD, ARRAY_LOAD -> Map.of("color", "red", "style", "dashed");
-                    case OTHER -> e instanceof WrappedEdge ?
-                            Map.of("color", "green3") :
-                            Map.of("color", "green3", "style", "dashed");
+                    case OTHER -> Map.of("color", "green3", "style", "dashed");
                     default -> throw new IllegalArgumentException(
-                            "Unsupported edge kind: " + edge.kind());
+                            "Unsupported edge kind: " + edge.getKind());
                 };
+            })
+            .setEdgeLabeler(e -> {
+                Edge edge = (Edge) e;
+                return edge.getKind() != FlowKind.OTHER ?
+                        "" : e.getClass().getSimpleName();
             });
 
-    static void dump(Graph<Node> graph, File file) {
+    public static void dump(Graph<Node> graph, File file) {
         dumper.dump(graph, file);
     }
 }

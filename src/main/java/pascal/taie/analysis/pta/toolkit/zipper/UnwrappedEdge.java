@@ -22,13 +22,14 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import pascal.taie.analysis.graph.flowgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.flowgraph.Node;
 
 record UnwrappedEdge(Node source, Node target) implements Edge {
 
     @Override
-    public FlowKind kind() {
+    public FlowKind getKind() {
         return FlowKind.OTHER;
     }
 

@@ -856,7 +856,8 @@ public class DefaultSolver implements Solver {
     public PointerAnalysisResult getResult() {
         if (result == null) {
             result = new PointerAnalysisResultImpl(
-                    propTypes, csManager, heapModel, callGraph);
+                    propTypes, csManager, heapModel,
+                    callGraph, pointerFlowGraph);
         }
         return result;
     }

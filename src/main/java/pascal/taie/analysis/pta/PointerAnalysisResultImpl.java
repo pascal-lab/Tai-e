@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -37,6 +38,7 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.solver.PointerFlowGraph;
 import pascal.taie.analysis.pta.core.solver.PropagateTypes;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -113,16 +115,21 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     /**
      * Call graph (context projected out).
      */
-    private CallGraph<Invoke, JMethod> callGraph;
+    private final CallGraph<Invoke, JMethod> callGraph;
+
+    private final ObjectFlowGraph ofg;
 
     public PointerAnalysisResultImpl(
             PropagateTypes propTypes, CSManager csManager,
-            Indexer<Obj> objIndexer, CallGraph<CSCallSite, CSMethod> csCallGraph) {
+            Indexer<Obj> objIndexer, CallGraph<CSCallSite, CSMethod> csCallGraph,
+            PointerFlowGraph pfg) {
         this.propTypes = propTypes;
         this.csManager = csManager;
         this.objIndexer = objIndexer;
         this.csCallGraph = csCallGraph;
+        this.callGraph = removeContexts(csCallGraph);
         this.objects = removeContexts(getCSObjects().stream());
+        this.ofg = new ObjectFlowGraph(pfg, callGraph);
     }
 
     @Override
@@ -289,9 +296,6 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public CallGraph<Invoke, JMethod> getCallGraph() {
-        if (callGraph == null) {
-            callGraph = removeContexts(csCallGraph);
-        }
         return callGraph;
     }
 
@@ -315,5 +319,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
                     callSite, callee));
         });
         return callGraph;
+    }
+
+    public ObjectFlowGraph getObjectFlowGraph() {
+        return ofg;
     }
 }

@@ -20,15 +20,17 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
-
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
-import pascal.taie.analysis.graph.flowgraph.Node;
+package pascal.taie.analysis.graph.flowgraph;
 
 /**
- * Edges in object/precision flow graph.
+ * Edges in object flow graph.
  */
 record BasicEdge(FlowKind kind, Node source, Node target) implements Edge {
+
+    @Override
+    public FlowKind getKind() {
+        return kind;
+    }
 
     @Override
     public Node getSource() {

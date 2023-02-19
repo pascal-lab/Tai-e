@@ -25,7 +25,7 @@ package pascal.taie.analysis.graph.flowgraph;
 import pascal.taie.util.Indexable;
 
 /**
- * Nodes in flow graph.
+ * Nodes in object flow graph.
  */
 public abstract class Node implements Indexable {
 

@@ -20,12 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.toolkit.zipper;
+package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
-import pascal.taie.analysis.graph.flowgraph.Node;
+public interface Edge extends pascal.taie.util.graph.Edge<Node> {
 
-interface Edge extends pascal.taie.util.graph.Edge<Node> {
-
-    FlowKind kind();
+    FlowKind getKind();
 }

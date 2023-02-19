@@ -24,8 +24,10 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.graph.flowgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.InstanceNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
@@ -202,7 +204,7 @@ class PFGBuilder {
             }
             List<Edge> nextEdges = new ArrayList<>();
             for (Edge edge : getOutEdgesOf(node)) {
-                switch (edge.kind()) {
+                switch (edge.getKind()) {
                     case LOCAL_ASSIGN, CAST -> {
                         nextEdges.add(edge);
                     }

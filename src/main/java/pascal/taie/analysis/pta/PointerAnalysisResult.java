@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
@@ -164,4 +165,9 @@ public interface PointerAnalysisResult extends ResultHolder {
      * @return the resulting call graph (without contexts).
      */
     CallGraph<Invoke, JMethod> getCallGraph();
+
+    /**
+     * @return the resulting object flow graph.
+     */
+    ObjectFlowGraph getObjectFlowGraph();
 }

@@ -22,7 +22,9 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import pascal.taie.analysis.graph.flowgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;

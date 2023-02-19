@@ -25,6 +25,8 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 import org.junit.Test;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
+import pascal.taie.analysis.graph.flowgraph.FlowGraphDumper;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -65,7 +67,7 @@ public class ZipperTest {
     private static void dumpOFG(String dir, String main) {
         Tests.testPTA(false, dir, main);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
-        ObjectFlowGraph ofg = new ObjectFlowGraph(pta);
+        ObjectFlowGraph ofg = pta.getObjectFlowGraph();
         File output = new File(World.get().getOptions().getOutputDir(), main + "-ofg.dot");
         FlowGGraphDumper.dump(ofg, output);
     }

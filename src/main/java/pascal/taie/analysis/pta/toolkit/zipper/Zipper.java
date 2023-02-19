@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.flowgraph.InstanceNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -114,8 +115,10 @@ public class Zipper {
                 "Building OAG", Level.INFO);
         this.pce = Timer.runAndCount(() -> new PotentialContextElement(pta, oag),
                 "Building PCE", Level.INFO);
-        this.ofg = Timer.runAndCount(() -> new ObjectFlowGraph(ptaBase),
-                "Building OFG", Level.INFO);
+        this.ofg = ptaBase.getObjectFlowGraph();
+        logger.info("{} nodes in OFG", ofg.getNodes().size());
+        logger.info("{} edges in OFG",
+                ofg.getNodes().stream().mapToInt(ofg::getOutDegreeOf).sum());
     }
 
     /**
