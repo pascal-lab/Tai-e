@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.bugfinder.nullpointer;
 
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.language.type.ReferenceType;
@@ -58,12 +58,12 @@ class IsNullConditionDecision {
         return varTested;
     }
 
-    public boolean isEdgeFeasible(Edge.Kind edgeKind) {
+    public boolean isEdgeFeasible(CFGEdge.Kind edgeKind) {
         return getDecision(edgeKind) != null;
     }
 
     @CheckForNull
-    public IsNullValue getDecision(Edge.Kind edgeKind) {
+    public IsNullValue getDecision(CFGEdge.Kind edgeKind) {
         return switch (edgeKind) {
             case IF_TRUE -> ifTrueDecision;
             case IF_FALSE -> ifFalseDecision;

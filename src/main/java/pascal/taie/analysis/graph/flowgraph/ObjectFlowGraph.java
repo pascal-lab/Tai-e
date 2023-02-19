@@ -46,10 +46,10 @@ import java.util.Set;
 public class ObjectFlowGraph extends NodeManager
         implements Graph<Node>, Indexer<Node> {
 
-    private final MultiMap<Node, Edge> inEdges = Maps.newMultiMap(
+    private final MultiMap<Node, FlowEdge> inEdges = Maps.newMultiMap(
             new IndexMap<>(this, 4096));
 
-    private final MultiMap<Node, Edge> outEdges = Maps.newMultiMap(
+    private final MultiMap<Node, FlowEdge> outEdges = Maps.newMultiMap(
             new IndexMap<>(this, 4096));
 
     public ObjectFlowGraph(PointerFlowGraph pfg, CallGraph<Invoke, JMethod> callGraph) {
@@ -57,7 +57,7 @@ public class ObjectFlowGraph extends NodeManager
                 .stream()
                 .map(pfg::getOutEdgesOf)
                 .flatMap(Set::stream)
-                .forEach(e -> addEdge(e.getKind(),
+                .forEach(e -> addEdge(e.kind(),
                         toNode(e.source()), toNode(e.target())));
         callGraph.edges()
                 .forEach(e -> {
@@ -74,7 +74,7 @@ public class ObjectFlowGraph extends NodeManager
     }
 
     private void addEdge(FlowKind kind, Node source, Node target) {
-        BasicEdge edge = new BasicEdge(kind, source, target);
+        BasicFlowEdge edge = new BasicFlowEdge(kind, source, target);
         outEdges.put(source, edge);
         inEdges.put(target, edge);
     }
@@ -101,21 +101,21 @@ public class ObjectFlowGraph extends NodeManager
 
     @Override
     public Set<Node> getPredsOf(Node node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
+        return Views.toMappedSet(getInEdgesOf(node), FlowEdge::source);
     }
 
     @Override
-    public Set<Edge> getInEdgesOf(Node node) {
+    public Set<FlowEdge> getInEdgesOf(Node node) {
         return inEdges.get(node);
     }
 
     @Override
     public Set<Node> getSuccsOf(Node node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
+        return Views.toMappedSet(getOutEdgesOf(node), FlowEdge::target);
     }
 
     @Override
-    public Set<Edge> getOutEdgesOf(Node node) {
+    public Set<FlowEdge> getOutEdgesOf(Node node) {
         return outEdges.get(node);
     }
 }

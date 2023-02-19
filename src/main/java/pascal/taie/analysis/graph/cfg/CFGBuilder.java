@@ -92,17 +92,17 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
 
     private static void buildNormalEdges(StmtCFG cfg) {
         IR ir = cfg.getIR();
-        cfg.addEdge(new Edge<>(Edge.Kind.ENTRY, cfg.getEntry(), ir.getStmt(0)));
+        cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.ENTRY, cfg.getEntry(), ir.getStmt(0)));
         for (int i = 0; i < ir.getStmts().size(); ++i) {
             Stmt curr = ir.getStmt(i);
             cfg.addNode(curr);
             if (curr instanceof Goto) {
-                cfg.addEdge(new Edge<>(Edge.Kind.GOTO,
+                cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.GOTO,
                         curr, ((Goto) curr).getTarget()));
             } else if (curr instanceof If) {
-                cfg.addEdge(new Edge<>(Edge.Kind.IF_TRUE,
+                cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.IF_TRUE,
                         curr, ((If) curr).getTarget()));
-                cfg.addEdge(new Edge<>(Edge.Kind.IF_FALSE,
+                cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.IF_FALSE,
                         curr, ir.getStmt(i + 1)));
             } else if (curr instanceof SwitchStmt switchStmt) {
                 switchStmt.getCaseTargets().forEach(pair -> {
@@ -111,13 +111,13 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
                     cfg.addEdge(new SwitchCaseEdge<>(
                             switchStmt, target, caseValue));
                 });
-                cfg.addEdge(new Edge<>(Edge.Kind.SWITCH_DEFAULT,
+                cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.SWITCH_DEFAULT,
                         switchStmt, switchStmt.getDefaultTarget()));
             } else if (curr instanceof Return) {
-                cfg.addEdge(new Edge<>(Edge.Kind.RETURN, curr, cfg.getExit()));
+                cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.RETURN, curr, cfg.getExit()));
             } else if (curr.canFallThrough() &&
                     i + 1 < ir.getStmts().size()) { // Defensive check
-                cfg.addEdge(new Edge<>(Edge.Kind.FALL_THROUGH,
+                cfg.addEdge(new CFGEdge<>(CFGEdge.Kind.FALL_THROUGH,
                         curr, ir.getStmt(i + 1)));
             }
         }
@@ -156,34 +156,34 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
             catchResult.getCaughtImplicitOf(stmt).forEachSet((catcher, exceptions) ->
                     cfg.getInEdgesOf(stmt)
                             .stream()
-                            .filter(Predicate.not(Edge::isExceptional))
-                            .map(Edge::source)
+                            .filter(Predicate.not(CFGEdge::isExceptional))
+                            .map(CFGEdge::source)
                             .forEach(pred ->
                                     cfg.addEdge(new ExceptionalEdge<>(
-                                            Edge.Kind.CAUGHT_EXCEPTION,
+                                            CFGEdge.Kind.CAUGHT_EXCEPTION,
                                             pred, catcher, exceptions))));
             Set<ClassType> uncaught = catchResult.getUncaughtImplicitOf(stmt);
             if (!uncaught.isEmpty()) {
                 cfg.getInEdgesOf(stmt)
                         .stream()
-                        .filter(Predicate.not(Edge::isExceptional))
-                        .map(Edge::source)
+                        .filter(Predicate.not(CFGEdge::isExceptional))
+                        .map(CFGEdge::source)
                         .forEach(pred -> cfg.addEdge(
                                 new ExceptionalEdge<>(
-                                        Edge.Kind.UNCAUGHT_EXCEPTION,
+                                        CFGEdge.Kind.UNCAUGHT_EXCEPTION,
                                         pred, cfg.getExit(), uncaught)));
             }
             // build edges for explicit exceptions
             if (stmt instanceof Throw || stmt instanceof Invoke) {
                 catchResult.getCaughtExplicitOf(stmt).forEachSet((catcher, exceptions) ->
                         cfg.addEdge(new ExceptionalEdge<>(
-                                Edge.Kind.CAUGHT_EXCEPTION,
+                                CFGEdge.Kind.CAUGHT_EXCEPTION,
                                 stmt, catcher, exceptions))
                 );
                 Set<ClassType> uncaughtEx = catchResult.getUncaughtExplicitOf(stmt);
                 if (!uncaughtEx.isEmpty()) {
                     cfg.addEdge(new ExceptionalEdge<>(
-                            Edge.Kind.UNCAUGHT_EXCEPTION,
+                            CFGEdge.Kind.UNCAUGHT_EXCEPTION,
                             stmt, cfg.getExit(), uncaughtEx));
                 }
             }

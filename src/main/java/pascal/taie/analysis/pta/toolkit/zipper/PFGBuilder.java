@@ -24,7 +24,7 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.graph.flowgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.InstanceNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
@@ -79,7 +79,7 @@ class PFGBuilder {
     /**
      * Stores wrapped and unwrapped flow edges.
      */
-    private MultiMap<Node, Edge> wuEdges;
+    private MultiMap<Node, FlowEdge> wuEdges;
 
     private Set<Node> visitedNodes;
 
@@ -195,15 +195,15 @@ class PFGBuilder {
                             Var inVar = inNode.getVar();
                             if (!Collections.disjoint(
                                     pta.getBase().getPointsToSet(inVar), varPts)) {
-                                wuEdges.put(node, new UnwrappedEdge(node, toNode));
+                                wuEdges.put(node, new UnwrappedFlowEdge(node, toNode));
                                 break;
                             }
                         }
                     }
                 });
             }
-            List<Edge> nextEdges = new ArrayList<>();
-            for (Edge edge : getOutEdgesOf(node)) {
+            List<FlowEdge> nextEdges = new ArrayList<>();
+            for (FlowEdge edge : getOutEdgesOf(node)) {
                 switch (edge.kind()) {
                     case LOCAL_ASSIGN, CAST -> {
                         nextEdges.add(edge);
@@ -230,20 +230,20 @@ class PFGBuilder {
                                     .map(ofg::getVarNode)
                                     .filter(Objects::nonNull) // filter this variable of native methods
                                     .forEach(nextNode -> wuEdges.put(toNode,
-                                            new WrappedEdge(toNode, nextNode)));
+                                            new WrappedFlowEdge(toNode, nextNode)));
                             nextEdges.add(edge);
                         } else if (oag.getAllocateesOf(type).contains(base)) {
                             // Optimization, similar as above.
                             VarNode assignedNode = getAssignedNode(base);
                             if (assignedNode != null) {
                                 wuEdges.put(toNode,
-                                        new WrappedEdge(toNode, assignedNode));
+                                        new WrappedFlowEdge(toNode, assignedNode));
                             }
                             nextEdges.add(edge);
                         }
                     }
                     case OTHER -> {
-                        if (edge instanceof WrappedEdge) {
+                        if (edge instanceof WrappedFlowEdge) {
                             // same as INSTANCE_STORE
                             // target node must be a VarNode
                             VarNode toNode = (VarNode) edge.target();
@@ -254,21 +254,21 @@ class PFGBuilder {
                             if (pce.PCEMethodsOf(type).contains(toVar.getMethod())) {
                                 nextEdges.add(edge);
                             }
-                        } else if (edge instanceof UnwrappedEdge) {
+                        } else if (edge instanceof UnwrappedFlowEdge) {
                             // same as LOCAL_ASSIGN
                             nextEdges.add(edge);
                         }
                     }
                 }
             }
-            for (Edge nextEdge : nextEdges) {
+            for (FlowEdge nextEdge : nextEdges) {
                 stack.push(nextEdge.target());
             }
         }
     }
 
-    public Set<Edge> getOutEdgesOf(Node node) {
-        Set<Edge> outEdges = ofg.getOutEdgesOf(node);
+    public Set<FlowEdge> getOutEdgesOf(Node node) {
+        Set<FlowEdge> outEdges = ofg.getOutEdgesOf(node);
         if (wuEdges.containsKey(node)) {
             outEdges = new HashSet<>(outEdges);
             outEdges.addAll(wuEdges.get(node));

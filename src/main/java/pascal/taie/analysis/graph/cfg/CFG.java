@@ -79,11 +79,11 @@ public interface CFG<N> extends Graph<N> {
      * @return incoming edges of the given node.
      */
     @Override
-    Set<Edge<N>> getInEdgesOf(N node);
+    Set<CFGEdge<N>> getInEdgesOf(N node);
 
     /**
      * @return outgoing edges of the given node.
      */
     @Override
-    Set<Edge<N>> getOutEdgesOf(N node);
+    Set<CFGEdge<N>> getOutEdgesOf(N node);
 }

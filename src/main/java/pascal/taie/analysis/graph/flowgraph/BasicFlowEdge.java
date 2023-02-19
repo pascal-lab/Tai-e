@@ -20,17 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
-import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.util.graph.Edge;
-
-public record PointerFlowEdge(FlowKind kind, Pointer source, Pointer target,
-                              Transfer transfer) implements Edge<Pointer> {
-
-    @Override
-    public String toString() {
-        return "[" + kind + "]" + source + " -> " + target;
-    }
+/**
+ * Represents basic (non-OTHER) edges in flow graph.
+ */
+record BasicFlowEdge(FlowKind kind, Node source, Node target)
+        implements FlowEdge {
 }

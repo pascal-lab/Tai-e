@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 
 /**
  * The edge connecting nodes in the same method.
@@ -36,14 +36,14 @@ public class NormalEdge<Node> extends ICFGEdge<Node> {
     /**
      * The corresponding CFG edge, which brings the information of edge type.
      */
-    private final Edge<Node> cfgEdge;
+    private final CFGEdge<Node> cfgEdge;
 
-    NormalEdge(Edge<Node> edge) {
+    NormalEdge(CFGEdge<Node> edge) {
         super(edge.source(), edge.target());
         this.cfgEdge = edge;
     }
 
-    public Edge<Node> getCFGEdge() {
+    public CFGEdge<Node> getCFGEdge() {
         return cfgEdge;
     }
 }

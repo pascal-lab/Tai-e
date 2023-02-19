@@ -22,11 +22,11 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import pascal.taie.analysis.graph.flowgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.flowgraph.Node;
 
-record WrappedEdge(Node source, Node target) implements Edge {
+record WrappedFlowEdge(Node source, Node target) implements FlowEdge {
 
     @Override
     public FlowKind kind() {

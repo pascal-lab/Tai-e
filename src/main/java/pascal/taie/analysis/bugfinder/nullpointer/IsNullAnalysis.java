@@ -26,7 +26,7 @@ import pascal.taie.analysis.dataflow.analysis.AbstractDataflowAnalysis;
 import pascal.taie.analysis.dataflow.analysis.AnalysisDriver;
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ConditionExp;
@@ -150,12 +150,12 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
         }
 
         @Override
-        public boolean needTransferEdge(Edge<Stmt> edge) {
+        public boolean needTransferEdge(CFGEdge<Stmt> edge) {
             return true;
         }
 
         @Override
-        public IsNullFact transferEdge(Edge<Stmt> edge, IsNullFact nodeFact) {
+        public IsNullFact transferEdge(CFGEdge<Stmt> edge, IsNullFact nodeFact) {
             if (!nodeFact.isValid()) {
                 return nodeFact;
             }
@@ -164,7 +164,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             IsNullFact resultFact = nodeFact;
 
             int nonExceptionSucessorNums = 0;
-            for (Edge<Stmt> e : cfg.getOutEdgesOf(source)) {
+            for (CFGEdge<Stmt> e : cfg.getOutEdgesOf(source)) {
                 nonExceptionSucessorNums += e.isExceptional() ? 0 : 1;
             }
             // 1. downgrade on non-exception control splits
@@ -173,7 +173,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             }
             // 2. downgrade NULL&NSP to do_not_report value for two special exceptions
             // TODO: should our null value add an exception property?
-            if (edge.getKind() == Edge.Kind.CAUGHT_EXCEPTION) {
+            if (edge.getKind() == CFGEdge.Kind.CAUGHT_EXCEPTION) {
                 resultFact = nodeFact.copy();
                 for (ClassType classType : edge.getExceptions()) {
                     if (classType.getName().equals(ClassNames.CLONE_NOT_SUPPORTED_EXCEPTION)
@@ -185,7 +185,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                                         entry.setValue(IsNullValue.NCP));
                     }
                 }
-            } else if (edge.getKind() == Edge.Kind.IF_TRUE || edge.getKind() == Edge.Kind.IF_FALSE) {
+            } else if (edge.getKind() == CFGEdge.Kind.IF_TRUE || edge.getKind() == CFGEdge.Kind.IF_FALSE) {
                 // 3. use null comparison information
                 // TODO: handle instanceof operand?
                 IsNullConditionDecision decision = nodeFact.getDecision();
@@ -210,7 +210,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                         }
                     }
                 }
-            } else if (edge.getKind() == Edge.Kind.FALL_THROUGH) {
+            } else if (edge.getKind() == CFGEdge.Kind.FALL_THROUGH) {
                 // 4. handle those statements which may raise NullPointerException
                 Stmt target = edge.target();
                 Var derefVar = target.accept(new NPEVarVisitor());

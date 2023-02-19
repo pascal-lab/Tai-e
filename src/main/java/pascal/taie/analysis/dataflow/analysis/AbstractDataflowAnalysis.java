@@ -23,7 +23,7 @@
 package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 
 public abstract class AbstractDataflowAnalysis<Node, Fact>
         implements DataflowAnalysis<Node, Fact> {
@@ -39,12 +39,12 @@ public abstract class AbstractDataflowAnalysis<Node, Fact>
      * does not need to perform transfer for any edges.
      */
     @Override
-    public boolean needTransferEdge(Edge<Node> edge) {
+    public boolean needTransferEdge(CFGEdge<Node> edge) {
         return false;
     }
 
     @Override
-    public Fact transferEdge(Edge<Node> edge, Fact nodeFact) {
+    public Fact transferEdge(CFGEdge<Node> edge, Fact nodeFact) {
         throw new UnsupportedOperationException();
     }
 

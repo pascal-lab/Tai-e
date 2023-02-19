@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-class SwitchCaseEdge<N> extends Edge<N> {
+class SwitchCaseEdge<N> extends CFGEdge<N> {
 
     private final int caseValue;
 

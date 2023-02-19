@@ -32,7 +32,7 @@ import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -90,7 +90,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
             cfg.getOutEdgesOf(stmt)
                     .stream()
                     .filter(edge -> !isUnreachableBranch(edge, constants))
-                    .map(Edge::target)
+                    .map(CFGEdge::target)
                     .forEach(succ -> {
                         if (!visited.contains(succ)) {
                             queue.add(succ);
@@ -120,15 +120,15 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
     }
 
     private static boolean isUnreachableBranch(
-            Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
+            CFGEdge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
         Stmt src = edge.source();
         if (src instanceof If ifStmt) {
             Value cond = Evaluator.evaluate(
                     ifStmt.getCondition(), constants.getInFact(ifStmt));
             if (cond.isConstant()) {
                 int v = cond.getConstant();
-                return v == 1 && edge.getKind() == Edge.Kind.IF_FALSE ||
-                        v == 0 && edge.getKind() == Edge.Kind.IF_TRUE;
+                return v == 1 && edge.getKind() == CFGEdge.Kind.IF_FALSE ||
+                        v == 0 && edge.getKind() == CFGEdge.Kind.IF_TRUE;
             }
         } else if (src instanceof SwitchStmt switchStmt) {
             Value condV = Evaluator.evaluate(

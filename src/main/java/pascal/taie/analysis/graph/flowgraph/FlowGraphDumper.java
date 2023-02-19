@@ -45,7 +45,7 @@ public class FlowGraphDumper {
                 }
             })
             .setEdgeAttrs(e -> {
-                Edge edge = (Edge) e;
+                FlowEdge edge = (FlowEdge) e;
                 return switch (edge.kind()) {
                     case LOCAL_ASSIGN, CAST -> Map.of();
                     case THIS_PASSING, PARAMETER_PASSING, RETURN -> Map.of("color", "blue");
@@ -57,7 +57,7 @@ public class FlowGraphDumper {
                 };
             })
             .setEdgeLabeler(e -> {
-                Edge edge = (Edge) e;
+                FlowEdge edge = (FlowEdge) e;
                 return edge.kind() != FlowKind.OTHER ?
                         "" : e.getClass().getSimpleName();
             });

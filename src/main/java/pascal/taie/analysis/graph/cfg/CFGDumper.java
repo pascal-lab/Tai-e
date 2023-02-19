@@ -52,7 +52,7 @@ public class CFGDumper {
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
                 .setEdgeLabeler(e -> {
-                    Edge<N> edge = (Edge<N>) e;
+                    CFGEdge<N> edge = (CFGEdge<N>) e;
                     if (edge.isSwitchCase()) {
                         return edge.getKind() +
                                 "\n[case " + edge.getCaseValue() + "]";
@@ -67,7 +67,7 @@ public class CFGDumper {
                     }
                 })
                 .setEdgeAttrs(e -> {
-                    if (((Edge<N>) e).isExceptional()) {
+                    if (((CFGEdge<N>) e).isExceptional()) {
                         return Map.of("color", "red");
                     } else {
                         return Map.of();

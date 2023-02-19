@@ -23,7 +23,7 @@
 package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 
 /**
  * Template interface for defining data-flow analysis.
@@ -67,7 +67,7 @@ public interface DataflowAnalysis<Node, Fact> {
     /**
      * @return true if this analysis needs to perform transfer for given edge, otherwise false.
      */
-    boolean needTransferEdge(Edge<Node> edge);
+    boolean needTransferEdge(CFGEdge<Node> edge);
 
     /**
      * Edge Transfer function for this analysis.
@@ -79,7 +79,7 @@ public interface DataflowAnalysis<Node, Fact> {
      *                 the direction of the analysis.
      * @return the resulting edge fact
      */
-    Fact transferEdge(Edge<Node> edge, Fact nodeFact);
+    Fact transferEdge(CFGEdge<Node> edge, Fact nodeFact);
 
     /**
      * @return the control-flow graph that this analysis works on.

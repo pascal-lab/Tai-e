@@ -29,11 +29,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-class ExceptionalEdge<N> extends Edge<N> {
+class ExceptionalEdge<N> extends CFGEdge<N> {
 
     private final Set<ClassType> exceptions;
 
-    ExceptionalEdge(Edge.Kind kind, N source, N target,
+    ExceptionalEdge(CFGEdge.Kind kind, N source, N target,
                     Set<ClassType> exceptions) {
         super(kind, source, target);
         // other exception types might be added to this exceptional edge later,

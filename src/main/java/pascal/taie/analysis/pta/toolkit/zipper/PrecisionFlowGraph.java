@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import pascal.taie.analysis.graph.flowgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
@@ -45,13 +45,13 @@ class PrecisionFlowGraph implements Graph<Node> {
 
     private final Set<VarNode> outNodes;
 
-    private final MultiMap<Node, Edge> inWUEdges;
+    private final MultiMap<Node, FlowEdge> inWUEdges;
 
-    private final MultiMap<Node, Edge> outWUEdges;
+    private final MultiMap<Node, FlowEdge> outWUEdges;
 
     PrecisionFlowGraph(Type type, ObjectFlowGraph ofg,
                        Set<Node> nodes, Set<VarNode> outNodes,
-                       MultiMap<Node, Edge> outWUEdges) {
+                       MultiMap<Node, FlowEdge> outWUEdges) {
         this.type = type;
         this.ofg = ofg;
         this.nodes = nodes;
@@ -85,12 +85,12 @@ class PrecisionFlowGraph implements Graph<Node> {
 
     @Override
     public Set<Node> getPredsOf(Node node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
+        return Views.toMappedSet(getInEdgesOf(node), FlowEdge::source);
     }
 
     @Override
-    public Set<Edge> getInEdgesOf(Node node) {
-        Set<Edge> inEdges = ofg.getInEdgesOf(node)
+    public Set<FlowEdge> getInEdgesOf(Node node) {
+        Set<FlowEdge> inEdges = ofg.getInEdgesOf(node)
                 .stream()
                 .filter(e -> nodes.contains(e.source()))
                 .collect(Collectors.toSet());
@@ -100,12 +100,12 @@ class PrecisionFlowGraph implements Graph<Node> {
 
     @Override
     public Set<Node> getSuccsOf(Node node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
+        return Views.toMappedSet(getOutEdgesOf(node), FlowEdge::target);
     }
 
     @Override
-    public Set<Edge> getOutEdgesOf(Node node) {
-        Set<Edge> outEdges = ofg.getOutEdgesOf(node)
+    public Set<FlowEdge> getOutEdgesOf(Node node) {
+        Set<FlowEdge> outEdges = ofg.getOutEdgesOf(node)
                 .stream()
                 .filter(e -> nodes.contains(e.target()))
                 .collect(Collectors.toSet());

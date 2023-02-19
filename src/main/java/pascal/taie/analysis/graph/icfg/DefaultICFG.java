@@ -26,7 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Return;
@@ -98,7 +98,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         // the real return and excepting Stmts, and attach
                         // them to the ReturnEdge.
                         getCFGOf(callee).getInEdgesOf(exit).forEach(retEdge -> {
-                            if (retEdge.getKind() == Edge.Kind.RETURN) {
+                            if (retEdge.getKind() == CFGEdge.Kind.RETURN) {
                                 Return ret = (Return) retEdge.source();
                                 if (ret.getValue() != null) {
                                     retVars.add(ret.getValue());

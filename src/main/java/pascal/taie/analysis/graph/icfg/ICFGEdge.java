@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.util.Hashes;
 import pascal.taie.util.graph.AbstractEdge;
 
 /**
@@ -36,31 +35,7 @@ import pascal.taie.util.graph.AbstractEdge;
  */
 public abstract class ICFGEdge<Node> extends AbstractEdge<Node> {
 
-    private int hashCode = 0;
-
     ICFGEdge(Node source, Node target) {
         super(source, target);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ICFGEdge<?> edge = (ICFGEdge<?>) o;
-        return source.equals(edge.source) && target.equals(edge.target);
-    }
-
-    @Override
-    public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = Hashes.hash(source, target);
-        }
-        return hashCode;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() +
-                "{" + source + " -> " + target + '}';
     }
 }

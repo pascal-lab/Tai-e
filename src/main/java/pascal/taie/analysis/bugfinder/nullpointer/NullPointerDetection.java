@@ -28,7 +28,7 @@ import pascal.taie.analysis.bugfinder.Severity;
 import pascal.taie.analysis.dataflow.fact.NodeResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
@@ -64,8 +64,8 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
             Var derefVar = stmt.accept(new NPEVarVisitor());
             if (derefVar != null) {
                 IsNullFact prevFact = null;
-                for (Edge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
-                    if (inEdge.getKind() == Edge.Kind.FALL_THROUGH) {
+                for (CFGEdge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
+                    if (inEdge.getKind() == CFGEdge.Kind.FALL_THROUGH) {
                         prevFact = nullValues.getOutFact(inEdge.source());
                     }
                 }

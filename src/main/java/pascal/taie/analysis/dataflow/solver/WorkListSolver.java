@@ -25,7 +25,7 @@ package pascal.taie.analysis.dataflow.solver;
 import pascal.taie.analysis.dataflow.analysis.DataflowAnalysis;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.util.collection.CollectionUtils;
 
 import java.util.Comparator;
@@ -103,7 +103,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                     analysis.meetInto(fact, in);
                 });
             } else if (inDegree == 1) {
-                Edge<Node> inEdge = CollectionUtils.getOne(cfg.getInEdgesOf(node));
+                CFGEdge<Node> inEdge = CollectionUtils.getOne(cfg.getInEdgesOf(node));
                 if (analysis.needTransferEdge(inEdge)) {
                     in = analysis.transferEdge(inEdge,
                             result.getOutFact(inEdge.source()));
@@ -190,7 +190,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                     analysis.meetInto(fact, out);
                 });
             } else if (outDegree == 1) {
-                Edge<Node> outEdge = CollectionUtils.getOne(cfg.getOutEdgesOf(node));
+                CFGEdge<Node> outEdge = CollectionUtils.getOne(cfg.getOutEdgesOf(node));
                 if (analysis.needTransferEdge(outEdge)) {
                     out = analysis.transferEdge(outEdge,
                             result.getInFact(outEdge.target()));

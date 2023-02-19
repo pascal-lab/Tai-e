@@ -34,7 +34,7 @@ import java.util.Set;
  *
  * @param <N> type of CFG nodes.
  */
-public class Edge<N> extends AbstractEdge<N> {
+public class CFGEdge<N> extends AbstractEdge<N> {
 
     public enum Kind {
 
@@ -95,14 +95,14 @@ public class Edge<N> extends AbstractEdge<N> {
 
     private final Kind kind;
 
-    Edge(Kind kind, N source, N target) {
+    CFGEdge(Kind kind, N source, N target) {
         super(source, target);
         this.kind = kind;
     }
 
     /**
      * @return the kind of the edge.
-     * @see Edge.Kind
+     * @see CFGEdge.Kind
      */
     public Kind getKind() {
         return kind;
@@ -154,7 +154,7 @@ public class Edge<N> extends AbstractEdge<N> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Edge<?> edge = (Edge<?>) o;
+        CFGEdge<?> edge = (CFGEdge<?>) o;
         return kind == edge.kind &&
                 source.equals(edge.source) &&
                 target.equals(edge.target);

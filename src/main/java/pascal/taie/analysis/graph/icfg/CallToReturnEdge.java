@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import pascal.taie.analysis.graph.cfg.Edge;
+import pascal.taie.analysis.graph.cfg.CFGEdge;
 
 /**
  * The edge connecting a call site and its return site.
@@ -31,7 +31,7 @@ import pascal.taie.analysis.graph.cfg.Edge;
  */
 public class CallToReturnEdge<Node> extends ICFGEdge<Node> {
 
-    public CallToReturnEdge(Edge<Node> edge) {
+    public CallToReturnEdge(CFGEdge<Node> edge) {
         super(edge.source(), edge.target());
     }
 }

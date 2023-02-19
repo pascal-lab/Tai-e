@@ -20,10 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.graph.flowgraph;
+package pascal.taie.analysis.pta.toolkit.zipper;
 
-/**
- * Edges in object flow graph.
- */
-record BasicEdge(FlowKind kind, Node source, Node target) implements Edge {
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
+import pascal.taie.analysis.graph.flowgraph.Node;
+
+record UnwrappedFlowEdge(Node source, Node target) implements FlowEdge {
+
+    @Override
+    public FlowKind kind() {
+        return FlowKind.OTHER;
+    }
 }

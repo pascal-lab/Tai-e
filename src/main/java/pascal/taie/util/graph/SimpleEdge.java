@@ -20,9 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.graph.flowgraph;
+package pascal.taie.util.graph;
 
-public interface Edge extends pascal.taie.util.graph.Edge<Node> {
-
-    FlowKind kind();
+record SimpleEdge<N>(N source, N target) implements Edge<N> {
 }
