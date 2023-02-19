@@ -25,6 +25,9 @@ package pascal.taie.analysis.pta.plugin.taint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowGraphDumper;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -87,5 +90,8 @@ public class TaintAnalysis implements Plugin {
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
+        FlowGraphDumper.dump(
+                new TFGBuilder(solver.getResult(), varTransfers, manager).build(),
+                "output/taint-flow-graph.dot");
     }
 }

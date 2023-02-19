@@ -20,26 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.graph.flowgraph;
+package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.language.classes.JField;
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
+import pascal.taie.analysis.graph.flowgraph.Node;
 
-public class InstanceFieldNode extends InstanceNode {
-
-    private final JField field;
-
-    InstanceFieldNode(Obj base, JField field, int index) {
-        super(base, index);
-        this.field = field;
-    }
-
-    public JField getField() {
-        return field;
-    }
+record TransferEdge(Node source, Node target) implements FlowEdge {
 
     @Override
-    public String toString() {
-        return "InstanceFieldNode{" + base + "." + field + "}";
+    public FlowKind kind() {
+        return FlowKind.OTHER;
     }
 }

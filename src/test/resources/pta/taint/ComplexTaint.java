@@ -14,6 +14,5 @@ class ComplexTaint {
         SourceSink.sink(s6);
 
         s5 = s2.concat(new String());
-
     }
 }
