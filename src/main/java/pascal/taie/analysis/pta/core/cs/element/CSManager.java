@@ -94,6 +94,11 @@ public interface CSManager {
     Collection<CSObj> getObjects();
 
     /**
+     * @return all relevant context-sensitive objects for given object.
+     */
+    Collection<CSObj> getCSObjsOf(Obj obj);
+
+    /**
      * @return all static field pointers.
      */
     Collection<StaticField> getStaticFields();

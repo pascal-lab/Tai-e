@@ -119,6 +119,11 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
+    public Collection<CSObj> getCSObjsOf(Obj obj) {
+        return objManager.getCSObjsOf(obj);
+    }
+
+    @Override
     public Indexer<CSObj> getObjectIndexer() {
         return objManager;
     }
@@ -279,6 +284,11 @@ public class MapBasedCSManager implements CSManager {
 
         Collection<CSObj> getObjects() {
             return objMap.values();
+        }
+
+        Collection<CSObj> getCSObjsOf(Obj obj) {
+            var csObjs = objMap.get(obj);
+            return csObjs != null ? csObjs.values() : Set.of();
         }
 
         @Override

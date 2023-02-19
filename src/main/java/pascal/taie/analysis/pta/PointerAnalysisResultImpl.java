@@ -212,6 +212,22 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     @Override
+    public Set<Obj> getPointsToSet(Obj base, JField field) {
+        if (!isConcerned(field.getType())) {
+            return Set.of();
+        }
+        if (field.isStatic()) {
+            logger.warn("{} is not an instance field", field);
+            return Set.of();
+        }
+        // TODO - properly handle non-exist base.field
+        return removeContexts(csManager.getCSObjsOf(base)
+                .stream()
+                .map(o -> csManager.getInstanceField(o, field))
+                .flatMap(InstanceField::objects));
+    }
+
+    @Override
     public Set<Obj> getPointsToSet(StaticFieldAccess access) {
         if (!propTypes.isAllowed(access)) {
             return Set.of();
@@ -257,6 +273,22 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
                         .flatMap(Pointer::objects)
                         .map(csManager::getArrayIndex)
                         .flatMap(ArrayIndex::objects)));
+    }
+
+    @Override
+    public Set<Obj> getPointsToSet(Obj array) {
+        if (array.getType() instanceof ArrayType baseType) {
+            if (!isConcerned(baseType.elementType())) {
+                return Set.of();
+            }
+        } else {
+            logger.warn("{} is not an array", array);
+            return Set.of();
+        }
+        return removeContexts(csManager.getCSObjsOf(array)
+                .stream()
+                .map(csManager::getArrayIndex)
+                .flatMap(ArrayIndex::objects));
     }
 
     @Override

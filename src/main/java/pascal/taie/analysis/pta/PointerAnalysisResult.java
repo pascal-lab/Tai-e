@@ -121,6 +121,11 @@ public interface PointerAnalysisResult extends ResultHolder {
     Set<Obj> getPointsToSet(Var base, JField field);
 
     /**
+     * @return set of Obj pointed to by in given base.field.
+     */
+    Set<Obj> getPointsToSet(Obj base, JField field);
+
+    /**
      * @return set of Obj pointed to by given static field access, e.g., T.f.
      */
     Set<Obj> getPointsToSet(StaticFieldAccess access);
@@ -140,6 +145,11 @@ public interface PointerAnalysisResult extends ResultHolder {
      * The base is supposed to be of array type; parameter index is unused.
      */
     Set<Obj> getPointsToSet(Var base, Var index);
+
+    /**
+     * @return set of Obj pointed to by given array.
+     */
+    Set<Obj> getPointsToSet(Obj array);
 
     /**
      * @return {@code true} if two variables may be aliases.
