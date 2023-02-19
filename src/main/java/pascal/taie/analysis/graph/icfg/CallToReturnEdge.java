@@ -32,6 +32,6 @@ import pascal.taie.analysis.graph.cfg.Edge;
 public class CallToReturnEdge<Node> extends ICFGEdge<Node> {
 
     public CallToReturnEdge(Edge<Node> edge) {
-        super(edge.getSource(), edge.getTarget());
+        super(edge.source(), edge.target());
     }
 }

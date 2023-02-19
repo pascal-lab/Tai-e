@@ -313,7 +313,7 @@ public class InterConstantPropagation extends
     @Override
     protected CPFact transferCallToReturnEdge(CallToReturnEdge<Stmt> edge, CPFact out) {
         // Kill the value of LHS variable
-        Invoke invoke = (Invoke) edge.getSource();
+        Invoke invoke = (Invoke) edge.source();
         Var lhs = invoke.getResult();
         if (lhs != null) {
             CPFact result = out.copy();
@@ -327,7 +327,7 @@ public class InterConstantPropagation extends
     @Override
     protected CPFact transferCallEdge(CallEdge<Stmt> edge, CPFact callSiteOut) {
         // Passing arguments at call site to parameters of the callee
-        InvokeExp invokeExp = ((Invoke) edge.getSource()).getInvokeExp();
+        InvokeExp invokeExp = ((Invoke) edge.source()).getInvokeExp();
         JMethod callee = edge.getCallee();
         CPFact result = newInitialFact();
         if (!(invokeExp instanceof InvokeDynamic) &&

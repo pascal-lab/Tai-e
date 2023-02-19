@@ -39,7 +39,7 @@ public class NormalEdge<Node> extends ICFGEdge<Node> {
     private final Edge<Node> cfgEdge;
 
     NormalEdge(Edge<Node> edge) {
-        super(edge.getSource(), edge.getTarget());
+        super(edge.source(), edge.target());
         this.cfgEdge = edge;
     }
 

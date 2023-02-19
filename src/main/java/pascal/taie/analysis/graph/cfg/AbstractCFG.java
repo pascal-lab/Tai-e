@@ -110,8 +110,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
             ((ExceptionalEdge<N>) existingEdge).addExceptions(
                     edge.getExceptions());
         } else {
-            inEdges.put(edge.getTarget(), edge);
-            outEdges.put(edge.getSource(), edge);
+            inEdges.put(edge.target(), edge);
+            outEdges.put(edge.source(), edge);
         }
     }
 
@@ -122,8 +122,8 @@ abstract class AbstractCFG<N> implements CFG<N> {
      */
     @Nullable
     private Edge<N> getExistingEdge(Edge<N> edge) {
-        for (Edge<N> outEdge : outEdges.get(edge.getSource())) {
-            if (outEdge.getTarget().equals(edge.getTarget()) &&
+        for (Edge<N> outEdge : outEdges.get(edge.source())) {
+            if (outEdge.target().equals(edge.target()) &&
                     outEdge.getKind() == edge.getKind()) {
                 return outEdge;
             }
@@ -153,12 +153,12 @@ abstract class AbstractCFG<N> implements CFG<N> {
 
     @Override
     public Set<N> getPredsOf(N node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::getSource);
+        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
     }
 
     @Override
     public Set<N> getSuccsOf(N node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::getTarget);
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
     }
 
     @Override

@@ -24,5 +24,5 @@ package pascal.taie.analysis.graph.flowgraph;
 
 public interface Edge extends pascal.taie.util.graph.Edge<Node> {
 
-    FlowKind getKind();
+    FlowKind kind();
 }

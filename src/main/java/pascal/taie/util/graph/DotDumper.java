@@ -166,8 +166,8 @@ public class DotDumper<N> {
     }
 
     private String getEdgeRep(Edge<N> edge) {
-        return getNodeRep(edge.getSource()) + " -> " +
-                getNodeRep(edge.getTarget());
+        return getNodeRep(edge.source()) + " -> " +
+                getNodeRep(edge.target());
     }
 
     /**

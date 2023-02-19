@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.graph.flowgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.NodeManager;
 import pascal.taie.util.collection.IndexMap;

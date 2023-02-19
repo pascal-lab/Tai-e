@@ -26,19 +26,4 @@ package pascal.taie.analysis.graph.flowgraph;
  * Edges in object flow graph.
  */
 record BasicEdge(FlowKind kind, Node source, Node target) implements Edge {
-
-    @Override
-    public FlowKind getKind() {
-        return kind;
-    }
-
-    @Override
-    public Node getSource() {
-        return source;
-    }
-
-    @Override
-    public Node getTarget() {
-        return target;
-    }
 }

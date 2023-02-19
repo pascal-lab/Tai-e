@@ -39,9 +39,9 @@ public class PointerFlowGraph implements Graph<Pointer> {
     private final Set<Pointer> pointers = Sets.newSet();
 
     public boolean addEdge(PointerFlowEdge edge) {
-        if (edge.getSource().addOutEdge(edge)) {
-            pointers.add(edge.getSource());
-            pointers.add(edge.getTarget());
+        if (edge.source().addOutEdge(edge)) {
+            pointers.add(edge.source());
+            pointers.add(edge.target());
             return true;
         } else {
             return false;
@@ -80,7 +80,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
     @Override
     public Set<Pointer> getSuccsOf(Pointer node) {
         return Views.toMappedSet(node.getOutEdges(),
-                PointerFlowEdge::getTarget);
+                PointerFlowEdge::target);
     }
 
     @Override

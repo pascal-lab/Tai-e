@@ -49,7 +49,7 @@ public interface Graph<N> extends Iterable<N> {
      * @return true if this graph has the given edge, otherwise false.
      */
     default boolean hasEdge(Edge<N> edge) {
-        return hasEdge(edge.getSource(), edge.getTarget());
+        return hasEdge(edge.source(), edge.target());
     }
 
     /**

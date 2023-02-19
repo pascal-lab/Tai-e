@@ -137,7 +137,7 @@ public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
         @Override
         public boolean needTransferEdge(Edge<Stmt> edge) {
             if (edgeRefine) {
-                return edge.getSource() instanceof If ||
+                return edge.source() instanceof If ||
                         edge.getKind() == Edge.Kind.SWITCH_CASE;
             } else {
                 return false;
@@ -147,8 +147,8 @@ public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
         @Override
         public CPFact transferEdge(Edge<Stmt> edge, CPFact nodeFact) {
             Edge.Kind kind = edge.getKind();
-            if (edge.getSource() instanceof If) {
-                ConditionExp cond = ((If) edge.getSource()).getCondition();
+            if (edge.source() instanceof If) {
+                ConditionExp cond = ((If) edge.source()).getCondition();
                 ConditionExp.Op op = cond.getOperator();
                 if ((kind == Edge.Kind.IF_TRUE && op == ConditionExp.Op.EQ) ||
                         (kind == Edge.Kind.IF_FALSE && op == ConditionExp.Op.NE)) {
@@ -169,7 +169,7 @@ public class ConstantPropagation extends AnalysisDriver<Stmt, CPFact> {
             } else if (kind == Edge.Kind.SWITCH_CASE) {
                 // switch (x) {
                 //   case 1: ... <- x must be 1 at this branch
-                Var var = ((SwitchStmt) edge.getSource()).getVar();
+                Var var = ((SwitchStmt) edge.source()).getVar();
                 Value val = nodeFact.get(var);
                 int caseValue = edge.getCaseValue();
                 CPFact result = nodeFact.copy();

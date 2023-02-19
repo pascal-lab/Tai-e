@@ -32,10 +32,10 @@ public interface Edge<N> {
     /**
      * @return the source node of the edge.
      */
-    N getSource();
+    N source();
 
     /**
      * @return the target node of the edge.
      */
-    N getTarget();
+    N target();
 }

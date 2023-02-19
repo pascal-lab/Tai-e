@@ -62,7 +62,7 @@ class PrecisionFlowGraph implements Graph<Node> {
         this.outWUEdges = outWUEdges;
         this.inWUEdges = Maps.newMultiMap();
         outWUEdges.values()
-                .forEach(edge -> inWUEdges.put(edge.getTarget(), edge));
+                .forEach(edge -> inWUEdges.put(edge.target(), edge));
     }
 
     Type getType() {
@@ -85,14 +85,14 @@ class PrecisionFlowGraph implements Graph<Node> {
 
     @Override
     public Set<Node> getPredsOf(Node node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::getSource);
+        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
     }
 
     @Override
     public Set<Edge> getInEdgesOf(Node node) {
         Set<Edge> inEdges = ofg.getInEdgesOf(node)
                 .stream()
-                .filter(e -> nodes.contains(e.getSource()))
+                .filter(e -> nodes.contains(e.source()))
                 .collect(Collectors.toSet());
         inEdges.addAll(inWUEdges.get(node));
         return inEdges;
@@ -100,14 +100,14 @@ class PrecisionFlowGraph implements Graph<Node> {
 
     @Override
     public Set<Node> getSuccsOf(Node node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::getTarget);
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
     }
 
     @Override
     public Set<Edge> getOutEdgesOf(Node node) {
         Set<Edge> outEdges = ofg.getOutEdgesOf(node)
                 .stream()
-                .filter(e -> nodes.contains(e.getTarget()))
+                .filter(e -> nodes.contains(e.target()))
                 .collect(Collectors.toSet());
         outEdges.addAll(outWUEdges.get(node));
         return outEdges;

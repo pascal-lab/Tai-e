@@ -46,19 +46,19 @@ public class FlowGraphDumper {
             })
             .setEdgeAttrs(e -> {
                 Edge edge = (Edge) e;
-                return switch (edge.getKind()) {
+                return switch (edge.kind()) {
                     case LOCAL_ASSIGN, CAST -> Map.of();
                     case THIS_PASSING, PARAMETER_PASSING, RETURN -> Map.of("color", "blue");
                     case INSTANCE_STORE, ARRAY_STORE -> Map.of("color", "red");
                     case INSTANCE_LOAD, ARRAY_LOAD -> Map.of("color", "red", "style", "dashed");
                     case OTHER -> Map.of("color", "green3", "style", "dashed");
                     default -> throw new IllegalArgumentException(
-                            "Unsupported edge kind: " + edge.getKind());
+                            "Unsupported edge kind: " + edge.kind());
                 };
             })
             .setEdgeLabeler(e -> {
                 Edge edge = (Edge) e;
-                return edge.getKind() != FlowKind.OTHER ?
+                return edge.kind() != FlowKind.OTHER ?
                         "" : e.getClass().getSimpleName();
             });
 

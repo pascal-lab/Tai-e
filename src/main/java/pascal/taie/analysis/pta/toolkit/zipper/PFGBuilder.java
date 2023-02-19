@@ -204,14 +204,14 @@ class PFGBuilder {
             }
             List<Edge> nextEdges = new ArrayList<>();
             for (Edge edge : getOutEdgesOf(node)) {
-                switch (edge.getKind()) {
+                switch (edge.kind()) {
                     case LOCAL_ASSIGN, CAST -> {
                         nextEdges.add(edge);
                     }
                     case INSTANCE_LOAD, ARRAY_LOAD,
                             THIS_PASSING, PARAMETER_PASSING, RETURN -> {
                         // target node must be a VarNode
-                        VarNode toNode = (VarNode) edge.getTarget();
+                        VarNode toNode = (VarNode) edge.target();
                         Var toVar = toNode.getVar();
                         // Optimization: filter out some potential spurious flows due to
                         // the imprecision of context-insensitive pre-analysis, which
@@ -221,7 +221,7 @@ class PFGBuilder {
                         }
                     }
                     case INSTANCE_STORE, ARRAY_STORE -> {
-                        InstanceNode toNode = (InstanceNode) edge.getTarget();
+                        InstanceNode toNode = (InstanceNode) edge.target();
                         Obj base = toNode.getBase();
                         if (base.getType().equals(type)) {
                             // add wrapped flow edges to this variable
@@ -246,7 +246,7 @@ class PFGBuilder {
                         if (edge instanceof WrappedEdge) {
                             // same as INSTANCE_STORE
                             // target node must be a VarNode
-                            VarNode toNode = (VarNode) edge.getTarget();
+                            VarNode toNode = (VarNode) edge.target();
                             Var toVar = toNode.getVar();
                             // Optimization: filter out some potential spurious flows due to
                             // the imprecision of context-insensitive pre-analysis, which
@@ -262,7 +262,7 @@ class PFGBuilder {
                 }
             }
             for (Edge nextEdge : nextEdges) {
-                stack.push(nextEdge.getTarget());
+                stack.push(nextEdge.target());
             }
         }
     }

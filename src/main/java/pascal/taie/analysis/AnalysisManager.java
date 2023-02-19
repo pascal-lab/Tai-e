@@ -229,7 +229,7 @@ public class AnalysisManager {
         var edgesToRemove = new ArrayList<>(
                 dependenceGraph.getInEdgesOf(analysis.getId()));
         edgesToRemove.forEach(e ->
-                dependenceGraph.removeEdge(e.getSource(), e.getTarget()));
+                dependenceGraph.removeEdge(e.source(), e.target()));
         // select the analyses whose results are unused and not in keepResult
         List<String> unused = executedAnalyses.stream()
                 .map(Analysis::getId)

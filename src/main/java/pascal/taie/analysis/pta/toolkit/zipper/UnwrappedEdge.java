@@ -29,17 +29,7 @@ import pascal.taie.analysis.graph.flowgraph.Node;
 record UnwrappedEdge(Node source, Node target) implements Edge {
 
     @Override
-    public FlowKind getKind() {
+    public FlowKind kind() {
         return FlowKind.OTHER;
-    }
-
-    @Override
-    public Node getSource() {
-        return source;
-    }
-
-    @Override
-    public Node getTarget() {
-        return target;
     }
 }

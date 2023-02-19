@@ -32,12 +32,12 @@ record MethodEdge<CallSite, Method>(
         implements Edge<Method> {
 
     @Override
-    public Method getSource() {
+    public Method source() {
         return caller;
     }
 
     @Override
-    public Method getTarget() {
+    public Method target() {
         return callee;
     }
 }

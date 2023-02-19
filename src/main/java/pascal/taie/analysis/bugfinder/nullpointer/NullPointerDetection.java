@@ -66,7 +66,7 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
                 IsNullFact prevFact = null;
                 for (Edge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
                     if (inEdge.getKind() == Edge.Kind.FALL_THROUGH) {
-                        prevFact = nullValues.getOutFact(inEdge.getSource());
+                        prevFact = nullValues.getOutFact(inEdge.source());
                     }
                 }
                 if (prevFact != null && prevFact.isValid()) {

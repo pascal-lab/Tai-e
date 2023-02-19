@@ -75,7 +75,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                             new CallToReturnEdge<>(edge) :
                             new NormalEdge<>(edge);
                     outEdges.put(stmt, local);
-                    inEdges.put(edge.getTarget(), local);
+                    inEdges.put(edge.target(), local);
                 });
                 if (isCallSite(stmt)) {
                     getCalleesOf(stmt).forEach(callee -> {
@@ -99,7 +99,7 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
                         // them to the ReturnEdge.
                         getCFGOf(callee).getInEdgesOf(exit).forEach(retEdge -> {
                             if (retEdge.getKind() == Edge.Kind.RETURN) {
-                                Return ret = (Return) retEdge.getSource();
+                                Return ret = (Return) retEdge.source();
                                 if (ret.getValue() != null) {
                                     retVars.add(ret.getValue());
                                 }
@@ -165,17 +165,17 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     public boolean hasEdge(Stmt source, Stmt target) {
         return getOutEdgesOf(source)
                 .stream()
-                .anyMatch(edge -> edge.getTarget().equals(target));
+                .anyMatch(edge -> edge.target().equals(target));
     }
 
     @Override
     public Set<Stmt> getPredsOf(Stmt stmt) {
-        return Views.toMappedSet(getInEdgesOf(stmt), ICFGEdge::getSource);
+        return Views.toMappedSet(getInEdgesOf(stmt), ICFGEdge::source);
     }
 
     @Override
     public Set<Stmt> getSuccsOf(Stmt stmt) {
-        return Views.toMappedSet(getOutEdgesOf(stmt), ICFGEdge::getTarget);
+        return Views.toMappedSet(getOutEdgesOf(stmt), ICFGEdge::target);
     }
 
     @Override

@@ -90,7 +90,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
             cfg.getOutEdgesOf(stmt)
                     .stream()
                     .filter(edge -> !isUnreachableBranch(edge, constants))
-                    .map(Edge::getTarget)
+                    .map(Edge::target)
                     .forEach(succ -> {
                         if (!visited.contains(succ)) {
                             queue.add(succ);
@@ -121,7 +121,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
 
     private static boolean isUnreachableBranch(
             Edge<Stmt> edge, NodeResult<Stmt, CPFact> constants) {
-        Stmt src = edge.getSource();
+        Stmt src = edge.source();
         if (src instanceof If ifStmt) {
             Value cond = Evaluator.evaluate(
                     ifStmt.getCondition(), constants.getInFact(ifStmt));

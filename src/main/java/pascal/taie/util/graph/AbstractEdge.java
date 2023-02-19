@@ -40,12 +40,12 @@ public abstract class AbstractEdge<N> implements Edge<N> {
     }
 
     @Override
-    public N getSource() {
+    public N source() {
         return source;
     }
 
     @Override
-    public N getTarget() {
+    public N target() {
         return target;
     }
 }

@@ -157,7 +157,7 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
                     cfg.getInEdgesOf(stmt)
                             .stream()
                             .filter(Predicate.not(Edge::isExceptional))
-                            .map(Edge::getSource)
+                            .map(Edge::source)
                             .forEach(pred ->
                                     cfg.addEdge(new ExceptionalEdge<>(
                                             Edge.Kind.CAUGHT_EXCEPTION,
@@ -167,7 +167,7 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
                 cfg.getInEdgesOf(stmt)
                         .stream()
                         .filter(Predicate.not(Edge::isExceptional))
-                        .map(Edge::getSource)
+                        .map(Edge::source)
                         .forEach(pred -> cfg.addEdge(
                                 new ExceptionalEdge<>(
                                         Edge.Kind.UNCAUGHT_EXCEPTION,

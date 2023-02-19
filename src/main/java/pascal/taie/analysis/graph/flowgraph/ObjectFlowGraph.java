@@ -58,7 +58,7 @@ public class ObjectFlowGraph extends NodeManager
                 .map(pfg::getOutEdgesOf)
                 .flatMap(Set::stream)
                 .forEach(e -> addEdge(e.getKind(),
-                        toNode(e.getSource()), toNode(e.getTarget())));
+                        toNode(e.source()), toNode(e.target())));
         callGraph.edges()
                 .forEach(e -> {
                     if (e.getKind() != CallKind.OTHER &&
@@ -101,7 +101,7 @@ public class ObjectFlowGraph extends NodeManager
 
     @Override
     public Set<Node> getPredsOf(Node node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::getSource);
+        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ObjectFlowGraph extends NodeManager
 
     @Override
     public Set<Node> getSuccsOf(Node node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::getTarget);
+        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
     }
 
     @Override

@@ -160,7 +160,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 return nodeFact;
             }
 
-            Stmt source = edge.getSource();
+            Stmt source = edge.source();
             IsNullFact resultFact = nodeFact;
 
             int nonExceptionSucessorNums = 0;
@@ -212,7 +212,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                 }
             } else if (edge.getKind() == Edge.Kind.FALL_THROUGH) {
                 // 4. handle those statements which may raise NullPointerException
-                Stmt target = edge.getTarget();
+                Stmt target = edge.target();
                 Var derefVar = target.accept(new NPEVarVisitor());
 
                 if (derefVar != null) {
