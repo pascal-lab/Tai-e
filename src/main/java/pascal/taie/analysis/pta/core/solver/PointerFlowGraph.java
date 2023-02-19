@@ -63,16 +63,6 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public boolean hasNode(Pointer node) {
-        return pointers.contains(node);
-    }
-
-    @Override
-    public boolean hasEdge(Pointer source, Pointer target) {
-        return getSuccsOf(source).contains(target);
-    }
-
-    @Override
     public Set<Pointer> getPredsOf(Pointer node) {
         throw new UnsupportedOperationException();
     }

@@ -121,20 +121,10 @@ public abstract class AbstractCallGraph<CallSite, Method>
 
     @Override
     public boolean contains(Method method) {
-        return reachableMethods.contains(method);
+        return hasNode(method);
     }
 
     // Implementation for Graph interface.
-
-    @Override
-    public boolean hasNode(Method node) {
-        return contains(node);
-    }
-
-    @Override
-    public boolean hasEdge(Method source, Method target) {
-        return getSuccsOf(source).contains(target);
-    }
 
     @Override
     public Set<MethodEdge<CallSite, Method>> getInEdgesOf(Method method) {

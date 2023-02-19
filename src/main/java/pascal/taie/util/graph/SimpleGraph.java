@@ -91,16 +91,6 @@ public class SimpleGraph<N> implements Graph<N> {
     }
 
     @Override
-    public boolean hasNode(N node) {
-        return nodes.contains(node);
-    }
-
-    @Override
-    public boolean hasEdge(N source, N target) {
-        return succs.get(source).contains(target);
-    }
-
-    @Override
     public Set<N> getPredsOf(N node) {
         return preds.get(node);
     }

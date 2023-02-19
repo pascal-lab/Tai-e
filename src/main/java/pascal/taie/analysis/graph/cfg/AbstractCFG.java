@@ -142,16 +142,6 @@ abstract class AbstractCFG<N> implements CFG<N> {
     }
 
     @Override
-    public boolean hasNode(N node) {
-        return nodes.contains(node);
-    }
-
-    @Override
-    public boolean hasEdge(N source, N target) {
-        return getSuccsOf(source).contains(target);
-    }
-
-    @Override
     public Set<N> getPredsOf(N node) {
         return Views.toMappedSet(getInEdgesOf(node), CFGEdge::source);
     }

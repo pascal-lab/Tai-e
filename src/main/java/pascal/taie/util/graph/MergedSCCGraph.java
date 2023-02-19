@@ -65,16 +65,6 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
     }
 
     @Override
-    public boolean hasNode(MergedNode<N> node) {
-        return nodes.contains(node);
-    }
-
-    @Override
-    public boolean hasEdge(MergedNode<N> source, MergedNode<N> target) {
-        return source.getSuccs().contains(target);
-    }
-
-    @Override
     public Set<MergedNode<N>> getPredsOf(MergedNode<N> node) {
         return Collections.unmodifiableSet(node.getPreds());
     }

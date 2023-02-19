@@ -157,11 +157,6 @@ class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
     }
 
     @Override
-    public boolean hasNode(Stmt stmt) {
-        return stmtToCFG.containsKey(stmt);
-    }
-
-    @Override
     public boolean hasEdge(Stmt source, Stmt target) {
         return getOutEdgesOf(source)
                 .stream()

@@ -35,15 +35,19 @@ import java.util.Set;
 public interface Graph<N> extends Iterable<N> {
 
     /**
-     * @return true if this graph has given node, otherwise false.
+     * @return {@code true} if this graph has given node, otherwise {@code false}.
      */
-    boolean hasNode(N node);
+    default boolean hasNode(N node) {
+        return getNodes().contains(node);
+    }
 
     /**
-     * @return true if this graph has an edge from given source to target,
-     * otherwise false.
+     * @return {@code true} if this graph has an edge from given source to target,
+     * otherwise {@code false}.
      */
-    boolean hasEdge(N source, N target);
+    default boolean hasEdge(N source, N target) {
+        return getSuccsOf(source).contains(target);
+    }
 
     /**
      * @return true if this graph has the given edge, otherwise false.

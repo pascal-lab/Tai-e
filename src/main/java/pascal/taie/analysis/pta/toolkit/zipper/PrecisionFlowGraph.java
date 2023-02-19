@@ -74,11 +74,6 @@ class PrecisionFlowGraph implements Graph<Node> {
     }
 
     @Override
-    public boolean hasNode(Node node) {
-        return nodes.contains(node);
-    }
-
-    @Override
     public boolean hasEdge(Node source, Node target) {
         throw new UnsupportedOperationException();
     }

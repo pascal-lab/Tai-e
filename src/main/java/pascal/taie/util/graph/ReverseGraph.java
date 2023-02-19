@@ -38,11 +38,6 @@ public class ReverseGraph<N> implements Graph<N> {
     }
 
     @Override
-    public boolean hasNode(N node) {
-        return graph.hasNode(node);
-    }
-
-    @Override
     public boolean hasEdge(N source, N target) {
         return graph.hasEdge(target, source);
     }

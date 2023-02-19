@@ -95,11 +95,6 @@ public class ObjectFlowGraph extends NodeManager
     }
 
     @Override
-    public boolean hasEdge(Node source, Node target) {
-        return getSuccsOf(source).contains(target);
-    }
-
-    @Override
     public Set<Node> getPredsOf(Node node) {
         return Views.toMappedSet(getInEdgesOf(node), FlowEdge::source);
     }
