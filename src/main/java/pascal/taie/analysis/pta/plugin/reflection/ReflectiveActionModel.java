@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
@@ -31,7 +32,6 @@ import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
@@ -53,8 +53,8 @@ import pascal.taie.language.type.VoidType;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.INSTANCE_STORE;
-import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.STATIC_STORE;
+import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
+import static pascal.taie.analysis.graph.flowgraph.FlowKind.STATIC_STORE;
 
 /**
  * Models reflective-action methods, currently supports
@@ -246,14 +246,14 @@ class ReflectiveActionModel extends AbstractModel {
             if (field != null) {
                 if (field.isStatic()) {
                     StaticField sfield = csManager.getStaticField(field);
-                    solver.addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+                    solver.addPFGEdge(sfield, to, FlowKind.STATIC_LOAD);
                 } else {
                     Type declType = field.getDeclaringClass().getType();
                     baseObjs.forEach(baseObj -> {
                         Type objType = baseObj.getObject().getType();
                         if (typeSystem.isSubtype(declType, objType)) {
                             InstanceField ifield = csManager.getInstanceField(baseObj, field);
-                            solver.addPFGEdge(ifield, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                            solver.addPFGEdge(ifield, to, FlowKind.INSTANCE_LOAD);
                         }
                     });
                 }

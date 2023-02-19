@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.invokedynamic;
 
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -34,7 +35,6 @@ import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
@@ -315,7 +315,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 solver.addPFGEdge(
                         csManager.getCSVar(callerCtx, args.get(i)),
                         csManager.getCSVar(calleeCtx, params.get(j)),
-                        PointerFlowEdge.Kind.PARAMETER_PASSING);
+                        FlowKind.PARAMETER_PASSING);
             }
             // pass return values
             Var result = caller.getResult();
@@ -323,7 +323,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 CSVar csResult = csManager.getCSVar(callerCtx, result);
                 callee.getIR().getReturnVars().forEach(ret -> {
                     CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                    solver.addPFGEdge(csRet, csResult, PointerFlowEdge.Kind.RETURN);
+                    solver.addPFGEdge(csRet, csResult, FlowKind.RETURN);
                 });
             }
         }

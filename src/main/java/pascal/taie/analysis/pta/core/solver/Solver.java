@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -123,7 +124,7 @@ public interface Solver {
     /**
      * Adds an edge "source -> target" to the PFG.
      */
-    default void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind) {
+    default void addPFGEdge(Pointer source, Pointer target, FlowKind kind) {
         addPFGEdge(source, target, kind, Identity.get());
     }
 
@@ -132,14 +133,14 @@ public interface Solver {
      * For the objects pointed to by "source", only the ones whose types
      * are subtypes of given type are propagated to "target".
      */
-    default void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind, Type type) {
+    default void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Type type) {
         addPFGEdge(source, target, kind, new TypeFilter(type, this));
     }
 
     /**
      * Adds an edge "source -> target" (with edge transfer) to the PFG.
      */
-    void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind, Transfer transfer);
+    void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Transfer transfer);
 
     /**
      * Adds an entry point.

@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -34,7 +35,6 @@ import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -291,7 +291,7 @@ public class LambdaAnalysis implements Plugin {
                         csManager.getCSVar(lambdaContext, capturedArgs.get(i)),
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
                         // filter spurious objects caused by imprecise lambda objects
-                        PointerFlowEdge.Kind.PARAMETER_PASSING,
+                        FlowKind.PARAMETER_PASSING,
                         targetParams.get(j).getType());
             }
             // pass arguments from actual invocation site
@@ -314,7 +314,7 @@ public class LambdaAnalysis implements Plugin {
                         csManager.getCSVar(callerContext, actualArgs.get(i)),
                         csManager.getCSVar(calleeContext, targetParams.get(j)),
                         // filter spurious objects caused by imprecise lambda objects
-                        PointerFlowEdge.Kind.PARAMETER_PASSING, targetParams.get(j).getType()
+                        FlowKind.PARAMETER_PASSING, targetParams.get(j).getType()
                 );
             }
             // pass return value
@@ -325,7 +325,7 @@ public class LambdaAnalysis implements Plugin {
                     CSVar csRet = csManager.getCSVar(calleeContext, ret);
                     solver.addPFGEdge(csRet, csResult,
                             // filter spurious objects caused by imprecise lambda objects
-                            PointerFlowEdge.Kind.RETURN, result.getType());
+                            FlowKind.RETURN, result.getType());
                 });
             }
         }

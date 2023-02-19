@@ -30,7 +30,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
-import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.STATIC_STORE;
+import static pascal.taie.analysis.graph.flowgraph.FlowKind.STATIC_STORE;
 import static pascal.taie.language.classes.Signatures.REFERENCE_INIT;
 import static pascal.taie.language.classes.Signatures.REFERENCE_PENDING;
 

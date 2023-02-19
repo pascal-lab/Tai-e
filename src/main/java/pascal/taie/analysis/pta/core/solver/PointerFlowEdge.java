@@ -22,26 +22,27 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.graph.AbstractEdge;
 
 public class PointerFlowEdge extends AbstractEdge<Pointer> {
 
-    private final Kind kind;
+    private final FlowKind kind;
 
     /**
      * Transfer function on this edge.
      */
     private final Transfer transfer;
 
-    public PointerFlowEdge(Kind kind, Pointer source, Pointer target, Transfer transfer) {
+    public PointerFlowEdge(FlowKind kind, Pointer source, Pointer target, Transfer transfer) {
         super(source, target);
         this.kind = kind;
         this.transfer = transfer;
     }
 
-    public Kind getKind() {
+    public FlowKind getKind() {
         return kind;
     }
 
@@ -70,20 +71,4 @@ public class PointerFlowEdge extends AbstractEdge<Pointer> {
         return "[" + kind + "]" + source + " -> " + target;
     }
 
-    public enum Kind {
-        LOCAL_ASSIGN,
-        CAST,
-
-        INSTANCE_LOAD,
-        INSTANCE_STORE,
-
-        ARRAY_LOAD,
-        ARRAY_STORE,
-
-        STATIC_LOAD,
-        STATIC_STORE,
-
-        PARAMETER_PASSING,
-        RETURN,
-    }
 }

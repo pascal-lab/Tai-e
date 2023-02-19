@@ -42,8 +42,8 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.PARAMETER_PASSING;
-import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.RETURN;
+import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
+import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 
 public class ReflectionAnalysis implements Plugin {
 

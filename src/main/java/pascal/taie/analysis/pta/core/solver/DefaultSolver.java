@@ -28,6 +28,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.PointerAnalysisResultImpl;
 import pascal.taie.analysis.pta.core.cs.CSCallGraph;
@@ -367,7 +368,7 @@ public class DefaultSolver implements Solver {
                 pts.forEach(baseObj -> {
                     if (baseObj.getObject().isFunctional()) {
                         InstanceField instField = csManager.getInstanceField(baseObj, field);
-                        addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+                        addPFGEdge(from, instField, FlowKind.INSTANCE_STORE);
                     }
                 });
             }
@@ -391,7 +392,7 @@ public class DefaultSolver implements Solver {
                 pts.forEach(baseObj -> {
                     if (baseObj.getObject().isFunctional()) {
                         InstanceField instField = csManager.getInstanceField(baseObj, field);
-                        addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                        addPFGEdge(instField, to, FlowKind.INSTANCE_LOAD);
                     }
                 });
             }
@@ -417,7 +418,7 @@ public class DefaultSolver implements Solver {
                         // we need type guard for array stores as Java arrays
                         // are covariant
                         addPFGEdge(from, arrayIndex,
-                                PointerFlowEdge.Kind.ARRAY_STORE, arrayIndex.getType());
+                                FlowKind.ARRAY_STORE, arrayIndex.getType());
                     }
                 });
             }
@@ -440,7 +441,7 @@ public class DefaultSolver implements Solver {
                 pts.forEach(array -> {
                     if (array.getObject().isFunctional()) {
                         ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                        addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+                        addPFGEdge(arrayIndex, to, FlowKind.ARRAY_LOAD);
                     }
                 });
             }
@@ -501,7 +502,7 @@ public class DefaultSolver implements Solver {
                         Var param = callee.getIR().getParam(i);
                         CSVar argVar = csManager.getCSVar(callerCtx, arg);
                         CSVar paramVar = csManager.getCSVar(calleeCtx, param);
-                        addPFGEdge(argVar, paramVar, PointerFlowEdge.Kind.PARAMETER_PASSING);
+                        addPFGEdge(argVar, paramVar, FlowKind.PARAMETER_PASSING);
                     }
                 }
                 // pass results to LHS variable
@@ -511,7 +512,7 @@ public class DefaultSolver implements Solver {
                     for (Var ret : callee.getIR().getReturnVars()) {
                         if (propTypes.isAllowed(ret)) {
                             CSVar csRet = csManager.getCSVar(calleeCtx, ret);
-                            addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
+                            addPFGEdge(csRet, csLHS, FlowKind.RETURN);
                         }
                     }
                 }
@@ -665,7 +666,7 @@ public class DefaultSolver implements Solver {
                 if (propTypes.isAllowed(rvalue)) {
                     CSVar from = csManager.getCSVar(context, rvalue);
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                    addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
+                    addPFGEdge(from, to, FlowKind.LOCAL_ASSIGN);
                 }
                 return null;
             }
@@ -676,7 +677,7 @@ public class DefaultSolver implements Solver {
                 if (propTypes.isAllowed(cast.getValue())) {
                     CSVar from = csManager.getCSVar(context, cast.getValue());
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                    addPFGEdge(from, to, PointerFlowEdge.Kind.CAST, cast.getType());
+                    addPFGEdge(from, to, FlowKind.CAST, cast.getType());
                 }
                 return null;
             }
@@ -690,7 +691,7 @@ public class DefaultSolver implements Solver {
                     JField field = stmt.getFieldRef().resolve();
                     StaticField sfield = csManager.getStaticField(field);
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                    addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+                    addPFGEdge(sfield, to, FlowKind.STATIC_LOAD);
                 }
                 return null;
             }
@@ -704,7 +705,7 @@ public class DefaultSolver implements Solver {
                     JField field = stmt.getFieldRef().resolve();
                     StaticField sfield = csManager.getStaticField(field);
                     CSVar from = csManager.getCSVar(context, stmt.getRValue());
-                    addPFGEdge(from, sfield, PointerFlowEdge.Kind.STATIC_STORE);
+                    addPFGEdge(from, sfield, FlowKind.STATIC_STORE);
                 }
                 return null;
             }
@@ -762,7 +763,7 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
-    public void addPFGEdge(Pointer source, Pointer target, PointerFlowEdge.Kind kind,
+    public void addPFGEdge(Pointer source, Pointer target, FlowKind kind,
                            Transfer transfer) {
         PointerFlowEdge edge = new PointerFlowEdge(kind, source, target, transfer);
         if (pointerFlowGraph.addEdge(edge)) {
