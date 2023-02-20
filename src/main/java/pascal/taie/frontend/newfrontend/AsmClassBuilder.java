@@ -7,6 +7,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -206,16 +207,8 @@ public class AsmClassBuilder implements JClassBuilder {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-            org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
-            return new MVisitor(fromAsmModifier(access),
-                    name,
-                    exceptions == null ? List.of() : Arrays.stream(exceptions)
-                            .map(BuildContext.get()::fromAsmInternalName)
-                            .toList(),
-                    Arrays.stream(t.getArgumentTypes())
-                            .map(BuildContext.get()::fromAsmType)
-                            .toList(),
-                    BuildContext.get().fromAsmType(t.getReturnType()));
+
+            return new MVisitor(access, name, descriptor, signature, exceptions);
         }
 
     }
@@ -242,7 +235,7 @@ public class AsmClassBuilder implements JClassBuilder {
         }
     }
 
-    class MVisitor extends MethodVisitor {
+    class MVisitor extends JSRInlinerAdapter {
 
         private final Set<Modifier> modifiers;
 
@@ -261,20 +254,26 @@ public class AsmClassBuilder implements JClassBuilder {
         @Nullable
         private List<String> paramName;
 
-        public MVisitor(Set<Modifier> modifiers, String methodName,
-                        List<ClassType> exceptions, List<Type> paramTypes, Type retType) {
-            super(Opcodes.ASM9);
-            this.modifiers = modifiers;
-            this.methodName = methodName;
-            this.exceptions = exceptions;
-            this.paramTypes = paramTypes;
-            this.retType = retType;
+        public MVisitor(int access, String name, String descriptor, String signature, String[] exceptions) {
+            super(null, access, name, descriptor, signature, exceptions);
+            org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
+            this.modifiers = fromAsmModifier(access);
+            this.methodName = name;
+            this.exceptions =  exceptions == null ? List.of() : Arrays.stream(exceptions)
+                    .map(BuildContext.get()::fromAsmInternalName)
+                    .toList();
+            this.paramTypes = Arrays.stream(t.getArgumentTypes())
+                    .map(BuildContext.get()::fromAsmType)
+                    .toList();
+            this.retType = BuildContext.get().fromAsmType(t.getReturnType());
             this.annotations = new ArrayList<>();
-            this.paramAnnotations = Maps.newMap(paramTypes.size());
+            this.paramAnnotations = Maps.newMap();
         }
+
 
         @Override
         public void visitParameter(String name, int access) {
+            super.visitParameter(name, access);
             if (paramName == null) {
                 paramName = new ArrayList<>();
             }
@@ -296,6 +295,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
         @Override
         public void visitEnd() {
+            super.visitEnd();
             List<AnnotationHolder> l = new ArrayList<>();
             for (int i = 0; i < paramTypes.size(); ++i) {
                 List<Annotation> annotations1 = paramAnnotations.getOrDefault(i, null);
@@ -307,7 +307,7 @@ public class AsmClassBuilder implements JClassBuilder {
                     new JMethod(jClass, methodName, modifiers, paramTypes,
                             retType, exceptions,
                             AnnotationHolder.make(annotations), l,
-                            paramName, null));
+                            paramName, this));
         }
     }
 
