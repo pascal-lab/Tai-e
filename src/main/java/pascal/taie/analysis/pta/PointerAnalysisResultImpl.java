@@ -115,9 +115,14 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     /**
      * Call graph (context projected out).
      */
-    private final CallGraph<Invoke, JMethod> callGraph;
+    private CallGraph<Invoke, JMethod> callGraph;
 
-    private final ObjectFlowGraph ofg;
+    private final PointerFlowGraph pfg;
+
+    /**
+     * Object flow graph (context projected out).
+     */
+    private ObjectFlowGraph ofg;
 
     public PointerAnalysisResultImpl(
             PropagateTypes propTypes, CSManager csManager,
@@ -127,9 +132,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         this.csManager = csManager;
         this.objIndexer = objIndexer;
         this.csCallGraph = csCallGraph;
-        this.callGraph = removeContexts(csCallGraph);
+        this.pfg = pfg;
         this.objects = removeContexts(getCSObjects().stream());
-        this.ofg = new ObjectFlowGraph(pfg, callGraph);
     }
 
     @Override
@@ -328,6 +332,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public CallGraph<Invoke, JMethod> getCallGraph() {
+        if (callGraph == null) {
+            callGraph = removeContexts(csCallGraph);
+        }
         return callGraph;
     }
 
@@ -354,6 +361,9 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     }
 
     public ObjectFlowGraph getObjectFlowGraph() {
+        if (ofg == null) {
+            ofg = new ObjectFlowGraph(pfg, callGraph);
+        }
         return ofg;
     }
 }

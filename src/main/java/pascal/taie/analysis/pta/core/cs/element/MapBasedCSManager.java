@@ -34,6 +34,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Streams;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Manages data by maintaining the data and their context-sensitive
@@ -106,6 +108,11 @@ public class MapBasedCSManager implements CSManager {
     @Override
     public Collection<ArrayIndex> getArrayIndexes() {
         return ptrManager.getArrayIndexes();
+    }
+
+    @Override
+    public Stream<Pointer> pointers() {
+        return ptrManager.pointers();
     }
 
     @Override
@@ -204,6 +211,14 @@ public class MapBasedCSManager implements CSManager {
 
         private Collection<ArrayIndex> getArrayIndexes() {
             return Collections.unmodifiableCollection(arrayIndexes.values());
+        }
+
+        private Stream<Pointer> pointers() {
+            return Streams.concat(
+                    getCSVars().stream(),
+                    getInstanceFields().stream(),
+                    getArrayIndexes().stream(),
+                    getStaticFields().stream());
         }
     }
 

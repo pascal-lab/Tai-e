@@ -52,15 +52,18 @@ public class ObjectFlowGraph extends NodeManager
     private final MultiMap<Node, FlowEdge> outEdges = Maps.newMultiMap(
             new IndexMap<>(this, 4096));
 
-    public ObjectFlowGraph(PointerFlowGraph pfg, CallGraph<Invoke, JMethod> callGraph) {
-        pfg.getNodes()
-                .stream()
-                .map(pfg::getOutEdgesOf)
-                .flatMap(Set::stream)
-                .forEach(e -> addEdge(e.kind(),
-                        toNode(e.source()), toNode(e.target())));
+    public ObjectFlowGraph(PointerFlowGraph pfg,
+                           CallGraph<Invoke, JMethod> callGraph) {
+        pfg.pointers().forEach(pointer -> {
+            toNode(pointer); // ensure every pointer has a corresponding node
+            pfg.getOutEdgesOf(pointer).forEach(e ->
+                    addEdge(e.kind(), toNode(e.source()), toNode(e.target())));
+        });
+        // This-passing edges are absent on PFG, so we iterate call graph edges
+        // to complement this kind of edges.
         callGraph.edges()
                 .forEach(e -> {
+                    // Currently ignore OTHER (e.g., reflective) call edges
                     if (e.getKind() != CallKind.OTHER &&
                             e.getCallSite().getInvokeExp() instanceof
                                     InvokeInstanceExp invokeExp) {
@@ -79,6 +82,9 @@ public class ObjectFlowGraph extends NodeManager
         inEdges.put(target, edge);
     }
 
+    /**
+     * Converts given pointer to a node in this OFG.
+     */
     private Node toNode(Pointer pointer) {
         if (pointer instanceof CSVar csVar) {
             return getOrCreateVarNode(csVar.getVar());

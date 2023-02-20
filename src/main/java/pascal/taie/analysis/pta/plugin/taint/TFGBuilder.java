@@ -57,6 +57,11 @@ class TFGBuilder {
 
     private final TaintManager taintManager;
 
+    /**
+     * Whether only track taint flow in application code.
+     */
+    private final boolean onlyApp = false;
+
     TFGBuilder(PointerAnalysisResult pta,
                MultiMap<Var, Pair<Var, Type>> varTransfers,
                TaintManager taintManager) {
@@ -87,7 +92,7 @@ class TFGBuilder {
                 });
         logger.info("Source nodes:");
         sourceNodes.forEach(logger::info);
-
+        // builds taint flow graph
         TaintFlowGraph tfg = new TaintFlowGraph();
         Set<Node> visitedNodes = Sets.newHybridSet();
         Deque<Node> workList = new ArrayDeque<>(sourceNodes);
@@ -95,7 +100,7 @@ class TFGBuilder {
             Node node = workList.poll();
             visitedNodes.add(node);
             getOutEdges(node).forEach(edge -> {
-                if (isApp(edge.target())) {
+                if (!onlyApp || isApp(edge.target())) {
                     tfg.addEdge(edge);
                     Node target = edge.target();
                     if (!visitedNodes.contains(target)) {

@@ -31,6 +31,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * Manages context-sensitive elements and pointers in pointer analysis.
@@ -112,6 +113,11 @@ public interface CSManager {
      * @return all array index pointers.
      */
     Collection<ArrayIndex> getArrayIndexes();
+
+    /**
+     * @return all pointers managed by this manager.
+     */
+    Stream<Pointer> pointers();
 
     /**
      * @return {@link Indexer} for {@link CSObj} maintained by this manager.

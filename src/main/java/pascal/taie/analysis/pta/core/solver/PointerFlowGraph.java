@@ -22,30 +22,29 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Edge;
 import pascal.taie.util.graph.Graph;
 
-import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Represents pointer flow graph in context-sensitive pointer analysis.
  */
 public class PointerFlowGraph implements Graph<Pointer> {
 
-    private final Set<Pointer> pointers = Sets.newSet();
+    private final CSManager csManager;
+
+    PointerFlowGraph(CSManager csManager) {
+        this.csManager = csManager;
+    }
 
     public boolean addEdge(PointerFlowEdge edge) {
-        if (edge.source().addOutEdge(edge)) {
-            pointers.add(edge.source());
-            pointers.add(edge.target());
-            return true;
-        } else {
-            return false;
-        }
+        return edge.source().addOutEdge(edge);
     }
 
     @Override
@@ -58,8 +57,8 @@ public class PointerFlowGraph implements Graph<Pointer> {
         return pointer.getOutEdges();
     }
 
-    public Set<Pointer> getPointers() {
-        return Collections.unmodifiableSet(pointers);
+    public Stream<Pointer> pointers() {
+        return csManager.pointers();
     }
 
     @Override
@@ -75,6 +74,6 @@ public class PointerFlowGraph implements Graph<Pointer> {
 
     @Override
     public Set<Pointer> getNodes() {
-        return getPointers();
+        return pointers().collect(Collectors.toUnmodifiableSet());
     }
 }
