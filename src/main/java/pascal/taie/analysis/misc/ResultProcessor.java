@@ -191,7 +191,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         // TODO: support class-level analysis?
         CallGraph<?, JMethod> cg = World.get().getResult(CallGraphBuilder.ID);
         List<JMethod> methods = cg.reachableMethods()
-                .filter(m -> !onlyApp || m.getDeclaringClass().isApplication())
+                .filter(m -> !onlyApp || m.isApplication())
                 .sorted(methodComp)
                 .toList();
         processResults(methods, analyses, (m, id) -> World.get().getResult(id));

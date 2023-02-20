@@ -141,12 +141,11 @@ class TFGBuilder {
 
     private static boolean isApp(Node node) {
         if (node instanceof VarNode varNode) {
-            return varNode.getVar()
-                    .getMethod().getDeclaringClass().isApplication();
+            return varNode.getVar().getMethod().isApplication();
         } else if (node instanceof InstanceNode iNode) {
             return iNode.getBase().getContainerMethod()
                     .stream()
-                    .anyMatch(m -> m.getDeclaringClass().isApplication());
+                    .anyMatch(m -> m.isApplication());
         } else {
             return false;
         }

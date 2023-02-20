@@ -58,7 +58,7 @@ abstract class Collector extends ProgramAnalysis<StmtResult<Boolean>> {
         int nWantedAppStmts = 0, nRelevantAppStmts = 0;
         // collect want statements and count
         for (JMethod method : callGraph) {
-            boolean isApp = method.getDeclaringClass().isApplication();
+            boolean isApp = method.isApplication();
             for (Stmt stmt : method.getIR()) {
                 if (isRelevant(stmt)) {
                     ++nRelevantStmts;

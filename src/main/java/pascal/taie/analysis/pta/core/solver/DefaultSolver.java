@@ -523,7 +523,7 @@ public class DefaultSolver implements Solver {
 
     private boolean isIgnored(JMethod method) {
         return ignoredMethods.contains(method) ||
-                onlyApp && !method.getDeclaringClass().isApplication();
+                onlyApp && !method.isApplication();
     }
 
     /**

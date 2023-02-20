@@ -88,6 +88,10 @@ public abstract class ClassMember implements Annotated {
         return Modifier.hasStatic(modifiers);
     }
 
+    public boolean isApplication() {
+        return declaringClass.isApplication();
+    }
+
     @Override
     public boolean hasAnnotation(String annotationType) {
         return annotationHolder.hasAnnotation(annotationType);
