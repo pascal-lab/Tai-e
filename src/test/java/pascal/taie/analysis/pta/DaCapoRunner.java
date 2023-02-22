@@ -69,7 +69,7 @@ public class DaCapoRunner {
     private String[] compose06Args(String benchmark) {
         List<String> args = new ArrayList<>();
         String ptaArg = String.format("pta=merge-string-constants:true;" +
-                        "merge-string-objects:false;cs:%s;reflection-log:%s",
+                        "merge-string-objects:false;cs:%s;reflection:log;reflection-log:%s",
                 PTA, PATH06 + SEP + benchmark + "-refl.log");
         Collections.addAll(args,
                 "-a", ptaArg,

@@ -109,6 +109,9 @@ class LogBasedModel extends MetaObjModel {
         super(solver);
         selector = solver.getContextSelector();
         String path = solver.getOptions().getString("reflection-log");
+        if (path == null) {
+            throw new IllegalArgumentException("Missing reflection-log option");
+        }
         logger.info("Using reflection log from {}", path);
         LogItem.load(path).forEach(this::addItem);
     }

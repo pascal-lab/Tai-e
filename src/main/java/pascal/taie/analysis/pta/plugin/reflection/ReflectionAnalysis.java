@@ -63,10 +63,13 @@ public class ReflectionAnalysis implements Plugin {
     public void setSolver(Solver solver) {
         this.solver = solver;
         classModel = new ClassModel(solver);
-        if (solver.getOptions().getString("reflection-log") != null) {
+        String reflection = solver.getOptions().getString("reflection");
+        if ("string-constant".equals(reflection)) {
+            metaObjModel = new StringBasedModel(solver);
+        } else if ("log".equals(reflection)) {
             metaObjModel = new LogBasedModel(solver);
         } else {
-            metaObjModel = new StringBasedModel(solver);
+            throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
         reflectiveActionModel = new ReflectiveActionModel(solver);
         csManager = solver.getCSManager();
