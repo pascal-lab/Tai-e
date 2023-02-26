@@ -14,8 +14,8 @@
     # zipper | zipper-e | zipper-e=PV
     # scaler | scaler=TST
     # mahjong | collection
-    action: null # | dump | compare
-    action-file: null # path of file to dump/compare
+    dump: false # whether dump results
+    expected-file: null # path of expected file for comparing results
     reflection: string-constant # | null | log
     reflection-log: null # path to reflection log, required when reflection option is log
     taint-config: null # path to config file of taint analysis,
@@ -30,10 +30,10 @@
   requires: [ pta(algorithm=pta) ]
   options:
     algorithm: pta # | cha
-    dump: null # path of file to dump reachable methods and call edges
-    dump-methods: null # path of file to dump reachable methods
-    dump-call-edges: null # path of file to dump call edges
-    dump-dot: null # path of dot file to dump call graph
+    dump: false # whether dump reachable methods and call edges
+    dump-methods: false # whether dump reachable methods
+    dump-call-edges: false # whether dump call edges
+    dump-dot: false # whether dump call graph in dot file
 
 - description: identify casts that may fail
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast
@@ -126,10 +126,6 @@
 - description: dump Tai-e IR for classes of input program
   analysisClass: pascal.taie.analysis.misc.IRDumper
   id: ir-dumper
-  options:
-    dump-dir: null # path of directory to dump IR;
-    # if this is not given (i.e., null), IR will be
-    # dumped to Tai-e's default output directory
 
 - description: null value analysis
   analysisClass: pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis

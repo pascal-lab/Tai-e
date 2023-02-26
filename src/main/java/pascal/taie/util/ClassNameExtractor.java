@@ -24,6 +24,7 @@ package pascal.taie.util;
 
 import pascal.taie.util.collection.Lists;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -56,10 +57,11 @@ public class ClassNameExtractor {
                     " a directory containing classes");
             return;
         }
-        String outPath = args[0];
-        System.out.printf("Dumping extracted class names to %s ...%n", outPath);
+        File outFile = new File(args[0]);
+        System.out.printf("Dumping extracted class names to %s ...%n",
+                outFile.getAbsolutePath());
         String[] jars = Arrays.copyOfRange(args, 1, args.length);
-        try (PrintStream out = new PrintStream(new FileOutputStream(outPath))) {
+        try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
             for (String arg : jars) {
                 extract(arg).forEach(out::println);
             }

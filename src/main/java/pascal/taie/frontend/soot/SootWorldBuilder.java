@@ -32,7 +32,6 @@ import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.Configs;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
@@ -92,7 +91,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         // set Soot options
         soot.options.Options.v().set_output_dir(
-                new File(Configs.getOutputDir(), "sootOutput").toString());
+                new File(options.getOutputDir(), "sootOutput").toString());
         soot.options.Options.v().set_output_format(
                 soot.options.Options.output_format_jimple);
         soot.options.Options.v().set_keep_line_number(true);

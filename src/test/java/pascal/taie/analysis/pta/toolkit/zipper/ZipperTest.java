@@ -51,7 +51,8 @@ public class ZipperTest {
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectAllocationGraph oag = new ObjectAllocationGraph(
                 new PointerAnalysisResultExImpl(pta, true));
-        new DotDumper<Obj>().dump(oag, "output/" + main + "-oag.dot");
+        new DotDumper<Obj>().dump(oag, World.get().getOptions().getOutputDir()
+                + "/" + main + "-oag.dot");
     }
 
     @Test
@@ -64,7 +65,8 @@ public class ZipperTest {
         Tests.testPTA(false, dir, main);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectFlowGraph ofg = new ObjectFlowGraph(pta);
-        FGDumper.dump(ofg, "output/" + main + "-ofg.dot");
+        FGDumper.dump(ofg, World.get().getOptions().getOutputDir()
+                        + "/" + main + "-ofg.dot");
     }
 
     @Test

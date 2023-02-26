@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -30,7 +32,11 @@ import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +47,8 @@ import java.util.Set;
  * Static utility methods for testing.
  */
 public final class Tests {
+
+    private static final Logger logger = LogManager.getLogger(Tests.class);
 
     private Tests() {
     }
@@ -154,11 +162,10 @@ public final class Tests {
         }
         List<String> ptaArgs = new ArrayList<>();
         ptaArgs.add("implicit-entries:false");
+        String expectedFile = getExpectedFile(classPath, main, id);
         if (processResult) {
-            String action = GENERATE_EXPECTED_RESULTS ? "dump" : "compare";
-            ptaArgs.add("action:" + action);
-            String file = getExpectedFile(classPath, main, id);
-            ptaArgs.add("action-file:" + file);
+            ptaArgs.add(GENERATE_EXPECTED_RESULTS ? "dump:true"
+                    : "expected-file:" + expectedFile);
         }
         boolean specifyOnlyApp = false;
         for (String opt : opts) {
@@ -173,6 +180,16 @@ public final class Tests {
         }
         Collections.addAll(args, "-a", id + "=" + String.join(";", ptaArgs));
         Main.main(args.toArray(new String[0]));
+        // move expected file
+        if (processResult && GENERATE_EXPECTED_RESULTS) {
+            try {
+                Path from = Paths.get(World.get().getOptions().getOutputDir(),
+                        pascal.taie.analysis.pta.plugin.ResultProcessor.RESULTS_FILE);
+                Files.move(from, Paths.get(expectedFile), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                logger.error("Failed to copy expected file", e);
+            }
+        }
     }
 
     /**

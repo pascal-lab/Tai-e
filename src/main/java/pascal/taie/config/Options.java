@@ -36,6 +36,9 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +54,12 @@ import java.util.Set;
 public class Options {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
+
+    private static final String OPTIONS_FILE = "options.yml";
+
+    private static final String DEFAULT_OUTPUT_DIR = "output";
+
+    private static final String AUTO_GEN = "$AUTO-GEN";
 
     // ---------- file-based options ----------
     @Option(names = "--options-file",
@@ -165,6 +174,18 @@ public class Options {
     }
 
     @JsonProperty
+    @Option(names = "--output-dir",
+            description = "Specify output directory (default: ${DEFAULT-VALUE})"
+                    + ", '" + AUTO_GEN + "' can be used as a placeholder"
+                    + " for an automatically generated timestamp",
+            defaultValue = DEFAULT_OUTPUT_DIR)
+    private String outputDir = DEFAULT_OUTPUT_DIR;
+
+    public String getOutputDir() {
+        return outputDir;
+    }
+
+    @JsonProperty
     @Option(names = "--pre-build-ir",
             description = "Build IR for all available methods before" +
                     " starting any analysis (default: ${DEFAULT-VALUE})",
@@ -232,7 +253,7 @@ public class Options {
             description = "The analyses whose results are kept" +
                     " (multiple analyses are split by ',', default: ${DEFAULT-VALUE})",
             split = ",", paramLabel = "<analysisID>",
-            defaultValue = "$KEEP-ALL")
+            defaultValue = Plan.KEEP_ALL)
     private Set<String> keepResult;
 
     public Set<String> getKeepResult() {
@@ -275,10 +296,28 @@ public class Options {
                     "at least one of --main-class, --input-classes " +
                     "or --app-class-path should be specified");
         }
+        // auto generation for output dir
+        if (options.outputDir.contains(AUTO_GEN)) {
+            String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.now());
+            options.outputDir = options.outputDir.replace(AUTO_GEN, timestamp);
+            // check if the output dir already exists
+            if (new File(options.outputDir).exists()) {
+                throw new RuntimeException("The generated output dir already exists, "
+                        + "please wait for a second to start again: " + options.outputDir);
+            }
+        }
+        // mkdir for output dir
+        File outputDir = new File(options.outputDir);
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+        logger.info("Output dir is: {}", outputDir.getAbsolutePath());
         // TODO: turn off output in testing?
         if (options.optionsFile == null) {
             // write options to file only when it is not given
-            writeOptions(options, Configs.getDefaultOptions());
+            writeOptions(options, new File(outputDir, OPTIONS_FILE));
         }
         return options;
     }
@@ -316,10 +355,11 @@ public class Options {
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         try {
-            logger.info("Writing options to " + output);
+            logger.info("Writing options to: {}", output.getAbsolutePath());
             mapper.writeValue(output, options);
         } catch (IOException e) {
-            throw new ConfigException("Failed to write options " + output, e);
+            throw new ConfigException("Failed to write options to "
+                    + output.getAbsolutePath(), e);
         }
     }
 
@@ -336,6 +376,7 @@ public class Options {
                 ", prependJVM=" + prependJVM +
                 ", allowPhantom=" + allowPhantom +
                 ", worldBuilderClass=" + worldBuilderClass +
+                ", outputDir='" + outputDir + '\'' +
                 ", preBuildIR=" + preBuildIR +
                 ", scope=" + scope +
                 ", nativeModel=" + nativeModel +

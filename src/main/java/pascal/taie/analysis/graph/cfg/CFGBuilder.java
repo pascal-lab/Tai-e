@@ -22,6 +22,9 @@
 
 package pascal.taie.analysis.graph.cfg;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.exception.CatchAnalysis;
 import pascal.taie.analysis.exception.CatchResult;
@@ -39,6 +42,7 @@ import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
 
+import java.io.File;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -46,14 +50,29 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
 
     public static final String ID = "cfg";
 
+    private static final Logger logger = LogManager.getLogger(CFGBuilder.class);
+
+    private static final String CFG_DIR = "cfg";
+
     private final boolean noException;
 
     private final boolean isDump;
+
+    private final File dumpDir;
 
     public CFGBuilder(AnalysisConfig config) {
         super(config);
         noException = getOptions().getString("exception") == null;
         isDump = getOptions().getBoolean("dump");
+        if (isDump) {
+            dumpDir = new File(World.get().getOptions().getOutputDir(), CFG_DIR);
+            if (!dumpDir.exists()) {
+                dumpDir.mkdirs();
+            }
+            logger.info("Dumping CFG in: {}", dumpDir.getAbsolutePath());
+        } else {
+            dumpDir = null;
+        }
     }
 
     @Override
@@ -66,7 +85,7 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
             buildExceptionalEdges(cfg);
         }
         if (isDump) {
-            CFGDumper.dumpDotFile(cfg);
+            CFGDumper.dumpDotFile(cfg, dumpDir);
         }
         return cfg;
     }

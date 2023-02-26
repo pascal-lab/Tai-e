@@ -24,9 +24,9 @@ package pascal.taie.analysis.misc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.ClassAnalysis;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.Configs;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.exp.Var;
@@ -40,7 +40,6 @@ import pascal.taie.language.type.Type;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -59,6 +58,8 @@ public class IRDumper extends ClassAnalysis<Void> {
 
     private static final Logger logger = LogManager.getLogger(IRDumper.class);
 
+    private static final String IR_DIR = "tir";
+
     private static final String SUFFIX = ".tir";
 
     private static final String INDENT = "    ";
@@ -70,17 +71,11 @@ public class IRDumper extends ClassAnalysis<Void> {
 
     public IRDumper(AnalysisConfig config) {
         super(config);
-        String path = getOptions().getString("dump-dir");
-        dumpDir = path != null ? new File(path) : Configs.getOutputDir();
+        dumpDir = new File(World.get().getOptions().getOutputDir(), IR_DIR);
         if (!dumpDir.exists()) {
             dumpDir.mkdirs();
         }
-        try {
-            logger.info("Dump directory: {}", dumpDir.getCanonicalPath());
-        } catch (IOException e) { // would this happen after dumpDir.mkdirs()?
-            logger.warn("Failed to get canonical path of dump-dir", e);
-            logger.info("Dump directory: {}", dumpDir.getAbsolutePath());
-        }
+        logger.info("Dumping IR in: {}", dumpDir.getAbsolutePath());
     }
 
     @Override

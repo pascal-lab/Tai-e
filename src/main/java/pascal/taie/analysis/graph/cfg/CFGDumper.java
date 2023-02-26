@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -45,7 +44,7 @@ public class CFGDumper {
     /**
      * Dumps the given CFG to .dot file.
      */
-    static <N> void dumpDotFile(CFG<N> cfg) {
+    static <N> void dumpDotFile(CFG<N> cfg, File dumpDir) {
         Indexer<N> indexer = new SimpleIndexer<>();
         new DotDumper<N>()
                 .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
@@ -74,7 +73,7 @@ public class CFGDumper {
                         return Map.of();
                     }
                 })
-                .dump(cfg, toDotPath(cfg));
+                .dump(cfg, new File(dumpDir, toDotFileName(cfg)));
     }
 
     public static <N> String toLabel(N node, CFG<N> cfg) {
@@ -89,7 +88,7 @@ public class CFGDumper {
         }
     }
 
-    private static String toDotPath(CFG<?> cfg) {
+    private static String toDotFileName(CFG<?> cfg) {
         JMethod m = cfg.getMethod();
         String fileName = String.valueOf(m.getDeclaringClass()) + '.' +
                 m.getName() + '(' +
@@ -103,6 +102,6 @@ public class CFGDumper {
         }
         // escape invalid characters in file name
         fileName = fileName.replaceAll("[\\[\\]<>]", "_") + ".dot";
-        return new File(Configs.getOutputDir(), fileName).toString();
+        return fileName;
     }
 }

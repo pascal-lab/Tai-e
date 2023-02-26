@@ -50,6 +50,8 @@ public class PlanConfig {
 
     private static final Logger logger = LogManager.getLogger(PlanConfig.class);
 
+    private static final String PLAN_FILE = "tai-e-plan.yml";
+
     /**
      * Unique identifier of the analysis.
      */
@@ -133,16 +135,18 @@ public class PlanConfig {
     /**
      * Writes a list of PlanConfigs to given file.
      */
-    public static void writeConfigs(List<PlanConfig> planConfigs, File output) {
+    public static void writeConfigs(List<PlanConfig> planConfigs, String outputDir) {
+        File outFile = new File(outputDir, PLAN_FILE);
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         try {
-            logger.info("Writing analysis plan to " + output);
-            mapper.writeValue(output, planConfigs);
+            logger.info("Writing analysis plan to: {}", outFile.getAbsolutePath());
+            mapper.writeValue(outFile, planConfigs);
         } catch (IOException e) {
-            throw new ConfigException("Failed to write plan file " + output, e);
+            throw new ConfigException("Failed to write plan file to "
+                    + outFile.getAbsolutePath(), e);
         }
     }
 }

@@ -24,12 +24,12 @@ package pascal.taie.analysis.pta.plugin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.config.Configs;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -52,6 +52,8 @@ import java.util.function.Function;
 public class Profiler implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(Profiler.class);
+
+    private static final String PROFILE_FILE = "pta-profile.txt";
 
     /**
      * Reports the results for top N elements.
@@ -79,9 +81,10 @@ public class Profiler implements Plugin {
 
     @Override
     public void onFinish() {
-        String outPath = new File(Configs.getOutputDir(), "pta-profile.txt").toString();
-        try (PrintStream out = new PrintStream(new FileOutputStream(outPath))) {
-            logger.info("Dumping pointer analysis profile to {} ...", outPath);
+        File outFile = new File(World.get().getOptions().getOutputDir(), PROFILE_FILE);
+        try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
+            logger.info("Dumping pointer analysis profile to: {} ...",
+                    outFile.getAbsolutePath());
             // report variables
             reportTop(out, "frequently-visited variables",
                     varVisited, v -> v.getMethod() + "/" + v.getName());
@@ -115,7 +118,7 @@ public class Profiler implements Plugin {
                     classVarVisited, JClass::toString);
         } catch (FileNotFoundException e) {
             logger.warn("Failed to write pointer analysis profile to {}, caused by {}",
-                    outPath, e);
+                    outFile.getAbsolutePath(), e);
         }
     }
 

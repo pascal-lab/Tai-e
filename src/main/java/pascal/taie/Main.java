@@ -90,7 +90,7 @@ public class Main {
             planConfigs = Lists.map(plan.analyses(),
                     ac -> new PlanConfig(ac.getId(), ac.getOptions()));
             // TODO: turn off output in testing?
-            PlanConfig.writeConfigs(planConfigs, Configs.getDefaultPlan());
+            PlanConfig.writeConfigs(planConfigs, options.getOutputDir());
             if (!options.isOnlyGenPlan()) {
                 // This run not only generates plan file but also executes it
                 return plan;

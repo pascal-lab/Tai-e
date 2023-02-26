@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -64,6 +65,8 @@ public class ResultProcessor implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(ResultProcessor.class);
 
+    public static final String RESULTS_FILE = "pta-results.txt";
+
     private static final String HEADER = "Points-to sets of all ";
 
     /**
@@ -88,22 +91,20 @@ public class ResultProcessor implements Plugin {
     public static void process(AnalysisOptions options,
                                PointerAnalysisResult result) {
         logStatistics(result);
-        String action = options.getString("action");
-        if (action == null) {
-            return;
-        }
-        String file = options.getString("action-file");
+
         boolean taintEnabled = options.getString("taint-config") != null;
-        switch (action) {
-            case "dump" -> dumpPointsToSet(result, file, taintEnabled);
-            case "compare" -> {
-                if (taintEnabled) {
-                    // when taint analysis is enabled, we only compare
-                    // detected taint flows
-                    compareTaintFlows(result, file);
-                } else {
-                    comparePointsToSet(result, file);
-                }
+        if (options.getBoolean("dump")) {
+            dumpPointsToSet(result, taintEnabled);
+        }
+
+        String expectedFile = options.getString("expected-file");
+        if (expectedFile != null) {
+            if (taintEnabled) {
+                // when taint analysis is enabled, we only compare
+                // detected taint flows
+                compareTaintFlows(result, expectedFile);
+            } else {
+                comparePointsToSet(result, expectedFile);
             }
         }
     }
@@ -148,18 +149,15 @@ public class ResultProcessor implements Plugin {
     }
 
     private static void dumpPointsToSet(PointerAnalysisResult result,
-                                        String output, boolean taintEnabled) {
+                                        boolean taintEnabled) {
         PrintStream out;
-        if (output != null) {  // if output file is given, then dump to the file
-            File outFile = new File(output);
-            try {
-                out = new PrintStream(new FileOutputStream(outFile));
-                logger.info("Dumping points-to set to {} ...", outFile);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Failed to open output file", e);
-            }
-        } else {  // otherwise, dump to System.out
-            out = System.out;
+        try {
+            File outFile = new File(World.get().getOptions().getOutputDir(), RESULTS_FILE);
+            out = new PrintStream(new FileOutputStream(outFile));
+            logger.info("Dumping points-to set to: {} ...",
+                    outFile.getAbsolutePath());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Failed to open output file", e);
         }
         dumpPointers(out, result.getCSVars(), "variables");
         dumpPointers(out, result.getStaticFields(), "static fields");
@@ -168,9 +166,7 @@ public class ResultProcessor implements Plugin {
         if (taintEnabled) {
             dumpTaintFlows(out, result);
         }
-        if (out != System.out) {
-            out.close();
-        }
+        out.close();
     }
 
     private static void dumpPointers(

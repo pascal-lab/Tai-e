@@ -32,7 +32,6 @@ import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.graph.cfg.CFGDumper;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.Configs;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
@@ -73,8 +72,8 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
         } else {
             fileName = "icfg.dot";
         }
-        String dotPath = new File(Configs.getOutputDir(), fileName).toString();
-        logger.info("Dumping ICFG to {} ...", dotPath);
+        File dotFile = new File(World.get().getOptions().getOutputDir(), fileName);
+        logger.info("Dumping ICFG to: {} ...", dotFile.getAbsolutePath());
         Indexer<Stmt> indexer = new SimpleIndexer<>();
         new DotDumper<Stmt>()
                 .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
@@ -92,7 +91,7 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
                         return Map.of();
                     }
                 })
-                .dump(icfg, dotPath);
+                .dump(icfg, dotFile);
     }
 
     private static String toLabel(Stmt stmt, ICFG<JMethod, Stmt> icfg) {

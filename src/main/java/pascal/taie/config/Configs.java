@@ -22,7 +22,6 @@
 
 package pascal.taie.config;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
@@ -33,22 +32,6 @@ import java.util.Objects;
 public final class Configs {
 
     private Configs() {
-    }
-
-    /**
-     * Default directory for Tai-e's output.
-     */
-    private final static File outputDir = new File("output");
-
-    static {
-        if (!outputDir.exists()) {
-            // Ensure the existence of output directory.
-            outputDir.mkdirs();
-        }
-    }
-
-    public static File getOutputDir() {
-        return outputDir;
     }
 
     /**
@@ -73,20 +56,6 @@ public final class Configs {
         return Configs.class
                 .getClassLoader()
                 .getResource(CONFIG);
-    }
-
-    /**
-     * @return default file for outputting options.
-     */
-    static File getDefaultOptions() {
-        return new File(outputDir, "options.yml");
-    }
-
-    /**
-     * @return default file for outputting analysis plan.
-     */
-    public static File getDefaultPlan() {
-        return new File(outputDir, "tai-e-plan.yml");
     }
 
     /**

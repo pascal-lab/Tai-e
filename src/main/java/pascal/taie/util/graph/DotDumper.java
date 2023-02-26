@@ -25,6 +25,7 @@ package pascal.taie.util.graph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -120,7 +121,11 @@ public class DotDumper<N> {
     }
 
     public void dump(Graph<N> graph, String filePath) {
-        try (PrintStream out = new PrintStream(new FileOutputStream(filePath))) {
+        dump(graph, new File(filePath));
+    }
+
+    public void dump(Graph<N> graph, File outFile) {
+        try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
             this.out = out;
             // dump starts
             out.println("digraph G {");
@@ -144,7 +149,7 @@ public class DotDumper<N> {
             out.println("}");
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump graph to {}, caused by {}",
-                    filePath, e);
+                    outFile.getAbsolutePath(), e);
         }
     }
 

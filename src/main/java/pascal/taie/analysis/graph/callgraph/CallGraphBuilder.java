@@ -24,6 +24,7 @@ package pascal.taie.analysis.graph.callgraph;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
@@ -31,11 +32,21 @@ import pascal.taie.config.ConfigException;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
+import java.io.File;
+
 public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>> {
 
     public static final String ID = "cg";
 
     private static final Logger logger = LogManager.getLogger(CallGraphBuilder.class);
+
+    private static final String CALL_GRAPH_FILE = "call-graph.txt";
+
+    private static final String REACHABLE_METHODS_FILE = "reachable-methods.txt";
+
+    private static final String CALL_EDGES_FILE = "call-edges.txt";
+
+    private static final String CALL_GRAPH_DOT_FILE = "call-graph.dot";
 
     private final String algorithm;
 
@@ -66,21 +77,22 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
 
     private static void processOptions(CallGraph<Invoke, JMethod> callGraph,
                                        AnalysisOptions options) {
-        String dumpFile = options.getString("dump");
-        if (dumpFile != null) {
-            CallGraphs.dumpCallGraph(callGraph, dumpFile);
+        String outputDir = World.get().getOptions().getOutputDir();
+        if (options.getBoolean("dump")) {
+            CallGraphs.dumpCallGraph(callGraph,
+                    new File(outputDir, CALL_GRAPH_FILE));
         }
-        String methodsFile = options.getString("dump-methods");
-        if (methodsFile != null) {
-            CallGraphs.dumpMethods(callGraph, methodsFile);
+        if (options.getBoolean("dump-methods")) {
+            CallGraphs.dumpMethods(callGraph,
+                    new File(outputDir, REACHABLE_METHODS_FILE));
         }
-        String callEdgesFile = options.getString("dump-call-edges");
-        if (callEdgesFile != null) {
-            CallGraphs.dumpCallEdges(callGraph, callEdgesFile);
+        if (options.getBoolean("dump-call-edges")) {
+            CallGraphs.dumpCallEdges(callGraph,
+                    new File(outputDir, CALL_EDGES_FILE));
         }
-        String dotFile = options.getString("dump-dot");
-        if (dotFile != null) {
-            CallGraphs.dumpDot(callGraph, dotFile);
+        if (options.getBoolean("dump-dot")) {
+            CallGraphs.dumpDot(callGraph,
+                    new File(outputDir, CALL_GRAPH_DOT_FILE));
         }
     }
 }
