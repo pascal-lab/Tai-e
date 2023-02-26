@@ -110,23 +110,12 @@ public class AnalysisManager {
     }
 
     private Analysis runAnalysis(AnalysisConfig config) {
+        Analysis analysis;
+        // Create analysis instance
         try {
-            // Create analysis instance
             Class<?> clazz = Class.forName(config.getAnalysisClass());
             Constructor<?> ctor = clazz.getConstructor(AnalysisConfig.class);
-            Analysis analysis = (Analysis) ctor.newInstance(config);
-            // Run the analysis
-            if (analysis instanceof ProgramAnalysis) {
-                runProgramAnalysis((ProgramAnalysis<?>) analysis);
-            } else if (analysis instanceof ClassAnalysis) {
-                runClassAnalysis((ClassAnalysis<?>) analysis);
-            } else if (analysis instanceof MethodAnalysis) {
-                runMethodAnalysis((MethodAnalysis<?>) analysis);
-            } else {
-                throw new ConfigException(clazz +
-                        " is not a supported analysis class");
-            }
-            return analysis;
+            analysis = (Analysis) ctor.newInstance(config);
         } catch (ClassNotFoundException e) {
             throw new AnalysisException("Analysis class " +
                     config.getAnalysisClass() + " is not found", e);
@@ -138,9 +127,21 @@ public class AnalysisManager {
             throw new AnalysisException("Failed to initialize " +
                     config.getAnalysisClass(), e);
         } catch (ClassCastException e) {
-            throw new ConfigException(config.getAnalysisClass() +
-                    " is not an analysis class");
+            throw new ConfigException(
+                    config.getAnalysisClass() + " is not an analysis class");
         }
+        // Run the analysis
+        if (analysis instanceof ProgramAnalysis<?> pa) {
+            runProgramAnalysis(pa);
+        } else if (analysis instanceof ClassAnalysis<?> ca) {
+            runClassAnalysis(ca);
+        } else if (analysis instanceof MethodAnalysis<?> ma) {
+            runMethodAnalysis(ma);
+        } else {
+            throw new ConfigException(config.getAnalysisClass() +
+                    " is not a supported analysis class");
+        }
+        return analysis;
     }
 
     private void runProgramAnalysis(ProgramAnalysis<?> analysis) {
