@@ -25,9 +25,11 @@ package pascal.taie.analysis.pta.plugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
@@ -40,10 +42,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Profiler to help identify analysis hot spots in the analyzed program
@@ -60,6 +64,8 @@ public class Profiler implements Plugin {
      */
     private static final int TOP_N = 100;
 
+    private Solver solver;
+
     private CSManager csManager;
 
     private final Map<CSVar, MutableInt> csVarVisited = Maps.newMap();
@@ -68,7 +74,8 @@ public class Profiler implements Plugin {
 
     @Override
     public void setSolver(Solver solver) {
-        csManager = solver.getCSManager();
+        this.solver = solver;
+        this.csManager = solver.getCSManager();
     }
 
     @Override
@@ -116,10 +123,25 @@ public class Profiler implements Plugin {
                             .add(times.get()));
             reportTop(out, "class containers (of frequently-visited variables)",
                     classVarVisited, JClass::toString);
+            // count and report points-to sets counter
+            PointerAnalysisResult ptaResult = solver.getResult();
+            reportPtsTop(out, "points-to set of variables", ptaResult.getCSVars());
+            reportPtsTop(out, "points-to set of static fields", ptaResult.getStaticFields());
+            reportPtsTop(out, "points-to set of instance fields", ptaResult.getInstanceFields());
+            reportPtsTop(out, "points-to set of array indexes", ptaResult.getArrayIndexes());
         } catch (FileNotFoundException e) {
             logger.warn("Failed to write pointer analysis profile to {}, caused by {}",
                     outFile.getAbsolutePath(), e);
         }
+    }
+
+    private static void reportPtsTop(
+            PrintStream out, String desc,
+            Collection<? extends Pointer> pointers) {
+        Map<Pointer, MutableInt> map = pointers.stream()
+            .collect(Collectors.toMap(Function.identity(),
+                o -> new MutableInt(o.getObjects().size())));
+        reportTop(out, desc, map, Object::toString);
     }
 
     private static <E> void reportTop(
