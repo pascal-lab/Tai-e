@@ -334,9 +334,9 @@ public class DefaultSolver implements Solver {
             Var fromVar = store.getRValue();
             if (isConcerned(fromVar)) {
                 CSVar from = csManager.getCSVar(context, fromVar);
+                JField field = store.getFieldRef().resolve();
                 pts.forEach(baseObj -> {
-                    InstanceField instField = csManager.getInstanceField(
-                            baseObj, store.getFieldRef().resolve());
+                    InstanceField instField = csManager.getInstanceField(baseObj, field);
                     addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
                 });
             }
@@ -356,9 +356,9 @@ public class DefaultSolver implements Solver {
             Var toVar = load.getLValue();
             if (isConcerned(toVar)) {
                 CSVar to = csManager.getCSVar(context, toVar);
+                JField field = load.getFieldRef().resolve();
                 pts.forEach(baseObj -> {
-                    InstanceField instField = csManager.getInstanceField(
-                            baseObj, load.getFieldRef().resolve());
+                    InstanceField instField = csManager.getInstanceField(baseObj, field);
                     addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
                 });
             }
