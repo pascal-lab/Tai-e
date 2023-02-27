@@ -102,7 +102,7 @@ public class Profiler implements Plugin {
             varVisited.forEach((v, times) ->
                     methodVarVisited.computeIfAbsent(v.getMethod(),
                                     unused -> new MutableInt(0))
-                            .add(times.get()));
+                            .add(times.intValue()));
             reportTop(out, "method containers (of frequently-visited variables)",
                     methodVarVisited, JMethod::toString);
             Map<CSMethod, MutableInt> csMethodVarVisited = Maps.newMap();
@@ -111,7 +111,7 @@ public class Profiler implements Plugin {
                         v.getContext(), v.getVar().getMethod());
                 csMethodVarVisited.computeIfAbsent(method,
                                 unused -> new MutableInt(0))
-                        .add(times.get());
+                        .add(times.intValue());
             });
             reportTop(out, "CS method containers (of frequently-visited CS variables)",
                     csMethodVarVisited, CSMethod::toString);
@@ -120,7 +120,7 @@ public class Profiler implements Plugin {
             methodVarVisited.forEach((m, times) ->
                     classVarVisited.computeIfAbsent(m.getDeclaringClass(),
                                     unused -> new MutableInt(0))
-                            .add(times.get()));
+                            .add(times.intValue()));
             reportTop(out, "class containers (of frequently-visited variables)",
                     classVarVisited, JClass::toString);
             // count and report points-to sets counter
@@ -136,21 +136,20 @@ public class Profiler implements Plugin {
     }
 
     private static void reportPtsTop(
-            PrintStream out, String desc,
-            Collection<? extends Pointer> pointers) {
-        Map<Pointer, MutableInt> map = pointers.stream()
-            .collect(Collectors.toMap(Function.identity(),
-                o -> new MutableInt(o.getObjects().size())));
+            PrintStream out, String desc, Collection<? extends Pointer> pointers) {
+        Map<Pointer, Integer> map = pointers.stream()
+                .collect(Collectors.toMap(Function.identity(),
+                        o -> o.getObjects().size()));
         reportTop(out, desc, map, Object::toString);
     }
 
     private static <E> void reportTop(
             PrintStream out, String desc,
-            Map<E, MutableInt> visited, Function<E, String> toString) {
+            Map<E, ? extends Number> visited, Function<E, String> toString) {
         out.printf("Top %d %s:%n", TOP_N, desc);
         // obtain top N elements
         PriorityQueue<E> topQueue = new PriorityQueue<>(TOP_N,
-                Comparator.comparingInt(e -> visited.get(e).get()));
+                Comparator.comparingInt(e -> visited.get(e).intValue()));
         visited.keySet().forEach(e -> {
             topQueue.add(e);
             if (topQueue.size() > TOP_N) {
@@ -162,7 +161,7 @@ public class Profiler implements Plugin {
         topQueue.stream()
                 .sorted(topQueue.comparator().reversed())
                 .forEach(e -> out.printf("%s\t%s%n",
-                        visited.get(e).get(), toString.apply(e)));
+                        visited.get(e).intValue(), toString.apply(e)));
         out.println();
     }
 }

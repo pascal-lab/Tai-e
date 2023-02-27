@@ -25,7 +25,7 @@ package pascal.taie.util;
 /**
  * A mutable int wrapper.
  */
-public class MutableInt {
+public class MutableInt extends Number implements Comparable<Number> {
 
     private int value;
 
@@ -34,13 +34,6 @@ public class MutableInt {
      */
     public MutableInt(int initialValue) {
         this.value = initialValue;
-    }
-
-    /**
-     * @return the current value.
-     */
-    public int get() {
-        return value;
     }
 
     /**
@@ -58,14 +51,39 @@ public class MutableInt {
     }
 
     @Override
+    public int intValue() {
+        return value;
+    }
+
+    @Override
+    public long longValue() {
+        return value;
+    }
+
+    @Override
+    public float floatValue() {
+        return value;
+    }
+
+    @Override
+    public double doubleValue() {
+        return value;
+    }
+
+    @Override
+    public int compareTo(Number number) {
+        return value - number.intValue();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof MutableInt other)) {
+        if (!(o instanceof Number other)) {
             return false;
         }
-        return value == other.value;
+        return value == other.intValue();
     }
 
     @Override

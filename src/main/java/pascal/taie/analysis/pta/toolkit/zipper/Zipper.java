@@ -181,7 +181,7 @@ public class Zipper {
         if (isExpress) {
             int accPts = 0;
             for (JMethod m : pcms) {
-                accPts += methodPts.get(m).get();
+                accPts += methodPts.get(m).intValue();
             }
             if (accPts > pcmThreshold) {
                 // clear precision-critical method group whose accumulative
