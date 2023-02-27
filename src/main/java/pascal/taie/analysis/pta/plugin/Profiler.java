@@ -162,7 +162,7 @@ public class Profiler implements Plugin {
         topQueue.stream()
                 .sorted(topQueue.comparator().reversed())
                 .forEach(e -> out.printf("%s\t%s%n",
-                        toString.apply(e), visited.get(e).get()));
+                        visited.get(e).get(), toString.apply(e)));
         out.println();
     }
 }
