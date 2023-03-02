@@ -29,6 +29,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisPlanner;
 import pascal.taie.config.ConfigManager;
 import pascal.taie.config.Configs;
+import pascal.taie.config.LoggerConfigs;
 import pascal.taie.config.Options;
 import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
@@ -46,8 +47,10 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        LoggerConfigs.reconfigure();
         Timer.runAndCount(() -> {
             Options options = processArgs(args);
+            LoggerConfigs.setOutput(options.getOutputDir());
             Plan plan = processConfigs(options);
             if (plan.analyses().isEmpty()) {
                 logger.info("No analyses are specified");
@@ -109,7 +112,9 @@ public class Main {
      * Convenient method for building the world from String arguments.
      */
     public static void buildWorld(String... args) {
+        LoggerConfigs.reconfigure();
         Options options = Options.parse(args);
+        LoggerConfigs.setOutput(options.getOutputDir());
         Plan plan = processConfigs(options);
         buildWorld(options, plan.analyses());
     }
