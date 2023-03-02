@@ -35,7 +35,7 @@ import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.HierarchyTest;
 import pascal.taie.language.TypeTest;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.classes.StringRepsTest;
 import pascal.taie.util.UtilTestSuite;
 
 @RunWith(Suite.class)
@@ -53,9 +53,9 @@ import pascal.taie.util.UtilTestSuite;
         CHATestFull.class,
         PTATestSuite.class,
         // util
-        StringReps.class,
         OptionsTest.class,
         UtilTestSuite.class,
+        StringRepsTest.class,
 })
 public class TaieTestSuite {
 }

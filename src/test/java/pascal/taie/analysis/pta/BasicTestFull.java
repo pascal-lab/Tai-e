@@ -60,7 +60,7 @@ public class BasicTestFull extends BasicTest {
 
     @Test
     public void testStrings() {
-        Tests.testPTA(DIR, "Strings");
+        Tests.testPTA(DIR, "Strings", "distinguish-string-constants:all");
     }
 
     @Test

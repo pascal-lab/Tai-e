@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<TypeSens: void main(java.lang.String[])>/r0 -> [[]:ConstantObj{java.lang.String: "xxx"}]
+[]:<TypeSens: void main(java.lang.String[])>/r0 -> [[]:MergedObj{<Merged string constants>}]
 []:<TypeSens: void main(java.lang.String[])>/r1 -> [[]:ConstantObj{java.lang.Class: TypeSens.class}]
 []:<TypeSens: void main(java.lang.String[])>/r2 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TypeSens: void main(java.lang.String[])>}]
 
