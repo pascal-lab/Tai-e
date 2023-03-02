@@ -41,7 +41,7 @@ public final class LoggerConfigs {
 
     private static final Logger logger = LogManager.getLogger(LoggerConfigs.class);
 
-    private static final String LOG_FILE = "tai-e-log.txt";
+    private static final String LOG_FILE = "tai-e.log";
 
     /**
      * The name of the console appender added in log4j2.yml
@@ -87,6 +87,6 @@ public final class LoggerConfigs {
         LoggerConfig rootLogger = config.getRootLogger();
         rootLogger.addAppender(fileAppender, rootLogger.getLevel(), rootLogger.getFilter());
         fileAppender.start();
-        logger.info("Log file: {}", fileAppender.getFileName());
+        logger.info("Writing log to: {}", fileAppender.getFileName());
     }
 }

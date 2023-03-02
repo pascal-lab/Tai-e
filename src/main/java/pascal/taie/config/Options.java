@@ -66,10 +66,6 @@ public class Options {
             description = "The options file")
     private File optionsFile;
 
-    public File getOptionsFile() {
-        return optionsFile;
-    }
-
     // ---------- information options ----------
     @JsonProperty
     @Option(names = {"-h", "--help"},
@@ -313,7 +309,7 @@ public class Options {
         if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
-        logger.info("Output dir is: {}", outputDir.getAbsolutePath());
+        logger.info("Output directory: {}", outputDir.getAbsolutePath());
         // TODO: turn off output in testing?
         if (options.optionsFile == null) {
             // write options to file only when it is not given

@@ -47,7 +47,6 @@ public class IsReflectionString implements Predicate<String> {
                     .map(ClassMember::getName)
                     .forEach(reflectionStrings::add);
         });
-        System.out.println(reflectionStrings.size() + " reflection strings");
     }
 
     @Override
