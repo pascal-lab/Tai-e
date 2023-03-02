@@ -5,7 +5,11 @@
     cs: ci # | k-[obj|type|call][-k'h]
     only-app: false # only analyze application code
     implicit-entries: true # analyze implicit entries
-    merge-string-constants: false
+    distinguish-string-constants: reflection # (distinguish reflection-relevant
+    # string constants, i.e., class, method, and field names)
+    # | null (do not distinguish any string constants)
+    # | all (distinguish all string constants)
+    # | <predicate-class-name>
     merge-string-objects: true
     merge-string-builders: true
     merge-exception-objects: true

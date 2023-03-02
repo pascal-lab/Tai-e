@@ -24,20 +24,26 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
+import pascal.taie.config.ConfigException;
 import pascal.taie.ir.exp.ReferenceLiteral;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.Predicates;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
@@ -50,7 +56,11 @@ import static pascal.taie.language.classes.ClassNames.THROWABLE;
  */
 public abstract class AbstractHeapModel implements HeapModel {
 
-    private final boolean isMergeStringConstants;
+    /**
+     * Predicate used to check whether a given string constant
+     * in the program should be distinguished.
+     */
+    private final Predicate<String> isDistinguishedSC;
 
     private final boolean isMergeStringObjects;
 
@@ -90,7 +100,8 @@ public abstract class AbstractHeapModel implements HeapModel {
     private final List<Obj> objs = new ArrayList<>(1024);
 
     protected AbstractHeapModel(AnalysisOptions options) {
-        isMergeStringConstants = options.getBoolean("merge-string-constants");
+        isDistinguishedSC = getSCPredicate(
+                options.getString("distinguish-string-constants"));
         isMergeStringObjects = options.getBoolean("merge-string-objects");
         isMergeStringBuilders = options.getBoolean("merge-string-builders");
         isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
@@ -100,6 +111,31 @@ public abstract class AbstractHeapModel implements HeapModel {
         stringBuffer = typeSystem.getClassType(STRING_BUFFER);
         throwable = typeSystem.getClassType(THROWABLE);
         mergedSC = add(new MergedObj(string, "<Merged string constants>"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Predicate<String> getSCPredicate(String option) {
+        if (option == null) {
+            return Predicates.alwaysFalse();
+        } else {
+            return switch (option) {
+                case "reflection" -> new IsReflectionString();
+                case "all" -> Predicates.alwaysTrue();
+                default -> { // in this case, we assume that 'option' is name
+                    // of the predicate class
+                    try {
+                        Class<?> clazz = Class.forName(option);
+                        Constructor<?> ctor = clazz.getConstructor();
+                        yield (Predicate<String>) ctor.newInstance();
+                    } catch (ClassNotFoundException | NoSuchMethodException |
+                             InvocationTargetException | InstantiationException |
+                             IllegalAccessException e) {
+                        throw new ConfigException("Failed to initialize custom predicate "
+                                + option + " for distinguishing string constants", e);
+                    }
+                }
+            };
+        }
     }
 
     @Override
@@ -145,7 +181,8 @@ public abstract class AbstractHeapModel implements HeapModel {
     @Override
     public Obj getConstantObj(ReferenceLiteral value) {
         Obj obj = doGetConstantObj(value);
-        if (isMergeStringConstants && value.getType().equals(string)) {
+        if (value instanceof StringLiteral stringLiteral
+                && !isDistinguishedSC.test(stringLiteral.getString())) {
             mergedSC.addRepresentedObj(obj);
             return mergedSC;
         }
