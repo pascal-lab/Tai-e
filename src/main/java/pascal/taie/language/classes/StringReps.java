@@ -26,6 +26,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -136,7 +137,7 @@ public final class StringReps {
     }
 
     /**
-     * Given a array type name, returns the type name of base type of the array.
+     * Given an array type name, returns the type name of base type of the array.
      */
     public static String getBaseTypeNameOf(String arrayTypeName) {
         return arrayTypeName.replace("[]", "");
@@ -175,5 +176,51 @@ public final class StringReps {
         } else {
             return baseType + "[]".repeat(dimensions);
         }
+    }
+
+
+    /**
+     * @return {@code true} if the given string is a valid Java identifier.
+     */
+    public static boolean isJavaIdentifier(@Nullable String name) {
+        if (name == null || name.isEmpty()) {
+            return false;
+        }
+        if (!Character.isJavaIdentifierStart(name.charAt(0))) {
+            return false;
+        }
+        for (int i = 1; i < name.length(); i++) {
+            if (!Character.isJavaIdentifierPart(name.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return {@code true} if the given string is a valid fully-qualified name
+     * of a Java class.
+     */
+    public static boolean isJavaClassName(@Nullable String className) {
+        if (className == null || className.isEmpty()) {
+            return false;
+        }
+        boolean inIdentifierStart = true;
+        for (int i = 0; i < className.length(); i++) {
+            char c = className.charAt(i);
+            if (inIdentifierStart) {
+                if (!Character.isJavaIdentifierStart(c)) {
+                    return false;
+                }
+                inIdentifierStart = false;
+            } else {
+                if (c == '.') {
+                    inIdentifierStart = true;
+                } else if (!Character.isJavaIdentifierPart(c)) {
+                    return false;
+                }
+            }
+        }
+        return !inIdentifierStart;
     }
 }
