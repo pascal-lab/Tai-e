@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -37,9 +38,9 @@ import pascal.taie.language.type.TypeSystem;
 abstract class MetaObjModel extends AbstractModel {
 
     /**
-     * Description for reflection meta-objects.
+     * Descriptor for reflection meta objects.
      */
-    private final static String META_DESC = "ReflectionMetaObj";
+    private final static Descriptor META_DESC = () -> "ReflectionMetaObj";
 
     private final ClassType constructor;
 

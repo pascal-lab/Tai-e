@@ -42,6 +42,7 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -97,9 +98,9 @@ public class DefaultSolver implements Solver {
     private static final Logger logger = LogManager.getLogger(DefaultSolver.class);
 
     /**
-     * Description for array objects created implicitly by multiarray instruction.
+     * Descriptor for array objects created implicitly by multiarray instruction.
      */
-    private static final String MULTI_ARRAY_DESC = "MultiArrayObj";
+    private static final Descriptor MULTI_ARRAY_DESC = () -> "MultiArrayObj";
 
     /**
      * Number that represents unlimited elapsed time.

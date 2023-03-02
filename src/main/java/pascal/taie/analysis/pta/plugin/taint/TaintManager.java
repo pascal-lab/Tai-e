@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -33,7 +34,7 @@ import pascal.taie.util.AnalysisException;
  */
 class TaintManager {
 
-    private static final String TAINT_DESC = "TaintObj";
+    private static final Descriptor TAINT_DESC = () -> "TaintObj";
 
     private final HeapModel heapModel;
 
@@ -57,7 +58,7 @@ class TaintManager {
      */
     boolean isTaint(Obj obj) {
         return obj instanceof MockObj &&
-                ((MockObj) obj).getDescription().equals(TAINT_DESC);
+                ((MockObj) obj).getDescriptor().equals(TAINT_DESC);
     }
 
     /**

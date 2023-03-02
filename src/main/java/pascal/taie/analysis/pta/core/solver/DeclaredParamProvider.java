@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.classes.JMethod;
@@ -37,6 +38,26 @@ import java.util.Set;
  */
 public class DeclaredParamProvider implements ParamProvider {
 
+    /**
+     * Special index representing "this" variable.
+     */
+    private static final int THIS_INDEX = -1;
+
+    /**
+     * Represents combination of a method and a parameter index.
+     *
+     * @param method the entry method
+     * @param index  the index of the parameter
+     */
+    private record MethodParam(JMethod method, int index) {
+
+        @Override
+        public String toString() {
+            return "MethodParam{" + method + '/' +
+                    (index == THIS_INDEX ? "this" : index) + '}';
+        }
+    }
+
     private final JMethod method;
 
     private final HeapModel heapModel;
@@ -51,13 +72,10 @@ public class DeclaredParamProvider implements ParamProvider {
         if (method.isStatic() || method.getDeclaringClass().isAbstract()) {
             return Set.of();
         } else {
-            return Set.of(heapModel.getMockObj(getThisObjDesc(), this,
+            return Set.of(heapModel.getMockObj(Descriptor.ENTRY_DESC,
+                    new MethodParam(method, THIS_INDEX),
                     method.getDeclaringClass().getType(), method));
         }
-    }
-
-    private String getThisObjDesc() {
-        return "EntryPointObj-" + method + "/this";
     }
 
     @Override
@@ -65,14 +83,10 @@ public class DeclaredParamProvider implements ParamProvider {
         if (method.getParamType(i) instanceof ReferenceType refType) {
             if (refType instanceof ClassType cType &&
                     !cType.getJClass().isAbstract()) {
-                return Set.of(heapModel.getMockObj(
-                        getParamObjDesc(i), this, refType, method));
+                return Set.of(heapModel.getMockObj(Descriptor.ENTRY_DESC,
+                        new MethodParam(method, i), refType, method));
             }
         }
         return Set.of();
-    }
-
-    private String getParamObjDesc(int i) {
-        return "EntryPointObj-" + method + '/' + i;
     }
 }

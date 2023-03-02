@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.EntryPoint;
@@ -108,8 +109,8 @@ public class ThreadHandler implements Plugin {
         JMethod threadGroupInit = requireNonNull(
                 hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>()>"));
         ClassType threadGroup = typeSystem.getClassType(ClassNames.THREAD_GROUP);
-        Obj systemThreadGroup = heapModel.getMockObj(
-                "EntryPointObj", "<system-thread-group>", threadGroup);
+        Obj systemThreadGroup = heapModel.getMockObj(Descriptor.ENTRY_DESC,
+                "<system-thread-group>", threadGroup);
         solver.addEntryPoint(new EntryPoint(threadGroupInit,
                 new SpecifiedParamProvider.Builder(threadGroupInit)
                         .addThisObj(systemThreadGroup)
@@ -118,8 +119,8 @@ public class ThreadHandler implements Plugin {
         // setup main thread group
         JMethod threadGroupInit2 = requireNonNull(
                 hierarchy.getJREMethod("<java.lang.ThreadGroup: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
-        Obj mainThreadGroup = heapModel.getMockObj(
-                "EntryPointObj", "<main-thread-group>", threadGroup);
+        Obj mainThreadGroup = heapModel.getMockObj(Descriptor.ENTRY_DESC,
+                "<main-thread-group>", threadGroup);
         Obj main = heapModel.getConstantObj(StringLiteral.get("main"));
         solver.addEntryPoint(new EntryPoint(threadGroupInit2,
                 new SpecifiedParamProvider.Builder(threadGroupInit2)
@@ -131,8 +132,8 @@ public class ThreadHandler implements Plugin {
         // setup main thread
         JMethod threadInit = requireNonNull(
                 hierarchy.getJREMethod("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>"));
-        Obj mainThread = heapModel.getMockObj("EntryPointObj", "<main-thread>",
-                typeSystem.getClassType(ClassNames.THREAD));
+        Obj mainThread = heapModel.getMockObj(Descriptor.ENTRY_DESC,
+                "<main-thread>", typeSystem.getClassType(ClassNames.THREAD));
         solver.addEntryPoint(new EntryPoint(threadInit,
                 new SpecifiedParamProvider.Builder(threadInit)
                         .addThisObj(mainThread)

@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -59,14 +60,14 @@ import java.util.stream.Stream;
 public class LambdaAnalysis implements Plugin {
 
     /**
-     * Description for lambda functional objects.
+     * Descriptor for lambda functional objects.
      */
-    private static final String LAMBDA_DESC = "LambdaObj";
+    private static final Descriptor LAMBDA_DESC = () -> "LambdaObj";
 
     /**
-     * Description for objects created by lambda constructor.
+     * Descriptor for objects created by lambda constructor.
      */
-    private static final String LAMBDA_NEW_DESC = "LambdaConstructedObj";
+    private static final Descriptor LAMBDA_NEW_DESC = () -> "LambdaConstructedObj";
 
     private Solver solver;
 
@@ -222,7 +223,7 @@ public class LambdaAnalysis implements Plugin {
 
     private static boolean isLambdaObj(Obj obj) {
         return obj instanceof MockObj mockObj &&
-                mockObj.getDescription().equals(LAMBDA_DESC);
+                mockObj.getDescriptor().equals(LAMBDA_DESC);
     }
 
     /**

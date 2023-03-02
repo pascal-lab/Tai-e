@@ -29,6 +29,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -72,9 +73,9 @@ import static pascal.taie.analysis.pta.core.solver.PointerFlowEdge.Kind.STATIC_S
 class ReflectiveActionModel extends AbstractModel {
 
     /**
-     * Description for objects created by reflective newInstance() calls.
+     * Descriptor for objects created by reflective newInstance() calls.
      */
-    private final static String REF_OBJ_DESC = "ReflectiveObj";
+    private final static Descriptor REF_OBJ_DESC = () -> "ReflectiveObj";
 
     private final Subsignature initNoArg;
 

@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.toolkit.mahjong;
 
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.type.Type;
@@ -34,8 +35,10 @@ import java.util.function.Predicate;
 
 class NFA {
 
+    private static final Descriptor DEAD_STATE_DESC = () -> "DeadState";
+
     private static final Obj DEAD_STATE = new MockObj(
-            "DeadState", null, null, null);
+            DEAD_STATE_DESC, null, null, null);
 
     private final Obj q0;
 

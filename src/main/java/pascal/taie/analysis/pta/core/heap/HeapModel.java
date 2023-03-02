@@ -51,12 +51,12 @@ public interface HeapModel extends Indexer<Obj> {
     /**
      * @return the mock object for given arguments.
      */
-    Obj getMockObj(String desc, Object alloc, Type type, JMethod container);
+    Obj getMockObj(Descriptor desc, Object alloc, Type type, JMethod container);
 
     /**
      * @return the mock object for given arguments.
      */
-    default Obj getMockObj(String desc, Object alloc, Type type) {
+    default Obj getMockObj(Descriptor desc, Object alloc, Type type) {
         return getMockObj(desc, alloc, type, null);
     }
 

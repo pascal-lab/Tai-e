@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
@@ -146,7 +147,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     /**
      * Description for MethodHandles.Lookup objects.
      */
-    private static final String LOOKUP_DESC = "MethodHandlesLookupObj";
+    private static final Descriptor LOOKUP_DESC = () -> "MethodHandlesLookupObj";
 
     /**
      * Map from class type to corresponding Method.Lookup object.
