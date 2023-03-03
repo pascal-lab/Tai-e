@@ -59,6 +59,13 @@ public class BasicTestFull extends BasicTest {
     }
 
     @Test
+    public void testPrimitives() {
+        Tests.testPTA(DIR, "Primitives",
+                "propagate-types:[reference,int,double];" +
+                        "plugins:[pascal.taie.analysis.pta.plugin.NumberLiteralHandler]");
+    }
+
+    @Test
     public void testStrings() {
         Tests.testPTA(DIR, "Strings", "distinguish-string-constants:all");
     }

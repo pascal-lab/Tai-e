@@ -13,7 +13,7 @@ class C {
         n2 = new Two();
         x = this.id(n1);
         y = this.id(n2);
-        int i = x.get(); // x -> ?, i = ?
+        int i = x.get(); // x -> new One, i = 1
     }
 
     Number id(Number n) {

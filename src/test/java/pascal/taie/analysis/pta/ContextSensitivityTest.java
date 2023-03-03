@@ -35,7 +35,9 @@ public class ContextSensitivityTest {
     // Basic tests
     @Test
     public void testOneCall() {
-        Tests.testPTA(DIR, "OneCall", "cs:1-call");
+        Tests.testPTA(DIR, "OneCall", "cs:1-call;" +
+                "propagate-types:[reference,int];" +
+                "plugins:[pascal.taie.analysis.pta.plugin.NumberLiteralHandler]");
     }
 
     @Test
