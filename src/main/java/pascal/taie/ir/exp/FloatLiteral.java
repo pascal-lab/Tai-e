@@ -51,6 +51,11 @@ public class FloatLiteral implements FloatingPointLiteral {
     }
 
     @Override
+    public Float getNumber() {
+        return value;
+    }
+
+    @Override
     public <T> T accept(ExpVisitor<T> visitor) {
         return visitor.visit(this);
     }

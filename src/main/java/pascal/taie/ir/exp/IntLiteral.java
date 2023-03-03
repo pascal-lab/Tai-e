@@ -70,6 +70,11 @@ public class IntLiteral implements IntegerLiteral {
     }
 
     @Override
+    public Integer getNumber() {
+        return value;
+    }
+
+    @Override
     public <T> T accept(ExpVisitor<T> visitor) {
         return visitor.visit(this);
     }

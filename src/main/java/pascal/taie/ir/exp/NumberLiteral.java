@@ -22,5 +22,7 @@
 
 package pascal.taie.ir.exp;
 
-public interface IntegerLiteral extends NumberLiteral {
+public interface NumberLiteral extends Literal {
+
+    Number getNumber();
 }
