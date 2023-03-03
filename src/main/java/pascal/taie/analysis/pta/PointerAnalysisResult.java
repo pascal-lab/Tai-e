@@ -32,7 +32,6 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.ArrayAccess;
-import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.StaticFieldAccess;
@@ -50,16 +49,9 @@ import java.util.Set;
  * Represents results of pointer analysis.
  * This class provides various API for querying points-to sets of
  * different kinds of pointer-accessing expressions. For the expressions
- * that are not concerned (return value of {@link #isConcerned(Exp)} is false),
- * an empty set is returned.
+ * that are ignored by pointer analysis, an empty set is returned.
  */
 public interface PointerAnalysisResult extends ResultHolder {
-
-    /**
-     * @return @{code true} if the type of given expression is concerned
-     * in pointer analysis, otherwise {@code false}.
-     */
-    boolean isConcerned(Exp exp);
 
     /**
      * @return all reachable context-sensitive variables in the program.

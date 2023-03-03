@@ -52,7 +52,6 @@ import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.CastExp;
-import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Literal;
@@ -79,13 +78,13 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
-import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -120,6 +119,8 @@ public class DefaultSolver implements Solver {
     private final TypeSystem typeSystem;
 
     private final PointsToSetFactory ptsFactory;
+
+    private final PropagateTypes propTypes;
 
     /**
      * Whether only analyzes application code.
@@ -160,6 +161,7 @@ public class DefaultSolver implements Solver {
 
     private PointerAnalysisResult result;
 
+    @SuppressWarnings("unchecked")
     public DefaultSolver(AnalysisOptions options, HeapModel heapModel,
                          ContextSelector contextSelector, CSManager csManager) {
         this.options = options;
@@ -169,6 +171,7 @@ public class DefaultSolver implements Solver {
         hierarchy = World.get().getClassHierarchy();
         typeSystem = World.get().getTypeSystem();
         ptsFactory = new PointsToSetFactory(csManager.getObjectIndexer());
+        propTypes = new PropagateTypes((List<String>) options.get("propagate-types"));
         onlyApp = options.getBoolean("only-app");
         timeLimit = options.getInt("time-limit");
     }
@@ -333,7 +336,7 @@ public class DefaultSolver implements Solver {
         Var var = baseVar.getVar();
         for (StoreField store : var.getStoreFields()) {
             Var fromVar = store.getRValue();
-            if (isConcerned(fromVar)) {
+            if (propTypes.isAllowed(fromVar)) {
                 CSVar from = csManager.getCSVar(context, fromVar);
                 JField field = store.getFieldRef().resolve();
                 pts.forEach(baseObj -> {
@@ -355,7 +358,7 @@ public class DefaultSolver implements Solver {
         Var var = baseVar.getVar();
         for (LoadField load : var.getLoadFields()) {
             Var toVar = load.getLValue();
-            if (isConcerned(toVar)) {
+            if (propTypes.isAllowed(toVar)) {
                 CSVar to = csManager.getCSVar(context, toVar);
                 JField field = load.getFieldRef().resolve();
                 pts.forEach(baseObj -> {
@@ -377,7 +380,7 @@ public class DefaultSolver implements Solver {
         Var var = arrayVar.getVar();
         for (StoreArray store : var.getStoreArrays()) {
             Var rvalue = store.getRValue();
-            if (isConcerned(rvalue)) {
+            if (propTypes.isAllowed(rvalue)) {
                 CSVar from = csManager.getCSVar(context, rvalue);
                 pts.forEach(array -> {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
@@ -401,7 +404,7 @@ public class DefaultSolver implements Solver {
         Var var = arrayVar.getVar();
         for (LoadArray load : var.getLoadArrays()) {
             Var lvalue = load.getLValue();
-            if (isConcerned(lvalue)) {
+            if (propTypes.isAllowed(lvalue)) {
                 CSVar to = csManager.getCSVar(context, lvalue);
                 pts.forEach(array -> {
                     ArrayIndex arrayIndex = csManager.getArrayIndex(array);
@@ -461,7 +464,7 @@ public class DefaultSolver implements Solver {
                 // pass arguments to parameters
                 for (int i = 0; i < invokeExp.getArgCount(); ++i) {
                     Var arg = invokeExp.getArg(i);
-                    if (isConcerned(arg)) {
+                    if (propTypes.isAllowed(arg)) {
                         Var param = callee.getIR().getParam(i);
                         CSVar argVar = csManager.getCSVar(callerCtx, arg);
                         CSVar paramVar = csManager.getCSVar(calleeCtx, param);
@@ -470,10 +473,10 @@ public class DefaultSolver implements Solver {
                 }
                 // pass results to LHS variable
                 Var lhs = callSite.getResult();
-                if (lhs != null && isConcerned(lhs)) {
+                if (lhs != null && propTypes.isAllowed(lhs)) {
                     CSVar csLHS = csManager.getCSVar(callerCtx, lhs);
                     for (Var ret : callee.getIR().getReturnVars()) {
-                        if (isConcerned(ret)) {
+                        if (propTypes.isAllowed(ret)) {
                             CSVar csRet = csManager.getCSVar(calleeCtx, ret);
                             addPFGEdge(csRet, csLHS, PointerFlowEdge.Kind.RETURN);
                         }
@@ -496,15 +499,6 @@ public class DefaultSolver implements Solver {
         if (reachableMethods.add(method)) {
             plugin.onNewMethod(method);
         }
-    }
-
-    /**
-     * @return true if the type of given expression is concerned in
-     * pointer analysis, otherwise false.
-     */
-    private static boolean isConcerned(Exp exp) {
-        Type type = exp.getType();
-        return type instanceof ReferenceType && !(type instanceof NullType);
     }
 
     private class StmtProcessor {
@@ -621,7 +615,9 @@ public class DefaultSolver implements Solver {
             @Override
             public Void visit(AssignLiteral stmt) {
                 Literal literal = stmt.getRValue();
-                if (isConcerned(literal)) {
+                if (literal.getType() instanceof ReferenceType type
+                        && !(type instanceof NullType)) {
+                    // by default, we only generate objects of non-null reference type
                     Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
                     Context heapContext = contextSelector
                             .selectHeapContext(csMethod, obj);
@@ -633,7 +629,7 @@ public class DefaultSolver implements Solver {
             @Override
             public Void visit(Copy stmt) {
                 Var rvalue = stmt.getRValue();
-                if (isConcerned(rvalue)) {
+                if (propTypes.isAllowed(rvalue)) {
                     CSVar from = csManager.getCSVar(context, rvalue);
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
                     addPFGEdge(from, to, PointerFlowEdge.Kind.LOCAL_ASSIGN);
@@ -644,7 +640,7 @@ public class DefaultSolver implements Solver {
             @Override
             public Void visit(Cast stmt) {
                 CastExp cast = stmt.getRValue();
-                if (isConcerned(cast.getValue())) {
+                if (propTypes.isAllowed(cast.getValue())) {
                     CSVar from = csManager.getCSVar(context, cast.getValue());
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
                     addPFGEdge(from, to, PointerFlowEdge.Kind.CAST, cast.getType());
@@ -657,7 +653,7 @@ public class DefaultSolver implements Solver {
              */
             @Override
             public Void visit(LoadField stmt) {
-                if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
+                if (stmt.isStatic() && propTypes.isAllowed(stmt.getRValue())) {
                     JField field = stmt.getFieldRef().resolve();
                     StaticField sfield = csManager.getStaticField(field);
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
@@ -671,7 +667,7 @@ public class DefaultSolver implements Solver {
              */
             @Override
             public Void visit(StoreField stmt) {
-                if (stmt.isStatic() && isConcerned(stmt.getRValue())) {
+                if (stmt.isStatic() && propTypes.isAllowed(stmt.getRValue())) {
                     JField field = stmt.getFieldRef().resolve();
                     StaticField sfield = csManager.getStaticField(field);
                     CSVar from = csManager.getCSVar(context, stmt.getRValue());
@@ -756,7 +752,7 @@ public class DefaultSolver implements Solver {
         // pass parameter objects
         for (int i = 0; i < entryMethod.getParamCount(); ++i) {
             Var param = ir.getParam(i);
-            if (isConcerned(param)) {
+            if (propTypes.isAllowed(param)) {
                 for (Obj paramObj : entryPoint.getParamObjs(i)) {
                     addVarPointsTo(entryCtx, param, entryCtx, paramObj);
                 }
@@ -820,7 +816,8 @@ public class DefaultSolver implements Solver {
     @Override
     public PointerAnalysisResult getResult() {
         if (result == null) {
-            result = new PointerAnalysisResultImpl(csManager, heapModel, callGraph);
+            result = new PointerAnalysisResultImpl(
+                    propTypes, csManager, heapModel, callGraph);
         }
         return result;
     }

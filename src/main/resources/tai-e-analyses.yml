@@ -14,6 +14,7 @@
     merge-string-builders: true
     merge-exception-objects: true
     handle-invokedynamic: false
+    propagate-types: [ reference ] # ,null,int,long,...(other primitive types)
     advanced: null # specify advanced analysis:
     # zipper | zipper-e | zipper-e=PV
     # scaler | scaler=TST
@@ -55,7 +56,7 @@
   requires: [ pta(algorithm=pta) ] # only required by pta-based analysis
   options:
     exception: explicit # | all (includes implicit and explicit exceptions)
-    algorithm: intra # | pta
+    algorithm: intra # | pta (pointer analysis based throw analysis)
 
 - description: intraprocedural control-flow graph
   analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder

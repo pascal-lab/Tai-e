@@ -24,8 +24,12 @@ package pascal.taie.analysis.pta.toolkit.mahjong;
 
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
@@ -51,7 +55,7 @@ class FieldPointsToGraph {
         Field.Factory factory = new Field.Factory();
         pta.getVars().parallelStream().forEach(var -> {
             for (LoadField load : var.getLoadFields()) {
-                if (pta.isConcerned(load.getRValue())) {
+                if (isConcerned(load.getRValue())) {
                     for (Obj baseObj : pta.getPointsToSet(var)) {
                         Field field = factory.get(load.getFieldRef().resolve());
                         Set<Obj> pts = pta.getPointsToSet(load.getRValue());
@@ -60,7 +64,7 @@ class FieldPointsToGraph {
                 }
             }
             for (LoadArray load : var.getLoadArrays()) {
-                if (pta.isConcerned(load.getRValue())) {
+                if (isConcerned(load.getRValue())) {
                     for (Obj baseObj : pta.getPointsToSet(var)) {
                         Field field = factory.getArrayIndex();
                         Set<Obj> pts = pta.getPointsToSet(load.getRValue());
@@ -69,6 +73,11 @@ class FieldPointsToGraph {
                 }
             }
         });
+    }
+
+    private static boolean isConcerned(Exp exp) {
+        Type type = exp.getType();
+        return type instanceof ReferenceType && !(type instanceof NullType);
     }
 
     private void addFieldPointsTo(Obj baseObj, Field field, Set<Obj> pts) {
