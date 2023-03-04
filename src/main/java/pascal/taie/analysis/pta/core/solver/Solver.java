@@ -46,6 +46,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 
 public interface Solver {
 
@@ -102,6 +103,14 @@ public interface Solver {
     void addVarPointsTo(Context context, Var var, CSObj csObj);
 
     void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj);
+
+    /**
+     * Adds an object filter to given pointer.
+     * Note that the filter works only after it is added to the pointer,
+     * and it cannot filter out the objects pointed to by the pointer
+     * before it is added.
+     */
+    void addPointerFilter(Pointer pointer, Predicate<CSObj> filter);
 
     /**
      * Adds an edge "source -> target" to the PFG.

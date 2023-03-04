@@ -88,6 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static pascal.taie.language.classes.Signatures.FINALIZE;
 import static pascal.taie.language.classes.Signatures.FINALIZER_REGISTER;
@@ -317,6 +318,13 @@ public class DefaultSolver implements Solver {
      */
     private PointsToSet propagate(Pointer pointer, PointsToSet pointsToSet) {
         logger.trace("Propagate {} to {}", pointsToSet, pointer);
+        Set<Predicate<CSObj>> filters = pointer.getFilters();
+        if (!filters.isEmpty()) {
+            // apply filters (of the pointer) on pointsToSet
+            pointsToSet = pointsToSet.objects()
+                    .filter(o -> filters.stream().allMatch(f -> f.test(o)))
+                    .collect(ptsFactory::make, PointsToSet::addObject, PointsToSet::addAll);
+        }
         PointsToSet diff = getPointsToSetOf(pointer).addAllDiff(pointsToSet);
         if (!diff.isEmpty()) {
             pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge ->
@@ -729,6 +737,11 @@ public class DefaultSolver implements Solver {
     @Override
     public void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj) {
         addPointsTo(csManager.getCSVar(context, var), heapContext, obj);
+    }
+
+    @Override
+    public void addPointerFilter(Pointer pointer, Predicate<CSObj> filter) {
+        pointer.addFilter(filter);
     }
 
     @Override

@@ -29,6 +29,7 @@ import pascal.taie.util.Indexable;
 
 import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -54,6 +55,16 @@ public interface Pointer extends Indexable {
      * Sets the associated points-to set of this pointer.
      */
     void setPointsToSet(PointsToSet pointsToSet);
+
+    /**
+     * Adds filter to filter out objects pointed to by this pointer.
+     */
+    void addFilter(Predicate<CSObj> filter);
+
+    /**
+     * @return all filters added to this pointer.
+     */
+    Set<Predicate<CSObj>> getFilters();
 
     /**
      * Safely retrieves context-sensitive objects pointed to by this pointer.

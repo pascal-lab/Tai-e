@@ -26,10 +26,12 @@ import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.util.collection.ArraySet;
 import pascal.taie.util.collection.HybridIndexableSet;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 abstract class AbstractPointer implements Pointer {
@@ -41,6 +43,8 @@ abstract class AbstractPointer implements Pointer {
     private final Set<Pointer> successors = new HybridIndexableSet<>(true);
 
     private final ArrayList<PointerFlowEdge> outEdges = new ArrayList<>(4);
+
+    private Set<Predicate<CSObj>> filters = Set.of();
 
     protected AbstractPointer(int index) {
         this.index = index;
@@ -59,6 +63,19 @@ abstract class AbstractPointer implements Pointer {
     @Override
     public void setPointsToSet(PointsToSet pointsToSet) {
         this.pointsToSet = pointsToSet;
+    }
+
+    @Override
+    public void addFilter(Predicate<CSObj> filter) {
+        if (filters.isEmpty()) {
+            filters = Sets.newHybridSet();
+        }
+        filters.add(filter);
+    }
+
+    @Override
+    public Set<Predicate<CSObj>> getFilters() {
+        return filters;
     }
 
     @Override
