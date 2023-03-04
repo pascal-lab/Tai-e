@@ -24,8 +24,10 @@ package pascal.taie.analysis.pta.plugin;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
@@ -38,17 +40,31 @@ import java.util.Set;
  * <p>
  * {@link pascal.taie.analysis.pta.core.solver.Solver} needs to satisfy
  * some important constraints:
- * (1) onNewMethod(m) must happen before onNewPointsToSet(v, pts)
- * for any variables in m, and
- * (2) onNewMethod(m) must happen before onNewCSMethod(csM)
- * for any context-sensitive methods for m.
- * This class checks the constraints and issues warnings when they are unsatisfied.
+ * <ol>
+ *     <li>{@code onNewMethod(m)} must happen before {@code onNewCSMethod(csM)}
+ *     for any context-sensitive method {@code csM} for m.</li>
+ *     <li>{@code onNewMethod(m)} must happen before {@code onNewPointsToSet(csV, pts)}
+ *     for any context-sensitive variable {@code csV} in {@code m}, and</li>
+ *     <li>{@code onNewCSMethod(csM)} must happen before {@code onNewPointsToSet(csV, pts)}
+ *     for any context-sensitive variable {@code csV} in {@code csM}.</li>
+ * </ol>
+ *
+ * <p>This class checks the constraints and issues warnings when they are unsatisfied.
  */
 public class ConstraintChecker implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(ConstraintChecker.class);
 
     private final Set<JMethod> reached = Sets.newSet(4096);
+
+    private final Set<CSMethod> reachedCS = Sets.newSet(8192);
+
+    private CSManager csManager;
+
+    @Override
+    public void setSolver(Solver solver) {
+        csManager = solver.getCSManager();
+    }
 
     @Override
     public void onNewMethod(JMethod method) {
@@ -61,14 +77,19 @@ public class ConstraintChecker implements Plugin {
             logger.warn("Warning: hit {} before processing {}",
                     csMethod, csMethod.getMethod());
         }
+        reachedCS.add(csMethod);
     }
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Var var = csVar.getVar();
-        if (!reached.contains(var.getMethod())) {
-            logger.warn("Warning: hit {} before processing {}",
-                    var, var.getMethod());
+        JMethod method = var.getMethod();
+        if (!reached.contains(method)) {
+            logger.warn("Warning: hit {} before processing {}", var, method);
+        }
+        CSMethod csMethod = csManager.getCSMethod(csVar.getContext(), method);
+        if (!reachedCS.contains(csMethod)) {
+            logger.warn("Warning: hit {} before processing {}", csVar, csMethod);
         }
     }
 }
