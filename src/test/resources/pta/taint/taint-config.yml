@@ -20,3 +20,6 @@ transfers:
   - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>", from: 0, to: base, type: "java.lang.StringBuilder" }
   - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>", from: 0, to: base, type: "java.lang.StringBuilder" }
   - { method: "<java.lang.StringBuilder: java.lang.String toString()>", from: base, to: result, type: "java.lang.String" }
+
+sanitizers:
+  - { kind: param, method: "<Sanitizer: java.lang.String sanitize(java.lang.String)>", index: 0 }

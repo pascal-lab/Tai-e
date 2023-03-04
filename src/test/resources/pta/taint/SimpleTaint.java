@@ -11,5 +11,8 @@ class SimpleTaint {
         SourceSink.sink(s3, 0); // 2 taints
 
         SourceSink.sink(s3, new String()); // no taint
+
+        String s4 = Sanitizer.sanitize(s1);
+        SourceSink.sink(s4); // no taint
     }
 }

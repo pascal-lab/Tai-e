@@ -52,7 +52,8 @@ import java.util.List;
 record TaintConfig(List<CallSource> callSources,
                    List<ParamSource> paramSources,
                    List<Sink> sinks,
-                   List<TaintTransfer> transfers) {
+                   List<TaintTransfer> transfers,
+                   List<ParamSanitizer> paramSanitizers) {
 
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
@@ -100,6 +101,11 @@ record TaintConfig(List<CallSource> callSources,
             transfers.forEach(transfer ->
                     sb.append("  ").append(transfer).append("\n"));
         }
+        if (!paramSanitizers.isEmpty()) {
+            sb.append("\nsanitizers:\n");
+            paramSanitizers.forEach(sanitizer ->
+                    sb.append("  ").append(sanitizer).append("\n"));
+        }
         return sb.toString();
     }
 
@@ -133,7 +139,8 @@ record TaintConfig(List<CallSource> callSources,
                     .toList();
             List<Sink> sinks = deserializeSinks(node.get("sinks"));
             List<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
-            return new TaintConfig(callSources, paramSources, sinks, transfers);
+            List<ParamSanitizer> sanitizers = deserializeSanitizers(node.get("sanitizers"));
+            return new TaintConfig(callSources, paramSources, sinks, transfers, sanitizers);
         }
 
         /**
@@ -261,6 +268,33 @@ record TaintConfig(List<CallSource> callSources,
                     }
                 }
                 return Collections.unmodifiableList(transfers);
+            } else {
+                // if node is not an instance of ArrayNode, just return an empty set.
+                return List.of();
+            }
+        }
+
+        /**
+         * Deserializes a {@link JsonNode} (assume it is an {@link ArrayNode})
+         * to a list of {@link Sanitizer}.
+         *
+         * @param node the node to be deserialized
+         * @return list of deserialized {@link Sanitizer}.
+         */
+        private List<ParamSanitizer> deserializeSanitizers(JsonNode node) {
+            if (node instanceof ArrayNode arrayNode) {
+                List<ParamSanitizer> sanitizers = new ArrayList<>(arrayNode.size());
+                for (JsonNode elem : arrayNode) {
+                    String methodSig = elem.get("method").asText();
+                    JMethod method = hierarchy.getMethod(methodSig);
+                    if (method != null) {
+                        int index = IndexUtils.toInt(elem.get("index").asText());
+                        sanitizers.add(new ParamSanitizer(method, index));
+                    } else {
+                        logger.warn("Cannot find sanitizer method '{}'", methodSig);
+                    }
+                }
+                return Collections.unmodifiableList(sanitizers);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();

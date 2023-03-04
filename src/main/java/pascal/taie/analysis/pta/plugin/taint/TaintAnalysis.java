@@ -44,6 +44,8 @@ public class TaintAnalysis implements Plugin {
 
     private TransferHandler transferHandler;
 
+    private SanitizerHandler sanitizerHandler;
+
     private SinkHandler sinkHandler;
 
     @Override
@@ -57,8 +59,9 @@ public class TaintAnalysis implements Plugin {
         logger.info(config);
         sourceHandler = new SourceHandler(solver, manager,
                 config.callSources(), config.paramSources());
-        sinkHandler = new SinkHandler(solver, manager, config.sinks());
         transferHandler = new TransferHandler(solver, manager, config.transfers());
+        sanitizerHandler = new SanitizerHandler(solver, manager, config.paramSanitizers());
+        sinkHandler = new SinkHandler(solver, manager, config.sinks());
     }
 
     @Override
@@ -70,7 +73,7 @@ public class TaintAnalysis implements Plugin {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         sourceHandler.handleParamSource(csMethod);
-        // process sanitizer
+        sanitizerHandler.handleParamSanitizer(csMethod);
     }
 
     @Override

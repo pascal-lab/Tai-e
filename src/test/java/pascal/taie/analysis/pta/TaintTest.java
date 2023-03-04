@@ -89,7 +89,6 @@ public class TaintTest {
                 "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
-
     @Test
     public void testComplexTaint() {
         Tests.testPTA(DIR, "ComplexTaint",
