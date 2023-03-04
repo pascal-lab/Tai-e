@@ -66,6 +66,13 @@ public class BasicTestFull extends BasicTest {
     }
 
     @Test
+    public void testPropagateNull() {
+        Tests.testPTA(DIR, "PropagateNull",
+                "propagate-types:[reference,null];" +
+                        "plugins:[pascal.taie.analysis.pta.plugin.NullHandler]");
+    }
+
+    @Test
     public void testStrings() {
         Tests.testPTA(DIR, "Strings", "distinguish-string-constants:all");
     }

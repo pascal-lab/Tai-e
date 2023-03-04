@@ -30,7 +30,6 @@ import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -318,7 +317,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         } else if (receiverType instanceof ArrayType) {
             cls = getJREClass(ClassNames.OBJECT);
         } else {
-            throw new AnalysisException(receiverType + " cannot be dispatched");
+            logger.warn("{} cannot be dispatched", receiverType);
+            return null;
         }
         return dispatch(cls, methodRef);
     }
