@@ -83,7 +83,8 @@ public class NumberLiteralHandler implements Plugin {
             assigns.forEach(pair -> {
                 Var lhs = pair.first();
                 Number number = pair.second();
-                Obj numberObj = heapModel.getMockObj(NUMBER_DESC, number, lhs.getType());
+                Obj numberObj = heapModel.getMockObj(
+                        NUMBER_DESC, number, lhs.getType(), false);
                 solver.addVarPointsTo(ctx, lhs, emptyCtx, numberObj);
             });
         }

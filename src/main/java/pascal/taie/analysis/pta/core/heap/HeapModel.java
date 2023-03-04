@@ -48,10 +48,22 @@ public interface HeapModel extends Indexer<Obj> {
      */
     Obj getConstantObj(ReferenceLiteral value);
 
+    Obj getMockObj(Descriptor desc, Object alloc, Type type,
+                   JMethod container, boolean isFunctional);
+
     /**
      * @return the mock object for given arguments.
      */
-    Obj getMockObj(Descriptor desc, Object alloc, Type type, JMethod container);
+    default Obj getMockObj(Descriptor desc, Object alloc, Type type, JMethod container) {
+        return getMockObj(desc, alloc, type, container, true);
+    }
+
+    /**
+     * @return the mock object for given arguments.
+     */
+    default Obj getMockObj(Descriptor desc, Object alloc, Type type, boolean isFunctional) {
+        return getMockObj(desc, alloc, type, null, isFunctional);
+    }
 
     /**
      * @return the mock object for given arguments.

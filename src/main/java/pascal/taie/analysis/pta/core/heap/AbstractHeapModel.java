@@ -195,8 +195,9 @@ public abstract class AbstractHeapModel implements HeapModel {
     }
 
     @Override
-    public Obj getMockObj(Descriptor desc, Object alloc, Type type, JMethod container) {
-        MockObj mockObj = new MockObj(desc, alloc, type, container);
+    public Obj getMockObj(Descriptor desc, Object alloc, Type type,
+                          JMethod container, boolean isFunctional) {
+        MockObj mockObj = new MockObj(desc, alloc, type, container, isFunctional);
         return mockObjs.computeIfAbsent(mockObj, this::add);
     }
 

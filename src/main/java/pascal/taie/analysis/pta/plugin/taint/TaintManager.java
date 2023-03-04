@@ -50,7 +50,7 @@ class TaintManager {
      * @return the taint object for given source and type.
      */
     Obj makeTaint(SourcePoint sourcePoint, Type type) {
-        return heapModel.getMockObj(TAINT_DESC, sourcePoint, type);
+        return heapModel.getMockObj(TAINT_DESC, sourcePoint, type, false);
     }
 
     /**

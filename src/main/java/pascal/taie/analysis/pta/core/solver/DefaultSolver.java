@@ -340,8 +340,10 @@ public class DefaultSolver implements Solver {
                 CSVar from = csManager.getCSVar(context, fromVar);
                 JField field = store.getFieldRef().resolve();
                 pts.forEach(baseObj -> {
-                    InstanceField instField = csManager.getInstanceField(baseObj, field);
-                    addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+                    if (baseObj.getObject().isFunctional()) {
+                        InstanceField instField = csManager.getInstanceField(baseObj, field);
+                        addPFGEdge(from, instField, PointerFlowEdge.Kind.INSTANCE_STORE);
+                    }
                 });
             }
         }
@@ -362,8 +364,10 @@ public class DefaultSolver implements Solver {
                 CSVar to = csManager.getCSVar(context, toVar);
                 JField field = load.getFieldRef().resolve();
                 pts.forEach(baseObj -> {
-                    InstanceField instField = csManager.getInstanceField(baseObj, field);
-                    addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                    if (baseObj.getObject().isFunctional()) {
+                        InstanceField instField = csManager.getInstanceField(baseObj, field);
+                        addPFGEdge(instField, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                    }
                 });
             }
         }
@@ -383,11 +387,13 @@ public class DefaultSolver implements Solver {
             if (propTypes.isAllowed(rvalue)) {
                 CSVar from = csManager.getCSVar(context, rvalue);
                 pts.forEach(array -> {
-                    ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                    // we need type guard for array stores as Java arrays
-                    // are covariant
-                    addPFGEdge(from, arrayIndex,
-                            PointerFlowEdge.Kind.ARRAY_STORE, arrayIndex.getType());
+                    if (array.getObject().isFunctional()) {
+                        ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                        // we need type guard for array stores as Java arrays
+                        // are covariant
+                        addPFGEdge(from, arrayIndex,
+                                PointerFlowEdge.Kind.ARRAY_STORE, arrayIndex.getType());
+                    }
                 });
             }
         }
@@ -407,8 +413,10 @@ public class DefaultSolver implements Solver {
             if (propTypes.isAllowed(lvalue)) {
                 CSVar to = csManager.getCSVar(context, lvalue);
                 pts.forEach(array -> {
-                    ArrayIndex arrayIndex = csManager.getArrayIndex(array);
-                    addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+                    if (array.getObject().isFunctional()) {
+                        ArrayIndex arrayIndex = csManager.getArrayIndex(array);
+                        addPFGEdge(arrayIndex, to, PointerFlowEdge.Kind.ARRAY_LOAD);
+                    }
                 });
             }
         }

@@ -42,11 +42,15 @@ public class MockObj extends Obj {
 
     private final JMethod container;
 
-    public MockObj(Descriptor desc, Object alloc, Type type, JMethod container) {
+    private final boolean isFunctional;
+
+    public MockObj(Descriptor desc, Object alloc, Type type,
+                   JMethod container, boolean isFunctional) {
         this.desc = desc;
         this.alloc = alloc;
         this.type = type;
         this.container = container;
+        this.isFunctional = isFunctional;
     }
 
     public Descriptor getDescriptor() {
@@ -72,6 +76,11 @@ public class MockObj extends Obj {
     public Type getContainerType() {
         return container != null ?
                 container.getDeclaringClass().getType() : type;
+    }
+
+    @Override
+    public boolean isFunctional() {
+        return isFunctional;
     }
 
     @Override

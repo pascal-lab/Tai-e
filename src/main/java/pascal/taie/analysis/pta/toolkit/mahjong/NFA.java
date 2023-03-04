@@ -38,7 +38,7 @@ class NFA {
     private static final Descriptor DEAD_STATE_DESC = () -> "DeadState";
 
     private static final Obj DEAD_STATE = new MockObj(
-            DEAD_STATE_DESC, null, null, null);
+            DEAD_STATE_DESC, null, null, null, false);
 
     private final Obj q0;
 

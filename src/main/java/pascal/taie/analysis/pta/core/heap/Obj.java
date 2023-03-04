@@ -54,6 +54,15 @@ public abstract class Obj implements Indexable {
     }
 
     /**
+     * An object is functional means that it can hold fields (or array indexes).
+     *
+     * @return {@code true} if this is a function {@link Obj}.
+     */
+    public boolean isFunctional() {
+        return true;
+    }
+
+    /**
      * @return the type of the object.
      */
     public abstract Type getType();

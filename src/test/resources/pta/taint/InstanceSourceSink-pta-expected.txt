@@ -30,7 +30,6 @@ Points-to sets of all static fields
 
 Points-to sets of all instance fields
 []:NewObj{<InstanceSourceSink: void main(java.lang.String[])>[9@L9] new ProcessBuilder}.cmd -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=java.lang.String[]}]
-[]:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=ProcessBuilder}.cmd -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}, []:TaintObj{alloc=<InstanceSourceSink: void main(java.lang.String[])>/0,type=java.lang.String[]}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InstanceSourceSink: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <InstanceSourceSink: void main(java.lang.String[])>}]
