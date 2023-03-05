@@ -130,19 +130,17 @@ class ReflectiveActionModel extends AbstractModel {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             String className = CSObjs.toString(obj);
-            if (className == null) {
-                return;
-            }
-            JClass klass = hierarchy.getClass(className);
-            if (klass == null) {
-                return;
-            }
-            solver.initializeClass(klass);
-            Var result = invoke.getResult();
-            if (result != null) {
-                Obj clsObj = heapModel.getConstantObj(
-                        ClassLiteral.get(klass.getType()));
-                solver.addVarPointsTo(context, result, clsObj);
+            if (className != null) {
+                JClass klass = hierarchy.getClass(className);
+                if (klass != null) {
+                    solver.initializeClass(klass);
+                    Var result = invoke.getResult();
+                    if (result != null) {
+                        Obj clsObj = heapModel.getConstantObj(
+                                ClassLiteral.get(klass.getType()));
+                        solver.addVarPointsTo(context, result, clsObj);
+                    }
+                }
             }
         });
     }
@@ -151,16 +149,14 @@ class ReflectiveActionModel extends AbstractModel {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             JClass klass = CSObjs.toClass(obj);
-            if (klass == null) {
-                return;
+            if (klass != null) {
+                JMethod init = klass.getDeclaredMethod(initNoArg);
+                if (init != null) {
+                    ClassType type = klass.getType();
+                    CSObj csNewObj = newReflectiveObj(context, invoke, type);
+                    addReflectiveCallEdge(context, invoke, csNewObj, init, null);
+                }
             }
-            JMethod init = klass.getDeclaredMethod(initNoArg);
-            if (init == null) {
-                return;
-            }
-            ClassType type = klass.getType();
-            CSObj csNewObj = newReflectiveObj(context, invoke, type);
-            addReflectiveCallEdge(context, invoke, csNewObj, init, null);
         });
     }
 
@@ -168,13 +164,12 @@ class ReflectiveActionModel extends AbstractModel {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             JMethod constructor = CSObjs.toConstructor(obj);
-            if (constructor == null) {
-                return;
+            if (constructor != null) {
+                ClassType type = constructor.getDeclaringClass().getType();
+                CSObj csNewObj = newReflectiveObj(context, invoke, type);
+                addReflectiveCallEdge(context, invoke, csNewObj,
+                        constructor, invoke.getInvokeExp().getArg(0));
             }
-            ClassType type = constructor.getDeclaringClass().getType();
-            CSObj csNewObj = newReflectiveObj(context, invoke, type);
-            addReflectiveCallEdge(context, invoke, csNewObj,
-                    constructor, invoke.getInvokeExp().getArg(0));
         });
     }
 
@@ -198,15 +193,14 @@ class ReflectiveActionModel extends AbstractModel {
         Var argsVar = invoke.getInvokeExp().getArg(1);
         mtdObjs.forEach(mtdObj -> {
             JMethod target = CSObjs.toMethod(mtdObj);
-            if (target == null) {
-                return;
-            }
-            if (target.isStatic()) {
-                addReflectiveCallEdge(context, invoke, null, target, argsVar);
-            } else {
-                recvObjs.forEach(recvObj ->
-                        addReflectiveCallEdge(context, invoke, recvObj, target, argsVar)
-                );
+            if (target != null) {
+                if (target.isStatic()) {
+                    addReflectiveCallEdge(context, invoke, null, target, argsVar);
+                } else {
+                    recvObjs.forEach(recvObj ->
+                            addReflectiveCallEdge(context, invoke, recvObj, target, argsVar)
+                    );
+                }
             }
         });
     }
@@ -249,21 +243,20 @@ class ReflectiveActionModel extends AbstractModel {
         PointsToSet baseObjs = args.get(1);
         fldObjs.forEach(fldObj -> {
             JField field = CSObjs.toField(fldObj);
-            if (field == null) {
-                return;
-            }
-            if (field.isStatic()) {
-                StaticField sfield = csManager.getStaticField(field);
-                solver.addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
-            } else {
-                Type declType = field.getDeclaringClass().getType();
-                baseObjs.forEach(baseObj -> {
-                    Type objType = baseObj.getObject().getType();
-                    if (typeSystem.isSubtype(declType, objType)) {
-                        InstanceField ifield = csManager.getInstanceField(baseObj, field);
-                        solver.addPFGEdge(ifield, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
-                    }
-                });
+            if (field != null) {
+                if (field.isStatic()) {
+                    StaticField sfield = csManager.getStaticField(field);
+                    solver.addPFGEdge(sfield, to, PointerFlowEdge.Kind.STATIC_LOAD);
+                } else {
+                    Type declType = field.getDeclaringClass().getType();
+                    baseObjs.forEach(baseObj -> {
+                        Type objType = baseObj.getObject().getType();
+                        if (typeSystem.isSubtype(declType, objType)) {
+                            InstanceField ifield = csManager.getInstanceField(baseObj, field);
+                            solver.addPFGEdge(ifield, to, PointerFlowEdge.Kind.INSTANCE_LOAD);
+                        }
+                    });
+                }
             }
         });
     }
@@ -276,21 +269,20 @@ class ReflectiveActionModel extends AbstractModel {
         PointsToSet baseObjs = args.get(1);
         fldObjs.forEach(fldObj -> {
             JField field = CSObjs.toField(fldObj);
-            if (field == null) {
-                return;
-            }
-            if (field.isStatic()) {
-                StaticField sfield = csManager.getStaticField(field);
-                solver.addPFGEdge(from, sfield, STATIC_STORE, sfield.getType());
-            } else {
-                Type declType = field.getDeclaringClass().getType();
-                baseObjs.forEach(baseObj -> {
-                    Type objType = baseObj.getObject().getType();
-                    if (typeSystem.isSubtype(declType, objType)) {
-                        InstanceField ifield = csManager.getInstanceField(baseObj, field);
-                        solver.addPFGEdge(from, ifield, INSTANCE_STORE, ifield.getType());
-                    }
-                });
+            if (field != null) {
+                if (field.isStatic()) {
+                    StaticField sfield = csManager.getStaticField(field);
+                    solver.addPFGEdge(from, sfield, STATIC_STORE, sfield.getType());
+                } else {
+                    Type declType = field.getDeclaringClass().getType();
+                    baseObjs.forEach(baseObj -> {
+                        Type objType = baseObj.getObject().getType();
+                        if (typeSystem.isSubtype(declType, objType)) {
+                            InstanceField ifield = csManager.getInstanceField(baseObj, field);
+                            solver.addPFGEdge(from, ifield, INSTANCE_STORE, ifield.getType());
+                        }
+                    });
+                }
             }
         });
     }
@@ -303,12 +295,11 @@ class ReflectiveActionModel extends AbstractModel {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             Type baseType = CSObjs.toType(obj);
-            if (baseType == null || baseType instanceof VoidType) {
-                return;
+            if (baseType != null && !(baseType instanceof VoidType)) {
+                ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
+                CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
+                solver.addVarPointsTo(context, result, csNewArray);
             }
-            ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
-            CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
-            solver.addVarPointsTo(context, result, csNewArray);
         });
     }
 }

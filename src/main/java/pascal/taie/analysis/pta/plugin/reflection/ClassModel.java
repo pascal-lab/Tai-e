@@ -59,7 +59,7 @@ class ClassModel extends AbstractModel {
                 if (name != null) {
                     Type type = name.equals("void") ?
                             VoidType.VOID : PrimitiveType.get(name);
-                    solver.addVarPointsTo(csVar.getContext(), result, defaultHctx,
+                    solver.addVarPointsTo(csVar.getContext(), result,
                             heapModel.getConstantObj(ClassLiteral.get(type)));
                 }
             });
