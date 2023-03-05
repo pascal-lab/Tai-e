@@ -77,7 +77,7 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
 
     private static void processOptions(CallGraph<Invoke, JMethod> callGraph,
                                        AnalysisOptions options) {
-        String outputDir = World.get().getOptions().getOutputDir();
+        File outputDir = World.get().getOptions().getOutputDir();
         if (options.getBoolean("dump")) {
             CallGraphs.dumpCallGraph(callGraph,
                     new File(outputDir, CALL_GRAPH_FILE));

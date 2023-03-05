@@ -72,7 +72,7 @@ public final class LoggerConfigs {
     /**
      * Set the log output file based on the given output dir.
      */
-    public static void setOutput(String outputDir) {
+    public static void setOutput(File outputDir) {
         Configuration config = ((LoggerContext) LogManager.getContext(false))
                 .getConfiguration();
         // new a file appender

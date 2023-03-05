@@ -174,10 +174,11 @@ public class Options {
             description = "Specify output directory (default: ${DEFAULT-VALUE})"
                     + ", '" + AUTO_GEN + "' can be used as a placeholder"
                     + " for an automatically generated timestamp",
-            defaultValue = DEFAULT_OUTPUT_DIR)
-    private String outputDir = DEFAULT_OUTPUT_DIR;
+            defaultValue = DEFAULT_OUTPUT_DIR,
+            converter = OutputDirConverter.class)
+    private File outputDir = new File(DEFAULT_OUTPUT_DIR).getAbsoluteFile();
 
-    public String getOutputDir() {
+    public File getOutputDir() {
         return outputDir;
     }
 
@@ -292,28 +293,16 @@ public class Options {
                     "at least one of --main-class, --input-classes " +
                     "or --app-class-path should be specified");
         }
-        // auto generation for output dir
-        if (options.outputDir.contains(AUTO_GEN)) {
-            String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                .withZone(ZoneId.systemDefault())
-                .format(Instant.now());
-            options.outputDir = options.outputDir.replace(AUTO_GEN, timestamp);
-            // check if the output dir already exists
-            if (new File(options.outputDir).exists()) {
-                throw new RuntimeException("The generated output dir already exists, "
-                        + "please wait for a second to start again: " + options.outputDir);
-            }
-        }
         // mkdir for output dir
-        File outputDir = new File(options.outputDir);
-        if (!outputDir.exists()) {
-            outputDir.mkdirs();
+        if (!options.outputDir.exists()) {
+            options.outputDir.mkdirs();
         }
-        logger.info("Output directory: {}", outputDir.getAbsolutePath());
+        logger.info("Output directory: {}",
+                options.outputDir.getAbsolutePath());
         // TODO: turn off output in testing?
         if (options.optionsFile == null) {
             // write options to file only when it is not given
-            writeOptions(options, new File(outputDir, OPTIONS_FILE));
+            writeOptions(options, new File(options.outputDir, OPTIONS_FILE));
         }
         return options;
     }
@@ -356,6 +345,24 @@ public class Options {
         } catch (IOException e) {
             throw new ConfigException("Failed to write options to "
                     + output.getAbsolutePath(), e);
+        }
+    }
+
+    private static class OutputDirConverter implements CommandLine.ITypeConverter<File> {
+        @Override
+        public File convert(String outputDir) {
+            if (outputDir.contains(AUTO_GEN)) {
+                String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                    .withZone(ZoneId.systemDefault())
+                    .format(Instant.now());
+                outputDir = outputDir.replace(AUTO_GEN, timestamp);
+                // check if the output dir already exists
+                if (new File(outputDir).exists()) {
+                    throw new RuntimeException("The generated output dir already exists, "
+                            + "please wait for a second to start again: " + outputDir);
+                }
+            }
+            return new File(outputDir).getAbsoluteFile();
         }
     }
 

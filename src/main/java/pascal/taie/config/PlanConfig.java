@@ -135,7 +135,7 @@ public class PlanConfig {
     /**
      * Writes a list of PlanConfigs to given file.
      */
-    public static void writeConfigs(List<PlanConfig> planConfigs, String outputDir) {
+    public static void writeConfigs(List<PlanConfig> planConfigs, File outputDir) {
         File outFile = new File(outputDir, PLAN_FILE);
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()

@@ -32,6 +32,7 @@ import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -183,8 +184,8 @@ public final class Tests {
         // move expected file
         if (processResult && GENERATE_EXPECTED_RESULTS) {
             try {
-                Path from = Paths.get(World.get().getOptions().getOutputDir(),
-                        pascal.taie.analysis.pta.plugin.ResultProcessor.RESULTS_FILE);
+                Path from = new File(World.get().getOptions().getOutputDir(),
+                        pascal.taie.analysis.pta.plugin.ResultProcessor.RESULTS_FILE).toPath();
                 Files.move(from, Paths.get(expectedFile), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 logger.error("Failed to copy expected file", e);
