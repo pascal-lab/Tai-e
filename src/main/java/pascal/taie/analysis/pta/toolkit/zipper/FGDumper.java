@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.toolkit.zipper;
 import pascal.taie.util.graph.DotDumper;
 import pascal.taie.util.graph.Graph;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -55,7 +56,7 @@ class FGDumper {
                 };
             });
 
-    static void dump(Graph<FGNode> graph, String filePath) {
-        dumper.dump(graph, filePath);
+    static void dump(Graph<FGNode> graph, File file) {
+        dumper.dump(graph, file);
     }
 }

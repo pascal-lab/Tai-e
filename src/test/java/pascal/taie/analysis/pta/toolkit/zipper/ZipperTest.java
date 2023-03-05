@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
 import pascal.taie.util.graph.DotDumper;
 
+import java.io.File;
 import java.util.stream.Stream;
 
 public class ZipperTest {
@@ -51,8 +52,8 @@ public class ZipperTest {
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectAllocationGraph oag = new ObjectAllocationGraph(
                 new PointerAnalysisResultExImpl(pta, true));
-        new DotDumper<Obj>().dump(oag, World.get().getOptions().getOutputDir()
-                + "/" + main + "-oag.dot");
+        File output = new File(World.get().getOptions().getOutputDir(), main + "-oag.dot");
+        new DotDumper<Obj>().dump(oag, output);
     }
 
     @Test
@@ -65,12 +66,12 @@ public class ZipperTest {
         Tests.testPTA(false, dir, main);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectFlowGraph ofg = new ObjectFlowGraph(pta);
-        FGDumper.dump(ofg, World.get().getOptions().getOutputDir()
-                        + "/" + main + "-ofg.dot");
+        File output = new File(World.get().getOptions().getOutputDir(), main + "-ofg.dot");
+        FGDumper.dump(ofg, output);
     }
 
     @Test
     public void testPFGBuilder() {
-        Tests.testPTA(false, MISC, "Zipper", "pre:zipper");
+        Tests.testPTA(false, MISC, "Zipper", "advanced:zipper");
     }
 }

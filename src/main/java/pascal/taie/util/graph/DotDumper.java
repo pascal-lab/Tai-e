@@ -120,10 +120,6 @@ public class DotDumper<N> {
         return this;
     }
 
-    public void dump(Graph<N> graph, String filePath) {
-        dump(graph, new File(filePath));
-    }
-
     public void dump(Graph<N> graph, File outFile) {
         try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
             this.out = out;
