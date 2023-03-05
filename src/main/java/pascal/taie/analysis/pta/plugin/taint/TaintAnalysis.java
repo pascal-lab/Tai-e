@@ -24,10 +24,9 @@ package pascal.taie.analysis.pta.plugin.taint;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowGraphDumper;
-import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -35,13 +34,18 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 
+import java.io.File;
 import java.util.Set;
 
 public class TaintAnalysis implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
 
+    private static final String TAINT_FLOW_GRAPH_FILE = "taint-flow-graph.dot";
+
     private Solver solver;
+
+    private TaintManager manager;
 
     private SourceHandler sourceHandler;
 
@@ -54,7 +58,7 @@ public class TaintAnalysis implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        TaintManager manager = new TaintManager(solver.getHeapModel());
+        manager = new TaintManager(solver.getHeapModel());
         TaintConfig config = TaintConfig.readConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
@@ -91,7 +95,8 @@ public class TaintAnalysis implements Plugin {
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
         FlowGraphDumper.dump(
-                new TFGBuilder(solver.getResult(), varTransfers, manager).build(),
-                "output/taint-flow-graph.dot");
+                new TFGBuilder(solver.getResult(),
+                        transferHandler.getVarTransfers(), manager).build(),
+                new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE));
     }
 }

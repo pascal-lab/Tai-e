@@ -217,7 +217,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     @Override
     public Set<Obj> getPointsToSet(Obj base, JField field) {
-        if (!isConcerned(field.getType())) {
+        if (!propTypes.isAllowed(field.getType())) {
             return Set.of();
         }
         if (field.isStatic()) {
@@ -282,7 +282,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     @Override
     public Set<Obj> getPointsToSet(Obj array) {
         if (array.getType() instanceof ArrayType baseType) {
-            if (!isConcerned(baseType.elementType())) {
+            if (!propTypes.isAllowed(baseType.elementType())) {
                 return Set.of();
             }
         } else {

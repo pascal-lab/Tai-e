@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis.graph.flowgraph;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.util.graph.DotDumper;
 import pascal.taie.util.graph.Graph;
 
@@ -32,6 +34,8 @@ import java.util.Map;
  * Dumper for flow graph.
  */
 public class FlowGraphDumper {
+
+    private static final Logger logger = LogManager.getLogger(FlowGraphDumper.class);
 
     private static final DotDumper<Node> dumper = new DotDumper<Node>()
             .setNodeAttributes(n -> {
@@ -63,6 +67,7 @@ public class FlowGraphDumper {
             });
 
     public static void dump(Graph<Node> graph, File file) {
+        logger.info("Dumping {}", file.getAbsolutePath());
         dumper.dump(graph, file);
     }
 }

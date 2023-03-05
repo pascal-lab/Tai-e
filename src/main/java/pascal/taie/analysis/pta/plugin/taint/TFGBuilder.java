@@ -34,6 +34,7 @@ import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
@@ -150,7 +151,7 @@ class TFGBuilder {
         } else if (node instanceof InstanceNode iNode) {
             return iNode.getBase().getContainerMethod()
                     .stream()
-                    .anyMatch(m -> m.isApplication());
+                    .anyMatch(JMethod::isApplication);
         } else {
             return false;
         }

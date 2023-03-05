@@ -211,4 +211,8 @@ class TransferHandler {
         String varName = "%taint-temp-" + counter++;
         return new Var(container, varName, type, -1);
     }
+
+    MultiMap<Var, Pair<Var, Type>> getVarTransfers() {
+        return varTransfers;
+    }
 }
