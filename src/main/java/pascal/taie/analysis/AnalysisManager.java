@@ -237,7 +237,7 @@ public class AnalysisManager {
                 .filter(id -> !plan.keepResult().contains(id))
                 .toList();
         if (!unused.isEmpty()) {
-            logger.info("Clearing unused results of {} ...", unused);
+            logger.info("Clearing unused results of {}", unused);
             for (String id : unused) {
                 int i;
                 for (i = 0; i < executedAnalyses.size(); ++i) {

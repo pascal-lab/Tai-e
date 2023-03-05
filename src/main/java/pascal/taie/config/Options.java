@@ -61,6 +61,7 @@ public class Options {
     private static final String AUTO_GEN = "$AUTO-GEN";
 
     // ---------- file-based options ----------
+    @JsonProperty
     @Option(names = "--options-file",
             description = "The options file")
     private File optionsFile;
@@ -341,7 +342,7 @@ public class Options {
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         try {
-            logger.info("Writing options to: {}", output.getAbsolutePath());
+            logger.info("Writing options to {}", output.getAbsolutePath());
             mapper.writeValue(output, options);
         } catch (IOException e) {
             throw new ConfigException("Failed to write options to "

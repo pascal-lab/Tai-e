@@ -69,7 +69,7 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
             if (!dumpDir.exists()) {
                 dumpDir.mkdirs();
             }
-            logger.info("Dumping CFG in: {}", dumpDir.getAbsolutePath());
+            logger.info("Dumping CFGs in {}", dumpDir.getAbsolutePath());
         } else {
             dumpDir = null;
         }

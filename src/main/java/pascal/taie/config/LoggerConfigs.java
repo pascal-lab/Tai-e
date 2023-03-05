@@ -87,6 +87,6 @@ public final class LoggerConfigs {
         LoggerConfig rootLogger = config.getRootLogger();
         rootLogger.addAppender(fileAppender, rootLogger.getLevel(), rootLogger.getFilter());
         fileAppender.start();
-        logger.info("Writing log to: {}", fileAppender.getFileName());
+        logger.info("Writing log to {}", fileAppender.getFileName());
     }
 }

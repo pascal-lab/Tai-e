@@ -75,7 +75,7 @@ public class IRDumper extends ClassAnalysis<Void> {
         if (!dumpDir.exists()) {
             dumpDir.mkdirs();
         }
-        logger.info("Dumping IR in: {}", dumpDir.getAbsolutePath());
+        logger.info("Dumping IR in {}", dumpDir.getAbsolutePath());
     }
 
     @Override

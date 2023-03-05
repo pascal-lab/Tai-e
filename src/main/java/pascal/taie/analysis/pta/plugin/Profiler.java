@@ -90,7 +90,7 @@ public class Profiler implements Plugin {
     public void onFinish() {
         File outFile = new File(World.get().getOptions().getOutputDir(), PROFILE_FILE);
         try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
-            logger.info("Dumping pointer analysis profile to: {} ...",
+            logger.info("Dumping pointer analysis profile to {}",
                     outFile.getAbsolutePath());
             // report variables
             reportTop(out, "frequently-visited variables",

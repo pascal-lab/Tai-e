@@ -142,7 +142,7 @@ public class PlanConfig {
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         try {
-            logger.info("Writing analysis plan to: {}", outFile.getAbsolutePath());
+            logger.info("Writing analysis plan to {}", outFile.getAbsolutePath());
             mapper.writeValue(outFile, planConfigs);
         } catch (IOException e) {
             throw new ConfigException("Failed to write plan file to "

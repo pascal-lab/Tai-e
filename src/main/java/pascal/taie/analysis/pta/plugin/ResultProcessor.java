@@ -154,7 +154,7 @@ public class ResultProcessor implements Plugin {
         try {
             File outFile = new File(World.get().getOptions().getOutputDir(), RESULTS_FILE);
             out = new PrintStream(new FileOutputStream(outFile));
-            logger.info("Dumping points-to set to: {} ...",
+            logger.info("Dumping points-to set to {}",
                     outFile.getAbsolutePath());
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Failed to open output file", e);
@@ -179,7 +179,7 @@ public class ResultProcessor implements Plugin {
     }
 
     private static void comparePointsToSet(PointerAnalysisResult result, String input) {
-        logger.info("Comparing points-to set with {} ...", input);
+        logger.info("Comparing points-to set with {}", input);
         var inputs = readPointsToSets(input);
         Map<String, Pointer> pointers = new LinkedHashMap<>();
         addPointers(pointers, result.getCSVars());
@@ -249,7 +249,7 @@ public class ResultProcessor implements Plugin {
     }
 
     private static void compareTaintFlows(PointerAnalysisResult result, String input) {
-        logger.info("Comparing taint flows with {} ...", input);
+        logger.info("Comparing taint flows with {}", input);
         List<String> inputs = readTaintFlows(input);
         List<String> taintFlows = Lists.map(getTaintFlows(result),
                 TaintFlow::toString);

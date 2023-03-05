@@ -101,7 +101,7 @@ public final class CallGraphs {
      * Dumps call graph to dot file.
      */
     static void dumpCallGraph(CallGraph<Invoke, JMethod> callGraph, File outFile) {
-        logger.info("Dumping call graph to: {} ...",
+        logger.info("Dumping call graph to {}",
                 outFile.getAbsolutePath());
         Indexer<JMethod> indexer = new SimpleIndexer<>();
         new DotDumper<JMethod>()
@@ -117,7 +117,7 @@ public final class CallGraphs {
     static void dumpMethods(CallGraph<Invoke, JMethod> callGraph, File outFile) {
         try (PrintStream out =
                      new PrintStream(new FileOutputStream(outFile))) {
-            logger.info("Dumping reachable methods to {} ...",
+            logger.info("Dumping reachable methods to {}",
                     outFile.getAbsolutePath());
             callGraph.reachableMethods()
                     .map(JMethod::getSignature)
@@ -131,7 +131,7 @@ public final class CallGraphs {
     static void dumpCallEdges(CallGraph<Invoke, JMethod> callGraph, File outFile) {
         try (PrintStream out =
                      new PrintStream(new FileOutputStream(outFile))) {
-            logger.info("Dumping call edges to {} ...",
+            logger.info("Dumping call edges to {}",
                     outFile.getAbsolutePath());
             callGraph.reachableMethods()
                     // sort callers
@@ -183,7 +183,7 @@ public final class CallGraphs {
     }
 
     static void dumpDot(CallGraph<Invoke, JMethod> callGraph, File outFile) {
-        logger.info("Dumping call graph to: {} ...",
+        logger.info("Dumping call graph to {}",
                 outFile.getAbsolutePath());
         Indexer<JMethod> indexer = new SimpleIndexer<>();
         new DotDumper<JMethod>()

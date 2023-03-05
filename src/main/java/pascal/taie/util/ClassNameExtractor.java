@@ -58,7 +58,7 @@ public class ClassNameExtractor {
             return;
         }
         File outFile = new File(args[0]);
-        System.out.printf("Dumping extracted class names to %s ...%n",
+        System.out.printf("Dumping extracted class names to %s%n",
                 outFile.getAbsolutePath());
         String[] jars = Arrays.copyOfRange(args, 1, args.length);
         try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {

@@ -73,7 +73,7 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
             fileName = "icfg.dot";
         }
         File dotFile = new File(World.get().getOptions().getOutputDir(), fileName);
-        logger.info("Dumping ICFG to: {} ...", dotFile.getAbsolutePath());
+        logger.info("Dumping ICFG to {}", dotFile.getAbsolutePath());
         Indexer<Stmt> indexer = new SimpleIndexer<>();
         new DotDumper<Stmt>()
                 .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
