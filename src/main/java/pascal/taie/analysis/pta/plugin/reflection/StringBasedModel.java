@@ -22,9 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
@@ -59,42 +59,32 @@ class StringBasedModel extends MetaObjModel {
     private void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet ctorObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             pts.forEach(obj -> {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
                     Reflections.getConstructors(jclass)
-                            .map(ctor -> {
-                                Obj ctorObj = getReflectionObj(ctor);
-                                return csManager.getCSObj(defaultHctx, ctorObj);
-                            })
-                            .forEach(ctorObjs::addObject);
+                            .map(this::getReflectionObj)
+                            .forEach(ctorObj ->
+                                    solver.addVarPointsTo(context, result, ctorObj));
                 }
             });
-            if (!ctorObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, ctorObjs);
-            }
         }
     }
 
     private void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet ctorObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             pts.forEach(obj -> {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
                     Reflections.getDeclaredConstructors(jclass)
-                            .map(ctor -> {
-                                Obj ctorObj = getReflectionObj(ctor);
-                                return csManager.getCSObj(defaultHctx, ctorObj);
-                            })
-                            .forEach(ctorObjs::addObject);
+                            .map(this::getReflectionObj)
+                            .forEach(ctorObj ->
+                                    solver.addVarPointsTo(context, result, ctorObj));
                 }
             });
-            if (!ctorObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, ctorObjs);
-            }
         }
     }
 
@@ -104,7 +94,7 @@ class StringBasedModel extends MetaObjModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
-            PointsToSet mtdObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
@@ -112,18 +102,13 @@ class StringBasedModel extends MetaObjModel {
                         String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             Reflections.getMethods(cls, name)
-                                    .map(mtd -> {
-                                        Obj mtdObj = getReflectionObj(mtd);
-                                        return csManager.getCSObj(defaultHctx, mtdObj);
-                                    })
-                                    .forEach(mtdObjs::addObject);
+                                    .map(this::getReflectionObj)
+                                    .forEach(mtdObj ->
+                                            solver.addVarPointsTo(context, result, mtdObj));
                         }
                     });
                 }
             });
-            if (!mtdObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, mtdObjs);
-            }
         }
     }
 
@@ -133,7 +118,7 @@ class StringBasedModel extends MetaObjModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
             PointsToSet clsObjs = args.get(0);
             PointsToSet nameObjs = args.get(1);
-            PointsToSet mtdObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
@@ -141,18 +126,13 @@ class StringBasedModel extends MetaObjModel {
                         String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             Reflections.getDeclaredMethods(cls, name)
-                                    .map(mtd -> {
-                                        Obj mtdObj = getReflectionObj(mtd);
-                                        return csManager.getCSObj(defaultHctx, mtdObj);
-                                    })
-                                    .forEach(mtdObjs::addObject);
+                                    .map(this::getReflectionObj)
+                                    .forEach(mtdObj ->
+                                            solver.addVarPointsTo(context, result, mtdObj));
                         }
                     });
                 }
             });
-            if (!mtdObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, mtdObjs);
-            }
         }
     }
 

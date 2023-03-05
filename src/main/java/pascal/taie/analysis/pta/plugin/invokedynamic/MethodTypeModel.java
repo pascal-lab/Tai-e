@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -66,18 +67,15 @@ class MethodTypeModel extends AbstractModel {
     private void methodType1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            PointsToSet mtObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             pts.forEach(obj -> {
                 Type retType = CSObjs.toType(obj);
                 if (retType != null) {
                     MethodType mt = MethodType.get(List.of(), retType);
                     Obj mtObj = heapModel.getConstantObj(mt);
-                    mtObjs.addObject(csManager.getCSObj(defaultHctx, mtObj));
+                    solver.addVarPointsTo(context, result, mtObj);
                 }
             });
-            if (!mtObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, mtObjs);
-            }
         }
     }
 
@@ -90,7 +88,7 @@ class MethodTypeModel extends AbstractModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet retObjs = args.get(0);
             PointsToSet paramObjs = args.get(1);
-            PointsToSet mtObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             retObjs.forEach(retObj -> {
                 Type retType = CSObjs.toType(retObj);
                 if (retType != null) {
@@ -99,14 +97,11 @@ class MethodTypeModel extends AbstractModel {
                         if (paramType != null) {
                             MethodType mt = MethodType.get(List.of(paramType), retType);
                             Obj mtObj = heapModel.getConstantObj(mt);
-                            mtObjs.addObject(csManager.getCSObj(defaultHctx, mtObj));
+                            solver.addVarPointsTo(context, result, mtObj);
                         }
                     });
                 }
             });
-            if (!mtObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, mtObjs);
-            }
         }
     }
 
@@ -119,7 +114,7 @@ class MethodTypeModel extends AbstractModel {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
             PointsToSet retObjs = args.get(0);
             PointsToSet mtObjs = args.get(1);
-            PointsToSet resultMTObjs = solver.makePointsToSet();
+            Context context = csVar.getContext();
             retObjs.forEach(retObj -> {
                 Type retType = CSObjs.toType(retObj);
                 if (retType != null) {
@@ -128,14 +123,11 @@ class MethodTypeModel extends AbstractModel {
                         if (mt != null) {
                             MethodType resultMT = MethodType.get(mt.getParamTypes(), retType);
                             Obj resultMTObj = heapModel.getConstantObj(resultMT);
-                            resultMTObjs.addObject(csManager.getCSObj(defaultHctx, resultMTObj));
+                            solver.addVarPointsTo(context, result, resultMTObj);
                         }
                     });
                 }
             });
-            if (!resultMTObjs.isEmpty()) {
-                solver.addVarPointsTo(csVar.getContext(), result, resultMTObjs);
-            }
         }
     }
 }

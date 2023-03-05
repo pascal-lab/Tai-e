@@ -46,8 +46,6 @@ class SourceHandler {
 
     private final Solver solver;
 
-    private final Context emptyContext;
-
     private final TaintManager manager;
 
     /**
@@ -63,7 +61,6 @@ class SourceHandler {
     SourceHandler(Solver solver, TaintManager manager,
                   List<CallSource> callSources, List<ParamSource> paramSources) {
         this.solver = solver;
-        this.emptyContext = solver.getContextSelector().getEmptyContext();
         this.manager = manager;
         callSources.forEach(s -> this.callSources.put(s.method(), s));
         paramSources.forEach(s -> this.paramSources.put(s.method(), s));
@@ -82,8 +79,7 @@ class SourceHandler {
             Var var = IndexUtils.getVar(callSite, index);
             SourcePoint sourcePoint = new CallSourcePoint(callSite, index);
             Obj taint = manager.makeTaint(sourcePoint, source.type());
-            solver.addVarPointsTo(edge.getCallSite().getContext(), var,
-                    emptyContext, taint);
+            solver.addVarPointsTo(edge.getCallSite().getContext(), var, taint);
         });
     }
 
@@ -98,7 +94,7 @@ class SourceHandler {
                 SourcePoint sourcePoint = new ParamSourcePoint(method, index);
                 Type type = source.type();
                 Obj taint = manager.makeTaint(sourcePoint, type);
-                solver.addVarPointsTo(context, param, emptyContext, taint);
+                solver.addVarPointsTo(context, param, taint);
             });
         }
     }

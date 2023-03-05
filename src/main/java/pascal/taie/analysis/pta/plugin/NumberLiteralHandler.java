@@ -52,13 +52,10 @@ public class NumberLiteralHandler implements Plugin {
 
     private HeapModel heapModel;
 
-    private Context emptyCtx;
-
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
         heapModel = solver.getHeapModel();
-        emptyCtx = solver.getContextSelector().getEmptyContext();
     }
 
     @Override
@@ -85,7 +82,7 @@ public class NumberLiteralHandler implements Plugin {
                 Number number = pair.second();
                 Obj numberObj = heapModel.getMockObj(
                         NUMBER_DESC, number, lhs.getType(), false);
-                solver.addVarPointsTo(ctx, lhs, emptyCtx, numberObj);
+                solver.addVarPointsTo(ctx, lhs, numberObj);
             });
         }
     }

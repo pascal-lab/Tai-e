@@ -285,10 +285,9 @@ public class InvokeDynamicAnalysis implements Plugin {
                  i < indy.getBootstrapArgs().size() && j < ir.getParams().size();
                  ++i, ++j) {
                 Literal arg = indy.getBootstrapArgs().get(i);
-                if (arg instanceof ReferenceLiteral) {
-                    CSObj argObj = csManager.getCSObj(defContext,
-                            heapModel.getConstantObj((ReferenceLiteral) arg));
-                    solver.addVarPointsTo(context, ir.getParam(j), argObj);
+                if (arg instanceof ReferenceLiteral argLiteral) {
+                    Obj argObj = heapModel.getConstantObj(argLiteral);
+                    solver.addVarPointsTo(context, ir.getParam(j), defContext, argObj);
                 }
             }
             // TODO: mock array for varargs

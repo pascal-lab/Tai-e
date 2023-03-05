@@ -24,7 +24,6 @@ package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -37,7 +36,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 /**
- *
+ * Handles {@link AssignLiteral} var = null.
  */
 public class NullHandler implements Plugin {
 
@@ -47,15 +46,13 @@ public class NullHandler implements Plugin {
 
     private Solver solver;
 
-    private CSObj nullObj;
+    private Obj nullObj;
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        Context emptyContext = solver.getContextSelector().getEmptyContext();
-        Obj nullO = solver.getHeapModel().getMockObj(
+        nullObj = solver.getHeapModel().getMockObj(
                 NULL_DESC, NullLiteral.get(), NullType.NULL, false);
-        nullObj = solver.getCSManager().getCSObj(emptyContext, nullO);
     }
 
     @Override
@@ -71,8 +68,7 @@ public class NullHandler implements Plugin {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         Context ctx = csMethod.getContext();
-        nullVars.get(csMethod.getMethod()).forEach(var -> {
-            solver.addVarPointsTo(ctx, var, nullObj);
-        });
+        nullVars.get(csMethod.getMethod()).forEach(var ->
+                solver.addVarPointsTo(ctx, var, nullObj));
     }
 }

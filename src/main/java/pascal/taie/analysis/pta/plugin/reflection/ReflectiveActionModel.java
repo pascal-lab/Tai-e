@@ -142,8 +142,7 @@ class ReflectiveActionModel extends AbstractModel {
             if (result != null) {
                 Obj clsObj = heapModel.getConstantObj(
                         ClassLiteral.get(klass.getType()));
-                CSObj csObj = csManager.getCSObj(defaultHctx, clsObj);
-                solver.addVarPointsTo(context, result, csObj);
+                solver.addVarPointsTo(context, result, clsObj);
             }
         });
     }

@@ -105,6 +105,14 @@ public interface Solver {
     void addVarPointsTo(Context context, Var var, Context heapContext, Obj obj);
 
     /**
+     * Convenient API to add var points-to relation for object
+     * with empty heap context.
+     */
+    default void addVarPointsTo(Context context, Var var, Obj obj) {
+        addVarPointsTo(context, var, getContextSelector().getEmptyContext(), obj);
+    }
+
+    /**
      * Adds an object filter to given pointer.
      * Note that the filter works only after it is added to the pointer,
      * and it cannot filter out the objects pointed to by the pointer
