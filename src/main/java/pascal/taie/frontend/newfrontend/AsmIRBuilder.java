@@ -2,12 +2,20 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.objectweb.asm.tree.TableSwitchInsnNode;
 import pascal.taie.ir.IR;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.Utils.isCFEdge;

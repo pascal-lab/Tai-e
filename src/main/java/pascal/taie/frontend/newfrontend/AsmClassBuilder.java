@@ -1,15 +1,36 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import pascal.taie.language.annotation.*;
-import pascal.taie.language.classes.*;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.AnnotationElement;
+import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.EnumElement;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
