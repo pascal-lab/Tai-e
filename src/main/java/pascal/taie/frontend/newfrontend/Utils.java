@@ -2,14 +2,8 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import pascal.taie.language.annotation.ArrayElement;
-import pascal.taie.language.annotation.BooleanElement;
-import pascal.taie.language.annotation.ClassElement;
-import pascal.taie.language.annotation.DoubleElement;
-import pascal.taie.language.annotation.Element;
-import pascal.taie.language.annotation.IntElement;
-import pascal.taie.language.annotation.LongElement;
-import pascal.taie.language.annotation.StringElement;
+import org.objectweb.asm.tree.*;
+import pascal.taie.language.annotation.*;
 import pascal.taie.language.classes.Modifier;
 
 import java.util.Arrays;
@@ -84,5 +78,15 @@ public class Utils {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    /**
+     * Check if an asm instruction indices the control flow edge
+     */
+    static boolean isCFEdge(AbstractInsnNode node) {
+        return node instanceof JumpInsnNode ||
+                node instanceof TableSwitchInsnNode ||
+                node instanceof LookupSwitchInsnNode ||
+                node instanceof LabelNode;
     }
 }
