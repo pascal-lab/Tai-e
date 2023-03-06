@@ -29,7 +29,7 @@ import java.util.Comparator;
 /**
  * Represents a program location where the taint object is generated.
  */
-interface SourcePoint extends Comparable<SourcePoint> {
+public interface SourcePoint extends Comparable<SourcePoint> {
 
     Comparator<SourcePoint> COMPARATOR =
             Comparator.comparing((SourcePoint sp) -> sp.getContainer().toString())
