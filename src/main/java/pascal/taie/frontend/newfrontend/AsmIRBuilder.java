@@ -32,6 +32,8 @@ public class AsmIRBuilder {
 
     private Map<LabelNode, BytecodeBlock> label2Block;
 
+    private LabelNode entry;
+
     public AsmIRBuilder(JSRInlinerAdapter source) {
         this.source = source;
     }
@@ -41,7 +43,6 @@ public class AsmIRBuilder {
     }
 
     private void buildCFG() {
-        MultiMap<LabelNode, LabelNode> graph = Maps.newMultiMap();
         label2Block = Maps.newMap();
 
         AbstractInsnNode begin = source.instructions.getFirst();
@@ -51,10 +52,12 @@ public class AsmIRBuilder {
         }
 
         if (begin instanceof LabelNode l) {
-            queue.add(l);
+            entry = l;
         } else {
-            queue.add(createNewLabel(begin));
+            entry = createNewLabel(begin);
         }
+
+        queue.add(entry);
 
         while (!queue.isEmpty()) {
             LabelNode currentBegin = queue.poll();
