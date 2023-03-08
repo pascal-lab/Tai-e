@@ -37,14 +37,14 @@ task("fatJar", type = Jar::class) {
         }
     )
     from("COPYING", "COPYING.LESSER")
-    doLast {
-        copy {
-            from(archiveFile)
-            into(rootProject.buildDir)
-        }
-    }
+    destinationDirectory.set(rootProject.buildDir)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with(tasks["jar"] as CopySpec)
+}
+
+tasks.jar {
+    from("COPYING", "COPYING.LESSER")
+    destinationDirectory.set(rootProject.buildDir)
 }
 
 tasks.test {
