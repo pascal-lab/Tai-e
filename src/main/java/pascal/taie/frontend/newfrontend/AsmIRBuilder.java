@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.stream.Stream;
 
-import static pascal.taie.frontend.newfrontend.Utils.isCFEdge;
+import static pascal.taie.frontend.newfrontend.Utils.*;
 
 public class AsmIRBuilder {
 
@@ -107,7 +107,7 @@ public class AsmIRBuilder {
     }
 
     private Stream<LabelNode> collectJumpLabels(BytecodeBlock currentBlock, AbstractInsnNode node) {
-        if (node == null) {
+        if (node == null || isReturn(node) || isThrow(node)) {
             return Stream.empty();
         } else if (node instanceof JumpInsnNode jump) {
             if (node.getOpcode() == Opcodes.GOTO) {

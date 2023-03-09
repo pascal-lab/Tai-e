@@ -2,8 +2,20 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
-import pascal.taie.language.annotation.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.objectweb.asm.tree.TableSwitchInsnNode;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.BooleanElement;
+import pascal.taie.language.annotation.ClassElement;
+import pascal.taie.language.annotation.DoubleElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.IntElement;
+import pascal.taie.language.annotation.LongElement;
+import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.Modifier;
 
 import java.util.Arrays;
@@ -87,6 +99,29 @@ public class Utils {
         return node instanceof JumpInsnNode ||
                 node instanceof TableSwitchInsnNode ||
                 node instanceof LookupSwitchInsnNode ||
-                node instanceof LabelNode;
+                node instanceof LabelNode ||
+                isReturn(node) ||
+                isThrow(node);
+    }
+
+    static boolean isReturn(AbstractInsnNode node) {
+        if (node instanceof InsnNode insnNode) {
+            int op = insnNode.hashCode();
+            return op == Opcodes.ARETURN ||
+                    op == Opcodes.IRETURN ||
+                    op == Opcodes.LRETURN ||
+                    op == Opcodes.FRETURN ||
+                    op == Opcodes.DRETURN ||
+                    op == Opcodes.RETURN;
+        } else {
+            return false;
+        }
+    }
+
+    static  boolean isThrow(AbstractInsnNode node) {
+        if (node instanceof InsnNode insnNode) {
+            return insnNode.getOpcode() == Opcodes.ATHROW;
+        }
+        return false;
     }
 }
