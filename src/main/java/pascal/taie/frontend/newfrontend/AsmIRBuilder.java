@@ -7,9 +7,9 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 import pascal.taie.ir.IR;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -59,30 +59,54 @@ public class AsmIRBuilder {
 
         queue.add(entry);
 
+        for (TryCatchBlockNode now : source.tryCatchBlocks) {
+            queue.add(now.handler);
+        }
+
         while (!queue.isEmpty()) {
             LabelNode currentBegin = queue.poll();
-            if (label2Block.containsKey(currentBegin)) {
+            if (isVisited(currentBegin)) {
                 continue;
             }
 
-            List<AbstractInsnNode> block = new ArrayList<>();
-            label2Block.put(currentBegin, new BytecodeBlock(currentBegin, block));
+            BytecodeBlock bb = getBlock(currentBegin);
+            List<AbstractInsnNode> instr = bb.instr();
 
             AbstractInsnNode now = currentBegin.getNext();
             while (now != null) {
                 if (! (now instanceof LabelNode)) {
-                    block.add(now);
+                    instr.add(now);
                 }
                 if (isCFEdge(now)) {
                     break;
                 }
                 now = now.getNext();
             }
-            collectJumpLabels(now).forEach(queue::add);
+            collectJumpLabels(bb, now).forEach(label -> {
+                BytecodeBlock target = getBlock(label);
+                target.inEdges().add(bb);
+                bb.outEdges().add(target);
+                queue.add(label);
+            });
+            bb.setComplete();
         }
     }
 
-    private Stream<LabelNode> collectJumpLabels(AbstractInsnNode node) {
+    private BytecodeBlock getBlock(LabelNode label) {
+        return label2Block.computeIfAbsent(label, this::createNewBlock);
+    }
+
+    private BytecodeBlock createNewBlock(LabelNode label) {
+        return new BytecodeBlock(label, new ArrayList<>(),
+                new ArrayList<>(), new ArrayList<>(), null);
+    }
+
+    private boolean isVisited(LabelNode label) {
+        return label2Block.containsKey(label) &&
+                label2Block.get(label).isComplete();
+    }
+
+    private Stream<LabelNode> collectJumpLabels(BytecodeBlock currentBlock, AbstractInsnNode node) {
         if (node == null) {
             return Stream.empty();
         } else if (node instanceof JumpInsnNode jump) {
@@ -90,26 +114,30 @@ public class AsmIRBuilder {
                 return Stream.of(jump.label);
             } else {
                 return Stream.concat(Stream.of(jump.label),
-                        collectNextLabel(node.getNext()));
+                        collectFallThrough(currentBlock, node.getNext()));
             }
         } else if (node instanceof LookupSwitchInsnNode lookup) {
             return Stream.concat(Stream.of(lookup.dflt), lookup.labels.stream());
         } else if (node instanceof TableSwitchInsnNode table) {
             return Stream.concat(Stream.of(table.dflt), table.labels.stream());
         } else if (node instanceof LabelNode) {
-            return collectNextLabel(node);
+            return collectFallThrough(currentBlock, node);
         } else {
             throw new IllegalStateException();
         }
     }
 
-    private Stream<LabelNode> collectNextLabel(AbstractInsnNode node) {
+    private Stream<LabelNode> collectFallThrough(BytecodeBlock currentBlock, AbstractInsnNode node) {
         if (node == null) {
             return Stream.empty();
         } else if (node instanceof LabelNode l) {
+            currentBlock.setFallThrough(getBlock(l));
             return Stream.of(l);
         } else {
-            return Stream.of(createNewLabel(node));
+            LabelNode l = createNewLabel(node);
+            BytecodeBlock bb = getBlock(l);
+            currentBlock.setFallThrough(bb);
+            return Stream.of(l);
         }
     }
 
