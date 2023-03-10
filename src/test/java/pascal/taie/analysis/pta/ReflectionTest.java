@@ -37,7 +37,7 @@ public class ReflectionTest {
     @Test
     public void testReflectionLog() {
         Tests.testPTA(DIR, "ReflectiveAction",
-                "reflection:log",
+                "reflection-inference:null",
                 "reflection-log:src/test/resources/pta/reflection/ReflectiveAction.log");
     }
 }

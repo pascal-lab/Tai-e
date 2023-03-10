@@ -21,7 +21,7 @@
     # mahjong | collection
     dump: false # whether dump results
     expected-file: null # path of expected file for comparing results
-    reflection: string-constant # | null | log
+    reflection-inference: string-constant # | solar | null
     reflection-log: null # path to reflection log, required when reflection option is log
     taint-config: null # path to config file of taint analysis,
     # when this file is given, taint analysis will be enabled

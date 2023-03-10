@@ -138,7 +138,8 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         if (World.get().getOptions().getJavaVersion() >= 8) {
             plugin.addPlugin(new LambdaAnalysis());
         }
-        if (options.getString("reflection") != null) {
+        if (options.getString("reflection-inference") != null ||
+                options.getString("reflection-log") != null) {
             plugin.addPlugin(new ReflectionAnalysis());
         }
         if (options.getBoolean("handle-invokedynamic") &&

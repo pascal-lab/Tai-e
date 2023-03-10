@@ -62,7 +62,8 @@ public class TaintTest {
     @Test
     public void testTwoObjectTaint() {
         Tests.testPTA(DIR, "TwoObjectTaint",
-                "cs:2-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
+                "cs:2-obj",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
@@ -128,19 +129,22 @@ public class TaintTest {
     @Test
     public void testOneCallTaint() {
         Tests.testPTA(DIR, "OneCallTaint",
-                "cs:1-call;taint-config:src/test/resources/pta/taint/taint-config.yml");
+                "cs:1-call",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
     public void testInterTaintTransfer() {
         Tests.testPTA(DIR, "InterTaintTransfer",
-                "cs:2-call;taint-config:src/test/resources/pta/taint/taint-config.yml");
+                "cs:2-call",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
     public void testTaintInList() {
         Tests.testPTA(DIR, "TaintInList",
-                "cs:2-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
+                "cs:2-obj",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test
@@ -152,7 +156,8 @@ public class TaintTest {
     @Test
     public void testCSBackPropagation() {
         Tests.testPTA(DIR, "CSBackPropagation",
-                "cs:1-obj;taint-config:src/test/resources/pta/taint/taint-config.yml");
+                "cs:1-obj",
+                "taint-config:src/test/resources/pta/taint/taint-config.yml");
     }
 
     @Test

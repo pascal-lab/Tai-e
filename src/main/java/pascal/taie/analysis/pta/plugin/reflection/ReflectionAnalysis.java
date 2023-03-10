@@ -43,46 +43,51 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 
 public class ReflectionAnalysis implements Plugin {
 
-    private Model classModel;
+    private Solver solver;
 
-    private MetaObjModel metaObjModel;
+    private CSManager csManager;
+
+    @Nullable
+    private InferenceModel inferenceModel;
 
     @Nullable
     private LogBasedModel logBasedModel;
 
     private Model reflectiveActionModel;
 
-    private Solver solver;
-
-    private CSManager csManager;
+    private Model classModel;
 
     private final MultiMap<Var, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
+        csManager = solver.getCSManager();
+
         MetaObjHelper helper = new MetaObjHelper(solver);
         String logPath = solver.getOptions().getString("reflection-log");
         if (logPath != null) {
             logBasedModel = new LogBasedModel(solver, helper, logPath);
         }
-        classModel = new ClassModel(solver);
-        String reflection = solver.getOptions().getString("reflection");
+        Set<Invoke> invokesWithLog = logBasedModel != null
+                ? logBasedModel.getInvokesWithLog() : Set.of();
+        String reflection = solver.getOptions().getString("reflection-inference");
         if ("string-constant".equals(reflection)) {
-            metaObjModel = new StringBasedModel(solver);
-        } else if ("log".equals(reflection)) {
-            metaObjModel = new DummyModel(solver);
+            inferenceModel = new StringBasedModel(solver, helper);
+        } else if (reflection == null) {
+            inferenceModel = null;
         } else {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
         reflectiveActionModel = new ReflectiveActionModel(solver);
-        csManager = solver.getCSManager();
+        classModel = new ClassModel(solver);
     }
 
     @Override
@@ -91,7 +96,9 @@ public class ReflectionAnalysis implements Plugin {
                 .invokes(false)
                 .forEach(invoke -> {
                     classModel.handleNewInvoke(invoke);
-                    metaObjModel.handleNewInvoke(invoke);
+                    if (inferenceModel != null) {
+                        inferenceModel.handleNewInvoke(invoke);
+                    }
                     reflectiveActionModel.handleNewInvoke(invoke);
                 });
     }
@@ -101,8 +108,9 @@ public class ReflectionAnalysis implements Plugin {
         if (classModel.isRelevantVar(csVar.getVar())) {
             classModel.handleNewPointsToSet(csVar, pts);
         }
-        if (metaObjModel.isRelevantVar(csVar.getVar())) {
-            metaObjModel.handleNewPointsToSet(csVar, pts);
+        if (inferenceModel != null &&
+                inferenceModel.isRelevantVar(csVar.getVar())) {
+            inferenceModel.handleNewPointsToSet(csVar, pts);
         }
         if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {
             reflectiveActionModel.handleNewPointsToSet(csVar, pts);
@@ -116,7 +124,6 @@ public class ReflectionAnalysis implements Plugin {
         if (logBasedModel != null) {
             logBasedModel.handleNewCSMethod(csMethod);
         }
-        metaObjModel.handleNewCSMethod(csMethod);
     }
 
     @Override

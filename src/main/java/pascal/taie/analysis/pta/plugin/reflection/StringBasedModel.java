@@ -24,26 +24,38 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
-class StringBasedModel extends MetaObjModel {
+class StringBasedModel extends InferenceModel {
 
-    StringBasedModel(Solver solver) {
-        super(solver);
+    StringBasedModel(Solver solver, MetaObjHelper helper) {
+        super(solver, helper);
     }
 
     @Override
     protected void registerVarAndHandler() {
+        JMethod classForName = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class forName(java.lang.String)>");
+        registerRelevantVarIndexes(classForName, 0);
+        registerAPIHandler(classForName, this::classForName);
+
+        JMethod classForName2 = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>");
+        // TODO: take class loader into account
+        registerRelevantVarIndexes(classForName2, 0);
+        registerAPIHandler(classForName2, this::classForName);
+
         registerRelevantVarIndexes(get("getConstructor"), BASE);
         registerAPIHandler(get("getConstructor"), this::getConstructor);
 
@@ -57,7 +69,28 @@ class StringBasedModel extends MetaObjModel {
         registerAPIHandler(get("getDeclaredMethod"), this::getDeclaredMethod);
     }
 
-    private void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @Override
+    protected void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Context context = csVar.getContext();
+        pts.forEach(obj -> {
+            String className = CSObjs.toString(obj);
+            if (className != null) {
+                JClass klass = hierarchy.getClass(className);
+                if (klass != null) {
+                    solver.initializeClass(klass);
+                    Var result = invoke.getResult();
+                    if (result != null) {
+                        Obj clsObj = heapModel.getConstantObj(
+                                ClassLiteral.get(klass.getType()));
+                        solver.addVarPointsTo(context, result, clsObj);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             Context context = csVar.getContext();
@@ -73,7 +106,8 @@ class StringBasedModel extends MetaObjModel {
         }
     }
 
-    private void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @Override
+    protected void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             Context context = csVar.getContext();
@@ -89,7 +123,8 @@ class StringBasedModel extends MetaObjModel {
         }
     }
 
-    private void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @Override
+    protected void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -113,7 +148,8 @@ class StringBasedModel extends MetaObjModel {
         }
     }
 
-    private void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @Override
+    protected void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);

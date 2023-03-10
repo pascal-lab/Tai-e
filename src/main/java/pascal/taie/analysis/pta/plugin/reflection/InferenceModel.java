@@ -22,23 +22,24 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
-abstract class MetaObjModel extends AbstractModel {
+abstract class InferenceModel extends AbstractModel {
 
     protected final MetaObjHelper helper;
 
     private JClass klass;
 
-    MetaObjModel(Solver solver) {
+    InferenceModel(Solver solver, MetaObjHelper helper) {
         super(solver);
-        helper = new MetaObjHelper(solver);
+        this.helper = helper;
     }
 
     protected JMethod get(String methodName) {
@@ -49,10 +50,13 @@ abstract class MetaObjModel extends AbstractModel {
         return klass.getDeclaredMethod(methodName);
     }
 
-    protected Obj getMetaObj(Object classOrMember) {
-        return helper.getMetaObj(classOrMember);
-    }
+    protected abstract void classForName(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    void handleNewCSMethod(CSMethod csMethod) {
-    }
+    protected abstract void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
+
+    protected abstract void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
+
+    protected abstract void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
+
+    protected abstract void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
 }
