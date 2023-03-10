@@ -42,6 +42,8 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
+import javax.annotation.Nullable;
+
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 
@@ -50,6 +52,9 @@ public class ReflectionAnalysis implements Plugin {
     private Model classModel;
 
     private MetaObjModel metaObjModel;
+
+    @Nullable
+    private LogBasedModel logBasedModel;
 
     private Model reflectiveActionModel;
 
@@ -62,12 +67,17 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
+        MetaObjHelper helper = new MetaObjHelper(solver);
+        String logPath = solver.getOptions().getString("reflection-log");
+        if (logPath != null) {
+            logBasedModel = new LogBasedModel(solver, helper, logPath);
+        }
         classModel = new ClassModel(solver);
         String reflection = solver.getOptions().getString("reflection");
         if ("string-constant".equals(reflection)) {
             metaObjModel = new StringBasedModel(solver);
         } else if ("log".equals(reflection)) {
-            metaObjModel = new LogBasedModel(solver);
+            metaObjModel = new DummyModel(solver);
         } else {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
@@ -103,6 +113,9 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
+        if (logBasedModel != null) {
+            logBasedModel.handleNewCSMethod(csMethod);
+        }
         metaObjModel.handleNewCSMethod(csMethod);
     }
 
@@ -148,9 +161,6 @@ public class ReflectionAnalysis implements Plugin {
         });
     }
 
-    /**
-     * TODO: merge with DefaultSolver.isConcerned(Exp)
-     */
     private static boolean isConcerned(Type type) {
         return type instanceof ClassType || type instanceof ArrayType;
     }

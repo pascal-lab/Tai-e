@@ -26,7 +26,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
-import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -50,8 +49,8 @@ abstract class MetaObjModel extends AbstractModel {
         return klass.getDeclaredMethod(methodName);
     }
 
-    protected Obj getReflectionObj(ClassMember member) {
-        return helper.getReflectionObj(member);
+    protected Obj getMetaObj(Object classOrMember) {
+        return helper.getMetaObj(classOrMember);
     }
 
     void handleNewCSMethod(CSMethod csMethod) {

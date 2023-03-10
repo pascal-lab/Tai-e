@@ -27,12 +27,10 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.analysis.pta.plugin.util.SolverHolder;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -56,7 +54,7 @@ import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
-class LogBasedModel extends MetaObjModel {
+class LogBasedModel extends SolverHolder {
 
     private static final Logger logger = LogManager.getLogger(LogBasedModel.class);
 
@@ -77,6 +75,8 @@ class LogBasedModel extends MetaObjModel {
             "Field", ClassNames.FIELD,
             "Array", ClassNames.ARRAY
     );
+
+    private final MetaObjHelper helper;
 
     private final Set<Invoke> loggedInvokes = Sets.newSet();
 
@@ -107,17 +107,11 @@ class LogBasedModel extends MetaObjModel {
      */
     private final Set<String> missingItems = Sets.newSet();
 
-    private final ContextSelector selector;
-
-    LogBasedModel(Solver solver) {
+    LogBasedModel(Solver solver, MetaObjHelper helper, String logPath) {
         super(solver);
-        selector = solver.getContextSelector();
-        String path = solver.getOptions().getString("reflection-log");
-        if (path == null) {
-            throw new IllegalArgumentException("Missing reflection-log option");
-        }
-        logger.info("Using reflection log from {}", path);
-        LogItem.load(path).forEach(this::addItem);
+        this.helper = helper;
+        logger.info("Using reflection log from {}", logPath);
+        LogItem.load(logPath).forEach(this::addItem);
     }
 
     private void addItem(LogItem item) {
@@ -213,11 +207,10 @@ class LogBasedModel extends MetaObjModel {
     /**
      * @return set of reflective invocations that are annotated by the log.
      */
-    Set<Invoke> getLoggedInvokes() {
+    Set<Invoke> getInvokesWithLog() {
         return Collections.unmodifiableSet(loggedInvokes);
     }
 
-    @Override
     void handleNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         if (relevantMethods.contains(method)) {
@@ -258,33 +251,12 @@ class LogBasedModel extends MetaObjModel {
 
     private CSObj toCSObj(CSMethod csMethod, Object target) {
         Obj obj;
-        if (target instanceof JClass jclass) {
-            obj = heapModel.getConstantObj(ClassLiteral.get(jclass.getType()));
-        } else if (target instanceof ClassMember member) {
-            obj = getReflectionObj(member);
-        } else { // Array.newInstance(target, ...)
-            obj = heapModel.getConstantObj(ClassLiteral.get((ClassType) target));
+        if (target instanceof ClassType type) { // Array.newInstance(target, ...)
+            obj = heapModel.getConstantObj(ClassLiteral.get(type));
+        } else {
+            obj = helper.getMetaObj(target);
         }
         Context hctx = selector.selectHeapContext(csMethod, obj);
         return csManager.getCSObj(hctx, obj);
-    }
-
-    // Following methods are useless in this class, thus we provide
-    // empty implementation.
-    @Override
-    protected void registerVarAndHandler() {
-    }
-
-    @Override
-    public void handleNewInvoke(Invoke invoke) {
-    }
-
-    @Override
-    public boolean isRelevantVar(Var var) {
-        return false;
-    }
-
-    @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
     }
 }

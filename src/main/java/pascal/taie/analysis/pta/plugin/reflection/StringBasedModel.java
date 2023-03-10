@@ -65,7 +65,7 @@ class StringBasedModel extends MetaObjModel {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
                     Reflections.getConstructors(jclass)
-                            .map(helper::getReflectionObj)
+                            .map(helper::getMetaObj)
                             .forEach(ctorObj ->
                                     solver.addVarPointsTo(context, result, ctorObj));
                 }
@@ -81,7 +81,7 @@ class StringBasedModel extends MetaObjModel {
                 JClass jclass = CSObjs.toClass(obj);
                 if (jclass != null) {
                     Reflections.getDeclaredConstructors(jclass)
-                            .map(helper::getReflectionObj)
+                            .map(helper::getMetaObj)
                             .forEach(ctorObj ->
                                     solver.addVarPointsTo(context, result, ctorObj));
                 }
@@ -103,7 +103,7 @@ class StringBasedModel extends MetaObjModel {
                         String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             Reflections.getMethods(cls, name)
-                                    .map(helper::getReflectionObj)
+                                    .map(helper::getMetaObj)
                                     .forEach(mtdObj ->
                                             solver.addVarPointsTo(context, result, mtdObj));
                         }
@@ -127,7 +127,7 @@ class StringBasedModel extends MetaObjModel {
                         String name = CSObjs.toString(nameObj);
                         if (name != null) {
                             Reflections.getDeclaredMethods(cls, name)
-                                    .map(helper::getReflectionObj)
+                                    .map(helper::getMetaObj)
                                     .forEach(mtdObj ->
                                             solver.addVarPointsTo(context, result, mtdObj));
                         }

@@ -26,8 +26,11 @@ import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeSystem;
@@ -52,15 +55,25 @@ class MetaObjHelper {
         heapModel = solver.getHeapModel();
     }
 
-    Obj getReflectionObj(ClassMember member) {
-        if (member instanceof JMethod mtd) {
-            if (mtd.isConstructor()) {
-                return heapModel.getMockObj(META_DESC, member, constructor);
+    /**
+     * Given a JClass or ClassMember, return the corresponding meta object.
+     * @throws IllegalArgumentException if type of {@code classOrMember}
+     * is neither {@link JClass} nor {@link ClassMember}.
+     */
+    Obj getMetaObj(Object classOrMember) {
+        if (classOrMember instanceof JClass jclass) {
+            return heapModel.getConstantObj(ClassLiteral.get(jclass.getType()));
+        } else if (classOrMember instanceof JMethod m) {
+            if (m.isConstructor()) {
+                return heapModel.getMockObj(META_DESC, classOrMember, constructor);
             } else {
-                return heapModel.getMockObj(META_DESC, member, method);
+                return heapModel.getMockObj(META_DESC, classOrMember, method);
             }
+        } else if (classOrMember instanceof JField) {
+            return heapModel.getMockObj(META_DESC, classOrMember, field);
         } else {
-            return heapModel.getMockObj(META_DESC, member, field);
+            throw new IllegalArgumentException(
+                    "Expected JClass or ClassMember," + " given " + classOrMember);
         }
     }
 }
