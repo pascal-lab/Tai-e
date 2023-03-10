@@ -88,7 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import static pascal.taie.language.type.BottomType.BOTTOM_TYPE;
+import static pascal.taie.language.type.BottomType.BOTTOM;
 import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
@@ -147,8 +147,8 @@ class Converter {
                     arrayType.numDimensions);
         } else if (sootType instanceof VoidType) {
             return VOID;
-        }else if (sootType instanceof BottomType){
-            return BOTTOM_TYPE;
+        } else if (sootType instanceof BottomType){
+            return BOTTOM;
         }
         throw new SootFrontendException("Cannot convert soot Type: " + sootType);
     }
