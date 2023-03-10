@@ -23,21 +23,19 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.World;
-import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.EmptyParamProvider;
 import pascal.taie.analysis.pta.core.solver.EntryPoint;
 import pascal.taie.analysis.pta.core.solver.ParamProvider;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.SolverHolder;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.TypeSystem;
 
 import java.util.Set;
 
@@ -69,15 +67,14 @@ public class EntryPointHandler implements Plugin {
         }
     }
 
-    private static class MainEntryPointParamProvider implements ParamProvider {
+    private static class MainEntryPointParamProvider extends SolverHolder
+            implements ParamProvider {
 
         private final JMethod method;
 
-        private final Solver solver;
-
         MainEntryPointParamProvider(JMethod method, Solver solver) {
+            super(solver);
             this.method = method;
-            this.solver = solver;
         }
 
         @Override
@@ -92,19 +89,16 @@ public class EntryPointHandler implements Plugin {
         }
 
         private Obj getMainArgs() {
-            HeapModel heapModel = solver.getHeapModel();
-            TypeSystem typeSystem = solver.getTypeSystem();
             ClassType string = typeSystem.getClassType(ClassNames.STRING);
             ArrayType stringArray = typeSystem.getArrayType(string, 1);
             Obj args = heapModel.getMockObj(Descriptor.ENTRY_DESC,
                     "<main-arguments>", stringArray, method);
             // set up element in main args
-            Context ctx = solver.getContextSelector().getEmptyContext();
-            CSObj csArgs = solver.getCSManager().getCSObj(ctx, args);
+            CSObj csArgs = solver.getCSManager().getCSObj(emptyContext, args);
             ArrayIndex argsIndex = solver.getCSManager().getArrayIndex(csArgs);
             Obj argsElem = heapModel.getMockObj(Descriptor.ENTRY_DESC,
                     "<main-arguments-element>", string, method);
-            solver.addPointsTo(argsIndex, ctx, argsElem);
+            solver.addPointsTo(argsIndex, emptyContext, argsElem);
             return args;
         }
     }

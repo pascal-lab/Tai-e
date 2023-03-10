@@ -77,8 +77,8 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
@@ -649,9 +649,9 @@ public class DefaultSolver implements Solver {
             @Override
             public Void visit(AssignLiteral stmt) {
                 Literal literal = stmt.getRValue();
-                if (literal.getType() instanceof ReferenceType type
-                        && !(type instanceof NullType)) {
-                    // by default, we only generate objects of non-null reference type
+                Type type = literal.getType();
+                if (type instanceof ClassType) {
+                    // here we only generate objects of ClassType
                     Obj obj = heapModel.getConstantObj((ReferenceLiteral) literal);
                     Context heapContext = contextSelector
                             .selectHeapContext(csMethod, obj);
