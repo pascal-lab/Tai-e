@@ -23,17 +23,12 @@
 package pascal.taie.analysis.pta.plugin.util;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.TriConsumer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -45,19 +40,7 @@ import java.util.Map;
 /**
  * Provides common functionalities for implementing API models.
  */
-public abstract class AbstractModel implements Model {
-
-    protected final Solver solver;
-
-    protected final ClassHierarchy hierarchy;
-
-    protected final TypeSystem typeSystem;
-
-    protected final ContextSelector selector;
-
-    protected final CSManager csManager;
-
-    protected final HeapModel heapModel;
+public abstract class AbstractModel extends SolverHolder implements Model {
 
     /**
      * Default heap context for MethodType objects.
@@ -73,12 +56,7 @@ public abstract class AbstractModel implements Model {
             = Maps.newHybridMap();
 
     protected AbstractModel(Solver solver) {
-        this.solver = solver;
-        hierarchy = solver.getHierarchy();
-        typeSystem = solver.getTypeSystem();
-        selector = solver.getContextSelector();
-        csManager = solver.getCSManager();
-        heapModel = solver.getHeapModel();
+        super(solver);
         defaultHctx = solver.getContextSelector().getEmptyContext();
         registerVarAndHandler();
     }
