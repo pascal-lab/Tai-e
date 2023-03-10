@@ -31,9 +31,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.ClassLiteral;
-import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassMember;
@@ -49,10 +49,12 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+
+import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 class LogBasedModel extends MetaObjModel {
 
@@ -75,6 +77,8 @@ class LogBasedModel extends MetaObjModel {
             "Field", ClassNames.FIELD,
             "Array", ClassNames.ARRAY
     );
+
+    private final Set<Invoke> loggedInvokes = Sets.newSet();
 
     private final Set<JMethod> relevantMethods = Sets.newSet();
 
@@ -136,19 +140,19 @@ class LogBasedModel extends MetaObjModel {
         // add target specified in the item
         if (target != null) {
             List<Invoke> invokes = getMatchedInvokes(item);
-            if (target instanceof JClass) {
+            if (target instanceof JClass jclass) {
                 if (item.api.equals("Class.forName")) {
                     for (Invoke invoke : invokes) {
-                        forNameTargets.put(invoke, (JClass) target);
+                        forNameTargets.put(invoke, jclass);
                     }
                 } else {
                     for (Invoke invoke : invokes) {
-                        classTargets.put(invoke, (JClass) target);
+                        classTargets.put(invoke, jclass);
                     }
                 }
-            } else if (target instanceof ClassMember) {
+            } else if (target instanceof ClassMember member) {
                 for (Invoke invoke : invokes) {
-                    memberTargets.put(invoke, (ClassMember) target);
+                    memberTargets.put(invoke, member);
                 }
             } else if (target instanceof ArrayType arrayType) {
                 // Note that currently we only support Array.newInstance(Class,int),
@@ -159,9 +163,10 @@ class LogBasedModel extends MetaObjModel {
                     }
                 }
             }
-            invokes.stream()
-                    .map(Invoke::getContainer)
-                    .forEach(relevantMethods::add);
+            invokes.forEach(invoke -> {
+                loggedInvokes.add(invoke);
+                relevantMethods.add(invoke.getContainer());
+            });
         } else if (missingItems.add(item.target)) {
             logger.warn("Reflective target '{}' for {} is not found", item.target, item.api);
         }
@@ -205,6 +210,13 @@ class LogBasedModel extends MetaObjModel {
                         item.lineNumber == invoke.getLineNumber());
     }
 
+    /**
+     * @return set of reflective invocations that are annotated by the log.
+     */
+    Set<Invoke> getLoggedInvokes() {
+        return Collections.unmodifiableSet(loggedInvokes);
+    }
+
     @Override
     void handleNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
@@ -213,9 +225,9 @@ class LogBasedModel extends MetaObjModel {
                     .invokes(false)
                     .forEach(invoke -> {
                         handleForName(csMethod, invoke);
-                        passTargetToBase(classTargets, csMethod, invoke);
-                        passTargetToBase(memberTargets, csMethod, invoke);
-                        passTargetToArg0(arrayTypeTargets, csMethod, invoke);
+                        passTarget(classTargets, csMethod, invoke, BASE);
+                        passTarget(memberTargets, csMethod, invoke, BASE);
+                        passTarget(arrayTypeTargets, csMethod, invoke, 0);
                     });
         }
     }
@@ -234,24 +246,11 @@ class LogBasedModel extends MetaObjModel {
         }
     }
 
-    private <T> void passTargetToBase(MultiMap<Invoke, T> targetMap,
-                                      CSMethod csMethod, Invoke invoke) {
-        passTarget(targetMap, csMethod, invoke,
-                i -> ((InvokeInstanceExp) i.getInvokeExp()).getBase());
-    }
-
-    private <T> void passTargetToArg0(MultiMap<Invoke, T> targetMap,
-                                      CSMethod csMethod, Invoke invoke) {
-        passTarget(targetMap, csMethod, invoke,
-                i -> i.getInvokeExp().getArg(0));
-    }
-
-    private <T> void passTarget(
-            MultiMap<Invoke, T> targetMap, CSMethod csMethod,
-            Invoke invoke, Function<Invoke, Var> varGetter) {
+    private <T> void passTarget(MultiMap<Invoke, T> targetMap,
+                                CSMethod csMethod, Invoke invoke, int index) {
         if (targetMap.containsKey(invoke)) {
             Context context = csMethod.getContext();
-            Var var = varGetter.apply(invoke);
+            Var var = InvokeUtils.getVar(invoke, index);
             targetMap.get(invoke).forEach(target ->
                     solver.addVarPointsTo(context, var, toCSObj(csMethod, target)));
         }
@@ -259,14 +258,12 @@ class LogBasedModel extends MetaObjModel {
 
     private CSObj toCSObj(CSMethod csMethod, Object target) {
         Obj obj;
-        if (target instanceof JClass) {
-            obj = heapModel.getConstantObj(
-                    ClassLiteral.get(((JClass) target).getType()));
-        } else if (target instanceof ClassMember) {
-            obj = getReflectionObj((ClassMember) target);
-        } else {
-            obj = heapModel.getConstantObj(
-                    ClassLiteral.get((ClassType) target));
+        if (target instanceof JClass jclass) {
+            obj = heapModel.getConstantObj(ClassLiteral.get(jclass.getType()));
+        } else if (target instanceof ClassMember member) {
+            obj = getReflectionObj(member);
+        } else { // Array.newInstance(target, ...)
+            obj = heapModel.getConstantObj(ClassLiteral.get((ClassType) target));
         }
         Context hctx = selector.selectHeapContext(csMethod, obj);
         return csManager.getCSObj(hctx, obj);

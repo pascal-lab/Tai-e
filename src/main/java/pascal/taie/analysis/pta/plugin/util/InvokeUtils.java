@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.util;
 
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
@@ -28,14 +28,14 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 
 /**
- * Utility class to handle method indexes in taint analysis.
+ * Provides utility methods to conveniently handle {@link Invoke}.
  */
-final class IndexUtils {
+public final class InvokeUtils {
 
     /**
      * Special number representing the base variable of an invocation.
      */
-    static final int BASE = -1;
+    public static final int BASE = -1;
 
     /**
      * String representation of base variable.
@@ -46,20 +46,20 @@ final class IndexUtils {
      * Special number representing the variable that receivers
      * the result of the invocation.
      */
-    static final int RESULT = -2;
+    public static final int RESULT = -2;
 
     /**
      * String representation of result variable.
      */
     private static final String RESULT_STR = "result";
 
-    private IndexUtils() {
+    private InvokeUtils() {
     }
 
     /**
      * Coverts string to index.
      */
-    static int toInt(String s) {
+    public static int toInt(String s) {
         return switch (s.toLowerCase()) {
             case BASE_STR -> BASE;
             case RESULT_STR -> RESULT;
@@ -70,7 +70,7 @@ final class IndexUtils {
     /**
      * Converts index to string.
      */
-    static String toString(int index) {
+    public static String toString(int index) {
         return switch (index) {
             case BASE -> BASE_STR;
             case RESULT -> RESULT_STR;
@@ -81,7 +81,7 @@ final class IndexUtils {
     /**
      * Retrieves variable from a call site and index.
      */
-    static Var getVar(Invoke callSite, int index) {
+    public static Var getVar(Invoke callSite, int index) {
         InvokeExp invokeExp = callSite.getInvokeExp();
         return switch (index) {
             case BASE -> ((InvokeInstanceExp) invokeExp).getBase();

@@ -55,6 +55,7 @@ import java.util.List;
 
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.STATIC_STORE;
+import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
  * Models reflective-action methods, currently supports

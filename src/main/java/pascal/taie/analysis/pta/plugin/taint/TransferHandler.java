@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.FieldAccess;
@@ -112,8 +113,8 @@ class TransferHandler {
         Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         transfers.get(callee).forEach(transfer -> {
-            Var from = IndexUtils.getVar(callSite, transfer.from());
-            Var to = IndexUtils.getVar(callSite, transfer.to());
+            Var from = InvokeUtils.getVar(callSite, transfer.from());
+            Var to = InvokeUtils.getVar(callSite, transfer.to());
             // when transfer to result variable, and the call site
             // does not have result variable, then "to" is null.
             if (to != null) {
@@ -131,8 +132,8 @@ class TransferHandler {
                 // pointer analysis, and we just need to specially handle the
                 // pointers whose objects flow to "to", i.e., back propagation.
                 if (enableBackPropagate
-                        && transfer.to() != IndexUtils.RESULT
-                        && !(transfer.to() == IndexUtils.BASE
+                        && transfer.to() != InvokeUtils.RESULT
+                        && !(transfer.to() == InvokeUtils.BASE
                         && transfer.method().isConstructor())) {
                     backPropagateTaint(to, ctx);
                 }

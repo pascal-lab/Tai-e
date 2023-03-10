@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -187,7 +188,7 @@ record TaintConfig(List<CallSource> callSources,
             String methodSig = node.get("method").asText();
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
-                int index = IndexUtils.toInt(node.get("index").asText());
+                int index = InvokeUtils.toInt(node.get("index").asText());
                 Type type = typeSystem.getType(node.get("type").asText());
                 return new CallSource(method, index, type);
             } else {
@@ -203,7 +204,7 @@ record TaintConfig(List<CallSource> callSources,
             String methodSig = node.get("method").asText();
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
-                int index = IndexUtils.toInt(node.get("index").asText());
+                int index = InvokeUtils.toInt(node.get("index").asText());
                 Type type = typeSystem.getType(node.get("type").asText());
                 return new ParamSource(method, index, type);
             } else {
@@ -230,7 +231,7 @@ record TaintConfig(List<CallSource> callSources,
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int index = IndexUtils.toInt(elem.get("index").asText());
+                        int index = InvokeUtils.toInt(elem.get("index").asText());
                         sinks.add(new Sink(method, index));
                     } else {
                         logger.warn("Cannot find sink method '{}'", methodSig);
@@ -259,8 +260,8 @@ record TaintConfig(List<CallSource> callSources,
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int from = IndexUtils.toInt(elem.get("from").asText());
-                        int to = IndexUtils.toInt(elem.get("to").asText());
+                        int from = InvokeUtils.toInt(elem.get("from").asText());
+                        int to = InvokeUtils.toInt(elem.get("to").asText());
                         Type type = typeSystem.getType(elem.get("type").asText());
                         transfers.add(new TaintTransfer(method, from, to, type));
                     } else {
@@ -288,7 +289,7 @@ record TaintConfig(List<CallSource> callSources,
                     String methodSig = elem.get("method").asText();
                     JMethod method = hierarchy.getMethod(methodSig);
                     if (method != null) {
-                        int index = IndexUtils.toInt(elem.get("index").asText());
+                        int index = InvokeUtils.toInt(elem.get("index").asText());
                         sanitizers.add(new ParamSanitizer(method, index));
                     } else {
                         logger.warn("Cannot find sanitizer method '{}'", methodSig);

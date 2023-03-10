@@ -29,6 +29,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -72,11 +73,11 @@ class SourceHandler {
         // generate taint value from source call
         callSources.get(callee).forEach(source -> {
             int index = source.index();
-            if (IndexUtils.RESULT == index && callSite.getLValue() == null ||
-                    IndexUtils.RESULT != index && edge.getKind() == CallKind.OTHER) {
+            if (InvokeUtils.RESULT == index && callSite.getLValue() == null ||
+                    InvokeUtils.RESULT != index && edge.getKind() == CallKind.OTHER) {
                 return;
             }
-            Var var = IndexUtils.getVar(callSite, index);
+            Var var = InvokeUtils.getVar(callSite, index);
             SourcePoint sourcePoint = new CallSourcePoint(callSite, index);
             Obj taint = manager.makeTaint(sourcePoint, source.type());
             solver.addVarPointsTo(edge.getCallSite().getContext(), var, taint);

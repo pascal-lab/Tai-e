@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
@@ -57,7 +58,7 @@ public record CallSourcePoint(Invoke sourceCall, int index) implements SourcePoi
 
     @Override
     public String toString() {
-        return sourceCall.toString() + "/" + IndexUtils.toString(index);
+        return sourceCall.toString() + "/" + InvokeUtils.toString(index);
     }
 
 }

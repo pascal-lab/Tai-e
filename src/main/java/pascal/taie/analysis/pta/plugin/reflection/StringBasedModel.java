@@ -23,7 +23,6 @@
 package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
@@ -34,6 +33,8 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 
 import java.util.List;
+
+import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 class StringBasedModel extends MetaObjModel {
 

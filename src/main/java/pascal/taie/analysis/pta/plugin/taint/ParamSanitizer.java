@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JMethod;
 
 /**
@@ -35,6 +36,6 @@ record ParamSanitizer(JMethod method, int index) implements Sanitizer {
     @Override
     public String toString() {
         return String.format("ParamSanitizer{%s/%s}",
-                method, IndexUtils.toString(index));
+                method, InvokeUtils.toString(index));
     }
 }

@@ -33,6 +33,7 @@ import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -81,7 +82,7 @@ class TFGBuilder {
                 .forEach(p -> {
                     Var sourceVar = null;
                     if (p instanceof CallSourcePoint csp) {
-                        sourceVar = IndexUtils.getVar(
+                        sourceVar = InvokeUtils.getVar(
                                 csp.sourceCall(), csp.index());
                     } else if (p instanceof ParamSourcePoint psp) {
                         sourceVar = psp.sourceMethod().getIR()

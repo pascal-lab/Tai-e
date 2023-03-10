@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.stmt.Invoke;
 
 import javax.annotation.Nonnull;
@@ -46,6 +47,6 @@ public record SinkPoint(Invoke sinkCall, int index) implements Comparable<SinkPo
 
     @Override
     public String toString() {
-        return sinkCall + "/" + IndexUtils.toString(index);
+        return sinkCall + "/" + InvokeUtils.toString(index);
     }
 }

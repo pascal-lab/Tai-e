@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
@@ -37,6 +38,6 @@ record CallSource(JMethod method, int index, Type type) implements Source {
     @Override
     public String toString() {
         return String.format("CallSource{%s/%s(%s)}",
-                method, IndexUtils.toString(index), type);
+                method, InvokeUtils.toString(index), type);
     }
 }

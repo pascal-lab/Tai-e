@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
@@ -40,7 +41,7 @@ record TaintTransfer(JMethod method, int from, int to, Type type) {
     @Override
     public String toString() {
         return method + ": " +
-                IndexUtils.toString(from) + " -> " + IndexUtils.toString(to) +
+                InvokeUtils.toString(from) + " -> " + InvokeUtils.toString(to) +
                 "(" + type + ")";
     }
 }

@@ -26,6 +26,7 @@ import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 
 import java.util.List;
@@ -60,7 +61,7 @@ class SinkHandler {
                     .filter(e -> e.getKind() != CallKind.OTHER)
                     .map(Edge::getCallSite)
                     .forEach(sinkCall -> {
-                        Var arg = IndexUtils.getVar(sinkCall, i);
+                        Var arg = InvokeUtils.getVar(sinkCall, i);
                         SinkPoint sinkPoint = new SinkPoint(sinkCall, i);
                         result.getPointsToSet(arg)
                                 .stream()

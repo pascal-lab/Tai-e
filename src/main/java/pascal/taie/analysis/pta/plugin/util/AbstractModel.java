@@ -29,8 +29,6 @@ import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.InvokeExp;
-import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -48,11 +46,6 @@ import java.util.Map;
  * Provides common functionalities for implementing API models.
  */
 public abstract class AbstractModel implements Model {
-
-    /**
-     * Special index representing the base variable of an invocation site.
-     */
-    protected static final int BASE = -1;
 
     protected final Solver solver;
 
@@ -103,7 +96,7 @@ public abstract class AbstractModel implements Model {
             int[] indexes = relevantVarIndexes.get(target);
             if (indexes != null) {
                 for (int i : indexes) {
-                    relevantVars.put(getArg(invoke, i), invoke);
+                    relevantVars.put(InvokeUtils.getVar(invoke, i), invoke);
                 }
             }
         }
@@ -146,7 +139,7 @@ public abstract class AbstractModel implements Model {
             CSVar csVar, PointsToSet pts, Invoke invoke, int... indexes) {
         List<PointsToSet> args = new ArrayList<>(indexes.length);
         for (int i : indexes) {
-            Var arg = getArg(invoke, i);
+            Var arg = InvokeUtils.getVar(invoke, i);
             if (arg.equals(csVar.getVar())) {
                 args.add(pts);
             } else {
@@ -155,12 +148,5 @@ public abstract class AbstractModel implements Model {
             }
         }
         return args;
-    }
-
-    private static Var getArg(Invoke invoke, int i) {
-        InvokeExp invokeExp = invoke.getInvokeExp();
-        return i == BASE ?
-                ((InvokeInstanceExp) invokeExp).getBase() :
-                invokeExp.getArg(i);
     }
 }
