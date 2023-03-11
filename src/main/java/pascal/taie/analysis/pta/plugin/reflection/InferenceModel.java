@@ -31,15 +31,20 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.Set;
+
 abstract class InferenceModel extends AbstractModel {
 
     protected final MetaObjHelper helper;
 
+    protected final Set<Invoke> invokesWithLog;
+
     private JClass clazz;
 
-    InferenceModel(Solver solver, MetaObjHelper helper) {
+    InferenceModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
         super(solver);
         this.helper = helper;
+        this.invokesWithLog = invokesWithLog;
     }
 
     protected JMethod get(String methodName) {

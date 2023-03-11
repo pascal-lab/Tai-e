@@ -80,7 +80,9 @@ public class ReflectionAnalysis implements Plugin {
                 ? logBasedModel.getInvokesWithLog() : Set.of();
         String reflection = solver.getOptions().getString("reflection-inference");
         if ("string-constant".equals(reflection)) {
-            inferenceModel = new StringBasedModel(solver, helper);
+            inferenceModel = new StringBasedModel(solver, helper, invokesWithLog);
+        } else if ("solar".equals(reflection)) {
+            inferenceModel = new SolarModel(solver, helper, invokesWithLog);
         } else if (reflection == null) {
             inferenceModel = null;
         } else {

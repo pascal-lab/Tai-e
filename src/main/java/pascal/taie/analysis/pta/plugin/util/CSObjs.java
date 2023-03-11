@@ -24,6 +24,8 @@ package pascal.taie.analysis.pta.plugin.util;
 
 import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
@@ -44,6 +46,15 @@ import javax.annotation.Nullable;
 public final class CSObjs {
 
     private CSObjs() {
+    }
+
+    /**
+     * @return {@code true} if {@code csObj} is {@link MockObj} and it has
+     * descriptor {@code desc}.
+     */
+    public static boolean hasDescriptor(CSObj csObj, Descriptor desc) {
+        return csObj.getObject() instanceof MockObj mockObj &&
+                mockObj.getDescriptor().equals(desc);
     }
 
     /**

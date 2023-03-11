@@ -195,6 +195,12 @@ public abstract class AbstractHeapModel implements HeapModel {
     }
 
     @Override
+    public boolean isStringConstant(Obj obj) {
+        return obj.getAllocation() instanceof StringLiteral ||
+                obj.equals(mergedSC);
+    }
+
+    @Override
     public Obj getMockObj(Descriptor desc, Object alloc, Type type,
                           JMethod container, boolean isFunctional) {
         MockObj mockObj = new MockObj(desc, alloc, type, container, isFunctional);

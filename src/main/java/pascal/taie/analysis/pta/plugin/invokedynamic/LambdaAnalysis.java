@@ -37,6 +37,7 @@ import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -153,7 +154,7 @@ public class LambdaAnalysis implements Plugin {
 
     @Override
     public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
-        if (!isLambdaObj(recv.getObject())) {
+        if (!CSObjs.hasDescriptor(recv, LAMBDA_DESC)) {
             return;
         }
         MockObj lambdaObj = (MockObj) recv.getObject();
@@ -219,11 +220,6 @@ public class LambdaAnalysis implements Plugin {
                     addLambdaCallEdge(csCallSite, null, targetRef, indy, indyCtx);
             default -> throw new AnalysisException(mh.getKind() + " is not supported");
         }
-    }
-
-    private static boolean isLambdaObj(Obj obj) {
-        return obj instanceof MockObj mockObj &&
-                mockObj.getDescriptor().equals(LAMBDA_DESC);
     }
 
     /**

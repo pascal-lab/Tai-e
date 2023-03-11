@@ -29,20 +29,20 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
+import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 class StringBasedModel extends InferenceModel {
 
-    StringBasedModel(Solver solver, MetaObjHelper helper) {
-        super(solver, helper);
+    StringBasedModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
+        super(solver, helper, invokesWithLog);
     }
 
     @Override
@@ -71,6 +71,9 @@ class StringBasedModel extends InferenceModel {
 
     @Override
     protected void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (invokesWithLog.contains(invoke)) {
+            return;
+        }
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             String className = CSObjs.toString(obj);
@@ -80,8 +83,7 @@ class StringBasedModel extends InferenceModel {
                     solver.initializeClass(clazz);
                     Var result = invoke.getResult();
                     if (result != null) {
-                        Obj clsObj = heapModel.getConstantObj(
-                                ClassLiteral.get(clazz.getType()));
+                        Obj clsObj = helper.getMetaObj(clazz);
                         solver.addVarPointsTo(context, result, clsObj);
                     }
                 }
@@ -91,6 +93,9 @@ class StringBasedModel extends InferenceModel {
 
     @Override
     protected void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (invokesWithLog.contains(invoke)) {
+            return;
+        }
         Var result = invoke.getResult();
         if (result != null) {
             Context context = csVar.getContext();
@@ -108,6 +113,9 @@ class StringBasedModel extends InferenceModel {
 
     @Override
     protected void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (invokesWithLog.contains(invoke)) {
+            return;
+        }
         Var result = invoke.getResult();
         if (result != null) {
             Context context = csVar.getContext();
@@ -125,6 +133,9 @@ class StringBasedModel extends InferenceModel {
 
     @Override
     protected void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (invokesWithLog.contains(invoke)) {
+            return;
+        }
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -150,6 +161,9 @@ class StringBasedModel extends InferenceModel {
 
     @Override
     protected void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (invokesWithLog.contains(invoke)) {
+            return;
+        }
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);

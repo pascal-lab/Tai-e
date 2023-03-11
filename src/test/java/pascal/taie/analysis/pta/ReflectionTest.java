@@ -40,4 +40,9 @@ public class ReflectionTest {
                 "reflection-inference:null",
                 "reflection-log:src/test/resources/pta/reflection/ReflectiveAction.log");
     }
+
+    @Test
+    public void testLazyHeapModeling() {
+        Tests.testPTA(DIR, "LazyHeapModeling", "reflection-inference:solar");
+    }
 }

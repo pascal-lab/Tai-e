@@ -48,6 +48,11 @@ public interface HeapModel extends Indexer<Obj> {
      */
     Obj getConstantObj(ReferenceLiteral value);
 
+    /**
+     * @return {@code true} if {@code obj} represents a string constant.
+     */
+    boolean isStringConstant(Obj obj);
+
     Obj getMockObj(Descriptor desc, Object alloc, Type type,
                    JMethod container, boolean isFunctional);
 
