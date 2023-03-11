@@ -22,8 +22,10 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.exp.ClassLiteral;
@@ -39,6 +41,10 @@ class MetaObjHelper {
 
     private final static Descriptor META_DESC = () -> "ReflectionMetaObj";
 
+    private final static Descriptor LOG_META_DESC = () -> "ReflectionLogMetaObj";
+
+    private final ClassType clazz;
+
     private final ClassType constructor;
 
     private final ClassType method;
@@ -49,6 +55,7 @@ class MetaObjHelper {
 
     MetaObjHelper(Solver solver) {
         TypeSystem typeSystem = solver.getTypeSystem();
+        clazz = typeSystem.getClassType(ClassNames.CLASS);
         constructor = typeSystem.getClassType(ClassNames.CONSTRUCTOR);
         method = typeSystem.getClassType(ClassNames.METHOD);
         field = typeSystem.getClassType(ClassNames.FIELD);
@@ -61,16 +68,32 @@ class MetaObjHelper {
      * is neither {@link JClass} nor {@link ClassMember}.
      */
     Obj getMetaObj(Object classOrMember) {
+        return getMetaObj(classOrMember, META_DESC);
+    }
+
+    Obj getLogMetaObj(Object classOrMember) {
+        return getMetaObj(classOrMember, LOG_META_DESC);
+    }
+
+    boolean isLogMetaObj(CSObj obj) {
+        return obj.getObject() instanceof MockObj mockObj &&
+                mockObj.getDescriptor().equals(LOG_META_DESC);
+    }
+
+    private Obj getMetaObj(Object classOrMember, Descriptor desc) {
         if (classOrMember instanceof JClass jclass) {
-            return heapModel.getConstantObj(ClassLiteral.get(jclass.getType()));
+            ClassLiteral classLiteral = ClassLiteral.get(jclass.getType());
+            return desc.equals(LOG_META_DESC)
+                    ? heapModel.getMockObj(desc, classLiteral, clazz)
+                    : heapModel.getConstantObj(classLiteral);
         } else if (classOrMember instanceof JMethod m) {
             if (m.isConstructor()) {
-                return heapModel.getMockObj(META_DESC, classOrMember, constructor);
+                return heapModel.getMockObj(desc, classOrMember, constructor);
             } else {
-                return heapModel.getMockObj(META_DESC, classOrMember, method);
+                return heapModel.getMockObj(desc, classOrMember, method);
             }
         } else if (classOrMember instanceof JField) {
-            return heapModel.getMockObj(META_DESC, classOrMember, field);
+            return heapModel.getMockObj(desc, classOrMember, field);
         } else {
             throw new IllegalArgumentException(
                     "Expected JClass or ClassMember," + " given " + classOrMember);

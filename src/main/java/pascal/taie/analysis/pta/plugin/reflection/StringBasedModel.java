@@ -75,13 +75,13 @@ class StringBasedModel extends InferenceModel {
         pts.forEach(obj -> {
             String className = CSObjs.toString(obj);
             if (className != null) {
-                JClass klass = hierarchy.getClass(className);
-                if (klass != null) {
-                    solver.initializeClass(klass);
+                JClass clazz = hierarchy.getClass(className);
+                if (clazz != null) {
+                    solver.initializeClass(clazz);
                     Var result = invoke.getResult();
                     if (result != null) {
                         Obj clsObj = heapModel.getConstantObj(
-                                ClassLiteral.get(klass.getType()));
+                                ClassLiteral.get(clazz.getType()));
                         solver.addVarPointsTo(context, result, clsObj);
                     }
                 }

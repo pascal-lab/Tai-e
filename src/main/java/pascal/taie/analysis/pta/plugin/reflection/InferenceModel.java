@@ -35,7 +35,7 @@ abstract class InferenceModel extends AbstractModel {
 
     protected final MetaObjHelper helper;
 
-    private JClass klass;
+    private JClass clazz;
 
     InferenceModel(Solver solver, MetaObjHelper helper) {
         super(solver);
@@ -43,11 +43,11 @@ abstract class InferenceModel extends AbstractModel {
     }
 
     protected JMethod get(String methodName) {
-        if (klass == null) {
-            klass = hierarchy.getJREClass(ClassNames.CLASS);
+        if (clazz == null) {
+            clazz = hierarchy.getJREClass(ClassNames.CLASS);
         }
-        assert klass != null;
-        return klass.getDeclaredMethod(methodName);
+        assert clazz != null;
+        return clazz.getDeclaredMethod(methodName);
     }
 
     protected abstract void classForName(CSVar csVar, PointsToSet pts, Invoke invoke);

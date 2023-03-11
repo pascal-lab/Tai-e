@@ -86,7 +86,7 @@ public class ReflectionAnalysis implements Plugin {
         } else {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
-        reflectiveActionModel = new ReflectiveActionModel(solver);
+        reflectiveActionModel = new ReflectiveActionModel(solver, helper, invokesWithLog);
         classModel = new ClassModel(solver);
     }
 

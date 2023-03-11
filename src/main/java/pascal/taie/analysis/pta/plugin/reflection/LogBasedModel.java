@@ -31,7 +31,6 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.SolverHolder;
-import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassMember;
@@ -170,15 +169,15 @@ class LogBasedModel extends SolverHolder {
         int lastDot = item.caller.lastIndexOf('.');
         String callerClass = item.caller.substring(0, lastDot);
         String callerMethod = item.caller.substring(lastDot + 1);
-        JClass klass = hierarchy.getClass(callerClass);
-        if (klass == null) {
+        JClass clazz = hierarchy.getClass(callerClass);
+        if (clazz == null) {
             if (missingItems.add(callerClass)) {
                 logger.warn("Reflective caller class '{}' is absent", callerClass);
             }
             return List.of();
         }
         List<Invoke> invokes = new ArrayList<>();
-        klass.getDeclaredMethods()
+        clazz.getDeclaredMethods()
                 .stream()
                 .filter(m -> m.getName().equals(callerMethod) && !m.isAbstract())
                 .forEach(caller ->
@@ -252,9 +251,9 @@ class LogBasedModel extends SolverHolder {
     private CSObj toCSObj(CSMethod csMethod, Object target) {
         Obj obj;
         if (target instanceof ClassType type) { // Array.newInstance(target, ...)
-            obj = heapModel.getConstantObj(ClassLiteral.get(type));
+            obj = helper.getLogMetaObj(type.getJClass());
         } else {
-            obj = helper.getMetaObj(target);
+            obj = helper.getLogMetaObj(target);
         }
         Context hctx = selector.selectHeapContext(csMethod, obj);
         return csManager.getCSObj(hctx, obj);
