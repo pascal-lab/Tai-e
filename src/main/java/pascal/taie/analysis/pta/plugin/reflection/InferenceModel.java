@@ -27,9 +27,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassNames;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
+import pascal.taie.ir.stmt.Stmt;
 
 import java.util.Set;
 
@@ -39,21 +37,13 @@ abstract class InferenceModel extends AbstractModel {
 
     protected final Set<Invoke> invokesWithLog;
 
-    private JClass clazz;
-
     InferenceModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
         super(solver);
         this.helper = helper;
         this.invokesWithLog = invokesWithLog;
     }
 
-    protected JMethod get(String methodName) {
-        if (clazz == null) {
-            clazz = hierarchy.getJREClass(ClassNames.CLASS);
-        }
-        assert clazz != null;
-        return clazz.getDeclaredMethod(methodName);
-    }
+    protected abstract void handleNewNonInvokeStmt(Stmt stmt);
 
     protected abstract void classForName(CSVar csVar, PointsToSet pts, Invoke invoke);
 

@@ -54,7 +54,6 @@ public class ReflectionAnalysis implements Plugin {
 
     private CSManager csManager;
 
-    @Nullable
     private InferenceModel inferenceModel;
 
     @Nullable
@@ -84,7 +83,7 @@ public class ReflectionAnalysis implements Plugin {
         } else if ("solar".equals(reflection)) {
             inferenceModel = new SolarModel(solver, helper, invokesWithLog);
         } else if (reflection == null) {
-            inferenceModel = null;
+            inferenceModel = new DummyModel(solver);
         } else {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
@@ -94,15 +93,17 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewMethod(JMethod method) {
-        method.getIR()
-                .invokes(false)
-                .forEach(invoke -> {
+        method.getIR().forEach(stmt -> {
+            if (stmt instanceof Invoke invoke) {
+                if (!invoke.isDynamic()) {
                     classModel.handleNewInvoke(invoke);
-                    if (inferenceModel != null) {
-                        inferenceModel.handleNewInvoke(invoke);
-                    }
+                    inferenceModel.handleNewInvoke(invoke);
                     reflectiveActionModel.handleNewInvoke(invoke);
-                });
+                }
+            } else {
+                inferenceModel.handleNewNonInvokeStmt(stmt);
+            }
+        });
     }
 
     @Override
@@ -110,8 +111,7 @@ public class ReflectionAnalysis implements Plugin {
         if (classModel.isRelevantVar(csVar.getVar())) {
             classModel.handleNewPointsToSet(csVar, pts);
         }
-        if (inferenceModel != null &&
-                inferenceModel.isRelevantVar(csVar.getVar())) {
+        if (inferenceModel.isRelevantVar(csVar.getVar())) {
             inferenceModel.handleNewPointsToSet(csVar, pts);
         }
         if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {

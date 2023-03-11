@@ -1,18 +1,27 @@
 package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
+import java.util.Collection;
 import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
@@ -24,7 +33,17 @@ class SolarModel extends StringBasedModel {
      */
     private static final Descriptor UNKNOWN_DESC = () -> "UnknownReflectiveObj";
 
+    /**
+     * Only use type information in application code to infer reflective calls.
+     */
+    private static final boolean ONLY_APP = true;
+
     private final ClassType object;
+
+    /**
+     * Maps from variable to types it is cast to.
+     */
+    private final MultiMap<Var, ClassType> casts = Maps.newMultiMap();
 
     SolarModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
         super(solver, helper, invokesWithLog);
@@ -42,7 +61,7 @@ class SolarModel extends StringBasedModel {
 
     @Override
     protected void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        if (invokesWithLog.contains(invoke)) {
+        if (isIgnored(invoke)) {
             return;
         }
         // invoke super's method to handle string constants
@@ -61,7 +80,7 @@ class SolarModel extends StringBasedModel {
     }
 
     private void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        if (invokesWithLog.contains(invoke)) {
+        if (isIgnored(invoke)) {
             return;
         }
         Var result = invoke.getResult();
@@ -69,12 +88,61 @@ class SolarModel extends StringBasedModel {
             Context context = csVar.getContext();
             for (CSObj obj : pts) {
                 if (helper.isUnknownMetaObj(obj)) {
-                    Obj unknownObj = heapModel.getMockObj(UNKNOWN_DESC, invoke, object,
-                            invoke.getContainer(), false);
+                    CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
+                    Obj unknownObj = heapModel.getMockObj(UNKNOWN_DESC,
+                            csCallSite, object, invoke.getContainer(), false);
                     solver.addVarPointsTo(context, result, unknownObj);
                     return;
                 }
             }
+        }
+    }
+
+    private boolean isIgnored(Invoke invoke) {
+        return invokesWithLog.contains(invoke) ||
+                (ONLY_APP && !invoke.getContainer().isApplication());
+    }
+
+    @Override
+    protected void handleNewNonInvokeStmt(Stmt stmt) {
+        if (stmt instanceof Cast cast) { // record cast statements
+            CastExp castExp = cast.getRValue();
+            Var rhs = castExp.getValue();
+            if (castExp.getCastType() instanceof ClassType type &&
+                    (!ONLY_APP || (rhs.getMethod().isApplication() &&
+                            type.getJClass().isApplication()))) {
+                casts.put(rhs, type);
+            }
+        }
+    }
+
+    @Override
+    public boolean isRelevantVar(Var var) {
+        return super.isRelevantVar(var) || casts.containsKey(var);
+    }
+
+    @Override
+    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        super.handleNewPointsToSet(csVar, pts);
+        Set<ClassType> types = casts.get(csVar.getVar());
+        if (!types.isEmpty()) {
+            pts.forEach(obj -> {
+                if (obj.getObject() instanceof MockObj mockObj &&
+                        mockObj.getDescriptor().equals(UNKNOWN_DESC)) {
+                    // unknown object flows to cast, use cast type
+                    // to resolve the reflective call
+                    CSCallSite csCallSite = (CSCallSite) mockObj.getAllocation();
+                    Context context = csCallSite.getContext();
+                    Var base = InvokeUtils.getVar(csCallSite.getCallSite(), BASE);
+                    types.stream()
+                            .map(ClassType::getJClass)
+                            .map(hierarchy::getAllSubclassesOf)
+                            .flatMap(Collection::stream)
+                            .filter(c -> !c.isAbstract())
+                            .map(helper::getMetaObj)
+                            .forEach(classObj -> solver.addVarPointsTo(context, base, classObj));
+                }
+            });
         }
     }
 }

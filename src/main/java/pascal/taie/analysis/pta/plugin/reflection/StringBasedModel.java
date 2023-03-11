@@ -31,10 +31,14 @@ import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Subsignature;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
@@ -47,26 +51,39 @@ class StringBasedModel extends InferenceModel {
 
     @Override
     protected void registerVarAndHandler() {
-        JMethod classForName = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class forName(java.lang.String)>");
+        JClass clazz = Objects.requireNonNull(hierarchy.getJREClass(ClassNames.CLASS));
+
+        JMethod classForName = clazz.getDeclaredMethod(
+                Subsignature.get("java.lang.Class forName(java.lang.String)"));
         registerRelevantVarIndexes(classForName, 0);
         registerAPIHandler(classForName, this::classForName);
 
-        JMethod classForName2 = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>");
+        JMethod classForName2 = clazz.getDeclaredMethod(
+                Subsignature.get("java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)"));
         // TODO: take class loader into account
         registerRelevantVarIndexes(classForName2, 0);
         registerAPIHandler(classForName2, this::classForName);
 
-        registerRelevantVarIndexes(get("getConstructor"), BASE);
-        registerAPIHandler(get("getConstructor"), this::getConstructor);
+        JMethod getConstructor = clazz.getDeclaredMethod("getConstructor");
+        registerRelevantVarIndexes(getConstructor, BASE);
+        registerAPIHandler(getConstructor, this::getConstructor);
 
-        registerRelevantVarIndexes(get("getDeclaredConstructor"), BASE);
-        registerAPIHandler(get("getDeclaredConstructor"), this::getDeclaredConstructor);
+        JMethod getDeclaredConstructor = clazz.getDeclaredMethod("getDeclaredConstructor");
+        registerRelevantVarIndexes(getDeclaredConstructor, BASE);
+        registerAPIHandler(getDeclaredConstructor, this::getDeclaredConstructor);
 
-        registerRelevantVarIndexes(get("getMethod"), BASE, 0);
-        registerAPIHandler(get("getMethod"), this::getMethod);
+        JMethod getMethod = clazz.getDeclaredMethod("getMethod");
+        registerRelevantVarIndexes(getMethod, BASE, 0);
+        registerAPIHandler(getMethod, this::getMethod);
 
-        registerRelevantVarIndexes(get("getDeclaredMethod"), BASE, 0);
-        registerAPIHandler(get("getDeclaredMethod"), this::getDeclaredMethod);
+        JMethod getDeclaredMethod = clazz.getDeclaredMethod("getDeclaredMethod");
+        registerRelevantVarIndexes(getDeclaredMethod, BASE, 0);
+        registerAPIHandler(getDeclaredMethod, this::getDeclaredMethod);
+    }
+
+    @Override
+    protected void handleNewNonInvokeStmt(Stmt stmt) {
+        // nothing to do
     }
 
     @Override
