@@ -35,10 +35,9 @@
   requires: [ pta(algorithm=pta) ]
   options:
     algorithm: pta # | cha
-    dump: false # whether dump reachable methods and call edges
+    dump: false # whether dump call graph in dot file
     dump-methods: false # whether dump reachable methods
     dump-call-edges: false # whether dump call edges
-    dump-dot: false # whether dump call graph in dot file
 
 - description: identify casts that may fail
   analysisClass: pascal.taie.analysis.pta.client.MayFailCast

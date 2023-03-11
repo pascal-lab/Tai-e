@@ -181,14 +181,4 @@ public final class CallGraphs {
     public static String toString(Invoke invoke) {
         return invoke.getContainer() + IRPrinter.toString(invoke);
     }
-
-    static void dumpDot(CallGraph<Invoke, JMethod> callGraph, File outFile) {
-        logger.info("Dumping call graph to {}",
-                outFile.getAbsolutePath());
-        Indexer<JMethod> indexer = new SimpleIndexer<>();
-        new DotDumper<JMethod>()
-                .setNodeToString(JMethod::getSignature)
-                .setNodeLabeler(m -> Integer.toString(indexer.getIndex(m)))
-                .dump(callGraph, outFile);
-    }
 }

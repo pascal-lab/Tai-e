@@ -40,13 +40,11 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
 
     private static final Logger logger = LogManager.getLogger(CallGraphBuilder.class);
 
-    private static final String CALL_GRAPH_FILE = "call-graph.txt";
+    private static final String CALL_GRAPH_FILE = "call-graph.dot";
 
     private static final String REACHABLE_METHODS_FILE = "reachable-methods.txt";
 
     private static final String CALL_EDGES_FILE = "call-edges.txt";
-
-    private static final String CALL_GRAPH_DOT_FILE = "call-graph.dot";
 
     private final String algorithm;
 
@@ -89,10 +87,6 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
         if (options.getBoolean("dump-call-edges")) {
             CallGraphs.dumpCallEdges(callGraph,
                     new File(outputDir, CALL_EDGES_FILE));
-        }
-        if (options.getBoolean("dump-dot")) {
-            CallGraphs.dumpDot(callGraph,
-                    new File(outputDir, CALL_GRAPH_DOT_FILE));
         }
     }
 }
