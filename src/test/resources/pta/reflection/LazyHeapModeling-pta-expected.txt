@@ -1,0 +1,26 @@
+Points-to sets of all variables
+[]:<LazyHeapModeling: void castToV(java.lang.Object)>/o -> [[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}, []:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=V in <LazyHeapModeling: void main(java.lang.String[])>}, []:UnknownReflectiveObj{alloc=[]:<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=java.lang.Object in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<LazyHeapModeling: void castToV(java.lang.Object)>/v -> [[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}, []:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=V in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<LazyHeapModeling: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<LazyHeapModeling: void main(java.lang.String[])>/c -> [[]:ConstantObj{java.lang.Class: U.class}, []:ConstantObj{java.lang.Class: V.class}, []:UnknownReflectionMetaObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic java.lang.Class.forName(name),type=java.lang.Class}]
+[]:<LazyHeapModeling: void main(java.lang.String[])>/name -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<LazyHeapModeling: void main(java.lang.String[])>/o -> [[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}, []:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=V in <LazyHeapModeling: void main(java.lang.String[])>}, []:UnknownReflectiveObj{alloc=[]:<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=java.lang.Object in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<LazyHeapModeling: void main(java.lang.String[])>/temp$2 -> [[]:UnknownReflectionMetaObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[2@L5] temp$2 = invokestatic java.lang.Class.forName(name),type=java.lang.Class}]
+[]:<LazyHeapModeling: void main(java.lang.String[])>/temp$3 -> [[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}, []:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=V in <LazyHeapModeling: void main(java.lang.String[])>}, []:UnknownReflectiveObj{alloc=[]:<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=java.lang.Object in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<U: void <clinit>()>/temp$0 -> [[]:NewObj{<U: void <clinit>()>[0@L1] new java.lang.Object}]
+[]:<U: void <init>()>/%this -> [[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<U: void <init>()>/temp$0 -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:<V: void <init>()>/%this -> [[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}, []:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=V in <LazyHeapModeling: void main(java.lang.String[])>}]
+[]:<W: void <clinit>()>/temp$0 -> [[]:NewObj{<W: void <clinit>()>[0@L1] new java.lang.Object}]
+[]:<W: void <init>()>/%this -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+
+Points-to sets of all static fields
+<U: java.lang.Object stat> -> [[]:NewObj{<U: void <clinit>()>[0@L1] new java.lang.Object}]
+<W: java.lang.Object f> -> [[]:NewObj{<W: void <clinit>()>[0@L1] new java.lang.Object}]
+
+Points-to sets of all instance fields
+[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+
+Points-to sets of all array indexes
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LazyHeapModeling: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <LazyHeapModeling: void main(java.lang.String[])>}]
+

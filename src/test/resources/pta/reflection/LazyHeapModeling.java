@@ -1,6 +1,6 @@
 class LazyHeapModeling {
 
-    public static void main(String[] args) throw Exception {
+    public static void main(String[] args) throws Exception {
         String name = args[0];
         Class c = Class.forName(name);
         Object o = c.newInstance();
