@@ -1,16 +1,38 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
+import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.ArithmeticExp;
+import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
@@ -18,6 +40,8 @@ import static pascal.taie.frontend.newfrontend.Utils.*;
 public class AsmIRBuilder {
 
     private IR ir;
+
+    private final JMethod method;
 
     private final JSRInlinerAdapter source;
 
@@ -29,12 +53,116 @@ public class AsmIRBuilder {
 
     private LabelNode entry;
 
-    public AsmIRBuilder(JSRInlinerAdapter source) {
+    private VarManger manger;
+
+    private Map<Exp, AbstractInsnNode> exp2Orig;
+
+    private Map<AbstractInsnNode, Stmt> asm2Stmt;
+
+    public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
+        this.method = method;
         this.source = source;
     }
 
     public void build() {
         buildCFG();
+    }
+
+    private LocalVariableNode searchLocal(int index) {
+        for (LocalVariableNode node : source.localVariables) {
+            if (node.index == index) {
+                return node;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private @Nullable Type getLocalType(int i) {
+        if (source.localVariables == null) {
+            return null;
+        } else {
+            String sig = searchLocal(i).signature;
+            return BuildContext.get().fromAsmType(sig);
+        }
+    }
+
+    private @Nullable String getLocalName(int i) {
+        if (source.localVariables == null) {
+            return null;
+        } else {
+            return searchLocal(i).name;
+        }
+    }
+
+    private Stmt getAssignStmt(Var v, Exp e) {
+        if (e instanceof BinaryExp binaryExp) {
+            return new Binary(v, binaryExp);
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    private Var getLocalOrParam(int i) {
+        return manger.getLocal(i, getLocalName(i), getLocalType(i));
+    }
+
+    private Var getTempVar() {
+        return manger.getTempVar();
+    }
+
+    private AbstractInsnNode getOrig(Exp e) {
+        return exp2Orig.get(e);
+    }
+
+    private void assocStmt(AbstractInsnNode node, Stmt stmt) {
+        asm2Stmt.put(node, stmt);
+    }
+
+    private Var popVar(Stack<Exp> stack) {
+        Exp e = stack.pop();
+        if (e instanceof Var v) {
+            return v;
+        } else {
+            Var v = getTempVar();
+            Stmt auxStmt = getAssignStmt(v, e);
+            assocStmt(getOrig(e), auxStmt);
+            return v;
+        }
+    }
+
+    private void pushExp(AbstractInsnNode node, Stack<Exp> stack, Exp e) {
+        exp2Orig.put(e, node);
+        stack.push(e);
+    }
+
+    private void buildIR() {
+        Var thisVar = manger.getThisVar();
+        List<Var> params = manger.getParams();
+        List<Var> vars = manger.getVars();
+        List<Stmt> stmts = new ArrayList<>();
+        Set<Var> retVars = manger.getRetVars();
+        List<ExceptionEntry> entries = new ArrayList<>();
+        ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, entries);
+    }
+
+    private void buildBlockStmt(BytecodeBlock block) {
+        Stack<Var> inStack = block.getInStack();
+        Stack<Exp> nowStack = new Stack<>();
+        nowStack.addAll(inStack);
+
+        for (AbstractInsnNode node : block.instr()) {
+            if (node instanceof VarInsnNode varNode) {
+                if (varNode.getOpcode() == Opcodes.ILOAD) {
+                    nowStack.push(getLocalOrParam(varNode.var));
+                }
+            } else if (node instanceof InsnNode insnNode) {
+                if (insnNode.getOpcode() == Opcodes.IADD) {
+                    Var v1 = popVar(nowStack);
+                    Var v2 = popVar(nowStack);
+                    pushExp(node, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v1, v2));
+                }
+            }
+        }
     }
 
     private void buildCFG() {
@@ -69,7 +197,7 @@ public class AsmIRBuilder {
 
             AbstractInsnNode now = currentBegin.getNext();
             while (now != null) {
-                if (! (now instanceof LabelNode) && ! (now instanceof LineNumberNode)) {
+                if (! (now instanceof LabelNode)) {
                     instr.add(now);
                 }
                 if (isCFEdge(now)) {

@@ -2,16 +2,22 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import pascal.taie.ir.exp.Var;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 
 public final class BytecodeBlock {
     private final LabelNode start;
     private final List<AbstractInsnNode> instr;
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
+
+    private Stack<Var> inStack;
+
+    private Stack<Var> outStack;
 
     @Nullable
     private BytecodeBlock fallThrough;
@@ -64,6 +70,22 @@ public final class BytecodeBlock {
 
     public void setComplete() {
         complete = true;
+    }
+
+    public Stack<Var> getInStack() {
+        return inStack;
+    }
+
+    public Stack<Var> getOutStack() {
+        return outStack;
+    }
+
+    public void setInStack(Stack<Var> inStack) {
+        this.inStack = inStack;
+    }
+
+    public void setOutStack(Stack<Var> outStack) {
+        this.outStack = outStack;
     }
 
     @Override

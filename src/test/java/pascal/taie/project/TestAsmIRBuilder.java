@@ -3,11 +3,11 @@ package pascal.taie.project;
 import org.junit.Test;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.Main;
-import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
+import pascal.taie.language.classes.ClassHierarchy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +31,7 @@ public class TestAsmIRBuilder {
         return builder.build();
     }
 
-    @Test
-    public void testIf() {
+    ClassHierarchy getCh(String mainClass) {
         List<String> args = new ArrayList<>();
         Collections.addAll(args, "-pp");
         Collections.addAll(args, "-a", "cfg");
@@ -40,21 +39,23 @@ public class TestAsmIRBuilder {
         Collections.addAll(args, "-java", "6");
         Collections.addAll(args, "-m", "If");
         Main.main(args.toArray(new String[0]));
-        World w = World.get();
-        String mainClass = "If";
         Project project = createProject(path, mainClass, List.of());
         DepCWBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
         var cw = depCWBuilder.getClosedWorld();
         ClassHierarchyBuilder builder = new DefaultCHBuilder();
-        var ch = builder.build(cw);
+        return builder.build(cw);
+    }
 
+    @Test
+    public void testIf() {
+        var ch = getCh("If");
         int[] total = { 0 };
         int[] zeroBlock = { 0 };
         ch.allClasses().forEach(i -> {
             i.getDeclaredMethods().forEach(m -> {
                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
-                AsmIRBuilder builder1 = new AsmIRBuilder(jsr);
+                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                 builder1.build();
                 var cfg = builder1.getLabel2Block();
                 System.out.println("[" + m.getSignature() + "]: " + cfg.keySet().size());
