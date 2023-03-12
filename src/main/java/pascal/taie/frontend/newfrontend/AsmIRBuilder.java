@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
@@ -197,7 +198,7 @@ public class AsmIRBuilder {
 
             AbstractInsnNode now = currentBegin.getNext();
             while (now != null) {
-                if (! (now instanceof LabelNode)) {
+                if (! (now instanceof LabelNode) && ! (now instanceof LineNumberNode)) {
                     instr.add(now);
                 }
                 if (isCFEdge(now)) {
