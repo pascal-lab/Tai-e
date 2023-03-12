@@ -82,10 +82,20 @@ public final class BytecodeBlock {
 
     public void setInStack(Stack<Var> inStack) {
         this.inStack = inStack;
+        for (var pred : inEdges) {
+            if (pred.outStack == null) {
+                pred.setOutStack(inStack);
+            }
+        }
     }
 
     public void setOutStack(Stack<Var> outStack) {
         this.outStack = outStack;
+        for (var succ : outEdges) {
+            if (succ.inStack == null) {
+                succ.setInStack(outStack);
+            }
+        }
     }
 
     @Override
