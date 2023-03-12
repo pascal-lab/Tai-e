@@ -106,7 +106,7 @@ public class Utils {
 
     static boolean isReturn(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
-            int op = insnNode.hashCode();
+            int op = insnNode.getOpcode();
             return op == Opcodes.ARETURN ||
                     op == Opcodes.IRETURN ||
                     op == Opcodes.LRETURN ||
