@@ -28,6 +28,7 @@ import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -274,6 +275,28 @@ public class AsmIRBuilder {
         };
 
         return node;
+    }
+
+    private void traverseBlocks() {
+        Set<BytecodeBlock> visited = new HashSet<>();
+        BytecodeBlock entry = label2Block.get(this.entry);
+        entry.setInStack(new Stack<>());
+
+        Queue<BytecodeBlock> workList = new LinkedList<>();
+        workList.offer(entry);
+
+        while (workList.peek() != null) {
+            BytecodeBlock bb = workList.poll();
+            visited.add(bb);
+
+            buildBlockStmt(bb);
+
+            for (BytecodeBlock succ : bb.outEdges()) {
+                if (!visited.contains(succ)) {
+                    workList.offer(succ);
+                }
+            }
+        }
     }
 
     public IR getIr() {
