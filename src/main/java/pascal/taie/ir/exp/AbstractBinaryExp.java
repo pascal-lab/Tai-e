@@ -39,7 +39,7 @@ abstract class AbstractBinaryExp implements BinaryExp {
     protected AbstractBinaryExp(Var operand1, Var operand2) {
         this.operand1 = operand1;
         this.operand2 = operand2;
-        validate();
+        // validate();
     }
 
     /**
