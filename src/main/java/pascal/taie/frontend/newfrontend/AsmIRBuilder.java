@@ -20,6 +20,7 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
@@ -52,16 +53,18 @@ public class AsmIRBuilder {
 
     private LabelNode entry;
 
-    private VarManager manager;
+    private final VarManager manager;
 
-    private Map<Exp, AbstractInsnNode> exp2Orig;
+    private final Map<Exp, AbstractInsnNode> exp2Orig;
 
-    private Map<AbstractInsnNode, Stmt> asm2Stmt;
+    private final Map<AbstractInsnNode, Stmt> asm2Stmt;
 
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
         this.source = source;
         this.manager = new VarManager(method, source.parameters, source.localVariables);
+        this.asm2Stmt = Maps.newMap();
+        this.exp2Orig = Maps.newMap();
     }
 
     public void build() {
@@ -101,14 +104,25 @@ public class AsmIRBuilder {
         stack.push(e);
     }
 
-    private void buildIR() {
+    public void buildIR() {
+        traverseBlocks();
+        List<Stmt> stmts = getStmts();
         Var thisVar = manager.getThisVar();
         List<Var> params = manager.getParams();
         List<Var> vars = manager.getVars();
-        List<Stmt> stmts = new ArrayList<>();
         Set<Var> retVars = manager.getRetVars();
         List<ExceptionEntry> entries = new ArrayList<>();
         ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, entries);
+    }
+
+    private List<Stmt> getStmts() {
+        List<Stmt> res = new ArrayList<>();
+        for (AbstractInsnNode node : source.instructions) {
+            if (asm2Stmt.containsKey(node)) {
+                res.add(asm2Stmt.get(node));
+            }
+        }
+        return res;
     }
 
     private void buildBlockStmt(BytecodeBlock block) {
@@ -126,6 +140,10 @@ public class AsmIRBuilder {
                     Var v1 = popVar(nowStack);
                     Var v2 = popVar(nowStack);
                     pushExp(node, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v1, v2));
+                } else if (insnNode.getOpcode() == Opcodes.IRETURN) {
+                    Var v1 = popVar(nowStack);
+                    manager.addReturnVar(v1);
+                    asm2Stmt.put(insnNode, new Return(v1));
                 }
             }
         }

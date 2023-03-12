@@ -67,4 +67,22 @@ public class TestAsmIRBuilder {
         });
         System.out.println("total: " + total[0] + ", zero:" + zeroBlock[0]);
     }
+
+    @Test
+    public void testMinimal() {
+        var ch = getCh("Minimal");
+        ch.allClasses()
+                .filter(i -> i.getSimpleName().equals("Minimal"))
+                .forEach(i -> {
+                    i.getDeclaredMethods()
+                            .stream().filter(j -> j.getName().equals("f"))
+                            .forEach(m -> {
+                    JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                    AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
+                    builder1.build();
+                    builder1.buildIR();
+                    System.out.println(builder1.getIr().getStmts());
+            });
+        });
+    }
 }

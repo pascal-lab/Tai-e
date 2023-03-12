@@ -8,47 +8,78 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 class VarManager {
 
+    public static final String PARAMETER_PREFIX = "@";
     public static final String LOCAL_PREFIX = "%";
     public static final String TEMP_PREFIX = "$";
 
     public static final String STACK_PREFIX = "#";
 
-    private JMethod method;
+    public static final String THIS = "this";
 
-    private List<LocalVariableNode> localVariableTable;
+    private final JMethod method;
+
+    private final @Nullable List<LocalVariableNode> localVariableTable;
 
     private int counter;
 
     private int tempCounter;
 
-    private Map<Integer, Var> local2Var;
+    private final Map<Integer, Var> local2Var;
 
-    private List<Var> params;
+    private final List<Var> params;
 
-    private List<Var> vars;
+    private final List<Var> vars;
 
-    private Set<Var> retVars;
+    private final Set<Var> retVars;
 
-    private @Nullable Var thisVar;
+    private final @Nullable Var thisVar;
 
-    public VarManager(JMethod method, List<ParameterNode> params, List<LocalVariableNode> localVariableTable) {
+    public VarManager(JMethod method,
+                      @Nullable List<ParameterNode> params,
+                      @Nullable List<LocalVariableNode> localVariableTable) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.local2Var = Maps.newMap();
+        this.params = new ArrayList<>();
+        this.vars = new ArrayList<>();
+        this.retVars = new HashSet<>();
+
+        int nowIdx = method.isStatic() ? 0 : 1;
+        if (params == null) {
+            for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
+                Var v = newParameter(i);
+                this.params.add(v);
+                local2Var.put(i, v);
+            }
+        } else {
+            for (var i : params) {
+                Var v = newVar(i.name);
+                this.params.add(v);
+                local2Var.put(nowIdx, v);
+            }
+        }
 
         if (method.isStatic()) {
             thisVar = null;
+        } else {
+            Var t = newVar(THIS);
+            thisVar = t;
+            local2Var.put(0, t);
         }
     }
 
     public Var getTempVar() {
-        return newVar(TEMP_PREFIX + tempCounter++, null);
+        Var v = newVar(TEMP_PREFIX + tempCounter++);
+        this.vars.add(v);
+        return v;
     }
 
     public @Nullable Var getThisVar() {
@@ -67,8 +98,18 @@ class VarManager {
         return retVars;
     }
 
+    /**
+     * Get the TIR var for a <code>this</code> variable, parameter or local variable
+     * @param i index of variable in bytecode
+     * @return the corresponding TIR variable
+     */
     public Var getLocal(int i) {
-        return local2Var.computeIfAbsent(i, t -> newVar(getLocalName(i, getLocalName(i)), getLocalType(i)));
+        return local2Var.computeIfAbsent(i, t -> {
+            Var v = newVar(getLocalName(i, getLocalName(i)));
+            // Note: if reach here, this variable must be a local variable
+            this.vars.add(v);
+            return v;
+        });
     }
 
     public String getLocalName(int i, @Nullable String name) {
@@ -77,6 +118,10 @@ class VarManager {
         } else {
             return name;
         }
+    }
+
+    public void addReturnVar(Var v) {
+        this.retVars.add(v);
     }
 
     private LocalVariableNode searchLocal(int index) {
@@ -105,8 +150,10 @@ class VarManager {
         }
     }
 
-
-    private Var newVar(String name, @Nullable Type type) {
-        return new Var(method, name, type, counter++);
+    private Var newParameter(int index) {
+        return newVar(PARAMETER_PREFIX + index);
+    }
+    private Var newVar(String name) {
+        return new Var(method, name, null, counter++);
     }
 }
