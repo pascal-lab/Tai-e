@@ -81,6 +81,7 @@ public final class BytecodeBlock {
     }
 
     public void setInStack(Stack<Var> inStack) {
+        assert this.inStack == null : "InStack should not be assigned multiple times.";
         this.inStack = inStack;
         for (var pred : inEdges) {
             if (pred.outStack == null) {
@@ -90,6 +91,7 @@ public final class BytecodeBlock {
     }
 
     public void setOutStack(Stack<Var> outStack) {
+        assert this.outStack == null : "OutStack should not be assigned multiple times.";
         this.outStack = outStack;
         for (var succ : outEdges) {
             if (succ.inStack == null) {
