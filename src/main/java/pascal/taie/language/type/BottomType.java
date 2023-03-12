@@ -23,8 +23,9 @@
 package pascal.taie.language.type;
 
 /**
- * The bottom type is a subtype of every other type.
- * <strong>It is a temporary type used.</strong>
+ * This type means that the expression, e.g., a variable, is untyped (i.e., has no type).
+ * Usually, it should not appear in IR, however, currently Tai-e uses Soot as front end
+ * which fails to type some variables, thus it stays in IR for some cases.
  */
 public enum BottomType implements Type {
 
