@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class VarManger {
+class VarManager {
 
     public static final String LOCAL_PREFIX = "%";
     public static final String TEMP_PREFIX = "$";
@@ -34,7 +34,7 @@ class VarManger {
 
     private @Nullable Var thisVar;
 
-    public VarManger(JMethod method, List<ParameterNode> params) {
+    public VarManager(JMethod method, List<ParameterNode> params) {
         this.method = method;
         this.local2Var = Maps.newMap();
 

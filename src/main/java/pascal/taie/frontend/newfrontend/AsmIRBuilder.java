@@ -55,7 +55,7 @@ public class AsmIRBuilder {
 
     private LabelNode entry;
 
-    private VarManger manger;
+    private VarManager manager;
 
     private Map<Exp, AbstractInsnNode> exp2Orig;
 
@@ -105,11 +105,11 @@ public class AsmIRBuilder {
     }
 
     private Var getLocalOrParam(int i) {
-        return manger.getLocal(i, getLocalName(i), getLocalType(i));
+        return manager.getLocal(i, getLocalName(i), getLocalType(i));
     }
 
     private Var getTempVar() {
-        return manger.getTempVar();
+        return manager.getTempVar();
     }
 
     private AbstractInsnNode getOrig(Exp e) {
@@ -138,11 +138,11 @@ public class AsmIRBuilder {
     }
 
     private void buildIR() {
-        Var thisVar = manger.getThisVar();
-        List<Var> params = manger.getParams();
-        List<Var> vars = manger.getVars();
+        Var thisVar = manager.getThisVar();
+        List<Var> params = manager.getParams();
+        List<Var> vars = manager.getVars();
         List<Stmt> stmts = new ArrayList<>();
-        Set<Var> retVars = manger.getRetVars();
+        Set<Var> retVars = manager.getRetVars();
         List<ExceptionEntry> entries = new ArrayList<>();
         ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, entries);
     }
