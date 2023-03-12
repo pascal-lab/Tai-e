@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.ParameterNode;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
@@ -20,6 +21,8 @@ class VarManager {
 
     private JMethod method;
 
+    private List<LocalVariableNode> localVariableTable;
+
     private int counter;
 
     private int tempCounter;
@@ -34,8 +37,9 @@ class VarManager {
 
     private @Nullable Var thisVar;
 
-    public VarManager(JMethod method, List<ParameterNode> params) {
+    public VarManager(JMethod method, List<ParameterNode> params, List<LocalVariableNode> localVariableTable) {
         this.method = method;
+        this.localVariableTable = localVariableTable;
         this.local2Var = Maps.newMap();
 
         if (method.isStatic()) {
@@ -63,8 +67,8 @@ class VarManager {
         return retVars;
     }
 
-    public Var getLocal(int i, @Nullable String name, @Nullable Type type) {
-        return local2Var.computeIfAbsent(i, t -> newVar(getLocalName(i, name), type));
+    public Var getLocal(int i) {
+        return local2Var.computeIfAbsent(i, t -> newVar(getLocalName(i, getLocalName(i)), getLocalType(i)));
     }
 
     public String getLocalName(int i, @Nullable String name) {
@@ -74,6 +78,33 @@ class VarManager {
             return name;
         }
     }
+
+    private LocalVariableNode searchLocal(int index) {
+        for (LocalVariableNode node : localVariableTable) {
+            if (node.index == index) {
+                return node;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private @Nullable Type getLocalType(int i) {
+        if (localVariableTable == null) {
+            return null;
+        } else {
+            String sig = searchLocal(i).signature;
+            return BuildContext.get().fromAsmType(sig);
+        }
+    }
+
+    private @Nullable String getLocalName(int i) {
+        if (localVariableTable == null) {
+            return null;
+        } else {
+            return searchLocal(i).name;
+        }
+    }
+
 
     private Var newVar(String name, @Nullable Type type) {
         return new Var(method, name, type, counter++);

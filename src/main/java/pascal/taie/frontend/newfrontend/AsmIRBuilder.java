@@ -8,7 +8,6 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
@@ -23,10 +22,8 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -64,36 +61,11 @@ public class AsmIRBuilder {
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
         this.source = source;
+        this.manager = new VarManager(method, source.parameters, source.localVariables);
     }
 
     public void build() {
         buildCFG();
-    }
-
-    private LocalVariableNode searchLocal(int index) {
-        for (LocalVariableNode node : source.localVariables) {
-            if (node.index == index) {
-                return node;
-            }
-        }
-        throw new IllegalArgumentException();
-    }
-
-    private @Nullable Type getLocalType(int i) {
-        if (source.localVariables == null) {
-            return null;
-        } else {
-            String sig = searchLocal(i).signature;
-            return BuildContext.get().fromAsmType(sig);
-        }
-    }
-
-    private @Nullable String getLocalName(int i) {
-        if (source.localVariables == null) {
-            return null;
-        } else {
-            return searchLocal(i).name;
-        }
     }
 
     private Stmt getAssignStmt(Var v, Exp e) {
@@ -102,14 +74,6 @@ public class AsmIRBuilder {
         } else {
             throw new NotImplementedException();
         }
-    }
-
-    private Var getLocalOrParam(int i) {
-        return manager.getLocal(i, getLocalName(i), getLocalType(i));
-    }
-
-    private Var getTempVar() {
-        return manager.getTempVar();
     }
 
     private AbstractInsnNode getOrig(Exp e) {
@@ -125,7 +89,7 @@ public class AsmIRBuilder {
         if (e instanceof Var v) {
             return v;
         } else {
-            Var v = getTempVar();
+            Var v = manager.getTempVar();
             Stmt auxStmt = getAssignStmt(v, e);
             assocStmt(getOrig(e), auxStmt);
             return v;
@@ -155,7 +119,7 @@ public class AsmIRBuilder {
         for (AbstractInsnNode node : block.instr()) {
             if (node instanceof VarInsnNode varNode) {
                 if (varNode.getOpcode() == Opcodes.ILOAD) {
-                    nowStack.push(getLocalOrParam(varNode.var));
+                    nowStack.push(manager.getLocal(varNode.var));
                 }
             } else if (node instanceof InsnNode insnNode) {
                 if (insnNode.getOpcode() == Opcodes.IADD) {
