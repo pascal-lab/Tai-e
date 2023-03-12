@@ -147,6 +147,28 @@ public class AsmIRBuilder {
                 }
             }
         }
+
+        if (block.getOutStack() == null) {
+            // Web has not been constructed. So all the succs do not have inStack.
+            block.setOutStack(regularizeStack(nowStack));
+        } else {
+            // TODO: merge stack
+            // In the early stage of development, we assume that there is no Var remained in the nowStack.
+        }
+    }
+
+    private Stack<Var> regularizeStack(Stack<Exp> origin) {
+        //
+        /*
+            TODO: regularization, including:
+            1. conversion from non-Var Exp to Var,
+            2. no the same Vars in a stack.
+
+            The conversion should have effect on the InsnNode that generated the exp.
+            In the early stage of development, we assume that there is no Exp remained in the nowStack,
+            so an empty Stack is enough.
+         */
+        return new Stack<>();
     }
 
     private void buildCFG() {
