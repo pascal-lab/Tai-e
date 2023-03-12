@@ -41,6 +41,15 @@ public class IRTest {
     }
 
     @Test
+    public void testBottomType() {
+        String clzName = "android$widget$RemoteViews$BaseReflectionAction";
+        Main.buildWorld("-ap", "-cp", "src/test/resources/world",
+                "--input-classes", clzName);
+        World.get().getClassHierarchy().getClass(clzName)
+             .getDeclaredMethod("initActionAsync").getIR();
+    }
+
+    @Test
     public void testIRBuilder() {
         targets.forEach(main -> {
             buildWorld(main);
