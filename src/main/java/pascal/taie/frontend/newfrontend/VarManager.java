@@ -24,6 +24,8 @@ class VarManager {
 
     public static final String THIS = "this";
 
+    public static final String NULL_LITERAL = "null";
+
     private final JMethod method;
 
     private final @Nullable List<LocalVariableNode> localVariableTable;
@@ -41,6 +43,10 @@ class VarManager {
     private final Set<Var> retVars;
 
     private final @Nullable Var thisVar;
+
+    private @Nullable Var zeroLiteral;
+
+    private @Nullable Var nullLiteral;
 
     public VarManager(JMethod method,
                       @Nullable List<ParameterNode> params,
@@ -124,6 +130,20 @@ class VarManager {
         this.retVars.add(v);
     }
 
+    public Var getZeroLiteral() {
+        if (zeroLiteral == null) {
+            zeroLiteral = newVar("*intliteral0");
+        }
+        return zeroLiteral;
+    }
+
+    public Var getNullLiteral() {
+        if (nullLiteral == null) {
+            nullLiteral = newVar(NULL_LITERAL);
+        }
+        return nullLiteral;
+    }
+
     private LocalVariableNode searchLocal(int index) {
         for (LocalVariableNode node : localVariableTable) {
             if (node.index == index) {
@@ -143,7 +163,7 @@ class VarManager {
     }
 
     private @Nullable String getLocalName(int i) {
-        if (localVariableTable == null) {
+        if (localVariableTable == null || localVariableTable.size() == 0) {
             return null;
         } else {
             return searchLocal(i).name;
