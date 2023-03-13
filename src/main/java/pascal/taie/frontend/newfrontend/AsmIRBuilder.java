@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
@@ -107,8 +108,22 @@ public class AsmIRBuilder {
         }
     }
 
+    private void ensureStackSafety(Stack<Exp> stack, Function<Exp, Boolean> predicate) {
+        for (int i = 0; i < stack.size(); ++i) {
+            Exp e = stack.get(i);
+            if (predicate.apply(e)) {
+                stack.set(i, toVar(e));
+            }
+        }
+    }
+
+    private boolean maySideEffect(Exp e) {
+        return !(e instanceof Var);
+    }
+
     private void pushExp(AbstractInsnNode node, Stack<Exp> stack, Exp e) {
         exp2Orig.put(e, node);
+        ensureStackSafety(stack, this::maySideEffect);
         stack.push(e);
     }
 
@@ -225,13 +240,7 @@ public class AsmIRBuilder {
         int idx = varNode.var;
         Var v = manager.getLocal(idx);
         Exp top = stack.pop();
-        for (int i = 0; i < stack.size(); ++i) {
-            Exp e = stack.get(i);
-            if (e.getUses().contains(v)) {
-                Var temp = toVar(e);
-                stack.set(i, temp);
-            }
-        }
+        ensureStackSafety(stack, e -> e.getUses().contains(v));
         assocStmt(varNode, getAssignStmt(v, top));
     }
 
@@ -244,7 +253,7 @@ public class AsmIRBuilder {
             if (node instanceof VarInsnNode varNode) {
                 switch (varNode.getOpcode()) {
                     case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
-                            nowStack.push(manager.getLocal(varNode.var));
+                        pushExp(node, nowStack, manager.getLocal(varNode.var));
                     case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
                             storeExp(nowStack, varNode);
                     default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
