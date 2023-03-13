@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Stmt;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -18,6 +19,8 @@ public final class BytecodeBlock {
     private Stack<Var> inStack;
 
     private Stack<Var> outStack;
+
+    private @Nullable Stmt firstStmt;
 
     @Nullable
     private BytecodeBlock fallThrough;
@@ -100,6 +103,14 @@ public final class BytecodeBlock {
         }
     }
 
+    public Stmt getFirstStmt() {
+        return firstStmt;
+    }
+
+    public void setFirstStmt(Stmt firstStmt) {
+        this.firstStmt = firstStmt;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -110,21 +121,6 @@ public final class BytecodeBlock {
                 Objects.equals(this.inEdges, that.inEdges) &&
                 Objects.equals(this.outEdges, that.outEdges) &&
                 Objects.equals(this.fallThrough, that.fallThrough);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(start, instr, inEdges, outEdges, fallThrough);
-    }
-
-    @Override
-    public String toString() {
-        return "BytecodeBlock[" +
-                "start=" + start + ", " +
-                "instr=" + instr + ", " +
-                "inEdges=" + inEdges + ", " +
-                "outEdges=" + outEdges + ", " +
-                "fallThrough=" + fallThrough + ']';
     }
 
 }
