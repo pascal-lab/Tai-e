@@ -16,12 +16,16 @@ import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Goto;
+import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 
@@ -87,15 +91,19 @@ public class AsmIRBuilder {
         asm2Stmt.put(node, stmt);
     }
 
+    private Var toVar(Exp e) {
+        Var v = manager.getTempVar();
+        Stmt auxStmt = getAssignStmt(v, e);
+        assocStmt(getOrig(e), auxStmt);
+        return v;
+    }
+
     private Var popVar(Stack<Exp> stack) {
         Exp e = stack.pop();
         if (e instanceof Var v) {
             return v;
         } else {
-            Var v = manager.getTempVar();
-            Stmt auxStmt = getAssignStmt(v, e);
-            assocStmt(getOrig(e), auxStmt);
-            return v;
+            return toVar(e);
         }
     }
 
@@ -115,14 +123,116 @@ public class AsmIRBuilder {
         ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, entries);
     }
 
+    private Stmt getFirstStmt(LabelNode label) {
+        BytecodeBlock block = label2Block.get(label);
+        assert block != null;
+        if (block.getFirstStmt() != null) {
+            return block.getFirstStmt();
+        }
+
+        for (AbstractInsnNode node : block.instr()) {
+            if (asm2Stmt.containsKey(node)) {
+                Stmt first = asm2Stmt.get(node);
+                block.setFirstStmt(first);
+                return first;
+            }
+        }
+        throw new IllegalStateException();
+    }
+
+    private void setSwitchTargets(List<LabelNode> labels, LabelNode dflt, Stmt stmt) {
+        assert stmt instanceof SwitchStmt;
+        SwitchStmt switchStmt = (SwitchStmt) stmt;
+        List<Stmt> cases = labels.stream().map(this::getFirstStmt).toList();
+        Stmt defaultStmt = getFirstStmt(dflt);
+        switchStmt.setTargets(cases);
+        switchStmt.setDefaultTarget(defaultStmt);
+    }
+
+    private void setJumpTargets(AbstractInsnNode node, Stmt stmt) {
+        if (node instanceof JumpInsnNode jump) {
+            Stmt first = getFirstStmt(jump.label);
+            if (stmt instanceof Goto gotoStmt) {
+                gotoStmt.setTarget(first);
+            } else if (stmt instanceof If ifStmt) {
+                ifStmt.setTarget(first);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } else if (node instanceof LookupSwitchInsnNode lookup) {
+            setSwitchTargets(lookup.labels, lookup.dflt, stmt);
+        } else if (node instanceof TableSwitchInsnNode table) {
+            setSwitchTargets(table.labels, table.dflt, stmt);
+        }
+        // node is not jump, do nothing
+    }
+
     private List<Stmt> getStmts() {
         List<Stmt> res = new ArrayList<>();
+        // TODO: start from 0 or 1 ?
+        int counter = 0;
         for (AbstractInsnNode node : source.instructions) {
             if (asm2Stmt.containsKey(node)) {
-                res.add(asm2Stmt.get(node));
+                Stmt stmt = asm2Stmt.get(node);
+                setJumpTargets(node, stmt);
+                stmt.setIndex(counter++);
+                res.add(stmt);
             }
         }
         return res;
+    }
+
+    private boolean inRange(int opcode, int min, int max) {
+        return opcode <= min && opcode >= max;
+    }
+    private int unifyIfOp(int opcode) {
+        if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
+            return opcode - Opcodes.IFEQ + Opcodes.IF_ACMPEQ;
+        } else if (inRange(opcode, Opcodes.FCMPL, Opcodes.FCMPG)) {
+            return opcode - Opcodes.FCMPL + Opcodes.DCMPL;
+        } else {
+            return opcode;
+        }
+    }
+
+    private ConditionExp.Op toTIRCondOp(int opcode) {
+        opcode = unifyIfOp(opcode);
+        return switch (opcode) {
+            case Opcodes.IF_ICMPEQ, Opcodes.IF_ACMPEQ, Opcodes.IFNULL -> ConditionExp.Op.EQ;
+            case Opcodes.IF_ICMPNE, Opcodes.IF_ACMPNE, Opcodes.IFNONNULL -> ConditionExp.Op.NE;
+            case Opcodes.IF_ICMPLT -> ConditionExp.Op.LT;
+            case Opcodes.IF_ICMPGE -> ConditionExp.Op.GE;
+            case Opcodes.IF_ICMPGT -> ConditionExp.Op.GT;
+            case Opcodes.IF_ICMPLE -> ConditionExp.Op.LE;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
+    private ConditionExp getIfExp(Stack<Exp> stack, int opcode) {
+        Var v1 = popVar(stack);
+        Var v2;
+        if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
+            v2 = manager.getZeroLiteral();
+        } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
+            v2 = manager.getNullLiteral();
+        } else {
+            v2 = popVar(stack);
+        }
+        return new ConditionExp(toTIRCondOp(opcode), v1, v2);
+    }
+
+    private void storeExp(Stack<Exp> stack, VarInsnNode varNode) {
+        int idx = varNode.var;
+        Var v = manager.getLocal(idx);
+        Exp top = stack.pop();
+        for (int i = 0; i < stack.size(); ++i) {
+            Exp e = stack.get(i);
+            if (e.getUses().contains(v)) {
+                Var temp = toVar(e);
+                stack.set(i, temp);
+            }
+        }
+        assocStmt(varNode, getAssignStmt(v, top));
     }
 
     private void buildBlockStmt(BytecodeBlock block) {
@@ -132,8 +242,13 @@ public class AsmIRBuilder {
 
         for (AbstractInsnNode node : block.instr()) {
             if (node instanceof VarInsnNode varNode) {
-                if (varNode.getOpcode() == Opcodes.ILOAD) {
-                    nowStack.push(manager.getLocal(varNode.var));
+                switch (varNode.getOpcode()) {
+                    case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
+                            nowStack.push(manager.getLocal(varNode.var));
+                    case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
+                            storeExp(nowStack, varNode);
+                    default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
+                            throw new IllegalStateException();
                 }
             } else if (node instanceof InsnNode insnNode) {
                 if (insnNode.getOpcode() == Opcodes.IADD) {
@@ -143,7 +258,14 @@ public class AsmIRBuilder {
                 } else if (insnNode.getOpcode() == Opcodes.IRETURN) {
                     Var v1 = popVar(nowStack);
                     manager.addReturnVar(v1);
-                    asm2Stmt.put(insnNode, new Return(v1));
+                    assocStmt(insnNode, new Return(v1));
+                }
+            } else if (node instanceof JumpInsnNode jump) {
+                if (jump.getOpcode() == Opcodes.GOTO) {
+                    assocStmt(jump, new Goto());
+                } else {
+                    ConditionExp cond = getIfExp(nowStack, jump.getOpcode());
+                    assocStmt(jump, new If(cond));
                 }
             }
         }
