@@ -17,6 +17,8 @@ import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.BitwiseExp;
+import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
@@ -24,6 +26,7 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.AssignLiteral;
@@ -224,6 +227,34 @@ public class AsmIRBuilder {
                 inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1);
     }
 
+    private boolean isAddInsn(int opcode) { return inRange(opcode, Opcodes.IADD, Opcodes.DADD); }
+    private boolean isSubInsn(int opcode) { return inRange(opcode, Opcodes.ISUB, Opcodes.DSUB); }
+    private boolean isMulInsn(int opcode) { return inRange(opcode, Opcodes.IMUL, Opcodes.DMUL); }
+    private boolean isDivInsn(int opcode) { return inRange(opcode, Opcodes.IDIV, Opcodes.DDIV); }
+    private boolean isRemInsn(int opcode) { return inRange(opcode, Opcodes.IREM, Opcodes.DREM); }
+    private boolean isNegInsn(int opcode) { return inRange(opcode, Opcodes.INEG, Opcodes.DNEG); }
+
+    private boolean isBinaryInsn(int opcode) {
+        return (inRange(opcode, Opcodes.IADD, Opcodes.LXOR) && ! isNegInsn(opcode)) ||
+                isComparisonInsn(opcode);
+    }
+
+    private boolean isArithmeticInsn(int opcode) {
+        return inRange(opcode, Opcodes.IADD, Opcodes.DREM);
+    }
+
+    private boolean isBitwiseInsn(int opcode) {
+        return inRange(opcode, Opcodes.IAND, Opcodes.LXOR);
+    }
+
+    private boolean isShiftInsn(int opcode) {
+        return inRange(opcode, Opcodes.ISHL, Opcodes.LUSHR);
+    }
+
+    private boolean isComparisonInsn(int opcode) {
+        return inRange(opcode, Opcodes.LCMP, Opcodes.DCMPG);
+    }
+
     private Literal getConstValue(InsnNode node) {
         int opcode = node.getOpcode();
         if (opcode == Opcodes.ACONST_NULL) {
@@ -241,7 +272,7 @@ public class AsmIRBuilder {
 
     private int unifyIfOp(int opcode) {
         if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
-            return opcode - Opcodes.IFEQ + Opcodes.IF_ACMPEQ;
+            return opcode - Opcodes.IFEQ + Opcodes.IF_ICMPEQ;
         } else if (inRange(opcode, Opcodes.FCMPL, Opcodes.FCMPG)) {
             return opcode - Opcodes.FCMPL + Opcodes.DCMPL;
         } else {
@@ -275,6 +306,65 @@ public class AsmIRBuilder {
         return new ConditionExp(toTIRCondOp(opcode), v1, v2);
     }
 
+    private ArithmeticExp.Op toTIRArithmeticOp(int opcode) {
+        if (isAddInsn(opcode)) {
+            return ArithmeticExp.Op.ADD;
+        } else if (isSubInsn(opcode)) {
+            return ArithmeticExp.Op.SUB;
+        } else if (isMulInsn(opcode)) {
+            return ArithmeticExp.Op.MUL;
+        } else if (isDivInsn(opcode)) {
+             return ArithmeticExp.Op.DIV;
+        } else if (isRemInsn(opcode)) {
+            return ArithmeticExp.Op.REM;
+        }  else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private BitwiseExp.Op toTIRBitwiseOp(int opcode) {
+        return switch (opcode) {
+            case Opcodes.IAND, Opcodes.LAND -> BitwiseExp.Op.AND;
+            case Opcodes.IOR, Opcodes.LOR -> BitwiseExp.Op.OR;
+            case Opcodes.IXOR, Opcodes.LXOR -> BitwiseExp.Op.XOR;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
+    private ComparisonExp.Op toTIRCmpOp(int opcode) {
+        return switch (opcode) {
+            case Opcodes.LCMP -> ComparisonExp.Op.CMP;
+            case Opcodes.DCMPG, Opcodes.FCMPG -> ComparisonExp.Op.CMPG;
+            case Opcodes.DCMPL, Opcodes.FCMPL -> ComparisonExp.Op.CMPL;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
+    private ShiftExp.Op toTIRShiftOp(int opcode) {
+        return switch (opcode) {
+            case Opcodes.ISHL, Opcodes.LSHL -> ShiftExp.Op.SHL;
+            case Opcodes.ISHR, Opcodes.LSHR -> ShiftExp.Op.SHR;
+            case Opcodes.IUSHR, Opcodes.LUSHR -> ShiftExp.Op.USHR;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
+    private BinaryExp getBinaryExp(Stack<Exp> stack, int opcode) {
+        Var v1 = popVar(stack);
+        Var v2 = popVar(stack);
+        if (isArithmeticInsn(opcode)) {
+            return new ArithmeticExp(toTIRArithmeticOp(opcode), v1, v2);
+        } else if (isBitwiseInsn(opcode)) {
+            return new BitwiseExp(toTIRBitwiseOp(opcode), v1, v2);
+        } else if (isComparisonInsn(opcode)) {
+            return new ComparisonExp(toTIRCmpOp(opcode), v1, v2);
+        } else if (isShiftInsn(opcode)) {
+            return new ShiftExp(toTIRShiftOp(opcode), v1, v2);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
     private void storeExp(Stack<Exp> stack, VarInsnNode varNode) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx, varNode);
@@ -302,10 +392,8 @@ public class AsmIRBuilder {
                 int opcode = insnNode.getOpcode();
                 if (opcode == Opcodes.NOP) {
                     continue;
-                } else if (opcode == Opcodes.IADD) {
-                    Var v1 = popVar(nowStack);
-                    Var v2 = popVar(nowStack);
-                    pushExp(node, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v1, v2));
+                } else if (isBinaryInsn(opcode)) {
+                    pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
                 } else if (opcode == Opcodes.IRETURN) {
                     Var v1 = popVar(nowStack);
                     manager.addReturnVar(v1);
