@@ -74,7 +74,7 @@ public class AsmIRBuilder {
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
         this.source = source;
-        this.manager = new VarManager(method, source.parameters, source.localVariables);
+        this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions);
         this.asm2Stmt = Maps.newMap();
         this.exp2Orig = Maps.newMap();
     }
@@ -277,7 +277,7 @@ public class AsmIRBuilder {
 
     private void storeExp(Stack<Exp> stack, VarInsnNode varNode) {
         int idx = varNode.var;
-        Var v = manager.getLocal(idx);
+        Var v = manager.getLocal(idx, varNode);
         Exp top = stack.pop();
         ensureStackSafety(stack, e -> e.getUses().contains(v));
         assocStmt(varNode, getAssignStmt(v, top));
@@ -292,7 +292,7 @@ public class AsmIRBuilder {
             if (node instanceof VarInsnNode varNode) {
                 switch (varNode.getOpcode()) {
                     case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
-                        pushExp(node, nowStack, manager.getLocal(varNode.var));
+                        pushExp(node, nowStack, manager.getLocal(varNode.var, varNode));
                     case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
                             storeExp(nowStack, varNode);
                     default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
