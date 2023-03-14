@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -8,6 +9,12 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.DoubleLiteral;
+import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.language.annotation.ArrayElement;
 import pascal.taie.language.annotation.BooleanElement;
 import pascal.taie.language.annotation.ClassElement;
@@ -123,5 +130,22 @@ public class Utils {
             return insnNode.getOpcode() == Opcodes.ATHROW;
         }
         return false;
+    }
+
+    static Literal fromObject(Object o) {
+        // TODO: handle MethodType / MethodHandle / ConstantDynamic
+        if (o instanceof Integer i) {
+            return IntLiteral.get(i);
+        } else if (o instanceof Long l) {
+            return LongLiteral.get(l);
+        } else if (o instanceof Double d) {
+            return DoubleLiteral.get(d);
+        } else if (o instanceof String s) {
+            return StringLiteral.get(s);
+        } else if (o instanceof Type t) {
+            return ClassLiteral.get(BuildContext.get().fromAsmType(t));
+        } else {
+            throw new NotImplementedException();
+        }
     }
 }

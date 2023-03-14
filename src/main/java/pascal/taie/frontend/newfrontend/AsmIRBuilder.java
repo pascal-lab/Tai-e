@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
@@ -17,9 +18,15 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ConditionExp;
+import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.FloatLiteral;
+import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
@@ -79,6 +86,8 @@ public class AsmIRBuilder {
     private Stmt getAssignStmt(Var v, Exp e) {
         if (e instanceof BinaryExp binaryExp) {
             return new Binary(v, binaryExp);
+        } else if (e instanceof Literal l) {
+            return new AssignLiteral(v, l);
         } else {
             throw new NotImplementedException();
         }
@@ -125,6 +134,12 @@ public class AsmIRBuilder {
         exp2Orig.put(e, node);
         ensureStackSafety(stack, this::maySideEffect);
         stack.push(e);
+    }
+
+    private void pushConst(AbstractInsnNode node, Stack<Exp> stack, Literal literal) {
+        Var v = manager.getConstVar(literal);
+        stack.push(v);
+        assocStmt(node, getAssignStmt(v, literal));
     }
 
     public void buildIR() {
@@ -198,8 +213,32 @@ public class AsmIRBuilder {
     }
 
     private boolean inRange(int opcode, int min, int max) {
-        return opcode <= min && opcode >= max;
+        return opcode >= min && opcode <= max;
     }
+
+    private boolean isConstInsn(int opcode) {
+        return opcode == Opcodes.ACONST_NULL ||
+                inRange(opcode, Opcodes.ICONST_M1, Opcodes.ICONST_5) ||
+                inRange(opcode, Opcodes.FCONST_0, Opcodes.FCONST_2) ||
+                inRange(opcode, Opcodes.LCONST_0, Opcodes.LCONST_1) ||
+                inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1);
+    }
+
+    private Literal getConstValue(InsnNode node) {
+        int opcode = node.getOpcode();
+        if (opcode == Opcodes.ACONST_NULL) {
+            return NullLiteral.get();
+        } else if (inRange(opcode, Opcodes.ICONST_M1, Opcodes.ICONST_5)) {
+            return IntLiteral.get(opcode - Opcodes.ICONST_M1 + -1);
+        } else if (inRange(opcode, Opcodes.FCONST_0, Opcodes.FCONST_2)) {
+            return FloatLiteral.get(opcode - Opcodes.FCONST_0 + 0.0f);
+        } else if (inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1)) {
+            return DoubleLiteral.get(opcode - Opcodes.DCONST_0 + 0.0);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
     private int unifyIfOp(int opcode) {
         if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
             return opcode - Opcodes.IFEQ + Opcodes.IF_ACMPEQ;
@@ -260,14 +299,19 @@ public class AsmIRBuilder {
                             throw new IllegalStateException();
                 }
             } else if (node instanceof InsnNode insnNode) {
-                if (insnNode.getOpcode() == Opcodes.IADD) {
+                int opcode = insnNode.getOpcode();
+                if (opcode == Opcodes.NOP) {
+                    continue;
+                } else if (opcode == Opcodes.IADD) {
                     Var v1 = popVar(nowStack);
                     Var v2 = popVar(nowStack);
                     pushExp(node, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v1, v2));
-                } else if (insnNode.getOpcode() == Opcodes.IRETURN) {
+                } else if (opcode == Opcodes.IRETURN) {
                     Var v1 = popVar(nowStack);
                     manager.addReturnVar(v1);
                     assocStmt(insnNode, new Return(v1));
+                } else if (isConstInsn(opcode)) {
+                    pushConst(node, nowStack, getConstValue(insnNode));
                 }
             } else if (node instanceof JumpInsnNode jump) {
                 if (jump.getOpcode() == Opcodes.GOTO) {
@@ -276,6 +320,8 @@ public class AsmIRBuilder {
                     ConditionExp cond = getIfExp(nowStack, jump.getOpcode());
                     assocStmt(jump, new If(cond));
                 }
+            } else if (node instanceof LdcInsnNode ldc) {
+                pushConst(node, nowStack, fromObject(ldc.cst));
             }
         }
 

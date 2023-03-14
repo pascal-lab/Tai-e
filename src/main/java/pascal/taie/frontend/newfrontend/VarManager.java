@@ -2,6 +2,8 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.ParameterNode;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -31,8 +33,6 @@ class VarManager {
     private final @Nullable List<LocalVariableNode> localVariableTable;
 
     private int counter;
-
-    private int tempCounter;
 
     private final Map<Integer, Var> local2Var;
 
@@ -83,7 +83,7 @@ class VarManager {
     }
 
     public Var getTempVar() {
-        Var v = newVar(TEMP_PREFIX + tempCounter++);
+        Var v = newVar(TEMP_PREFIX + "v" + counter);
         this.vars.add(v);
         return v;
     }
@@ -144,6 +144,14 @@ class VarManager {
         return nullLiteral;
     }
 
+    public Var getConstVar(Literal literal) {
+        if (literal instanceof NullLiteral) {
+            return getNullLiteral();
+        } else {
+            return newConstVar(getConstVarName(literal), literal);
+        }
+    }
+
     private LocalVariableNode searchLocal(int index) {
         for (LocalVariableNode node : localVariableTable) {
             if (node.index == index) {
@@ -170,10 +178,18 @@ class VarManager {
         }
     }
 
+    private String getConstVarName(Literal literal) {
+        return TEMP_PREFIX + "c" + counter;
+    }
+
     private Var newParameter(int index) {
         return newVar(PARAMETER_PREFIX + index);
     }
     private Var newVar(String name) {
         return new Var(method, name, null, counter++);
+    }
+
+    private Var newConstVar(String name, Literal literal) {
+        return new Var(method, name, null, counter++, literal);
     }
 }
