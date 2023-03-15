@@ -2,7 +2,6 @@ package pascal.taie.project;
 
 import org.junit.Test;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import pascal.taie.Main;
 import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
@@ -38,7 +37,8 @@ public class TestAsmIRBuilder {
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", "6");
         Collections.addAll(args, "-m", "If");
-        Main.main(args.toArray(new String[0]));
+        // Note: run Tai-e main may produce OutOfMemoryError
+        // Main.main(args.toArray(new String[0]));
         Project project = createProject(path, mainClass, List.of());
         DepCWBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
