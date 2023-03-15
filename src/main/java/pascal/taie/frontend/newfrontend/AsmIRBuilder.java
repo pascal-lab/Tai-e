@@ -4,6 +4,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
@@ -25,26 +26,34 @@ import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NegExp;
+import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ShiftExp;
+import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
@@ -107,6 +116,8 @@ public class AsmIRBuilder {
             return new Unary(v, unaryExp);
         } else if (e instanceof Var v1) {
             return new Copy(v, v1);
+        } else if (e instanceof FieldAccess fieldAccess) {
+            return new LoadField(v, fieldAccess);
         } else {
             throw new NotImplementedException();
         }
@@ -404,16 +415,15 @@ public class AsmIRBuilder {
     }
 
     private CastExp getCastExp(Stack<Exp> stack, int opcode) {
-        Var v1 = popVar(stack);
-        return new CastExp(v1, getCastType(opcode));
+        return getCastExp(stack, getCastType(opcode));
     }
 
-    private CastExp getCastExp(Stack<Exp> stack, String internalName) {
+    private CastExp getCastExp(Stack<Exp> stack, Type t) {
         Var v1 = popVar(stack);
-        return new CastExp(v1, BuildContext.get().fromAsmInternalName(internalName));
+        return new CastExp(v1, t);
     }
 
-    private void storeExp(Stack<Exp> stack, VarInsnNode varNode) {
+    private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx, varNode);
         Exp top = stack.pop();
@@ -443,7 +453,7 @@ public class AsmIRBuilder {
                     case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
                         pushExp(node, nowStack, manager.getLocal(varNode.var, varNode));
                     case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
-                            storeExp(nowStack, varNode);
+                            storeExp(varNode, nowStack);
                     default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                             throw new IllegalStateException();
                 }
@@ -474,13 +484,40 @@ public class AsmIRBuilder {
                 pushConst(node, nowStack, fromObject(ldc.cst));
             } else if (node instanceof TypeInsnNode typeNode) {
                 int opcode = typeNode.getOpcode();
+                ClassType type = BuildContext.get().fromAsmInternalName(typeNode.desc);
                 if (opcode == Opcodes.CHECKCAST) {
-                    pushExp(node, nowStack, getCastExp(nowStack, typeNode.desc));
+                    pushExp(node, nowStack, getCastExp(nowStack, type));
+                } else if (opcode == Opcodes.NEW) {
+                    pushExp(node, nowStack, new NewInstance(type));
                 }
             } else if (node instanceof IntInsnNode intNode) {
                 int opcode = intNode.getOpcode();
                 if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
                     pushConst(node, nowStack, IntLiteral.get(intNode.operand));
+                }
+            } else if (node instanceof FieldInsnNode fieldInsnNode) {
+                int opcode = fieldInsnNode.getOpcode();
+                ClassType owner = BuildContext.get().fromAsmInternalName(fieldInsnNode.owner);
+                Type type = BuildContext.get().fromAsmType(fieldInsnNode.desc);
+                String name = fieldInsnNode.name;
+                // TODO: check why our class hierarchy builder makes owner.getJClass() null
+                FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
+                        opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
+                if (opcode == Opcodes.GETSTATIC) {
+                    pushExp(node, nowStack, new StaticFieldAccess(ref));
+                } else if (opcode == Opcodes.GETFIELD) {
+                    Var v1 = popVar(nowStack);
+                    pushExp(node, nowStack, new InstanceFieldAccess(ref, v1));
+                } else if (opcode == Opcodes.PUTSTATIC) {
+                    FieldAccess access = new StaticFieldAccess(ref);
+                    Var v1 = popVar(nowStack);
+                    assocStmt(fieldInsnNode, new StoreField(access, v1));
+                } else if (opcode == Opcodes.PUTFIELD) {
+                    Var value = popVar(nowStack);
+                    Var base = popVar(nowStack);
+                    assocStmt(fieldInsnNode, new StoreField(new InstanceFieldAccess(ref, base), value));
+                } else {
+                    throw new IllegalStateException();
                 }
             }
         }
