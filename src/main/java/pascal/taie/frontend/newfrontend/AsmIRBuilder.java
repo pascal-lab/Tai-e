@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -12,12 +13,14 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
@@ -25,18 +28,25 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.ShiftExp;
+import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
@@ -91,6 +101,12 @@ public class AsmIRBuilder {
             return new Binary(v, binaryExp);
         } else if (e instanceof Literal l) {
             return new AssignLiteral(v, l);
+        } else if (e instanceof CastExp cast) {
+            return new Cast(v, cast);
+        } else if (e instanceof UnaryExp unaryExp) {
+            return new Unary(v, unaryExp);
+        } else if (e instanceof Var v1) {
+            return new Copy(v, v1);
         } else {
             throw new NotImplementedException();
         }
@@ -140,6 +156,7 @@ public class AsmIRBuilder {
     }
 
     private void pushConst(AbstractInsnNode node, Stack<Exp> stack, Literal literal) {
+        // TODO: handle const value properly
         Var v = manager.getConstVar(literal);
         stack.push(v);
         assocStmt(node, getAssignStmt(v, literal));
@@ -233,6 +250,10 @@ public class AsmIRBuilder {
     private boolean isDivInsn(int opcode) { return inRange(opcode, Opcodes.IDIV, Opcodes.DDIV); }
     private boolean isRemInsn(int opcode) { return inRange(opcode, Opcodes.IREM, Opcodes.DREM); }
     private boolean isNegInsn(int opcode) { return inRange(opcode, Opcodes.INEG, Opcodes.DNEG); }
+
+    private boolean isPrimCastInsn(int opcode) {
+        return inRange(opcode, Opcodes.I2L, Opcodes.I2S);
+    }
 
     private boolean isBinaryInsn(int opcode) {
         return (inRange(opcode, Opcodes.IADD, Opcodes.LXOR) && ! isNegInsn(opcode)) ||
@@ -353,6 +374,19 @@ public class AsmIRBuilder {
         };
     }
 
+    private Type getCastType(int opcode) {
+        return switch (opcode) {
+            case Opcodes.L2I, Opcodes.F2I, Opcodes.D2I -> PrimitiveType.INT;
+            case Opcodes.I2L, Opcodes.F2L, Opcodes.D2L -> PrimitiveType.LONG;
+            case Opcodes.I2F, Opcodes.L2F, Opcodes.D2F -> PrimitiveType.FLOAT;
+            case Opcodes.I2D, Opcodes.L2D,  Opcodes.F2D -> PrimitiveType.DOUBLE;
+            case Opcodes.I2B -> PrimitiveType.BYTE;
+            case Opcodes.I2S -> PrimitiveType.SHORT;
+            case Opcodes.I2C -> PrimitiveType.CHAR;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
     private BinaryExp getBinaryExp(Stack<Exp> stack, int opcode) {
         Var v1 = popVar(stack);
         Var v2 = popVar(stack);
@@ -367,6 +401,16 @@ public class AsmIRBuilder {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    private CastExp getCastExp(Stack<Exp> stack, int opcode) {
+        Var v1 = popVar(stack);
+        return new CastExp(v1, getCastType(opcode));
+    }
+
+    private CastExp getCastExp(Stack<Exp> stack, String internalName) {
+        Var v1 = popVar(stack);
+        return new CastExp(v1, BuildContext.get().fromAsmInternalName(internalName));
     }
 
     private void storeExp(Stack<Exp> stack, VarInsnNode varNode) {
@@ -413,6 +457,11 @@ public class AsmIRBuilder {
                     returnExp(nowStack, insnNode);
                 } else if (isConstInsn(opcode)) {
                     pushConst(node, nowStack, getConstValue(insnNode));
+                } else if (isPrimCastInsn(opcode)) {
+                    pushExp(node, nowStack, getCastExp(nowStack, opcode));
+                } else if (isNegInsn(opcode)) {
+                    Var v1 = popVar(nowStack);
+                    pushExp(node, nowStack, new NegExp(v1));
                 }
             } else if (node instanceof JumpInsnNode jump) {
                 if (jump.getOpcode() == Opcodes.GOTO) {
@@ -423,6 +472,16 @@ public class AsmIRBuilder {
                 }
             } else if (node instanceof LdcInsnNode ldc) {
                 pushConst(node, nowStack, fromObject(ldc.cst));
+            } else if (node instanceof TypeInsnNode typeNode) {
+                int opcode = typeNode.getOpcode();
+                if (opcode == Opcodes.CHECKCAST) {
+                    pushExp(node, nowStack, getCastExp(nowStack, typeNode.desc));
+                }
+            } else if (node instanceof IntInsnNode intNode) {
+                int opcode = intNode.getOpcode();
+                if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
+                    pushConst(node, nowStack, IntLiteral.get(intNode.operand));
+                }
             }
         }
 
