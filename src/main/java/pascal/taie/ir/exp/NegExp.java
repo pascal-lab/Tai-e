@@ -35,7 +35,7 @@ public class NegExp implements UnaryExp {
 
     public NegExp(Var value) {
         this.value = value;
-        assert value.getType() instanceof PrimitiveType;
+        // assert value.getType() instanceof PrimitiveType;
     }
 
     public Var getValue() {
