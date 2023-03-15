@@ -255,6 +255,10 @@ public class AsmIRBuilder {
         return inRange(opcode, Opcodes.LCMP, Opcodes.DCMPG);
     }
 
+    private boolean isReturnInsn(int opcode) {
+        return inRange(opcode, Opcodes.IRETURN, Opcodes.RETURN);
+    }
+
     private Literal getConstValue(InsnNode node) {
         int opcode = node.getOpcode();
         if (opcode == Opcodes.ACONST_NULL) {
@@ -373,6 +377,17 @@ public class AsmIRBuilder {
         assocStmt(varNode, getAssignStmt(v, top));
     }
 
+    private void returnExp(Stack<Exp> stack, InsnNode node) {
+        int opcode = node.getOpcode();
+        if (opcode == Opcodes.RETURN) {
+            assocStmt(node, new Return());
+        } else {
+            Var v = popVar(stack);
+            manager.addReturnVar(v);
+            assocStmt(node, new Return(v));
+        }
+    }
+
     private void buildBlockStmt(BytecodeBlock block) {
         Stack<Var> inStack = block.getInStack();
         Stack<Exp> nowStack = new Stack<>();
@@ -394,10 +409,8 @@ public class AsmIRBuilder {
                     continue;
                 } else if (isBinaryInsn(opcode)) {
                     pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
-                } else if (opcode == Opcodes.IRETURN) {
-                    Var v1 = popVar(nowStack);
-                    manager.addReturnVar(v1);
-                    assocStmt(insnNode, new Return(v1));
+                } else if (isReturnInsn(opcode)) {
+                    returnExp(nowStack, insnNode);
                 } else if (isConstInsn(opcode)) {
                     pushConst(node, nowStack, getConstValue(insnNode));
                 }
