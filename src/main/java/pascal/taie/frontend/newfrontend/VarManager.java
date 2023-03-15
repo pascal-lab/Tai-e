@@ -137,7 +137,7 @@ class VarManager {
             int lastIndex = insnList.indexOf(insnList.getLast());
             int start = 0;
             int end = lastIndex + 1;
-            if (localVariableTable != null) {
+            if (existsLocalNameTable()) {
                 boolean found = false;
                 for (LocalVariableNode node : localVariableTable) {
                     start = insnList.indexOf(node.start);
@@ -161,6 +161,10 @@ class VarManager {
         return Objects.equals(query.first(), var.first())
                 && start <= query.second()
                 && query.second() < end;
+    }
+
+    private boolean existsLocalNameTable() {
+        return localVariableTable != null && localVariableTable.size() != 0;
     }
 
     private String getLocalName(int i, @Nullable String name) {
