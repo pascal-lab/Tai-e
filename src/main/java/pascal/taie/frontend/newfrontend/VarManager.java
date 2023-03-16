@@ -1,9 +1,11 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.ParameterNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
@@ -41,7 +43,9 @@ class VarManager {
 
     private int counter;
 
-    private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, [start, end)) -> Var
+    private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
+
+    private final int lastIndex;
 
     private final List<Var> params;
 
@@ -69,7 +73,7 @@ class VarManager {
 
         // Test insnList.size to examine whether the method is not concrete.
         // Checking JMethod's modifiers may be a more elegant way.
-        int lastIndex = insnList.size() == 0 ? 0 : insnList.indexOf(insnList.getLast());
+        this.lastIndex = insnList.size() == 0 ? 0 : insnList.indexOf(insnList.getLast());
 
         int nowIdx = method.isStatic() ? 0 : 1;
         if (params == null) {
@@ -121,6 +125,7 @@ class VarManager {
     /**
      * Get the TIR var for a <code>this</code> variable, parameter or local variable
      * @param slot index of variable in bytecode
+     * @param insnNode asm insnNode that require the local variable
      * @return the corresponding TIR variable
      */
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
@@ -134,20 +139,27 @@ class VarManager {
             // Note: if reach here, this variable must be a local variable
             this.vars.add(v);
 
-            int lastIndex = insnList.indexOf(insnList.getLast());
-            int start = 0;
+            // for generalization start could be 0, but in development stage we want to expose more case unexpected.
+            int start = asmIndex;
             int end = lastIndex + 1;
             if (existsLocalNameTable()) {
-                boolean found = false;
                 for (LocalVariableNode node : localVariableTable) {
-                    start = insnList.indexOf(node.start);
-                    end = insnList.indexOf(node.end);
-                    if (node.index == slot && start <= asmIndex && asmIndex < end) {
-                        found = true;
+                    AbstractInsnNode startNode;
+                    if (node.start.getPrevious() == null) {
+                        startNode = node.start; // index of start node == 0
+                    } else {
+                        startNode = node.start.getPrevious();
+                        assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
+                        assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
+                    }
+                    int currStart = insnList.indexOf(startNode);
+                    int currEnd = insnList.indexOf(node.end);
+                    if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
+                        start = currStart;
+                        end = currEnd;
                         break;
                     }
                 }
-                assert found;
             }
 
             local2Var.put(new Triple<>(slot, start, end), v);
@@ -203,20 +215,38 @@ class VarManager {
 
     private LocalVariableNode searchLocal(int slot, int asmIndex) {
         for (LocalVariableNode node : localVariableTable) {
-            int start = insnList.indexOf(node.start);
+            AbstractInsnNode startNode;
+            if (node.start.getPrevious() == null) {
+                startNode = node.start; // index of start node == 0
+            } else {
+                startNode = node.start.getPrevious();
+                assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode";
+                assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be _STORE";
+            }
+            int start = insnList.indexOf(startNode);
             int end = insnList.indexOf(node.end);
             if (node.index == slot && start <= asmIndex && asmIndex < end) {
                 return node;
             }
         }
-        throw new IllegalArgumentException();
+        /* If not found, what is in the slot is an anonymous local variable generated for syntactic sugar by java compiler
+           which does not appear in the LocalVariableTable even with compiling option -g.
+           (Refer to var0 in private method p in CollectionTest.(java)|(class) for example.)
+           So an unnamed local variable should be returned.
+         */
+        //throw new IllegalArgumentException();
+        return null;
     }
 
     private @Nullable Type getLocalType(int i, int asmIndex) {
         if (localVariableTable == null) {
             return null;
         } else {
-            String sig = searchLocal(i, asmIndex).signature;
+            LocalVariableNode n = searchLocal(i, asmIndex);
+            if (n == null) {
+                return null;
+            }
+            String sig = n.signature;
             return BuildContext.get().fromAsmType(sig);
         }
     }
@@ -225,7 +255,11 @@ class VarManager {
         if (localVariableTable == null || localVariableTable.size() == 0) {
             return null;
         } else {
-            return searchLocal(i, asmIndex).name;
+            LocalVariableNode n = searchLocal(i, asmIndex);
+            if (n == null) {
+                return null;
+            }
+            return n.name;
         }
     }
 
