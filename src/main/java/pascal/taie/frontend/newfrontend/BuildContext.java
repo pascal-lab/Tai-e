@@ -8,7 +8,10 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
+import pascal.taie.util.collection.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class BuildContext {
@@ -69,4 +72,17 @@ public class BuildContext {
         }
     }
 
+    public Pair<List<Type>, Type> fromAsmMethodType(String descriptor) {
+        // TODO: need memorize ?
+        org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
+        if (t.getSort() == org.objectweb.asm.Type.METHOD) {
+            List<Type> paramTypes = new ArrayList<>();
+            for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
+                paramTypes.add(fromAsmType(t1));
+            }
+            return new Pair<>(paramTypes, fromAsmType(t.getReturnType()));
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
 }

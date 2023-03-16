@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -30,6 +31,11 @@ import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInterface;
+import pascal.taie.ir.exp.InvokeSpecial;
+import pascal.taie.ir.exp.InvokeStatic;
+import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewInstance;
@@ -40,12 +46,14 @@ import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -57,8 +65,10 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -118,6 +128,8 @@ public class AsmIRBuilder {
             return new Copy(v, v1);
         } else if (e instanceof FieldAccess fieldAccess) {
             return new LoadField(v, fieldAccess);
+        } else if (e instanceof InvokeExp invokeExp) {
+            return new Invoke(method, invokeExp, v);
         } else {
             throw new NotImplementedException();
         }
@@ -423,6 +435,30 @@ public class AsmIRBuilder {
         return new CastExp(v1, t);
     }
 
+    private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<Exp> stack) {
+        int opcode = methodInsnNode.getOpcode();
+        ClassType owner = BuildContext.get().fromAsmInternalName(methodInsnNode.owner);
+        Pair<List<Type>, Type> desc = BuildContext.get().fromAsmMethodType(methodInsnNode.desc);
+        String name = methodInsnNode.name;
+        boolean isStatic = opcode == Opcodes.INVOKESTATIC;
+        MethodRef ref = MethodRef.get(owner.getJClass(), name, desc.first(), desc.second(), isStatic);
+
+        List<Var> args = new ArrayList<>();
+        for (int i = 0; i < desc.first().size(); ++i) {
+            args.add(popVar(stack));
+        }
+        Collections.reverse(args);
+        Var base = isStatic ? null : popVar(stack);
+
+        return switch (opcode) {
+            case Opcodes.INVOKESTATIC -> new InvokeStatic(ref, args);
+            case Opcodes.INVOKEVIRTUAL -> new InvokeVirtual(ref, base, args);
+            case Opcodes.INVOKEINTERFACE -> new InvokeInterface(ref, base, args);
+            case Opcodes.INVOKESPECIAL -> new InvokeSpecial(ref, base, args);
+            default -> throw new IllegalStateException();
+        };
+    }
+
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx, varNode);
@@ -503,22 +539,26 @@ public class AsmIRBuilder {
                 // TODO: check why our class hierarchy builder makes owner.getJClass() null
                 FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
                         opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
-                if (opcode == Opcodes.GETSTATIC) {
-                    pushExp(node, nowStack, new StaticFieldAccess(ref));
-                } else if (opcode == Opcodes.GETFIELD) {
-                    Var v1 = popVar(nowStack);
-                    pushExp(node, nowStack, new InstanceFieldAccess(ref, v1));
-                } else if (opcode == Opcodes.PUTSTATIC) {
-                    FieldAccess access = new StaticFieldAccess(ref);
-                    Var v1 = popVar(nowStack);
-                    assocStmt(fieldInsnNode, new StoreField(access, v1));
-                } else if (opcode == Opcodes.PUTFIELD) {
-                    Var value = popVar(nowStack);
-                    Var base = popVar(nowStack);
-                    assocStmt(fieldInsnNode, new StoreField(new InstanceFieldAccess(ref, base), value));
-                } else {
-                    throw new IllegalStateException();
+                switch (opcode) {
+                    case Opcodes.GETSTATIC -> pushExp(node, nowStack, new StaticFieldAccess(ref));
+                    case Opcodes.GETFIELD -> {
+                        Var v1 = popVar(nowStack);
+                        pushExp(node, nowStack, new InstanceFieldAccess(ref, v1));
+                    }
+                    case Opcodes.PUTSTATIC -> {
+                        FieldAccess access = new StaticFieldAccess(ref);
+                        Var v1 = popVar(nowStack);
+                        assocStmt(fieldInsnNode, new StoreField(access, v1));
+                    }
+                    case Opcodes.PUTFIELD -> {
+                        Var value = popVar(nowStack);
+                        Var base = popVar(nowStack);
+                        assocStmt(fieldInsnNode, new StoreField(new InstanceFieldAccess(ref, base), value));
+                    }
+                    default -> throw new IllegalStateException();
                 }
+            } else if (node instanceof MethodInsnNode methodInsnNode) {
+                pushExp(node, nowStack, getInvokeExp(methodInsnNode, nowStack));
             }
         }
 
