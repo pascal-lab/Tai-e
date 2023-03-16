@@ -342,14 +342,17 @@ public class AsmIRBuilder {
     }
 
     private ConditionExp getIfExp(Stack<Exp> stack, int opcode) {
-        Var v1 = popVar(stack);
+        Var v1;
         Var v2;
         if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
+            v1 = popVar(stack);
             v2 = manager.getZeroLiteral();
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
+            v1 = popVar(stack);
             v2 = manager.getNullLiteral();
         } else {
             v2 = popVar(stack);
+            v1 = popVar(stack);
         }
         return new ConditionExp(toTIRCondOp(opcode), v1, v2);
     }
@@ -411,8 +414,8 @@ public class AsmIRBuilder {
     }
 
     private BinaryExp getBinaryExp(Stack<Exp> stack, int opcode) {
-        Var v1 = popVar(stack);
         Var v2 = popVar(stack);
+        Var v1 = popVar(stack);
         if (isArithmeticInsn(opcode)) {
             return new ArithmeticExp(toTIRArithmeticOp(opcode), v1, v2);
         } else if (isBitwiseInsn(opcode)) {
