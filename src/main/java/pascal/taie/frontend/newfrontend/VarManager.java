@@ -45,6 +45,8 @@ class VarManager {
 
     private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
+    private final Map<Triple<Integer, Integer, Integer>, Var> anonymousLocal2Var; // (slot, start(inclusive), end(exclusive)) -> Var
+
     private final int lastIndex;
 
     private final List<Var> params;
@@ -67,6 +69,7 @@ class VarManager {
         this.localVariableTable = localVariableTable;
         this.insnList = insnList;
         this.local2Var = Maps.newMap();
+        this.anonymousLocal2Var = Maps.newMap();
         this.params = new ArrayList<>();
         this.vars = new ArrayList<>();
         this.retVars = new HashSet<>();
@@ -127,40 +130,52 @@ class VarManager {
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
         int asmIndex = insnList.indexOf(insnNode);
         Pair<Integer, Integer> query = new Pair<>(slot, asmIndex);
+
         var opt = local2Var.keySet().stream().filter(k -> match(query, k)).findAny();
         if (opt.isPresent()) {
             return local2Var.get(opt.get());
-        } else {
-            Var v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
-            // Note: if reach here, this variable must be a local variable
-            this.vars.add(v);
+        }
 
-            // for generalization start could be 0, but in development stage we want to expose more case unexpected.
-            int start = asmIndex;
-            int end = lastIndex + 1;
-            if (existsLocalVariableTable()) {
-                for (LocalVariableNode node : localVariableTable) {
-                    AbstractInsnNode startNode;
-                    if (node.start.getPrevious() == null) {
-                        startNode = node.start; // index of start node == 0
-                    } else {
-                        startNode = node.start.getPrevious();
-                        assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
-                        assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
-                    }
-                    int currStart = insnList.indexOf(startNode);
-                    int currEnd = insnList.indexOf(node.end);
-                    if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
-                        start = currStart;
-                        end = currEnd;
-                        break;
-                    }
+        opt = anonymousLocal2Var.keySet().stream().filter(k -> match(query, k)).findAny();
+        if (opt.isPresent()) {
+            return anonymousLocal2Var.get(opt.get());
+        }
+
+        Var v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
+        // Note: if reach here, this variable must be a local variable
+        this.vars.add(v);
+
+        // for generalization start could be 0, but in development stage we want to expose more case unexpected.
+        int start = asmIndex;
+        int end = lastIndex + 1;
+        boolean found = false;
+        if (existsLocalVariableTable()) {
+            for (LocalVariableNode node : localVariableTable) {
+                AbstractInsnNode startNode;
+                if (node.start.getPrevious() == null) {
+                    startNode = node.start; // index of start node == 0
+                } else {
+                    startNode = node.start.getPrevious();
+                    assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
+                    assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
+                }
+                int currStart = insnList.indexOf(startNode);
+                int currEnd = insnList.indexOf(node.end);
+                if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
+                    start = currStart;
+                    end = currEnd;
+                    found = true;
+                    break;
                 }
             }
-
-            local2Var.put(new Triple<>(slot, start, end), v);
-            return v;
         }
+
+        if (existsLocalVariableTable() && !found) {
+            anonymousLocal2Var.put(new Triple<>(slot, start, end), v);
+        } else {
+            local2Var.put(new Triple<>(slot, start, end), v);
+        }
+        return v;
     }
 
     private boolean match(Pair<Integer, Integer> query, Triple<Integer, Integer, Integer> var) {
