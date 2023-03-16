@@ -52,6 +52,7 @@ public class TestAsmIRBuilder {
         var ch = getCh("If");
         int[] total = { 0 };
         int[] zeroBlock = { 0 };
+        List<String> targets = new ArrayList<>();
         ch.allClasses().forEach(i -> {
             i.getDeclaredMethods().forEach(m -> {
                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
@@ -62,10 +63,14 @@ public class TestAsmIRBuilder {
                 total[0]++;
                 if (cfg.keySet().size() == 0) {
                     zeroBlock[0]++;
+                    if (! m.isNative() && ! i.isInterface() && !m.isAbstract()) {
+                        targets.add(m.getSignature());
+                    }
                 }
             });
         });
         System.out.println("total: " + total[0] + ", zero:" + zeroBlock[0]);
+        assert targets.isEmpty();
     }
 
     @Test
