@@ -75,19 +75,15 @@ class VarManager {
         // Checking JMethod's modifiers may be a more elegant way.
         this.lastIndex = insnList.size() == 0 ? 0 : insnList.indexOf(insnList.getLast());
 
-        int nowIdx = method.isStatic() ? 0 : 1;
-        if (params == null) {
+        // Bytecode also stores method parameters in local variable table,
+        // and MethodNode.params seems abandoned by ASM.
+        // So if there is no localVariableTable, generate param prefix names for params.
+        if (!existsLocalVariableTable()) {
+            int nowIdx = method.isStatic() ? 0 : 1;
             for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
                 Var v = newParameter(i);
                 this.params.add(v);
                 local2Var.put(new Triple<>(i, 0, lastIndex + 1), v);
-            }
-        } else {
-            for (var i : params) {
-                Var v = newVar(i.name);
-                this.params.add(v);
-                local2Var.put(new Triple<>(nowIdx, 0, lastIndex + 1), v);
-                nowIdx++;
             }
         }
 
@@ -142,7 +138,7 @@ class VarManager {
             // for generalization start could be 0, but in development stage we want to expose more case unexpected.
             int start = asmIndex;
             int end = lastIndex + 1;
-            if (existsLocalNameTable()) {
+            if (existsLocalVariableTable()) {
                 for (LocalVariableNode node : localVariableTable) {
                     AbstractInsnNode startNode;
                     if (node.start.getPrevious() == null) {
@@ -175,7 +171,7 @@ class VarManager {
                 && query.second() < end;
     }
 
-    private boolean existsLocalNameTable() {
+    private boolean existsLocalVariableTable() {
         return localVariableTable != null && localVariableTable.size() != 0;
     }
 
