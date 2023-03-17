@@ -27,7 +27,10 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.util.IRModel;
 import pascal.taie.language.classes.JMethod;
+
+import java.util.List;
 
 /**
  * This class models some native calls by "inlining" their side effects
@@ -37,33 +40,33 @@ public class NativeModeller implements Plugin {
 
     private Solver solver;
 
-    private ArrayCopyModel arrayCopyModel;
+    private List<IRModel> models;
 
     private DoPriviledgedModel doPrivilegedModel;
 
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        arrayCopyModel = new ArrayCopyModel(solver);
         doPrivilegedModel = new DoPriviledgedModel(solver);
+        models = List.of(doPrivilegedModel,
+                new ArrayCopyModel(solver),
+                new UnsafeModel(solver));
     }
 
     @Override
     public void onStart() {
-        arrayCopyModel.getModeledAPIs().forEach(solver::addIgnoredMethod);
-        doPrivilegedModel.getModeledAPIs().forEach(solver::addIgnoredMethod);
+        models.forEach(model ->
+                model.getModeledAPIs().forEach(solver::addIgnoredMethod));
     }
 
     @Override
     public void onNewMethod(JMethod method) {
-        arrayCopyModel.handleNewMethod(method);
-        doPrivilegedModel.handleNewMethod(method);
+        models.forEach(model -> model.handleNewMethod(method));
     }
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
-        arrayCopyModel.handleNewCSMethod(csMethod);
-        doPrivilegedModel.handleNewCSMethod(csMethod);
+        models.forEach(model -> model.handleNewCSMethod(csMethod));
     }
 
     @Override

@@ -404,7 +404,9 @@ public class DefaultNativeModel implements NativeModel {
      */
     private void register(String methodSig, Function<JMethod, IR> model) {
         JMethod method = hierarchy.getJREMethod(methodSig);
-        models.put(method, model);
+        if (method != null) {
+            models.put(method, model);
+        }
     }
 
     /**

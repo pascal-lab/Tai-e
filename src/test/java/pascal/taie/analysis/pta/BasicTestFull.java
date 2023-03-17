@@ -99,6 +99,6 @@ public class BasicTestFull extends BasicTest {
 
     @Test
     public void testNativeModel() {
-        Tests.testPTA(DIR, "NativeModel");
+        Tests.testPTA(DIR, "NativeModel", "distinguish-string-constants:all");
     }
 }

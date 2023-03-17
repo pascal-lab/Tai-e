@@ -88,7 +88,7 @@ class DoPriviledgedModel extends AbstractIRModel {
      * Connects doPrivileged(...) invocation to the corresponding run() method
      * which is the callee of the corresponding run().
      */
-    public void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         Invoke invoke = edge.getCallSite().getCallSite();
         Invoke doPrivilegedInvoke = run2DoPriv.get(invoke);
         if (doPrivilegedInvoke != null) {
