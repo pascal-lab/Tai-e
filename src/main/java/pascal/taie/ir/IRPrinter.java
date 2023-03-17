@@ -69,7 +69,10 @@ public class IRPrinter {
         Formatter formatter = new Formatter();
         formatter.format("%s ", position(invoke));
         if (invoke.getResult() != null) {
-            formatter.format(invoke.getResult() + " = ");
+            // some variable names contain '%', which will be treated as
+            // format specifier by formatter, thus we need to escape it
+            String lhs = invoke.getResult().toString().replace("%", "%%");
+            formatter.format(lhs + " = ");
         }
         InvokeExp ie = invoke.getInvokeExp();
         formatter.format("%s ", ie.getInvokeString());
