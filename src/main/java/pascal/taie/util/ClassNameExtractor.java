@@ -78,8 +78,9 @@ public class ClassNameExtractor {
     }
 
     private static List<String> extractJar(String jarPath) {
-        try (JarFile jar = new JarFile(jarPath)) {
-            System.out.printf("Scanning %s ... ", jarPath);
+        File file = new File(jarPath);
+        try (JarFile jar = new JarFile(file)) {
+            System.out.printf("Scanning %s ...", file.getAbsolutePath());
             List<String> classNames = jar.stream()
                     .filter(e -> !e.getName().startsWith("META-INF"))
                     .filter(e -> e.getName().endsWith(CLASS))
@@ -92,7 +93,8 @@ public class ClassNameExtractor {
             System.out.printf("%d classes%n", classNames.size());
             return classNames;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read jar file: " + jarPath, e);
+            throw new RuntimeException("Failed to read jar file: " +
+                    file.getAbsolutePath(), e);
         }
     }
 
@@ -102,7 +104,7 @@ public class ClassNameExtractor {
             throw new RuntimeException(dir + " is not a directory");
         }
         try (Stream<Path> paths = Files.walk(dir)) {
-            System.out.printf("Scanning %s ... ", dirPath);
+            System.out.printf("Scanning %s ... ", dir.toAbsolutePath());
             List<String> classNames = new ArrayList<>();
             paths.map(dir::relativize).forEach(path -> {
                 String fileName = path.getFileName().toString();
