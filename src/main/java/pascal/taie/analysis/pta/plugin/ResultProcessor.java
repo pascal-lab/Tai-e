@@ -27,9 +27,11 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.config.AnalysisOptions;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Streams;
@@ -49,6 +51,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
@@ -66,6 +69,8 @@ public class ResultProcessor implements Plugin {
     private static final Logger logger = LogManager.getLogger(ResultProcessor.class);
 
     public static final String RESULTS_FILE = "pta-results.txt";
+
+    private static final String CI_RESULTS_FILE = "pta-ci-results.txt";
 
     private static final String HEADER = "Points-to sets of all ";
 
@@ -95,6 +100,10 @@ public class ResultProcessor implements Plugin {
         boolean taintEnabled = options.getString("taint-config") != null;
         if (options.getBoolean("dump")) {
             dumpPointsToSet(result, taintEnabled);
+        }
+
+        if (options.getBoolean("dump-ci")) {
+            dumpCIPointsToSet(result);
         }
 
         String expectedFile = options.getString("expected-file");
@@ -150,23 +159,20 @@ public class ResultProcessor implements Plugin {
 
     private static void dumpPointsToSet(PointerAnalysisResult result,
                                         boolean taintEnabled) {
-        PrintStream out;
-        try {
-            File outFile = new File(World.get().getOptions().getOutputDir(), RESULTS_FILE);
-            out = new PrintStream(new FileOutputStream(outFile));
-            logger.info("Dumping points-to set to {}",
+        File outFile = new File(World.get().getOptions().getOutputDir(), RESULTS_FILE);
+        try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
+            logger.info("Dumping points-to set (with contexts) to {}",
                     outFile.getAbsolutePath());
+            dumpPointers(out, result.getCSVars(), "variables");
+            dumpPointers(out, result.getStaticFields(), "static fields");
+            dumpPointers(out, result.getInstanceFields(), "instance fields");
+            dumpPointers(out, result.getArrayIndexes(), "array indexes");
+            if (taintEnabled) {
+                dumpTaintFlows(out, result);
+            }
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Failed to open output file", e);
+            logger.error("Failed to open output file {}", outFile);
         }
-        dumpPointers(out, result.getCSVars(), "variables");
-        dumpPointers(out, result.getStaticFields(), "static fields");
-        dumpPointers(out, result.getInstanceFields(), "instance fields");
-        dumpPointers(out, result.getArrayIndexes(), "array indexes");
-        if (taintEnabled) {
-            dumpTaintFlows(out, result);
-        }
-        out.close();
     }
 
     private static void dumpPointers(
@@ -176,6 +182,31 @@ public class ResultProcessor implements Plugin {
                 .sorted(Comparator.comparing(Pointer::toString))
                 .forEach(p -> out.println(p + SEP + Streams.toString(p.objects())));
         out.println();
+    }
+
+    /**
+     * Dumps points-to sets for all variables (without contexts).
+     */
+    private static void dumpCIPointsToSet(PointerAnalysisResult result) {
+        File outFile = new File(World.get().getOptions().getOutputDir(), CI_RESULTS_FILE);
+        try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
+            logger.info("Dumping points-to set (without contexts) to {}",
+                    outFile.getAbsolutePath());
+            Function<Var, String> toString =
+                    v -> v.getMethod().toString() + '/' + v.getName();
+            result.getVars()
+                    .stream()
+                    .sorted(Comparator.comparing(toString))
+                    .forEach(v -> {
+                        Set<Obj> pts = result.getPointsToSet(v);
+                        if (!pts.isEmpty()) {
+                            out.printf("%s:%n", toString.apply(v));
+                            pts.forEach(o -> out.printf("    %s%n", o));
+                        }
+                    });
+        } catch (FileNotFoundException e) {
+            logger.error("Failed to open output file {}", outFile);
+        }
     }
 
     private static void comparePointsToSet(PointerAnalysisResult result, String input) {
