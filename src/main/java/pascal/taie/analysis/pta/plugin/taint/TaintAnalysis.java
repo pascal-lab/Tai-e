@@ -59,7 +59,7 @@ public class TaintAnalysis implements Plugin {
     public void setSolver(Solver solver) {
         this.solver = solver;
         manager = new TaintManager(solver.getHeapModel());
-        TaintConfig config = TaintConfig.readConfig(
+        TaintConfig config = TaintConfig.loadConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
                 solver.getTypeSystem());

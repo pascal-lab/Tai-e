@@ -39,13 +39,17 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.collection.Lists;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Configuration for taint analysis.
@@ -59,27 +63,78 @@ record TaintConfig(List<CallSource> callSources,
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
     /**
-     * Reads a taint analysis configuration from file
+     * An empty taint config.
+     */
+    private static final TaintConfig EMPTY = new TaintConfig(
+            List.of(), List.of(), List.of(), List.of(), List.of());
+
+    /**
+     * Loads a taint analysis configuration from given path.
+     * If the path is a file, then loads config from the file;
+     * if the path is a directory, then loads all YAML files in the directory
+     * and merge them as the result.
      *
-     * @param path       the path to the config file
+     * @param path       the path
      * @param hierarchy  the class hierarchy
      * @param typeSystem the type manager
-     * @return the TaintConfig object
-     * @throws ConfigException if failed to load the config file
+     * @return the resulting {@link TaintConfig}
+     * @throws ConfigException if failed to load the config
      */
-    static TaintConfig readConfig(
+    static TaintConfig loadConfig(
             String path, ClassHierarchy hierarchy, TypeSystem typeSystem) {
-        File file = new File(path);
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TaintConfig.class,
                 new Deserializer(hierarchy, typeSystem));
         mapper.registerModule(module);
+        File file = new File(path);
+        logger.info("Loading taint config from {}", file.getAbsolutePath());
+        if (file.isFile()) {
+            return loadSingle(mapper, file);
+        } else if (file.isDirectory()) {
+            // if file is a directory, then load all YAML files
+            // in the directory and merge them as the result
+            TaintConfig[] result = new TaintConfig[]{ EMPTY };
+            try (Stream<Path> paths = Files.walk(file.toPath())) {
+                paths.filter(TaintConfig::isYAML)
+                        .map(p -> loadSingle(mapper, p.toFile()))
+                        .forEach(tc -> result[0] = result[0].mergeWith(tc));
+                return result[0];
+            } catch (IOException e) {
+                throw new ConfigException("Failed to load taint config from " + file, e);
+            }
+        } else {
+            throw new ConfigException(path + " is neither a file nor a directory");
+        }
+    }
+
+    /**
+     * Loads taint config from a single file.
+     */
+    private static TaintConfig loadSingle(ObjectMapper mapper, File file) {
         try {
             return mapper.readValue(file, TaintConfig.class);
         } catch (IOException e) {
-            throw new ConfigException("Failed to read taint analysis config file " + file, e);
+            throw new ConfigException("Failed to load taint config from " + file, e);
         }
+    }
+
+    private static boolean isYAML(Path path) {
+        String pathStr = path.toString();
+        return pathStr.endsWith(".yml") || pathStr.endsWith(".yaml");
+    }
+
+    /**
+     * Merges this taint config with other taint config.
+     * @return a new merged taint config.
+     */
+    TaintConfig mergeWith(TaintConfig other) {
+        return new TaintConfig(
+                Lists.concatDistinct(callSources, other.callSources),
+                Lists.concatDistinct(paramSources, other.paramSources),
+                Lists.concatDistinct(sinks, other.sinks),
+                Lists.concatDistinct(transfers, other.transfers),
+                Lists.concatDistinct(paramSanitizers, other.paramSanitizers));
     }
 
     @Override
