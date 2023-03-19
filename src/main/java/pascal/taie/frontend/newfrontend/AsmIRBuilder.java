@@ -37,6 +37,7 @@ import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NullLiteral;
@@ -135,6 +136,42 @@ public class AsmIRBuilder {
         }
     }
 
+    private boolean isDword(AbstractInsnNode node, Exp e) {
+        if (e instanceof InvokeExp invokeExp) {
+            Type returnType = invokeExp.getType();
+            return returnType == PrimitiveType.DOUBLE || returnType == PrimitiveType.LONG;
+        } else if (e instanceof LongLiteral || e instanceof DoubleLiteral) {
+            return true;
+        } else if (e instanceof FieldAccess access) {
+            Type fieldType = access.getType();
+            return fieldType == PrimitiveType.DOUBLE || fieldType == PrimitiveType.LONG;
+        }
+
+        int opcode = node.getOpcode();
+        return switch (opcode) {
+            case Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.DCONST_0, Opcodes.DCONST_1,
+                    Opcodes.LLOAD, Opcodes.DLOAD, Opcodes.DALOAD, Opcodes.LALOAD,
+                    Opcodes.LADD, Opcodes.DADD, Opcodes.LSUB, Opcodes.DSUB,
+                    Opcodes.LMUL, Opcodes.DMUL, Opcodes.LDIV, Opcodes.DDIV,
+                    Opcodes.LREM, Opcodes.DREM, Opcodes.DNEG, Opcodes.LNEG,
+                    Opcodes.LSHL, Opcodes.LSHR, Opcodes.LUSHR, Opcodes.LAND,
+                    Opcodes.LOR, Opcodes.LXOR, Opcodes.I2L, Opcodes.I2D,
+                    Opcodes.L2D, Opcodes.F2L, Opcodes.F2D, Opcodes.D2L -> true;
+            default -> false;
+        };
+    }
+
+    private Exp popExp(Stack<Exp> stack) {
+        Exp e = stack.pop();
+        if (e instanceof Top) {
+            Exp e1 = stack.pop();
+            assert ! (e1 instanceof Top);
+            return e1;
+        } else {
+            return e;
+        }
+    }
+
     private AbstractInsnNode getOrig(Exp e) {
         return exp2Orig.get(e);
     }
@@ -151,7 +188,7 @@ public class AsmIRBuilder {
     }
 
     private Var popVar(Stack<Exp> stack) {
-        Exp e = stack.pop();
+        Exp e = popExp(stack);
         if (e instanceof Var v) {
             return v;
         } else {
@@ -162,6 +199,9 @@ public class AsmIRBuilder {
     private void ensureStackSafety(Stack<Exp> stack, Function<Exp, Boolean> predicate) {
         for (int i = 0; i < stack.size(); ++i) {
             Exp e = stack.get(i);
+            if (e instanceof Top) {
+                continue;
+            }
             if (predicate.apply(e)) {
                 stack.set(i, toVar(e));
             }
@@ -173,15 +213,22 @@ public class AsmIRBuilder {
     }
 
     private void pushExp(AbstractInsnNode node, Stack<Exp> stack, Exp e) {
+        assert ! (e instanceof Top);
         exp2Orig.put(e, node);
         ensureStackSafety(stack, this::maySideEffect);
         stack.push(e);
+        if (isDword(node, e)) {
+            stack.push(Top.getInstance());
+        }
     }
 
     private void pushConst(AbstractInsnNode node, Stack<Exp> stack, Literal literal) {
         // TODO: handle const value properly
         Var v = manager.getConstVar(literal);
         stack.push(v);
+        if (literal instanceof LongLiteral || literal instanceof DoubleLiteral) {
+            stack.push(Top.getInstance());
+        }
         assocStmt(node, getAssignStmt(v, literal));
     }
 
@@ -465,9 +512,9 @@ public class AsmIRBuilder {
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx, varNode);
-        Exp top = stack.pop();
+        Exp now = popExp(stack);
         ensureStackSafety(stack, e -> e.getUses().contains(v));
-        assocStmt(varNode, getAssignStmt(v, top));
+        assocStmt(varNode, getAssignStmt(v, now));
     }
 
     private void returnExp(Stack<Exp> stack, InsnNode node) {
