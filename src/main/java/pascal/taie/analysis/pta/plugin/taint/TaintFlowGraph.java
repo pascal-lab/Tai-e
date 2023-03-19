@@ -34,15 +34,30 @@ import java.util.Set;
 
 class TaintFlowGraph implements Graph<Node> {
 
+    private final Set<Node> sourceNodes;
+
+    private final Set<Node> sinkNodes;
+
     private final Set<Node> nodes = Sets.newHybridSet();
-
-    private final Set<Node> sourceNodes = Sets.newHybridSet();
-
-    private final Set<Node> sinkNodes = Sets.newHybridSet();
 
     private final MultiMap<Node, FlowEdge> inEdges = Maps.newMultiMap();
 
     private final MultiMap<Node, FlowEdge> outEdges = Maps.newMultiMap();
+
+    TaintFlowGraph(Set<Node> sourceNodes, Set<Node> sinkNodes) {
+        this.sourceNodes = Set.copyOf(sourceNodes);
+        nodes.addAll(sourceNodes);
+        this.sinkNodes = Set.copyOf(sinkNodes);
+        nodes.addAll(sinkNodes);
+    }
+
+    Set<Node> getSourceNodes() {
+        return sourceNodes;
+    }
+
+    Set<Node> getSinkNodes() {
+        return sinkNodes;
+    }
 
     void addEdge(FlowEdge edge) {
         nodes.add(edge.source());

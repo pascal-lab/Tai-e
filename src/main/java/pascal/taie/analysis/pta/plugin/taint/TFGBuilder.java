@@ -40,6 +40,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.graph.Reachability;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -57,23 +58,35 @@ class TFGBuilder {
 
     private final MultiMap<Var, Pair<Var, Type>> varTransfers;
 
+    private final Set<TaintFlow> taintFlows;
+
     private final TaintManager taintManager;
 
     /**
      * Whether only track taint flow in application code.
      */
-    private final boolean onlyApp = false;
+    private final boolean onlyApp = true;
+
+    /**
+     * Whether only track taint flow that reaches any sink.
+     */
+    private final boolean onlyReachSink = true;
 
     TFGBuilder(PointerAnalysisResult pta,
                MultiMap<Var, Pair<Var, Type>> varTransfers,
+               Set<TaintFlow> taintFlows,
                TaintManager taintManager) {
         this.pta = pta;
         this.ofg = pta.getObjectFlowGraph();
         this.varTransfers = varTransfers;
+        this.taintFlows = taintFlows;
         this.taintManager = taintManager;
     }
 
-    TaintFlowGraph build() {
+    /**
+     * Builds a complete taint flow graph.
+     */
+    private TaintFlowGraph buildComplete() {
         // collect source nodes
         Set<Node> sourceNodes = Sets.newHybridSet();
         taintManager.getTaintObjs()
@@ -94,17 +107,26 @@ class TFGBuilder {
                 });
         logger.info("Source nodes:");
         sourceNodes.forEach(logger::info);
+        // collect sink nodes
+        Set<Node> sinkNodes = Sets.newHybridSet();
+        taintFlows.forEach(taintFlow -> {
+            SinkPoint sinkPoint = taintFlow.sinkPoint();
+            Var sinkVar = InvokeUtils.getVar(sinkPoint.sinkCall(), sinkPoint.index());
+            sinkNodes.add(ofg.getVarNode(sinkVar));
+        });
+        logger.info("Sink nodes:");
+        sinkNodes.forEach(logger::info);
         // builds taint flow graph
-        TaintFlowGraph tfg = new TaintFlowGraph();
+        TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
         Set<Node> visitedNodes = Sets.newHybridSet();
         Deque<Node> workList = new ArrayDeque<>(sourceNodes);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             visitedNodes.add(node);
             getOutEdges(node).forEach(edge -> {
-                if (!onlyApp || isApp(edge.target())) {
+                Node target = edge.target();
+                if (!onlyApp || isApp(target)) {
                     tfg.addEdge(edge);
-                    Node target = edge.target();
                     if (!visitedNodes.contains(target)) {
                         workList.add(target);
                     }
@@ -146,18 +168,6 @@ class TFGBuilder {
         return edges;
     }
 
-    private static boolean isApp(Node node) {
-        if (node instanceof VarNode varNode) {
-            return varNode.getVar().getMethod().isApplication();
-        } else if (node instanceof InstanceNode iNode) {
-            return iNode.getBase().getContainerMethod()
-                    .stream()
-                    .anyMatch(JMethod::isApplication);
-        } else {
-            return false;
-        }
-    }
-
     private Set<Obj> getPointsToSet(Node node) {
         if (node instanceof VarNode varNode) {
             return pta.getPointsToSet(varNode.getVar());
@@ -167,6 +177,49 @@ class TFGBuilder {
             return pta.getPointsToSet(aiNode.getBase());
         } else {
             return Set.of();
+        }
+    }
+
+    TaintFlowGraph build() {
+        TaintFlowGraph complete = buildComplete();
+        Set<Node> sourceNodes = complete.getSourceNodes();
+        Set<Node> sinkNodes = complete.getSinkNodes();
+        TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
+        Set<Node> nodesReachSink = null;
+        if (onlyReachSink) {
+            nodesReachSink = Sets.newHybridSet();
+            Reachability<Node> reachability = new Reachability<>(complete);
+            for (Node sink : sinkNodes) {
+                nodesReachSink.addAll(reachability.nodesCanReach(sink));
+            }
+        }
+        Set<Node> visitedNodes = Sets.newHybridSet();
+        Deque<Node> workList = new ArrayDeque<>(complete.getSourceNodes());
+        while (!workList.isEmpty()) {
+            Node node = workList.poll();
+            visitedNodes.add(node);
+            for (FlowEdge edge : complete.getOutEdgesOf(node)) {
+                Node target = edge.target();
+                if (!onlyReachSink || nodesReachSink.contains(target)) {
+                    tfg.addEdge(edge);
+                    if (!visitedNodes.contains(target)) {
+                        workList.add(target);
+                    }
+                }
+            }
+        }
+        return tfg;
+    }
+
+    private static boolean isApp(Node node) {
+        if (node instanceof VarNode varNode) {
+            return varNode.getVar().getMethod().isApplication();
+        } else if (node instanceof InstanceNode iNode) {
+            return iNode.getBase().getContainerMethod()
+                    .stream()
+                    .anyMatch(JMethod::isApplication);
+        } else {
+            return false;
         }
     }
 }

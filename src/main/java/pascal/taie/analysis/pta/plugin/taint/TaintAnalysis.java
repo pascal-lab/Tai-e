@@ -96,7 +96,8 @@ public class TaintAnalysis implements Plugin {
         taintFlows.forEach(logger::info);
         FlowGraphDumper.dump(
                 new TFGBuilder(solver.getResult(),
-                        transferHandler.getVarTransfers(), manager).build(),
+                        transferHandler.getVarTransfers(),
+                        taintFlows, manager).build(),
                 new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE));
     }
 }
