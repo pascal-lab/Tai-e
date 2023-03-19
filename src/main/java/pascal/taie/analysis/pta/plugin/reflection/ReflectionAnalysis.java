@@ -28,6 +28,7 @@ import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -61,7 +62,9 @@ public class ReflectionAnalysis implements Plugin {
 
     private Model reflectiveActionModel;
 
-    private Model classModel;
+    private Model classMethodFieldModel;
+
+    private AnnotationModel annotationModel;
 
     private final MultiMap<Var, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
 
@@ -88,7 +91,8 @@ public class ReflectionAnalysis implements Plugin {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
         reflectiveActionModel = new ReflectiveActionModel(solver, helper, invokesWithLog);
-        classModel = new ClassModel(solver);
+        classMethodFieldModel = new ClassMethodFieldModel(solver, helper);
+        annotationModel = new AnnotationModel(solver, helper);
     }
 
     @Override
@@ -96,7 +100,7 @@ public class ReflectionAnalysis implements Plugin {
         method.getIR().forEach(stmt -> {
             if (stmt instanceof Invoke invoke) {
                 if (!invoke.isDynamic()) {
-                    classModel.handleNewInvoke(invoke);
+                    classMethodFieldModel.handleNewInvoke(invoke);
                     inferenceModel.handleNewInvoke(invoke);
                     reflectiveActionModel.handleNewInvoke(invoke);
                 }
@@ -108,8 +112,8 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (classModel.isRelevantVar(csVar.getVar())) {
-            classModel.handleNewPointsToSet(csVar, pts);
+        if (classMethodFieldModel.isRelevantVar(csVar.getVar())) {
+            classMethodFieldModel.handleNewPointsToSet(csVar, pts);
         }
         if (inferenceModel.isRelevantVar(csVar.getVar())) {
             inferenceModel.handleNewPointsToSet(csVar, pts);
@@ -126,6 +130,11 @@ public class ReflectionAnalysis implements Plugin {
         if (logBasedModel != null) {
             logBasedModel.handleNewCSMethod(csMethod);
         }
+    }
+
+    @Override
+    public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+        annotationModel.onUnresolvedCall(recv, context, invoke);
     }
 
     @Override

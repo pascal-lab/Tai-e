@@ -145,6 +145,8 @@ public final class ClassNames {
 
     public static final String VERIFY_ERROR = "java.lang.VerifyError";
 
+    public static final String ANNOTATION = "java.lang.annotation.Annotation";
+
     // Suppresses default constructor, ensuring non-instantiability.
     private ClassNames() {
     }

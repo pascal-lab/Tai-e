@@ -30,6 +30,7 @@ import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
@@ -144,6 +145,15 @@ public final class CSObjs {
     public static MethodHandle toMethodHandle(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodHandle mh ? mh : null;
+    }
+
+    /**
+     * Converts a CSObj of an Annotation to the Annotation.
+     * If the object is not an Annotation object, then return null.
+     */
+    public static Annotation toAnnotation(CSObj csObj) {
+        Object alloc = csObj.getObject().getAllocation();
+        return alloc instanceof Annotation a ? a : null;
     }
 
     /**

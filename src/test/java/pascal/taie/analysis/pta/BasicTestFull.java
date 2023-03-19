@@ -101,4 +101,10 @@ public class BasicTestFull extends BasicTest {
     public void testNativeModel() {
         Tests.testPTA(DIR, "NativeModel", "distinguish-string-constants:all");
     }
+
+    @Test
+    public void testAnnotationModel() {
+        Tests.testPTA(DIR, "Annotations",
+                "cs:1-call", "distinguish-string-constants:all");
+    }
 }
