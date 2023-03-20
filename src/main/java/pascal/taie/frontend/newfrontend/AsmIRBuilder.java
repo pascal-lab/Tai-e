@@ -218,7 +218,7 @@ public class AsmIRBuilder {
         ensureStackSafety(stack, this::maySideEffect);
         stack.push(e);
         if (isDword(node, e)) {
-            stack.push(Top.getInstance());
+            stack.push(Top.Top);
         }
     }
 
@@ -227,7 +227,7 @@ public class AsmIRBuilder {
         Var v = manager.getConstVar(literal);
         stack.push(v);
         if (literal instanceof LongLiteral || literal instanceof DoubleLiteral) {
-            stack.push(Top.getInstance());
+            stack.push(Top.Top);
         }
         assocStmt(node, getAssignStmt(v, literal));
     }
