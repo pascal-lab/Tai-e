@@ -745,23 +745,55 @@ public class AsmIRBuilder {
         return node;
     }
 
+    private List<BytecodeBlock> getLinearBBList() {
+        BytecodeBlock entry = label2Block.get(this.entry);
+        Set<BytecodeBlock> hasInStack = new HashSet<>();
+        hasInStack.add(entry);
+
+        List<BytecodeBlock> bytecodeBlockList =
+                label2Block.keySet().stream()
+                .sorted((a, b) -> source.instructions.indexOf(a.getNext()) - source.instructions.indexOf(b.getNext()))
+                .toList()
+                .stream()
+                .map(label -> label2Block.get(label))
+                .toList();
+        for (var bb : bytecodeBlockList) {
+            if (!hasInStack.contains(bb)) {
+                return null;
+            }
+            hasInStack.addAll(bb.outEdges());
+        }
+
+        assert hasInStack.containsAll(bytecodeBlockList); // This assertion should be satisfied at most times. Remove when released.
+
+        return bytecodeBlockList;
+    }
+
     private void traverseBlocks() {
-        Set<BytecodeBlock> visited = new HashSet<>();
         BytecodeBlock entry = label2Block.get(this.entry);
         entry.setInStack(new Stack<>());
 
-        Queue<BytecodeBlock> workList = new LinkedList<>();
-        workList.offer(entry);
+        List<BytecodeBlock> bytecodeBlockList = getLinearBBList();
+        assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
+        if (bytecodeBlockList != null) {
+            for (var bb : bytecodeBlockList) {
+                buildBlockStmt(bb);
+            }
+        } else {
+            Set<BytecodeBlock> visited = new HashSet<>();
+            Queue<BytecodeBlock> workList = new LinkedList<>();
+            workList.offer(entry);
 
-        while (workList.peek() != null) {
-            BytecodeBlock bb = workList.poll();
-            visited.add(bb);
+            while (workList.peek() != null) {
+                BytecodeBlock bb = workList.poll();
+                visited.add(bb);
 
-            buildBlockStmt(bb);
+                buildBlockStmt(bb);
 
-            for (BytecodeBlock succ : bb.outEdges()) {
-                if (!visited.contains(succ)) {
-                    workList.offer(succ);
+                for (BytecodeBlock succ : bb.outEdges()) {
+                    if (!visited.contains(succ)) {
+                        workList.offer(succ);
+                    }
                 }
             }
         }

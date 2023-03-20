@@ -179,11 +179,9 @@ class VarManager {
     }
 
     private boolean match(Pair<Integer, Integer> query, Triple<Integer, Integer, Integer> var) {
-        int start = var.second();
-        int end = var.third();
-        return Objects.equals(query.first(), var.first())
-                && start <= query.second()
-                && query.second() < end;
+        return query.first().equals(var.first())
+                && var.second() <= query.second()
+                && query.second() < var.third();
     }
 
     private boolean existsLocalVariableTable() {
