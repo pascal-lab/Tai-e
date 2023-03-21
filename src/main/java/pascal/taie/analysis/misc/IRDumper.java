@@ -111,7 +111,7 @@ public class IRDumper extends ClassAnalysis<Void> {
                 jclass.getDeclaredMethods().forEach(this::dumpMethod);
                 out.println("}");
             } catch (FileNotFoundException e) {
-                logger.warn("Failed to dump class {}, caused by {}", jclass, e);
+                logger.warn("Failed to dump class {}", jclass, e);
             }
         }
 

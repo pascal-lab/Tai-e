@@ -65,18 +65,18 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
      */
     private final JMethod container;
 
-    public Invoke(JMethod method, InvokeExp invokeExp, @Nullable Var result) {
+    public Invoke(JMethod container, InvokeExp invokeExp, @Nullable Var result) {
         this.invokeExp = invokeExp;
         this.result = result;
         if (invokeExp instanceof InvokeInstanceExp) {
             Var base = ((InvokeInstanceExp) invokeExp).getBase();
             base.addInvoke(this);
         }
-        this.container = method;
+        this.container = container;
     }
 
-    public Invoke(JMethod method, InvokeExp invokeExp) {
-        this(method, invokeExp, null);
+    public Invoke(JMethod container, InvokeExp invokeExp) {
+        this(container, invokeExp, null);
     }
 
     @Override
