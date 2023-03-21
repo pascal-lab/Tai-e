@@ -104,12 +104,15 @@ public class AsmIRBuilder {
 
     private final Map<AbstractInsnNode, Stmt> asm2Stmt;
 
+    private final Map<BytecodeBlock, List<Stmt>> auxiliaryStmts;
+
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
         this.source = source;
         this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions);
         this.asm2Stmt = Maps.newMap();
         this.exp2Orig = Maps.newMap();
+        this.auxiliaryStmts = Maps.newMap();
     }
 
     public void build() {
@@ -172,6 +175,17 @@ public class AsmIRBuilder {
         }
     }
 
+    private Exp peekExp(Stack<Exp> stack) {
+        Exp e = stack.peek();
+        if (e instanceof Top) {
+            Exp e1 = stack.get(stack.size() - 2);
+            assert ! (e1 instanceof Top);
+            return e1;
+        } else {
+            return e;
+        }
+    }
+
     private AbstractInsnNode getOrig(Exp e) {
         return exp2Orig.get(e);
     }
@@ -194,6 +208,38 @@ public class AsmIRBuilder {
         } else {
             return toVar(e);
         }
+    }
+
+    private Stmt popToVar(Stack<Exp> stack, Var v) {
+        Exp top = popExp(stack);
+        ensureStackSafety(stack, e -> e.getUses().contains(v));
+        return getAssignStmt(v, top);
+    }
+
+    private void popToEffect(Stack<Exp> stack) {
+        // normally, this should only be used to pop a InvokeExp
+        Exp e = popExp(stack);
+        if (e instanceof InvokeExp invokeExp) {
+            assocStmt(exp2Orig.get(e), new Invoke(method, invokeExp));
+        } else if (maySideEffect(e)) {
+            assocStmt(exp2Orig.get(e), getAssignStmt(manager.getTempVar(), e));
+        }
+    }
+
+    private void dup(Stack<Exp> stack, int takes, int seps) {
+        List<Exp> takesList = new ArrayList<>(takes);
+        for (int i = 0; i < takes; ++i) {
+            takesList.add(stack.pop());
+        }
+        Collections.reverse(takesList);
+        List<Exp> sepsList = new ArrayList<>(seps);
+        for (int i = 0; i < seps; ++i) {
+            sepsList.add(stack.pop());
+        }
+        Collections.reverse(sepsList);
+        stack.addAll(takesList);
+        stack.addAll(sepsList);
+        stack.addAll(takesList);
     }
 
     private void ensureStackSafety(Stack<Exp> stack, Function<Exp, Boolean> predicate) {
@@ -257,6 +303,11 @@ public class AsmIRBuilder {
                 return first;
             }
         }
+
+        if (auxiliaryStmts.containsKey(block)) {
+            return auxiliaryStmts.get(block).get(0);
+        }
+
         throw new IllegalStateException();
     }
 
@@ -291,12 +342,26 @@ public class AsmIRBuilder {
         List<Stmt> res = new ArrayList<>();
         // TODO: start from 0 or 1 ?
         int counter = 0;
+        Map<AbstractInsnNode, List<Stmt>> aux = Maps.newMap();
+        for (BytecodeBlock bb : label2Block.values()) {
+            if (auxiliaryStmts.containsKey(bb) && ! auxiliaryStmts.get(bb).isEmpty()) {
+                aux.put(bb.getLastBytecode(), auxiliaryStmts.get(bb));
+            }
+        }
+
         for (AbstractInsnNode node : source.instructions) {
             if (asm2Stmt.containsKey(node)) {
                 Stmt stmt = asm2Stmt.get(node);
                 setJumpTargets(node, stmt);
                 stmt.setIndex(counter++);
                 res.add(stmt);
+            }
+
+            if (aux.containsKey(node)) {
+                for (Stmt stmt : aux.get(node)) {
+                    stmt.setIndex(counter++);
+                    res.add(stmt);
+                }
             }
         }
         return res;
@@ -348,6 +413,10 @@ public class AsmIRBuilder {
 
     private boolean isReturnInsn(int opcode) {
         return inRange(opcode, Opcodes.IRETURN, Opcodes.RETURN);
+    }
+
+    private boolean isStackInsn(int opcode) {
+        return inRange(opcode, Opcodes.POP, Opcodes.SWAP);
     }
 
     private Literal getConstValue(InsnNode node) {
@@ -512,9 +581,8 @@ public class AsmIRBuilder {
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx, varNode);
-        Exp now = popExp(stack);
-        ensureStackSafety(stack, e -> e.getUses().contains(v));
-        assocStmt(varNode, getAssignStmt(v, now));
+        Stmt stmt = popToVar(stack, v);
+        assocStmt(varNode, stmt);
     }
 
     private void returnExp(Stack<Exp> stack, InsnNode node) {
@@ -525,6 +593,57 @@ public class AsmIRBuilder {
             Var v = popVar(stack);
             manager.addReturnVar(v);
             assocStmt(node, new Return(v));
+        }
+    }
+
+    private void mergeStack1(List<Stmt> auxiliary, Stack<Exp> nowStack, Stack<Var> targetStack) {
+        Var v = targetStack.pop();
+        Exp e = peekExp(nowStack);
+        if (e == v) {
+            popExp(nowStack);
+        } else {
+            Stmt stmt = popToVar(nowStack, v);
+            auxiliary.add(stmt);
+        }
+    }
+
+    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Var> target) {
+        if (! auxiliaryStmts.containsKey(bb)) {
+            auxiliaryStmts.put(bb, new ArrayList<>());
+        }
+        List<Stmt> auxiliary = auxiliaryStmts.get(bb);
+        Stack<Exp> nowStack1 = new Stack<>();
+        Stack<Var> target1 = new Stack<>();
+        nowStack1.addAll(nowStack);
+        target1.addAll(target);
+        while (! nowStack1.isEmpty()) {
+            mergeStack1(auxiliary, nowStack1, target1);
+        }
+        assert target1.empty();
+    }
+
+    private void performStackOp(Stack<Exp> stack, int opcode) {
+        switch (opcode) {
+            case Opcodes.POP -> popToEffect(stack);
+            case Opcodes.POP2 -> {
+                popToEffect(stack);
+                popToEffect(stack);
+            }
+            case Opcodes.DUP -> dup(stack, 1, 0);
+            case Opcodes.DUP2 -> dup(stack, 2, 0);
+            case Opcodes.DUP_X1 -> dup(stack, 1, 1);
+            case Opcodes.DUP_X2 -> dup(stack, 1, 2);
+            case Opcodes.DUP2_X1 -> dup(stack, 2, 1);
+            case Opcodes.DUP2_X2 -> dup(stack, 2, 2);
+            case Opcodes.SWAP -> {
+                // swap can only be used when v1 and v2 are both category 1 c.t.
+                Exp e1 = stack.pop();
+                Exp e2 = stack.pop();
+                assert ! (e1 instanceof Top) && ! (e2 instanceof Top);
+                stack.push(e1);
+                stack.push(e2);
+            }
+            default -> throw new IllegalArgumentException();
         }
     }
 
@@ -558,6 +677,8 @@ public class AsmIRBuilder {
                 } else if (isNegInsn(opcode)) {
                     Var v1 = popVar(nowStack);
                     pushExp(node, nowStack, new NegExp(v1));
+                } else if (isStackInsn(opcode)) {
+                    performStackOp(nowStack, opcode);
                 }
             } else if (node instanceof JumpInsnNode jump) {
                 if (jump.getOpcode() == Opcodes.GOTO) {
@@ -614,25 +735,39 @@ public class AsmIRBuilder {
 
         if (block.getOutStack() == null) {
             // Web has not been constructed. So all the succs do not have inStack.
-            block.setOutStack(regularizeStack(nowStack));
+            block.setOutStack(regularizeStack(block, nowStack));
         } else {
-            // TODO: merge stack
-            // In the early stage of development, we assume that there is no Var remained in the nowStack.
+            Stack<Var> target = block.getOutStack();
+            mergeStack(block, nowStack, target);
         }
     }
 
-    private Stack<Var> regularizeStack(Stack<Exp> origin) {
-        //
+    private Stack<Var> regularizeStack(BytecodeBlock bb, Stack<Exp> origin) {
         /*
-            TODO: regularization, including:
             1. conversion from non-Var Exp to Var,
             2. no the same Vars in a stack.
 
             The conversion should have effect on the InsnNode that generated the exp.
-            In the early stage of development, we assume that there is no Exp remained in the nowStack,
-            so an empty Stack is enough.
          */
-        return new Stack<>();
+        List<Var> temp = new ArrayList<>();
+        int size = origin.size();
+        Stack<Exp> copy = new Stack<>();
+        copy.addAll(origin);
+        for (int i = 0; i < size; ++i) {
+            Exp e = popExp(origin);
+            if (e instanceof Var v && manager.isTempVar(v)) {
+                temp.add(v);
+            } else {
+                temp.add(manager.getTempVar());
+            }
+        }
+        Collections.reverse(temp);
+        Stack<Var> target = new Stack<>();
+        target.addAll(temp);
+        mergeStack(bb, copy, target);
+        Stack<Var> res = new Stack<>();
+        res.addAll(temp);
+        return res;
     }
 
     private void buildCFG() {

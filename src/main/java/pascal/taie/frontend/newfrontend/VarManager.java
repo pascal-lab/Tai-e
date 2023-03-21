@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 class VarManager {
@@ -220,6 +219,10 @@ class VarManager {
         } else {
             return newConstVar(getConstVarName(literal), literal);
         }
+    }
+
+    public boolean isTempVar(Var v) {
+        return v.getName().startsWith(TEMP_PREFIX);
     }
 
     private LocalVariableNode searchLocal(int slot, int asmIndex) {

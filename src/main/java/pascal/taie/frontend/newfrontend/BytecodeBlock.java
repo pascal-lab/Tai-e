@@ -107,6 +107,10 @@ public final class BytecodeBlock {
         return firstStmt;
     }
 
+    public AbstractInsnNode getLastBytecode() {
+        return instr.get(instr.size() - 1);
+    }
+
     public void setFirstStmt(Stmt firstStmt) {
         this.firstStmt = firstStmt;
     }
