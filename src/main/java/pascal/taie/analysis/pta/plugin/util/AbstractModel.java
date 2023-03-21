@@ -33,6 +33,13 @@ import pascal.taie.util.TriConsumer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
+import java.lang.invoke.CallSite;
+import java.lang.invoke.LambdaConversionException;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,16 +62,73 @@ public abstract class AbstractModel extends SolverHolder implements Model {
     protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
             = Maps.newHybridMap();
 
+    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
     protected AbstractModel(Solver solver) {
         super(solver);
         defaultHctx = solver.getContextSelector().getEmptyContext();
+        registerVarAndHandlerByAnnotation();
         registerVarAndHandler();
     }
 
-    protected abstract void registerVarAndHandler();
+    private void registerVarAndHandlerByAnnotation() {
+        Class<?> clazz = getClass();
+        for (Method method : clazz.getMethods()) {
+            InvokeHandler[] invokeHandlers = method.getAnnotationsByType(InvokeHandler.class);
+            if (invokeHandlers != null) {
+                for (InvokeHandler invokeHandler : invokeHandlers) {
+                    String signature = invokeHandler.signature();
+                    JMethod api = hierarchy.getMethod(signature);
+                    if (api != null) {
+                        registerRelevantVarIndexes(api, invokeHandler.indexes());
+                        registerAPIHandler(api, createHandler(method));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a handler function (of type {@link TriConsumer}) for given method.
+     * @param method the actual handler method
+     * @return the resulting {@link TriConsumer}.
+     */
+    private TriConsumer<CSVar, PointsToSet, Invoke> createHandler(Method method) {
+        try {
+            MethodHandle handler = lookup.unreflect(method);
+            MethodType handlerType = MethodType.methodType(
+                    method.getReturnType(), method.getParameterTypes());
+            CallSite callSite = LambdaMetafactory.metafactory(lookup,
+                    "accept",
+                    MethodType.methodType(TriConsumer.class, this.getClass()),
+                    handlerType.erase(), handler, handlerType);
+            MethodHandle factory = callSite.getTarget().bindTo(this);
+            @SuppressWarnings ("unchecked")
+            var handlerConsumer = (TriConsumer<CSVar, PointsToSet, Invoke>) factory.invoke();
+            return handlerConsumer;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to access " + method +
+                    ", please make sure that the Model class and the handler method" +
+                    " are public", e);
+        } catch (LambdaConversionException e) {
+            throw new RuntimeException("Failed to create lambda function for " + method +
+                    ", please make sure that the parameter types of handler method" +
+                    " is (CSVar, PointsToSet, Invoke)", e);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void registerVarAndHandler() {
+    }
 
     protected void registerRelevantVarIndexes(JMethod api, int... indexes) {
         relevantVarIndexes.put(api, indexes);
+    }
+
+    protected void registerAPIHandler(
+            JMethod api, TriConsumer<CSVar, PointsToSet, Invoke> handler) {
+        handlers.put(api, handler);
     }
 
     @Override
@@ -83,11 +147,6 @@ public abstract class AbstractModel extends SolverHolder implements Model {
     @Override
     public boolean isRelevantVar(Var var) {
         return relevantVars.containsKey(var);
-    }
-
-    protected void registerAPIHandler(
-            JMethod api, TriConsumer<CSVar, PointsToSet, Invoke> handler) {
-        handlers.put(api, handler);
     }
 
     @Override
