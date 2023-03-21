@@ -25,22 +25,25 @@ package pascal.taie.analysis.pta.plugin.natives;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
-import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractIRModel;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-class DoPriviledgedModel extends AbstractIRModel {
+public class DoPriviledgedModel extends AbstractIRModel {
+
+    private final MethodRef privilegedActionRun;
+
+    private final MethodRef privilegedExceptionActionRun;
 
     /**
      * Map from artificial invocation of run() to corresponding
@@ -48,32 +51,24 @@ class DoPriviledgedModel extends AbstractIRModel {
      */
     private final Map<Invoke, Invoke> run2DoPriv = Maps.newMap();
 
-    private final CSManager csManager;
-
     DoPriviledgedModel(Solver solver) {
         super(solver);
-        csManager = solver.getCSManager();
+        privilegedActionRun = Objects.requireNonNull(
+                        hierarchy.getJREMethod("<java.security.PrivilegedAction: java.lang.Object run()>")).getRef();
+        privilegedExceptionActionRun = Objects.requireNonNull(
+                        hierarchy.getJREMethod("<java.security.PrivilegedExceptionAction: java.lang.Object run()>")).getRef();
     }
 
-    @Override
-    protected void registerIRGens() {
-        MethodRef privilegedActionRun = Objects.requireNonNull(
-                hierarchy.getJREMethod("<java.security.PrivilegedAction: java.lang.Object run()>"))
-                .getRef();
-        JMethod doPrivileged1 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>");
-        registerIRGen(doPrivileged1, invoke -> doPrivileged(invoke, privilegedActionRun));
+    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>")
+    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>")
+    public List<Stmt> doPrivilegedPA(Invoke invoke) {
+        return doPrivileged(invoke, privilegedActionRun);
+    }
 
-        JMethod doPrivileged2 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>");
-        registerIRGen(doPrivileged2, invoke -> doPrivileged(invoke, privilegedActionRun));
-
-        MethodRef privilegedExceptionActionRun = Objects.requireNonNull(
-                hierarchy.getJREMethod("<java.security.PrivilegedExceptionAction: java.lang.Object run()>"))
-                .getRef();
-        JMethod doPrivileged3 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>");
-        registerIRGen(doPrivileged3, invoke -> doPrivileged(invoke, privilegedExceptionActionRun));
-
-        JMethod doPrivileged4 = hierarchy.getJREMethod("<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>");
-        registerIRGen(doPrivileged4, invoke -> doPrivileged(invoke, privilegedExceptionActionRun));
+    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>")
+    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>")
+    public List<Stmt> doPrivilegedPEA(Invoke invoke) {
+        return doPrivileged(invoke, privilegedExceptionActionRun);
     }
 
     private List<Stmt> doPrivileged(Invoke invoke, MethodRef run) {

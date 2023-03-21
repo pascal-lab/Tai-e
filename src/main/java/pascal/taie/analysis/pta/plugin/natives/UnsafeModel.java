@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractIRModel;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.Var;
@@ -32,7 +33,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
@@ -42,7 +42,7 @@ import pascal.taie.language.type.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-class UnsafeModel extends AbstractIRModel {
+public class UnsafeModel extends AbstractIRModel {
 
     private int counter = 0;
 
@@ -50,15 +50,8 @@ class UnsafeModel extends AbstractIRModel {
         super(solver);
     }
 
-    @Override
-    protected void registerIRGens() {
-        JMethod compareAndSwapObject = hierarchy.getJREMethod("<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>");
-        if (compareAndSwapObject != null) {
-            registerIRGen(compareAndSwapObject, this::compareAndSwapObject);
-        }
-    }
-
-    private List<Stmt> compareAndSwapObject(Invoke invoke) {
+    @InvokeHandler(signature = "<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>")
+    public List<Stmt> compareAndSwapObject(Invoke invoke) {
         // unsafe.compareAndSwapObject(o, offset, expected, x);
         List<Var> args = invoke.getInvokeExp().getArgs();
         List<Stmt> stmts = new ArrayList<>();

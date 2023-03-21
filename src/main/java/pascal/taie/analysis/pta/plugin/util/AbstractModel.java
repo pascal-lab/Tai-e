@@ -67,11 +67,11 @@ public abstract class AbstractModel extends SolverHolder implements Model {
     protected AbstractModel(Solver solver) {
         super(solver);
         defaultHctx = solver.getContextSelector().getEmptyContext();
-        registerVarAndHandlerByAnnotation();
-        registerVarAndHandler();
+        registerVarAndHandlersByAnnotation();
+        registerVarAndHandlers();
     }
 
-    private void registerVarAndHandlerByAnnotation() {
+    private void registerVarAndHandlersByAnnotation() {
         Class<?> clazz = getClass();
         for (Method method : clazz.getMethods()) {
             InvokeHandler[] invokeHandlers = method.getAnnotationsByType(InvokeHandler.class);
@@ -119,7 +119,7 @@ public abstract class AbstractModel extends SolverHolder implements Model {
         }
     }
 
-    protected void registerVarAndHandler() {
+    protected void registerVarAndHandlers() {
     }
 
     protected void registerRelevantVarIndexes(JMethod api, int... indexes) {

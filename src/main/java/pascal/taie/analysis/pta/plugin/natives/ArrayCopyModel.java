@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractIRModel;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Var;
@@ -39,7 +40,7 @@ import pascal.taie.language.type.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-class ArrayCopyModel extends AbstractIRModel {
+public class ArrayCopyModel extends AbstractIRModel {
 
     private final Type objType;
 
@@ -53,13 +54,8 @@ class ArrayCopyModel extends AbstractIRModel {
         objArrayType = typeSystem.getArrayType(objType, 1);
     }
 
-    @Override
-    protected void registerIRGens() {
-        JMethod arraycopy = hierarchy.getJREMethod("<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>");
-        registerIRGen(arraycopy, this::arraycopy);
-    }
-
-    private List<Stmt> arraycopy(Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>")
+    public List<Stmt> arraycopy(Invoke invoke) {
         JMethod container = invoke.getContainer();
         Var src = getTempVar(container, "src", objArrayType);
         Var dest = getTempVar(container, "dest", objArrayType);
