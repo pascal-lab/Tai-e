@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Var;
@@ -53,7 +54,7 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
  * Models APIs of java.lang.Class, java.lang.reflect.Method, and java.lang.reflect.Field.
  * This model handles non-core reflection APIs.
  */
-class ClassMethodFieldModel extends AbstractModel {
+public class ClassMethodFieldModel extends AbstractModel {
 
     private static final Descriptor PARAM_ANNOTATIONS = () -> "ParamAnnotations";
 
@@ -69,7 +70,7 @@ class ClassMethodFieldModel extends AbstractModel {
      */
     private final ArrayType annotation2Array;
 
-    ClassMethodFieldModel(Solver solver, MetaObjHelper helper) {
+    public ClassMethodFieldModel(Solver solver, MetaObjHelper helper) {
         super(solver);
         this.helper = helper;
         ClassType annotationType = typeSystem.getClassType(ClassNames.ANNOTATION);
@@ -77,25 +78,9 @@ class ClassMethodFieldModel extends AbstractModel {
         annotation2Array = typeSystem.getArrayType(annotationType, 2);
     }
 
-    @Override
-    protected void registerVarAndHandler() {
-        // Class's APIs
-        JMethod getPrimitiveClass = hierarchy.getJREMethod("<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>");
-        registerRelevantVarIndexes(getPrimitiveClass, 0);
-        registerAPIHandler(getPrimitiveClass, this::getPrimitiveClass);
-
-        JMethod getAnnotation = hierarchy.getJREMethod("<java.lang.Class: java.lang.annotation.Annotation getAnnotation(java.lang.Class)>");
-        registerRelevantVarIndexes(getAnnotation, BASE, 0);
-        registerAPIHandler(getAnnotation, this::getAnnotation);
-
-        // Method's APIs
-        JMethod getParameterAnnotations = hierarchy.getJREMethod("<java.lang.reflect.Method: java.lang.annotation.Annotation[][] getParameterAnnotations()>");
-        registerRelevantVarIndexes(getParameterAnnotations, BASE);
-        registerAPIHandler(getParameterAnnotations, this::getParameterAnnotations);
-    }
-
     // ---------- Model for java.lang.Class starts ----------
-    private void getPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>", indexes = {0})
+    public void getPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             pts.forEach(nameObj -> {
@@ -110,7 +95,8 @@ class ClassMethodFieldModel extends AbstractModel {
         }
     }
 
-    private void getAnnotation(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.annotation.Annotation getAnnotation(java.lang.Class)>", indexes = {BASE, 0})
+    public void getAnnotation(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -137,7 +123,8 @@ class ClassMethodFieldModel extends AbstractModel {
     // ---------- Model for java.lang.Class ends ----------
 
     // ---------- Model for java.lang.reflect.Method starts ----------
-    private void getParameterAnnotations(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.annotation.Annotation[][] getParameterAnnotations()>", indexes = {BASE})
+    public void getParameterAnnotations(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             pts.forEach(mtdObj -> {

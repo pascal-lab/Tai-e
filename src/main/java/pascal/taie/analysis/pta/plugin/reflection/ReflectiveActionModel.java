@@ -34,6 +34,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -69,7 +70,7 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
  * </ul>
  * TODO: check accessibility
  */
-class ReflectiveActionModel extends AbstractModel {
+public class ReflectiveActionModel extends AbstractModel {
 
     /**
      * Descriptor for objects created by reflective newInstance() calls.
@@ -90,34 +91,8 @@ class ReflectiveActionModel extends AbstractModel {
         this.invokesWithLog = invokesWithLog;
     }
 
-    @Override
-    protected void registerVarAndHandler() {
-        JMethod classNewInstance = hierarchy.getJREMethod("<java.lang.Class: java.lang.Object newInstance()>");
-        registerRelevantVarIndexes(classNewInstance, BASE);
-        registerAPIHandler(classNewInstance, this::classNewInstance);
-
-        JMethod constructorNewInstance = hierarchy.getJREMethod("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>");
-        registerRelevantVarIndexes(constructorNewInstance, BASE);
-        registerAPIHandler(constructorNewInstance, this::constructorNewInstance);
-
-        JMethod methodInvoke = hierarchy.getJREMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>");
-        registerRelevantVarIndexes(methodInvoke, BASE, 0);
-        registerAPIHandler(methodInvoke, this::methodInvoke);
-
-        JMethod fieldGet = hierarchy.getJREMethod("<java.lang.reflect.Field: java.lang.Object get(java.lang.Object)>");
-        registerRelevantVarIndexes(fieldGet, BASE, 0);
-        registerAPIHandler(fieldGet, this::fieldGet);
-
-        JMethod fieldSet = hierarchy.getJREMethod("<java.lang.reflect.Field: void set(java.lang.Object,java.lang.Object)>");
-        registerRelevantVarIndexes(fieldSet, BASE, 0);
-        registerAPIHandler(fieldSet, this::fieldSet);
-
-        JMethod arrayNewInstance = hierarchy.getJREMethod("<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>");
-        registerRelevantVarIndexes(arrayNewInstance, 0);
-        registerAPIHandler(arrayNewInstance, this::arrayNewInstance);
-    }
-
-    private void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", indexes = {BASE})
+    public void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             if (isInvalid(invoke, obj)) {
@@ -135,7 +110,8 @@ class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    private void constructorNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>", indexes = {BASE})
+    public void constructorNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
             if (isInvalid(invoke, obj)) {
@@ -163,7 +139,8 @@ class ReflectiveActionModel extends AbstractModel {
         return csNewObj;
     }
 
-    private void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", indexes = {BASE, 0})
+    public void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
         PointsToSet mtdObjs = args.get(0);
@@ -211,7 +188,8 @@ class ReflectiveActionModel extends AbstractModel {
         solver.addCallEdge(callEdge);
     }
 
-    private void fieldGet(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.reflect.Field: java.lang.Object get(java.lang.Object)>", indexes = {BASE, 0})
+    public void fieldGet(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result == null) {
             return;
@@ -244,7 +222,8 @@ class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    private void fieldSet(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.reflect.Field: void set(java.lang.Object,java.lang.Object)>", indexes = {BASE, 0})
+    public void fieldSet(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         CSVar from = csManager.getCSVar(context, invoke.getInvokeExp().getArg(1));
         List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -273,7 +252,8 @@ class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    private void arrayNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", indexes = {0})
+    public void arrayNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result == null) {
             return;

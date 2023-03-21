@@ -27,58 +27,23 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Subsignature;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
-class StringBasedModel extends InferenceModel {
+public class StringBasedModel extends InferenceModel {
 
     StringBasedModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
         super(solver, helper, invokesWithLog);
-    }
-
-    @Override
-    protected void registerVarAndHandler() {
-        JClass clazz = Objects.requireNonNull(hierarchy.getJREClass(ClassNames.CLASS));
-
-        JMethod classForName = clazz.getDeclaredMethod(
-                Subsignature.get("java.lang.Class forName(java.lang.String)"));
-        registerRelevantVarIndexes(classForName, 0);
-        registerAPIHandler(classForName, this::classForName);
-
-        JMethod classForName2 = clazz.getDeclaredMethod(
-                Subsignature.get("java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)"));
-        // TODO: take class loader into account
-        registerRelevantVarIndexes(classForName2, 0);
-        registerAPIHandler(classForName2, this::classForName);
-
-        JMethod getConstructor = clazz.getDeclaredMethod("getConstructor");
-        registerRelevantVarIndexes(getConstructor, BASE);
-        registerAPIHandler(getConstructor, this::getConstructor);
-
-        JMethod getDeclaredConstructor = clazz.getDeclaredMethod("getDeclaredConstructor");
-        registerRelevantVarIndexes(getDeclaredConstructor, BASE);
-        registerAPIHandler(getDeclaredConstructor, this::getDeclaredConstructor);
-
-        JMethod getMethod = clazz.getDeclaredMethod("getMethod");
-        registerRelevantVarIndexes(getMethod, BASE, 0);
-        registerAPIHandler(getMethod, this::getMethod);
-
-        JMethod getDeclaredMethod = clazz.getDeclaredMethod("getDeclaredMethod");
-        registerRelevantVarIndexes(getDeclaredMethod, BASE, 0);
-        registerAPIHandler(getDeclaredMethod, this::getDeclaredMethod);
     }
 
     @Override
@@ -87,7 +52,9 @@ class StringBasedModel extends InferenceModel {
     }
 
     @Override
-    protected void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", indexes = {0})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", indexes = {0})
+    public void forName(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -109,7 +76,8 @@ class StringBasedModel extends InferenceModel {
     }
 
     @Override
-    protected void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>", indexes = {BASE})
+    public void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -129,7 +97,8 @@ class StringBasedModel extends InferenceModel {
     }
 
     @Override
-    protected void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>", indexes = {BASE})
+    public void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -149,7 +118,8 @@ class StringBasedModel extends InferenceModel {
     }
 
     @Override
-    protected void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>", indexes = {BASE, 0})
+    public void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -177,7 +147,8 @@ class StringBasedModel extends InferenceModel {
     }
 
     @Override
-    protected void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>", indexes = {BASE, 0})
+    public void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }

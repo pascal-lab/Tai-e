@@ -27,6 +27,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.MethodHandle;
@@ -47,28 +48,14 @@ import java.util.stream.Stream;
  * TODO: take Lookup.lookupClass's visibility into account
  * TODO: take MethodType into account
  */
-class LookupModel extends AbstractModel {
+public class LookupModel extends AbstractModel {
 
     LookupModel(Solver solver) {
         super(solver);
     }
 
-    @Override
-    protected void registerVarAndHandler() {
-        JMethod findConstructor = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>");
-        registerRelevantVarIndexes(findConstructor, 0);
-        registerAPIHandler(findConstructor, this::findConstructor);
-
-        JMethod findVirtual = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>");
-        registerRelevantVarIndexes(findVirtual, 0, 1);
-        registerAPIHandler(findVirtual, this::findVirtual);
-
-        JMethod findStatic = hierarchy.getJREMethod("<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>");
-        registerRelevantVarIndexes(findStatic, 0, 1);
-        registerAPIHandler(findStatic, this::findStatic);
-    }
-
-    private void findConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>", indexes = {0})
+    public void findConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             Context context = csVar.getContext();
@@ -86,7 +73,8 @@ class LookupModel extends AbstractModel {
         }
     }
 
-    private void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", indexes = {0, 1})
+    public void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find private methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
                         Reflections.getDeclaredMethods(cls, name)
@@ -94,7 +82,8 @@ class LookupModel extends AbstractModel {
                 MethodHandle.Kind.REF_invokeVirtual);
     }
 
-    private void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", indexes = {0, 1})
+    public void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find static methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
                         Reflections.getDeclaredMethods(cls, name)

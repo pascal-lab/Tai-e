@@ -31,6 +31,10 @@ import pascal.taie.ir.stmt.Stmt;
 
 import java.util.Set;
 
+/**
+ * Base class for reflection inference.
+ * TODO: take ClassLoader.loadClass(...) into account.
+ */
 abstract class InferenceModel extends AbstractModel {
 
     protected final MetaObjHelper helper;
@@ -45,13 +49,13 @@ abstract class InferenceModel extends AbstractModel {
 
     protected abstract void handleNewNonInvokeStmt(Stmt stmt);
 
-    protected abstract void classForName(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void forName(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    protected abstract void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    protected abstract void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    protected abstract void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    protected abstract void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
 }
