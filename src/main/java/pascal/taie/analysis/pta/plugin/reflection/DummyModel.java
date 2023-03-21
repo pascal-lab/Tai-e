@@ -42,22 +42,22 @@ class DummyModel extends InferenceModel {
     }
 
     @Override
-    public void forName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
     }
 
     @Override
-    public void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
     }
 
     @Override
-    public void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
     }
 
     @Override
-    public void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
     }
 
     @Override
-    public void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
     }
 }

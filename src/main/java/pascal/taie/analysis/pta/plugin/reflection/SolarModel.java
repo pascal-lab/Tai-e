@@ -75,12 +75,12 @@ public class SolarModel extends StringBasedModel {
     @Override
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", indexes = {0})
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", indexes = {0})
-    public void forName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (isIgnored(invoke)) {
             return;
         }
         // invoke super's method to handle string constants
-        super.forName(csVar, pts, invoke);
+        super.classForName(csVar, pts, invoke);
         // process unknown strings
         Context context = csVar.getContext();
         pts.forEach(obj -> {

@@ -54,7 +54,7 @@ public class StringBasedModel extends InferenceModel {
     @Override
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", indexes = {0})
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", indexes = {0})
-    public void forName(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -77,7 +77,7 @@ public class StringBasedModel extends InferenceModel {
 
     @Override
     @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>", indexes = {BASE})
-    public void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -98,7 +98,7 @@ public class StringBasedModel extends InferenceModel {
 
     @Override
     @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>", indexes = {BASE})
-    public void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -119,7 +119,7 @@ public class StringBasedModel extends InferenceModel {
 
     @Override
     @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>", indexes = {BASE, 0})
-    public void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }
@@ -148,7 +148,7 @@ public class StringBasedModel extends InferenceModel {
 
     @Override
     @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>", indexes = {BASE, 0})
-    public void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void classGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
         }

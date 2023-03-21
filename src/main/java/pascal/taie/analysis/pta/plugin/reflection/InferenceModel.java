@@ -49,13 +49,13 @@ abstract class InferenceModel extends AbstractModel {
 
     protected abstract void handleNewNonInvokeStmt(Stmt stmt);
 
-    public abstract void forName(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void classForName(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    public abstract void getConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void classGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    public abstract void getDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void classGetDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    public abstract void getMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void classGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
 
-    public abstract void getDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
+    public abstract void classGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke);
 }
