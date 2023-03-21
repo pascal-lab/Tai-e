@@ -91,7 +91,7 @@ public class ReflectiveActionModel extends AbstractModel {
         this.invokesWithLog = invokesWithLog;
     }
 
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", indexes = {BASE})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", argIndexes = {BASE})
     public void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
@@ -110,7 +110,7 @@ public class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>", indexes = {BASE})
+    @InvokeHandler(signature = "<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>", argIndexes = {BASE})
     public void constructorNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         pts.forEach(obj -> {
@@ -139,7 +139,7 @@ public class ReflectiveActionModel extends AbstractModel {
         return csNewObj;
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", indexes = {BASE, 0})
+    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", argIndexes = {BASE, 0})
     public void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
@@ -188,7 +188,7 @@ public class ReflectiveActionModel extends AbstractModel {
         solver.addCallEdge(callEdge);
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Field: java.lang.Object get(java.lang.Object)>", indexes = {BASE, 0})
+    @InvokeHandler(signature = "<java.lang.reflect.Field: java.lang.Object get(java.lang.Object)>", argIndexes = {BASE, 0})
     public void fieldGet(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result == null) {
@@ -222,7 +222,7 @@ public class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Field: void set(java.lang.Object,java.lang.Object)>", indexes = {BASE, 0})
+    @InvokeHandler(signature = "<java.lang.reflect.Field: void set(java.lang.Object,java.lang.Object)>", argIndexes = {BASE, 0})
     public void fieldSet(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Context context = csVar.getContext();
         CSVar from = csManager.getCSVar(context, invoke.getInvokeExp().getArg(1));
@@ -252,7 +252,7 @@ public class ReflectiveActionModel extends AbstractModel {
         });
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", indexes = {0})
+    @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", argIndexes = {0})
     public void arrayNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result == null) {

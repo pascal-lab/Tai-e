@@ -73,8 +73,8 @@ public class SolarModel extends StringBasedModel {
     }
 
     @Override
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", indexes = {0})
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", indexes = {0})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", argIndexes = {0})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", argIndexes = {0})
     public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (isIgnored(invoke)) {
             return;
@@ -94,7 +94,7 @@ public class SolarModel extends StringBasedModel {
         });
     }
 
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", indexes = {BASE})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", argIndexes = {BASE})
     public void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (isIgnored(invoke)) {
             return;

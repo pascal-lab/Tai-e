@@ -46,7 +46,7 @@ public class MethodTypeModel extends AbstractModel {
         super(solver);
     }
 
-    @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class)>", indexes = {0})
+    @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class)>", argIndexes = {0})
     public void methodType1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
@@ -62,7 +62,7 @@ public class MethodTypeModel extends AbstractModel {
         }
     }
 
-    @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.Class)>", indexes = {0, 1})
+    @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.Class)>", argIndexes = {0, 1})
     public void methodType2Classes(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
@@ -86,7 +86,7 @@ public class MethodTypeModel extends AbstractModel {
         }
     }
 
-    @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.invoke.MethodType)>", indexes = {0, 1})
+    @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.invoke.MethodType)>", argIndexes = {0, 1})
     public void methodTypeClassMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {

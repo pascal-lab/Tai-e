@@ -79,7 +79,7 @@ public class ClassMethodFieldModel extends AbstractModel {
     }
 
     // ---------- Model for java.lang.Class starts ----------
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>", indexes = {0})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>", argIndexes = {0})
     public void getPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
@@ -95,7 +95,7 @@ public class ClassMethodFieldModel extends AbstractModel {
         }
     }
 
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.annotation.Annotation getAnnotation(java.lang.Class)>", indexes = {BASE, 0})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.annotation.Annotation getAnnotation(java.lang.Class)>", argIndexes = {BASE, 0})
     public void getAnnotation(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
@@ -123,7 +123,7 @@ public class ClassMethodFieldModel extends AbstractModel {
     // ---------- Model for java.lang.Class ends ----------
 
     // ---------- Model for java.lang.reflect.Method starts ----------
-    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.annotation.Annotation[][] getParameterAnnotations()>", indexes = {BASE})
+    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.annotation.Annotation[][] getParameterAnnotations()>", argIndexes = {BASE})
     public void getParameterAnnotations(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {

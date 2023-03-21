@@ -44,7 +44,7 @@ public @interface InvokeHandler {
     String signature();
 
     /**
-     * @return an array of arguments used by the handler.
+     * @return an array of indexes for arguments used by the handler.
      */
-    int[] indexes() default {};
+    int[] argIndexes() default {};
 }

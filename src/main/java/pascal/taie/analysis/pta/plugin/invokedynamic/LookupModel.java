@@ -54,7 +54,7 @@ public class LookupModel extends AbstractModel {
         super(solver);
     }
 
-    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>", indexes = {0})
+    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>", argIndexes = {0})
     public void findConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
@@ -73,7 +73,7 @@ public class LookupModel extends AbstractModel {
         }
     }
 
-    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", indexes = {0, 1})
+    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", argIndexes = {0, 1})
     public void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find private methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->
@@ -82,7 +82,7 @@ public class LookupModel extends AbstractModel {
                 MethodHandle.Kind.REF_invokeVirtual);
     }
 
-    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", indexes = {0, 1})
+    @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", argIndexes = {0, 1})
     public void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
         // TODO: find static methods in (direct/indirect) super class.
         findMethod(csVar, pts, invoke, (cls, name) ->

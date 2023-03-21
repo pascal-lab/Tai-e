@@ -80,7 +80,7 @@ public abstract class AbstractModel extends SolverHolder implements Model {
                     String signature = invokeHandler.signature();
                     JMethod api = hierarchy.getMethod(signature);
                     if (api != null) {
-                        registerRelevantVarIndexes(api, invokeHandler.indexes());
+                        registerRelevantVarIndexes(api, invokeHandler.argIndexes());
                         registerAPIHandler(api, createHandler(method));
                     }
                 }
