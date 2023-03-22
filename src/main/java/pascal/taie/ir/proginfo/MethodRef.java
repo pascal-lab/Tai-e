@@ -191,7 +191,7 @@ public class MethodRef extends MemberRef {
             method = World.get().getClassHierarchy()
                     .resolveMethod(this);
             if (method == null && resolveFailures.add(this)) {
-                logger.warn("Failed to resolve {}", this);
+                logger.debug("Failed to resolve {}", this);
             }
         }
         return method;

@@ -48,13 +48,13 @@ import java.util.function.Function;
  */
 public abstract class AbstractIRModel extends SolverHolder implements IRModel {
 
+    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
     protected final Map<JMethod, Function<Invoke, Collection<Stmt>>> handlers
             = Maps.newHybridMap();
 
     protected final Map<JMethod, Collection<Stmt>> method2GenStmts
             = Maps.newHybridMap();
-
-    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
     protected AbstractIRModel(Solver solver) {
         super(solver);

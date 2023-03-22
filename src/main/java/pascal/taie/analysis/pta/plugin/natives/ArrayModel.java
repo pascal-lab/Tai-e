@@ -29,6 +29,7 @@ import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.Stmt;
@@ -40,7 +41,7 @@ import pascal.taie.language.type.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayCopyModel extends AbstractIRModel {
+public class ArrayModel extends AbstractIRModel {
 
     private final Type objType;
 
@@ -48,14 +49,22 @@ public class ArrayCopyModel extends AbstractIRModel {
 
     private int counter = 0;
 
-    ArrayCopyModel(Solver solver) {
+    ArrayModel(Solver solver) {
         super(solver);
         objType = typeSystem.getClassType(ClassNames.OBJECT);
         objArrayType = typeSystem.getArrayType(objType, 1);
     }
 
+    @InvokeHandler(signature = "<java.util.Arrays: java.lang.Object[] copyOf(java.lang.Object[],int)>")
+    public List<Stmt> arraysCopyOf(Invoke invoke) {
+        Var result = invoke.getResult();
+        return result != null
+                ? List.of(new Copy(result, invoke.getInvokeExp().getArg(0)))
+                : List.of();
+    }
+
     @InvokeHandler(signature = "<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>")
-    public List<Stmt> arraycopy(Invoke invoke) {
+    public List<Stmt> systemArraycopy(Invoke invoke) {
         JMethod container = invoke.getContainer();
         Var src = getTempVar(container, "src", objArrayType);
         Var dest = getTempVar(container, "dest", objArrayType);

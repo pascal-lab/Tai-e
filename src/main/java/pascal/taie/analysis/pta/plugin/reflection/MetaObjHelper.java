@@ -89,39 +89,44 @@ class MetaObjHelper {
     }
 
     /**
-     * Given a JClass or ClassMember, return the corresponding meta object.
-     * @throws IllegalArgumentException if type of {@code classOrMember}
-     * is neither {@link JClass} nor {@link ClassMember}.
+     * Given a JClass, Type, or ClassMember, return the corresponding meta object.
+     * @throws IllegalArgumentException if type of {@code classOrTypeOrMember}
+     * is neither {@link JClass}, {@link Type}, nor {@link ClassMember}.
      */
-    Obj getMetaObj(Object classOrMember) {
-        return getMetaObj(classOrMember, REFLECTION_DESC);
+    Obj getMetaObj(Object classOrTypeOrMember) {
+        return getMetaObj(classOrTypeOrMember, REFLECTION_DESC);
     }
 
-    Obj getLogMetaObj(Object classOrMember) {
-        return getMetaObj(classOrMember, REFLECTION_LOG_DESC);
+    Obj getLogMetaObj(Object classOrTypeOrMember) {
+        return getMetaObj(classOrTypeOrMember, REFLECTION_LOG_DESC);
     }
 
     boolean isLogMetaObj(CSObj obj) {
         return CSObjs.hasDescriptor(obj, REFLECTION_LOG_DESC);
     }
 
-    private Obj getMetaObj(Object classOrMember, Descriptor desc) {
-        if (classOrMember instanceof JClass jclass) {
+    private Obj getMetaObj(Object classOrTypeOrMember, Descriptor desc) {
+        if (classOrTypeOrMember instanceof JClass jclass) {
             ClassLiteral classLiteral = ClassLiteral.get(jclass.getType());
             return desc.equals(REFLECTION_LOG_DESC)
                     ? heapModel.getMockObj(desc, classLiteral, clazz)
                     : heapModel.getConstantObj(classLiteral);
-        } else if (classOrMember instanceof JMethod m) {
+        } else if (classOrTypeOrMember instanceof Type type) {
+            ClassLiteral classLiteral = ClassLiteral.get(type);
+            return desc.equals(REFLECTION_LOG_DESC)
+                    ? heapModel.getMockObj(desc, classLiteral, clazz)
+                    : heapModel.getConstantObj(classLiteral);
+        } else if (classOrTypeOrMember instanceof JMethod m) {
             if (m.isConstructor()) {
-                return heapModel.getMockObj(desc, classOrMember, constructor);
+                return heapModel.getMockObj(desc, classOrTypeOrMember, constructor);
             } else {
-                return heapModel.getMockObj(desc, classOrMember, method);
+                return heapModel.getMockObj(desc, classOrTypeOrMember, method);
             }
-        } else if (classOrMember instanceof JField) {
-            return heapModel.getMockObj(desc, classOrMember, field);
+        } else if (classOrTypeOrMember instanceof JField) {
+            return heapModel.getMockObj(desc, classOrTypeOrMember, field);
         } else {
             throw new IllegalArgumentException(
-                    "Expected JClass or ClassMember," + " given " + classOrMember);
+                    "Expected JClass or ClassMember," + " given " + classOrTypeOrMember);
         }
     }
 

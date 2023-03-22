@@ -253,7 +253,7 @@ class LogBasedModel extends SolverHolder {
     private CSObj toCSObj(CSMethod csMethod, Object target) {
         Obj obj;
         if (target instanceof ClassType type) { // Array.newInstance(target, ...)
-            obj = helper.getLogMetaObj(type.getJClass());
+            obj = helper.getLogMetaObj(type);
         } else {
             obj = helper.getLogMetaObj(target);
         }

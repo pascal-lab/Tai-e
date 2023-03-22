@@ -49,7 +49,7 @@ public class NativeModeller implements Plugin {
         this.solver = solver;
         doPrivilegedModel = new DoPriviledgedModel(solver);
         models = List.of(doPrivilegedModel,
-                new ArrayCopyModel(solver),
+                new ArrayModel(solver),
                 new UnsafeModel(solver));
     }
 

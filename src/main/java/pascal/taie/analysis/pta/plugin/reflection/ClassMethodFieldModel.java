@@ -51,8 +51,8 @@ import java.util.List;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
- * Models APIs of java.lang.Class, java.lang.reflect.Method, and java.lang.reflect.Field.
- * This model handles non-core reflection APIs.
+ * Models APIs related to java.lang.Class, java.lang.reflect.Method,
+ * and java.lang.reflect.Field. This model handles non-core reflection APIs.
  */
 public class ClassMethodFieldModel extends AbstractModel {
 

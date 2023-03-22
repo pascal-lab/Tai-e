@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.pta.plugin.util;
 
-import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -49,10 +48,7 @@ import java.util.Map;
  */
 public abstract class AbstractModel extends SolverHolder implements Model {
 
-    /**
-     * Default heap context for MethodType objects.
-     */
-    protected final Context defaultHctx;
+    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
     protected final Map<JMethod, int[]> relevantVarIndexes = Maps.newHybridMap();
 
@@ -62,11 +58,8 @@ public abstract class AbstractModel extends SolverHolder implements Model {
     protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
             = Maps.newHybridMap();
 
-    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
-
     protected AbstractModel(Solver solver) {
         super(solver);
-        defaultHctx = solver.getContextSelector().getEmptyContext();
         registerVarAndHandlersByAnnotation();
         registerVarAndHandlers();
     }
