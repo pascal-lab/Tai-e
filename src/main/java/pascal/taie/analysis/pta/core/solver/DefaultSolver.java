@@ -133,6 +133,8 @@ public class DefaultSolver implements Solver {
      */
     private final long timeLimit;
 
+    private TimeLimiter timeLimiter;
+
     /**
      * Whether the analysis has reached time limit.
      */
@@ -256,7 +258,8 @@ public class DefaultSolver implements Solver {
         stmtProcessor = new StmtProcessor();
         isTimeout = false;
         if (timeLimit != UNLIMITED) {
-            new TimeLimiter().countDown(timeLimit);
+            timeLimiter = new TimeLimiter(timeLimit);
+            timeLimiter.countDown();
         }
         plugin.onStart();
     }
@@ -265,21 +268,33 @@ public class DefaultSolver implements Solver {
 
         private static final long MILLIS_FACTOR = 1000;
 
+        private final Thread thread;
+
         /**
-         * Starts count down.
-         *
          * @param seconds the time limit.
          */
-        private void countDown(long seconds) {
-            new Thread(() -> {
+        private TimeLimiter(long seconds) {
+            thread = new Thread(() -> {
                 try {
                     Thread.sleep(seconds * MILLIS_FACTOR);
-                    isTimeout = true;
-                } catch (InterruptedException e) {
-                    // this should rarely happen
-                    throw new RuntimeException(e);
+                } catch (InterruptedException ignored) {
                 }
-            }).start();
+                isTimeout = true;
+            });
+        }
+
+        /**
+         * Starts count down.
+         */
+        private void countDown() {
+            thread.start();
+        }
+
+        /**
+         * Stops count down.
+         */
+        private void stop() {
+            thread.interrupt();
         }
     }
 
@@ -308,6 +323,8 @@ public class DefaultSolver implements Solver {
         if (!workList.isEmpty() && isTimeout) {
             logger.warn("Pointer analysis stops early as it reaches time limit ({} seconds)," +
                     " and the result may be unsound!", timeLimit);
+        } else if (timeLimiter != null) { // finish normally but time limiter is still running
+            timeLimiter.stop();
         }
         plugin.onFinish();
     }
