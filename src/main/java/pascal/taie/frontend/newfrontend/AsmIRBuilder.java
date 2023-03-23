@@ -77,7 +77,6 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
@@ -256,7 +255,12 @@ public class AsmIRBuilder {
     private void dup(Stack<Exp> stack, int takes, int seps) {
         List<Exp> takesList = new ArrayList<>(takes);
         for (int i = 0; i < takes; ++i) {
-            takesList.add(toVar(stack.pop()));
+            Exp e = stack.pop();
+            if (e instanceof Top || e instanceof Var) {
+                takesList.add(e);
+            } else {
+                takesList.add(toVar(e));
+            }
         }
         Collections.reverse(takesList);
         List<Exp> sepsList = new ArrayList<>(seps);
@@ -642,6 +646,12 @@ public class AsmIRBuilder {
             manager.addReturnVar(v);
             assocStmt(node, new Return(v));
         }
+    }
+
+    private void throwException(InsnNode node, Stack<Exp> stack) {
+        Var v = popVar(stack);
+        stack.clear();
+        stack.push(v);
     }
 
     private void mergeStack1(List<Stmt> auxiliary, Stack<Exp> nowStack, Stack<Var> targetStack) {
