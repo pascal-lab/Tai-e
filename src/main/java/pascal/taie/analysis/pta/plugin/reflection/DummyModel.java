@@ -22,10 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 
 /**
@@ -39,25 +36,5 @@ class DummyModel extends InferenceModel {
 
     @Override
     protected void handleNewNonInvokeStmt(Stmt stmt) {
-    }
-
-    @Override
-    public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
-    }
-
-    @Override
-    public void classGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
-    }
-
-    @Override
-    public void classGetDeclaredConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
-    }
-
-    @Override
-    public void classGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
-    }
-
-    @Override
-    public void classGetDeclaredMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
     }
 }
