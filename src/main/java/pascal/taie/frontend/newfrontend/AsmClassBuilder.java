@@ -260,7 +260,7 @@ public class AsmClassBuilder implements JClassBuilder {
             this.modifiers = fromAsmModifier(access);
             this.methodName = name;
             this.exceptions =  exceptions == null ? List.of() : Arrays.stream(exceptions)
-                    .map(BuildContext.get()::fromAsmInternalName)
+                    .map(i -> (ClassType) BuildContext.get().fromAsmInternalName(i))
                     .toList();
             this.paramTypes = Arrays.stream(t.getArgumentTypes())
                     .map(BuildContext.get()::fromAsmType)

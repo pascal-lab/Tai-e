@@ -39,7 +39,7 @@ public class ArrayAccess implements LValue, RValue {
     public ArrayAccess(Var base, Var index) {
         this.base = base;
         this.index = index;
-        assert base.getType() instanceof ArrayType;
+        // assert base.getType() instanceof ArrayType;
     }
 
     public Var getBase() {

@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -20,6 +21,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
+import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.CastExp;
@@ -36,11 +38,16 @@ import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.InvokeVirtual;
+import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.NegExp;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
+import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.UnaryExp;
@@ -55,16 +62,22 @@ import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
@@ -119,24 +132,38 @@ public class AsmIRBuilder {
         buildCFG();
     }
 
-    private Stmt getAssignStmt(Var v, Exp e) {
-        if (e instanceof BinaryExp binaryExp) {
-            return new Binary(v, binaryExp);
-        } else if (e instanceof Literal l) {
-            return new AssignLiteral(v, l);
-        } else if (e instanceof CastExp cast) {
-            return new Cast(v, cast);
-        } else if (e instanceof UnaryExp unaryExp) {
-            return new Unary(v, unaryExp);
-        } else if (e instanceof Var v1) {
-            return new Copy(v, v1);
-        } else if (e instanceof FieldAccess fieldAccess) {
-            return new LoadField(v, fieldAccess);
-        } else if (e instanceof InvokeExp invokeExp) {
-            return new Invoke(method, invokeExp, v);
-        } else {
-            throw new NotImplementedException();
+    private Stmt getAssignStmt(LValue left, Exp e) {
+        if (left instanceof Var v) {
+            if (e instanceof BinaryExp binaryExp) {
+                return new Binary(v, binaryExp);
+            } else if (e instanceof Literal l) {
+                return new AssignLiteral(v, l);
+            } else if (e instanceof CastExp cast) {
+                return new Cast(v, cast);
+            } else if (e instanceof UnaryExp unaryExp) {
+                return new Unary(v, unaryExp);
+            } else if (e instanceof Var v1) {
+                return new Copy(v, v1);
+            } else if (e instanceof FieldAccess fieldAccess) {
+                return new LoadField(v, fieldAccess);
+            } else if (e instanceof InvokeExp invokeExp) {
+                return new Invoke(method, invokeExp, v);
+            } else if (e instanceof NewExp newExp)  {
+                return new New(method, v, newExp);
+            } else if (e instanceof ArrayAccess access) {
+                return new LoadArray(v, access);
+            }
+            else {
+                throw new NotImplementedException();
+            }
+        } else if (left instanceof ArrayAccess arrayAccess) {
+            assert e instanceof Var;
+            return new StoreArray(arrayAccess, (Var) e);
+        } else if (left instanceof FieldAccess fieldAccess) {
+            assert e instanceof Var;
+            return new StoreField(fieldAccess, (Var) e);
         }
+        throw new NotImplementedException();
     }
 
     private boolean isDword(AbstractInsnNode node, Exp e) {
@@ -229,7 +256,7 @@ public class AsmIRBuilder {
     private void dup(Stack<Exp> stack, int takes, int seps) {
         List<Exp> takesList = new ArrayList<>(takes);
         for (int i = 0; i < takes; ++i) {
-            takesList.add(stack.pop());
+            takesList.add(toVar(stack.pop()));
         }
         Collections.reverse(takesList);
         List<Exp> sepsList = new ArrayList<>(seps);
@@ -419,6 +446,14 @@ public class AsmIRBuilder {
         return inRange(opcode, Opcodes.POP, Opcodes.SWAP);
     }
 
+    private boolean isArrayLoadInsn(int opcode) {
+        return inRange(opcode, Opcodes.IALOAD, Opcodes.SALOAD);
+    }
+
+    private boolean isArrayStoreInsn(int opcode) {
+        return inRange(opcode, Opcodes.IASTORE, Opcodes.SASTORE);
+    }
+
     private Literal getConstValue(InsnNode node) {
         int opcode = node.getOpcode();
         if (opcode == Opcodes.ACONST_NULL) {
@@ -556,7 +591,8 @@ public class AsmIRBuilder {
 
     private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<Exp> stack) {
         int opcode = methodInsnNode.getOpcode();
-        ClassType owner = BuildContext.get().fromAsmInternalName(methodInsnNode.owner);
+        ClassType owner = (ClassType)
+                BuildContext.get().fromAsmInternalName(methodInsnNode.owner);
         Pair<List<Type>, Type> desc = BuildContext.get().fromAsmMethodType(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
@@ -578,11 +614,23 @@ public class AsmIRBuilder {
         };
     }
 
+    private ArrayAccess getArrayAccess(Stack<Exp> nowStack) {
+        Var idx = popVar(nowStack);
+        Var ref = popVar(nowStack);
+        ArrayAccess access = new ArrayAccess(ref, idx);
+        return access;
+    }
+
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx, varNode);
         Stmt stmt = popToVar(stack, v);
         assocStmt(varNode, stmt);
+    }
+
+    private void storeExp(AbstractInsnNode node, LValue left, RValue right) {
+        Stmt stmt = getAssignStmt(left, right);
+        assocStmt(node, stmt);
     }
 
     private void returnExp(Stack<Exp> stack, InsnNode node) {
@@ -666,7 +714,9 @@ public class AsmIRBuilder {
                 int opcode = insnNode.getOpcode();
                 if (opcode == Opcodes.NOP) {
                     continue;
-                } else if (isBinaryInsn(opcode)) {
+                } else if (opcode == Opcodes.ARRAYLENGTH) {
+                    pushExp(node, nowStack, popExp(nowStack));
+                }  else if (isBinaryInsn(opcode)) {
                     pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
                 } else if (isReturnInsn(opcode)) {
                     returnExp(nowStack, insnNode);
@@ -679,6 +729,13 @@ public class AsmIRBuilder {
                     pushExp(node, nowStack, new NegExp(v1));
                 } else if (isStackInsn(opcode)) {
                     performStackOp(nowStack, opcode);
+                } else if (isArrayLoadInsn(opcode)) {
+                    ArrayAccess access = getArrayAccess(nowStack);
+                    pushExp(node, nowStack, access);
+                } else if (isArrayStoreInsn(opcode)) {
+                    Var value = popVar(nowStack);
+                    ArrayAccess access = getArrayAccess(nowStack);
+                    storeExp(node, access, value);
                 }
             } else if (node instanceof JumpInsnNode jump) {
                 if (jump.getOpcode() == Opcodes.GOTO) {
@@ -691,20 +748,41 @@ public class AsmIRBuilder {
                 pushConst(node, nowStack, fromObject(ldc.cst));
             } else if (node instanceof TypeInsnNode typeNode) {
                 int opcode = typeNode.getOpcode();
-                ClassType type = BuildContext.get().fromAsmInternalName(typeNode.desc);
+                ReferenceType type = BuildContext.get().fromAsmInternalName(typeNode.desc);
                 if (opcode == Opcodes.CHECKCAST) {
                     pushExp(node, nowStack, getCastExp(nowStack, type));
                 } else if (opcode == Opcodes.NEW) {
-                    pushExp(node, nowStack, new NewInstance(type));
+                    pushExp(node, nowStack, new NewInstance((ClassType) type));
+                } else if (opcode == Opcodes.ANEWARRAY) {
+                    Var length = popVar(nowStack);
+                    pushExp(node, nowStack, new NewArray((ArrayType) type, length));
                 }
             } else if (node instanceof IntInsnNode intNode) {
                 int opcode = intNode.getOpcode();
                 if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
                     pushConst(node, nowStack, IntLiteral.get(intNode.operand));
+                } else if (opcode == Opcodes.NEWARRAY) {
+                    PrimitiveType base = switch (intNode.operand) {
+                        case 4 -> PrimitiveType.BOOLEAN;
+                        case 5 -> PrimitiveType.CHAR;
+                        case 6 -> PrimitiveType.FLOAT;
+                        case 7 -> PrimitiveType.DOUBLE;
+                        case 8 -> PrimitiveType.BYTE;
+                        case 9 -> PrimitiveType.SHORT;
+                        case 10 -> PrimitiveType.INT;
+                        case  11 -> PrimitiveType.LONG;
+                        default -> throw new IllegalArgumentException();
+                    };
+                    ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, 1);
+                    Var length = popVar(nowStack);
+                    pushExp(node, nowStack, new NewArray(arrayType, length));
+                } else {
+                    assert false;
                 }
             } else if (node instanceof FieldInsnNode fieldInsnNode) {
                 int opcode = fieldInsnNode.getOpcode();
-                ClassType owner = BuildContext.get().fromAsmInternalName(fieldInsnNode.owner);
+                ClassType owner = (ClassType)
+                        BuildContext.get().fromAsmInternalName(fieldInsnNode.owner);
                 Type type = BuildContext.get().fromAsmType(fieldInsnNode.desc);
                 String name = fieldInsnNode.name;
                 // TODO: check why our class hierarchy builder makes owner.getJClass() null
@@ -719,17 +797,30 @@ public class AsmIRBuilder {
                     case Opcodes.PUTSTATIC -> {
                         FieldAccess access = new StaticFieldAccess(ref);
                         Var v1 = popVar(nowStack);
-                        assocStmt(fieldInsnNode, new StoreField(access, v1));
+                        storeExp(node, access, v1);
                     }
                     case Opcodes.PUTFIELD -> {
                         Var value = popVar(nowStack);
                         Var base = popVar(nowStack);
-                        assocStmt(fieldInsnNode, new StoreField(new InstanceFieldAccess(ref, base), value));
+                        FieldAccess access = new InstanceFieldAccess(ref, base);
+                        storeExp(node, access, value);
                     }
                     default -> throw new IllegalStateException();
                 }
             } else if (node instanceof MethodInsnNode methodInsnNode) {
                 pushExp(node, nowStack, getInvokeExp(methodInsnNode, nowStack));
+            } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
+                Type type = BuildContext.get().fromAsmType(newArrayInsnNode.desc);
+                assert type instanceof ArrayType;
+
+                List<Var> lengths = new ArrayList<>();
+                // ..., count1, [count2, ...] ->
+                for (int i = 0; i < newArrayInsnNode.dims; ++i) {
+                    lengths.add(popVar(nowStack));
+                }
+                Collections.reverse(lengths);
+
+                pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
             }
         }
 

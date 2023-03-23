@@ -3,8 +3,8 @@ package pascal.taie.frontend.newfrontend;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
@@ -46,8 +46,8 @@ public class BuildContext {
         return classMap;
     }
 
-    public ClassType fromAsmInternalName(String internalName) {
-        return (ClassType) fromAsmType(
+    public ReferenceType fromAsmInternalName(String internalName) {
+        return (ReferenceType) fromAsmType(
                 org.objectweb.asm.Type.getObjectType(internalName));
     }
 
