@@ -58,6 +58,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
@@ -70,6 +71,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
@@ -77,12 +79,14 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -316,7 +320,7 @@ public class AsmIRBuilder {
         List<Var> params = manager.getParams();
         List<Var> vars = manager.getVars();
         Set<Var> retVars = manager.getRetVars();
-        List<ExceptionEntry> entries = new ArrayList<>();
+        List<ExceptionEntry> entries = getExceptionTable();
         ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, entries);
     }
 
@@ -394,6 +398,18 @@ public class AsmIRBuilder {
                     res.add(stmt);
                 }
             }
+        }
+        return res;
+    }
+
+    private List<ExceptionEntry> getExceptionTable() {
+        List<ExceptionEntry> res = new ArrayList<>();
+        for (TryCatchBlockNode node : source.tryCatchBlocks) {
+            Stmt start = getFirstStmt(node.start);
+            Stmt end = getFirstStmt(node.end);
+            Stmt handler = getFirstStmt(node.handler);
+            ReferenceType expType = BuildContext.get().fromAsmInternalName(node.type);
+            res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
         }
         return res;
     }
@@ -650,8 +666,7 @@ public class AsmIRBuilder {
 
     private void throwException(InsnNode node, Stack<Exp> stack) {
         Var v = popVar(stack);
-        stack.clear();
-        stack.push(v);
+        assocStmt(node, new Throw(v));
     }
 
     private void mergeStack1(List<Stmt> auxiliary, Stack<Exp> nowStack, Stack<Var> targetStack) {
@@ -708,9 +723,23 @@ public class AsmIRBuilder {
     private void buildBlockStmt(BytecodeBlock block) {
         Stack<Var> inStack = block.getInStack();
         Stack<Exp> nowStack = new Stack<>();
-        nowStack.addAll(inStack);
+        Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
-        for (AbstractInsnNode node : block.instr()) {
+        if (block.isCatch()) {
+            // TODO: log when first instr of a catch block is not astore_x
+            if (instr.hasNext()) {
+                AbstractInsnNode insnNode = instr.next();
+                if (insnNode.getOpcode() == Opcodes.ASTORE) {
+                    VarInsnNode node = (VarInsnNode) insnNode;
+                    assocStmt(node, new Catch(manager.getLocal(node.var, node)));
+                }
+            }
+        } else {
+            nowStack.addAll(inStack);
+        }
+
+        while (instr.hasNext()) {
+            AbstractInsnNode node = instr.next();
             if (node instanceof VarInsnNode varNode) {
                 switch (varNode.getOpcode()) {
                     case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
@@ -726,7 +755,9 @@ public class AsmIRBuilder {
                     continue;
                 } else if (opcode == Opcodes.ARRAYLENGTH) {
                     pushExp(node, nowStack, popExp(nowStack));
-                }  else if (isBinaryInsn(opcode)) {
+                } else if (opcode == Opcodes.ATHROW) {
+                    throwException(insnNode, nowStack);
+                } else if (isBinaryInsn(opcode)) {
                     pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
                 } else if (isReturnInsn(opcode)) {
                     returnExp(nowStack, insnNode);
@@ -780,7 +811,7 @@ public class AsmIRBuilder {
                         case 8 -> PrimitiveType.BYTE;
                         case 9 -> PrimitiveType.SHORT;
                         case 10 -> PrimitiveType.INT;
-                        case  11 -> PrimitiveType.LONG;
+                        case 11 -> PrimitiveType.LONG;
                         default -> throw new IllegalArgumentException();
                     };
                     ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, 1);
@@ -818,7 +849,11 @@ public class AsmIRBuilder {
                     default -> throw new IllegalStateException();
                 }
             } else if (node instanceof MethodInsnNode methodInsnNode) {
-                pushExp(node, nowStack, getInvokeExp(methodInsnNode, nowStack));
+                InvokeExp exp = getInvokeExp(methodInsnNode, nowStack);
+                pushExp(node, nowStack, exp);
+                if (exp.getType() == VoidType.VOID) {
+                    popToEffect(nowStack);
+                }
             } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
                 Type type = BuildContext.get().fromAsmType(newArrayInsnNode.desc);
                 assert type instanceof ArrayType;
@@ -832,6 +867,12 @@ public class AsmIRBuilder {
 
                 pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
             }
+        }
+
+        if (block.outEdges().size() == 0) {
+            // no out edges, must be a return / throw block
+            // do nothing
+            return;
         }
 
         if (block.getOutStack() == null) {
@@ -850,25 +891,19 @@ public class AsmIRBuilder {
 
             The conversion should have effect on the InsnNode that generated the exp.
          */
-        List<Var> temp = new ArrayList<>();
-        int size = origin.size();
-        Stack<Exp> copy = new Stack<>();
-        copy.addAll(origin);
-        for (int i = 0; i < size; ++i) {
-            Exp e = popExp(origin);
-            if (e instanceof Var v && manager.isTempVar(v)) {
-                temp.add(v);
+        Stack<Var> target = new Stack<>();
+        for (Exp e : origin) {
+            if (e instanceof Top) {
+                continue;
+            }
+            else if (e instanceof Var v && manager.isTempVar(v)) {
+                target.push(v);
             } else {
-                temp.add(manager.getTempVar());
+                target.add(manager.getTempVar());
             }
         }
-        Collections.reverse(temp);
-        Stack<Var> target = new Stack<>();
-        target.addAll(temp);
-        mergeStack(bb, copy, target);
-        Stack<Var> res = new Stack<>();
-        res.addAll(temp);
-        return res;
+        mergeStack(bb, origin, target);
+        return target;
     }
 
     private void buildCFG() {
@@ -890,6 +925,7 @@ public class AsmIRBuilder {
 
         for (TryCatchBlockNode now : source.tryCatchBlocks) {
             queue.add(now.handler);
+            label2Block.put(now.handler, new BytecodeBlock(now.handler, null, true));
         }
 
         while (!queue.isEmpty()) {
@@ -926,8 +962,7 @@ public class AsmIRBuilder {
     }
 
     private BytecodeBlock createNewBlock(LabelNode label) {
-        return new BytecodeBlock(label, new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>(), null);
+        return new BytecodeBlock(label, null);
     }
 
     private boolean isVisited(LabelNode label) {
@@ -1010,7 +1045,7 @@ public class AsmIRBuilder {
         entry.setInStack(new Stack<>());
 
         List<BytecodeBlock> bytecodeBlockList = getLinearBBList();
-        assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
+        // assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
         if (bytecodeBlockList != null) {
             for (var bb : bytecodeBlockList) {
                 buildBlockStmt(bb);
@@ -1019,7 +1054,7 @@ public class AsmIRBuilder {
             Set<BytecodeBlock> visited = new HashSet<>();
             Queue<BytecodeBlock> workList = new LinkedList<>();
             workList.offer(entry);
-
+            source.tryCatchBlocks.stream().forEach(i -> workList.offer(label2Block.get(i.handler)));
             while (workList.peek() != null) {
                 BytecodeBlock bb = workList.poll();
                 visited.add(bb);

@@ -95,7 +95,7 @@ public class TestAsmIRBuilder {
     public void testAllinOne() {
         List<String> methods = List.of("arrayAccess", "newArray", "assign",
                 "binary", "binaryMixedType", "copy", "instanceOf",
-                "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke");
+                "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke", "exception");
         var ch = getCh("AllInOne");
         ch.allClasses()
                 .filter(i -> i.getSimpleName().equals("AllInOne"))
@@ -108,6 +108,7 @@ public class TestAsmIRBuilder {
                                 builder1.build();
                                 builder1.buildIR();
                                 System.out.println(m.getName() + " : " + builder1.getIr().getStmts());
+                                System.out.println(m.getName() + " : " + builder1.getIr().getExceptionEntries());
                             });
                 });
     }

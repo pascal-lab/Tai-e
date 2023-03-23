@@ -6,6 +6,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
@@ -27,19 +28,20 @@ public final class BytecodeBlock {
 
     private boolean complete;
 
-    public BytecodeBlock(
-            LabelNode start,
-            List<AbstractInsnNode> instr,
-            List<BytecodeBlock> inEdges,
-            List<BytecodeBlock> outEdges,
-            @Nullable
-            BytecodeBlock fallThrough) {
+    private final boolean isCatch;
+
+    public BytecodeBlock(LabelNode start,  @Nullable BytecodeBlock fallThrough) {
+        this(start, fallThrough, false);
+    }
+
+    public BytecodeBlock(LabelNode start, @Nullable BytecodeBlock fallThrough, boolean isCatch) {
         this.start = start;
-        this.instr = instr;
-        this.inEdges = inEdges;
-        this.outEdges = outEdges;
+        this.instr = new ArrayList<>();
+        this.inEdges = new ArrayList<>();
+        this.outEdges = new ArrayList<>();
         this.fallThrough = fallThrough;
         this.complete = false;
+        this.isCatch = isCatch;
     }
 
     public LabelNode start() {
@@ -69,6 +71,10 @@ public final class BytecodeBlock {
 
     public boolean isComplete() {
         return complete;
+    }
+
+    public boolean isCatch() {
+        return isCatch;
     }
 
     public void setComplete() {
