@@ -40,6 +40,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -131,12 +132,16 @@ class MetaObjHelper {
     }
 
     /**
-     * @param invoke the invocation where the meta object is generated.
-     * @param type   the type of the meta object.
-     * @return the resulting meta object.
+     * @return an unknown class generated at {@code invoke}.
      */
-    Obj getUnknownMetaObj(Invoke invoke, Type type) {
-        return heapModel.getMockObj(UNKNOWN_REFLECTION_DESC, invoke, type, false);
+    Obj getUnknownClass(Invoke invoke) {
+        return heapModel.getMockObj(UNKNOWN_REFLECTION_DESC, invoke, clazz, false);
+    }
+
+    Obj getUnknownMethod(Invoke invoke, @Nullable JClass clazz, @Nullable String name) {
+        MethodInfo methodInfo = new MethodInfo(invoke, clazz, name);
+        return heapModel.getMockObj(UNKNOWN_REFLECTION_DESC, methodInfo, method,
+                invoke.getContainer(), false);
     }
 
     boolean isUnknownMetaObj(CSObj csObj) {
