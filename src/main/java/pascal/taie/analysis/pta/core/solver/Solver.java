@@ -98,6 +98,14 @@ public interface Solver {
 
     void addPointsTo(Pointer pointer, Context heapContext, Obj obj);
 
+    /**
+     * Convenient API to add points-to relation for object
+     * with empty heap context.
+     */
+    default void addPointsTo(Pointer pointer, Obj obj) {
+        addPointsTo(pointer, getContextSelector().getEmptyContext(), obj);
+    }
+
     // convenient APIs for adding var-points-to relations
     void addVarPointsTo(Context context, Var var, PointsToSet pts);
 

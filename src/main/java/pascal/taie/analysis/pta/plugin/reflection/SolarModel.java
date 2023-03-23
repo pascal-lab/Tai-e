@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -118,6 +119,7 @@ public class SolarModel extends InferenceModel {
     }
 
     @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>", argIndexes = {BASE, 0})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>", argIndexes = {BASE, 0})
     public void classGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (isIgnored(invoke)) {
             return;
@@ -142,6 +144,31 @@ public class SolarModel extends InferenceModel {
                         classGetMethodKnown(context, invoke, clazz, name);
                     }
                 });
+            });
+        }
+    }
+
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method[] getMethods()>", argIndexes = {BASE})
+    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method[] getDeclaredMethods()>", argIndexes = {BASE})
+    public void classGetMethods(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (isIgnored(invoke)) {
+            return;
+        }
+        Var result = invoke.getResult();
+        if (result != null) {
+            Context context = csVar.getContext();
+            CSObj methodArray = csManager.getCSObj(context, helper.getMetaObjArray(invoke));
+            ArrayIndex methodArrayIndex = csManager.getArrayIndex(methodArray);
+            pts.forEach(classObj -> {
+                Obj method;
+                if (helper.isUnknownMetaObj(classObj)) { // generate m^u_u
+                    method = helper.getUnknownMethod(invoke, null, null);
+                } else { // generate m^t_u
+                    JClass clazz = CSObjs.toClass(classObj);
+                    method = helper.getUnknownMethod(invoke, clazz, null);
+                }
+                solver.addPointsTo(methodArrayIndex, method);
+                solver.addVarPointsTo(context, result, methodArray);
             });
         }
     }

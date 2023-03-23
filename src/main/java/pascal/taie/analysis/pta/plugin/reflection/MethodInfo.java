@@ -43,4 +43,12 @@ record MethodInfo(Invoke invoke, @Nullable JClass clazz, @Nullable String name) 
     boolean isFromGetDeclaredMethod() {
         return GET_DECLARED_METHOD.contains(invoke.getMethodRef().getName());
     }
+
+    boolean isClassUnknown() {
+        return clazz == null;
+    }
+
+    boolean isNameUnknown() {
+        return name == null;
+    }
 }
