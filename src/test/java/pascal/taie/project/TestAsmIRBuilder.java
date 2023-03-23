@@ -111,4 +111,24 @@ public class TestAsmIRBuilder {
                             });
                 });
     }
+
+    @Test
+    public void testLocalVariableTable() {
+        var ch = getCh("CollectionTest");
+        ch.allClasses()
+                .filter(i -> i.getSimpleName().equals("CollectionTest"))
+                .forEach(i -> {
+                    i.getDeclaredMethods()
+                            .stream().filter(j -> j.getName().equals("p"))
+                            .forEach(m -> {
+                                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
+                                builder1.build();
+                                builder1.buildIR();
+                                for (var stmt : builder1.getIr().getStmts()) {
+                                    System.out.println(stmt);
+                                }
+                            });
+                });
+    }
 }
