@@ -2,6 +2,7 @@ package pascal.taie.project;
 
 import pascal.taie.config.Options;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MockOptions extends Options {
@@ -10,6 +11,11 @@ public class MockOptions extends Options {
     private String mainClass;
 
     private List<String> inputClasses;
+
+    public MockOptions() {
+        inputClasses = new ArrayList<>();
+        // should mainClass be added to inputClasses?
+    }
 
     public void setClasspath(String classpath) {
         this.classpath = classpath;
