@@ -90,4 +90,25 @@ public class TestAsmIRBuilder {
             });
         });
     }
+
+    @Test
+    public void testAllinOne() {
+        List<String> methods = List.of("arrayAccess", "newArray", "assign",
+                "binary", "binaryMixedType", "copy", "instanceOf",
+                "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke");
+        var ch = getCh("AllInOne");
+        ch.allClasses()
+                .filter(i -> i.getSimpleName().equals("AllInOne"))
+                .forEach(i -> {
+                    i.getDeclaredMethods()
+                            .stream().filter(j -> methods.contains(j.getName()))
+                            .forEach(m -> {
+                                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
+                                builder1.build();
+                                builder1.buildIR();
+                                System.out.println(m.getName() + " : " + builder1.getIr().getStmts());
+                            });
+                });
+    }
 }

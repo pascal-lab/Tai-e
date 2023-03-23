@@ -16,7 +16,7 @@ public abstract class AbstractFileContainer implements FileContainer {
             // else then current is a class name.
             // There should exist at most 1 file with the same name.
             var file = files().stream().
-                    filter(f -> isTarget(f, current))
+                    filter(f -> isTarget(f, current) && f instanceof ClassFile)
                     .findAny();
             return file.orElse(null);
         }
