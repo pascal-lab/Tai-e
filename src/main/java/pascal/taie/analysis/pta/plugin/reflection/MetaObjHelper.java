@@ -159,6 +159,10 @@ class MetaObjHelper {
                 invoke.getContainer(), false);
     }
 
+    MethodInfo getMethodInfo(CSObj csObj) {
+        return (MethodInfo) csObj.getObject().getAllocation();
+    }
+
     boolean isUnknownMetaObj(CSObj csObj) {
         return CSObjs.hasDescriptor(csObj, UNKNOWN_REFLECTION_DESC);
     }

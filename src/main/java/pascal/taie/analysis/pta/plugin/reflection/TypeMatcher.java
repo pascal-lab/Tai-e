@@ -23,14 +23,16 @@
 package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.language.classes.JMethod;
@@ -70,6 +72,7 @@ class TypeMatcher {
     private static final TypeInfo UNKNOWN = new TypeInfo(null, null);
 
     private final TypeSystem typeSystem;
+
     private final Map<Invoke, TypeInfo> typeInfos = Maps.newMap();
 
     TypeMatcher(TypeSystem typeSystem) {
@@ -89,7 +92,7 @@ class TypeMatcher {
                     }
                 } else {
                     Type targetReturnType = target.getReturnType();
-                    if (isUnmatched(targetReturnType, returnType)) {
+                    if (isUnmatched(returnType, targetReturnType)) {
                         return true;
                     }
                 }
@@ -114,15 +117,14 @@ class TypeMatcher {
         return false;
     }
 
-    private boolean isUnmatched(Type methodType, Type invokeType) {
-        if (methodType.equals(invokeType)) {
+    private boolean isUnmatched(Type toType, Type fromType) {
+        if (toType.equals(fromType)) {
             return false;
         }
-        if (methodType instanceof PrimitiveType type) {
-            return !typeSystem.getBoxedType(type).equals(invokeType);
+        if (toType instanceof PrimitiveType type) {
+            return !typeSystem.getBoxedType(type).equals(fromType);
         }
-        return !typeSystem.isSubtype(methodType, invokeType) &&
-                !typeSystem.isSubtype(invokeType, methodType);
+        return !typeSystem.isSubtype(toType, fromType);
     }
 
     boolean hasTypeInfo(Invoke invoke) {
@@ -138,21 +140,23 @@ class TypeMatcher {
      * type information for reflective call {@code invoke}.
      */
     private static TypeInfo computeTypeInfo(Invoke invoke) {
+        List<Stmt> stmts = invoke.getContainer().getIR().getStmts();
         // search cast type on result of invoke
         Var result = invoke.getResult();
         Type returnType = null;
-        List<Stmt> stmts = invoke.getContainer().getIR().getStmts();
-        for (int i = invoke.getIndex() + 1; i < stmts.size(); ++i) {
-            Stmt stmt = stmts.get(i);
-            if (stmt.getUses().contains(result) && returnType != null) {
-                // found usages of result the cast, give up
-                returnType = null;
-                break;
-            }
-            if (stmt instanceof Cast cast &&
-                    cast.getRValue().getValue().equals(result)) {
-                assert returnType == null;
-                returnType = cast.getRValue().getCastType();
+        if (result != null) {
+            for (int i = invoke.getIndex() + 1; i < stmts.size(); ++i) {
+                Stmt stmt = stmts.get(i);
+                if (stmt.getUses().contains(result) && returnType != null) {
+                    // found multiple usages of the result, give up
+                    returnType = null;
+                    break;
+                }
+                if (stmt instanceof Cast cast &&
+                        cast.getRValue().getValue().equals(result)) {
+                    assert returnType == null;
+                    returnType = cast.getRValue().getCastType();
+                }
             }
         }
         if (invoke.getInvokeExp().getArgCount() == 0) {
@@ -169,15 +173,15 @@ class TypeMatcher {
             argTypes = new Type[0];
         } else {
             assert args.getType() instanceof ArrayType;
-            Stmt argDef = null;
+            DefinitionStmt<?, ?> argDef = null;
             for (int i = invoke.getIndex() - 1; i >= 0; --i) {
                 Stmt stmt = stmts.get(i);
-                if (stmt.getDef().isPresent()) {
-                    LValue lValue = stmt.getDef().get();
-                    if (args.equals(lValue)) {
+                if (stmt instanceof DefinitionStmt<?, ?> defStmt) {
+                    LValue lValue = defStmt.getLValue();
+                    if (args.equals(lValue)) { // found definition of args
                         if (argDef == null) {
-                            argDef = stmt;
-                            int length = getArrayLength(stmt);
+                            argDef = defStmt;
+                            int length = getArrayLength(defStmt.getRValue());
                             if (length != -1) { // found args = new Object[length];
                                 argTypes = new Type[length];
                             } else { // args is defined by other ways, give up
@@ -185,6 +189,7 @@ class TypeMatcher {
                             }
                         } else { // found multiple definitions of args, give up
                             argTypes = null;
+                            break;
                         }
                     }
                 }
@@ -229,21 +234,25 @@ class TypeMatcher {
                 ? UNKNOWN : new TypeInfo(returnType, argumentTypes);
     }
 
-    private static int getArrayLength(Stmt stmt) {
-        if (stmt instanceof New newStmt &&
-                newStmt.getRValue() instanceof NewArray newArray) {
+    /**
+     * Given a {@link RValue}, computes the length of the array it corresponds to.
+     * @return the array length, or -1 if {@code rValue} does not correspond to
+     * an analyzable array.
+     */
+    private static int getArrayLength(RValue rValue) {
+        if (rValue instanceof NewArray newArray) {
             Var length = newArray.getLength();
             if (length.isConst()
                     && length.getConstValue() instanceof IntLiteral intLiteral) {
-                // args = new Object[length];
+                // args = new Object[const];
                 return intLiteral.getValue();
             }
         }
-        if (stmt instanceof AssignLiteral) {
+        if (rValue instanceof NullLiteral) {
             // args = null;
             return 0;
         }
-        if (stmt instanceof Cast cast && cast.getRValue().getValue().isConst()) {
+        if (rValue instanceof CastExp castExp && castExp.getValue().isConst()) {
             // args = (Object[]) null;
             return 0;
         }

@@ -34,6 +34,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Var;
@@ -42,6 +43,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -49,6 +51,7 @@ import pascal.taie.util.collection.MultiMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
@@ -71,6 +74,8 @@ public class SolarModel extends InferenceModel {
      */
     private static final boolean ONLY_APP = true;
 
+    private final TypeMatcher typeMatcher;
+
     private final ClassType object;
 
     /**
@@ -78,8 +83,10 @@ public class SolarModel extends InferenceModel {
      */
     private final MultiMap<Var, ClassType> casts = Maps.newMultiMap();
 
-    SolarModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
+    SolarModel(Solver solver, MetaObjHelper helper,
+               TypeMatcher typeMatcher, Set<Invoke> invokesWithLog) {
         super(solver, helper, invokesWithLog);
+        this.typeMatcher = typeMatcher;
         object = typeSystem.getClassType(ClassNames.OBJECT);
     }
 
@@ -88,6 +95,7 @@ public class SolarModel extends InferenceModel {
                 (ONLY_APP && !invoke.getContainer().isApplication());
     }
 
+    // ---------- Implementation of rules for propagation (starts) ----------
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", argIndexes = {0})
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", argIndexes = {0})
     public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
@@ -172,7 +180,37 @@ public class SolarModel extends InferenceModel {
             });
         }
     }
+    // ---------- Implementation of rules for propagation (ends) ----------
 
+    // ---------- Implementation of rules for collective inference (starts) ----------
+    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", argIndexes = {BASE})
+    public void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (isIgnored(invoke) || !typeMatcher.hasTypeInfo(invoke)) {
+            return;
+        }
+        Context context = csVar.getContext();
+        Var m = InvokeUtils.getVar(invoke, BASE); // m.invoke(o, args);
+        pts.forEach(obj -> {
+            if (helper.isUnknownMetaObj(obj)) {
+                MethodInfo methodInfo = helper.getMethodInfo(obj);
+                JClass clazz = methodInfo.clazz();
+                if (clazz != null && (!ONLY_APP || clazz.isApplication())) {
+                    Stream<JMethod> targets;
+                    if (methodInfo.isFromGetMethod()) {
+                        targets = Reflections.getMethods(clazz);
+                    } else {
+                        targets = Reflections.getDeclaredMethods(clazz);
+                    }
+                    targets.filter(target -> !typeMatcher.isUnmatched(invoke, target))
+                            .map(helper::getMetaObj)
+                            .forEach(mtdObj -> solver.addVarPointsTo(context, m, mtdObj));
+                }
+            }
+        });
+    }
+    // ---------- Implementation of rules for collective inference (ends) ----------
+
+    // ---------- Implementation of rules for lazy heap modeling (starts) ----------
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", argIndexes = {BASE})
     public void classNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (isIgnored(invoke)) {
@@ -235,4 +273,8 @@ public class SolarModel extends InferenceModel {
             });
         }
     }
+    // ---------- Implementation of rules for lazy heap modeling (ends) ----------
+
+    // ---------- Implementation of annotation guidance (starts) ----------
+    // ---------- Implementation of annotation guidance (ends) ----------
 }

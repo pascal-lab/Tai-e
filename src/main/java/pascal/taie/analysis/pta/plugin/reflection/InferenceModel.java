@@ -80,7 +80,7 @@ abstract class InferenceModel extends AbstractModel {
                     case "getConstructor" -> Reflections.getConstructors(clazz);
                     case "getDeclaredConstructor" -> Reflections.getDeclaredConstructors(clazz);
                     default -> throw new AnalysisException(
-                            "Expected [getConstructor, getDeclaredConstructor], given" +
+                            "Expected [getConstructor, getDeclaredConstructor], given " +
                                     invoke.getMethodRef());
                 };
                 constructors.map(helper::getMetaObj)
@@ -98,7 +98,7 @@ abstract class InferenceModel extends AbstractModel {
                     case "getMethod" -> Reflections.getMethods(clazz, name);
                     case "getDeclaredMethod" -> Reflections.getDeclaredMethods(clazz, name);
                     default -> throw new AnalysisException(
-                            "Expected [getMethod, getDeclaredMethod], given" +
+                            "Expected [getMethod, getDeclaredMethod], given " +
                                     invoke.getMethodRef());
                 };
                 methods.map(helper::getMetaObj)

@@ -85,7 +85,7 @@ public class ReflectionAnalysis implements Plugin {
         if ("string-constant".equals(reflection)) {
             inferenceModel = new StringBasedModel(solver, helper, invokesWithLog);
         } else if ("solar".equals(reflection)) {
-            inferenceModel = new SolarModel(solver, helper, invokesWithLog);
+            inferenceModel = new SolarModel(solver, helper, typeMatcher, invokesWithLog);
         } else if (reflection == null) {
             inferenceModel = new DummyModel(solver);
         } else {
