@@ -45,6 +45,18 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Collects type information, i.e., (1) cast type on return value from
+ * reflective calls, and (2) declared type of argument assigned to the
+ * argument array (if available), and use them to match return type and
+ * parameter types of the given reflective targets.
+ * This class only supports to match type information for following reflection APIs:
+ * <ul>
+ *     <li>Class.newInstance()</li>
+ *     <li>Constructor.newInstance(Object[])</li>
+ *     <li>Method.invoke(Object,Object[])</li>
+ * </ul>
+ */
 class TypeMatcher {
 
     private record TypeInfo(@Nullable Type returnType, @Nullable List<Type> argumentTypes) {
@@ -114,7 +126,7 @@ class TypeMatcher {
     }
 
     boolean hasTypeInfo(Invoke invoke) {
-        return getTypeInfo(invoke) == UNKNOWN;
+        return getTypeInfo(invoke).argumentTypes() != null;
     }
 
     private TypeInfo getTypeInfo(Invoke invoke) {
@@ -123,13 +135,12 @@ class TypeMatcher {
 
     /**
      * Performs an intra-procedural analysis to compute available
-     * type information for {@code invoke}.
+     * type information for reflective call {@code invoke}.
      */
     private static TypeInfo computeTypeInfo(Invoke invoke) {
         // search cast type on result of invoke
         Var result = invoke.getResult();
         Type returnType = null;
-        int argIndex = argIndexes.get(invoke.getMethodRef().getName());
         List<Stmt> stmts = invoke.getContainer().getIR().getStmts();
         for (int i = invoke.getIndex() + 1; i < stmts.size(); ++i) {
             Stmt stmt = stmts.get(i);
@@ -144,7 +155,12 @@ class TypeMatcher {
                 returnType = cast.getRValue().getCastType();
             }
         }
+        if (invoke.getInvokeExp().getArgCount() == 0) {
+            // no argument, it means that invoke calls Class.newInstance()
+            return new TypeInfo(returnType, List.of());
+        }
         // search definition of args
+        int argIndex = argIndexes.get(invoke.getMethodRef().getName());
         Var args = invoke.getInvokeExp().getArg(argIndex);
         Type[] argTypes = null;
         if (args.isConst()) {

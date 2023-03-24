@@ -74,6 +74,7 @@ public class ReflectionAnalysis implements Plugin {
         csManager = solver.getCSManager();
 
         MetaObjHelper helper = new MetaObjHelper(solver);
+        TypeMatcher typeMatcher = new TypeMatcher(solver.getTypeSystem());
         String logPath = solver.getOptions().getString("reflection-log");
         if (logPath != null) {
             logBasedModel = new LogBasedModel(solver, helper, logPath);
@@ -90,7 +91,8 @@ public class ReflectionAnalysis implements Plugin {
         } else {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
-        reflectiveActionModel = new ReflectiveActionModel(solver, helper, invokesWithLog);
+        reflectiveActionModel = new ReflectiveActionModel(solver, helper,
+                typeMatcher, invokesWithLog);
         classMethodFieldModel = new ClassMethodFieldModel(solver, helper);
         annotationModel = new AnnotationModel(solver, helper);
     }
