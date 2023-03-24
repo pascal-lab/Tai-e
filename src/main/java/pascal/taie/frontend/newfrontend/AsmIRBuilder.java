@@ -116,7 +116,7 @@ public class AsmIRBuilder {
 
     private final VarManager manager;
 
-    private final Map<Exp, AbstractInsnNode> exp2Orig;
+    private final Map<Exp, AbstractInsnNode> exp2origin;
 
     private final Map<AbstractInsnNode, Stmt> asm2Stmt;
 
@@ -127,7 +127,7 @@ public class AsmIRBuilder {
         this.source = source;
         this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions);
         this.asm2Stmt = Maps.newMap();
-        this.exp2Orig = Maps.newMap();
+        this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
     }
 
@@ -217,7 +217,7 @@ public class AsmIRBuilder {
     }
 
     private AbstractInsnNode getOrig(Exp e) {
-        return exp2Orig.get(e);
+        return exp2origin.get(e);
     }
 
     private void assocStmt(AbstractInsnNode node, Stmt stmt) {
@@ -250,9 +250,9 @@ public class AsmIRBuilder {
         // normally, this should only be used to pop a InvokeExp
         Exp e = popExp(stack);
         if (e instanceof InvokeExp invokeExp) {
-            assocStmt(exp2Orig.get(e), new Invoke(method, invokeExp));
+            assocStmt(exp2origin.get(e), new Invoke(method, invokeExp));
         } else if (maySideEffect(e)) {
-            assocStmt(exp2Orig.get(e), getAssignStmt(manager.getTempVar(), e));
+            assocStmt(exp2origin.get(e), getAssignStmt(manager.getTempVar(), e));
         }
     }
 
@@ -295,7 +295,7 @@ public class AsmIRBuilder {
 
     private void pushExp(AbstractInsnNode node, Stack<Exp> stack, Exp e) {
         assert ! (e instanceof Top);
-        exp2Orig.put(e, node);
+        exp2origin.put(e, node);
         ensureStackSafety(stack, this::maySideEffect);
         stack.push(e);
         if (isDword(node, e)) {
@@ -1006,14 +1006,12 @@ public class AsmIRBuilder {
     }
 
     private LabelNode createNewLabel(AbstractInsnNode next) {
-        LabelNode node = new LabelNode() {
+        return new LabelNode() {
             @Override
             public AbstractInsnNode getNext() {
                 return next;
             }
         };
-
-        return node;
     }
 
     private List<BytecodeBlock> getLinearBBList() {
@@ -1054,7 +1052,7 @@ public class AsmIRBuilder {
             Set<BytecodeBlock> visited = new HashSet<>();
             Queue<BytecodeBlock> workList = new LinkedList<>();
             workList.offer(entry);
-            source.tryCatchBlocks.stream().forEach(i -> workList.offer(label2Block.get(i.handler)));
+            source.tryCatchBlocks.forEach(i -> workList.offer(label2Block.get(i.handler)));
             while (workList.peek() != null) {
                 BytecodeBlock bb = workList.poll();
                 visited.add(bb);

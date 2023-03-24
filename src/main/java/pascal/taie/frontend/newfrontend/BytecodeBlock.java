@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Stack;
 
 public final class BytecodeBlock {
-    private final LabelNode start;
+    private final LabelNode label;
     private final List<AbstractInsnNode> instr;
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
@@ -30,12 +30,12 @@ public final class BytecodeBlock {
 
     private final boolean isCatch;
 
-    public BytecodeBlock(LabelNode start,  @Nullable BytecodeBlock fallThrough) {
-        this(start, fallThrough, false);
+    public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
+        this(label, fallThrough, false);
     }
 
-    public BytecodeBlock(LabelNode start, @Nullable BytecodeBlock fallThrough, boolean isCatch) {
-        this.start = start;
+    public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough, boolean isCatch) {
+        this.label = label;
         this.instr = new ArrayList<>();
         this.inEdges = new ArrayList<>();
         this.outEdges = new ArrayList<>();
@@ -44,8 +44,8 @@ public final class BytecodeBlock {
         this.isCatch = isCatch;
     }
 
-    public LabelNode start() {
-        return start;
+    public LabelNode label() {
+        return label;
     }
 
     public List<AbstractInsnNode> instr() {
@@ -126,7 +126,7 @@ public final class BytecodeBlock {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (BytecodeBlock) obj;
-        return Objects.equals(this.start, that.start) &&
+        return Objects.equals(this.label, that.label) &&
                 Objects.equals(this.instr, that.instr) &&
                 Objects.equals(this.inEdges, that.inEdges) &&
                 Objects.equals(this.outEdges, that.outEdges) &&
