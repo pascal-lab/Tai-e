@@ -195,6 +195,7 @@ public class SolarModel extends InferenceModel {
                 MethodInfo methodInfo = helper.getMethodInfo(obj);
                 JClass clazz = methodInfo.clazz();
                 if (clazz != null && (!ONLY_APP || clazz.isApplication())) {
+                    // infer m^t_s from m^t_u (obj) with type information at invoke
                     Stream<JMethod> targets;
                     if (methodInfo.isFromGetMethod()) {
                         targets = Reflections.getMethods(clazz);

@@ -41,8 +41,24 @@ public class ReflectionTest {
                 "reflection-log:src/test/resources/pta/reflection/ReflectiveAction.log");
     }
 
+    // Test cases for Solar
     @Test
     public void testLazyHeapModeling() {
         Tests.testPTA(DIR, "LazyHeapModeling", "reflection-inference:solar");
+    }
+
+    @Test
+    public void testArgsRefine() {
+        Tests.testPTA(DIR, "ArgsRefine", "reflection-inference:solar");
+    }
+
+    @Test
+    public void testGetMethods() {
+        Tests.testPTA(DIR, "GetMethods", "reflection-inference:solar");
+    }
+
+    @Test
+    public void testUnknownMethodName() {
+        Tests.testPTA(DIR, "UnknownMethodName", "reflection-inference:solar");
     }
 }
