@@ -1018,6 +1018,9 @@ public class AsmIRBuilder {
         BytecodeBlock entry = label2Block.get(this.entry);
         Set<BytecodeBlock> hasInStack = new HashSet<>();
         hasInStack.add(entry);
+        hasInStack.addAll(
+                label2Block.values().stream().filter(BytecodeBlock::isCatch).toList()
+        );
 
         List<BytecodeBlock> bytecodeBlockList =
                 label2Block.keySet().stream()
@@ -1034,6 +1037,7 @@ public class AsmIRBuilder {
         }
 
         assert hasInStack.containsAll(bytecodeBlockList); // This assertion should be satisfied at most times. Remove when released.
+        assert new HashSet<>(bytecodeBlockList).containsAll(hasInStack); // This assertion should be satisfied at most times. Remove when released.
 
         return bytecodeBlockList;
     }
@@ -1043,7 +1047,7 @@ public class AsmIRBuilder {
         entry.setInStack(new Stack<>());
 
         List<BytecodeBlock> bytecodeBlockList = getLinearBBList();
-        // assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
+        assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
         if (bytecodeBlockList != null) {
             for (var bb : bytecodeBlockList) {
                 buildBlockStmt(bb);
