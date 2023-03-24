@@ -79,16 +79,6 @@ public class ReflectiveActionModel extends AbstractModel {
 
     private final Subsignature initNoArg;
 
-    /**
-     * Constructor.newInstance(Object[])
-     */
-    private final JMethod constructorNewInstance;
-
-    /**
-     * Method.invoke(Object,Object[])
-     */
-    private final JMethod methodInvoke;
-
     private final MetaObjHelper helper;
 
     private final TypeMatcher typeMatcher;
@@ -102,8 +92,6 @@ public class ReflectiveActionModel extends AbstractModel {
                           TypeMatcher typeMatcher, Set<Invoke> invokesWithLog) {
         super(solver);
         initNoArg = Subsignature.getNoArgInit();
-        constructorNewInstance = hierarchy.getMethod("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>");
-        methodInvoke = hierarchy.getMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>");
         this.helper = helper;
         this.typeMatcher = typeMatcher;
         this.invokesWithLog = invokesWithLog;

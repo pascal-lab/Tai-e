@@ -184,4 +184,11 @@ public class ReflectionAnalysis implements Plugin {
     private static boolean isConcerned(Type type) {
         return type instanceof ClassType || type instanceof ArrayType;
     }
+
+    @Override
+    public void onFinish() {
+        if (inferenceModel instanceof SolarModel solar) {
+            solar.reportAnnotationGuidance();
+        }
+    }
 }
