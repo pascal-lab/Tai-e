@@ -40,12 +40,18 @@ record ParamSourcePoint(JMethod sourceMethod, int index) implements SourcePoint 
     public int compareTo(@Nonnull SourcePoint sp) {
         if (sp instanceof ParamSourcePoint psp) {
             return COMPARATOR.compare(this, psp);
-        } else if (sp instanceof CallSourcePoint csp) {
-            return -SourcePoint.compare(csp, this);
-        } else {
-            throw new IllegalArgumentException(
-                    "ParamSourcePoint cannot compare to " + sp);
         }
+        return SourcePoint.compare(this, sp);
+    }
+
+    @Override
+    public JMethod getContainer() {
+        return sourceMethod;
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
     }
 
     @Override

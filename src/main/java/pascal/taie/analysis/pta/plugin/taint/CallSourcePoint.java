@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.JMethod;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -40,16 +41,23 @@ record CallSourcePoint(Invoke sourceCall, int index) implements SourcePoint {
     public int compareTo(@Nonnull SourcePoint sp) {
         if (sp instanceof CallSourcePoint csp) {
             return COMPARATOR.compare(this, csp);
-        } else if (sp instanceof ParamSourcePoint psp) {
-            return SourcePoint.compare(this, psp);
-        } else {
-            throw new IllegalArgumentException(
-                    "ResultSourcePoint cannot compare to " + sp);
         }
+        return SourcePoint.compare(this, sp);
+    }
+
+    @Override
+    public JMethod getContainer() {
+        return sourceCall.getContainer();
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
     }
 
     @Override
     public String toString() {
         return sourceCall.toString() + "/" + IndexUtils.toString(index);
     }
+
 }
