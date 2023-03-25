@@ -103,7 +103,7 @@ public interface MultiMap<K, V> {
      *
      * @return {@code true} if the multimap changed
      */
-    boolean putAll(@Nonnull MultiMap<K, V> multiMap);
+    boolean putAll(@Nonnull MultiMap<? extends K, ? extends V> multiMap);
 
     /**
      * Removes a single key-value pair with the key {@code key} and the value

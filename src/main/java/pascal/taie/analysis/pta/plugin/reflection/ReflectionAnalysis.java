@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
@@ -33,6 +35,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.Model;
+import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -40,16 +43,22 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.MapEntry;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.Set;
 
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 
 public class ReflectionAnalysis implements Plugin {
+
+    private static final Logger logger = LogManager.getLogger(ReflectionAnalysis.class);
+
+    private static final int IMPRECISE_THRESHOLD = 50;
 
     private Solver solver;
 
@@ -60,7 +69,7 @@ public class ReflectionAnalysis implements Plugin {
     @Nullable
     private LogBasedModel logBasedModel;
 
-    private Model reflectiveActionModel;
+    private ReflectiveActionModel reflectiveActionModel;
 
     private Model classMethodFieldModel;
 
@@ -188,7 +197,49 @@ public class ReflectionAnalysis implements Plugin {
     @Override
     public void onFinish() {
         if (inferenceModel instanceof SolarModel solar) {
-            solar.reportAnnotationGuidance();
+            solar.reportUnsoundCalls();
         }
+        reportImpreciseCalls();
+    }
+
+    /**
+     * Report that may be resolved imprecisely.
+     */
+    private void reportImpreciseCalls() {
+        MultiMap<Invoke, Object> allTargets = collectAllTargets();
+        Set<Invoke> invokesWithLog = logBasedModel != null
+                ? logBasedModel.getInvokesWithLog() : Set.of();
+        var impreciseCalls = allTargets.keySet()
+                .stream()
+                .map(invoke -> new MapEntry<>(invoke, allTargets.get(invoke)))
+                .filter(e -> !invokesWithLog.contains(e.getKey()))
+                .filter(e -> e.getValue().size() > IMPRECISE_THRESHOLD)
+                .toList();
+        if (!impreciseCalls.isEmpty()) {
+            logger.info("Imprecise reflective calls:");
+            impreciseCalls.stream()
+                    .sorted(Comparator.comparingInt(
+                            (MapEntry<Invoke, Set<Object>> e) -> -e.getValue().size())
+                            .thenComparing(MapEntry::getKey))
+                    .forEach(e -> {
+                        Invoke invoke = e.getKey();
+                        String shortName = Reflections.getShortName(invoke);
+                        logger.info("[{}]{}, #targets: {}",
+                                shortName, invoke, e.getValue().size());
+                    });
+        }
+    }
+
+    /**
+     * Collects all reflective targets resolved by reflection analysis.
+     */
+    private MultiMap<Invoke, Object> collectAllTargets() {
+        MultiMap<Invoke, Object> allTargets = Maps.newMultiMap();
+        if (logBasedModel != null) {
+            allTargets.putAll(logBasedModel.getForNameTargets());
+        }
+        allTargets.putAll(inferenceModel.getForNameTargets());
+        allTargets.putAll(reflectiveActionModel.getAllTargets());
+        return allTargets;
     }
 }

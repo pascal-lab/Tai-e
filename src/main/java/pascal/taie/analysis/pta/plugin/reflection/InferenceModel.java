@@ -33,6 +33,8 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -50,6 +52,8 @@ abstract class InferenceModel extends AbstractModel {
 
     protected final Set<Invoke> invokesWithLog;
 
+    private final MultiMap<Invoke, JClass> forNameTargets = Maps.newMultiMap();
+
     InferenceModel(Solver solver, MetaObjHelper helper, Set<Invoke> invokesWithLog) {
         super(solver);
         this.helper = helper;
@@ -64,11 +68,16 @@ abstract class InferenceModel extends AbstractModel {
                 solver.initializeClass(clazz);
                 Var result = forName.getResult();
                 if (result != null) {
-                    Obj clsObj = helper.getMetaObj(clazz);
-                    solver.addVarPointsTo(context, result, clsObj);
+                    Obj classObj = helper.getMetaObj(clazz);
+                    solver.addVarPointsTo(context, result, classObj);
+                    forNameTargets.put(forName, clazz);
                 }
             }
         }
+    }
+
+    MultiMap<Invoke, JClass> getForNameTargets() {
+        return forNameTargets;
     }
 
     protected void classGetConstructorKnown(

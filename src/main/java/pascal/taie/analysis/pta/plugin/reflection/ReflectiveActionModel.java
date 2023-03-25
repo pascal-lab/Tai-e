@@ -47,6 +47,8 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -59,8 +61,6 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 /**
  * Models reflective-action methods, currently supports
  * <ul>
- *     <li>Class.forName(String)
- *     <li>Class.forName(String,boolean,ClassLoader)
  *     <li>Class.newInstance()
  *     <li>Constructor.newInstance(Object[])
  *     <li>Method.invoke(Object,Object[])
@@ -87,6 +87,11 @@ public class ReflectiveActionModel extends AbstractModel {
      * Set of invocations that are annotated by the reflection log.
      */
     private final Set<Invoke> invokesWithLog;
+
+    /**
+     * Records all reflective targets resolved by reflection analysis.
+     */
+    private final MultiMap<Invoke, Object> allTargets = Maps.newMultiMap();
 
     ReflectiveActionModel(Solver solver, MetaObjHelper helper,
                           TypeMatcher typeMatcher, Set<Invoke> invokesWithLog) {
@@ -192,6 +197,7 @@ public class ReflectiveActionModel extends AbstractModel {
         ReflectiveCallEdge callEdge = new ReflectiveCallEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), args);
         solver.addCallEdge(callEdge);
+        allTargets.put(callSite, callee); // record target
     }
 
     @InvokeHandler(signature = "<java.lang.reflect.Field: java.lang.Object get(java.lang.Object)>", argIndexes = {BASE, 0})
@@ -221,6 +227,7 @@ public class ReflectiveActionModel extends AbstractModel {
                         if (typeSystem.isSubtype(declType, objType)) {
                             InstanceField ifield = csManager.getInstanceField(baseObj, field);
                             solver.addPFGEdge(ifield, to, FlowKind.INSTANCE_LOAD);
+                            allTargets.put(invoke, field); // record target
                         }
                     });
                 }
@@ -251,6 +258,7 @@ public class ReflectiveActionModel extends AbstractModel {
                         if (typeSystem.isSubtype(declType, objType)) {
                             InstanceField ifield = csManager.getInstanceField(baseObj, field);
                             solver.addPFGEdge(from, ifield, INSTANCE_STORE, ifield.getType());
+                            allTargets.put(invoke, field); // record target
                         }
                     });
                 }
@@ -274,6 +282,7 @@ public class ReflectiveActionModel extends AbstractModel {
                 ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
                 CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
                 solver.addVarPointsTo(context, result, csNewArray);
+                allTargets.put(invoke, arrayType);
             }
         });
     }
@@ -285,5 +294,9 @@ public class ReflectiveActionModel extends AbstractModel {
      */
     private boolean isInvalidTarget(Invoke invoke, CSObj metaObj) {
         return invokesWithLog.contains(invoke) && !helper.isLogMetaObj(metaObj);
+    }
+
+    MultiMap<Invoke, Object> getAllTargets() {
+        return allTargets;
     }
 }

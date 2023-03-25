@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.util;
 
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -96,5 +98,12 @@ public final class Reflections {
             jclass = jclass.getSuperClass();
         }
         return methods.stream();
+    }
+
+    public static String getShortName(Invoke invoke) {
+        MethodRef ref = invoke.getMethodRef();
+        String className = ref.getDeclaringClass().getSimpleName();
+        String methodName = ref.getName();
+        return className + "." + methodName;
     }
 }

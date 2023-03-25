@@ -26,8 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.SolverHolder;
@@ -212,6 +210,10 @@ class LogBasedModel extends SolverHolder {
         return Collections.unmodifiableSet(loggedInvokes);
     }
 
+    MultiMap<Invoke, JClass> getForNameTargets() {
+        return forNameTargets;
+    }
+
     void handleNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         if (relevantMethods.contains(method)) {
@@ -233,8 +235,7 @@ class LogBasedModel extends SolverHolder {
             forNameTargets.get(invoke).forEach(target -> {
                 solver.initializeClass(target);
                 if (result != null) {
-                    solver.addVarPointsTo(context, result,
-                            toCSObj(csMethod, target));
+                    solver.addVarPointsTo(context, result, helper.getLogMetaObj(target));
                 }
             });
         }
@@ -246,18 +247,7 @@ class LogBasedModel extends SolverHolder {
             Context context = csMethod.getContext();
             Var var = InvokeUtils.getVar(invoke, index);
             targetMap.get(invoke).forEach(target ->
-                    solver.addVarPointsTo(context, var, toCSObj(csMethod, target)));
+                    solver.addVarPointsTo(context, var, helper.getLogMetaObj(target)));
         }
-    }
-
-    private CSObj toCSObj(CSMethod csMethod, Object target) {
-        Obj obj;
-        if (target instanceof ClassType type) { // Array.newInstance(target, ...)
-            obj = helper.getLogMetaObj(type);
-        } else {
-            obj = helper.getLogMetaObj(target);
-        }
-        Context hctx = selector.selectHeapContext(csMethod, obj);
-        return csManager.getCSObj(hctx, obj);
     }
 }

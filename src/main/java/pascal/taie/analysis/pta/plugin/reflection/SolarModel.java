@@ -41,7 +41,6 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
@@ -195,28 +194,57 @@ public class SolarModel extends InferenceModel {
     // ---------- Implementation of rules for propagation (ends) ----------
 
     // ---------- Implementation of rules for collective inference (starts) ----------
-    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", argIndexes = {BASE})
+    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", argIndexes = {BASE, 0})
     public void methodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        if (isIgnored(invoke) || !typeMatcher.hasTypeInfo(invoke)) {
+        if (isIgnored(invoke)) {
             return;
         }
-        Context context = csVar.getContext();
-        Var m = InvokeUtils.getVar(invoke, BASE); // m.invoke(o, args);
-        pts.forEach(obj -> {
-            if (helper.isUnknownMetaObj(obj)) {
-                MethodInfo methodInfo = helper.getMethodInfo(obj);
-                JClass clazz = methodInfo.clazz();
-                if (clazz != null && (!ONLY_APP || clazz.isApplication())) {
-                    // infer m^t_s from m^t_u (obj) with type information at invoke
-                    Stream<JMethod> targets = methodInfo.isFromGetMethod()
-                            ? Reflections.getMethods(clazz)
-                            : Reflections.getDeclaredMethods(clazz);
-                    targets.filter(target -> !typeMatcher.isUnmatched(invoke, target))
-                            .map(helper::getMetaObj)
-                            .forEach(mtdObj -> solver.addVarPointsTo(context, m, mtdObj));
+        List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
+        PointsToSet mtdObjs = args.get(0);
+        // infer m^t_s from m^t_u (obj) with type information at invoke
+        if (typeMatcher.hasTypeInfo(invoke)) {
+            Context context = csVar.getContext();
+            Var m = InvokeUtils.getVar(invoke, BASE); // m.invoke(o, args);
+            mtdObjs.forEach(obj -> {
+                if (helper.isUnknownMetaObj(obj)) {
+                    MethodInfo methodInfo = helper.getMethodInfo(obj);
+                    JClass clazz = methodInfo.clazz();
+                    if (clazz != null && (!ONLY_APP || clazz.isApplication())) {
+                        // class is known in methodInfo
+                        Stream<JMethod> targets = methodInfo.isFromGetMethod()
+                                ? Reflections.getMethods(clazz)
+                                : Reflections.getDeclaredMethods(clazz);
+                        targets.filter(target -> !typeMatcher.isUnmatched(invoke, target))
+                                .map(helper::getMetaObj)
+                                .forEach(mtdObj -> solver.addVarPointsTo(context, m, mtdObj));
+                    }
+                }
+            });
+        }
+        // collect unsound Method.invoke() call
+        if (!unsoundInvokes.contains(invoke)) {
+            PointsToSet recvObjs = args.get(1);
+            Var o = InvokeUtils.getVar(invoke, 0);
+            boolean oIsNull = o.isConst() && o.getConstValue() instanceof NullLiteral;
+            for (CSObj mtdObj : mtdObjs) {
+                if (helper.isUnknownMetaObj(mtdObj)) {
+                    MethodInfo methodInfo = helper.getMethodInfo(mtdObj);
+                    if (methodInfo.isClassUnknown()) {
+                        if (oIsNull) {
+                            unsoundInvokes.add(invoke);
+                            return;
+                        }
+                        for (CSObj recvObj : recvObjs) {
+                            if (recvObj.getObject() instanceof MockObj mockObj &&
+                                    mockObj.getDescriptor().equals(UNKNOWN_DESC)) {
+                                unsoundInvokes.add(invoke);
+                                return;
+                            }
+                        }
+                    }
                 }
             }
-        });
+        }
     }
     // ---------- Implementation of rules for collective inference (ends) ----------
 
@@ -286,38 +314,6 @@ public class SolarModel extends InferenceModel {
     // ---------- Implementation of rules for lazy heap modeling (ends) ----------
 
     // ---------- Implementation of annotation guidance (starts) ----------
-    @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", argIndexes = {BASE, 0})
-    public void collectUnsoundMethodInvoke(CSVar csVar, PointsToSet pts, Invoke invoke) {
-        if (isIgnored(invoke) || unsoundInvokes.contains(invoke)) {
-            return;
-        }
-        // m.invoke(o, args) is sound when m points to m^u_* and
-        // o is null or o points to o^u
-        List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
-        PointsToSet mtdObjs = args.get(0);
-        PointsToSet recvObjs = args.get(1);
-        Var o = InvokeUtils.getVar(invoke, 0);
-        boolean oIsNull = o.isConst() && o.getConstValue() instanceof NullLiteral;
-        for (CSObj mtdObj : mtdObjs) {
-            if (helper.isUnknownMetaObj(mtdObj)) {
-                MethodInfo methodInfo = helper.getMethodInfo(mtdObj);
-                if (methodInfo.isClassUnknown()) {
-                    if (oIsNull) {
-                        unsoundInvokes.add(invoke);
-                        return;
-                    }
-                    for (CSObj recvObj : recvObjs) {
-                        if (recvObj.getObject() instanceof MockObj mockObj &&
-                                mockObj.getDescriptor().equals(UNKNOWN_DESC)) {
-                            unsoundInvokes.add(invoke);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", argIndexes = {0})
     public void collectUnsoundArrayNewInstance(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (isIgnored(invoke) || unsoundInvokes.contains(invoke)) {
@@ -331,15 +327,14 @@ public class SolarModel extends InferenceModel {
         }
     }
 
-    void reportAnnotationGuidance() {
+    /**
+     * Reports reflective calls that may be resolved unsoundly.
+     */
+    void reportUnsoundCalls() {
         if (!unsoundInvokes.isEmpty()) {
             logger.info("Unsound reflective calls:");
-            unsoundInvokes.forEach(invoke -> {
-                MethodRef ref = invoke.getMethodRef();
-                String className = ref.getDeclaringClass().getSimpleName();
-                String methodName = ref.getName();
-                logger.info("[{}.{}]{}", className, methodName, invoke);
-            });
+            unsoundInvokes.forEach(invoke ->
+                    logger.info("[{}]{}", Reflections.getShortName(invoke), invoke));
         }
     }
     // ---------- Implementation of annotation guidance (ends) ----------

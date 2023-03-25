@@ -333,7 +333,6 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E> {
             return a;
         }
         if (set != null) {
-            //noinspection SuspiciousToArrayCall
             return set.toArray(a);
         }
         Arrays.fill(a, null);
