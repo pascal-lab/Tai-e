@@ -56,7 +56,7 @@ public abstract class AbstractModel extends SolverHolder implements Model {
             = Maps.newMultiMap(Maps.newHybridMap());
 
     protected final Map<JMethod, TriConsumer<CSVar, PointsToSet, Invoke>> handlers
-            = Maps.newHybridMap();
+            = Maps.newMap();
 
     protected AbstractModel(Solver solver) {
         super(solver);
@@ -121,6 +121,10 @@ public abstract class AbstractModel extends SolverHolder implements Model {
 
     protected void registerAPIHandler(
             JMethod api, TriConsumer<CSVar, PointsToSet, Invoke> handler) {
+        if (handlers.containsKey(api)) {
+            throw new RuntimeException(this + " registers multiple handlers for " +
+                    api + " (in a Model, at most one handler can be registered for a method)");
+        }
         handlers.put(api, handler);
     }
 

@@ -51,7 +51,7 @@ public abstract class AbstractIRModel extends SolverHolder implements IRModel {
     private final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
     protected final Map<JMethod, Function<Invoke, Collection<Stmt>>> handlers
-            = Maps.newHybridMap();
+            = Maps.newMap();
 
     protected final Map<JMethod, Collection<Stmt>> method2GenStmts
             = Maps.newHybridMap();
@@ -113,6 +113,10 @@ public abstract class AbstractIRModel extends SolverHolder implements IRModel {
     }
 
     protected void registerHandler(JMethod api, Function<Invoke, Collection<Stmt>> handler) {
+        if (handlers.containsKey(api)) {
+            throw new RuntimeException(this + " registers multiple handlers for " +
+                    api + " (in an IRModel, at most one handler can be registered for a method)");
+        }
         handlers.put(api, handler);
     }
 
@@ -126,9 +130,11 @@ public abstract class AbstractIRModel extends SolverHolder implements IRModel {
         List<Stmt> stmts = new ArrayList<>();
         method.getIR().invokes(false).forEach(invoke -> {
             JMethod target = invoke.getMethodRef().resolveNullable();
-            var handler = handlers.get(target);
-            if (handler != null) {
-                stmts.addAll(handler.apply(invoke));
+            if (target != null) {
+                var handler = handlers.get(target);
+                if (handler != null) {
+                    stmts.addAll(handler.apply(invoke));
+                }
             }
         });
         if (!stmts.isEmpty()) {
