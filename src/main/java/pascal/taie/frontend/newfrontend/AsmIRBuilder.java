@@ -125,6 +125,7 @@ public class AsmIRBuilder {
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
         this.source = source;
+        assert source.parameters == null;
         this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions);
         this.asm2Stmt = Maps.newMap();
         this.exp2origin = Maps.newMap();
