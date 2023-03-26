@@ -316,6 +316,7 @@ public class AsmIRBuilder {
 
     public void buildIR() {
         traverseBlocks();
+        setLineNumber();
         List<Stmt> stmts = getStmts();
         Var thisVar = manager.getThisVar();
         List<Var> params = manager.getParams();
@@ -1143,6 +1144,26 @@ public class AsmIRBuilder {
                     if (!visited.contains(succ)) {
                         workList.offer(succ);
                     }
+                }
+            }
+        }
+    }
+
+    private void setLineNumber() {
+        int currentLineNumber = -1;
+        for (var insnNode : source.instructions) {
+            if (!(insnNode instanceof LabelNode)) {
+                if (insnNode instanceof LineNumberNode l) {
+                    currentLineNumber = l.line;
+                } else {
+                    assert currentLineNumber != -1
+                            : "Violating our assumption: before the first node associating a stmt must be a LineNumberNode";
+                    var stmt = asm2Stmt.get(insnNode);
+                    if (stmt != null) {
+                        stmt.setLineNumber(currentLineNumber);
+                    }
+
+                    // TODO: set lineNumber for stmt lists in the node (i.e. auxiliary stmts).
                 }
             }
         }
