@@ -955,6 +955,8 @@ public class AsmIRBuilder {
             });
             bb.setComplete();
         }
+
+        bridgeWronglySeparatedBlocks();
     }
 
     private BytecodeBlock getBlock(LabelNode label) {
@@ -1012,6 +1014,79 @@ public class AsmIRBuilder {
                 return next;
             }
         };
+    }
+
+    private final Set<LabelNode> ignoredLabels = new HashSet<>();
+    /**
+     * Bridge the blocks that a wrongly separated by regarding every LabelNode as an entry of a block.
+     * We regard these pairs to be bridged: {(pred, succ) | pred.outEdges = {succ} && succ.inEdges = {pred}} 
+     * Processes:
+     * 1. concat the 2 blocks;
+     * 2. delete the entry for the successor in the label2Block map.
+     */
+    private void bridgeWronglySeparatedBlocks() {
+        BytecodeBlock entry = label2Block.get(this.entry);
+        Set<BytecodeBlock> visited = new HashSet<>();
+
+        /*
+        Temporary solution:
+        Blocks associating the labels that is the start of a try block should be ignored in concatenating process.
+        Collect those labels now for later query.
+         */
+        for (TryCatchBlockNode node : source.tryCatchBlocks) {
+            ignoredLabels.add(node.start);
+            ignoredLabels.add(node.end);
+            ignoredLabels.add(node.handler);
+        }
+
+        dfsConcatenateBlocks(entry, visited);
+    }
+
+    private void dfsConcatenateBlocks(BytecodeBlock bb, Set<BytecodeBlock> visitedSet) {
+        boolean bridgeable = true;
+        while (bridgeable) {
+            bridgeable = concatenateSuccIfPossible(bb);
+        }
+
+        visitedSet.add(bb);
+
+        // bb.setComplete();
+
+        for (var succ : bb.outEdges()) {
+            if (!visitedSet.contains(succ)) {
+                dfsConcatenateBlocks(succ, visitedSet);
+            }
+        }
+    }
+
+    /**
+     * Concatenate the successor.
+     */
+    private boolean concatenateSuccIfPossible(BytecodeBlock pred) {
+        assert !pred.isCatch();
+        if (pred.outEdges().size() != 1) return false;
+        
+        var succ = pred.outEdges().get(0);
+        assert !succ.isCatch();
+        if (succ.inEdges().size() != 1) return false;
+
+        if (ignoredLabels.contains(succ.label())) return false;
+
+        // Main concatenating process:
+        pred.instr().addAll(succ.instr());
+        pred.outEdges().clear();
+        pred.outEdges().addAll(succ.outEdges());
+        for (var succSucc : succ.outEdges()) {
+            boolean b = succSucc.inEdges().remove(succ);
+            assert b; // Maybe redundant.
+            succSucc.inEdges().add(pred);
+        }
+        pred.setFallThrough(succ.fallThrough());
+
+        // Remove the succ from label2Block.
+        label2Block.remove(succ.label());
+
+        return true;
     }
 
     private List<BytecodeBlock> getLinearBBList() {
