@@ -63,6 +63,7 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
@@ -158,6 +159,8 @@ public class AsmIRBuilder {
                 return new New(method, v, newExp);
             } else if (e instanceof ArrayAccess access) {
                 return new LoadArray(v, access);
+            } else if (e instanceof InstanceOfExp instanceOfExp) {
+                return new InstanceOf(v, instanceOfExp);
             }
             else {
                 throw new NotImplementedException();
