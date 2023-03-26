@@ -32,6 +32,7 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
@@ -65,6 +66,7 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -759,6 +761,12 @@ public class AsmIRBuilder {
                     pushExp(node, nowStack, popExp(nowStack));
                 } else if (opcode == Opcodes.ATHROW) {
                     throwException(insnNode, nowStack);
+                } else if (opcode == Opcodes.MONITORENTER) {
+                    Var obj = popVar(nowStack);
+                    assocStmt(node, new Monitor(Monitor.Op.ENTER, obj));
+                } else if (opcode == Opcodes.MONITOREXIT) {
+                    Var obj = popVar(nowStack);
+                    assocStmt(node, new Monitor(Monitor.Op.EXIT, obj));
                 } else if (isBinaryInsn(opcode)) {
                     pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
                 } else if (isReturnInsn(opcode)) {
@@ -799,6 +807,9 @@ public class AsmIRBuilder {
                 } else if (opcode == Opcodes.ANEWARRAY) {
                     Var length = popVar(nowStack);
                     pushExp(node, nowStack, new NewArray((ArrayType) type, length));
+                } else if (opcode == Opcodes.INSTANCEOF) {
+                    Var obj = popVar(nowStack);
+                    pushExp(node, nowStack, new InstanceOfExp(obj, type));
                 }
             } else if (node instanceof IntInsnNode intNode) {
                 int opcode = intNode.getOpcode();
