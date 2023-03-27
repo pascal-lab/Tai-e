@@ -347,8 +347,8 @@ public class AsmIRBuilder {
             }
         }
 
-        if (auxiliaryStmts.containsKey(block)) {
-            return auxiliaryStmts.get(block).get(0);
+        if (auxiliaryStmts.containsKey(block.getLastBytecode())) {
+            return auxiliaryStmts.get(block.getLastBytecode()).get(0);
         }
 
         throw new IllegalStateException();
@@ -482,7 +482,7 @@ public class AsmIRBuilder {
         if (opcode == Opcodes.ACONST_NULL) {
             return NullLiteral.get();
         } else if (inRange(opcode, Opcodes.ICONST_M1, Opcodes.ICONST_5)) {
-            return IntLiteral.get(opcode - Opcodes.ICONST_M1 + -1);
+            return IntLiteral.get(opcode - Opcodes.ICONST_M1 - 1);
         } else if (inRange(opcode, Opcodes.FCONST_0, Opcodes.FCONST_2)) {
             return FloatLiteral.get(opcode - Opcodes.FCONST_0 + 0.0f);
         } else if (inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1)) {
@@ -665,9 +665,6 @@ public class AsmIRBuilder {
             manager.addReturnVar(v);
             assocStmt(node, new Return(v));
         }
-    }
-
-    private void incVar(int slot, int c) {
     }
 
     private void throwException(InsnNode node, Stack<Exp> stack) {
@@ -882,7 +879,10 @@ public class AsmIRBuilder {
 
                 pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
             } else if (node instanceof IincInsnNode inc) {
-
+                pushConst(node, nowStack, IntLiteral.get(inc.incr));
+                Var cst = popVar(nowStack);
+                Var v = manager.getLocal(inc.var, node);
+                auxiliaryStmts.put(node, List.of(getAssignStmt(v, cst)));
             }
         }
 
