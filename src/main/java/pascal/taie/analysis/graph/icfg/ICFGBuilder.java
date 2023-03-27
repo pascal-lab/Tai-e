@@ -36,10 +36,10 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.SimpleIndexer;
+import pascal.taie.util.graph.DotAttributes;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
-import java.util.Map;
 
 public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
 
@@ -78,17 +78,17 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
         new DotDumper<Stmt>()
                 .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
                 .setNodeLabeler(n -> toLabel(n, icfg))
-                .setGlobalNodeAttributes(Map.of("shape", "box",
+                .setGlobalNodeAttributes(DotAttributes.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
-                .setEdgeAttributes(e -> {
+                .setEdgeAttributer(e -> {
                     if (e instanceof CallEdge) {
-                        return Map.of("style", "dashed", "color", "blue");
+                        return DotAttributes.of("style", "dashed", "color", "blue");
                     } else if (e instanceof ReturnEdge) {
-                        return Map.of("style", "dashed", "color", "red");
+                        return DotAttributes.of("style", "dashed", "color", "red");
                     } else if (e instanceof CallToReturnEdge) {
-                        return Map.of("style", "dashed");
+                        return DotAttributes.of("style", "dashed");
                     } else {
-                        return Map.of();
+                        return DotAttributes.of();
                     }
                 })
                 .dump(icfg, dotFile);

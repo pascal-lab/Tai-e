@@ -40,6 +40,7 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.SimpleIndexer;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.graph.DotAttributes;
 import pascal.taie.util.graph.DotDumper;
 
 import javax.annotation.Nullable;
@@ -107,7 +108,7 @@ public final class CallGraphs {
         new DotDumper<JMethod>()
                 .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
                 .setNodeLabeler(JMethod::toString)
-                .setGlobalNodeAttributes(Map.of("shape", "box",
+                .setGlobalNodeAttributes(DotAttributes.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
                 .setEdgeLabeler(e -> IRPrinter.toString(
                         ((MethodEdge<Invoke, JMethod>) e).callSite()))

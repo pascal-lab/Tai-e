@@ -27,10 +27,10 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.SimpleIndexer;
+import pascal.taie.util.graph.DotAttributes;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CFGDumper {
@@ -49,7 +49,7 @@ public class CFGDumper {
         new DotDumper<N>()
                 .setNodeToString(n -> Integer.toString(indexer.getIndex(n)))
                 .setNodeLabeler(n -> toLabel(n, cfg))
-                .setGlobalNodeAttributes(Map.of("shape", "box",
+                .setGlobalNodeAttributes(DotAttributes.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
                 .setEdgeLabeler(e -> {
                     CFGEdge<N> edge = (CFGEdge<N>) e;
@@ -66,11 +66,11 @@ public class CFGDumper {
                         return edge.getKind().toString();
                     }
                 })
-                .setEdgeAttributes(e -> {
+                .setEdgeAttributer(e -> {
                     if (((CFGEdge<N>) e).isExceptional()) {
-                        return Map.of("color", "red");
+                        return DotAttributes.of("color", "red");
                     } else {
-                        return Map.of();
+                        return DotAttributes.of();
                     }
                 })
                 .dump(cfg, new File(dumpDir, toDotFileName(cfg)));

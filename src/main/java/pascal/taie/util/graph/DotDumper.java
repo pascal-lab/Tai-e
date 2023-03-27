@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -57,7 +56,7 @@ public class DotDumper<N> {
     /**
      * Global node attributes.
      */
-    private Map<String, String> globalNodeAttrs = Map.of();
+    private DotAttributes globalNodeAttrs = DotAttributes.of();
 
     /**
      * The labeler for nodes.
@@ -67,7 +66,7 @@ public class DotDumper<N> {
     /**
      * The node attributes.
      */
-    private Function<N, Map<String, String>> nodeAttrs = node -> null;
+    private Function<N, DotAttributes> nodeAttributer = node -> null;
 
     /**
      * The labeler for edges.
@@ -77,19 +76,19 @@ public class DotDumper<N> {
     /**
      * Global edge attributes.
      */
-    private Map<String, String> globalEdgeAttrs = Map.of();
+    private DotAttributes globalEdgeAttrs = DotAttributes.of();
 
     /**
      * The function that maps an edge to its attributes.
      */
-    private Function<Edge<N>, Map<String, String>> edgeAttrs = edge -> null;
+    private Function<Edge<N>, DotAttributes> edgeAttributer = edge -> null;
 
     public DotDumper<N> setNodeToString(Function<N, String> nodeToString) {
         this.nodeToString = nodeToString;
         return this;
     }
 
-    public DotDumper<N> setGlobalNodeAttributes(Map<String, String> attrs) {
+    public DotDumper<N> setGlobalNodeAttributes(DotAttributes attrs) {
         globalNodeAttrs = attrs;
         return this;
     }
@@ -99,9 +98,9 @@ public class DotDumper<N> {
         return this;
     }
 
-    public DotDumper<N> setNodeAttributes(
-            Function<N, Map<String, String>> nodeAttrs) {
-        this.nodeAttrs = nodeAttrs;
+    public DotDumper<N> setNodeAttributer(
+            Function<N, DotAttributes> nodeAttributer) {
+        this.nodeAttributer = nodeAttributer;
         return this;
     }
 
@@ -110,13 +109,13 @@ public class DotDumper<N> {
         return this;
     }
 
-    public DotDumper<N> setGlobalEdgeAttributes(Map<String, String> attrs) {
+    public DotDumper<N> setGlobalEdgeAttributes(DotAttributes attrs) {
         globalEdgeAttrs = attrs;
         return this;
     }
 
-    public DotDumper<N> setEdgeAttributes(Function<Edge<N>, Map<String, String>> edgeAttrs) {
-        this.edgeAttrs = edgeAttrs;
+    public DotDumper<N> setEdgeAttributer(Function<Edge<N>, DotAttributes> edgeAttributer) {
+        this.edgeAttributer = edgeAttributer;
         return this;
     }
 
@@ -126,17 +125,9 @@ public class DotDumper<N> {
             // dump starts
             out.println("digraph G {");
             // dump global node attributes
-            if (!globalNodeAttrs.isEmpty()) {
-                out.printf("%snode [", INDENT);
-                dumpAttributes(globalNodeAttrs);
-                out.println("];");
-            }
+            out.printf("%snode [%s];%n", INDENT, globalNodeAttrs);
             // dump global edge attributes
-            if (!globalEdgeAttrs.isEmpty()) {
-                out.printf("%sedge [", INDENT);
-                dumpAttributes(globalEdgeAttrs);
-                out.println("];");
-            }
+            out.printf("%sedge [%s];%n", INDENT, globalEdgeAttrs);
             // dump nodes
             graph.forEach(this::dumpNode);
             // dump edges
@@ -148,51 +139,46 @@ public class DotDumper<N> {
         }
     }
 
-    private void dumpAttributes(Map<String, String> attrs) {
-        attrs.forEach((key, value) -> out.printf("%s=%s,", key, value));
-    }
-
     private void dumpNode(N node) {
-        dumpElement(node, this::getNodeRep, nodeLabeler, nodeAttrs);
+        dumpElement(node, this::nodeToString, nodeLabeler, nodeAttributer);
     }
 
-    private String getNodeRep(N node) {
+    private String nodeToString(N node) {
         return "\"" + nodeToString.apply(node) + "\"";
     }
 
     private void dumpEdge(Edge<N> edge) {
-        dumpElement(edge, this::getEdgeRep, edgeLabeler, edgeAttrs);
+        dumpElement(edge, this::getEdgeRep, edgeLabeler, edgeAttributer);
     }
 
     private String getEdgeRep(Edge<N> edge) {
-        return getNodeRep(edge.source()) + " -> " +
-                getNodeRep(edge.target());
+        return nodeToString(edge.source()) + " -> " + nodeToString(edge.target());
     }
 
     /**
      * Dumps an element (either a node or an edge).
      *
-     * @param elem     element to be dumped
-     * @param getRep   function that returns string representation of {@code elem}
-     * @param getLabel function that returns label of {@code elem}
-     * @param getAttrs function that returns attributes of {@code elem}
-     * @param <T>      type of the element
+     * @param elem       element to be dumped
+     * @param toString   function that returns string representation of {@code elem}
+     * @param labeler    function that returns label of {@code elem}
+     * @param attributer function that returns attributes of {@code elem}
+     * @param <T>        type of the element
      */
     private <T> void dumpElement(T elem,
-                                 Function<T, String> getRep,
-                                 Function<T, String> getLabel,
-                                 Function<T, Map<String, String>> getAttrs) {
+                                 Function<T, String> toString,
+                                 Function<T, String> labeler,
+                                 Function<T, DotAttributes> attributer) {
         out.print(INDENT);
-        out.print(getRep.apply(elem));
-        String label = getLabel.apply(elem);
-        Map<String, String> attrs = getAttrs.apply(elem);
+        out.print(toString.apply(elem));
+        String label = labeler.apply(elem);
+        DotAttributes attrs = attributer.apply(elem);
         if (label != null || attrs != null) {
             out.print(" [");
             if (label != null) {
                 out.printf("label=\"%s\",", label);
             }
             if (attrs != null) {
-                dumpAttributes(attrs);
+                out.print(attrs);
             }
             out.print(']');
         }
