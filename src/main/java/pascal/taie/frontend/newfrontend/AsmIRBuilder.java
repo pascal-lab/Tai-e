@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
@@ -123,7 +124,7 @@ public class AsmIRBuilder {
 
     private final Map<AbstractInsnNode, Stmt> asm2Stmt;
 
-    private final Map<BytecodeBlock, List<Stmt>> auxiliaryStmts;
+    private final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
 
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
@@ -384,12 +385,6 @@ public class AsmIRBuilder {
         List<Stmt> res = new ArrayList<>();
         // TODO: start from 0 or 1 ?
         int counter = 0;
-        Map<AbstractInsnNode, List<Stmt>> aux = Maps.newMap();
-        for (BytecodeBlock bb : label2Block.values()) {
-            if (auxiliaryStmts.containsKey(bb) && ! auxiliaryStmts.get(bb).isEmpty()) {
-                aux.put(bb.getLastBytecode(), auxiliaryStmts.get(bb));
-            }
-        }
 
         for (AbstractInsnNode node : source.instructions) {
             if (asm2Stmt.containsKey(node)) {
@@ -399,8 +394,8 @@ public class AsmIRBuilder {
                 res.add(stmt);
             }
 
-            if (aux.containsKey(node)) {
-                for (Stmt stmt : aux.get(node)) {
+            if (auxiliaryStmts.containsKey(node)) {
+                for (Stmt stmt : auxiliaryStmts.get(node)) {
                     stmt.setIndex(counter++);
                     res.add(stmt);
                 }
@@ -415,7 +410,8 @@ public class AsmIRBuilder {
             Stmt start = getFirstStmt(node.start);
             Stmt end = getFirstStmt(node.end);
             Stmt handler = getFirstStmt(node.handler);
-            ReferenceType expType = BuildContext.get().fromAsmInternalName(node.type);
+            String name = node.type == null ? getThrowable() : node.type;
+            ReferenceType expType = BuildContext.get().fromAsmInternalName(name);
             res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
         }
         return res;
@@ -671,6 +667,9 @@ public class AsmIRBuilder {
         }
     }
 
+    private void incVar(int slot, int c) {
+    }
+
     private void throwException(InsnNode node, Stack<Exp> stack) {
         Var v = popVar(stack);
         assocStmt(node, new Throw(v));
@@ -688,16 +687,16 @@ public class AsmIRBuilder {
     }
 
     private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Var> target) {
-        if (! auxiliaryStmts.containsKey(bb)) {
-            auxiliaryStmts.put(bb, new ArrayList<>());
-        }
-        List<Stmt> auxiliary = auxiliaryStmts.get(bb);
+        List<Stmt> auxiliary = new ArrayList<>();
         Stack<Exp> nowStack1 = new Stack<>();
         Stack<Var> target1 = new Stack<>();
         nowStack1.addAll(nowStack);
         target1.addAll(target);
         while (! nowStack1.isEmpty()) {
             mergeStack1(auxiliary, nowStack1, target1);
+        }
+        if (auxiliary.size() != 0) {
+            auxiliaryStmts.put(bb.getLastBytecode(), auxiliary);
         }
         assert target1.empty();
     }
@@ -882,6 +881,8 @@ public class AsmIRBuilder {
                 Collections.reverse(lengths);
 
                 pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
+            } else if (node instanceof IincInsnNode inc) {
+
             }
         }
 
@@ -1035,7 +1036,7 @@ public class AsmIRBuilder {
     private final Set<LabelNode> ignoredLabels = new HashSet<>();
     /**
      * Bridge the blocks that a wrongly separated by regarding every LabelNode as an entry of a block.
-     * We regard these pairs to be bridged: {(pred, succ) | pred.outEdges = {succ} && succ.inEdges = {pred}} 
+     * We regard these pairs to be bridged: {(pred, succ) | pred.outEdges = {succ} && succ.inEdges = {pred}}
      * Processes:
      * 1. concat the 2 blocks;
      * 2. delete the entry for the successor in the label2Block map.
@@ -1081,7 +1082,7 @@ public class AsmIRBuilder {
     private boolean concatenateSuccIfPossible(BytecodeBlock pred) {
         assert !pred.isCatch();
         if (pred.outEdges().size() != 1) return false;
-        
+
         var succ = pred.outEdges().get(0);
         assert !succ.isCatch();
         if (succ.inEdges().size() != 1) return false;

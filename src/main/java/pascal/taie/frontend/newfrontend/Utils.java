@@ -148,4 +148,8 @@ public class Utils {
             throw new NotImplementedException();
         }
     }
+
+    static String getThrowable() {
+        return "java/lang/Throwable";
+    }
 }
