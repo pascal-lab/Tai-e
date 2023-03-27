@@ -80,7 +80,7 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
                 .setNodeLabeler(n -> toLabel(n, icfg))
                 .setGlobalNodeAttributes(Map.of("shape", "box",
                         "style", "filled", "color", "\".3 .2 1.0\""))
-                .setEdgeAttrs(e -> {
+                .setEdgeAttributes(e -> {
                     if (e instanceof CallEdge) {
                         return Map.of("style", "dashed", "color", "blue");
                     } else if (e instanceof ReturnEdge) {

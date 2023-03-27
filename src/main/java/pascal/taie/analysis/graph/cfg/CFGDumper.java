@@ -66,7 +66,7 @@ public class CFGDumper {
                         return edge.getKind().toString();
                     }
                 })
-                .setEdgeAttrs(e -> {
+                .setEdgeAttributes(e -> {
                     if (((CFGEdge<N>) e).isExceptional()) {
                         return Map.of("color", "red");
                     } else {

@@ -115,13 +115,13 @@ public class DotDumper<N> {
         return this;
     }
 
-    public DotDumper<N> setEdgeAttrs(Function<Edge<N>, Map<String, String>> edgeAttrs) {
+    public DotDumper<N> setEdgeAttributes(Function<Edge<N>, Map<String, String>> edgeAttrs) {
         this.edgeAttrs = edgeAttrs;
         return this;
     }
 
-    public void dump(Graph<N> graph, File outFile) {
-        try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
+    public void dump(Graph<N> graph, File output) {
+        try (PrintStream out = new PrintStream(new FileOutputStream(output))) {
             this.out = out;
             // dump starts
             out.println("digraph G {");
@@ -144,7 +144,7 @@ public class DotDumper<N> {
             // dump ends
             out.println("}");
         } catch (FileNotFoundException e) {
-            logger.warn("Failed to dump graph to {}", outFile.getAbsolutePath(), e);
+            logger.warn("Failed to dump graph to {}", output.getAbsolutePath(), e);
         }
     }
 

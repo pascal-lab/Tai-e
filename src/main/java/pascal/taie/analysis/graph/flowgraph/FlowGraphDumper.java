@@ -39,20 +39,22 @@ public class FlowGraphDumper {
 
     private static final DotDumper<Node> dumper = new DotDumper<Node>()
             .setNodeAttributes(n -> {
-                if (n instanceof InstanceFieldNode) {
+                if (n instanceof VarNode) {
                     return Map.of("shape", "box");
-                } else if (n instanceof ArrayIndexNode) {
+                } else if (n instanceof InstanceFieldNode) {
                     return Map.of("shape", "box",
-                            "style", "filled", "color", "grey");
-                } else { // VarNode
-                    return Map.of();
+                            "style", "\"rounded,filled\"",
+                            "fillcolor", "aliceblue");
+                } else { // ArrayIndexNode
+                    return Map.of("style", "filled", "fillcolor", "khaki1");
                 }
             })
-            .setEdgeAttrs(e -> {
+            .setEdgeAttributes(e -> {
                 FlowEdge edge = (FlowEdge) e;
                 return switch (edge.kind()) {
                     case LOCAL_ASSIGN, CAST -> Map.of();
-                    case THIS_PASSING, PARAMETER_PASSING, RETURN -> Map.of("color", "blue");
+                    case THIS_PASSING, PARAMETER_PASSING -> Map.of("color", "blue");
+                    case RETURN -> Map.of("color", "blue", "style", "dashed");
                     case INSTANCE_STORE, ARRAY_STORE -> Map.of("color", "red");
                     case INSTANCE_LOAD, ARRAY_LOAD -> Map.of("color", "red", "style", "dashed");
                     case OTHER -> Map.of("color", "green3", "style", "dashed");
@@ -62,12 +64,11 @@ public class FlowGraphDumper {
             })
             .setEdgeLabeler(e -> {
                 FlowEdge edge = (FlowEdge) e;
-                return edge.kind() != FlowKind.OTHER ?
-                        "" : e.getClass().getSimpleName();
+                return edge.kind() == FlowKind.OTHER ? e.getClass().getSimpleName() : "";
             });
 
-    public static void dump(Graph<Node> graph, File file) {
-        logger.info("Dumping {}", file.getAbsolutePath());
-        dumper.dump(graph, file);
+    public static void dump(Graph<Node> graph, File output) {
+        logger.info("Dumping {}", output.getAbsolutePath());
+        dumper.dump(graph, output);
     }
 }
