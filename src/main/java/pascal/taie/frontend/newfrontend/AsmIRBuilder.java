@@ -1088,6 +1088,12 @@ public class AsmIRBuilder {
 
         if (ignoredLabels.contains(succ.label())) return false;
 
+        // Do not concatenate blocks that are explicitly declared to be separated
+        // i.e. GOTO, SWITCH
+        int opcode = pred.getLastBytecode().getOpcode();
+        if (opcode == Opcodes.GOTO || opcode == Opcodes.TABLESWITCH || opcode == Opcodes.LOOKUPSWITCH)
+            return false;
+
         // Main concatenating process:
         pred.instr().addAll(succ.instr());
         pred.outEdges().clear();
