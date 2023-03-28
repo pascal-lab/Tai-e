@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
@@ -73,8 +74,12 @@ public class BuildContext {
     }
 
     public Pair<List<Type>, Type> fromAsmMethodType(String descriptor) {
-        // TODO: need memorize ?
         org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
+        return fromAsmMethodType(t);
+    }
+
+    public Pair<List<Type>, Type> fromAsmMethodType(org.objectweb.asm.Type t) {
+        // TODO: need memorize ?
         if (t.getSort() == org.objectweb.asm.Type.METHOD) {
             List<Type> paramTypes = new ArrayList<>();
             for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
@@ -84,5 +89,10 @@ public class BuildContext {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    public MethodType toMethodType(org.objectweb.asm.Type t) {
+        Pair<List<Type>, Type> temp = fromAsmMethodType(t);
+        return MethodType.get(temp.first(), temp.second());
     }
 }

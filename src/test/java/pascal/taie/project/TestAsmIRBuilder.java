@@ -6,6 +6,8 @@ import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
+import pascal.taie.ir.IR;
+import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.ClassHierarchy;
 
 import java.util.ArrayList;
@@ -13,13 +15,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class TestAsmIRBuilder {
-    String worldPath = "src/test/resources/world";
-    String classPath = "java-benchmarks/JREs/jre1.6/rt.jar";
-    String jcePath = "java-benchmarks/JREs/jre1.6/jce.jar";
-    String jssePath = "java-benchmarks/JREs/jre1.6/jsse.jar";
-
-    List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
-    String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
 
     Project createProject(String classPath, String mainClass, List<String> inputClasses) {
         MockOptions options = new MockOptions();
@@ -30,15 +25,24 @@ public class TestAsmIRBuilder {
         return builder.build();
     }
 
-    ClassHierarchy getCh(String mainClass) {
-        List<String> args = new ArrayList<>();
-        Collections.addAll(args, "-pp");
-        Collections.addAll(args, "-a", "cfg");
-        Collections.addAll(args, "-cp", worldPath);
-        Collections.addAll(args, "-java", "6");
-        Collections.addAll(args, "-m", "If");
+    ClassHierarchy getCh(String mainClass, int javaVersion) {
+
+        String worldPath = "src/test/resources/world";
+        String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
+        String jcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jce.jar";
+        String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
+
+        List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
+        String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
+
+        // Collections.addAll(args, "-pp");
+        // Collections.addAll(args, "-a", "cfg");
+        // Collections.addAll(args, "-cp", worldPath);
+        // Collections.addAll(args, "-java", Integer.toString(javaVersion));
+        // Collections.addAll(args, "-m", "If");
         // Note: run Tai-e main may produce OutOfMemoryError
         // Main.main(args.toArray(new String[0]));
+
         Project project = createProject(path, mainClass, List.of());
         DepCWBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
@@ -49,7 +53,7 @@ public class TestAsmIRBuilder {
 
     @Test
     public void testIf() {
-        var ch = getCh("If");
+        var ch = getCh("If", 6);
         int[] total = { 0 };
         int[] zeroBlock = { 0 };
         List<String> targets = new ArrayList<>();
@@ -75,7 +79,7 @@ public class TestAsmIRBuilder {
 
     @Test
     public void testMinimal() {
-        var ch = getCh("Minimal");
+        var ch = getCh("Minimal", 6);
         ch.allClasses()
                 .filter(i -> i.getSimpleName().equals("Minimal"))
                 .forEach(i -> {
@@ -97,7 +101,7 @@ public class TestAsmIRBuilder {
                 "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
                 "copy", "instanceOf", "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke",
                 "returnInt", "exception", "monitor", "iinc");
-        var ch = getCh("AllInOne");
+        var ch = getCh("AllInOne", 6);
         ch.allClasses()
                 .filter(i -> i.getSimpleName().equals("AllInOne"))
                 .forEach(i -> {
@@ -116,7 +120,7 @@ public class TestAsmIRBuilder {
 
     @Test
     public void testLocalVariableTable() {
-        var ch = getCh("CollectionTest");
+        var ch = getCh("CollectionTest", 6);
         ch.allClasses()
                 .filter(i -> i.getSimpleName().equals("CollectionTest"))
                 .forEach(i -> {
@@ -130,6 +134,24 @@ public class TestAsmIRBuilder {
                                 for (var stmt : builder1.getIr().getStmts()) {
                                     System.out.println(stmt);
                                 }
+                            });
+                });
+    }
+
+    @Test
+    public void testLambda() {
+        var ch = getCh("Lambda", 8);
+        ch.allClasses()
+                .filter(i -> i.getSimpleName().equals("Lambda"))
+                .forEach(i -> {
+                    i.getDeclaredMethods()
+                            .forEach(m -> {
+                                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
+                                builder1.build();
+                                builder1.buildIR();
+                                IR ir = builder1.getIr();
+                                IRPrinter.print(ir, System.out);
                             });
                 });
     }

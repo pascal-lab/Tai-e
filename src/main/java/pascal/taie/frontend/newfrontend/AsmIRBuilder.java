@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -35,6 +36,7 @@ import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
@@ -43,6 +45,8 @@ import pascal.taie.ir.exp.InvokeVirtual;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.MethodHandle;
+import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
@@ -88,6 +92,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -882,7 +887,26 @@ public class AsmIRBuilder {
                 pushConst(node, nowStack, IntLiteral.get(inc.incr));
                 Var cst = popVar(nowStack);
                 Var v = manager.getLocal(inc.var, node);
-                auxiliaryStmts.put(node, List.of(getAssignStmt(v, cst)));
+                auxiliaryStmts.put(node, List.of(getAssignStmt(v,
+                        new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst))));
+            } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
+                MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
+                List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
+                        .map(Utils::fromObject).toList();
+                assert handle.isMethodRef();
+                Pair<List<Type>, Type> paramRets =
+                        BuildContext.get().fromAsmMethodType(invokeDynamicInsnNode.desc);
+                List<Var> args = new ArrayList<>();
+                for (int i = 0; i < paramRets.first().size(); ++i) {
+                    args.add(popVar(nowStack));
+                }
+                Collections.reverse(args);
+                pushExp(node, nowStack, new InvokeDynamic(
+                        handle.getMethodRef(),
+                        invokeDynamicInsnNode.name,
+                        MethodType.get(paramRets.first(), paramRets.second()),
+                        bootArgs,
+                        args));
             }
         }
 
