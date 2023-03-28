@@ -31,7 +31,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
- * Represents Dot attributes.
+ * Represents dot attributes.
  */
 public class DotAttributes {
 
@@ -63,7 +63,7 @@ public class DotAttributes {
                 joiner.add(name + '=' + CollectionUtils.getOne(values));
             } else {
                 String value = values.stream()
-                        .collect(Collectors.joining(", ", "\"", "\""));
+                        .collect(Collectors.joining(",", "\"", "\""));
                 joiner.add(name + '=' + value);
             }
         });
