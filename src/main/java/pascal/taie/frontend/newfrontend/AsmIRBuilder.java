@@ -251,13 +251,13 @@ public class AsmIRBuilder {
     }
 
     private void assocStmt(Exp e, Stmt stmt) {
-        asm2Stmt.put(exp2origin.get(e), stmt);
+        asm2Stmt.put(getOrig(e), stmt);
     }
 
     private Var toVar(Exp e) {
         Var v = manager.getTempVar();
         Stmt auxStmt = getAssignStmt(v, e);
-        assocStmt(getOrig(e), auxStmt);
+        assocStmt(e, auxStmt);
         return v;
     }
 
