@@ -1184,7 +1184,12 @@ public class AsmIRBuilder {
                         stmt.setLineNumber(currentLineNumber);
                     }
 
-                    // TODO: set lineNumber for stmt lists in the node (i.e. auxiliary stmts).
+                    var stmts = auxiliaryStmts.get(insnNode);
+                    if (stmts != null) {
+                        for (var s : stmts) {
+                            s.setLineNumber(currentLineNumber);
+                        }
+                    }
                 }
             }
         }
