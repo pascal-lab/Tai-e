@@ -93,9 +93,10 @@ public class TestAsmIRBuilder {
 
     @Test
     public void testAllinOne() {
-        List<String> methods = List.of("arrayAccess", "newArray", "assign",
-                "binary", "binaryMixedType", "copy", "instanceOf",
-                "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke", "exception");
+        List<String> methods = List.of(
+                "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
+                "copy", "instanceOf", "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke",
+                "returnInt", "exception", "monitor", "iinc");
         var ch = getCh("AllInOne");
         ch.allClasses()
                 .filter(i -> i.getSimpleName().equals("AllInOne"))

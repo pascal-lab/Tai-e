@@ -196,6 +196,11 @@ public class AllInOne {
         }
     }
 
+    void iinc(int a) {
+        a += 10;
+        System.out.println(a);
+    }
+
     static void bar(int x, Object o) {
     }
 
