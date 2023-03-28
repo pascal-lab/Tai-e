@@ -386,7 +386,7 @@ public class AsmIRBuilder {
             return first;
         }
 
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     private void setSwitchTargets(List<LabelNode> labels, LabelNode dflt, Stmt stmt) {
@@ -674,7 +674,7 @@ public class AsmIRBuilder {
             case Opcodes.INVOKEVIRTUAL -> new InvokeVirtual(ref, base, args);
             case Opcodes.INVOKEINTERFACE -> new InvokeInterface(ref, base, args);
             case Opcodes.INVOKESPECIAL -> new InvokeSpecial(ref, base, args);
-            default -> throw new IllegalStateException();
+            default -> throw new UnsupportedOperationException();
         };
     }
 
@@ -759,7 +759,7 @@ public class AsmIRBuilder {
                 stack.push(e1);
                 stack.push(e2);
             }
-            default -> throw new IllegalArgumentException();
+            default -> throw new UnsupportedOperationException();
         }
     }
 
@@ -1080,7 +1080,7 @@ public class AsmIRBuilder {
         } else if (node instanceof LabelNode) {
             return collectFallThrough(currentBlock, node);
         } else {
-            throw new IllegalStateException();
+            throw new UnsupportedOperationException();
         }
     }
 
