@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.DoubleLiteral;
+import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
@@ -31,6 +32,7 @@ import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.util.collection.Pair;
 
 import java.util.Arrays;
@@ -147,6 +149,8 @@ public class Utils {
             return IntLiteral.get(i);
         } else if (o instanceof Long l) {
             return LongLiteral.get(l);
+        } else if (o instanceof Float f) {
+            return FloatLiteral.get(f);
         } else if (o instanceof Double d) {
             return DoubleLiteral.get(d);
         } else if (o instanceof String s) {
@@ -167,8 +171,7 @@ public class Utils {
     static MethodHandle fromAsmHandle(Handle handle) {
         MethodHandle.Kind kind = toMethodHandleKind(handle.getTag());
         MemberRef ref;
-        JClass jClass = ((ClassType)
-                BuildContext.get().fromAsmInternalName(handle.getOwner())).getJClass();
+        JClass jClass = BuildContext.get().toJClass(handle.getOwner());
         if (isFieldKind(kind)) {
             pascal.taie.language.type.Type t =
                     BuildContext.get().fromAsmType(handle.getDesc());
@@ -199,6 +202,7 @@ public class Utils {
             case Opcodes.H_PUTSTATIC -> MethodHandle.Kind.REF_putStatic;
             case Opcodes.H_INVOKEVIRTUAL -> MethodHandle.Kind.REF_invokeVirtual;
             case Opcodes.H_INVOKESTATIC -> MethodHandle.Kind.REF_invokeStatic;
+            case Opcodes.H_INVOKESPECIAL -> MethodHandle.Kind.REF_invokeSpecial;
             case Opcodes.H_NEWINVOKESPECIAL -> MethodHandle.Kind.REF_newInvokeSpecial;
             case Opcodes.H_INVOKEINTERFACE -> MethodHandle.Kind.REF_invokeInterface;
             default -> throw new IllegalArgumentException();
