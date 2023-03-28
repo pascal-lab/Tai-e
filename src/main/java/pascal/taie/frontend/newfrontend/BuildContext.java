@@ -1,9 +1,12 @@
 package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.ir.exp.MethodType;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -94,5 +97,16 @@ public class BuildContext {
     public MethodType toMethodType(org.objectweb.asm.Type t) {
         Pair<List<Type>, Type> temp = fromAsmMethodType(t);
         return MethodType.get(temp.first(), temp.second());
+    }
+
+    public JClass toJClass(String internalName) {
+        ReferenceType type = fromAsmInternalName(internalName);
+        if (type instanceof ArrayType) {
+            return typeSystem.getClassType(ClassNames.ARRAY).getJClass();
+        } else if (type instanceof ClassType t) {
+            return t.getJClass();
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 }

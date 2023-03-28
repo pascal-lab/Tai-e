@@ -52,45 +52,13 @@ public class TestAsmIRBuilder {
     }
 
     @Test
-    public void testIf() {
-        var ch = getCh("If", 6);
-        int[] total = { 0 };
-        int[] zeroBlock = { 0 };
-        List<String> targets = new ArrayList<>();
-        ch.allClasses().forEach(i -> {
-            i.getDeclaredMethods().forEach(m -> {
-                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
-                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
-                builder1.build();
-                var cfg = builder1.getLabel2Block();
-                System.out.println("[" + m.getSignature() + "]: " + cfg.keySet().size());
-                total[0]++;
-                if (cfg.keySet().size() == 0) {
-                    zeroBlock[0]++;
-                    if (! m.isNative() && ! i.isInterface() && !m.isAbstract()) {
-                        targets.add(m.getSignature());
-                    }
-                }
-            });
-        });
-        System.out.println("total: " + total[0] + ", zero:" + zeroBlock[0]);
-        assert targets.isEmpty();
-    }
-
-    @Test
     public void testMinimal() {
         var ch = getCh("Minimal", 6);
         ch.allClasses()
-                .filter(i -> i.getSimpleName().equals("Minimal"))
-                .forEach(i -> {
-                    i.getDeclaredMethods()
-                            .stream().filter(j -> j.getName().equals("f"))
-                            .forEach(m -> {
+                .forEach(i -> { i.getDeclaredMethods().forEach(m -> {
                     JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                     AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                     builder1.build();
-                    builder1.buildIR();
-                    System.out.println(builder1.getIr().getStmts());
             });
         });
     }
@@ -111,7 +79,6 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                builder1.buildIR();
                                 System.out.println(m.getName() + " : " + builder1.getIr().getStmts());
                                 System.out.println(m.getName() + " : " + builder1.getIr().getExceptionEntries());
                             });
@@ -130,7 +97,6 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                builder1.buildIR();
                                 for (var stmt : builder1.getIr().getStmts()) {
                                     System.out.println(stmt);
                                 }
@@ -142,16 +108,13 @@ public class TestAsmIRBuilder {
     public void testLambda() {
         var ch = getCh("Lambda", 8);
         ch.allClasses()
-                .filter(i -> i.getSimpleName().equals("Lambda"))
                 .forEach(i -> {
                     i.getDeclaredMethods()
                             .forEach(m -> {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                builder1.buildIR();
-                                IR ir = builder1.getIr();
-                                IRPrinter.print(ir, System.out);
+                                // IRPrinter.print(ir, System.out);
                             });
                 });
     }

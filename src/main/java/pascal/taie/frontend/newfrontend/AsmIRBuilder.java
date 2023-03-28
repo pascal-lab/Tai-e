@@ -1,6 +1,9 @@
 package pascal.taie.frontend.newfrontend;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -72,6 +75,7 @@ import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
@@ -79,8 +83,10 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -115,10 +121,6 @@ public class AsmIRBuilder {
 
     private final JSRInlinerAdapter source;
 
-    public Map<LabelNode, BytecodeBlock> getLabel2Block() {
-        return label2Block;
-    }
-
     private Map<LabelNode, BytecodeBlock> label2Block;
 
     private LabelNode entry;
@@ -131,18 +133,30 @@ public class AsmIRBuilder {
 
     private final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
 
+    private final boolean isEmpty;
+
+    private final List<Stmt> stmts;
+
+    private static final Logger logger = LogManager.getLogger();
+
     public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
         this.method = method;
         this.source = source;
-        assert source.parameters == null;
+        this.isEmpty = source.instructions.size() == 0;
         this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions);
         this.asm2Stmt = Maps.newMap();
         this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
+        this.stmts = new ArrayList<>();
+
     }
 
     public void build() {
-        buildCFG();
+        if (! isEmpty) {
+            buildCFG();
+            buildIR();
+        }
+        // TODO: check how to handle empty method
     }
 
     private Stmt getAssignStmt(LValue left, Exp e) {
@@ -236,6 +250,10 @@ public class AsmIRBuilder {
         asm2Stmt.put(node, stmt);
     }
 
+    private void assocStmt(Exp e, Stmt stmt) {
+        asm2Stmt.put(exp2origin.get(e), stmt);
+    }
+
     private Var toVar(Exp e) {
         Var v = manager.getTempVar();
         Stmt auxStmt = getAssignStmt(v, e);
@@ -260,11 +278,13 @@ public class AsmIRBuilder {
 
     private void popToEffect(Stack<Exp> stack) {
         // normally, this should only be used to pop a InvokeExp
-        Exp e = popExp(stack);
-        if (e instanceof InvokeExp invokeExp) {
-            assocStmt(exp2origin.get(e), new Invoke(method, invokeExp));
+        Exp e = stack.pop();
+        if (e instanceof Top) {
+            return;
+        } else if (e instanceof InvokeExp invokeExp) {
+            assocStmt(e, new Invoke(method, invokeExp));
         } else if (maySideEffect(e)) {
-            assocStmt(exp2origin.get(e), getAssignStmt(manager.getTempVar(), e));
+            assocStmt(e, getAssignStmt(manager.getTempVar(), e));
         }
     }
 
@@ -339,7 +359,15 @@ public class AsmIRBuilder {
 
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = label2Block.get(label);
-        assert block != null;
+        if (block == null || block.instr().isEmpty()) {
+            logger.log(Level.INFO, method+ ", empty block / labels : " + label);
+            Stmt stmt = getFirstStmt((LabelNode) label.getNext());
+            if (block != null) {
+                block.setFirstStmt(stmt);
+            }
+            return stmt;
+        }
+
         if (block.getFirstStmt() != null) {
             return block.getFirstStmt();
         }
@@ -353,7 +381,9 @@ public class AsmIRBuilder {
         }
 
         if (auxiliaryStmts.containsKey(block.getLastBytecode())) {
-            return auxiliaryStmts.get(block.getLastBytecode()).get(0);
+            Stmt first = auxiliaryStmts.get(block.getLastBytecode()).get(0);
+            block.setFirstStmt(first);
+            return first;
         }
 
         throw new IllegalStateException();
@@ -386,34 +416,39 @@ public class AsmIRBuilder {
         // node is not jump, do nothing
     }
 
-    private List<Stmt> getStmts() {
-        List<Stmt> res = new ArrayList<>();
-        // TODO: start from 0 or 1 ?
-        int counter = 0;
+    private void addStmt(Stmt stmt) {
+        stmt.setIndex(stmts.size());
+        stmts.add(stmt);
+    }
 
+    private List<Stmt> getStmts() {
         for (AbstractInsnNode node : source.instructions) {
             if (asm2Stmt.containsKey(node)) {
                 Stmt stmt = asm2Stmt.get(node);
                 setJumpTargets(node, stmt);
-                stmt.setIndex(counter++);
-                res.add(stmt);
+                addStmt(stmt);
             }
 
             if (auxiliaryStmts.containsKey(node)) {
                 for (Stmt stmt : auxiliaryStmts.get(node)) {
-                    stmt.setIndex(counter++);
-                    res.add(stmt);
+                    addStmt(stmt);
                 }
             }
         }
-        return res;
+        return stmts;
     }
 
     private List<ExceptionEntry> getExceptionTable() {
         List<ExceptionEntry> res = new ArrayList<>();
         for (TryCatchBlockNode node : source.tryCatchBlocks) {
             Stmt start = getFirstStmt(node.start);
-            Stmt end = getFirstStmt(node.end);
+            Stmt end;
+            if (node.end.getNext() == null) {
+                // final bytecode
+                end = stmts.get(stmts.size() - 1);
+            } else {
+                end = getFirstStmt(node.end);
+            }
             Stmt handler = getFirstStmt(node.handler);
             String name = node.type == null ? getThrowable() : node.type;
             ReferenceType expType = BuildContext.get().fromAsmInternalName(name);
@@ -492,6 +527,8 @@ public class AsmIRBuilder {
             return FloatLiteral.get(opcode - Opcodes.FCONST_0 + 0.0f);
         } else if (inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1)) {
             return DoubleLiteral.get(opcode - Opcodes.DCONST_0 + 0.0);
+        } else if (inRange(opcode, Opcodes.LCONST_0, Opcodes.LCONST_1)) {
+                return DoubleLiteral.get(opcode - Opcodes.LCONST_0 + 0.0);
         } else {
             throw new IllegalArgumentException();
         }
@@ -619,12 +656,11 @@ public class AsmIRBuilder {
 
     private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<Exp> stack) {
         int opcode = methodInsnNode.getOpcode();
-        ClassType owner = (ClassType)
-                BuildContext.get().fromAsmInternalName(methodInsnNode.owner);
+        JClass owner = BuildContext.get().toJClass(methodInsnNode.owner);
         Pair<List<Type>, Type> desc = BuildContext.get().fromAsmMethodType(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
-        MethodRef ref = MethodRef.get(owner.getJClass(), name, desc.first(), desc.second(), isStatic);
+        MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic);
 
         List<Var> args = new ArrayList<>();
         for (int i = 0; i < desc.first().size(); ++i) {
@@ -645,8 +681,7 @@ public class AsmIRBuilder {
     private ArrayAccess getArrayAccess(Stack<Exp> nowStack) {
         Var idx = popVar(nowStack);
         Var ref = popVar(nowStack);
-        ArrayAccess access = new ArrayAccess(ref, idx);
-        return access;
+        return new ArrayAccess(ref, idx);
     }
 
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
@@ -755,7 +790,7 @@ public class AsmIRBuilder {
                     case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
                             storeExp(varNode, nowStack);
                     default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
-                            throw new IllegalStateException();
+                            throw new UnsupportedOperationException();
                 }
             } else if (node instanceof InsnNode insnNode) {
                 int opcode = insnNode.getOpcode();
@@ -791,6 +826,8 @@ public class AsmIRBuilder {
                     Var value = popVar(nowStack);
                     ArrayAccess access = getArrayAccess(nowStack);
                     storeExp(node, access, value);
+                } else {
+                    throw new UnsupportedOperationException();
                 }
             } else if (node instanceof JumpInsnNode jump) {
                 if (jump.getOpcode() == Opcodes.GOTO) {
@@ -810,10 +847,13 @@ public class AsmIRBuilder {
                     pushExp(node, nowStack, new NewInstance((ClassType) type));
                 } else if (opcode == Opcodes.ANEWARRAY) {
                     Var length = popVar(nowStack);
-                    pushExp(node, nowStack, new NewArray((ArrayType) type, length));
+                    ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(type, 1);
+                    pushExp(node, nowStack, new NewArray(arrayType, length));
                 } else if (opcode == Opcodes.INSTANCEOF) {
                     Var obj = popVar(nowStack);
                     pushExp(node, nowStack, new InstanceOfExp(obj, type));
+                } else {
+                    throw new UnsupportedOperationException();
                 }
             } else if (node instanceof IntInsnNode intNode) {
                 int opcode = intNode.getOpcode();
@@ -863,7 +903,7 @@ public class AsmIRBuilder {
                         FieldAccess access = new InstanceFieldAccess(ref, base);
                         storeExp(node, access, value);
                     }
-                    default -> throw new IllegalStateException();
+                    default -> throw new UnsupportedOperationException();
                 }
             } else if (node instanceof MethodInsnNode methodInsnNode) {
                 InvokeExp exp = getInvokeExp(methodInsnNode, nowStack);
@@ -907,6 +947,16 @@ public class AsmIRBuilder {
                         MethodType.get(paramRets.first(), paramRets.second()),
                         bootArgs,
                         args));
+
+            } else if (node instanceof TableSwitchInsnNode switchInsnNode) {
+                Var v = popVar(nowStack);
+                assocStmt(node, new TableSwitch(v, switchInsnNode.min, switchInsnNode.max));
+            } else if (node instanceof LookupSwitchInsnNode lookupSwitchInsnNode) {
+                Var v = popVar(nowStack);
+                assocStmt(node, new LookupSwitch(v, lookupSwitchInsnNode.keys));
+            }
+            else {
+                throw new UnsupportedOperationException();
             }
         }
 
@@ -1169,7 +1219,7 @@ public class AsmIRBuilder {
         entry.setInStack(new Stack<>());
 
         List<BytecodeBlock> bytecodeBlockList = getLinearBBList();
-        assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
+        // assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
         if (bytecodeBlockList != null) {
             for (var bb : bytecodeBlockList) {
                 buildBlockStmt(bb);
@@ -1201,8 +1251,12 @@ public class AsmIRBuilder {
                 if (insnNode instanceof LineNumberNode l) {
                     currentLineNumber = l.line;
                 } else {
-                    assert currentLineNumber != -1
-                            : "Violating our assumption: before the first node associating a stmt must be a LineNumberNode";
+                    // assert currentLineNumber != -1
+                    //        : "Violating our assumption: before the first node associating a stmt must be a LineNumberNode";
+                    if (currentLineNumber == -1) {
+                        logger.log(Level.INFO, method + ", no line number info");
+                        return;
+                    }
                     var stmt = asm2Stmt.get(insnNode);
                     if (stmt != null) {
                         stmt.setLineNumber(currentLineNumber);

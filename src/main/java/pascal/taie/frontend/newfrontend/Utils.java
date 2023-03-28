@@ -31,8 +31,6 @@ import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.Modifier;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.ReferenceType;
 import pascal.taie.util.collection.Pair;
 
 import java.util.Arrays;
