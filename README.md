@@ -53,6 +53,7 @@ which includes Tai-e and all its dependencies.
 
 ## Documentation
 
+### Wiki
 We are hosting the documentation of Tai-e
 on [the GitHub wiki](https://github.com/pascal-lab/Tai-e/wiki), where you could find more
 information about Tai-e such
@@ -61,6 +62,9 @@ as [Setup in IntelliJ IDEA](https://github.com/pascal-lab/Tai-e/wiki/Setup-Tai%E
 ,
 and [Development of New Analysis](https://github.com/pascal-lab/Tai-e/wiki/How-to-Develop-A-New-Analysis-on-Tai%E2%80%90e%3F)
 .
+
+### Changelog
+Since we are actively developing and updating Tai-e, we record the notable changes we made, especially the new features and breaking changes, in [CHANGELOG](CHANGELOG.md). If you find something wrong after updating Tai-e, maybe you could check [CHANGELOG](CHANGELOG.md) for useful information.
 
 ## Tai-e Assignments
 
