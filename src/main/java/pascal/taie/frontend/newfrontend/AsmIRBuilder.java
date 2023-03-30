@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,40 +51,27 @@ import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewArray;
-import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
-import pascal.taie.ir.exp.UnaryExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.ir.stmt.AssignLiteral;
-import pascal.taie.ir.stmt.Binary;
-import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Catch;
-import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
-import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.LoadArray;
-import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
-import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.StoreArray;
-import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
-import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
@@ -148,7 +134,6 @@ public class AsmIRBuilder {
         this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
         this.stmts = new ArrayList<>();
-
     }
 
     public void build() {
@@ -159,40 +144,8 @@ public class AsmIRBuilder {
         // TODO: check how to handle empty method
     }
 
-    private Stmt getAssignStmt(LValue left, Exp e) {
-        if (left instanceof Var v) {
-            if (e instanceof BinaryExp binaryExp) {
-                return new Binary(v, binaryExp);
-            } else if (e instanceof Literal l) {
-                return new AssignLiteral(v, l);
-            } else if (e instanceof CastExp cast) {
-                return new Cast(v, cast);
-            } else if (e instanceof UnaryExp unaryExp) {
-                return new Unary(v, unaryExp);
-            } else if (e instanceof Var v1) {
-                return new Copy(v, v1);
-            } else if (e instanceof FieldAccess fieldAccess) {
-                return new LoadField(v, fieldAccess);
-            } else if (e instanceof InvokeExp invokeExp) {
-                return new Invoke(method, invokeExp, v);
-            } else if (e instanceof NewExp newExp)  {
-                return new New(method, v, newExp);
-            } else if (e instanceof ArrayAccess access) {
-                return new LoadArray(v, access);
-            } else if (e instanceof InstanceOfExp instanceOfExp) {
-                return new InstanceOf(v, instanceOfExp);
-            }
-            else {
-                throw new NotImplementedException();
-            }
-        } else if (left instanceof ArrayAccess arrayAccess) {
-            assert e instanceof Var;
-            return new StoreArray(arrayAccess, (Var) e);
-        } else if (left instanceof FieldAccess fieldAccess) {
-            assert e instanceof Var;
-            return new StoreField(fieldAccess, (Var) e);
-        }
-        throw new NotImplementedException();
+    private Stmt getAssignStmt(LValue lValue, Exp e) {
+        return Utils.getAssignStmt(method, lValue, e);
     }
 
     private boolean isDword(AbstractInsnNode node, Exp e) {

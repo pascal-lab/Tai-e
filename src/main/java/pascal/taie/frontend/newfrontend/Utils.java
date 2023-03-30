@@ -10,17 +10,41 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.DoubleLiteral;
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
+import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.MethodHandle;
+import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.ir.exp.UnaryExp;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.InstanceOf;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.annotation.ArrayElement;
 import pascal.taie.language.annotation.BooleanElement;
 import pascal.taie.language.annotation.ClassElement;
@@ -30,6 +54,7 @@ import pascal.taie.language.annotation.IntElement;
 import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
 import pascal.taie.util.collection.Pair;
 
@@ -205,6 +230,42 @@ public class Utils {
             case Opcodes.H_INVOKEINTERFACE -> MethodHandle.Kind.REF_invokeInterface;
             default -> throw new IllegalArgumentException();
         };
+    }
+
+    static Stmt getAssignStmt(JMethod method, LValue left, Exp e) {
+        if (left instanceof Var v) {
+            if (e instanceof BinaryExp binaryExp) {
+                return new Binary(v, binaryExp);
+            } else if (e instanceof Literal l) {
+                return new AssignLiteral(v, l);
+            } else if (e instanceof CastExp cast) {
+                return new Cast(v, cast);
+            } else if (e instanceof UnaryExp unaryExp) {
+                return new Unary(v, unaryExp);
+            } else if (e instanceof Var v1) {
+                return new Copy(v, v1);
+            } else if (e instanceof FieldAccess fieldAccess) {
+                return new LoadField(v, fieldAccess);
+            } else if (e instanceof InvokeExp invokeExp) {
+                return new Invoke(method, invokeExp, v);
+            } else if (e instanceof NewExp newExp)  {
+                return new New(method, v, newExp);
+            } else if (e instanceof ArrayAccess access) {
+                return new LoadArray(v, access);
+            } else if (e instanceof InstanceOfExp instanceOfExp) {
+                return new InstanceOf(v, instanceOfExp);
+            }
+            else {
+                throw new NotImplementedException();
+            }
+        } else if (left instanceof ArrayAccess arrayAccess) {
+            assert e instanceof Var;
+            return new StoreArray(arrayAccess, (Var) e);
+        } else if (left instanceof FieldAccess fieldAccess) {
+            assert e instanceof Var;
+            return new StoreField(fieldAccess, (Var) e);
+        }
+        throw new NotImplementedException();
     }
 
     static String getThrowable() {

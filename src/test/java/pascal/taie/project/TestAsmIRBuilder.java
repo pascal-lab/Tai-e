@@ -6,11 +6,15 @@ import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
+import pascal.taie.frontend.newfrontend.Lenses;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,13 +39,14 @@ public class TestAsmIRBuilder {
         List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
         String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
 
-        // Collections.addAll(args, "-pp");
-        // Collections.addAll(args, "-a", "cfg");
-        // Collections.addAll(args, "-cp", worldPath);
-        // Collections.addAll(args, "-java", Integer.toString(javaVersion));
-        // Collections.addAll(args, "-m", "If");
+        List<String> args = new ArrayList<>();
         // Note: run Tai-e main may produce OutOfMemoryError
-        // Main.main(args.toArray(new String[0]));
+//        Collections.addAll(args, "-pp");
+//        Collections.addAll(args, "-a", "cfg");
+//        Collections.addAll(args, "-cp", worldPath);
+//        Collections.addAll(args, "-java", Integer.toString(javaVersion));
+//        Collections.addAll(args, "-m", mainClass);
+//        Main.main(args.toArray(new String[0]));
 
         Project project = createProject(path, mainClass, List.of());
         DepCWBuilder depCWBuilder = new DepCWBuilder();
@@ -114,6 +119,14 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
+                                Lenses lenses = new Lenses(m, Maps.newMap());
+                                List<Stmt> temp = new ArrayList<>();
+                                if (builder1.getIr() != null) {
+                                    for (var stmt : builder1.getIr()) {
+                                        temp.add(lenses.subSt(stmt));
+                                    }
+                                }
+                                System.out.println(temp.size());
                                 // IRPrinter.print(ir, System.out);
                             });
                 });
