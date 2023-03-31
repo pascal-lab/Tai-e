@@ -24,7 +24,7 @@ public class BenchmarkRunner {
     @CommandLine.Option(names = "-cs", defaultValue = "ci")
     private String cs;
 
-    @CommandLine.Option(names = "-java", defaultValue = "-1")
+    @CommandLine.Option(names = "-java", defaultValue = "0")
     private int jdk;
 
     @CommandLine.Option(names = "-advanced", defaultValue = "null")
@@ -53,10 +53,11 @@ public class BenchmarkRunner {
     private String[] composeArgs(String benchmark) {
         BenchmarkInfo info = benchmarkInfos.get(benchmark);
         List<String> args = new ArrayList<>();
-        int jdkVersion = jdk != -1 ? jdk : info.jdk();
+        int jdkVersion = jdk != 0 ? jdk : info.jdk();
         Collections.addAll(args,
                 "-java", Integer.toString(jdkVersion),
-                "-cp", buildClassPath(info),
+                "-acp", buildClassPath(info.apps()),
+                "-cp", buildClassPath(info.libs()),
                 "-m", info.main());
         if (info.allowPhantom()) {
             args.add("--allow-phantom");
@@ -78,15 +79,11 @@ public class BenchmarkRunner {
         return args.toArray(new String[0]);
     }
 
-    private String buildClassPath(BenchmarkInfo info) {
-        List<String> cp = new ArrayList<>();
-        info.apps().forEach(appPath -> cp.addAll(extendCP(appPath)));
-        info.libs().forEach(libPath -> cp.addAll(extendCP(libPath)));
-        return String.join(File.pathSeparator, cp);
-    }
-
-    private static boolean isJar(File file) {
-        return file.getName().endsWith(".jar");
+    private String buildClassPath(List<String> paths) {
+        return paths.stream()
+                .map(this::extendCP)
+                .flatMap(List::stream)
+                .collect(Collectors.joining(File.pathSeparator));
     }
 
     private List<String> extendCP(String path) {
@@ -105,5 +102,9 @@ public class BenchmarkRunner {
             throw new RuntimeException(path + " is neither a directory nor a JAR");
         }
         return paths;
+    }
+
+    private static boolean isJar(File file) {
+        return file.getName().endsWith(".jar");
     }
 }
