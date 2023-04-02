@@ -74,7 +74,12 @@ public class VarWebSplitter {
         }
     }
 
-    public Collection<Set<Pair<? extends Stmt, Kind>>> getDisjointSets(Var var) {
+    /**
+     *
+     * @param var the variable you want to get the web information.
+     * @return the webs of the var. WARNING: in each set there may exist element whose Kind is PHANTOM.
+     */
+    public Collection<Set<Pair<? extends Stmt, Kind>>> getWebs(Var var) {
         return webs.get(var).getDisjointSets();
     }
 
