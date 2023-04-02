@@ -107,17 +107,17 @@ public class AsmIRBuilder {
 
     private final JSRInlinerAdapter source;
 
-    private Map<LabelNode, BytecodeBlock> label2Block;
+    Map<LabelNode, BytecodeBlock> label2Block;
 
     private LabelNode entry;
 
-    private final VarManager manager;
+    final VarManager manager;
 
     private final Map<Exp, AbstractInsnNode> exp2origin;
 
-    private final Map<AbstractInsnNode, Stmt> asm2Stmt;
+    final Map<AbstractInsnNode, Stmt> asm2Stmt;
 
-    private final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
+    final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
 
     private final boolean isEmpty;
 

@@ -47,6 +47,18 @@ public class UnionFindSet<E> {
     }
 
     /**
+     * Just take a new element into consideration, which means:
+     * 1. 'new' element: for all elements ee already in the unionfind set, !e.equals(ee),
+     * 2. the union operation should be invoked by the caller if demanded.
+     * @param e the element to be taken into consideration.
+     */
+    public void addElement(E e) {
+        Entry previous = entries.put(e, new Entry(e));
+        assert previous == null;
+        setCount++;
+    }
+
+    /**
      * Unions the sets which e1 and e2 belong to, respectively.
      *
      * @return {@code true} if this union-find set changed as a result
