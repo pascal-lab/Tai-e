@@ -28,11 +28,9 @@ class VarManager {
     public static final String LOCAL_PREFIX = "%";
     public static final String TEMP_PREFIX = "$";
 
-    public static final String STACK_PREFIX = "#";
-
     public static final String THIS = "this";
 
-    public static final String NULL_LITERAL = "null";
+    public static final String NULL_LITERAL = "$null";
 
     private final JMethod method;
 
@@ -100,7 +98,6 @@ class VarManager {
 
     public Var getTempVar() {
         Var v = newVar(TEMP_PREFIX + "v" + counter);
-        this.vars.add(v);
         return v;
     }
 
@@ -142,7 +139,6 @@ class VarManager {
 
         Var v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
         // Note: if reach here, this variable must be a local variable
-        this.vars.add(v);
 
         // for generalization start could be 0, but in development stage we want to expose more case unexpected.
         int start = asmIndex;
@@ -174,6 +170,11 @@ class VarManager {
         } else {
             local2Var.put(new Triple<>(slot, start, end), v);
         }
+        return v;
+    }
+
+    public Var splitLocal(Var old, int count) {
+        Var v = newVar(old.getName() + "#" + count);
         return v;
     }
 
@@ -224,6 +225,8 @@ class VarManager {
     public boolean isTempVar(Var v) {
         return v.getName().startsWith(TEMP_PREFIX);
     }
+
+    public boolean isLocal(Var v) { return ! isTempVar(v) && v != thisVar; }
 
     private LocalVariableNode searchLocal(int slot, int asmIndex) {
         for (LocalVariableNode node : localVariableTable) {
@@ -279,14 +282,19 @@ class VarManager {
         return TEMP_PREFIX + "c" + counter;
     }
 
+    // TODO: check when need to add v to vars
     private Var newParameter(int index) {
         return newVar(PARAMETER_PREFIX + index);
     }
     private Var newVar(String name) {
-        return new Var(method, name, null, counter++);
+        Var v = new Var(method, name, null, counter++);
+        vars.add(v);
+        return v;
     }
 
     private Var newConstVar(String name, Literal literal) {
-        return new Var(method, name, null, counter++, literal);
+        Var v = new Var(method, name, null, counter++, literal);
+        vars.add(v);
+        return v;
     }
 }

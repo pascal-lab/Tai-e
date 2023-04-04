@@ -119,14 +119,6 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                Lenses lenses = new Lenses(m, Maps.newMap());
-                                List<Stmt> temp = new ArrayList<>();
-                                if (builder1.getIr() != null) {
-                                    for (var stmt : builder1.getIr()) {
-                                        temp.add(lenses.subSt(stmt));
-                                    }
-                                }
-                                System.out.println(temp.size());
                                 // IRPrinter.print(ir, System.out);
                             });
                 });

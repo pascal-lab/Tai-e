@@ -9,6 +9,7 @@ import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.ExpVisitor;
+import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -21,6 +22,7 @@ import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.NegExp;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewMultiArray;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignStmt;
@@ -44,21 +46,45 @@ import java.util.Map;
 public class Lenses {
 
     private final JMethod method;
-    private final Map<Var, Var> sigma;
 
-    public Lenses(JMethod method, Map<Var, Var> sigma) {
+    private final Map<Var, Var> useSigma;
+
+    private final Map<Var, Var> defSigma;
+
+    public Lenses(JMethod method, Map<Var, Var> useSigma, Map<Var, Var> defSigma) {
         this.method = method;
-        this.sigma = sigma;
+        this.defSigma = defSigma;
+        this.useSigma = useSigma;
     }
 
     public Var subSt(Var v) {
-        return sigma.getOrDefault(v, v);
+        return useSigma.getOrDefault(v, v);
+    }
+
+    public Var defSubSt(Var v) {
+        return defSigma.getOrDefault(v, v);
     }
 
     public List<Var> subSt(List<Var> l) {
         return l.stream()
                 .map(this::subSt)
                 .toList();
+    }
+
+    public LValue leftSubSt(LValue l) {
+        if (l instanceof Var v) {
+            return defSubSt(v);
+        } else if (l instanceof ArrayAccess access) {
+            return (ArrayAccess) subSt(access);
+        } else if (l instanceof FieldAccess access) {
+            return (FieldAccess) subSt(access);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public RValue rightSubst(RValue r) {
+        return (RValue) subSt(r);
     }
 
     public Exp subSt(Exp e) {
@@ -169,7 +195,7 @@ public class Lenses {
     }
 
     public Stmt subSt(Stmt stmt) {
-        return stmt.accept(new StmtVisitor<>() {
+        Stmt newStmt = stmt.accept(new StmtVisitor<>() {
             @Override
             public Stmt visit(If stmt) {
                 return new If((ConditionExp) subSt(stmt.getCondition()));
@@ -208,15 +234,19 @@ public class Lenses {
             @Override
             public Stmt visitDefault(Stmt stmt) {
                 if (stmt instanceof AssignStmt<?,?> stmt1) {
-                    return Utils.getAssignStmt(method, (LValue) subSt(stmt1.getLValue()), subSt(stmt1.getRValue()));
+                    return Utils.getAssignStmt(method, leftSubSt(stmt1.getLValue()), rightSubst(stmt1.getRValue()));
                 } else if (stmt instanceof Invoke invoke) {
                     return new Invoke(invoke.getContainer(), (InvokeExp) subSt(invoke.getInvokeExp()),
-                            invoke.getLValue() == null ? null : subSt(invoke.getLValue()));
+                            invoke.getLValue() == null ? null : (Var) leftSubSt(invoke.getLValue()));
                 } else {
                     assert stmt instanceof Nop || stmt instanceof Goto;
                     return stmt;
                 }
             }
         });
+
+        newStmt.setIndex(stmt.getIndex());
+        newStmt.setLineNumber(stmt.getLineNumber());
+        return newStmt;
     }
 }

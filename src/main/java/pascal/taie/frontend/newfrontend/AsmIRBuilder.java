@@ -103,7 +103,7 @@ public class AsmIRBuilder {
 
     private IR ir;
 
-    private final JMethod method;
+    final JMethod method;
 
     private final JSRInlinerAdapter source;
 
@@ -121,7 +121,9 @@ public class AsmIRBuilder {
 
     private final boolean isEmpty;
 
-    private final List<Stmt> stmts;
+    final List<Stmt> stmts;
+
+    private List<ExceptionEntry> exceptionEntries;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -140,6 +142,9 @@ public class AsmIRBuilder {
         if (! isEmpty) {
             buildCFG();
             buildIR();
+            VarWebSplitter splitter = new VarWebSplitter(this);
+            splitter.build();
+            setIR();
         }
         // TODO: check how to handle empty method
     }
@@ -301,13 +306,17 @@ public class AsmIRBuilder {
     public void buildIR() {
         traverseBlocks();
         setLineNumber();
-        List<Stmt> stmts = getStmts();
+        makeStmts();
+        makeExceptionTable();
+
+    }
+
+    private void setIR() {
         Var thisVar = manager.getThisVar();
         List<Var> params = manager.getParams();
         List<Var> vars = manager.getVars();
         Set<Var> retVars = manager.getRetVars();
-        List<ExceptionEntry> entries = getExceptionTable();
-        ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, entries);
+        ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, exceptionEntries);
     }
 
     private Stmt getFirstStmt(LabelNode label) {
@@ -374,7 +383,7 @@ public class AsmIRBuilder {
         stmts.add(stmt);
     }
 
-    private List<Stmt> getStmts() {
+    private void makeStmts() {
         for (AbstractInsnNode node : source.instructions) {
             if (asm2Stmt.containsKey(node)) {
                 Stmt stmt = asm2Stmt.get(node);
@@ -388,10 +397,9 @@ public class AsmIRBuilder {
                 }
             }
         }
-        return stmts;
     }
 
-    private List<ExceptionEntry> getExceptionTable() {
+    private void makeExceptionTable() {
         List<ExceptionEntry> res = new ArrayList<>();
         for (TryCatchBlockNode node : source.tryCatchBlocks) {
             Stmt start = getFirstStmt(node.start);
@@ -407,7 +415,7 @@ public class AsmIRBuilder {
             ReferenceType expType = BuildContext.get().fromAsmInternalName(name);
             res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
         }
-        return res;
+        exceptionEntries = res;
     }
 
     private boolean inRange(int opcode, int min, int max) {
