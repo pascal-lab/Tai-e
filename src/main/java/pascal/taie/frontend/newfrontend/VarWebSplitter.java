@@ -149,10 +149,7 @@ public class VarWebSplitter {
     private void constructWebInsideBlock(BytecodeBlock block) {
         boolean isInTry = this.isInTry.contains(block);
         Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();
-        Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = new HashMap<>();
-        if (!isInTry) {
-            mayFlowToCatch = null;
-        }
+        Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
         for (Var var : locals) { // initialization.
             Copy phantom = new Copy(var, var);
             Pair<Stmt, Kind> e = new Pair<>(phantom, Kind.PHANTOM);
@@ -188,9 +185,8 @@ public class VarWebSplitter {
                     .flatMap(l -> l instanceof Var ? Optional.of((Var) l) : Optional.empty())
                     .filter(varManager::isLocal)
                     .orElse(null);
-            if (def != null) { // which means stmt is a DefinitionStmt.
-                Pair<Stmt, Kind> e =
-                        new Pair<>(stmt, Kind.DEF);
+            if (def != null) {
+                Pair<Stmt, Kind> e = new Pair<>(stmt, Kind.DEF);
                 var unionFind = webs.get(def);
                 unionFind.addElement(e);
                 var previous = currentDefs.put(def, e);
