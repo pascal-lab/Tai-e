@@ -1232,6 +1232,45 @@ public class AsmIRBuilder {
         }
     }
 
+    public List<Pair<List<BytecodeBlock>, BytecodeBlock>> getTryAndHandlerBlocks() {
+        List<Pair<List<BytecodeBlock>, BytecodeBlock>> result = new ArrayList<>();
+        for (var node : source.tryCatchBlocks) {
+            var start = label2Block.get(node.start);
+            var end = label2Block.get(node.end);
+            var handler = label2Block.get(node.handler);
+            var tryBlocks = getStartToEndBlocks(start, end);
+            result.add(new Pair<>(tryBlocks, handler));
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the blocks that is in an arbitrary path from start to end.
+     * WARNING: before calling this method, caller should have know that {@param start} and {@param end}
+     * are dominators of the result set.
+     * @param start the forward dominator of the result set.
+     * @param end the backward dominator of the result set.
+     * @return a list of blocks, and each of the elements is in an arbitrary path from start(inclusive)
+     * to end(exclusive), in bfs order.
+     */
+    private List<BytecodeBlock> getStartToEndBlocks(BytecodeBlock start, BytecodeBlock end) {
+        Queue<BytecodeBlock> workList = new LinkedList<>();
+        workList.offer(start);
+        List<BytecodeBlock> closure = new ArrayList<>();
+        while (workList.peek() != null) {
+            var bb = workList.poll();
+            if (!closure.contains(bb) && bb != end) {
+                closure.add(bb);
+                for (var succ : bb.outEdges()) {
+                    workList.offer(succ);
+                }
+            }
+        }
+
+        return closure;
+    }
+
     public IR getIr() {
         return ir;
     }
