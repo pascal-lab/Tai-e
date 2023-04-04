@@ -1150,8 +1150,6 @@ public class AsmIRBuilder {
         List<BytecodeBlock> bytecodeBlockList =
                 label2Block.keySet().stream()
                 .sorted((a, b) -> source.instructions.indexOf(a.getNext()) - source.instructions.indexOf(b.getNext()))
-                .toList()
-                .stream()
                 .map(label -> label2Block.get(label))
                 .toList();
         for (var bb : bytecodeBlockList) {
