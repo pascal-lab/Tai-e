@@ -32,7 +32,7 @@ public class VarWebSplitter {
     private final Map
             <
                     Var,
-                    UnionFindSet<Pair<? extends Stmt, Kind>>
+                    UnionFindSet<Pair<Stmt, Kind>>
             > webs;
 
     private final Map
@@ -40,7 +40,7 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            Pair<Copy, Kind>
+                            Pair<Stmt, Kind>
                     >
             > inUse;
 
@@ -49,7 +49,7 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            Pair<? extends Stmt, Kind>
+                            Pair<Stmt, Kind>
                     >
             > outDef;
 
@@ -58,7 +58,7 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            List<Pair<? extends Stmt, Kind>>
+                            List<Pair<Stmt, Kind>>
                     >
             > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
 
@@ -107,7 +107,7 @@ public class VarWebSplitter {
      * @param var the variable you want to get the web information.
      * @return the webs of the variable. WARNING: in each set there may exist element whose Kind is PHANTOM.
      */
-    public Collection<Set<Pair<? extends Stmt, Kind>>> getWebs(Var var) {
+    public Collection<Set<Pair<Stmt, Kind>>> getWebs(Var var) {
         return webs.get(var).getDisjointSets();
     }
 
@@ -148,26 +148,26 @@ public class VarWebSplitter {
 
     private void constructWebInsideBlock(BytecodeBlock block) {
         boolean isInTry = this.isInTry.contains(block);
-        Map<Var, Pair<Copy, Kind>> phantomUse = new HashMap<>();
-        Map<Var, List<Pair<? extends Stmt, Kind>>> mayFlowToCatch = new HashMap<>();
+        Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();
+        Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = new HashMap<>();
         if (!isInTry) {
             mayFlowToCatch = null;
         }
         for (Var var : locals) { // initialization.
             Copy phantom = new Copy(var, var);
-            Pair<Copy, Kind> e = new Pair<>(phantom, Kind.PHANTOM);
+            Pair<Stmt, Kind> e = new Pair<>(phantom, Kind.PHANTOM);
             webs.get(var).addElement(e);
             phantomUse.put(var, e);
             if (isInTry) {
                 // collect phantom to mayFlowToCatch
-                List<Pair<? extends Stmt, Kind>> varDefs = new ArrayList<>();
+                List<Pair<Stmt, Kind>> varDefs = new ArrayList<>();
                 varDefs.add(e);
                 mayFlowToCatch.put(var, varDefs);
             }
         }
         this.inUse.put(block, phantomUse);
 
-        Map<Var, Pair<? extends Stmt, Kind>> currentDefs = new HashMap<>(phantomUse);
+        Map<Var, Pair<Stmt, Kind>> currentDefs = new HashMap<>(phantomUse);
 
         for (var stmt : getStmts(block)) {
             // uses first
@@ -189,7 +189,7 @@ public class VarWebSplitter {
                     .filter(varManager::isLocal)
                     .orElse(null);
             if (def != null) { // which means stmt is a DefinitionStmt.
-                Pair<? extends Stmt, Kind> e =
+                Pair<Stmt, Kind> e =
                         new Pair<>(stmt, Kind.DEF);
                 var unionFind = webs.get(def);
                 unionFind.addElement(e);
