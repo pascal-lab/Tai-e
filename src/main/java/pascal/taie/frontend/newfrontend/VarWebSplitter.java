@@ -1,11 +1,8 @@
 package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
-import pascal.taie.ir.exp.LValue;
-import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
-import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -14,6 +11,7 @@ import pascal.taie.util.collection.UnionFindSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,9 +49,22 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            Pair<? extends DefinitionStmt<? extends LValue, ? extends RValue>, Kind>
+                            Pair<? extends Stmt, Kind>
                     >
             > outDef;
+
+    private final Map
+            <
+                    BytecodeBlock,
+                    Map<
+                            Var,
+                            List<Pair<? extends Stmt, Kind>>
+                    >
+            > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
+
+    private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
+
+    private final Set<BytecodeBlock> isInTry;
 
     public VarWebSplitter(AsmIRBuilder builder) {
         this.builder = builder;
@@ -63,6 +74,9 @@ public class VarWebSplitter {
         this.webs = new HashMap<>();
         this.inUse = new HashMap<>();
         this.outDef = new HashMap<>();
+        this.mayFlowToCatchOfBlocks = new HashMap<>();
+        this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
+        this.isInTry = new HashSet<>();
         this.locals = varManager.getVars()
                 .stream()
                 .filter(varManager::isLocal)
@@ -71,6 +85,7 @@ public class VarWebSplitter {
 
     public void build() {
         initWebs();
+        findTryBlocks();
         constructWeb();
         update();
     }
@@ -78,6 +93,13 @@ public class VarWebSplitter {
     private void initWebs() {
         for (Var var : locals) {
             webs.put(var, new UnionFindSet<>(new ArrayList<>()));
+        }
+    }
+
+    private void findTryBlocks() {
+        for (var tryCatchPair : tryAndHandlerBlocks) {
+            var trys = tryCatchPair.first();
+            isInTry.addAll(trys);
         }
     }
 
@@ -92,9 +114,9 @@ public class VarWebSplitter {
     public void constructWeb() {
         var blocks = builder.label2Block.values();
         for (var block : blocks) {
-            if (! block.isCatch()) {
+//            if (! block.isCatch()) { // TODO: remove when exception handling is completed.
                 constructWebInsideBlock(block);
-            }
+//            }
         }
 
         for (var block : blocks) {
@@ -103,13 +125,19 @@ public class VarWebSplitter {
             }
         }
 
-        // TODO: implicit exception edge to be processed.
+        for (var tryCatchPair : builder.getTryAndHandlerBlocks()) {
+            var trys = tryCatchPair.first();
+            var handler = tryCatchPair.second();
+            for (var t : trys) {
+                constructWebBetweenTryAndHandler(t, handler);
+            }
+        }
     }
 
     private void constructWebBetweenBlock(BytecodeBlock pred, BytecodeBlock succ) {
-        if (pred.isCatch() || succ.isCatch()) {
-            return;
-        }
+//        if (pred.isCatch() || succ.isCatch()) { // TODO: remove when exception handling is completed.
+//            return;
+//        }
         var predDef = outDef.get(pred);
         var succUse = inUse.get(succ);
         for (Var var : locals) {
@@ -119,25 +147,37 @@ public class VarWebSplitter {
     }
 
     private void constructWebInsideBlock(BytecodeBlock block) {
+        boolean isInTry = this.isInTry.contains(block);
         Map<Var, Pair<Copy, Kind>> phantomUse = new HashMap<>();
-        for (Var var : locals) {
+        Map<Var, List<Pair<? extends Stmt, Kind>>> mayFlowToCatch = new HashMap<>();
+        if (!isInTry) {
+            mayFlowToCatch = null;
+        }
+        for (Var var : locals) { // initialization.
             Copy phantom = new Copy(var, var);
             Pair<Copy, Kind> e = new Pair<>(phantom, Kind.PHANTOM);
             webs.get(var).addElement(e);
             phantomUse.put(var, e);
+            if (isInTry) {
+                // collect phantom to mayFlowToCatch
+                List<Pair<? extends Stmt, Kind>> varDefs = new ArrayList<>();
+                varDefs.add(e);
+                mayFlowToCatch.put(var, varDefs);
+            }
         }
         this.inUse.put(block, phantomUse);
 
-        Map<Var, Pair<? extends DefinitionStmt<? extends LValue, ? extends RValue>, Kind>> currentDefs = new HashMap<>(phantomUse);
+        Map<Var, Pair<? extends Stmt, Kind>> currentDefs = new HashMap<>(phantomUse);
 
         for (var stmt : getStmts(block)) {
             // uses first
             stmt.getUses()
                     .stream()
+                    .distinct()
                     .filter(r -> r instanceof Var)
                     .map(r -> (Var) r)
                     .filter(varManager::isLocal)
-                    .distinct().forEach(use ->  {
+                    .forEach(use ->  {
                 var e = new Pair<>(stmt, Kind.USE);
                 var unionFind = webs.get(use);
                 unionFind.addElement(e);
@@ -149,16 +189,35 @@ public class VarWebSplitter {
                     .filter(varManager::isLocal)
                     .orElse(null);
             if (def != null) { // which means stmt is a DefinitionStmt.
-                Pair<DefinitionStmt<? extends LValue, ? extends RValue>, Kind> e =
-                        new Pair<>((DefinitionStmt<? extends LValue, ? extends RValue>) stmt, Kind.DEF);
+                Pair<? extends Stmt, Kind> e =
+                        new Pair<>(stmt, Kind.DEF);
                 var unionFind = webs.get(def);
                 unionFind.addElement(e);
                 var previous = currentDefs.put(def, e);
                 assert previous != null;
+
+                if (isInTry) {
+                    var varDefs = mayFlowToCatch.get(def);
+                    varDefs.add(e);
+                }
             }
         }
 
         outDef.put(block, currentDefs);
+        if (isInTry) {
+            mayFlowToCatchOfBlocks.put(block, mayFlowToCatch);
+        }
+    }
+
+    private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
+        var blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
+        var handlerUse = inUse.get(handler);
+        for (Var var : locals) {
+            var web = webs.get(var);
+            for (var p : blockAllDefs.get(var)) {
+                web.union(p, handlerUse.get(var));
+            }
+        }
     }
 
     private Map<Var, List<ReplaceSource>> spiltVariable() {
@@ -231,11 +290,11 @@ public class VarWebSplitter {
         return stmts;
     }
 
-    enum Kind {
+    private enum Kind {
         DEF,
         USE,
         PHANTOM, // PHANTOM for the fake Copy in each block: x = x, used as a connector
     }
 
-    private record ReplaceSource(int index, Kind kind, Var old) { }
+    private record ReplaceSource(int index, Kind kind, Var old) {}
 }
