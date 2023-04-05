@@ -125,7 +125,7 @@ public class VarWebSplitter {
             }
         }
 
-        for (var tryCatchPair : builder.getTryAndHandlerBlocks()) {
+        for (var tryCatchPair : tryAndHandlerBlocks) {
             var trys = tryCatchPair.first();
             var handler = tryCatchPair.second();
             for (var t : trys) {
