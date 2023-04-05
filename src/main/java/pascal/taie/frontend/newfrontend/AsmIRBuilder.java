@@ -109,7 +109,7 @@ public class AsmIRBuilder {
 
     Map<LabelNode, BytecodeBlock> label2Block;
 
-    private List<BytecodeBlock> blockSortedList;
+    private List<BytecodeBlock> blockSortedList; // blocks that are sorted in bytecode order.
 
     private LabelNode entry;
 
@@ -1163,7 +1163,7 @@ public class AsmIRBuilder {
         return true;
     }
 
-    private List<BytecodeBlock> getLinearBBList() {
+    private boolean canBeTraversedInBytecodeOrder() {
         BytecodeBlock entry = label2Block.get(this.entry);
         Set<BytecodeBlock> hasInStack = new HashSet<>();
         hasInStack.add(entry);
@@ -1173,7 +1173,7 @@ public class AsmIRBuilder {
 
         for (var bb : blockSortedList) {
             if (!hasInStack.contains(bb)) {
-                return null;
+                return false;
             }
             hasInStack.addAll(bb.outEdges());
         }
@@ -1181,17 +1181,17 @@ public class AsmIRBuilder {
         assert hasInStack.containsAll(blockSortedList); // This assertion should be satisfied at most times. Remove when released.
         assert new HashSet<>(blockSortedList).containsAll(hasInStack); // This assertion should be satisfied at most times. Remove when released.
 
-        return blockSortedList;
+        return true;
     }
 
     private void traverseBlocks() {
         BytecodeBlock entry = label2Block.get(this.entry);
         entry.setInStack(new Stack<>());
 
-        List<BytecodeBlock> bytecodeBlockList = getLinearBBList();
-        // assert bytecodeBlockList != null; // This assertion should be satisfied at most times. Remove when released.
-        if (bytecodeBlockList != null) {
-            for (var bb : bytecodeBlockList) {
+        boolean canBeTraversedInBytecodeOrder = canBeTraversedInBytecodeOrder();
+        // assert canBeTraversedInBytecodeOrder; // This assertion should be satisfied at most times. Remove when released.
+        if (canBeTraversedInBytecodeOrder) {
+            for (var bb : blockSortedList) {
                 buildBlockStmt(bb);
             }
         } else {
