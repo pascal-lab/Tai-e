@@ -1251,12 +1251,13 @@ public class AsmIRBuilder {
      * Get the blocks that is in an arbitrary path from start to end.
      * WARNING: before calling this method, caller should have know that {@param start} and {@param end}
      * are dominators of the result set.
-     * @param start the forward dominator of the result set.
-     * @param end the backward dominator of the result set.
+     * @param start (not null) the forward dominator of the result set.
+     * @param end (not null) the backward dominator of the result set.
      * @return a list of blocks, and each of the elements is in an arbitrary path from start(inclusive)
      * to end(exclusive), in bfs order.
      */
     private List<BytecodeBlock> getStartToEndBlocks(BytecodeBlock start, BytecodeBlock end) {
+        assert end != null && start != null;
         Queue<BytecodeBlock> workList = new LinkedList<>();
         workList.offer(start);
         List<BytecodeBlock> closure = new ArrayList<>();
