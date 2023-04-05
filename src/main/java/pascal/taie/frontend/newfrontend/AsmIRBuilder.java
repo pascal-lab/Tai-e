@@ -1016,6 +1016,13 @@ public class AsmIRBuilder {
                         .sorted((a, b) -> source.instructions.indexOf(a.getNext()) - source.instructions.indexOf(b.getNext()))
                         .map(label -> label2Block.get(label))
                         .toList();
+
+        for (int i = 0; i < blockSortedList.size() - 1; i++) {
+            assert !blockSortedList.get(i).equals(blockSortedList.get(i + 1));
+        }
+        for (var b : label2Block.values()) {
+            assert !b.instr().isEmpty();
+        }
     }
 
     private BytecodeBlock getBlock(LabelNode label) {
@@ -1099,6 +1106,7 @@ public class AsmIRBuilder {
         }
 
         dfsConcatenateBlocks(entry, visited);
+        source.tryCatchBlocks.forEach(i -> dfsConcatenateBlocks(label2Block.get(i.handler), visited)); // mey trigger exception. be careful when used.
     }
 
     private void dfsConcatenateBlocks(BytecodeBlock bb, Set<BytecodeBlock> visitedSet) {
@@ -1122,19 +1130,20 @@ public class AsmIRBuilder {
      * Concatenate the successor.
      */
     private boolean concatenateSuccIfPossible(BytecodeBlock pred) {
-        assert !pred.isCatch();
         if (pred.outEdges().size() != 1) return false;
 
         var succ = pred.outEdges().get(0);
-        assert !succ.isCatch();
+        assert !succ.isCatch(); // There should be no inEdges for exception blocks.
         if (succ.inEdges().size() != 1) return false;
 
         if (ignoredLabels.contains(succ.label())) return false;
 
-        // Do not concatenate blocks that are explicitly declared to be separated
-        // i.e. GOTO, SWITCH
+        // Do not concatenate blocks that are explicitly declared to be separated,
+        // because they could be separated by exception labelNodes.
+        // i.e. GOTO, SWITCH.
+        // But if succ is empty, the concatenation is ok.
         int opcode = pred.getLastBytecode().getOpcode();
-        if (opcode == Opcodes.GOTO || opcode == Opcodes.TABLESWITCH || opcode == Opcodes.LOOKUPSWITCH)
+        if ((opcode == Opcodes.GOTO || opcode == Opcodes.TABLESWITCH || opcode == Opcodes.LOOKUPSWITCH) && !succ.instr().isEmpty())
             return false;
 
         // Main concatenating process:
