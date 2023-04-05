@@ -1240,7 +1240,25 @@ public class AsmIRBuilder {
             var start = label2Block.get(node.start);
             var end = label2Block.get(node.end);
             var handler = label2Block.get(node.handler);
-            var tryBlocks = getStartToEndBlocks(start, end);
+            assert start != null;
+            assert handler != null;
+            List<BytecodeBlock> tryBlocks;
+            if (end != null) {
+                tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
+            } else {
+                if (node.end.getNext() == null) {
+                    // node.end is the end asm InsnNode.
+                    tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.size());
+                } else {
+                    AbstractInsnNode insnNode = node.end;
+                    while (insnNode instanceof LabelNode && !label2Block.containsKey(insnNode)) {
+                        insnNode = insnNode.getNext();
+                    }
+                    assert insnNode instanceof LabelNode; // make sure that the while loop above stops due to !label2Block.containsKey(insnNode).
+                    end = label2Block.get((LabelNode) insnNode);
+                    tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
+                }
+            }
             result.add(new Pair<>(tryBlocks, handler));
         }
 
