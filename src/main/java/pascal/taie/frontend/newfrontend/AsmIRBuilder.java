@@ -109,6 +109,8 @@ public class AsmIRBuilder {
 
     Map<LabelNode, BytecodeBlock> label2Block;
 
+    private List<BytecodeBlock> blockSortedList;
+
     private LabelNode entry;
 
     final VarManager manager;
@@ -1009,6 +1011,11 @@ public class AsmIRBuilder {
         }
 
         bridgeWronglySeparatedBlocks();
+        blockSortedList =
+                label2Block.keySet().stream()
+                        .sorted((a, b) -> source.instructions.indexOf(a.getNext()) - source.instructions.indexOf(b.getNext()))
+                        .map(label -> label2Block.get(label))
+                        .toList();
     }
 
     private BytecodeBlock getBlock(LabelNode label) {
@@ -1155,22 +1162,17 @@ public class AsmIRBuilder {
                 label2Block.values().stream().filter(BytecodeBlock::isCatch).toList()
         );
 
-        List<BytecodeBlock> bytecodeBlockList =
-                label2Block.keySet().stream()
-                .sorted((a, b) -> source.instructions.indexOf(a.getNext()) - source.instructions.indexOf(b.getNext()))
-                .map(label -> label2Block.get(label))
-                .toList();
-        for (var bb : bytecodeBlockList) {
+        for (var bb : blockSortedList) {
             if (!hasInStack.contains(bb)) {
                 return null;
             }
             hasInStack.addAll(bb.outEdges());
         }
 
-        assert hasInStack.containsAll(bytecodeBlockList); // This assertion should be satisfied at most times. Remove when released.
-        assert new HashSet<>(bytecodeBlockList).containsAll(hasInStack); // This assertion should be satisfied at most times. Remove when released.
+        assert hasInStack.containsAll(blockSortedList); // This assertion should be satisfied at most times. Remove when released.
+        assert new HashSet<>(blockSortedList).containsAll(hasInStack); // This assertion should be satisfied at most times. Remove when released.
 
-        return bytecodeBlockList;
+        return blockSortedList;
     }
 
     private void traverseBlocks() {
