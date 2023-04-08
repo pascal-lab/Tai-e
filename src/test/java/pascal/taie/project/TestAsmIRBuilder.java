@@ -29,6 +29,7 @@ public class TestAsmIRBuilder {
         return builder.build();
     }
 
+    // Note: if javaVersion is less than 7, then assertion about frames will fail
     ClassHierarchy getCh(String mainClass, int javaVersion) {
 
         String worldPath = "src/test/resources/world";
