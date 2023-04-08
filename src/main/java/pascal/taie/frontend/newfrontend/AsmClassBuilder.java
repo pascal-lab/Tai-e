@@ -136,7 +136,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
     private void buildAll() {
         CVisitor visitor = new CVisitor();
-        source.r().accept(visitor, ClassReader.SKIP_FRAMES);
+        source.r().accept(visitor, ClassReader.EXPAND_FRAMES);
     }
 
     private String getSimpleName(String binaryName) {

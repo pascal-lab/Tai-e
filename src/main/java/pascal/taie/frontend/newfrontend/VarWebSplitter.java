@@ -66,6 +66,11 @@ public class VarWebSplitter {
 
     private final Set<BytecodeBlock> isInTry;
 
+    // TODO:
+    //   1. if classfile major version is less than 50,
+    //      then our algorithm may not be able to split some defs
+    //   2. only merge and add phantom defs when this var occurs in frame locals
+    //   3. (optional) remove all phantom defs by dfs / bfs traversal
     public VarWebSplitter(AsmIRBuilder builder) {
         this.builder = builder;
         this.varManager = builder.manager;

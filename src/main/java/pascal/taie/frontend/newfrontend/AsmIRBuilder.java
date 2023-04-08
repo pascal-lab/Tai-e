@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
@@ -993,9 +994,13 @@ public class AsmIRBuilder {
 
             AbstractInsnNode now = currentBegin.getNext();
             while (now != null) {
-                if (! (now instanceof LabelNode) && ! (now instanceof LineNumberNode)) {
+                if (now instanceof FrameNode frameNode) {
+                    bb.setFrame(frameNode);
+                }
+                else if (! (now instanceof LabelNode) && ! (now instanceof LineNumberNode)) {
                     instr.add(now);
                 }
+
                 if (isCFEdge(now)) {
                     break;
                 }

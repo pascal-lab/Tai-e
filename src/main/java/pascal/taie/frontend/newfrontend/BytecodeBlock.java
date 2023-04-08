@@ -1,6 +1,7 @@
 package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -13,6 +14,7 @@ import java.util.Stack;
 
 public final class BytecodeBlock {
     private final LabelNode label;
+
     private final List<AbstractInsnNode> instr;
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
@@ -25,6 +27,9 @@ public final class BytecodeBlock {
 
     @Nullable
     private BytecodeBlock fallThrough;
+
+    @Nullable
+    private FrameNode frame;
 
     private boolean complete;
 
@@ -91,6 +96,11 @@ public final class BytecodeBlock {
 
     public void setInStack(Stack<Var> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
+        if (frame == null) {
+            assert inStack.isEmpty() || inEdges.size() == 1;
+        } else {
+            assert inStack.size() == frame.stack.size();
+        }
         this.inStack = inStack;
         for (var pred : inEdges) {
             if (pred.outStack == null) {
@@ -119,6 +129,15 @@ public final class BytecodeBlock {
 
     public void setFirstStmt(Stmt firstStmt) {
         this.firstStmt = firstStmt;
+    }
+
+    @Nullable
+    public FrameNode getFrame() {
+        return frame;
+    }
+
+    public void setFrame(@Nullable FrameNode frame) {
+        this.frame = frame;
     }
 
     @Override
