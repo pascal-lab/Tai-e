@@ -39,6 +39,11 @@ public class TypeInference {
         return null;
     }
 
+
+    static public boolean isSubType(ReferenceType s, ReferenceType t) {
+        return false;
+    }
+
     public void build() {
         TypingFlowGraph graph = new TypingFlowGraph();
 
@@ -46,13 +51,13 @@ public class TypeInference {
             stmt.accept(new StmtVisitor<Void>() {
                 @Override
                 public Void visit(New stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue(), NodeKind.VAR);
+                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
                     return null;
                 }
 
                 @Override
                 public Void visit(AssignLiteral stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue(), NodeKind.VAR);
+                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
                     return null;
                 }
 
@@ -76,7 +81,7 @@ public class TypeInference {
 
                 @Override
                 public Void visit(LoadField stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue(), NodeKind.VAR);
+                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
                     if (stmt.getRValue() instanceof InstanceFieldAccess instanceFieldAccess) {
                         // TODO: maybe resolve() or can just setType() ?
                         graph.addUseConstrain(instanceFieldAccess.getBase(),
@@ -104,13 +109,13 @@ public class TypeInference {
 
                 @Override
                 public Void visit(Cast stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue(), NodeKind.VAR);
+                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
                     return null;
                 }
 
                 @Override
                 public Void visit(Invoke stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue(), NodeKind.VAR);
+                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
 
                     if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
                         graph.addUseConstrain(invokeInstanceExp.getBase(),
@@ -130,22 +135,24 @@ public class TypeInference {
                 }
             });
         }
+
+        graph.inferTypes();
     }
 
     static class TypingFlowGraph {
         Map<Var, TypingFlowNode> nodes;
 
-        public void addConstantEdge(Type t, Var v, NodeKind kind) {
-            TypingFlowNode node = nodes.computeIfAbsent(v, (var) -> new TypingFlowNode(kind, v));
+        public void addConstantEdge(Type t, Var v) {
+            TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
             node.setNewType(t);
         }
 
         public void addVarEdge(Var from, Var to, EdgeKind kind) {
             if (from.getType() != null) {
-                addConstantEdge(from.getType(), to, kind.getTarget());
+                addConstantEdge(from.getType(), to);
             } else {
-                TypingFlowNode n1 = nodes.computeIfAbsent(from, (var) -> new TypingFlowNode(kind.getSource(), var));
-                TypingFlowNode n2 = nodes.computeIfAbsent(to, (var) -> new TypingFlowNode(kind.getTarget(), var));
+                TypingFlowNode n1 = nodes.computeIfAbsent(from, TypingFlowNode::new);
+                TypingFlowNode n2 = nodes.computeIfAbsent(to, TypingFlowNode::new);
                 TypingFlowEdge edge = new TypingFlowEdge(kind, n1, n2);
                 n2.addNewInEdge(edge);
                 n1.addNewOutEdge(edge);
@@ -153,13 +160,23 @@ public class TypeInference {
         }
 
         public void addUseConstrain(Var v, ReferenceType constrain) {
-            TypingFlowNode node = nodes.computeIfAbsent(v, (var) -> new TypingFlowNode(NodeKind.VAR, var));
+            TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
             node.addNewUseConstrain(constrain);
         }
+
+        public void inferTypes() {
+            tarjan();
+        }
+
+        /**
+         * find all strong connected component by tarjan algorithm
+         */
+        private void tarjan() {
+        }
+
     }
 
     static final class TypingFlowNode {
-        private final NodeKind kind;
         private final Var var;
         @Nullable
         private Set<ReferenceType> types;
@@ -171,8 +188,7 @@ public class TypeInference {
 
         private List<TypingFlowEdge> outEdges;
 
-        TypingFlowNode(NodeKind kind, Var var) {
-            this.kind = kind;
+        TypingFlowNode(Var var) {
             this.var = var;
             useValidConstrains = Set.of();
             inEdges = List.of();
@@ -222,8 +238,14 @@ public class TypeInference {
             useValidConstrains.add(type);
         }
 
-        public NodeKind kind() {
-            return kind;
+        public void ApplyUseConstrains() {
+            if (useValidConstrains.size() != 0) {
+                assert types != null;
+                types.removeIf((s) ->
+                        useValidConstrains
+                                .stream()
+                                .anyMatch(t -> !isSubType(s, t)));
+            }
         }
 
         public Var var() {
