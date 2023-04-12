@@ -61,7 +61,7 @@ public class Var implements LValue, RValue, Indexable {
     /**
      * The type of this Var.
      */
-    private final Type type;
+    private Type type;
 
     /**
      * The index of this variable in {@link #method}.
@@ -154,6 +154,10 @@ public class Var implements LValue, RValue, Indexable {
     @Override
     public String toString() {
         return name;
+    }
+
+    public void setType(Type t) {
+        this.type = t;
     }
 
     public void addLoadField(LoadField loadField) {
