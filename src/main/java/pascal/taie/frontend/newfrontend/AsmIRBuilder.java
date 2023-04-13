@@ -311,7 +311,30 @@ public class AsmIRBuilder {
         setLineNumber();
         makeStmts();
         makeExceptionTable();
+    }
 
+    /**
+     * This function should be only called after <code>makeStmts</code>
+     */
+    public List<Stmt> getStmts(BytecodeBlock block) {
+        if (block.getFirstStmt() == null) {
+            return List.of();
+        }
+        List<Stmt> res = new ArrayList<>();
+        int start = block.getFirstStmt().getIndex();
+        assert start >= 0;
+        int end = block.getLastStmt() == null ? stmts.size() : block.getLastStmt().getIndex();
+        for (int i = start; i < end; ++i) {
+            res.add(stmts.get(i));
+        }
+        return res;
+    }
+
+    /**
+     * This function should only be called after <code>makeStmts</code>
+     */
+    public void setStmts(int index, Stmt newStmt) {
+        this.stmts.set(index, newStmt);
     }
 
     private void setIR() {
@@ -387,7 +410,21 @@ public class AsmIRBuilder {
     }
 
     private void makeStmts() {
+        int blockIndex = 1;
         for (AbstractInsnNode node : source.instructions) {
+            // if it's the last bytecode block, we do not need to set last stmt
+            if (blockIndex < blockSortedList.size()) {
+                BytecodeBlock nextBlock = blockSortedList.get(blockIndex);
+                // current block is ended
+                if (nextBlock.getFirstBytecode().isEmpty()
+                        || nextBlock.getFirstBytecode().get() == node) {
+                    assert stmts.size() != 0; // first block is empty? too rare
+                    // last is excluded
+                    nextBlock.setLastStmt(stmts.get(stmts.size() - 1));
+                    blockIndex++;
+                }
+            }
+
             if (asm2Stmt.containsKey(node)) {
                 Stmt stmt = asm2Stmt.get(node);
                 setJumpTargets(node, stmt);

@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Stack;
 
 public final class BytecodeBlock {
@@ -23,13 +24,22 @@ public final class BytecodeBlock {
 
     private Stack<Var> outStack;
 
-    private @Nullable Stmt firstStmt;
+    private Stmt firstStmt;
+
+    /**
+     * <code>null</code> if this block is the last bytecode block in a method
+     * or this block is empty
+     */
+    @Nullable
+    private Stmt lastStmt;
 
     @Nullable
     private BytecodeBlock fallThrough;
 
     @Nullable
     private FrameNode frame;
+
+    private AbstractInsnNode firstBytecode;
 
     private boolean complete;
 
@@ -123,12 +133,31 @@ public final class BytecodeBlock {
         return firstStmt;
     }
 
+    public Optional<AbstractInsnNode> getFirstBytecode() {
+        if (instr().size() != 0) {
+            if (firstBytecode == null) {
+                firstBytecode = instr.get(0);
+            }
+            return Optional.of(firstBytecode);
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public AbstractInsnNode getLastBytecode() {
         return instr.get(instr.size() - 1);
     }
 
     public void setFirstStmt(Stmt firstStmt) {
         this.firstStmt = firstStmt;
+    }
+
+    public Stmt getLastStmt() {
+        return lastStmt;
+    }
+
+    public void setLastStmt(Stmt lastStmt) {
+        this.lastStmt = lastStmt;
     }
 
     @Nullable

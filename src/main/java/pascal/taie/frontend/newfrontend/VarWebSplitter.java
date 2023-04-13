@@ -23,10 +23,6 @@ public class VarWebSplitter {
 
     private final VarManager varManager;
 
-    private final Map<AbstractInsnNode, Stmt> asm2Stmt;
-
-    private final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
-
     private final List<Var> locals;
 
     private final Map
@@ -74,8 +70,6 @@ public class VarWebSplitter {
     public VarWebSplitter(AsmIRBuilder builder) {
         this.builder = builder;
         this.varManager = builder.manager;
-        this.asm2Stmt = builder.asm2Stmt;
-        this.auxiliaryStmts = builder.auxiliaryStmts;
         this.webs = new HashMap<>();
         this.inUse = new HashMap<>();
         this.outDef = new HashMap<>();
@@ -274,21 +268,11 @@ public class VarWebSplitter {
             }
         });
 
-        modifyLists.forEach(builder.stmts::set);
+        modifyLists.forEach(builder::setStmts);
     }
 
     private List<Stmt> getStmts(BytecodeBlock block) {
-        List<Stmt> stmts = new ArrayList<>();
-        for (var node : block.instr()) {
-            if (asm2Stmt.containsKey(node)) {
-                stmts.add(asm2Stmt.get(node));
-
-            }
-            if (auxiliaryStmts.containsKey(node)) {
-                stmts.addAll(auxiliaryStmts.get(node));
-            }
-        }
-        return stmts;
+        return builder.getStmts(block);
     }
 
     private enum Kind {
