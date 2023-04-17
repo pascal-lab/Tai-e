@@ -178,7 +178,7 @@ public abstract class AbstractBitSet implements IBitSet {
     /**
      * Abstract class for the actions that may change this set.
      */
-    private static abstract class ChangeAction implements Action<Boolean> {
+    private abstract static class ChangeAction implements Action<Boolean> {
 
         /**
          * Boolean value indicating whether this set changed by the action.
@@ -233,13 +233,16 @@ public abstract class AbstractBitSet implements IBitSet {
         if (i != -1) {
             b.append(i);
             while (true) {
-                if (++i < 0) break;
-                if ((i = nextSetBit(i)) < 0) break;
+                if (++i < 0) {
+                    break;
+                }
+                if ((i = nextSetBit(i)) < 0) {
+                    break;
+                }
                 int endOfRun = nextClearBit(i);
                 do {
                     b.append(", ").append(i);
-                }
-                while (++i != endOfRun);
+                } while (++i != endOfRun);
             }
         }
 

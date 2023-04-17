@@ -49,7 +49,7 @@ public class ReferenceHandler implements Plugin {
     private CSManager csManager;
 
     /**
-     * This variable of Reference.<init>.
+     * This variable of Reference.&lt;init&gt;.
      */
     private JMethod referenceInit;
 

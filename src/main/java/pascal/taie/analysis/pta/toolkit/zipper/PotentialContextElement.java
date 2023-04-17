@@ -69,7 +69,7 @@ class PotentialContextElement {
         });
     }
 
-    Set<JMethod> PCEMethodsOf(Type type) {
+    Set<JMethod> pceMethodsOf(Type type) {
         return type2PCEMethods.get(type);
     }
 }

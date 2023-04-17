@@ -50,7 +50,7 @@ public final class World extends AbstractResultHolder {
      * The callbacks that will be invoked at resetting.
      * This is useful to clear class-level caches.
      */
-    private final static List<Runnable> resetCallbacks = new ArrayList<>();
+    private static final List<Runnable> resetCallbacks = new ArrayList<>();
 
     private Options options;
 

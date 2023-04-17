@@ -67,7 +67,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
     /**
      * The key for singletons. Null if not singleton.
      */
-    private K singleton_key;
+    private K singletonKey;
 
     /**
      * The value, for singletons. Null if not singleton.
@@ -123,8 +123,8 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public void clear() {
-        if (singleton_key != null) {
-            singleton_key = null;
+        if (singletonKey != null) {
+            singletonKey = null;
             singleton_value = null;
         }
         if (map != null) {
@@ -134,8 +134,8 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        if (singleton_key != null) {
-            return singleton_key.equals(key);
+        if (singletonKey != null) {
+            return singletonKey.equals(key);
         }
         if (map != null) {
             return map.containsKey(key);
@@ -145,7 +145,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        if (singleton_key != null) {
+        if (singletonKey != null) {
             return singleton_value.equals(value);
         }
         if (map != null) {
@@ -156,9 +156,10 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public V get(Object key) {
-        if (singleton_key != null) {
-            if (singleton_key.equals(key))
+        if (singletonKey != null) {
+            if (singletonKey.equals(key)) {
                 return singleton_value;
+            }
             return null;
         }
         if (map != null) {
@@ -170,8 +171,8 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
     @Override
     public V put(K key, V value) {
         Objects.requireNonNull(key, NULL_KEY);
-        if (singleton_key != null) {
-            if (singleton_key.equals(key)) {
+        if (singletonKey != null) {
+            if (singletonKey.equals(key)) {
                 V old = singleton_value;
                 singleton_value = value;
                 return old;
@@ -184,16 +185,16 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
             }
             return map.put(key, value);
         }
-        singleton_key = key;
+        singletonKey = key;
         singleton_value = value;
         return null;
     }
 
     private void upgradeToSmallMap() {
         map = newSmallMap();
-        if (singleton_key != null) {
-            map.put(singleton_key, singleton_value);
-            singleton_key = null;
+        if (singletonKey != null) {
+            map.put(singletonKey, singleton_value);
+            singletonKey = null;
             singleton_value = null;
         }
     }
@@ -202,9 +203,9 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
         assert !isLargeMap;
         Map<K, V> origin = map;
         map = newLargeMap(initialCapacity);
-        if (singleton_key != null) {
-            map.put(singleton_key, singleton_value);
-            singleton_key = null;
+        if (singletonKey != null) {
+            map.put(singletonKey, singleton_value);
+            singletonKey = null;
             singleton_value = null;
         }
         if (origin != null) {
@@ -215,26 +216,26 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
-        int m_size = m.size();
-        if (m_size == 0) {
+        int mSize = m.size();
+        if (mSize == 0) {
             return;
         }
-        int max_new_size = m_size + size();
+        int maxNewSize = mSize + size();
         int threshold = getThreshold();
         if (map == null) {
-            if (max_new_size == 1) {
-                assert singleton_key == null;
+            if (maxNewSize == 1) {
+                assert singletonKey == null;
                 var entry = CollectionUtils.getOne(m.entrySet());
-                singleton_key = Objects.requireNonNull(entry.getKey(), NULL_KEY);
+                singletonKey = Objects.requireNonNull(entry.getKey(), NULL_KEY);
                 singleton_value = entry.getValue();
                 return;
-            } else if (max_new_size <= threshold) {
+            } else if (maxNewSize <= threshold) {
                 upgradeToSmallMap();
             } else {
-                upgradeToLargeMap(max_new_size + threshold);
+                upgradeToLargeMap(maxNewSize + threshold);
             }
-        } else if (!isLargeMap && max_new_size > threshold) {
-            upgradeToLargeMap(max_new_size + threshold);
+        } else if (!isLargeMap && maxNewSize > threshold) {
+            upgradeToLargeMap(maxNewSize + threshold);
         }
         if (!(m instanceof AbstractHybridMap)) {
             m.keySet().forEach(k -> Objects.requireNonNull(k, NULL_KEY));
@@ -244,10 +245,10 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public V remove(Object key) {
-        if (singleton_key != null) {
-            if (singleton_key.equals(key)) {
+        if (singletonKey != null) {
+            if (singletonKey.equals(key)) {
                 V oldValue = singleton_value;
-                singleton_key = null;
+                singletonKey = null;
                 singleton_value = null;
                 return oldValue;
             }
@@ -261,7 +262,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public int size() {
-        if (singleton_key != null) {
+        if (singletonKey != null) {
             return 1;
         }
         if (map != null) {
@@ -272,7 +273,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public boolean isEmpty() {
-        if (singleton_key != null) {
+        if (singletonKey != null) {
             return false;
         }
         if (map != null) {
@@ -307,22 +308,23 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
         if (!(obj instanceof Map<?, ?> m)) {
             return false;
         }
-        int this_size = size();
-        if (this_size != m.size()) {
+        int thisSize = size();
+        if (thisSize != m.size()) {
             return false;
         }
-        if (this_size == 1 && obj instanceof AbstractHybridMap<?, ?> h) {
-            if (singleton_key != null && h.singleton_key != null)
-                return singleton_key.equals(h.singleton_key)
+        if (thisSize == 1 && obj instanceof AbstractHybridMap<?, ?> h) {
+            if (singletonKey != null && h.singletonKey != null) {
+                return singletonKey.equals(h.singletonKey)
                         && (Objects.equals(singleton_value, h.singleton_value));
+            }
         }
         return entrySet().equals(m.entrySet());
     }
 
     @Override
     public int hashCode() { // see contract for Map.hashCode
-        if (singleton_key != null) {
-            return Hashes.safeHash(singleton_key, singleton_value);
+        if (singletonKey != null) {
+            return Hashes.safeHash(singletonKey, singleton_value);
         }
         if (map != null) {
             return map.hashCode();
@@ -344,7 +346,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
         @Override
         @Nonnull
         public Iterator<K> iterator() {
-            if (singleton_key != null) {
+            if (singletonKey != null) {
                 return new SingletonIterator<K>() {
                     @Override
                     @Nonnull
@@ -379,7 +381,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
         @Override
         @Nonnull
         public Iterator<V> iterator() {
-            if (singleton_key != null) {
+            if (singletonKey != null) {
                 return new SingletonIterator<V>() {
                     @Override
                     public V next() {
@@ -403,7 +405,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
         @Override
         @Nonnull
         public Iterator<Entry<K, V>> iterator() {
-            if (singleton_key != null) {
+            if (singletonKey != null) {
                 return new SingletonIterator<Entry<K, V>>() {
                     @Override
                     @Nonnull
@@ -423,8 +425,8 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
             if (!(o instanceof Entry<?, ?> e)) {
                 return false;
             }
-            if (singleton_key != null) {
-                return singleton_key.equals(e.getKey())
+            if (singletonKey != null) {
+                return singletonKey.equals(e.getKey())
                         && Objects.equals(singleton_value, e.getValue());
             }
             if (map != null) {
@@ -457,7 +459,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
             if (done) {
                 throw new NoSuchElementException();
             }
-            Entry<K, V> e = new MapEntry<>(singleton_key, singleton_value);
+            Entry<K, V> e = new MapEntry<>(singletonKey, singleton_value);
             done = true;
             return e;
         }
@@ -467,7 +469,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
                 throw new NoSuchElementException();
             }
             done = true;
-            return singleton_key;
+            return singletonKey;
         }
 
         public V nextValue() {
@@ -480,8 +482,8 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
 
         @Override
         public void remove() {
-            if (done && singleton_key != null) {
-                singleton_key = null;
+            if (done && singletonKey != null) {
+                singletonKey = null;
                 singleton_value = null;
             } else {
                 throw new IllegalStateException();

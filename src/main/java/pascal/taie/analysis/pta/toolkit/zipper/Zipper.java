@@ -182,7 +182,7 @@ public class Zipper {
                 .stream()
                 .map(Zipper::node2Method)
                 .filter(Objects::nonNull)
-                .filter(pce.PCEMethodsOf(pfg.getType())::contains)
+                .filter(pce.pceMethodsOf(pfg.getType())::contains)
                 .collect(Collectors.toUnmodifiableSet());
         if (isExpress) {
             int accPts = 0;

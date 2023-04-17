@@ -48,17 +48,17 @@ public class LiveVarTest {
     }
 
     @Test
-    public void Array() {
+    public void testArray() {
         testLV("Array");
     }
 
     @Test
-    public void Fibonacci() {
+    public void testFibonacci() {
         testLV("Fibonacci");
     }
 
     @Test
-    public void Reference() {
+    public void testReference() {
         testLV("Reference");
     }
 }

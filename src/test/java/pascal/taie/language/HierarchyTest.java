@@ -58,12 +58,12 @@ public class HierarchyTest {
      */
     @Test
     public void testSubclass1() {
-        String I = "I", II = "II", III = "III", IIII = "IIII";
-        expectedSubclass(I, III);
-        expectedSubclass(I, IIII);
-        expectedNotSubclass(I, II);
-        expectedNotSubclass(II, I);
-        expectedNotSubclass(III, I);
+        String i = "I", ii = "II", iii = "III", iiii = "IIII";
+        expectedSubclass(i, iii);
+        expectedSubclass(i, iiii);
+        expectedNotSubclass(i, ii);
+        expectedNotSubclass(ii, i);
+        expectedNotSubclass(iii, i);
     }
 
     /**
@@ -71,11 +71,11 @@ public class HierarchyTest {
      */
     @Test
     public void testSubclass2() {
-        String Object = "java.lang.Object", I = "I", C = "C";
-        expectedSubclass(Object, I);
-        expectedNotSubclass(I, Object);
-        expectedSubclass(Object, C);
-        expectedNotSubclass(C, Object);
+        String sObject = "java.lang.Object", i = "I", c = "C";
+        expectedSubclass(sObject, i);
+        expectedNotSubclass(i, sObject);
+        expectedSubclass(sObject, c);
+        expectedNotSubclass(c, sObject);
     }
 
     /**
@@ -83,11 +83,11 @@ public class HierarchyTest {
      */
     @Test
     public void testSubclass3() {
-        String I = "I", E = "E", F = "F", G = "G";
-        expectedSubclass(I, E);
-        expectedSubclass(I, F);
-        expectedSubclass(I, G);
-        expectedNotSubclass(E, I);
+        String i = "I", e = "E", f = "F", g = "G";
+        expectedSubclass(i, e);
+        expectedSubclass(i, f);
+        expectedSubclass(i, g);
+        expectedNotSubclass(e, i);
     }
 
     /**
@@ -95,10 +95,10 @@ public class HierarchyTest {
      */
     @Test
     public void testSubclass4() {
-        String C = "C", D = "D", G = "G";
-        expectedSubclass(C, D);
-        expectedSubclass(C, G);
-        expectedNotSubclass(D, C);
+        String c = "C", d = "D", g = "G";
+        expectedSubclass(c, d);
+        expectedSubclass(c, g);
+        expectedNotSubclass(d, c);
     }
 
     private static void expectedSubclass(String sup, String sub) {
@@ -273,9 +273,9 @@ public class HierarchyTest {
     @Test
     public void testSubclasses() {
         Collection<JClass> subclasses;
-        JClass C = getClass("C");
-        subclasses = getAllSubclasses(C);
-        Assert.assertTrue(subclasses.contains(C));
+        JClass c = getClass("C");
+        subclasses = getAllSubclasses(c);
+        Assert.assertTrue(subclasses.contains(c));
     }
 
     /**
@@ -283,8 +283,8 @@ public class HierarchyTest {
      */
     @Test
     public void testInterfaceSubclasses() {
-        JClass I = getClass("I");
-        Collection<JClass> subclasses = getAllSubclasses(I);
+        JClass i = getClass("I");
+        Collection<JClass> subclasses = getAllSubclasses(i);
 
         Assert.assertTrue(subclasses.contains(getClass("IIII")));
         Assert.assertTrue(subclasses.contains(getClass("E")));

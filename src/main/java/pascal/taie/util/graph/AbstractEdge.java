@@ -53,8 +53,12 @@ public abstract class AbstractEdge<N> implements Edge<N> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AbstractEdge<?> edge = (AbstractEdge<?>) o;
         return source.equals(edge.source) && target.equals(edge.target);
     }

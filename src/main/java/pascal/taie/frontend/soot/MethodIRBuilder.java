@@ -938,9 +938,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
     }
 
     private void buildInvoke(Local lhs, InvokeExpr invokeExpr) {
-        Var result = (lhs == null ||
-                // remove unused temp variables that receive invoke result
-                unusedInvokeTempRets.contains(lhs))
+        Var result = (lhs == null // remove unused temp variables that receive invoke result
+                || unusedInvokeTempRets.contains(lhs))
                 ? null : getVar(lhs);
         InvokeExp invokeExp = getInvokeExp(invokeExpr);
         Invoke invoke = new Invoke(method, invokeExp, result);

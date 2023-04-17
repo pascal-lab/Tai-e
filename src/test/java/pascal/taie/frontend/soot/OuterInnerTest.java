@@ -48,13 +48,13 @@ public class OuterInnerTest {
         Assert.assertFalse(main.hasOuterClass());
         Assert.assertEquals(2, hierarchy.getDirectInnerClassesOf(main).size());
 
-        JClass Inner = hierarchy.getClass("OuterInner$Inner");
-        Assert.assertTrue(Inner.hasOuterClass());
+        JClass inner = hierarchy.getClass("OuterInner$Inner");
+        Assert.assertTrue(inner.hasOuterClass());
 
-        JClass Outer = hierarchy.getClass("OuterInner$Outer");
-        Assert.assertEquals(3, hierarchy.getDirectInnerClassesOf(Outer).size());
+        JClass outer = hierarchy.getClass("OuterInner$Outer");
+        Assert.assertEquals(3, hierarchy.getDirectInnerClassesOf(outer).size());
 
-        JClass OuterInner1 = hierarchy.getClass("OuterInner$Outer$Inner1");
-        Assert.assertEquals(0, hierarchy.getDirectInnerClassesOf(OuterInner1).size());
+        JClass outerInner1 = hierarchy.getClass("OuterInner$Outer$Inner1");
+        Assert.assertEquals(0, hierarchy.getDirectInnerClassesOf(outerInner1).size());
     }
 }

@@ -41,13 +41,13 @@ import java.util.Set;
  */
 public class IRBuildHelper {
 
-    private final static String THIS = "%this";
+    private static final String THIS = "%this";
 
-    private final static String PARAM = "%param";
+    private static final String PARAM = "%param";
 
-    private final static String TEMP = "%temp";
+    private static final String TEMP = "%temp";
 
-    private final static String RETURN = "%return";
+    private static final String RETURN = "%return";
 
     private final JMethod method;
 

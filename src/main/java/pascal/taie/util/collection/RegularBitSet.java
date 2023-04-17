@@ -62,8 +62,9 @@ public class RegularBitSet extends AbstractBitSet {
      */
     public RegularBitSet(int nbits) {
         // nbits can't be negative; size 0 is OK
-        if (nbits < 0)
+        if (nbits < 0) {
             throw new NegativeArraySizeException("nbits < 0: " + nbits);
+        }
 
         initWords(nbits);
     }
@@ -89,9 +90,11 @@ public class RegularBitSet extends AbstractBitSet {
     private void recalculateWordsInUse() {
         // Traverse the bitset until a used word is found
         int i;
-        for (i = wordsInUse - 1; i >= 0; i--)
-            if (words[i] != 0)
+        for (i = wordsInUse - 1; i >= 0; i--) {
+            if (words[i] != 0) {
                 break;
+            }
+        }
 
         wordsInUse = i + 1; // The new logical size
     }
@@ -127,8 +130,9 @@ public class RegularBitSet extends AbstractBitSet {
 
     @Override
     public boolean set(int bitIndex) {
-        if (bitIndex < 0)
+        if (bitIndex < 0) {
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+        }
 
         int wordIndex = wordIndex(bitIndex);
         expandTo(wordIndex);
@@ -144,8 +148,9 @@ public class RegularBitSet extends AbstractBitSet {
 
     @Override
     public boolean clear(int bitIndex) {
-        if (bitIndex < 0)
+        if (bitIndex < 0) {
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+        }
 
         int wordIndex = wordIndex(bitIndex);
         if (wordIndex >= wordsInUse) {
@@ -163,8 +168,9 @@ public class RegularBitSet extends AbstractBitSet {
 
     @Override
     public boolean get(int bitIndex) {
-        if (bitIndex < 0)
+        if (bitIndex < 0) {
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+        }
 
         checkInvariants();
 
@@ -175,8 +181,9 @@ public class RegularBitSet extends AbstractBitSet {
 
     @Override
     public void flip(int bitIndex) {
-        if (bitIndex < 0)
+        if (bitIndex < 0) {
             throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+        }
 
         int wordIndex = wordIndex(bitIndex);
         expandTo(wordIndex);
@@ -189,22 +196,26 @@ public class RegularBitSet extends AbstractBitSet {
 
     @Override
     public int nextSetBit(int fromIndex) {
-        if (fromIndex < 0)
+        if (fromIndex < 0) {
             throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+        }
 
         checkInvariants();
 
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse)
+        if (u >= wordsInUse) {
             return -1;
+        }
 
         long word = words[u] & (WORD_MASK << fromIndex);
 
         while (true) {
-            if (word != 0)
+            if (word != 0) {
                 return (u * BITS_PER_WORD) + Long.numberOfTrailingZeros(word);
-            if (++u == wordsInUse)
+            }
+            if (++u == wordsInUse) {
                 return -1;
+            }
             word = words[u];
         }
     }
@@ -213,22 +224,26 @@ public class RegularBitSet extends AbstractBitSet {
     public int nextClearBit(int fromIndex) {
         // Neither spec nor implementation handle bitsets of maximal length.
         // See 4816253.
-        if (fromIndex < 0)
+        if (fromIndex < 0) {
             throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+        }
 
         checkInvariants();
 
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse)
+        if (u >= wordsInUse) {
             return fromIndex;
+        }
 
         long word = ~words[u] & (WORD_MASK << fromIndex);
 
         while (true) {
-            if (word != 0)
+            if (word != 0) {
                 return (u * BITS_PER_WORD) + Long.numberOfTrailingZeros(word);
-            if (++u == wordsInUse)
+            }
+            if (++u == wordsInUse) {
                 return wordsInUse * BITS_PER_WORD;
+            }
             word = ~words[u];
         }
     }
@@ -236,8 +251,9 @@ public class RegularBitSet extends AbstractBitSet {
     @Override
     public int previousSetBit(int fromIndex) {
         if (fromIndex < 0) {
-            if (fromIndex == -1)
+            if (fromIndex == -1) {
                 return -1;
+            }
             throw new IndexOutOfBoundsException(
                     "fromIndex < -1: " + fromIndex);
         }
@@ -245,16 +261,19 @@ public class RegularBitSet extends AbstractBitSet {
         checkInvariants();
 
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse)
+        if (u >= wordsInUse) {
             return length() - 1;
+        }
 
         long word = words[u] & (WORD_MASK >>> -(fromIndex + 1));
 
         while (true) {
-            if (word != 0)
+            if (word != 0) {
                 return (u + 1) * BITS_PER_WORD - 1 - Long.numberOfLeadingZeros(word);
-            if (u-- == 0)
+            }
+            if (u-- == 0) {
                 return -1;
+            }
             word = words[u];
         }
     }
@@ -262,8 +281,9 @@ public class RegularBitSet extends AbstractBitSet {
     @Override
     public int previousClearBit(int fromIndex) {
         if (fromIndex < 0) {
-            if (fromIndex == -1)
+            if (fromIndex == -1) {
                 return -1;
+            }
             throw new IndexOutOfBoundsException(
                     "fromIndex < -1: " + fromIndex);
         }
@@ -271,16 +291,19 @@ public class RegularBitSet extends AbstractBitSet {
         checkInvariants();
 
         int u = wordIndex(fromIndex);
-        if (u >= wordsInUse)
+        if (u >= wordsInUse) {
             return fromIndex;
+        }
 
         long word = ~words[u] & (WORD_MASK >>> -(fromIndex + 1));
 
         while (true) {
-            if (word != 0)
+            if (word != 0) {
                 return (u + 1) * BITS_PER_WORD - 1 - Long.numberOfLeadingZeros(word);
-            if (u-- == 0)
+            }
+            if (u-- == 0) {
                 return -1;
+            }
             word = ~words[u];
         }
     }
@@ -293,9 +316,12 @@ public class RegularBitSet extends AbstractBitSet {
         if (!(set instanceof RegularBitSet other)) {
             return super.intersects(set);
         }
-        for (int i = Math.min(wordsInUse, other.wordsInUse) - 1; i >= 0; i--)
-            if ((words[i] & other.words[i]) != 0)
+        for (int i = Math.min(wordsInUse, other.wordsInUse) - 1; i >= 0; i--) {
+            if ((words[i] & other.words[i]) != 0) {
                 return true;
+            }
+        }
+
         return false;
     }
 
@@ -428,10 +454,11 @@ public class RegularBitSet extends AbstractBitSet {
         }
 
         // Copy any remaining words
-        if (wordsInCommon < other.wordsInUse)
+        if (wordsInCommon < other.wordsInUse) {
             System.arraycopy(other.words, wordsInCommon,
                     words, wordsInCommon,
                     wordsInUse - wordsInCommon);
+        }
 
         // recalculateWordsInUse() is unnecessary
         checkInvariants();
@@ -506,10 +533,11 @@ public class RegularBitSet extends AbstractBitSet {
         }
 
         // Copy any remaining words
-        if (wordsInCommon < other.wordsInUse)
+        if (wordsInCommon < other.wordsInUse) {
             System.arraycopy(other.words, wordsInCommon,
                     words, wordsInCommon,
                     other.wordsInUse - wordsInCommon);
+        }
 
         recalculateWordsInUse();
         checkInvariants();
@@ -551,8 +579,9 @@ public class RegularBitSet extends AbstractBitSet {
 
     @Override
     public int length() {
-        if (wordsInUse == 0)
+        if (wordsInUse == 0) {
             return 0;
+        }
 
         return BITS_PER_WORD * (wordsInUse - 1) +
                 (BITS_PER_WORD - Long.numberOfLeadingZeros(words[wordsInUse - 1]));
@@ -566,8 +595,9 @@ public class RegularBitSet extends AbstractBitSet {
     @Override
     public int cardinality() {
         int sum = 0;
-        for (int i = 0; i < wordsInUse; i++)
+        for (int i = 0; i < wordsInUse; i++) {
             sum += Long.bitCount(words[i]);
+        }
         return sum;
     }
 
@@ -592,8 +622,9 @@ public class RegularBitSet extends AbstractBitSet {
     @Override
     public int hashCode() {
         long h = 1234;
-        for (int i = wordsInUse; --i >= 0; )
+        for (int i = wordsInUse; --i >= 0; ) {
             h ^= words[i] * (i + 1);
+        }
 
         return (int) ((h >> 32) ^ h);
     }
@@ -614,21 +645,26 @@ public class RegularBitSet extends AbstractBitSet {
      */
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof RegularBitSet set))
+        if (!(obj instanceof RegularBitSet set)) {
             return false;
-        if (this == obj)
+        }
+        if (this == obj) {
             return true;
+        }
 
         checkInvariants();
         set.checkInvariants();
 
-        if (wordsInUse != set.wordsInUse)
+        if (wordsInUse != set.wordsInUse) {
             return false;
+        }
 
         // Check words in use by both BitSets
-        for (int i = 0; i < wordsInUse; i++)
-            if (words[i] != set.words[i])
+        for (int i = 0; i < wordsInUse; i++) {
+            if (words[i] != set.words[i]) {
                 return false;
+            }
+        }
 
         return true;
     }

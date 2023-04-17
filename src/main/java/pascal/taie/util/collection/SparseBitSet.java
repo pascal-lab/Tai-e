@@ -1140,7 +1140,7 @@ public class SparseBitSet extends AbstractBitSet {
      *
      * @param <R> type of return valued
      */
-    private static abstract class BlockAction<R> {
+    private abstract static class BlockAction<R> {
 
         final SparseBitSet self;
 
@@ -1191,7 +1191,7 @@ public class SparseBitSet extends AbstractBitSet {
     /**
      * Abstract class for the actions that may change {@code self} set.
      */
-    private static abstract class ChangeAction extends BlockAction<Boolean> {
+    private abstract static class ChangeAction extends BlockAction<Boolean> {
 
         boolean changed;
 

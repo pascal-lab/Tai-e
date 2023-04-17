@@ -102,13 +102,13 @@ enum IsNullValue {
     private static final IsNullValue[][] mergeMatrix = {
             // NULL, CHECKED_NULL, NN, CHECKED_NN, NO_KABOOM_NN, NSP, UNKNOWN, NCP, UNDEF
             {NULL}, // NULL
-            {NULL, CHECKED_NULL,}, // CHECKED_NULL
+            {NULL, CHECKED_NULL}, // CHECKED_NULL
             {NSP, NSP, NONNULL}, // NN
-            {NSP, NSP, NONNULL, CHECKED_NN,}, // CHECKED_NN
+            {NSP, NSP, NONNULL, CHECKED_NN}, // CHECKED_NN
             {NSP, NSP, NONNULL, NONNULL, NO_KABOOM_NN}, // NO_KABOOM_NN
             {NSP, NSP, NSP, NSP, NSP, NSP}, // NSP
-            {NSP, NSP, UNKNOWN, UNKNOWN, UNKNOWN, NSP, UNKNOWN,}, // UNKNOWN
-            {NSP, NSP, NCP, NCP, NCP, NSP, NCP, NCP,}, // NCP
+            {NSP, NSP, UNKNOWN, UNKNOWN, UNKNOWN, NSP, UNKNOWN}, // UNKNOWN
+            {NSP, NSP, NCP, NCP, NCP, NSP, NCP, NCP}, // NCP
             {NULL, CHECKED_NULL, NONNULL, CHECKED_NN, NO_KABOOM_NN, NSP, UNKNOWN, NCP, UNDEF}
     };
 

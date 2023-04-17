@@ -395,7 +395,7 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
 
                 IsNullFact oldOut = out.copy();
                 out.copyFrom(in);
-                if (isAssertionCall(invokeMethod)) {// downgrade null value after an assertion call
+                if (isAssertionCall(invokeMethod)) { // downgrade null value after an assertion call
                     out.entries()
                             .filter(entry -> entry.getValue().isNullOnSomePath()
                                     || entry.getValue().isDefinitelyNull())

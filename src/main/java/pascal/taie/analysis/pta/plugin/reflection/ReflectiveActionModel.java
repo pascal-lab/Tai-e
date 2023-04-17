@@ -75,7 +75,7 @@ public class ReflectiveActionModel extends AbstractModel {
     /**
      * Descriptor for objects created by reflective newInstance() calls.
      */
-    private final static Descriptor REF_OBJ_DESC = () -> "ReflectiveObj";
+    private static final Descriptor REF_OBJ_DESC = () -> "ReflectiveObj";
 
     private final Subsignature initNoArg;
 

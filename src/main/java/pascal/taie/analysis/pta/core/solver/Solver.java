@@ -179,7 +179,7 @@ public interface Solver {
     void addStmts(CSMethod csMethod, Collection<Stmt> stmts);
 
     /**
-     * Analyzes the static initializer (i.e., <clinit>) of given class.
+     * Analyzes the static initializer (i.e., &lt;clinit&gt;) of given class.
      *
      * @param cls the class to be initialized.
      */

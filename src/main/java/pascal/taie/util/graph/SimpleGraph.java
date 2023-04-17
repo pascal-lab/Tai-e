@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * A simple map-based implementation of {@link Graph<N>}.
+ * A simple map-based implementation of {@link Graph}.
  *
  * @param <N> type of nodes
  */

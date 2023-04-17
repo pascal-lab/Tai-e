@@ -399,12 +399,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             return true;
         } else if (superclass == getObjectClass()) {
             return true;
-        } /*else if (subclass.isInterface()) {
-            return superclass.isInterface() &&
-                    isSubinterface(superclass, subclass);
         } else {
-            return isSubclass0(superclass, subclass);
-        }*/ else {
             return getAllSubclassesOf(superclass).contains(subclass);
         }
     }

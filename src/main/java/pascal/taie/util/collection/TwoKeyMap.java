@@ -239,7 +239,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * A map entry (key1-key2-value triple). The {@link #entrySet()} method
      * returns a collection-view of the map, whose elements are of this class.
      * The only way to obtain a reference to a map entry is from the iterator
-     * of this collection-view. These {@link Entry>} objects are valid only
+     * of this collection-view. These {@link Entry} objects are valid only
      * for the duration of the iteration; more formally, the behavior of a
      * map entry is undefined if the backing map has been modified after
      * the entry was returned by the iterator.

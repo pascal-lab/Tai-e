@@ -67,7 +67,9 @@ class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) return false;
+        if (!super.equals(o)) {
+            return false;
+        }
         LambdaCallEdge that = (LambdaCallEdge) o;
         return lambdaIndy.equals(that.lambdaIndy) &&
                 lambdaContext.equals(that.lambdaContext);

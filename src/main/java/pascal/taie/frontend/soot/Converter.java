@@ -147,7 +147,7 @@ class Converter {
                     arrayType.numDimensions);
         } else if (sootType instanceof VoidType) {
             return VOID;
-        } else if (sootType instanceof BottomType){
+        } else if (sootType instanceof BottomType) {
             return BOTTOM;
         }
         throw new SootFrontendException("Cannot convert soot Type: " + sootType);

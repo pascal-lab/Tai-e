@@ -41,13 +41,13 @@ import java.util.Objects;
 
 class VarManager {
 
-    private final static String THIS = "%this";
+    private static final String THIS = "%this";
 
-    private final static String STRING_CONSTANT = "%stringconst";
+    private static final String STRING_CONSTANT = "%stringconst";
 
-    private final static String CLASS_CONSTANT = "%classconst";
+    private static final String CLASS_CONSTANT = "%classconst";
 
-    private final static String NULL_CONSTANT = "%nullconst";
+    private static final String NULL_CONSTANT = "%nullconst";
 
     /**
      * The method which contains the variable managed by this VarManager.

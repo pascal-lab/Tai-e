@@ -58,57 +58,57 @@ public class LiveVarTestFull extends LiveVarTest {
     }
 
     @Test
-    public void AnonInner() {
+    public void testAnonInner() {
         testLV("AnonInner");
     }
 
     @Test
-    public void Array() {
+    public void testArray() {
         testLV("Array");
     }
 
     @Test
-    public void Field() {
+    public void testField() {
         testLV("Field");
     }
 
     @Test
-    public void Graph() {
+    public void testGraph() {
         testLV("Graph");
     }
 
     @Test
-    public void Sort() {
+    public void testSort() {
         testLV("Sort");
     }
 
     @Test
-    public void ComplexAssign() {
+    public void testComplexAssign() {
         testLV("ComplexAssign");
     }
 
     @Test
-    public void Corner() {
+    public void testCorner() {
         testLV("Corner");
     }
 
     @Test
-    public void Fibonacci() {
+    public void testFibonacci() {
         testLV("Fibonacci");
     }
 
     @Test
-    public void GaussianElimination() {
+    public void testGaussianElimination() {
         testLV("GaussianElimination");
     }
 
     @Test
-    public void Switch() {
+    public void testSwitch() {
         testLV("Switch");
     }
 
     @Test
-    public void Reference() {
+    public void testReference() {
         testLV("Reference");
     }
 

@@ -136,12 +136,12 @@ class PFGBuilder {
         Set<JMethod> outMethods = new HashSet<>(obtainMethods());
         // OUT methods of inner classes and special access$ methods
         // are also considered as the OUT methods of current type
-        pce.PCEMethodsOf(type)
+        pce.pceMethodsOf(type)
                 .stream()
                 .filter(m -> !m.isPrivate() && !m.isStatic())
                 .filter(m -> isInnerClass(m.getDeclaringClass()))
                 .forEach(outMethods::add);
-        pce.PCEMethodsOf(type)
+        pce.pceMethodsOf(type)
                 .stream()
                 .filter(m -> !m.isPrivate() && m.isStatic())
                 .filter(m -> m.getDeclaringClass().getType().equals(type)
@@ -216,7 +216,7 @@ class PFGBuilder {
                         // Optimization: filter out some potential spurious flows due to
                         // the imprecision of context-insensitive pre-analysis, which
                         // helps improve the performance of Zipper and pointer analysis.
-                        if (pce.PCEMethodsOf(type).contains(toVar.getMethod())) {
+                        if (pce.pceMethodsOf(type).contains(toVar.getMethod())) {
                             nextEdges.add(edge);
                         }
                     }
@@ -251,7 +251,7 @@ class PFGBuilder {
                             // Optimization: filter out some potential spurious flows due to
                             // the imprecision of context-insensitive pre-analysis, which
                             // helps improve the performance of Zipper and pointer analysis.
-                            if (pce.PCEMethodsOf(type).contains(toVar.getMethod())) {
+                            if (pce.pceMethodsOf(type).contains(toVar.getMethod())) {
                                 nextEdges.add(edge);
                             }
                         } else if (edge instanceof UnwrappedFlowEdge) {
