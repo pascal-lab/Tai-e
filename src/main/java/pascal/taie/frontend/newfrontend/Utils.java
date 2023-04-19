@@ -53,13 +53,24 @@ import pascal.taie.language.annotation.Element;
 import pascal.taie.language.annotation.IntElement;
 import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Sets;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -270,5 +281,99 @@ public class Utils {
 
     static String getThrowable() {
         return "java/lang/Throwable";
+    }
+
+    static ClassType getObject() {
+        return BuildContext.get().getTypeSystem().getClassType(ClassNames.OBJECT);
+    }
+
+    static ClassType getSerializable() {
+        return BuildContext.get().getTypeSystem().getClassType(ClassNames.SERIALIZABLE);
+    }
+
+    static ClassType getCloneable() {
+        return BuildContext.get().getTypeSystem().getClassType(ClassNames.CLONEABLE);
+    }
+
+    static Set<ReferenceType> minimum(Set<ClassType> in) {
+        Set<ClassType> removed = Sets.newHybridSet();
+        for (ClassType t: in) {
+            if (! removed.contains(t)) {
+                getAllDirectSuperType(t.getJClass())
+                        .stream()
+                        .map(JClass::getType)
+                        .forEach(removed::add);
+            }
+        }
+        in.removeAll(removed);
+        return Collections.unmodifiableSet(in);
+    }
+
+    public static Set<ReferenceType> lca(ReferenceType t1, ReferenceType t2) {
+        if (t1 instanceof NullType) {
+            return Set.of(t2);
+        } else if (t2 instanceof NullType) {
+            return Set.of(t1);
+        } else if (t1 instanceof ClassType ct1 && t2 instanceof ClassType ct2) {
+            Set<ClassType> upper1 = upperClosure(ct1);
+            Set<ClassType> upper2 = upperClosure(ct2);
+            upper1.removeIf(t -> ! upper2.contains(t));
+            return minimum(upper1);
+        } else if (t1 instanceof ClassType ct1 && t2 instanceof ArrayType at2) {
+            Set<ClassType> upper1 = upperClosure(ct1);
+            Set<ClassType> upper2 = Set.of(getCloneable(), getSerializable(), getObject());
+            upper1.removeIf(t -> ! upper2.contains(t));
+            return minimum(upper1);
+        } else if (t1 instanceof ArrayType && t2 instanceof ClassType) {
+            return lca(t2, t1);
+        } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
+            if (at1.dimensions() == at2.dimensions()) {
+                if (at1.baseType() instanceof PrimitiveType
+                        || at2.baseType() instanceof PrimitiveType) {
+                    return Set.of(BuildContext.get()
+                            .getTypeSystem().getArrayType(getObject(), at1.dimensions()));
+                } else {
+                    ReferenceType r1 = (ReferenceType) at1.baseType();
+                    ReferenceType r2 = (ReferenceType) at2.baseType();
+                    return lca(r1, r2).stream()
+                            .map(t -> BuildContext.get()
+                                    .getTypeSystem().getArrayType(t, at1.dimensions()))
+                            .collect(Collectors.toSet());
+                }
+            } else {
+                ArrayType target = at1.dimensions() > at2.dimensions() ? at2 : at1;
+                assert target.baseType() instanceof ReferenceType;
+                return lca((ReferenceType) target.baseType(), at1)
+                        .stream()
+                        .map(t -> BuildContext.get()
+                                .getTypeSystem().getArrayType(t, target.dimensions()))
+                        .collect(Collectors.toSet());
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    static Set<ClassType> upperClosure(ClassType type) {
+        Queue<JClass> workList = new LinkedList<>();
+        workList.add(type.getJClass());
+        Set<ClassType> res = Sets.newHybridSet();
+
+        while (! workList.isEmpty()) {
+            JClass now = workList.poll();
+            if (! res.contains(now.getType())) {
+                workList.addAll(getAllDirectSuperType(now));
+                res.add(now.getType());
+            }
+        }
+
+        return res;
+    }
+
+    static List<JClass> getAllDirectSuperType(JClass type) {
+        List<JClass> res = new ArrayList<>(type.getInterfaces());
+        if (type.getSuperClass() != null) {
+            res.add(type.getSuperClass());
+        }
+        return res;
     }
 }

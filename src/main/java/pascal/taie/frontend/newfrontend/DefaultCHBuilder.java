@@ -20,6 +20,8 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             String name = i.getClassName();
             m.put(name, new JClass(dcl, name));
         });
+
+        ch.setDefaultClassLoader(dcl);
         BuildContext.make(m, dcl);
 
         sources.parallelStream().forEach(i -> {
@@ -35,6 +37,8 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             ch.addClass(i);
         }
 
+        BuildContext.get().setHierarchy(ch);
+        dcl.setMapping(m);
         return ch;
     }
 

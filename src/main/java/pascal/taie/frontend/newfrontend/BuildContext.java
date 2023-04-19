@@ -1,6 +1,7 @@
 package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.ir.exp.MethodType;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
@@ -24,6 +25,8 @@ public class BuildContext {
 
     private final TypeSystem typeSystem;
 
+    private ClassHierarchy hierarchy;
+
     private BuildContext(Map<String, JClass> classMap, TypeSystem typeSystem) {
         this.classMap = classMap;
         this.typeSystem = typeSystem;
@@ -40,6 +43,10 @@ public class BuildContext {
 
     static void make(Map<String, JClass> classMap, JClassLoader loader) {
         buildContext = new BuildContext(classMap, new TempTypeSystem(loader));
+    }
+
+    public void setHierarchy(ClassHierarchy hierarchy) {
+        this.hierarchy = hierarchy;
     }
 
     public TypeSystem getTypeSystem() {
@@ -108,5 +115,9 @@ public class BuildContext {
         } else {
             throw new UnsupportedOperationException();
         }
+    }
+
+    public ClassHierarchy getClassHierarchy() {
+        return hierarchy;
     }
 }
