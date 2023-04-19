@@ -9,6 +9,11 @@
     <property name="severity" value="warning"/>
     <property name="fileExtensions" value="java"/>
 
+    <!-- Check only the files within the 'pascal.' package -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="^(?!.*(src[\\/](main|test)[\\/]java[\\/]pascal)).*$"/>
+    </module>
+
     <module name="Header">
         <property name="headerFile" value="${config_loc}/java.header"/>
         <property name="fileExtensions" value="java"/>
