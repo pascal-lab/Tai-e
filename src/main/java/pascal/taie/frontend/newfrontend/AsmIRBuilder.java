@@ -110,7 +110,7 @@ public class AsmIRBuilder {
 
     Map<LabelNode, BytecodeBlock> label2Block;
 
-    private List<BytecodeBlock> blockSortedList; // blocks that are sorted in bytecode order.
+    List<BytecodeBlock> blockSortedList; // blocks that are sorted in bytecode order.
 
     private LabelNode entry;
 
@@ -318,12 +318,18 @@ public class AsmIRBuilder {
      */
     public List<Stmt> getStmts(BytecodeBlock block) {
         if (block.getFirstStmt() == null) {
-            return List.of();
+            if (block.instr().size() == 0) {
+                return List.of();
+            } else {
+                Stmt s = getFirstStmt(block.label());
+                assert s != null;
+            }
         }
         List<Stmt> res = new ArrayList<>();
         int start = block.getFirstStmt().getIndex();
         assert start >= 0;
         int end = block.getLastStmt() == null ? stmts.size() : block.getLastStmt().getIndex();
+        assert block.instr().size() == 0 || start < end;
         for (int i = start; i < end; ++i) {
             res.add(stmts.get(i));
         }
@@ -420,7 +426,8 @@ public class AsmIRBuilder {
                         || nextBlock.getFirstBytecode().get() == node) {
                     assert stmts.size() != 0; // first block is empty? too rare
                     // last is excluded
-                    nextBlock.setLastStmt(stmts.get(stmts.size() - 1));
+                    BytecodeBlock nowBlock = blockSortedList.get(blockIndex - 1);
+                    nowBlock.setLastStmt(getFirstStmt(nextBlock.label()));
                     blockIndex++;
                 }
             }
