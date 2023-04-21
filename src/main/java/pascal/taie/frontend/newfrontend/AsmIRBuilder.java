@@ -23,6 +23,10 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.BasicValue;
+import org.objectweb.asm.tree.analysis.BasicVerifier;
+import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -142,6 +146,9 @@ public class AsmIRBuilder {
     }
 
     public void build() {
+        Analyzer<BasicValue> a =
+                new Analyzer<>(new SimpleVerifier());
+        // a.analyze()
         if (! isEmpty) {
             buildCFG();
             buildIR();

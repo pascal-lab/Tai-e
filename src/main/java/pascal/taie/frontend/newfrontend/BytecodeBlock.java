@@ -5,10 +5,14 @@ import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Stack;
@@ -44,6 +48,8 @@ public final class BytecodeBlock {
     private boolean complete;
 
     private final boolean isCatch;
+
+    private Map<Integer, Type> frameLocalType;
 
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
         this(label, fallThrough, false);
@@ -165,8 +171,33 @@ public final class BytecodeBlock {
         return frame;
     }
 
-    public void setFrame(@Nullable FrameNode frame) {
+    public int getFrameLocalSize() {
+        return frameLocalType.size();
+    }
+
+    public Type getFrameLocalType(int i) {
+        return frameLocalType.get(i);
+    }
+
+    private void buildFrameLocalType() {
+        assert frame != null;
+        frameLocalType = Maps.newMap();
+        int n = 0;
+        for (Object o : frame.local) {
+            Type t = Utils.fromAsmFrameType(o);
+            frameLocalType.put(n, t);
+            if (t == PrimitiveType.DOUBLE || t == PrimitiveType.LONG) {
+                n += 2;
+            } else {
+                n += 1;
+            }
+        }
+    }
+
+    public void setFrame(FrameNode frame) {
+        assert frame != null;
         this.frame = frame;
+        buildFrameLocalType();
     }
 
     @Override

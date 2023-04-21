@@ -12,7 +12,7 @@ import java.util.List;
  * when push a double / long to stack, first push a Top. <br>
  * [top, double, ...]
  */
-enum Top implements Exp {
+enum Top implements Exp, Type {
 
     Top;
 
@@ -30,5 +30,10 @@ enum Top implements Exp {
     @Override
     public <T> T accept(ExpVisitor<T> visitor) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getName() {
+        return "top";
     }
 }

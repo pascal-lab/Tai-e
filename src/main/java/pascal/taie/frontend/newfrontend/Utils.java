@@ -279,6 +279,25 @@ public class Utils {
         throw new NotImplementedException();
     }
 
+    static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
+        if (o instanceof Integer i) {
+            return switch (i) {
+                case 0 -> Top.Top; // Opcodes.Top
+                case 1 -> PrimitiveType.INT; // Opcodes.INTEGER
+                case 2 -> PrimitiveType.FLOAT; // Opcodes.FLOAT
+                case 3 -> PrimitiveType.DOUBLE; // Opcodes.DOUBLE
+                case 4 -> PrimitiveType.LONG; // Opcodes.LONG
+                case 5 -> NullType.NULL; // Opcodes.NULL
+                case 6 -> null; // Opcodes.UNINITIALIZED_THIS
+                default -> throw new UnsupportedOperationException();
+            };
+        } else if (o instanceof String s) {
+            return BuildContext.get().fromAsmInternalName(s);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     static String getThrowable() {
         return "java/lang/Throwable";
     }

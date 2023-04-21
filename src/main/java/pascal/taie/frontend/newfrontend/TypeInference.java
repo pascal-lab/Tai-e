@@ -16,15 +16,20 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 public class TypeInference {
@@ -42,6 +47,27 @@ public class TypeInference {
 
     static public boolean isSubType(ReferenceType s, ReferenceType t) {
         return false;
+    }
+
+    static public ArrayType plusOneArray(Type t) {
+        Type baseType;
+        int dim;
+        if (t instanceof ArrayType at) {
+            baseType = at.baseType();
+            dim = at.dimensions() + 1;
+        } else {
+            baseType = t;
+            dim = 1;
+        }
+        return BuildContext.get().getTypeSystem().getArrayType(baseType, dim);
+    }
+
+    static public Optional<Type> subOneArray(Type t) {
+        if (t instanceof ArrayType at) {
+            return Optional.of(at.elementType());
+        } else {
+            return Optional.empty();
+        }
     }
 
     public void build() {
@@ -165,15 +191,69 @@ public class TypeInference {
         }
 
         public void inferTypes() {
-            tarjan();
+            Queue<FlowType> queue = new LinkedList<>();
+            for (TypingFlowNode node : nodes.values()) {
+                if (node.primitiveType != null) {
+                    PrimitiveType t = node.primitiveType;
+                    queue.addAll(flowOutType(node, t));
+                } else {
+                    assert node.types != null;
+                    node.applyUseConstrains();
+                    queue.addAll(flowOutType(node, node.types));
+                }
+            }
+
+            while (!queue.isEmpty()) {
+                FlowType now = queue.poll();
+                queue.addAll(spreadingFlowType(now));
+            }
         }
 
-        /**
-         * find all strong connected component by tarjan algorithm
-         */
-        private void tarjan() {
+        private List<FlowType> spreadingFlowType(FlowType type) {
+            TypingFlowNode now = type.edge.target;
+            Optional<Type> optionalType = type.getTargetType();
+            if (optionalType.isEmpty()) {
+                return List.of();
+            }
+            Type t = optionalType.get();
+            if (t instanceof PrimitiveType pType) {
+                if (now.onNewPrimitiveType(pType)) {
+                    return flowOutType(now, pType);
+                }
+            } else if (t instanceof ReferenceType rType) {
+                Set<ReferenceType> delta = now.onNewReferenceType(rType, true);
+                if (delta.size() != 0) {
+                    return flowOutType(now, delta);
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            return List.of();
         }
 
+        private List<FlowType> flowOutType(TypingFlowNode node, PrimitiveType pType) {
+            return node.outEdges.stream()
+                    .map(e -> new FlowType(e, pType))
+                    .toList();
+        }
+
+        private List<FlowType> flowOutType(TypingFlowNode node, Set<ReferenceType> rType) {
+            return node.outEdges
+                    .stream()
+                    .flatMap(e -> rType.stream().map(t -> new FlowType(e, t)))
+                    .toList();
+        }
+    }
+
+    record FlowType(TypingFlowEdge edge, Type type) {
+        Optional<Type> getTargetType() {
+            return switch (edge.kind) {
+                case VAR_VAR -> Optional.of(type);
+                case VAR_ARRAY -> Optional.of(plusOneArray(type));
+                case ARRAY_VAR -> subOneArray(type);
+            };
+        }
     }
 
     static final class TypingFlowNode {
@@ -197,23 +277,42 @@ public class TypeInference {
 
         public void setNewType(Type t) {
             if (t instanceof PrimitiveType pType) {
-                assert types == null;
-                if (primitiveType == null) {
-                    primitiveType = pType;
-                } else {
-                    assert pType == primitiveType;
-                }
+                onNewPrimitiveType(pType);
+            } else if (t instanceof ReferenceType rType) {
+                onNewReferenceType(rType, false);
             } else {
-                assert primitiveType == null;
-                ReferenceType rType = (ReferenceType) t;
-                if (types == null) {
-                    types = new HashSet<>();
-                    types.add(rType);
-                } else {
-                    for (ReferenceType type: types) {
-                        types.add(lca(rType, type));
+                throw new UnsupportedOperationException();
+            }
+        }
+
+        public boolean onNewPrimitiveType(PrimitiveType t) {
+            assert types == null;
+            if (this.primitiveType == null) {
+                this.primitiveType = t;
+                return true;
+            } else {
+                assert this.primitiveType == t;
+                return false;
+            }
+        }
+
+        public Set<ReferenceType> onNewReferenceType(ReferenceType t, boolean confirmUseValid) {
+            assert primitiveType == null;
+            if (types == null) {
+                types = new HashSet<>();
+                types.add(t);
+                return Set.of(t);
+            } else {
+                Set<ReferenceType> res = Sets.newHybridSet();
+                for (ReferenceType type: types) {
+                    ReferenceType a = lca(t, type);
+                    if (! confirmUseValid || useValid(a)) {
+                        if (types.add(a)) {
+                            res.add(a);
+                        }
                     }
                 }
+                return res;
             }
         }
 
@@ -238,14 +337,29 @@ public class TypeInference {
             useValidConstrains.add(type);
         }
 
-        public void ApplyUseConstrains() {
+        public void applyUseConstrains() {
             if (useValidConstrains.size() != 0) {
                 assert types != null;
-                types.removeIf((s) ->
-                        useValidConstrains
-                                .stream()
-                                .anyMatch(t -> !isSubType(s, t)));
+                types.removeIf((s) -> ! useValid(s));
             }
+        }
+
+        public boolean useValid(ReferenceType type) {
+            return useValidConstrains
+                    .stream()
+                    .allMatch(t -> isSubType(type, t));
+        }
+
+        public List<TypingFlowEdge> getInEdges() {
+            return inEdges;
+        }
+
+        /**
+         * set type for var, this node is completed and removed from algorithm
+         */
+        public void complete() {
+            assert types == null;
+            // TODO: set var type
         }
 
         public Var var() {

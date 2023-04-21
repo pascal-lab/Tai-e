@@ -226,7 +226,18 @@ class VarManager {
         return v.getName().startsWith(TEMP_PREFIX);
     }
 
-    public boolean isLocal(Var v) { return ! isTempVar(v) && v != thisVar; }
+    public boolean isSpecialVar(Var v) {
+        return v.getName().startsWith("*");
+    }
+
+    public boolean isLocal(Var v) { return ! isTempVar(v) && v != thisVar && ! isSpecialVar(v); }
+
+    public List<Var> getBlockVar(BytecodeBlock block) {
+        List<Var> res = new ArrayList<>();
+        local2Var.forEach((k, v) -> {
+        });
+        return res;
+    }
 
     private LocalVariableNode searchLocal(int slot, int asmIndex) {
         for (LocalVariableNode node : localVariableTable) {
