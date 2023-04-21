@@ -395,4 +395,8 @@ public class Utils {
         }
         return res;
     }
+
+    static boolean isTwoWord(pascal.taie.language.type.Type t) {
+        return t == PrimitiveType.DOUBLE || t == PrimitiveType.LONG;
+    }
 }

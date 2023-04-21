@@ -10,6 +10,7 @@ import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -80,10 +81,16 @@ class VarManager {
         // So if there is no localVariableTable, generate param prefix names for params.
         if (!existsLocalVariableTable()) {
             int nowIdx = method.isStatic() ? 0 : 1;
+            int n = nowIdx;
             for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
                 Var v = newParameter(i);
                 this.params.add(v);
-                local2Var.put(new Triple<>(i, 0, lastIndex + 1), v);
+                local2Var.put(new Triple<>(n, 0, lastIndex + 1), v);
+                if (Utils.isTwoWord(method.getParamType(i - nowIdx))) {
+                    n += 2;
+                } else {
+                    n += 1;
+                }
             }
         }
 
@@ -233,8 +240,20 @@ class VarManager {
     public boolean isLocal(Var v) { return ! isTempVar(v) && v != thisVar && ! isSpecialVar(v); }
 
     public List<Var> getBlockVar(BytecodeBlock block) {
+        if (block.getFirstBytecode().isEmpty()) {
+            return List.of();
+        }
         List<Var> res = new ArrayList<>();
+        int start = insnList.indexOf(block.getFirstBytecode().get());
+        int end = insnList.indexOf(block.getLastBytecode());
+
         local2Var.forEach((k, v) -> {
+            if (start >= k.second() && end < k.third() &&
+                    block.getFrameLocalType().keySet().contains(k.first()) &&
+                    block.getFrameLocalType(k.first()) != Top.Top &&
+                    v != thisVar) {
+                res.add(v);
+            }
         });
         return res;
     }

@@ -171,8 +171,8 @@ public final class BytecodeBlock {
         return frame;
     }
 
-    public int getFrameLocalSize() {
-        return frameLocalType.size();
+    public Map<Integer, Type> getFrameLocalType() {
+        return this.frameLocalType;
     }
 
     public Type getFrameLocalType(int i) {
