@@ -51,6 +51,8 @@ public final class BytecodeBlock {
 
     private Map<Integer, Type> frameLocalType;
 
+    private boolean isInTry = false;
+
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
         this(label, fallThrough, false);
     }
@@ -96,6 +98,14 @@ public final class BytecodeBlock {
 
     public boolean isCatch() {
         return isCatch;
+    }
+
+    public void setIsInTry() {
+        isInTry = true;
+    }
+
+    public boolean isInTry() {
+        return isInTry;
     }
 
     public void setComplete() {

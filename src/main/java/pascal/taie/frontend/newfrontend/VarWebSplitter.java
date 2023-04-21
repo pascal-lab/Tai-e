@@ -60,8 +60,6 @@ public class VarWebSplitter {
 
     private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
-    private final Set<BytecodeBlock> isInTry;
-
     // TODO:
     //   1. if classfile major version is less than 50,
     //      then our algorithm may not be able to split some defs
@@ -75,7 +73,6 @@ public class VarWebSplitter {
         this.outDef = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
-        this.isInTry = new HashSet<>();
         this.locals = varManager.getVars()
                 .stream()
                 .filter(varManager::isLocal)
@@ -87,7 +84,6 @@ public class VarWebSplitter {
             return;
         }
         initWebs();
-        findTryBlocks();
         constructWeb();
         update();
     }
@@ -95,13 +91,6 @@ public class VarWebSplitter {
     private void initWebs() {
         for (Var var : locals) {
             webs.put(var, new UnionFindSet<>(new ArrayList<>()));
-        }
-    }
-
-    private void findTryBlocks() {
-        for (var tryCatchPair : tryAndHandlerBlocks) {
-            var trys = tryCatchPair.first();
-            isInTry.addAll(trys);
         }
     }
 
@@ -151,7 +140,7 @@ public class VarWebSplitter {
     }
 
     private void constructWebInsideBlock(BytecodeBlock block, Map<Var, Pair<Stmt, Kind>> inUse) {
-        boolean isInTry = this.isInTry.contains(block);
+        boolean isInTry = block.isInTry();
         Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
         if (inUse == null) {
             Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();

@@ -1324,6 +1324,7 @@ public class AsmIRBuilder {
                     tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
                 }
             }
+            tryBlocks.forEach(BytecodeBlock::setIsInTry);
             result.add(new Pair<>(tryBlocks, handler));
         }
 
