@@ -41,6 +41,8 @@ way):
 Tai-e is developed in Java, and it can run on major operating systems including Windows, Linux, and
 macOS.
 
+As a courtesy to the developers, we expect that you **please cite the [technical report](https://arxiv.org/abs/2208.00337)** describing the Tai-e framework in your research work.
+
 ## How to Obtain Runnable Jar of Tai-e?
 
 The simplest way is to download it
