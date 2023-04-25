@@ -34,7 +34,7 @@ public class ArrayLengthExp implements UnaryExp {
 
     public ArrayLengthExp(Var base) {
         this.base = base;
-        assert base.getType() instanceof ArrayType;
+        // assert base.getType() instanceof ArrayType;
     }
 
     public Var getBase() {
