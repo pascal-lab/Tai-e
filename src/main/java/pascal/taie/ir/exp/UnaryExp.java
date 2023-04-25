@@ -24,12 +24,19 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.PrimitiveType;
 
+import java.util.List;
+
 /**
  * Representation of unary expression.
  */
 public interface UnaryExp extends RValue {
 
     Var getOperand();
+
+    @Override
+    default List<RValue> getUses() {
+        return List.of(getOperand());
+    }
 
     @Override
     PrimitiveType getType();
