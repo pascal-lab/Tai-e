@@ -196,6 +196,7 @@ public class Lenses {
 
     public Stmt subSt(Stmt stmt) {
         Stmt newStmt = stmt.accept(new StmtVisitor<>() {
+            // TODO: fix missing if target
             @Override
             public Stmt visit(If stmt) {
                 return new If((ConditionExp) subSt(stmt.getCondition()));
@@ -223,7 +224,7 @@ public class Lenses {
 
             @Override
             public Stmt visit(Catch stmt) {
-                return new Catch(subSt(stmt.getExceptionRef()));
+                return new Catch((Var) leftSubSt(stmt.getExceptionRef()));
             }
 
             @Override
