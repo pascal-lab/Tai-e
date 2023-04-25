@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 class VarManager {
@@ -49,6 +50,8 @@ class VarManager {
 
     private final List<Var> params;
 
+    private final Map<Var, Integer> paramsIndex;
+
     private final List<Var> vars;
 
     private final Set<Var> retVars;
@@ -69,6 +72,7 @@ class VarManager {
         this.local2Var = Maps.newMap();
         this.anonymousLocal2Var = Maps.newMap();
         this.params = new ArrayList<>();
+        this.paramsIndex = Maps.newMap();
         this.vars = new ArrayList<>();
         this.retVars = new HashSet<>();
 
@@ -86,6 +90,7 @@ class VarManager {
                 Var v = newParameter(i);
                 this.params.add(v);
                 local2Var.put(new Triple<>(n, 0, lastIndex + 1), v);
+                this.paramsIndex.put(v, n);
                 if (Utils.isTwoWord(method.getParamType(i - nowIdx))) {
                     n += 2;
                 } else {
@@ -234,28 +239,52 @@ class VarManager {
     }
 
     public boolean isSpecialVar(Var v) {
-        return v.getName().startsWith("*");
+        return v.getName().startsWith("*") || Objects.equals(v.getName(), NULL_LITERAL);
     }
 
     public boolean isLocal(Var v) { return ! isTempVar(v) && v != thisVar && ! isSpecialVar(v); }
 
-    public List<Var> getBlockVar(BytecodeBlock block) {
-        if (block.getFirstBytecode().isEmpty()) {
-            return List.of();
+    public List<Pair<Integer, Var>> getBlockVarWithIdx(BytecodeBlock block) {
+        if (block.getFrameLocalType() == null) {
+            return getParamsWithIdx();
         }
-        List<Var> res = new ArrayList<>();
+        List<Pair<Integer, Var>> res = new ArrayList<>();
         int start = insnList.indexOf(block.getFirstBytecode().get());
         int end = insnList.indexOf(block.getLastBytecode());
 
         local2Var.forEach((k, v) -> {
             if (start >= k.second() && end < k.third() &&
-                    block.getFrameLocalType().keySet().contains(k.first()) &&
+                    block.getFrameLocalType().containsKey(k.first()) &&
                     block.getFrameLocalType(k.first()) != Top.Top &&
                     v != thisVar) {
-                res.add(v);
+                res.add(new Pair<>(k.first(), v));
             }
         });
         return res;
+    }
+
+    public List<Pair<Integer, Var>> getParamsWithIdx() {
+        return params.stream()
+                .map(p -> new Pair<>(paramsIndex.get(p), p))
+                .toList();
+    }
+
+    public List<Var> getBlockVar(BytecodeBlock block) {
+        return getBlockVarWithIdx(block)
+                .stream()
+                .map(Pair::second)
+                .toList();
+    }
+
+    public void replaceParam(Var oldVar, Var newVar) {
+        int idx = 0;
+        for (; idx < params.size(); ++idx) {
+            if (params.get(idx) == oldVar) {
+                break;
+            }
+        }
+        paramsIndex.put(newVar, paramsIndex.get(oldVar));
+        params.set(idx, newVar);
     }
 
     private LocalVariableNode searchLocal(int slot, int asmIndex) {

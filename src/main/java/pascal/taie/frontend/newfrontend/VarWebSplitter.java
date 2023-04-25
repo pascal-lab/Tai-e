@@ -1,8 +1,8 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.objectweb.asm.Opcodes;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -11,7 +11,6 @@ import pascal.taie.util.collection.UnionFindSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +59,8 @@ public class VarWebSplitter {
 
     private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
+    private final Map<SplitIndex, Var> splitted;
+
     // TODO:
     //   1. if classfile major version is less than 50,
     //      then our algorithm may not be able to split some defs
@@ -73,6 +74,7 @@ public class VarWebSplitter {
         this.outDef = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
+        this.splitted = Maps.newMap();
         this.locals = varManager.getVars()
                 .stream()
                 .filter(varManager::isLocal)
@@ -80,9 +82,6 @@ public class VarWebSplitter {
     }
 
     public void build() {
-        if (builder.label2Block.values().size() == 1) {
-            return;
-        }
         initWebs();
         constructWeb();
         update();
@@ -143,10 +142,11 @@ public class VarWebSplitter {
         boolean isInTry = block.isInTry();
         Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
         if (inUse == null) {
+            Kind phantomType = block == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
             Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();
             for (Var var : getLocals(block)) { // initialization.
                 Copy phantom = new Copy(var, var);
-                Pair<Stmt, Kind> e = new Pair<>(phantom, Kind.PHANTOM);
+                Pair<Stmt, Kind> e = new Pair<>(phantom, phantomType);
                 webs.get(var).addElement(e);
                 phantomUse.put(var, e);
                 if (isInTry) {
@@ -244,9 +244,11 @@ public class VarWebSplitter {
                         if (sources.size() == 0) {
                             return;
                         }
-                        res.put(currentVar[0], sources);
                         count[0]++;
                         currentVar[0] = varManager.splitLocal(var, count[0]);
+                        res.put(currentVar[0], sources);
+                        Pair<Stmt, Kind> rep = s.iterator().next();
+                        splitted.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
                     });
         });
         return res;
@@ -257,27 +259,57 @@ public class VarWebSplitter {
         Map<Integer, Stmt> modifyLists = Maps.newMap();
         Map<Var, Var> defMap = Maps.newMap();
         Map<Var, Var> useMap = Maps.newMap();
-        Lenses lenses = new Lenses(builder.method, defMap, useMap);
+        Lenses lenses = new Lenses(builder.method, useMap, defMap);
         m.forEach((target, sources) -> {
-            useMap.clear();
-            defMap.clear();
             // assert ! target.getName().startsWith("this");
             for (ReplaceSource source : sources) {
-                Stmt oldStmt = modifyLists.computeIfAbsent(source.index, builder.stmts::get);
+                useMap.clear();
+                defMap.clear();
                 if (source.kind == Kind.DEF) {
                     defMap.put(source.old(), target);
                 } else if (source.kind == Kind.USE) {
-                    defMap.put(source.old(), target);
+                    useMap.put(source.old(), target);
+                } else if (source.kind == Kind.PARAM) {
+                    varManager.replaceParam(source.old(), target);
+                    // don't set stmt
+                    continue;
                 } else {
                     throw new UnsupportedOperationException();
                 }
 
+                Stmt oldStmt = modifyLists.computeIfAbsent(source.index, builder.stmts::get);
                 Stmt newStmt = lenses.subSt(oldStmt);
                 modifyLists.put(source.index(), newStmt);
             }
         });
 
-        modifyLists.forEach(builder::setStmts);
+        // TODO: correct handle other side-effects of instr set;
+        modifyLists.forEach((idx, instr) -> {
+            Stmt oldInstr = builder.stmts.get(idx);
+            if (instr instanceof Return r) {
+                varManager.getRetVars().remove(((Return) oldInstr).getValue());
+                varManager.getRetVars().add(r.getValue());
+            }
+            builder.setStmts(idx, instr);
+        });
+
+        for (BytecodeBlock block : builder.blockSortedList) {
+            if (block.getFrame() == null) {
+                continue;
+            }
+            Map<Var, Pair<Stmt, Kind>> inUse = this.inUse.get(block);
+            assert inUse != null;
+            Map<Integer, Var> frameLocalVar = Maps.newMap();
+            for (Pair<Integer, Var> p : varManager.getBlockVarWithIdx(block)) {
+                int idx = p.first();
+                Var v = p.second();
+                Pair<Stmt, Kind> real = inUse.get(v);
+                Var realVar;
+                realVar = splitted.get(new SplitIndex(v, webs.get(v).findRoot(real)));
+                frameLocalVar.put(idx, realVar != null ? realVar : v);
+            }
+            block.setFrameLocalVar(frameLocalVar);
+        }
     }
 
     private List<Var> getLocals(BytecodeBlock block) {
@@ -298,7 +330,10 @@ public class VarWebSplitter {
         DEF,
         USE,
         PHANTOM, // PHANTOM for the fake Copy in each block: x = x, used as a connector
+        PARAM
     }
 
     private record ReplaceSource(int index, Kind kind, Var old) {}
+
+    private record SplitIndex(Var v, Pair<Stmt, Kind> rep) {}
 }

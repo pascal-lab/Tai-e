@@ -288,11 +288,13 @@ public class Utils {
                 case 3 -> PrimitiveType.DOUBLE; // Opcodes.DOUBLE
                 case 4 -> PrimitiveType.LONG; // Opcodes.LONG
                 case 5 -> NullType.NULL; // Opcodes.NULL
-                case 6 -> null; // Opcodes.UNINITIALIZED_THIS
+                case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
                 default -> throw new UnsupportedOperationException();
             };
         } else if (o instanceof String s) {
             return BuildContext.get().fromAsmInternalName(s);
+        } else if (o instanceof LabelNode) {
+            return Uninitialized.UNINITIALIZED;
         } else {
             throw new UnsupportedOperationException();
         }
@@ -303,15 +305,23 @@ public class Utils {
     }
 
     static ClassType getObject() {
-        return BuildContext.get().getTypeSystem().getClassType(ClassNames.OBJECT);
+        return getClassType(ClassNames.OBJECT);
     }
 
     static ClassType getSerializable() {
-        return BuildContext.get().getTypeSystem().getClassType(ClassNames.SERIALIZABLE);
+        return getClassType(ClassNames.SERIALIZABLE);
     }
 
     static ClassType getCloneable() {
-        return BuildContext.get().getTypeSystem().getClassType(ClassNames.CLONEABLE);
+        return getClassType(ClassNames.CLONEABLE);
+    }
+
+    static ClassType getString() {
+        return getClassType(ClassNames.STRING);
+    }
+
+    static ClassType getClassType(String s) {
+        return BuildContext.get().getTypeSystem().getClassType(s);
     }
 
     static Set<ReferenceType> minimum(Set<ClassType> in) {
