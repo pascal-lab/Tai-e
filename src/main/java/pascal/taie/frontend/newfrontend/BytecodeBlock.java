@@ -47,24 +47,27 @@ public final class BytecodeBlock {
 
     private boolean complete;
 
-    private final boolean isCatch;
+    @Nullable
+    private final Type exceptionHandlerType;
 
     private Map<Integer, Type> frameLocalType;
+
+    private Map<Integer, Var> frameLocalVar;
 
     private boolean isInTry = false;
 
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
-        this(label, fallThrough, false);
+        this(label, fallThrough, null);
     }
 
-    public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough, boolean isCatch) {
+    public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough, @Nullable Type exceptionHandlerType) {
         this.label = label;
         this.instr = new ArrayList<>();
         this.inEdges = new ArrayList<>();
         this.outEdges = new ArrayList<>();
         this.fallThrough = fallThrough;
         this.complete = false;
-        this.isCatch = isCatch;
+        this.exceptionHandlerType = exceptionHandlerType;
     }
 
     public LabelNode label() {
@@ -97,7 +100,7 @@ public final class BytecodeBlock {
     }
 
     public boolean isCatch() {
-        return isCatch;
+        return getExceptionHandlerType() != null;
     }
 
     public void setIsInTry() {
@@ -189,6 +192,34 @@ public final class BytecodeBlock {
         return frameLocalType.get(i);
     }
 
+    public void setFrameLocalVar(Map<Integer, Var> frameLocalVar) {
+        if (frame == null) {
+            return;
+        }
+        this.frameLocalVar = frameLocalVar;
+    }
+
+    public Map<Var, Type> getInitTyping() {
+        assert frame != null;
+
+        Map<Var, Type> typing = Maps.newMap();
+        frameLocalVar.forEach((i, v) -> {
+            Type t = frameLocalType.get(i);
+            assert t != null;
+            typing.put(v, t);
+        });
+
+        if (inStack != null) {
+            for (int i = 0; i < inStack.size(); ++i) {
+                Var v = inStack.get(i);
+                typing.put(v, Utils.fromAsmFrameType(frame.stack.get(i)));
+            }
+        } else {
+            assert inEdges.size() == 0;
+        }
+        return typing;
+    }
+
     private void buildFrameLocalType() {
         assert frame != null;
         frameLocalType = Maps.newMap();
@@ -222,4 +253,8 @@ public final class BytecodeBlock {
                 Objects.equals(this.fallThrough, that.fallThrough);
     }
 
+    @Nullable
+    public Type getExceptionHandlerType() {
+        return exceptionHandlerType;
+    }
 }

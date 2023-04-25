@@ -31,6 +31,7 @@ import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.CastExp;
@@ -154,9 +155,15 @@ public class AsmIRBuilder {
             buildIR();
             VarWebSplitter splitter = new VarWebSplitter(this);
             splitter.build();
+            TypeInference0 inference = new TypeInference0(this);
+            inference.build();
             setIR();
         }
         // TODO: check how to handle empty method
+    }
+
+    public BytecodeBlock getEntryBlock() {
+        return label2Block.get(entry);
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
@@ -425,6 +432,7 @@ public class AsmIRBuilder {
     private void makeStmts() {
         int blockIndex = 1;
         for (AbstractInsnNode node : source.instructions) {
+            // here only set the last stmt, first stmt will be set when `getFirstStmt()` is called
             // if it's the last bytecode block, we do not need to set last stmt
             if (blockIndex < blockSortedList.size()) {
                 BytecodeBlock nextBlock = blockSortedList.get(blockIndex);
@@ -465,11 +473,16 @@ public class AsmIRBuilder {
                 end = getFirstStmt(node.end);
             }
             Stmt handler = getFirstStmt(node.handler);
-            String name = node.type == null ? getThrowable() : node.type;
-            ReferenceType expType = BuildContext.get().fromAsmInternalName(name);
+            Type expType = getExceptionType(node.type);
             res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
         }
         exceptionEntries = res;
+    }
+
+    private Type getExceptionType(String s) {
+        String name = s == null ? getThrowable() : s;
+        ReferenceType expType = BuildContext.get().fromAsmInternalName(name);
+        return expType;
     }
 
     private boolean inRange(int opcode, int min, int max) {
@@ -543,7 +556,7 @@ public class AsmIRBuilder {
         } else if (inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1)) {
             return DoubleLiteral.get(opcode - Opcodes.DCONST_0 + 0.0);
         } else if (inRange(opcode, Opcodes.LCONST_0, Opcodes.LCONST_1)) {
-                return DoubleLiteral.get(opcode - Opcodes.LCONST_0 + 0.0);
+            return LongLiteral.get(opcode - Opcodes.LCONST_0);
         } else {
             throw new IllegalArgumentException();
         }
@@ -748,6 +761,13 @@ public class AsmIRBuilder {
             mergeStack1(auxiliary, nowStack1, target1);
         }
         if (auxiliary.size() != 0) {
+            AbstractInsnNode lastBytecode = bb.getLastBytecode();
+            Stmt last = asm2Stmt.get(lastBytecode);
+            if (last != null && isCFEdge(lastBytecode)) {
+                // last stmt may attach goto, if, switch ...
+                asm2Stmt.remove(lastBytecode);
+                auxiliary.add(last);
+            }
             auxiliaryStmts.put(bb.getLastBytecode(), auxiliary);
         }
         assert target1.empty();
@@ -812,7 +832,7 @@ public class AsmIRBuilder {
                 if (opcode == Opcodes.NOP) {
                     continue;
                 } else if (opcode == Opcodes.ARRAYLENGTH) {
-                    pushExp(node, nowStack, popExp(nowStack));
+                    pushExp(node, nowStack, new ArrayLengthExp(popVar(nowStack)));
                 } else if (opcode == Opcodes.ATHROW) {
                     throwException(insnNode, nowStack);
                 } else if (opcode == Opcodes.MONITORENTER) {
@@ -1031,7 +1051,7 @@ public class AsmIRBuilder {
 
         for (TryCatchBlockNode now : source.tryCatchBlocks) {
             queue.add(now.handler);
-            label2Block.put(now.handler, new BytecodeBlock(now.handler, null, true));
+            label2Block.put(now.handler, new BytecodeBlock(now.handler, null, getExceptionType(now.type)));
         }
 
         while (!queue.isEmpty()) {
