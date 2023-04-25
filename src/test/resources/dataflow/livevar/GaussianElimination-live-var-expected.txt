@@ -8,7 +8,7 @@
 [1@L9] temp$0 = A.length; [%this, A, b, temp$0]
 [2@L9] %this.<GaussianElimination: int m> = temp$0; [%this, A, b]
 [3@L10] temp$2 = 0; [%this, A, b, temp$2]
-[4@L10] temp$3 = A[temp$2]; [%this, A, b]
+[4@L10] temp$3 = A[temp$2]; [%this, A, b, temp$3]
 [5@L10] temp$4 = temp$3.length; [%this, A, b, temp$4]
 [6@L10] %this.<GaussianElimination: int n> = temp$4; [%this, A, b]
 [7@L12] temp$5 = b.length; [%this, A, b, temp$5]
