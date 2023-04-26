@@ -114,7 +114,6 @@ public class TypeInference0 {
 
     private void setTypeForTemp(Var var, Type t) {
         if (! localTypes.containsKey(var)
-                && builder.manager.isTempVar(var)
                 && ! builder.manager.getRetVars().contains(var)
                 && ! builder.manager.isSpecialVar(var)) {
             var.setType(t);
@@ -135,7 +134,7 @@ public class TypeInference0 {
             }
             for (Type t : allTypes) {
                 if (now instanceof PrimitiveType) {
-                    assert t == now;
+                    assert t == now || canHoldsInt(t) && canHoldsInt(now);
                 } else {
                     assert now instanceof ReferenceType;
                     assert t instanceof ReferenceType;

@@ -25,7 +25,6 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.BasicValue;
-import org.objectweb.asm.tree.analysis.BasicVerifier;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -882,7 +881,11 @@ public class AsmIRBuilder {
                     pushExp(node, nowStack, new NewInstance((ClassType) type));
                 } else if (opcode == Opcodes.ANEWARRAY) {
                     Var length = popVar(nowStack);
-                    ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(type, 1);
+                    int dims = 1;
+                    if (type instanceof ArrayType arrayType) {
+                        dims += arrayType.dimensions();
+                    }
+                    ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(type, dims);
                     pushExp(node, nowStack, new NewArray(arrayType, length));
                 } else if (opcode == Opcodes.INSTANCEOF) {
                     Var obj = popVar(nowStack);
