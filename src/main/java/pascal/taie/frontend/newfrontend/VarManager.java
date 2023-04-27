@@ -10,7 +10,7 @@ import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -222,6 +222,7 @@ class VarManager {
     public Var getNullLiteral() {
         if (nullLiteral == null) {
             nullLiteral = newVar(NULL_LITERAL);
+            nullLiteral.setType(NullType.NULL);
         }
         return nullLiteral;
     }

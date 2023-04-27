@@ -128,7 +128,7 @@ public class AsmIRBuilder {
 
     private final boolean isEmpty;
 
-    final List<Stmt> stmts;
+    List<Stmt> stmts;
 
     private List<ExceptionEntry> exceptionEntries;
 
@@ -454,6 +454,7 @@ public class AsmIRBuilder {
 
             if (auxiliaryStmts.containsKey(node)) {
                 for (Stmt stmt : auxiliaryStmts.get(node)) {
+                    setJumpTargets(node, stmt);
                     addStmt(stmt);
                 }
             }

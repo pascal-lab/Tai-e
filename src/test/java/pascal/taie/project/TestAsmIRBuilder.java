@@ -2,20 +2,15 @@ package pascal.taie.project;
 
 import org.junit.Test;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
+import pascal.taie.frontend.newfrontend.AllClassesCWBuilder;
 import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
+import pascal.taie.frontend.newfrontend.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
-import pascal.taie.frontend.newfrontend.DepCWBuilder;
-import pascal.taie.frontend.newfrontend.Lenses;
-import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class TestAsmIRBuilder {
@@ -30,7 +25,7 @@ public class TestAsmIRBuilder {
     }
 
     // Note: if javaVersion is less than 7, then assertion about frames will fail
-    ClassHierarchy getCh(String mainClass, int javaVersion) {
+    ClassHierarchy getCh(String mainClass, List<String> otherClasses, int javaVersion) {
 
         String worldPath = "src/test/resources/world";
         String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
@@ -49,12 +44,16 @@ public class TestAsmIRBuilder {
 //        Collections.addAll(args, "-m", mainClass);
 //        Main.main(args.toArray(new String[0]));
 
-        Project project = createProject(path, mainClass, List.of());
-        DepCWBuilder depCWBuilder = new DepCWBuilder();
+        Project project = createProject(path, mainClass, otherClasses);
+        ClosedWorldBuilder depCWBuilder = new AllClassesCWBuilder();
         depCWBuilder.build(project);
         var cw = depCWBuilder.getClosedWorld();
         ClassHierarchyBuilder builder = new DefaultCHBuilder();
         return builder.build(cw);
+    }
+
+    ClassHierarchy getCh(String mainClass, int javaVersion) {
+        return getCh(mainClass, List.of(), javaVersion);
     }
 
     @Test
@@ -120,8 +119,12 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                // IRPrinter.print(ir, System.out);
+                                if (m.toString().equals("<java.util.AbstractMap: boolean containsKey(java.lang.Object)>")
+                                    && builder1.getIr() != null) {
+                                    IRPrinter.print(builder1.getIr(), System.out);
+                                }
                             });
                 });
+        System.out.println(ch.allClasses().mapToLong(i -> i.getDeclaredMethods().size()).sum());
     }
 }
