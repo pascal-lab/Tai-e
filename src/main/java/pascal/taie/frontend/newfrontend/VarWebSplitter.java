@@ -132,6 +132,9 @@ public class VarWebSplitter {
 //        }
         var predDef = outDef.get(pred);
         var succUse = inUse.get(succ);
+        if (predDef == succUse) {
+            return;
+        }
         for (Var var : getLocals(succ)) {
             var web = webs.get(var);
             web.union(predDef.get(var), succUse.get(var));
@@ -141,7 +144,7 @@ public class VarWebSplitter {
     private void constructWebInsideBlock(BytecodeBlock block, Map<Var, Pair<Stmt, Kind>> inUse) {
         boolean isInTry = block.isInTry();
         Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
-        if (inUse == null) {
+        if (inUse == null || block.getFrame() != null) {
             Kind phantomType = block == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
             Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();
             for (Var var : getLocals(block)) { // initialization.
