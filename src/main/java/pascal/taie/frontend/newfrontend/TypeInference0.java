@@ -213,7 +213,9 @@ public class TypeInference0 {
         for (BytecodeBlock block : builder.blockSortedList) {
             if (block.getFrame() != null) {
                 block.getInitTyping().forEach((k, v) -> {
-                    localTypes.put(k, v);
+                    if (v != Uninitialized.UNINITIALIZED) {
+                        localTypes.put(k, v);
+                    }
                 });
             }
         }
@@ -376,6 +378,7 @@ public class TypeInference0 {
     }
 
     public void insertCasting() {
+
         List<Stmt> newStmts = new ArrayList<>();
 
         for (Stmt stmt: builder.stmts) {
