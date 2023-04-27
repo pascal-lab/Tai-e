@@ -236,7 +236,7 @@ class VarManager {
     }
 
     public boolean isTempVar(Var v) {
-        return v.getName().startsWith(TEMP_PREFIX);
+        return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
     }
 
     public boolean isSpecialVar(Var v) {
