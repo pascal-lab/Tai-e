@@ -86,19 +86,19 @@ class VarManager {
         // Bytecode also stores method parameters in local variable table,
         // and MethodNode.params seems abandoned by ASM.
         // So if there is no localVariableTable, generate param prefix names for params.
-        if (!existsLocalVariableTable()) {
-            int nowIdx = method.isStatic() ? 0 : 1;
-            int n = nowIdx;
-            for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
-                Var v = newParameter(i);
-                this.params.add(v);
-                local2Var.put(new Triple<>(n, 0, lastIndex + 1), v);
-                this.paramsIndex.put(v, n);
-                if (Utils.isTwoWord(method.getParamType(i - nowIdx))) {
-                    n += 2;
-                } else {
-                    n += 1;
-                }
+        // And we should get the parameters in advance to register a position for the parameters
+        // in case there does not exist reference to a parameter.
+        int nowIdx = method.isStatic() ? 0 : 1;
+        int n = nowIdx;
+        for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
+            Var v = existsLocalVariableTable() ? getLocal(i, 0) : newParameter(i);
+            this.params.add(v);
+            local2Var.put(new Triple<>(n, 0, lastIndex + 1), v);
+            this.paramsIndex.put(v, n);
+            if (Utils.isTwoWord(method.getParamType(i - nowIdx))) {
+                n += 2;
+            } else {
+                n += 1;
             }
         }
 
@@ -140,6 +140,10 @@ class VarManager {
      */
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
         int asmIndex = insnList.indexOf(insnNode);
+        return getLocal(slot, asmIndex);
+    }
+
+    private Var getLocal(int slot, int asmIndex) {
         Pair<Integer, Integer> query = new Pair<>(slot, asmIndex);
 
         var opt = local2Var.keySet().stream().filter(k -> match(query, k)).findAny();
