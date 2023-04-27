@@ -70,6 +70,7 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.JumpStmt;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Return;
@@ -454,7 +455,9 @@ public class AsmIRBuilder {
 
             if (auxiliaryStmts.containsKey(node)) {
                 for (Stmt stmt : auxiliaryStmts.get(node)) {
-                    setJumpTargets(node, stmt);
+                    if (stmt instanceof JumpStmt) {
+                        setJumpTargets(node, stmt);
+                    }
                     addStmt(stmt);
                 }
             }

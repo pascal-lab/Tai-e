@@ -108,7 +108,7 @@ public class TypeInference0 {
      */
     private boolean isAssignable(Type t1, Type t2) {
         if (t1 instanceof PrimitiveType) {
-            return canHoldsInt(t2) && canHoldsInt(t1);
+            return t1 == t2 || canHoldsInt(t2) && canHoldsInt(t1);
         } else {
             return isSubtype(t1, t2);
         }
@@ -361,10 +361,10 @@ public class TypeInference0 {
         }
     }
 
-    private Type maySplitStmt(RValue r, LValue l) {
-        Type rType = r.getType();
+    private Type maySplitStmt(LValue l, RValue r) {
         Type lType = l.getType();
-        if (! isAssignable(rType, lType)) {
+        Type rType = r.getType();
+        if (! isAssignable(lType, rType)) {
             return lType;
         } else {
             return null;
@@ -382,7 +382,7 @@ public class TypeInference0 {
             Stmt newStmt = stmt.accept(new StmtVisitor<Stmt>() {
                 @Override
                 public Stmt visit(Copy stmt) {
-                    Type t = maySplitStmt(stmt.getRValue(), stmt.getLValue());
+                    Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                     if (t != null) {
                         return getNewCast(stmt.getLValue(), stmt.getRValue(), t);
                     } else {
