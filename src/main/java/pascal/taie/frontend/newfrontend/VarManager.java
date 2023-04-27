@@ -86,8 +86,8 @@ class VarManager {
         // Bytecode also stores method parameters in local variable table,
         // and MethodNode.params seems abandoned by ASM.
         // So if there is no localVariableTable, generate param prefix names for params.
-        // And we should get the parameters in advance to register a position for the parameters
-        // in case there does not exist reference to a parameter.
+        // And we should get the parameters in advance to register a position in params for them
+        // in case there does not exist reference to a parameter in the code.
         int nowIdx = method.isStatic() ? 0 : 1;
         int n = nowIdx;
         for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
