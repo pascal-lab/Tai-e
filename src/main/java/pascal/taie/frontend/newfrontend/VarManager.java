@@ -62,6 +62,8 @@ class VarManager {
 
     private @Nullable Var nullLiteral;
 
+    private final Map<Literal, Var> blockConstCache;
+
     public VarManager(JMethod method,
                       @Nullable List<ParameterNode> params,
                       @Nullable List<LocalVariableNode> localVariableTable,
@@ -75,6 +77,7 @@ class VarManager {
         this.paramsIndex = Maps.newMap();
         this.vars = new ArrayList<>();
         this.retVars = new HashSet<>();
+        this.blockConstCache = Maps.newMap();
 
         // Test insnList.size to examine whether the method is not concrete.
         // Checking JMethod's modifiers may be a more elegant way.
@@ -227,12 +230,24 @@ class VarManager {
         return nullLiteral;
     }
 
+    public boolean peekConstVar(Literal literal) {
+        return blockConstCache.containsKey(literal);
+
+    }
+
     public Var getConstVar(Literal literal) {
         if (literal instanceof NullLiteral) {
             return getNullLiteral();
         } else {
+            if (blockConstCache.containsKey(literal)) {
+                return blockConstCache.get(literal);
+            }
             return newConstVar(getConstVarName(literal), literal);
         }
+    }
+
+    public void clearConstCache() {
+        blockConstCache.clear();
     }
 
     public boolean isTempVar(Var v) {
@@ -355,6 +370,7 @@ class VarManager {
     private Var newConstVar(String name, Literal literal) {
         Var v = new Var(method, name, null, counter++, literal);
         vars.add(v);
+        blockConstCache.put(literal, v);
         return v;
     }
 }

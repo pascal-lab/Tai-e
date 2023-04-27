@@ -230,7 +230,8 @@ public class AsmIRBuilder {
     }
 
     private Var toVar(Exp e) {
-        Var v = manager.getTempVar();
+        Var v = e instanceof Literal l ?
+                manager.getConstVar(l) : manager.getTempVar();
         Stmt auxStmt = getAssignStmt(v, e);
         assocStmt(e, auxStmt);
         return v;
@@ -311,13 +312,11 @@ public class AsmIRBuilder {
     }
 
     private void pushConst(AbstractInsnNode node, Stack<Exp> stack, Literal literal) {
-        // TODO: handle const value properly
-        Var v = manager.getConstVar(literal);
-        stack.push(v);
-        if (literal instanceof LongLiteral || literal instanceof DoubleLiteral) {
-            stack.push(Top.Top);
+        if (manager.peekConstVar(literal)) {
+            pushExp(node, stack, manager.getConstVar(literal));
+        } else {
+            pushExp(node, stack, literal);
         }
-        assocStmt(node, getAssignStmt(v, literal));
     }
 
     public void buildIR() {
@@ -802,6 +801,7 @@ public class AsmIRBuilder {
     }
 
     private void buildBlockStmt(BytecodeBlock block) {
+        manager.clearConstCache();
         Stack<Var> inStack = block.getInStack();
         Stack<Exp> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
