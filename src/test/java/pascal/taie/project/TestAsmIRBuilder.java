@@ -7,6 +7,7 @@ import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
+import pascal.taie.frontend.newfrontend.DepCWBuilder;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.ClassHierarchy;
 
@@ -111,7 +112,13 @@ public class TestAsmIRBuilder {
 
     @Test
     public void testLambda() {
+        long startTime = System.currentTimeMillis();
         var ch = getCh("Lambda", 8);
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("build ch: " + (endTime - startTime) / 1000.0);
+
+        long startTime2 = System.currentTimeMillis();
         ch.allClasses()
                 .forEach(i -> {
                     i.getDeclaredMethods()
@@ -119,12 +126,15 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                if (m.toString().equals("<java.util.AbstractMap: boolean containsKey(java.lang.Object)>")
+                                if (m.toString().equals("<java.util.Spliterators$ArraySpliterator: java.util.Spliterator trySplit()>")
                                     && builder1.getIr() != null) {
                                     IRPrinter.print(builder1.getIr(), System.out);
                                 }
                             });
                 });
+        long endTime2 = System.currentTimeMillis();
+
+        System.out.println("build IR: " + (endTime2 - startTime2) / 1000.0);
         System.out.println(ch.allClasses().mapToLong(i -> i.getDeclaredMethods().size()).sum());
     }
 }
