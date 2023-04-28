@@ -126,6 +126,7 @@ public class TestAsmIRBuilder {
                                 JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
+                                System.out.println(m);
                                 if (m.toString().equals("<java.util.Spliterators$ArraySpliterator: java.util.Spliterator trySplit()>")
                                     && builder1.getIr() != null) {
                                     IRPrinter.print(builder1.getIr(), System.out);
