@@ -44,6 +44,8 @@ class VarManager {
 
     private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
+    private final Map<Triple<String, String, String>, Var> nameAndDescriptor2Var; // (varName, desc, signature) -> Var
+
     private final Map<Triple<Integer, Integer, Integer>, Var> anonymousLocal2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
     private final int lastIndex;
@@ -72,7 +74,8 @@ class VarManager {
         this.localVariableTable = localVariableTable;
         this.insnList = insnList;
         this.local2Var = Maps.newMap();
-        this.anonymousLocal2Var = Maps.newMap();
+        this.nameAndDescriptor2Var = existsLocalVariableTable() ? Maps.newMap() : null;
+        this.anonymousLocal2Var = existsLocalVariableTable() ? Maps.newMap() : null;
         this.params = new ArrayList<>();
         this.paramsIndex = Maps.newMap();
         this.vars = new ArrayList<>();
@@ -140,7 +143,8 @@ class VarManager {
      */
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
         int asmIndex = insnList.indexOf(insnNode);
-        return getLocal(slot, asmIndex);
+        return existsLocalVariableTable() ?
+                getLocal(slot, asmIndex) : getLocalWithoutLocalVarTable(slot, asmIndex);
     }
 
     private Var getLocal(int slot, int asmIndex) {
@@ -156,12 +160,15 @@ class VarManager {
             return anonymousLocal2Var.get(opt.get());
         }
 
-        Var v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
         // Note: if reach here, this variable must be a local variable
 
-        // for generalization start could be 0, but in development stage we want to expose more case unexpected.
+        // TODO: for generalization the initial start could be 0,
+        // but in development stage we want to expose more case unexpected.
         int start = asmIndex;
         int end = lastIndex + 1;
+        String varName = null;
+        String descriptor = null;
+        String signature = null;
         boolean found = false;
         if (existsLocalVariableTable()) {
             for (LocalVariableNode node : localVariableTable) {
@@ -178,17 +185,51 @@ class VarManager {
                 if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
                     start = currStart;
                     end = currEnd;
+                    varName = node.name;
+                    descriptor = node.desc;
+                    signature = node.signature;
                     found = true;
                     break;
                 }
             }
         }
 
-        if (existsLocalVariableTable() && !found) {
-            anonymousLocal2Var.put(new Triple<>(slot, start, end), v);
-        } else {
+        Var v;
+        if (found) {
+            // find the var that has the same name and the same type.
+            // If not found, generate one and put it into the nameAndType2Var map.
+            var t = new Triple<>(varName, descriptor, signature);
+            v = nameAndDescriptor2Var.get(t);
+            if (v == null) {
+                v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
+                nameAndDescriptor2Var.put(t, v);
+            }
             local2Var.put(new Triple<>(slot, start, end), v);
+        } else {
+            // For this situation, please refer to the comment at the end of the method searchLocal.
+            v = newVar(getLocalName(slot, null));
+            anonymousLocal2Var.put(new Triple<>(slot, start, end), v);
         }
+        return v;
+    }
+
+    private Var getLocalWithoutLocalVarTable(int slot, int asmIndex) {
+        Pair<Integer, Integer> query = new Pair<>(slot, asmIndex);
+
+        var opt = local2Var.keySet().stream().filter(k -> match(query, k)).findAny();
+        if (opt.isPresent()) {
+            return local2Var.get(opt.get());
+        }
+
+        // Note: if reach here, this variable must be a local variable
+
+        // TODO: for generalization the initial start could be 0,
+        // but in development stage we want to expose more case unexpected.
+        int start = asmIndex;
+        int end = lastIndex + 1;
+        Var v = newVar(getLocalName(slot, null));
+
+        local2Var.put(new Triple<>(slot, start, end), v);
         return v;
     }
 
