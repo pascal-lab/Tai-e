@@ -346,7 +346,7 @@ class VarManager {
     }
 
     private @Nullable String getLocalName(int i, int asmIndex) {
-        if (localVariableTable == null || localVariableTable.size() == 0) {
+        if (!existsLocalVariableTable()) {
             return null;
         } else {
             LocalVariableNode n = searchLocal(i, asmIndex);
