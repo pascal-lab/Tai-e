@@ -44,7 +44,7 @@ class VarManager {
 
     private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
-    private final Map<Triple<String, String, String>, Var> nameAndDescriptor2Var; // (varName, desc, signature) -> Var
+    private final Map<Triple<String, String, String>, Var> nameAndType2Var; // (varName, desc, signature) -> Var
 
     private final Map<Triple<Integer, Integer, Integer>, Var> anonymousLocal2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
@@ -74,7 +74,7 @@ class VarManager {
         this.localVariableTable = localVariableTable;
         this.insnList = insnList;
         this.local2Var = Maps.newMap();
-        this.nameAndDescriptor2Var = existsLocalVariableTable() ? Maps.newMap() : null;
+        this.nameAndType2Var = existsLocalVariableTable() ? Maps.newMap() : null;
         this.anonymousLocal2Var = existsLocalVariableTable() ? Maps.newMap() : null;
         this.params = new ArrayList<>();
         this.paramsIndex = Maps.newMap();
@@ -170,27 +170,25 @@ class VarManager {
         String descriptor = null;
         String signature = null;
         boolean found = false;
-        if (existsLocalVariableTable()) {
-            for (LocalVariableNode node : localVariableTable) {
-                AbstractInsnNode startNode;
-                if (node.start.getPrevious() == null) {
-                    startNode = node.start; // index of start node == 0
-                } else {
-                    startNode = node.start.getPrevious();
-                    assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
-                    assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
-                }
-                int currStart = insnList.indexOf(startNode);
-                int currEnd = insnList.indexOf(node.end);
-                if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
-                    start = currStart;
-                    end = currEnd;
-                    varName = node.name;
-                    descriptor = node.desc;
-                    signature = node.signature;
-                    found = true;
-                    break;
-                }
+        for (LocalVariableNode node : localVariableTable) {
+            AbstractInsnNode startNode;
+            if (node.start.getPrevious() == null) {
+                startNode = node.start; // index of start node == 0
+            } else {
+                startNode = node.start.getPrevious();
+                assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
+                assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
+            }
+            int currStart = insnList.indexOf(startNode);
+            int currEnd = insnList.indexOf(node.end);
+            if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
+                start = currStart;
+                end = currEnd;
+                varName = node.name;
+                descriptor = node.desc;
+                signature = node.signature;
+                found = true;
+                break;
             }
         }
 
@@ -199,10 +197,10 @@ class VarManager {
             // find the var that has the same name and the same type.
             // If not found, generate one and put it into the nameAndType2Var map.
             var t = new Triple<>(varName, descriptor, signature);
-            v = nameAndDescriptor2Var.get(t);
+            v = nameAndType2Var.get(t);
             if (v == null) {
                 v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
-                nameAndDescriptor2Var.put(t, v);
+                nameAndType2Var.put(t, v);
             }
             local2Var.put(new Triple<>(slot, start, end), v);
         } else {
