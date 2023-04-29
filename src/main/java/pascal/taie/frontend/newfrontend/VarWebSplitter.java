@@ -136,6 +136,9 @@ public class VarWebSplitter {
             return;
         }
         for (Var var : getLocals(succ)) {
+            if (!predDef.containsKey(var)) {
+                continue;
+            }
             var web = webs.get(var);
             web.union(predDef.get(var), succUse.get(var));
         }

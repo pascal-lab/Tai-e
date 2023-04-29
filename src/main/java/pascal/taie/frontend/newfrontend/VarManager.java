@@ -318,7 +318,7 @@ class VarManager {
         int end = insnList.indexOf(block.getLastBytecode());
 
         BiConsumer<Triple<Integer, Integer, Integer>, Var> c = (k, v) -> {
-            if (start >= k.second() && end < k.third() &&
+            if (/*start >= k.second() && end < k.third() && */
                     block.getFrameLocalType().containsKey(k.first()) &&
                     block.getFrameLocalType(k.first()) != Top.Top &&
                     v != thisVar) {
