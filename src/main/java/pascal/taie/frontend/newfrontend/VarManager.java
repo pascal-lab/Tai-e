@@ -165,7 +165,7 @@ class VarManager {
 
         // TODO: for generalization the initial start could be 0,
         // but in development stage we want to expose more case unexpected.
-        int start = asmIndex;
+        int start = 0;
         int end = lastIndex + 1;
         String varName = null;
         String descriptor = null;
@@ -229,7 +229,7 @@ class VarManager {
 
         // TODO: for generalization the initial start could be 0,
         // but in development stage we want to expose more case unexpected.
-        int start = asmIndex;
+        int start = 0;
         int end = lastIndex + 1;
         Var v = newVar(getLocalName(slot, null));
 
