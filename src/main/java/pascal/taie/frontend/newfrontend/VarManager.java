@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.ParameterNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -85,6 +86,10 @@ class VarManager {
         // Test insnList.size to examine whether the method is not concrete.
         // Checking JMethod's modifiers may be a more elegant way.
         this.lastIndex = insnList.size() == 0 ? 0 : insnList.indexOf(insnList.getLast());
+        int offset = 0;
+        if (!(insnList.getLast() instanceof LabelNode)) {
+            offset = 1;
+        }
 
         // Bytecode also stores method parameters in local variable table,
         // and MethodNode.params seems abandoned by ASM.
@@ -96,7 +101,7 @@ class VarManager {
         for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
             Var v = existsLocalVariableTable() ? getLocal(i, 0) : newParameter(i);
             this.params.add(v);
-            local2Var.put(new Triple<>(n, 0, lastIndex + 1), v);
+            local2Var.put(new Triple<>(n, 0, lastIndex + offset), v);
             this.paramsIndex.put(v, n);
             if (Utils.isTwoWord(method.getParamType(i - nowIdx))) {
                 n += 2;
@@ -110,7 +115,7 @@ class VarManager {
         } else {
             Var t = newVar(THIS);
             thisVar = t;
-            local2Var.put(new Triple<>(0, 0, lastIndex + 1), t);
+            local2Var.put(new Triple<>(0, 0, lastIndex + offset), t);
         }
     }
 
