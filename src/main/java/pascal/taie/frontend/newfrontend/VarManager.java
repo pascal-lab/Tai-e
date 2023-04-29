@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 class VarManager {
 
@@ -160,12 +161,7 @@ class VarManager {
             return local2Var.get(opt.get());
         }
 
-        opt = anonymousLocal2Var.keySet().stream().filter(k -> match(query, k)).findAny();
-        if (opt.isPresent()) {
-            return anonymousLocal2Var.get(opt.get());
-        }
-
-        // Note: if reach here, this variable must be a local variable
+        // Note: if reach here, this variable must be a local variable // ???
 
         // TODO: for generalization the initial start could be 0,
         // but in development stage we want to expose more case unexpected.
@@ -209,6 +205,11 @@ class VarManager {
             }
             local2Var.put(new Triple<>(slot, start, end), v);
         } else {
+            opt = anonymousLocal2Var.keySet().stream().filter(k -> match(query, k)).findAny();
+            if (opt.isPresent()) {
+                return anonymousLocal2Var.get(opt.get());
+            }
+
             // For this situation, please refer to the comment at the end of the method searchLocal.
             v = newVar(getLocalName(slot, null));
             anonymousLocal2Var.put(new Triple<>(slot, start, end), v);
@@ -316,14 +317,19 @@ class VarManager {
         int start = insnList.indexOf(block.getFirstBytecode().get());
         int end = insnList.indexOf(block.getLastBytecode());
 
-        local2Var.forEach((k, v) -> {
+        BiConsumer<Triple<Integer, Integer, Integer>, Var> c = (k, v) -> {
             if (start >= k.second() && end < k.third() &&
                     block.getFrameLocalType().containsKey(k.first()) &&
                     block.getFrameLocalType(k.first()) != Top.Top &&
                     v != thisVar) {
                 res.add(new Pair<>(k.first(), v));
             }
-        });
+        };
+
+        local2Var.forEach(c);
+        if (existsLocalVariableTable()) {
+            anonymousLocal2Var.forEach(c);
+        }
         return res;
     }
 
