@@ -135,7 +135,7 @@ public class VarWebSplitter {
         if (predDef == succUse) {
             return;
         }
-        for (Var var : getLocals(succ)) {
+        for (Var var : succUse.keySet()) {
             if (!predDef.containsKey(var)) {
                 continue;
             }
@@ -150,7 +150,7 @@ public class VarWebSplitter {
         if (inUse == null || block.getFrame() != null) {
             Kind phantomType = block == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
             Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();
-            for (Var var : getLocals(block)) { // initialization.
+            for (Var var : getDefsAtStartOfBlock(block)) { // initialization.
                 Copy phantom = new Copy(var, var);
                 Pair<Stmt, Kind> e = new Pair<>(phantom, phantomType);
                 webs.get(var).addElement(e);
@@ -222,7 +222,7 @@ public class VarWebSplitter {
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
         var blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
         var handlerUse = inUse.get(handler);
-        for (Var var : getLocals(handler)) {
+        for (Var var : getDefsAtStartOfBlock(handler)) {
             var web = webs.get(var);
             for (var p : blockAllDefs.get(var)) {
                 web.union(p, handlerUse.get(var));
@@ -326,6 +326,30 @@ public class VarWebSplitter {
             return varManager.getParams();
         }
         return varManager.getBlockVar(block);
+    }
+
+    private List<Var> getDefsAtStartOfBlock(BytecodeBlock block) {
+        if (block.getFrame() == null) {
+            assert block.inEdges().size() == 1 && block.inEdges().get(0).fallThrough() == block ||
+                    block.inEdges().stream().allMatch(b -> b.getFrame() == null) && ! block.isCatch();
+            return varManager.getParams();
+        }
+        var node = block.getFirstBytecode().get();
+        Stmt s = null;
+        Var defToBeKilled = null;
+        if (builder.asm2Stmt.get(node) != null) {
+            s = builder.asm2Stmt.get(node);
+        } else if (builder.auxiliaryStmts.get(node) != null) {
+            var lst = builder.auxiliaryStmts.get(node);
+            s = lst.get(0);
+        }
+        if (s != null) {
+            defToBeKilled = (Var) s.getDef().filter(l -> l instanceof Var).orElse(null);
+        }
+
+        var lst = new ArrayList<>(varManager.getLiveVarAfterANode(block).stream().map(Pair::second).toList());
+        lst.remove(defToBeKilled);
+        return lst;
     }
 
     private List<Stmt> getStmts(BytecodeBlock block) {

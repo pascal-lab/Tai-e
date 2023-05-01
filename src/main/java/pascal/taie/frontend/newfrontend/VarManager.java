@@ -333,6 +333,44 @@ class VarManager {
         return res;
     }
 
+    /**
+     * WARNING: this method should be called only by VarWebSplitter.getDefsAtStartOfBlock.
+     * @param block index of the AsmNode
+     * @return live vars after the first AsmNode of the block.
+     */
+    public List<Pair<Integer, Var>> getLiveVarAfterANode(BytecodeBlock block) {
+        List<Pair<Integer, Var>> res = new ArrayList<>();
+
+        int index = insnList.indexOf(block.getFirstBytecode().get());
+
+        local2Var.forEach((k, v) -> {
+            if (k.second() <= index && index < k.third() &&
+                    block.getFrameLocalType().containsKey(k.first()) &&
+                    block.getFrameLocalType(k.first()) != Top.Top &&
+                    v != thisVar) {
+                res.add(new Pair<>(k.first(), v));
+            }
+        });
+        if (existsLocalVariableTable()) {
+            anonymousLocal2Var.forEach((k, v) -> {
+                if (/*k.second() <= index && index < k.third() && // which is always true */
+                        res.stream().noneMatch(p -> p.first().equals(k.first())) &&
+                        block.getFrameLocalType().containsKey(k.first()) &&
+                        block.getFrameLocalType(k.first()) != Top.Top &&
+                        v != thisVar) {
+                    res.add(new Pair<>(k.first(), v));
+                }
+            });
+        }
+
+        {
+            var l = res.stream().map(Pair::first).toList();
+            assert l.size() == l.stream().distinct().toList().size();
+        }
+
+        return res;
+    }
+
     public List<Pair<Integer, Var>> getParamsWithIdx() {
         return params.stream()
                 .map(p -> new Pair<>(paramsIndex.get(p), p))
