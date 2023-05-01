@@ -139,7 +139,7 @@ public class AsmIRBuilder {
         this.method = method;
         this.source = source;
         this.isEmpty = source.instructions.size() == 0;
-        this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions);
+        this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions, this);
         this.asm2Stmt = Maps.newMap();
         this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
