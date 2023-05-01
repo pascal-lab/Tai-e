@@ -306,7 +306,7 @@ public class VarWebSplitter {
             Map<Var, Pair<Stmt, Kind>> inUse = this.inUse.get(block);
             assert inUse != null;
             Map<Integer, Var> frameLocalVar = Maps.newMap();
-            for (Pair<Integer, Var> p : varManager.getBlockVarWithIdx(block)) {
+            for (Pair<Integer, Var> p : varManager.getLiveVarBeforeStartOfABlock(block)) {
                 int idx = p.first();
                 Var v = p.second();
                 Pair<Stmt, Kind> real = inUse.get(v);
@@ -334,22 +334,8 @@ public class VarWebSplitter {
                     block.inEdges().stream().allMatch(b -> b.getFrame() == null) && ! block.isCatch();
             return varManager.getParams();
         }
-        var node = block.getFirstBytecode().get();
-        Stmt s = null;
-        Var defToBeKilled = null;
-        if (builder.asm2Stmt.get(node) != null) {
-            s = builder.asm2Stmt.get(node);
-        } else if (builder.auxiliaryStmts.get(node) != null) {
-            var lst = builder.auxiliaryStmts.get(node);
-            s = lst.get(0);
-        }
-        if (s != null) {
-            defToBeKilled = (Var) s.getDef().filter(l -> l instanceof Var).orElse(null);
-        }
 
-        var lst = new ArrayList<>(varManager.getLiveVarAfterANode(block).stream().map(Pair::second).toList());
-        lst.remove(defToBeKilled);
-        return lst;
+        return varManager.getLiveVarBeforeStartOfABlock(block).stream().map(Pair::second).toList();
     }
 
     private List<Stmt> getStmts(BytecodeBlock block) {

@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
@@ -42,6 +43,8 @@ class VarManager {
 
     private final InsnList insnList;
 
+    private final AsmIRBuilder builder;
+
     private int counter;
 
     private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
@@ -71,10 +74,12 @@ class VarManager {
     public VarManager(JMethod method,
                       @Nullable List<ParameterNode> params,
                       @Nullable List<LocalVariableNode> localVariableTable,
-                      InsnList insnList) {
+                      InsnList insnList,
+                      AsmIRBuilder builder) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.insnList = insnList;
+        this.builder = builder;
         this.local2Var = Maps.newMap();
         this.nameAndType2Var = existsLocalVariableTable() ? Maps.newMap() : null;
         this.anonymousLocal2Var = existsLocalVariableTable() ? Maps.newMap() : null;
@@ -338,7 +343,7 @@ class VarManager {
      * @param block index of the AsmNode
      * @return live vars after the first AsmNode of the block.
      */
-    public List<Pair<Integer, Var>> getLiveVarAfterANode(BytecodeBlock block) {
+    public List<Pair<Integer, Var>> getLiveVarBeforeStartOfABlock(BytecodeBlock block) {
         List<Pair<Integer, Var>> res = new ArrayList<>();
 
         int index = insnList.indexOf(block.getFirstBytecode().get());
@@ -362,6 +367,22 @@ class VarManager {
                 }
             });
         }
+
+        var node = block.getFirstBytecode().get();
+        Stmt s = null;
+        if (builder.asm2Stmt.get(node) != null) {
+            s = builder.asm2Stmt.get(node);
+        } else if (builder.auxiliaryStmts.get(node) != null) {
+            var lst = builder.auxiliaryStmts.get(node);
+            s = lst.get(0);
+        }
+        Var defToBeKilled;
+        if (s != null) {
+            defToBeKilled = (Var) s.getDef().filter(l -> l instanceof Var).orElse(null);
+        } else {
+            defToBeKilled = null;
+        }
+        res.removeIf(p -> (p.second() == defToBeKilled));
 
         {
             var l = res.stream().map(Pair::first).toList();
