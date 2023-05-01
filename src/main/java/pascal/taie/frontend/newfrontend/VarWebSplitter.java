@@ -306,7 +306,7 @@ public class VarWebSplitter {
             Map<Var, Pair<Stmt, Kind>> inUse = this.inUse.get(block);
             assert inUse != null;
             Map<Integer, Var> frameLocalVar = Maps.newMap();
-            for (Pair<Integer, Var> p : varManager.getLiveVarBeforeStartOfABlock(block)) {
+            for (Pair<Integer, Var> p : varManager.getDefsBeforeStartOfABlock(block)) {
                 int idx = p.first();
                 Var v = p.second();
                 Pair<Stmt, Kind> real = inUse.get(v);
@@ -335,7 +335,7 @@ public class VarWebSplitter {
             return varManager.getParams();
         }
 
-        return varManager.getLiveVarBeforeStartOfABlock(block).stream().map(Pair::second).toList();
+        return varManager.getDefsBeforeStartOfABlock(block).stream().map(Pair::second).toList();
     }
 
     private List<Stmt> getStmts(BytecodeBlock block) {

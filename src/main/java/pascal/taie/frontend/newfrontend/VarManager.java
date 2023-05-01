@@ -339,11 +339,10 @@ class VarManager {
     }
 
     /**
-     * WARNING: this method should be called only by VarWebSplitter.getDefsAtStartOfBlock.
      * @param block index of the AsmNode
-     * @return live vars after the first AsmNode of the block.
+     * @return live vars before the first AsmNode of the block.
      */
-    public List<Pair<Integer, Var>> getLiveVarBeforeStartOfABlock(BytecodeBlock block) {
+    public List<Pair<Integer, Var>> getDefsBeforeStartOfABlock(BytecodeBlock block) {
         List<Pair<Integer, Var>> res = new ArrayList<>();
 
         int index = insnList.indexOf(block.getFirstBytecode().get());
