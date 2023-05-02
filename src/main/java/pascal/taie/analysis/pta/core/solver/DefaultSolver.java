@@ -345,8 +345,11 @@ public class DefaultSolver implements Solver {
         }
         PointsToSet diff = getPointsToSetOf(pointer).addAllDiff(pointsToSet);
         if (!diff.isEmpty()) {
-            pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge ->
-                    addPointsTo(edge.target(), edge.transfer().apply(edge, diff)));
+            pointerFlowGraph.getOutEdgesOf(pointer).forEach(edge -> {
+                Pointer target = edge.target();
+                edge.getTransfers().forEach(transfer ->
+                        addPointsTo(target, transfer.apply(edge, diff)));
+            });
         }
         return diff;
     }
@@ -765,8 +768,8 @@ public class DefaultSolver implements Solver {
     @Override
     public void addPFGEdge(Pointer source, Pointer target, FlowKind kind,
                            Transfer transfer) {
-        PointerFlowEdge edge = new PointerFlowEdge(kind, source, target, transfer);
-        if (pointerFlowGraph.addEdge(edge)) {
+        PointerFlowEdge edge = pointerFlowGraph.getOrAddEdge(kind, source, target);
+        if (edge != null && edge.addTransfer(transfer)) {
             PointsToSet targetSet = transfer.apply(edge, getPointsToSetOf(source));
             if (!targetSet.isEmpty()) {
                 addPointsTo(target, targetSet);
@@ -824,6 +827,11 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
+    public void addIgnoredMethod(JMethod method) {
+        ignoredMethods.add(method);
+    }
+
+    @Override
     public void initializeClass(JClass cls) {
         if (cls == null || initializedClasses.contains(cls)) {
             return;
@@ -845,11 +853,6 @@ public class DefaultSolver implements Solver {
                     contextSelector.getEmptyContext(), clinit);
             addCSMethod(csMethod);
         }
-    }
-
-    @Override
-    public void addIgnoredMethod(JMethod method) {
-        ignoredMethods.add(method);
     }
 
     @Override

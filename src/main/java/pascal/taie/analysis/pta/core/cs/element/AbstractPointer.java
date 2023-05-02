@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.core.cs.element;
 
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.util.collection.ArraySet;
@@ -90,11 +91,19 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
-    public boolean addOutEdge(PointerFlowEdge edge) {
-        if (successors.add(edge.target())) {
-            return outEdges.add(edge);
+    public PointerFlowEdge getOrAddEdge(FlowKind kind, Pointer source, Pointer target) {
+        if (successors.add(target)) {
+            PointerFlowEdge edge = new PointerFlowEdge(kind, source, target);
+            outEdges.add(edge);
+            return edge;
+        } else if (kind == FlowKind.OTHER) {
+            for (PointerFlowEdge edge : outEdges) {
+                if (edge.target().equals(target)) {
+                    return edge;
+                }
+            }
         }
-        return false;
+        return null;
     }
 
     @Override

@@ -80,7 +80,7 @@ public class ClassNameExtractor {
     private static List<String> extractJar(String jarPath) {
         File file = new File(jarPath);
         try (JarFile jar = new JarFile(file)) {
-            System.out.printf("Scanning %s ...", file.getAbsolutePath());
+            System.out.printf("Scanning %s ... ", file.getAbsolutePath());
             List<String> classNames = jar.stream()
                     .filter(e -> !e.getName().startsWith("META-INF"))
                     .filter(e -> e.getName().endsWith(CLASS))

@@ -179,13 +179,6 @@ public interface Solver {
     void addStmts(CSMethod csMethod, Collection<Stmt> stmts);
 
     /**
-     * Analyzes the static initializer (i.e., &lt;clinit&gt;) of given class.
-     *
-     * @param cls the class to be initialized.
-     */
-    void initializeClass(JClass cls);
-
-    /**
      * If a plugin takes over the analysis of a method, and wants this solver
      * to ignore the method (for precision and/or efficiency reasons),
      * then it could call this API with the method.
@@ -198,6 +191,12 @@ public interface Solver {
      */
     void addIgnoredMethod(JMethod method);
 
+    /**
+     * Analyzes the static initializer (i.e., &lt;clinit&gt;) of given class.
+     *
+     * @param cls the class to be initialized.
+     */
+    void initializeClass(JClass cls);
     // ---------- side-effect APIs (end) ----------
 
     /**
