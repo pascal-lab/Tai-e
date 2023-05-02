@@ -36,9 +36,6 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Reachability;
 
@@ -56,8 +53,6 @@ class TFGBuilder {
 
     private final ObjectFlowGraph ofg;
 
-    private final MultiMap<Var, Pair<Var, Type>> varTransfers;
-
     private final Set<TaintFlow> taintFlows;
 
     private final TaintManager taintManager;
@@ -73,12 +68,10 @@ class TFGBuilder {
     private final boolean onlyReachSink = true;
 
     TFGBuilder(PointerAnalysisResult pta,
-               MultiMap<Var, Pair<Var, Type>> varTransfers,
                Set<TaintFlow> taintFlows,
                TaintManager taintManager) {
         this.pta = pta;
         this.ofg = pta.getObjectFlowGraph();
-        this.varTransfers = varTransfers;
         this.taintFlows = taintFlows;
         this.taintManager = taintManager;
     }
@@ -142,7 +135,7 @@ class TFGBuilder {
         ofg.getOutEdgesOf(node).forEach(edge -> {
             switch (edge.kind()) {
                 case LOCAL_ASSIGN, INSTANCE_STORE, ARRAY_STORE,
-                        THIS_PASSING, PARAMETER_PASSING -> {
+                        THIS_PASSING, PARAMETER_PASSING, OTHER -> {
                     edges.add(edge);
                 }
                 case CAST, INSTANCE_LOAD, ARRAY_LOAD, RETURN -> {
@@ -157,14 +150,6 @@ class TFGBuilder {
                 }
             }
         });
-        // collect var transfer edges
-        if (node instanceof VarNode sourceNode) {
-            Var source = sourceNode.getVar();
-            varTransfers.get(source).forEach(pair -> {
-                VarNode targetNode = ofg.getVarNode(pair.first());
-                edges.add(new TransferEdge(sourceNode, targetNode));
-            });
-        }
         return edges;
     }
 

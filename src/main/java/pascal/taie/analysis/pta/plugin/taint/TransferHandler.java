@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -31,6 +32,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.core.solver.Transfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.CastExp;
@@ -47,7 +49,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,12 +73,7 @@ class TransferHandler {
      */
     private final MultiMap<JMethod, TaintTransfer> transfers = Maps.newMultiMap();
 
-    /**
-     * Map from variable to taint transfer information.
-     * The taint objects pointed to by the "key" variable are supposed
-     * to be transferred to "value" variable with specified type.
-     */
-    private final MultiMap<Var, Pair<Var, Type>> varTransfers = Maps.newMultiMap();
+    private final Map<Type, Transfer> transferFunctions = Maps.newHybridMap();
 
     /**
      * Whether enable taint back propagation to handle aliases about
@@ -118,11 +114,11 @@ class TransferHandler {
             // when transfer to result variable, and the call site
             // does not have result variable, then "to" is null.
             if (to != null) {
-                Type type = transfer.type();
-                varTransfers.put(from, new Pair<>(to, type));
                 Context ctx = edge.getCallSite().getContext();
                 CSVar csFrom = csManager.getCSVar(ctx, from);
-                transferTaint(solver.getPointsToSetOf(csFrom), ctx, to, type);
+                CSVar csTo = csManager.getCSVar(ctx, to);
+                Transfer trans = getTransferFunction(transfer.type());
+                solver.addPFGEdge(csFrom, csTo, FlowKind.OTHER, trans);
 
                 // If the taint is transferred to base or argument, it means
                 // that the objects pointed to by "to" were mutated
@@ -141,27 +137,23 @@ class TransferHandler {
         });
     }
 
-    void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        // process taint transfer
-        varTransfers.get(csVar.getVar()).forEach(p -> {
-            Var to = p.first();
-            Type type = p.second();
-            transferTaint(pts, csVar.getContext(), to, type);
-        });
+    private Transfer getTransferFunction(Type toType) {
+        return transferFunctions.computeIfAbsent(toType,
+                type -> ((edge, input) -> {
+                    PointsToSet newTaints = solver.makePointsToSet();
+                    input.objects()
+                            .map(CSObj::getObject)
+                            .filter(manager::isTaint)
+                            .map(manager::getSourcePoint)
+                            .map(source -> manager.makeTaint(source, type))
+                            .map(taint -> csManager.getCSObj(emptyContext, taint))
+                            .forEach(newTaints::addObject);
+                    return newTaints;
+                }));
     }
 
-    private void transferTaint(PointsToSet pts, Context ctx, Var to, Type type) {
-        PointsToSet newTaints = solver.makePointsToSet();
-        pts.objects()
-                .map(CSObj::getObject)
-                .filter(manager::isTaint)
-                .map(manager::getSourcePoint)
-                .map(source -> manager.makeTaint(source, type))
-                .map(taint -> csManager.getCSObj(emptyContext, taint))
-                .forEach(newTaints::addObject);
-        if (!newTaints.isEmpty()) {
-            solver.addVarPointsTo(ctx, to, newTaints);
-        }
+    void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        // TODO: handle transfers for array/field
     }
 
     private void backPropagateTaint(Var to, Context ctx) {
@@ -211,9 +203,5 @@ class TransferHandler {
     private Var getTempVar(JMethod container, Type type) {
         String varName = "%taint-temp-" + counter++;
         return new Var(container, varName, type, -1);
-    }
-
-    MultiMap<Var, Pair<Var, Type>> getVarTransfers() {
-        return varTransfers;
     }
 }
