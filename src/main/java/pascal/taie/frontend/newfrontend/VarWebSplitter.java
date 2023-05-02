@@ -37,7 +37,7 @@ public class VarWebSplitter {
                             Var,
                             Pair<Stmt, Kind>
                     >
-            > inUse;
+            > inDef;
 
     private final Map
             <
@@ -70,7 +70,7 @@ public class VarWebSplitter {
         this.builder = builder;
         this.varManager = builder.manager;
         this.webs = new HashMap<>();
-        this.inUse = new HashMap<>();
+        this.inDef = new HashMap<>();
         this.outDef = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
@@ -106,7 +106,7 @@ public class VarWebSplitter {
         for (var block : blocks) {
 //            if (! block.isCatch()) { // TODO: remove when exception handling is completed.
 //            }
-            if (! inUse.containsKey(block)) {
+            if (! inDef.containsKey(block)) {
                 constructWebInsideBlock(block, null);
             }
         }
@@ -130,31 +130,31 @@ public class VarWebSplitter {
 //        if (pred.isCatch() || succ.isCatch()) { // TODO: remove when exception handling is completed.
 //            return;
 //        }
-        var predDef = outDef.get(pred);
-        var succUse = inUse.get(succ);
-        if (predDef == succUse) {
+        var predOutDef = outDef.get(pred);
+        var succInDef = inDef.get(succ);
+        if (predOutDef == succInDef) {
             return;
         }
-        for (Var var : succUse.keySet()) {
-            if (!predDef.containsKey(var)) {
+        for (Var var : succInDef.keySet()) {
+            if (!predOutDef.containsKey(var)) {
                 continue;
             }
             var web = webs.get(var);
-            web.union(predDef.get(var), succUse.get(var));
+            web.union(predOutDef.get(var), succInDef.get(var));
         }
     }
 
-    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, Pair<Stmt, Kind>> inUse) {
+    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, Pair<Stmt, Kind>> inDef) {
         boolean isInTry = block.isInTry();
         Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
-        if (inUse == null || block.getFrame() != null) {
+        if (inDef == null || block.getFrame() != null) {
             Kind phantomType = block == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
-            Map<Var, Pair<Stmt, Kind>> phantomUse = new HashMap<>();
+            Map<Var, Pair<Stmt, Kind>> phantomDefs = new HashMap<>();
             for (Var var : getDefsAtStartOfBlock(block)) { // initialization.
                 Copy phantom = new Copy(var, var);
                 Pair<Stmt, Kind> e = new Pair<>(phantom, phantomType);
                 webs.get(var).addElement(e);
-                phantomUse.put(var, e);
+                phantomDefs.put(var, e);
                 if (isInTry) {
                     // collect phantom to mayFlowToCatch
                     List<Pair<Stmt, Kind>> varDefs = new ArrayList<>();
@@ -162,10 +162,10 @@ public class VarWebSplitter {
                     mayFlowToCatch.put(var, varDefs);
                 }
             }
-            inUse = phantomUse;
+            inDef = phantomDefs;
         } else {
             if (mayFlowToCatch != null) {
-                inUse.forEach((k, v) -> {
+                inDef.forEach((k, v) -> {
                     List<Pair<Stmt, Kind>> temp = new ArrayList<>();
                     temp.add(v);
                     mayFlowToCatch.put(k, temp);
@@ -173,8 +173,8 @@ public class VarWebSplitter {
             }
         }
 
-        this.inUse.put(block, inUse);
-        Map<Var, Pair<Stmt, Kind>> currentDefs = new HashMap<>(inUse);
+        this.inDef.put(block, inDef);
+        Map<Var, Pair<Stmt, Kind>> currentDefs = new HashMap<>(inDef);
 
         for (var stmt : getStmts(block)) {
             // uses first
@@ -221,11 +221,11 @@ public class VarWebSplitter {
 
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
         var blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
-        var handlerUse = inUse.get(handler);
+        var handlerInDef = inDef.get(handler);
         for (Var var : getDefsAtStartOfBlock(handler)) {
             var web = webs.get(var);
             for (var p : blockAllDefs.get(var)) {
-                web.union(p, handlerUse.get(var));
+                web.union(p, handlerInDef.get(var));
             }
         }
     }
@@ -303,13 +303,13 @@ public class VarWebSplitter {
             if (block.getFrame() == null) {
                 continue;
             }
-            Map<Var, Pair<Stmt, Kind>> inUse = this.inUse.get(block);
-            assert inUse != null;
+            Map<Var, Pair<Stmt, Kind>> inDef = this.inDef.get(block);
+            assert inDef != null;
             Map<Integer, Var> frameLocalVar = Maps.newMap();
             for (Pair<Integer, Var> p : varManager.getDefsBeforeStartOfABlock(block)) {
                 int idx = p.first();
                 Var v = p.second();
-                Pair<Stmt, Kind> real = inUse.get(v);
+                Pair<Stmt, Kind> real = inDef.get(v);
                 Var realVar;
                 realVar = splitted.get(new SplitIndex(v, webs.get(v).findRoot(real)));
                 frameLocalVar.put(idx, realVar != null ? realVar : v);
