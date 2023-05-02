@@ -41,6 +41,8 @@ class VarManager {
 
     private final @Nullable List<LocalVariableNode> localVariableTable;
 
+    private final boolean existsLocalVariableTable;
+
     private final InsnList insnList;
 
     private final AsmIRBuilder builder;
@@ -78,11 +80,12 @@ class VarManager {
                       AsmIRBuilder builder) {
         this.method = method;
         this.localVariableTable = localVariableTable;
+        this.existsLocalVariableTable = existsLocalVariableTable();
         this.insnList = insnList;
         this.builder = builder;
         this.local2Var = Maps.newMap();
-        this.nameAndType2Var = existsLocalVariableTable() ? Maps.newMap() : null;
-        this.anonymousLocal2Var = existsLocalVariableTable() ? Maps.newMap() : null;
+        this.nameAndType2Var = existsLocalVariableTable ? Maps.newMap() : null;
+        this.anonymousLocal2Var = existsLocalVariableTable ? Maps.newMap() : null;
         this.params = new ArrayList<>();
         this.paramsIndex = Maps.newMap();
         this.vars = new ArrayList<>();
@@ -105,7 +108,7 @@ class VarManager {
         int nowIdx = method.isStatic() ? 0 : 1;
         int n = nowIdx;
         for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
-            Var v = existsLocalVariableTable() ? getLocal(i, 0) : newParameter(i);
+            Var v = existsLocalVariableTable ? getLocal(i, 0) : newParameter(i);
             this.params.add(v);
             local2Var.put(new Triple<>(n, 0, lastIndex + offset), v);
             this.paramsIndex.put(v, n);
@@ -154,7 +157,7 @@ class VarManager {
      */
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
         int asmIndex = insnList.indexOf(insnNode);
-        return existsLocalVariableTable() ?
+        return existsLocalVariableTable ?
                 getLocal(slot, asmIndex) : getLocalWithoutLocalVarTable(slot, asmIndex);
     }
 
@@ -332,7 +335,7 @@ class VarManager {
         };
 
         local2Var.forEach(c);
-        if (existsLocalVariableTable()) {
+        if (existsLocalVariableTable) {
             anonymousLocal2Var.forEach(c);
         }
         return res;
@@ -355,7 +358,7 @@ class VarManager {
                 res.add(new Pair<>(k.first(), v));
             }
         });
-        if (existsLocalVariableTable()) {
+        if (existsLocalVariableTable) {
             anonymousLocal2Var.forEach((k, v) -> {
                 if (/*k.second() <= index && index < k.third() && // which is always true */
                         res.stream().noneMatch(p -> p.first().equals(k.first())) &&
@@ -454,7 +457,7 @@ class VarManager {
     }
 
     private @Nullable String getLocalName(int i, int asmIndex) {
-        if (!existsLocalVariableTable()) {
+        if (!existsLocalVariableTable) {
             return null;
         } else {
             LocalVariableNode n = searchLocal(i, asmIndex);
