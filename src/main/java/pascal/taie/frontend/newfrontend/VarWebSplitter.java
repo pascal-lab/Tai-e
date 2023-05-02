@@ -59,7 +59,7 @@ public class VarWebSplitter {
 
     private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
-    private final Map<SplitIndex, Var> splitted;
+    private final Map<SplitIndex, Var> split;
 
     // TODO:
     //   1. if classfile major version is less than 50,
@@ -74,7 +74,7 @@ public class VarWebSplitter {
         this.outDef = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
-        this.splitted = Maps.newMap();
+        this.split = Maps.newMap();
         this.locals = varManager.getVars()
                 .stream()
                 .filter(varManager::isLocal)
@@ -254,7 +254,7 @@ public class VarWebSplitter {
                         currentVar[0] = varManager.splitLocal(var, count[0]);
                         res.put(currentVar[0], sources);
                         Pair<Stmt, Kind> rep = s.iterator().next();
-                        splitted.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
+                        split.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
                     });
         });
         return res;
@@ -311,7 +311,7 @@ public class VarWebSplitter {
                 Var v = p.second();
                 Pair<Stmt, Kind> real = inDef.get(v);
                 Var realVar;
-                realVar = splitted.get(new SplitIndex(v, webs.get(v).findRoot(real)));
+                realVar = split.get(new SplitIndex(v, webs.get(v).findRoot(real)));
                 frameLocalVar.put(idx, realVar != null ? realVar : v);
             }
             block.setFrameLocalVar(frameLocalVar);
