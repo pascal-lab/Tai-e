@@ -63,8 +63,8 @@ class SourceHandler {
                   List<CallSource> callSources, List<ParamSource> paramSources) {
         this.solver = solver;
         this.manager = manager;
-        callSources.forEach(s -> this.callSources.put(s.method(), s));
-        paramSources.forEach(s -> this.paramSources.put(s.method(), s));
+        callSources.forEach(src -> this.callSources.put(src.method(), src));
+        paramSources.forEach(src -> this.paramSources.put(src.method(), src));
     }
 
     void handleCallSource(Edge<CSCallSite, CSMethod> edge) {

@@ -22,43 +22,34 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.language.classes.JMethod;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
 
-/**
- * A {@code CallSourcePoint} is variable at an invocation site.
- */
-public record CallSourcePoint(Invoke sourceCall, int index) implements SourcePoint {
+public record FieldSourcePoint(JMethod container, LoadField loadField)
+        implements SourcePoint {
 
-    private static final Comparator<CallSourcePoint> COMPARATOR =
-            Comparator.comparing((CallSourcePoint csp) -> csp.sourceCall)
-                    .thenComparingInt(CallSourcePoint::index);
+    private static final Comparator<FieldSourcePoint> COMPARATOR =
+            Comparator.comparing((FieldSourcePoint fsp) -> fsp.container.toString())
+                    .thenComparingInt(fsp -> fsp.loadField().getIndex());
 
     @Override
     public int compareTo(@Nonnull SourcePoint sp) {
-        if (sp instanceof CallSourcePoint csp) {
-            return COMPARATOR.compare(this, csp);
+        if (sp instanceof FieldSourcePoint fsp) {
+            return COMPARATOR.compare(this, fsp);
         }
         return SourcePoint.compare(this, sp);
     }
 
     @Override
     public JMethod getContainer() {
-        return sourceCall.getContainer();
+        return container;
     }
 
     @Override
     public int getPriority() {
-        return 1;
+        return 2;
     }
-
-    @Override
-    public String toString() {
-        return sourceCall.toString() + "/" + InvokeUtils.toString(index);
-    }
-
 }
