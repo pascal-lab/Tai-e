@@ -136,9 +136,6 @@ public class VarWebSplitter {
             return;
         }
         for (Var var : succInDef.keySet()) {
-            if (!predOutDef.containsKey(var)) {
-                continue;
-            }
             var web = webs.get(var);
             web.union(predOutDef.get(var), succInDef.get(var));
         }
