@@ -451,7 +451,7 @@ class VarManager {
             if (n == null) {
                 return null;
             }
-            String sig = n.signature;
+            String sig = n.signature; // WARNING: we should use field `desc` here, so it is a bug. But this method is not used yet, so...
             return BuildContext.get().fromAsmType(sig);
         }
     }
