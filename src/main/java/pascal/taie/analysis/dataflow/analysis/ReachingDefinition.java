@@ -78,7 +78,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
             for (Stmt stmt : ir) {
                 stmt.getDef().ifPresent(def -> {
                     if (def instanceof Var defVar) {
-                        defs.computeIfAbsent(defVar, unused -> newInitialFact())
+                        defs.computeIfAbsent(defVar, __ -> newInitialFact())
                                 .add(stmt);
                     }
                 });

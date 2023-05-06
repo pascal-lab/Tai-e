@@ -80,10 +80,8 @@ public class Profiler implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        csVarVisited.computeIfAbsent(csVar,
-                unused -> new MutableInt(0)).add(1);
-        varVisited.computeIfAbsent(csVar.getVar(),
-                unused -> new MutableInt(0)).add(1);
+        csVarVisited.computeIfAbsent(csVar, __ -> new MutableInt(0)).add(1);
+        varVisited.computeIfAbsent(csVar.getVar(), __ -> new MutableInt(0)).add(1);
     }
 
     @Override
@@ -101,7 +99,7 @@ public class Profiler implements Plugin {
             Map<JMethod, MutableInt> methodVarVisited = Maps.newMap();
             varVisited.forEach((v, times) ->
                     methodVarVisited.computeIfAbsent(v.getMethod(),
-                                    unused -> new MutableInt(0))
+                                    __ -> new MutableInt(0))
                             .add(times.intValue()));
             reportTop(out, "method containers (of frequently-visited variables)",
                     methodVarVisited, JMethod::toString);
@@ -110,7 +108,7 @@ public class Profiler implements Plugin {
                 CSMethod method = csManager.getCSMethod(
                         v.getContext(), v.getVar().getMethod());
                 csMethodVarVisited.computeIfAbsent(method,
-                                unused -> new MutableInt(0))
+                                __ -> new MutableInt(0))
                         .add(times.intValue());
             });
             reportTop(out, "CS method containers (of frequently-visited CS variables)",
@@ -119,7 +117,7 @@ public class Profiler implements Plugin {
             Map<JClass, MutableInt> classVarVisited = Maps.newMap();
             methodVarVisited.forEach((m, times) ->
                     classVarVisited.computeIfAbsent(m.getDeclaringClass(),
-                                    unused -> new MutableInt(0))
+                                    __ -> new MutableInt(0))
                             .add(times.intValue()));
             reportTop(out, "class containers (of frequently-visited variables)",
                     classVarVisited, JClass::toString);

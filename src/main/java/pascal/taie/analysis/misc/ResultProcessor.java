@@ -144,8 +144,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
                     currentKey = key;
                 } else if (!line.isBlank()) {
                     assert currentKey != null;
-                    inputs.computeIfAbsent(currentKey,
-                                    unused -> new ArrayList<>())
+                    inputs.computeIfAbsent(currentKey, __ -> new ArrayList<>())
                             .add(line);
                 }
             }

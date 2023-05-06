@@ -99,7 +99,7 @@ public class CatchAnalysis {
         ir.getExceptionEntries().forEach(entry -> {
             for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
                 Stmt stmt = ir.getStmt(i);
-                catchers.computeIfAbsent(stmt, unused -> new ArrayList<>())
+                catchers.computeIfAbsent(stmt, __ -> new ArrayList<>())
                         .add(entry);
             }
         });

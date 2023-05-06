@@ -91,7 +91,7 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
     }
 
     private Map<K2, V> getOrCreateMap(@Nonnull K1 key1) {
-        return map.computeIfAbsent(key1, unused -> mapFactory.get());
+        return map.computeIfAbsent(key1, __ -> mapFactory.get());
     }
 
     @Override

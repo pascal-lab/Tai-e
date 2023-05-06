@@ -142,7 +142,7 @@ public class InterConstantPropagation extends
                                 pointedBy.put(obj, v)));
         arrayStoreToLoads = Maps.newMultiMap();
         arrayLoadToStores = Maps.newMultiMap();
-        pointedBy.forEachSet((unused, aliases) -> {
+        pointedBy.forEachSet((__, aliases) -> {
             for (Var v : aliases) {
                 for (StoreField store : v.getStoreFields()) {
                     if (!store.isStatic() && holdsInt(store.getRValue())) {

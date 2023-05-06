@@ -110,7 +110,7 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V> {
     }
 
     private Set<V> getOrCreateSet(@Nonnull K key) {
-        return map.computeIfAbsent(key, unused -> setFactory.get());
+        return map.computeIfAbsent(key, __ -> setFactory.get());
     }
 
     @Override

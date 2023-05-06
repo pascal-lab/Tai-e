@@ -139,7 +139,7 @@ public class Zipper {
                 if (size > 0) {
                     totalPts += size;
                     methodPts.computeIfAbsent(var.getMethod(),
-                                    unused -> new MutableInt(0))
+                                    __ -> new MutableInt(0))
                             .add(size);
                 }
             }

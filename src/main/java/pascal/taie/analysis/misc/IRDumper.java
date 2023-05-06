@@ -227,7 +227,7 @@ public class IRDumper extends ClassAnalysis<Void> {
                     .filter(v -> v != ir.getThis())
                     .filter(v -> !ir.getParams().contains(v))
                     .forEach(v -> vars.computeIfAbsent(v.getType(),
-                                    (unused) -> new ArrayList<>())
+                                    __ -> new ArrayList<>())
                             .add(v));
             vars.forEach((t, vs) -> {
                 out.printf("%s%s%s ", INDENT, INDENT, t);
