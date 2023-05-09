@@ -307,7 +307,8 @@ public class AsmClassBuilder implements JClassBuilder {
                     new JMethod(jClass, methodName, modifiers, paramTypes,
                             retType, exceptions,
                             AnnotationHolder.make(annotations), l,
-                            paramName, this));
+                            paramName,
+                            new AsmMethodSource(this, AsmClassBuilder.this.source.getClassFileVersion())));
         }
     }
 

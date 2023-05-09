@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.frontend.newfrontend.AllClassesCWBuilder;
 import pascal.taie.frontend.newfrontend.AsmIRBuilder;
+import pascal.taie.frontend.newfrontend.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
@@ -62,7 +63,7 @@ public class TestAsmIRBuilder {
         var ch = getCh("Minimal", 6);
         ch.allClasses()
                 .forEach(i -> { i.getDeclaredMethods().forEach(m -> {
-                    JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                    AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
                     AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                     builder1.build();
             });
@@ -82,7 +83,7 @@ public class TestAsmIRBuilder {
                     i.getDeclaredMethods()
                             .stream().filter(j -> methods.contains(j.getName()))
                             .forEach(m -> {
-                                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                                AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
                                 System.out.println(m.getName() + " : " + builder1.getIr().getStmts());
@@ -100,7 +101,7 @@ public class TestAsmIRBuilder {
                     i.getDeclaredMethods()
                             .stream().filter(j -> j.getName().equals("p"))
                             .forEach(m -> {
-                                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                                AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
                                 for (var stmt : builder1.getIr().getStmts()) {
@@ -123,7 +124,7 @@ public class TestAsmIRBuilder {
                 .forEach(i -> {
                     i.getDeclaredMethods()
                             .forEach(m -> {
-                                JSRInlinerAdapter jsr = (JSRInlinerAdapter) m.getMethodSource();
+                                AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
                                 System.out.println(m);

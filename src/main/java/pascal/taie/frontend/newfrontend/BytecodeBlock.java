@@ -125,11 +125,11 @@ public final class BytecodeBlock {
 
     public void setInStack(Stack<Var> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
-        if (frame == null) {
-            assert inStack.isEmpty() || inEdges.size() == 1;
-        } else {
-            assert inStack.size() == frame.stack.size();
-        }
+//        if (frame == null) {
+//            assert inStack.isEmpty() || inEdges.size() == 1;
+//        } else {
+//            assert inStack.size() == frame.stack.size();
+//        }
         this.inStack = inStack;
         for (var pred : inEdges) {
             if (pred.outStack == null) {

@@ -111,6 +111,8 @@ public class AsmIRBuilder {
 
     final JMethod method;
 
+    private final int classFileVersion;
+
     private final JSRInlinerAdapter source;
 
     Map<LabelNode, BytecodeBlock> label2Block;
@@ -135,9 +137,10 @@ public class AsmIRBuilder {
 
     private static final Logger logger = LogManager.getLogger();
 
-    public AsmIRBuilder(JMethod method, JSRInlinerAdapter source) {
+    public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
         this.method = method;
-        this.source = source;
+        this.source = methodSource.adapter();
+        this.classFileVersion = methodSource.classFileVersion();
         this.isEmpty = source.instructions.size() == 0;
         this.manager = new VarManager(method, source.parameters, source.localVariables, source.instructions, this);
         this.asm2Stmt = Maps.newMap();
@@ -153,10 +156,12 @@ public class AsmIRBuilder {
         if (! isEmpty) {
             buildCFG();
             buildIR();
-            VarWebSplitter splitter = new VarWebSplitter(this);
-            splitter.build();
-            TypeInference0 inference = new TypeInference0(this);
-            inference.build();
+            if (classFileVersion >= Opcodes.V1_6) {
+                VarWebSplitter splitter = new VarWebSplitter(this);
+                splitter.build();
+                TypeInference0 inference = new TypeInference0(this);
+                inference.build();
+            }
             setIR();
         }
         // TODO: check how to handle empty method
