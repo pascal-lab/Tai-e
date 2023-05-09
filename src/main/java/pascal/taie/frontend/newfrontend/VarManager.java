@@ -181,10 +181,11 @@ class VarManager {
         boolean found = false;
         for (LocalVariableNode node : localVariableTable) {
             AbstractInsnNode startNode;
-            if (node.start.getPrevious() == null) {
-                startNode = node.start; // index of start node == 0
+            var previous = node.start.getPrevious();
+            if (previous == null || Utils.isReturn(previous) || Utils.isThrow(previous)) { // previous == null means that node.start is the first element of InsnList
+                startNode = node.start;
             } else {
-                startNode = node.start.getPrevious();
+                startNode = previous;
                 assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
                 assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
             }
