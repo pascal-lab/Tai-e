@@ -17,6 +17,7 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Quadruple;
 import pascal.taie.util.collection.Triple;
 
 import javax.annotation.Nullable;
@@ -52,7 +53,7 @@ class VarManager {
 
     private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
-    private final Map<Triple<String, String, String>, Var> nameAndType2Var; // (varName, desc, signature) -> Var
+    private final Map<Quadruple<Integer, String, String, String>, Var> nameAndType2Var; // (varName, desc, signature) -> Var
 
     private final Map<Triple<Integer, Integer, Integer>, Var> anonymousLocal2Var; // (slot, start(inclusive), end(exclusive)) -> Var
 
@@ -194,9 +195,9 @@ class VarManager {
 
         Var v;
         if (found) {
-            // find the var that has the same name and the same type.
+            // find the var that has the same slot, the same name and the same type.
             // If not found, generate one and put it into the nameAndType2Var map.
-            var t = new Triple<>(varName, descriptor, signature);
+            var t = new Quadruple<>(slot, varName, descriptor, signature);
             v = nameAndType2Var.get(t);
             if (v == null) {
                 v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
