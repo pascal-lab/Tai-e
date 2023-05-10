@@ -32,6 +32,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -358,7 +359,7 @@ public class TypeInference0 {
             });
         }
 
-        if (block.fallThrough() != null) {
+        if (block.fallThrough() != null && block.fallThrough().getFrame() == null) {
             inferTypesForBlock(block.fallThrough(), typing);
         }
     }
@@ -435,7 +436,9 @@ public class TypeInference0 {
                 @Override
                 public Stmt visit(Invoke stmt) {
                     if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
-                        Type t = stmt.getRValue().getMethodRef().getDeclaringClass().getType();
+                        JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
+                        assert jClass != null;
+                        Type t = jClass.getType();
                         if (! isAssignable(t, invokeInstanceExp.getBase().getType())) {
                             Var v = builder.manager.getTempVar();
                             v.setType(t);

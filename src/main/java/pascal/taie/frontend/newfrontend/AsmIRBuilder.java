@@ -227,18 +227,43 @@ public class AsmIRBuilder {
     }
 
     private void assocStmt(AbstractInsnNode node, Stmt stmt) {
-        asm2Stmt.put(node, stmt);
+        if (! asm2Stmt.containsKey(node)) {
+            asm2Stmt.put(node, stmt);
+        } else {
+            assocListStmt(node, stmt);
+        }
+    }
+
+    private void assocListStmt(AbstractInsnNode node, Stmt stmt) {
+        List<Stmt> aux = auxiliaryStmts.computeIfAbsent(node, (n) -> new ArrayList<>());
+        aux.add(stmt);
     }
 
     private void assocStmt(Exp e, Stmt stmt) {
-        asm2Stmt.put(getOrig(e), stmt);
+        assocStmt(exp2origin.get(e), stmt);
     }
 
     private Var toVar(Exp e) {
-        Var v = e instanceof Literal l ?
-                manager.getConstVar(l) : manager.getTempVar();
+        Var v;
+        if (e instanceof NullLiteral) {
+            // $null could be used without assign
+            return manager.getNullLiteral();
+        }
+        if (e instanceof Literal l) {
+            if (manager.peekConstVar(l)) {
+                return manager.getConstVar(l);
+            } else {
+                v = manager.getConstVar(l);
+            }
+        } else {
+            v = manager.getTempVar();
+        }
+        // if reach here
+        // this method should only be called once
+        AbstractInsnNode orig = getOrig(e);
+        assert ! asm2Stmt.containsKey(orig);
         Stmt auxStmt = getAssignStmt(v, e);
-        assocStmt(e, auxStmt);
+        asm2Stmt.put(orig, auxStmt);
         return v;
     }
 
@@ -692,6 +717,7 @@ public class AsmIRBuilder {
     private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<Exp> stack) {
         int opcode = methodInsnNode.getOpcode();
         JClass owner = BuildContext.get().toJClass(methodInsnNode.owner);
+        assert owner != null;
         Pair<List<Type>, Type> desc = BuildContext.get().fromAsmMethodType(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
@@ -747,21 +773,25 @@ public class AsmIRBuilder {
         assocStmt(node, new Throw(v));
     }
 
-    private void mergeStack1(List<Stmt> auxiliary, Stack<Exp> nowStack, Stack<Var> targetStack) {
-        Var v = targetStack.pop();
+    private void mergeStack1(List<Stmt> auxiliary, Stack<Exp> nowStack, Stack<Exp> targetStack) {
+        Exp v = targetStack.pop();
+        if (v instanceof Top) {
+            return;
+        }
+        assert v instanceof Var: "merge target should be var of top";
         Exp e = peekExp(nowStack);
         if (e == v) {
             popExp(nowStack);
         } else {
-            Stmt stmt = popToVar(nowStack, v);
+            Stmt stmt = popToVar(nowStack, (Var) v);
             auxiliary.add(stmt);
         }
     }
 
-    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Var> target) {
+    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
         List<Stmt> auxiliary = new ArrayList<>();
         Stack<Exp> nowStack1 = new Stack<>();
-        Stack<Var> target1 = new Stack<>();
+        Stack<Exp> target1 = new Stack<>();
         nowStack1.addAll(nowStack);
         target1.addAll(target);
         while (! nowStack1.isEmpty()) {
@@ -807,17 +837,25 @@ public class AsmIRBuilder {
 
     private void buildBlockStmt(BytecodeBlock block) {
         manager.clearConstCache();
-        Stack<Var> inStack = block.getInStack();
+        Stack<Exp> inStack = block.getInStack();
         Stack<Exp> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
         if (block.isCatch()) {
-            // TODO: log when first instr of a catch block is not astore_x
             if (instr.hasNext()) {
                 AbstractInsnNode insnNode = instr.next();
                 if (insnNode.getOpcode() == Opcodes.ASTORE) {
                     VarInsnNode node = (VarInsnNode) insnNode;
                     assocStmt(node, new Catch(manager.getLocal(node.var, node)));
+                } else {
+                    // else
+                    // * for java source, insn should be POP *
+                    // 1. make a catch stmt with temp var
+                    // 2. push this temp var onto stack
+                    Var v = manager.getTempVar();
+                    assocStmt(insnNode, new Catch(v));
+                    pushExp(insnNode, nowStack, v);
+                    processInstr(nowStack, insnNode);
                 }
             }
         } else {
@@ -826,185 +864,7 @@ public class AsmIRBuilder {
 
         while (instr.hasNext()) {
             AbstractInsnNode node = instr.next();
-            if (node instanceof VarInsnNode varNode) {
-                switch (varNode.getOpcode()) {
-                    case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
-                        pushExp(node, nowStack, manager.getLocal(varNode.var, varNode));
-                    case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
-                            storeExp(varNode, nowStack);
-                    default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
-                            throw new UnsupportedOperationException();
-                }
-            } else if (node instanceof InsnNode insnNode) {
-                int opcode = insnNode.getOpcode();
-                if (opcode == Opcodes.NOP) {
-                    continue;
-                } else if (opcode == Opcodes.ARRAYLENGTH) {
-                    pushExp(node, nowStack, new ArrayLengthExp(popVar(nowStack)));
-                } else if (opcode == Opcodes.ATHROW) {
-                    throwException(insnNode, nowStack);
-                } else if (opcode == Opcodes.MONITORENTER) {
-                    Var obj = popVar(nowStack);
-                    assocStmt(node, new Monitor(Monitor.Op.ENTER, obj));
-                } else if (opcode == Opcodes.MONITOREXIT) {
-                    Var obj = popVar(nowStack);
-                    assocStmt(node, new Monitor(Monitor.Op.EXIT, obj));
-                } else if (isBinaryInsn(opcode)) {
-                    pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
-                } else if (isReturnInsn(opcode)) {
-                    returnExp(nowStack, insnNode);
-                } else if (isConstInsn(opcode)) {
-                    pushConst(node, nowStack, getConstValue(insnNode));
-                } else if (isPrimCastInsn(opcode)) {
-                    pushExp(node, nowStack, getCastExp(nowStack, opcode));
-                } else if (isNegInsn(opcode)) {
-                    Var v1 = popVar(nowStack);
-                    pushExp(node, nowStack, new NegExp(v1));
-                } else if (isStackInsn(opcode)) {
-                    performStackOp(nowStack, opcode);
-                } else if (isArrayLoadInsn(opcode)) {
-                    ArrayAccess access = getArrayAccess(nowStack);
-                    pushExp(node, nowStack, access);
-                } else if (isArrayStoreInsn(opcode)) {
-                    Var value = popVar(nowStack);
-                    ArrayAccess access = getArrayAccess(nowStack);
-                    storeExp(node, access, value);
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            } else if (node instanceof JumpInsnNode jump) {
-                if (jump.getOpcode() == Opcodes.GOTO) {
-                    assocStmt(jump, new Goto());
-                } else {
-                    ConditionExp cond = getIfExp(nowStack, jump.getOpcode());
-                    assocStmt(jump, new If(cond));
-                }
-            } else if (node instanceof LdcInsnNode ldc) {
-                pushConst(node, nowStack, fromObject(ldc.cst));
-            } else if (node instanceof TypeInsnNode typeNode) {
-                int opcode = typeNode.getOpcode();
-                ReferenceType type = BuildContext.get().fromAsmInternalName(typeNode.desc);
-                if (opcode == Opcodes.CHECKCAST) {
-                    pushExp(node, nowStack, getCastExp(nowStack, type));
-                } else if (opcode == Opcodes.NEW) {
-                    pushExp(node, nowStack, new NewInstance((ClassType) type));
-                } else if (opcode == Opcodes.ANEWARRAY) {
-                    Var length = popVar(nowStack);
-                    int dims = 1;
-                    if (type instanceof ArrayType arrayType) {
-                        dims += arrayType.dimensions();
-                    }
-                    ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(type, dims);
-                    pushExp(node, nowStack, new NewArray(arrayType, length));
-                } else if (opcode == Opcodes.INSTANCEOF) {
-                    Var obj = popVar(nowStack);
-                    pushExp(node, nowStack, new InstanceOfExp(obj, type));
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            } else if (node instanceof IntInsnNode intNode) {
-                int opcode = intNode.getOpcode();
-                if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
-                    pushConst(node, nowStack, IntLiteral.get(intNode.operand));
-                } else if (opcode == Opcodes.NEWARRAY) {
-                    PrimitiveType base = switch (intNode.operand) {
-                        case 4 -> PrimitiveType.BOOLEAN;
-                        case 5 -> PrimitiveType.CHAR;
-                        case 6 -> PrimitiveType.FLOAT;
-                        case 7 -> PrimitiveType.DOUBLE;
-                        case 8 -> PrimitiveType.BYTE;
-                        case 9 -> PrimitiveType.SHORT;
-                        case 10 -> PrimitiveType.INT;
-                        case 11 -> PrimitiveType.LONG;
-                        default -> throw new IllegalArgumentException();
-                    };
-                    ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, 1);
-                    Var length = popVar(nowStack);
-                    pushExp(node, nowStack, new NewArray(arrayType, length));
-                } else {
-                    assert false;
-                }
-            } else if (node instanceof FieldInsnNode fieldInsnNode) {
-                int opcode = fieldInsnNode.getOpcode();
-                ClassType owner = (ClassType)
-                        BuildContext.get().fromAsmInternalName(fieldInsnNode.owner);
-                Type type = BuildContext.get().fromAsmType(fieldInsnNode.desc);
-                String name = fieldInsnNode.name;
-                // TODO: check why our class hierarchy builder makes owner.getJClass() null
-                FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
-                        opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
-                switch (opcode) {
-                    case Opcodes.GETSTATIC -> pushExp(node, nowStack, new StaticFieldAccess(ref));
-                    case Opcodes.GETFIELD -> {
-                        Var v1 = popVar(nowStack);
-                        pushExp(node, nowStack, new InstanceFieldAccess(ref, v1));
-                    }
-                    case Opcodes.PUTSTATIC -> {
-                        FieldAccess access = new StaticFieldAccess(ref);
-                        Var v1 = popVar(nowStack);
-                        storeExp(node, access, v1);
-                    }
-                    case Opcodes.PUTFIELD -> {
-                        Var value = popVar(nowStack);
-                        Var base = popVar(nowStack);
-                        FieldAccess access = new InstanceFieldAccess(ref, base);
-                        storeExp(node, access, value);
-                    }
-                    default -> throw new UnsupportedOperationException();
-                }
-            } else if (node instanceof MethodInsnNode methodInsnNode) {
-                InvokeExp exp = getInvokeExp(methodInsnNode, nowStack);
-                pushExp(node, nowStack, exp);
-                if (exp.getType() == VoidType.VOID) {
-                    popToEffect(nowStack);
-                }
-            } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
-                Type type = BuildContext.get().fromAsmType(newArrayInsnNode.desc);
-                assert type instanceof ArrayType;
-
-                List<Var> lengths = new ArrayList<>();
-                // ..., count1, [count2, ...] ->
-                for (int i = 0; i < newArrayInsnNode.dims; ++i) {
-                    lengths.add(popVar(nowStack));
-                }
-                Collections.reverse(lengths);
-
-                pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
-            } else if (node instanceof IincInsnNode inc) {
-                pushConst(node, nowStack, IntLiteral.get(inc.incr));
-                Var cst = popVar(nowStack);
-                Var v = manager.getLocal(inc.var, node);
-                auxiliaryStmts.put(node, List.of(getAssignStmt(v,
-                        new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst))));
-            } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
-                MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
-                List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
-                        .map(Utils::fromObject).toList();
-                assert handle.isMethodRef();
-                Pair<List<Type>, Type> paramRets =
-                        BuildContext.get().fromAsmMethodType(invokeDynamicInsnNode.desc);
-                List<Var> args = new ArrayList<>();
-                for (int i = 0; i < paramRets.first().size(); ++i) {
-                    args.add(popVar(nowStack));
-                }
-                Collections.reverse(args);
-                pushExp(node, nowStack, new InvokeDynamic(
-                        handle.getMethodRef(),
-                        invokeDynamicInsnNode.name,
-                        MethodType.get(paramRets.first(), paramRets.second()),
-                        bootArgs,
-                        args));
-
-            } else if (node instanceof TableSwitchInsnNode switchInsnNode) {
-                Var v = popVar(nowStack);
-                assocStmt(node, new TableSwitch(v, switchInsnNode.min, switchInsnNode.max));
-            } else if (node instanceof LookupSwitchInsnNode lookupSwitchInsnNode) {
-                Var v = popVar(nowStack);
-                assocStmt(node, new LookupSwitch(v, lookupSwitchInsnNode.keys));
-            }
-            else {
-                throw new UnsupportedOperationException();
-            }
+            processInstr(nowStack, node);
         }
 
         if (block.outEdges().size() == 0) {
@@ -1017,22 +877,204 @@ public class AsmIRBuilder {
             // Web has not been constructed. So all the succs do not have inStack.
             block.setOutStack(regularizeStack(block, nowStack));
         } else {
-            Stack<Var> target = block.getOutStack();
+            Stack<Exp> target = block.getOutStack();
             mergeStack(block, nowStack, target);
         }
     }
 
-    private Stack<Var> regularizeStack(BytecodeBlock bb, Stack<Exp> origin) {
+    private void processInstr(Stack<Exp> nowStack, AbstractInsnNode node) {
+        if (node instanceof VarInsnNode varNode) {
+            switch (varNode.getOpcode()) {
+                case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
+                    pushExp(node, nowStack, manager.getLocal(varNode.var, varNode));
+                case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
+                        storeExp(varNode, nowStack);
+                default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
+                        throw new UnsupportedOperationException();
+            }
+        } else if (node instanceof InsnNode insnNode) {
+            int opcode = insnNode.getOpcode();
+            if (opcode == Opcodes.NOP) {
+                return;
+            } else if (opcode == Opcodes.ARRAYLENGTH) {
+                pushExp(node, nowStack, new ArrayLengthExp(popVar(nowStack)));
+            } else if (opcode == Opcodes.ATHROW) {
+                throwException(insnNode, nowStack);
+            } else if (opcode == Opcodes.MONITORENTER) {
+                Var obj = popVar(nowStack);
+                assocStmt(node, new Monitor(Monitor.Op.ENTER, obj));
+            } else if (opcode == Opcodes.MONITOREXIT) {
+                Var obj = popVar(nowStack);
+                assocStmt(node, new Monitor(Monitor.Op.EXIT, obj));
+            } else if (isBinaryInsn(opcode)) {
+                pushExp(node, nowStack, getBinaryExp(nowStack, opcode));
+            } else if (isReturnInsn(opcode)) {
+                returnExp(nowStack, insnNode);
+            } else if (isConstInsn(opcode)) {
+                pushConst(node, nowStack, getConstValue(insnNode));
+            } else if (isPrimCastInsn(opcode)) {
+                pushExp(node, nowStack, getCastExp(nowStack, opcode));
+            } else if (isNegInsn(opcode)) {
+                Var v1 = popVar(nowStack);
+                pushExp(node, nowStack, new NegExp(v1));
+            } else if (isStackInsn(opcode)) {
+                performStackOp(nowStack, opcode);
+            } else if (isArrayLoadInsn(opcode)) {
+                ArrayAccess access = getArrayAccess(nowStack);
+                pushExp(node, nowStack, access);
+            } else if (isArrayStoreInsn(opcode)) {
+                Var value = popVar(nowStack);
+                ArrayAccess access = getArrayAccess(nowStack);
+                storeExp(node, access, value);
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else if (node instanceof JumpInsnNode jump) {
+            if (jump.getOpcode() == Opcodes.GOTO) {
+                assocStmt(jump, new Goto());
+            } else {
+                ConditionExp cond = getIfExp(nowStack, jump.getOpcode());
+                assocStmt(jump, new If(cond));
+            }
+        } else if (node instanceof LdcInsnNode ldc) {
+            pushConst(node, nowStack, fromObject(ldc.cst));
+        } else if (node instanceof TypeInsnNode typeNode) {
+            int opcode = typeNode.getOpcode();
+            ReferenceType type = BuildContext.get().fromAsmInternalName(typeNode.desc);
+            if (opcode == Opcodes.CHECKCAST) {
+                pushExp(node, nowStack, getCastExp(nowStack, type));
+            } else if (opcode == Opcodes.NEW) {
+                pushExp(node, nowStack, new NewInstance((ClassType) type));
+            } else if (opcode == Opcodes.ANEWARRAY) {
+                Var length = popVar(nowStack);
+                int dims = 1;
+                if (type instanceof ArrayType arrayType) {
+                    dims += arrayType.dimensions();
+                }
+                ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(type, dims);
+                pushExp(node, nowStack, new NewArray(arrayType, length));
+            } else if (opcode == Opcodes.INSTANCEOF) {
+                Var obj = popVar(nowStack);
+                pushExp(node, nowStack, new InstanceOfExp(obj, type));
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else if (node instanceof IntInsnNode intNode) {
+            int opcode = intNode.getOpcode();
+            if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
+                pushConst(node, nowStack, IntLiteral.get(intNode.operand));
+            } else if (opcode == Opcodes.NEWARRAY) {
+                PrimitiveType base = switch (intNode.operand) {
+                    case 4 -> PrimitiveType.BOOLEAN;
+                    case 5 -> PrimitiveType.CHAR;
+                    case 6 -> PrimitiveType.FLOAT;
+                    case 7 -> PrimitiveType.DOUBLE;
+                    case 8 -> PrimitiveType.BYTE;
+                    case 9 -> PrimitiveType.SHORT;
+                    case 10 -> PrimitiveType.INT;
+                    case 11 -> PrimitiveType.LONG;
+                    default -> throw new IllegalArgumentException();
+                };
+                ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, 1);
+                Var length = popVar(nowStack);
+                pushExp(node, nowStack, new NewArray(arrayType, length));
+            } else {
+                assert false;
+            }
+        } else if (node instanceof FieldInsnNode fieldInsnNode) {
+            int opcode = fieldInsnNode.getOpcode();
+            ClassType owner = (ClassType)
+                    BuildContext.get().fromAsmInternalName(fieldInsnNode.owner);
+            Type type = BuildContext.get().fromAsmType(fieldInsnNode.desc);
+            String name = fieldInsnNode.name;
+            // TODO: check why our class hierarchy builder makes owner.getJClass() null
+            FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
+                    opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
+            switch (opcode) {
+                case Opcodes.GETSTATIC -> pushExp(node, nowStack, new StaticFieldAccess(ref));
+                case Opcodes.GETFIELD -> {
+                    Var v1 = popVar(nowStack);
+                    pushExp(node, nowStack, new InstanceFieldAccess(ref, v1));
+                }
+                case Opcodes.PUTSTATIC -> {
+                    FieldAccess access = new StaticFieldAccess(ref);
+                    Var v1 = popVar(nowStack);
+                    storeExp(node, access, v1);
+                }
+                case Opcodes.PUTFIELD -> {
+                    Var value = popVar(nowStack);
+                    Var base = popVar(nowStack);
+                    FieldAccess access = new InstanceFieldAccess(ref, base);
+                    storeExp(node, access, value);
+                }
+                default -> throw new UnsupportedOperationException();
+            }
+        } else if (node instanceof MethodInsnNode methodInsnNode) {
+            InvokeExp exp = getInvokeExp(methodInsnNode, nowStack);
+            pushExp(node, nowStack, exp);
+            if (exp.getType() == VoidType.VOID) {
+                popToEffect(nowStack);
+            }
+        } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
+            Type type = BuildContext.get().fromAsmType(newArrayInsnNode.desc);
+            assert type instanceof ArrayType;
+
+            List<Var> lengths = new ArrayList<>();
+            // ..., count1, [count2, ...] ->
+            for (int i = 0; i < newArrayInsnNode.dims; ++i) {
+                lengths.add(popVar(nowStack));
+            }
+            Collections.reverse(lengths);
+
+            pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
+        } else if (node instanceof IincInsnNode inc) {
+            pushConst(node, nowStack, IntLiteral.get(inc.incr));
+            Var cst = popVar(nowStack);
+            Var v = manager.getLocal(inc.var, node);
+            auxiliaryStmts.put(node, List.of(getAssignStmt(v,
+                    new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst))));
+        } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
+            MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
+            List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
+                    .map(Utils::fromObject).toList();
+            assert handle.isMethodRef();
+            Pair<List<Type>, Type> paramRets =
+                    BuildContext.get().fromAsmMethodType(invokeDynamicInsnNode.desc);
+            List<Var> args = new ArrayList<>();
+            for (int i = 0; i < paramRets.first().size(); ++i) {
+                args.add(popVar(nowStack));
+            }
+            Collections.reverse(args);
+            pushExp(node, nowStack, new InvokeDynamic(
+                    handle.getMethodRef(),
+                    invokeDynamicInsnNode.name,
+                    MethodType.get(paramRets.first(), paramRets.second()),
+                    bootArgs,
+                    args));
+
+        } else if (node instanceof TableSwitchInsnNode switchInsnNode) {
+            Var v = popVar(nowStack);
+            assocStmt(node, new TableSwitch(v, switchInsnNode.min, switchInsnNode.max));
+        } else if (node instanceof LookupSwitchInsnNode lookupSwitchInsnNode) {
+            Var v = popVar(nowStack);
+            assocStmt(node, new LookupSwitch(v, lookupSwitchInsnNode.keys));
+        }
+        else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private Stack<Exp> regularizeStack(BytecodeBlock bb, Stack<Exp> origin) {
         /*
             1. conversion from non-Var Exp to Var,
             2. no the same Vars in a stack.
 
             The conversion should have effect on the InsnNode that generated the exp.
          */
-        Stack<Var> target = new Stack<>();
+        Stack<Exp> target = new Stack<>();
         for (Exp e : origin) {
             if (e instanceof Top) {
-                continue;
+                target.push(e);
             }
             else if (e instanceof Var v && manager.isTempVar(v)) {
                 target.push(v);
@@ -1289,6 +1331,9 @@ public class AsmIRBuilder {
             source.tryCatchBlocks.forEach(i -> workList.offer(label2Block.get(i.handler)));
             while (workList.peek() != null) {
                 BytecodeBlock bb = workList.poll();
+                if (visited.contains(bb)) {
+                    continue;
+                }
                 visited.add(bb);
 
                 buildBlockStmt(bb);

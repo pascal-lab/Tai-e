@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
+import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.PrimitiveType;
@@ -24,9 +25,9 @@ public final class BytecodeBlock {
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
 
-    private Stack<Var> inStack;
+    private Stack<Exp> inStack;
 
-    private Stack<Var> outStack;
+    private Stack<Exp> outStack;
 
     private Stmt firstStmt;
 
@@ -115,21 +116,22 @@ public final class BytecodeBlock {
         complete = true;
     }
 
-    public Stack<Var> getInStack() {
+    public Stack<Exp> getInStack() {
         return inStack;
     }
 
-    public Stack<Var> getOutStack() {
+    public Stack<Exp> getOutStack() {
         return outStack;
     }
 
-    public void setInStack(Stack<Var> inStack) {
+    public void setInStack(Stack<Exp> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
-//        if (frame == null) {
-//            assert inStack.isEmpty() || inEdges.size() == 1;
-//        } else {
-//            assert inStack.size() == frame.stack.size();
-//        }
+        if (frame == null) {
+            // assert inStack.isEmpty() || inEdges.size() == 1;
+        } else {
+            assert inStack.stream().filter(i -> i instanceof Var).count()
+                    == frame.stack.size();
+        }
         this.inStack = inStack;
         for (var pred : inEdges) {
             if (pred.outStack == null) {
@@ -138,7 +140,7 @@ public final class BytecodeBlock {
         }
     }
 
-    public void setOutStack(Stack<Var> outStack) {
+    public void setOutStack(Stack<Exp> outStack) {
         assert this.outStack == null : "OutStack should not be assigned multiple times.";
         this.outStack = outStack;
         for (var succ : outEdges) {
@@ -210,9 +212,18 @@ public final class BytecodeBlock {
         });
 
         if (inStack != null) {
-            for (int i = 0; i < inStack.size(); ++i) {
-                Var v = inStack.get(i);
+            int n = 0;
+            for (int i = 0; i < frame.stack.size(); ++i) {
+                Exp e = inStack.get(n);
+                Var v;
+                if (e instanceof Top) {
+                    n++;
+                    v = (Var) inStack.get(n);
+                } else {
+                    v = (Var) e;
+                }
                 typing.put(v, Utils.fromAsmFrameType(frame.stack.get(i)));
+                n++;
             }
         } else {
             assert inEdges.size() == 0;

@@ -29,12 +29,13 @@ public class TestAsmIRBuilder {
     // Note: if javaVersion is less than 7, then assertion about frames will fail
     ClassHierarchy getCh(String mainClass, List<String> otherClasses, int javaVersion) {
 
-        String worldPath = "src/test/resources/world";
         String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
         String jcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jce.jar";
         String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
+        String resourcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/resources.jar";
+        String charsetsPath = "java-benchmarks/JREs/jre1." + javaVersion + "/charsets.jar";
 
-        List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
+        List<String> paths = List.of(classPath, jcePath, jssePath, resourcePath, charsetsPath);
         String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
 
         List<String> args = new ArrayList<>();
@@ -55,7 +56,8 @@ public class TestAsmIRBuilder {
     }
 
     ClassHierarchy getCh(String mainClass, int javaVersion) {
-        return getCh(mainClass, List.of(), javaVersion);
+        String worldPath = "src/test/resources/world";
+        return getCh(mainClass, List.of(worldPath + "/ "+ mainClass), javaVersion);
     }
 
     @Test
@@ -127,11 +129,11 @@ public class TestAsmIRBuilder {
                                 AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
                                 AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
                                 builder1.build();
-                                System.out.println(m);
-                                if (m.toString().equals("<java.util.Spliterators$ArraySpliterator: java.util.Spliterator trySplit()>")
-                                    && builder1.getIr() != null) {
-                                    IRPrinter.print(builder1.getIr(), System.out);
-                                }
+//                                System.out.println(m);
+//                                if (m.toString().equals("<java.util.Spliterators$ArraySpliterator: java.util.Spliterator trySplit()>")
+//                                    && builder1.getIr() != null) {
+//                                    IRPrinter.print(builder1.getIr(), System.out);
+//                                }
                             });
                 });
         long endTime2 = System.currentTimeMillis();
