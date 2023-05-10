@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.ParameterNode;
@@ -179,27 +180,16 @@ class VarManager {
         String descriptor = null;
         String signature = null;
         boolean found = false;
-        for (LocalVariableNode node : localVariableTable) {
-            AbstractInsnNode startNode;
-            var previous = node.start.getPrevious();
-            if (previous == null || Utils.isReturn(previous) || Utils.isThrow(previous)) { // previous == null means that node.start is the first element of InsnList
-                startNode = node.start;
-            } else {
-                startNode = previous;
-                assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
-                assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
-            }
-            int currStart = insnList.indexOf(startNode);
-            int currEnd = insnList.indexOf(node.end);
-            if (node.index == slot && currStart <= asmIndex && asmIndex < currEnd) {
-                start = currStart;
-                end = currEnd;
-                varName = node.name;
-                descriptor = node.desc;
-                signature = node.signature;
-                found = true;
-                break;
-            }
+
+        var p = searchLocal(slot, asmIndex);
+        var node = p.third();
+        if (node != null) {
+            start = p.first();
+            end = p.second();
+            varName = node.name;
+            descriptor = node.desc;
+            signature = node.signature;
+            found = true;
         }
 
         Var v;
@@ -419,20 +409,25 @@ class VarManager {
         params.set(idx, newVar);
     }
 
-    private LocalVariableNode searchLocal(int slot, int asmIndex) {
+    private Triple<Integer, Integer, LocalVariableNode> searchLocal(int slot, int asmIndex) {
         for (LocalVariableNode node : localVariableTable) {
             AbstractInsnNode startNode;
-            if (node.start.getPrevious() == null) {
-                startNode = node.start; // index of start node == 0
+            var previous = node.start.getPrevious();
+            if (previous == null
+                    || previous instanceof JumpInsnNode
+                    || Utils.isReturn(previous)
+                    || Utils.isThrow(previous)
+            ) { // previous == null means that node.start is the first element of InsnList
+                startNode = node.start;
             } else {
-                startNode = node.start.getPrevious();
-                assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode";
-                assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be _STORE";
+                startNode = previous;
+                assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
+                assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
             }
             int start = insnList.indexOf(startNode);
             int end = insnList.indexOf(node.end);
             if (node.index == slot && start <= asmIndex && asmIndex < end) {
-                return node;
+                return new Triple<>(start, end, node);
             }
         }
         /* If not found, what is in the slot is an anonymous local variable generated for syntactic sugar by java compiler
@@ -441,14 +436,14 @@ class VarManager {
            So an unnamed local variable should be returned.
          */
         //throw new IllegalArgumentException();
-        return null;
+        return new Triple<>(-1, -2, null); // as null
     }
 
     private @Nullable Type getLocalType(int i, int asmIndex) {
         if (localVariableTable == null) {
             return null;
         } else {
-            LocalVariableNode n = searchLocal(i, asmIndex);
+            LocalVariableNode n = searchLocal(i, asmIndex).third();
             if (n == null) {
                 return null;
             }
@@ -461,7 +456,7 @@ class VarManager {
         if (!existsLocalVariableTable) {
             return null;
         } else {
-            LocalVariableNode n = searchLocal(i, asmIndex);
+            LocalVariableNode n = searchLocal(i, asmIndex).third();
             if (n == null) {
                 return null;
             }
