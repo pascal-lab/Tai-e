@@ -429,61 +429,6 @@ class VarManager {
         params.set(idx, newVar);
     }
 
-    private Triple<Integer, Integer, LocalVariableNode> searchLocal(int slot, int asmIndex) {
-        for (LocalVariableNode node : localVariableTable) {
-            AbstractInsnNode startNode;
-            var previous = node.start.getPrevious();
-            if (previous == null
-                    || previous instanceof JumpInsnNode
-                    || Utils.isReturn(previous)
-                    || Utils.isThrow(previous)
-            ) { // previous == null means that node.start is the first element of InsnList
-                startNode = node.start;
-            } else {
-                startNode = previous;
-                assert startNode instanceof VarInsnNode : "Assume pred to be VarInsnNode" + startNode.getOpcode();
-                assert Opcodes.ISTORE <= startNode.getOpcode() && startNode.getOpcode() <= Opcodes.ASTORE : "Assume pred to be store";
-            }
-            int start = insnList.indexOf(startNode);
-            int end = insnList.indexOf(node.end);
-            if (node.index == slot && start <= asmIndex && asmIndex < end) {
-                return new Triple<>(start, end, node);
-            }
-        }
-        /* If not found, what is in the slot is an anonymous local variable generated for syntactic sugar by java compiler
-           which does not appear in the LocalVariableTable even with compiling option -g.
-           (Refer to var0 in private method p in CollectionTest.(java)|(class) for example.)
-           So an unnamed local variable should be returned.
-         */
-        //throw new IllegalArgumentException();
-        return new Triple<>(-1, -2, null); // as null
-    }
-
-    private @Nullable Type getLocalType(int i, int asmIndex) {
-        if (localVariableTable == null) {
-            return null;
-        } else {
-            LocalVariableNode n = searchLocal(i, asmIndex).third();
-            if (n == null) {
-                return null;
-            }
-            String sig = n.signature; // WARNING: we should use field `desc` here, so it is a bug. But this method is not used yet, so...
-            return BuildContext.get().fromAsmType(sig);
-        }
-    }
-
-    private @Nullable String getLocalName(int i, int asmIndex) {
-        if (!existsLocalVariableTable) {
-            return null;
-        } else {
-            LocalVariableNode n = searchLocal(i, asmIndex).third();
-            if (n == null) {
-                return null;
-            }
-            return n.name;
-        }
-    }
-
     private String getConstVarName(Literal literal) {
         return TEMP_PREFIX + "c" + counter;
     }
