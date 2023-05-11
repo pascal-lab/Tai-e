@@ -10,7 +10,6 @@ import org.objectweb.asm.tree.ParameterNode;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Maps;
@@ -380,22 +379,6 @@ class VarManager {
                 }
             });
         }
-
-        var node = block.getFirstBytecode().get();
-        Stmt s = null;
-        if (builder.asm2Stmt.get(node) != null) {
-            s = builder.asm2Stmt.get(node);
-        } else if (builder.auxiliaryStmts.get(node) != null) {
-            var lst = builder.auxiliaryStmts.get(node);
-            s = lst.get(0);
-        }
-        Var defToBeKilled;
-        if (s != null) {
-            defToBeKilled = (Var) s.getDef().filter(l -> l instanceof Var).orElse(null);
-        } else {
-            defToBeKilled = null;
-        }
-        res.removeIf(p -> (p.second() == defToBeKilled));
 
         {
             var l = res.stream().map(Pair::first).toList();
