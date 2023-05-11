@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
@@ -156,6 +157,19 @@ public class Utils {
                 isThrow(node);
     }
 
+    static boolean isVarStore(AbstractInsnNode node) {
+        if (node instanceof VarInsnNode varInsnNode) {
+            int op = varInsnNode.getOpcode();
+            return op == Opcodes.ISTORE ||
+                    op == Opcodes.LSTORE ||
+                    op == Opcodes.FSTORE ||
+                    op == Opcodes.DSTORE ||
+                    op == Opcodes.ASTORE;
+        } else {
+            return false;
+        }
+    }
+
     static boolean isReturn(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
             int op = insnNode.getOpcode();
@@ -170,7 +184,7 @@ public class Utils {
         }
     }
 
-    static  boolean isThrow(AbstractInsnNode node) {
+    static boolean isThrow(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
             return insnNode.getOpcode() == Opcodes.ATHROW;
         }
