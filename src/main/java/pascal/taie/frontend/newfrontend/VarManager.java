@@ -190,10 +190,10 @@ class VarManager {
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
         int asmIndex = insnList.indexOf(insnNode);
         return existsLocalVariableTable ?
-                getLocal(slot, asmIndex) : getLocalWithoutLocalVarTable(slot, asmIndex);
+                getLocalWithLocalVarTable(slot, asmIndex) : getLocalWithoutLocalVarTable(slot, asmIndex);
     }
 
-    private Var getLocal(int slot, int asmIndex) {
+    private Var getLocalWithLocalVarTable(int slot, int asmIndex) {
         Pair<Integer, Integer> query = new Pair<>(slot, asmIndex);
 
         var opt = local2Var.keySet().stream().filter(k -> match(query, k)).findAny();
