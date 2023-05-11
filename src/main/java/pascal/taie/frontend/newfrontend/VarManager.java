@@ -188,7 +188,23 @@ class VarManager {
      * @return the corresponding TIR variable
      */
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
-        int asmIndex = insnList.indexOf(insnNode);
+        AbstractInsnNode startNode;
+        if (Utils.isVarStore(insnNode)) {
+            /*
+             * for VarStore, you have to use the next InsnNode (actual JVM Bytecode)
+             * as the program point to query for the variable that being stored.
+             * (See the definition of start_pc of local_variable_table entry)
+             */
+            startNode = insnNode.getNext();
+            while (startNode instanceof LabelNode
+                    || startNode instanceof FrameNode
+                    || startNode instanceof LineNumberNode) {
+                startNode = startNode.getNext();
+            }
+        } else {
+            startNode = insnNode;
+        }
+        int asmIndex = insnList.indexOf(startNode);
         return existsLocalVariableTable ?
                 getLocalWithLocalVarTable(slot, asmIndex) : getLocalWithoutLocalVarTable(slot, asmIndex);
     }
@@ -201,49 +217,23 @@ class VarManager {
             return local2Var.get(opt.get());
         }
 
-        // Note: if reach here, this variable must be a local variable // ???
+        /* If not found, it means that the variable in the slot is an anonymous local variable
+           generated for syntactic sugar by java compiler, which does not appear in the
+           LocalVariableTable even with compiling option -g.
+           (Refer to var0 in private method p in CollectionTest.(java)|(class) for example.)
+           So an unnamed local variable should be returned.
+         */
 
-        // TODO: for generalization the initial start could be 0,
-        // but in development stage we want to expose more case unexpected.
+        // Note: if reach here, this variable must be a local variable // ???
+        opt = anonymousLocal2Var.keySet().stream().filter(k -> match(query, k)).findAny();
+        if (opt.isPresent()) {
+            return anonymousLocal2Var.get(opt.get());
+        }
+
         int start = 0;
         int end = lastIndex + 1;
-        String varName = null;
-        String descriptor = null;
-        String signature = null;
-        boolean found = false;
-
-        var p = searchLocal(slot, asmIndex);
-        var node = p.third();
-        if (node != null) {
-            start = p.first();
-            end = p.second();
-            varName = node.name;
-            descriptor = node.desc;
-            signature = node.signature;
-            found = true;
-        }
-
-        Var v;
-        if (found) {
-            // find the var that has the same slot, the same name and the same type.
-            // If not found, generate one and put it into the nameAndType2Var map.
-            var t = new Quadruple<>(slot, varName, descriptor, signature);
-            v = nameAndType2Var.get(t);
-            if (v == null) {
-                v = newVar(getLocalName(slot, getLocalName(slot, asmIndex)));
-                nameAndType2Var.put(t, v);
-            }
-            local2Var.put(new Triple<>(slot, start, end), v);
-        } else {
-            opt = anonymousLocal2Var.keySet().stream().filter(k -> match(query, k)).findAny();
-            if (opt.isPresent()) {
-                return anonymousLocal2Var.get(opt.get());
-            }
-
-            // For this situation, please refer to the comment at the end of the method searchLocal.
-            v = newVar(getLocalName(slot, null));
-            anonymousLocal2Var.put(new Triple<>(slot, start, end), v);
-        }
+        Var v = newVar(getLocalName(slot, null));
+        anonymousLocal2Var.put(new Triple<>(slot, start, end), v);
         return v;
     }
 
@@ -262,7 +252,6 @@ class VarManager {
         int start = 0;
         int end = lastIndex + 1;
         Var v = newVar(getLocalName(slot, null));
-
         local2Var.put(new Triple<>(slot, start, end), v);
         return v;
     }
