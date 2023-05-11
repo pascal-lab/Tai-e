@@ -1,20 +1,18 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.ParameterNode;
-import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Quadruple;
@@ -94,6 +92,10 @@ class VarManager {
         this.retVars = new HashSet<>();
         this.blockConstCache = Maps.newMap();
 
+        if (existsLocalVariableTable) {
+            processLocalVarTable();
+        }
+
         // Test insnList.size to examine whether the method is not concrete.
         // Checking JMethod's modifiers may be a more elegant way.
         this.lastIndex = insnList.size() == 0 ? 0 : insnList.indexOf(insnList.getLast());
@@ -107,14 +109,19 @@ class VarManager {
         // So if there is no localVariableTable, generate param prefix names for params.
         // And we should get the parameters in advance to register a position in params for them
         // in case there does not exist reference to a parameter in the code.
-        int nowIdx = method.isStatic() ? 0 : 1;
-        int n = nowIdx;
-        for (int i = nowIdx; i < method.getParamCount() + nowIdx; ++i) {
-            Var v = existsLocalVariableTable ? getLocal(i, 0) : newParameter(i);
+        int firstParamIndex = method.isStatic() ? 0 : 1;
+        int n = firstParamIndex;
+        for (int i = firstParamIndex; i < method.getParamCount() + firstParamIndex; ++i) {
+            Var v = existsLocalVariableTable ?
+                    // TODO: May be buggy when using 0 for that it might return null I do not sure that
+                    // the LabelNode that denotes the start or the end for a VarTableNode is precisely
+                    // the First and the Last of the insnList.
+                    getLocalWithLocalVarTable(i, 0)
+                    : newParameter(i);
             this.params.add(v);
             local2Var.put(new Triple<>(n, 0, lastIndex + offset), v);
             this.paramsIndex.put(v, n);
-            if (Utils.isTwoWord(method.getParamType(i - nowIdx))) {
+            if (Utils.isTwoWord(method.getParamType(i - firstParamIndex))) {
                 n += 2;
             } else {
                 n += 1;
@@ -124,13 +131,18 @@ class VarManager {
         if (method.isStatic()) {
             thisVar = null;
         } else {
-            Var t = newVar(THIS);
-            thisVar = t;
-            local2Var.put(new Triple<>(0, 0, lastIndex + offset), t);
-        }
-
-        if (existsLocalVariableTable) {
-            processLocalVarTable();
+            if (existsLocalVariableTable) {
+                thisVar = nameAndType2Var
+                        .values()
+                        .stream()
+                        .filter(v -> v.getName().equals("this"))
+                        .findAny()
+                        .get();
+            } else {
+                Var t = newVar(THIS);
+                thisVar = t;
+                local2Var.put(new Triple<>(0, 0, lastIndex + offset), t);
+            }
         }
     }
 
@@ -143,7 +155,7 @@ class VarManager {
             String descriptor = node.desc;
             String signature = node.signature;
             var t = new Quadruple<>(slot, varName, descriptor, signature);
-            Var v = nameAndType2Var.computeIfAbsent(t, k -> newVar(varName));
+            Var v = nameAndType2Var.computeIfAbsent(t, k -> newVar(varName)); // for `this`, varName.equals("this")
             local2Var.put(new Triple<>(slot, start, end), v);
         }
     }
