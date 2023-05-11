@@ -128,6 +128,24 @@ class VarManager {
             thisVar = t;
             local2Var.put(new Triple<>(0, 0, lastIndex + offset), t);
         }
+
+        if (existsLocalVariableTable) {
+            processLocalVarTable();
+        }
+    }
+
+    private void processLocalVarTable() {
+        for (LocalVariableNode node : localVariableTable) {
+            int start = insnList.indexOf(node.start);
+            int end = insnList.indexOf(node.end);
+            int slot = node.index;
+            String varName = node.name;
+            String descriptor = node.desc;
+            String signature = node.signature;
+            var t = new Quadruple<>(slot, varName, descriptor, signature);
+            Var v = nameAndType2Var.computeIfAbsent(t, k -> newVar(varName));
+            local2Var.put(new Triple<>(slot, start, end), v);
+        }
     }
 
     public Var getTempVar() {
