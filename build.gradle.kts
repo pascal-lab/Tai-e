@@ -38,7 +38,7 @@ task("fatJar", type = Jar::class) {
     }
     archiveBaseName.set("tai-e-all")
     from(
-        configurations.compileClasspath.get().map {
+        configurations.runtimeClasspath.get().map {
             if (it.isDirectory) it else zipTree(it)
         }
     )
