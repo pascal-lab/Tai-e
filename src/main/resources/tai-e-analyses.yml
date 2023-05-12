@@ -21,6 +21,7 @@
     # mahjong | collection
     dump: false # whether dump points-to results (with contexts)
     dump-ci: false # whether dump points-to results (without contexts)
+    dump-yaml: false # whether dump points-to results in yaml format
     expected-file: null # path of expected file for comparing results
     reflection-inference: string-constant # | solar | null
     reflection-log: null # path to reflection log, required when reflection option is log

@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2023-03-29
+## [Unreleased] - 2023-05-12
 
 ### New Features
 
@@ -13,14 +13,15 @@
   - Support taint source for arguments of method call and method parameters.
   - Support taint sanitization for method parameters.
   - Dump taint flow graph.
-  - Support to load multiple taint configuration files.
+  - Support loading multiple taint configuration files.
 - Pointer analysis
-  - Support to add entry points of the program to analyze.
+  - Support adding entry points of the program to analyze.
   - Support analysis time limit.
   - Support propagation for values of primitive types.
   - Support hybrid inference-based and log-based reflection analysis.
   - Add Solar reflection analysis.
   - Support annotation-based invoke handler registration.
+  - Support dumping points-to set in YAML format.
 
 ### Breaking Changes
 

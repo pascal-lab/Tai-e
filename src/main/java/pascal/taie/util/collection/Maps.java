@@ -22,6 +22,7 @@
 
 package pascal.taie.util.collection;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,6 +40,13 @@ import java.util.function.Supplier;
 public final class Maps {
 
     private Maps() {
+    }
+
+    public static <K, V> Map<K, V> ofLinkedHashMap(K k1, V v1, K k2, V v2) {
+        Map<K, V> map = new LinkedHashMap<>(2);
+        map.put(k1, v1);
+        map.put(k2, v2);
+        return Collections.unmodifiableMap(map);
     }
 
     public static <K, V> Map<K, V> newMap() {
