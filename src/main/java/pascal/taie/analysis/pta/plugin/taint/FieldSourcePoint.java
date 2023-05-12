@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.language.classes.JMethod;
 
@@ -51,5 +52,10 @@ public record FieldSourcePoint(JMethod container, LoadField loadField)
     @Override
     public int getPriority() {
         return 2;
+    }
+
+    @Override
+    public String toString() {
+        return container + " " + IRPrinter.position(loadField) + " " + loadField;
     }
 }

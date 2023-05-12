@@ -1,6 +1,8 @@
 sources:
   - { kind: call, method: "<SourceSink: java.lang.String source()>", index: result, type: "java.lang.String" }
   - { kind: call, method: "<SourceSink: java.lang.String sourceAndSink(java.lang.String,java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: field, field: "<SourceSink: java.lang.String tainted1>", type: "java.lang.String" }
+  - { kind: field, field: "<SourceSink: java.lang.String tainted2>", type: "java.lang.String" }
 
 sinks:
   - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }

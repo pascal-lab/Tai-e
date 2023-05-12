@@ -36,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -54,8 +55,7 @@ import java.util.stream.Stream;
 /**
  * Configuration for taint analysis.
  */
-record TaintConfig(List<CallSource> callSources,
-                   List<ParamSource> paramSources,
+record TaintConfig(List<Source> sources,
                    List<Sink> sinks,
                    List<TaintTransfer> transfers,
                    List<ParamSanitizer> paramSanitizers) {
@@ -66,7 +66,7 @@ record TaintConfig(List<CallSource> callSources,
      * An empty taint config.
      */
     private static final TaintConfig EMPTY = new TaintConfig(
-            List.of(), List.of(), List.of(), List.of(), List.of());
+            List.of(), List.of(), List.of(), List.of());
 
     /**
      * Loads a taint analysis configuration from given path.
@@ -130,8 +130,7 @@ record TaintConfig(List<CallSource> callSources,
      */
     TaintConfig mergeWith(TaintConfig other) {
         return new TaintConfig(
-                Lists.concatDistinct(callSources, other.callSources),
-                Lists.concatDistinct(paramSources, other.paramSources),
+                Lists.concatDistinct(sources, other.sources),
                 Lists.concatDistinct(sinks, other.sinks),
                 Lists.concatDistinct(transfers, other.transfers),
                 Lists.concatDistinct(paramSanitizers, other.paramSanitizers));
@@ -140,11 +139,9 @@ record TaintConfig(List<CallSource> callSources,
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("TaintConfig:");
-        if (!callSources.isEmpty() || !paramSources.isEmpty()) {
+        if (!sources.isEmpty()) {
             sb.append("\nsources:\n");
-            callSources.forEach(source ->
-                    sb.append("  ").append(source).append("\n"));
-            paramSources.forEach(source ->
+            sources.forEach(source ->
                     sb.append("  ").append(source).append("\n"));
         }
         if (!sinks.isEmpty()) {
@@ -185,18 +182,10 @@ record TaintConfig(List<CallSource> callSources,
             ObjectCodec oc = p.getCodec();
             JsonNode node = oc.readTree(p);
             List<Source> sources = deserializeSources(node.get("sources"));
-            List<CallSource> callSources = sources.stream()
-                    .filter(s -> s instanceof CallSource)
-                    .map(s -> (CallSource) s)
-                    .toList();
-            List<ParamSource> paramSources = sources.stream()
-                    .filter(s -> s instanceof ParamSource)
-                    .map(s -> (ParamSource) s)
-                    .toList();
             List<Sink> sinks = deserializeSinks(node.get("sinks"));
             List<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
             List<ParamSanitizer> sanitizers = deserializeSanitizers(node.get("sanitizers"));
-            return new TaintConfig(callSources, paramSources, sinks, transfers, sanitizers);
+            return new TaintConfig(sources, sinks, transfers, sanitizers);
         }
 
         /**
@@ -216,6 +205,7 @@ record TaintConfig(List<CallSource> callSources,
                         source = switch (sourceKind.asText()) {
                             case "call" -> deserializeCallSource(elem);
                             case "param" -> deserializeParamSource(elem);
+                            case "field" -> deserializeFieldSource(elem);
                             default -> {
                                 logger.warn("Unknown source kind \"{}\" in {}",
                                         sourceKind.asText(), elem.toString());
@@ -266,6 +256,21 @@ record TaintConfig(List<CallSource> callSources,
                 // if the method (given in config file) is absent in
                 // the class hierarchy, just ignore it.
                 logger.warn("Cannot find source method '{}'", methodSig);
+                return null;
+            }
+        }
+
+        @Nullable
+        private FieldSource deserializeFieldSource(JsonNode node) {
+            String fieldSig = node.get("field").asText();
+            JField field = hierarchy.getField(fieldSig);
+            if (field != null) {
+                Type type = typeSystem.getType(node.get("type").asText());
+                return new FieldSource(field, type);
+            } else {
+                // if the field (given in config file) is absent in
+                // the class hierarchy, just ignore it.
+                logger.warn("Cannot find source field '{}'", fieldSig);
                 return null;
             }
         }

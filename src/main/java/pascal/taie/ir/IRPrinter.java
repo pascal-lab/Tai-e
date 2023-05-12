@@ -94,7 +94,7 @@ public class IRPrinter {
         return formatter.toString();
     }
 
-    private static String position(Stmt stmt) {
+    public static String position(Stmt stmt) {
         return "[" +
                 stmt.getIndex() +
                 "@L" + stmt.getLineNumber() +

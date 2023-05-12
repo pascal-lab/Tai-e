@@ -33,12 +33,15 @@ import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles sources in taint analysis.
@@ -59,12 +62,35 @@ class SourceHandler {
      */
     private final MultiMap<JMethod, ParamSource> paramSources = Maps.newMultiMap();
 
-    SourceHandler(Solver solver, TaintManager manager,
-                  List<CallSource> callSources, List<ParamSource> paramSources) {
+    /**
+     * Whether this handler needs to handle field sources.
+     */
+    private final boolean handleFieldSources;
+
+    /**
+     * Map from a source field taint objects generated from it.
+     */
+    private final Map<JField, Type> fieldSources = Maps.newMap();
+
+    /**
+     * Maps from a method to {@link LoadField} statements in the method
+     * which loads a source field.
+     */
+    private final MultiMap<JMethod, LoadField> loadedFieldSources = Maps.newMultiMap();
+
+    SourceHandler(Solver solver, TaintManager manager, List<Source> sources) {
         this.solver = solver;
         this.manager = manager;
-        callSources.forEach(src -> this.callSources.put(src.method(), src));
-        paramSources.forEach(src -> this.paramSources.put(src.method(), src));
+        sources.forEach(src -> {
+            if (src instanceof CallSource callSrc) {
+                callSources.put(callSrc.method(), callSrc);
+            } else if (src instanceof ParamSource paramSrc) {
+                paramSources.put(paramSrc.method(), paramSrc);
+            } else if (src instanceof FieldSource fieldSrc) {
+                fieldSources.put(fieldSrc.field(), fieldSrc.type());
+            }
+        });
+        handleFieldSources = !fieldSources.isEmpty();
     }
 
     void handleCallSource(Edge<CSCallSite, CSMethod> edge) {
@@ -96,6 +122,42 @@ class SourceHandler {
                 Type type = source.type();
                 Obj taint = manager.makeTaint(sourcePoint, type);
                 solver.addVarPointsTo(context, param, taint);
+            });
+        }
+    }
+
+    /**
+     * Scans {@code method}'s IR to check if it loads any source fields.
+     * If so, records the {@link LoadField} statements.
+     */
+    void handleFieldSource(JMethod method) {
+        if (handleFieldSources) {
+            method.getIR().forEach(stmt -> {
+                if (stmt instanceof LoadField loadField) {
+                    JField field = loadField.getFieldRef().resolveNullable();
+                    if (fieldSources.containsKey(field)) {
+                        loadedFieldSources.put(method, loadField);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * If given method contains pre-recorded {@link LoadField} statements,
+     * adds corresponding taint object to LHS of the {@link LoadField}.
+     */
+    void handleFieldSource(CSMethod csMethod) {
+        if (handleFieldSources) {
+            JMethod method = csMethod.getMethod();
+            Context context = csMethod.getContext();
+            loadedFieldSources.get(method).forEach(load -> {
+                Var lhs = load.getLValue();
+                SourcePoint sourcePoint = new FieldSourcePoint(method, load);
+                JField field = load.getFieldRef().resolve();
+                Type type = fieldSources.get(field);
+                Obj taint = manager.makeTaint(sourcePoint, type);
+                solver.addVarPointsTo(context, lhs, taint);
             });
         }
     }

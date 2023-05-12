@@ -10,7 +10,8 @@
 - Add Def-use analysis.
 - Add Dominator-finding algorithm.
 - Taint analysis
-  - Support taint source for arguments of method call and method parameters.
+  - Support taint source for arguments of method calls and method parameters.
+  - Support taint source for field loads.
   - Support taint sanitization for method parameters.
   - Dump taint flow graph.
   - Support loading multiple taint configuration files.

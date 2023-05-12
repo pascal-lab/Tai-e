@@ -32,6 +32,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.language.classes.JMethod;
 
 import java.io.File;
 import java.util.Set;
@@ -63,8 +64,7 @@ public class TaintAnalysis implements Plugin {
                 solver.getHierarchy(),
                 solver.getTypeSystem());
         logger.info(config);
-        sourceHandler = new SourceHandler(solver, manager,
-                config.callSources(), config.paramSources());
+        sourceHandler = new SourceHandler(solver, manager, config.sources());
         transferHandler = new TransferHandler(solver, manager, config.transfers());
         sanitizerHandler = new SanitizerHandler(solver, manager, config.paramSanitizers());
         sinkHandler = new SinkHandler(solver, manager, config.sinks());
@@ -77,8 +77,14 @@ public class TaintAnalysis implements Plugin {
     }
 
     @Override
+    public void onNewMethod(JMethod method) {
+        sourceHandler.handleFieldSource(method);
+    }
+
+    @Override
     public void onNewCSMethod(CSMethod csMethod) {
         sourceHandler.handleParamSource(csMethod);
+        sourceHandler.handleFieldSource(csMethod);
         sanitizerHandler.handleParamSanitizer(csMethod);
     }
 

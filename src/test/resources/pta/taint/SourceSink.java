@@ -1,5 +1,11 @@
 class SourceSink {
 
+    static String tainted1;
+
+    static String untainted;
+
+    String tainted2;
+
     static String source() {
         return new String();
     }

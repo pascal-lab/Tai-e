@@ -93,6 +93,8 @@ class TFGBuilder {
                     } else if (p instanceof ParamSourcePoint psp) {
                         sourceVar = psp.sourceMethod().getIR()
                                 .getParam(psp.index());
+                    } else if (p instanceof FieldSourcePoint fsp) {
+                        sourceVar = fsp.loadField().getLValue();
                     }
                     if (sourceVar != null) {
                         sourceNodes.add(ofg.getVarNode(sourceVar));
