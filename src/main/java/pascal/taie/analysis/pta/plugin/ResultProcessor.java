@@ -34,6 +34,7 @@ import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Lists;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Streams;
 
 import java.io.File;
@@ -47,7 +48,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -212,7 +212,7 @@ public class ResultProcessor implements Plugin {
     private static void comparePointsToSet(PointerAnalysisResult result, String input) {
         logger.info("Comparing points-to set with {}", input);
         var inputs = readPointsToSets(input);
-        Map<String, Pointer> pointers = new LinkedHashMap<>();
+        Map<String, Pointer> pointers = Maps.newLinkedHashMap();
         addPointers(pointers, result.getCSVars());
         addPointers(pointers, result.getStaticFields());
         addPointers(pointers, result.getInstanceFields());
@@ -242,7 +242,7 @@ public class ResultProcessor implements Plugin {
 
     private static Map<String, String> readPointsToSets(String input) {
         try (Stream<String> lines = Files.lines(Path.of(input))) {
-            Map<String, String> result = new LinkedHashMap<>();
+            Map<String, String> result = Maps.newLinkedHashMap();
             lines.filter(line -> line.contains(SEP))
                     .map(line -> line.split(SEP))
                     .forEach(s -> result.put(s[0], s[1]));

@@ -26,10 +26,10 @@ import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -55,7 +55,7 @@ class NFA {
      * @return Set of states (dead state is excluded).
      */
     Set<Obj> getStates() {
-        Set<Obj> states = new HashSet<>();
+        Set<Obj> states = Sets.newSet();
         Deque<Obj> stack = new ArrayDeque<>();
         stack.push(q0);
         while (!stack.isEmpty()) {

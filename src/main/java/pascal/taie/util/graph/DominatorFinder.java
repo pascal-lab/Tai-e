@@ -27,11 +27,11 @@ import pascal.taie.util.SimpleIndexer;
 import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.SetEx;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,7 +85,7 @@ public class DominatorFinder<N> {
         this.graph = graph;
         this.indexer = indexer;
         this.isSparse = isSparse;
-        this.heads = new HashSet<>();
+        this.heads = Sets.newSet();
         this.node2Doms = new IndexMap<>(indexer, graph.getNumberOfNodes());
         findDominators();
     }

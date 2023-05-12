@@ -25,11 +25,11 @@ package pascal.taie.frontend.soot;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
+import pascal.taie.util.collection.Maps;
 import soot.Scene;
 import soot.SootClass;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 class SootClassLoader implements JClassLoader {
@@ -42,7 +42,7 @@ class SootClassLoader implements JClassLoader {
 
     private Converter converter;
 
-    private final Map<String, JClass> classes = new HashMap<>(1024);
+    private final Map<String, JClass> classes = Maps.newMap(1024);
 
     SootClassLoader(Scene scene, ClassHierarchy hierarchy, boolean allowPhantom) {
         this.scene = scene;

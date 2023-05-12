@@ -23,9 +23,9 @@
 package pascal.taie.analysis.pta.toolkit.mahjong;
 
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -65,7 +65,7 @@ class DFA {
     private void computeStates() {
         Queue<DFAState> queue = new ArrayDeque<>();
         queue.add(q0);
-        states = new HashSet<>();
+        states = Sets.newSet();
         while (!queue.isEmpty()) {
             DFAState s = queue.poll();
             if (!states.contains(s)) {
@@ -73,7 +73,7 @@ class DFA {
                 queue.addAll(s.getNextMap().values());
             }
         }
-        allStates = new HashSet<>(states);
+        allStates = Sets.newSet(states);
         allStates.add(DEAD_STATE);
     }
 

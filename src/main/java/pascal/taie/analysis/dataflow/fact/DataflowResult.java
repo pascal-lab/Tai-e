@@ -22,7 +22,8 @@
 
 package pascal.taie.analysis.dataflow.fact;
 
-import java.util.LinkedHashMap;
+import pascal.taie.util.collection.Maps;
+
 import java.util.Map;
 
 /**
@@ -43,7 +44,7 @@ public class DataflowResult<Node, Fact> implements NodeResult<Node, Fact> {
     }
 
     public DataflowResult() {
-        this(new LinkedHashMap<>(), new LinkedHashMap<>());
+        this(Maps.newLinkedHashMap(), Maps.newLinkedHashMap());
     }
 
     /**

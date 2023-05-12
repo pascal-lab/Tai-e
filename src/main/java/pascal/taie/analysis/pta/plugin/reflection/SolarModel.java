@@ -50,11 +50,11 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
@@ -92,7 +92,7 @@ public class SolarModel extends InferenceModel {
     /**
      * Set of reflective invocations that are not soundly resolved by Solar.
      */
-    private final Set<Invoke> unsoundInvokes = new TreeSet<>();
+    private final Set<Invoke> unsoundInvokes = Sets.newOrderedSet();
 
     SolarModel(Solver solver, MetaObjHelper helper,
                TypeMatcher typeMatcher, Set<Invoke> invokesWithLog) {

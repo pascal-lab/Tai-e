@@ -28,10 +28,10 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.util.collection.Sets;
 
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Handles sinks in taint analysis.
@@ -52,7 +52,7 @@ class SinkHandler {
 
     Set<TaintFlow> collectTaintFlows() {
         PointerAnalysisResult result = solver.getResult();
-        Set<TaintFlow> taintFlows = new TreeSet<>();
+        Set<TaintFlow> taintFlows = Sets.newOrderedSet();
         sinks.forEach(sink -> {
             int i = sink.index();
             result.getCallGraph()

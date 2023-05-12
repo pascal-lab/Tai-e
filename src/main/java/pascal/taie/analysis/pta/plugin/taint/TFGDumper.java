@@ -29,6 +29,7 @@ import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
+import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.DotAttributes;
 import pascal.taie.util.graph.DotDumper;
 import pascal.taie.util.graph.Edge;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Set;
 
 class TFGDumper {
@@ -56,7 +56,7 @@ class TFGDumper {
     }
 
     TFGDumper(@Nullable String highlightPath) {
-        highlightNodes = new HashSet<>();
+        highlightNodes = Sets.newSet();
         try {
             if (highlightPath != null) {
                 highlightNodes.addAll(Files.readAllLines(Path.of(highlightPath)));

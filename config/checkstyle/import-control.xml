@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC "-//Checkstyle//DTD ImportControl Configuration 1.4//EN"
+        "https://checkstyle.org/dtds/import_control_1_4.dtd">
+<import-control pkg="pascal.taie">
+
+    <!-- prefer pascal.taie.util.collection.Maps -->
+    <disallow class="java.util.concurrent.ConcurrentHashMap"/>
+    <disallow class="java.util.HashMap"/>
+    <disallow class="java.util.LinkedHashMap"/>
+    <disallow class="java.util.TreeMap"/>
+
+    <!-- prefer pascal.taie.util.collection.Sets -->
+    <disallow class="java.util.concurrent.CopyOnWriteArraySet"/>
+    <disallow class="java.util.HashSet"/>
+    <disallow class="java.util.LinkedHashSet"/>
+    <disallow class="java.util.TreeSet"/>
+
+    <allow pkg=".*" regex="true"/>
+
+    <subpackage name="util.collection">
+        <allow pkg=".*" regex="true"/>
+    </subpackage>
+
+</import-control>

@@ -1,5 +1,4 @@
 ## Style
-TODO: apply style tool
 
 ### Import
 - Wildcard imports (`import x.y.*`) should not be used.
@@ -36,11 +35,11 @@ For the methods that require non-`null` arguments, add `@Nonnull` annotation to 
 
 ### Use Tai-e Util
 - Use `Sets`/`Maps` to create Sets/Maps.
-When creating Set/Map, use proper `Sets.newSet`/`Maps.newMap()` factory methods instead of `new HashSet/Map<>()`.
+  When creating Set/Map, use proper `Sets.newSet`/`Maps.newMap()` factory methods instead of `new HashSet/Map<>()`.
 
 - Tai-e provides some data structures (in package `pascal.tai.util.collection`) that are commonly-used in static analysis but not included in JDK, e.g., `MultiMap` and `TwoKeyMap`. You could use them to make life easier.
 
 - Use `Hashes.hash()` to compute hash value of multiple objects. If the arguments may be `null`, use `Hashes.safeHash()`.
 
 - Obtain string constants from string providers.
-When using JDK class names, method names, or signatures, refer to corresponding fields of `ClassNames`, `MethodNames`, or `Signatures` (these classes are annotated by `@StringProvider`).
+  When using JDK class names, method names, or signatures, refer to corresponding fields of `ClassNames`, `MethodNames`, or `Signatures` (these classes are annotated by `@StringProvider`).

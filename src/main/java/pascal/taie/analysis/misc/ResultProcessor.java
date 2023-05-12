@@ -35,6 +35,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
@@ -47,8 +48,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,7 +92,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
             case "dump" -> setOutput();
             case "compare" -> readInputs();
         }
-        mismatches = new LinkedHashSet<>();
+        mismatches = Sets.newLinkedSet();
         // Classify given analysis IDs into two groups,
         // one for ProgramAnalysis if present in the World,
         // and another for Class/MethodAnalysis otherwise.
@@ -136,7 +135,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         String input = getOptions().getString("action-file");
         Path path = Path.of(input);
         try (BufferedReader reader = Files.newBufferedReader(path)) {
-            inputs = new LinkedHashMap<>();
+            inputs = Maps.newLinkedHashMap();
             String line;
             Pair<String, String> currentKey = null;
             while ((line = reader.readLine()) != null) {
@@ -299,7 +298,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         if (result instanceof Collection<?> c) {
             Set<String> given = c.stream()
                     .map(ResultProcessor::toString)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .collect(Collectors.toCollection(Sets::newLinkedSet));
             given.forEach(s -> {
                 if (!inputResult.contains(s)) {
                     mismatches.add(entity + " " + s +

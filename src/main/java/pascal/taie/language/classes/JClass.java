@@ -34,7 +34,6 @@ import pascal.taie.util.collection.Maps;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -110,13 +109,13 @@ public class JClass extends AbstractResultHolder
                     builder.getDeclaredFields()
                             .stream()
                             .collect(Collectors.toMap(JField::getName, f -> f,
-                                    (oldV, newV) -> oldV, LinkedHashMap::new))
+                                    (oldV, newV) -> oldV, Maps::newLinkedHashMap))
             );
             declaredMethods = Collections.unmodifiableMap(
                     builder.getDeclaredMethods()
                             .stream()
                             .collect(Collectors.toMap(JMethod::getSubsignature, m -> m,
-                                    (oldV, newV) -> oldV, LinkedHashMap::new))
+                                    (oldV, newV) -> oldV, Maps::newLinkedHashMap))
             );
         } catch (Exception e) {
             if (World.get().getOptions().isAllowPhantom()) {

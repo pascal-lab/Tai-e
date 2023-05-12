@@ -22,12 +22,12 @@
 
 package pascal.taie.config;
 
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class ConfigManager {
     /**
      * Map from analysis id to corresponding AnalysisConfig.
      */
-    private final Map<String, AnalysisConfig> configs = new LinkedHashMap<>();
+    private final Map<String, AnalysisConfig> configs = Maps.newLinkedHashMap();
 
     /**
      * Map from AnalysisConfig to its required AnalysisConfigs.

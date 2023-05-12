@@ -27,10 +27,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import pascal.taie.util.collection.Maps;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,7 +61,7 @@ record BenchmarkInfo(String id, int jdk,
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         TypeReference<List<BenchmarkInfo>> typeRef = new TypeReference<>() {};
         try {
-            Map<String, BenchmarkInfo> benchmarkInfos = new LinkedHashMap<>();
+            Map<String, BenchmarkInfo> benchmarkInfos = Maps.newLinkedHashMap();
             mapper.readValue(file, typeRef).forEach(
                     bmInfo -> benchmarkInfos.put(bmInfo.id(), bmInfo));
             return benchmarkInfos;

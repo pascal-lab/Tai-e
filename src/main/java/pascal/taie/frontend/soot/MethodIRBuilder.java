@@ -175,8 +175,6 @@ import soot.jimple.XorExpr;
 import soot.util.Chain;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -215,7 +213,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         if (method.getReturnType().equals(VOID)) {
             returnVars = Set.of();
         } else {
-            returnVars = new LinkedHashSet<>();
+            returnVars = Sets.newLinkedSet();
         }
         stmts = new ArrayList<>();
         if (!method.isStatic()) {
@@ -248,7 +246,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 trapUnits.add(trap.getEndUnit());
                 trapUnits.add(findRealHandler(body, trap.getHandlerUnit()));
             });
-            trapUnitMap = new HashMap<>(body.getTraps().size() * 3);
+            trapUnitMap = Maps.newMap(body.getTraps().size() * 3);
         }
         body.getUnits().forEach(unit -> unit.apply(this));
         linkJumpTargets(jumpMap, jumpTargetMap);

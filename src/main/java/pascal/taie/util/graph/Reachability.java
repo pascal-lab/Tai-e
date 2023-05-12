@@ -24,10 +24,10 @@ package pascal.taie.util.graph;
 
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.function.Predicate.not;
@@ -60,7 +60,7 @@ public class Reachability<N> {
      */
     public Set<N> reachableNodesFrom(N source) {
         if (!source2Reachable.containsKey(source)) {
-            Set<N> visited = new HashSet<>();
+            Set<N> visited = Sets.newSet();
             Deque<N> stack = new ArrayDeque<>();
             stack.push(source);
             while (!stack.isEmpty()) {
@@ -81,7 +81,7 @@ public class Reachability<N> {
      */
     public Set<N> nodesCanReach(N target) {
         if (!target2CanReach.containsKey(target)) {
-            Set<N> visited = new HashSet<>();
+            Set<N> visited = Sets.newSet();
             Deque<N> stack = new ArrayDeque<>();
             stack.push(target);
             while (!stack.isEmpty()) {

@@ -23,8 +23,11 @@
 package pascal.taie.util.collection;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,12 +43,28 @@ public final class Sets {
         return new HashSet<>();
     }
 
+    public static <E> Set<E> newSet(Collection<? extends E> set) {
+        return new HashSet<>(set);
+    }
+
+    public static <E> Set<E> newLinkedSet() {
+        return new LinkedHashSet<>();
+    }
+
     public static <E> Set<E> newSet(int initialCapacity) {
         if (initialCapacity <= ArraySet.DEFAULT_CAPACITY) {
             return newSmallSet();
         } else {
             return newSet();
         }
+    }
+
+    public static <E extends Comparable<E>> TreeSet<E> newOrderedSet() {
+        return new TreeSet<>();
+    }
+
+    public static <E> TreeSet<E> newOrderedSet(Comparator<? super E> comparator) {
+        return new TreeSet<>(comparator);
     }
 
     public static <E> Set<E> newSmallSet() {

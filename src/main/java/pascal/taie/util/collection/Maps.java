@@ -22,9 +22,12 @@
 
 package pascal.taie.util.collection;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
@@ -48,6 +51,18 @@ public final class Maps {
         } else {
             return newMap();
         }
+    }
+
+    public static <K, V> Map<K, V> newLinkedHashMap() {
+        return new LinkedHashMap<>();
+    }
+
+    public static <K extends Comparable<K>, V> Map<K, V> newOrderedMap() {
+        return new TreeMap<>();
+    }
+
+    public static <K, V> Map<K, V> newOrderedMap(Comparator<? super K> comparator) {
+        return new TreeMap<>(comparator);
     }
 
     public static <K, V> Map<K, V> newSmallMap() {

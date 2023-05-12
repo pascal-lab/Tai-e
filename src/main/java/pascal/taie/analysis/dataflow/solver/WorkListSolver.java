@@ -27,9 +27,10 @@ import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Comparator;
-import java.util.TreeSet;
+import java.util.NavigableSet;
 
 /**
  * Work-list solver with optimization.
@@ -81,7 +82,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
     protected void doSolveForward(DataflowAnalysis<Node, Fact> analysis,
                                   DataflowResult<Node, Fact> result) {
         CFG<Node> cfg = analysis.getCFG();
-        TreeSet<Node> workList = new TreeSet<>(
+        NavigableSet<Node> workList = Sets.newOrderedSet(
                 Comparator.comparingInt(cfg::getIndex));
         cfg.forEach(node -> {
             if (!cfg.isEntry(node)) {
@@ -168,7 +169,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
     protected void doSolveBackward(DataflowAnalysis<Node, Fact> analysis,
                                    DataflowResult<Node, Fact> result) {
         CFG<Node> cfg = analysis.getCFG();
-        TreeSet<Node> workList = new TreeSet<>(
+        NavigableSet<Node> workList = Sets.newOrderedSet(
                 Comparator.comparingInt(n -> -cfg.getIndex(n)));
         cfg.forEach(node -> {
             if (!cfg.isExit(node)) {

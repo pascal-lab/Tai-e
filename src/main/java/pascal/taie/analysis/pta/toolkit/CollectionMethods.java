@@ -28,7 +28,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -70,7 +69,7 @@ public class CollectionMethods {
         COLLECTION_UTILS.stream()
                 .map(hierarchy::getJREClass)
                 .forEach(collectionClasses::add);
-        Set<JClass> allCollectionClasses = new HashSet<>(collectionClasses);
+        Set<JClass> allCollectionClasses = Sets.newSet(collectionClasses);
         collectionClasses.forEach(c ->
                 allCollectionClasses.addAll(getAllInnerClassesOf(c)));
         return allCollectionClasses.stream()

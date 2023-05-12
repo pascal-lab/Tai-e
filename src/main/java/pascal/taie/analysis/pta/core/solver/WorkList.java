@@ -27,9 +27,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayDeque;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -42,7 +42,7 @@ final class WorkList {
     /**
      * Pointer entries to be processed.
      */
-    private final Map<Pointer, PointsToSet> pointerEntries = new LinkedHashMap<>();
+    private final Map<Pointer, PointsToSet> pointerEntries = Maps.newLinkedHashMap();
 
     /**
      * Call edges to be processed.

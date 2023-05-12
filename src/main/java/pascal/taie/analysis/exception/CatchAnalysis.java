@@ -30,11 +30,11 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +95,7 @@ public class CatchAnalysis {
      * may catch the exceptions thrown by the Stmt.
      */
     public static Map<Stmt, List<ExceptionEntry>> getPotentialCatchers(IR ir) {
-        Map<Stmt, List<ExceptionEntry>> catchers = new LinkedHashMap<>();
+        Map<Stmt, List<ExceptionEntry>> catchers = Maps.newLinkedHashMap();
         ir.getExceptionEntries().forEach(entry -> {
             for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
                 Stmt stmt = ir.getStmt(i);

@@ -24,11 +24,11 @@ package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * CFG with {@code Stmt} as nodes. This class maintains a mapping between
@@ -72,7 +72,7 @@ class StmtCFG extends AbstractCFG<Stmt> {
     @Override
     public Set<Stmt> getNodes() {
         // keep nodes sorted to ease debugging
-        Set<Stmt> stmts = new TreeSet<>(Comparator.comparing(this::getIndex));
+        Set<Stmt> stmts = Sets.newOrderedSet(Comparator.comparing(this::getIndex));
         stmts.addAll(super.getNodes());
         return Collections.unmodifiableSet(stmts);
     }

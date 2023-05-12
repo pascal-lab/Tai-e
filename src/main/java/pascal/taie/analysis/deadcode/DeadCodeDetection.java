@@ -53,7 +53,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Detects dead code in an IR.
@@ -75,7 +74,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
         NodeResult<Stmt, SetFact<Var>> liveVars =
                 ir.getResult(LiveVariable.ID);
         // keep statements (dead code) sorted in the resulting set
-        Set<Stmt> deadCode = new TreeSet<>(Comparator.comparing(Stmt::getIndex));
+        Set<Stmt> deadCode = Sets.newOrderedSet(Comparator.comparing(Stmt::getIndex));
         // initialize graph traversal
         Set<Stmt> visited = Sets.newSet(cfg.getNumberOfNodes());
         Queue<Stmt> queue = new ArrayDeque<>();

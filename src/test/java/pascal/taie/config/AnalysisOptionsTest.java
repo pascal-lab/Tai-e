@@ -24,8 +24,8 @@ package pascal.taie.config;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.collection.Maps;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class AnalysisOptionsTest {
@@ -43,7 +43,7 @@ public class AnalysisOptionsTest {
     }
 
     private Map<String, Object> getOptionValues() {
-        Map<String, Object> values = new HashMap<>();
+        Map<String, Object> values = Maps.newMap();
         values.put("x", 100);
         values.put("y", "666");
         values.put("z", null);

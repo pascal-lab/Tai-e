@@ -29,12 +29,12 @@ import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 import soot.Local;
 import soot.Value;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,7 +56,7 @@ class VarManager {
 
     private final Converter converter;
 
-    private final Map<Local, Var> varMap = new LinkedHashMap<>();
+    private final Map<Local, Var> varMap = Maps.newLinkedHashMap();
 
     private final List<Var> vars = new ArrayList<>();
 

@@ -38,7 +38,6 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
 
@@ -51,7 +50,7 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
     @Override
     public Set<BugInstance> analyze(IR ir) {
         NodeResult<Stmt, IsNullFact> nullValues = ir.getResult(IsNullAnalysis.ID);
-        Set<BugInstance> bugInstances = new TreeSet<>();
+        Set<BugInstance> bugInstances = Sets.newOrderedSet();
         bugInstances.addAll(findNullDeref(ir, nullValues));
         bugInstances.addAll(findRedundantComparison(ir, nullValues));
         return bugInstances;

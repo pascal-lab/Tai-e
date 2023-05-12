@@ -45,6 +45,10 @@
 <!--    </module>-->
 
     <module name="TreeWalker">
+        <module name="ImportControl">
+            <property name="file"
+                      value="${config_loc}/import-control.xml" />
+        </module>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>

@@ -36,13 +36,13 @@ import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -222,7 +222,7 @@ public class IRDumper extends ClassAnalysis<Void> {
 
         private void dumpVariables(IR ir) {
             // group variables by their types;
-            Map<Type, List<Var>> vars = new LinkedHashMap<>();
+            Map<Type, List<Var>> vars = Maps.newLinkedHashMap();
             ir.getVars().stream()
                     .filter(v -> v != ir.getThis())
                     .filter(v -> !ir.getParams().contains(v))

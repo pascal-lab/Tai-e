@@ -41,13 +41,13 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -133,7 +133,7 @@ class PFGBuilder {
     }
 
     private Set<VarNode> obtainOutNodes() {
-        Set<JMethod> outMethods = new HashSet<>(obtainMethods());
+        Set<JMethod> outMethods = Sets.newSet(obtainMethods());
         // OUT methods of inner classes and special access$ methods
         // are also considered as the OUT methods of current type
         pce.pceMethodsOf(type)
@@ -270,7 +270,7 @@ class PFGBuilder {
     public Set<FlowEdge> getOutEdgesOf(Node node) {
         Set<FlowEdge> outEdges = ofg.getOutEdgesOf(node);
         if (wuEdges.containsKey(node)) {
-            outEdges = new HashSet<>(outEdges);
+            outEdges = Sets.newSet(outEdges);
             outEdges.addAll(wuEdges.get(node));
         }
         return outEdges;

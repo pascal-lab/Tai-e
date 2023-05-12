@@ -50,7 +50,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Static utility methods about call graph.
@@ -154,7 +153,7 @@ public final class CallGraphs {
     private static Map<Invoke, String> getInvokeReps(JMethod caller) {
         Map<String, Integer> counter = Maps.newMap();
         Map<Invoke, String> invokeReps =
-                new TreeMap<>(Comparator.comparing(Invoke::getIndex));
+                Maps.newOrderedMap(Comparator.comparing(Invoke::getIndex));
         caller.getIR().forEach(s -> {
             if (s instanceof Invoke invoke) {
                 if (invoke.isDynamic()) { // skip invokedynamic
