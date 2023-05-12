@@ -104,8 +104,6 @@ public class VarWebSplitter {
     public void constructWeb() {
         var blocks = builder.blockSortedList;
         for (var block : blocks) {
-//            if (! block.isCatch()) { // TODO: remove when exception handling is completed.
-//            }
             if (! inDef.containsKey(block)) {
                 constructWebInsideBlock(block, null);
             }
@@ -127,9 +125,6 @@ public class VarWebSplitter {
     }
 
     private void constructWebBetweenBlock(BytecodeBlock pred, BytecodeBlock succ) {
-//        if (pred.isCatch() || succ.isCatch()) { // TODO: remove when exception handling is completed.
-//            return;
-//        }
         var predOutDef = outDef.get(pred);
         var succInDef = inDef.get(succ);
         if (predOutDef == succInDef) {
