@@ -6,7 +6,6 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.ParameterNode;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
@@ -44,8 +43,6 @@ class VarManager {
 
     private final InsnList insnList;
 
-    private final AsmIRBuilder builder;
-
     private int counter;
 
     private final Map<Triple<Integer, Integer, Integer>, Var> local2Var; // (slot, start(inclusive), end(exclusive)) -> Var
@@ -73,15 +70,12 @@ class VarManager {
     private final Map<Literal, Var> blockConstCache;
 
     public VarManager(JMethod method,
-                      @Nullable List<ParameterNode> params,
                       @Nullable List<LocalVariableNode> localVariableTable,
-                      InsnList insnList,
-                      AsmIRBuilder builder) {
+                      InsnList insnList) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = existsLocalVariableTable();
         this.insnList = insnList;
-        this.builder = builder;
         this.local2Var = Maps.newMap();
         this.nameAndType2Var = existsLocalVariableTable ? Maps.newMap() : null;
         this.anonymousLocal2Var = existsLocalVariableTable ? Maps.newMap() : null;
