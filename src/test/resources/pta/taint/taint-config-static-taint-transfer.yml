@@ -1,5 +1,5 @@
 sources:
-  - { kind: call, method: "<SourceSink: java.lang.String source()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<SourceSink: java.lang.String source()>", index: result }
 
 sinks:
   - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }
@@ -7,5 +7,5 @@ sinks:
   - { method: "<SourceSink: void sink(java.lang.String,java.lang.String)>", index: 1 }
 
 transfers:
-  - { method: "<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>", from: 0, to: result, type: "java.lang.String" }
-  - { method: "<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>", from: 1, to: result, type: "java.lang.String" }
+  - { method: "<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>", from: 0, to: result }
+  - { method: "<StaticTaintTransfer: java.lang.String concat(java.lang.String,java.lang.String)>", from: 1, to: result }

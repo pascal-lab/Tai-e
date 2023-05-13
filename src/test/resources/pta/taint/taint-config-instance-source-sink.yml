@@ -1,8 +1,8 @@
 sources:
-  - { kind: call, method: "<InstanceSourceSink: java.lang.String instanceSource()>", index: result, type: "java.lang.String" }
-  - { kind: call, method: "<Taint: void becomeTainted()>", index: base, type: "Taint" }
-  - { kind: call, method: "<Taint: void becomeTainted(Taint)>", index: 0, type: "Taint" }
-  - { kind: param, method: "<InstanceSourceSink: void main(java.lang.String[])>", index: 0, type: "java.lang.String[]" }
+  - { kind: call, method: "<InstanceSourceSink: java.lang.String instanceSource()>", index: result }
+  - { kind: call, method: "<Taint: void becomeTainted()>", index: base }
+  - { kind: call, method: "<Taint: void becomeTainted(Taint)>", index: 0 }
+  - { kind: param, method: "<InstanceSourceSink: void main(java.lang.String[])>", index: 0 }
 
 sinks:
   - { method: "<InstanceSourceSink: void instanceSink(java.lang.String)>", index: 0 }
@@ -10,4 +10,4 @@ sinks:
   - { method: "<ProcessBuilder: void start()>", index: base }
 
 transfers:
-  - { method: "<ProcessBuilder: void <init>(java.lang.String[])>", from: 0, to: base, type: "ProcessBuilder" }
+  - { method: "<ProcessBuilder: void <init>(java.lang.String[])>", from: 0, to: base }

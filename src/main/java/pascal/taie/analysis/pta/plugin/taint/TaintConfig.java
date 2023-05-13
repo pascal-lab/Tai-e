@@ -234,7 +234,17 @@ record TaintConfig(List<Source> sources,
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
                 int index = InvokeUtils.toInt(node.get("index").asText());
-                Type type = typeSystem.getType(node.get("type").asText());
+                Type type;
+                JsonNode typeNode = node.get("type");
+                if (typeNode != null) {
+                    type = typeSystem.getType(typeNode.asText());
+                } else { // type is not given, retrieve it from method signature
+                    type = switch (index) {
+                        case InvokeUtils.BASE -> method.getDeclaringClass().getType();
+                        case InvokeUtils.RESULT -> method.getReturnType();
+                        default -> method.getParamType(index);
+                    };
+                }
                 return new CallSource(method, index, type);
             } else {
                 // if the method (given in config file) is absent in
@@ -250,7 +260,15 @@ record TaintConfig(List<Source> sources,
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
                 int index = InvokeUtils.toInt(node.get("index").asText());
-                Type type = typeSystem.getType(node.get("type").asText());
+                Type type;
+                JsonNode typeNode = node.get("type");
+                if (typeNode != null) {
+                    type = typeSystem.getType(typeNode.asText());
+                } else { // type is not given, retrieve it from method signature
+                    type = index == InvokeUtils.BASE
+                            ? method.getDeclaringClass().getType()
+                            : method.getParamType(index);
+                }
                 return new ParamSource(method, index, type);
             } else {
                 // if the method (given in config file) is absent in
@@ -265,7 +283,10 @@ record TaintConfig(List<Source> sources,
             String fieldSig = node.get("field").asText();
             JField field = hierarchy.getField(fieldSig);
             if (field != null) {
-                Type type = typeSystem.getType(node.get("type").asText());
+                JsonNode typeNode = node.get("type");
+                Type type = typeNode != null
+                        ? typeSystem.getType(typeNode.asText())
+                        : field.getType(); // type is not given, use field type
                 return new FieldSource(field, type);
             } else {
                 // if the field (given in config file) is absent in
@@ -322,7 +343,17 @@ record TaintConfig(List<Source> sources,
                         // the class hierarchy, just ignore it.
                         int from = InvokeUtils.toInt(elem.get("from").asText());
                         int to = InvokeUtils.toInt(elem.get("to").asText());
-                        Type type = typeSystem.getType(elem.get("type").asText());
+                        Type type;
+                        JsonNode typeNode = elem.get("type");
+                        if (typeNode != null) {
+                            type = typeSystem.getType(typeNode.asText());
+                        } else { // type is not given, retrieve it from method signature
+                            type = switch (to) {
+                                case InvokeUtils.BASE -> method.getDeclaringClass().getType();
+                                case InvokeUtils.RESULT -> method.getReturnType();
+                                default -> method.getParamType(to);
+                            };
+                        }
                         transfers.add(new TaintTransfer(method, from, to, type));
                     } else {
                         logger.warn("Cannot find taint-transfer method '{}'", methodSig);
