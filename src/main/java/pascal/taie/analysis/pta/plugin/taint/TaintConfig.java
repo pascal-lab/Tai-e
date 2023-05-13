@@ -36,8 +36,11 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Lists;
@@ -51,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static pascal.taie.analysis.pta.plugin.taint.TransferPoint.ARRAY_SUFFIX;
 
 /**
  * Configuration for taint analysis.
@@ -234,17 +239,11 @@ record TaintConfig(List<Source> sources,
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
                 int index = InvokeUtils.toInt(node.get("index").asText());
-                Type type;
                 JsonNode typeNode = node.get("type");
-                if (typeNode != null) {
-                    type = typeSystem.getType(typeNode.asText());
-                } else { // type is not given, retrieve it from method signature
-                    type = switch (index) {
-                        case InvokeUtils.BASE -> method.getDeclaringClass().getType();
-                        case InvokeUtils.RESULT -> method.getReturnType();
-                        default -> method.getParamType(index);
-                    };
-                }
+                Type type = (typeNode != null)
+                        ? typeSystem.getType(typeNode.asText())
+                        // type not given, retrieve it from method signature
+                        : getMethodType(method, index);
                 return new CallSource(method, index, type);
             } else {
                 // if the method (given in config file) is absent in
@@ -260,15 +259,11 @@ record TaintConfig(List<Source> sources,
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
                 int index = InvokeUtils.toInt(node.get("index").asText());
-                Type type;
                 JsonNode typeNode = node.get("type");
-                if (typeNode != null) {
-                    type = typeSystem.getType(typeNode.asText());
-                } else { // type is not given, retrieve it from method signature
-                    type = index == InvokeUtils.BASE
-                            ? method.getDeclaringClass().getType()
-                            : method.getParamType(index);
-                }
+                Type type = (typeNode != null)
+                        ? typeSystem.getType(typeNode.asText())
+                        // type not given, retrieve it from method signature
+                        : getMethodType(method, index);
                 return new ParamSource(method, index, type);
             } else {
                 // if the method (given in config file) is absent in
@@ -284,9 +279,9 @@ record TaintConfig(List<Source> sources,
             JField field = hierarchy.getField(fieldSig);
             if (field != null) {
                 JsonNode typeNode = node.get("type");
-                Type type = typeNode != null
+                Type type = (typeNode != null)
                         ? typeSystem.getType(typeNode.asText())
-                        : field.getType(); // type is not given, use field type
+                        : field.getType(); // type not given, use field type
                 return new FieldSource(field, type);
             } else {
                 // if the field (given in config file) is absent in
@@ -294,6 +289,17 @@ record TaintConfig(List<Source> sources,
                 logger.warn("Cannot find source field '{}'", fieldSig);
                 return null;
             }
+        }
+
+        /**
+         * @return corresponding type of index for the method.
+         */
+        private static Type getMethodType(JMethod method, int index) {
+            return switch (index) {
+                case InvokeUtils.BASE -> method.getDeclaringClass().getType();
+                case InvokeUtils.RESULT -> method.getReturnType();
+                default -> method.getParamType(index);
+            };
         }
 
         /**
@@ -341,17 +347,19 @@ record TaintConfig(List<Source> sources,
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int from = InvokeUtils.toInt(elem.get("from").asText());
-                        int to = InvokeUtils.toInt(elem.get("to").asText());
-                        Type type;
+                        TransferPoint from = toTransferPoint(method, elem.get("from").asText());
+                        TransferPoint to = toTransferPoint(method, elem.get("to").asText());
                         JsonNode typeNode = elem.get("type");
+                        Type type;
                         if (typeNode != null) {
                             type = typeSystem.getType(typeNode.asText());
-                        } else { // type is not given, retrieve it from method signature
-                            type = switch (to) {
-                                case InvokeUtils.BASE -> method.getDeclaringClass().getType();
-                                case InvokeUtils.RESULT -> method.getReturnType();
-                                default -> method.getParamType(to);
+                        } else {
+                            // type not given, retrieve it from method signature
+                            Type varType = getMethodType(method, to.index());
+                            type = switch (to.kind()) {
+                                case VAR -> varType;
+                                case ARRAY -> ((ArrayType) varType).elementType();
+                                case FIELD -> to.field().getType();
                             };
                         }
                         transfers.add(new TaintTransfer(method, from, to, type));
@@ -364,6 +372,40 @@ record TaintConfig(List<Source> sources,
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();
             }
+        }
+
+        private TransferPoint toTransferPoint(JMethod method, String text) {
+            TransferPoint.Kind kind;
+            String indexStr;
+            if (text.endsWith(ARRAY_SUFFIX)) {
+                kind = TransferPoint.Kind.ARRAY;
+                indexStr = text.substring(0, text.length() - ARRAY_SUFFIX.length());
+            } else if (text.contains(".")) {
+                kind = TransferPoint.Kind.FIELD;
+                indexStr = text.substring(0, text.indexOf('.'));
+            } else {
+                kind = TransferPoint.Kind.VAR;
+                indexStr = text;
+            }
+            int index = InvokeUtils.toInt(indexStr);
+            JField field = null;
+            if (kind == TransferPoint.Kind.FIELD) {
+                Type varType = getMethodType(method, index);
+                if (varType instanceof ClassType classType) {
+                    JClass clazz = classType.getJClass();
+                    String fieldName = text.substring(text.indexOf('.') + 1);
+                    while (clazz != null) {
+                        field = clazz.getDeclaredField(fieldName);
+                        if (field != null) {
+                            break;
+                        }
+                        clazz = clazz.getSuperClass();
+                    }
+                    assert field != null
+                            : "Cannot find " + fieldName + " in class " + classType;
+                }
+            }
+            return new TransferPoint(kind, index, field);
         }
 
         /**

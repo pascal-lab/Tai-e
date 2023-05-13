@@ -3,6 +3,8 @@ sources:
 
 sinks:
   - { method: "<B: void sink(A)>", index: 0 }
+  - { method: "<Expression: java.lang.Object getValue()>", index: base }
 
 transfers:
   - { method: "<A: void transfer(A)>", from: 0, to: base, type: "C" }
+  - { method: "<Expression: void <init>(java.lang.Object[])>", from: "0[*]", to: base }

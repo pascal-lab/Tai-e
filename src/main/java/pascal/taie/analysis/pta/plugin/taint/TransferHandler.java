@@ -109,8 +109,8 @@ class TransferHandler {
         Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         transfers.get(callee).forEach(transfer -> {
-            Var from = InvokeUtils.getVar(callSite, transfer.from());
-            Var to = InvokeUtils.getVar(callSite, transfer.to());
+            Var from = InvokeUtils.getVar(callSite, transfer.from().index());
+            Var to = InvokeUtils.getVar(callSite, transfer.to().index());
             // when transfer to result variable, and the call site
             // does not have result variable, then "to" is null.
             if (to != null) {
@@ -128,8 +128,8 @@ class TransferHandler {
                 // pointer analysis, and we just need to specially handle the
                 // pointers whose objects flow to "to", i.e., back propagation.
                 if (enableBackPropagate
-                        && transfer.to() != InvokeUtils.RESULT
-                        && !(transfer.to() == InvokeUtils.BASE
+                        && transfer.to().index() != InvokeUtils.RESULT
+                        && !(transfer.to().index() == InvokeUtils.BASE
                         && transfer.method().isConstructor())) {
                     backPropagateTaint(to, ctx);
                 }

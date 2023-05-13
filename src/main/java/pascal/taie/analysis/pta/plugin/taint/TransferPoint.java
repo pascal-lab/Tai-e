@@ -22,25 +22,28 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.language.classes.JField;
 
-/**
- * Represents taint transfer between argument/base/return variables
- * caused by invocation to specific method.
- * <ul>
- *     <li>method: the method that causes taint transfer
- *     <li>from: the index of "from" variable
- *     <li>to: the index of "to" variable
- *     <li>type: the type of the transferred taint object
- * </ul>
- */
-record TaintTransfer(
-        JMethod method, TransferPoint from, TransferPoint to, Type type) {
+record TransferPoint(Kind kind, int index, JField field) {
+
+    static final String ARRAY_SUFFIX = "[*]";
+
+    enum Kind {VAR, ARRAY, FIELD}
+
+    @Override
+    public JField field() {
+        assert kind == Kind.FIELD : "Not a FIELD TransferPoint";
+        return field;
+    }
 
     @Override
     public String toString() {
-        return method + ": " +
-                from + " -> " + to + "(" + type + ")";
+        String base = InvokeUtils.toString(index);
+        return switch (kind) {
+            case VAR -> base;
+            case ARRAY -> base + ARRAY_SUFFIX;
+            case FIELD -> base + "." + field.getName();
+        };
     }
 }
