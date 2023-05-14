@@ -103,21 +103,24 @@ class VarManager {
         // And we should get the parameters in advance to register a position in params for them
         // in case there does not exist reference to a parameter in the code.
         int firstParamIndex = method.isStatic() ? 0 : 1;
-        int n = firstParamIndex;
-        for (int i = firstParamIndex; i < method.getParamCount() + firstParamIndex; ++i) {
-            Var v = existsLocalVariableTable ?
-                    // TODO: May be buggy when using 0 for that it might return null I do not sure that
-                    // the LabelNode that denotes the start or the end for a VarTableNode is precisely
-                    // the First and the Last of the insnList.
-                    getLocalWithLocalVarTable(i, 0)
-                    : newParameter(i);
+        int slotOfCurrentParam = firstParamIndex;
+        for (int NoOfParam = firstParamIndex; NoOfParam < method.getParamCount() + firstParamIndex; ++NoOfParam) {
+            // TODO: May be buggy when using 0 in the query for that it might return null I do
+            // not sure that the LabelNode that denotes the start or the end for a VarTableNode
+            // is precisely the First and the Last of the insnList.
+            Pair<Integer, Integer> query = new Pair<>(slotOfCurrentParam, 0);
+            var opt = local2Var.keySet().stream().filter(k -> match(query, k)).findAny();
+            Var v = opt.isPresent() ?
+                    local2Var.get(opt.get())
+                    : newParameter(NoOfParam);
+
             this.params.add(v);
-            local2Var.put(new Triple<>(n, 0, lastIndex + offset), v);
-            this.paramsIndex.put(v, n);
-            if (Utils.isTwoWord(method.getParamType(i - firstParamIndex))) {
-                n += 2;
+            local2Var.put(new Triple<>(slotOfCurrentParam, 0, lastIndex + offset), v);
+            this.paramsIndex.put(v, slotOfCurrentParam);
+            if (Utils.isTwoWord(method.getParamType(NoOfParam - firstParamIndex))) {
+                slotOfCurrentParam += 2;
             } else {
-                n += 1;
+                slotOfCurrentParam += 1;
             }
         }
 
@@ -254,7 +257,7 @@ class VarManager {
         return v;
     }
 
-    private boolean match(Pair<Integer, Integer> query, Triple<Integer, Integer, Integer> var) {
+    private static boolean match(Pair<Integer, Integer> query, Triple<Integer, Integer, Integer> var) {
         return query.first().equals(var.first())
                 && var.second() <= query.second()
                 && query.second() < var.third();
