@@ -38,7 +38,6 @@ abstract class A {
     abstract void sink(A a);
 
     public void transfer(A taint) {
-        ;
     }
 
 }

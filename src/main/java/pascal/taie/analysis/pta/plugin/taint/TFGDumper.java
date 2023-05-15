@@ -25,7 +25,6 @@ package pascal.taie.analysis.pta.plugin.taint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
@@ -73,8 +72,7 @@ class TFGDumper {
         sinkNodes = tfg.getSinkNodes();
         DotDumper<Node> dumper = new DotDumper<Node>()
                 .setNodeAttributer(this::nodeAttributer)
-                .setEdgeAttributer(this::edgeAttributer)
-                .setEdgeLabeler(this::edgeLabel);
+                .setEdgeAttributer(this::edgeAttributer);
         dumper.dump(tfg, output);
     }
 
@@ -119,10 +117,5 @@ class TFGDumper {
         } else {
             return attrs;
         }
-    }
-
-    private String edgeLabel(Edge<Node> edge) {
-        FlowEdge flowEdge = (FlowEdge) edge;
-        return flowEdge.kind() == FlowKind.OTHER ? edge.getClass().getSimpleName() : "";
     }
 }
