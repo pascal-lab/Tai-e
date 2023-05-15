@@ -1,16 +1,11 @@
-package pascal.taie.project;
+package pascal.taie.frontend.newfrontend;
 
 import org.junit.Test;
-import org.objectweb.asm.commons.JSRInlinerAdapter;
-import pascal.taie.frontend.newfrontend.AllClassesCWBuilder;
-import pascal.taie.frontend.newfrontend.AsmIRBuilder;
-import pascal.taie.frontend.newfrontend.AsmMethodSource;
-import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
-import pascal.taie.frontend.newfrontend.ClosedWorldBuilder;
-import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
-import pascal.taie.frontend.newfrontend.DepCWBuilder;
-import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.project.MockOptions;
+import pascal.taie.project.OptionsProjectBuilder;
+import pascal.taie.project.Project;
+import pascal.taie.project.ProjectBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

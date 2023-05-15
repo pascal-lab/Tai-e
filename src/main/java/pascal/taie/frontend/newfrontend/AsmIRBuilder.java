@@ -105,7 +105,7 @@ import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
 
-public class AsmIRBuilder {
+class AsmIRBuilder {
 
     private IR ir;
 
