@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
@@ -45,8 +47,10 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
@@ -58,6 +62,8 @@ import java.util.Map;
  * Handles taint transfers in taint analysis.
  */
 class TransferHandler {
+
+    private static final Logger logger = LogManager.getLogger(TransferHandler.class);
 
     private final Solver solver;
 
@@ -74,6 +80,15 @@ class TransferHandler {
     private final MultiMap<JMethod, TaintTransfer> transfers = Maps.newMultiMap();
 
     private final Map<Type, Transfer> transferFunctions = Maps.newHybridMap();
+
+    private enum Kind {
+        VAR_TO_ARRAY, VAR_TO_FIELD, ARRAY_TO_VAR, FIELD_TO_VAR
+    }
+
+    private record TransferInfo(Kind kind, Var var, TaintTransfer transfer) {
+    }
+
+    private final MultiMap<Var, TransferInfo> transferInfos = Maps.newMultiMap();
 
     /**
      * Whether enable taint back propagation to handle aliases about
@@ -103,38 +118,102 @@ class TransferHandler {
         if (edge.getKind() == CallKind.OTHER) {
             // skip other call edges, e.g., reflective call edges,
             // which currently cannot be handled for transfer methods
-            // TODO: handle other call edges
+            // TODO: handle OTHER call edges
             return;
         }
-        Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
-        transfers.get(callee).forEach(transfer -> {
-            Var from = InvokeUtils.getVar(callSite, transfer.from().index());
-            Var to = InvokeUtils.getVar(callSite, transfer.to().index());
-            // when transfer to result variable, and the call site
-            // does not have result variable, then "to" is null.
-            if (to != null) {
-                Context ctx = edge.getCallSite().getContext();
-                CSVar csFrom = csManager.getCSVar(ctx, from);
-                CSVar csTo = csManager.getCSVar(ctx, to);
-                Transfer trans = getTransferFunction(transfer.type());
-                solver.addPFGEdge(csFrom, csTo, FlowKind.OTHER, trans);
+        transfers.get(callee).forEach(transfer ->
+                processTransfer(edge.getCallSite(), transfer));
+    }
 
-                // If the taint is transferred to base or argument, it means
-                // that the objects pointed to by "to" were mutated
-                // by the invocation. For such cases, we need to propagate the
-                // taint to the pointers aliased with "to". The pointers
-                // whose objects come from "to" will be naturally handled by
-                // pointer analysis, and we just need to specially handle the
-                // pointers whose objects flow to "to", i.e., back propagation.
-                if (enableBackPropagate
-                        && transfer.to().index() != InvokeUtils.RESULT
-                        && !(transfer.to().index() == InvokeUtils.BASE
-                        && transfer.method().isConstructor())) {
-                    backPropagateTaint(to, ctx);
+    private void processTransfer(CSCallSite callSite, TaintTransfer transfer) {
+        Invoke invoke = callSite.getCallSite();
+        TransferPoint from = transfer.from();
+        TransferPoint to = transfer.to();
+        Var toVar = InvokeUtils.getVar(invoke, to.index());
+        if (toVar == null) {
+            return;
+        }
+        Context ctx = callSite.getContext();
+        Var fromVar = InvokeUtils.getVar(invoke, from.index());
+        CSVar csFrom = csManager.getCSVar(ctx, fromVar);
+        CSVar csTo = csManager.getCSVar(ctx, toVar);
+        if (from.kind() == TransferPoint.Kind.VAR) { // Var -> Var/Array/Field
+            Kind kind = switch (to.kind()) {
+                case VAR -> {
+                    Transfer tf = getTransferFunction(transfer.type());
+                    solver.addPFGEdge(csFrom, csTo, FlowKind.OTHER, tf);
+                    yield null;
                 }
+                case ARRAY -> Kind.VAR_TO_ARRAY;
+                case FIELD -> Kind.VAR_TO_FIELD;
+            };
+            if (kind != null) {
+                TransferInfo info = new TransferInfo(kind, fromVar, transfer);
+                transferInfos.put(toVar, info);
+                transferTaint(solver.getPointsToSetOf(csTo), ctx, info);
             }
-        });
+        } else if (to.kind() == TransferPoint.Kind.VAR) { // Array/Field -> Var
+            Kind kind = switch (from.kind()) {
+                case ARRAY -> Kind.ARRAY_TO_VAR;
+                case FIELD -> Kind.FIELD_TO_VAR;
+                default -> throw new AnalysisException(); // unreachable
+            };
+            TransferInfo info = new TransferInfo(kind, toVar, transfer);
+            transferInfos.put(fromVar, info);
+            transferTaint(solver.getPointsToSetOf(csFrom), ctx, info);
+        } else { // ignore other cases
+            logger.warn("TaintTransfer {} -> {} (in {}) is not supported",
+                    transfer, from.kind(), to.kind());
+        }
+
+        // If the taint is transferred to base or argument, it means
+        // that the objects pointed to by "to" were mutated
+        // by the invocation. For such cases, we need to propagate the
+        // taint to the pointers aliased with "to". The pointers
+        // whose objects come from "to" will be naturally handled by
+        // pointer analysis, and we just need to specially handle the
+        // pointers whose objects flow to "to", i.e., back propagation.
+        if (enableBackPropagate
+                && to.index() != InvokeUtils.RESULT
+                && to.kind() == TransferPoint.Kind.VAR
+                && !(to.index() == InvokeUtils.BASE
+                && transfer.method().isConstructor())) {
+            backPropagateTaint(toVar, ctx);
+        }
+    }
+
+    private void transferTaint(PointsToSet baseObjs, Context ctx, TransferInfo info) {
+        CSVar csVar = csManager.getCSVar(ctx, info.var());
+        Transfer tf = getTransferFunction(info.transfer().type());
+        switch (info.kind()) {
+            case VAR_TO_ARRAY -> {
+                baseObjs.objects()
+                        .map(csManager::getArrayIndex)
+                        .forEach(arrayIndex ->
+                                solver.addPFGEdge(csVar, arrayIndex, FlowKind.OTHER, tf));
+            }
+            case VAR_TO_FIELD -> {
+                JField f = info.transfer().to().field();
+                baseObjs.objects()
+                        .map(o -> csManager.getInstanceField(o, f))
+                        .forEach(oDotF ->
+                                solver.addPFGEdge(csVar, oDotF, FlowKind.OTHER, tf));
+            }
+            case ARRAY_TO_VAR -> {
+                baseObjs.objects()
+                        .map(csManager::getArrayIndex)
+                        .forEach(arrayIndex ->
+                                solver.addPFGEdge(arrayIndex, csVar, FlowKind.OTHER, tf));
+            }
+            case FIELD_TO_VAR -> {
+                JField f = info.transfer().from().field();
+                baseObjs.objects()
+                        .map(o -> csManager.getInstanceField(o, f))
+                        .forEach(oDotF ->
+                                solver.addPFGEdge(oDotF, csVar, FlowKind.OTHER, tf));
+            }
+        }
     }
 
     private Transfer getTransferFunction(Type toType) {
@@ -153,7 +232,9 @@ class TransferHandler {
     }
 
     void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        // TODO: handle transfers for array/field
+        Context ctx = csVar.getContext();
+        transferInfos.get(csVar.getVar()).forEach(info ->
+                transferTaint(pts, ctx, info));
     }
 
     private void backPropagateTaint(Var to, Context ctx) {

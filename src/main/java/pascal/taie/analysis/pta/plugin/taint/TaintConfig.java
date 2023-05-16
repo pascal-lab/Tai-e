@@ -391,9 +391,9 @@ record TaintConfig(List<Source> sources,
             JField field = null;
             if (kind == TransferPoint.Kind.FIELD) {
                 Type varType = getMethodType(method, index);
+                String fieldName = text.substring(text.indexOf('.') + 1);
                 if (varType instanceof ClassType classType) {
                     JClass clazz = classType.getJClass();
-                    String fieldName = text.substring(text.indexOf('.') + 1);
                     while (clazz != null) {
                         field = clazz.getDeclaredField(fieldName);
                         if (field != null) {
@@ -401,9 +401,9 @@ record TaintConfig(List<Source> sources,
                         }
                         clazz = clazz.getSuperClass();
                     }
-                    assert field != null
-                            : "Cannot find " + fieldName + " in class " + classType;
                 }
+                assert field != null
+                        : "Cannot find field '" + fieldName + "' in type " + varType;
             }
             return new TransferPoint(kind, index, field);
         }

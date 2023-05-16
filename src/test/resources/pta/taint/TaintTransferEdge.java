@@ -2,14 +2,17 @@ class TaintTransferEdge {
 
     public static void main(String args[]) {
         simpleTaint();
-        transferArray();
+        arrayToVar();
+        fieldToVar();
+        varToArray();
+        varToField();
     }
 
-    public static A getSource() {
+    private static A getSource() {
         return new C();
     }
 
-    public static void simpleTaint() {
+    private static void simpleTaint() {
         B b = new B(); //OB
         A taint = getSource();
         taint = b;
@@ -27,10 +30,39 @@ class TaintTransferEdge {
         merge2.sink(merge2); //merge2 will cause taint flow (call sink method B.sink())
     }
 
-    public static void transferArray() {
+    private static void arrayToVar() {
         A taint = getSource();
         Expression exp = new Expression(new Object[]{taint});
         exp.getValue();
+    }
+
+    private static void fieldToVar() {
+        A taint = getSource();
+        Expression exp = new Expression(new ABox(taint));
+        exp.getValue();
+    }
+
+    private static void varToArray() {
+        A taint = getSource();
+        A[] a = new A[1];
+        transfer(taint, a)
+        B b = new B();
+        b.sink(a[0]);
+    }
+
+    private static void transfer(A a, A[] array) {
+    }
+
+
+    private static void varToField() {
+        A taint = getSource();
+        Expression exp = new Expression();
+        transfer(taint, exp);
+        B b = new B();
+        b.sink(exp.a);
+    }
+
+    private static void transfer(A a, Expression exp) {
     }
 }
 
@@ -54,12 +86,29 @@ class C extends A {
     }
 }
 
+class ABox {
+    A a;
+
+    ABox(A a) {
+        this.a = a;
+    }
+}
+
 class Expression {
 
     Object[] cmds;
 
+    A a;
+
+    Expression() {
+    }
+
     Expression(Object[] cmds) {
         this.cmds = cmds;
+    }
+
+    Expression(ABox abox) {
+        this.a = abox.a;
     }
 
     Object getValue() {
