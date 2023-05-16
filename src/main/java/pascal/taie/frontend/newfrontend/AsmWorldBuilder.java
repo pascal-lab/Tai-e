@@ -23,12 +23,6 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
 
     private static final Logger logger = LogManager.getLogger(AsmWorldBuilder.class);
 
-    /**
-     * Path to the file which specifies the basic classes that should be
-     * added to Scene in advance.
-     */
-    private static final String BASIC_CLASSES = "basic-classes.yml";
-
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
         build(options);
@@ -39,11 +33,11 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         World world = new World();
         World.set(world);
 
-
         // options will be used during World building, thus it should be
         // set at first.
         world.setOptions(options);
 
+        // initialize class hierarchy
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
         ClosedWorldBuilder closedWorldBuilder = new ClassInfoCWBuilder(); // Configurable
@@ -61,14 +55,17 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         String mainClassName = options.getMainClass();
         if (mainClassName != null) {
             JClass mainClass = hierarchy.getClass(mainClassName);
-            assert mainClass != null;
-            JMethod mainMethod = mainClass.getDeclaredMethod(Subsignature.getMain()); // TODO: what is src_prec_dotnet in Scene:313?
-            if (mainMethod != null) {
-                world.setMainMethod(mainMethod);
+            if (mainClass != null) {
+                JMethod mainMethod = mainClass.getDeclaredMethod(Subsignature.getMain()); // TODO: what is src_prec_dotnet in Scene:313?
+                if (mainMethod != null) {
+                    world.setMainMethod(mainMethod);
+                } else {
+                    logger.warn("Warning: main class '{}'" +
+                                    " does not have main(String[]) method!",
+                            options.getMainClass());
+                }
             } else {
-                logger.warn("Warning: main class '{}'" +
-                                " does not have main(String[]) method!",
-                        options.getMainClass());
+                logger.warn("Warning: main class is not found in class hierarchy!");
             }
         } else {
             logger.warn("Warning: main class was not given!");
