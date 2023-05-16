@@ -15,6 +15,9 @@
     <disallow class="java.util.LinkedHashSet"/>
     <disallow class="java.util.TreeSet"/>
 
+    <!-- prefer java.nio.file.Path -->
+    <disallow class="java.nio.file.Paths"/>
+
     <allow pkg=".*" regex="true"/>
 
     <subpackage name="util.collection">

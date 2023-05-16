@@ -35,6 +35,7 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -359,12 +360,13 @@ public class Options {
                     .format(Instant.now());
                 outputDir = outputDir.replace(AUTO_GEN, timestamp);
                 // check if the output dir already exists
-                if (new File(outputDir).exists()) {
+                File file = Path.of(outputDir).toAbsolutePath().normalize().toFile();
+                if (file.exists()) {
                     throw new RuntimeException("The generated output dir already exists, "
                             + "please wait for a second to start again: " + outputDir);
                 }
             }
-            return new File(outputDir).getAbsoluteFile();
+            return Path.of(outputDir).toAbsolutePath().normalize().toFile();
         }
     }
 

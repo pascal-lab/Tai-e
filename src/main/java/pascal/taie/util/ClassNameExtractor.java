@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +98,7 @@ public class ClassNameExtractor {
     }
 
     private static List<String> extractDir(String dirPath) {
-        Path dir = Paths.get(dirPath);
+        Path dir = Path.of(dirPath);
         if (!dir.toFile().isDirectory()) {
             throw new RuntimeException(dir + " is not a directory");
         }

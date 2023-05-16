@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,7 +185,7 @@ public final class Tests {
             try {
                 Path from = new File(World.get().getOptions().getOutputDir(),
                         pascal.taie.analysis.pta.plugin.ResultProcessor.RESULTS_FILE).toPath();
-                Files.move(from, Paths.get(expectedFile), StandardCopyOption.REPLACE_EXISTING);
+                Files.move(from, Path.of(expectedFile), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 logger.error("Failed to copy expected file", e);
             }
@@ -201,6 +200,6 @@ public final class Tests {
      */
     private static String getExpectedFile(String dir, String main, String id) {
         String fileName = String.format("%s-%s-expected.txt", main, id);
-        return Paths.get(dir, fileName).toString();
+        return Path.of(dir, fileName).toString();
     }
 }

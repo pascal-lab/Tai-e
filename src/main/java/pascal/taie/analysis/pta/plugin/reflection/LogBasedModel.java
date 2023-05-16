@@ -43,7 +43,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -109,7 +109,7 @@ class LogBasedModel extends SolverHolder {
         super(solver);
         this.helper = helper;
         logger.info("Using reflection log from {}",
-                Paths.get(logPath).toAbsolutePath());
+                Path.of(logPath).toAbsolutePath());
         LogItem.load(logPath).forEach(this::addItem);
     }
 
