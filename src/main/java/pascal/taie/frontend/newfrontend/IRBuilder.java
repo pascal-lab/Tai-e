@@ -22,10 +22,15 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     @Override
     public IR buildIR(JMethod method) {
         try {
-            AsmMethodSource source = (AsmMethodSource) method.getMethodSource();
-            AsmIRBuilder builder = new AsmIRBuilder(method, source);
-            builder.build();
-            return builder.getIr();
+            // TODO: Add more IRBuilder for different types of source.
+            Object source = method.getMethodSource();
+            if (source instanceof AsmMethodSource asmMethodSource) {
+                AsmIRBuilder builder = new AsmIRBuilder(method, asmMethodSource);
+                builder.build();
+                return builder.getIr();
+            } else {
+                throw new FrontendException("NewFrontend currently does not support " + source.getClass().getName());
+            }
         } catch (RuntimeException e) {
             if (e.getStackTrace()[0].getClassName().startsWith("Asm")) {
                 logger.warn("ASM bytecode front failed to build method body for {}," +
