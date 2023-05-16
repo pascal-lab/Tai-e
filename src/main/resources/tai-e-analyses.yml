@@ -8,6 +8,7 @@
     distinguish-string-constants: reflection # (distinguish reflection-relevant
     # string constants, i.e., class, method, and field names)
     # | null (do not distinguish any string constants)
+    # | app (distinguish string constants in application code)
     # | all (distinguish all string constants)
     # | <predicate-class-name>
     merge-string-objects: true

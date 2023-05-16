@@ -120,6 +120,7 @@ public abstract class AbstractHeapModel implements HeapModel {
         } else {
             return switch (option) {
                 case "reflection" -> new IsReflectionString();
+                case "app" -> new IsApplicationString();
                 case "all" -> Predicates.alwaysTrue();
                 default -> { // in this case, we assume that 'option' is name
                     // of the predicate class
