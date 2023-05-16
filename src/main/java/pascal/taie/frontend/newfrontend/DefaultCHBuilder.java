@@ -22,6 +22,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
         });
 
         ch.setDefaultClassLoader(dcl);
+        ch.setBootstrapClassLoader(dcl);
         BuildContext.make(m, dcl);
 
         sources.parallelStream().forEach(i -> {
