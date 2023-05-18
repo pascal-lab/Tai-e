@@ -1,6 +1,8 @@
 package pascal.taie.frontend.newfrontend;
 
 import org.junit.Test;
+import pascal.taie.Main;
+import pascal.taie.World;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.project.MockOptions;
 import pascal.taie.project.OptionsProjectBuilder;
@@ -8,7 +10,9 @@ import pascal.taie.project.Project;
 import pascal.taie.project.ProjectBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class TestAsmIRBuilder {
 
@@ -29,25 +33,42 @@ public class TestAsmIRBuilder {
         String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
         String resourcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/resources.jar";
         String charsetsPath = "java-benchmarks/JREs/jre1." + javaVersion + "/charsets.jar";
+        String worldPath = "src/test/resources/world";
 
-        List<String> paths = List.of(classPath, jcePath, jssePath, resourcePath, charsetsPath);
+        List<String> java8AdditionalPath = List.of(resourcePath, charsetsPath);
+        List<String> paths = Stream.of(worldPath, classPath, jcePath, jssePath).toList();
+        if (javaVersion >= 8) {
+            paths = new ArrayList<>(paths);
+            paths.addAll(java8AdditionalPath);
+        }
         String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
 
         List<String> args = new ArrayList<>();
-        // Note: run Tai-e main may produce OutOfMemoryError
-//        Collections.addAll(args, "-pp");
-//        Collections.addAll(args, "-a", "cfg");
-//        Collections.addAll(args, "-cp", worldPath);
-//        Collections.addAll(args, "-java", Integer.toString(javaVersion));
-//        Collections.addAll(args, "-m", mainClass);
-//        Main.main(args.toArray(new String[0]));
+        // Collections.addAll(args, "-pp");
+        Collections.addAll(args, "-a", "cfg");
+        Collections.addAll(args, "-cp", path);
+        Collections.addAll(args, "-java", Integer.toString(javaVersion));
+        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder");
+        Collections.addAll(args, "-m", mainClass);
+        Main.main(args.toArray(new String[0]));
 
-        Project project = createProject(path, mainClass, otherClasses);
-        ClosedWorldBuilder depCWBuilder = new AllClassesCWBuilder();
-        depCWBuilder.build(project);
-        var cw = depCWBuilder.getClosedWorld();
-        ClassHierarchyBuilder builder = new DefaultCHBuilder();
-        return builder.build(cw);
+//        Project project = createProject(path, mainClass, otherClasses);
+//        ClosedWorldBuilder depCWBuilder = new AllClassesCWBuilder();
+//        depCWBuilder.build(project);
+//        var cw = depCWBuilder.getClosedWorld();
+//        ClassHierarchyBuilder builder = new DefaultCHBuilder();
+//        return builder.build(cw);
+        return World.get().getClassHierarchy();
+    }
+
+    void getAllIR(ClassHierarchy classHierarchy) {
+        classHierarchy.allClasses()
+                .forEach(c -> c.getDeclaredMethods()
+                        .forEach(m -> {
+                            if (! m.isAbstract()) {
+                                m.getIR();
+                            }
+                        }));
     }
 
     ClassHierarchy getCh(String mainClass, int javaVersion) {
@@ -58,13 +79,7 @@ public class TestAsmIRBuilder {
     @Test
     public void testMinimal() {
         var ch = getCh("Minimal", 6);
-        ch.allClasses()
-                .forEach(i -> { i.getDeclaredMethods().forEach(m -> {
-                    AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
-                    AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
-                    builder1.build();
-            });
-        });
+        getAllIR(ch);
     }
 
     @Test
@@ -117,20 +132,7 @@ public class TestAsmIRBuilder {
         System.out.println("build ch: " + (endTime - startTime) / 1000.0);
 
         long startTime2 = System.currentTimeMillis();
-        ch.allClasses()
-                .forEach(i -> {
-                    i.getDeclaredMethods()
-                            .forEach(m -> {
-                                AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
-                                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
-                                builder1.build();
-//                                System.out.println(m);
-//                                if (m.toString().equals("<java.util.Spliterators$ArraySpliterator: java.util.Spliterator trySplit()>")
-//                                    && builder1.getIr() != null) {
-//                                    IRPrinter.print(builder1.getIr(), System.out);
-//                                }
-                            });
-                });
+        getAllIR(ch);
         long endTime2 = System.currentTimeMillis();
 
         System.out.println("build IR: " + (endTime2 - startTime2) / 1000.0);

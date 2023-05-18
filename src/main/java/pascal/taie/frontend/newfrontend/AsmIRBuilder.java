@@ -23,9 +23,12 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import org.objectweb.asm.tree.analysis.Analyzer;
-import org.objectweb.asm.tree.analysis.BasicValue;
-import org.objectweb.asm.tree.analysis.SimpleVerifier;
+import pascal.taie.analysis.dataflow.fact.SetFact;
+import pascal.taie.analysis.dataflow.solver.Solver;
+import pascal.taie.analysis.graph.cfg.CFG;
+import pascal.taie.analysis.graph.cfg.CFGBuilder;
+import pascal.taie.analysis.graph.cfg.ExtraEdgeAppender;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -87,6 +90,7 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
@@ -150,25 +154,54 @@ class AsmIRBuilder {
     }
 
     public void build() {
-        Analyzer<BasicValue> a =
-                new Analyzer<>(new SimpleVerifier());
         // a.analyze()
         if (! isEmpty) {
             buildCFG();
             buildIR();
-            if (classFileVersion >= Opcodes.V1_6) {
-                VarWebSplitter splitter = new VarWebSplitter(this);
-                splitter.build();
-                TypeInference0 inference = new TypeInference0(this);
-                inference.build();
+            if (isFrameUsable()) {
+                inferTypeWithFrame();
+            } else {
+                inferTypeWithoutFrame();
             }
-            setIR();
+            this.ir = getIR();
         }
         // TODO: check how to handle empty method
     }
 
+    void inferTypeWithFrame() {
+        VarWebSplitter splitter = new VarWebSplitter(this);
+        splitter.build();
+        TypeInference0 inference = new TypeInference0(this);
+        inference.build();
+    }
+
+    void inferTypeWithoutFrame() {
+        IR untyped = getIR();
+        AnalysisConfig config = AnalysisConfig.of(CFGBuilder.ID,
+                "exception", null,
+                "dump", false);
+        CFGBuilder builder = new CFGBuilder(config);
+        CFG<Stmt> cfg = builder.analyze(untyped);
+        MultiMap<Stmt, Stmt> exceptionMap = Maps.newMultiMap();
+        for (ExceptionEntry entry : exceptionEntries) {
+            for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
+                exceptionMap.put(stmts.get(i), entry.handler());
+            }
+        }
+        ExtraEdgeAppender.append(cfg, exceptionMap);
+        LiveVarSplitting liveVar = new LiveVarSplitting(cfg);
+        Solver<Stmt, SetFact<Var>> solver = Solver.getSolver();
+        var result = solver.solve(liveVar);
+        VarWebSplitter splitter = new VarWebSplitter(this, result);
+        splitter.build();
+    }
+
     public BytecodeBlock getEntryBlock() {
         return label2Block.get(entry);
+    }
+
+    public boolean isFrameUsable() {
+        return classFileVersion >= Opcodes.V1_6;
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
@@ -386,12 +419,12 @@ class AsmIRBuilder {
         this.stmts.set(index, newStmt);
     }
 
-    private void setIR() {
+    private IR getIR() {
         Var thisVar = manager.getThisVar();
         List<Var> params = manager.getParams();
         List<Var> vars = manager.getVars();
         Set<Var> retVars = manager.getRetVars();
-        ir = new DefaultIR(method, thisVar, params, retVars , vars, stmts, exceptionEntries);
+        return new DefaultIR(method, thisVar, params, retVars , vars, stmts, exceptionEntries);
     }
 
     private Stmt getFirstStmt(LabelNode label) {
