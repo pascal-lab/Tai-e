@@ -284,7 +284,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 1. If C declares a field with the name and descriptor specified
         // by the field reference, field lookup succeeds. The declared field
         // is the result of the field lookup.
-        field = jclass.getDeclaredFields().stream().filter(i->i.getType().equals(type)).findFirst().orElse(null);
+        field = jclass.getDeclaredFields().stream().filter(i -> i.getType().equals(type)).findFirst().orElse(null);
         if (field != null) {
             return field;
         }
