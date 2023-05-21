@@ -38,6 +38,8 @@ public final class BytecodeBlock {
     @Nullable
     private Stmt lastStmt;
 
+    private List<Stmt> stmts;
+
     @Nullable
     private BytecodeBlock fallThrough;
 
@@ -66,6 +68,7 @@ public final class BytecodeBlock {
         this.instr = new ArrayList<>();
         this.inEdges = new ArrayList<>();
         this.outEdges = new ArrayList<>();
+        this.stmts = new ArrayList<>();
         this.fallThrough = fallThrough;
         this.complete = false;
         this.exceptionHandlerType = exceptionHandlerType;
@@ -179,6 +182,10 @@ public final class BytecodeBlock {
 
     public void setLastStmt(Stmt lastStmt) {
         this.lastStmt = lastStmt;
+    }
+
+    public List<Stmt> getStmts() {
+        return stmts;
     }
 
     @Nullable

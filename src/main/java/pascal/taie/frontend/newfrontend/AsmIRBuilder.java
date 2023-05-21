@@ -900,6 +900,19 @@ class AsmIRBuilder {
             processInstr(nowStack, node);
         }
 
+        // collect all the stmts associated with this block.
+        for (var insnNode : block.instr()) {
+            var stmt = asm2Stmt.get(insnNode);
+            if (stmt != null) {
+                block.getStmts().add(stmt);
+            }
+
+            var stmts = auxiliaryStmts.get(insnNode);
+            if (stmts != null) {
+                block.getStmts().addAll(stmts);
+            }
+        }
+
         if (block.outEdges().size() == 0) {
             // no out edges, must be a return / throw block
             // do nothing
