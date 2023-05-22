@@ -253,7 +253,7 @@ public class TypeInference0 {
 
     public void inferTypesForBlock(BytecodeBlock block, Map<Var, Type> typing) {
         visited.add(block);
-        for (Stmt stmt : builder.getStmts(block)) {
+        for (Stmt stmt : getStmts(block)) {
             stmt.accept(new StmtVisitor<Void> () {
                 @Override
                 public Void visit(New stmt) {
@@ -380,107 +380,114 @@ public class TypeInference0 {
 
     public void insertCasting() {
 
-        List<Stmt> newStmts = new ArrayList<>();
+        for (BytecodeBlock block : builder.getAllBlocks()) {
 
-        for (Stmt stmt: builder.stmts) {
-            Stmt newStmt = stmt.accept(new StmtVisitor<Stmt>() {
-                @Override
-                public Stmt visit(Copy stmt) {
-                    Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                    if (t != null) {
-                        return getNewCast(stmt.getLValue(), stmt.getRValue(), t);
-                    } else {
-                        return stmt;
-                    }
-                }
+            List<Stmt> newStmts = new ArrayList<>();
 
-                @Override
-                public Stmt visit(LoadArray stmt) {
-                    Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                    if (t != null) {
-                        Var v = builder.manager.getTempVar();
-                        v.setType(stmt.getRValue().getType());
-                        newStmts.add(new LoadArray(v, stmt.getRValue()));
-                        return getNewCast(stmt.getLValue(), v, t);
-                    } else {
-                        return stmt;
-                    }
-                }
-
-                @Override
-                public Stmt visit(StoreArray stmt) {
-                    Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                    if (t != null) {
-                        Var v = builder.manager.getTempVar();
-                        v.setType(t);
-                        newStmts.add(getNewCast(v, stmt.getRValue(), t));
-                        return new StoreArray(stmt.getLValue(), v);
-                    } else {
-                        return stmt;
-                    }
-                }
-
-                @Override
-                public Stmt visit(StoreField stmt) {
-                    Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                    if (t != null) {
-                        Var v = builder.manager.getTempVar();
-                        v.setType(t);
-                        newStmts.add(getNewCast(v, stmt.getRValue(), t));
-                        return new StoreField(stmt.getLValue(), v);
-                    } else {
-                        return stmt;
-                    }
-                }
-
-                @Override
-                public Stmt visit(Invoke stmt) {
-                    if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
-                        JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
-                        assert jClass != null;
-                        Type t = jClass.getType();
-                        if (! isAssignable(t, invokeInstanceExp.getBase().getType())) {
-                            Var v = builder.manager.getTempVar();
-                            v.setType(t);
-                            newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
-                            Lenses l = new Lenses(builder.method, Map.of(invokeInstanceExp.getBase(), v),Map.of());
-                            return l.subSt(stmt);
+            for (Stmt stmt : getStmts(block)) {
+                Stmt newStmt = stmt.accept(new StmtVisitor<Stmt>() {
+                    @Override
+                    public Stmt visit(Copy stmt) {
+                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
+                        if (t != null) {
+                            return getNewCast(stmt.getLValue(), stmt.getRValue(), t);
                         } else {
                             return stmt;
                         }
                     }
-                    return stmt;
-                }
 
-                @Override
-                public Stmt visit(Return stmt) {
-                    Type t = builder.method.getReturnType();
-                    if (stmt.getValue() != null &&
-                            ! isAssignable(t, stmt.getValue().getType())) {
-                        Var v = builder.manager.getTempVar();
-                        newStmts.add(getNewCast(v, stmt.getValue(), t));
-                        builder.manager.getRetVars().remove(stmt.getValue());
-                        builder.manager.getRetVars().add(v);
-                        return new Return(v);
-                    } else {
+                    @Override
+                    public Stmt visit(LoadArray stmt) {
+                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
+                        if (t != null) {
+                            Var v = builder.manager.getTempVar();
+                            v.setType(stmt.getRValue().getType());
+                            newStmts.add(new LoadArray(v, stmt.getRValue()));
+                            return getNewCast(stmt.getLValue(), v, t);
+                        } else {
+                            return stmt;
+                        }
+                    }
+
+                    @Override
+                    public Stmt visit(StoreArray stmt) {
+                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
+                        if (t != null) {
+                            Var v = builder.manager.getTempVar();
+                            v.setType(t);
+                            newStmts.add(getNewCast(v, stmt.getRValue(), t));
+                            return new StoreArray(stmt.getLValue(), v);
+                        } else {
+                            return stmt;
+                        }
+                    }
+
+                    @Override
+                    public Stmt visit(StoreField stmt) {
+                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
+                        if (t != null) {
+                            Var v = builder.manager.getTempVar();
+                            v.setType(t);
+                            newStmts.add(getNewCast(v, stmt.getRValue(), t));
+                            return new StoreField(stmt.getLValue(), v);
+                        } else {
+                            return stmt;
+                        }
+                    }
+
+                    @Override
+                    public Stmt visit(Invoke stmt) {
+                        if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
+                            JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
+                            assert jClass != null;
+                            Type t = jClass.getType();
+                            if (!isAssignable(t, invokeInstanceExp.getBase().getType())) {
+                                Var v = builder.manager.getTempVar();
+                                v.setType(t);
+                                newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
+                                Lenses l = new Lenses(builder.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
+                                return l.subSt(stmt);
+                            } else {
+                                return stmt;
+                            }
+                        }
                         return stmt;
                     }
-                }
 
-                @Override
-                public Stmt visitDefault(Stmt stmt) {
-                    return stmt;
-                }
-            });
+                    @Override
+                    public Stmt visit(Return stmt) {
+                        Type t = builder.method.getReturnType();
+                        if (stmt.getValue() != null &&
+                                !isAssignable(t, stmt.getValue().getType())) {
+                            Var v = builder.manager.getTempVar();
+                            newStmts.add(getNewCast(v, stmt.getValue(), t));
+                            builder.manager.getRetVars().remove(stmt.getValue());
+                            builder.manager.getRetVars().add(v);
+                            return new Return(v);
+                        } else {
+                            return stmt;
+                        }
+                    }
 
-            newStmts.add(newStmt);
+                    @Override
+                    public Stmt visitDefault(Stmt stmt) {
+                        return stmt;
+                    }
+                });
+
+                newStmts.add(newStmt);
+            }
+
+            block.setStmts(newStmts);
         }
-
-        builder.stmts = newStmts;
     }
 
     public Map<Var, Type> getInitTyping(BytecodeBlock block) {
         return block.getInitTyping();
+    }
+
+    List<Stmt> getStmts(BytecodeBlock block) {
+        return block.getStmts();
     }
 
 }

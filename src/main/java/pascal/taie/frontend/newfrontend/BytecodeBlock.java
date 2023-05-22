@@ -177,7 +177,7 @@ public final class BytecodeBlock {
     }
 
     public Stmt getLastStmt() {
-        return lastStmt;
+        return stmts.get(stmts.size() - 1);
     }
 
     public void setLastStmt(Stmt lastStmt) {
@@ -186,6 +186,10 @@ public final class BytecodeBlock {
 
     public List<Stmt> getStmts() {
         return stmts;
+    }
+
+    public void setStmts(List<Stmt> stmts) {
+        this.stmts = stmts;
     }
 
     @Nullable

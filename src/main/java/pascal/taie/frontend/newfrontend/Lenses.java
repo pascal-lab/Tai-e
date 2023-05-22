@@ -246,7 +246,6 @@ public class Lenses {
             }
         });
 
-        newStmt.setIndex(stmt.getIndex());
         newStmt.setLineNumber(stmt.getLineNumber());
         return newStmt;
     }

@@ -33,10 +33,9 @@ public class TestAsmIRBuilder {
         String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
         String resourcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/resources.jar";
         String charsetsPath = "java-benchmarks/JREs/jre1." + javaVersion + "/charsets.jar";
-        String worldPath = "src/test/resources/world";
 
         List<String> java8AdditionalPath = List.of(resourcePath, charsetsPath);
-        List<String> paths = Stream.of(worldPath, classPath, jcePath, jssePath).toList();
+        List<String> paths = Stream.of(classPath, jcePath, jssePath).toList();
         if (javaVersion >= 8) {
             paths = new ArrayList<>(paths);
             paths.addAll(java8AdditionalPath);

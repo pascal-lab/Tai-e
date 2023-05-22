@@ -135,7 +135,7 @@ class AsmIRBuilder {
 
     private final boolean isEmpty;
 
-    List<Stmt> stmts;
+    private List<Stmt> stmts;
 
     private List<ExceptionEntry> exceptionEntries;
 
@@ -173,6 +173,7 @@ class AsmIRBuilder {
         splitter.build();
         TypeInference0 inference = new TypeInference0(this);
         inference.build();
+        buildStmts();
     }
 
     void inferTypeWithoutFrame() {
@@ -192,8 +193,11 @@ class AsmIRBuilder {
         LiveVarSplitting liveVar = new LiveVarSplitting(cfg);
         Solver<Stmt, SetFact<Var>> solver = Solver.getSolver();
         var result = solver.solve(liveVar);
-        VarWebSplitter splitter = new VarWebSplitter(this, result);
-        splitter.build();
+//        VarWebSplitter splitter = new VarWebSplitter(this, result);
+//        splitter.build();
+//        TypeInference inference = new TypeInference(this);
+//        inference.build();
+        buildStmts();
     }
 
     public BytecodeBlock getEntryBlock() {
@@ -202,6 +206,16 @@ class AsmIRBuilder {
 
     public boolean isFrameUsable() {
         return classFileVersion >= Opcodes.V1_6;
+    }
+
+    public List<Stmt> getAllStmts() {
+        return blockSortedList.stream()
+                .flatMap(block -> block.getStmts().stream())
+                .toList();
+    }
+
+    public List<BytecodeBlock> getAllBlocks() {
+        return blockSortedList;
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
@@ -389,36 +403,6 @@ class AsmIRBuilder {
         makeExceptionTable();
     }
 
-    /**
-     * This function should be only called after <code>makeStmts</code>
-     */
-    public List<Stmt> getStmts(BytecodeBlock block) {
-        if (block.getFirstStmt() == null) {
-            if (block.instr().size() == 0) {
-                return List.of();
-            } else {
-                Stmt s = getFirstStmt(block.label());
-                assert s != null;
-            }
-        }
-        List<Stmt> res = new ArrayList<>();
-        int start = block.getFirstStmt().getIndex();
-        assert start >= 0;
-        int end = block.getLastStmt() == null ? stmts.size() : block.getLastStmt().getIndex();
-        assert block.instr().size() == 0 || start < end;
-        for (int i = start; i < end; ++i) {
-            res.add(stmts.get(i));
-        }
-        return res;
-    }
-
-    /**
-     * This function should only be called after <code>makeStmts</code>
-     */
-    public void setStmts(int index, Stmt newStmt) {
-        this.stmts.set(index, newStmt);
-    }
-
     private IR getIR() {
         Var thisVar = manager.getThisVar();
         List<Var> params = manager.getParams();
@@ -429,34 +413,12 @@ class AsmIRBuilder {
 
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = label2Block.get(label);
-        if (block == null || block.instr().isEmpty()) {
+        if (block == null || block.getStmts().isEmpty()) {
             logger.log(Level.INFO, method+ ", empty block / labels : " + label);
-            Stmt stmt = getFirstStmt((LabelNode) label.getNext());
-            if (block != null) {
-                block.setFirstStmt(stmt);
-            }
-            return stmt;
+            return getFirstStmt((LabelNode) label.getNext());
         }
 
-        if (block.getFirstStmt() != null) {
-            return block.getFirstStmt();
-        }
-
-        for (AbstractInsnNode node : block.instr()) {
-            if (asm2Stmt.containsKey(node)) {
-                Stmt first = asm2Stmt.get(node);
-                block.setFirstStmt(first);
-                return first;
-            }
-        }
-
-        if (auxiliaryStmts.containsKey(block.getLastBytecode())) {
-            Stmt first = auxiliaryStmts.get(block.getLastBytecode()).get(0);
-            block.setFirstStmt(first);
-            return first;
-        }
-
-        throw new UnsupportedOperationException();
+        return block.getStmts().get(0);
     }
 
     private void setSwitchTargets(List<LabelNode> labels, LabelNode dflt, Stmt stmt) {
@@ -475,6 +437,8 @@ class AsmIRBuilder {
                 gotoStmt.setTarget(first);
             } else if (stmt instanceof If ifStmt) {
                 ifStmt.setTarget(first);
+            } else if (stmt instanceof Return) {
+                return;
             } else {
                 throw new IllegalArgumentException();
             }
@@ -492,37 +456,18 @@ class AsmIRBuilder {
     }
 
     private void makeStmts() {
-        int blockIndex = 1;
-        for (AbstractInsnNode node : source.instructions) {
-            // here only set the last stmt, first stmt will be set when `getFirstStmt()` is called
-            // if it's the last bytecode block, we do not need to set last stmt
-            if (blockIndex < blockSortedList.size()) {
-                BytecodeBlock nextBlock = blockSortedList.get(blockIndex);
-                // current block is ended
-                if (nextBlock.getFirstBytecode().isEmpty()
-                        || nextBlock.getFirstBytecode().get() == node) {
-                    assert stmts.size() != 0; // first block is empty? too rare
-                    // last is excluded
-                    BytecodeBlock nowBlock = blockSortedList.get(blockIndex - 1);
-                    nowBlock.setLastStmt(getFirstStmt(nextBlock.label()));
-                    blockIndex++;
-                }
-            }
+        this.stmts = new ArrayList<>();
+        for (BytecodeBlock block : blockSortedList) {
+            this.stmts.addAll(block.getStmts());
+            setJumpTargets(block.getLastBytecode(), block.getLastStmt());
+        }
+    }
 
-            if (asm2Stmt.containsKey(node)) {
-                Stmt stmt = asm2Stmt.get(node);
-                setJumpTargets(node, stmt);
-                addStmt(stmt);
-            }
-
-            if (auxiliaryStmts.containsKey(node)) {
-                for (Stmt stmt : auxiliaryStmts.get(node)) {
-                    if (stmt instanceof JumpStmt) {
-                        setJumpTargets(node, stmt);
-                    }
-                    addStmt(stmt);
-                }
-            }
+    private void buildStmts() {
+        this.stmts = new ArrayList<>();
+        for (BytecodeBlock block : blockSortedList) {
+            block.getStmts().forEach(this::addStmt);
+            setJumpTargets(block.getLastBytecode(), block.getLastStmt());
         }
     }
 
@@ -900,6 +845,19 @@ class AsmIRBuilder {
             processInstr(nowStack, node);
         }
 
+        if (block.outEdges().size() == 0) {
+            // no out edges, must be a return / throw block
+            // do nothing
+        } else {
+            if (block.getOutStack() == null) {
+                // Web has not been constructed. So all the succs do not have inStack.
+                block.setOutStack(regularizeStack(block, nowStack));
+            } else {
+                Stack<Exp> target = block.getOutStack();
+                mergeStack(block, nowStack, target);
+            }
+        }
+
         // collect all the stmts associated with this block.
         for (var insnNode : block.instr()) {
             var stmt = asm2Stmt.get(insnNode);
@@ -911,20 +869,6 @@ class AsmIRBuilder {
             if (stmts != null) {
                 block.getStmts().addAll(stmts);
             }
-        }
-
-        if (block.outEdges().size() == 0) {
-            // no out edges, must be a return / throw block
-            // do nothing
-            return;
-        }
-
-        if (block.getOutStack() == null) {
-            // Web has not been constructed. So all the succs do not have inStack.
-            block.setOutStack(regularizeStack(block, nowStack));
-        } else {
-            Stack<Exp> target = block.getOutStack();
-            mergeStack(block, nowStack, target);
         }
     }
 

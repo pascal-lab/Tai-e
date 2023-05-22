@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
@@ -20,6 +21,7 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
@@ -40,10 +42,9 @@ public class TypeInference {
         this.builder = builder;
     }
 
-    static public ReferenceType lca(ReferenceType r1, ReferenceType r2) {
-        return null;
+    static public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
+        return Utils.lca(r1, r2);
     }
-
 
     static public boolean isSubType(ReferenceType s, ReferenceType t) {
         return false;
@@ -73,7 +74,7 @@ public class TypeInference {
     public void build() {
         TypingFlowGraph graph = new TypingFlowGraph();
 
-        for (Stmt stmt : builder.stmts) {
+        for (Stmt stmt : builder.getAllStmts()) {
             stmt.accept(new StmtVisitor<Void>() {
                 @Override
                 public Void visit(New stmt) {
@@ -141,7 +142,10 @@ public class TypeInference {
 
                 @Override
                 public Void visit(Invoke stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+                    Var lValue = stmt.getLValue();
+                    if (lValue != null) {
+                        graph.addConstantEdge(stmt.getRValue().getType(), lValue);
+                    }
 
                     if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
                         graph.addUseConstrain(invokeInstanceExp.getBase(),
@@ -165,10 +169,17 @@ public class TypeInference {
         graph.inferTypes();
     }
 
+    private void addThisParam() {
+        if (! builder.method.isStatic()) {
+
+        }
+    }
+
     static class TypingFlowGraph {
-        Map<Var, TypingFlowNode> nodes;
+        Map<Var, TypingFlowNode> nodes = Maps.newHybridMap();
 
         public void addConstantEdge(Type t, Var v) {
+            assert v != null;
             TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
             node.setNewType(t);
         }
@@ -198,7 +209,7 @@ public class TypeInference {
                     queue.addAll(flowOutType(node, t));
                 } else {
                     assert node.types != null;
-                    node.applyUseConstrains();
+                    // node.applyUseConstrains();
                     queue.addAll(flowOutType(node, node.types));
                 }
             }
@@ -303,16 +314,15 @@ public class TypeInference {
                 types.add(t);
                 return Set.of(t);
             } else {
-                Set<ReferenceType> res = Sets.newHybridSet();
-                for (ReferenceType type: types) {
-                    ReferenceType a = lca(t, type);
-                    if (! confirmUseValid || useValid(a)) {
-                        if (types.add(a)) {
-                            res.add(a);
-                        }
-                    }
+                assert types.size() == 1;
+                ReferenceType typeNow = types.iterator().next();
+                if (typeNow == Utils.getObject()) {
+                    return Set.of();
                 }
-                return res;
+                Set<ReferenceType> newType = lca(t, typeNow);
+                ReferenceType nextType = newType.size() == 1 ? newType.iterator().next() : Utils.getObject();
+                types = Set.of(nextType);
+                return types;
             }
         }
 

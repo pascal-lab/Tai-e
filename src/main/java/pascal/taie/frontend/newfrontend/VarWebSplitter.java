@@ -32,7 +32,7 @@ public class VarWebSplitter {
     private final Map
             <
                     Var,
-                    UnionFindSet<Pair<Stmt, Kind>>
+                    UnionFindSet<StmtOccur>
             > webs;
 
     private final Map
@@ -40,7 +40,7 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            Pair<Stmt, Kind>
+                            StmtOccur
                     >
             > inDef;
 
@@ -49,7 +49,7 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            Pair<Stmt, Kind>
+                            StmtOccur
                     >
             > outDef;
 
@@ -58,7 +58,7 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            List<Pair<Stmt, Kind>>
+                            List<StmtOccur>
                     >
             > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
 
@@ -110,7 +110,7 @@ public class VarWebSplitter {
      * @param var the variable you want to get the web information.
      * @return the webs of the variable. WARNING: in each set there may exist element whose Kind is PHANTOM.
      */
-    public Collection<Set<Pair<Stmt, Kind>>> getWebs(Var var) {
+    public Collection<Set<StmtOccur>> getWebs(Var var) {
         return webs.get(var).getDisjointSets();
     }
 
@@ -150,22 +150,22 @@ public class VarWebSplitter {
         }
     }
 
-    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, Pair<Stmt, Kind>> inDef) {
+    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, StmtOccur> inDef) {
         boolean isInTry = block.isInTry();
-        Map<Var, List<Pair<Stmt, Kind>>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
+        Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
         if (inDef == null || isFrameProvided(block)) {
             Kind phantomType = block == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
-            Map<Var, Pair<Stmt, Kind>> phantomDefs = new HashMap<>();
+            Map<Var, StmtOccur> phantomDefs = new HashMap<>();
             for (Var var : getDefsAtStartOfBlock(block)) { // initialization.
                 Copy phantom = new Copy(var, var);
-                Pair<Stmt, Kind> e = new Pair<>(phantom, phantomType);
+                StmtOccur e = new StmtOccur(block, -1, phantom, phantomType);
                 var web = webs.get(var);
                 assert web != null;
                 web.addElement(e);
                 phantomDefs.put(var, e);
                 if (isInTry) {
                     // collect phantom to mayFlowToCatch
-                    List<Pair<Stmt, Kind>> varDefs = new ArrayList<>();
+                    List<StmtOccur> varDefs = new ArrayList<>();
                     varDefs.add(e);
                     mayFlowToCatch.put(var, varDefs);
                 }
@@ -174,7 +174,7 @@ public class VarWebSplitter {
         } else {
             if (mayFlowToCatch != null) {
                 inDef.forEach((k, v) -> {
-                    List<Pair<Stmt, Kind>> temp = new ArrayList<>();
+                    List<StmtOccur> temp = new ArrayList<>();
                     temp.add(v);
                     mayFlowToCatch.put(k, temp);
                 });
@@ -182,29 +182,33 @@ public class VarWebSplitter {
         }
 
         this.inDef.put(block, inDef);
-        Map<Var, Pair<Stmt, Kind>> currentDefs = new HashMap<>(inDef);
+        Map<Var, StmtOccur> currentDefs = new HashMap<>(inDef);
 
-        for (var stmt : getStmts(block)) {
+        List<Stmt> stmts = getStmts(block);
+        for (int i = 0; i < stmts.size(); ++i) {
+            Stmt stmt = stmts.get(i);
             // uses first
-            stmt.getUses()
+            List<Var> uses = stmt.getUses()
                     .stream()
                     .distinct()
                     .filter(r -> r instanceof Var)
                     .map(r -> (Var) r)
                     .filter(varManager::isLocal)
-                    .forEach(use ->  {
-                var e = new Pair<>(stmt, Kind.USE);
+                    .toList();
+            for (Var use : uses) {
+                var e = new StmtOccur(block, i, stmt, Kind.USE);
                 var unionFind = webs.get(use);
                 unionFind.addElement(e);
+                assert currentDefs.get(use) != null;
                 unionFind.union(e, currentDefs.get(use));
-            });
+            }
 
             Var def = stmt.getDef()
                     .flatMap(l -> l instanceof Var ? Optional.of((Var) l) : Optional.empty())
                     .filter(varManager::isLocal)
                     .orElse(null);
             if (def != null) {
-                Pair<Stmt, Kind> e = new Pair<>(stmt, Kind.DEF);
+                StmtOccur e = new StmtOccur(block, i, stmt, Kind.DEF);
                 var unionFind = webs.get(def);
                 unionFind.addElement(e);
                 var previous = currentDefs.put(def, e);
@@ -253,7 +257,7 @@ public class VarWebSplitter {
                         assert ! currentVar[0].getName().startsWith("this");
                         s.forEach(p -> {
                             if (p.second() != Kind.PHANTOM) {
-                                sources.add(new ReplaceSource(p.first().getIndex(), p.second(), var));
+                                sources.add(new ReplaceSource(p, var));
                             }
                         });
                         if (sources.size() == 0) {
@@ -262,7 +266,7 @@ public class VarWebSplitter {
                         count[0]++;
                         currentVar[0] = varManager.splitLocal(var, count[0]);
                         res.put(currentVar[0], sources);
-                        Pair<Stmt, Kind> rep = s.iterator().next();
+                        StmtOccur rep = s.iterator().next();
                         split.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
                     });
         });
@@ -271,7 +275,6 @@ public class VarWebSplitter {
 
     private void update() {
         Map<Var, List<ReplaceSource>> m = spiltVariable();
-        Map<Integer, Stmt> modifyLists = Maps.newMap();
         Map<Var, Var> defMap = Maps.newMap();
         Map<Var, Var> useMap = Maps.newMap();
         Lenses lenses = new Lenses(builder.method, useMap, defMap);
@@ -280,11 +283,12 @@ public class VarWebSplitter {
             for (ReplaceSource source : sources) {
                 useMap.clear();
                 defMap.clear();
-                if (source.kind == Kind.DEF) {
+                Kind kind = source.index().second();
+                if (kind == Kind.DEF) {
                     defMap.put(source.old(), target);
-                } else if (source.kind == Kind.USE) {
+                } else if (kind == Kind.USE) {
                     useMap.put(source.old(), target);
-                } else if (source.kind == Kind.PARAM) {
+                } else if (kind == Kind.PARAM) {
                     varManager.replaceParam(source.old(), target);
                     // don't set stmt
                     continue;
@@ -292,24 +296,26 @@ public class VarWebSplitter {
                     throw new UnsupportedOperationException();
                 }
 
-                Stmt oldStmt = modifyLists.computeIfAbsent(source.index, builder.stmts::get);
+                BytecodeBlock block = source.index().block();
+                int idx = source.index().index();
+                Stmt oldStmt = block.getStmts().get(idx);
                 Stmt newStmt = lenses.subSt(oldStmt);
-                modifyLists.put(source.index(), newStmt);
+                handleSideEffects(oldStmt, newStmt);
+                block.getStmts().set(idx, newStmt);
             }
-        });
-
-        // TODO: correct handle other side-effects of instr set;
-        modifyLists.forEach((idx, instr) -> {
-            Stmt oldInstr = builder.stmts.get(idx);
-            if (instr instanceof Return r) {
-                varManager.getRetVars().remove(((Return) oldInstr).getValue());
-                varManager.getRetVars().add(r.getValue());
-            }
-            builder.setStmts(idx, instr);
         });
 
         if (builder.isFrameUsable()) {
             updateInDefs();
+        }
+    }
+
+    // TODO: correct handle other side-effects of instr set;
+    private void handleSideEffects(Stmt oldStmt, Stmt newStmt) {
+        if (oldStmt instanceof Return r) {
+            assert newStmt instanceof Return;
+            varManager.getRetVars().remove(r.getValue());
+            varManager.getRetVars().add(((Return) newStmt).getValue());
         }
     }
 
@@ -318,13 +324,13 @@ public class VarWebSplitter {
             if (block.getFrame() == null) {
                 continue;
             }
-            Map<Var, Pair<Stmt, Kind>> inDef = this.inDef.get(block);
+            Map<Var, StmtOccur> inDef = this.inDef.get(block);
             assert inDef != null;
             Map<Integer, Var> frameLocalVar = Maps.newMap();
             for (Pair<Integer, Var> p : varManager.getDefsBeforeStartOfABlock(block)) {
                 int idx = p.first();
                 Var v = p.second();
-                Pair<Stmt, Kind> real = inDef.get(v);
+                StmtOccur real = inDef.get(v);
                 Var realVar;
                 realVar = split.get(new SplitIndex(v, webs.get(v).findRoot(real)));
                 frameLocalVar.put(idx, realVar != null ? realVar : v);
@@ -355,11 +361,11 @@ public class VarWebSplitter {
 
     private SetFact<Var> getInFact(BytecodeBlock block) {
         assert liveVariables != null;
-        return liveVariables.getInFact(builder.getStmts(block).get(0));
+        return liveVariables.getInFact(getStmts(block).get(0));
     }
 
     private List<Stmt> getStmts(BytecodeBlock block) {
-        return builder.getStmts(block);
+        return block.getStmts();
     }
 
     private enum Kind {
@@ -369,7 +375,9 @@ public class VarWebSplitter {
         PARAM
     }
 
-    private record ReplaceSource(int index, Kind kind, Var old) {}
+    private record StmtOccur(BytecodeBlock block, int index, Stmt first, Kind second) {}
 
-    private record SplitIndex(Var v, Pair<Stmt, Kind> rep) {}
+    private record ReplaceSource(StmtOccur index, Var old) {}
+
+    private record SplitIndex(Var v, StmtOccur rep) {}
 }
