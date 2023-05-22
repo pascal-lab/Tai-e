@@ -110,6 +110,8 @@ public class TypeInference0 {
     private boolean isAssignable(Type t1, Type t2) {
         if (t1 instanceof PrimitiveType) {
             return t1 == t2 || canHoldsInt(t2) && canHoldsInt(t1);
+        } else if (t1 == getReflectArray() && t2 instanceof ArrayType) {
+            return true;
         } else {
             return isSubtype(t1, t2);
         }
@@ -385,7 +387,7 @@ public class TypeInference0 {
             List<Stmt> newStmts = new ArrayList<>();
 
             for (Stmt stmt : getStmts(block)) {
-                Stmt newStmt = stmt.accept(new StmtVisitor<Stmt>() {
+                Stmt newStmt = stmt.accept(new StmtVisitor<>() {
                     @Override
                     public Stmt visit(Copy stmt) {
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
@@ -490,4 +492,9 @@ public class TypeInference0 {
         return block.getStmts();
     }
 
+    private Type getReflectArray() {
+        return BuildContext.get()
+                .getClassHierarchy()
+                .getClass(ClassNames.ARRAY).getType();
+    }
 }
