@@ -41,9 +41,9 @@ abstract class AbstractStmt implements Stmt {
 
     @Override
     public void setIndex(int index) {
-        if (this.index != -1) {
-            throw new IllegalStateException("index already set");
-        }
+//        if (this.index != -1) {
+//            throw new IllegalStateException("index already set");
+//        }
         this.index = index;
     }
 

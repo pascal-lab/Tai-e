@@ -193,8 +193,8 @@ class AsmIRBuilder {
         LiveVarSplitting liveVar = new LiveVarSplitting(cfg);
         Solver<Stmt, SetFact<Var>> solver = Solver.getSolver();
         var result = solver.solve(liveVar);
-//        VarWebSplitter splitter = new VarWebSplitter(this, result);
-//        splitter.build();
+        VarWebSplitter splitter = new VarWebSplitter(this, result);
+        splitter.build();
 //        TypeInference inference = new TypeInference(this);
 //        inference.build();
         buildStmts();
@@ -458,7 +458,7 @@ class AsmIRBuilder {
     private void makeStmts() {
         this.stmts = new ArrayList<>();
         for (BytecodeBlock block : blockSortedList) {
-            this.stmts.addAll(block.getStmts());
+            block.getStmts().forEach(this::addStmt);
             setJumpTargets(block.getLastBytecode(), block.getLastStmt());
         }
     }
