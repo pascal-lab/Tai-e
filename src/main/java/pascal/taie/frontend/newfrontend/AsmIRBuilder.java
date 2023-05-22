@@ -938,10 +938,14 @@ class AsmIRBuilder {
             } else if (opcode == Opcodes.ANEWARRAY) {
                 Var length = popVar(nowStack);
                 int dims = 1;
+                Type base;
                 if (type instanceof ArrayType arrayType) {
                     dims += arrayType.dimensions();
+                    base = arrayType.baseType();
+                } else {
+                    base = type;
                 }
-                ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(type, dims);
+                ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, dims);
                 pushExp(node, nowStack, new NewArray(arrayType, length));
             } else if (opcode == Opcodes.INSTANCEOF) {
                 Var obj = popVar(nowStack);
