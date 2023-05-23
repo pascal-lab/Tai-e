@@ -1,9 +1,14 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.junit.Assert;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
+import pascal.taie.ir.IR;
+import pascal.taie.ir.IRPrinter;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.project.MockOptions;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
@@ -137,4 +142,38 @@ public class TestAsmIRBuilder {
         System.out.println("build IR: " + (endTime2 - startTime2) / 1000.0);
         System.out.println(ch.allClasses().mapToLong(i -> i.getDeclaredMethods().size()).sum());
     }
+
+
+    /**
+     * Copied from pascal.taie.ir.IRTest.testStmtIndexer()
+     */
+    @Test
+    public void testStmtIndexerForNewFrontend() {
+        int javaVersion = 8;
+        String worldPath = "src/test/resources/world";
+        String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
+        String jcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jce.jar";
+        String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
+
+        List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
+        String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
+        Main.buildWorld("-pp", "-cp", path,
+                "--input-classes", "AllInOne",
+                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "-m", "AllInOne");
+        World.get()
+                .getClassHierarchy()
+                .applicationClasses()
+                .forEach(c -> {
+                    for (JMethod m : c.getDeclaredMethods()) {
+                        if (!m.isAbstract()) {
+                            IR ir = m.getIR();
+                            for (Stmt s : ir) {
+                                Assert.assertEquals(s, ir.getObject(s.getIndex()));
+                            }
+                        }
+                    }
+                });
+    }
+
 }
