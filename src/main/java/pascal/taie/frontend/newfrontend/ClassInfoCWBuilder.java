@@ -44,7 +44,12 @@ public class ClassInfoCWBuilder implements ClosedWorldBuilder {
         String entry = p.getMainClass();
         this.project = p;
         try {
-            buildClosure(entry);
+            if (entry != null) {
+                buildClosure(entry);
+            }
+            for (var i : p.getInputClasses()) {
+                buildClosure(i);
+            }
         } catch (IOException e) {
             // TODO: fail info
             e.printStackTrace();
