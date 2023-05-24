@@ -11,6 +11,7 @@ import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Quadruple;
@@ -282,6 +283,7 @@ class VarManager {
     public Var getZeroLiteral() {
         if (zeroLiteral == null) {
             zeroLiteral = newVar("*intliteral0");
+            zeroLiteral.setType(PrimitiveType.INT);
         }
         return zeroLiteral;
     }
