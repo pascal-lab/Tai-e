@@ -201,6 +201,14 @@ public class AllInOne {
         System.out.println(a);
     }
 
+    void conditionalOperator(int x, int y, int z) {
+        // The conditional operator is syntactically right-associative (it groups right-to-left).
+        // Thus, a?b:c?d:e?f:g means the same as a?b:(c?d:(e?f:g)).
+        x = y > z ? y : 1;
+        int max = x > y ? (x > z ? x : z) : (y > z ? y : z);
+        foo(x > z ? x : z, 10000, x > y ? (x > z ? x : z) : (y > z ? y : z));
+    }
+
     static void bar(int x, Object o) {
     }
 
